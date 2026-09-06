@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Data Snapshots - Migration Baseline records the shape of a Tag with word associations 1`] = `
+Object {
+  "description": "Common adjectives",
+  "label": "Adjectives Pack",
+  "public": "Private",
+  "words": Array [
+    Object {},
+  ],
+}
+`;
+
+exports[`Data Snapshots - Migration Baseline records the shape of a full Word with 3 languages 1`] = `
+Object {
+  "clue": "move quickly on foot",
+  "isCloned": false,
+  "partOfSpeech": "Verb",
+  "tags": Array [
+    Object {
+      "description": null,
+      "label": "Core Verbs",
+      "public": "Private",
+    },
+  ],
+  "translations": Array [
+    Object {
+      "cases": Array [
+        Object {
+          "caseName": "infinitiveNonFiniteSimpleEN",
+        },
+        Object {
+          "caseName": "simplePresent1sEN",
+        },
+        Object {
+          "caseName": "simplePastEN",
+        },
+      ],
+      "language": "English",
+    },
+    Object {
+      "cases": Array [
+        Object {
+          "caseName": "infinitiveMaEE",
+        },
+        Object {
+          "caseName": "indicativePresent3sEE",
+        },
+        Object {
+          "caseName": "indicativePast1sEE",
+        },
+      ],
+      "language": "Estonian",
+    },
+    Object {
+      "cases": Array [
+        Object {
+          "caseName": "infinitiveDE",
+        },
+        Object {
+          "caseName": "present3sDE",
+        },
+        Object {
+          "caseName": "preterite1s3sDE",
+        },
+      ],
+      "language": "German",
+    },
+  ],
+}
+`;
+
+exports[`Data Snapshots - Migration Baseline records the shape of an ExercisePerformance document 1`] = `
+Object {
+  "averageTranslationKnowledge": 25,
+  "performanceModifier": null,
+  "reviseCounter": null,
+  "statsByCase": Array [
+    Object {
+      "caseName": "singularNimetavEE",
+      "knowledge": 25,
+      "record": Array [
+        true,
+      ],
+    },
+  ],
+  "translationLanguage": "Estonian",
+}
+`;

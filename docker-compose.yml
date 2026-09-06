@@ -1,0 +1,40 @@
+services:
+  # The PostgreSQL database service used for both development and testing.
+  # It runs a lightweight Alpine-based PostgreSQL 15 image.
+  postgres:
+    image: postgres:15-alpine
+    container_name: keelapp-postgres
+
+    # Always restart the container if it stops unexpectedly, ensuring the
+    # database is always available during local development.
+    restart: always
+
+    environment:
+      # The default superuser credentials for the PostgreSQL instance.
+      # These are used to connect to the database from the application.
+      POSTGRES_USER: keelapp_user
+      POSTGRES_PASSWORD: keelapp_password
+
+      # The name of the default database created when the container first starts.
+      # This is the primary development database.
+      POSTGRES_DB: keelapp_dev
+
+    ports:
+      # Map port 5432 inside the container to port 5432 on the host machine,
+      # so you can connect to PostgreSQL via localhost:5432 from the host.
+      - "5432:5432"
+
+    volumes:
+      # A named volume to persist database data across container restarts.
+      # Without this, all data would be lost every time the container is recreated.
+      - pgdata:/var/lib/postgresql/data
+
+      # An initialization script that runs automatically the first time the
+      # container starts (when the data volume is empty). It creates the
+      # test database (keelapp_test) alongside the dev database.
+      - ./init-test-db.sh:/docker-entrypoint-initdb.d/init-test-db.sh
+
+# Define named volumes at the top level so Docker manages them persistently.
+# This volume stores the PostgreSQL data files on the host machine.
+volumes:
+  pgdata:

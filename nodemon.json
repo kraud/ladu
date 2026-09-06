@@ -1,0 +1,9 @@
+{
+  "watch": ["backend/"],
+  "ext": "js,ts,json",
+  "ignore": [
+    "backend/node_modules/",
+    "backend/dist/",
+    "backend/src/db/migrations/"
+  ]
+}

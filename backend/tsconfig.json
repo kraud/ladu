@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    // Target ES2022 to use modern JavaScript features supported by Node.js 18+
+    "target": "ES2022",
+
+    // Use CommonJS modules to stay compatible with the existing require() calls
+    // in the codebase and the Jest/ts-jest test runner
+    "module": "CommonJS",
+
+    // Use Node.js module resolution strategy
+    "moduleResolution": "node",
+
+    // TypeScript 6 warns that the legacy "node" resolver is deprecated;
+    // keep it during the CommonJS migration and silence that planned-removal warning.
+    "ignoreDeprecations": "6.0",
+
+    // Include ES2022 library type definitions
+    "lib": ["ES2022"],
+
+    // Enable all strict type-checking options for maximum type safety
+    "strict": true,
+
+    // Allow default imports from CommonJS modules (e.g. import express from 'express')
+    "esModuleInterop": true,
+
+    // Skip type-checking of declaration files in node_modules for faster builds
+    "skipLibCheck": true,
+
+    // Enforce consistent file name casing to avoid issues on case-insensitive file systems
+    "forceConsistentCasingInFileNames": true,
+
+    // Output compiled JavaScript files to the dist/ directory
+    "outDir": "./dist",
+
+    // The root of the source files (relative to this tsconfig location)
+    "rootDir": "./",
+
+    // Allow importing JSON files directly in TypeScript
+    "resolveJsonModule": true,
+
+    // Emit decorator metadata (may be needed for future ORM integrations)
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  // Include all TypeScript files under the backend/ directory
+  "include": ["**/*.ts"],
+  // Exclude compiled output and installed packages
+  "exclude": ["node_modules", "dist"]
+}
