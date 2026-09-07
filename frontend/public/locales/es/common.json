@@ -1,0 +1,118 @@
+{
+  "header": {
+    "addWord": "agregar palabra",
+    "practice": "practicar",
+    "review": "listado",
+    "search": {
+      "words": "Buscar palabras...",
+      "tags": "Buscar tags...",
+      "placeholder": "Buscar...",
+      "loading": "Cargando...",
+      "noMatches": "Sin resultados"
+    },
+    "settings": {
+      "openSettings": "Abrir ajustes",
+      "notifications": "Notificaciones",
+      "uiLanguage": "Idioma de la interfaz",
+      "account": "Cuenta",
+      "dashboard": "Panel de inicio",
+      "logout": "Cerrar sesión"
+    },
+    "notImplemented": "Esta funcionalidad aún no está implementada. ¡Perdón!"
+  },
+  "sections": {
+    "dashboard": "Panel",
+    "tags": "Tags",
+    "friends": "Amigos"
+  },
+  "errors": {
+    "somethingWrong": "Algo salió mal. Intentalo de nuevo."
+  },
+  "buttons": {
+    "apply": "Aplicar",
+    "delete": "Eliminar",
+    "confirmDelete": "Confirmar eliminación de {{elementType}}",
+    "confirm": "Confirmar",
+    "clickToSeeDetailsWord": "Click aquí para ver la nueva palabra",
+    "edit": "Editar",
+    "cancel": "Cancelar",
+    "return": "Volver",
+    "close": "Cerrar",
+    "clear": "Borrar",
+    "remove": "Remover",
+    "reset": "Restablecer",
+    "submit": "Guardar",
+    "addAnotherTranslation": "Agregar otra traducción",
+    "addFriends": "Agregar amigos",
+    "createTag": "Crear Tag",
+    "editProfile": "Editar perfil",
+    "saveChanges": "Guardar",
+    "sendTag": "Enviar Tag",
+    "followTag": "Seguir Tag",
+    "unfollowTag": "Dejar de seguir Tag",
+    "sendToFriend": "Enviar a un amigo",
+    "addFriend": "Añadir amigo",
+    "acceptRequest": "Aceptar solicitud",
+    "cancelRequest": "Cancelar solicitud",
+    "deleteFriendship": "Eliminar amistad",
+    "deleteTag": "Eliminar Tag",
+    "confirmCancelRequest": "Confirmar cancelar solicitud",
+    "confirmDeleteFriendship": "Confirmar eliminar amigo",
+    "cloneTagAndWords": "Clonar Tag y palabras",
+    "goToDashboard": "Haga click aquí para ir al Panel de Inicio",
+    "goToLogin": "Haga clic aquí para iniciar sesión",
+    "deleteAllWords": "Borrar todas las palabras",
+    "hideFilters": "Esconder filtros",
+    "showFilters": "Mostrar filtros",
+    "createExercises": "Crear ejercicios",
+    "detailedView": "Vista detallada",
+    "assignTag": "Asignar Tags",
+    "deleteSelected": "Borrar seleccionados",
+    "groupByType": "Agrupar por tipo",
+    "separateByType": "Separar por tipo",
+    "distributionByWordType": "Tipo de palabra",
+    "distributionByLanguage": "Idioma",
+    "byMonth": "Mes",
+    "byLanguage": "Idioma"
+  },
+  "languages": {
+    "english": "Inglés",
+    "estonian": "Estonio",
+    "german": "Alemán",
+    "spanish": "Español"
+  },
+  "partOfSpeech": {
+    "noun": "Sustantivo",
+    "pronoun": "Pronombre",
+    "verb": "Verbo",
+    "adjective": "Adjetivo",
+    "adverb": "Adverbio",
+    "preposition": "Preposición",
+    "conjunction": "Conjunción",
+    "interjection": "Interjección",
+    "properNoun": "Nombre propio",
+    "numerals": "Números"
+  },
+  "linguisticFeature": {
+    "gender": "género"
+  },
+  "status": {
+    "saving": "Guardando...",
+    "word": {
+      "savedSuccess": "Palabra guardada exitosamente",
+      "deletedSuccess": "Palabra borrada exitosamente"
+    }
+  },
+  "userData": {
+    "name": "Nombre",
+    "username": "Nombre de usuario",
+    "password": "Contraseña",
+    "email": "Correo electrónico",
+    "toastMessages": {
+      "updateSuccess": "¡La información de usuario fué actualizada exitosamente!"
+    },
+    "errors": {
+      "notEnoughLanguages": "Por favor, seleccione por lo menos 2 idiomas"
+    }
+  }
+}

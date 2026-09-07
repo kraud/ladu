@@ -1,0 +1,50 @@
+{
+  "errors": {
+    "invalidEmail": "Eine gültige E-Mail ist erforderlich",
+    "passwordRequired": "Passwort ist erforderlich",
+    "nameRequired": "Name ist erforderlich",
+    "emailRequired": "E-Mail ist erforderlich",
+    "usernameRequired": "Benutzername ist erforderlich",
+    "passwordRepeatRequired": "Passwortbestätigung ist erforderlich",
+    "passwordRepeatMustMatch": "Passwörter stimmen nicht überein",
+    "linkError": "Bei diesem Link ist ein Fehler aufgetreten."
+  },
+  "toastMessages": {
+    "passwordUpdated": "Passwort erfolgreich aktualisiert!",
+    "emailSent": "E-Mail erfolgreich gesendet!"
+  },
+  "login": {
+    "title": "Anmelden",
+    "subtitle": "Und jetzt loslegen!"
+  },
+  "register": {
+    "title": "Registrieren",
+    "subtitle": "Bitte erstellen Sie ein Konto"
+  },
+  "resetPassword": {
+    "titleReset": "Passwort zurücksetzen",
+    "titleForgot": "Passwort vergessen?",
+    "subtitleNewPassword": "Geben Sie unten ein neues Passwort ein",
+    "subtitleEnterEmail": "Geben Sie die E-Mail-Adresse ein, die mit Ihrem Konto verknüpft ist, und wir senden Ihnen einen Link, um Ihr Passwort zurückzusetzen"
+  },
+  "userVerification": {
+    "validating": "Passwort zurücksetzen",
+    "validatingSuccess": "Erfolgreich validiert!",
+    "goingIn": "Wird eingeloggt...",
+    "messagePreValidation": "Du wirst automatisch weitergeleitet, sobald die Validierung abgeschlossen ist.",
+    "messagePostValidation": "Nicht automatisch weitergeleitet? Klicke hier, um fortzufahren.",
+    "errorValidation": "Oops. Etwas ist schief gelaufen."
+  },
+  "switchSectionButtons": {
+    "alreadyRegistered": "Schon registriert?",
+    "notRegistered": "Sie haben noch kein Konto?",
+    "forgotPassword": "Passwort vergessen?"
+  },
+  "formLabels": {
+    "name": "Name",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "email": "E-Mail"
+  }
+}

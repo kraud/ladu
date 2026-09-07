@@ -1,0 +1,50 @@
+{
+  "errors": {
+    "invalidEmail": "Kehtiv e-posti aadress on vajalik",
+    "passwordRequired": "Parool on nõutav",
+    "nameRequired": "Nimi on nõutav",
+    "emailRequired": "E-post on nõutav",
+    "usernameRequired": "Kasutajanimi on nõutav",
+    "passwordRepeatRequired": "Parooli kinnitus on nõutav",
+    "passwordRepeatMustMatch": "Paroolid ei kattu",
+    "linkError": "Selle lingiga tekkis viga."
+  },
+  "toastMessages": {
+    "passwordUpdated": "Parool edukalt uuendatud!",
+    "emailSent": "E-kiri edukalt saadetud!"
+  },
+  "login": {
+    "title": "Logi sisse",
+    "subtitle": "Alusta kohe!"
+  },
+  "register": {
+    "title": "Registreeru",
+    "subtitle": "Palun loo konto"
+  },
+  "resetPassword": {
+    "titleReset": "Parooli lähtestamine",
+    "titleForgot": "Unustasid oma parooli?",
+    "subtitleNewPassword": "Sisesta uus parool allpool",
+    "subtitleEnterEmail": "Sisestage e-posti aadress, mis on seotud teie kontoga, ja me saadame teile lingi parooli lähtestamiseks"
+  },
+  "userVerification": {
+    "validating": "Parooli lähtestamine",
+    "validatingSuccess": "Edukalt valideeritud!",
+    "goingIn": "Sisenen...",
+    "messagePreValidation": "Pärast valideerimise lõppu suunatakse sind automaatselt edasi.",
+    "messagePostValidation": "Pole automaatselt edasi suunatud? Klõpsa siin, et jätkata.",
+    "errorValidation": "Ups. Midagi läks valesti."
+  },
+  "switchSectionButtons": {
+    "alreadyRegistered": "Juba registreeritud?",
+    "notRegistered": "Kas sul pole kontot?",
+    "forgotPassword": "Unustasid parooli?"
+  },
+  "formLabels": {
+    "name": "Nimi",
+    "username": "Kasutajanimi",
+    "password": "Parool",
+    "confirmPassword": "Kinnita parool",
+    "email": "E-post"
+  }
+}

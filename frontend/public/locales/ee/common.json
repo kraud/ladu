@@ -1,0 +1,118 @@
+{
+  "header": {
+    "addWord": "lisa sõna",
+    "practice": "harjuta",
+    "review": "ülevaade",
+    "search": {
+      "words": "Otsige sõnu...",
+      "tags": "Otsige tagid...",
+      "placeholder": "Otsige...",
+      "loading": "Laadimine...",
+      "noMatches": "Tulemusi pole"
+    },
+    "settings": {
+      "openSettings": "Ava seaded",
+      "notifications": "Teavitused",
+      "uiLanguage": "Liidese keel",
+      "account": "Konto",
+      "dashboard": "Armatuurlaud",
+      "logout": "Logi välja"
+    },
+    "notImplemented": "Vabandust, see funktsioon pole veel valmis!"
+  },
+  "sections": {
+    "dashboard": "Dashboard",
+    "tags": "Tags",
+    "friends": "Sõbrad"
+  },
+  "errors": {
+    "somethingWrong": "Midagi läks valesti, proovige uuesti."
+  },
+  "buttons": {
+    "apply": "Rakenda",
+    "delete": "Kustuta",
+    "confirmDelete": "Kinnita {{elementType}} kustutamine",
+    "confirm": "Kinnita",
+    "clickToSeeDetailsWord": "Uue sõna vaatamiseks klõpsake siin",
+    "edit": "Muuda",
+    "cancel": "Tühista",
+    "return": "Tagasi",
+    "close": "Sulgeda",
+    "clear": "Tühjenda",
+    "remove": "Eemalda",
+    "reset": "Lähtesta",
+    "submit": "Esita",
+    "addAnotherTranslation": "Lisa veel üks tõlge",
+    "addFriends": "Lisa sõpru",
+    "createTag": "Loo Tag",
+    "editProfile": "Muuda profiili",
+    "saveChanges": "Salvesta",
+    "sendTag": "Saada Tag",
+    "followTag": "Jälgi Tagi",
+    "unfollowTag": "Lõpeta Tagi jälgmine",
+    "sendToFriend": "Saada sõbrale",
+    "addFriend": "Lisa sõber",
+    "acceptRequest": "Nõustuge taotlusega",
+    "cancelRequest": "Tühista taotlus",
+    "deleteFriendship": "Kustuta sõprus",
+    "deleteTag": "Kustuta Tag",
+    "confirmCancelRequest": "Kinnitage tühistamistaotlus",
+    "confirmDeleteFriendship": "Kinnitage sõbra kustutamine",
+    "cloneTagAndWords": "Klooni Tag ja sõnad",
+    "goToDashboard": "Klõpsake siin ja minge juhtpaneelile",
+    "goToLogin": "Sisselogimiseks klõpsake siin",
+    "deleteAllWords": "Kustuta kõik sõnad",
+    "hideFilters": "Peida filtrid",
+    "showFilters": "Kuva filtrid",
+    "createExercises": "Loo harjutusi",
+    "detailedView": "Detailne vaade",
+    "assignTag": "Määra silt",
+    "deleteSelected": "Kustuta valitud",
+    "groupByType": "Rühmitage tüübi järgi",
+    "separateByType": "Eraldage tüübi järgi",
+    "distributionByWordType": "Sõna tüüp",
+    "distributionByLanguage": "Keel",
+    "byMonth": "Kuu",
+    "byLanguage": "Keel"
+  },
+  "languages": {
+    "english": "Inglise",
+    "estonian": "Eesti",
+    "german": "Saksa",
+    "spanish": "Hispaania"
+  },
+  "partOfSpeech": {
+    "noun": "Nimisõna",
+    "pronoun": "Asesõna",
+    "verb": "Tegusõna",
+    "adjective": "Omadussõna",
+    "adverb": "Määrsõna",
+    "preposition": "Eessõna",
+    "conjunction": "Sidesõna",
+    "interjection": "Hüüdsõna",
+    "properNoun": "Pärisnimi",
+    "numerals": "Numbrid"
+  },
+  "linguisticFeature": {
+    "gender": "sugu"
+  },
+  "status": {
+    "saving": "Salvestamine...",
+    "word": {
+      "savedSuccess": "Sõna edukalt salvestatud",
+      "deletedSuccess": "Sõna edukalt kustutatud"
+    }
+  },
+  "userData": {
+    "name": "Nimi",
+    "username": "Kasutajanimi",
+    "password": "Parool",
+    "email": "E-post",
+    "toastMessages": {
+      "updateSuccess": "Kasutajaandmete värskendamine õnnestus!"
+    },
+    "errors": {
+      "notEnoughLanguages": "Valige vähemalt 2 keelt."
+    }
+  }
+}

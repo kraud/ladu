@@ -1,0 +1,50 @@
+{
+  "errors": {
+    "invalidEmail": "Se requiere un correo electrónico válido",
+    "passwordRequired": "Se requiere contraseña",
+    "nameRequired": "Se requiere nombre",
+    "emailRequired": "Se requiere correo electrónico",
+    "usernameRequired": "Se requiere nombre de usuario",
+    "passwordRepeatRequired": "Se requiere confirmación de contraseña",
+    "passwordRepeatMustMatch": "Las contraseñas no coinciden",
+    "linkError": "Hubo un error con este link."
+  },
+  "toastMessages": {
+    "passwordUpdated": "¡Contraseña actualizada con éxito!",
+    "emailSent": "¡Correo enviado con éxito!"
+  },
+  "login": {
+    "title": "Iniciar sesión",
+    "subtitle": "¡Y comienza ahora!"
+  },
+  "register": {
+    "title": "Registrarse",
+    "subtitle": "Por favor, crea una cuenta"
+  },
+  "resetPassword": {
+    "titleReset": "Restablecer contraseña",
+    "titleForgot": "¿Olvidaste tu contraseña?",
+    "subtitleNewPassword": "Ingresa una nueva contraseña a continuación",
+    "subtitleEnterEmail": "Ingresa el correo electrónico asociado con tu cuenta y te enviaremos un enlace para restablecer tu contraseña"
+  },
+  "userVerification": {
+    "validating": "Restablecimiento de contraseña",
+    "validatingSuccess": "¡Validado con éxito!",
+    "goingIn": "Entrando...",
+    "messagePreValidation": "Serás redirigido automáticamente una vez que se complete la validación.",
+    "messagePostValidation": "¿No has sido redirigido automáticamente? Haz clic aquí para continuar.",
+    "errorValidation": "Ups. Algo salió mal."
+  },
+  "switchSectionButtons": {
+    "alreadyRegistered": "¿Ya estás registrado?",
+    "notRegistered": "¿No tienes una cuenta?",
+    "forgotPassword": "¿Olvidaste tu contraseña?"
+  },
+  "formLabels": {
+    "name": "Nombre",
+    "username": "Nombre de usuario",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "email": "Correo electrónico"
+  }
+}

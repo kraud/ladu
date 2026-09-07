@@ -1,0 +1,184 @@
+{
+  "addWordPage": {
+    "title": "Füge ein neues {{currentPoS}} hinzu",
+    "titleDefault": "Füge ein neues Wort hinzu",
+    "subtitle": "Alle Pflichtfelder müssen ausgefüllt werden, bevor gespeichert werden kann"
+  },
+  "displayWord": {
+    "titlePos": "Detailansicht: {{currentPoS}}",
+    "titleSimple": "Detailansicht",
+    "subtitle": "Alle derzeit gespeicherten Übersetzungen für dieses Wort",
+    "toastUpdateSuccess": "Das Wort wurde erfolgreich aktualisiert",
+    "toastError": "Etwas ist schief gelaufen: {{error}}"
+  },
+  "partOfSpeechSelector": {
+    "title": "Was für ein Wort ist es?",
+    "subtitle": "Nicht sicher, was was ist? Bewege den Mauszeiger über die Schaltflächen und lies die Beschreibungen.",
+    "description": {
+      "other": "Sie werden es erkennen, wenn Sie es sehen!",
+      "noun": {
+        "info": "Substantive sind grundlegende Wörter, die Menschen, Orte, Dinge oder Ideen benennen. Sie helfen uns, die Welt um uns herum zu identifizieren und darüber zu sprechen.",
+        "examples": [
+          "*Pizza* ist ein beliebtes italienisches Gericht.",
+          "Ein *Hund* ist ein treuer Haustier.",
+          "Eine *Stadt* ist ein großes urbanes Gebiet mit Gebäuden, Straßen und einer pulsierenden Bevölkerung."
+        ]
+      },
+      "pronoun": {
+        "info": "Pronomen sind Wörter, die spezifische Substantive ersetzen, um unsere Sätze weniger wiederholend zu machen. Sie helfen uns, auf Personen, Orte, Dinge oder Ideen zu verweisen, ohne ständig das gleiche Substantiv zu wiederholen.",
+        "examples": [
+          "*Sie* liest ein Buch.",
+          "*Wir* gehen in den Park."
+        ]
+      },
+      "verb": {
+        "info": "Verben sind Tätigkeitswörter, die beschreiben, was jemand oder etwas tut. Sie drücken Handlungen, Zustände oder Ereignisse aus und bringen Bewegung und Leben in unsere Sätze.",
+        "examples": [
+          "Ich *esse* am Wochenende Pizza, weil es mein Lieblingsessen ist.",
+          "Die Katze *springt* auf den Tisch, um ihre Umgebung zu erkunden."
+        ]
+      },
+      "adjective": {
+        "info": "Adjektive sind Wörter, die Substantive beschreiben oder modifizieren und uns mehr Informationen über sie geben. Sie helfen uns, Eigenschaften oder Merkmale der Dinge, über die wir sprechen, auszudrücken.",
+        "examples": [
+          "Das Wetter ist heute *sonnig*, mit klarem Himmel und viel Sonnenschein.",
+          "Sie hat eine *freundliche* Persönlichkeit und begrüßt jeden immer mit einem Lächeln."
+        ]
+      },
+      "adverb": {
+        "info": "Adverbien sind Wörter, die verwendet werden, um mehr Informationen über Verben, Adjektive und andere Adverbien zu geben. Es gibt fünf Haupttypen von Adverbien: Adverbien der Art und Weise, des Grades, der Häufigkeit, der Zeit und des Ortes.",
+        "examples": [
+          "Bist du *hierher* gekommen, um einen Regenschirm zu kaufen? (Adverb des Ortes)",
+          "Ich bin gestern nicht zur Schule gegangen, weil ich krank war. (Adverb der Zeit)",
+          "Savio liest *jeden Tag* die Zeitung. (Adverb der Häufigkeit)",
+          "Kannst du bitte *schnell* kommen? (Adverb der Art und Weise)",
+          "Tony war so müde, dass er während des Meetings *kaum* die Augen offen halten konnte. (Adverb des Grades)"
+        ]
+      },
+      "preposition": {
+        "info": "Du wirst es wissen, wenn du es siehst.",
+        "examples": [""]
+      },
+      "conjunction": {
+        "info": "Du wirst es wissen, wenn du es siehst.",
+        "examples": [""]
+      },
+      "interjection": {
+        "info": "Du wirst es wissen, wenn du es siehst.",
+        "examples": [""]
+      },
+      "properNoun": {
+        "info": "Du wirst es wissen, wenn du es siehst.",
+        "examples": [""]
+      },
+      "numerals": {
+        "info": "Du wirst es wissen, wenn du es siehst.",
+        "examples": [""]
+      }
+    },
+    "missingImplementationPoS": "Diese Wortart ist noch nicht implementiert, es tut uns leid!"
+  },
+  "translationFormGeneric": {
+    "selectLanguage": "Wähle eine Sprache für das neue Wort",
+    "switchLanguage": "Sprache wechseln:"
+  },
+  "wordFormSelector": {
+    "languageNotAvailable": "Diese Sprache ist noch nicht verfügbar",
+    "partOfSpeechNotAvailable": "Diese Wortart ist noch nicht verfügbar"
+  },
+  "formComponentLabel": {
+    "clue": "Hinweis"
+  },
+  "wordForm": {
+    "errors": {
+      "noNumbers": "Darf keine Zahlen enthalten"
+    },
+    "noun": {
+      "errors": {
+        "formEN": {
+          "singularFormRequired": "'Singular' ist erforderlich"
+        },
+        "formES": {
+          "singularFormRequired": "'Singular'-Form ist erforderlich",
+          "genderRequired": "Die Auswahl des 'Geschlechts' ist erforderlich"
+        },
+        "formDE": {
+          "singularFormRequired": "'Singular Nominativ' ist erforderlich",
+          "genderRequired": "Die Auswahl des 'Geschlechts' ist erforderlich"
+        },
+        "formEE": {
+          "singularFormRequired": "'Singular Nimetav' ist erforderlich",
+          "searchInEnglishLabel": "Suche nach Substantiven auf Englisch",
+          "searchInEnglishWarning": "Vorsicht, das funktioniert nicht für alle Substantive! Versuchen Sie es bei Bedarf auf Estnisch."
+        }
+      }
+    },
+    "adjective": {
+      "errors": {
+        "formEN": {
+          "positiveDegreeRequired": "Positivform ist erforderlich"
+        },
+        "formES": {
+          "singularMasculineDegreeRequired": "Maskuline Singularform ist erforderlich",
+          "singularFemaleDegreeRequired": "Feminine Singularform ist erforderlich",
+          "singularNeutralDegreeRequired": "Neutrale Singularform ist erforderlich",
+          "pluralNeutralDegreeRequired": "Neutrale Pluralform ist erforderlich",
+          "genderRequired": "Die Auswahl des 'Geschlechts' ist erforderlich"
+        },
+        "formDE": {
+          "positiveDegreeRequired": "Positivform ist erforderlich"
+        },
+        "formEE": {
+          "algvorreFormRequired": "Maskuline Singularform ist erforderlich",
+          "keskvorreFormRequired": "Feminine Singularform ist erforderlich",
+          "ulivorreFormRequired": "Neutrale Singularform ist erforderlich"
+        }
+      }
+    },
+    "adverb": {
+      "errors": {
+        "formEN": {
+          "adverbRequired": "Das Adverb ist erforderlich"
+        },
+        "formES": {
+          "adverbRequired": "Das Adverb ist erforderlich"
+        },
+        "formDE": {
+          "adverbRequired": "Das Adverb ist erforderlich",
+          "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
+        }
+      }
+    },
+    "verb": {
+      "errors": {
+        "formEN": {
+          "simplePresentRequired": "Dieses Feld für das Präsens ist erforderlich",
+          "regularityRequired": "Das ist keine Option"
+        },
+        "formES": {
+          "infinitiveNonFiniteRequired": "Das nicht-finite Infinitiv ist erforderlich",
+          "gerundNonFiniteRequired": "Das nicht-finite Gerundium ist erforderlich",
+          "participleNonFiniteRequired": "Das nicht-finite Partizip ist erforderlich",
+          "regularityRequired": "Das ist keine Option"
+        },
+        "formDE": {
+          "infinitiveNonFiniteRequired": "Das nicht-finite Infinitiv ist erforderlich",
+          "infinitiveNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-en', '-ern', '-eln')."
+        },
+        "formEE": {
+          "infinitiveMaRequired": "-ma Infinitiv ist erforderlich",
+          "infinitiveMaNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-ma').",
+          "infinitiveDaRequired": "-da Infinitiv ist erforderlich",
+          "searchInEnglishLabel": "Verb auf Englisch suchen",
+          "searchInEnglishWarning": "Vorsicht, das funktioniert nicht bei allen Verben! Falls nötig, versuchen Sie es auf Estnisch."
+        }
+      }
+    },
+    "autocompleteTranslationButton": {
+      "label": "Vervollständigen {{wordType}}",
+      "emptyQuery": "Bitte geben Sie zuerst '{{requiredField}}' ein.",
+      "noMatch": "Entschuldigung, wir kennen dieses Wort nicht!",
+      "foundMatch": "Es gibt Informationen über dieses Wort in unserem System."
+    }
+  }
+}

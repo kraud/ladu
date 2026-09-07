@@ -1,0 +1,184 @@
+{
+  "addWordPage": {
+    "title": "Add a new {{currentPoS}}",
+    "titleDefault": "Add a new word",
+    "subtitle": "All the required fields must be completed before saving"
+  },
+  "displayWord": {
+    "titlePos": "Detailed view: {{currentPoS}}",
+    "titleSimple": "Detailed view",
+    "subtitle": "All the currently stored translations for this word",
+    "toastUpdateSuccess": "Word was updated successfully",
+    "toastError": "Something went wrong: {{error}}"
+  },
+  "partOfSpeechSelector": {
+    "title": "What kind of word is it?",
+    "subtitle": "Not sure what's what? Hover over the buttons and read the descriptions.",
+    "description": {
+      "other": "You'll know it when you see it!",
+      "noun": {
+        "info":  "Nouns are essential words in language that give names to people, places, things, or ideas. They help us identify and talk about the world around us.",
+        "examples": [
+          "*Pizza* is a popular Italian dish.",
+          "A *dog* is a loyal pet.",
+          "A *city* is a large urban area with buildings, roads, and a bustling population."
+        ]
+      },
+      "pronoun": {
+        "info":  "Pronouns are words that replace specific nouns to make our sentences less repetitive. They help us refer to people, places, things, or ideas without constantly repeating the same noun.",
+        "examples": [
+          "*She* is reading a book.",
+          "*We* are going to the park."
+        ]
+      },
+      "verb": {
+        "info":  "Verbs are action words that describe what someone or something does. They express actions, states, or occurrences. Verbs bring life and movement to our sentences.",
+        "examples": [
+          "I *eat* pizza on weekends because it's my favorite food.",
+          "The cat *jumps* onto the table to explore its surroundings."
+        ]
+      },
+      "adjective": {
+        "info": "Adjectives are words that describe or modify nouns, giving us more information about them. They help us express characteristics, qualities, or attributes of the things we talk about.",
+        "examples": [
+          "The weather is *sunny* today, with clear skies and plenty of sunshine.",
+          "She has a *friendly* personality and always greets everyone with a smile."
+        ]
+      },
+      "adverb": {
+        "info":  " Adverbs are words that are used to provide more information about verbs, adjectives and other adverbs used in a sentence. There are five main types of adverbs namely, adverbs of manner, adverbs of degree, adverbs of frequency, adverbs of time and adverbs of place.",
+        "examples": [
+          "Did you come *here* to buy an umbrella? (Adverb of place)",
+          "I did not go to school *yesterday* as I was sick. (Adverb of time)",
+          "Savio reads the newspaper *everyday*. (Adverb of frequency)",
+          "Can you please come *quickly*? (Adverb of manner)",
+          "Tony was so sleepy that he could *hardly* keep his eyes open during the meeting. (Adverb of degree)"
+        ]
+      },
+      "preposition": {
+        "info":  "You'll know it when you see it.",
+        "examples": [""]
+      },
+      "conjunction": {
+        "info":  "You'll know it when you see it.",
+        "examples": [""]
+      },
+      "interjection": {
+        "info":  "You'll know it when you see it.",
+        "examples": [""]
+      },
+      "properNoun": {
+        "info":  "You'll know it when you see it.",
+        "examples": [""]
+      },
+      "numerals": {
+        "info":  "You'll know it when you see it.",
+        "examples": [""]
+      }
+    },
+    "missingImplementationPoS": "This part of speech is not implemented yet, we're sorry!"
+  },
+  "translationFormGeneric": {
+    "selectLanguage": "Pick a language for the new word",
+    "switchLanguage": "Switch language:"
+  },
+  "wordFormSelector": {
+    "languageNotAvailable": "That language is not available yet",
+    "partOfSpeechNotAvailable": "That part of speech is not available yet"
+  },
+  "formComponentLabel": {
+    "clue": "Clue"
+  },
+  "wordForm": {
+    "errors": {
+      "noNumbers": "Must not include numbers"
+    },
+    "noun": {
+      "errors": {
+        "formEN": {
+          "singularFormRequired": "'Singular' is required"
+        },
+        "formES": {
+          "singularFormRequired": "'Singular' form is required",
+          "genderRequired": "'Gender' selection is required"
+        },
+        "formDE": {
+          "singularFormRequired": "'Singular nominativ' is required",
+          "genderRequired": "'Gender' selection is required"
+        },
+        "formEE": {
+          "singularFormRequired": "'Singular nimetav' is required",
+          "searchInEnglishLabel": "Search noun in english",
+          "searchInEnglishWarning": "Careful, this won't work for all nouns! If needed, try in Estonian."
+        }
+      }
+    },
+    "adjective": {
+      "errors": {
+        "formEN": {
+          "positiveDegreeRequired": "Positive degree is required"
+        },
+        "formES": {
+          "singularMasculineDegreeRequired": "Masculine singular degree is required",
+          "singularFemaleDegreeRequired": "Female singular degree is required",
+          "singularNeutralDegreeRequired": "Neutral singular degree is required",
+          "pluralNeutralDegreeRequired": "Neutral plural degree is required",
+          "genderRequired": "'Gender' selection is required"
+        },
+        "formDE": {
+          "positiveDegreeRequired": "Positive degree is required"
+        },
+        "formEE": {
+          "algvorreFormRequired": "Masculine singular degree is required",
+          "keskvorreFormRequired": "Female singular degree is required",
+          "ulivorreFormRequired": "Neutral singular degree is required"
+        }
+      }
+    },
+    "adverb": {
+      "errors": {
+        "formEN": {
+          "adverbRequired": "Adverb is required"
+        },
+        "formES": {
+          "adverbRequired": "Adverb is required"
+        },
+        "formDE": {
+          "adverbRequired": "Adverb is required",
+          "gradableRequired": "'Gradable' selection is required"
+        }
+      }
+    },
+    "verb": {
+      "errors": {
+        "formEN": {
+          "simplePresentRequired": "This simple present field is required",
+          "regularityRequired": "That is not an option"
+        },
+        "formES": {
+          "infinitiveNonFiniteRequired": "Infinitive non-finite is required",
+          "gerundNonFiniteRequired": "Gerund non-finite is required",
+          "participleNonFiniteRequired": "Participle non-finite is required",
+          "regularityRequired": "That is not an option"
+        },
+        "formDE": {
+          "infinitiveNonFiniteRequired": "Infinitive non-finite is required",
+          "infinitiveNotMatching": "Please input infinitive form (ends in '-en', '-ern' '-eln')."
+        },
+        "formEE": {
+          "infinitiveMaRequired": "-ma infinitive is required",
+          "infinitiveMaNotMatching": "Please input infinitive form (ends in '-ma').",
+          "infinitiveDaRequired": "-da infinitive is required",
+          "searchInEnglishLabel": "Search verb in english",
+          "searchInEnglishWarning": "Careful, this won't work for all verbs! If needed, try in Estonian."
+        }
+      }
+    },
+    "autocompleteTranslationButton": {
+      "label": "Autocomplete {{wordType}}",
+      "emptyQuery": "Please input '{{requiredField}}' first.",
+      "noMatch": "Sorry, we don't know this word!",
+      "foundMatch": "There is information about this word stored in our system."
+    }
+  }
+}

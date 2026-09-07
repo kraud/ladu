@@ -1,0 +1,12 @@
+{
+  "toastMessages": {
+    "wordDeleted": "La palabra se eliminó correctamente",
+    "tagAddedToWords": "Las etiquetas se añadieron correctamente"
+  },
+  "fieldLabels": {
+    "activeLanguages": "Activo",
+    "hiddenLanguages": "Oculto",
+    "public": "Público",
+    "description": "Descripción"
+  }
+}

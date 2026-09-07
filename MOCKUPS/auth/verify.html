@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Verifying account · Ladu</title>
+<link rel="stylesheet" href="../assets/app.css" />
+<style>
+  .verify-card { width: min(420px, 100%); text-align: center; padding: 40px 28px; }
+  .v-icon {
+    width: 52px; height: 52px; border-radius: 50%;
+    display: grid; place-items: center; margin: 0 auto 16px;
+  }
+  .v-icon.validating { border: 3px solid var(--fg-soft2); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+  .v-icon.success { background: var(--success-soft); color: var(--success); }
+  .v-icon.failure { background: var(--danger-soft); color: var(--danger); }
+  .v-state { display: none; }
+  .v-state.active { display: block; animation: page-in .25s ease; }
+</style>
+</head>
+<body>
+<div class="auth-shell page" data-od-id="verify">
+  <a class="logo auth-banner" href="../index.html"><span class="logo-mark">L</span>Ladu</a>
+
+  <div class="card verify-card">
+    <!-- State 1: validating -->
+    <div class="v-state active" id="s-validating">
+      <div class="v-icon validating" role="status" aria-label="Validating"></div>
+      <h1 class="h2" style="font-size: 18px;">Validating your account…</h1>
+      <p class="muted" style="font-size: 13.5px; margin-top: 6px;">This only takes a moment.</p>
+    </div>
+
+    <!-- State 2: success -->
+    <div class="v-state" id="s-success">
+      <div class="v-icon success">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h1 class="h2" style="font-size: 18px;">Account verified</h1>
+      <p class="muted" style="font-size: 13.5px; margin-top: 6px;">Tere tulemast! Entering Ladu in <span class="num" id="count">3</span>s —</p>
+      <button class="btn btn-primary" id="enter" style="margin-top: 18px;">Enter now</button>
+    </div>
+
+    <!-- State 3: failure -->
+    <div class="v-state" id="s-failure">
+      <div class="v-icon failure">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+      <h1 class="h2" style="font-size: 18px;">This link has expired</h1>
+      <p class="muted" style="font-size: 13.5px; margin-top: 6px;">Verification links are valid for 24 hours. Request a new one from the sign-in screen.</p>
+      <a class="btn btn-secondary" href="login.html" style="margin-top: 18px;">Back to sign in</a>
+    </div>
+  </div>
+
+  <p class="meta" style="margin-top: 24px;">Demo: append <span class="kbd">?fail</span> to preview the failure state</p>
+</div>
+
+<script>
+const show = id => {
+  document.querySelectorAll('.v-state').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+const go = () => location.href = '../index.html';
+
+if (new URLSearchParams(location.search).has('fail')) {
+  show('s-failure');
+} else {
+  setTimeout(() => {
+    show('s-success');
+    let n = 3;
+    const t = setInterval(() => {
+      n--;
+      if (n <= 0) { clearInterval(t); go(); } else document.getElementById('count').textContent = n;
+    }, 1000);
+  }, 1500);
+}
+document.getElementById('enter').addEventListener('click', go);
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "noFriends": "Sul pole veel sõpru.",
+  "searchAndAddFriends": "Klõpsa siin, et otsida ja lisada uusi sõpru!",
+  "selectFriend": "Vali sõber:",
+  "searchFriend": "Otsi sõpra:",
+  "autocompletePlaceholder": "Otsi sõpru...",
+  "toastMessages": {
+    "friendRequestSent": "Sõbrakutse saadetud",
+    "friendRequestDeleted": "Sõbrakutse kustutatud",
+    "friendRequestAccepted": "Sõbrakutse vastu võetud",
+    "friendshipDeleted": "Sõprus kustutatud"
+  }
+}

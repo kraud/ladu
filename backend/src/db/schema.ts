@@ -1,5 +1,6 @@
 const {
     pgTable,
+    pgEnum,
     uuid,
     varchar,
     text,
@@ -12,7 +13,29 @@ const {
     uniqueIndex,
     index,
 }: typeof import('drizzle-orm/pg-core') = require('drizzle-orm/pg-core');
-const { relations }: typeof import('drizzle-orm') = require('drizzle-orm');
+const { relations, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
+
+// ---------------------------------------------------------------------------
+// Enums (typed domain values that were previously free-form varchar)
+// ---------------------------------------------------------------------------
+export const friendshipStatusEnum = pgEnum('friendship_status', [
+    'pending',
+    'accepted',
+    'declined',
+    'cancelled',
+]);
+
+export const tagVisibilityEnum = pgEnum('tag_visibility', [
+    'Public',
+    'Private',
+    'Friends-Only',
+]);
+
+export const tagShareStatusEnum = pgEnum('tag_share_status', [
+    'pending',
+    'accepted',
+    'declined',
+]);
 
 // ---------------------------------------------------------------------------
 // Helper: shared timestamp columns used on most tables
@@ -91,8 +114,8 @@ export const tags = pgTable('tags', {
     authorId:    uuid('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     label:       varchar('label', { length: 255 }).notNull(),
     description: text('description'),
-    // 'Public' | 'Private' | 'Friends-Only' — kept as varchar per original model
-    public:      varchar('public', { length: 50 }).notNull(),
+    // 'Public' | 'Private' | 'Friends-Only' — typed enum (study §8.3).
+    visibility:  tagVisibilityEnum('visibility').notNull(),
     ...timestamps,
 });
 
@@ -127,33 +150,61 @@ export const userFollowingTags = pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// FRIENDSHIPS
-// Mapped from: backend/models/friendshipModel.js
-// MongoDB stored a 2-item userIds array; here we use explicit user1Id/user2Id
-// columns with a CHECK constraint so user1Id < user2Id (prevents duplicates).
+// TAG_SHARES
+// Redesigned (study §8.3): the tag-share lifecycle is an explicit table, not a
+// notification-as-carrier. `senderId` shares `tagId` with `recipientId`;
+// accept clones the tag + words + translations + cases server-side.
+// One outstanding share per (tag, recipient): partial UNIQUE WHERE pending.
 // ---------------------------------------------------------------------------
-export const friendships = pgTable('friendships', {
-    id:      uuid('id').primaryKey().defaultRandom(),
-    user1Id: uuid('user1_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    user2Id: uuid('user2_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    // 'pending' | 'accepted'
-    status:  varchar('status', { length: 50 }),
-    ...timestamps,
-});
+export const tagShares = pgTable(
+    'tag_shares',
+    {
+        id:          uuid('id').primaryKey().defaultRandom(),
+        tagId:       uuid('tag_id').notNull().references(() => tags.id, { onDelete: 'cascade' }),
+        senderId:    uuid('sender_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        recipientId: uuid('recipient_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        status:      tagShareStatusEnum('status').notNull(),
+        ...timestamps,
+    },
+    (table) => [
+        uniqueIndex('tag_shares_pending_unique')
+            .on(table.tagId, table.recipientId)
+            .where(sql`${table.status} = 'pending'`),
+    ],
+);
 
 // ---------------------------------------------------------------------------
-// FRIENDSHIP_PARTNERSHIPS
-// Mapped from: friendshipModel.js → partnerships[]
-// A friendship can have multiple partnerships (mentor/mentee per language).
+// FRIENDSHIPS
+// Redesigned (study §8.2): a directed relationship with an explicit requester
+// and addressee, a NOT NULL status enum, and database-enforced uniqueness.
+//   - One outstanding request per direction: partial UNIQUE (requester, addressee)
+//     WHERE status = 'pending'.
+//   - One friendship per unordered pair: expression UNIQUE (LEAST, GREATEST)
+//     WHERE status = 'accepted'.
+// `declined` / `cancelled` rows are kept for history and are not uniqueness-
+// constrained; re-requesting after decline/cancel inserts a fresh row.
 // ---------------------------------------------------------------------------
-export const friendshipPartnerships = pgTable('friendship_partnerships', {
-    id:           uuid('id').primaryKey().defaultRandom(),
-    friendshipId: uuid('friendship_id').notNull().references(() => friendships.id, { onDelete: 'cascade' }),
-    // mentor is the user who is teaching; the mentee is the other participant
-    mentorId:     uuid('mentor_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    language:     varchar('language', { length: 50 }).notNull(),
-    ...timestamps,
-});
+export const friendships = pgTable(
+    'friendships',
+    {
+        id:          uuid('id').primaryKey().defaultRandom(),
+        requesterId: uuid('requester_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        addresseeId: uuid('addressee_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        status:      friendshipStatusEnum('status').notNull(),
+        ...timestamps,
+    },
+    (table) => [
+        uniqueIndex('friendships_pending_unique')
+            .on(table.requesterId, table.addresseeId)
+            .where(sql`${table.status} = 'pending'`),
+        uniqueIndex('friendships_accepted_unique')
+            .on(
+                sql`least(${table.requesterId}, ${table.addresseeId})`,
+                sql`greatest(${table.requesterId}, ${table.addresseeId})`,
+            )
+            .where(sql`${table.status} = 'accepted'`),
+    ],
+);
 
 // ---------------------------------------------------------------------------
 // NOTIFICATIONS
@@ -233,8 +284,10 @@ export const usersRelations = relations(users, ({ many }) => ({
     words:              many(words),
     tags:               many(tags),
     userFollowingTags:  many(userFollowingTags),
-    friendshipsAsUser1: many(friendships, { relationName: 'user1' }),
-    friendshipsAsUser2: many(friendships, { relationName: 'user2' }),
+    friendshipsAsRequester: many(friendships, { relationName: 'requester' }),
+    friendshipsAsAddressee: many(friendships, { relationName: 'addressee' }),
+    tagSharesSent:      many(tagShares, { relationName: 'sender' }),
+    tagSharesReceived:  many(tagShares, { relationName: 'recipient' }),
     notifications:      many(notifications),
     tokens:             many(tokens),
     exercisePerformances: many(exercisePerformances),
@@ -262,6 +315,7 @@ export const tagsRelations = relations(tags, ({ one, many }) => ({
     author:            one(users, { fields: [tags.authorId], references: [users.id] }),
     tagWords:          many(tagWords),
     userFollowingTags: many(userFollowingTags),
+    tagShares:         many(tagShares),
 }));
 
 export const tagWordsRelations = relations(tagWords, ({ one }) => ({
@@ -274,15 +328,15 @@ export const userFollowingTagsRelations = relations(userFollowingTags, ({ one })
     followerUser: one(users, { fields: [userFollowingTags.followerUserId], references: [users.id] }),
 }));
 
-export const friendshipsRelations = relations(friendships, ({ one, many }) => ({
-    user1:        one(users, { fields: [friendships.user1Id], references: [users.id], relationName: 'user1' }),
-    user2:        one(users, { fields: [friendships.user2Id], references: [users.id], relationName: 'user2' }),
-    partnerships: many(friendshipPartnerships),
+export const friendshipsRelations = relations(friendships, ({ one }) => ({
+    requester: one(users, { fields: [friendships.requesterId], references: [users.id], relationName: 'requester' }),
+    addressee: one(users, { fields: [friendships.addresseeId], references: [users.id], relationName: 'addressee' }),
 }));
 
-export const friendshipPartnershipsRelations = relations(friendshipPartnerships, ({ one }) => ({
-    friendship: one(friendships, { fields: [friendshipPartnerships.friendshipId], references: [friendships.id] }),
-    mentor:     one(users,       { fields: [friendshipPartnerships.mentorId],     references: [users.id] }),
+export const tagSharesRelations = relations(tagShares, ({ one }) => ({
+    tag:       one(tags,  { fields: [tagShares.tagId],       references: [tags.id] }),
+    sender:    one(users, { fields: [tagShares.senderId],    references: [users.id], relationName: 'sender' }),
+    recipient: one(users, { fields: [tagShares.recipientId], references: [users.id], relationName: 'recipient' }),
 }));
 
 export const notificationsRelations = relations(notifications, ({ one }) => ({

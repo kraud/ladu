@@ -1,0 +1,44 @@
+{
+  "toastMessages": {
+    "tagDeleted": "¡La etiqueta {{tagLabel}} fue eliminada!",
+    "tagUpdated": "¡La etiqueta fue actualizada con éxito!",
+    "tagCreated": "¡La etiqueta fue creada con éxito!",
+    "tagShared": "¡La solicitud para compartir el Tag fue enviada exitosamente!",
+    "wordsDeleted": "¡Las palabras fueron eliminadas con éxito!"
+  },
+  "tagDataForm": {
+    "errors": {
+      "noNumbers": "No debe incluir números",
+      "publicRequired": "Debe especificar el estado público",
+      "publicNotMatch": "Esa no es una opción",
+      "labelRequired": "Se requiere una etiqueta",
+      "labelAlreadyExists": "Esa etiqueta ya está en uso",
+      "errorProcessing": "Hubo un error al procesar esa etiqueta",
+      "labelNotMatchingSpaces": "La etiqueta no permite espacios. Intenta usar CamelCasing o snake_casing en su lugar.",
+      "labelTooShort": "La etiqueta debe tener más de 2 caracteres",
+      "labelTooLong": "La etiqueta es demasiado larga (máx. 30 caracteres)",
+      "descriptionTooShort": "La descripción debe tener más de 5 caracteres",
+      "descriptionTooLong": "La descripción es demasiado larga (máx. 250 caracteres)"
+    },
+    "fieldLabels": {
+      "label": "Nombre",
+      "public": "Publico",
+      "description": "Descripción"
+    }
+  },
+  "displayTag": {
+    "toastError": "Algo salió mal: {{error}}",
+    "toastTagDeletedSuccess": "¡La etiqueta {{tagLabel}} fue eliminada!",
+    "toastTagCloneSuccess": "¡La etiqueta y las palabras se añadieron exitosamente a tu cuenta!"
+  },
+  "searchTags": "Buscar Tags...",
+  "noWordsAssigned": "- aún no se han asignado palabras -",
+  "createdByYou": "Creado por ti",
+  "createdByUser": "Creado por {{username}}",
+  "amountWord_one": "{{count}} palabra",
+  "amountWord_other": "{{count}} palabras",
+  "noTagsCreated": "Aún no has añadido etiquetas a ninguna palabra.",
+  "goToAddTags": "¡Haz clic aquí para revisar tus palabras guardadas y añadir etiquetas!",
+  "followedTags": "Etiquetas seguidas",
+  "noTagsFollowed": "Aún no has seguido ninguna etiqueta."
+}

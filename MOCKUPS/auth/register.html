@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Create account · Ladu</title>
+<link rel="stylesheet" href="../assets/app.css" />
+<style>
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-grid .span2 { grid-column: 1 / -1; }
+  @media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="auth-shell page" data-od-id="register">
+  <a class="logo auth-banner" href="../index.html"><span class="logo-mark">L</span>Ladu</a>
+
+  <div class="card auth-card" style="padding: 24px;">
+    <h1 class="h2" style="margin-bottom: 4px;">Create account</h1>
+    <p class="muted" style="font-size: 13.5px; margin-bottom: 20px;">We'll send a verification email once you're in.</p>
+
+    <form id="reg-form" novalidate>
+      <div class="form-grid">
+        <div class="field">
+          <label class="label" for="name">Name <span class="req">*</span></label>
+          <input class="input" id="name" autocomplete="name" placeholder="Kai Rebane" required />
+          <span class="err" id="name-err">Name is required</span>
+        </div>
+        <div class="field">
+          <label class="label" for="username">Username <span class="req">*</span></label>
+          <input class="input" id="username" autocomplete="username" placeholder="kai" required />
+          <span class="err" id="username-err">Username is required</span>
+        </div>
+        <div class="field span2">
+          <label class="label" for="email">Email <span class="req">*</span></label>
+          <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+          <span class="err" id="email-err">Enter a valid email address</span>
+        </div>
+        <div class="field">
+          <label class="label" for="password">Password <span class="req">*</span></label>
+          <input class="input" id="password" type="password" autocomplete="new-password" required />
+          <span class="err" id="password-err">At least 8 characters</span>
+        </div>
+        <div class="field">
+          <label class="label" for="password2">Confirm password <span class="req">*</span></label>
+          <input class="input" id="password2" type="password" autocomplete="new-password" required />
+          <span class="err" id="password2-err">Passwords must match</span>
+        </div>
+      </div>
+      <div class="row" style="gap: 8px; margin-top: 20px;">
+        <button class="btn btn-primary grow" id="submit" type="submit">Create account</button>
+        <button class="btn btn-secondary" id="reset" type="button">Reset</button>
+      </div>
+    </form>
+
+    <div class="auth-links">
+      <span>Already registered?</span><a href="login.html">Sign in</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+function toast(kind, msg) {
+  const icons = { success: 'M20 6 9 17l-5-5', error: 'M18 6 6 18M6 6l12 12', warning: 'M12 8v5m0 4h.01', info: 'M12 16v-5m0-4h.01' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = `<svg class="t-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="${icons[kind]}"/></svg><span>${msg}</span>`;
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+const F = ['name', 'username', 'email', 'password', 'password2'].map(id => ({ id, el: $('#' + id), err: $('#' + id + '-err') }));
+F.forEach(f => f.el.addEventListener('input', () => { f.err.classList.remove('show'); f.el.removeAttribute('aria-invalid'); }));
+
+$('#reset').addEventListener('click', () => {
+  F.forEach(f => { f.el.value = ''; f.err.classList.remove('show'); f.el.removeAttribute('aria-invalid'); });
+  F[0].el.focus();
+});
+
+$('#reg-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const taken = ['kai', 'admin'].includes(F[1].el.value.trim().toLowerCase());
+  const checks = [
+    !F[0].el.value.trim(),
+    !F[1].el.value.trim(),
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(F[2].el.value.trim()),
+    F[3].el.value.length < 8,
+    F[4].el.value !== F[3].el.value || !F[4].el.value
+  ];
+  let firstBad = null;
+  checks.forEach((bad, i) => {
+    F[i].err.classList.toggle('show', bad);
+    F[i].el.setAttribute('aria-invalid', bad ? 'true' : 'false');
+    if (bad && !firstBad) firstBad = F[i].el;
+  });
+  if (firstBad) { firstBad.focus(); return; }
+  if (taken) { toast('error', 'That username is already taken.'); F[1].el.focus(); return; }
+
+  const btn = $('#submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Creating…';
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Create account';
+    toast('info', `We sent an email to ${F[2].el.value.trim()} — open it to verify your account.`);
+    setTimeout(() => location.href = '../index.html', 1400);
+  }, 900);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "noFriends": "Aún no tienes amigos.",
+  "searchAndAddFriends": "¡Haz clic aquí para buscar y agregar nuevos amigos!",
+  "selectFriend": "Selecciona un amigo:",
+  "searchFriend": "Buscar un amigo:",
+  "autocompletePlaceholder": "Buscar amigos...",
+  "toastMessages": {
+    "friendRequestSent": "Solicitud de amistad enviada",
+    "friendRequestDeleted": "Solicitud de amistad eliminada",
+    "friendRequestAccepted": "Solicitud de amistad aceptada",
+    "friendshipDeleted": "Amistad eliminada"
+  }
+}

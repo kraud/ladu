@@ -10,8 +10,9 @@ if (!buffer.SlowBuffer) {
 require('tsx/cjs');
 
 const colors = require('colors');
-const dotenv = require('dotenv').config();
 const path = require('path');
+// Load the repo-root .env regardless of the cwd this process was launched from.
+const dotenv = require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true });
 const app = require('../app');
 const port = process.env.PORT || 5001;
 

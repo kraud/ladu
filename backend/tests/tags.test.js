@@ -1,14 +1,12 @@
 /**
  * Tags API — Integration Tests
  *
- * These tests verify the CRUD operations for tags and their many-to-many
- * relationship with words (via tag_words). They have been migrated from
- * Mongoose to Drizzle ORM on PostgreSQL.
- *
- * Migration note: The old test used Mongoose models directly (Word.create,
- * Tag.findById, TagWord.find). The new test uses the Drizzle ORM instance
- * (imported from ../src/db) to seed and assert on database state. This keeps
- * the test implementations decoupled from any ORM choices in the controller.
+ * Redesigned contract (study §8.3):
+ *   - `visibility` enum replaces the legacy `public` varchar.
+ *   - `createTag` sets `authorId` server-side from the authenticated user.
+ *   - `canViewTag` authz on getTagById / followTag / clone.
+ *   - Tag sharing is an explicit `tag_shares` lifecycle (share/accept/decline);
+ *     accepting clones the tag + words + translations + cases transactionally.
  */
 
 const request = require('supertest');
@@ -16,7 +14,14 @@ const { eq } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
-const { tags, tagWords, words } = require('../src/db/schema');
+const {
+    tagShares,
+    tags,
+    tagWords,
+    translationCases,
+    translations,
+    words,
+} = require('../src/db/schema');
 
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
@@ -24,18 +29,30 @@ beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());
 afterAll(async () => {
     await testDb.closeDB();
-    // Close the shared Drizzle pool so Jest does not hang on an open connection
     await pool.end();
 });
 
-// Helper: register a user, log in, and return the auth token + user data.
-// The userController.ts response includes `_id` (legacy alias for the UUID) and `token`.
-const registerAndLogin = async () => {
+const registerAndLogin = async (name = 'Tag User', email = 'tag@test.com', username = 'taguser') => {
     await request(app).post('/api/users').send({
-        name: 'Tag User', email: 'tag@test.com', username: 'taguser', password: 'pass123',
+        name, email, username, password: 'pass123',
     });
-    const r = await request(app).post('/api/users/login').send({ email: 'tag@test.com', password: 'pass123' });
+    const r = await request(app).post('/api/users/login').send({ email, password: 'pass123' });
     return r.body;
+};
+
+const createWord = async (token, partOfSpeech, caseName, wordValue) => {
+    const res = await request(app)
+        .post('/api/words')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+            partOfSpeech,
+            translations: [
+                { language: 'English', cases: [{ word: wordValue, caseName }] },
+                { language: 'Estonian', cases: [{ word: wordValue + 'EE', caseName: 'infinitiveMaEE' }] },
+            ],
+            tags: [],
+        });
+    return res.body;
 };
 
 describe('POST /api/tags - Create Tag', () => {
@@ -47,29 +64,28 @@ describe('POST /api/tags - Create Tag', () => {
         userId = data._id;
     });
 
-    it('creates a tag without words', async () => {
+    it('creates a tag without words (authorId set server-side)', async () => {
         const res = await request(app)
             .post('/api/tags').set('Authorization', `Bearer ${token}`)
-            .send({ author: userId, label: 'Vocabulary', public: 'Private', words: [] });
+            .send({ label: 'Vocabulary', visibility: 'Private', words: [] });
 
         expect(res.statusCode).toBe(200);
         expect(res.body.words).toEqual([]);
+        expect(res.body.authorId).toBe(userId);
     });
 
     it('creates a tag with word associations', async () => {
-        // Seed a single word via Drizzle so the controller can reference it by id.
         const [word] = await db.insert(words).values({
-            userId: userId,
+            userId,
             partOfSpeech: 'Noun',
         }).returning();
 
         const res = await request(app)
             .post('/api/tags').set('Authorization', `Bearer ${token}`)
-            .send({ author: userId, label: 'Nouns', public: 'Private', words: [{ _id: word.id }] });
+            .send({ label: 'Nouns', visibility: 'Private', words: [{ _id: word.id }] });
 
         expect(res.statusCode).toBe(200);
 
-        // Verify the junction table (tag_words) contains exactly one row for this tag.
         const tagWordsRows = await db
             .select()
             .from(tagWords)
@@ -81,14 +97,14 @@ describe('POST /api/tags - Create Tag', () => {
     it('fails with 400 when label is missing', async () => {
         const res = await request(app)
             .post('/api/tags').set('Authorization', `Bearer ${token}`)
-            .send({ author: userId, public: 'Private', words: [] });
+            .send({ visibility: 'Private', words: [] });
         expect(res.statusCode).toBe(400);
     });
 
-    it('fails with 400 when public status is invalid', async () => {
+    it('fails with 400 when visibility status is invalid', async () => {
         const res = await request(app)
             .post('/api/tags').set('Authorization', `Bearer ${token}`)
-            .send({ author: userId, label: 'Bad', public: 'Invalid', words: [] });
+            .send({ label: 'Bad', visibility: 'Invalid', words: [] });
         expect(res.statusCode).toBe(400);
     });
 });
@@ -101,10 +117,9 @@ describe('GET /api/tags/getTags - Get User Tags', () => {
         token = data.token;
         userId = data._id;
 
-        // Seed two tags for the authenticated user.
         await db.insert(tags).values([
-            { authorId: userId, label: 'First', public: 'Private' },
-            { authorId: userId, label: 'Second', public: 'Public' },
+            { authorId: userId, label: 'First', visibility: 'Private' },
+            { authorId: userId, label: 'Second', visibility: 'Public' },
         ]);
     });
 
@@ -116,6 +131,194 @@ describe('GET /api/tags/getTags - Get User Tags', () => {
     });
 });
 
+describe('Tag sharing lifecycle', () => {
+    let owner, recipient;
+
+    beforeEach(async () => {
+        owner = await registerAndLogin('Owner', 'owner@test.com', 'owner');
+        recipient = await registerAndLogin('Recipient', 'recipient@test.com', 'recipient');
+    });
+
+    const createSharedTag = async () => {
+        const word = await createWord(owner.token, 'Verb', 'infinitiveNonFiniteSimpleEN', 'to run');
+        const res = await request(app)
+            .post('/api/tags')
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ label: 'Shared', visibility: 'Private', words: [{ _id: word._id }] });
+        return res.body;
+    };
+
+    it('POST /api/tags/:id/share - shares a tag and creates a notification', async () => {
+        const tag = await createSharedTag();
+
+        const res = await request(app)
+            .post(`/api/tags/${tag._id}/share`)
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ recipientId: recipient._id });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.tagId).toBe(tag._id);
+        expect(res.body.recipientId).toBe(recipient._id);
+        expect(res.body.status).toBe('pending');
+    });
+
+    it('POST /api/tags/:id/share - rejects duplicate pending share', async () => {
+        const tag = await createSharedTag();
+        await request(app)
+            .post(`/api/tags/${tag._id}/share`)
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ recipientId: recipient._id });
+
+        const res = await request(app)
+            .post(`/api/tags/${tag._id}/share`)
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ recipientId: recipient._id });
+
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('POST /api/tags/:id/share - rejects sharing another users tag', async () => {
+        const tag = await createSharedTag();
+
+        const res = await request(app)
+            .post(`/api/tags/${tag._id}/share`)
+            .set('Authorization', `Bearer ${recipient.token}`)
+            .send({ recipientId: owner._id });
+
+        expect(res.statusCode).toBe(401);
+    });
+
+    it('POST /api/tag-shares/:id/accept - clones tag with translations and cases', async () => {
+        const tag = await createSharedTag();
+        const share = await request(app)
+            .post(`/api/tags/${tag._id}/share`)
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ recipientId: recipient._id });
+
+        const res = await request(app)
+            .post(`/api/tag-shares/${share.body.id}/accept`)
+            .set('Authorization', `Bearer ${recipient.token}`);
+
+        expect(res.statusCode).toBe(200);
+
+        // The cloned tag must exist with the recipient as author.
+        const clonedTag = res.body.clonedTag;
+        expect(clonedTag.authorId).toBe(recipient._id);
+        expect(clonedTag.label).toBe('Shared');
+
+        // The cloned word must carry its translations + cases (the §8.3 fix).
+        const [clonedWord] = await db
+            .select()
+            .from(words)
+            .where(eq(words.userId, recipient._id))
+            .limit(1);
+        expect(clonedWord.isCloned).toBe(true);
+        expect(clonedWord.originalCreatorId).toBe(owner._id);
+
+        const transRows = await db
+            .select()
+            .from(translations)
+            .where(eq(translations.wordId, clonedWord.id));
+        expect(transRows.length).toBeGreaterThanOrEqual(1);
+
+        const caseRows = await db
+            .select()
+            .from(translationCases)
+            .where(eq(translationCases.translationId, transRows[0].id));
+        expect(caseRows.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('POST /api/tag-shares/:id/accept - rejects accept by the sender', async () => {
+        const tag = await createSharedTag();
+        const share = await request(app)
+            .post(`/api/tags/${tag._id}/share`)
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ recipientId: recipient._id });
+
+        const res = await request(app)
+            .post(`/api/tag-shares/${share.body.id}/accept`)
+            .set('Authorization', `Bearer ${owner.token}`);
+
+        expect(res.statusCode).toBe(401);
+    });
+
+    it('POST /api/tag-shares/:id/decline - declines a share', async () => {
+        const tag = await createSharedTag();
+        const share = await request(app)
+            .post(`/api/tags/${tag._id}/share`)
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ recipientId: recipient._id });
+
+        const res = await request(app)
+            .post(`/api/tag-shares/${share.body.id}/decline`)
+            .set('Authorization', `Bearer ${recipient.token}`);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.status).toBe('declined');
+
+        const [updated] = await db
+            .select()
+            .from(tagShares)
+            .where(eq(tagShares.id, share.body.id))
+            .limit(1);
+        expect(updated.status).toBe('declined');
+    });
+});
+
+describe('Tag clone authorization', () => {
+    let owner, stranger;
+
+    beforeEach(async () => {
+        owner = await registerAndLogin('Owner', 'owner@test.com', 'owner');
+        stranger = await registerAndLogin('Stranger', 'stranger@test.com', 'stranger');
+    });
+
+    it('POST /api/tags/addExternalTag - clones a Public tag', async () => {
+        const word = await createWord(owner.token, 'Noun', 'singularNominative', 'book');
+        const tag = await request(app)
+            .post('/api/tags')
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ label: 'PublicTag', visibility: 'Public', words: [{ _id: word._id }] });
+
+        const res = await request(app)
+            .post('/api/tags/addExternalTag')
+            .set('Authorization', `Bearer ${stranger.token}`)
+            .send({ tagId: tag.body._id });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.authorId).toBe(stranger._id);
+    });
+
+    it('POST /api/tags/addExternalTag - rejects cloning a Private tag', async () => {
+        const word = await createWord(owner.token, 'Noun', 'singularNominative', 'book');
+        const tag = await request(app)
+            .post('/api/tags')
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ label: 'PrivateTag', visibility: 'Private', words: [{ _id: word._id }] });
+
+        const res = await request(app)
+            .post('/api/tags/addExternalTag')
+            .set('Authorization', `Bearer ${stranger.token}`)
+            .send({ tagId: tag.body._id });
+
+        expect(res.statusCode).toBe(401);
+    });
+
+    it('GET /api/tags/:id - rejects viewing a Private tag by a non-author', async () => {
+        const word = await createWord(owner.token, 'Noun', 'singularNominative', 'book');
+        const tag = await request(app)
+            .post('/api/tags')
+            .set('Authorization', `Bearer ${owner.token}`)
+            .send({ label: 'Hidden', visibility: 'Private', words: [{ _id: word._id }] });
+
+        const res = await request(app)
+            .get(`/api/tags/${tag.body._id}`)
+            .set('Authorization', `Bearer ${stranger.token}`);
+
+        expect(res.statusCode).toBe(401);
+    });
+});
+
 describe('DELETE /api/tags/:id - Delete Tag', () => {
     let token, userId, tagId;
 
@@ -124,16 +327,15 @@ describe('DELETE /api/tags/:id - Delete Tag', () => {
         token = data.token;
         userId = data._id;
 
-        // Seed a word and tag, then link them via the junction table.
         const [word] = await db.insert(words).values({
-            userId: userId,
+            userId,
             partOfSpeech: 'Verb',
         }).returning();
 
         const [tag] = await db.insert(tags).values({
             authorId: userId,
             label: 'ToDelete',
-            public: 'Private',
+            visibility: 'Private',
         }).returning();
 
         tagId = tag.id;
@@ -149,11 +351,9 @@ describe('DELETE /api/tags/:id - Delete Tag', () => {
             .delete(`/api/tags/${tagId}`).set('Authorization', `Bearer ${token}`);
         expect(res.statusCode).toBe(200);
 
-        // Confirm the tag row itself was removed.
         const [foundTag] = await db.select().from(tags).where(eq(tags.id, tagId)).limit(1);
         expect(foundTag).toBeUndefined();
 
-        // Confirm cascade deletion cleared the junction table for this tag.
         const tagWordsRows = await db
             .select()
             .from(tagWords)
@@ -162,7 +362,6 @@ describe('DELETE /api/tags/:id - Delete Tag', () => {
     });
 
     it('fails with 401 when not the author', async () => {
-        // Register a second user to obtain a different auth token.
         await request(app).post('/api/users').send({
             name: 'Other', email: 'other@test.com', username: 'other', password: 'pass123',
         });

@@ -20,11 +20,12 @@ if (!connectionString) {
 }
 
 export default defineConfig({
-    // Absolute path to the Drizzle schema file
-    schema: path.resolve(__dirname, './src/db/schema.ts'),
-
-    // Absolute path to the directory where generated SQL migration files will be stored
-    out: path.resolve(__dirname, './src/db/migrations'),
+    // cwd-relative paths. drizzle-kit 0.31.10 prepends `./` to snapshot paths
+    // internally, which breaks on absolute paths (produces `.//abs/...`).
+    // All db:* scripts run with cwd = backend/, so these resolve to
+    // backend/src/db/schema.ts and backend/src/db/migrations respectively.
+    schema: './src/db/schema.ts',
+    out: './src/db/migrations',
 
     // Use the PostgreSQL dialect
     dialect: 'postgresql',

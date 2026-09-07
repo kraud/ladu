@@ -1,0 +1,44 @@
+{
+  "toastMessages": {
+    "tagDeleted": "{{tagLabel}} tag kustutati!",
+    "tagUpdated": "Tag uuendati edukalt!",
+    "tagCreated": "Tag loodi edukalt!",
+    "tagShared": "Märgendi jagamise taotlus saadeti edukalt!",
+    "wordsDeleted": "Sõnad kustutati edukalt!"
+  },
+  "tagDataForm": {
+    "errors": {
+      "noNumbers": "Ei tohi sisaldada numbreid",
+      "publicRequired": "Peab määrama avaliku staatuse",
+      "publicNotMatch": "See ei ole valik",
+      "labelRequired": "Tagi märgis on kohustuslik",
+      "labelAlreadyExists": "See märgis on juba kasutusel",
+      "errorProcessing": "Märgi töötlemisel tekkis viga",
+      "labelNotMatchingSpaces": "Märgis ei luba tühikuid. Proovi CamelCasing või snake_casing vormingut.",
+      "labelTooShort": "Märgis peab olema pikem kui 2 tähemärki",
+      "labelTooLong": "Märgis on liiga pikk (max 30 tähemärki)",
+      "descriptionTooShort": "Kirjeldus peab olema pikem kui 5 tähemärki",
+      "descriptionTooLong": "Kirjeldus on liiga pikk (max 250 tähemärki)"
+    },
+    "fieldLabels": {
+      "label": "Nimi",
+      "public": "Avalik",
+      "description": "Kirjeldus"
+    }
+  },
+  "displayTag": {
+    "toastError": "Midagi läks valesti: {{error}}",
+    "toastTagDeletedSuccess": "Tag {{tagLabel}} on kustutatud!",
+    "toastTagCloneSuccess": "Tag ja sõnad on edukalt sinu kontole lisatud!"
+  },
+  "searchTags": "Otsi Tags...",
+  "noWordsAssigned": "- sõnu pole veel määratud -",
+  "createdByYou": "Loodud sinu poolt",
+  "createdByUser": "Loodud {{username}} poolt",
+  "amountWord_one": "{{count}} sõna",
+  "amountWord_other": "{{count}} sõna",
+  "noTagsCreated": "Te pole veel ühelegi sõnale Tagid lisanud.",
+  "goToAddTags": "Salvestatud sõnade ülevaatamiseks ja Tagid lisamiseks klõpsake siin!",
+  "followedTags": "Jälgitavad Tagid",
+  "noTagsFollowed": "Te pole veel ühtegi Tagid jälginud."
+}

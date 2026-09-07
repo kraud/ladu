@@ -1,0 +1,184 @@
+{
+  "addWordPage": {
+    "title": "Lisa uus {{currentPoS}}",
+    "titleDefault": "Lisa uus sõna",
+    "subtitle": "Kõik kohustuslikud väljad tuleb enne salvestamist täita"
+  },
+  "displayWord": {
+    "titlePos": "Üksikasjalik vaatamine: {{currentPoS}}",
+    "titleSimple": "Üksikasjalik vaatamine",
+    "subtitle": "Kõik praegu salvestatud tõlked sellele sõnale",
+    "toastUpdateSuccess": "Sõna on edukalt uuendatud",
+    "toastError": "Midagi läks valesti: {{error}}"
+  },
+  "partOfSpeechSelector": {
+    "title": "Mis tüüpi sõna see on?",
+    "subtitle": "Pole kindel, mis mis on? Liigu hiirega nuppude kohal ja loe kirjeldusi.",
+    "description": {
+      "other": "Saate sellest aru, kui seda näete!",
+      "noun": {
+        "info": "Nimisõnad on keele olulised sõnad, mis annavad nimed inimestele, kohtadele, asjadele või ideedele. Need aitavad meil maailma enda ümber tuvastada ja sellest rääkida.",
+        "examples": [
+          "*Pizza* on populaarne Itaalia roog.",
+          "*Koer* on truu lemmikloom.",
+          "*Linn* on suur linnapiirkond, kus on hooned, teed ja elav elanikkond."
+        ]
+      },
+      "pronoun": {
+        "info": "Asesõnad on sõnad, mis asendavad konkreetseid nimisõnu, et muuta meie laused vähem korduvaks. Need aitavad meil viidata inimestele, kohtadele, asjadele või ideedele ilma sama nimisõna pidevalt kordamata.",
+        "examples": [
+          "*Tema* loeb raamatut.",
+          "*Meie* läheme parki."
+        ]
+      },
+      "verb": {
+        "info": "Tegusõnad on tegevust tähistavad sõnad, mis kirjeldavad, mida keegi või miski teeb. Need väljendavad tegevusi, seisundeid või esinemisi. Tegusõnad annavad meie lausetesse elu ja liikumist.",
+        "examples": [
+          "Ma *söön* nädalavahetustel pitsat, sest see on mu lemmiktoit.",
+          "Kass *hüppab* lauale, et oma ümbrust uurida."
+        ]
+      },
+      "adjective": {
+        "info": "Omadussõnad on sõnad, mis kirjeldavad või täiendavad nimisõnu, andes meile rohkem teavet nende kohta. Need aitavad meil väljendada asjade omadusi, omadusi või atribuute, millest me räägime.",
+        "examples": [
+          "Ilm on täna *päikesepaisteline*, selge taeva ja rohkete päikesepaistega.",
+          "Tal on *sõbralik* isiksus ja ta tervitab alati kõiki naeratusega."
+        ]
+      },
+      "adverb": {
+        "info": "Määrsõnad on sõnad, mis annavad rohkem teavet lauses kasutatud tegusõnade, omadussõnade ja teiste määrsõnade kohta. Määrsõnu on viit peamist tüüpi: viisi määrsõnad, määra määrsõnad, sageduse määrsõnad, aja määrsõnad ja koha määrsõnad.",
+        "examples": [
+          "Kas sa tulid *siia*, et vihmavarju osta? (Koha määrsõna)",
+          "Ma ei läinud eile kooli, sest olin haige. (Aja määrsõna)",
+          "Savio loeb ajalehte *iga päev*. (Sageduse määrsõna)",
+          "Kas sa saaksid palun *kiiresti* tulla? (Viisi määrsõna)",
+          "Tony oli nii unine, et ei suutnud kohtumise ajal silmi lahti hoida. (Määra määrsõna)"
+        ]
+      },
+      "preposition": {
+        "info": "Tead, kui näed.",
+        "examples": [""]
+      },
+      "conjunction": {
+        "info": "Tead, kui näed.",
+        "examples": [""]
+      },
+      "interjection": {
+        "info": "Tead, kui näed.",
+        "examples": [""]
+      },
+      "properNoun": {
+        "info": "Tead, kui näed.",
+        "examples": [""]
+      },
+      "numerals": {
+        "info": "Tead, kui näed.",
+        "examples": [""]
+      }
+    },
+    "missingImplementationPoS": "Seda sõnaliiki ei ole veel rakendatud, vabandame!"
+  },
+  "translationFormGeneric": {
+    "selectLanguage": "Vali uue sõna keel",
+    "switchLanguage": "Keele vahetamine:"
+  },
+  "wordFormSelector": {
+    "languageNotAvailable": "See keel pole veel saadaval",
+    "partOfSpeechNotAvailable": "See osa kõnest pole veel saadaval"
+  },
+  "formComponentLabel": {
+    "clue": "Vihje"
+  },
+  "wordForm": {
+    "errors": {
+      "noNumbers": "Ei tohi sisaldada numbreid"
+    },
+    "noun": {
+      "errors": {
+        "formEN": {
+          "singularFormRequired": "'Ainsus' on kohustuslik"
+        },
+        "formES": {
+          "singularFormRequired": "'Ainsuse' vorm on kohustuslik",
+          "genderRequired": "'Soo' valik on kohustuslik"
+        },
+        "formDE": {
+          "singularFormRequired": "'Ainsuse nimetav' on kohustuslik",
+          "genderRequired": "'Soo' valik on kohustuslik"
+        },
+        "formEE": {
+          "singularFormRequired": "'Ainsuse nimetav' on kohustuslik",
+          "searchInEnglishLabel": "Otsi nimisõna inglise keeles",
+          "searchInEnglishWarning": "Ettevaatust, see ei tööta kõigi nimisõnade puhul! Vajadusel proovi eesti keeles."
+        }
+      }
+    },
+    "adjective": {
+      "errors": {
+        "formEN": {
+          "positiveDegreeRequired": "Positiivvorm on kohustuslik"
+        },
+        "formES": {
+          "singularMasculineDegreeRequired": "Meessoo ainsusvorm on kohustuslik",
+          "singularFemaleDegreeRequired": "Naissoo ainsusvorm on kohustuslik",
+          "singularNeutralDegreeRequired": "Kesksugu ainsusvorm on kohustuslik",
+          "pluralNeutralDegreeRequired": "Kesksugu mitmusvorm on kohustuslik",
+          "genderRequired": "'Soo' valik on kohustuslik"
+        },
+        "formDE": {
+          "positiveDegreeRequired": "Positiivvorm on kohustuslik"
+        },
+        "formEE": {
+          "algvorreFormRequired": "Meessoo ainsusvorm on kohustuslik",
+          "keskvorreFormRequired": "Naissoo ainsusvorm on kohustuslik",
+          "ulivorreFormRequired": "Kesksugu ainsusvorm on kohustuslik"
+        }
+      }
+    },
+    "adverb": {
+      "errors": {
+        "formEN": {
+          "adverbRequired": "Määrsõna on kohustuslik"
+        },
+        "formES": {
+          "adverbRequired": "Määrsõna on kohustuslik"
+        },
+        "formDE": {
+          "adverbRequired": "Määrsõna on kohustuslik",
+          "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
+        }
+      }
+    },
+    "verb": {
+      "errors": {
+        "formEN": {
+          "simplePresentRequired": "See lihtoleviku väli on kohustuslik",
+          "regularityRequired": "See pole valik"
+        },
+        "formES": {
+          "infinitiveNonFiniteRequired": "Infinitiiv mittefiniitne on kohustuslik",
+          "gerundNonFiniteRequired": "Gerundiiv mittefiniitne on kohustuslik",
+          "participleNonFiniteRequired": "Partitsiip mittefiniitne on kohustuslik",
+          "regularityRequired": "See pole valik"
+        },
+        "formDE": {
+          "infinitiveNonFiniteRequired": "Infinitiiv mittefiniitne on kohustuslik",
+          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-en', '-ern', '-eln')."
+        },
+        "formEE": {
+          "infinitiveMaRequired": "-ma infinitiiv on kohustuslik",
+          "infinitiveMaNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-ma').",
+          "infinitiveDaRequired": "-da infinitiiv on kohustuslik",
+          "searchInEnglishLabel": "Otsi verbi inglise keeles",
+          "searchInEnglishWarning": "Olge ettevaatlik, see ei toimi kõigi verbidega! Vajadusel proovige eesti keeles."
+        }
+      }
+    },
+    "autocompleteTranslationButton": {
+      "label": "Automaatselt täida {{wordType}}",
+      "emptyQuery": "Palun sisesta esmalt '{{requiredField}}'.",
+      "noMatch": "Vabandust, me ei tunne seda sõna!",
+      "foundMatch": "Meie süsteemis on selle sõna kohta teavet."
+    }
+  }
+}

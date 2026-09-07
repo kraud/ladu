@@ -1,0 +1,12 @@
+{
+  "toastMessages": {
+    "wordDeleted": "Sõna kustutati edukalt",
+    "tagAddedToWords": "Sildid lisati edukalt"
+  },
+  "fieldLabels": {
+    "activeLanguages": "Aktiivne",
+    "hiddenLanguages": "Peidetud",
+    "public": "Avalik",
+    "description": "Kirjeldus"
+  }
+}

@@ -54,7 +54,7 @@ const makeTag = (overrides = {}) => ({
     authorId: 'author-uuid-1',
     label: 'My Tag',
     description: 'A test tag',
-    public: 'Public',
+    visibility: 'Public',
     createdAt: new Date('2025-01-01T00:00:00Z'),
     updatedAt: new Date('2025-01-02T00:00:00Z'),
     ...overrides,

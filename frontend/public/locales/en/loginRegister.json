@@ -1,0 +1,50 @@
+{
+  "errors": {
+    "invalidEmail": "Valid e-mail is required",
+    "passwordRequired": "Password is required",
+    "nameRequired": "Name is required",
+    "emailRequired": "E-mail is required",
+    "usernameRequired": "Username is required",
+    "passwordRepeatRequired": "Password confirmation is required",
+    "passwordRepeatMustMatch": "Passwords don't match",
+    "linkError": "There was an error with this link."
+  },
+  "toastMessages": {
+    "passwordUpdated": "Password updated successfully!",
+    "emailSent": "Email sent successfully!"
+  },
+  "login": {
+    "title": "Login",
+    "subtitle": "And get started!"
+  },
+  "register": {
+    "title": "Register",
+    "subtitle": "Please create an account"
+  },
+  "resetPassword": {
+    "titleReset": "Password reset",
+    "titleForgot": "Forgot your password?",
+    "subtitleNewPassword": "Enter a new password below",
+    "subtitleEnterEmail": "Enter the email address associated with your account and we'll send you a link to reset your password"
+  },
+  "userVerification": {
+    "validating": "Password reset",
+    "validatingSuccess": "Validated successfully!",
+    "goingIn": "Going in...",
+    "messagePreValidation": "You will be redirected automatically after validation is completed.",
+    "messagePostValidation": "Not redirected automatically? Click here to continue.",
+    "errorValidation": "Oops. Something went wrong."
+  },
+  "switchSectionButtons": {
+    "alreadyRegistered": "Already registered?",
+    "notRegistered": "You don't have an account?",
+    "forgotPassword": "Forgot your password?"
+  },
+  "formLabels": {
+    "name": "Name",
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "email": "Email"
+  }
+}

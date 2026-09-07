@@ -1,0 +1,86 @@
+{
+  "titles": {
+    "wordSelection": "Los parámetros se aplicarán a los ejercicios creados a partir de estas {{amountWordsSelectedForExercises}} palabras:",
+    "exerciseResultsScore": "Resultados: {{scoreCorrect}}/{{total}} ✅",
+    "exerciseResultsProcess": "Ejercicios {{index}}/{{total}}",
+    "noExercisesMatch": "Sin coincidencias",
+    "tryDifferentSettings": "Intenta de nuevo con diferentes configuraciones.",
+    "parametersTitle": "Parámetros del ejercicio:",
+    "difficultyMC": "Dificultad de opción múltiple:",
+    "difficultyTI": "Dificultad de entrada de texto:"
+  },
+  "tooltips": {
+    "needMorePractice": "¡No lo sé, muéstramelo de nuevo!",
+    "noMorePractice": "¡No mostrar esta traducción de nuevo!",
+    "checkAnswer": "Verificar respuesta primero",
+    "performanceExplain": "Tu rendimiento en esta palabra. La última vez que la practicabas: {{lastDate}}",
+    "typeExerciseExplain": "Esto determinará el tipo de tarjeta que se mostrará",
+    "typeCardExplain": "Esto determinará la cantidad de idiomas que formarán parte de los ejercicios mostrados en una tarjeta de ejercicio",
+    "requireMultipleChoice": "El tipo de ejercicio debe ser 'Opción múltiple' o 'Aleatorio' para cambiar este valor",
+    "requireTextInput": "El tipo de ejercicio debe ser 'Entrada de texto' o 'Aleatorio' para cambiar este valor",
+    "sortingAndSelectionExplain": "Esto determina cómo seleccionamos los ejercicios a mostrar. Con 'Rendimiento en ejercicios' priorizamos las palabras y traducciones que no has practicado aún.",
+    "nativeLanguageParameterExplain": "Esto determina si incluimos ejercicios relacionados con tu idioma nativo en el caso de ejercicios de un solo idioma.",
+    "goToExercise": "Ir al ejercicio",
+    "registeredCases": "Casos registrados ({{language}}): {{amount}}",
+    "alreadySetMastered": "Esta configuración ya está activa.",
+    "alreadySetRevise": "Esta configuración ya está activa. Has respondido correctamente {{count}} veces. Cuando llegues a 5, esta configuración se eliminará automáticamente"
+  },
+  "dialogs": {
+    "titles": {
+      "masterTranslation": "¿Oh, ya has dominado esta traducción?",
+      "forgetTranslation": "¿Estás teniendo dificultades con esta palabra?"
+    },
+    "messages": {
+      "masterTranslation": "¿Estás seguro de que quieres establecer el conocimiento de esta traducción al 100%? Esto significa que no verás ejercicios sobre esta traducción en el futuro.",
+      "forgetTranslation": "Vamos a mostrarte esta traducción con más frecuencia. Luego de 5 respuestas correctas esta configuración será eliminada automáticamente. ¿Estás seguro de que quieres continuar?",
+      "revertStatus": "¿Deseas revertir esta configuración?"
+    }
+  },
+  "buttons": {
+    "check": "Verificar",
+    "goParams": "Volver a los parámetros",
+    "goResults": "Ir a los resultados",
+    "hideParams": "Ocultar parámetros",
+    "showParams": "Mostrar parámetros",
+    "hideWords": "Ocultar palabras",
+    "showWords": "Mostrar palabras",
+    "hideAdvSettings": "Ocultar configuraciones avanzadas",
+    "showAdvSettings": "Mostrar configuraciones avanzadas",
+    "createExercises": "Crear ejercicios"
+  },
+  "categories": {
+    "multipleChoice": "Opción múltiple",
+    "textInput": "Entrada de texto",
+    "multiLanguage": "Multilenguaje",
+    "singleLanguage": "Un solo lenguaje"
+  },
+  "parameterSelector": {
+    "validation": {
+      "minAmountSelection": "Debes seleccionar al menos un elemento",
+      "amountRequired": "La cantidad es un valor requerido",
+      "validNumber": "Por favor, ingresa un número válido",
+      "integerRequired": "Solo se permiten números enteros",
+      "numberRequired": "Solo se permiten números",
+      "positiveRequired": "Por favor, ingresa un número positivo"
+    },
+    "labels": {
+      "partsOfSpeech": "Partes del discurso",
+      "amountExercises": "Cantidad de ejercicios",
+      "typeExercise": "Tipo de ejercicio",
+      "languagesPerCard": "Idiomas por tarjeta"
+    },
+    "sliderOptionDescriptions": {
+      "difficultyMC": {
+        "textLevel0": "Cualquier tipo de palabra - cualquier idioma",
+        "textLevel1": "Cualquier tipo de palabra - mismo idioma",
+        "textLevel2": "Mismo tipo de palabra - mismo idioma",
+        "textLevel3": "Misma palabra - mismo idioma - diferentes casos"
+      },
+      "difficultyTI": {
+        "textLevel1": "Ignora mayúsculas y caracteres especiales.",
+        "textLevel2": "Solo ignora mayúsculas.",
+        "textLevel3": "Cero tolerancia - la entrada debe coincidir exactamente."
+      }
+    }
+  }
+}

@@ -89,7 +89,7 @@ describe('POST /api/words - Create Word', () => {
         const [tag] = await db.insert(tags).values({
             authorId: userId,
             label: 'T',
-            public: 'Private',
+            visibility: 'Private',
         }).returning();
 
         const res = await request(app)
@@ -197,7 +197,7 @@ describe('DELETE /api/words/:id - Delete Word', () => {
         const [tag] = await db.insert(tags).values({
             authorId: userId,
             label: 'D',
-            public: 'Private',
+            visibility: 'Private',
         }).returning();
 
         const r = await request(app).post('/api/words').set('Authorization', `Bearer ${token}`)

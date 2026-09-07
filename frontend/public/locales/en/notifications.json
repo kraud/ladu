@@ -1,0 +1,19 @@
+{
+  "title": "Notifications",
+  "noNotifications": "Nothing to see here (yet!)...",
+  "missingNotificationType": "- there was an unexpected error with this notification -",
+  "friendRequest": {
+    "accept": "Accept friendship request",
+    "ignore": "Set notification as read",
+    "delete": "Delete notification",
+    "toastSuccess": "Friend request accepted",
+    "notificationLabel": "{{friendUsername}} sent a friend request."
+  },
+  "shareTagRequest": {
+    "accept": "Accept tag",
+    "ignore": "Set notification as read",
+    "delete": "Delete notification",
+    "toastSuccess": "Tag was added successfully to your account",
+    "notificationLabel": "{{otherUserUsername}} wants to share the '{{tagName}}' tag with you."
+  }
+}

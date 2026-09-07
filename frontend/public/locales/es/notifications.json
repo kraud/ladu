@@ -1,0 +1,19 @@
+{
+  "title": "Notificaciones",
+  "noNotifications": "Nada hay nada por aquí (¡por ahora!)...",
+  "missingNotificationType": "- hubo un error inesperado con esta notificación -",
+  "friendRequest": {
+    "accept": "Aceptar solicitud de amistad",
+    "ignore": "Marcar notificación como leída",
+    "delete": "Borrar notificación",
+    "toastSuccess": "Solicitud de amistad aceptada",
+    "notificationLabel": "{{friendUsername}} te envió una solicitud de amistad."
+  },
+  "shareTagRequest": {
+    "accept": "Aceptar tag",
+    "ignore": "Marcar notificación como leída",
+    "delete": "Borrar notificación",
+    "toastSuccess": "El Tag fué añadido a tu cuenta exitosamente",
+    "notificationLabel": "{{otherUserUsername}} quiere compartir el tag '{{tagName}}' contigo."
+  }
+}

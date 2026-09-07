@@ -1,0 +1,12 @@
+{
+  "toastMessages": {
+    "wordDeleted": "Das Wort wurde erfolgreich gelöscht",
+    "tagAddedToWords": "Tags wurden erfolgreich hinzugefügt"
+  },
+  "fieldLabels": {
+    "activeLanguages": "Aktiv",
+    "hiddenLanguages": "Versteckt",
+    "public": "Öffentlich",
+    "description": "Beschreibung"
+  }
+}

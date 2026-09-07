@@ -1,0 +1,86 @@
+{
+  "titles": {
+    "wordSelection": "Parameters will apply to exercises created from these {{amountWordsSelectedForExercises}} words:",
+    "exerciseResultsScore": "Results: {{scoreCorrect}}/{{total}} ✅",
+    "exerciseResultsProcess": "Exercises {{index}}/{{total}}",
+    "noExercisesMatch": "No match",
+    "tryDifferentSettings": "Please try again with different settings.",
+    "parametersTitle": "Exercise parameters:",
+    "difficultyMC": "Multiple-Choice difficulty:",
+    "difficultyTI": "Text-Input difficulty:"
+  },
+  "tooltips": {
+    "needMorePractice": "I don't know this, show me again!",
+    "noMorePractice": "Don't show this translation again!",
+    "checkAnswer": "Check answer first",
+    "performanceExplain": "Your performance on this word. Last time you practiced this: {{lastDate}}",
+    "typeExerciseExplain": "This will determine the type of card to be displayed",
+    "typeCardExplain": "This will determine the amount of languages that will be part of the exercises displayed in an exercise card",
+    "requireMultipleChoice": "Exercise type must be 'Multiple-Choice' or 'Random' to change this value",
+    "requireTextInput": "Exercise type must be 'Text-Input' or 'Random' to change this value",
+    "sortingAndSelectionExplain": "This determines how we select the exercises to display. With 'Exercise-Performance' we prioritize words and translations you haven't practiced yet.",
+    "nativeLanguageParameterExplain": "This determines if we include exercises related to your native language in the case of single-language exercises.",
+    "goToExercise": "Go to exercise",
+    "registeredCases": "Registered cases ({{language}}): {{amount}}",
+    "alreadySetMastered": "This setting is already active.",
+    "alreadySetRevise": "This setting is already active. You've answered right {{count}} times. When your reach 5, this configuration will be removed automatically."
+  },
+  "dialogs": {
+    "titles": {
+      "masterTranslation": "Oh you've already mastered this translation?",
+      "forgetTranslation": "Are you struggling with this word?"
+    },
+    "messages": {
+      "masterTranslation": "Are you sure you want to set the knowledge of this translation to 100%? This means you will not see exercises about this translation in the future.",
+      "forgetTranslation": "We are going to show you this translation more often. After 5 correct answers this setting willbe removed automatically. Are you sure you want to continue?",
+      "revertStatus": "Do you wish to undo this setting?"
+    }
+  },
+  "buttons": {
+    "check": "Check",
+    "goParams": "Go back to parameters",
+    "goResults": "Go to results",
+    "hideParams": "Hide parameters",
+    "showParams": "Display parameters",
+    "hideWords": "Hide words",
+    "showWords": "Display words",
+    "hideAdvSettings": "Hide advanced settings",
+    "showAdvSettings": "Display advanced settings",
+    "createExercises": "Create exercises"
+  },
+  "categories": {
+    "multipleChoice": "Multiple-Choice",
+    "textInput": "Text-Input",
+    "multiLanguage": "Multi-Language",
+    "singleLanguage": "Single-Language"
+  },
+  "parameterSelector": {
+    "validation": {
+      "minAmountSelection": "You must select at least one item",
+      "amountRequired": "Amount is a required value",
+      "validNumber": "Please enter a valid number",
+      "integerRequired": "Only whole numbers are valid",
+      "numberRequired": "Only numbers are allowed",
+      "positiveRequired": "Please enter a positive number"
+    },
+    "labels": {
+      "partsOfSpeech": "Parts of speech",
+      "amountExercises": "Amount of exercises",
+      "typeExercise": "Exercise type",
+      "languagesPerCard": "Languages per card"
+    },
+    "sliderOptionDescriptions": {
+      "difficultyMC": {
+        "textLevel0": "Any word-type - any language",
+        "textLevel1": "Any word-type - same language",
+        "textLevel2": "Same word-type - same language",
+        "textLevel3": "Same word - same language - different cases"
+      },
+      "difficultyTI": {
+        "textLevel1": "Ignores capitalization, and special characters.",
+        "textLevel2": "Only ignores capitalization.",
+        "textLevel3": "Zero tolerance - input must match exactly."
+      }
+    }
+  }
+}

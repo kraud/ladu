@@ -99,27 +99,6 @@ interface TranslationDiffResult {
 //  and fetchWordWithRelations are now in backend/services/wordService.ts)
 
 // ---------------------------------------------------------------------------
-// HELPERS: Build WHERE conditions from query parameters
-// ---------------------------------------------------------------------------
-
-/**
- * Convert legacy query params into an array of Drizzle WHERE expressions.
- * Mirrors the old `getMatchQuery()` helper.
- */
-const buildWordConditions = (query: Record<string, any>): any[] => {
-  const conditions: any[] = [];
-
-  if (query.id !== undefined) conditions.push(eq(words.id, query.id));
-  if (query.user !== undefined) conditions.push(eq(words.userId, query.user));
-  if (query.partOfSpeech !== undefined)
-    conditions.push(eq(words.partOfSpeech, query.partOfSpeech));
-  if (query.clue !== undefined)
-    conditions.push(ilike(words.clue, `%${query.clue}%`));
-
-  return conditions;
-};
-
-// ---------------------------------------------------------------------------
 // HELPERS: Tag-based word filtering
 // ---------------------------------------------------------------------------
 
@@ -1021,56 +1000,6 @@ const filterWordByAnyTranslation = asyncHandler(async (req: any, res: any) => {
   res.status(200).json(simpleResults);
 });
 
-// @desc    Internal helper: get word+tag data by request criteria
-//          Also exposed as a route (GET /api/words/getAllWordDataByWord).
-// @route   GET /api/words/getAllWordDataByWord (see route TODO)
-// @access  Private
-const getWordDataByRequest = async (
-  wordRequest?: { query: Record<string, any> },
-  wordForceRequest?: any[],
-): Promise<WordResponse[]> => {
-  try {
-    if (wordForceRequest !== undefined) {
-      // A raw array of filter criteria was passed (used by the old
-      // `getWordsSimplified` for the "no filters" fallback).
-      const conditions: any[] = [];
-      for (const f of wordForceRequest) {
-        if (f.$or) {
-          const orParts: any[] = [];
-          for (const orItem of f.$or) {
-            if (orItem.user) orParts.push(eq(words.userId, orItem.user));
-            if (orItem._id?.$in)
-              orParts.push(inArray(words.id, orItem._id.$in.map(String)));
-          }
-          if (orParts.length > 0) conditions.push(or(...orParts));
-        }
-      }
-      const where = conditions.length > 0 ? and(...conditions) : undefined;
-      const rows = await db.select().from(words).where(where);
-      const ids = rows.map((r) => r.id);
-      return fetchWordsWithRelations(ids);
-    }
-
-    // Standard path: build conditions from query params
-    const conditions = wordRequest
-      ? buildWordConditions(wordRequest.query)
-      : [];
-    const where = conditions.length > 0 ? and(...conditions) : undefined;
-    const rows = await db.select().from(words).where(where);
-    const ids = rows.map((r) => r.id);
-    return fetchWordsWithRelations(ids);
-  } catch (error) {
-    console.log("error", error);
-    throw new Error("Word auxiliary function 'getWordDataByRequest' failed");
-  }
-};
-
-// Route wrapper for getWordDataByRequest (so it can be used as an Express handler).
-const getAllWordDataByWord = asyncHandler(async (req: any, res: any) => {
-  const wordData = await getWordDataByRequest({ query: req.query });
-  res.status(200).json(wordData);
-});
-
 // ===========================================================================
 // EXPORTS
 // ===========================================================================
@@ -1083,8 +1012,6 @@ module.exports = {
   updateWord,
   deleteWord,
   filterWordByAnyTranslation,
-  getWordDataByRequest,
   deleteManyWords,
   getWordsByFollowedTag,
-  getAllWordDataByWord,
 };

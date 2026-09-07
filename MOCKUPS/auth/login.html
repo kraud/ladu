@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign in · Ladu</title>
+<link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+<div class="auth-shell page" data-od-id="login">
+  <a class="logo auth-banner" href="../index.html"><span class="logo-mark">L</span>Ladu</a>
+
+  <div class="card card-pad auth-card" style="padding: 24px;">
+    <h1 class="h2" style="margin-bottom: 4px;">Sign in</h1>
+    <p class="muted" style="font-size: 13.5px; margin-bottom: 20px;">Your words, four languages, one shelf.</p>
+
+    <form id="login-form" novalidate>
+      <div class="stack-md">
+        <div class="field">
+          <label class="label" for="email">Email</label>
+          <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+          <span class="err" id="email-err">Enter a valid email address</span>
+        </div>
+        <div class="field">
+          <label class="label" for="password">Password</label>
+          <input class="input" id="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+          <span class="err" id="password-err">Password is required</span>
+        </div>
+        <button class="btn btn-primary" id="submit" type="submit" style="width: 100%; margin-top: 4px;">Sign in</button>
+      </div>
+    </form>
+
+    <div class="auth-links">
+      <span>Not registered?</span><a href="register.html">Create an account</a>
+      <span style="color: var(--border);">·</span>
+      <a href="reset-password.html">Forgot password?</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+function toast(kind, msg, action) {
+  const icons = { success: 'M20 6 9 17l-5-5', error: 'M18 6 6 18M6 6l12 12', warning: 'M12 8v5m0 4h.01', info: 'M12 16v-5m0-4h.01' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = `<svg class="t-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="${icons[kind]}"/></svg><span>${msg}</span>` + (action ? `<a href="${action.href}">${action.label}</a>` : '');
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 5200);
+}
+function setErr(input, errId, show) {
+  $('#' + errId).classList.toggle('show', show);
+  input.setAttribute('aria-invalid', show ? 'true' : 'false');
+}
+const email = $('#email'), password = $('#password');
+email.addEventListener('input', () => setErr(email, 'email-err', false));
+password.addEventListener('input', () => setErr(password, 'password-err', false));
+
+$('#login-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+  const pwOk = password.value.length > 0;
+  setErr(email, 'email-err', !emailOk);
+  setErr(password, 'password-err', !pwOk);
+  if (!emailOk || !pwOk) { (emailOk ? password : email).focus(); return; }
+
+  const btn = $('#submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Signing in…';
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Sign in';
+    if (email.value.trim().startsWith('unverified')) {
+      toast('warning', 'You need to verify your account before signing in.');
+    } else {
+      toast('success', 'Welcome back.');
+      setTimeout(() => location.href = '../index.html', 700);
+    }
+  }, 850);
+});
+</script>
+</body>
+</html>

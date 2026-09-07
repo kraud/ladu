@@ -1,0 +1,44 @@
+{
+  "toastMessages": {
+    "tagDeleted": "{{tagLabel}} tag was deleted!",
+    "tagUpdated": "Tag was updated successfully!",
+    "tagCreated": "Tag was created successfully!",
+    "tagShared": "Request to share tag was sent successfully!",
+    "wordsDeleted": "Words were deleted successfully!"
+  },
+  "tagDataForm": {
+    "errors": {
+      "noNumbers": "Must not include numbers",
+      "publicRequired": "Must specify public status",
+      "publicNotMatch": "That is not an option",
+      "labelRequired": "A tag label is required",
+      "labelAlreadyExists": "That label is already in use",
+      "errorProcessing": "There was an error while processing that label",
+      "labelNotMatchingSpaces": "Label does not allow spaces. Try CamelCasing or snake_casing instead.",
+      "labelTooShort": "Label must be longer than 2 characters",
+      "labelTooLong": "Label is too long (max. 30 characters)",
+      "descriptionTooShort": "Description must be longer than 5 characters",
+      "descriptionTooLong": "Description is too long (max 250 characters)"
+    },
+    "fieldLabels": {
+      "label": "Label",
+      "public": "Public",
+      "description": "Description"
+    }
+  },
+  "displayTag": {
+    "toastError": "Something went wrong: {{error}}",
+    "toastTagDeletedSuccess": "{{tagLabel}} tag was deleted!",
+    "toastTagCloneSuccess": "Tag and words were successfully added to your account!"
+  },
+  "searchTags": "Search Tags...",
+  "noWordsAssigned": "- no words assigned yet -",
+  "createdByYou": "Created by you",
+  "createdByUser": "Created by {{username}}",
+  "amountWord_one": "{{count}} word",
+  "amountWord_other": "{{count}} words",
+  "noTagsCreated": "You haven't added tags to any words yet.",
+  "goToAddTags": "Click here to go review your saved words and add tags!",
+  "followedTags": "Followed tags",
+  "noTagsFollowed": "You haven't followed any tags yet."
+}

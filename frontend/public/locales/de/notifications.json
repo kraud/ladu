@@ -1,0 +1,19 @@
+{
+  "title": "Benachrichtigungen",
+  "noNotifications": "Hier gibt es (noch) nichts zu sehen...",
+  "missingNotificationType": "- Bei dieser Benachrichtigung ist ein unerwarteter Fehler aufgetreten -",
+  "friendRequest": {
+    "accept": "Freundschaftsanfrage annehmen",
+    "ignore": "Benachrichtigung als gelesen markieren",
+    "delete": "Benachrichtigung löschen",
+    "toastSuccess": "Freundschaftsanfrage angenommen",
+    "notificationLabel": "{{friendUsername}} hat eine Freundschaftsanfrage gesendet"
+  },
+  "shareTagRequest": {
+    "accept": "Tag akzeptieren",
+    "ignore": "Benachrichtigung als gelesen markieren",
+    "delete": "Benachrichtigung löschen",
+    "toastSuccess": "Tag wurde erfolgreich zu Ihrem Konto hinzugefügt",
+    "notificationLabel": "{{otherUserUsername}} möchte das Tag '{{tagName}}' mit Ihnen teilen."
+  }
+}

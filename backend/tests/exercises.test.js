@@ -64,36 +64,34 @@ describe('GET /api/exercises/getUserExercises - Exercise Generation', () => {
     });
 
     it('returns exercises for valid parameters (Multi-Language)', async () => {
-        const params = encodeURIComponent(JSON.stringify({
-            languages: ['English', 'Estonian'],
-            partsOfSpeech: ['Verb'],
-            amountOfExercises: 1,
-            multiLang: 'Multi-Language',
-            type: 'Text-Input',
-            mode: 'Single-Try',
-            wordSelection: 'Random',
-        }));
-
         const res = await request(app)
-            .get(`/api/exercises/getUserExercises?parameters=${params}`)
+            .get(`/api/exercises/getUserExercises`)
+            .query({ parameters: {
+                languages: ['English', 'Estonian'],
+                partsOfSpeech: ['Verb'],
+                amountOfExercises: 1,
+                multiLang: 'Multi-Language',
+                type: 'Text-Input',
+                mode: 'Single-Try',
+                wordSelection: 'Random',
+            } })
             .set('Authorization', `Bearer ${token}`);
 
         expect(res.statusCode).toBe(200);
     });
 
     it('returns 200 for Single-Language exercises', async () => {
-        const params = encodeURIComponent(JSON.stringify({
-            languages: ['English', 'Estonian'],
-            partsOfSpeech: ['Verb'],
-            amountOfExercises: 1,
-            multiLang: 'Single-Language',
-            type: 'Text-Input',
-            mode: 'Single-Try',
-            wordSelection: 'Random',
-        }));
-
         const res = await request(app)
-            .get(`/api/exercises/getUserExercises?parameters=${params}`)
+            .get(`/api/exercises/getUserExercises`)
+            .query({ parameters: {
+                languages: ['English', 'Estonian'],
+                partsOfSpeech: ['Verb'],
+                amountOfExercises: 1,
+                multiLang: 'Single-Language',
+                type: 'Text-Input',
+                mode: 'Single-Try',
+                wordSelection: 'Random',
+            } })
             .set('Authorization', `Bearer ${token}`);
 
         expect(res.statusCode).toBe(200);

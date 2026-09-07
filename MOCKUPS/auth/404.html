@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>404 · Ladu</title>
+<link rel="stylesheet" href="../assets/app.css" />
+<style>
+  .nf-shell { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 24px; text-align: center; }
+  .nf-code { font-family: var(--font-display); font-size: clamp(64px, 12vw, 120px); line-height: 1; letter-spacing: -0.03em; }
+  .nf-cycle { min-height: 1.5em; transition: opacity .3s ease; }
+  .nf-cycle.fade { opacity: 0; }
+  .nf-divider { display: flex; align-items: center; gap: 12px; color: var(--border); width: min(280px, 60vw); }
+  .nf-divider::before, .nf-divider::after { content: ''; flex: 1; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="nf-shell page" data-od-id="not-found">
+  <a class="logo" href="../index.html"><span class="logo-mark">L</span>Ladu</a>
+  <span class="nf-code">404</span>
+  <div class="nf-divider" aria-hidden="true"></div>
+  <p class="nf-cycle" id="cycle" aria-live="polite">Siin pole midagi vaadata…</p>
+  <a class="btn btn-primary" href="../index.html">Go to dashboard</a>
+</div>
+
+<script>
+const lines = [
+  'Siin pole midagi vaadata…',
+  'Nothing to see here…',
+  'Hier gibt es nichts zu sehen…',
+  'No hay nada que ver aquí…'
+];
+let i = 0;
+const el = document.getElementById('cycle');
+setInterval(() => {
+  el.classList.add('fade');
+  setTimeout(() => { i = (i + 1) % lines.length; el.textContent = lines[i]; el.classList.remove('fade'); }, 300);
+}, 2600);
+</script>
+</body>
+</html>

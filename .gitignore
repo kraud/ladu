@@ -1,5 +1,16 @@
 node_modules
-# this also applies to the .env inside frontend
+
+# macOS Finder metadata
+.DS_Store
+
+# env files (applies to frontend/.env too)
 .env
+
+# editors
 .idea
 .vscode
+
+# build output
+dist
+frontend/dist
+*.tsbuildinfo

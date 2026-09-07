@@ -6,7 +6,7 @@ const {
     getAmountByTag, getOtherUserTags, getTagDataByRequest,
     addExternalTag, checkIfTagLabelAvailable,
     addTagsInBulkToWords, followTag, getTagsFollowedByUser,
-    deleteUserFollowingTag
+    deleteUserFollowingTag, shareTag
 } = require('../controllers/tagController.ts')
 const {protect} = require('../middleware/authMiddleware.ts')
 
@@ -14,7 +14,7 @@ router.get('/getTags', protect, getUserTags)
 router.get('/getOtherUserTags', protect, getOtherUserTags)
 router.get('/getFollowedTagsIdByUserId', protect, getTagsFollowedByUser)
 router.get('/searchTags', protect, searchTags)
-router.get('/filterTags', protect, getTagDataByRequest) // TODO: this should be removed? Double check
+router.get('/filterTags', protect, getTagDataByRequest) // consumed by tagService.filterTags
 router.get('/:id', protect, getTagById)
 router.post('/addExternalTag', protect, addExternalTag )//Clones a tag and it's words
 router.post('/followTag', protect, followTag)
@@ -22,6 +22,7 @@ router.post('/addTagInBulkToWords', protect, addTagsInBulkToWords)
 router.post('/checkIfTagLabelAvailable', protect, checkIfTagLabelAvailable)
 router.get('/getAmountByTag/:id', protect, getAmountByTag)
 router.post('/', protect, createTag)
+router.post('/:id/share', protect, shareTag)
 router.delete('/unfollowTag/:id', protect, deleteUserFollowingTag)
 router.delete('/:id', protect, deleteTag)
 router.put('/:id', protect, updateTag)

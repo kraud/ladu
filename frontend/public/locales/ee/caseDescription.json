@@ -1,0 +1,7 @@
+{
+  "verbPersonCardinal": {
+    "number_ordinal_one": "{{count}}. isik",
+    "number_ordinal_two": "{{count}}. isik",
+    "number_ordinal_few": "{{count}}. isik"
+  }
+}

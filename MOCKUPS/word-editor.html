@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Add word · Ladu</title>
+<link rel="stylesheet" href="assets/app.css" />
+<style>
+  main { padding-block: 18px 96px; }
+  .stepbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: var(--radius);
+    background: var(--surface); border: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .tcards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: start; }
+  .add-tile {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 64px; border: 1.5px dashed var(--border-strong, color-mix(in oklch, var(--fg) 22%, transparent));
+    border-radius: var(--radius-lg); color: var(--muted); font-size: 14px; font-weight: 500;
+    transition: color .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .add-tile:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .add-tile:disabled { opacity: .45; cursor: not-allowed; }
+  .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .savebar {
+    position: sticky; bottom: 0; z-index: 15;
+    margin: 16px calc(-1 * var(--gutter)) 0; padding: 10px var(--gutter);
+    background: color-mix(in oklch, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px); border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .save-hint { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+  .save-hint .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warning); flex: none; }
+  .save-hint.ready .dot { background: var(--success); }
+  @media (max-width: 920px) { .tcards, .cases-grid { grid-template-columns: 1fr; } .duo { grid-template-columns: 1fr !important; } }
+</style>
+</head>
+<body>
+
+<header class="app-header" data-od-id="app-header">
+  <div class="container app-header-inner">
+    <a class="logo" href="index.html"><span class="logo-mark">L</span>Ladu</a>
+    <nav class="app-nav">
+      <a href="word-editor.html" class="active">Add Word</a>
+      <a href="#" title="Spec 05 pending">Practice</a>
+      <a href="review.html">Review</a>
+    </nav>
+    <div class="grow"></div>
+    <div class="searchbox">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input placeholder="Search words or tags…" aria-label="Global search" />
+      <span class="mode-switch" role="group" aria-label="Search mode">
+        <button aria-pressed="true">Word</button><button aria-pressed="false">Tag</button>
+      </span>
+    </div>
+    <div class="row" style="gap: 8px;">
+      <span class="select" style="width: auto; height: 32px; display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 0 26px 0 10px;">
+        <svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>
+        EN
+      </span>
+      <button class="icon-btn" aria-label="Notifications, 3 unread">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <button class="avatar has-badge" data-count="3" aria-label="Account menu — Kai Rebane, 3 unread">KR</button>
+    </div>
+  </div>
+</header>
+
+<main class="container page">
+
+  <div class="row-between" style="margin-bottom: 14px;" data-od-id="page-title">
+    <div class="row" style="gap: 10px;">
+      <button class="icon-btn" aria-label="Back" onclick="history.back()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
+      </button>
+      <h1 class="h1">Add word</h1>
+    </div>
+    <span class="meta">Minimum 2 languages to save</span>
+  </div>
+
+  <!-- Step 1 — part of speech -->
+  <section data-od-id="pos-step" id="pos-section">
+    <div class="pos-grid" id="pos-grid">
+      <button class="pos-card" data-pos="noun" aria-pressed="true">
+        <svg class="pos-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M12 3v18M8 21h8"/></svg>
+        <b>Noun</b><span>der Baum · puu · tree</span>
+      </button>
+      <button class="pos-card" data-pos="verb" aria-pressed="false">
+        <svg class="pos-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 13h6l-1 8 8-11h-6z"/></svg>
+        <b>Verb</b><span>lesen · lugema · to read</span>
+      </button>
+      <button class="pos-card" data-pos="adjective" aria-pressed="false">
+        <svg class="pos-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 1 3 2.2c0 3.3-6 2-6 5.1 0 1.3 1.3 2.2 3 2.2s3-.9 3-2"/></svg>
+        <b>Adjective</b><span>schön · ilus · beautiful</span>
+      </button>
+      <button class="pos-card" data-pos="adverb" aria-pressed="false">
+        <svg class="pos-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h13M13 6l7 6-7 6"/></svg>
+        <b>Adverb</b><span>schnell · kiiresti · quickly</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Step 2 — translations grid (hidden until PoS chosen) -->
+  <section data-od-id="translations" id="editor-body" style="display: none;">
+    <div class="stepbar" id="stepbar" style="display: none;">
+      <span class="eyebrow">Step 1</span>
+      <b id="stepbar-pos" style="font-size: 14px;">Noun</b>
+      <button class="btn btn-ghost btn-sm" id="change-pos">Change</button>
+      <span class="hint grow" style="text-align: right;">Case fields adapt to the part of speech and language</span>
+    </div>
+
+    <div class="tcards" id="tcards"><!-- translation cards render here --></div>
+
+    <div class="duo" style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px; margin-top: 12px;">
+      <div class="field">
+        <label class="label" for="clue">Clue</label>
+        <textarea class="textarea" id="clue" rows="3" placeholder="A sentence, mnemonic or association… e.g. “the tree by the barn — puu ladu ees”"></textarea>
+      </div>
+      <div class="field">
+        <label class="label" for="tag-input">Tags</label>
+        <div class="card" style="padding: 8px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; min-height: var(--control-h);" id="tag-box">
+          <input id="tag-input" class="input" style="border: 0; box-shadow: none; height: 26px; padding: 0 4px; flex: 1; min-width: 90px; font-size: 13px;" placeholder="Add tag…" aria-label="Add tag" />
+        </div>
+        <span class="hint">Enter to add · matches any existing tag first</span>
+      </div>
+    </div>
+
+    <div class="savebar" data-od-id="save-bar">
+      <span class="save-hint" id="save-hint"><span class="dot"></span><span id="save-hint-text">Fill both required fields to enable saving</span></span>
+      <button class="btn btn-primary" id="save" disabled>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+        Save word
+      </button>
+    </div>
+  </section>
+
+</main>
+
+<!-- language picker dialog -->
+<dialog id="lang-dialog">
+  <div class="dlg-head">
+    <h2 class="h3">Add a language</h2>
+    <button class="icon-btn" data-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dlg-body stack-sm" id="lang-options"></div>
+</dialog>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+/* ─────────────── data ─────────────── */
+const LANGS = {
+  en: { name: 'English',  cls: 't-gb', flag: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>` },
+  de: { name: 'Deutsch',  cls: 't-de', flag: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#1d1b17"/><rect y="13.3" width="60" height="13.4" fill="#c8102e"/><rect y="26.6" width="60" height="13.4" fill="#f0b429"/></svg>` },
+  es: { name: 'Español',  cls: 't-es', flag: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#c60b1e"/><rect y="10" width="60" height="20" fill="#ffc400"/></svg>` },
+  ee: { name: 'Eesti',    cls: 't-ee', flag: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#0072ce"/><rect y="13.3" width="60" height="13.4" fill="#101010"/><rect y="26.6" width="60" height="13.4" fill="#fff"/></svg>` }
+};
+
+/* per-language noun forms: [key, label, required] */
+const NOUN_FORMS = {
+  en: [ ['sg','Singular',1], ['pl','Plural',1] ],
+  de: [ ['sg','Singular (with article)',1], ['pl','Plural',1] ],
+  es: [ ['sg','Singular',1], ['pl','Plural',1] ],
+  ee: [ ['n','Nimetav',1], ['g','Omastav',1], ['p','Osastav',1], ['ill','Illatiiv',0], ['in','Inessiiv',0], ['el','Elatiiv',0], ['all','Allatiiv',0], ['ade','Adessiiv',0] ]
+};
+const GENDERS = {
+  de: [ ['der','der'],['die','die'],['das','das'] ],
+  es: [ ['el','el'],['la','la'] ]
+};
+const POS_NAMES = { noun: 'Noun', verb: 'Verb', adjective: 'Adjective', adverb: 'Adverb' };
+
+let state = {
+  pos: 'noun',
+  cards: [
+    { lang: 'en', values: { reg: 'regular', sg: 'tree', pl: 'trees' } },
+    { lang: 'de', values: { gender: 'der', sg: 'der Baum', pl: 'die Bäume' } },
+    { lang: 'ee', values: { n: 'puu', g: 'puu', p: 'puud' } }
+  ],
+  tags: ['nature', 'A1'],
+  dirty: false,
+  saving: false
+};
+
+const $ = s => document.querySelector(s);
+const ALL_LANGS = Object.keys(LANGS);
+
+/* ─────────────── rendering ─────────────── */
+function cardHTML(c) {
+  const L = LANGS[c.lang];
+  const forms = NOUN_FORMS[c.lang];
+  const g = GENDERS[c.lang];
+  const fields = forms.map(([k, label, req]) => `
+    <div class="field">
+      <label class="label">${label}${req ? ' <span class="req">*</span>' : ''}</label>
+      <input class="input js-field" data-key="${k}" value="${c.values[k] || ''}" autocomplete="off" ${req ? 'aria-required="true"' : ''} />
+    </div>`).join('');
+  return `
+  <article class="tcard ${L.cls}" data-od-id="tcard-${c.lang}">
+    <div class="tcard-head">
+      <span class="lang-id">${L.flag}${L.name}</span>
+      <span class="ring-wrap" style="margin-left: auto;">
+        <span class="ring" data-ring="${c.lang}" style="--pct: 0;"></span>
+        <span class="ring-detail meta" data-detail="${c.lang}">0/${forms.length}</span>
+      </span>
+    </div>
+    <div class="tcard-body stack-md">
+      ${g ? `<div class="field"><span class="label">Gender <span class="req">*</span></span>
+        <div class="radio-row">${g.map(([v, l]) => `
+          <label class="radio"><input type="radio" name="gender-${c.lang}" value="${v}" class="js-field" data-key="gender" ${c.values.gender === v ? 'checked' : ''}/>${l}</label>`).join('')}
+        </div></div>` : ''}
+      ${c.lang === 'en' ? `<div class="field"><span class="label">Regularity</span>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="reg-en" value="regular" class="js-field" data-key="reg" ${c.values.reg === 'regular' ? 'checked' : ''}/>regular</label>
+          <label class="radio"><input type="radio" name="reg-en" value="irregular" class="js-field" data-key="reg" ${c.values.reg === 'irregular' ? 'checked' : ''}/>irregular</label>
+        </div></div>` : ''}
+      ${c.lang !== 'en' ? `
+      <div class="ac-row">
+        <span class="ac-status ${acState(c).cls}" data-ac-icon="${c.lang}">${acState(c).glyph}</span>
+        <span class="grow" data-ac-text="${c.lang}">${acState(c).text}</span>
+        <button class="btn btn-sm btn-secondary" data-ac="${c.lang}">Autocomplete</button>
+      </div>` : ''}
+      <div class="${c.lang === 'ee' ? 'cases-grid' : 'g2'}" style="display: grid; ${c.lang === 'ee' ? '' : 'grid-template-columns: 1fr 1fr;'}">${fields}</div>
+    </div>
+    <div class="tcard-foot">
+      <span class="hint grow" data-count="${c.lang}"></span>
+      <button class="btn btn-sm btn-ghost" data-clear="${c.lang}">Clear</button>
+      <button class="btn btn-sm btn-danger" data-remove="${c.lang}" ${state.cards.length <= 2 ? 'disabled' : ''}>Remove</button>
+    </div>
+  </article>`;
+}
+
+function acState(c) {
+  const forms = NOUN_FORMS[c.lang];
+  const filled = forms.filter(([k, , req]) => req && c.values[k]).length;
+  const reqCount = forms.filter(([, , req]) => req).length;
+  if (filled === 0) return { glyph: '?', cls: 'ac-empty', text: `No lookup yet — fill ${reqCount} required field${reqCount > 1 ? 's' : ''} first` };
+  if (filled === reqCount && forms.every(([k, , r]) => !r || c.values[k])) return { glyph: '✓', cls: 'ac-found', text: 'All fields filled' };
+  if (filled > 0) return { glyph: '⚠', cls: 'ac-partial', text: 'Partial data — autocomplete fills the blanks' };
+  return { glyph: '?', cls: 'ac-empty', text: 'No lookup yet' };
+}
+
+function render() {
+  const grid = $('#tcards');
+  grid.innerHTML = state.cards.map(cardHTML).join('');
+  const remaining = ALL_LANGS.filter(l => !state.cards.some(c => c.lang === l));
+  const tile = document.createElement('button');
+  tile.className = 'add-tile';
+  tile.id = 'add-lang';
+  tile.disabled = remaining.length === 0;
+  tile.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Add language`;
+  grid.appendChild(tile);
+  if (remaining.length) tile.addEventListener('click', () => openLangDialog(remaining));
+  wire();
+  updateCompletion();
+}
+
+/* ─────────────── completion + gating ─────────────── */
+function updateCompletion() {
+  state.cards.forEach(c => {
+    const forms = NOUN_FORMS[c.lang];
+    const g = GENDERS[c.lang];
+    const total = forms.length + (g ? 1 : 0) + (c.lang === 'en' ? 1 : 0);
+    let filled = forms.filter(([k, , req]) => req && (c.values[k] || '').trim()).length;
+    if (g && c.values.gender) filled++;
+    if (c.lang === 'en' && c.values.reg) filled++;
+    const pct = Math.round(filled / total * 100);
+    const ring = document.querySelector(`[data-ring="${c.lang}"]`);
+    const detail = document.querySelector(`[data-detail="${c.lang}"]`);
+    if (ring) ring.style.setProperty('--pct', pct);
+    if (detail) detail.textContent = `${filled}/${total}`;
+  });
+
+  const allComplete = state.cards.every(c => {
+    const g = GENDERS[c.lang];
+    return NOUN_FORMS[c.lang].every(([k, , req]) => !req || (c.values[k] || '').trim()) && (!g || c.values.gender);
+  });
+  const ok = state.cards.length >= 2 && allComplete && state.dirty && !state.saving;
+  $('#save').disabled = !ok;
+  const hint = $('#save-hint'), txt = $('#save-hint-text');
+  hint.classList.toggle('ready', ok);
+  txt.textContent = !state.dirty ? 'Make a change to enable saving'
+    : state.cards.length < 2 ? 'Minimum 2 languages to save'
+    : !allComplete ? 'Fill every required field (marked *) in all translations'
+    : state.saving ? 'Saving…' : 'Ready — all translations complete';
+}
+
+/* ─────────────── events ─────────────── */
+function wire() {
+  document.querySelectorAll('.js-field').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const card = inp.closest('.tcard');
+      const lang = card.dataset.odId.replace('tcard-', '');
+      const c = state.cards.find(x => x.lang === lang);
+      c.values[inp.dataset.key] = inp.type === 'radio' ? inp.value : inp.value;
+      state.dirty = true;
+      if (inp.type !== 'radio') updateCompletion(); else render();
+    });
+  });
+  document.querySelectorAll('[data-clear]').forEach(b => b.addEventListener('click', () => {
+    const c = state.cards.find(x => x.lang === b.dataset.clear);
+    c.values = {};
+    state.dirty = true;
+    render();
+  }));
+  document.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => {
+    state.cards = state.cards.filter(x => x.lang !== b.dataset.remove);
+    state.dirty = true;
+    render();
+  }));
+  document.querySelectorAll('[data-ac]').forEach(b => b.addEventListener('click', () => runAutocomplete(b.dataset.ac)));
+}
+
+const AC_FILL = {
+  de: { gender: 'das', sg: 'das Fenster', pl: 'die Fenster' },
+  ee: { n: 'aken', g: 'akna', p: 'akent', ill: 'akna(inde)', in: 'aknas', el: 'aknast', all: 'aknale', ade: 'aknal' },
+  es: { gender: 'la', sg: 'la ventana', pl: 'las ventanas' }
+};
+
+function runAutocomplete(lang) {
+  const c = state.cards.find(x => x.lang === lang);
+  if (!c) return;
+  const icon = document.querySelector(`[data-ac-icon="${lang}"]`);
+  const text = document.querySelector(`[data-ac-text="${lang}"]`);
+  icon.className = 'ac-status ac-loading';
+  icon.innerHTML = '<span class="spinner" style="width: 10px; height: 10px; border-width: 2px;"></span>';
+  text.textContent = 'Looking up…';
+  setTimeout(() => {
+    const fill = AC_FILL[lang] || {};
+    let filled = 0;
+    Object.entries(fill).forEach(([k, v]) => {
+      if (!c.values[k]) { c.values[k] = v; filled++; }
+    });
+    state.dirty = true;
+    render();
+    toast(filled ? 'success' : 'info', filled ? `${LANGS[lang].name}: ${filled} field${filled > 1 ? 's' : ''} filled from lookup` : 'Nothing left to fill — every field already has a value');
+  }, 750);
+}
+
+/* ─────────────── PoS step ─────────────── */
+document.querySelectorAll('.pos-card').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.pos-card').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  choosePos(b.dataset.pos);
+}));
+$('#change-pos').addEventListener('click', () => {
+  $('#pos-grid').style.display = '';
+  $('#stepbar').style.display = 'none';
+});
+function choosePos(pos) {
+  state.pos = pos;
+  $('#pos-grid').style.display = 'none';
+  $('#stepbar').style.display = '';
+  $('#stepbar-pos').textContent = POS_NAMES[pos];
+  $('#editor-body').style.display = '';
+  render();
+}
+
+/* ─────────────── language dialog ─────────────── */
+function openLangDialog(remaining) {
+  const box = $('#lang-options');
+  box.innerHTML = remaining.map(l => `
+    <button class="btn btn-secondary" style="justify-content: flex-start; width: 100%;" data-pick="${l}">
+      ${LANGS[l].flag} ${LANGS[l].name}
+    </button>`).join('');
+  box.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => {
+    state.cards.push({ lang: b.dataset.pick, values: {} });
+    state.dirty = true;
+    $('#lang-dialog').close();
+    render();
+    document.querySelector(`[data-od-id="tcard-${b.dataset.pick}"] .input`)?.focus();
+  }));
+  $('#lang-dialog').showModal();
+}
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+
+/* ─────────────── tags ─────────────── */
+const TAG_SUGGESTIONS = ['kitchen', 'travel', 'animals', 'food', 'work', 'A1', 'A2', 'B1', 'nature', 'home'];
+function renderTags() {
+  const box = $('#tag-box'), input = $('#tag-input');
+  box.querySelectorAll('.tagchip').forEach(ch => ch.remove());
+  state.tags.forEach((t, i) => {
+    const ch = document.createElement('span');
+    ch.className = 'tagchip';
+    ch.innerHTML = `${t} <button class="x" aria-label="Remove ${t}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
+    ch.querySelector('.x').addEventListener('click', () => { state.tags.splice(i, 1); state.dirty = true; renderTags(); });
+    box.insertBefore(ch, input);
+  });
+}
+$('#tag-input').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const v = e.target.value.trim().toLowerCase();
+  if (!v || state.tags.includes(v)) return;
+  state.tags.push(v);
+  e.target.value = '';
+  state.dirty = true;
+  renderTags();
+  updateCompletion();
+});
+$('#clue').addEventListener('input', () => { state.dirty = true; updateCompletion(); });
+
+/* ─────────────── save ─────────────── */
+$('#save').addEventListener('click', () => {
+  state.saving = true;
+  updateCompletion();
+  const btn = $('#save');
+  btn.innerHTML = '<span class="spinner"></span>Saving…';
+  setTimeout(() => {
+    state.saving = false;
+    btn.innerHTML = 'Save word';
+    toast('success', '“tree” saved to your shelf', { label: 'See details', href: '#' });
+    /* create-mode reset: back to step 1, clean form */
+    state = { pos: state.pos, cards: [], tags: [], dirty: false, saving: false };
+    $('#clue').value = '';
+    renderTags();
+    $('#pos-grid').style.display = '';
+    $('#stepbar').style.display = 'none';
+    $('#editor-body').style.display = 'none';
+    document.querySelectorAll('.pos-card').forEach(x => x.setAttribute('aria-pressed', 'false'));
+    window.scrollTo({ top: 0 });
+  }, 900);
+});
+
+/* ─────────────── toast ─────────────── */
+function toast(kind, msg, action) {
+  const icons = { success: 'M20 6 9 17l-5-5', error: 'M18 6 6 18M6 6l12 12', warning: 'M12 8v5m0 4h.01', info: 'M12 16v-5m0-4h.01' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = `<svg class="t-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="${icons[kind]}"/></svg><span>${msg}</span>` + (action ? `<a href="${action.href}">${action.label}</a>` : '');
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 5200);
+}
+
+/* ─────────────── boot (demo: Noun pre-selected) ─────────────── */
+renderTags();
+choosePos('noun');
+</script>
+</body>
+</html>

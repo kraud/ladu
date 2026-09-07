@@ -1,145 +1,81 @@
 /**
  * Friendship Controller — Drizzle ORM (PostgreSQL)
  *
- * Migration notes (MongoDB → PostgreSQL schema changes):
- *   - MongoDB stored participants in a `userIds` array (`[ObjectId, ObjectId]`).
- *     PostgreSQL uses explicit `user1_id` / `user2_id` columns.  To keep the
- *     front-end contract unchanged, the controller still accepts `userIds`
- *     in requests and returns it in responses (computed from the two columns).
- *   - Partnerships previously nested inside the friendship document are now
- *     stored in a separate `friendship_partnerships` table.
- *   - Notification deletion (on accept/reject) now directly queries the
- *     `notifications` table via Drizzle instead of Mongoose.
+ * Redesigned per study §8.2. The previous model stored a sort-normalised
+ * `user1Id`/`user2Id` pair with a nullable varchar status, no requester
+ * identity, no decline action, duplicate-prone create, and compound
+ * non-transactional accept/delete endpoints. The redesign:
+ *   - `requesterId` / `addresseeId` NOT NULL FKs (direction is preserved).
+ *   - NOT NULL `status` enum: pending | accepted | declined | cancelled.
+ *   - Database-enforced uniqueness (schema.ts): one pending request per
+ *     direction, one accepted friendship per unordered pair.
+ *   - One action per endpoint; the friendRequest notification is created /
+ *     removed server-side in the same transaction as the friendship write.
  *
  * Route usage is declared in ../routes/friendshipRoutes.js (still CJS).
  */
 
-const { db } = require('../src/db');
-const {
-    friendshipPartnerships,
-    friendships,
-    notifications,
-    users,
-} = require('../src/db/schema');
+import { and, eq, or, sql } from 'drizzle-orm';
+import type { Request, Response } from 'express';
 
-const { and, eq, inArray, or, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
+const { db } = require('../src/db');
+const { friendships, notifications, users } = require('../src/db/schema');
 const asyncHandler = require('express-async-handler');
 
-// ---------------------------------------------------------------------------
-// TYPES
-// ---------------------------------------------------------------------------
 type FriendshipRow = typeof friendships.$inferSelect;
-type PartnershipRow = typeof friendshipPartnerships.$inferSelect;
-type NotificationRow = typeof notifications.$inferSelect;
-type UserRow = typeof users.$inferSelect;
+type FriendshipStatus = FriendshipRow['status'];
 
-/**
- * The old Mongoose model stored partnerships as a nested array directly on
- * the friendship document.  We keep the same shape in the API response.
- */
-interface PartnershipResponse {
-    _id: string;
-    mentor: string;
-    language: string;
+interface ParticipantData {
+    id: string;
+    name: string;
+    username: string;
 }
 
-/**
- * Legacy friendship response shape (matches the old Mongoose toObject()).
- */
 interface FriendshipResponse {
-    _id: string;
     id: string;
-    userIds: string[];
-    status: string | null;
-    partnerships: PartnershipResponse[];
-    usersData?: Array<{ _id: string; name: string; username: string }>;
+    requesterId: string;
+    addresseeId: string;
+    status: FriendshipStatus;
+    usersData: ParticipantData[];
     createdAt: Date;
     updatedAt: Date;
 }
 
-// ---------------------------------------------------------------------------
-// HELPERS
-// ---------------------------------------------------------------------------
+/** `protect` middleware guarantees `req.user`; this controller only reads its id. */
+type RequestWithAuth = Request & { user: { id: string } };
+
+const isUuid = (value: unknown): value is string =>
+    typeof value === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 
 /**
- * Normalise the old `userIds` array into the two-column format.
- * UUIDs are sorted lexicographically to prevent duplicate friend pairs
- * (e.g. [B, A] and [A, B] would both produce the same row).
+ * Assemble the response, resolving display info for both participants.
  */
-const toUserColumns = (userIds: string[]): { user1Id: string; user2Id: string } => {
-    const [a, b] = userIds;
-    return a < b ? { user1Id: a, user2Id: b } : { user1Id: b, user2Id: a };
-};
-
-/**
- * Reconstruct the legacy `userIds` array from the two columns.
- */
-const toUserIdsArray = (row: FriendshipRow): string[] => [row.user1Id, row.user2Id];
-
-/**
- * Fetch partnerships for a set of friendship UUIDs.
- * Returns a Map<friendshipId, PartnershipResponse[]>.
- */
-const fetchPartnershipsMap = async (friendshipIds: string[]): Promise<Map<string, PartnershipResponse[]>> => {
-    if (friendshipIds.length === 0) return new Map();
-
-    const rows = await db
-        .select()
-        .from(friendshipPartnerships)
-        .where(inArray(friendshipPartnerships.friendshipId, friendshipIds));
-
-    const map = new Map<string, PartnershipResponse[]>();
-    for (const p of rows) {
-        const entry: PartnershipResponse = {
-            _id: p.id,
-            mentor: p.mentorId,
-            language: p.language,
-        };
-        const bucket = map.get(p.friendshipId);
-        if (bucket) bucket.push(entry);
-        else map.set(p.friendshipId, [entry]);
-    }
-    return map;
-};
-
-/**
- * Resolve user display info for a list of user UUIDs.
- */
-const fetchUsersData = async (userIds: string[]) => {
-    if (userIds.length === 0) return [];
-
-    const rows = await db
-        .select({ _id: users.id, name: users.name, username: users.username })
+const toResponse = async (row: FriendshipRow): Promise<FriendshipResponse> => {
+    const participants = await db
+        .select({ id: users.id, name: users.name, username: users.username })
         .from(users)
-        .where(inArray(users.id, userIds));
+        .where(or(eq(users.id, row.requesterId), eq(users.id, row.addresseeId)));
 
-    return rows;
+    return {
+        id: row.id,
+        requesterId: row.requesterId,
+        addresseeId: row.addresseeId,
+        status: row.status,
+        usersData: participants,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+    };
 };
 
 /**
- * Assemble a friendship response object from a DB row.
+ * The friendRequest notification addressed to the recipient (addressee) with
+ * the requester recorded in its JSONB content.
  */
-const assembleFriendshipResponse = async (
-    row: FriendshipRow,
-    partnershipsMap: Map<string, PartnershipResponse[]>,
-): Promise<FriendshipResponse> => ({
-    _id: row.id,
-    id: row.id,
-    userIds: toUserIdsArray(row),
-    status: row.status,
-    partnerships: partnershipsMap.get(row.id) || [],
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-});
-
-/**
- * Build a notification filter that matches the old Mongoose query pattern
- * `{ user, variant, "content.requesterId": requesterId }`.
- */
-const notificationFilter = (userId: string, variant: string, requesterId: string) =>
+const friendRequestNotificationFilter = (addresseeId: string, requesterId: string) =>
     and(
-        eq(notifications.userId, userId),
-        eq(notifications.variant, variant),
+        eq(notifications.userId, addresseeId),
+        eq(notifications.variant, 'friendRequest'),
         sql`${notifications.content}->>'requesterId' = ${requesterId}`,
     );
 
@@ -147,111 +83,191 @@ const notificationFilter = (userId: string, variant: string, requesterId: string
 // ENDPOINTS
 // ===========================================================================
 
-// @desc    Get all friendships for a given participant
-//          (NB! the requester does not need to be the participant themselves)
-// @route   GET /api/friendships/getFriendships
+// @desc    Get all friendships for the current user (either direction)
+// @route   GET /api/friendships
 // @access  Private
-const getUserFriendshipsByParticipantId = asyncHandler(async (req: any, res: any) => {
-    if (!req.query || !req.query.userId) {
-        res.status(400);
-        throw new Error('Missing search query text');
-    }
-    if (!req.user) {
-        res.status(401);
-        throw new Error('Logged-in user not found');
-    }
-
-    const participantId = req.query.userId;
-
-    // Find all friendships where this user is either participant
+const getUserFriendships = asyncHandler(async (req: RequestWithAuth, res: Response) => {
     const rows = await db
         .select()
         .from(friendships)
-        .where(or(eq(friendships.user1Id, participantId), eq(friendships.user2Id, participantId)));
+        .where(
+            or(
+                eq(friendships.requesterId, req.user.id),
+                eq(friendships.addresseeId, req.user.id),
+            ),
+        );
 
-    if (rows.length === 0) {
-        res.status(200).json([]);
-        return;
-    }
-
-    const friendshipIds = rows.map((r) => r.id);
-    const partnershipsMap = await fetchPartnershipsMap(friendshipIds);
-
-    // Resolve display info for every participant across all matched friendships
-    const allUserIds = [...new Set(rows.flatMap((r) => [r.user1Id, r.user2Id]))];
-    const usersData = await fetchUsersData(allUserIds);
-    const usersDataMap = new Map(usersData.map((u) => [u._id, u]));
-
-    const result = await Promise.all(
-        rows.map(async (row) => {
-            const base = await assembleFriendshipResponse(row, partnershipsMap);
-            return {
-                ...base,
-                usersData: base.userIds.map((id) => usersDataMap.get(id)).filter(Boolean),
-            };
-        }),
-    );
-
+    const result = await Promise.all(rows.map(toResponse));
     res.status(200).json(result);
 });
 
-// @desc    Create a friendship (friend request)
+// @desc    Send a friend request (creates the notification in-transaction)
 // @route   POST /api/friendships
 // @access  Private
-const createFriendship = asyncHandler(async (req: any, res: any) => {
-    const userIds: string[] = req.body.userIds;
+const createFriendship = asyncHandler(async (req: RequestWithAuth, res: Response) => {
+    const addresseeId: unknown = req.body.addresseeId;
 
-    if (!userIds) {
+    if (!isUuid(addresseeId)) {
         res.status(400);
-        throw new Error('Please specify users to be part of the friendship.');
+        throw new Error('Please specify a valid addresseeId.');
     }
-    if (userIds.length !== 2) {
+    if (addresseeId === req.user.id) {
         res.status(400);
-        throw new Error('Only 2 users can be part of a friendship');
-    }
-    if (userIds[0] === userIds[1]) {
-        res.status(400);
-        throw new Error('The participants of a friendship must be 2 different users');
-    }
-    if (!userIds.includes(req.user.id)) {
-        res.status(401);
-        throw new Error('Not allowed to create: user is not part of the friendship');
-    }
-    if (!req.body.status) {
-        res.status(400);
-        throw new Error('Please specify the status of the friendship.');
+        throw new Error('You cannot send a friend request to yourself.');
     }
 
-    const { user1Id, user2Id } = toUserColumns(userIds);
+    const [addressee] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.id, addresseeId))
+        .limit(1);
+    if (!addressee) {
+        res.status(400);
+        throw new Error('Addressee not found.');
+    }
 
-    const [newFriendship] = await db
-        .insert(friendships)
-        .values({ user1Id, user2Id, status: req.body.status })
-        .returning();
+    // Check both directions for an existing active or outstanding relationship.
+    const [existing] = await db
+        .select()
+        .from(friendships)
+        .where(
+            and(
+                or(
+                    and(
+                        eq(friendships.requesterId, req.user.id),
+                        eq(friendships.addresseeId, addresseeId),
+                    ),
+                    and(
+                        eq(friendships.requesterId, addresseeId),
+                        eq(friendships.addresseeId, req.user.id),
+                    ),
+                ),
+                or(
+                    eq(friendships.status, 'pending'),
+                    eq(friendships.status, 'accepted'),
+                ),
+            ),
+        )
+        .limit(1);
 
-    // Handle partnerships if provided (matches old behaviour where partnerships
-    // were created inline inside the friendship document).
-    const incomingPartnerships: Array<{ mentor: string; language: string }> = req.body.partnerships || [];
-    if (incomingPartnerships.length > 0) {
-        await db.insert(friendshipPartnerships).values(
-            incomingPartnerships.map((p) => ({
-                friendshipId: newFriendship.id,
-                mentorId: p.mentor,
-                language: p.language,
-            })),
+    if (existing) {
+        res.status(400);
+        throw new Error(
+            existing.status === 'accepted'
+                ? 'You are already friends with this user.'
+                : 'A friend request already exists between these users.',
         );
     }
 
-    const partnershipsMap = await fetchPartnershipsMap([newFriendship.id]);
-    const response = await assembleFriendshipResponse(newFriendship, partnershipsMap);
+    const [row] = await db.transaction(async (tx) => {
+        const [created] = await tx
+            .insert(friendships)
+            .values({
+                requesterId: req.user.id,
+                addresseeId,
+                status: 'pending',
+            })
+            .returning();
 
-    res.status(200).json(response);
+        await tx.insert(notifications).values({
+            userId: addresseeId,
+            variant: 'friendRequest',
+            dismissed: false,
+            content: { requesterId: req.user.id },
+        });
+
+        return [created];
+    });
+
+    res.status(200).json(await toResponse(row));
 });
 
-// @desc    Delete a friendship
+// @desc    Accept a pending friend request (addressee only)
+// @route   POST /api/friendships/:id/accept
+// @access  Private
+const acceptFriendship = asyncHandler(async (req: RequestWithAuth, res: Response) => {
+    const [friendship] = await db
+        .select()
+        .from(friendships)
+        .where(eq(friendships.id, req.params.id))
+        .limit(1);
+
+    if (!friendship) {
+        res.status(400);
+        throw new Error('Friendship not found');
+    }
+    if (friendship.status !== 'pending') {
+        res.status(400);
+        throw new Error('Only a pending friendship can be accepted.');
+    }
+    if (friendship.addresseeId !== req.user.id) {
+        res.status(401);
+        throw new Error('Not allowed to accept: user is not the addressee of this request');
+    }
+
+    const [updated] = await db.transaction(async (tx) => {
+        const [result] = await tx
+            .update(friendships)
+            .set({ status: 'accepted' })
+            .where(eq(friendships.id, req.params.id))
+            .returning();
+
+        // The pending request's notification is removed atomically.
+        await tx
+            .delete(notifications)
+            .where(friendRequestNotificationFilter(req.user.id, friendship.requesterId));
+
+        return [result];
+    });
+
+    res.status(200).json(await toResponse(updated));
+});
+
+// @desc    Decline a pending friend request (addressee only)
+// @route   POST /api/friendships/:id/decline
+// @access  Private
+const declineFriendship = asyncHandler(async (req: RequestWithAuth, res: Response) => {
+    const [friendship] = await db
+        .select()
+        .from(friendships)
+        .where(eq(friendships.id, req.params.id))
+        .limit(1);
+
+    if (!friendship) {
+        res.status(400);
+        throw new Error('Friendship not found');
+    }
+    if (friendship.status !== 'pending') {
+        res.status(400);
+        throw new Error('Only a pending friendship can be declined.');
+    }
+    if (friendship.addresseeId !== req.user.id) {
+        res.status(401);
+        throw new Error('Not allowed to decline: user is not the addressee of this request');
+    }
+
+    const [updated] = await db.transaction(async (tx) => {
+        const [result] = await tx
+            .update(friendships)
+            .set({ status: 'declined' })
+            .where(eq(friendships.id, req.params.id))
+            .returning();
+
+        await tx
+            .delete(notifications)
+            .where(friendRequestNotificationFilter(req.user.id, friendship.requesterId));
+
+        return [result];
+    });
+
+    res.status(200).json(await toResponse(updated));
+});
+
+// @desc    Cancel (requester, while pending) or unfriend (either, once accepted);
+//          hard-delete terminal declined/cancelled rows (requester cleanup).
 // @route   DELETE /api/friendships/:id
 // @access  Private
-const deleteFriendship = asyncHandler(async (req: any, res: any) => {
+const deleteFriendship = asyncHandler(async (req: RequestWithAuth, res: Response) => {
     const [friendship] = await db
         .select()
         .from(friendships)
@@ -262,187 +278,47 @@ const deleteFriendship = asyncHandler(async (req: any, res: any) => {
         res.status(400);
         throw new Error('Friendship not found');
     }
-    if (!req.user) {
-        res.status(401);
-        throw new Error('User not found');
-    }
-    // The user must be a participant of the friendship to delete it
-    if (friendship.user1Id !== req.user.id && friendship.user2Id !== req.user.id) {
-        res.status(401);
-        throw new Error('Not allowed to delete: user is not part of the friendship');
-    }
 
-    // Cascade FK deletes handle partnership rows automatically.
-    await db.delete(friendships).where(eq(friendships.id, req.params.id));
+    const isParticipant =
+        friendship.requesterId === req.user.id || friendship.addresseeId === req.user.id;
 
-    const partnershipsMap = await fetchPartnershipsMap([friendship.id]);
-    const response = await assembleFriendshipResponse(friendship, partnershipsMap);
-
-    res.status(200).json(response);
-});
-
-// @desc    Update a friendship
-// @route   PUT /api/friendships/:id
-// @access  Private
-const updateFriendship = asyncHandler(async (req: any, res: any) => {
-    const [friendship] = await db
-        .select()
-        .from(friendships)
-        .where(eq(friendships.id, req.params.id))
-        .limit(1);
-
-    if (!friendship) {
-        res.status(400);
-        throw new Error('Friendship not found');
-    }
-    if (!req.user) {
-        res.status(401);
-        throw new Error('User not found');
-    }
-    if (friendship.user1Id !== req.user.id && friendship.user2Id !== req.user.id) {
-        res.status(401);
-        throw new Error('Not allowed to update: user is not part of the friendship');
-    }
-
-    // Build the update payload from the request body.
-    // Accept `userIds` array (legacy format) and convert to columns if provided.
-    const updateData: Record<string, any> = {};
-    if (req.body.userIds) {
-        const { user1Id, user2Id } = toUserColumns(req.body.userIds);
-        updateData.user1Id = user1Id;
-        updateData.user2Id = user2Id;
-    }
-    if (req.body.status !== undefined) updateData.status = req.body.status;
-
-    if (Object.keys(updateData).length > 0) {
-        await db.update(friendships).set(updateData).where(eq(friendships.id, req.params.id));
-    }
-
-    // Sync partnerships if provided: remove all existing and re-insert.
-    if (req.body.partnerships !== undefined) {
-        await db.delete(friendshipPartnerships).where(eq(friendshipPartnerships.friendshipId, req.params.id));
-
-        const incomingPartnerships: Array<{ mentor: string; language: string }> = req.body.partnerships || [];
-        if (incomingPartnerships.length > 0) {
-            await db.insert(friendshipPartnerships).values(
-                incomingPartnerships.map((p) => ({
-                    friendshipId: req.params.id,
-                    mentorId: p.mentor,
-                    language: p.language,
-                })),
-            );
+    if (friendship.status === 'accepted') {
+        if (!isParticipant) {
+            res.status(401);
+            throw new Error('Not allowed to delete: user is not part of the friendship');
         }
+        await db.delete(friendships).where(eq(friendships.id, req.params.id));
+        res.status(200).json(await toResponse(friendship));
+        return;
     }
 
-    const [updated] = await db
-        .select()
-        .from(friendships)
-        .where(eq(friendships.id, req.params.id))
-        .limit(1);
-
-    const partnershipsMap = await fetchPartnershipsMap([updated.id]);
-    const response = await assembleFriendshipResponse(updated, partnershipsMap);
-
-    res.status(200).json(response);
-});
-
-// @desc    Delete a pending friendship request and its associated notification
-// @route   DELETE /api/friendships/deleteRequestAndNotifications/:id
-// @access  Private
-const deleteFriendshipRequest = asyncHandler(async (req: any, res: any) => {
-    const [friendship] = await db
-        .select()
-        .from(friendships)
-        .where(eq(friendships.id, req.params.id))
-        .limit(1);
-
-    if (!friendship) {
-        res.status(400);
-        throw new Error('Friendship not found');
-    }
-    if (friendship.status === 'accepted') {
-        res.status(400);
-        throw new Error("Can't delete friendship request. Friendship already accepted.");
-    }
-    if (!req.user) {
+    if (friendship.requesterId !== req.user.id) {
         res.status(401);
-        throw new Error('User not found');
-    }
-    if (friendship.user1Id !== req.user.id && friendship.user2Id !== req.user.id) {
-        res.status(401);
-        throw new Error('Not allowed to delete: user is not part of the friendship');
+        throw new Error('Not allowed to delete this friendship request');
     }
 
-    // Determine the other participant (the one who received the request notification)
-    const otherUserId = friendship.user1Id === req.user.id ? friendship.user2Id : friendship.user1Id;
+    if (friendship.status === 'pending') {
+        // Cancel: keep the row as terminal history; drop the notification.
+        const [cancelled] = await db.transaction(async (tx) => {
+            const [result] = await tx
+                .update(friendships)
+                .set({ status: 'cancelled' })
+                .where(eq(friendships.id, req.params.id))
+                .returning();
 
+            await tx
+                .delete(notifications)
+                .where(friendRequestNotificationFilter(friendship.addresseeId, friendship.requesterId));
+
+            return [result];
+        });
+        res.status(200).json(await toResponse(cancelled));
+        return;
+    }
+
+    // declined / cancelled — cleanup.
     await db.delete(friendships).where(eq(friendships.id, req.params.id));
-
-    // Clean up the corresponding notification (if one exists).
-    const notifFilter = notificationFilter(otherUserId, 'friendRequest', req.user.id);
-
-    const [deletedNotification] = await db
-        .delete(notifications)
-        .where(notifFilter)
-        .returning();
-
-    res.status(200).json({
-        deletedFriendshipRequest: { id: friendship.id },
-        deletedNotification: deletedNotification || null,
-    });
-});
-
-// @desc    Accept a friendship request and delete the related notification
-// @route   PUT /api/friendships/acceptRequestAndDeleteNotifications/:id
-// @access  Private
-const acceptFriendshipRequest = asyncHandler(async (req: any, res: any) => {
-    const [friendship] = await db
-        .select()
-        .from(friendships)
-        .where(eq(friendships.id, req.params.id))
-        .limit(1);
-
-    if (!friendship) {
-        res.status(400);
-        throw new Error('Friendship not found');
-    }
-    if (friendship.status === 'accepted') {
-        res.status(400);
-        throw new Error("Can't accept friendship request. Friendship already accepted.");
-    }
-    if (!req.user) {
-        res.status(401);
-        throw new Error('User not found');
-    }
-    if (friendship.user1Id !== req.user.id && friendship.user2Id !== req.user.id) {
-        res.status(401);
-        throw new Error('Not allowed to accept: user is not part of the friendship');
-    }
-
-    // Determine the other participant (the one who sent the request)
-    const otherUserId = friendship.user1Id === req.user.id ? friendship.user2Id : friendship.user1Id;
-
-    const [updated] = await db
-        .update(friendships)
-        .set({ status: req.body.status || 'accepted' })
-        .where(eq(friendships.id, req.params.id))
-        .returning();
-
-    // Delete the notification that was sent to the current user about this request.
-    const notifFilter = notificationFilter(req.user.id, 'friendRequest', otherUserId);
-
-    const [deletedNotification] = await db
-        .delete(notifications)
-        .where(notifFilter)
-        .returning();
-
-    const partnershipsMap = await fetchPartnershipsMap([updated.id]);
-    const response = await assembleFriendshipResponse(updated, partnershipsMap);
-
-    res.status(200).json({
-        deletedFriendshipRequest: response,
-        deletedNotification: deletedNotification || null,
-    });
+    res.status(200).json(await toResponse(friendship));
 });
 
 // ===========================================================================
@@ -450,10 +326,9 @@ const acceptFriendshipRequest = asyncHandler(async (req: any, res: any) => {
 // ===========================================================================
 
 module.exports = {
-    getUserFriendshipsByParticipantId,
+    getUserFriendships,
     createFriendship,
+    acceptFriendship,
+    declineFriendship,
     deleteFriendship,
-    updateFriendship,
-    deleteFriendshipRequest,
-    acceptFriendshipRequest,
 };

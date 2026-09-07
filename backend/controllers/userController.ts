@@ -272,16 +272,16 @@ const getUsersBy = asyncHandler(async (req: any, res: any) => {
         and(
           eq(friendships.status, "accepted"),
           or(
-            eq(friendships.user1Id, req.user.id),
-            eq(friendships.user2Id, req.user.id),
+            eq(friendships.requesterId, req.user.id),
+            eq(friendships.addresseeId, req.user.id),
           ),
         ),
       );
 
-    matchingFriendIds = matchingFriendships.map((friendship: any) =>
-      friendship.user1Id === req.user.id
-        ? friendship.user2Id
-        : friendship.user1Id,
+    matchingFriendIds = matchingFriendships.map((friendship) =>
+      friendship.requesterId === req.user.id
+        ? friendship.addresseeId
+        : friendship.requesterId,
     );
 
     if (matchingFriendIds.length === 0) {
@@ -470,7 +470,7 @@ const getBasicUserMetrics = asyncHandler(async (req: any, res: any) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 

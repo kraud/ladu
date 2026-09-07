@@ -1,0 +1,118 @@
+{
+  "header": {
+    "addWord": "wort hinzufügen",
+    "practice": "üben",
+    "review": "überprüfen",
+    "search": {
+      "words": "Wörter suchen...",
+      "tags": "Tags suchen...",
+      "placeholder": "Suchen...",
+      "loading": "Laden...",
+      "noMatches": "Keine Ergebnisse"
+     },
+    "settings": {
+      "openSettings": "Einstellungen öffnen",
+      "notifications": "Benachrichtigungen",
+      "uiLanguage": "Schnittstellensprache",
+      "account": "Konto",
+      "dashboard": "Dashboard",
+      "logout": "Abmelden"
+     },
+    "notImplemented": "Diese Funktion ist noch nicht bereit, es tut uns leid!"
+  },
+  "sections": {
+    "dashboard": "Dashboard",
+    "tags": "Tags",
+    "friends": "Freunde"
+  },
+  "errors": {
+    "somethingWrong": "Etwas ist schiefgelaufen. Versuchen Sie es erneut."
+  },
+  "buttons": {
+    "apply": "Anwenden",
+    "delete": "Löschen",
+    "confirmDelete": "{{elementType}} löschen bestätigen",
+    "confirm": "Bestätigen",
+    "clickToSeeDetailsWord": "Klicken Sie hier, um das neue Wort anzuzeigen",
+    "edit": "Bearbeiten",
+    "cancel": "Abbrechen",
+    "return": "Zurück",
+    "close": "Schließen",
+    "clear": "Löschen",
+    "remove": "Entfernen",
+    "reset": "Zurücksetzen",
+    "submit": "Absenden",
+    "addAnotherTranslation": "Weitere Übersetzung hinzufügen",
+    "addFriends": "Freunde hinzufügen",
+    "createTag": "Tag erstellen",
+    "editProfile": "Profil bearbeiten",
+    "saveChanges": "Speichern",
+    "sendTag": "Tag senden",
+    "followTag": "Tag folgen",
+    "unfollowTag": "Tag nicht mehr folgen",
+    "sendToFriend": "An Freund senden",
+    "addFriend": "Freund hinzufügen",
+    "acceptRequest": "Anfrage annehmen",
+    "cancelRequest": "Anfrage abbrechen",
+    "deleteFriendship": "Freundschaft löschen",
+    "deleteTag": "Tag löschen",
+    "confirmCancelRequest": "Stornierungsanfrage bestätigen",
+    "confirmDeleteFriendship": "Freund löschen bestätigen",
+    "cloneTagAndWords": "Tag und Wörter klonen",
+    "goToDashboard": "Klicken Sie hier und gehen Sie zum Dashboard",
+    "goToLogin": "Klicken Sie hier, um sich anzumelden",
+    "deleteAllWords": "Alle Wörter löschen",
+    "hideFilters": "Filter ausblenden",
+    "showFilters": "Filter anzeigen",
+    "createExercises": "Erstellen Sie Übungen",
+    "detailedView": "Detailansicht",
+    "assignTag": "Tag zuweisen",
+    "deleteSelected": "Ausgewählte löschen",
+    "groupByType": "Nach Typ gruppieren",
+    "separateByType": "Nach Typ trennen",
+    "distributionByWordType": "Wortart",
+    "distributionByLanguage": "Sprache",
+    "byMonth": "Monat",
+    "byLanguage": "Sprache"
+  },
+  "languages": {
+    "english": "Englisch",
+    "estonian": "Estnisch",
+    "german": "Deutsch",
+    "spanish": "Spanisch"
+  },
+  "partOfSpeech": {
+    "noun": "Substantiv",
+    "pronoun": "Pronomen",
+    "verb": "Verb",
+    "adjective": "Adjektiv",
+    "adverb": "Adverb",
+    "preposition": "Präposition",
+    "conjunction": "Konjunktion",
+    "interjection": "Interjektion",
+    "properNoun": "Eigenname",
+    "numerals": "Zahlwörter"
+  },
+  "linguisticFeature": {
+    "gender": "Geschlecht"
+  },
+  "status": {
+    "saving": "Speichern...",
+    "word": {
+      "savedSuccess": "Wort erfolgreich gespeichert",
+      "deletedSuccess": "Wort erfolgreich gelöscht"
+    }
+  },
+  "userData": {
+    "name": "Name",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "email": "E-Mail",
+    "toastMessages": {
+      "updateSuccess": "Benutzerdaten erfolgreich aktualisiert!"
+    },
+    "errors": {
+      "notEnoughLanguages": "Bitte wählen Sie mindestens 2 Sprachen aus."
+    }
+  }
+}

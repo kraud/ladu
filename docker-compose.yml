@@ -1,9 +1,12 @@
+name: keelapp-v2
+
 services:
-  # The PostgreSQL database service used for both development and testing.
-  # It runs a lightweight Alpine-based PostgreSQL 15 image.
+  # PostgreSQL for the v2 reimplementation. Deliberately a separate container,
+  # project, volume, and host port from the legacy app's `keelapp-postgres` —
+  # we start with empty databases; no data is migrated from the legacy stack.
   postgres:
     image: postgres:15-alpine
-    container_name: keelapp-postgres
+    container_name: keelapp-v2-postgres
 
     # Always restart the container if it stops unexpectedly, ensuring the
     # database is always available during local development.
@@ -15,26 +18,21 @@ services:
       POSTGRES_USER: keelapp_user
       POSTGRES_PASSWORD: keelapp_password
 
-      # The name of the default database created when the container first starts.
-      # This is the primary development database.
-      POSTGRES_DB: keelapp_dev
+      # The default development database, created on first start (empty volume).
+      POSTGRES_DB: keelapp_v2_dev
 
     ports:
-      # Map port 5432 inside the container to port 5432 on the host machine,
-      # so you can connect to PostgreSQL via localhost:5432 from the host.
-      - "5432:5432"
+      # Host 5433 → container 5432. Kept off 5432 so this container can run
+      # alongside the legacy app's container without a port conflict.
+      - "5433:5432"
 
     volumes:
-      # A named volume to persist database data across container restarts.
-      # Without this, all data would be lost every time the container is recreated.
+      # Named volume for this container only.
       - pgdata:/var/lib/postgresql/data
 
-      # An initialization script that runs automatically the first time the
-      # container starts (when the data volume is empty). It creates the
-      # test database (keelapp_test) alongside the dev database.
+      # Initialization script (runs only on first start): creates the test db.
       - ./init-test-db.sh:/docker-entrypoint-initdb.d/init-test-db.sh
 
-# Define named volumes at the top level so Docker manages them persistently.
-# This volume stores the PostgreSQL data files on the host machine.
+# Named volume for this container only.
 volumes:
   pgdata:

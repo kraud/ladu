@@ -1,0 +1,44 @@
+{
+  "toastMessages": {
+    "tagDeleted": "{{tagLabel}} Tag wurde gelöscht!",
+    "tagUpdated": "Tag wurde erfolgreich aktualisiert!",
+    "tagCreated": "Tag wurde erfolgreich erstellt!",
+    "tagShared": "Die Anfrage zum Teilen des Tags wurde erfolgreich gesendet!",
+    "wordsDeleted": "Wörter wurden erfolgreich gelöscht!"
+  },
+  "tagDataForm": {
+    "errors": {
+      "noNumbers": "Darf keine Zahlen enthalten",
+      "publicRequired": "Öffentlicher Status muss angegeben werden",
+      "publicNotMatch": "Das ist keine Option",
+      "labelRequired": "Ein Tag-Label ist erforderlich",
+      "labelAlreadyExists": "Dieses Label ist bereits vergeben",
+      "errorProcessing": "Beim Verarbeiten dieses Labels ist ein Fehler aufgetreten",
+      "labelNotMatchingSpaces": "Label erlaubt keine Leerzeichen. Versuche stattdessen CamelCasing oder snake_casing.",
+      "labelTooShort": "Label muss länger als 2 Zeichen sein",
+      "labelTooLong": "Label ist zu lang (max. 30 Zeichen)",
+      "descriptionTooShort": "Beschreibung muss länger als 5 Zeichen sein",
+      "descriptionTooLong": "Beschreibung ist zu lang (max. 250 Zeichen)"
+    },
+    "fieldLabels": {
+      "label": "Etikett",
+      "public": "Öffentlich",
+      "description": "Beschreibung"
+    }
+  },
+  "displayTag": {
+    "toastError": "Etwas ist schief gelaufen: {{error}}",
+    "toastTagDeletedSuccess": "Tag {{tagLabel}} wurde gelöscht!",
+    "toastTagCloneSuccess": "Tag und Wörter wurden erfolgreich zu deinem Konto hinzugefügt!"
+  },
+  "searchTags": "Tags suchen...",
+  "noWordsAssigned": "- noch keine Wörter zugewiesen -",
+  "createdByYou": "Von dir erstellt",
+  "createdByUser": "Erstellt von {{username}}",
+  "amountWord_one": "{{count}} Wort",
+  "amountWord_other": "{{count}} Wörter",
+  "noTagsCreated": "Sie haben noch keinen Wörtern Tags hinzugefügt.",
+  "goToAddTags": "Klicken Sie hier, um Ihre gespeicherten Wörter zu überprüfen und Tags hinzuzufügen!",
+  "followedTags": "Verfolgte Tags",
+  "noTagsFollowed": "Sie haben noch keinen Tags gefolgt."
+}

@@ -1,0 +1,86 @@
+{
+  "titles": {
+    "wordSelection": "Parameter gelten für Übungen, die aus diesen {{amountWordsSelectedForExercises}} Wörtern erstellt werden:",
+    "exerciseResultsScore": "Ergebnisse: {{scoreCorrect}}/{{total}} ✅",
+    "exerciseResultsProcess": "Übungen {{index}}/{{total}}",
+    "noExercisesMatch": "Keine Übereinstimmung",
+    "tryDifferentSettings": "Bitte versuche es erneut mit anderen Einstellungen.",
+    "parametersTitle": "Übungsparameter:",
+    "difficultyMC": "Multiple-Choice-Schwierigkeit:",
+    "difficultyTI": "Text-Eingabe-Schwierigkeit:"
+  },
+  "tooltips": {
+    "needMorePractice": "Ich weiß das nicht, zeig es mir noch einmal!",
+    "noMorePractice": "Diese Übersetzung nicht erneut anzeigen!",
+    "checkAnswer": "Antwort zuerst überprüfen",
+    "performanceExplain": "Deine Leistung bei diesem Wort. Letztes Mal geübt: {{lastDate}}",
+    "typeExerciseExplain": "Dies bestimmt den Kartentyp, der angezeigt wird",
+    "typeCardExplain": "Dies bestimmt, wie viele Sprachen in den Übungen auf einer Karte angezeigt werden",
+    "requireMultipleChoice": "Der Übungstyp muss 'Multiple-Choice' oder 'Zufällig' sein, um diesen Wert zu ändern",
+    "requireTextInput": "Der Übungstyp muss 'Text-Eingabe' oder 'Zufällig' sein, um diesen Wert zu ändern",
+    "sortingAndSelectionExplain": "Dies bestimmt, wie wir die angezeigten Übungen auswählen. Mit 'Übungsleistung' priorisieren wir Wörter und Übersetzungen, die du noch nicht geübt hast.",
+    "nativeLanguageParameterExplain": "Dies bestimmt, ob wir Übungen in Bezug auf deine Muttersprache im Fall von einsprachigen Übungen einbeziehen.",
+    "goToExercise": "Zur Übung gehen",
+    "registeredCases": "Registrierte Fälle ({{language}}): {{amount}}",
+    "alreadySetMastered": "Diese Einstellung ist bereits aktiv.",
+    "alreadySetRevise": "Diese Einstellung ist bereits aktiv. Sie haben {{count}} Mal richtig geantwortet. Wenn Sie 5 erreichen, wird diese Konfiguration automatisch entfernt."
+  },
+  "dialogs": {
+    "titles": {
+      "masterTranslation": "Oh, hast du diese Übersetzung schon gemeistert?",
+      "forgetTranslation": "Hast du Schwierigkeiten mit diesem Wort?"
+    },
+    "messages": {
+      "masterTranslation": "Bist du sicher, dass du das Wissen dieser Übersetzung auf 100 % setzen möchtest? Das bedeutet, dass du in Zukunft keine Übungen zu dieser Übersetzung sehen wirst.",
+      "forgetTranslation": "Wir werden dir diese Übersetzung häufiger zeigen. Nach fünf richtigen Antworten wird diese Einstellung automatisch entfernt. Bist du sicher, dass du fortfahren möchtest?",
+      "revertStatus": "Möchten Sie diese Einstellung rückgängig machen?"
+    }
+  },
+  "buttons": {
+    "check": "Überprüfen",
+    "goParams": "Zurück zu den Parametern",
+    "goResults": "Zu den Ergebnissen gehen",
+    "hideParams": "Parameter ausblenden",
+    "showParams": "Parameter anzeigen",
+    "hideWords": "Wörter ausblenden",
+    "showWords": "Wörter anzeigen",
+    "hideAdvSettings": "Erweiterte Einstellungen ausblenden",
+    "showAdvSettings": "Erweiterte Einstellungen anzeigen",
+    "createExercises": "Übungen erstellen"
+  },
+  "categories": {
+    "multipleChoice": "Multiple-Choice",
+    "textInput": "Texteingabe",
+    "multiLanguage": "Mehrsprachig",
+    "singleLanguage": "Einsprachig"
+  },
+  "parameterSelector": {
+    "validation": {
+      "minAmountSelection": "Du musst mindestens ein Element auswählen",
+      "amountRequired": "Menge ist ein erforderlicher Wert",
+      "validNumber": "Bitte gib eine gültige Zahl ein",
+      "integerRequired": "Nur ganze Zahlen sind gültig",
+      "numberRequired": "Nur Zahlen sind erlaubt",
+      "positiveRequired": "Bitte gib eine positive Zahl ein"
+    },
+    "labels": {
+      "partsOfSpeech": "Wortarten",
+      "amountExercises": "Anzahl der Übungen",
+      "typeExercise": "Übungstyp",
+      "languagesPerCard": "Sprachen pro Karte"
+    },
+    "sliderOptionDescriptions": {
+      "difficultyMC": {
+        "textLevel0": "Jede Wortart - jede Sprache",
+        "textLevel1": "Jede Wortart - gleiche Sprache",
+        "textLevel2": "Gleiche Wortart - gleiche Sprache",
+        "textLevel3": "Gleiches Wort - gleiche Sprache - verschiedene Fälle"
+      },
+      "difficultyTI": {
+        "textLevel1": "Ignoriert Großschreibung und Sonderzeichen.",
+        "textLevel2": "Ignoriert nur Großschreibung.",
+        "textLevel3": "Nulltoleranz - Eingabe muss exakt übereinstimmen."
+      }
+    }
+  }
+}

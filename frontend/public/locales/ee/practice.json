@@ -1,0 +1,86 @@
+{
+  "titles": {
+    "wordSelection": "Parameetrid kehtivad nende {{amountWordsSelectedForExercises}} sõnade alusel loodud harjutustele:",
+    "exerciseResultsScore": "Tulemused: {{scoreCorrect}}/{{total}} ✅",
+    "exerciseResultsProcess": "Harjutused {{index}}/{{total}}",
+    "noExercisesMatch": "Ei sobi",
+    "tryDifferentSettings": "Proovi uuesti teiste seadistustega.",
+    "parametersTitle": "Harjutuse parameetrid:",
+    "difficultyMC": "Valikvastuste raskusaste:",
+    "difficultyTI": "Tekstisisestuse raskusaste:"
+  },
+  "tooltips": {
+    "needMorePractice": "Ma ei tea seda, näita mulle uuesti!",
+    "noMorePractice": "Ära näita seda tõlget uuesti!",
+    "checkAnswer": "Kontrolli esmalt vastust",
+    "performanceExplain": "Sinu sooritus sellel sõnal. Viimati harjutatud: {{lastDate}}",
+    "typeExerciseExplain": "See määrab, millist kaarti kuvatakse",
+    "typeCardExplain": "See määrab, kui palju keeli kuvatakse harjutuskaardil",
+    "requireMultipleChoice": "Harjutuse tüüp peab olema 'Valikvastused' või 'Juhuslik', et seda väärtust muuta",
+    "requireTextInput": "Harjutuse tüüp peab olema 'Tekstisisestus' või 'Juhuslik', et seda väärtust muuta",
+    "sortingAndSelectionExplain": "See määrab, kuidas me valime kuvatavad harjutused. 'Harjutuse sooritus' korral eelistame sõnu ja tõlkeid, mida sa pole veel harjutanud.",
+    "nativeLanguageParameterExplain": "See määrab, kas me lisame harjutusi, mis on seotud sinu emakeelega ühe keele harjutuste puhul.",
+    "goToExercise": "Mine harjutuse juurde",
+    "registeredCases": "Registreeritud juhtumid ({{language}}): {{amount}}",
+    "alreadySetMastered": "See seade on juba aktiivne.",
+    "alreadySetRevise": "See seade on juba aktiivne. Olete õigesti vastanud {{count}} korda. Kui jõuate 5-ni, eemaldatakse see konfiguratsioon automaatselt."
+  },
+  "dialogs": {
+    "titles": {
+      "masterTranslation": "Oh, kas sa oled selle tõlke juba selgeks saanud?",
+      "forgetTranslation": "Kas sul on selle sõnaga raskusi?"
+    },
+    "messages": {
+      "masterTranslation": "Kas oled kindel, et soovid määrata selle tõlke teadmised 100%-le? See tähendab, et tulevikus ei näe sa selle tõlke harjutusi.",
+      "forgetTranslation": "Me hakkame seda tõlget sagedamini näitama. Pärast viit õiget vastust eemaldatakse see seadistus automaatselt. Kas oled kindel, et soovid jätkata?",
+      "revertStatus": "Kas soovite selle seadistuse tagasi võtta?"
+    }
+  },
+  "buttons": {
+    "check": "Kontrolli",
+    "goParams": "Mine tagasi parameetrite juurde",
+    "goResults": "Mine tulemustesse",
+    "hideParams": "Peida parameetrid",
+    "showParams": "Kuva parameetrid",
+    "hideWords": "Peida sõnad",
+    "showWords": "Kuva sõnad",
+    "hideAdvSettings": "Peida täpsemad seaded",
+    "showAdvSettings": "Kuva täpsemad seaded",
+    "createExercises": "Loo harjutused"
+  },
+  "categories": {
+    "multipleChoice": "Valikvastused",
+    "textInput": "Tekstisisestus",
+    "multiLanguage": "Mitmekeelne",
+    "singleLanguage": "Ühekeelne"
+  },
+  "parameterSelector": {
+    "validation": {
+      "minAmountSelection": "Sa pead valima vähemalt ühe elemendi",
+      "amountRequired": "Kogus on nõutud väärtus",
+      "validNumber": "Sisesta kehtiv number",
+      "integerRequired": "Ainult täisarvud on lubatud",
+      "numberRequired": "Lubatud on ainult numbrid",
+      "positiveRequired": "Sisesta positiivne number"
+    },
+    "labels": {
+      "partsOfSpeech": "Sõnaliigid",
+      "amountExercises": "Harjutuste arv",
+      "typeExercise": "Harjutuse tüüp",
+      "languagesPerCard": "Keeled kaardi kohta"
+    },
+    "sliderOptionDescriptions": {
+      "difficultyMC": {
+        "textLevel0": "Mis tahes sõnaliik - mis tahes keel",
+        "textLevel1": "Mis tahes sõnaliik - sama keel",
+        "textLevel2": "Sama sõnaliik - sama keel",
+        "textLevel3": "Sama sõna - sama keel - erinevad käänded"
+      },
+      "difficultyTI": {
+        "textLevel1": "Ignoreerib suurtähti ja erimärke.",
+        "textLevel2": "Ignoreerib ainult suurtähti.",
+        "textLevel3": "Nulltolerants - sisend peab täpselt kattuma."
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "verbPersonCardinal": {
+    "number_ordinal_one": "{{count}}ra persona",
+    "number_ordinal_two": "{{count}}da persona",
+    "number_ordinal_few": "{{count}}ra persona"
+  }
+}

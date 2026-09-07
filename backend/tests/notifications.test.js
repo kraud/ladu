@@ -49,7 +49,7 @@ describe('Notification CRUD', () => {
         expect(res.body.length).toBe(1);
         expect(res.body[0]).toHaveProperty('variant', 'friendRequest');
         expect(res.body[0]).toHaveProperty('dismissed', false);
-        expect(res.body[0]).toHaveProperty('userId', userB._id);
+        expect(res.body[0]).toHaveProperty('user', userB._id);
     });
 
     it('GET /api/notifications/getNotifications - lists notifications for the current user', async () => {

@@ -104,7 +104,7 @@ const clearDB = async () => {
         TRUNCATE TABLE
             exercise_performance_cases,
             exercise_performances,
-            friendship_partnerships,
+            tag_shares,
             friendships,
             notifications,
             tag_words,

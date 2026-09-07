@@ -79,7 +79,7 @@ describe('Data Snapshots - Migration Baseline', () => {
             .send({
                 author: userId,
                 label: 'Core Verbs',
-                public: 'Private',
+                visibility: 'Private',
             });
         const tagId = tagRes.body._id;
 
@@ -177,7 +177,7 @@ describe('Data Snapshots - Migration Baseline', () => {
             .send({
                 author: userId,
                 label: 'Adjectives Pack',
-                public: 'Private',
+                visibility: 'Private',
                 description: 'Common adjectives',
                 words: [{ _id: wordId }],
             });

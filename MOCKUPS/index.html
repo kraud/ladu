@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ladu — UI prototype overview</title>
+<link rel="stylesheet" href="assets/app.css" />
+<style>
+  .swatch-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .swatch { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+  .swatch .s-color { height: 52px; }
+  .swatch .s-meta { padding: 7px 10px; }
+  .swatch .s-meta b { display: block; font-size: 12.5px; }
+  .screen-list { display: flex; flex-direction: column; }
+  .screen-row {
+    display: grid; grid-template-columns: 150px 1fr auto; gap: var(--gap-lg);
+    align-items: center; padding: 13px 0; border-top: 1px solid var(--border);
+  }
+  .screen-row:first-child { border-top: 0; }
+  .screen-row .s-name { font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+  .screen-row .s-desc { font-size: 13px; color: var(--muted); }
+  .status { font-family: var(--font-mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .status.done { background: var(--success-soft); color: var(--success); }
+  .status.pending { background: var(--fg-soft); color: var(--muted); }
+  .comp-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  @media (max-width: 920px) {
+    .swatch-row { grid-template-columns: repeat(3, 1fr); }
+    .screen-row { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<header class="app-header" data-od-id="topnav">
+  <div class="container app-header-inner">
+    <a class="logo" href="index.html"><span class="logo-mark">L</span>Ladu</a>
+    <nav class="app-nav">
+      <a href="index.html" class="active">Overview</a>
+      <a href="word-editor.html">Word editor</a>
+      <a href="review.html">Review</a>
+      <a href="auth/login.html">Auth screens</a>
+    </nav>
+    <div class="grow"></div>
+    <span class="meta">UI prototype v1 · Sep 2026</span>
+  </div>
+</header>
+
+<main class="container page" style="padding-block: 28px 56px;">
+
+  <section data-od-id="intro" style="max-width: 62ch;">
+    <h1 class="h1">Ladu — screen prototype kit</h1>
+    <p class="muted" style="margin-top: 8px;">
+      High-fidelity reference for the reimplementation, built from specs 00–04. Every screen is
+      clickable: validation, dialogs, bulk actions, save gating and filter states all work.
+      Structure is intentionally dense — screens fit on one viewport and collapse cleanly to mobile.
+    </p>
+  </section>
+
+  <section data-od-id="screens" style="margin-top: 36px;">
+    <p class="eyebrow" style="margin-bottom: 6px;">Screens</p>
+    <div class="screen-list">
+      <div class="screen-row">
+        <span class="s-name">Word editor</span>
+        <span class="s-desc">Spec 03 — PoS step, per-language translation cards, autocomplete, clue &amp; tags, save gating. <a href="word-editor.html" style="color: var(--accent); font-weight: 600;">Open →</a></span>
+        <span class="status done">Spec 03</span>
+      </div>
+      <div class="screen-row">
+        <span class="s-name">Review table</span>
+        <span class="s-desc">Spec 04 — collapsible filter sidebar, dense multilingual table, cell dialogs, bulk bar. <a href="review.html" style="color: var(--accent); font-weight: 600;">Open →</a></span>
+        <span class="status done">Spec 04</span>
+      </div>
+      <div class="screen-row">
+        <span class="s-name">Login</span>
+        <span class="s-desc">Spec 01 — centered card, inline validation, unverified-account warning path. <a href="auth/login.html" style="color: var(--accent); font-weight: 600;">Open →</a></span>
+        <span class="status done">Spec 01</span>
+      </div>
+      <div class="screen-row">
+        <span class="s-name">Register</span>
+        <span class="s-desc">Spec 01 — five fields, confirm-password match, reset. <a href="auth/register.html" style="color: var(--accent); font-weight: 600;">Open →</a></span>
+        <span class="status done">Spec 01</span>
+      </div>
+      <div class="screen-row">
+        <span class="s-name">Email verification</span>
+        <span class="s-desc">Spec 01 — validating → success → auto-redirect, failure state. <a href="auth/verify.html" style="color: var(--accent); font-weight: 600;">Open →</a></span>
+        <span class="status done">Spec 01</span>
+      </div>
+      <div class="screen-row">
+        <span class="s-name">Reset password</span>
+        <span class="s-desc">Spec 01 — set mode shown (request mode uses the same card with a single email field). <a href="auth/reset-password.html" style="color: var(--accent); font-weight: 600;">Open →</a></span>
+        <span class="status done">Spec 01</span>
+      </div>
+      <div class="screen-row">
+        <span class="s-name">404</span>
+        <span class="s-desc">Spec 01 — cycling four-language "nothing to see here" line. <a href="auth/404.html" style="color: var(--accent); font-weight: 600;">Open →</a></span>
+        <span class="status done">Spec 01</span>
+      </div>
+      <div class="screen-row">
+        <span class="s-name">Dashboard · Practice · Social</span>
+        <span class="s-desc">Specs 02, 05, 06 were not provided — add the files and these will be prototyped in the same system.</span>
+        <span class="status pending">Waiting on spec</span>
+      </div>
+    </div>
+  </section>
+
+  <section data-od-id="design-system" style="margin-top: 40px;">
+    <p class="eyebrow" style="margin-bottom: 6px;">Design system</p>
+    <div class="g2" style="display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--gap-xl); margin-top: 14px;">
+
+      <div class="card card-pad stack-md">
+        <div class="row-between">
+          <h3 class="h3">Palette — warm ground, one teal accent</h3>
+          <a href="assets/app.css" class="meta" target="_blank">app.css ↗</a>
+        </div>
+        <div class="swatch-row">
+          <div class="swatch"><div class="s-color" style="background: var(--bg); border-bottom: 1px solid var(--border);"></div><div class="s-meta"><b>bg</b><span class="meta">paper</span></div></div>
+          <div class="swatch"><div class="s-color" style="background: var(--surface); border-bottom: 1px solid var(--border);"></div><div class="s-meta"><b>surface</b><span class="meta">cards</span></div></div>
+          <div class="swatch"><div class="s-color" style="background: var(--fg);"></div><div class="s-meta"><b>fg</b><span class="meta">ink</span></div></div>
+          <div class="swatch"><div class="s-color" style="background: var(--muted);"></div><div class="s-meta"><b>muted</b><span class="meta">secondary</span></div></div>
+          <div class="swatch"><div class="s-color" style="background: var(--border);"></div><div class="s-meta"><b>border</b><span class="meta">hairline</span></div></div>
+          <div class="swatch"><div class="s-color" style="background: var(--accent);"></div><div class="s-meta"><b>accent</b><span class="meta">teal 4.5:1</span></div></div>
+        </div>
+        <div class="row" style="gap: 10px; flex-wrap: wrap;">
+          <span class="status done" style="background: var(--success-soft); color: var(--success);">success #1a7f37</span>
+          <span class="status" style="background: var(--danger-soft); color: var(--danger);">destructive #c03038</span>
+          <span class="status" style="background: var(--warning-soft); color: var(--warning);">warning #a35a0a</span>
+        </div>
+        <p class="hint">Language identity: each language carries a flag-derived tint on translation-card tops and column headers — <span style="color: var(--lang-gb); font-weight: 700;">EN</span> · <span style="color: var(--lang-de); font-weight: 700;">DE</span> · <span style="color: var(--lang-es); font-weight: 700;">ES</span> · <span style="color: var(--lang-ee); font-weight: 700;">EE</span>. All tokens are CSS variables, ready for dark mode later.</p>
+      </div>
+
+      <div class="card card-pad stack-md">
+        <h3 class="h3">Type — serif display, sans UI, mono data</h3>
+        <div class="stack-sm">
+          <span class="h2" style="font-size: 24px;">Iowan / Charter — word titles, page headings</span>
+          <span class="h3" style="font-size: 15px; font-family: var(--font-body);">System sans — labels, body, table data</span>
+          <span class="num" style="font-size: 14px;">SF Mono — counts, cases, badges, 6/8</span>
+        </div>
+        <hr class="rule" />
+        <p class="hint">Base 14px UI text, 36px controls, 40px table rows, 4px spacing grid. Density comes from structure (grids, tight rows), never from shrinking text below 12px.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section data-od-id="components" style="margin-top: 40px;">
+    <p class="eyebrow" style="margin-bottom: 14px;">Core components</p>
+    <div class="card card-pad" style="display: flex; flex-direction: column; gap: 18px;">
+      <div class="comp-row">
+        <button class="btn btn-primary">Save word</button>
+        <button class="btn btn-secondary">Cancel</button>
+        <button class="btn btn-ghost">Clear</button>
+        <button class="btn btn-danger">Delete</button>
+        <button class="btn btn-primary" disabled><span class="spinner"></span>Saving…</button>
+      </div>
+      <div class="comp-row">
+        <button class="chip" aria-pressed="true">der</button>
+        <button class="chip" aria-pressed="true">die</button>
+        <button class="chip">das</button>
+        <span class="tagchip">kitchen <span class="x">×</span></span>
+        <span class="tagchip">A1 <span class="x">×</span></span>
+        <span class="ring-wrap"><span class="ring" style="--pct: 64;"></span><span class="ring-detail meta">10/16 cases</span></span>
+      </div>
+      <div class="comp-row">
+        <div class="field" style="width: 200px;">
+          <label class="label">Singular <span class="req">*</span></label>
+          <input class="input" value="der Baum" />
+        </div>
+        <div class="field" style="width: 200px;">
+          <label class="label">Plural</label>
+          <input class="input" aria-invalid="true" value="" />
+          <span class="err show">Required to save this translation</span>
+        </div>
+      </div>
+      <div class="ac-row" style="max-width: 420px;">
+        <span class="ac-status ac-found">✓</span>
+        <span class="grow">DWDS found <b>der Baum, die Bäume</b> — 8 of 9 fields fillable</span>
+        <button class="btn btn-sm btn-secondary">Autocomplete</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="container" data-od-id="footer" style="padding-block: 20px 40px; border-top: 1px solid var(--border);">
+  <div class="row-between" style="flex-wrap: wrap;">
+    <span class="meta">Ladu · neutral-by-design spec, warm-neutral execution</span>
+    <span class="meta">EN / ES / DE / EE</span>
+  </div>
+</footer>
+</body>
+</html>

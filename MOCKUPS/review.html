@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Review · Ladu</title>
+<link rel="stylesheet" href="assets/app.css" />
+<style>
+  main { padding-block: 16px 32px; }
+  .layout { display: grid; grid-template-columns: 1fr; gap: 12px; align-items: start; }
+  .filterbar { padding: 12px 16px; }
+  .fb-body { display: flex; flex-wrap: wrap; gap: 10px 36px; align-items: flex-start; }
+  .fb-group { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+  .fb-group .fhead { display: flex; align-items: baseline; gap: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lang-chip { cursor: grab; }
+  .lang-chip:active { cursor: grabbing; }
+  .lang-chip.drag-over { border-color: var(--accent); background: var(--accent-soft); }
+  .fb-collapsed { display: flex; align-items: center; gap: 10px; padding: 2px 0; }
+  .active-pill {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 2px 9px;
+  }
+  .main-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .toolbar .searchbox { flex: 1; min-width: 200px; }
+  .switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); cursor: pointer; user-select: none; }
+  .switch .track { width: 32px; height: 18px; border-radius: 999px; background: var(--fg-soft2); position: relative; transition: background .12s ease; flex: none; }
+  .switch .track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgb(0 0 0/.2); transition: transform .12s ease; }
+  .switch[aria-pressed="true"] .track { background: var(--accent); }
+  .switch[aria-pressed="true"] .track::after { transform: translateX(14px); }
+  .tablewrap { max-height: calc(100dvh - 296px); overflow: auto; }
+  .dtable th.lang-col { color: var(--fg); }
+  .dtable td.word-cell { max-width: 220px; }
+  .gender-chip {
+    display: inline-block; font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+    padding: 1px 6px; border-radius: 999px; margin-left: 6px; vertical-align: 1px;
+  }
+  .gender-m { background: color-mix(in oklch, #2c4a8a 14%, transparent); color: #2c4a8a; }
+  .gender-f { background: var(--danger-soft); color: var(--danger); }
+  .gender-n { background: var(--success-soft); color: var(--success); }
+  .owner-dot { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 9px; font-weight: 800; font-family: var(--font-mono); }
+  .owner-me { background: var(--fg-soft2); color: var(--fg); }
+  .owner-group { background: var(--accent-soft); color: var(--accent); }
+  .bulkbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: var(--radius);
+    background: var(--fg); color: var(--bg);
+    animation: page-in .16s ease;
+  }
+  .bulkbar .count { font-family: var(--font-mono); font-size: 12px; font-weight: 700; background: rgb(255 255 255 / .14); border-radius: 999px; padding: 3px 10px; }
+  .bulkbar .btn { height: 32px; color: var(--bg); border-color: rgb(255 255 255 / .25); background: transparent; font-size: 13px; }
+  .bulkbar .btn:hover:not(:disabled) { background: rgb(255 255 255 / .12); border-color: rgb(255 255 255 / .45); }
+  .bulkbar .btn:disabled { opacity: .35; }
+  .bulkbar .btn.danger { color: #f19a9a; }
+  .footer-row { display: flex; justify-content: space-between; align-items: center; }
+  .tag-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag-pick .chip[aria-pressed="true"] { background: var(--accent-soft); }
+  @media (max-width: 920px) {
+    .fb-body { gap: 10px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header" data-od-id="app-header">
+  <div class="container-wide app-header-inner">
+    <a class="logo" href="index.html"><span class="logo-mark">L</span>Ladu</a>
+    <nav class="app-nav">
+      <a href="word-editor.html">Add Word</a>
+      <a href="#" title="Spec 05 pending">Practice</a>
+      <a href="review.html" class="active">Review</a>
+    </nav>
+    <div class="grow"></div>
+    <div class="searchbox">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input placeholder="Search words or tags…" aria-label="Global search" />
+      <span class="mode-switch" role="group" aria-label="Search mode">
+        <button aria-pressed="true">Word</button><button aria-pressed="false">Tag</button>
+      </span>
+    </div>
+    <div class="row" style="gap: 8px;">
+      <span class="select" style="width: auto; height: 32px; display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 0 26px 0 10px;">
+        <svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>
+        EN
+      </span>
+      <button class="icon-btn" aria-label="Notifications, 3 unread">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <button class="avatar has-badge" data-count="3" aria-label="Account menu — Kai Rebane, 3 unread">KR</button>
+    </div>
+  </div>
+</header>
+
+<main class="container-wide page" data-od-id="review-main">
+  <div class="layout">
+
+    <!-- ─── filter bar (collapsed strip first; expanded below) ─── -->
+    <div class="card filterbar" data-od-id="filter-sidebar" id="sidebar">
+      <div class="fb-collapsed" id="fb-collapsed" hidden>
+        <button class="icon-btn" id="expand-btn" aria-label="Show filters" title="Show filters">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <span class="eyebrow">Filters</span>
+        <span class="active-pill" id="fb-active" hidden>0</span>
+        <span class="hint" id="fb-active-text">No filters applied</span>
+        <span class="grow"></span>
+        <span class="meta">Language order: <span id="fb-lang-hint"></span></span>
+      </div>
+      <div class="fb-body" id="fb-body">
+        <div class="fb-group">
+          <div class="fhead"><span class="label">Gender</span><button class="btn btn-ghost btn-sm" id="clear-gender" style="display:none;">Clear</button></div>
+          <div class="chips" id="gender-chips">
+            <button class="chip" data-gender="m">der · el</button>
+            <button class="chip" data-gender="f">die · la</button>
+            <button class="chip" data-gender="n">das</button>
+          </div>
+        </div>
+        <div class="fb-group">
+          <div class="fhead"><span class="label">Part of speech</span></div>
+          <div class="chips" id="pos-chips">
+            <button class="chip" data-pos="n">n.</button>
+            <button class="chip" data-pos="v">v.</button>
+            <button class="chip" data-pos="adj">adj.</button>
+            <button class="chip" data-pos="adv">adv.</button>
+          </div>
+        </div>
+        <div class="fb-group">
+          <div class="fhead"><span class="label">Tags</span><span class="hint">match all</span></div>
+          <div class="chips" id="tag-chips">
+            <button class="chip" data-tag="A1">A1</button>
+            <button class="chip" data-tag="A2">A2</button>
+            <button class="chip" data-tag="nature">nature</button>
+            <button class="chip" data-tag="home">home</button>
+            <button class="chip" data-tag="food">food</button>
+            <button class="chip" data-tag="people">people</button>
+            <button class="chip" data-tag="kitchen">kitchen</button>
+          </div>
+        </div>
+        <div class="fb-group">
+          <div class="fhead"><span class="label">Language order</span><span class="hint">drag to reorder · min 2</span></div>
+          <div class="chips" id="lang-order"></div>
+        </div>
+        <span class="grow"></span>
+        <button class="icon-btn" id="collapse-btn" aria-label="Collapse filters" title="Collapse filters">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── table column ─── -->
+    <div class="main-col">
+      <div class="toolbar" data-od-id="table-toolbar">
+        <div class="searchbox">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+          <input id="table-search" placeholder="Search words, tags…" aria-label="Filter table" />
+        </div>
+        <button class="switch" id="gender-switch" aria-pressed="true">
+          <span class="track"></span>Display gender
+        </button>
+        <span class="meta" id="row-count" style="margin-left: auto;"></span>
+      </div>
+
+      <div class="bulkbar" id="bulkbar" data-od-id="bulk-bar" hidden>
+        <span class="count" id="bulk-count">0</span>
+        <span class="grow" style="font-size: 13px;">selected</span>
+        <button class="btn" id="b-exercise" disabled>Create exercises</button>
+        <button class="btn" id="b-view" disabled>View</button>
+        <button class="btn" id="b-tag">Assign tag</button>
+        <button class="btn danger" id="b-delete">Delete</button>
+      </div>
+
+      <div class="tablewrap" data-od-id="review-table">
+        <table class="dtable" id="table">
+          <thead><tr id="thead"></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="empty" id="empty-state" hidden>
+          <div class="e-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg></div>
+          <p id="empty-text">No words match your filters</p>
+          <a class="btn btn-primary btn-sm" href="word-editor.html">Add a word</a>
+        </div>
+      </div>
+
+      <div class="footer-row" data-od-id="table-footer">
+        <span class="meta" id="cursor-note">Showing 10 of 15</span>
+        <button class="btn btn-secondary btn-sm" id="load-more">Load more</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ─── cell dialog: translation editor ─── -->
+<dialog id="cell-dialog" class="wide">
+  <div class="dlg-head">
+    <div class="row" style="gap: 8px;">
+      <span id="cd-flag"></span>
+      <h2 class="h3" id="cd-title">tree — Deutsch</h2>
+    </div>
+    <button class="icon-btn" data-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dlg-body stack-md" id="cd-body"></div>
+  <div class="dlg-foot">
+    <button class="btn btn-sm btn-danger" id="cd-delete" style="margin-right: auto;">Delete translation</button>
+    <button class="btn btn-sm btn-ghost" data-close>Cancel</button>
+    <button class="btn btn-sm btn-primary" id="cd-save" disabled>Save</button>
+  </div>
+</dialog>
+
+<!-- ─── tag picker dialog ─── -->
+<dialog id="tag-dialog">
+  <div class="dlg-head">
+    <h2 class="h3" id="td-title">Assign tags</h2>
+    <button class="icon-btn" data-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dlg-body">
+    <div class="tag-pick" id="td-options"></div>
+    <p class="hint" style="margin-top: 10px;">All selected tags must already be on the word (match-all semantics).</p>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn btn-sm btn-ghost" data-close>Cancel</button>
+    <button class="btn btn-sm btn-primary" id="td-save">Apply</button>
+  </div>
+</dialog>
+
+<!-- ─── delete confirm (AlertDialog) ─── -->
+<dialog id="confirm-dialog" style="width: min(380px, calc(100vw - 32px));">
+  <div class="dlg-body" style="padding-bottom: 4px;">
+    <h2 class="h3" style="color: var(--danger);">Delete words?</h2>
+    <p class="muted" style="font-size: 13.5px; margin-top: 6px;" id="confirm-text">This permanently removes the selected words for everyone they're shared with.</p>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn btn-sm btn-secondary" data-close>Keep them</button>
+    <button class="btn btn-sm btn-danger-solid" id="confirm-yes">Delete</button>
+  </div>
+</dialog>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+/* ─────────────── demo data (stable ids) ─────────────── */
+const FLAGS = {
+  en: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>`,
+  de: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#1d1b17"/><rect y="13.3" width="60" height="13.4" fill="#c8102e"/><rect y="26.6" width="60" height="13.4" fill="#f0b429"/></svg>`,
+  es: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#c60b1e"/><rect y="10" width="60" height="20" fill="#ffc400"/></svg>`,
+  ee: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#0072ce"/><rect y="13.3" width="60" height="13.4" fill="#101010"/><rect y="26.6" width="60" height="13.4" fill="#fff"/></svg>`
+};
+const LANG_NAME = { en: 'English', de: 'Deutsch', es: 'Español', ee: 'Eesti' };
+const POS_LABEL = { n: 'n.', v: 'v.', adj: 'adj.', adv: 'adv.' };
+
+let words = [
+  { id: 'w1', pos: 'n', owner: 'me', tags: ['nature', 'A1'], t: { de: { sg: 'der Baum', pl: 'die Bäume', gender: 'm', pct: 100 }, ee: { sg: 'puu', pct: 81 }, en: { sg: 'tree', pl: 'trees', pct: 100 }, es: { sg: 'el árbol', gender: 'm', pct: 64 } } },
+  { id: 'w2', pos: 'v', owner: 'me', tags: ['A1'], t: { de: { sg: 'lesen', pl: 'las gelesen', pct: 92 }, ee: { sg: 'lugema', pct: 70 }, en: { sg: 'to read', pct: 88 }, es: { sg: 'leer', pct: 76 } } },
+  { id: 'w3', pos: 'n', owner: 'group', tags: ['home'], t: { de: { sg: 'das Haus', pl: 'die Häuser', gender: 'n', pct: 100 }, ee: { sg: 'maja', pct: 63 }, en: { sg: 'house', pl: 'houses', pct: 90 }, es: { sg: 'la casa', gender: 'f', pct: 55 } } },
+  { id: 'w4', pos: 'adj', owner: 'me', tags: ['A2'], t: { de: { sg: 'schön', pct: 85 }, ee: { sg: 'ilus', pct: 72 }, en: { sg: 'beautiful', pct: 95 }, es: { sg: 'bonito', gender: 'm', pct: 60 } } },
+  { id: 'w5', pos: 'n', owner: 'me', tags: ['people'], t: { de: { sg: 'der Freund', pl: 'die Freunde', gender: 'm', pct: 96 }, ee: { sg: 'sõber', pct: 66 }, en: { sg: 'friend', pl: 'friends', pct: 100 }, es: { sg: 'el amigo', gender: 'm', pct: 70 } } },
+  { id: 'w6', pos: 'n', owner: 'me', tags: ['home'], t: { de: { sg: 'das Fenster', pl: 'die Fenster', gender: 'n', pct: 88 }, ee: { pct: 0 }, en: { sg: 'window', pl: 'windows', pct: 100 }, es: { sg: 'la ventana', gender: 'f', pct: 58 } } },
+  { id: 'w7', pos: 'adv', owner: 'me', tags: ['A1'], t: { de: { sg: 'schnell', pct: 80 }, ee: { sg: 'kiiresti', pct: 74 }, en: { sg: 'quickly', pct: 90 }, es: { pct: 0 } } },
+  { id: 'w8', pos: 'v', owner: 'group', tags: ['people'], t: { de: { sg: 'fragen', pl: 'fragte, gefragt', pct: 84 }, ee: { sg: 'küsima', pct: 69 }, en: { sg: 'to ask', pct: 86 }, es: { sg: 'preguntar', pct: 77 } } },
+  { id: 'w9', pos: 'n', owner: 'me', tags: ['food', 'kitchen'], t: { de: { sg: 'das Brot', pl: 'die Brote', gender: 'n', pct: 100 }, ee: { sg: 'leib', pct: 78 }, en: { sg: 'bread', pl: 'breads', pct: 92 }, es: { sg: 'el pan', gender: 'm', pct: 65 } } },
+  { id: 'w10', pos: 'adj', owner: 'me', tags: ['A1'], t: { de: { sg: 'neu', pct: 82 }, ee: { sg: 'uus', pct: 71 }, en: { sg: 'new', pct: 94 }, es: { pct: 0 } } },
+  { id: 'w11', pos: 'n', owner: 'me', tags: ['home'], t: { de: { sg: 'die Tür', pl: 'die Türen', gender: 'f', pct: 97 }, ee: { sg: 'uks', pct: 75 }, en: { sg: 'door', pl: 'doors', pct: 100 }, es: { sg: 'la puerta', gender: 'f', pct: 60 } } },
+  { id: 'w12', pos: 'v', owner: 'me', tags: ['A2'], t: { de: { sg: 'schreiben', pl: 'schrieb, geschrieben', pct: 89 }, ee: { sg: 'kirjutama', pct: 68 }, en: { sg: 'to write', pct: 91 }, es: { sg: 'escribir', pct: 73 } } },
+  { id: 'w13', pos: 'n', owner: 'group', tags: ['nature'], t: { de: { sg: 'der Garten', pl: 'die Gärten', gender: 'm', pct: 94 }, ee: { sg: 'aed', pct: 62 }, en: { sg: 'garden', pl: 'gardens', pct: 88 }, es: { sg: 'el jardín', gender: 'm', pct: 52 } } },
+  { id: 'w14', pos: 'adj', owner: 'me', tags: ['A2'], t: { de: { sg: 'alt', pct: 80 }, ee: { sg: 'vana', pct: 70 }, en: { sg: 'old', pct: 90 }, es: { sg: 'viejo', gender: 'm', pct: 55 } } },
+  { id: 'w15', pos: 'n', owner: 'me', tags: ['home'], t: { de: { sg: 'die Straße', pl: 'die Straßen', gender: 'f', pct: 96 }, ee: { sg: 'tänav', pct: 64 }, en: { sg: 'street', pl: 'streets', pct: 100 }, es: { sg: 'la calle', gender: 'f', pct: 59 } } }
+];
+
+let langOrder = ['de', 'ee', 'en', 'es'];
+let shown = 10;
+const selection = new Set();
+const filters = { genders: new Set(), poss: new Set(), tags: new Set(), q: '' };
+let showGender = true;
+let tagDialogTarget = null;   // word id | 'bulk'
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* ─────────────── URL-persisted filters ─────────────── */
+function syncURL() {
+  const p = new URLSearchParams();
+  if (filters.genders.size) p.set('gender', [...filters.genders].join(','));
+  if (filters.poss.size) p.set('pos', [...filters.poss].join(','));
+  if (filters.tags.size) p.set('tags', [...filters.tags].join(','));
+  if (filters.q) p.set('q', filters.q);
+  history.replaceState(null, '', p.toString() ? `?${p}` : location.pathname);
+}
+function readURL() {
+  const p = new URLSearchParams(location.search);
+  p.get('gender')?.split(',').forEach(g => filters.genders.add(g));
+  p.get('pos')?.split(',').forEach(x => filters.poss.add(x));
+  p.get('tags')?.split(',').forEach(t => filters.tags.add(t));
+  filters.q = p.get('q') || '';
+  $('#table-search').value = filters.q;
+  $$('#gender-chips .chip').forEach(c => c.setAttribute('aria-pressed', filters.genders.has(c.dataset.gender)));
+  $$('#pos-chips .chip').forEach(c => c.setAttribute('aria-pressed', filters.poss.has(c.dataset.pos)));
+  $$('#tag-chips .chip').forEach(c => c.setAttribute('aria-pressed', filters.tags.has(c.dataset.tag)));
+}
+
+/* ─────────────── table render ─────────────── */
+function visible() {
+  return words.filter(w => {
+    if (filters.poss.size && !filters.poss.has(w.pos)) return false;
+    if (filters.tags.size && ![...filters.tags].every(t => w.tags.includes(t))) return false;
+    if (filters.genders.size) {
+      const gs = langOrder.map(l => w.t[l]?.gender).filter(Boolean);
+      if (!w.pos.startsWith('n') || !gs.some(g => filters.genders.has(g))) return false;
+    }
+    if (filters.q) {
+      const hay = [w.tags.join(' '), ...langOrder.map(l => w.t[l]?.sg || ''), ...langOrder.map(l => w.t[l]?.pl || '')].join(' ').toLowerCase();
+      if (!hay.includes(filters.q.toLowerCase())) return false;
+    }
+    return true;
+  });
+}
+
+function renderHead() {
+  const tr = $('#thead');
+  tr.innerHTML = `
+    <th style="width: 44px;"><input type="checkbox" class="cb" id="sel-all" aria-label="Select all" /></th>
+    <th style="width: 52px; text-align: center;">Type</th>
+    ${langOrder.map(l => `
+      <th class="lang-col" draggable="true" data-lang="${l}" title="Drag to reorder">
+        <span class="sort">${FLAGS[l]} ${l.toUpperCase()}
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m8 9 4-4 4 4M8 15l4 4 4-4"/></svg>
+        </span>
+      </th>`).join('')}
+    <th style="width: 140px;">Tags</th>`;
+  $('#sel-all').addEventListener('change', e => {
+    const rows = visible().slice(0, shown);
+    rows.forEach(w => e.target.checked ? selection.add(w.id) : selection.delete(w.id));
+    renderBody();
+  });
+  $$('#thead th[draggable]').forEach(th => {
+    th.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', th.dataset.lang));
+    th.addEventListener('dragover', e => e.preventDefault());
+    th.addEventListener('drop', e => {
+      e.preventDefault();
+      reorderLangs(e.dataTransfer.getData('text/plain'), th.dataset.lang);
+    });
+  });
+}
+
+function wordCellHTML(w, l) {
+  const tr = w.t[l];
+  const mine = w.owner === 'me';
+  if (!tr || !tr.sg) {
+    return mine
+      ? `<button class="cell-add" data-open="${w.id}|${l}" aria-label="Add ${LANG_NAME[l]} translation" title="Add ${LANG_NAME[l]} translation">
+           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+         </button>`
+      : `<span class="cell-block" title="Not translated — read-only word from a followed tag">
+           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+         </span>`;
+  }
+  const g = showGender && w.pos === 'n' && tr.gender
+    ? `<span class="gender-chip gender-${tr.gender}">${{ m: 'der · el', f: 'die · la', n: 'das' }[tr.gender]}</span>` : '';
+  return `
+    <span class="ring-wrap">
+      <button class="cell-btn" data-open="${w.id}|${l}">
+        <span class="truncate" style="display: inline-block; max-width: 170px; vertical-align: bottom;">${tr.sg}${g}</span>
+      </button>
+      <span class="ring" style="--pct: ${tr.pct};"><span class="ring-detail meta" style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 2px 7px; position: absolute; top: 24px; left: 0; z-index: 5; white-space: nowrap;">${tr.pct}% of cases</span></span>
+    </span>`;
+}
+
+function renderBody() {
+  const rows = visible();
+  const page = rows.slice(0, shown);
+  const tbody = $('#tbody');
+  tbody.innerHTML = page.map(w => `
+    <tr data-id="${w.id}" class="${selection.has(w.id) ? 'selected' : ''}">
+      <td>
+        <span class="row" style="gap: 8px;">
+          <input type="checkbox" class="cb row-cb" ${selection.has(w.id) ? 'checked' : ''} aria-label="Select ${w.t.en?.sg || w.id}" />
+          <span class="owner-dot ${w.owner === 'me' ? 'owner-me' : 'owner-group'}" title="${w.owner === 'me' ? 'Your word' : 'From a followed tag'}">${w.owner === 'me' ? 'K' : 'G'}</span>
+        </span>
+      </td>
+      <td><span class="pos-abbr">${POS_LABEL[w.pos]}</span></td>
+      ${langOrder.map(l => `<td class="word-cell">${wordCellHTML(w, l)}</td>`).join('')}
+      <td>
+        <button class="row" style="gap: 4px; flex-wrap: nowrap;" data-tags="${w.id}" title="Edit tags">
+          ${w.tags.map(t => `<span class="tagchip">${t}</span>`).join('')}
+        </button>
+      </td>
+    </tr>`).join('');
+
+  $('#empty-state').hidden = rows.length > 0;
+  $('#empty-text').textContent = filters.q || filters.genders.size || filters.poss.size || filters.tags.size
+    ? 'No words match your filters' : 'No words yet';
+  $('#row-count').textContent = `${page.length} of ${rows.length} words`;
+  $('#cursor-note').textContent = shown < rows.length ? `Showing ${page.length} of ${rows.length}` : `All ${rows.length} loaded`;
+  $('#load-more').style.display = shown < rows.length ? '' : 'none';
+
+  /* wire */
+  tbody.querySelectorAll('.row-cb').forEach(cb => cb.addEventListener('change', () => {
+    const id = cb.closest('tr').dataset.id;
+    cb.checked ? selection.add(id) : selection.delete(id);
+    renderBody();
+  }));
+  tbody.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openCellDialog(...b.dataset.open.split('|'))));
+  tbody.querySelectorAll('[data-tags]').forEach(b => b.addEventListener('click', () => openTagDialog(b.dataset.tags)));
+  updateBulk();
+}
+
+function renderAll() { renderHead(); renderBody(); syncURL(); updateActiveCount(); }
+
+/* ─────────────── language order (draggable chips) ─────────────── */
+function reorderLangs(from, to) {
+  if (from === to) return;
+  const i = langOrder.indexOf(from), j = langOrder.indexOf(to);
+  langOrder.splice(i, 1); langOrder.splice(j, 0, from);
+  renderAll(); renderLangOrder();
+}
+function renderLangOrder() {
+  const box = $('#lang-order');
+  box.innerHTML = langOrder.map(l => `
+    <button class="chip lang-chip" draggable="true" data-lang="${l}" title="Drag to reorder — ${LANG_NAME[l]}">
+      ${FLAGS[l]} ${l.toUpperCase()}
+    </button>`).join('');
+  box.querySelectorAll('.lang-chip').forEach(ch => {
+    ch.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', ch.dataset.lang));
+    ch.addEventListener('dragover', e => { e.preventDefault(); ch.classList.add('drag-over'); });
+    ch.addEventListener('dragleave', () => ch.classList.remove('drag-over'));
+    ch.addEventListener('drop', e => {
+      e.preventDefault();
+      ch.classList.remove('drag-over');
+      reorderLangs(e.dataTransfer.getData('text/plain'), ch.dataset.lang);
+    });
+    ch.addEventListener('dragend', () => ch.classList.remove('drag-over'));
+  });
+  $('#fb-lang-hint').textContent = langOrder.map(l => l.toUpperCase()).join(' → ');
+}
+
+/* ─────────────── bulk bar ─────────────── */
+function updateBulk() {
+  const n = selection.size;
+  $('#bulkbar').hidden = n === 0;
+  if (!n) return;
+  $('#bulk-count').textContent = n;
+  $('#b-exercise').disabled = !(n > 2);
+  $('#b-view').disabled = n !== 1;
+}
+$('#b-view').addEventListener('click', () => {
+  const w = words.find(x => x.id === [...selection][0]);
+  toast('info', `Would navigate to /word/${w.id} (${w.t.en?.sg || 'word'})`);
+});
+$('#b-exercise').addEventListener('click', () => toast('success', `${selection.size} words staged — opening /practice (spec 05)`));
+$('#b-delete').addEventListener('click', () => {
+  $('#confirm-text').textContent = `This permanently removes ${selection.size} word${selection.size > 1 ? 's' : ''} for everyone they're shared with.`;
+  $('#confirm-dialog').showModal();
+});
+$('#confirm-yes').addEventListener('click', () => {
+  words = words.filter(w => !selection.has(w.id));
+  const n = selection.size;
+  selection.clear();
+  $('#confirm-dialog').close();
+  renderAll();
+  toast('success', `${n} word${n > 1 ? 's' : ''} deleted`);
+});
+
+/* ─────────────── filters ─────────────── */
+function chipWire(sel, set, clearBtn) {
+  $$(sel + ' .chip').forEach(c => c.addEventListener('click', () => {
+    const v = c.dataset[Object.keys(c.dataset)[0]];
+    set.has(v) ? set.delete(v) : set.add(v);
+    c.setAttribute('aria-pressed', set.has(v));
+    if (clearBtn) clearBtn.style.display = set.size ? '' : 'none';
+    shown = 10;
+    renderAll();
+  }));
+}
+chipWire('#gender-chips', filters.genders, $('#clear-gender'));
+chipWire('#pos-chips', filters.poss);
+chipWire('#tag-chips', filters.tags);
+$('#clear-gender').addEventListener('click', () => {
+  filters.genders.clear();
+  $$('#gender-chips .chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
+  $('#clear-gender').style.display = 'none';
+  renderAll();
+});
+let qTimer;
+$('#table-search').addEventListener('input', e => {
+  clearTimeout(qTimer);
+  qTimer = setTimeout(() => { filters.q = e.target.value.trim(); shown = 10; renderAll(); }, 500);
+});
+$('#gender-switch').addEventListener('click', () => {
+  showGender = !showGender;
+  $('#gender-switch').setAttribute('aria-pressed', showGender);
+  renderBody();
+});
+$('#load-more').addEventListener('click', () => { shown += 5; renderBody(); });
+$('#collapse-btn').addEventListener('click', () => {
+  $('#fb-body').hidden = true;
+  $('#fb-collapsed').hidden = false;
+});
+$('#expand-btn').addEventListener('click', () => {
+  $('#fb-collapsed').hidden = true;
+  $('#fb-body').hidden = false;
+});
+
+/* active-filter summary for the collapsed strip */
+function updateActiveCount() {
+  const n = filters.genders.size + filters.poss.size + filters.tags.size + (filters.q ? 1 : 0);
+  const pill = $('#fb-active'), text = $('#fb-active-text');
+  pill.hidden = n === 0;
+  pill.textContent = n;
+  text.textContent = n === 0 ? 'No filters applied'
+    : n === 1 ? '1 filter active'
+    : `${n} filters active`;
+}
+
+/* ─────────────── cell dialog (translation editor) ─────────────── */
+let cd = null; // {wordId, lang, values}
+function openCellDialog(id, lang) {
+  const w = words.find(x => x.id === id);
+  const tr = w.t[lang] || {};
+  cd = { wordId: id, lang, values: { ...tr } };
+  const mine = w.owner === 'me';
+  $('#cd-flag').innerHTML = FLAGS[lang];
+  $('#cd-title').textContent = `${w.t.en?.sg || w.t.de?.sg || 'word'} — ${LANG_NAME[lang]}`;
+  const isNoun = w.pos === 'n';
+  $('#cd-body').innerHTML = `
+    ${isNoun && (lang === 'de' || lang === 'es') ? `
+    <div class="field"><span class="label">Gender <span class="req">*</span></span>
+      <div class="radio-row">
+        ${(lang === 'de' ? [['m', 'der'], ['f', 'die'], ['n', 'das']] : [['m', 'el'], ['f', 'la']]).map(([v, l]) => `
+          <label class="radio"><input type="radio" name="cd-gender" value="${v}" ${cd.values.gender === v ? 'checked' : ''} ${mine ? '' : 'disabled'}/>${l}</label>`).join('')}
+      </div>
+    </div>` : ''}
+    <div class="field"><label class="label">Primary form <span class="req">*</span></label>
+      <input class="input" id="cd-sg" value="${cd.values.sg || ''}" ${mine ? '' : 'disabled'} placeholder="${mine ? `in ${LANG_NAME[lang]}…` : ''}" />
+    </div>
+    <div class="field"><label class="label">Secondary form ${isNoun ? '(plural)' : ''}</label>
+      <input class="input" id="cd-pl" value="${cd.values.pl || ''}" ${mine ? '' : 'disabled'} />
+    </div>
+    <p class="hint">Stored cases load here in full (${tr.pct || 0}% registered). Empty values are dropped on save, never persisted.</p>
+    ${!mine ? '<div class="banner warning"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Read-only — this word comes from a followed tag.</div>' : ''}`;
+  $('#cd-save').disabled = true;
+  $('#cd-delete').style.display = (mine && Object.keys(w.t).length >= 3) ? '' : 'none';
+  $('#cd-body').querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => {
+    $('#cd-save').disabled = !mine;
+  }));
+  $('#cd-body').querySelectorAll('input[type=radio]').forEach(inp => inp.addEventListener('change', () => {
+    $('#cd-save').disabled = !mine;
+  }));
+  $('#cell-dialog').showModal();
+}
+$('#cd-save').addEventListener('click', () => {
+  const w = words.find(x => x.id === cd.wordId);
+  cd.values.sg = $('#cd-sg').value.trim();
+  cd.values.pl = $('#cd-pl') ? $('#cd-pl').value.trim() : cd.values.pl;
+  const g = $('#cd-body input[name="cd-gender"]:checked');
+  if (g) cd.values.gender = g.value;
+  w.t[cd.lang] = { ...w.t[cd.lang], ...cd.values };
+  $('#cell-dialog').close();
+  renderAll();
+  toast('success', `${LANG_NAME[cd.lang]} translation updated`, { label: 'See details', href: '#' });
+});
+$('#cd-delete').addEventListener('click', () => {
+  const w = words.find(x => x.id === cd.wordId);
+  delete w.t[cd.lang];
+  $('#cell-dialog').close();
+  renderAll();
+  toast('success', `${LANG_NAME[cd.lang]} translation removed`);
+});
+
+/* ─────────────── tag picker dialog ─────────────── */
+const ALL_TAGS = ['A1', 'A2', 'B1', 'nature', 'home', 'food', 'kitchen', 'people', 'travel'];
+function openTagDialog(target) {
+  tagDialogTarget = target;
+  const ids = target === 'bulk' ? [...selection] : [target];
+  const picked = new Set(ids.flatMap(id => words.find(w => w.id === id).tags));
+  $('#td-title').textContent = target === 'bulk' ? `Assign tags to ${ids.length} words` : 'Edit tags';
+  $('#td-options').innerHTML = ALL_TAGS.map(t => `
+    <button class="chip" data-t="${t}" aria-pressed="${picked.has(t)}">${t}</button>`).join('');
+  $('#td-options').querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+  }));
+  $('#tag-dialog').showModal();
+}
+$('#td-save').addEventListener('click', () => {
+  const picked = $$('#td-options .chip[aria-pressed="true"]').map(c => c.dataset.t);
+  const ids = tagDialogTarget === 'bulk' ? [...selection] : [tagDialogTarget];
+  ids.forEach(id => {
+    const w = words.find(x => x.id === id);
+    w.tags = [...new Set(w.tags.filter(t => picked.includes(t)).concat(picked.filter(t => w.tags.includes(t) || true)))];
+    w.tags = picked.slice(); /* match-all: selection replaces */
+  });
+  $('#tag-dialog').close();
+  renderAll();
+  toast('success', `Tags applied to ${ids.length} word${ids.length > 1 ? 's' : ''}`);
+});
+$('#b-tag').addEventListener('click', () => openTagDialog('bulk'));
+
+/* ─────────────── dialog close buttons + toast ─────────────── */
+$$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+
+function toast(kind, msg, action) {
+  const icons = { success: 'M20 6 9 17l-5-5', error: 'M18 6 6 18M6 6l12 12', warning: 'M12 8v5m0 4h.01', info: 'M12 16v-5m0-4h.01' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = `<svg class="t-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="${icons[kind]}"/></svg><span>${msg}</span>` + (action ? `<a href="${action.href}">${action.label}</a>` : '');
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 5200);
+}
+
+/* ─────────────── boot ─────────────── */
+readURL();
+renderLangOrder();
+renderAll();
+</script>
+</body>
+</html>

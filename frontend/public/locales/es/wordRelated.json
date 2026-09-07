@@ -1,0 +1,184 @@
+{
+  "addWordPage": {
+    "title": "Añadir un nuevo {{currentPoS}}",
+    "titleDefault": "Añadir una nueva palabra",
+    "subtitle": "Todos los campos obligatorios deben completarse antes de guardar"
+  },
+  "displayWord": {
+    "titlePos": "Vista detallada: {{currentPoS}}",
+    "titleSimple": "Vista detallada",
+    "subtitle": "Todas las traducciones almacenadas actualmente para esta palabra",
+    "toastUpdateSuccess": "La palabra se actualizó correctamente",
+    "toastError": "Algo salió mal: {{error}}"
+  },
+  "partOfSpeechSelector": {
+    "title": "¿Qué tipo de palabra es?",
+    "subtitle": "¿No estás seguro de qué es qué? Pasa el ratón sobre los botones y lee las descripciones.",
+    "description": {
+      "other": "¡Lo sabrás cuando lo veas!",
+      "noun": {
+        "info": "Los sustantivos son palabras esenciales en el idioma que dan nombres a personas, lugares, cosas o ideas. Nos ayudan a identificar y hablar sobre el mundo que nos rodea.",
+        "examples": [
+          "*La pizza* es un plato italiano popular.",
+          "*El perro* es una mascota leal.",
+          "*La ciudad* es un área urbana grande con edificios, calles y una población bulliciosa."
+        ]
+      },
+      "pronoun": {
+        "info": "Los pronombres son palabras que reemplazan sustantivos específicos para hacer nuestras oraciones menos repetitivas. Nos ayudan a referirnos a personas, lugares, cosas o ideas sin repetir constantemente el mismo sustantivo.",
+        "examples": [
+          "*Ella* está leyendo un libro.",
+          "*Nosotros* vamos al parque."
+        ]
+      },
+      "verb": {
+        "info": "Los verbos son palabras de acción que describen lo que alguien o algo hace. Expresan acciones, estados o sucesos. Los verbos dan vida y movimiento a nuestras oraciones.",
+        "examples": [
+          "Yo *como* pizza los fines de semana porque es mi comida favorita.",
+          "El gato *salta* sobre la mesa para explorar su entorno."
+        ]
+      },
+      "adjective": {
+        "info": "Los adjetivos son palabras que describen o modifican sustantivos, dándonos más información sobre ellos. Nos ayudan a expresar características, cualidades o atributos de las cosas de las que hablamos.",
+        "examples": [
+          "El clima está *soleado* hoy, con cielos despejados y mucha luz solar.",
+          "Ella tiene una personalidad *amigable* y siempre saluda a todos con una sonrisa."
+        ]
+      },
+      "adverb": {
+        "info": "Los adverbios son palabras que se usan para proporcionar más información sobre verbos, adjetivos y otros adverbios en una oración. Hay cinco tipos principales de adverbios: de modo, de grado, de frecuencia, de tiempo y de lugar.",
+        "examples": [
+          "¿Viniste *aquí* para comprar un paraguas? (Adverbio de lugar)",
+          "No fui a la escuela *ayer* porque estaba enfermo. (Adverbio de tiempo)",
+          "Savio lee el periódico *todos los días*. (Adverbio de frecuencia)",
+          "¿Puedes venir *rápidamente*? (Adverbio de modo)",
+          "Tony estaba tan cansado que *apenas* podía mantener los ojos abiertos durante la reunión. (Adverbio de grado)"
+        ]
+      },
+      "preposition": {
+        "info": "Lo sabrás cuando lo veas.",
+        "examples": [""]
+      },
+      "conjunction": {
+        "info": "Lo sabrás cuando lo veas.",
+        "examples": [""]
+      },
+      "interjection": {
+        "info": "Lo sabrás cuando lo veas.",
+        "examples": [""]
+      },
+      "properNoun": {
+        "info": "Lo sabrás cuando lo veas.",
+        "examples": [""]
+      },
+      "numerals": {
+        "info": "Lo sabrás cuando lo veas.",
+        "examples": [""]
+      }
+    },
+    "missingImplementationPoS": "Esta categoría gramatical aún no está implementada, ¡lo sentimos!"
+  },
+  "translationFormGeneric": {
+    "selectLanguage": "Elige un idioma para la nueva palabra",
+    "switchLanguage": "Cambiar idioma:"
+  },
+  "wordFormSelector": {
+    "languageNotAvailable": "Ese idioma aún no está disponible",
+    "partOfSpeechNotAvailable": "Esa categoría gramatical aún no está disponible"
+  },
+  "formComponentLabel": {
+    "clue": "Pista"
+  },
+  "wordForm": {
+    "errors": {
+      "noNumbers": "No debe incluir números"
+    },
+    "noun": {
+      "errors": {
+        "formEN": {
+          "singularFormRequired": "'Singular' es obligatorio"
+        },
+        "formES": {
+          "singularFormRequired": "La forma 'singular' es obligatoria",
+          "genderRequired": "La selección de 'género' es obligatoria"
+        },
+        "formDE": {
+          "singularFormRequired": "'Singular nominativ' es obligatorio",
+          "genderRequired": "La selección de 'género' es obligatoria"
+        },
+        "formEE": {
+          "singularFormRequired": "'Singular nimetav' es obligatorio",
+          "searchInEnglishLabel": "Buscar el sustantivo en inglés",
+          "searchInEnglishWarning": "Cuidado, esto no funciona con todos los sustantivos. De ser necesario, pruebe buscar en estonio."
+        }
+      }
+    },
+    "adjective": {
+      "errors": {
+        "formEN": {
+          "positiveDegreeRequired": "El grado positivo es obligatorio"
+        },
+        "formES": {
+          "singularMasculineDegreeRequired": "El grado singular masculino es obligatorio",
+          "singularFemaleDegreeRequired": "El grado singular femenino es obligatorio",
+          "singularNeutralDegreeRequired": "El grado singular neutro es obligatorio",
+          "pluralNeutralDegreeRequired": "El grado plural neutro es obligatorio",
+          "genderRequired": "La selección de 'género' es obligatoria"
+        },
+        "formDE": {
+          "positiveDegreeRequired": "El grado positivo es obligatorio"
+        },
+        "formEE": {
+          "algvorreFormRequired": "El grado singular masculino es obligatorio",
+          "keskvorreFormRequired": "El grado singular femenino es obligatorio",
+          "ulivorreFormRequired": "El grado singular neutro es obligatorio"
+        }
+      }
+    },
+    "adverb": {
+      "errors": {
+        "formEN": {
+          "adverbRequired": "El adverbio es obligatorio"
+        },
+        "formES": {
+          "adverbRequired": "El adverbio es obligatorio"
+        },
+        "formDE": {
+          "adverbRequired": "El adverbio es obligatorio",
+          "gradableRequired": "La selección de 'gradual' es obligatoria"
+        }
+      }
+    },
+    "verb": {
+      "errors": {
+        "formEN": {
+          "simplePresentRequired": "Este campo del presente simple es obligatorio",
+          "regularityRequired": "Esa no es una opción"
+        },
+        "formES": {
+          "infinitiveNonFiniteRequired": "El infinitivo no finito es obligatorio",
+          "gerundNonFiniteRequired": "El gerundio no finito es obligatorio",
+          "participleNonFiniteRequired": "El participio no finito es obligatorio",
+          "regularityRequired": "Esa no es una opción"
+        },
+        "formDE": {
+          "infinitiveNonFiniteRequired": "El infinitivo no finito es obligatorio",
+          "infinitiveNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-en', '-ern', '-eln')."
+        },
+        "formEE": {
+          "infinitiveMaRequired": "El infinitivo en -ma es obligatorio",
+          "infinitiveMaNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-ma').",
+          "infinitiveDaRequired": "El infinitivo en -da es obligatorio",
+          "searchInEnglishLabel": "Buscar verbo en inglés",
+          "searchInEnglishWarning": "¡Cuidado, esto no funcionará para todos los verbos! Si es necesario, prueba en estonio."
+        }
+      }
+    },
+    "autocompleteTranslationButton": {
+      "label": "Autocompletar {{wordType}}",
+      "emptyQuery": "Por favor, introduce primero '{{requiredField}}'.",
+      "noMatch": "¡Lo sentimos, no conocemos esta palabra!",
+      "foundMatch": "Hay información sobre esta palabra almacenada en nuestro sistema."
+    }
+  }
+}

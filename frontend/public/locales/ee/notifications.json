@@ -1,0 +1,19 @@
+{
+  "title": "Teavitused",
+  "noNotifications": "Siin pole (veel!) midagi näha...",
+  "missingNotificationType": "- selle teatega tekkis ootamatu viga -",
+  "friendRequest": {
+    "accept": "Võta sõbrakutse vastu",
+    "ignore": "Märkige teatis loetuks",
+    "delete": "Kustuta teatis",
+    "toastSuccess": "Sõbrakutse vastu võetud",
+    "notificationLabel": "{{friendUsername}} saatis sõbrakutse"
+  },
+  "shareTagRequest": {
+    "accept": "Nõustu silt",
+    "ignore": "Märkige teatis loetuks",
+    "delete": "Kustuta teatis",
+    "toastSuccess": "Märgendi lisamine teie kontole õnnestus",
+    "notificationLabel": "{{otherUserUsername}} soovib teiega jagada märgendit '{{tagName}}'."
+  }
+}

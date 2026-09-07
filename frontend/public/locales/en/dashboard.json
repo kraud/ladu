@@ -1,0 +1,34 @@
+{
+  "welcome": {
+    "title": "Welcome, {{name}}",
+    "spinning": "Ready to learn something new today?"
+  },
+  "userInfoCards": {
+    "totalWords": "Total words",
+    "incompleteWords": "Incomplete words",
+    "languages": "Languages"
+  },
+  "charts": {
+    "pie": {
+      "unit": {
+        "words": "words",
+        "translations": "translations"
+      },
+      "title": {
+        "wordMetric": "Distribution of word types",
+        "translationMetric": "Distribution of languages"
+      },
+      "tooltip": {
+        "newWordByCategory": "Click here to add a new {{category}}",
+        "newWordByLanguage": "Click here to add a new word in {{language}}"
+      },
+      "worstCategory": "Your worst category is:"
+    },
+    "bar": {
+      "title": {
+        "wordMetric": "Words per month",
+        "translationMetric": "Words per language"
+      }
+    }
+  }
+}

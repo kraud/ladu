@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const {
     getWords, setWord, updateWord, deleteWord, getWordsSimplified, getWordById, filterWordByAnyTranslation,
-    getWordDataByRequest, getAllWordDataByWord, deleteManyWords, getWordsByFollowedTag
+    deleteManyWords, getWordsByFollowedTag
 } = require('../controllers/wordController.ts')
 const {protect} = require('../middleware/authMiddleware.ts')
 
@@ -13,8 +13,6 @@ router.get('/getWordsRelatedToFollowedTag', protect, getWordsByFollowedTag)
 router.get('/simple', protect, getWordsSimplified)
 
 router.get('/searchWord', protect, filterWordByAnyTranslation)
-
-router.get('/getAllWordDataByWord', protect, getAllWordDataByWord) // TODO: this should be removed? Double check
 
 router.get('/:id', protect, getWordById)
 

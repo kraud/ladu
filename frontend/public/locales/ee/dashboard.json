@@ -1,0 +1,34 @@
+{
+  "welcome": {
+    "title": "Tere tulemast, {{name}}",
+    "spinning": "Kas olete täna valmis midagi uut õppima?"
+  },
+  "userInfoCards": {
+    "totalWords": "Kokku sõnu",
+    "incompleteWords": "Puudulikud sõnad",
+    "languages": "Keeled"
+  },
+  "charts": {
+    "pie": {
+      "unit": {
+        "words": "sõnad",
+        "translations": "tõlked"
+      },
+      "title": {
+        "wordMetric": "Sõnaliikide jaotus",
+        "translationMetric": "Keelte jaotus"
+      },
+      "tooltip": {
+        "newWordByCategory": "Klõpsa siia, et lisada uus {{category}}",
+        "newWordByLanguage": "Klõpsa siia, et lisada uus sõna keeles {{language}}"
+      },
+      "worstCategory": "Sinu halvim kategooria on:"
+    },
+    "bar": {
+      "title": {
+        "wordMetric": "Sõnad kuude kaupa",
+        "translationMetric": "Sõnad keele kohta"
+      }
+    }
+  }
+}
