@@ -10,9 +10,9 @@ beforeEach(() => {
 });
 
 describe('toSessionUser — normalizes every backend shape', () => {
-    it('login shape: _id only, nativeLanguage key omitted', () => {
+    it('login shape: nativeLanguage key omitted', () => {
         const raw: RawUser = {
-            _id: 'u1',
+            id: 'u1',
             name: 'Ada',
             email: 'ada@example.com',
             username: 'ada',
@@ -33,10 +33,9 @@ describe('toSessionUser — normalizes every backend shape', () => {
         });
     });
 
-    it('verify / getMe shape: both id and _id present', () => {
+    it('verify / getMe shape: full row', () => {
         const raw: RawUser = {
             id: 'u2',
-            _id: 'u2',
             name: 'Bo',
             email: 'bo@example.com',
             username: 'bo',
@@ -51,12 +50,12 @@ describe('toSessionUser — normalizes every backend shape', () => {
     });
 
     it('register shape: verified false is preserved', () => {
-        expect(toSessionUser({ _id: 'u4', email: 'd@x.com', verified: false }).verified).toBe(false);
+        expect(toSessionUser({ id: 'u4', email: 'd@x.com', verified: false }).verified).toBe(false);
     });
 
     it('a missing verified flag (nullable column) is treated as verified', () => {
-        expect(toSessionUser({ _id: 'u5', email: 'e@x.com', verified: null }).verified).toBe(true);
-        expect(toSessionUser({ _id: 'u6', email: 'f@x.com' }).verified).toBe(true);
+        expect(toSessionUser({ id: 'u5', email: 'e@x.com', verified: null }).verified).toBe(true);
+        expect(toSessionUser({ id: 'u6', email: 'f@x.com' }).verified).toBe(true);
     });
 
     it('falls back for a missing id and a non-array languages value', () => {
@@ -69,24 +68,24 @@ describe('toSessionUser — normalizes every backend shape', () => {
 
 describe('setSession — token resolution', () => {
     it('takes the token embedded in the login response', () => {
-        useAuthStore.getState().setSession({ _id: 'u1', email: 'a@x.com', token: 'tok-login' });
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com', token: 'tok-login' });
         expect(useAuthStore.getState().token).toBe('tok-login');
     });
 
     it('keeps the existing token when a getMe refresh carries none', () => {
-        useAuthStore.getState().setSession({ _id: 'u1', email: 'a@x.com', token: 'tok-login' });
-        useAuthStore.getState().setSession({ id: 'u1', _id: 'u1', email: 'a@x.com', name: 'Ada refreshed' });
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com', token: 'tok-login' });
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com', name: 'Ada refreshed' });
         expect(useAuthStore.getState().token).toBe('tok-login');
         expect(useAuthStore.getState().user?.name).toBe('Ada refreshed');
     });
 
     it('prefers an explicit token argument', () => {
-        useAuthStore.getState().setSession({ _id: 'u1', email: 'a@x.com', token: 'embedded' }, 'explicit');
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com', token: 'embedded' }, 'explicit');
         expect(useAuthStore.getState().token).toBe('explicit');
     });
 
     it('clearSession wipes user and token', () => {
-        useAuthStore.getState().setSession({ _id: 'u1', email: 'a@x.com', token: 't' });
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com', token: 't' });
         useAuthStore.getState().clearSession();
         expect(useAuthStore.getState()).toMatchObject({ user: null, token: null });
     });

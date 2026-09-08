@@ -26,13 +26,13 @@ describe('_protected.beforeLoad guard', () => {
     });
 
     it('redirects when the persisted token is expired', async () => {
-        useAuthStore.getState().setSession({ _id: 'u1', email: 'a@x.com' }, expiredToken());
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com' }, expiredToken());
         const router = await loadAt('/practice');
         expect(router.state.location.pathname).toBe('/login');
     });
 
     it('allows an authenticated visit to a protected route', async () => {
-        useAuthStore.getState().setSession({ _id: 'u1', email: 'a@x.com' }, futureToken());
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com' }, futureToken());
         const router = await loadAt('/');
         expect(router.state.location.pathname).toBe('/');
     });

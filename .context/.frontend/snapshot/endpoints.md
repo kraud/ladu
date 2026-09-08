@@ -6,7 +6,7 @@ Snapshot for the full-reimplementation build plan. Every claim carries `file:lin
 - All routers and routes are CommonJS `.js` (`backend/routes/*.js`) but they import the **live TS controllers** (`backend/controllers/*.ts`, e.g. `backend/routes/wordRoutes.js:6-7`) and the **live TS auth middleware** (`backend/middleware/authMiddleware.ts`, required by all 7 route files). The sibling Mongoose `.js` controllers (`backend/controllers/*.js`, e.g. `wordController.js`) and `authMiddleware.js` are **dead code** — nothing imports them.
 - Auth model: `Authorization: Bearer <JWT>` header, JWT carries only `{ id }`, expires in 30d (`userController.ts:52-57`); `protect` verifies the token and 401s with `Not authorized` / `Not authorized (missing token)` (`authMiddleware.ts:5-31`).
 - Error shape: global `errorHandler` returns `{ message, stack (non-prod only) }` with the status code set by the controller (`errorMiddleware.js:33-42`, mounted `app.js:29`).
-- Legacy-compat note: word/tag/user responses deliberately keep the old Mongo `_id` field alongside the Postgres `id` (`wordService.ts:57-69`, `tagController.ts:29-34`, `userController.ts:59-75`).
+- Legacy-compat note: word/tag/user responses currently keep the old Mongo `_id` field alongside the Postgres `id` (`wordService.ts:57-69`, `tagController.ts:29-34`, `userController.ts:59-75`). **This is being removed** — `_id` is a MongoDB artifact with no column in the Drizzle schema and no consumer on the new stack (the old frontend has its own separate backend). Per the standing rule in `new-repo-build-plan.md` §4, each slice strips the `_id` alias from the responses it touches; the `_id` shapes quoted below are the as-of-2026-09-05 record and each is corrected in the slice that removes it.
 
 ## Reconciliation
 

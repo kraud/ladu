@@ -7,7 +7,7 @@ export interface WordData {
     tags?: TagData[],
 }
 export interface WordDataBE {
-    id: string, // TODO: should it be _id?
+    id: string,
     translations: TranslationItem[],
     partOfSpeech: PartOfSpeech,
     clue?: string,
@@ -55,7 +55,7 @@ type UserSearch = {
 }
 
 export type UserData = {
-    _id: string,
+    id: string,
     name: string,
     username: string,
     email: string,
@@ -63,7 +63,7 @@ export type UserData = {
 }
 
 export type NotificationData = {
-    _id: string,
+    id: string,
     // user to be notified
     user: string | string[], // when retrieving notification data it will always be 1 user id
 
@@ -93,7 +93,7 @@ type ShareTagRequestData = {
 }
 
 export type FriendshipData = {
-    _id?: string,
+    id?: string,
     userIds: string[],
     usernames?: string[], // not used anymore?
     status: 'pending' | 'accepted' | 'blocked',
@@ -108,7 +108,7 @@ type PartnershipsData = {
 
 // Matches tagModel in BE
 export type TagData = {
-    _id?: string, // can be undefined when creating a new tag
+    id?: string, // can be undefined when creating a new tag
     author: string,
     label: string,
     description: string,
@@ -136,7 +136,7 @@ export interface PropsButtonData {
 }
 
 export type FilterItem = {
-    _id: string,
+    id: string,
     filterValue: string, // also the label that will be displayed
 } & (CaseFilter | TagFilter | PartOfSpeechFilter)
 

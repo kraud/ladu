@@ -91,7 +91,9 @@ Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playw
 
 ## Backend copy rules & the §8 deficiency fixes
 
-**Copy rules:** keep TS controllers/routes/Drizzle schema/Jest tests; **drop every legacy Mongoose `.js` controller/model** (already deleted in the working tree). Apply §8.5 hygiene (CORS allowlist via `CORS_ORIGIN` — done in `app.js`; stable error codes instead of leaking `err.stack`). Keep the dual `_id` + `id` response shape until cutover; new FE types use `id` only.
+**Copy rules:** keep TS controllers/routes/Drizzle schema/Jest tests; **drop every legacy Mongoose `.js` controller/model** (already deleted in the working tree). Apply §8.5 hygiene (CORS allowlist via `CORS_ORIGIN` — done in `app.js`; stable error codes instead of leaking `err.stack`).
+
+**`id` only — `_id` is a MongoDB artifact (standing rule; `new-repo-build-plan.md` §4).** The Drizzle/Postgres schema has no `_id` column; every `_id` in a response is a hand-written alias kept for the *old* frontend, which runs against its own separate backend — nothing here needs it. New FE code and types use `id` exclusively (no `_id`, no `raw.id ?? raw._id` fallback). Backend `_id` aliases are stripped **per-slice, by whatever slice touches that controller/serializer** (responses + test assertions), not in one refactor; the affected docs are corrected in the same slice.
 
 **TODO routes:** keep `GET /api/tags/filterTags`; **delete** `GET /api/words/getAllWordDataByWord` (no consumer).
 
