@@ -21,3 +21,6 @@ e2e/playwright-report
 e2e/blob-report
 e2e/.cache
 node_modules/.cache/ms-playwright
+
+# playwright MCP interactive-session scratch
+.playwright-mcp

@@ -229,8 +229,8 @@ Five reviewable slices; the user commits and re-confirms between each.
 |---|---|
 | 0 — persist the plan into the repo | ✅ done |
 | 1 — design system + UI primitives (Ladu tokens in Tailwind v4, shadcn/Base UI init, 8 primitives) | ✅ done 2026-09-08 — commit `39fe6d6`; frontend 9/9 + build green |
-| 2 — app plumbing (axios client + 401 interceptor, Zustand `persist` session, typed router, `ProtectedRoute`, real 404, MSW infra) | ⬜ not started — **next** |
-| 3 — auth pages (register / verify / login / logout / reset) | ⬜ not started |
+| 2 — app plumbing (axios client + 401 interceptor, Zustand `persist` session, typed router, `ProtectedRoute`, real 404, MSW infra) | ✅ done 2026-09-08 — frontend 42/42 + build green; guard + 404 verified in-browser |
+| 3 — auth pages (register / verify / login / logout / reset) | ⬜ not started — **next** |
 | 4 — app shell + Dashboard (`AppHeader`, `LanguageSelector`, `UserMenu`, `getUserMetrics`) | ⬜ not started |
 | 5 — backend hygiene + phase gate (strip bcrypt-hash & `passwordTokens` leaks; gate checks; kill-switch pace record) | ⬜ not started |
 
