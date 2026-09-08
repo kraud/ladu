@@ -207,3 +207,31 @@ Performed 2026-09-05, before this plan was written:
 1. **Route cross-check** — `glob frontend/src/pages/**/*.tsx` (14 files) vs snapshot coverage: 0 missing; route table re-read from `RoutesWithAnimation.tsx:54-138`.
 2. **Endpoint cross-check** — `grep -c "router.(get|post|put|delete)" backend/routes/*.js` = 57 total (autocomplete 8, exercise 3, friendship 6, notification 5, tag 15, user 10, word 10) — matches `endpoints.md` (57 exposed / 54 FE-called / 3 backend-only).
 3. **Spot-checks** (file:line resolved in source): `Review.tsx:228-254` ✓ · `WordForm.tsx:64-67,114-149` ✓ · `MainView.tsx:67-75` ✓ · `tagSlice.ts:541-562` ✓ · `RoutesWithAnimation.tsx:122-129` ✓ · `AuthVerify.tsx:19-29` ✓ (per `pages-auth-shell.md` highlights).
+
+## 9. Progress — quick reference
+
+*Snapshot 2026-09-08. This is the "where are we" glance for when work resumes; keep the tail current as slices land. Per-slice detail — goals, decisions taken with the user, what actually shipped vs. what was planned — lives in [`plans/`](./plans/), one file per phase.*
+
+| Phase | Status |
+|---|---|
+| 0 — Scaffold + backend copy | ✅ done — commit `c030b68`; backend 130/130 green |
+| 1 — Auth + app shell | 🔨 in progress — branch `auth-and-app-shell` (breakdown below) |
+| 2–8 | not started |
+
+- **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../../.context/README.md).
+- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate.
+
+### Phase 1 — [`plans/phase-1-auth-app-shell.md`](./plans/phase-1-auth-app-shell.md)
+
+Five reviewable slices; the user commits and re-confirms between each.
+
+| Slice | Status |
+|---|---|
+| 0 — persist the plan into the repo | ✅ done |
+| 1 — design system + UI primitives (Ladu tokens in Tailwind v4, shadcn/Base UI init, 8 primitives) | ✅ done 2026-09-08 — commit `39fe6d6`; frontend 9/9 + build green |
+| 2 — app plumbing (axios client + 401 interceptor, Zustand `persist` session, typed router, `ProtectedRoute`, real 404, MSW infra) | ⬜ not started — **next** |
+| 3 — auth pages (register / verify / login / logout / reset) | ⬜ not started |
+| 4 — app shell + Dashboard (`AppHeader`, `LanguageSelector`, `UserMenu`, `getUserMetrics`) | ⬜ not started |
+| 5 — backend hygiene + phase gate (strip bcrypt-hash & `passwordTokens` leaks; gate checks; kill-switch pace record) | ⬜ not started |
+
+Deviations already agreed with the user (full text in the plan's Slice 5): no `VerifyEmailBanner` (unverified users are blocked at login), five shadcn primitives held to Phase 2, `getUserMetrics` path corrected to `/api/users/getUserMetrics`. The Phase 1 e2e spec (`phase-1-auth.spec.ts`) is written in Slice 3–5.
