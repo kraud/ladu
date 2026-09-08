@@ -235,8 +235,6 @@ The ~25–30% of effects that encode real sequencing. Any approach must re-encod
 
 5. **The rewrite is the cheapest moment to fix the domain models.** The §8.2/§8.3 redesigns are schema migrations + controller rewrites in a copied, not-yet-live backend with zero users to migrate; retrofitting them into the live repo would be a second migration project with real users on it.
 
-**Kill-switch (conditions that flip the verdict back to the refactor plan)**: (a) product development must resume immediately with weekly shippable increments — the rewrite's cutover boundary conflicts; (b) after building the first vertical slice (auth shell + Dashboard), measured pace suggests the full rewrite exceeds ~2× the equivalent migration-plan effort — in that case the migration plan remains fully executable as corrected by the patches applied 2026-09-04.
-
 **If the rewrite is chosen**, the next artifact is a build plan for the **new repository**: scaffold the monorepo (npm workspaces: `backend/` + `frontend/`) → copy the backend and apply the §8 backend changes (§8.2 friendships model, §8.3 `tag_shares` + authz + transactional clone, §8.5 hygiene, pagination) → auth + router shell → Dashboard vertical slice proving the form/chart/query stack → route-by-route parity per the checklist + intentional-deltas annex → deploy to a temporary domain (platform per `.context/production-migration-plan.md`, still undecided) → the user switches the real domain manually when satisfied. Deliberately out of scope here: this document is the evaluation.
 
 ## 12. Final review findings on `frontend-migration-plan.md`
