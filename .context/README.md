@@ -15,7 +15,14 @@ npm test                     # backend Jest suite (workspace: backend)
 npm test -w frontend         # frontend Vitest
 npm run build                # frontend production build
 npm run db:studio            # Drizzle Studio
+
+npm run e2e:install          # one-time: download Chromium for Playwright
+npm run test:e2e             # full-stack Playwright e2e suite (boots backend + frontend)
+npm run test:e2e:headed      # same, in a visible browser window
 ```
+
+**e2e prerequisites:** `docker:up` + `db:migrate` + `backend/.env` (same as the
+backend Jest suite) plus `e2e:install` once. Details: [`e2e/README.md`](../e2e/README.md).
 
 ---
 
@@ -32,6 +39,11 @@ npm run db:studio            # Drizzle Studio
 - Code follows English naming. Strict TS both tiers. No `@ts-ignore`, no non-null assertions in the frontend.
 - When a spec is unclear, run the old app or ask — don't invent behaviour.
 - Keep `CLAUDE.md` current when architecture decisions or phase status change.
+- **Every phase ends with a green Playwright e2e run** covering that phase's
+  vertical slice — a required gate, not optional polish. One spec per phase
+  (`e2e/tests/phase-N-*.spec.ts`), written alongside the feature like the unit
+  tests. MSW/Vitest proves flows in isolation; the e2e suite proves the real
+  backend + Postgres + browser work together. See `new-repo-build-plan.md` §6.
 
 ---
 
@@ -56,10 +68,13 @@ npm run db:studio            # Drizzle Studio
 ## Target stack
 
 ### Frontend (`frontend/`) — clean slate
-Vite 5 · React 18 · **TypeScript 5 strict** (`noImplicitAny`, `noUnusedLocals/Parameters` already on; `@ts-ignore` and non-null assertions `!` are banned) · Tailwind v4 (`@tailwindcss/vite`) + shadcn/Base UI *(not yet initialised)* + Phosphor icons · **TanStack Query v5** (all server state) · **TanStack Router** (typed routes) · **Zustand** (session + `selectedPoS` + UI state only) · react-hook-form + yup · @tanstack/react-table · @dnd-kit · i18next (locale JSONs copied verbatim) · react-toastify · axios (one client, request interceptor, 401→logout — no refresh endpoint exists) · react-error-boundary per route · Vitest + MSW · c3/D3 (code-split behind Dashboard).
+Vite 5 · React 18 · **TypeScript 5 strict** (`noImplicitAny`, `noUnusedLocals/Parameters` already on; `@ts-ignore` and non-null assertions `!` are banned) · Tailwind v4 (`@tailwindcss/vite`) + shadcn/Base UI *(not yet initialised)* + Phosphor icons · **TanStack Query v5** (all server state) · **TanStack Router** (typed routes) · **Zustand** (session + `selectedPoS` + UI state only) · react-hook-form + yup · @tanstack/react-table · @dnd-kit · i18next (locale JSONs copied verbatim) · react-toastify · axios (one client, request interceptor, 401→logout — no refresh endpoint exists) · react-error-boundary per route · Vitest + MSW (unit + flow tests) · c3/D3 (code-split behind Dashboard).
 
 ### Backend (`backend/`) — copied + modified
 Node/Express (`.js` routes) → **TypeScript controllers loaded via `tsx`** · **Drizzle ORM on PostgreSQL** (`backend/src/db/schema.ts` is the source of truth) · JWT auth (`protect` middleware) · bcryptjs · Nodemailer · Jest + ts-jest + supertest · drizzle-kit for migrations. Local DB via Docker Compose (Postgres 15: `keelapp_dev`, `keelapp_test`).
+
+### e2e (`e2e/`) — full-stack tests
+Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playwright/test`) drives Chromium against the *real* backend (:5001) + frontend dev server (:5173) — `webServer` in `e2e/playwright.config.ts` boots both. One spec per phase (`e2e/tests/phase-N-*.spec.ts`); green run is a required per-phase gate (build plan §5/§6). Kept out of the `frontend` workspace so Playwright's Node config + browser binaries never touch the Vite build or FE dep tree. Interactive browser driving during a session comes from the `@playwright/mcp` server registered in `.mcp.json`. CI job deferred — local gate for now.
 
 ---
 

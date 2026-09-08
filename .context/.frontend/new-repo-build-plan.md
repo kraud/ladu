@@ -95,7 +95,7 @@ Key snapshot facts the roadmap relies on:
 
 ## 4. New-repo architecture (decisions inherited + final)
 
-**Stack** (study §7; migration-plan library verdicts stand): Vite · TypeScript 5 **strict from commit one** (`noImplicitAny: true`, `@ts-ignore` banned by lint) · React latest · Tailwind v4 + shadcn/Base UI + Phosphor · TanStack Query v5 · TanStack Router (typed routes; kills the param-parsing class of bugs) · Zustand (session + `selectedPoS` + UI state only) · react-hook-form + yup · @tanstack/react-table · @dnd-kit · i18next (44 locale JSONs copy verbatim) · react-toastify · axios (one client, request interceptor, 401→logout) · react-error-boundary per route · Vitest + MSW · c3/D3 code-split.
+**Stack** (study §7; migration-plan library verdicts stand): Vite · TypeScript 5 **strict from commit one** (`noImplicitAny: true`, `@ts-ignore` banned by lint) · React latest · Tailwind v4 + shadcn/Base UI + Phosphor · TanStack Query v5 · TanStack Router (typed routes; kills the param-parsing class of bugs) · Zustand (session + `selectedPoS` + UI state only) · react-hook-form + yup · @tanstack/react-table · @dnd-kit · i18next (44 locale JSONs copy verbatim) · react-toastify · axios (one client, request interceptor, 401→logout) · react-error-boundary per route · Vitest + MSW · c3/D3 code-split. **Playwright** lives in a third workspace (`e2e/`) for full-stack per-phase gates; the `@playwright/mcp` server (`.mcp.json`) drives a browser interactively during a session.
 
 **Frontend invariants (enforced from commit one):**
 1. No server state outside TanStack Query; no status booleans — mutations expose `isPending/isError/data` + `onSuccess/onError`; all §9 flow sequencing becomes mutation callbacks and invalidation edges.
@@ -109,6 +109,8 @@ Key snapshot facts the roadmap relies on:
 ## 5. Phased roadmap
 
 Each phase: scope → gate. Order chosen so every phase ends with a runnable app and the riskiest bespoke logic (form engine, exercise flow) lands after the plumbing is proven.
+
+**Every phase also ships a Playwright e2e spec** (`e2e/tests/phase-N-*.spec.ts`) that walks that phase's vertical slice against the real backend + Postgres + a browser, written alongside the feature. A green `npm run test:e2e` is part of every gate below — it is not deferred to Phase 8. See §6.
 
 | # | Phase | Depends on |
 |---|-------|-----------|
@@ -133,43 +135,51 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 - Frontend: Zustand `persist` session (single normalized shape — fixes the 3-way localStorage drift); axios client + interceptor (401→`clearSession()` + redirect); `Register`, `Login`, `VerificationUser`, `ResetPassword` (yup schemas ported); `ProtectedRoute` on every guarded route (the four unguarded pages fixed on day one); Header shell (nav, UI-language switcher, i18n init); Dashboard shell + `getUserMetrics` read (proves the query stack); `NotFound`; route-entry animation as CSS keyframe.
 - Tests: MSW auth handlers; integration suite register → verify → login → logout → expired-token → protected-redirect.
 - **Gate**: full auth suite green; `grep "JSON.parse(localStorage"` in FE = 0; visiting any protected route unauthenticated redirects; **record pace → kill-switch evaluation** (study §11b).
+- **e2e** (`phase-1-auth.spec.ts`): register → verify → login → land on Dashboard → logout; expired/absent token on a protected route redirects to login; UI-language switch persists across reload.
 
 ### Phase 2 — Noun create/view with ≥3 translations *(second vertical slice)*
 - Backend: `getWordsSimplified` gains cursor pagination (§8.4 #2); `GET /api/words/:id` gains ownership check.
 - Frontend: `TranslationItem` model; **form engine v1 — nouns only**: one renderer + 4 noun configs (EN/ES/DE/EE) generated from `NounCasesData`; `AddWord` page (PoS selector; route param typed via TanStack Router); `DisplayWord` read-only; `WordForm` orchestration re-modeled: create/update/delete as mutations whose `onSuccess` chains navigate + toast + reset (the `recently*` flags and chained effects are *not ported* — snapshot `pages-word-flow.md` documents the behavior to reproduce, not the mechanism); tags + clue fields; `filterAvailableTranslationsBySelectedLanguages` logic ported as a pure function with tests (`WordForm.tsx:157-169`).
 - i18n: `wordRelated` + `caseDescription` namespaces wired.
 - **Gate**: create a noun with EN+ES+DE+EE translations, save, reload it in DisplayWord — all four translations render with correct case fields; edit + save round-trips; MSW tests for the CRUD flow; `wordCasesDataByPoS` config produces byte-identical yup field lists for nouns vs the old `NounForm*` components (verified by a one-off generation test, then kept as the engine's regression test).
+- **e2e** (`phase-2-noun-crud.spec.ts`): logged-in user adds a noun with ≥3 language translations through the real form, saves, reloads DisplayWord and sees all translations + case fields; edits one and the change persists after reload; `GET /api/words/:id` for another user's word is refused.
 
 ### Phase 3 — Form engine completion + autocomplete + Review
 - Verbs/adjectives/adverbs configs (engine already proven on nouns; the ~5,300 lines of verb forms collapse to configs); `checkEnvironmentAndIterationToDisplay` ported into `env.ts`.
 - `useAutocompleteTranslation(lang, pos, query)` family with typed query keys; EE sanitizers as query transforms (`sanitizeDataStructureEE*`); per-instance debounce (deletes the module-level shared timer, `generalUseFunctions.ts:544-550`); `AutocompleteButtonWithStatus` ported.
 - Review page: TanStack table; **all filters in URL searchParams** (today only the tag param hydrates, once — snapshot `pages-review-practice.md`); **stable-id row selection** (fixes `Review.tsx:228-254`); `useInfiniteQuery` over the paginated list; TableFilters + DnD column order ported on @dnd-kit.
 - **Gate**: word CRUD + search + autocomplete flows' MSW tests green; filters survive reload (URL round-trip); selecting row N after a filtered refetch navigates to the right word.
+- **e2e** (`phase-3-review.spec.ts`): create words of each PoS via the engine; on Review, apply a filter → reload → filter still applied from the URL; scroll triggers the next page; click a row after a filtered refetch and land on the correct word; an autocomplete lookup populates fields.
 
 ### Phase 4 — Tags
 - Tag CRUD, follow/unfollow as **two distinct mutations** (the overloaded-slot hook dies), `TagInfoModal` without op-booleans, `AutocompleteMultiple` (tag picker), bulk-add-tags-to-words with declared invalidation edges (`['tags', id, 'wordCount']` + `['words']`), `filterTags` kept per §3.
 - **Gate**: tag flows' integration tests green; dead thunks (`getAmountByTag`) simply don't exist.
+- **e2e** (`phase-4-tags.spec.ts`): create a tag, bulk-add it to several words from Review, follow another user's tag (its words show read-only), unfollow it (they disappear); the word-count badge reflects each change.
 
 ### Phase 5 — Exercises + performance + Dashboard charts
 - `ExerciseParameterSelector` → params in typed route searchParams; `getUserExercises` query; `ExerciseCard` re-modeled per flow #4 (answer state in component state; `saveTranslationPerformance`/`savePerformanceAction` as mutations with `setQueryData` splice + metrics invalidation — no `currentCardIndex` slice splicing); `EndScreen`/`ResultRow`; charts (c3/D3) code-split behind Dashboard.
 - **Gate**: full practice session MSW test (params → cards → end screen → performance saved → metrics reflect).
+- **e2e** (`phase-5-exercises.spec.ts`): set parameters → run a full session answering cards (TI + MC) → end screen shows results → reload Dashboard and the metrics/charts reflect the saved performance.
 
 ### Phase 6 — Social (redesigned models ride along)
 - **Friendships §8.2**: new `friendships` table (requesterId/addresseeId/status enum, partial unique constraints); one action per endpoint; friend-request notification created **server-side in the same transaction**; decline action (new capability); FE: `useFriendships`/`useFriendRequests` + one mutation per action (the dual-slice wait + 4 booleans die by construction).
 - **Notifications §8.1**: `['notifications']` query, `refetchInterval: 90_000`, `refetchIntervalInBackground: false`, `refetchOnWindowFocus: 'always'`, error toast (no more silent failures); `?unreadOnly=&since=` cursor params on the list endpoint; dismiss via `setQueryData`; notifications become a display-only inbox — pending actions render from domain queries.
 - Users: search + `UserBadge`; `FriendSearchModal` rebuilt on the new mutation set.
 - **Gate**: send → accept/decline → unfriend flows green incl. the new decline path; badge updates ≤ poll interval; hidden tab does not poll.
+- **e2e** (`phase-6-social.spec.ts`, two browser contexts): user A sends a request → user B sees the notification and accepts → both show as friends; a second request is declined; unfriend removes the link; the notification badge updates within a poll interval.
 
 ### Phase 7 — Tag shares + Account + polish
 - **§8.3**: `tag_shares` table; share/accept/decline endpoints; server-side transactional clone **preserving translations + cases** (fixes the data-loss bug); `canViewTag` authz helper enforced on getTagById/followTag/clone; `createTag` sets `authorId` server-side; `public` → `visibility` enum. One accept mutation (DisplayTag's clone button and the hub entry collapse into it).
 - Account (profile, DnD language order on @dnd-kit, preferences); remaining shared components; polish backlog: code-split audit, staleTime policy (migration plan Phase 8 table), LoadingScreen consolidation (n/a — new code), SpinningText/ImageCarousel as CSS if cheap, else keep motion for those two.
 - **Gate**: §8.2/§8.3 intentional-deltas each have a green verification; full-suite green.
+- **e2e** (`phase-7-tag-shares.spec.ts`, two browser contexts): user A shares a tag → user B accepts → B gets an independent editable clone whose words keep every translation + case (the data-loss bug); a non-viewer is refused on `getTagById`/`followTag`/clone; Account language-order drag persists.
 
 ### Phase 8 — Deploy + parity + cutover
 - Deploy to the temporary domain (platform per `.context/production-migration-plan.md` when decided).
 - **Route-parity checklist**: per route (12 + catch-all), walk every use case in the snapshot files against the new build; **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
 - User manually switches the real domain. Old repo becomes greppable reference; archive when satisfied.
 - **Gate**: checklist + annex fully green; zero unexplained parity failures.
+- **e2e**: the full `e2e/tests/` suite (Phases 1–7 specs) green against the temp-domain build; the intentional-deltas annex items each map to a passing assertion. This is also the moment to stand up the deferred CI `e2e` job so the suite guards `main` post-cutover.
 
 ## 6. Testing strategy
 
@@ -177,6 +187,7 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 - Contract types derived from the live backend (Drizzle schema as source of truth); the `endpoints.md` shapes section is the seed for the typed API layer.
 - The form engine gets a generation test: config → yup field list must equal the old form's field list (the one place old/new are diffed mechanically).
 - Per-phase gates above are grep- or test-verifiable — no "looks done".
+- **Playwright e2e, one spec per phase** (`e2e/` workspace — a third workspace beside `backend/`/`frontend/`). Where MSW/Vitest mock the network, the e2e spec runs the *real* stack: `playwright.config.ts` → `webServer` boots `npm run dev -w backend` (real Postgres, migrations applied) + the Vite dev server, and Chromium walks the phase's headline user journey. A green `npm run test:e2e` is a required gate for every phase, written alongside the feature — not batched into Phase 8. Deps and browser binaries stay in `e2e/` so they never enter the `frontend` `tsc -b` / Vite build or its dependency tree. Interactive browser driving mid-session (exploring a flow, drafting selectors, screenshots) comes from the `@playwright/mcp` server in `.mcp.json`; it and the suite are independent. **CI**: no `e2e` job yet — it is a local gate until the suite has several phases of stable specs, then Phase 8 adds the job (Postgres service + both servers + `playwright install`). See [`e2e/README.md`](../../e2e/README.md).
 
 ## 7. Risks
 

@@ -1,0 +1,105 @@
+/* ============================================================
+   Ladu — design tokens
+   Ported from MOCKUPS/assets/app.css. Six seed colors + derived
+   tones via color-mix(in oklch, ...). Palette and type live only
+   here. A future dark mode only needs to reassign the six seeds
+   below (bg/surface/fg/muted/border/accent) under a
+   `:root:not([data-theme="light"])` + `:root[data-theme="dark"]`
+   pair — every derived tone recomputes from them automatically.
+   ============================================================ */
+
+:root {
+  --bg: #fafaf6;
+  --surface: #ffffff;
+  --fg: #1d1b17;
+  --muted: #6d6a62;
+  --border: #e6e3da;
+  --accent: #0f766e;
+
+  /* derived — do not change */
+  --accent-ink: #ffffff;
+  --accent-soft: color-mix(in oklch, var(--accent) 12%, transparent);
+  --accent-soft2: color-mix(in oklch, var(--accent) 22%, transparent);
+  --fg-soft: color-mix(in oklch, var(--fg) 5%, transparent);
+  --fg-soft2: color-mix(in oklch, var(--fg) 10%, transparent);
+  --hover: color-mix(in oklch, var(--fg) 4%, var(--surface));
+  --border-strong: color-mix(in oklch, var(--fg) 25%, transparent);
+
+  /* state colors */
+  --success: #1a7f37;
+  --success-soft: color-mix(in oklch, var(--success) 12%, transparent);
+  --danger: #c03038;
+  --danger-soft: color-mix(in oklch, var(--danger) 11%, transparent);
+  --warning: #a35a0a;
+  --warning-soft: color-mix(in oklch, var(--warning) 14%, transparent);
+
+  /* per-language identity (flag-derived, used on 2px card tops + column tint) */
+  --lang-gb: #2c4a8a;
+  --lang-de: #42403c;
+  --lang-es: #b8352f;
+  --lang-ee: #2265a8;
+}
+
+/* ------------------------------------------------------------
+   Type + radius scale — registered in @theme so Tailwind
+   generates real utilities (font-display, text-h1, rounded-lg…).
+   No dark-mode dependency, so a plain (non-inline) block is fine.
+   ------------------------------------------------------------ */
+@theme {
+  /* type — display = serif (dictionary heritage), body = sans, mono = numerics */
+  --font-display: 'Iowan Old Style', 'Charter', Georgia, 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+  --text-h1: 26px;
+  --text-h1--line-height: 1.15;
+  --text-h2: 20px;
+  --text-h2--line-height: 1.2;
+  --text-h3: 16px;
+  --text-body: 14px;
+  --text-meta: 12px;
+
+  /* overrides Tailwind's default radius scale to match app.css's
+     control radius (8px) / card radius (12px) */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+/* ------------------------------------------------------------
+   shadcn semantic bridge (decision 2, 2026-09-08)
+   shadcn-generated primitives (button, input, dropdown-menu,
+   sheet, select) are authored against these bare/--color-*
+   names. Pointing them at the palette above — instead of hand-
+   editing every generated file — is what lets `npx shadcn add`
+   drop in components that already look like Ladu.
+
+   shadcn's "muted" and "accent" are subtle hover/fill slots,
+   NOT the same concept as our own --muted (gray text) or
+   --accent (brand teal) above, so they are deliberately mapped
+   to --fg-soft / --fg instead of aliased to those names.
+   @theme inline (not a plain @theme) so a future dark-mode
+   override of the seeds propagates through without redeclaring
+   this block.
+   ------------------------------------------------------------ */
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--fg);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--fg);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-ink);
+  --color-secondary: var(--surface);
+  --color-secondary-foreground: var(--fg);
+  --color-muted: var(--fg-soft);
+  --color-muted-foreground: var(--muted);
+  --color-accent: var(--fg-soft);
+  --color-accent-foreground: var(--fg);
+  --color-destructive: var(--danger);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--accent);
+}
