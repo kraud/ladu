@@ -1,4 +1,13 @@
 {
+  "appTitle": "Ladu",
+  "notFound": {
+    "lines": [
+      "Nothing to see here…",
+      "Hier gibt es nichts zu sehen…",
+      "No hay nada que ver aquí…",
+      "Siin pole midagi vaadata…"
+    ]
+  },
   "header": {
     "addWord": "add word",
     "practice": "practice",

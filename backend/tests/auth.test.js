@@ -53,7 +53,8 @@ describe('POST /api/users - Registration', () => {
             username: 'testuser',
             verified: false,
         });
-        expect(res.body._id).toBeDefined();
+        expect(res.body.id).toBeDefined();
+        expect(res.body).not.toHaveProperty('_id');
         expect(res.body).not.toHaveProperty('password');
         expect(res.body).not.toHaveProperty('token');
     });
@@ -261,7 +262,7 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
             .post('/api/users/login')
             .send({ email: 'test@example.com', password: 'password123' });
         token = loginRes.body.token;
-        userId = loginRes.body._id;
+        userId = loginRes.body.id;
     });
 
     it('updates the name', async () => {
@@ -277,7 +278,8 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
         // The endpoint edits only the authenticated user's profile row.
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('name', 'Updated Name');
-        expect(res.body).toHaveProperty('_id', userId);
+        expect(res.body).toHaveProperty('id', userId);
+        expect(res.body).not.toHaveProperty('_id');
     });
 
     it('fails when username is taken by another user', async () => {

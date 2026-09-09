@@ -84,7 +84,7 @@ describe('POST /api/words - Create Word', () => {
         // Register a dedicated user so the tag has a valid author FK.
         const userData = await registerAndLogin('TagUser', 'taguser@test.com', 'taguser', 'pass123');
         token = userData.token;
-        const userId = userData._id;
+        const userId = userData.id;
 
         const [tag] = await db.insert(tags).values({
             authorId: userId,
@@ -191,7 +191,7 @@ describe('DELETE /api/words/:id - Delete Word', () => {
     beforeEach(async () => {
         const data = await registerAndLogin();
         token = data.token;
-        userId = data._id;
+        userId = data.id;
 
         // Create a tag with a valid author FK so the word can reference it.
         const [tag] = await db.insert(tags).values({

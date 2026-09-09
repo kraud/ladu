@@ -18,7 +18,6 @@ import {
     createRoute,
     createRouter,
     redirect,
-    Link,
     type RouterHistory,
 } from '@tanstack/react-router';
 import { authStore } from '@/stores/authStore';
@@ -27,6 +26,10 @@ import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { PublicLayout } from '@/routes/public-layout';
 import { ProtectedLayout } from '@/routes/protected-layout';
 import { NotFoundPage } from '@/routes/not-found';
+import { LoginPage } from '@/features/auth/pages/LoginPage';
+import { RegisterPage } from '@/features/auth/pages/RegisterPage';
+import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage';
+import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
 
 /** Temporary leaf for routes whose real page lands in a later slice. */
 function Placeholder({ title, note }: { title: string; note?: string }) {
@@ -34,26 +37,6 @@ function Placeholder({ title, note }: { title: string; note?: string }) {
         <div className="flex flex-col gap-2">
             <h1 className="h1">{title}</h1>
             <p className="meta">{note ?? 'Placeholder — built in a later slice.'}</p>
-        </div>
-    );
-}
-
-/** Centered placeholder for public (headerless) routes. */
-function PublicPlaceholder({ title }: { title: string }) {
-    return (
-        <div className="auth-shell">
-            <span className="logo auth-banner">
-                <span className="logo-mark">L</span>Ladu
-            </span>
-            <div className="card card-pad auth-card flex flex-col gap-2 text-center">
-                <h1 className="h2">{title}</h1>
-                <p className="meta">Placeholder — real form lands in Slice 3.</p>
-                <div className="auth-links">
-                    <Link to="/login">Login</Link>
-                    <span>·</span>
-                    <Link to="/register">Register</Link>
-                </div>
-            </div>
         </div>
     );
 }
@@ -73,25 +56,25 @@ const loginRoute = createRoute({
     validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
         redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
     }),
-    component: () => <PublicPlaceholder title="Login" />,
+    component: LoginPage,
 });
 
 const registerRoute = createRoute({
     getParentRoute: () => publicLayoutRoute,
     path: '/register',
-    component: () => <PublicPlaceholder title="Register" />,
+    component: RegisterPage,
 });
 
 const verifyRoute = createRoute({
     getParentRoute: () => publicLayoutRoute,
     path: '/user/$userId/verify/$tokenId',
-    component: () => <PublicPlaceholder title="Verify email" />,
+    component: VerifyEmailPage,
 });
 
 const resetPasswordRoute = createRoute({
     getParentRoute: () => publicLayoutRoute,
     path: '/resetPassword/{-$userId}/{-$tokenId}',
-    component: () => <PublicPlaceholder title="Reset password" />,
+    component: ResetPasswordPage,
 });
 
 // ── Protected ──────────────────────────────────────────────────────────────

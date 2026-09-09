@@ -36,10 +36,10 @@ interface BasicUserMetrics {
  * Calculate basic dashboard metrics for a given user.
  */
 const calculateBasicUserMetrics = async (user: {
-  _id: string;
+  id: string;
   languages?: string[];
 }): Promise<BasicUserMetrics | undefined> => {
-  const userId = user._id;
+  const userId = user.id;
   const userLanguages: string[] =
     user.languages !== undefined ? user.languages : [];
 

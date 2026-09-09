@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
+import { I18nextProvider } from 'react-i18next';
 import { createAppRouter } from './router';
 import { useAuthStore } from '@/stores/authStore';
+import { createTestI18n } from '@/test/render';
 import { expiredToken, futureToken } from '@/test/tokens';
 
 async function loadAt(path: string) {
@@ -41,7 +43,11 @@ describe('_protected.beforeLoad guard', () => {
 describe('not found', () => {
     it('renders the real 404 page for an unknown path', async () => {
         const router = createAppRouter(createMemoryHistory({ initialEntries: ['/no-such-page'] }));
-        render(<RouterProvider router={router} />);
+        render(
+            <I18nextProvider i18n={createTestI18n()}>
+                <RouterProvider router={router} />
+            </I18nextProvider>,
+        );
         expect(await screen.findByText('404')).toBeInTheDocument();
     });
 });

@@ -2,6 +2,7 @@
   "errors": {
     "invalidEmail": "Valid e-mail is required",
     "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 8 characters",
     "nameRequired": "Name is required",
     "emailRequired": "E-mail is required",
     "usernameRequired": "Username is required",
@@ -9,27 +10,50 @@
     "passwordRepeatMustMatch": "Passwords don't match",
     "linkError": "There was an error with this link."
   },
+  "apiErrors": {
+    "invalidCredentials": "Invalid email or password.",
+    "missingFields": "Please fill in all the fields.",
+    "emailInUse": "That email is already registered.",
+    "usernameInUse": "That username is already taken.",
+    "invalidLink": "This link is invalid or has expired.",
+    "invalidToken": "This reset link is invalid or has expired.",
+    "noUserForEmail": "No account is registered with that email."
+  },
   "toastMessages": {
     "passwordUpdated": "Password updated successfully!",
     "emailSent": "Email sent successfully!"
   },
+  "unverifiedWarning": "You need to verify your account before signing in.",
   "login": {
     "title": "Login",
-    "subtitle": "And get started!"
+    "subtitle": "And get started!",
+    "submit": "Sign in",
+    "submitting": "Signing in…"
   },
   "register": {
     "title": "Register",
-    "subtitle": "Please create an account"
+    "subtitle": "Please create an account",
+    "submit": "Create account",
+    "submitting": "Creating…",
+    "emailSentToast": "We sent an email to {{email}} — open it to verify your account."
   },
   "resetPassword": {
-    "titleReset": "Password reset",
+    "titleReset": "Set a new password",
     "titleForgot": "Forgot your password?",
     "subtitleNewPassword": "Enter a new password below",
-    "subtitleEnterEmail": "Enter the email address associated with your account and we'll send you a link to reset your password"
+    "subtitleEnterEmail": "Enter the email address associated with your account and we'll send you a link to reset your password",
+    "submitRequest": "Send reset link",
+    "submittingRequest": "Sending…",
+    "submitSet": "Update password",
+    "submittingSet": "Updating…"
   },
   "userVerification": {
-    "validating": "Password reset",
+    "validating": "Validating your account…",
+    "validatingSubtitle": "This only takes a moment.",
     "validatingSuccess": "Validated successfully!",
+    "enteringIn": "Entering Ladu in {{seconds}}s",
+    "enterNow": "Enter now",
+    "backToSignIn": "Back to sign in",
     "goingIn": "Going in...",
     "messagePreValidation": "You will be redirected automatically after validation is completed.",
     "messagePostValidation": "Not redirected automatically? Click here to continue.",
@@ -38,13 +62,17 @@
   "switchSectionButtons": {
     "alreadyRegistered": "Already registered?",
     "notRegistered": "You don't have an account?",
-    "forgotPassword": "Forgot your password?"
+    "forgotPassword": "Forgot your password?",
+    "createAccount": "Create an account",
+    "signIn": "Sign in"
   },
   "formLabels": {
     "name": "Name",
     "username": "Username",
     "password": "Password",
     "confirmPassword": "Confirm password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
     "email": "Email"
   }
 }

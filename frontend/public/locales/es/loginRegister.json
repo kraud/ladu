@@ -2,6 +2,7 @@
   "errors": {
     "invalidEmail": "Se requiere un correo electrónico válido",
     "passwordRequired": "Se requiere contraseña",
+    "passwordMin": "La contraseña debe tener al menos 8 caracteres",
     "nameRequired": "Se requiere nombre",
     "emailRequired": "Se requiere correo electrónico",
     "usernameRequired": "Se requiere nombre de usuario",
@@ -9,27 +10,50 @@
     "passwordRepeatMustMatch": "Las contraseñas no coinciden",
     "linkError": "Hubo un error con este link."
   },
+  "apiErrors": {
+    "invalidCredentials": "Correo electrónico o contraseña incorrectos.",
+    "missingFields": "Por favor, completa todos los campos.",
+    "emailInUse": "Ese correo electrónico ya está registrado.",
+    "usernameInUse": "Ese nombre de usuario ya está en uso.",
+    "invalidLink": "Este enlace no es válido o ha caducado.",
+    "invalidToken": "Este enlace de restablecimiento no es válido o ha caducado.",
+    "noUserForEmail": "No hay ninguna cuenta registrada con ese correo electrónico."
+  },
   "toastMessages": {
     "passwordUpdated": "¡Contraseña actualizada con éxito!",
     "emailSent": "¡Correo enviado con éxito!"
   },
+  "unverifiedWarning": "Debes verificar tu cuenta antes de iniciar sesión.",
   "login": {
     "title": "Iniciar sesión",
-    "subtitle": "¡Y comienza ahora!"
+    "subtitle": "¡Y comienza ahora!",
+    "submit": "Iniciar sesión",
+    "submitting": "Iniciando sesión…"
   },
   "register": {
     "title": "Registrarse",
-    "subtitle": "Por favor, crea una cuenta"
+    "subtitle": "Por favor, crea una cuenta",
+    "submit": "Crear cuenta",
+    "submitting": "Creando…",
+    "emailSentToast": "Enviamos un correo a {{email}} — ábrelo para verificar tu cuenta."
   },
   "resetPassword": {
-    "titleReset": "Restablecer contraseña",
+    "titleReset": "Establece una nueva contraseña",
     "titleForgot": "¿Olvidaste tu contraseña?",
     "subtitleNewPassword": "Ingresa una nueva contraseña a continuación",
-    "subtitleEnterEmail": "Ingresa el correo electrónico asociado con tu cuenta y te enviaremos un enlace para restablecer tu contraseña"
+    "subtitleEnterEmail": "Ingresa el correo electrónico asociado con tu cuenta y te enviaremos un enlace para restablecer tu contraseña",
+    "submitRequest": "Enviar enlace de restablecimiento",
+    "submittingRequest": "Enviando…",
+    "submitSet": "Actualizar contraseña",
+    "submittingSet": "Actualizando…"
   },
   "userVerification": {
-    "validating": "Restablecimiento de contraseña",
+    "validating": "Validando tu cuenta…",
+    "validatingSubtitle": "Esto solo toma un momento.",
     "validatingSuccess": "¡Validado con éxito!",
+    "enteringIn": "Entrando a Ladu en {{seconds}}s",
+    "enterNow": "Entrar ahora",
+    "backToSignIn": "Volver a iniciar sesión",
     "goingIn": "Entrando...",
     "messagePreValidation": "Serás redirigido automáticamente una vez que se complete la validación.",
     "messagePostValidation": "¿No has sido redirigido automáticamente? Haz clic aquí para continuar.",
@@ -38,13 +62,17 @@
   "switchSectionButtons": {
     "alreadyRegistered": "¿Ya estás registrado?",
     "notRegistered": "¿No tienes una cuenta?",
-    "forgotPassword": "¿Olvidaste tu contraseña?"
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "createAccount": "Crear una cuenta",
+    "signIn": "Iniciar sesión"
   },
   "formLabels": {
     "name": "Nombre",
     "username": "Nombre de usuario",
     "password": "Contraseña",
     "confirmPassword": "Confirmar contraseña",
+    "newPassword": "Nueva contraseña",
+    "confirmNewPassword": "Confirmar nueva contraseña",
     "email": "Correo electrónico"
   }
 }

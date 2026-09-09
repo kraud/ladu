@@ -19,11 +19,6 @@ const userColumnsWithoutPassword = {
     updatedAt: users.updatedAt,
 };
 
-const serializeAuthenticatedUser = (user: Omit<typeof users.$inferSelect, 'password'>) => ({
-    ...user,
-    _id: user.id,
-});
-
 const protect = asyncHandler(async (req: any, res: any, next: any) => {
     let token: string | undefined;
 
@@ -49,8 +44,8 @@ const protect = asyncHandler(async (req: any, res: any, next: any) => {
                 throw new Error('Not authorized');
             }
 
-            // Attach both id and _id to bridge legacy controller expectations during migration.
-            req.user = serializeAuthenticatedUser(user);
+            // Postgres `id` only — the legacy `_id` alias is gone (new-repo-build-plan.md §4).
+            req.user = user;
             next();
         } catch (error) {
             console.log(error);

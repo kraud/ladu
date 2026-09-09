@@ -1,9 +1,12 @@
 import type { ReactElement, ReactNode } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { createInstance, type i18n as I18nInstance } from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
+import { ToastContainer } from 'react-toastify';
 import { createQueryClient } from '@/app/query-client';
+import { createAppRouter } from '@/app/router';
 import { useAuthStore, type RawUser } from '@/stores/authStore';
 
 // Real English locale bundles, so a missing key fails a test rather than
@@ -84,4 +87,36 @@ export function renderWithProviders(ui: ReactElement, options: ProviderOptions =
         i18n,
         ...render(ui, { wrapper: Wrapper, ...renderOptions }),
     };
+}
+
+/**
+ * Mount the *whole app* — the real route tree from `createAppRouter` on an
+ * in-memory history — inside fresh providers. For the Phase-1 integration
+ * suite that walks register → verify → login → logout across real routes.
+ * Install MSW auth handlers with `server.use(...makeAuthHandlers().handlers)`
+ * before calling.
+ */
+export async function renderApp(options: { initialEntry?: string; session?: RawUser } = {}) {
+    const { initialEntry = '/', session } = options;
+
+    useAuthStore.getState().clearSession();
+    if (session) useAuthStore.getState().setSession(session);
+
+    const queryClient = createQueryClient();
+    const i18n = createTestI18n();
+    const router = createAppRouter(createMemoryHistory({ initialEntries: [initialEntry] }));
+    // Resolve the initial match (incl. any `beforeLoad` redirect) before we
+    // assert on `router.state` — mirrors `router.test.tsx`.
+    await router.load();
+
+    const utils = render(
+        <QueryClientProvider client={queryClient}>
+            <I18nextProvider i18n={i18n}>
+                <RouterProvider router={router} />
+                <ToastContainer position="bottom-center" autoClose={false} />
+            </I18nextProvider>
+        </QueryClientProvider>,
+    );
+
+    return { queryClient, i18n, router, ...utils };
 }

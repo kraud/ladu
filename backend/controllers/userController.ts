@@ -58,11 +58,10 @@ const generateToken = (id: string) => {
 
 const serializeUser = (user: Partial<UserRow>) => ({
   ...user,
-  _id: user.id,
 });
 
 const serializeLoginUser = (user: UserRow) => ({
-  _id: user.id,
+  id: user.id,
   name: user.name,
   email: user.email,
   username: user.username,
@@ -103,7 +102,7 @@ const findUserByUsernameInsensitive = async (username: string) => {
 };
 
 const publicUserResponse = (user: UserRow) => ({
-  _id: user.id,
+  id: user.id,
   name: user.name,
   email: user.email,
   username: user.username,
@@ -455,7 +454,7 @@ const updatePassword = asyncHandler(async (req: any, res: any) => {
 const getBasicUserMetrics = asyncHandler(async (req: any, res: any) => {
   try {
     const metrics = await calculateBasicUserMetrics({
-      _id: req.user.id,
+      id: req.user.id,
       languages: req.user.languages,
     });
 

@@ -166,7 +166,7 @@ describe('POST /api/exercises/savePerformanceAction - Performance Modifiers', ()
     beforeEach(async () => {
         const data = await registerAndLogin();
         token = data.token;
-        userId = data._id;
+        userId = data.id;
 
         // Create a word via the API (needs 2+ translations per controller validation)
         const wordRes = await request(app)
