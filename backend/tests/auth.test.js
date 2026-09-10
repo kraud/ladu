@@ -356,6 +356,50 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
         expect(res.body).not.toHaveProperty('passwordTokens');
     });
 
+    it('updates the language selection, preserving the order sent', async () => {
+        const res = await request(app)
+            .put('/api/users/updateUser')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                email: 'test@example.com',
+                name: 'Test User',
+                username: 'testuser',
+                languages: ['German', 'English', 'Spanish'],
+            });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.languages).toEqual(['German', 'English', 'Spanish']);
+    });
+
+    it('fails with 400 when fewer than 2 languages are sent', async () => {
+        const res = await request(app)
+            .put('/api/users/updateUser')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                email: 'test@example.com',
+                name: 'Test User',
+                username: 'testuser',
+                languages: ['English'],
+            });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toMatch(/at least 2 languages/i);
+    });
+
+    it('fails with 400 for an unsupported language', async () => {
+        const res = await request(app)
+            .put('/api/users/updateUser')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                email: 'test@example.com',
+                name: 'Test User',
+                username: 'testuser',
+                languages: ['English', 'Klingon'],
+            });
+
+        expect(res.statusCode).toBe(400);
+    });
+
     it('fails when username is taken by another user', async () => {
         await registerUser({
             name: 'Other User',

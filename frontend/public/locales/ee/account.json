@@ -1,0 +1,23 @@
+{
+  "title": "Konto",
+  "subtitle": "Halda oma profiili ja keeli",
+  "sections": {
+    "details": "Profiili andmed",
+    "languages": "Keeled",
+    "edit": "Muuda profiili"
+  },
+  "fields": {
+    "emailHint": "E-posti aadressi hallatakse eraldi ja seda ei saa siin muuta"
+  },
+  "languages": {
+    "count": "{{count}} / {{total}} valitud",
+    "none": "pole seadistatud",
+    "orderHint": "Vähemalt 2 keelt – ülevaate veerud ja harjutused järgivad seda järjekorda",
+    "emptyTitle": "Keeli pole seadistatud",
+    "emptyBody": "Vali vähemalt kaks keelt, et sinu tööruum kuvataks õigesti.",
+    "emptyCta": "Vali keeled"
+  },
+  "toasts": {
+    "discarded": "Muudatused tühistatud"
+  }
+}

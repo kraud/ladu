@@ -31,6 +31,7 @@ import { RegisterPage } from '@/features/auth/pages/RegisterPage';
 import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage';
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
 import { DashboardPage } from '@/features/metrics/pages/DashboardPage';
+import { AccountPage } from '@/features/account/pages/AccountPage';
 
 /** Temporary leaf for routes whose real page lands in a later slice. */
 function Placeholder({ title, note }: { title: string; note?: string }) {
@@ -124,7 +125,7 @@ const practiceRoute = createRoute({
 const accountRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/user',
-    component: () => <Placeholder title="Account" note="Profile lands in Phase 7." />,
+    component: AccountPage,
 });
 
 const notificationsRoute = createRoute({

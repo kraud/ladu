@@ -11,6 +11,7 @@ import { useAuthStore, type RawUser } from '@/stores/authStore';
 
 // Real English locale bundles, so a missing key fails a test rather than
 // silently rendering the key name. Kept in sync with `public/locales/en/`.
+import account from '../../public/locales/en/account.json';
 import caseDescription from '../../public/locales/en/caseDescription.json';
 import common from '../../public/locales/en/common.json';
 import dashboard from '../../public/locales/en/dashboard.json';
@@ -24,6 +25,7 @@ import translation from '../../public/locales/en/translation.json';
 import wordRelated from '../../public/locales/en/wordRelated.json';
 
 const enResources = {
+    account,
     caseDescription,
     common,
     dashboard,

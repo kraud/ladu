@@ -2,11 +2,11 @@ import { FlagIcon } from '@/components/common/FlagIcon';
 import { UI_LANGUAGES } from '@/lib/language';
 
 /**
- * Multi-select language toggle used at registration. Each supported language is
- * a `.chip` pill (flag + native name) toggled by a click. Selection order is
- * preserved in `value` — the array order is the user's language preference
- * (Review columns, translation-form order); explicit reordering comes later in
- * the Account page.
+ * Multi-select language toggle — used at registration and on the Account page.
+ * Each supported language is a `.chip` pill (flag + native name) toggled by a
+ * click. Selection order is preserved in `value` — the array order is the
+ * user's language preference (Review columns, translation-form order);
+ * drag-to-reorder comes later (Phase 7).
  */
 export function LanguagePicker({
     value,

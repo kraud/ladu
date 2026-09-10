@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { LanguagePicker } from './LanguagePicker';
+import { LanguagePicker } from '@/components/common/LanguagePicker';
 import { useRegister } from '../hooks';
 import { buildRegisterSchema, type RegisterValues } from '../schemas';
 import { labelByI18nCode } from '@/lib/language';

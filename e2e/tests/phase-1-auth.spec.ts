@@ -84,6 +84,30 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
         await page.getByLabel('Password').fill(primary.password);
         await page.getByRole('button', { name: 'Sign in' }).click();
         await expect(page.getByRole('heading', { name: /Welcome, Kai Rebane/ })).toBeVisible();
+
+        // Account page — edit the profile basics and add a third language.
+        await page.getByRole('button', { name: 'Open settings' }).click();
+        await page.getByRole('menuitem', { name: 'Account' }).click();
+        await expect(page).toHaveURL('/user');
+        await expect(page.getByRole('heading', { name: 'Account' })).toBeVisible();
+        // Registered with English + Español.
+        await expect(page.getByText('2 of 4 selected')).toBeVisible();
+
+        await page.getByRole('button', { name: 'Edit Profile' }).click();
+        const save = page.getByRole('button', { name: 'Save' });
+        await expect(save).toBeEnabled();
+        await page.getByLabel(/^Name/).fill('Kai Rebane Uus');
+        await page.getByRole('button', { name: 'Deutsch' }).click(); // third language
+        await save.click();
+
+        await expect(page.getByText('User data updated successfully!')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Edit Profile' })).toBeVisible();
+        await expect(page.getByText('3 of 4 selected')).toBeVisible();
+
+        // Persisted: a reload rehydrates the edited profile from the folded session.
+        await page.reload();
+        await expect(page.getByText('3 of 4 selected')).toBeVisible();
+        await expect(page.getByText('Kai Rebane Uus').first()).toBeVisible();
     });
 
     test('decision 1 — an unverified account cannot sign in', async ({ page, request }) => {

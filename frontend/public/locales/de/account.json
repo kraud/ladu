@@ -1,0 +1,23 @@
+{
+  "title": "Konto",
+  "subtitle": "Verwalte dein Profil und deine Sprachen",
+  "sections": {
+    "details": "Profildaten",
+    "languages": "Sprachen",
+    "edit": "Profil bearbeiten"
+  },
+  "fields": {
+    "emailHint": "Die E-Mail-Adresse wird separat verwaltet und kann hier nicht geändert werden"
+  },
+  "languages": {
+    "count": "{{count}} von {{total}} ausgewählt",
+    "none": "keine konfiguriert",
+    "orderHint": "Mindestens 2 Sprachen – die Spalten in der Übersicht und die Übungen folgen dieser Reihenfolge",
+    "emptyTitle": "Keine Sprachen konfiguriert",
+    "emptyBody": "Wähle mindestens zwei Sprachen aus, damit dein Arbeitsbereich korrekt dargestellt wird.",
+    "emptyCta": "Sprachen auswählen"
+  },
+  "toasts": {
+    "discarded": "Änderungen verworfen"
+  }
+}

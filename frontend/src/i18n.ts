@@ -12,6 +12,7 @@ i18n
         fallbackNS: 'common',
         defaultNS: 'common',
         ns: [
+            'account',
             'caseDescription',
             'common',
             'dashboard',

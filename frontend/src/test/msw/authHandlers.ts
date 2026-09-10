@@ -221,9 +221,27 @@ export function makeAuthHandlers(seed: SeedUser[] = []) {
             if (!body.email || (body.email as string).toLowerCase() !== u.email.toLowerCase()) {
                 return HttpResponse.json({ message: 'Invalid credentials' }, { status: 400 });
             }
+            // Same language gate as `userController.updateUser`: when `languages`
+            // is sent it must be >= 2 supported entries; omitting it keeps the
+            // stored selection.
+            if (body.languages !== undefined) {
+                const langs = body.languages;
+                if (!Array.isArray(langs) || !langs.every(isSupportedLanguage)) {
+                    return HttpResponse.json(
+                        { message: 'Invalid language selection' },
+                        { status: 400 },
+                    );
+                }
+                if (new Set(langs).size < 2) {
+                    return HttpResponse.json(
+                        { message: 'Please select at least 2 languages' },
+                        { status: 400 },
+                    );
+                }
+                u.languages = [...new Set(langs as string[])];
+            }
             if (typeof body.name === 'string') u.name = body.name;
             if (typeof body.username === 'string') u.username = body.username;
-            if (Array.isArray(body.languages)) u.languages = body.languages as string[];
             if (typeof body.uiLanguage === 'string') u.uiLanguage = body.uiLanguage;
             u.nativeLanguage = body.nativeLanguage === undefined ? null : (body.nativeLanguage as string | null);
             return HttpResponse.json(publicUser(u));

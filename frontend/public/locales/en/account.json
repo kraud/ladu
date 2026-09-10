@@ -1,0 +1,23 @@
+{
+  "title": "Account",
+  "subtitle": "Manage your profile and languages",
+  "sections": {
+    "details": "Profile details",
+    "languages": "Languages",
+    "edit": "Edit profile"
+  },
+  "fields": {
+    "emailHint": "Email is managed separately and can't be changed here"
+  },
+  "languages": {
+    "count": "{{count}} of {{total}} selected",
+    "none": "none configured",
+    "orderHint": "Minimum 2 languages — your Review columns and exercises follow this order",
+    "emptyTitle": "No languages configured",
+    "emptyBody": "Select at least two languages so your workspace is localized correctly.",
+    "emptyCta": "Select languages"
+  },
+  "toasts": {
+    "discarded": "Changes discarded"
+  }
+}

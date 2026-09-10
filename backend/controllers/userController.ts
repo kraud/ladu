@@ -59,13 +59,14 @@ const SUPPORTED_LANGUAGES = ["English", "Spanish", "German", "Estonian"];
 const isSupportedLanguage = (value: unknown): value is string =>
   typeof value === "string" && SUPPORTED_LANGUAGES.includes(value);
 
-// Validate + normalize the `languages` array a client sends at registration:
-// every entry must be a supported language, and at least two are required
-// (a Word needs translations in >= 2 languages). Order is preserved and
-// duplicates dropped — the array order is the user's language preference.
-// Returns a discriminated result so the caller can set `res.status(400)` (the
-// error middleware only reads `res.statusCode`, not `err.statusCode`).
-const normalizeRegistrationLanguages = (
+// Validate + normalize a `languages` array a client sends (registration, and a
+// profile edit on `updateUser`): every entry must be a supported language, and
+// at least two are required (a Word needs translations in >= 2 languages).
+// Order is preserved and duplicates dropped — the array order is the user's
+// language preference. Returns a discriminated result so the caller can set
+// `res.status(400)` (the error middleware only reads `res.statusCode`, not
+// `err.statusCode`).
+const normalizeLanguageSelection = (
   input: unknown,
 ):
   | { ok: true; languages: string[] }
@@ -170,7 +171,7 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
 
   // The account is created with the languages the user picked at sign-up (>= 2,
   // all supported); the array order is their language preference.
-  const languagesResult = normalizeRegistrationLanguages(languages);
+  const languagesResult = normalizeLanguageSelection(languages);
   if (!languagesResult.ok) {
     res.status(400);
     throw new Error(languagesResult.message);
@@ -301,13 +302,38 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
     throw new Error("Invalid credentials");
   }
 
+  // A profile edit may change the language selection: validate it exactly as
+  // registration does (>= 2 supported, de-duped, order preserved). Omitting the
+  // key leaves the stored selection untouched.
+  let resolvedLanguages = userData.languages;
+  if (languages !== undefined) {
+    const languagesResult = normalizeLanguageSelection(languages);
+    if (!languagesResult.ok) {
+      res.status(400);
+      throw new Error(languagesResult.message);
+    }
+    resolvedLanguages = languagesResult.languages;
+  }
+
+  // Same rule as login/register for the UI language: absent -> keep the stored
+  // value; present but unsupported -> reject.
+  if (
+    uiLanguage !== undefined &&
+    uiLanguage !== null &&
+    uiLanguage !== "" &&
+    !isSupportedLanguage(uiLanguage)
+  ) {
+    res.status(400);
+    throw new Error("Invalid language selection");
+  }
+
   // Only update profile fields owned by this endpoint; email and password stay unchanged.
   const [updatedUser] = await db
     .update(users)
     .set({
       name: name ?? userData.name,
       username: username ?? userData.username,
-      languages: languages ?? userData.languages,
+      languages: resolvedLanguages,
       uiLanguage: uiLanguage ?? userData.uiLanguage,
       nativeLanguage: nativeLanguage === undefined ? null : nativeLanguage,
       updatedAt: new Date(),
