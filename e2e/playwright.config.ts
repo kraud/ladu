@@ -14,6 +14,10 @@ import { defineConfig, devices } from '@playwright/test';
  *   4. `npm run e2e:install`    — one-time Chromium download (root script)
  *
  * Run:  `npm run test:e2e`  (from the repo root)
+ *
+ * UI mode: use `npm run test:e2e:ui` (`playwright test --ui --headed`). UI mode
+ * never passes `headed` to the test server, so a plain `--ui` run launches
+ * headless browsers — no window to watch.
  */
 
 const FRONTEND_URL = process.env.E2E_BASE_URL ?? 'http://localhost:5173';

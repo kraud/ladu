@@ -31,9 +31,15 @@ npm run e2e:install      # one-time: downloads Chromium
 ```bash
 npm run test:e2e             # from the repo root — boots both servers, runs headless
 npm run test:e2e:headed      # watch it in a real browser window
-npm run test -w e2e -- --ui  # Playwright's interactive UI mode
+npm run test:e2e:ui          # Playwright's interactive UI mode (runs headed — see below)
 npm run report -w e2e        # open the last HTML report
 ```
+
+**UI mode needs `--headed`** (`test:e2e:ui` already passes it). UI mode's own
+settings have no headed toggle, and its run request carries no `headed` flag, so
+without `--headed` every run launches `chromium_headless_shell` — the UI window
+renders the live trace, but no browser window ever opens. With `--headed`, each
+worker opens a real Chromium window you can watch.
 
 Playwright starts `npm run dev -w backend` and `npm run dev -w frontend` itself
 (see `playwright.config.ts` → `webServer`). If you already have `npm run dev`

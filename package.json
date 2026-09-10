@@ -17,6 +17,7 @@
     "test:coverage": "npm run test:coverage -w backend",
     "test:e2e": "npm run test -w e2e",
     "test:e2e:headed": "npm run test:headed -w e2e",
+    "test:e2e:ui": "npm run test:ui -w e2e",
     "e2e:install": "npm run install:browsers -w e2e",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
