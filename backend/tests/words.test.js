@@ -35,7 +35,7 @@ afterAll(async () => {
 // Helper: register a user, log in, and return the full response body containing
 // `token` (JWT) and `_id` (user UUID) used by authenticated requests.
 const registerAndLogin = async (name = 'User', email = 'user@test.com', username = 'user', password = 'password123') => {
-    await request(app).post('/api/users').send({ name, email, username, password });
+    await request(app).post('/api/users').send({ name, email, username, password, languages: ['English', 'Spanish'] });
     const loginRes = await request(app).post('/api/users/login').send({ email, password });
     return loginRes.body;
 };

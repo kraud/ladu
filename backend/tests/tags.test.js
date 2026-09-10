@@ -34,7 +34,7 @@ afterAll(async () => {
 
 const registerAndLogin = async (name = 'Tag User', email = 'tag@test.com', username = 'taguser') => {
     await request(app).post('/api/users').send({
-        name, email, username, password: 'pass123',
+        name, email, username, password: 'pass123', languages: ['English', 'Spanish'],
     });
     const r = await request(app).post('/api/users/login').send({ email, password: 'pass123' });
     return r.body;
@@ -364,6 +364,7 @@ describe('DELETE /api/tags/:id - Delete Tag', () => {
     it('fails with 401 when not the author', async () => {
         await request(app).post('/api/users').send({
             name: 'Other', email: 'other@test.com', username: 'other', password: 'pass123',
+            languages: ['English', 'Spanish'],
         });
         const r = await request(app).post('/api/users/login').send({ email: 'other@test.com', password: 'pass123' });
 

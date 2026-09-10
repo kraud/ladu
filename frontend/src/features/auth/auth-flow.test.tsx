@@ -26,7 +26,7 @@ afterEach(() => {
 });
 
 describe('register', () => {
-    it('creates the account, shows the email toast, and lands on /login (no session)', async () => {
+    it('gates "Create account" on >= 2 languages, then creates the account and lands on /login', async () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/register' });
 
@@ -36,12 +36,26 @@ describe('register', () => {
         await user.type(screen.getByLabelText(/^Email/), 'kai@example.com');
         await user.type(screen.getByLabelText(/^Password/), 'password123');
         await user.type(screen.getByLabelText(/^Confirm password/), 'password123');
+
+        // Still blocked — no languages picked.
+        expect(screen.getByRole('button', { name: 'Create account' })).toBeDisabled();
+        await user.click(screen.getByRole('button', { name: 'English', pressed: false }));
+        // One language is not enough.
+        expect(screen.getByRole('button', { name: 'Create account' })).toBeDisabled();
+        await user.click(screen.getByRole('button', { name: 'Español', pressed: false }));
+
+        await waitFor(() =>
+            expect(screen.getByRole('button', { name: 'Create account' })).toBeEnabled(),
+        );
         await user.click(screen.getByRole('button', { name: 'Create account' }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
         expect(await screen.findByText(/kai@example\.com/)).toBeInTheDocument();
         expect(useAuthStore.getState().user).toBeNull();
-        expect(auth.userFor('kai@example.com')?.verified).toBe(false);
+
+        const created = auth.userFor('kai@example.com');
+        expect(created?.verified).toBe(false);
+        expect(created?.languages).toEqual(['English', 'Spanish']);
     });
 });
 
@@ -53,6 +67,8 @@ describe('verify email', () => {
             username: 'ada',
             email: 'ada@example.com',
             password: 'password123',
+            languages: ['English', 'Spanish'],
+            uiLanguage: 'English',
         });
         const userId = auth.userFor('ada@example.com')!.id;
         const token = auth.verifyTokenFor('ada@example.com')!;
@@ -93,6 +109,29 @@ describe('login', () => {
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/review'));
         expect(useAuthStore.getState().user?.email).toBe('v@example.com');
+    });
+
+    it('carries the UI language chosen on the login screen into the session', async () => {
+        server.use(...makeAuthHandlers([
+            { email: 'v@example.com', password: 'password123', verified: true, id: 'u-v' },
+        ]).handlers);
+
+        const user = userEvent.setup();
+        const { router, i18n } = await renderApp({ initialEntry: '/login' });
+
+        // Pick Español in the public language selector before signing in.
+        await user.click(screen.getByRole('button', { name: /interface language/i }));
+        await user.click(await screen.findByRole('menuitem', { name: 'Español' }));
+        expect(i18n.language).toBe('es');
+
+        await user.type(screen.getByLabelText('Email'), 'v@example.com');
+        await user.type(screen.getByLabelText('Password'), 'password123');
+        await user.click(screen.getByRole('button', { name: 'Sign in' }));
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        expect(useAuthStore.getState().user?.uiLanguage).toBe('Spanish');
+        // Still Spanish inside the app — the protected selector's effect is a no-op.
+        expect(i18n.language).toBe('es');
     });
 
     it('decision 1: an unverified account is warned and NOT signed in', async () => {

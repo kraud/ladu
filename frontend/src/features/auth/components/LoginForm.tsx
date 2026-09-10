@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useLogin } from '../hooks';
 import { buildLoginSchema, type LoginValues } from '../schemas';
+import { labelByI18nCode } from '@/lib/language';
 
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const login = useLogin(redirectTo);
     const schema = useMemo(() => buildLoginSchema(t), [t]);
 
@@ -23,7 +24,10 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
             <form
                 noValidate
                 className="flex flex-col gap-4"
-                onSubmit={form.handleSubmit((values) => login.mutate(values))}
+                onSubmit={form.handleSubmit((values) =>
+                    // Persist the language chosen on the login screen onto the row.
+                    login.mutate({ ...values, uiLanguage: labelByI18nCode(i18n.language) }),
+                )}
             >
                 <FormField
                     control={form.control}

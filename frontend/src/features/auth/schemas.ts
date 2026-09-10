@@ -57,6 +57,8 @@ export interface RegisterValues {
     email: string;
     password: string;
     password2: string;
+    /** language *labels* ("English", …) the user manages — selection order preserved */
+    languages: string[];
 }
 
 export function buildRegisterSchema(t: TranslateFn): yup.ObjectSchema<RegisterValues> {
@@ -66,6 +68,10 @@ export function buildRegisterSchema(t: TranslateFn): yup.ObjectSchema<RegisterVa
         email: emailField(t),
         password: newPasswordField(t),
         password2: confirmPasswordField(t),
+        languages: yup
+            .array(yup.string().required())
+            .min(2, t('common:userData.errors.notEnoughLanguages'))
+            .required(t('common:userData.errors.notEnoughLanguages')),
     });
 }
 

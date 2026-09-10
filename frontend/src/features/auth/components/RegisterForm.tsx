@@ -5,19 +5,31 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { LanguagePicker } from './LanguagePicker';
 import { useRegister } from '../hooks';
 import { buildRegisterSchema, type RegisterValues } from '../schemas';
+import { labelByI18nCode } from '@/lib/language';
 
-const DEFAULTS: RegisterValues = { name: '', username: '', email: '', password: '', password2: '' };
+const DEFAULTS: RegisterValues = {
+    name: '',
+    username: '',
+    email: '',
+    password: '',
+    password2: '',
+    languages: [],
+};
 
 export function RegisterForm() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const register = useRegister();
     const schema = useMemo(() => buildRegisterSchema(t), [t]);
 
     const form = useForm<RegisterValues>({
         resolver: yupResolver(schema),
         defaultValues: DEFAULTS,
+        // The "Create account" button stays disabled until the form is valid —
+        // in particular until >= 2 languages are picked.
+        mode: 'onChange',
     });
 
     const pending = register.isPending;
@@ -26,9 +38,16 @@ export function RegisterForm() {
         <Form {...form}>
             <form
                 noValidate
-                onSubmit={form.handleSubmit(({ name, username, email, password }) =>
+                onSubmit={form.handleSubmit(({ name, username, email, password, languages }) =>
                     // `password2` is enforced by the schema and never sent.
-                    register.mutate({ name, username, email, password }),
+                    register.mutate({
+                        name,
+                        username,
+                        email,
+                        password,
+                        languages,
+                        uiLanguage: labelByI18nCode(i18n.language),
+                    }),
                 )}
             >
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -113,10 +132,33 @@ export function RegisterForm() {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="languages"
+                        render={({ field, fieldState }) => (
+                            <FormItem className="sm:col-span-2">
+                                <FormLabel>
+                                    {t('loginRegister:register.languagesLabel')}{' '}
+                                    <span className="req">*</span>
+                                </FormLabel>
+                                <LanguagePicker
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    aria-invalid={!!fieldState.error}
+                                />
+                                <p className="hint">{t('loginRegister:register.languagesHint')}</p>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
 
                 <div className="mt-5 flex gap-2">
-                    <Button type="submit" className="grow" disabled={pending}>
+                    <Button
+                        type="submit"
+                        className="grow"
+                        disabled={pending || !form.formState.isValid}
+                    >
                         {pending ? (
                             <>
                                 <span className="spinner" />

@@ -36,6 +36,10 @@ interface InternalUser {
 
 const futureExp = () => Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
 
+const SUPPORTED_LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
+const isSupportedLanguage = (v: unknown): v is string =>
+    typeof v === 'string' && SUPPORTED_LANGUAGES.includes(v);
+
 let counter = 0;
 const nextId = () => `user-${++counter}`;
 
@@ -94,17 +98,45 @@ export function makeAuthHandlers(seed: SeedUser[] = []) {
     const handlers = [
         // POST /api/users — register
         http.post('*/api/users', async ({ request }) => {
-            const body = (await request.json()) as Record<string, string>;
+            const body = (await request.json()) as Record<string, unknown>;
             if (!body.name || !body.email || !body.username || !body.password) {
                 return HttpResponse.json({ message: 'Please add all fields' }, { status: 400 });
             }
-            if (find(body.email)) {
+            // Same language gate as `userController.registerUser`.
+            const langs = body.languages;
+            if (!Array.isArray(langs)) {
+                return HttpResponse.json({ message: 'Please select at least 2 languages' }, { status: 400 });
+            }
+            if (!langs.every(isSupportedLanguage)) {
+                return HttpResponse.json({ message: 'Invalid language selection' }, { status: 400 });
+            }
+            if (new Set(langs).size < 2) {
+                return HttpResponse.json({ message: 'Please select at least 2 languages' }, { status: 400 });
+            }
+            if (
+                body.uiLanguage !== undefined &&
+                body.uiLanguage !== '' &&
+                !isSupportedLanguage(body.uiLanguage)
+            ) {
+                return HttpResponse.json({ message: 'Invalid language selection' }, { status: 400 });
+            }
+            const email = body.email as string;
+            if (find(email)) {
                 return HttpResponse.json({ message: 'Email already in use' }, { status: 400 });
             }
-            if ([...byEmail.values()].some((u) => u.username.toLowerCase() === body.username.toLowerCase())) {
+            const username = body.username as string;
+            if ([...byEmail.values()].some((u) => u.username.toLowerCase() === username.toLowerCase())) {
                 return HttpResponse.json({ message: 'Username already in use' }, { status: 400 });
             }
-            const u = put({ ...body, verified: false } as SeedUser);
+            const u = put({
+                name: body.name as string,
+                email,
+                username,
+                password: body.password as string,
+                verified: false,
+                languages: [...new Set(langs as string[])],
+                uiLanguage: isSupportedLanguage(body.uiLanguage) ? body.uiLanguage : 'English',
+            });
             const verifyToken = `vt-${u.id}`;
             verifyTokens.set(verifyToken, u.id);
             return HttpResponse.json(publicUser(u), { status: 201 });
@@ -112,11 +144,15 @@ export function makeAuthHandlers(seed: SeedUser[] = []) {
 
         // POST /api/users/login
         http.post('*/api/users/login', async ({ request }) => {
-            const { email, password } = (await request.json()) as Record<string, string>;
+            const { email, password, uiLanguage } = (await request.json()) as Record<string, unknown>;
             const u = find(email);
             if (!u || u.password !== password) {
                 return HttpResponse.json({ message: 'Invalid credentials' }, { status: 400 });
             }
+            if (uiLanguage !== undefined && uiLanguage !== '' && !isSupportedLanguage(uiLanguage)) {
+                return HttpResponse.json({ message: 'Invalid language selection' }, { status: 400 });
+            }
+            if (isSupportedLanguage(uiLanguage)) u.uiLanguage = uiLanguage;
             const payload: Record<string, unknown> = { ...publicUser(u), token: issueToken(u) };
             if (u.nativeLanguage === null) delete payload.nativeLanguage;
             return HttpResponse.json(payload);

@@ -17,7 +17,9 @@
     "usernameInUse": "See kasutajanimi on juba võetud.",
     "invalidLink": "See link on kehtetu või aegunud.",
     "invalidToken": "See lähtestamise link on kehtetu või aegunud.",
-    "noUserForEmail": "Selle e-postiga pole ühtegi kontot registreeritud."
+    "noUserForEmail": "Selle e-postiga pole ühtegi kontot registreeritud.",
+    "notEnoughLanguages": "Palun vali vähemalt kaks keelt.",
+    "invalidLanguage": "See keel ei ole toetatud."
   },
   "toastMessages": {
     "passwordUpdated": "Parool edukalt uuendatud!",
@@ -35,7 +37,9 @@
     "subtitle": "Palun loo konto",
     "submit": "Loo konto",
     "submitting": "Loomine…",
-    "emailSentToast": "Saatsime e-kirja aadressile {{email}} — ava see, et oma konto kinnitada."
+    "emailSentToast": "Saatsime e-kirja aadressile {{email}} — ava see, et oma konto kinnitada.",
+    "languagesLabel": "Keeled, mida haldad",
+    "languagesHint": "Vali vähemalt kaks. Saad hiljem juurde lisada ja neid ümber järjestada."
   },
   "resetPassword": {
     "titleReset": "Määra uus parool",

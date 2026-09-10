@@ -78,8 +78,26 @@ describe('buildRegisterSchema', () => {
                 email: 'ada@b.com',
                 password: 'longenough',
                 password2: 'longenough',
+                languages: ['English', 'Spanish'],
             }),
         ).toEqual([]);
+    });
+
+    it('requires at least two languages', async () => {
+        const base = {
+            name: 'Ada',
+            username: 'ada',
+            email: 'ada@b.com',
+            password: 'longenough',
+            password2: 'longenough',
+        };
+        expect(await errorsOf(schema, { ...base, languages: [] })).toContain(
+            'common:userData.errors.notEnoughLanguages',
+        );
+        expect(await errorsOf(schema, { ...base, languages: ['English'] })).toContain(
+            'common:userData.errors.notEnoughLanguages',
+        );
+        expect(await errorsOf(schema, { ...base, languages: ['English', 'German'] })).toEqual([]);
     });
 });
 

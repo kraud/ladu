@@ -17,7 +17,9 @@
     "usernameInUse": "Dieser Benutzername ist bereits vergeben.",
     "invalidLink": "Dieser Link ist ungültig oder abgelaufen.",
     "invalidToken": "Dieser Link zum Zurücksetzen ist ungültig oder abgelaufen.",
-    "noUserForEmail": "Mit dieser E-Mail ist kein Konto registriert."
+    "noUserForEmail": "Mit dieser E-Mail ist kein Konto registriert.",
+    "notEnoughLanguages": "Bitte wähle mindestens zwei Sprachen aus.",
+    "invalidLanguage": "Diese Sprache wird nicht unterstützt."
   },
   "toastMessages": {
     "passwordUpdated": "Passwort erfolgreich aktualisiert!",
@@ -35,7 +37,9 @@
     "subtitle": "Bitte erstellen Sie ein Konto",
     "submit": "Konto erstellen",
     "submitting": "Wird erstellt…",
-    "emailSentToast": "Wir haben eine E-Mail an {{email}} gesendet — öffne sie, um dein Konto zu bestätigen."
+    "emailSentToast": "Wir haben eine E-Mail an {{email}} gesendet — öffne sie, um dein Konto zu bestätigen.",
+    "languagesLabel": "Sprachen, die du verwaltest",
+    "languagesHint": "Wähle mindestens zwei. Du kannst später weitere hinzufügen und sie neu anordnen."
   },
   "resetPassword": {
     "titleReset": "Neues Passwort festlegen",

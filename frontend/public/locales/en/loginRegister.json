@@ -17,7 +17,9 @@
     "usernameInUse": "That username is already taken.",
     "invalidLink": "This link is invalid or has expired.",
     "invalidToken": "This reset link is invalid or has expired.",
-    "noUserForEmail": "No account is registered with that email."
+    "noUserForEmail": "No account is registered with that email.",
+    "notEnoughLanguages": "Please select at least two languages.",
+    "invalidLanguage": "That language isn't supported."
   },
   "toastMessages": {
     "passwordUpdated": "Password updated successfully!",
@@ -35,7 +37,9 @@
     "subtitle": "Please create an account",
     "submit": "Create account",
     "submitting": "Creating…",
-    "emailSentToast": "We sent an email to {{email}} — open it to verify your account."
+    "emailSentToast": "We sent an email to {{email}} — open it to verify your account.",
+    "languagesLabel": "Languages you're managing",
+    "languagesHint": "Pick at least two. You can add more and reorder them later."
   },
   "resetPassword": {
     "titleReset": "Set a new password",

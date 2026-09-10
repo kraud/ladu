@@ -1,26 +1,20 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckIcon } from '@phosphor-icons/react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { FlagIcon } from '@/components/common/FlagIcon';
+import { LanguageMenu } from '@/components/layout/LanguageMenu';
 import { useUpdateProfile } from '@/features/auth/hooks';
 import { useAuthStore } from '@/stores/authStore';
-import { UI_LANGUAGES, i18nCodeByLabel, langKeyByLabel } from '@/lib/language';
+import { i18nCodeByLabel } from '@/lib/language';
 
 /**
- * UI-language switcher. Selecting a language persists `uiLanguage` through
- * `updateProfile` (a full payload — see `useUpdateProfile`) and folds the fresh
- * row back into the session; the effect below then syncs i18next. This mirrors
- * the old `Header` → `MainView` split (`pages-auth-shell.md:134,208`) but as one
- * mutation instead of a Redux thunk + a localStorage rewrite.
+ * UI-language switcher for the authenticated shell. Selecting a language
+ * persists `uiLanguage` through `updateProfile` (a full payload — see
+ * `useUpdateProfile`) and folds the fresh row back into the session; the effect
+ * below then syncs i18next. Mirrors the old `Header` → `MainView` split
+ * (`pages-auth-shell.md:134,208`) but as one mutation, not a Redux thunk + a
+ * localStorage rewrite. The public-route counterpart is `PublicLanguageSelector`.
  */
 export function LanguageSelector() {
-    const { t, i18n } = useTranslation();
+    const { i18n } = useTranslation();
     const user = useAuthStore((s) => s.user);
     const updateProfile = useUpdateProfile();
 
@@ -46,34 +40,6 @@ export function LanguageSelector() {
     }
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger
-                className="icon-btn flex w-auto items-center gap-1.5 px-2 text-[12px] font-semibold"
-                aria-label={t('common:header.settings.uiLanguage')}
-                disabled={updateProfile.isPending}
-            >
-                {updateProfile.isPending ? (
-                    <span className="spinner" />
-                ) : (
-                    <FlagIcon lang={currentLabel} />
-                )}
-                {langKeyByLabel(currentLabel) || 'EN'}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={8} className="min-w-44">
-                {UI_LANGUAGES.map((lang) => (
-                    <DropdownMenuItem
-                        key={lang.key}
-                        onClick={() => choose(lang.label)}
-                        className="justify-between"
-                    >
-                        <span className="flex items-center gap-2">
-                            <FlagIcon lang={lang.key} />
-                            {lang.native}
-                        </span>
-                        {lang.label === currentLabel && <CheckIcon />}
-                    </DropdownMenuItem>
-                ))}
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <LanguageMenu currentLabel={currentLabel} onSelect={choose} busy={updateProfile.isPending} />
     );
 }

@@ -17,7 +17,9 @@
     "usernameInUse": "Ese nombre de usuario ya está en uso.",
     "invalidLink": "Este enlace no es válido o ha caducado.",
     "invalidToken": "Este enlace de restablecimiento no es válido o ha caducado.",
-    "noUserForEmail": "No hay ninguna cuenta registrada con ese correo electrónico."
+    "noUserForEmail": "No hay ninguna cuenta registrada con ese correo electrónico.",
+    "notEnoughLanguages": "Selecciona al menos dos idiomas.",
+    "invalidLanguage": "Ese idioma no es compatible."
   },
   "toastMessages": {
     "passwordUpdated": "¡Contraseña actualizada con éxito!",
@@ -35,7 +37,9 @@
     "subtitle": "Por favor, crea una cuenta",
     "submit": "Crear cuenta",
     "submitting": "Creando…",
-    "emailSentToast": "Enviamos un correo a {{email}} — ábrelo para verificar tu cuenta."
+    "emailSentToast": "Enviamos un correo a {{email}} — ábrelo para verificar tu cuenta.",
+    "languagesLabel": "Idiomas que gestionas",
+    "languagesHint": "Elige al menos dos. Podrás añadir más y reordenarlos más tarde."
   },
   "resetPassword": {
     "titleReset": "Establece una nueva contraseña",

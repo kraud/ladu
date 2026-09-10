@@ -26,8 +26,12 @@ export const UI_LANGUAGES: readonly UiLanguage[] = [
     { key: 'EE', label: 'Estonian', native: 'Eesti', i18n: 'ee', flag: '/EE.svg' },
 ] as const;
 
+/** The four supported language labels, in display order (`Lang` enum values). */
+export const SUPPORTED_LANGUAGE_LABELS: readonly string[] = UI_LANGUAGES.map((l) => l.label);
+
 const byLabel = new Map(UI_LANGUAGES.map((l) => [l.label, l]));
 const byKey = new Map(UI_LANGUAGES.map((l) => [l.key, l]));
+const byI18n = new Map(UI_LANGUAGES.map((l) => [l.i18n, l]));
 
 /** `"English"` → the `UiLanguage` row, or `undefined`. */
 export function languageByLabel(label: string | null | undefined): UiLanguage | undefined {
@@ -47,4 +51,14 @@ export function i18nCodeByLabel(label: string | null | undefined): UiLanguage['i
 /** `"EN"` → the `UiLanguage` row, or `undefined`. */
 export function languageByKey(key: string): UiLanguage | undefined {
     return byKey.get(key as UiLanguage['key']);
+}
+
+/**
+ * i18next language code → stored label. Region variants are stripped
+ * (`"es-ES"` → `"Spanish"`); an unknown code falls back to `"English"` so a
+ * login/register payload always carries a valid `uiLanguage`.
+ */
+export function labelByI18nCode(code: string | null | undefined): string {
+    const base = (code ?? '').split('-')[0]!.toLowerCase();
+    return byI18n.get(base as UiLanguage['i18n'])?.label ?? 'English';
 }

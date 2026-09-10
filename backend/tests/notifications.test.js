@@ -26,7 +26,7 @@ afterAll(async () => {
 });
 
 const registerAndLogin = async (name, email, username) => {
-    await request(app).post('/api/users').send({ name, email, username, password: 'pass123' });
+    await request(app).post('/api/users').send({ name, email, username, password: 'pass123', languages: ['English', 'Spanish'] });
     const r = await request(app).post('/api/users/login').send({ email, password: 'pass123' });
     return r.body;
 };

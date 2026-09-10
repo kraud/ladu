@@ -22,6 +22,9 @@ const MESSAGE_TO_KEY: Record<string, string> = {
     'Email already in use': 'loginRegister:apiErrors.emailInUse',
     'Username already in use': 'loginRegister:apiErrors.usernameInUse',
     'Username already in use!': 'loginRegister:apiErrors.usernameInUse',
+    // language selection (defence-in-depth — the UI already gates both rules)
+    'Please select at least 2 languages': 'loginRegister:apiErrors.notEnoughLanguages',
+    'Invalid language selection': 'loginRegister:apiErrors.invalidLanguage',
     // verify email
     'Invalid Link (no user match)': 'loginRegister:apiErrors.invalidLink',
     'Invalid Link (no token match)': 'loginRegister:apiErrors.invalidLink',

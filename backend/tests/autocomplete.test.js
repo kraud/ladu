@@ -16,6 +16,7 @@ afterAll(() => db.closeDB());
 const registerAndLogin = async () => {
     await request(app).post('/api/users').send({
         name: 'AC User', email: 'ac@test.com', username: 'acuser', password: 'pass123',
+        languages: ['English', 'Spanish'],
     });
     const r = await request(app).post('/api/users/login').send({ email: 'ac@test.com', password: 'pass123' });
     return r.body.token;

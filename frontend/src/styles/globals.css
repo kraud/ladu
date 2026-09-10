@@ -257,6 +257,32 @@
     color: var(--muted);
   }
 
+  /* ─── chip (pill toggle — language picker, PoS filters) ─────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 11px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.1s ease;
+  }
+  .chip:hover {
+    border-color: var(--fg-soft2);
+    color: var(--fg);
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--accent-soft);
+    border-color: var(--accent-soft2);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
   /* ─── alert banner (unverified etc.) ────────────────────────── */
   .banner {
     display: flex;

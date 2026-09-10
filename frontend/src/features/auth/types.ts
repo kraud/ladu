@@ -12,6 +12,12 @@
 export interface LoginRequest {
     email: string;
     password: string;
+    /**
+     * The UI language chosen on the login screen. Persisted to the user row so
+     * the app opens in that language (`userController.loginUser`). Optional —
+     * omitted, the stored preference is left untouched.
+     */
+    uiLanguage?: string;
 }
 
 /** `POST /api/users` body — `password2` is validated client-side and never sent. */
@@ -20,6 +26,10 @@ export interface RegisterRequest {
     username: string;
     email: string;
     password: string;
+    /** Language labels the user manages — >= 2 required, selection order preserved. */
+    languages: string[];
+    /** The UI language chosen on the register screen; stored on the new row. */
+    uiLanguage: string;
 }
 
 /** `GET /api/users/:userId/verify/:tokenId` path params. */

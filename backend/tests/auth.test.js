@@ -20,6 +20,9 @@ const validUser = {
     email: 'test@example.com',
     username: 'testuser',
     password: 'password123',
+    // Registration now requires >= 2 supported languages (Phase 1 final change).
+    // `uiLanguage` is intentionally omitted so the default-"English" path stays covered.
+    languages: ['English', 'Spanish'],
 };
 
 // Send a registration request with optional field overrides for duplicate and validation cases.
@@ -46,7 +49,7 @@ describe('POST /api/users - Registration', () => {
         expect(res.statusCode).toBe(201);
         expect(res.body).toMatchObject({
             email: 'test@example.com',
-            languages: [],
+            languages: ['English', 'Spanish'],
             name: 'Test User',
             nativeLanguage: null,
             uiLanguage: 'English',
@@ -112,6 +115,43 @@ describe('POST /api/users - Registration', () => {
             username: 'TestUser',
             email: 'other@example.com',
         });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('fails with 400 when fewer than 2 languages are selected', async () => {
+        const res = await registerUser({ languages: ['English'] });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toMatch(/at least 2 languages/i);
+    });
+
+    it('fails with 400 when languages is omitted', async () => {
+        const res = await registerUser({ languages: undefined });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('fails with 400 for an unsupported language', async () => {
+        const res = await registerUser({ languages: ['English', 'Klingon'] });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toMatch(/invalid language/i);
+    });
+
+    it('stores the selected languages in the order they were sent', async () => {
+        const res = await registerUser({ languages: ['German', 'English', 'Spanish'] });
+        expect(res.statusCode).toBe(201);
+        expect(res.body.languages).toEqual(['German', 'English', 'Spanish']);
+    });
+
+    it('persists a supported uiLanguage from the register request', async () => {
+        const res = await registerUser({ uiLanguage: 'Spanish' });
+        expect(res.statusCode).toBe(201);
+        expect(res.body.uiLanguage).toBe('Spanish');
+
+        const user = await findUserByEmail('test@example.com');
+        expect(user.uiLanguage).toBe('Spanish');
+    });
+
+    it('fails with 400 for an unsupported uiLanguage', async () => {
+        const res = await registerUser({ uiLanguage: 'Klingon' });
         expect(res.statusCode).toBe(400);
     });
 });
@@ -205,6 +245,35 @@ describe('POST /api/users/login - Login', () => {
 
         expect(res.body).toHaveProperty('message');
         expect(res.body.message).toBeTruthy();
+    });
+
+    it('persists a uiLanguage chosen on the login screen', async () => {
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123', uiLanguage: 'German' });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.uiLanguage).toBe('German');
+
+        const user = await findUserByEmail('test@example.com');
+        expect(user.uiLanguage).toBe('German');
+    });
+
+    it('leaves uiLanguage unchanged when the login request omits it', async () => {
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123' });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.uiLanguage).toBe('English');
+    });
+
+    it('rejects an unsupported uiLanguage on login', async () => {
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123', uiLanguage: 'Klingon' });
+
+        expect(res.statusCode).toBe(400);
     });
 });
 
