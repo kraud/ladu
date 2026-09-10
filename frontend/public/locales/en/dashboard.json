@@ -30,5 +30,10 @@
         "translationMetric": "Words per language"
       }
     }
+  },
+  "home": {
+    "emptyTitle": "No words yet",
+    "emptyDescription": "Start building your multilingual vocabulary — add a word with translations in at least two languages.",
+    "addFirstWords": "Add your first words"
   }
 }

@@ -14,7 +14,13 @@ import { toast } from 'react-toastify';
 import { useAuthStore } from '@/stores/authStore';
 import * as authApi from './api';
 import { authErrorKey } from './errors';
-import type { LoginRequest, RegisterRequest, RequestResetRequest, SetPasswordRequest } from './types';
+import type {
+    LoginRequest,
+    RegisterRequest,
+    RequestResetRequest,
+    SetPasswordRequest,
+    UpdateProfileRequest,
+} from './types';
 
 /**
  * @param redirectTo where to land after a verified login — the `redirect`
@@ -104,6 +110,23 @@ export function useSetPassword() {
             toast.success(t('loginRegister:toastMessages.passwordUpdated'));
             void navigate({ to: '/login' });
         },
+        onError: (error) => toast.error(t(authErrorKey(error))),
+    });
+}
+
+/**
+ * Persist a profile change (`PUT /api/users/updateUser`) and fold the fresh row
+ * back into the session. The response carries no token — `setSession` keeps the
+ * current one. Callers MUST send a complete `UpdateProfileRequest`: the endpoint
+ * clears `nativeLanguage` whenever the key is absent (`types.ts`).
+ */
+export function useUpdateProfile() {
+    const { t } = useTranslation();
+    const setSession = useAuthStore((s) => s.setSession);
+
+    return useMutation({
+        mutationFn: (body: UpdateProfileRequest) => authApi.updateProfile(body),
+        onSuccess: (user) => setSession(user),
         onError: (error) => toast.error(t(authErrorKey(error))),
     });
 }

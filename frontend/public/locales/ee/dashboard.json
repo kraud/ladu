@@ -30,5 +30,10 @@
         "translationMetric": "Sõnad keele kohta"
       }
     }
+  },
+  "home": {
+    "emptyTitle": "Sõnu veel pole",
+    "emptyDescription": "Alusta oma mitmekeelse sõnavara loomist — lisa sõna tõlgetega vähemalt kahes keeles.",
+    "addFirstWords": "Lisa oma esimesed sõnad"
   }
 }

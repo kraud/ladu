@@ -27,7 +27,9 @@
       "dashboard": "Armatuurlaud",
       "logout": "Logi välja"
     },
-    "notImplemented": "Vabandust, see funktsioon pole veel valmis!"
+    "notImplemented": "Vabandust, see funktsioon pole veel valmis!",
+    "goToAccount": "Ava konto",
+    "menu": "Menüü"
   },
   "sections": {
     "dashboard": "Dashboard",

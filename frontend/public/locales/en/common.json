@@ -27,7 +27,9 @@
       "dashboard": "Dashboard",
       "logout": "Logout"
     },
-    "notImplemented": "This function is not ready yet, we're sorry!"
+    "notImplemented": "This function is not ready yet, we're sorry!",
+    "goToAccount": "Go to Account",
+    "menu": "Menu"
   },
   "sections": {
     "dashboard": "Dashboard",

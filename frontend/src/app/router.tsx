@@ -30,6 +30,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { RegisterPage } from '@/features/auth/pages/RegisterPage';
 import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage';
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
+import { DashboardPage } from '@/features/metrics/pages/DashboardPage';
 
 /** Temporary leaf for routes whose real page lands in a later slice. */
 function Placeholder({ title, note }: { title: string; note?: string }) {
@@ -93,9 +94,7 @@ const protectedLayoutRoute = createRoute({
 const dashboardRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/',
-    component: () => (
-        <Placeholder title="Dashboard" note="Welcome banner in Slice 4; metrics + charts in Phase 3.5." />
-    ),
+    component: DashboardPage,
 });
 
 const addWordRoute = createRoute({

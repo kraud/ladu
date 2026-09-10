@@ -27,7 +27,9 @@
       "dashboard": "Dashboard",
       "logout": "Abmelden"
     },
-    "notImplemented": "Diese Funktion ist noch nicht bereit, es tut uns leid!"
+    "notImplemented": "Diese Funktion ist noch nicht bereit, es tut uns leid!",
+    "goToAccount": "Zum Konto",
+    "menu": "Menü"
   },
   "sections": {
     "dashboard": "Dashboard",

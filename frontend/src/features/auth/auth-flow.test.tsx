@@ -64,7 +64,10 @@ describe('verify email', () => {
         expect(useAuthStore.getState().token).toBeTruthy();
 
         await userEvent.setup().click(screen.getByRole('button', { name: 'Enter now' }));
-        expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
+        // Home now renders the real WelcomeBanner ("Welcome, {name}").
+        expect(
+            await screen.findByRole('heading', { name: /Welcome, Ada/ }),
+        ).toBeInTheDocument();
     });
 
     it('shows the failure state for a bad token', async () => {

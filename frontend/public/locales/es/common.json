@@ -27,7 +27,9 @@
       "dashboard": "Panel de inicio",
       "logout": "Cerrar sesión"
     },
-    "notImplemented": "Esta funcionalidad aún no está implementada. ¡Perdón!"
+    "notImplemented": "Esta funcionalidad aún no está implementada. ¡Perdón!",
+    "goToAccount": "Ir a la cuenta",
+    "menu": "Menú"
   },
   "sections": {
     "dashboard": "Panel",

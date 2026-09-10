@@ -249,8 +249,8 @@ Five reviewable slices; the user commits and re-confirms between each.
 | 1 — design system + UI primitives (Ladu tokens in Tailwind v4, shadcn/Base UI init, 8 primitives) | ✅ done 2026-09-08 — commit `39fe6d6`; frontend 9/9 + build green |
 | 2 — app plumbing (axios client + 401 interceptor, Zustand `persist` session, typed router, `ProtectedRoute`, real 404, MSW infra) | ✅ done 2026-09-08 — frontend 42/42 + build green; guard + 404 verified in-browser |
 | 3 — auth pages (register / verify / login / logout / reset) | ✅ done 2026-09-08 — frontend 74/74 + build green; backend 130/130 green |
-| 4 — app shell + Home (`AppHeader`, `LanguageSelector`, `UserMenu`, welcome banner) | ⬜ not started — **next** |
-| 5 — backend hygiene + phase gate (strip bcrypt-hash & `passwordTokens` leaks; **strip the `_id` alias from the auth serializers + `authMiddleware` responses per the standing rule in §4**; gate checks; kill-switch pace record) | ⬜ not started |
+| 4 — app shell + Home (`AppHeader`, `LanguageSelector`, `UserMenu`, welcome banner) | ✅ done 2026-09-10 — frontend 81/81 + build green; shell + language switch + logout + nav-gate + mobile Sheet verified in-browser |
+| 5 — backend hygiene + phase gate (strip bcrypt-hash & `passwordTokens` leaks; **strip the `_id` alias from the auth serializers + `authMiddleware` responses per the standing rule in §4**; gate checks; kill-switch pace record) | ⬜ not started — **next** |
 
 Deviations already agreed with the user (full text in the plan's Slice 5): no `VerifyEmailBanner` (unverified users are blocked at login), five shadcn primitives held to Phase 2. The Phase 1 e2e spec (`phase-1-auth.spec.ts`) is written in Slice 3–5.
 
