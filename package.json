@@ -5,7 +5,8 @@
   "description": "Ladu — multilingual vocabulary manager (npm-workspaces monorepo: backend + frontend)",
   "workspaces": [
     "backend",
-    "frontend"
+    "frontend",
+    "e2e"
   ],
   "scripts": {
     "dev": "concurrently -n server,client \"npm run dev -w backend\" \"npm run dev -w frontend\"",
@@ -14,6 +15,10 @@
     "test": "npm run test -w backend",
     "test:watch": "npm run test:watch -w backend",
     "test:coverage": "npm run test:coverage -w backend",
+    "test:e2e": "npm run test -w e2e",
+    "test:e2e:headed": "npm run test:headed -w e2e",
+    "test:e2e:ui": "npm run test:ui -w e2e",
+    "e2e:install": "npm run install:browsers -w e2e",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "db:studio": "npm run db:studio -w backend",

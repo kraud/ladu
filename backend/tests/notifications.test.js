@@ -26,7 +26,7 @@ afterAll(async () => {
 });
 
 const registerAndLogin = async (name, email, username) => {
-    await request(app).post('/api/users').send({ name, email, username, password: 'pass123' });
+    await request(app).post('/api/users').send({ name, email, username, password: 'pass123', languages: ['English', 'Spanish'] });
     const r = await request(app).post('/api/users/login').send({ email, password: 'pass123' });
     return r.body;
 };
@@ -42,20 +42,20 @@ describe('Notification CRUD', () => {
     it('POST /api/notifications - creates a notification', async () => {
         const res = await request(app)
             .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB._id], variant: 'friendRequest', content: { requesterId: userA._id } });
+            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
 
         expect(res.statusCode).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);
         expect(res.body.length).toBe(1);
         expect(res.body[0]).toHaveProperty('variant', 'friendRequest');
         expect(res.body[0]).toHaveProperty('dismissed', false);
-        expect(res.body[0]).toHaveProperty('user', userB._id);
+        expect(res.body[0]).toHaveProperty('user', userB.id);
     });
 
     it('GET /api/notifications/getNotifications - lists notifications for the current user', async () => {
         await request(app)
             .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB._id], variant: 'friendRequest', content: { requesterId: userA._id } });
+            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
 
         const res = await request(app)
             .get('/api/notifications/getNotifications')
@@ -73,7 +73,7 @@ describe('Notification CRUD', () => {
     it('GET /api/notifications/getRequesterNotifications - lists notifications where user is requester', async () => {
         await request(app)
             .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB._id], variant: 'friendRequest', content: { requesterId: userA._id } });
+            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
 
         const res = await request(app)
             .get('/api/notifications/getRequesterNotifications')
@@ -88,12 +88,12 @@ describe('Notification CRUD', () => {
         // userB creates a notification for userA (userA is the owner)
         await request(app)
             .post('/api/notifications').set('Authorization', `Bearer ${userB.token}`)
-            .send({ user: [userA._id], variant: 'friendRequest', content: { requesterId: userB._id } });
+            .send({ user: [userA.id], variant: 'friendRequest', content: { requesterId: userB.id } });
 
         const [notifRow] = await db
             .select()
             .from(notifications)
-            .where(eq(notifications.userId, userA._id))
+            .where(eq(notifications.userId, userA.id))
             .limit(1);
 
         const res = await request(app)
@@ -108,12 +108,12 @@ describe('Notification CRUD', () => {
     it('DELETE /api/notifications/:id - deletes a notification', async () => {
         await request(app)
             .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB._id], variant: 'friendRequest', content: { requesterId: userA._id } });
+            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
 
         const [notifRow] = await db
             .select()
             .from(notifications)
-            .where(eq(notifications.userId, userB._id))
+            .where(eq(notifications.userId, userB.id))
             .limit(1);
 
         const res = await request(app)
@@ -144,12 +144,12 @@ describe('Notification Authorization', () => {
         // userA creates a notification for userB
         await request(app)
             .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB._id], variant: 'friendRequest', content: { requesterId: userA._id } });
+            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
 
         const [notifRow] = await db
             .select()
             .from(notifications)
-            .where(eq(notifications.userId, userB._id))
+            .where(eq(notifications.userId, userB.id))
             .limit(1);
 
         // userC (not the owner) tries to delete
@@ -164,12 +164,12 @@ describe('Notification Authorization', () => {
         // userA creates a notification for userB
         await request(app)
             .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB._id], variant: 'friendRequest', content: { requesterId: userA._id } });
+            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
 
         const [notifRow] = await db
             .select()
             .from(notifications)
-            .where(eq(notifications.userId, userB._id))
+            .where(eq(notifications.userId, userB.id))
             .limit(1);
 
         // userC (not the owner) tries to update
@@ -200,7 +200,7 @@ describe('Notification Error Handling', () => {
     it('POST /api/notifications - rejects missing variant', async () => {
         const res = await request(app)
             .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userA._id] });
+            .send({ user: [userA.id] });
 
         expect(res.statusCode).toBe(400);
     });

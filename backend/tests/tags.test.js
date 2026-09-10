@@ -34,7 +34,7 @@ afterAll(async () => {
 
 const registerAndLogin = async (name = 'Tag User', email = 'tag@test.com', username = 'taguser') => {
     await request(app).post('/api/users').send({
-        name, email, username, password: 'pass123',
+        name, email, username, password: 'pass123', languages: ['English', 'Spanish'],
     });
     const r = await request(app).post('/api/users/login').send({ email, password: 'pass123' });
     return r.body;
@@ -61,7 +61,7 @@ describe('POST /api/tags - Create Tag', () => {
     beforeEach(async () => {
         const data = await registerAndLogin();
         token = data.token;
-        userId = data._id;
+        userId = data.id;
     });
 
     it('creates a tag without words (authorId set server-side)', async () => {
@@ -115,7 +115,7 @@ describe('GET /api/tags/getTags - Get User Tags', () => {
     beforeEach(async () => {
         const data = await registerAndLogin();
         token = data.token;
-        userId = data._id;
+        userId = data.id;
 
         await db.insert(tags).values([
             { authorId: userId, label: 'First', visibility: 'Private' },
@@ -154,11 +154,11 @@ describe('Tag sharing lifecycle', () => {
         const res = await request(app)
             .post(`/api/tags/${tag._id}/share`)
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ recipientId: recipient._id });
+            .send({ recipientId: recipient.id });
 
         expect(res.statusCode).toBe(200);
         expect(res.body.tagId).toBe(tag._id);
-        expect(res.body.recipientId).toBe(recipient._id);
+        expect(res.body.recipientId).toBe(recipient.id);
         expect(res.body.status).toBe('pending');
     });
 
@@ -167,12 +167,12 @@ describe('Tag sharing lifecycle', () => {
         await request(app)
             .post(`/api/tags/${tag._id}/share`)
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ recipientId: recipient._id });
+            .send({ recipientId: recipient.id });
 
         const res = await request(app)
             .post(`/api/tags/${tag._id}/share`)
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ recipientId: recipient._id });
+            .send({ recipientId: recipient.id });
 
         expect(res.statusCode).toBe(400);
     });
@@ -183,7 +183,7 @@ describe('Tag sharing lifecycle', () => {
         const res = await request(app)
             .post(`/api/tags/${tag._id}/share`)
             .set('Authorization', `Bearer ${recipient.token}`)
-            .send({ recipientId: owner._id });
+            .send({ recipientId: owner.id });
 
         expect(res.statusCode).toBe(401);
     });
@@ -193,7 +193,7 @@ describe('Tag sharing lifecycle', () => {
         const share = await request(app)
             .post(`/api/tags/${tag._id}/share`)
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ recipientId: recipient._id });
+            .send({ recipientId: recipient.id });
 
         const res = await request(app)
             .post(`/api/tag-shares/${share.body.id}/accept`)
@@ -203,17 +203,17 @@ describe('Tag sharing lifecycle', () => {
 
         // The cloned tag must exist with the recipient as author.
         const clonedTag = res.body.clonedTag;
-        expect(clonedTag.authorId).toBe(recipient._id);
+        expect(clonedTag.authorId).toBe(recipient.id);
         expect(clonedTag.label).toBe('Shared');
 
         // The cloned word must carry its translations + cases (the §8.3 fix).
         const [clonedWord] = await db
             .select()
             .from(words)
-            .where(eq(words.userId, recipient._id))
+            .where(eq(words.userId, recipient.id))
             .limit(1);
         expect(clonedWord.isCloned).toBe(true);
-        expect(clonedWord.originalCreatorId).toBe(owner._id);
+        expect(clonedWord.originalCreatorId).toBe(owner.id);
 
         const transRows = await db
             .select()
@@ -233,7 +233,7 @@ describe('Tag sharing lifecycle', () => {
         const share = await request(app)
             .post(`/api/tags/${tag._id}/share`)
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ recipientId: recipient._id });
+            .send({ recipientId: recipient.id });
 
         const res = await request(app)
             .post(`/api/tag-shares/${share.body.id}/accept`)
@@ -247,7 +247,7 @@ describe('Tag sharing lifecycle', () => {
         const share = await request(app)
             .post(`/api/tags/${tag._id}/share`)
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ recipientId: recipient._id });
+            .send({ recipientId: recipient.id });
 
         const res = await request(app)
             .post(`/api/tag-shares/${share.body.id}/decline`)
@@ -286,7 +286,7 @@ describe('Tag clone authorization', () => {
             .send({ tagId: tag.body._id });
 
         expect(res.statusCode).toBe(200);
-        expect(res.body.authorId).toBe(stranger._id);
+        expect(res.body.authorId).toBe(stranger.id);
     });
 
     it('POST /api/tags/addExternalTag - rejects cloning a Private tag', async () => {
@@ -325,7 +325,7 @@ describe('DELETE /api/tags/:id - Delete Tag', () => {
     beforeEach(async () => {
         const data = await registerAndLogin();
         token = data.token;
-        userId = data._id;
+        userId = data.id;
 
         const [word] = await db.insert(words).values({
             userId,
@@ -364,6 +364,7 @@ describe('DELETE /api/tags/:id - Delete Tag', () => {
     it('fails with 401 when not the author', async () => {
         await request(app).post('/api/users').send({
             name: 'Other', email: 'other@test.com', username: 'other', password: 'pass123',
+            languages: ['English', 'Spanish'],
         });
         const r = await request(app).post('/api/users/login').send({ email: 'other@test.com', password: 'pass123' });
 

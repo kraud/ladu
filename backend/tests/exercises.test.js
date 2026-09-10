@@ -28,6 +28,7 @@ afterAll(async () => {
 const registerAndLogin = async () => {
     await request(app).post('/api/users').send({
         name: 'Ex User', email: 'ex@test.com', username: 'exuser', password: 'pass123',
+        languages: ['English', 'Spanish'],
     });
     const r = await request(app).post('/api/users/login').send({ email: 'ex@test.com', password: 'pass123' });
     return r.body;
@@ -166,7 +167,7 @@ describe('POST /api/exercises/savePerformanceAction - Performance Modifiers', ()
     beforeEach(async () => {
         const data = await registerAndLogin();
         token = data.token;
-        userId = data._id;
+        userId = data.id;
 
         // Create a word via the API (needs 2+ translations per controller validation)
         const wordRes = await request(app)

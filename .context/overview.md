@@ -18,6 +18,8 @@ When redesigning and re-implementing the user interface and interaction flows, t
 6. **Data-Driven Feedback Loop:** Every piece of stored linguistic data should feed directly into personalized practice algorithms, progress insights, and visual statistics.
 7. **Transparent Master & Progress Tracking:** Users should always easily understand the status of their vocabulary mastery and exercise performance.
 
+Supported languages: **EN, ES, DE, EE** (English, Spanish, German, Estonian). A Word needs translations in **≥2 languages**.
+
 ---
 
 ## 2. Domain Data Model & Conceptual Architecture
@@ -34,6 +36,23 @@ To design an effective UI/UX, the agent must understand the underlying relations
   * Tags carry visibility settings: `Private`, `Public`, or `Friends-Only`.
   * Tags can be followed or cloned directly into another user's dictionary.
 * **Exercise Performance (`ExercisePerformance` / `CaseStat`):** Historical record tracking answer correctness per user and per specific translation case (using continuous score calculations, 4-tier recent history, and spaced repetition decay algorithms).
+
+### Logical Data Architecture
+The application leads with a hierarchical data structure designed to represent a single concept across multiple languages with high grammatical precision.
+
+**The "Word" hierarchy:**
+1. **Word (Container):** Represented by `WordData`. This is the top-level anchor for a concept. It stores global metadata like `partOfSpeech` (e.g., Noun, Verb) and associated `tags`.
+2. **Translation (`TranslationItem`):** A `Word` contains an array of translations. Each `TranslationItem` is bound to a specific `Lang` (enum: EN, ES, DE, EE).
+3. **Cases (`WordItem`):** Within a translation, data is stored as an array of `WordItem` objects. Each item maps a grammatical `caseName` to its actual string value (`word`).
+4. **Enums (The Logic Glue):** Strict TypeScript enums (`NounCases`, `VerbCases`, etc.) define the valid `caseName` keys. These enums ensure that an Estonian Noun has different required fields than a Spanish Noun, maintaining data integrity across the system.
+
+**Visual representation:** `Word` → `[Translations]` → `[Cases (caseName + value)]`
+
+### Core Logic & Workflow
+* **Dynamic Entry:** The frontend generates forms dynamically. Selecting a "Noun" in "German" will trigger different input fields than an "Adverb" in "English" based on the `caseName` enums.
+* **The "Word-Translation" Relationship:** A single `Word` ID acts as a bridge. If a user adds "Apple" (EN), "Manzana" (ES), and "Omena" (EE), they are all linked to one `Word` entry.
+* **Exercise Engine:** The system retrieves words and their translations to generate various test types (Flashcards, Multiple Choice). It uses `ExercisePerformance` data to prioritize words based on mastery and "aging".
+* **Social Layer:** Users can follow friends and access public Tags, allowing for collaborative vocabulary building.
 
 ---
 

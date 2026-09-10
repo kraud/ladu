@@ -10,6 +10,21 @@ i18n
     .init({
         fallbackLng: 'en',
         fallbackNS: 'common',
+        defaultNS: 'common',
+        ns: [
+            'account',
+            'caseDescription',
+            'common',
+            'dashboard',
+            'friendship',
+            'loginRegister',
+            'notifications',
+            'practice',
+            'review',
+            'tags',
+            'translation',
+            'wordRelated',
+        ],
         supportedLngs: ['en', 'es', 'de', 'ee'],
         nonExplicitSupportedLngs: true,
         backend: {

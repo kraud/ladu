@@ -1,0 +1,23 @@
+{
+  "title": "Cuenta",
+  "subtitle": "Gestiona tu perfil y tus idiomas",
+  "sections": {
+    "details": "Datos del perfil",
+    "languages": "Idiomas",
+    "edit": "Editar perfil"
+  },
+  "fields": {
+    "emailHint": "El correo electrónico se gestiona por separado y no se puede cambiar aquí"
+  },
+  "languages": {
+    "count": "{{count}} de {{total}} seleccionados",
+    "none": "ninguno configurado",
+    "orderHint": "Mínimo 2 idiomas: las columnas de Repaso y los ejercicios siguen este orden",
+    "emptyTitle": "No hay idiomas configurados",
+    "emptyBody": "Selecciona al menos dos idiomas para que tu espacio de trabajo se muestre correctamente.",
+    "emptyCta": "Seleccionar idiomas"
+  },
+  "toasts": {
+    "discarded": "Cambios descartados"
+  }
+}

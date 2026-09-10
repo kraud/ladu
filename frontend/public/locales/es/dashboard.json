@@ -30,5 +30,10 @@
         "translationMetric": "Palabras por idioma"
       }
     }
+  },
+  "home": {
+    "emptyTitle": "Aún no hay palabras",
+    "emptyDescription": "Empieza a construir tu vocabulario multilingüe: agrega una palabra con traducciones en al menos dos idiomas.",
+    "addFirstWords": "Agrega tus primeras palabras"
   }
 }

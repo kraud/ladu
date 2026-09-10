@@ -26,6 +26,10 @@ const { calculateBasicUserMetrics } = require("./metricController");
 type UserRow = typeof users.$inferSelect;
 type NewUserRow = typeof users.$inferInsert;
 
+// Client-safe user columns. The bcrypt `password` hash and the `passwordTokens`
+// reset-token array are deliberately excluded so they never reach a response
+// (Phase 1 Slice 5 — the password-reset flow reads `passwordTokens` off its own
+// full-row queries, not this projection).
 const userColumnsWithoutPassword = {
   id: users.id,
   name: users.name,
@@ -35,7 +39,6 @@ const userColumnsWithoutPassword = {
   uiLanguage: users.uiLanguage,
   nativeLanguage: users.nativeLanguage,
   verified: users.verified,
-  passwordTokens: users.passwordTokens,
   createdAt: users.createdAt,
   updatedAt: users.updatedAt,
 };
@@ -49,6 +52,38 @@ const isUuid = (value: unknown) =>
     value,
   );
 
+// The four languages the app supports (the `Lang` enum values). There is no
+// backend enums module, so this list is the source of truth server-side.
+const SUPPORTED_LANGUAGES = ["English", "Spanish", "German", "Estonian"];
+
+const isSupportedLanguage = (value: unknown): value is string =>
+  typeof value === "string" && SUPPORTED_LANGUAGES.includes(value);
+
+// Validate + normalize a `languages` array a client sends (registration, and a
+// profile edit on `updateUser`): every entry must be a supported language, and
+// at least two are required (a Word needs translations in >= 2 languages).
+// Order is preserved and duplicates dropped — the array order is the user's
+// language preference. Returns a discriminated result so the caller can set
+// `res.status(400)` (the error middleware only reads `res.statusCode`, not
+// `err.statusCode`).
+const normalizeLanguageSelection = (
+  input: unknown,
+):
+  | { ok: true; languages: string[] }
+  | { ok: false; message: string } => {
+  if (!Array.isArray(input)) {
+    return { ok: false, message: "Please select at least 2 languages" };
+  }
+  if (!input.every(isSupportedLanguage)) {
+    return { ok: false, message: "Invalid language selection" };
+  }
+  const deduped = [...new Set(input)];
+  if (deduped.length < 2) {
+    return { ok: false, message: "Please select at least 2 languages" };
+  }
+  return { ok: true, languages: deduped };
+};
+
 const generateToken = (id: string) => {
   // JWTs carry only the stable user id; user profile data is reloaded by auth middleware.
   return jwt.sign({ id }, process.env.JWT_SECRET as string, {
@@ -56,13 +91,25 @@ const generateToken = (id: string) => {
   });
 };
 
+// Explicit allowlist of the user fields safe to return to a client. Never spread
+// a raw row here: `findUserById` selects every column (incl. the bcrypt
+// `password` hash and the `passwordTokens` reset-token array), and this is the
+// serializer for `getUserById` / `updateUser` / `verifyUser`.
 const serializeUser = (user: Partial<UserRow>) => ({
-  ...user,
-  _id: user.id,
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  username: user.username,
+  languages: user.languages,
+  uiLanguage: user.uiLanguage,
+  nativeLanguage: user.nativeLanguage,
+  verified: user.verified,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
 });
 
 const serializeLoginUser = (user: UserRow) => ({
-  _id: user.id,
+  id: user.id,
   name: user.name,
   email: user.email,
   username: user.username,
@@ -103,7 +150,7 @@ const findUserByUsernameInsensitive = async (username: string) => {
 };
 
 const publicUserResponse = (user: UserRow) => ({
-  _id: user.id,
+  id: user.id,
   name: user.name,
   email: user.email,
   username: user.username,
@@ -114,12 +161,31 @@ const publicUserResponse = (user: UserRow) => ({
 });
 
 const registerUser = asyncHandler(async (req: any, res: any) => {
-  const { name, email, username, password } = req.body;
+  const { name, email, username, password, languages, uiLanguage } = req.body;
 
   // Validate the required registration fields before any database work.
   if (!name || !email || !username || !password) {
     res.status(400);
     throw new Error("Please add all fields");
+  }
+
+  // The account is created with the languages the user picked at sign-up (>= 2,
+  // all supported); the array order is their language preference.
+  const languagesResult = normalizeLanguageSelection(languages);
+  if (!languagesResult.ok) {
+    res.status(400);
+    throw new Error(languagesResult.message);
+  }
+
+  // The UI language picked on the login/register screen is stored on the row.
+  // Absent -> default "English"; present but unsupported -> reject.
+  let resolvedUiLanguage = "English";
+  if (uiLanguage !== undefined && uiLanguage !== null && uiLanguage !== "") {
+    if (!isSupportedLanguage(uiLanguage)) {
+      res.status(400);
+      throw new Error("Invalid language selection");
+    }
+    resolvedUiLanguage = uiLanguage;
   }
 
   // Enforce the app-level case-insensitive uniqueness rules used by the legacy API.
@@ -140,7 +206,6 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Create the user with the same defaults the old controller returned to the frontend.
   const [user] = await db
     .insert(users)
     .values({
@@ -148,8 +213,8 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
       email,
       username,
       password: hashedPassword,
-      languages: [],
-      uiLanguage: "English",
+      languages: languagesResult.languages,
+      uiLanguage: resolvedUiLanguage,
       nativeLanguage: null,
       verified: false,
       passwordTokens: [],
@@ -179,17 +244,33 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
 });
 
 const loginUser = asyncHandler(async (req: any, res: any) => {
-  const { email, password } = req.body;
+  const { email, password, uiLanguage } = req.body;
 
   // Look up by email first so password comparison only runs for a real account.
   const user = email ? await findUserByEmailInsensitive(email) : undefined;
 
-  if (user && (await bcrypt.compare(password || "", user.password))) {
-    res.json(serializeLoginUser(user));
-  } else {
+  if (!user || !(await bcrypt.compare(password || "", user.password))) {
     res.status(400);
     throw new Error("Invalid credentials");
   }
+
+  // A UI language chosen on the login screen is persisted to the row so the app
+  // opens in that language and stays consistent on the next visit.
+  if (uiLanguage !== undefined && uiLanguage !== null && uiLanguage !== "") {
+    if (!isSupportedLanguage(uiLanguage)) {
+      res.status(400);
+      throw new Error("Invalid language selection");
+    }
+    if (uiLanguage !== user.uiLanguage) {
+      await db
+        .update(users)
+        .set({ uiLanguage, updatedAt: new Date() })
+        .where(eq(users.id, user.id));
+      user.uiLanguage = uiLanguage;
+    }
+  }
+
+  res.json(serializeLoginUser(user));
 });
 
 const updateUser = asyncHandler(async (req: any, res: any) => {
@@ -221,13 +302,38 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
     throw new Error("Invalid credentials");
   }
 
+  // A profile edit may change the language selection: validate it exactly as
+  // registration does (>= 2 supported, de-duped, order preserved). Omitting the
+  // key leaves the stored selection untouched.
+  let resolvedLanguages = userData.languages;
+  if (languages !== undefined) {
+    const languagesResult = normalizeLanguageSelection(languages);
+    if (!languagesResult.ok) {
+      res.status(400);
+      throw new Error(languagesResult.message);
+    }
+    resolvedLanguages = languagesResult.languages;
+  }
+
+  // Same rule as login/register for the UI language: absent -> keep the stored
+  // value; present but unsupported -> reject.
+  if (
+    uiLanguage !== undefined &&
+    uiLanguage !== null &&
+    uiLanguage !== "" &&
+    !isSupportedLanguage(uiLanguage)
+  ) {
+    res.status(400);
+    throw new Error("Invalid language selection");
+  }
+
   // Only update profile fields owned by this endpoint; email and password stay unchanged.
   const [updatedUser] = await db
     .update(users)
     .set({
       name: name ?? userData.name,
       username: username ?? userData.username,
-      languages: languages ?? userData.languages,
+      languages: resolvedLanguages,
       uiLanguage: uiLanguage ?? userData.uiLanguage,
       nativeLanguage: nativeLanguage === undefined ? null : nativeLanguage,
       updatedAt: new Date(),
@@ -359,12 +465,12 @@ const verifyUser = asyncHandler(async (req: any, res: any) => {
       .where(eq(users.id, user.id));
     await db.delete(tokens).where(eq(tokens.id, token.id));
 
-    // Return profile data plus a JWT so the client can enter authenticated routes immediately.
+    // Return profile data plus a JWT so the client can enter authenticated routes
+    // immediately. `serializeUser` is an allowlist, so no `password` strip needed.
     const userWithToken = {
       ...serializeUser({ ...user, verified: true }),
       token: generateToken(user.id),
     };
-    delete (userWithToken as any).password;
 
     res
       .status(200)
@@ -455,7 +561,7 @@ const updatePassword = asyncHandler(async (req: any, res: any) => {
 const getBasicUserMetrics = asyncHandler(async (req: any, res: any) => {
   try {
     const metrics = await calculateBasicUserMetrics({
-      _id: req.user.id,
+      id: req.user.id,
       languages: req.user.languages,
     });
 

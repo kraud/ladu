@@ -1,4 +1,13 @@
 {
+  "appTitle": "Ladu",
+  "notFound": {
+    "lines": [
+      "Nothing to see here…",
+      "Hier gibt es nichts zu sehen…",
+      "No hay nada que ver aquí…",
+      "Siin pole midagi vaadata…"
+    ]
+  },
   "header": {
     "addWord": "wort hinzufügen",
     "practice": "üben",
@@ -9,7 +18,7 @@
       "placeholder": "Suchen...",
       "loading": "Laden...",
       "noMatches": "Keine Ergebnisse"
-     },
+    },
     "settings": {
       "openSettings": "Einstellungen öffnen",
       "notifications": "Benachrichtigungen",
@@ -17,8 +26,10 @@
       "account": "Konto",
       "dashboard": "Dashboard",
       "logout": "Abmelden"
-     },
-    "notImplemented": "Diese Funktion ist noch nicht bereit, es tut uns leid!"
+    },
+    "notImplemented": "Diese Funktion ist noch nicht bereit, es tut uns leid!",
+    "goToAccount": "Zum Konto",
+    "menu": "Menü"
   },
   "sections": {
     "dashboard": "Dashboard",

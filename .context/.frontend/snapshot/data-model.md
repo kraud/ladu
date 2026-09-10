@@ -134,6 +134,8 @@ Plus the fuller `PronounDE` (nominative/accusative/dative × 1s/2s/3s/1pl/2pl/3p
 
 ## 2. `interfaces.ts`
 
+> **`_id` → `id`.** This is a verbatim transcription of the old source, which carries `_id` (and a `// should it be _id?` TODO) on several types. `_id` is a MongoDB artifact — the Postgres/Drizzle schema has no such column. Per the standing rule in `new-repo-build-plan.md` §4, **new frontend types use `id` exclusively**. `frontend/src/ts/interfaces.ts` has already been corrected (`WordDataBE`, `UserData`, `NotificationData`, `FriendshipData`, `TagData`, `FilterItem`); read every `_id` below as `id`.
+
 ### 2.1 Word / translation core (the create/view model)
 
 ```ts

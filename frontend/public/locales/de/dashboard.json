@@ -30,5 +30,10 @@
         "translationMetric": "Wörter pro Sprache"
       }
     }
+  },
+  "home": {
+    "emptyTitle": "Noch keine Wörter",
+    "emptyDescription": "Beginne, deinen mehrsprachigen Wortschatz aufzubauen — füge ein Wort mit Übersetzungen in mindestens zwei Sprachen hinzu.",
+    "addFirstWords": "Füge deine ersten Wörter hinzu"
   }
 }

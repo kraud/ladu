@@ -2,6 +2,7 @@
   "errors": {
     "invalidEmail": "Eine gültige E-Mail ist erforderlich",
     "passwordRequired": "Passwort ist erforderlich",
+    "passwordMin": "Das Passwort muss mindestens 8 Zeichen lang sein",
     "nameRequired": "Name ist erforderlich",
     "emailRequired": "E-Mail ist erforderlich",
     "usernameRequired": "Benutzername ist erforderlich",
@@ -9,27 +10,54 @@
     "passwordRepeatMustMatch": "Passwörter stimmen nicht überein",
     "linkError": "Bei diesem Link ist ein Fehler aufgetreten."
   },
+  "apiErrors": {
+    "invalidCredentials": "E-Mail oder Passwort ist ungültig.",
+    "missingFields": "Bitte fülle alle Felder aus.",
+    "emailInUse": "Diese E-Mail ist bereits registriert.",
+    "usernameInUse": "Dieser Benutzername ist bereits vergeben.",
+    "invalidLink": "Dieser Link ist ungültig oder abgelaufen.",
+    "invalidToken": "Dieser Link zum Zurücksetzen ist ungültig oder abgelaufen.",
+    "noUserForEmail": "Mit dieser E-Mail ist kein Konto registriert.",
+    "notEnoughLanguages": "Bitte wähle mindestens zwei Sprachen aus.",
+    "invalidLanguage": "Diese Sprache wird nicht unterstützt."
+  },
   "toastMessages": {
     "passwordUpdated": "Passwort erfolgreich aktualisiert!",
     "emailSent": "E-Mail erfolgreich gesendet!"
   },
+  "unverifiedWarning": "Du musst dein Konto bestätigen, bevor du dich anmelden kannst.",
   "login": {
     "title": "Anmelden",
-    "subtitle": "Und jetzt loslegen!"
+    "subtitle": "Und jetzt loslegen!",
+    "submit": "Anmelden",
+    "submitting": "Anmeldung läuft…"
   },
   "register": {
     "title": "Registrieren",
-    "subtitle": "Bitte erstellen Sie ein Konto"
+    "subtitle": "Bitte erstellen Sie ein Konto",
+    "submit": "Konto erstellen",
+    "submitting": "Wird erstellt…",
+    "emailSentToast": "Wir haben eine E-Mail an {{email}} gesendet — öffne sie, um dein Konto zu bestätigen.",
+    "languagesLabel": "Sprachen, die du verwaltest",
+    "languagesHint": "Wähle mindestens zwei. Du kannst später weitere hinzufügen und sie neu anordnen."
   },
   "resetPassword": {
-    "titleReset": "Passwort zurücksetzen",
+    "titleReset": "Neues Passwort festlegen",
     "titleForgot": "Passwort vergessen?",
     "subtitleNewPassword": "Geben Sie unten ein neues Passwort ein",
-    "subtitleEnterEmail": "Geben Sie die E-Mail-Adresse ein, die mit Ihrem Konto verknüpft ist, und wir senden Ihnen einen Link, um Ihr Passwort zurückzusetzen"
+    "subtitleEnterEmail": "Geben Sie die E-Mail-Adresse ein, die mit Ihrem Konto verknüpft ist, und wir senden Ihnen einen Link, um Ihr Passwort zurückzusetzen",
+    "submitRequest": "Link zum Zurücksetzen senden",
+    "submittingRequest": "Wird gesendet…",
+    "submitSet": "Passwort aktualisieren",
+    "submittingSet": "Wird aktualisiert…"
   },
   "userVerification": {
-    "validating": "Passwort zurücksetzen",
+    "validating": "Dein Konto wird bestätigt…",
+    "validatingSubtitle": "Das dauert nur einen Moment.",
     "validatingSuccess": "Erfolgreich validiert!",
+    "enteringIn": "Ladu wird in {{seconds}}s geöffnet",
+    "enterNow": "Jetzt eintreten",
+    "backToSignIn": "Zurück zur Anmeldung",
     "goingIn": "Wird eingeloggt...",
     "messagePreValidation": "Du wirst automatisch weitergeleitet, sobald die Validierung abgeschlossen ist.",
     "messagePostValidation": "Nicht automatisch weitergeleitet? Klicke hier, um fortzufahren.",
@@ -38,13 +66,17 @@
   "switchSectionButtons": {
     "alreadyRegistered": "Schon registriert?",
     "notRegistered": "Sie haben noch kein Konto?",
-    "forgotPassword": "Passwort vergessen?"
+    "forgotPassword": "Passwort vergessen?",
+    "createAccount": "Konto erstellen",
+    "signIn": "Anmelden"
   },
   "formLabels": {
     "name": "Name",
     "username": "Benutzername",
     "password": "Passwort",
     "confirmPassword": "Passwort bestätigen",
+    "newPassword": "Neues Passwort",
+    "confirmNewPassword": "Neues Passwort bestätigen",
     "email": "E-Mail"
   }
 }

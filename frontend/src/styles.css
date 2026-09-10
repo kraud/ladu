@@ -1,1 +1,17 @@
 @import 'tailwindcss';
+@import './styles/tokens.css';
+@import './styles/globals.css';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/* shadcn/Base UI components assume a `.dark` class toggle for their
+   `dark:` variants. Dark mode itself is out of scope for Phase 1
+   (CLAUDE.md: "not required for v1, but use CSS variables so it can
+   be added later") — this just keeps generated components ready. */
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+}

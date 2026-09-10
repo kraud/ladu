@@ -1,0 +1,316 @@
+# Phase 1 — Auth + app shell
+
+## Context
+
+`keelapp-v2` is a from-scratch frontend rebuild. Phase 0 (monorepo scaffold, backend copy, verbatim asset port) is done and committed at `c030b68`; the tree is clean on `main`. The frontend today is a bare scaffold — 8 source files, a placeholder `App.tsx`, `@import 'tailwindcss'` as the entire stylesheet, and no routing, API client, store, or UI components. Every target dependency is already declared in `frontend/package.json` but nothing consumes them.
+
+Phase 1 is the **first vertical slice**: it proves the whole stack end-to-end (router → query → axios → backend → store → i18n → design system) on the auth flow, and it is the **kill-switch measurement point** — if pace here suggests the rewrite will exceed ~2× the in-place migration, we stop and execute `frontend-migration-plan.md` instead (study §11b).
+
+It also fixes four §8.4 defects on day one: unguarded protected routes, unguarded `JSON.parse(localStorage['user'])`, three divergent session write shapes, and per-page auth guards instead of one centralised gate.
+
+**Decisions taken with the user (2026-09-08):**
+
+1. **Unverified users are blocked.** The blueprint contradicts itself — `ui/01-auth.md` says login-while-unverified keeps the user on `/login`, but register success lands them on `/` "logged in but unverified". We resolve it the strict way: login with `verified !== true` shows a warning toast and writes **no** session; register (which returns no token anyway) shows an info toast naming the email and redirects to `/login`. **Consequence: `VerifyEmailBanner` becomes unreachable and is dropped from Phase 1** — it is documented as a deliberate deviation from the component list in `frontend-structure.md` §2.
+2. **Full shadcn CLI init** (decision D3, taken literally) — but rethemed by *bridging* shadcn's semantic tokens onto the Ladu tokens via `@theme inline`, not by hand-editing generated components. Lucide imports are swapped for Phosphor.
+3. **Two backend leaks fixed** this phase: the bcrypt hash returned by `GET /api/users/getUser/:id`, and `passwordTokens` returned by `GET /me` / `PUT /updateUser`. The account-existence leak on `requestPasswordReset` is **left alone** and logged for Phase 7.
+4. **New i18n keys land in all four locales** (en/es/de/ee), translated in-place. Estonian strings get flagged for the user to sanity-check.
+
+**Decisions taken with the user (2026-09-10) — Dashboard/metrics re-scope:**
+
+5. **Metrics move out of Phase 1.** `GET /api/users/getUserMetrics` aggregates `words` + `translations` only (`backend/controllers/metricController.ts:15,47-157`) — no exercise-performance dependency — so on a fresh account with no way to create a word, every number it returns is structurally zero and the "loading/loaded/empty" gate can only ever hit the empty branch. Slice 4 keeps the real app shell but its `/` route becomes a **Home page that is only the welcome banner** (name + cycling EN→ES→DE→EE greeting) with an `EmptyState` CTA to Add Word. No `useQuery`, no stat cards, no charts in Phase 1.
+6. **The full Dashboard is the new Phase 3.5** (`plans/phase-3-5-dashboard-metrics.md`): the metrics query + `staleTime` policy, `UserInfoPanel` stat cards, and *both* blueprint charts (pie: words per PoS; bar: translations per language/month — both word-derived). Phase 5 keeps exercises + performance only.
+7. **Consequence:** Phase 1 now ships no `useQuery` at all — the read path is first exercised in Phase 2. Recorded in `new-repo-build-plan.md` Phase 1 scope so the kill-switch pace note accounts for the narrower surface.
+
+Work proceeds in **five reviewable slices**, each independently runnable. The user commits between slices, and **confirms before each new slice starts** — no slice begins without an explicit go-ahead.
+
+---
+
+## Slice 0 — Persist this plan into the repo
+
+Copy this plan verbatim to **`.context/.frontend/plans/phase-1-auth-app-shell.md`** (the directory exists and is currently empty). It becomes the tracked record of what was intended, so the finished work can be diffed against it at the phase gate and the deliberate deviations in Slice 5 are auditable. Subsequent phases add their own file alongside it.
+
+---
+
+## Slice 1 — Design system + UI primitives ✅ done (2026-09-08)
+
+**Goal:** Ladu's visual language exists in Tailwind v4, and shadcn primitives render in it without per-component retheming.
+
+### Outcome — what actually landed, and where it diverged from the plan below
+
+- **Build config** landed as planned: `@/` alias in `tsconfig.json` + `vite.config.ts`; `vitest.config.ts` folded into `vite.config.ts` (single config, `defineConfig` from `vitest/config`).
+- **Tokens** (`src/styles/tokens.css`, `src/styles/globals.css`) — one deliberate design change from the sketch below: raw palette tokens kept their **original bare app.css names** (`--accent`, `--muted`, `--border`, …) instead of a `--color-` prefix. Reason found during implementation: shadcn's own semantic slots are *also* bare `--accent`/`--muted`/`--border`, and for `accent`/`muted` the meanings genuinely differ (shadcn's `accent` is a hover-fill slot, ours is brand teal; shadcn's `muted` is a bg-fill, ours is gray text) — a `--color-` prefix on our tokens plus a naïve alias would have silently let one clobber the other. The bridge instead lives entirely in one `@theme inline` block that maps shadcn's `--color-*` theme keys to the *correct* raw var per meaning (`--color-primary: var(--accent)`, `--color-accent: var(--fg-soft)`, `--color-muted-foreground: var(--muted)`, etc.) — see the file's own header comment. `--container-app`/`--container-wide`/`--gutter`/`--control-h` were dropped entirely: they exactly match Tailwind's stock `max-w-5xl`/`max-w-7xl`/`px-6`/`h-9`, so no custom tokens were needed. Caught and fixed one real gap in this plan: `.card`/`.card-pad` were never listed among the ported component classes, even though every MOCKUPS auth page depends on them (`class="card auth-card"`) — added.
+- **shadcn init** ran as `npx shadcn@latest init -b base -p nova -y` — Base UI (`-b base`), not Radix as this plan assumed, matching CLAUDE.md's literal "shadcn/Base UI" phrasing; the `-p nova` preset choice is cosmetic (fully rethemed regardless). As the Risks section anticipated, init appended its own conflicting `:root`/`.dark`/`@theme inline` block plus a Geist variable-font import into `styles.css` — removed both; kept `tw-animate-css` and `shadcn/tailwind.css` (genuine plumbing: Base UI's data-state Tailwind variants). `iconLibrary` was hand-set to `"phosphor"` in `components.json` *before* generating components, so every generated file already imports `@phosphor-icons/react` — no lucide swap was needed. `components.json`'s `aliases.utils` stayed at the CLI's own default `@/lib/utils` (exporting `cn` from the separate `cn` npm package) rather than being renamed to `@/lib/cn` — not worth fighting on every future `shadcn add`.
+- **`form` is an empty registry stub for the base-nova style** (no file content, CLI-side). Hand-authored `src/components/ui/form.tsx` against the well-known shadcn Radix `form.tsx` contract (`Form`/`FormField`/`FormItem`/`FormLabel`/`FormControl`/`FormDescription`/`FormMessage`/`useFormField`), substituting a small local `React.cloneElement`-based `Slot` for `@radix-ui/react-slot` (not installed) and our own plain `Label`.
+- **Real bug caught by testing**: the generated `Input` wasn't wrapped in `React.forwardRef` (the base-nova preset appears to assume React 19's ref-as-prop; this project is pinned to React 18.3). Without it, `react-hook-form`'s `Controller`/`field.ref` — needed to focus the first invalid field on failed validation, per `ui/01-auth.md` — would have silently failed. Fixed in `input.tsx`; `select.tsx`/other primitives will need the same treatment whenever they're first wired to an RHF `Controller` in a later phase.
+- **Geometry tweaks** applied as planned to `button.tsx`/`input.tsx` (36px, `rounded-md`, `disabled:opacity-45`, danger/accent-soft focus rings) and additionally to `select.tsx` (same height) and `skeleton.tsx` (swapped Tailwind's generic `animate-pulse` for our own `.skeleton` shimmer class, to match MOCKUPS' visual language).
+- **Tests**: 9 passing — `button.test.tsx`, `input.test.tsx`, `form.test.tsx` (exercises the hand-authored bridge end to end with a real `useForm`, which is what caught the forwardRef bug), `App.test.tsx` (mounts the whole gallery). `npm run build -w frontend` and `npm test -w frontend` both green.
+- **No visual screenshot was taken** — no browser tooling was available in this session (no `chromium-cli`; Claude in Chrome not connected). The dev server was confirmed to boot and serve; actual pixel fidelity against `MOCKUPS/index.html`'s component section is unverified and should be eyeballed by the user via `npm run dev -w frontend`.
+- Deferred, unchanged from the plan: `dialog`, `alert-dialog`, `checkbox`, `radio-group`, `textarea` primitives (Phase 2).
+
+### Build config
+- `frontend/tsconfig.json` — add `"baseUrl": "."` + `"paths": { "@/*": ["./src/*"] }`. Everything else stays; `include: ["src"]` means the Vite config itself is not type-checked, so the `test:` block below cannot break `tsc -b`.
+- **Consolidate `vitest.config.ts` into `vite.config.ts`** and delete it. The two files today differ only by the `test:` block — they duplicate the identical `[react(), tailwindcss()]` plugin list, and the new `@/` alias would otherwise have to be maintained in both. The consolidated file must import `defineConfig` from **`vitest/config`** (which re-exports Vite's) for the `test` field to type-check, keeping the `/// <reference types="vitest/config" />` pragma.
+- `vite.config.ts` — add `resolve.alias` `'@' → path.resolve(__dirname, './src')`, preserving the existing `/api` → `:5001` proxy.
+
+### Tokens — `src/styles/tokens.css`
+Port `MOCKUPS/assets/app.css:6-61` verbatim in meaning, split three ways:
+
+- **`@theme`** — everything that should generate utilities, using Tailwind v4 namespaces: the 6 seeds + `accent-ink` + state colours + the four `--lang-*` tints as `--color-*`; `--font-display/-body/-mono`; the type scale as `--text-h1 … --text-meta`; `--radius-md: 8px` / `--radius-lg: 12px`; `--container-app: 1024px` / `--container-wide: 1280px`.
+- **plain `:root`** — the `color-mix(in oklch, …)` derived tones (`--color-accent-soft`, `-soft2`, `--color-fg-soft`, `-soft2`, `--color-hover`, `--color-*-soft` states) plus **`--color-border-strong`**, which `app.css` references only via a fallback (`.cb`, `.cell-add`) and never declares. These can't live in `@theme` (build-time-static values only) — consume them as `bg-(--color-accent-soft)`.
+- **`@theme inline` bridge** — map shadcn's semantic names onto Ladu tokens so generated components are correct with zero edits:
+  `--color-background: var(--color-bg)`, `--color-foreground: var(--color-fg)`, `--color-primary: var(--color-accent)`, `--color-primary-foreground: var(--color-accent-ink)`, `--color-card: var(--color-surface)`, `--color-muted-foreground: var(--color-muted)`, `--color-ring: var(--color-accent)`, `--color-destructive: var(--color-danger)`, `--radius: 8px`.
+
+Keep the file structured so a future dark mode only has to reassign the 6 seeds.
+
+### Base + component layer — `src/styles/globals.css`
+- `@layer base` — the reset from `app.css:64-84`, including `body` (bg, fg, `--font-body`, 14px, line-height 1.5, `optimizeLegibility`, antialiased), `svg { flex: none }`, unstyled `button`, `h1–h4 { text-wrap: balance }`, and the global `:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px }`.
+- `@layer components` — the classes worth keeping as CSS rather than React: `.h1/.h2/.h3/.meta/.eyebrow/.num`, `.app-header*`, `.logo`/`.logo-mark`, `.app-nav`, `.searchbox`, `.mode-switch`, `.avatar`(+`.has-badge`), `.icon-btn`, `.auth-shell/.auth-banner/.auth-card/.auth-links`, `.banner.warning`, `.spinner` + `@keyframes spin`, `.page` + `@keyframes page-in`, `.skeleton` + `@keyframes shimmer`, `.empty`, `.rule`, `.field/.label/.err/.hint`, and the `@media (max-width: 920px)` block. Layout primitives (`.row`, `.stack-md`, `.grow`, `.container`) are expressible as Tailwind utilities — do **not** port them; use utilities in TSX.
+- `src/styles.css` becomes the entry: `@import 'tailwindcss'; @import './styles/tokens.css'; @import './styles/globals.css';`
+
+### shadcn
+Baseline confirmed on disk: no `components.json` anywhere, no `lucide-react` / `class-variance-authority` / `tailwind-merge` / `tw-animate-css`; `clsx` exists only as a transitive hoist from `@dnd-kit/utilities` and must be declared explicitly. Toolchain is node 24.19 / npm 11.17, so `npx shadcn@latest` is current.
+
+- `npx shadcn@latest init` against the existing single `tsconfig.json`; reconcile `components.json` aliases to `@/components`, `@/lib/cn`. Do **not** let init overwrite `styles.css` — keep our token files authoritative. Note `tailwindcss` sits in `devDependencies` here (with `@tailwindcss/vite`); that is correct for v4 and shadcn's detection, but worth watching if init complains.
+- New deps: `class-variance-authority`, `clsx`, `tailwind-merge`, `tw-animate-css`, plus the Radix packages the chosen primitives pull in (`react-slot`, `react-label`, `react-dropdown-menu`, `react-dialog` for Sheet, `react-select`).
+- Add **only the primitives Phase 1 consumes**: `button`, `input`, `label`, `form`, `skeleton`, `dropdown-menu`, `sheet`, `select`. `dialog`, `alert-dialog`, `checkbox`, `radio-group`, `textarea` are deferred to Phase 2, where the word forms first need them — this is D3's own "add primitives per phase" rule, and a deliberate narrowing of the §5 list.
+- shadcn's `form` is resolver-agnostic (it imports `react-hook-form`, not zod), so it drops onto our yup + `@hookform/resolvers` setup unchanged.
+- **Icon swap** — init installs `lucide-react` and the generated `dropdown-menu`, `select` and `sheet` reference `Check`, `ChevronDown`, `ChevronUp`, `ChevronRight`, `Circle`, `X`. Replace each with its `@phosphor-icons/react` equivalent (`Check`, `CaretDown`, `CaretUp`, `CaretRight`, `Circle`, `X`), then remove `lucide-react` from `package.json`.
+- Geometry tweaks the bridge can't cover: `button` → `h-9` (36px), `gap-[7px]`, `rounded-md`, `active:translate-y-px`, `disabled:opacity-45`; `input` → `h-9`, `px-[11px]`, focus `ring-3 ring-(--color-accent-soft)`, `aria-invalid` → danger border + danger-soft ring.
+- `src/lib/cn.ts` — the `clsx`+`tailwind-merge` helper (shadcn defaults to `lib/utils.ts`; point `components.json`'s `aliases.utils` at `@/lib/cn` to match `frontend-structure.md`).
+
+### i18n
+- `src/i18n.ts` — no change to the runtime config; the Suspense boundary is added in Slice 2 (`Providers`). Add `ns`/`defaultNS` only if lazy loading proves flaky.
+
+**Runnable:** `App.tsx` temporarily renders a primitives gallery (buttons in all five variants, inputs incl. invalid state, card, skeleton, spinner, banner, toast) so fidelity against `MOCKUPS/index.html`'s component section can be eyeballed side by side. Removed in Slice 4.
+
+**Tests:** `npm run build -w frontend` green (proves `tsc -b` + alias + v4 compile); one render test per primitive asserting variant classes.
+
+---
+
+## Slice 2 — App plumbing: client, store, router, guard ✅ done (2026-09-08)
+
+**Goal:** an unauthenticated visit to any protected route redirects to `/login`; the 404 page is real; zero `JSON.parse(localStorage`.
+
+### Outcome — what actually landed, and where it diverged from the plan below
+
+- **Everything in the plan shipped**, plus tests: `src/api/{client,types}.ts`, `src/stores/{authStore,uiStore}.ts`, `src/lib/jwt.ts`, `src/app/{query-client,feature-flags,router}.tsx`, `src/app/Providers.tsx`, `src/routes/{public-layout,protected-layout,not-found}.tsx`, `src/components/common/{LoadingScreen,PageTransition,ErrorState,EmptyState}.tsx`, `src/test/{render.tsx,tokens.ts,msw/{server,handlers}.ts}`, slimmed `main.tsx`. Frontend suite **9 → 42 tests**, `tsc -b` + `vite build` green.
+- **`authStore` — `verified` normalization.** The plan's sketch (`raw.verified ?? true ? … : false`) resolves to: a missing/`null` flag becomes `true`, only an explicit `false` is unverified. Rationale confirmed during implementation — `users.verified` is a nullable column, and login/verify already gate the unverified path (decision 1), so a `getMe` refresh that returns a null flag must not silently log the user out.
+- **`authStore` — storage adapter.** Used a hand-written `PersistStorage` (try/catch around the parse, `removeItem` on failure) instead of `createJSONStorage`, so a hand-planted/garbage blob is caught *and cleared* rather than only swallowed by zustand's rehydrate `.catch`. `onRehydrateStorage` then additionally drops an expired token or an invalid-shape user. Note: on the malformed-blob path `clearSession()` re-persists a clean empty blob, so the key is not strictly absent afterward — the test asserts the garbage is gone and the remainder is valid JSON, not `=== null`.
+- **`router.tsx` — optional path params.** TanStack Router is **1.170.33** (hoisted at the workspace root, not the `^1.51` in `package.json`), which supports the `{-$param}` optional-segment syntax — used for `/addWord/{-$partOfSpeech}` and `/resetPassword/{-$userId}/{-$tokenId}` rather than registering paired routes. All 12 blueprint routes (`ui/00-global.md` §2) are registered; every protected leaf and every public auth leaf is an inline `Placeholder` / `PublicPlaceholder` stub defined in `router.tsx` (Slice 3 moves auth leaves to `features/auth/pages/*`, Slice 4 the `/` home page). Exported `createAppRouter(history?)` alongside the singleton `router` so tests build their own with `createMemoryHistory`.
+- **`client.ts` — refresh leg.** Left as a prose comment only (not a disabled `if (false)` block) — there is no refresh endpoint, and a dead branch would just be noise.
+- **`query-client.ts`.** Stock v5 defaults + `retry: false` + `refetchOnWindowFocus: false` (deterministic tests; same-origin backend makes a failed request a real error worth surfacing). The metrics 5-min `staleTime` override is deferred to **Phase 3.5** where the query is actually created (was Slice 4 before the 2026-09-10 re-scope). Invalidation-graph doc comment seeded with the Phase-1 edges + one stub line per later phase.
+- **`Providers.tsx`.** Order: `ErrorBoundary > QueryClientProvider > I18nextProvider > Suspense > (RouterProvider + ToastContainer)`. The 401→redirect subscriber is a null-rendering `UnauthorizedRedirect` component that registers `onUnauthorized(() => router.navigate({ to: '/login' }))` in an effect. `react-toastify/dist/ReactToastify.css` imported here.
+- **`test/render.tsx` — no router.** The plan said "a fresh in-memory router" per test; deferred. `renderWithProviders` gives a fresh retry-off `QueryClient`, a synchronous i18n instance built from the real `public/locales/en/*.json` bundles (`useSuspense: false`), and an optional `session` seed. Tests that need routing build it directly (`createAppRouter(createMemoryHistory(...))`) — this is what the guard test does. Full router-in-render can come in Slice 3 when the auth pages need `<Link>`/navigation context.
+- **`test/tokens.ts`** — not in the plan's file list; added because the jwt / store / router tests all need to mint tokens with a controlled `exp`. Unsigned (`header.payload.testsignature`) — only `getTokenExpiry` reads them.
+- **`test/setup.ts`** — now boots one MSW server (`onUnhandledRequest: 'error'`), and per test does `resetHandlers()` + RTL `cleanup()` + `clearSession()` + `localStorage.clear()`. Also stubs `window.scrollTo` (jsdom throws "Not implemented"; TanStack Router's scroll restoration calls it on every navigation and floods stderr otherwise).
+- **`main.tsx`** stopped rendering `<App/>`; the Slice-1 primitives gallery (`App.tsx` + `App.test.tsx`) stays on disk until Slice 4 per the plan.
+- **`.gitignore`** — added `.playwright-mcp/` (interactive browser-verification scratch from the `@playwright/mcp` server).
+- **Visual check done this time.** Booted the dev server and drove it with `@playwright/mcp`: `/` → `/login?redirect=%2F` (guard fires in a real browser), `/nonexistent` → the real 404 (serif numeral, hairline divider, cycling multilingual line, "Go to login" CTA with no session). Only console noise is a `favicon.ico` 404 — pre-existing (`index.html` has no favicon link), not in scope.
+- Deferred, unchanged: real auth pages (Slice 3), `AppShell`/`AppHeader` (Slice 4), MSW auth handlers (Slice 3). MSW **metrics** handlers move to Phase 3.5 with the query.
+
+### `src/api/`
+- `client.ts` — one axios instance, `baseURL: '/api'` (relative; the Vite proxy already forwards to `:5001`). Request interceptor attaches `Bearer` from `authStore.getState().token`. Response interceptor on 401: `clearSession()` then notify registered handlers. **Avoid the circular import** (client → router → routes → hooks → client) by exporting an `onUnauthorized(handler)` registry from `client.ts`; `app/Providers.tsx` registers `() => router.navigate({ to: '/login' })`. A retry-once refresh leg is written but disabled — no refresh endpoint exists.
+- `types.ts` — `ApiError` (`{ message: string }`, the only shape `backend/middleware/errorMiddleware.js` ever emits), `CursorPage<T>`, `Id`.
+
+### `src/stores/`
+- `authStore.ts` — Zustand + `persist` under a new key (`ladu.session`), **one** normalized shape:
+  ```ts
+  type SessionUser = { id, name, email, username, languages, uiLanguage, nativeLanguage, verified }
+  type AuthState = { user: SessionUser | null; token: string | null; setSession; clearSession }
+  ```
+  A single `toSessionUser(raw)` normalizer absorbs all four backend shapes: `id: raw.id ?? ''` (**`id` only — `_id` is a MongoDB artifact, `new-repo-build-plan.md` §4**; the auth serializers' `_id` alias was stripped in Slice 3, and this normalizer never read it), `nativeLanguage: raw.nativeLanguage ?? null` (login omits the key when null), `verified: raw.verified ?? true ? … : false` (the column is nullable). `onRehydrateStorage` guards the parse and drops malformed or expired state — this is what makes the `grep "JSON.parse(localStorage"` gate pass.
+- `uiStore.ts` — `selectedPoS`, search mode, review sidebar collapsed (unused until later phases; created now so the "only three stores" rule is visible).
+- `src/lib/jwt.ts` — `getTokenExpiry(token): number | null`, base64url-safe, **returns null on any malformed input instead of throwing** (the old `parseJwt` returned null and the caller then dereferenced `.exp`; study §8.4 #5). This plus `beforeLoad` is the *one* expiry-check seam.
+
+### `src/app/`
+- `query-client.ts` — `QueryClient` factory. Defaults stay at TanStack v5 stock (`staleTime: 0`) per migration-plan §5.3; the metrics query overrides to 5 min **when it lands in Phase 3.5**. **Carries the invalidation-graph doc comment**, seeded from migration-plan §5.2 and extended each phase. Phase-1 edge: `login / logout → queryClient.clear()`.
+- `feature-flags.ts` — env-derived flags. `globalSearch` and `notifications` default **off** in Phase 1 (no data source until Phases 3 and 6); `tags`/`friends` default on. Note `frontend/src/env.ts` currently reads `VITE_*` while the root `.env` still uses CRA-era `REACT_APP_*`, so every flag resolves via its default today — that is fine and intended.
+- `router.tsx` — code-based typed tree (D1). Root → `_public` layout and `_protected` layout → leaves. `_protected.beforeLoad` reads `authStore` + `isTokenExpired`, and `throw redirect({ to: '/login', search: { redirect: location.href } })` when unauthenticated. Every route from the `ui/00-global.md` table is registered now, with **thin placeholder pages** for `/addWord`, `/word/$wordId`, `/review`, `/practice`, `/user` — the Phase-1 gate is literally "visiting *any* protected route unauthenticated redirects", which needs those routes to exist.
+- `Providers.tsx` — `QueryClientProvider` + `I18nextProvider` + **`<Suspense fallback={<LoadingScreen/>}>`** (critical: i18next `useSuspense` defaults to true and today's `main.tsx` has no boundary — a second namespace would throw) + `RouterProvider` + `ToastContainer` (bottom-center, matching `.toast-stack`) + root `ErrorBoundary`.
+- `main.tsx` shrinks to mounting `<Providers/>`: the inline `new QueryClient()` at `main.tsx:8` moves into `app/query-client.ts`, and `<App/>` is retired once the router owns rendering. Keep the `./i18n` and `./styles.css` side-effect imports.
+
+### `src/routes/` + `src/components/common/`
+- `public-layout.tsx` (bare centered, no header — this is what replaces the old regex table *and* `NotFound`'s render-phase `onHideHeader` callback), `protected-layout.tsx`, `not-found.tsx`.
+- `LoadingScreen`, `PageTransition` (wraps `.page`), `ErrorState`, `EmptyState`.
+- **404 built for real** from `MOCKUPS/auth/404.html`: serif `clamp(64px,12vw,120px)` numeral, hairline divider, `aria-live="polite"` line cycling the four languages every 2600 ms with a 300 ms fade, and a single CTA — "Go to dashboard" when a session exists, "Go to login" otherwise.
+
+### Test infrastructure
+- `test/msw/{server.ts,handlers.ts}`, wired into `test/setup.ts` (`listen`/`resetHandlers`/`close`).
+- `test/render.tsx` — `renderWithProviders`, giving each test a **fresh** `QueryClient` (retry off), a fresh in-memory router, a reset `authStore`, and an i18n instance built from **inline resources imported from `public/locales/en/*.json`** with `useSuspense: false`. The app's http-backend must not fetch over the network in tests.
+
+**Runnable:** `/nonexistent` renders the real 404; `/` redirects to a stub `/login`; a hand-planted malformed `localStorage` value is discarded rather than crashing the boot.
+
+**Tests:** `authStore` normalization across all four backend shapes + guarded rehydration; `getTokenExpiry` on malformed/base64url/expired input; the 401 interceptor clearing the session and firing the handler; `_protected.beforeLoad` redirect.
+
+---
+
+## Slice 3 — Auth pages
+
+**Goal:** register → verify → login → logout works end to end against the real backend.
+
+### Outcome — what actually landed, and where it diverged from the plan below
+
+- **`_id` sweep widened to Option B (agreed with the user 2026-09-08).** Rather than only the two serializers Slice 3's frontend reads, **every** `_id` in the auth/user/metrics backend surface was stripped now: `serializeUser` (drop the alias line — the spread already carries `id`), `serializeLoginUser` + `publicUserResponse` (return `id`, not `_id`), `authMiddleware` (the `serializeAuthenticatedUser` wrapper deleted; `req.user = user`), `getBasicUserMetrics`'s internal `{ _id: req.user.id }` call arg, and `metricController.calculateBasicUserMetrics`'s `{ _id }` param type → `{ id }`. **Slice 5's backend scope shrinks accordingly** to just the two unrelated leaks (bcrypt hash on `getUserById`, `passwordTokens` on `/me`) + the phase gate.
+  - Tests updated for the sweep: `backend/tests/auth.test.js` (3 `_id` assertions → `id`, + 2 `not.toHaveProperty('_id')`); and the `registerAndLogin` call sites in `tests/{words,exercises,tags,notifications}.test.js` that read `data._id` / `userA._id` off the **login response** → `.id` (the word/tag-response `_id`s in those files are Phase 2/4 scope and left alone). Backend suite back to green after this.
+- **Schemas are factory functions** `buildLoginSchema(t)` / `buildRegisterSchema(t)` / `buildResetRequestSchema(t)` / `buildResetSetSchema(t)` (+ `buildResetSchema(t, isSetMode)` selector), not module constants — so validation messages localise (the old app hard-coded English). Unit tests pass an identity `t` and assert on the i18n *keys*.
+- **`errors.ts`** maps 12 verbatim controller `throw new Error(...)` strings → keys under a new `loginRegister:apiErrors.*` block, `common:errors.somethingWrong` fallback. `getApiErrorMessage` (from `api/types`) does the extraction.
+- **`useLogout` added** (not in the plan's hook list) — `clearSession()` + `queryClient.clear()` + `navigate('/login')`. The Slice-4 UserMenu will consume it; the integration suite needed a logout seam now. `useLogin` navigates via `router.history.push(redirectTo)` (the string-path escape hatch — `redirectTo` is an arbitrary in-app path, not a statically-known route).
+- **`AuthCard`** shared layout helper added (`features/auth/components/`) — the `.auth-shell` + logo + `.card` + `.auth-links` frame for all four screens.
+- **i18n**: reused existing `loginRegister` keys where possible; added `apiErrors.*`, `login.submit`/`submitting`, `register.submit`/`submitting`/`emailSentToast`, `resetPassword.submit{Request,Set}`/`submitting*`, `unverifiedWarning`, `userVerification.{validatingSubtitle,enteringIn,enterNow,backToSignIn}`, `switchSectionButtons.{createAccount,signIn}`, `formLabels.{newPassword,confirmNewPassword}`, `errors.passwordMin`. **Fixed** `userVerification.validating` ("Password reset" → "Validating your account…") in all four locales. `common.json` gained `appTitle` + `notFound.lines` (the deliberately-all-languages 404 array, identical per locale); `not-found.tsx` now reads `common:notFound.lines` with the hard-coded array as fallback. **Estonian additions want a native-speaker check** (`ee/loginRegister.json`, `ee/common.json`).
+- **`getRouteApi` ids need the `_public` layout prefix** — `getRouteApi('/_public/login')`, `'/_public/user/$userId/verify/$tokenId'`, `'/_public/resetPassword/{-$userId}/{-$tokenId}'`.
+- **Verify page**: countdown redirect via `setTimeout` (3→0), "Enter now" button for immediate entry; a `useRef` fires the mutation exactly once. Missing/blank params can't reach it — the route requires `$userId`/`$tokenId`, so a bad URL is a route no-match → the real 404, no extra handling needed. A bad *token* → the failure card.
+- **Test infra**: `renderApp()` added to `test/render.tsx` — mounts the real `createAppRouter` tree on an in-memory history inside fresh providers, **async** (`await router.load()` before asserting on `router.state`, mirroring `router.test.tsx`). `test/msw/authHandlers.ts` = `makeAuthHandlers(seed?)`, a per-call in-memory fake of the seven `/api/users*` endpoints returning the post-sweep (`id`-only) shapes; base `test/msw/handlers.ts` stays empty, handlers installed per-test via `server.use(...)`. `router.test.tsx`'s 404 test now wraps in `I18nextProvider` (not-found became i18n-dependent).
+- **Tests**: 9 → 74 frontend (`schemas.test.ts` 9, `errors.test.ts` 14, `auth-flow.test.tsx` 9 integration scenarios incl. decision-1 unverified branch, mapped bad-creds error, expired-token + no-session protected redirects, logout). `npm run build -w frontend` + `npm test -w frontend` green; `grep "JSON.parse(localStorage" frontend/src` = 0. Backend suite green after the test-call-site fixes.
+- **No e2e spec yet** and **no browser visual check** — the Phase-1 e2e (`phase-1-auth.spec.ts`) needs the real Home page to land on, so it's written in Slice 4–5 per §9; pixel fidelity of the auth screens against `MOCKUPS/auth/*.html` is unverified (eyeball via `npm run dev`).
+- Deferred, unchanged from the plan: `getMe` / `updateProfile` are in `api.ts` but first exercised in Slice 4 (LanguageSelector) / the guard tests.
+
+### `src/features/auth/`
+- `api.ts` — `login`, `register`, `verifyEmail`, `requestPasswordReset`, `setPassword`, `getMe`, `updateProfile`. Two contracts to preserve exactly:
+  - `PUT /api/users/updatePassword` takes **`{ userId, password, token }`** — not `{ tokenId }`.
+  - `PUT /api/users/updateUser` requires `email` as a self-confirmation field it never updates, and **clears `nativeLanguage` whenever the key is omitted** — `updateProfile` must always send it explicitly.
+- `types.ts` — request/response interfaces re-pinned against `snapshot/endpoints.md` and the live controller.
+- `schemas.ts` — yup: `loginSchema`, `registerSchema` (password ≥ 8, `password2` matches and is **not** sent to the API), `resetSchema` **mode-conditional** on whether both route params are present.
+- `hooks.ts` — `useLogin`, `useRegister`, `useVerifyEmail`, `useRequestReset`, `useSetPassword`. Toasts fire from `onSuccess`/`onError`; `queryClient.clear()` on login and logout. No status booleans anywhere — `isPending` drives the disabled+spinner button state.
+- `errors.ts` — maps the backend's message strings ("Invalid credentials", "Email already in use", "Username already in use", "Invalid Link (no user match)", …) onto i18n keys, falling back to `common.errors.somethingWrong`. The backend emits `{ message }` and nothing else, so string matching is the only option available; isolating it in one file keeps that ugliness contained.
+- `components/` + `pages/` — `LoginForm`, `RegisterForm`, `ResetPasswordForm`, `VerifyEmailStatus`; one page each.
+
+### Behaviour, per `ui/01-auth.md` + the mockups
+- **Login** — email + password, full-width primary, links "Not registered? · Forgot password?". Success **and `verified === true`** → `setSession` → redirect to the `redirect` search param or `/`. Success but `verified !== true` → `toast.warning` and **stay on `/login` with no session written** (decision 1). 400 → mapped error toast.
+- **Register** — the two-column grid from `MOCKUPS/auth/register.html` (Name | Username, Email spanning, Password | Confirm) with `.req` stars; "Create account" (grow) + "Reset" (secondary, clears values *and* errors and refocuses field 1); both disabled while pending. Success → `toast.info` naming the email → `/login` (decision 1).
+- **Verify** — the three states from `MOCKUPS/auth/verify.html` in one 420px card: spinner ring / success check + live "Entering Ladu in *n*s" countdown from 3 with an "Enter now" skip / failure ×. This is the one response carrying both a profile and a token, so success writes the session and enters the app. Missing or malformed params → 404 + error toast.
+- **Reset password** — one route, two modes keyed on `userId && tokenId`. Request mode: email + "Send reset link". Set mode: new + confirm password + "Update password". Both → success toast → `/login`.
+
+### i18n
+Add the missing keys to **all four** locales (decision 4): backend-error mappings, unverified-account warning, `common.appTitle`, the 404 cycling lines, and a fix for `loginRegister.userVerification.validating`, which currently reads "Password reset" in every language. Estonian additions flagged in the slice summary for review.
+
+**Runnable:** with `npm run dev` and a local Postgres, a real account can be registered, verified from the emailed link, logged in, and logged out.
+
+**Tests:** the Phase-1 gate integration suite over MSW — register → verify → login → logout → expired-token → protected-redirect; plus yup schema unit tests (including reset's mode-conditional branch) and `errors.ts` mapping.
+
+---
+
+## Slice 4 — App shell + Home ✅ done (2026-09-10)
+
+**Goal:** logging in lands on a real Home page inside the real header. Home in Phase 1 is only the welcome banner — the full Dashboard (metrics query, stat cards, charts) is **Phase 3.5** (decisions 5–7).
+
+### Outcome — what actually landed, and where it diverged from the plan below
+
+- **Everything in the plan shipped.** New: `components/layout/{AppShell,AppHeader,LanguageSelector,UserMenu}.tsx`, `components/common/FlagIcon.tsx`, `lib/{avatar,language}.ts`, `features/metrics/components/WelcomeBanner.tsx` + `features/metrics/pages/DashboardPage.tsx`. `routes/protected-layout.tsx` now just renders `<AppShell><PageTransition><Outlet/></AppShell>`; `router.tsx` `/` leaf → `DashboardPage`. Slice-1 gallery (`App.tsx` + `App.test.tsx`) deleted. Frontend suite **74 → 81** (`WelcomeBanner` 2, `LanguageSelector` 1, `AppHeader` nav-gating 3, `UserMenu` 2, −1 from the removed `App.test.tsx`); `tsc -b` + `vite build` green.
+- **`useUpdateProfile` added to `features/auth/hooks.ts`** (not a new `features/metrics` api) — a `useMutation` over `authApi.updateProfile` that folds the fresh row back via `setSession(user)` (the tokenless `updateUser` response keeps the current token through `setSession`'s fallback chain). `LanguageSelector` builds the **full 6-field payload** from the session (`email/name/username/languages/uiLanguage/nativeLanguage`) — the `nativeLanguage`-omission trap is covered by a test asserting the exact request body.
+- **i18n reuse over new keys.** Nav labels, `settings.*` menu items, `notImplemented`, `userData.errors.notEnoughLanguages` all already existed. Added only: `common:header.goToAccount` + `common:header.menu` (mobile hamburger a11y label — needed a *distinct* label from the UserMenu's `openSettings` so tests/queries don't collide) and `dashboard:home.{emptyTitle,emptyDescription,addFirstWords}`, in all four locales. **Estonian additions (`ee/common.json`, `ee/dashboard.json`) want a native-speaker check.**
+- **`WelcomeBanner` cycling greeting**: rotates the four `dashboard:welcome.spinning` strings every 3800 ms, each rendered in its own language via `i18n.getFixedT(code, 'dashboard')` after an effect calls `i18n.loadLanguages([...])` (wrapped so it's a harmless no-op with no backend, e.g. in tests). The line carries `data-lang` so the cycle is testable without depending on string content. `welcome.title` ("Welcome, {{name}}") is the `<h1>` — **`auth-flow.test.tsx:67` updated** from the old `heading "Dashboard"` placeholder assertion to `/Welcome, Ada/`.
+- **`button.tsx` wrapped in `forwardRef`** — Slice 1 flagged this would be needed "whenever a primitive is first wired to a ref"; `sheet.tsx`'s built-in `SheetPrimitive.Close render={<Button/>}` is that first consumer (mobile nav Sheet), and without it React 18 logs "Function components cannot be given refs". Mirrors the `input.tsx` fix.
+- **`UserMenu` menu label** must be wrapped in `<DropdownMenuGroup>` — Base UI's `MenuGroupLabel` throws "MenuGroupContext is missing" outside a group (caught by the logout test). Menu actions dispatch by **stable id** (`'dashboard' | 'account' | 'notifications' | 'logout'`), not the translated label the old `Header` string-compared.
+- **Mobile**: below 920px the desktop `.app-nav` is `max-[920px]:hidden` and a hamburger `SheetTrigger` (`hidden max-[920px]:grid`) opens a left `Sheet` with the same `NavLinks` (shared component, `onNavigate` closes the sheet). The `.searchbox` was already hidden at that breakpoint by `globals.css`.
+- **Browser-verified** with `@playwright/mcp` against `npm run dev -w frontend` (no backend): seeded a `ladu.session` blob → `/` renders the shell + welcome banner + empty-state CTA; language dropdown lists EN/ES/DE/EE and the greeting cycles through all four; `updateUser` 500s without a backend and the session correctly does **not** change (no optimistic write) + an error toast fires; UserMenu → Logout clears the session and lands on `/login`; at 640px the hamburger Sheet opens and the <2-languages gate on "add word" raises the "Go to Account" toast without navigating.
+- Deferred, unchanged: `GlobalSearch` and the notification bell are `featureFlags`-gated **off** (rendered as inert stubs only when flipped on); no `VerifyEmailBanner` (decision 1). The Phase-1 e2e spec is Slice 5.
+
+### `src/components/layout/`
+- `AppShell` — sticky 52px translucent header (`color-mix(in oklch, var(--color-bg) 90%, transparent)` + `backdrop-blur-[10px]`) over `.container.page`; Review will later opt into `.container-wide`.
+- `AppHeader` — logo (24px teal rounded-square mono "L" + serif wordmark) · nav pills Add Word / Practice / Review with `.active` styling from TanStack Router's active state · `.grow` · GlobalSearch · LanguageSelector · notification `icon-btn` · UserMenu.
+  - **Nav gating:** Add Word and Review require ≥2 configured languages; otherwise a toast with a "Go to Account" action → `/user`.
+  - `GlobalSearch` and the notification button are **flag-gated off** in Phase 1. Below 920px the searchbox hides and nav collapses into a `Sheet`.
+- `LanguageSelector` — EN/ES/DE/EE with flags, persisting `uiLanguage` through `updateProfile` → `setSession`; an effect on `user.uiLanguage` calls `i18n.changeLanguage(...)`.
+- `UserMenu` — Radix dropdown on the initials avatar. Items keyed by **stable ids, not translated strings** (the old app dispatched on translated labels — `pages-auth-shell.md:220`). Logout → `clearSession()` + `queryClient.clear()` + `/login`.
+- **No `VerifyEmailBanner`** — unreachable under decision 1; documented in `CLAUDE.md`.
+
+### `src/components/common/` + `src/lib/`
+- `FlagIcon` (serves `public/{GB,DE,ES,EE}.svg`), `lib/avatar.ts` (deterministic initials + colour, ported from `generalUseFunctions`), `lib/language.ts` (`langKeyByLabel`, native names, ordering).
+
+### `src/features/metrics/` — Home page only (no query)
+- `pages/DashboardPage.tsx` — **just** the `WelcomeBanner`: "Welcome back, {name}" + a one-line greeting cycling through the four UI languages (interval + fade), using the `welcome.*` keys already present in `dashboard.json` for all four locales. Below it, an `EmptyState` (from `components/common/`) with an "Add your first words" CTA → `/addWord`.
+- **No `api.ts` / `keys.ts` / `hooks.ts` yet**, no `useUserMetrics`, no `UserInfoPanel`, no `MetricsPanel`, no charts. Kept in `features/metrics/` (not a new folder) so Phase 3.5 grows the query + panels into this same feature and `frontend-structure.md`'s tree (`:98-101`, `:184`) stays accurate untouched.
+- `router.tsx` — the `/` leaf swaps its `Placeholder` for `DashboardPage`. **Heads-up:** `frontend/src/features/auth/auth-flow.test.tsx:67` currently asserts `findByRole('heading', { name: 'Dashboard' })` (the placeholder's literal heading) — update that assertion to whatever heading `WelcomeBanner` renders when this lands.
+
+Remove the Slice-1 primitives gallery from `App.tsx`.
+
+**Runnable:** the full loop — register, verify, log in, land on the Home page (welcome banner + working header nav), switch UI language, log out.
+
+**Tests:** header nav gating at <2 languages; UserMenu logout clearing session + cache; LanguageSelector sending a complete `updateProfile` payload (guarding the `nativeLanguage` trap); `WelcomeBanner` renders the user's name and cycles the greeting.
+
+---
+
+## Slice 5 — Backend hygiene + phase gate
+
+### Outcome — parts A (backend hygiene), B (e2e spec) and C (gate + docs) all done 2026-09-10 — **Phase 1 complete**
+
+- **A1 — bcrypt hash + reset tokens on `GET /api/users/getUser/:id`:** `serializeUser` is no longer a `{ ...user }` pass-through — it is now an explicit **allowlist** (`id, name, email, username, languages, uiLanguage, nativeLanguage, verified, createdAt, updatedAt`). `getUserById`, `updateUser` and `verifyUser` all serialize through it, so none can leak `password` or `passwordTokens` even though `findUserById` selects the full row. The now-redundant `delete (userWithToken as any).password` in `verifyUser` was removed.
+- **A2 — `passwordTokens` on `/me` + `updateUser`:** dropped `passwordTokens: users.passwordTokens` from **both** `userColumnsWithoutPassword` objects (`userController.ts` and `authMiddleware.ts`). Verified (grep + the still-green reset-flow tests): no handler reads `req.user.passwordTokens`; `requestPasswordReset` and `updatePassword` read the column off their own full-row `findUserByEmailInsensitive` / `findUserById` queries and are unaffected.
+- **A3 — tests:** added `not.toHaveProperty('password' | 'passwordTokens')` assertions to the verify, `/me` and `updateUser` cases, plus a new `GET /api/users/getUser/:id` describe block (authed happy path + 401). Backend suite **130 → 132 green**.
+- **A4 — logged for Phase 7** (no code): account-existence leak on `requestPasswordReset` (returns 400 "no user registered" — enumerable); `sendEmail` swallows SMTP failures (the suite shows real Gmail `EAUTH`/454 rate-limit errors that never fail a request) and its `verifyEmailBeforeSend`-style `Boolean("false") === true` bug. These do not block Phase 1.
+- **C — gate:** `grep -r "JSON.parse(localStorage" frontend/src` = 0; every protected route (`/`, `/addWord`, `/word/:id`, `/review`, `/practice`, `/user`, `/user/:id/notifications`, `/tag/:id`) is a child of `_protected` whose `beforeLoad` redirects (guard covered by `router.test.tsx` + `auth-flow.test.tsx`); `npm test` (backend 132/132), `npm test -w frontend` (81/81), `npm run build -w frontend` all green.
+- **Kill-switch pace note** (study §11b): Phase 1 ran as **5 slices over three working sessions (2026-09-08 → 2026-09-10)**. No baseline metric is defined in the migration plan, so this is a judgement call: the slices landed roughly on the scope sketched here, the design-system + form primitives (the reusable-cost part) are now paid down, and nothing in auth/shell forced a rethink of the stack choices. **Verdict: continue the rewrite** — no signal that the full effort will exceed ~2× the in-place migration. Re-evaluate again if Phase 3 (the form engine) overruns.
+- **B — e2e spec** (`e2e/tests/phase-1-auth.spec.ts`, `test.describe.serial`, 4 tests, all green — `npm run test:e2e` = **7/7** with the Phase-0 smoke):
+  - `register -> verify -> Home -> logout -> form login` — the full UI walk: register through the real form (asserts "Create account" stays disabled at 0 and 1 language, enables at 2), lands on `/login`; the verification token is read straight from the `tokens` table (no inbox) via `e2e/fixtures/db.ts`; the verify page + "Enter now" enters the app on Home (Welcome heading + nav); the user menu logs out; then a second sign-in through the `/login` form against the now-verified row.
+  - `decision 1 — an unverified account cannot sign in` — account created via `POST /api/users` (fast), UI login shows the warning toast and stays on `/login`.
+  - `protected routes require a valid session` — no session → `/` and `/review` redirect to `/login` (with `redirect=`); a planted **expired-token** `localStorage['ladu.session']` is discarded and `/` still redirects.
+  - `a UI language chosen on a public route persists across reload and into the session` — pick Español in the public selector on `/login` → page is Spanish → reload → still Spanish (i18next `localStorage` cache) → sign in → Home is Spanish and the protected header language button shows `ES`.
+  - Infra: `pg` + `dotenv` + `@types/pg` added to the `e2e` workspace; `fixtures/db.ts` opens a `pg.Pool` on the repo-root `.env` `DATABASE_URL` and exposes `getVerifyToken` + best-effort `deleteUsersByEmail`. The suite runs against **`keelapp_v2_dev`**, uses unique `e2e-<ts>-<n>@ladu.test` emails, and `afterAll` deletes them (verified: 0 rows left, user count unchanged). CI still has no `e2e` job (Phase 8, unchanged).
+- **Phase 1 is done.** Remaining: the user's baseline commit.
+
+### Final Phase-1 change — registration language picker + public UI-language selector (done 2026-09-10)
+
+A user-requested addition on top of A+C, folded in before the e2e spec. **Two deviations from the blueprint** (`ui/01-auth.md` covers neither): a language-selection step in registration, and a UI-language selector on the public routes. Decisions taken with the user: (1) `users.languages` stores **selection order** (tap order), not a fixed EN/ES/DE/EE order — explicit reorder stays Phase 7; (2) the backend **validates** — every language must be one of `English | Spanish | German | Estonian` and **< 2 → 400** (`uiLanguage` likewise validated if sent); (3) the public selector is on the **auth routes only** (`_public` layout), not the 404 page.
+
+- **Backend (`userController.ts`):** `SUPPORTED_LANGUAGES` + `isSupportedLanguage` + `normalizeRegistrationLanguages` (discriminated result, since `errorMiddleware` only reads `res.statusCode`). `registerUser` reads `languages` (>= 2 supported, de-duped in order) and `uiLanguage` (supported, else default `"English"`) from the body and inserts them instead of the `[]` / `"English"` literals. `loginUser` reads optional `uiLanguage`: if supported and changed it `UPDATE`s the row + reflects it in the `serializeLoginUser` response; unsupported → 400; absent → untouched. No migration (`users.languages` / `uiLanguage` already exist).
+- **Backend tests:** `auth.test.js` `validUser` gains `languages: ['English','Spanish']`; the register-response assertion updated; 6 new register cases (< 2 / omitted / unsupported language / order preserved / uiLanguage persist / unsupported uiLanguage) + 3 new login cases. The 5 other `registerAndLogin` / inline-register helpers (`words`, `tags`, `notifications`, `autocomplete`, `exercises`) now send 2 valid languages. Full backend suite **141/141** — but note it stayed flaky on one run because the non-`auth` test files don't mock `sendEmail` and hit live Gmail SMTP (the A4 issue); a clean re-run is green.
+- **Frontend — shared:** `lib/language.ts` gains `labelByI18nCode` (region-stripped, unknown → `"English"`) + `SUPPORTED_LANGUAGE_LABELS`. New `components/layout/LanguageMenu.tsx` (presentational dropdown) — `LanguageSelector` (protected, persists via `updateProfile`) and the new `PublicLanguageSelector` (public, `i18n.changeLanguage` only — the LanguageDetector `localStorage['i18nextLng']` cache is what carries the choice across reload and into the app) both render it. `public-layout.tsx` gets a top-right bar hosting `PublicLanguageSelector`.
+- **Frontend — registration:** `.chip` ported into `globals.css`. New `features/auth/components/LanguagePicker.tsx` — 4 flag+native-name toggle chips, `aria-pressed`, append-on-select (tap order). `schemas.ts`: `RegisterValues.languages: string[]` + `.min(2, 'common:userData.errors.notEnoughLanguages')`. `RegisterForm.tsx`: the picker after "confirm password", `useForm({ mode: 'onChange' })`, "Create account" `disabled={pending || !formState.isValid}`, submit sends `languages` + `uiLanguage: labelByI18nCode(i18n.language)`. `LoginForm.tsx`: submit also sends `uiLanguage`. `types.ts`: `RegisterRequest` += `languages`/`uiLanguage`, `LoginRequest` += `uiLanguage?`. `errors.ts`: maps the two backend language messages (defence-in-depth — the UI already gates both).
+- **i18n (4 locales, EE flagged):** `loginRegister:register.{languagesLabel,languagesHint}` + `loginRegister:apiErrors.{notEnoughLanguages,invalidLanguage}`. yup message reuses the existing `common:userData.errors.notEnoughLanguages`; selector aria-label reuses `common:header.settings.uiLanguage`.
+- **Frontend tests:** new `lib/language.test.ts` (4), `LanguagePicker.test.tsx` (1), `PublicLanguageSelector.test.tsx` (1); `schemas.test.ts` += the languages rule (updated the "complete payload" case too); `auth-flow.test.tsx` — the register scenario now asserts the button is disabled until 2 chips are picked + checks the stored `languages`, and a new scenario picks Español in the public selector on `/login` then asserts `session.uiLanguage === 'Spanish'` and `i18n.language === 'es'` after sign-in. MSW `authHandlers.ts` enforces the same language gate and persists `uiLanguage`. Frontend suite **81 → 89**; `tsc -b` + `vite build` green.
+- **Browser-verified** (`@playwright/mcp`, dev server, no backend): register page shows the language chips + the public selector, "Create account" stays disabled with no languages / one language, chips select in tap order; switching the public selector to Español re-renders the whole auth page in Spanish, and the choice persists to `/login` across a full navigation.
+- **Landed** — covered by the Phase 1 e2e spec (register scenario asserts the 0/1/2-language button gate + the stored `languages`; a dedicated scenario picks Español in the public selector and checks it reaches the session).
+
+### Final Phase-1 change — Account page (profile + language editing) (done 2026-09-10)
+
+A user-requested addition on top of the registration picker, folded into Phase 1 as its "one last modification". The blueprint's full Account page (tags, friends, drag-to-reorder languages) stays **Phase 7** — this ships only the profile-editing subset the mockup (`MOCKUPS/profile.html`) covers. **Decisions taken with the user:** (1) `updateUser` now **validates `languages` server-side** exactly as registration does (>= 2 supported, de-duped, order preserved) — omitting the key still keeps the stored selection; `uiLanguage` is validated too when sent. (2) Editable fields are **name, username, languages only** — `nativeLanguage` is passed through untouched, email/password are not editable here, and the mockup's decorative "Member since" / "N words on the shelf" are dropped (no Phase-1 data source; metrics is Phase 3.5). (3) The **header stays as implemented** (`AppShell`/`AppHeader`) — the mockup's own header is ignored. (4) The zero-languages edge case (only reachable for legacy/hand-edited rows — v2 registration always writes >= 2) renders a `.banner.warning` in the read-only view with a shortcut into edit mode.
+
+- **Backend (`userController.ts`):** `normalizeRegistrationLanguages` renamed → `normalizeLanguageSelection` (logic unchanged; now shared by `registerUser` and `updateUser`). `updateUser` runs it on `languages` when the key is present (→ 400 on `<2` / unsupported), keeps `userData.languages` when absent, and rejects an unsupported `uiLanguage`. `auth.test.js` `PUT /api/users/updateUser` += 3 cases (valid >= 2 with order preserved / `<2` → 400 / unsupported → 400). Backend suite **141 → 144**.
+- **Frontend — shared move:** `LanguagePicker` moved `features/auth/components/` → **`components/common/`** (now used by registration *and* the Account form); `RegisterForm` import updated. No behaviour change.
+- **Frontend — new `features/account/`:** `schemas.ts` (`buildProfileSchema(t)` — name/username required, `languages.min(2)`, message keys reused from registration); `components/ProfileForm.tsx` (RHF + yup, `mode: 'onChange'`, Save `disabled={pending || !isValid}`; email shown disabled; sends the **full 6-field `updateProfile` payload** incl. `nativeLanguage`/`uiLanguage` passthrough via `useUpdateProfile().mutate(body, { onSuccess })` — success toast + exit edit mode at the call site, the hook already folds the row into the session); `pages/AccountPage.tsx` (identity head + view/edit toggle; read-only view = detail rows + language chips or the zero-languages banner). `app/router.tsx` `/user` leaf swapped from the `Placeholder` to `AccountPage`.
+- **i18n:** new `account` namespace (added to `i18n.ts` `ns` + `test/render.tsx`), `account.json` in all four locales (**EE flagged for review**). Everything else reuses existing keys — `common:buttons.{editProfile,saveChanges,cancel}`, `common:status.saving`, `common:userData.toastMessages.updateSuccess`, `common:userData.errors.notEnoughLanguages`, `loginRegister:formLabels.*`, `loginRegister:errors.{name,username}Required`.
+- **Frontend tests:** `features/account/schemas.test.ts` (5), `features/account/pages/AccountPage.test.tsx` (4 — read-only render, zero-languages banner + its edit shortcut, Save gated on name/username/>= 2 languages, save sends the full payload + folds into session + returns to view). MSW `authHandlers.ts` `updateUser` gained the same `>= 2` language gate. Frontend suite **89 → 98**; `tsc -b` + `vite build` green.
+- **e2e:** the first `phase-1-auth.spec.ts` scenario now continues past login into `/user` — Edit Profile → rename + add a third language → Save → assert the success toast, return to read-only, `3 of 4 selected`, and persistence across a reload. `npm run test:e2e` = **7/7** (the SMTP `EAUTH`/454 noise in the log is the known A4 `sendEmail` issue, not a failure).
+
+### Backend fixes (decision 3)
+- ~~**Strip the `_id` alias**~~ — **done in Slice 3** (Option B sweep, agreed with the user): `serializeUser` / `serializeLoginUser` / `publicUserResponse` / `authMiddleware` / `getBasicUserMetrics` internal arg / `metricController.calculateBasicUserMetrics` param, plus `backend/tests/auth.test.js` and the `registerAndLogin` reads in `tests/{words,exercises,tags,notifications}.test.js`. Nothing left here.
+- `backend/controllers/userController.ts` — `getUserById` returns the bcrypt hash because `serializeUser` spreads a raw row without the `delete userWithToken.password` that `verifyUser` does. Strip it. (Note: after Slice 3, `serializeUser` is now `(user) => ({ ...user })` — a bare pass-through; consider deleting the wrapper and having `getUserById` / `updateUser` / `verifyUser` shape the row directly, minus `password`.)
+- `backend/middleware/authMiddleware.ts:8-20` — drop `passwordTokens` from `userColumnsWithoutPassword`, so it stops reaching the client through `/me` and `updateUser`. **Grep for `req.user.passwordTokens` consumers first** — `requestPasswordReset` and `updatePassword` read the column via their own queries and should be unaffected, but this must be verified, not assumed.
+- Update `backend/tests/auth.test.js` accordingly; the full backend suite must stay at 130/130 green.
+- Log the untouched account-existence leak on `requestPasswordReset`, plus the `sendEmail` issues (swallowed errors, `Boolean("false") === true`), as known issues for Phase 7.
+
+### Gate verification
+- `grep -r "JSON.parse(localStorage" frontend/src` → **0 hits**.
+- Unauthenticated visits to `/`, `/addWord`, `/word/x`, `/review`, `/practice`, `/user` all redirect to `/login`.
+- `npm test` (backend Jest), `npm test -w frontend` (Vitest), `npm run build -w frontend` all green.
+- Update `new-repo-build-plan.md` §9 with the new state (the roadmap/progress table moved there from `CLAUDE.md` in commit `891ffba`), and record the deliberate deviations: no `VerifyEmailBanner`; five shadcn primitives deferred to Phase 2; Dashboard/metrics re-scoped to Phase 3.5 (2026-09-10). The `/api/users/getUserMetrics` path correction is now recorded in the Phase 3.5 plan, not here.
+- **Record elapsed effort for the kill-switch evaluation** (study §11b). Worth flagging now: the docs mandate "record pace" but define no metric and no Phase-1-equivalent baseline in the migration plan — we will record wall-clock and slice count, and the comparison will be a judgement call.
+
+---
+
+## Verification
+
+Per slice, before handing back for commit:
+
+```bash
+npm run build -w frontend     # tsc -b + vite build
+npm test -w frontend          # vitest
+npm test                      # backend jest (slice 5)
+```
+
+End-to-end, after Slice 4:
+
+```bash
+npm run docker:up && npm run db:migrate
+npm run dev                   # backend :5001 + vite
+```
+
+Then, in the browser: register a new account → open the verification link from the email (or read the `tokens` row via `npm run db:studio`) → land in the app verified on the Home page (welcome banner) → switch UI language → log out → confirm `/` redirects to `/login`.
+
+## Risks
+
+- **shadcn init may clobber `styles.css` or fork the tsconfig.** Run it after committing Slice 1's config changes so any damage is a visible diff, and keep our token files authoritative over anything it generates.
+- **`@theme` cannot hold `color-mix()` values.** The derived-tone split above is load-bearing; if a derived tone is needed as a real utility rather than an arbitrary value, it must be flattened to a literal.
+- **`noUnusedLocals` + `noUnusedParameters` are on and `build` runs `tsc -b`.** shadcn-generated components occasionally carry unused destructured props or imports, which will fail the build rather than warn. Expect to trim a few generated files; do not relax the compiler options to work around it.
+- **i18next Suspense.** The moment a second namespace is used without the boundary from Slice 2, the app throws. Slice 2 must land before Slice 3.
+- **`ee` is not a valid ISO code for Estonian** (`et` is). `LanguageDetector` will never auto-detect it. Carried over deliberately from the old app; do not "fix" it without a migration.

@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Account · Ladu</title>
+<link rel="stylesheet" href="assets/app.css" />
+<style>
+  main { padding-block: 20px 56px; }
+  .profile-card { max-width: 720px; }
+  .profile-head {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px; border-bottom: 1px solid var(--border);
+  }
+  .profile-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--fg-soft2); border: 1px solid var(--border);
+    display: grid; place-items: center;
+    font-size: 19px; font-weight: 700; color: var(--fg); letter-spacing: .02em;
+    flex: none;
+  }
+  .psection { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .psection:last-of-type { border-bottom: 0; }
+  .psection .phead {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-bottom: 12px;
+  }
+  .info-row {
+    display: grid; grid-template-columns: 96px 1fr; gap: 12px;
+    align-items: baseline; padding: 6px 0;
+  }
+  .info-row .ilabel { font-size: 13px; color: var(--muted); }
+  .info-row .ivalue { font-size: 14.5px; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+  .ro-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ro-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 26px; padding: 0 10px;
+    border: 1px solid var(--border); border-radius: 999px;
+    background: var(--fg-soft); font-size: 12.5px; font-weight: 500; color: var(--fg);
+  }
+  .ro-chip .flag { width: 16px; height: 12px; }
+
+  /* edit form */
+  .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .edit-grid .span2 { grid-column: 1 / -1; }
+  @media (max-width: 560px) { .edit-grid { grid-template-columns: 1fr; } }
+  .input:disabled, .input[disabled] {
+    background: color-mix(in oklch, var(--fg) 4%, var(--surface));
+    color: var(--muted); cursor: not-allowed; border-color: var(--border);
+  }
+  .lang-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lang-chip {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    height: 38px; padding: 0 14px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: color-mix(in oklch, var(--fg) 3%, var(--surface));
+    font-size: 14px; font-weight: 500; color: var(--fg);
+    transition: border-color .1s ease, background .1s ease;
+  }
+  .lang-chip:hover { border-color: color-mix(in oklch, var(--fg) 30%, transparent); }
+  .lang-chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .lang-chip[aria-pressed="true"]:hover { background: color-mix(in oklch, var(--accent) 88%, black); }
+  .lang-chip .check { display: none; }
+  .lang-chip[aria-pressed="true"] .check { display: block; }
+
+  .form-actions { display: flex; align-items: center; gap: 8px; margin-top: 18px; }
+  .form-actions .grow { flex: 1; }
+
+  /* avatar menu */
+  .menu-anchor { position: relative; }
+  .avatar-menu {
+    position: absolute; top: calc(100% + 6px); right: 0; z-index: 50;
+    min-width: 180px; padding: 6px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.12);
+  }
+  .avatar-menu[hidden] { display: none; }
+  .avatar-menu a, .avatar-menu button {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    height: 34px; padding: 0 10px; border-radius: 7px;
+    font-size: 13.5px; font-weight: 500; color: var(--fg); text-align: left;
+  }
+  .avatar-menu a:hover, .avatar-menu button:hover { background: var(--fg-soft); }
+  .avatar-menu a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .avatar-menu .sep { height: 1px; background: var(--border); margin: 5px 4px; }
+  .avatar-menu .logout { color: var(--danger); }
+</style>
+</head>
+<body>
+
+<header class="app-header" data-od-id="app-header">
+  <div class="container app-header-inner">
+    <a class="logo" href="index.html"><span class="logo-mark">L</span>Ladu</a>
+    <nav class="app-nav">
+      <a href="word-editor.html">Add Word</a>
+      <a href="#" title="Spec 05 pending">Practice</a>
+      <a href="review.html">Review</a>
+    </nav>
+    <div class="grow"></div>
+    <div class="searchbox">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input placeholder="Search words or tags…" aria-label="Global search" />
+      <span class="mode-switch" role="group" aria-label="Search mode">
+        <button aria-pressed="true">Word</button><button aria-pressed="false">Tag</button>
+      </span>
+    </div>
+    <div class="row" style="gap: 8px;">
+      <span class="select" style="width: auto; height: 32px; display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 0 26px 0 10px;">
+        <svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>
+        EN
+      </span>
+      <button class="icon-btn" aria-label="Notifications, 3 unread">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <span class="menu-anchor">
+        <button class="avatar has-badge" id="avatar-btn" data-count="3" aria-haspopup="true" aria-expanded="false" aria-label="Account menu — Kai Rebane, 3 unread">KR</button>
+        <div class="avatar-menu" id="avatar-menu" hidden>
+          <a href="index.html">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+            Dashboard
+          </a>
+          <a href="profile.html" class="active">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+            Account
+          </a>
+          <a href="#">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            Notifications
+          </a>
+          <div class="sep"></div>
+          <a href="auth/login.html" class="logout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+            Log out
+          </a>
+        </div>
+      </span>
+    </div>
+  </div>
+</header>
+
+<main class="container page">
+  <div class="row-between" style="margin-bottom: 16px;" data-od-id="page-title">
+    <h1 class="h1">Account</h1>
+    <span class="meta">Member since Mar 2026</span>
+  </div>
+
+  <section class="card profile-card" data-od-id="profile-panel">
+
+    <!-- ─── identity head ─── -->
+    <div class="profile-head">
+      <span class="profile-avatar" aria-hidden="true">KR</span>
+      <div class="stack-sm" style="min-width: 0;">
+        <div class="h2" style="font-size: 19px;" id="head-name">Kai Rebane</div>
+        <div class="meta" id="head-handle">@kai · 412 words on the shelf</div>
+      </div>
+      <span class="grow"></span>
+      <button class="btn btn-primary" id="edit-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+        Edit Profile
+      </button>
+    </div>
+
+    <!-- ─── read-only view ─── -->
+    <div id="view-mode">
+      <div class="psection" data-od-id="profile-details">
+        <div class="phead"><span class="eyebrow">Profile details</span></div>
+        <div class="info-row">
+          <span class="ilabel">Name</span>
+          <span class="ivalue" id="v-name">Kai Rebane</span>
+        </div>
+        <div class="info-row">
+          <span class="ilabel">Username</span>
+          <span class="ivalue num" id="v-username">@kai</span>
+        </div>
+        <div class="info-row">
+          <span class="ilabel">Email</span>
+          <span class="ivalue" id="v-email">kai.rebane@example.com</span>
+        </div>
+      </div>
+
+      <div class="psection" data-od-id="profile-languages">
+        <div class="phead">
+          <span class="eyebrow">Languages</span>
+          <span class="hint" id="v-lang-count"></span>
+        </div>
+        <!-- edge case: zero languages renders the banner instead of chips -->
+        <div id="v-lang-banner" hidden>
+          <div class="banner warning" style="align-items: flex-start;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-top: 2px; flex: none;"><path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+            <span>
+              <b>No languages configured</b><br />
+              Please select at least two languages to ensure proper localization of your workspace.
+              <a href="#" id="banner-edit">Select languages →</a>
+            </span>
+          </div>
+        </div>
+        <div class="ro-chips" id="v-lang-chips"></div>
+      </div>
+    </div>
+
+    <!-- ─── edit view ─── -->
+    <form id="edit-mode" hidden novalidate>
+      <div class="psection">
+        <div class="phead"><span class="eyebrow">Edit profile</span></div>
+        <div class="edit-grid">
+          <div class="field">
+            <label class="label" for="e-name">Name <span class="req">*</span></label>
+            <input class="input" id="e-name" autocomplete="name" value="Kai Rebane" required />
+            <span class="err" id="e-name-err">Name is required</span>
+          </div>
+          <div class="field">
+            <label class="label" for="e-username">Username <span class="req">*</span></label>
+            <input class="input" id="e-username" autocomplete="username" value="kai" required />
+            <span class="err" id="e-username-err">Username is required</span>
+          </div>
+          <div class="field span2">
+            <label class="label" for="e-email">Email</label>
+            <input class="input" id="e-email" value="kai.rebane@example.com" disabled aria-describedby="e-email-hint" />
+            <span class="hint" id="e-email-hint">Email is managed separately and can't be changed here</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="psection">
+        <div class="phead">
+          <span class="eyebrow">Languages</span>
+          <span class="hint" id="e-lang-count"></span>
+        </div>
+        <div class="lang-grid" role="group" aria-labelledby="e-lang-label" id="e-lang-select">
+          <span class="label" id="e-lang-label" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);">Languages</span>
+          <button type="button" class="lang-chip" data-lang="en" aria-pressed="false">
+            <svg class="check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            English
+          </button>
+          <button type="button" class="lang-chip" data-lang="es" aria-pressed="false">
+            <svg class="check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            Spanish
+          </button>
+          <button type="button" class="lang-chip" data-lang="de" aria-pressed="false">
+            <svg class="check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            German
+          </button>
+          <button type="button" class="lang-chip" data-lang="ee" aria-pressed="false">
+            <svg class="check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            Estonian
+          </button>
+        </div>
+        <span class="err" id="e-lang-err" style="margin-top: 6px;">You must select at least 2 languages.</span>
+        <div class="form-actions">
+          <span class="hint grow">Minimum 2 languages — your table columns and exercises follow this order</span>
+          <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn" disabled>Save Changes</button>
+        </div>
+      </div>
+    </form>
+
+  </section>
+</main>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const LANGS = {
+  en: 'English',
+  es: 'Spanish',
+  de: 'German',
+  ee: 'Estonian'
+};
+const FLAGS = {
+  en: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>`,
+  es: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#c60b1e"/><rect y="10" width="60" height="20" fill="#ffc400"/></svg>`,
+  de: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#1d1b17"/><rect y="13.3" width="60" height="13.4" fill="#c8102e"/><rect y="26.6" width="60" height="13.4" fill="#f0b429"/></svg>`,
+  ee: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#0072ce"/><rect y="13.3" width="60" height="13.4" fill="#101010"/><rect y="26.6" width="60" height="13.4" fill="#fff"/></svg>`
+};
+
+/* ─────────────── state ─────────────── */
+const profile = { name: 'Kai Rebane', username: 'kai', email: 'kai.rebane@example.com', langs: ['en', 'de', 'ee'] };
+let snapshot = null; // pre-edit copy for Cancel
+
+/* ─────────────── read-only view ─────────────── */
+function renderView() {
+  $('#v-name').textContent = profile.name;
+  $('#head-name').textContent = profile.name;
+  $('#v-username').textContent = '@' + profile.username;
+  $('#head-handle').textContent = '@' + profile.username + ' · 412 words on the shelf';
+  $('#v-email').textContent = profile.email;
+
+  const chips = $('#v-lang-chips'), banner = $('#v-lang-banner');
+  chips.innerHTML = '';
+  if (profile.langs.length === 0) {
+    banner.hidden = false;
+    chips.hidden = true;
+  } else {
+    banner.hidden = true;
+    chips.hidden = false;
+    profile.langs.forEach(l => {
+      const c = document.createElement('span');
+      c.className = 'ro-chip';
+      c.innerHTML = `${FLAGS[l]} ${LANGS[l]}`;
+      chips.appendChild(c);
+    });
+  }
+  $('#v-lang-count').textContent = profile.langs.length === 0
+    ? 'none configured' : `${profile.langs.length} of 4 selected`;
+}
+
+/* ─────────────── edit view ─────────────── */
+const langChips = [...document.querySelectorAll('#e-lang-select .lang-chip')];
+function syncChips() {
+  langChips.forEach(chip => chip.setAttribute('aria-pressed', profile.langs.includes(chip.dataset.lang) ? 'true' : 'false'));
+  updateLangGate();
+}
+function updateLangGate() {
+  const n = langChips.filter(c => c.getAttribute('aria-pressed') === 'true').length;
+  $('#save-btn').disabled = n < 2;
+  $('#e-lang-count').textContent = `${n} of 4 selected`;
+  if (n >= 2) $('#e-lang-err').classList.remove('show');
+}
+langChips.forEach(chip => chip.addEventListener('click', () => {
+  const on = chip.getAttribute('aria-pressed') === 'true';
+  chip.setAttribute('aria-pressed', on ? 'false' : 'true');
+  updateLangGate();
+}));
+
+function enterEdit() {
+  snapshot = JSON.parse(JSON.stringify(profile));
+  $('#e-name').value = profile.name;
+  $('#e-username').value = profile.username;
+  syncChips();
+  $('#view-mode').hidden = true;
+  $('#edit-mode').hidden = false;
+  $('#edit-btn').disabled = true;
+  $('#e-name').focus();
+}
+function exitEdit() {
+  $('#edit-mode').hidden = true;
+  $('#view-mode').hidden = false;
+  $('#edit-btn').disabled = false;
+  renderView();
+}
+$('#edit-btn').addEventListener('click', enterEdit);
+$('#banner-edit').addEventListener('click', e => { e.preventDefault(); enterEdit(); });
+$('#cancel-btn').addEventListener('click', () => {
+  Object.assign(profile, JSON.parse(JSON.stringify(snapshot)));
+  $('#e-name-err').classList.remove('show');
+  $('#e-username-err').classList.remove('show');
+  $('#e-lang-err').classList.remove('show');
+  exitEdit();
+  toast('info', 'Changes discarded');
+});
+
+['e-name', 'e-username'].forEach(id => $('#' + id).addEventListener('input', e => {
+  $('#' + id + '-err').classList.remove('show');
+  e.target.removeAttribute('aria-invalid');
+}));
+
+$('#edit-mode').addEventListener('submit', e => {
+  e.preventDefault();
+  const nameBad = !$('#e-name').value.trim();
+  const userBad = !$('#e-username').value.trim();
+  $('#e-name-err').classList.toggle('show', nameBad);
+  $('#e-name').setAttribute('aria-invalid', nameBad ? 'true' : 'false');
+  $('#e-username-err').classList.toggle('show', userBad);
+  $('#e-username').setAttribute('aria-invalid', userBad ? 'true' : 'false');
+  if (nameBad || userBad) return;
+
+  const n = langChips.filter(c => c.getAttribute('aria-pressed') === 'true').length;
+  if (n < 2) {
+    $('#e-lang-err').classList.add('show');
+    return;
+  }
+
+  profile.name = $('#e-name').value.trim();
+  profile.username = $('#e-username').value.trim().replace(/^@/, '');
+  profile.langs = langChips.filter(c => c.getAttribute('aria-pressed') === 'true').map(c => c.dataset.lang);
+
+  const btn = $('#save-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Saving…';
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Save Changes';
+    exitEdit();
+    toast('success', 'Profile updated');
+  }, 750);
+});
+
+/* ─────────────── avatar menu ─────────────── */
+const avatarBtn = $('#avatar-btn'), avatarMenu = $('#avatar-menu');
+avatarBtn.addEventListener('click', () => {
+  const open = avatarMenu.hidden;
+  avatarMenu.hidden = !open;
+  avatarBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+document.addEventListener('click', e => {
+  if (!avatarMenu.hidden && !e.target.closest('.menu-anchor')) {
+    avatarMenu.hidden = true;
+    avatarBtn.setAttribute('aria-expanded', 'false');
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !avatarMenu.hidden) {
+    avatarMenu.hidden = true;
+    avatarBtn.setAttribute('aria-expanded', 'false');
+    avatarBtn.focus();
+  }
+});
+
+/* ─────────────── toast ─────────────── */
+function toast(kind, msg) {
+  const icons = { success: 'M20 6 9 17l-5-5', error: 'M18 6 6 18M6 6l12 12', warning: 'M12 8v5m0 4h.01', info: 'M12 16v-5m0-4h.01' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = `<svg class="t-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="${icons[kind]}"/></svg><span>${msg}</span>`;
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 5200);
+}
+
+/* ─────────────── boot ─────────────── */
+renderView();
+</script>
+</body>
+</html>

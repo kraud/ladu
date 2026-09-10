@@ -1,4 +1,13 @@
 {
+  "appTitle": "Ladu",
+  "notFound": {
+    "lines": [
+      "Nothing to see here…",
+      "Hier gibt es nichts zu sehen…",
+      "No hay nada que ver aquí…",
+      "Siin pole midagi vaadata…"
+    ]
+  },
   "header": {
     "addWord": "add word",
     "practice": "practice",
@@ -18,7 +27,9 @@
       "dashboard": "Dashboard",
       "logout": "Logout"
     },
-    "notImplemented": "This function is not ready yet, we're sorry!"
+    "notImplemented": "This function is not ready yet, we're sorry!",
+    "goToAccount": "Go to Account",
+    "menu": "Menu"
   },
   "sections": {
     "dashboard": "Dashboard",

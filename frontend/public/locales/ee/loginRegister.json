@@ -2,6 +2,7 @@
   "errors": {
     "invalidEmail": "Kehtiv e-posti aadress on vajalik",
     "passwordRequired": "Parool on nõutav",
+    "passwordMin": "Parool peab olema vähemalt 8 tähemärki pikk",
     "nameRequired": "Nimi on nõutav",
     "emailRequired": "E-post on nõutav",
     "usernameRequired": "Kasutajanimi on nõutav",
@@ -9,27 +10,54 @@
     "passwordRepeatMustMatch": "Paroolid ei kattu",
     "linkError": "Selle lingiga tekkis viga."
   },
+  "apiErrors": {
+    "invalidCredentials": "Vale e-post või parool.",
+    "missingFields": "Palun täida kõik väljad.",
+    "emailInUse": "See e-post on juba registreeritud.",
+    "usernameInUse": "See kasutajanimi on juba võetud.",
+    "invalidLink": "See link on kehtetu või aegunud.",
+    "invalidToken": "See lähtestamise link on kehtetu või aegunud.",
+    "noUserForEmail": "Selle e-postiga pole ühtegi kontot registreeritud.",
+    "notEnoughLanguages": "Palun vali vähemalt kaks keelt.",
+    "invalidLanguage": "See keel ei ole toetatud."
+  },
   "toastMessages": {
     "passwordUpdated": "Parool edukalt uuendatud!",
     "emailSent": "E-kiri edukalt saadetud!"
   },
+  "unverifiedWarning": "Enne sisselogimist pead oma konto kinnitama.",
   "login": {
     "title": "Logi sisse",
-    "subtitle": "Alusta kohe!"
+    "subtitle": "Alusta kohe!",
+    "submit": "Logi sisse",
+    "submitting": "Sisselogimine…"
   },
   "register": {
     "title": "Registreeru",
-    "subtitle": "Palun loo konto"
+    "subtitle": "Palun loo konto",
+    "submit": "Loo konto",
+    "submitting": "Loomine…",
+    "emailSentToast": "Saatsime e-kirja aadressile {{email}} — ava see, et oma konto kinnitada.",
+    "languagesLabel": "Keeled, mida haldad",
+    "languagesHint": "Vali vähemalt kaks. Saad hiljem juurde lisada ja neid ümber järjestada."
   },
   "resetPassword": {
-    "titleReset": "Parooli lähtestamine",
+    "titleReset": "Määra uus parool",
     "titleForgot": "Unustasid oma parooli?",
     "subtitleNewPassword": "Sisesta uus parool allpool",
-    "subtitleEnterEmail": "Sisestage e-posti aadress, mis on seotud teie kontoga, ja me saadame teile lingi parooli lähtestamiseks"
+    "subtitleEnterEmail": "Sisestage e-posti aadress, mis on seotud teie kontoga, ja me saadame teile lingi parooli lähtestamiseks",
+    "submitRequest": "Saada lähtestamise link",
+    "submittingRequest": "Saatmine…",
+    "submitSet": "Uuenda parooli",
+    "submittingSet": "Uuendamine…"
   },
   "userVerification": {
-    "validating": "Parooli lähtestamine",
+    "validating": "Sinu konto kinnitamine…",
+    "validatingSubtitle": "See võtab vaid hetke.",
     "validatingSuccess": "Edukalt valideeritud!",
+    "enteringIn": "Sisenen Ladusse {{seconds}}s pärast",
+    "enterNow": "Sisene kohe",
+    "backToSignIn": "Tagasi sisselogimisse",
     "goingIn": "Sisenen...",
     "messagePreValidation": "Pärast valideerimise lõppu suunatakse sind automaatselt edasi.",
     "messagePostValidation": "Pole automaatselt edasi suunatud? Klõpsa siin, et jätkata.",
@@ -38,13 +66,17 @@
   "switchSectionButtons": {
     "alreadyRegistered": "Juba registreeritud?",
     "notRegistered": "Kas sul pole kontot?",
-    "forgotPassword": "Unustasid parooli?"
+    "forgotPassword": "Unustasid parooli?",
+    "createAccount": "Loo konto",
+    "signIn": "Logi sisse"
   },
   "formLabels": {
     "name": "Nimi",
     "username": "Kasutajanimi",
     "password": "Parool",
     "confirmPassword": "Kinnita parool",
+    "newPassword": "Uus parool",
+    "confirmNewPassword": "Kinnita uus parool",
     "email": "E-post"
   }
 }
