@@ -26,6 +26,10 @@ const { calculateBasicUserMetrics } = require("./metricController");
 type UserRow = typeof users.$inferSelect;
 type NewUserRow = typeof users.$inferInsert;
 
+// Client-safe user columns. The bcrypt `password` hash and the `passwordTokens`
+// reset-token array are deliberately excluded so they never reach a response
+// (Phase 1 Slice 5 — the password-reset flow reads `passwordTokens` off its own
+// full-row queries, not this projection).
 const userColumnsWithoutPassword = {
   id: users.id,
   name: users.name,
@@ -35,7 +39,6 @@ const userColumnsWithoutPassword = {
   uiLanguage: users.uiLanguage,
   nativeLanguage: users.nativeLanguage,
   verified: users.verified,
-  passwordTokens: users.passwordTokens,
   createdAt: users.createdAt,
   updatedAt: users.updatedAt,
 };
@@ -56,8 +59,21 @@ const generateToken = (id: string) => {
   });
 };
 
+// Explicit allowlist of the user fields safe to return to a client. Never spread
+// a raw row here: `findUserById` selects every column (incl. the bcrypt
+// `password` hash and the `passwordTokens` reset-token array), and this is the
+// serializer for `getUserById` / `updateUser` / `verifyUser`.
 const serializeUser = (user: Partial<UserRow>) => ({
-  ...user,
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  username: user.username,
+  languages: user.languages,
+  uiLanguage: user.uiLanguage,
+  nativeLanguage: user.nativeLanguage,
+  verified: user.verified,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
 });
 
 const serializeLoginUser = (user: UserRow) => ({
@@ -358,12 +374,12 @@ const verifyUser = asyncHandler(async (req: any, res: any) => {
       .where(eq(users.id, user.id));
     await db.delete(tokens).where(eq(tokens.id, token.id));
 
-    // Return profile data plus a JWT so the client can enter authenticated routes immediately.
+    // Return profile data plus a JWT so the client can enter authenticated routes
+    // immediately. `serializeUser` is an allowlist, so no `password` strip needed.
     const userWithToken = {
       ...serializeUser({ ...user, verified: true }),
       token: generateToken(user.id),
     };
-    delete (userWithToken as any).password;
 
     res
       .status(200)

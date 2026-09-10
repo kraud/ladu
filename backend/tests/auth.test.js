@@ -129,6 +129,8 @@ describe('GET /api/users/:id/verify/:token - Email Verification', () => {
 
         expect(res.statusCode).toBe(200);
         expect(res.body.user.token).toBeDefined();
+        expect(res.body.user).not.toHaveProperty('password');
+        expect(res.body.user).not.toHaveProperty('passwordTokens');
 
         const updated = await findUserByEmail('test@example.com');
         expect(updated.verified).toBe(true);
@@ -227,6 +229,7 @@ describe('GET /api/users/me - Profile', () => {
         expect(res.body).toHaveProperty('email', 'test@example.com');
         expect(res.body).toHaveProperty('name', 'Test User');
         expect(res.body).not.toHaveProperty('password');
+        expect(res.body).not.toHaveProperty('passwordTokens');
     });
 
     it('fails with 401 when no token is provided', async () => {
@@ -280,6 +283,8 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
         expect(res.body).toHaveProperty('name', 'Updated Name');
         expect(res.body).toHaveProperty('id', userId);
         expect(res.body).not.toHaveProperty('_id');
+        expect(res.body).not.toHaveProperty('password');
+        expect(res.body).not.toHaveProperty('passwordTokens');
     });
 
     it('fails when username is taken by another user', async () => {
@@ -310,6 +315,39 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
                 name: 'Updated Name',
                 username: 'testuser',
             });
+
+        expect(res.statusCode).toBe(401);
+    });
+});
+
+describe('GET /api/users/getUser/:id - Private lookup', () => {
+    let token;
+    let userId;
+
+    beforeEach(async () => {
+        await registerUser();
+        const loginRes = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123' });
+        token = loginRes.body.token;
+        userId = loginRes.body.id;
+    });
+
+    it('returns the user without the password hash or reset tokens', async () => {
+        const res = await request(app)
+            .get(`/api/users/getUser/${userId}`)
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('id', userId);
+        expect(res.body).toHaveProperty('email', 'test@example.com');
+        expect(res.body).not.toHaveProperty('password');
+        expect(res.body).not.toHaveProperty('passwordTokens');
+        expect(res.body).not.toHaveProperty('_id');
+    });
+
+    it('fails with 401 when not authenticated', async () => {
+        const res = await request(app).get(`/api/users/getUser/${userId}`);
 
         expect(res.statusCode).toBe(401);
     });
