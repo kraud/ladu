@@ -93,7 +93,9 @@ const protectedLayoutRoute = createRoute({
 const dashboardRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/',
-    component: () => <Placeholder title="Dashboard" note="Shell only — metrics land in Slice 4." />,
+    component: () => (
+        <Placeholder title="Dashboard" note="Welcome banner in Slice 4; metrics + charts in Phase 3.5." />
+    ),
 });
 
 const addWordRoute = createRoute({

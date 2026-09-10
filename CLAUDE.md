@@ -39,6 +39,5 @@ This is a **from-scratch re-implementation**, not the live app.
 - **Docs + tests are written alongside the feature**, not deferred.
 - **Every phase ends with a green Playwright e2e run.** One spec per phase in the `e2e/` workspace, walking that phase's vertical slice against the real backend + Postgres + a browser. `npm run test:e2e` is a required gate — see `.context/.frontend/new-repo-build-plan.md` §6. Interactive browser driving mid-session comes from the `@playwright/mcp` server in `.mcp.json`.
 - **Ask before assuming.** On any critical/ambiguous decision, check with the user — do not guess.
-- Immediate priority: **Phase 1 (Auth + app shell)**, then Phases 2–3 (words, form engine, Review).
 - **Friendships, notifications, tags and tag-sharing are explicitly deferred until after Phases 1–3.** Prior agents started the backend social redesign (§8.2/§8.3): keep its **schema changes**, but its controllers/tests are not to be reconciled now. Backend tests tied to friendship/tag_shares may be removed or left failing for now — "no test there yet" is acceptable until we return to it.
 - The user commits the working tree once **Phase 0 is agreed done** — there is one baseline commit to make, not per-change commits yet.

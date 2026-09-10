@@ -123,8 +123,9 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 | 1 | **Auth + app shell** (first vertical slice) | 0 |
 | 2 | **Noun create/view, ≥3 languages** (second critical feature) | 1 |
 | 3 | Form engine → all PoS + autocomplete + Review | 2 |
+| 3.5 | **Dashboard + user metrics** (the `getUserMetrics` query, stat cards, both word-derived charts) | 3 |
 | 4 | Tags | 3 |
-| 5 | Exercises + performance + Dashboard charts | 3 |
+| 5 | Exercises + performance | 3 |
 | 6 | Social: friendships + notifications + users (redesigned models) | 1 |
 | 7 | Tag shares/clone + Account + polish | 4, 6 |
 | 8 | Deploy + parity checklist + cutover | all |
@@ -137,10 +138,11 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 
 ### Phase 1 — Auth + app shell *(first vertical slice; also the kill-switch measurement point)*
 - Backend: unchanged (auth endpoints exist and are correct — bcrypt/JWT expiry verified, study §8.4).
-- Frontend: Zustand `persist` session (single normalized shape — fixes the 3-way localStorage drift); axios client + interceptor (401→`clearSession()` + redirect); `Register`, `Login`, `VerificationUser`, `ResetPassword` (yup schemas ported); `ProtectedRoute` on every guarded route (the four unguarded pages fixed on day one); Header shell (nav, UI-language switcher, i18n init); Dashboard shell + `getUserMetrics` read (proves the query stack); `NotFound`; route-entry animation as CSS keyframe.
+- Frontend: Zustand `persist` session (single normalized shape — fixes the 3-way localStorage drift); axios client + interceptor (401→`clearSession()` + redirect); `Register`, `Login`, `VerificationUser`, `ResetPassword` (yup schemas ported); `ProtectedRoute` on every guarded route (the four unguarded pages fixed on day one); real app shell (`AppHeader` nav, UI-language switcher, `UserMenu`, i18n init); a Home page at `/` that is **just the welcome banner** (name + cycling EN→ES→DE→EE greeting) with an `EmptyState` CTA to Add Word — **no metrics query** (the numbers are all structurally zero until words exist; the whole Dashboard is Phase 3.5); `NotFound`; route-entry animation as CSS keyframe.
+- **Accepted consequence**: Phase 1 now proves the *mutation* path end to end (auth) but ships no `useQuery` — the read path, `useInfiniteQuery` and the `staleTime` policy are first exercised in Phase 2. The kill-switch measurement therefore covers less surface than originally scoped; note that when recording pace.
 - Tests: MSW auth handlers; integration suite register → verify → login → logout → expired-token → protected-redirect.
 - **Gate**: full auth suite green; `grep "JSON.parse(localStorage"` in FE = 0; visiting any protected route unauthenticated redirects; **record pace → kill-switch evaluation** (study §11b).
-- **e2e** (`phase-1-auth.spec.ts`): register → verify → login → land on Dashboard → logout; expired/absent token on a protected route redirects to login; UI-language switch persists across reload.
+- **e2e** (`phase-1-auth.spec.ts`): register → verify → login → land on Home (welcome banner + shell nav) → logout; expired/absent token on a protected route redirects to login; UI-language switch persists across reload.
 
 ### Phase 2 — Noun create/view with ≥3 translations *(second vertical slice)*
 - Backend: `getWordsSimplified` gains cursor pagination (§8.4 #2); `GET /api/words/:id` gains ownership check.
@@ -156,15 +158,26 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 - **Gate**: word CRUD + search + autocomplete flows' MSW tests green; filters survive reload (URL round-trip); selecting row N after a filtered refetch navigates to the right word.
 - **e2e** (`phase-3-review.spec.ts`): create words of each PoS via the engine; on Review, apply a filter → reload → filter still applied from the URL; scroll triggers the next page; click a row after a filtered refetch and land on the correct word; an autocomplete lookup populates fields.
 
+### Phase 3.5 — Dashboard + user metrics
+
+Split out of Phase 1 (2026-09-10): the metrics endpoint aggregates `words` + `translations` only (`backend/controllers/metricController.ts`), so the Dashboard has nothing to show until Phases 2–3 can create words. This is the first phase to exercise the **read** path against the real backend.
+
+- Backend: `GET /api/users/getUserMetrics` already exists and is already `id`-only — but has **no Jest coverage at all**. Add it here: the six fields (`totalWords`, `wordsPerPOS`, `translationsPerLanguage`, `translationsPerLanguageAndPOS`, `wordsPerMonth`, `incompleteWordsCount`), fresh-account zeros, per-user isolation.
+- Frontend: `features/metrics/{api,keys,hooks}.ts` (`getUserMetrics`, `staleTime: 5 * 60_000`); `UserInfoPanel` stat cards; `MetricsPanel` with the pie (words per PoS) and bar (translations per language / per month) plus their words↔translations metric toggles; `chartColors`; charts **code-split behind the route**; the `dashboard.json` `charts.*` keys wired; skeleton loading; zero-words empty state with the "Add your first words" CTA → `/addWord`; chart worst-category click → `/addWord/<pos>`.
+- Invalidation: word CRUD ⇒ `['metrics']` — the edge is declared in Phase 2 but has no consumer until now.
+- **Gate**: a seeded account renders totals matching the DB; a fresh account renders the empty state; the charts land in a separate chunk; backend metrics tests green.
+- **e2e** (`phase-3-5-dashboard.spec.ts`): log in on an account holding words across ≥2 PoS and ≥2 languages → Dashboard totals and both charts match the data; a fresh account shows the empty state.
+
 ### Phase 4 — Tags
 - Tag CRUD, follow/unfollow as **two distinct mutations** (the overloaded-slot hook dies), `TagInfoModal` without op-booleans, `AutocompleteMultiple` (tag picker), bulk-add-tags-to-words with declared invalidation edges (`['tags', id, 'wordCount']` + `['words']`), `filterTags` kept per §3.
 - **Gate**: tag flows' integration tests green; dead thunks (`getAmountByTag`) simply don't exist.
 - **e2e** (`phase-4-tags.spec.ts`): create a tag, bulk-add it to several words from Review, follow another user's tag (its words show read-only), unfollow it (they disappear); the word-count badge reflects each change.
 
-### Phase 5 — Exercises + performance + Dashboard charts
-- `ExerciseParameterSelector` → params in typed route searchParams; `getUserExercises` query; `ExerciseCard` re-modeled per flow #4 (answer state in component state; `saveTranslationPerformance`/`savePerformanceAction` as mutations with `setQueryData` splice + metrics invalidation — no `currentCardIndex` slice splicing); `EndScreen`/`ResultRow`; charts (c3/D3) code-split behind Dashboard.
-- **Gate**: full practice session MSW test (params → cards → end screen → performance saved → metrics reflect).
-- **e2e** (`phase-5-exercises.spec.ts`): set parameters → run a full session answering cards (TI + MC) → end screen shows results → reload Dashboard and the metrics/charts reflect the saved performance.
+### Phase 5 — Exercises + performance
+- `ExerciseParameterSelector` → params in typed route searchParams; `getUserExercises` query; `ExerciseCard` re-modeled per flow #4 (answer state in component state; `saveTranslationPerformance`/`savePerformanceAction` as mutations with `setQueryData` splice — no `currentCardIndex` slice splicing); `EndScreen`/`ResultRow`.
+- The word-derived Dashboard charts are **Phase 3.5**, not here. `getUserMetrics` aggregates `words` + `translations` only and never reads `exercise_performances`, so a practice session does not change it. Any mastery/forgetting-curve visualization Phase 5 wants is its own scope and needs a **new** backend aggregation endpoint.
+- **Gate**: full practice session MSW test (params → cards → end screen → performance saved → `getUserExercises` reflects the new attempt).
+- **e2e** (`phase-5-exercises.spec.ts`): set parameters → run a full session answering cards (TI + MC) → end screen shows results → the saved attempts show on the last-4-attempts indicator on re-entry.
 
 ### Phase 6 — Social (redesigned models ride along)
 - **Friendships §8.2**: new `friendships` table (requesterId/addresseeId/status enum, partial unique constraints); one action per endpoint; friend-request notification created **server-side in the same transaction**; decline action (new capability); FE: `useFriendships`/`useFriendRequests` + one mutation per action (the dual-slice wait + 4 booleans die by construction).
@@ -184,7 +197,7 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 - **Route-parity checklist**: per route (12 + catch-all), walk every use case in the snapshot files against the new build; **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
 - User manually switches the real domain. Old repo becomes greppable reference; archive when satisfied.
 - **Gate**: checklist + annex fully green; zero unexplained parity failures.
-- **e2e**: the full `e2e/tests/` suite (Phases 1–7 specs) green against the temp-domain build; the intentional-deltas annex items each map to a passing assertion. This is also the moment to stand up the deferred CI `e2e` job so the suite guards `main` post-cutover.
+- **e2e**: the full `e2e/tests/` suite (Phases 1–7 specs, incl. 3.5) green against the temp-domain build; the intentional-deltas annex items each map to a passing assertion. This is also the moment to stand up the deferred CI `e2e` job so the suite guards `main` post-cutover.
 
 ## 6. Testing strategy
 
@@ -221,7 +234,7 @@ Performed 2026-09-05, before this plan was written:
 |---|---|
 | 0 — Scaffold + backend copy | ✅ done — commit `c030b68`; backend 130/130 green |
 | 1 — Auth + app shell | 🔨 in progress — branch `auth-and-app-shell` (breakdown below) |
-| 2–8 | not started |
+| 2, 3, 3.5, 4–8 | not started |
 
 - **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../../.context/README.md).
 - **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate.
@@ -236,9 +249,15 @@ Five reviewable slices; the user commits and re-confirms between each.
 | 1 — design system + UI primitives (Ladu tokens in Tailwind v4, shadcn/Base UI init, 8 primitives) | ✅ done 2026-09-08 — commit `39fe6d6`; frontend 9/9 + build green |
 | 2 — app plumbing (axios client + 401 interceptor, Zustand `persist` session, typed router, `ProtectedRoute`, real 404, MSW infra) | ✅ done 2026-09-08 — frontend 42/42 + build green; guard + 404 verified in-browser |
 | 3 — auth pages (register / verify / login / logout / reset) | ✅ done 2026-09-08 — frontend 74/74 + build green; backend 130/130 green |
-| 4 — app shell + Dashboard (`AppHeader`, `LanguageSelector`, `UserMenu`, `getUserMetrics`) | ⬜ not started — **next** |
+| 4 — app shell + Home (`AppHeader`, `LanguageSelector`, `UserMenu`, welcome banner) | ⬜ not started — **next** |
 | 5 — backend hygiene + phase gate (strip bcrypt-hash & `passwordTokens` leaks; **strip the `_id` alias from the auth serializers + `authMiddleware` responses per the standing rule in §4**; gate checks; kill-switch pace record) | ⬜ not started |
 
-Deviations already agreed with the user (full text in the plan's Slice 5): no `VerifyEmailBanner` (unverified users are blocked at login), five shadcn primitives held to Phase 2, `getUserMetrics` path corrected to `/api/users/getUserMetrics`. The Phase 1 e2e spec (`phase-1-auth.spec.ts`) is written in Slice 3–5.
+Deviations already agreed with the user (full text in the plan's Slice 5): no `VerifyEmailBanner` (unverified users are blocked at login), five shadcn primitives held to Phase 2. The Phase 1 e2e spec (`phase-1-auth.spec.ts`) is written in Slice 3–5.
+
+**Dashboard/metrics re-scoped out of Phase 1 (2026-09-10):** Slice 4 originally bundled the app shell with a Dashboard reading `getUserMetrics`. Since that endpoint aggregates `words` + `translations` only, it has nothing to show until Phases 2–3 exist. Slice 4 now ships the shell plus a Home page that is only the welcome banner; the full Dashboard (metrics query, stat cards, both word-derived charts) moved to the new **Phase 3.5** — see [`plans/phase-3-5-dashboard-metrics.md`](./plans/phase-3-5-dashboard-metrics.md). Phase 5 lost its "+ Dashboard charts" for the same reason. The `getUserMetrics` path correction (blueprint's `/api/metrics/...` → real `/api/users/getUserMetrics`) now lives in the Phase 3.5 file.
 
 **`_id` correction (2026-09-08):** the `_id` MongoDB artifact is being removed as-we-go, not in one refactor — see the standing rule in §4. Frontend done in Slice 2: `ts/interfaces.ts` (`UserData`/`NotificationData`/`FriendshipData`/`TagData`/`FilterItem` → `id`) and `authStore` (`RawUser._id` and the `raw._id` fallback dropped) plus their tests. **Slice 3 (2026-09-08) swept the entire auth/user/metrics backend surface** (Option B, agreed with the user): `serializeUser` / `serializeLoginUser` / `publicUserResponse` / `authMiddleware` (`serializeAuthenticatedUser` wrapper deleted) / `getBasicUserMetrics`'s internal arg / `metricController.calculateBasicUserMetrics`'s param type — all `id` now, no `_id` anywhere in that surface. `backend/tests/auth.test.js` plus the `registerAndLogin` call sites in `tests/{words,exercises,tags,notifications}.test.js` updated; backend 130/130 green. **Remaining `_id` aliases** live only in `wordController` / `tagController` / `notificationController` / `exerciseController` responses — stripped in their consuming phases (2/4/6). Slice 5's backend scope is now just the bcrypt-hash and `passwordTokens` leaks + the phase gate.
+
+### Phase 3.5 — [`plans/phase-3-5-dashboard-metrics.md`](./plans/phase-3-5-dashboard-metrics.md)
+
+Not started. Created 2026-09-10 by splitting the Dashboard/metrics work out of Phase 1 Slice 4 (rationale above). Depends on Phase 3 — needs words of every PoS in the DB before the numbers and charts mean anything. Stub plan records the backend surface, the i18n split, and the open questions to resolve when it starts.

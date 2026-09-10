@@ -210,29 +210,11 @@ pages/       — route-level compositions; imported by routes/*.
 
 Shared, one per app (not per feature): `app/query-client.ts` holds the **staleTime policy table** and `app/` also carries the **invalidation graph** as a doc comment / typed map, seeded from `frontend-migration-plan.md` §5.2 and extended each phase.
 
----
-
-## 5. What Phase 1 actually creates (concrete first slice)
-
-```
-app/Providers.tsx, app/router.tsx, app/query-client.ts, app/feature-flags.ts
-api/client.ts, api/types.ts
-stores/authStore.ts, stores/uiStore.ts
-styles/tokens.css, styles/globals.css
-components/ui/*  (button, input, label, form, dialog, alert-dialog, select, checkbox, radio-group, sheet, skeleton, dropdown-menu, toast host)
-components/layout/*  (AppShell, AppHeader, GlobalSearch [flag-gated], LanguageSelector, UserMenu, VerifyEmailBanner)
-components/common/  (LoadingScreen, EmptyState, ErrorState, PageTransition, FlagIcon)
-routes/  (protected-layout, public-layout, login, register, verify, reset-password, dashboard [shell only], not-found)
-features/auth/  (api, hooks, schemas, components, pages — full)
-features/metrics/  (api, hooks, DashboardPage reading getUserMetrics — shell + one query, charts can stub)
-test/msw/handlers.ts (auth + metrics), test/render.tsx
-```
-
-Everything else is created in its own phase.
+> Per-phase scope (what each phase actually creates) lives in `new-repo-build-plan.md` §5 and the per-phase files in `plans/` — this document stays scope-agnostic so it does not drift as the roadmap changes.
 
 ---
 
-## 6. Conventions
+## 5. Conventions
 
 - **Files:** components `PascalCase.tsx`; hooks/utils `camelCase.ts`; one component per file; colocate a component's small subparts in the same file only if trivial.
 - **Imports:** absolute from `src/` via a `@/` alias (add to `tsconfig.json` `paths` + `vite.config.ts` `resolve.alias`). No deep relative `../../../`.

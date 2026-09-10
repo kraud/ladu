@@ -128,11 +128,12 @@ Word (partOfSpeech: Noun | Verb | Adjective | Adverb; tags; clue; isCloned/origi
 | # | Phase | Depends on |
 |---|-------|-----------|
 | 0 | Monorepo scaffold + backend copy + verbatim asset port | — |
-| **1** | **Auth + app shell** (register/login/verify/reset · Zustand session · axios client + 401 interceptor · `ProtectedRoute` · Header shell · i18n init · Dashboard shell reading `getUserMetrics` · NotFound) — *first vertical slice, kill-switch measurement point* | 0 |
+| **1** | **Auth + app shell** (register/login/verify/reset · Zustand session · axios client + 401 interceptor · `ProtectedRoute` · `AppHeader` shell · i18n init · Home page = welcome banner only, **no metrics query** · NotFound) — *first vertical slice, kill-switch measurement point* | 0 |
 | 2 | Noun create/view with ≥3 translations · form engine v1 (nouns) · `AddWord` / `DisplayWord` / `WordForm` re-modelled as mutations | 1 |
 | 3 | Form engine → verbs/adjectives/adverbs · autocomplete (`useAutocompleteTranslation`, EE sanitizers as query transforms, per-instance debounce) · Review table (URL filters, stable-id selection, `useInfiniteQuery`) | 2 |
+| 3.5 | Dashboard + user metrics — `getUserMetrics` query · `UserInfoPanel` stat cards · both word-derived charts (pie: words per PoS; bar: translations per language/month) | 3 |
 | 4 | Tags (CRUD, follow/unfollow as two distinct mutations, bulk-add) | 3 |
-| 5 | Exercises + performance + Dashboard charts | 3 |
+| 5 | Exercises + performance | 3 |
 | 6 | Social: friendships + notifications + users (redesigned models §8.1/§8.2) | 1 |
 | 7 | Tag shares/clone (§8.3) + Account + polish | 4, 6 |
 | 8 | Deploy to temp domain + route-parity checklist + intentional-deltas annex + manual cutover | all |

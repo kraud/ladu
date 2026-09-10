@@ -10,10 +10,16 @@ It also fixes four §8.4 defects on day one: unguarded protected routes, unguard
 
 **Decisions taken with the user (2026-09-08):**
 
-1. **Unverified users are blocked.** The blueprint contradicts itself — `ui/01-auth.md` says login-while-unverified keeps the user on `/login`, but register success lands them on `/` "logged in but unverified". We resolve it the strict way: login with `verified !== true` shows a warning toast and writes **no** session; register (which returns no token anyway) shows an info toast naming the email and redirects to `/login`. **Consequence: `VerifyEmailBanner` becomes unreachable and is dropped from Phase 1** — it is documented as a deliberate deviation from `frontend-structure.md` §5.
+1. **Unverified users are blocked.** The blueprint contradicts itself — `ui/01-auth.md` says login-while-unverified keeps the user on `/login`, but register success lands them on `/` "logged in but unverified". We resolve it the strict way: login with `verified !== true` shows a warning toast and writes **no** session; register (which returns no token anyway) shows an info toast naming the email and redirects to `/login`. **Consequence: `VerifyEmailBanner` becomes unreachable and is dropped from Phase 1** — it is documented as a deliberate deviation from the component list in `frontend-structure.md` §2.
 2. **Full shadcn CLI init** (decision D3, taken literally) — but rethemed by *bridging* shadcn's semantic tokens onto the Ladu tokens via `@theme inline`, not by hand-editing generated components. Lucide imports are swapped for Phosphor.
 3. **Two backend leaks fixed** this phase: the bcrypt hash returned by `GET /api/users/getUser/:id`, and `passwordTokens` returned by `GET /me` / `PUT /updateUser`. The account-existence leak on `requestPasswordReset` is **left alone** and logged for Phase 7.
 4. **New i18n keys land in all four locales** (en/es/de/ee), translated in-place. Estonian strings get flagged for the user to sanity-check.
+
+**Decisions taken with the user (2026-09-10) — Dashboard/metrics re-scope:**
+
+5. **Metrics move out of Phase 1.** `GET /api/users/getUserMetrics` aggregates `words` + `translations` only (`backend/controllers/metricController.ts:15,47-157`) — no exercise-performance dependency — so on a fresh account with no way to create a word, every number it returns is structurally zero and the "loading/loaded/empty" gate can only ever hit the empty branch. Slice 4 keeps the real app shell but its `/` route becomes a **Home page that is only the welcome banner** (name + cycling EN→ES→DE→EE greeting) with an `EmptyState` CTA to Add Word. No `useQuery`, no stat cards, no charts in Phase 1.
+6. **The full Dashboard is the new Phase 3.5** (`plans/phase-3-5-dashboard-metrics.md`): the metrics query + `staleTime` policy, `UserInfoPanel` stat cards, and *both* blueprint charts (pie: words per PoS; bar: translations per language/month — both word-derived). Phase 5 keeps exercises + performance only.
+7. **Consequence:** Phase 1 now ships no `useQuery` at all — the read path is first exercised in Phase 2. Recorded in `new-repo-build-plan.md` Phase 1 scope so the kill-switch pace note accounts for the narrower surface.
 
 Work proceeds in **five reviewable slices**, each independently runnable. The user commits between slices, and **confirms before each new slice starts** — no slice begins without an explicit go-ahead.
 
@@ -90,9 +96,9 @@ Baseline confirmed on disk: no `components.json` anywhere, no `lucide-react` / `
 - **Everything in the plan shipped**, plus tests: `src/api/{client,types}.ts`, `src/stores/{authStore,uiStore}.ts`, `src/lib/jwt.ts`, `src/app/{query-client,feature-flags,router}.tsx`, `src/app/Providers.tsx`, `src/routes/{public-layout,protected-layout,not-found}.tsx`, `src/components/common/{LoadingScreen,PageTransition,ErrorState,EmptyState}.tsx`, `src/test/{render.tsx,tokens.ts,msw/{server,handlers}.ts}`, slimmed `main.tsx`. Frontend suite **9 → 42 tests**, `tsc -b` + `vite build` green.
 - **`authStore` — `verified` normalization.** The plan's sketch (`raw.verified ?? true ? … : false`) resolves to: a missing/`null` flag becomes `true`, only an explicit `false` is unverified. Rationale confirmed during implementation — `users.verified` is a nullable column, and login/verify already gate the unverified path (decision 1), so a `getMe` refresh that returns a null flag must not silently log the user out.
 - **`authStore` — storage adapter.** Used a hand-written `PersistStorage` (try/catch around the parse, `removeItem` on failure) instead of `createJSONStorage`, so a hand-planted/garbage blob is caught *and cleared* rather than only swallowed by zustand's rehydrate `.catch`. `onRehydrateStorage` then additionally drops an expired token or an invalid-shape user. Note: on the malformed-blob path `clearSession()` re-persists a clean empty blob, so the key is not strictly absent afterward — the test asserts the garbage is gone and the remainder is valid JSON, not `=== null`.
-- **`router.tsx` — optional path params.** TanStack Router is **1.170.33** (hoisted at the workspace root, not the `^1.51` in `package.json`), which supports the `{-$param}` optional-segment syntax — used for `/addWord/{-$partOfSpeech}` and `/resetPassword/{-$userId}/{-$tokenId}` rather than registering paired routes. All 12 blueprint routes (`ui/00-global.md` §2) are registered; every protected leaf and every public auth leaf is an inline `Placeholder` / `PublicPlaceholder` stub defined in `router.tsx` (Slice 3 moves auth leaves to `features/auth/pages/*`, Slice 4 the dashboard). Exported `createAppRouter(history?)` alongside the singleton `router` so tests build their own with `createMemoryHistory`.
+- **`router.tsx` — optional path params.** TanStack Router is **1.170.33** (hoisted at the workspace root, not the `^1.51` in `package.json`), which supports the `{-$param}` optional-segment syntax — used for `/addWord/{-$partOfSpeech}` and `/resetPassword/{-$userId}/{-$tokenId}` rather than registering paired routes. All 12 blueprint routes (`ui/00-global.md` §2) are registered; every protected leaf and every public auth leaf is an inline `Placeholder` / `PublicPlaceholder` stub defined in `router.tsx` (Slice 3 moves auth leaves to `features/auth/pages/*`, Slice 4 the `/` home page). Exported `createAppRouter(history?)` alongside the singleton `router` so tests build their own with `createMemoryHistory`.
 - **`client.ts` — refresh leg.** Left as a prose comment only (not a disabled `if (false)` block) — there is no refresh endpoint, and a dead branch would just be noise.
-- **`query-client.ts`.** Stock v5 defaults + `retry: false` + `refetchOnWindowFocus: false` (deterministic tests; same-origin backend makes a failed request a real error worth surfacing). The metrics 5-min `staleTime` override is deferred to Slice 4 where the query is actually created. Invalidation-graph doc comment seeded with the Phase-1 edges + one stub line per later phase.
+- **`query-client.ts`.** Stock v5 defaults + `retry: false` + `refetchOnWindowFocus: false` (deterministic tests; same-origin backend makes a failed request a real error worth surfacing). The metrics 5-min `staleTime` override is deferred to **Phase 3.5** where the query is actually created (was Slice 4 before the 2026-09-10 re-scope). Invalidation-graph doc comment seeded with the Phase-1 edges + one stub line per later phase.
 - **`Providers.tsx`.** Order: `ErrorBoundary > QueryClientProvider > I18nextProvider > Suspense > (RouterProvider + ToastContainer)`. The 401→redirect subscriber is a null-rendering `UnauthorizedRedirect` component that registers `onUnauthorized(() => router.navigate({ to: '/login' }))` in an effect. `react-toastify/dist/ReactToastify.css` imported here.
 - **`test/render.tsx` — no router.** The plan said "a fresh in-memory router" per test; deferred. `renderWithProviders` gives a fresh retry-off `QueryClient`, a synchronous i18n instance built from the real `public/locales/en/*.json` bundles (`useSuspense: false`), and an optional `session` seed. Tests that need routing build it directly (`createAppRouter(createMemoryHistory(...))`) — this is what the guard test does. Full router-in-render can come in Slice 3 when the auth pages need `<Link>`/navigation context.
 - **`test/tokens.ts`** — not in the plan's file list; added because the jwt / store / router tests all need to mint tokens with a controlled `exp`. Unsigned (`header.payload.testsignature`) — only `getTokenExpiry` reads them.
@@ -100,7 +106,7 @@ Baseline confirmed on disk: no `components.json` anywhere, no `lucide-react` / `
 - **`main.tsx`** stopped rendering `<App/>`; the Slice-1 primitives gallery (`App.tsx` + `App.test.tsx`) stays on disk until Slice 4 per the plan.
 - **`.gitignore`** — added `.playwright-mcp/` (interactive browser-verification scratch from the `@playwright/mcp` server).
 - **Visual check done this time.** Booted the dev server and drove it with `@playwright/mcp`: `/` → `/login?redirect=%2F` (guard fires in a real browser), `/nonexistent` → the real 404 (serif numeral, hairline divider, cycling multilingual line, "Go to login" CTA with no session). Only console noise is a `favicon.ico` 404 — pre-existing (`index.html` has no favicon link), not in scope.
-- Deferred, unchanged: real auth pages (Slice 3), `AppShell`/`AppHeader` (Slice 4), MSW auth + metrics handlers (Slice 3 / 4).
+- Deferred, unchanged: real auth pages (Slice 3), `AppShell`/`AppHeader` (Slice 4), MSW auth handlers (Slice 3). MSW **metrics** handlers move to Phase 3.5 with the query.
 
 ### `src/api/`
 - `client.ts` — one axios instance, `baseURL: '/api'` (relative; the Vite proxy already forwards to `:5001`). Request interceptor attaches `Bearer` from `authStore.getState().token`. Response interceptor on 401: `clearSession()` then notify registered handlers. **Avoid the circular import** (client → router → routes → hooks → client) by exporting an `onUnauthorized(handler)` registry from `client.ts`; `app/Providers.tsx` registers `() => router.navigate({ to: '/login' })`. A retry-once refresh leg is written but disabled — no refresh endpoint exists.
@@ -117,7 +123,7 @@ Baseline confirmed on disk: no `components.json` anywhere, no `lucide-react` / `
 - `src/lib/jwt.ts` — `getTokenExpiry(token): number | null`, base64url-safe, **returns null on any malformed input instead of throwing** (the old `parseJwt` returned null and the caller then dereferenced `.exp`; study §8.4 #5). This plus `beforeLoad` is the *one* expiry-check seam.
 
 ### `src/app/`
-- `query-client.ts` — `QueryClient` factory. Defaults stay at TanStack v5 stock (`staleTime: 0`) per migration-plan §5.3; the metrics query overrides to 5 min. **Carries the invalidation-graph doc comment**, seeded from migration-plan §5.2 and extended each phase. Phase-1 edge: `login / logout → queryClient.clear()`.
+- `query-client.ts` — `QueryClient` factory. Defaults stay at TanStack v5 stock (`staleTime: 0`) per migration-plan §5.3; the metrics query overrides to 5 min **when it lands in Phase 3.5**. **Carries the invalidation-graph doc comment**, seeded from migration-plan §5.2 and extended each phase. Phase-1 edge: `login / logout → queryClient.clear()`.
 - `feature-flags.ts` — env-derived flags. `globalSearch` and `notifications` default **off** in Phase 1 (no data source until Phases 3 and 6); `tags`/`friends` default on. Note `frontend/src/env.ts` currently reads `VITE_*` while the root `.env` still uses CRA-era `REACT_APP_*`, so every flag resolves via its default today — that is fine and intended.
 - `router.tsx` — code-based typed tree (D1). Root → `_public` layout and `_protected` layout → leaves. `_protected.beforeLoad` reads `authStore` + `isTokenExpired`, and `throw redirect({ to: '/login', search: { redirect: location.href } })` when unauthenticated. Every route from the `ui/00-global.md` table is registered now, with **thin placeholder pages** for `/addWord`, `/word/$wordId`, `/review`, `/practice`, `/user` — the Phase-1 gate is literally "visiting *any* protected route unauthenticated redirects", which needs those routes to exist.
 - `Providers.tsx` — `QueryClientProvider` + `I18nextProvider` + **`<Suspense fallback={<LoadingScreen/>}>`** (critical: i18next `useSuspense` defaults to true and today's `main.tsx` has no boundary — a second namespace would throw) + `RouterProvider` + `ToastContainer` (bottom-center, matching `.toast-stack`) + root `ErrorBoundary`.
@@ -155,7 +161,7 @@ Baseline confirmed on disk: no `components.json` anywhere, no `lucide-react` / `
 - **Verify page**: countdown redirect via `setTimeout` (3→0), "Enter now" button for immediate entry; a `useRef` fires the mutation exactly once. Missing/blank params can't reach it — the route requires `$userId`/`$tokenId`, so a bad URL is a route no-match → the real 404, no extra handling needed. A bad *token* → the failure card.
 - **Test infra**: `renderApp()` added to `test/render.tsx` — mounts the real `createAppRouter` tree on an in-memory history inside fresh providers, **async** (`await router.load()` before asserting on `router.state`, mirroring `router.test.tsx`). `test/msw/authHandlers.ts` = `makeAuthHandlers(seed?)`, a per-call in-memory fake of the seven `/api/users*` endpoints returning the post-sweep (`id`-only) shapes; base `test/msw/handlers.ts` stays empty, handlers installed per-test via `server.use(...)`. `router.test.tsx`'s 404 test now wraps in `I18nextProvider` (not-found became i18n-dependent).
 - **Tests**: 9 → 74 frontend (`schemas.test.ts` 9, `errors.test.ts` 14, `auth-flow.test.tsx` 9 integration scenarios incl. decision-1 unverified branch, mapped bad-creds error, expired-token + no-session protected redirects, logout). `npm run build -w frontend` + `npm test -w frontend` green; `grep "JSON.parse(localStorage" frontend/src` = 0. Backend suite green after the test-call-site fixes.
-- **No e2e spec yet** and **no browser visual check** — the Phase-1 e2e (`phase-1-auth.spec.ts`) needs the real Dashboard to land on, so it's written in Slice 4–5 per §9; pixel fidelity of the auth screens against `MOCKUPS/auth/*.html` is unverified (eyeball via `npm run dev`).
+- **No e2e spec yet** and **no browser visual check** — the Phase-1 e2e (`phase-1-auth.spec.ts`) needs the real Home page to land on, so it's written in Slice 4–5 per §9; pixel fidelity of the auth screens against `MOCKUPS/auth/*.html` is unverified (eyeball via `npm run dev`).
 - Deferred, unchanged from the plan: `getMe` / `updateProfile` are in `api.ts` but first exercised in Slice 4 (LanguageSelector) / the guard tests.
 
 ### `src/features/auth/`
@@ -183,9 +189,9 @@ Add the missing keys to **all four** locales (decision 4): backend-error mapping
 
 ---
 
-## Slice 4 — App shell + Dashboard
+## Slice 4 — App shell + Home
 
-**Goal:** logging in lands on a real Dashboard inside the real header.
+**Goal:** logging in lands on a real Home page inside the real header. Home in Phase 1 is only the welcome banner — the full Dashboard (metrics query, stat cards, charts) is **Phase 3.5** (decisions 5–7).
 
 ### `src/components/layout/`
 - `AppShell` — sticky 52px translucent header (`color-mix(in oklch, var(--color-bg) 90%, transparent)` + `backdrop-blur-[10px]`) over `.container.page`; Review will later opt into `.container-wide`.
@@ -199,16 +205,16 @@ Add the missing keys to **all four** locales (decision 4): backend-error mapping
 ### `src/components/common/` + `src/lib/`
 - `FlagIcon` (serves `public/{GB,DE,ES,EE}.svg`), `lib/avatar.ts` (deterministic initials + colour, ported from `generalUseFunctions`), `lib/language.ts` (`langKeyByLabel`, native names, ordering).
 
-### `src/features/metrics/`
-- `api.ts` / `keys.ts` / `hooks.ts` — `getUserMetrics` at **`GET /api/users/getUserMetrics`** (note: the blueprint writes `/api/metrics/...`, which does not exist), `staleTime: 5 * 60_000`. Invalidated only by word CRUD, which arrives in Phase 2.
-- `pages/DashboardPage.tsx` — welcome banner ("Welcome back, {name}" + the greeting cycling through the four languages), `UserInfoPanel` stat cards (total words, total translations, incomplete words) using the existing `dashboard.json` keys, and `MetricsPanel` with **stubbed chart placeholders**. Charts are explicitly Phase 5 (`frontend-structure.md:227`), and no Dashboard mockup exists — `MOCKUPS/index.html` is a prototype-kit index, not a dashboard, so the layout follows `ui/02-dashboard.md`'s ASCII sketch rendered in the MOCKUPS language.
-- Loading → skeleton cards; empty (a fresh account, where `incompleteWordsCount` is always 0 because `languages` is empty) → `EmptyState` with an "Add your first words" CTA.
+### `src/features/metrics/` — Home page only (no query)
+- `pages/DashboardPage.tsx` — **just** the `WelcomeBanner`: "Welcome back, {name}" + a one-line greeting cycling through the four UI languages (interval + fade), using the `welcome.*` keys already present in `dashboard.json` for all four locales. Below it, an `EmptyState` (from `components/common/`) with an "Add your first words" CTA → `/addWord`.
+- **No `api.ts` / `keys.ts` / `hooks.ts` yet**, no `useUserMetrics`, no `UserInfoPanel`, no `MetricsPanel`, no charts. Kept in `features/metrics/` (not a new folder) so Phase 3.5 grows the query + panels into this same feature and `frontend-structure.md`'s tree (`:98-101`, `:184`) stays accurate untouched.
+- `router.tsx` — the `/` leaf swaps its `Placeholder` for `DashboardPage`. **Heads-up:** `frontend/src/features/auth/auth-flow.test.tsx:67` currently asserts `findByRole('heading', { name: 'Dashboard' })` (the placeholder's literal heading) — update that assertion to whatever heading `WelcomeBanner` renders when this lands.
 
 Remove the Slice-1 primitives gallery from `App.tsx`.
 
-**Runnable:** the full loop — register, verify, log in, see the Dashboard with real numbers, switch UI language, log out.
+**Runnable:** the full loop — register, verify, log in, land on the Home page (welcome banner + working header nav), switch UI language, log out.
 
-**Tests:** header nav gating at <2 languages; UserMenu logout clearing session + cache; LanguageSelector sending a complete `updateProfile` payload (guarding the `nativeLanguage` trap); metrics loading/loaded/empty states.
+**Tests:** header nav gating at <2 languages; UserMenu logout clearing session + cache; LanguageSelector sending a complete `updateProfile` payload (guarding the `nativeLanguage` trap); `WelcomeBanner` renders the user's name and cycles the greeting.
 
 ---
 
@@ -225,7 +231,7 @@ Remove the Slice-1 primitives gallery from `App.tsx`.
 - `grep -r "JSON.parse(localStorage" frontend/src` → **0 hits**.
 - Unauthenticated visits to `/`, `/addWord`, `/word/x`, `/review`, `/practice`, `/user` all redirect to `/login`.
 - `npm test` (backend Jest), `npm test -w frontend` (Vitest), `npm run build -w frontend` all green.
-- Update `CLAUDE.md` §9 with the new state, and record the deliberate deviations: no `VerifyEmailBanner`; five shadcn primitives deferred to Phase 2; the `/api/users/getUserMetrics` path correction.
+- Update `new-repo-build-plan.md` §9 with the new state (the roadmap/progress table moved there from `CLAUDE.md` in commit `891ffba`), and record the deliberate deviations: no `VerifyEmailBanner`; five shadcn primitives deferred to Phase 2; Dashboard/metrics re-scoped to Phase 3.5 (2026-09-10). The `/api/users/getUserMetrics` path correction is now recorded in the Phase 3.5 plan, not here.
 - **Record elapsed effort for the kill-switch evaluation** (study §11b). Worth flagging now: the docs mandate "record pace" but define no metric and no Phase-1-equivalent baseline in the migration plan — we will record wall-clock and slice count, and the comparison will be a judgement call.
 
 ---
@@ -247,7 +253,7 @@ npm run docker:up && npm run db:migrate
 npm run dev                   # backend :5001 + vite
 ```
 
-Then, in the browser: register a new account → open the verification link from the email (or read the `tokens` row via `npm run db:studio`) → land in the app verified → see Dashboard metrics → switch UI language → log out → confirm `/` redirects to `/login`.
+Then, in the browser: register a new account → open the verification link from the email (or read the `tokens` row via `npm run db:studio`) → land in the app verified on the Home page (welcome banner) → switch UI language → log out → confirm `/` redirects to `/login`.
 
 ## Risks
 
