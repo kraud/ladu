@@ -102,24 +102,39 @@ the tracked record the finished work is diffed against at the phase gate.
 
 ---
 
-## Slice 1 — Backend: `_id` strip on word responses + `:id` ownership check
+## Slice 1 — Backend: `_id` strip on word responses + `:id` ownership check ✅ done (2026-09-10)
 
-- `backend/services/wordService.ts` — drop `_id` from `WordResponse` and
-  `AssembledTranslation`; `assembleWord` / `fetchTranslationsMap` emit `id` only.
-- `backend/controllers/wordController.ts` — `deleteWord` response `{ id, _id }` -> `{ id }`.
-  `getWordById`: **403 "User not authorized"** when `word.userId !== req.user.id`. Leave
-  the `/simple`, `searchWord`, and tag-filter `_id` aliases for Phase 3 (their consumers
-  land then).
-- Tests: `backend/tests/words.test.js` — swap `_id` assertions for `id`, add
-  `not.toHaveProperty('_id')` on create / get, add a non-owner `GET /api/words/:id` -> 403
-  case. Expect to also touch a few `_id` assertions in `tags.test.js` (shared assembly
-  helper). Full backend suite green.
-- Docs: correct the `_id` claims in `snapshot/endpoints.md` (Words section) and
-  `data-model.md` §2.1 per the same-slice rule in `new-repo-build-plan.md` §4.
+### Outcome — what landed, and where it diverged from the plan below
 
-**Runnable:** `npm test` green; `GET /api/words/:id` on another user's word -> 403.
+- **`services/wordService.ts`** — `_id` dropped from both `WordResponse` and
+  `AssembledTranslation` (interfaces + the `assembleWord` object + the
+  `fetchTranslationsMap` entry). The word-response surface is now `id`-only.
+- **`controllers/wordController.ts`** — `getWordById` gains the ownership check
+  (**403 "User not authorized"** when `wordData.user !== req.user.id`; a comment flags
+  that Phase 4 widens it to owner-OR-followed-tag). `simplifyWord`'s `word._id` -> `word.id`
+  and the `deleteWord` response `{ id, _id }` -> `{ id }`.
+- **Divergence — one extra controller touched.** `exerciseController.fetchWordsWithData`
+  reads `w._id` / `t._id` off `WordResponse` / `AssembledTranslation` to build its *own*
+  internal legacy `WordWithData` shape (which the exercise-generation helpers depend on).
+  Rather than ripple `id` through those helpers, `fetchWordsWithData` now remaps
+  (`_id: w.id`, and maps translations to `{ _id: t.id, language, cases }`) — the exercise
+  controller keeps its internal `_id` shape untouched. `exercisePerformanceController` and
+  `tagController` were checked: their `word._id` reads are on **request-body** input, not
+  the response serializer, so they were left alone (Phase 4 / 6 scope).
+- **Tests:** `words.test.js` (`_id`->`id` on word-id reads at the create/get/delete/bulk
+  sites; `not.toHaveProperty('_id')` on create + get; translation-`id` assertions on
+  create; `deleteWord` asserts `{ id }` exactly; **new** "fails with 403 when the word
+  belongs to another user"). Also touched: `exercises.test.js`, `snapshots.test.js`,
+  `tags.test.js` (word-id reads only — tag-response `_id` left, that's Phase 4),
+  `unit/wordService.test.js` (`makeTranslation` mock -> `id`; the `assembleWord` test now
+  asserts `not.toHaveProperty('_id')`). Full backend suite **145/145** green.
+- **Docs:** `snapshot/endpoints.md` Words section corrected (the `:id` 403, the response
+  shape `_id` removal, the "no ownership check" gap note). `data-model.md` §2.1 needed no
+  change — it transcribes the FE `interfaces.ts` model, which is already `id`-only and
+  carries the standing `_id -> id` note.
 
-**Tests:** create / get / delete response shape (`id`, no `_id`); non-owner get -> 403.
+**Verified:** `npm test` (backend) green; targeted re-run of `words` / `tags` / `exercises`
+/ `snapshots` / `unit/wordService` = all green.
 
 ---
 

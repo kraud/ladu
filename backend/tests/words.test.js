@@ -9,8 +9,8 @@
  *     TagWord.find) to seed and assert on database state.  The new test uses
  *     the Drizzle ORM instance (imported from ../src/db) for seed data that
  *     bypasses the API, and the API itself for end-to-end flows.
- *   - tag IDs and word IDs are now UUIDs (returned by the API as `_id` for
- *     backward compatibility).
+ *   - tag IDs and word IDs are now UUIDs, returned by the API as `id` (the
+ *     legacy `_id` alias on word responses was dropped in Phase 2 Slice 1).
  *   - Foreign-key constraints require that tag authors exist in the `users`
  *     table, so test tags are created with the authenticated user's UUID.
  */
@@ -78,6 +78,11 @@ describe('POST /api/words - Create Word', () => {
         // from the normalised tables.
         expect(res.body.translations).toHaveLength(2);
         expect(res.body).not.toHaveProperty('password');
+        // `id` only — no legacy `_id` alias on word or translation responses.
+        expect(res.body).toHaveProperty('id');
+        expect(res.body).not.toHaveProperty('_id');
+        expect(res.body.translations[0]).toHaveProperty('id');
+        expect(res.body.translations[0]).not.toHaveProperty('_id');
     });
 
     it('creates TagWord associations when tags provided', async () => {
@@ -102,7 +107,7 @@ describe('POST /api/words - Create Word', () => {
         const tagWordRows = await db
             .select()
             .from(tagWords)
-            .where(eq(tagWords.wordId, res.body._id));
+            .where(eq(tagWords.wordId, res.body.id));
         expect(tagWordRows).toHaveLength(1);
     });
 
@@ -164,13 +169,14 @@ describe('GET /api/words/:id - Get Word By ID', () => {
         const data = await registerAndLogin();
         token = data.token;
         const r = await request(app).post('/api/words').set('Authorization', `Bearer ${token}`).send(wordPayload());
-        wordId = r.body._id;
+        wordId = r.body.id;
     });
 
     it('returns the word', async () => {
         const res = await request(app).get(`/api/words/${wordId}`).set('Authorization', `Bearer ${token}`);
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('partOfSpeech', 'Verb');
+        expect(res.body).not.toHaveProperty('_id');
     });
 
     it('fails with 400 for non-existent id', async () => {
@@ -179,6 +185,14 @@ describe('GET /api/words/:id - Get Word By ID', () => {
             .get(`/api/words/${crypto.randomUUID()}`)
             .set('Authorization', `Bearer ${token}`);
         expect(res.statusCode).toBe(400);
+    });
+
+    it('fails with 403 when the word belongs to another user', async () => {
+        const otherData = await registerAndLogin('Other', 'other@test.com', 'other', 'pass123');
+        const res = await request(app)
+            .get(`/api/words/${wordId}`)
+            .set('Authorization', `Bearer ${otherData.token}`);
+        expect(res.statusCode).toBe(403);
     });
 });
 
@@ -202,12 +216,13 @@ describe('DELETE /api/words/:id - Delete Word', () => {
 
         const r = await request(app).post('/api/words').set('Authorization', `Bearer ${token}`)
             .send(wordPayload({ tags: [{ _id: tag.id }] }));
-        wordId = r.body._id;
+        wordId = r.body.id;
     });
 
     it('deletes the word and its TagWord entries', async () => {
         const res = await request(app).delete(`/api/words/${wordId}`).set('Authorization', `Bearer ${token}`);
         expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual({ id: wordId });
 
         // Verify the word row itself was removed.
         const [foundWord] = await db.select().from(words).where(eq(words.id, wordId)).limit(1);
@@ -241,7 +256,7 @@ describe('DELETE /api/words/deleteMany - Bulk Delete', () => {
             .send(wordPayload({ translations: [t('English', 'eat', 'infinitiveNonFiniteSimpleEN'), t('Estonian', 's88ma', 'infinitiveMaEE')] }));
         const w2 = await request(app).post('/api/words').set('Authorization', `Bearer ${token}`)
             .send(wordPayload({ translations: [t('English', 'sleep', 'infinitiveNonFiniteSimpleEN'), t('Estonian', 'magama', 'infinitiveMaEE')] }));
-        wordIds = [w1.body._id, w2.body._id];
+        wordIds = [w1.body.id, w2.body.id];
     });
 
     it('deletes multiple words', async () => {

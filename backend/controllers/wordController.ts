@@ -322,7 +322,7 @@ const simplifyWord = (word: WordResponse): Record<string, any> => {
     partOfSpeech: word.partOfSpeech,
     createdAt: word.createdAt,
     updatedAt: word.updatedAt,
-    id: word._id,
+    id: word.id,
     user: word.user,
   };
 
@@ -553,6 +553,13 @@ const getWordById = asyncHandler(async (req: any, res: any) => {
   if (!wordData) {
     res.status(400);
     throw new Error("Word not found");
+  }
+
+  // Ownership check (§8.4). Until Phase 4 adds followed-tag read access, only
+  // the author may fetch a word by id.
+  if (wordData.user !== req.user.id) {
+    res.status(403);
+    throw new Error("User not authorized");
   }
 
   res.status(200).json(wordData);
@@ -867,7 +874,7 @@ const deleteWord = asyncHandler(async (req: any, res: any) => {
   await db.delete(tagWords).where(eq(tagWords.wordId, req.params.id));
   await db.delete(words).where(eq(words.id, req.params.id));
 
-  res.status(200).json({ id: word.id, _id: word.id });
+  res.status(200).json({ id: word.id });
 });
 
 // @desc    Delete multiple words by their IDs

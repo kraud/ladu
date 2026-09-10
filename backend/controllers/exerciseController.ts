@@ -92,14 +92,21 @@ const fetchWordsWithData = async (
     wordIds: string[],
 ): Promise<WordWithData[]> => {
     const wordResponses = await fetchWordsWithRelations(wordIds);
+    // wordService now emits `id` only; this controller keeps its own legacy
+    // `_id` shape internally, so remap here rather than rippling the change
+    // through the exercise-generation helpers.
     return wordResponses.map((w) => ({
-        _id: w._id,
+        _id: w.id,
         user: w.user,
         partOfSpeech: w.partOfSpeech,
         clue: w.clue,
         isCloned: w.isCloned,
         originalCreatorId: w.originalCreator,
-        translations: w.translations,
+        translations: w.translations.map((t) => ({
+            _id: t.id,
+            language: t.language,
+            cases: t.cases,
+        })),
         exercisePerformances: [],
         createdAt: w.createdAt,
         updatedAt: w.updatedAt,

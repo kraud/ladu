@@ -37,7 +37,7 @@ const makeWord = (overrides = {}) => ({
  * Build a mock translation entry (AssembledTranslation).
  */
 const makeTranslation = (overrides = {}) => ({
-    _id: 'trans-uuid-1',
+    id: 'trans-uuid-1',
     language: 'Spanish',
     cases: [
         { word: 'casa', caseName: 'singularNominative' },
@@ -76,8 +76,8 @@ describe('assembleWord', () => {
 
         const result = assembleWord(word, translationsMap, tagsMap);
 
-        // Field remapping
-        expect(result._id).toBe(word.id);
+        // Field remapping — `id` only (the legacy `_id` alias was dropped in Phase 2 Slice 1)
+        expect(result).not.toHaveProperty('_id');
         expect(result.id).toBe(word.id);
         expect(result.user).toBe(word.userId);             // userId → user
         expect(result.originalCreator).toBe(word.originalCreatorId); // originalCreatorId → originalCreator
@@ -124,8 +124,8 @@ describe('assembleWord', () => {
     // Maps multiple translations for the same word
     it('includes all translations for the word from the map', () => {
         const word = makeWord();
-        const t1 = makeTranslation({ _id: 't1', language: 'Spanish' });
-        const t2 = makeTranslation({ _id: 't2', language: 'German' });
+        const t1 = makeTranslation({ id: 't1', language: 'Spanish' });
+        const t2 = makeTranslation({ id: 't2', language: 'German' });
 
         const translationsMap = new Map([[word.id, [t1, t2]]]);
         const result = assembleWord(word, translationsMap, new Map());
@@ -152,7 +152,7 @@ describe('assembleWord', () => {
     // Ignores other entries in the map (only picks matching wordId)
     it('ignores translations and tags for other words in the map', () => {
         const word = makeWord({ id: 'target-word' });
-        const otherTranslation = makeTranslation({ _id: 'other-t' });
+        const otherTranslation = makeTranslation({ id: 'other-t' });
         const otherTag = makeTag({ id: 'other-tag' });
 
         const translationsMap = new Map([

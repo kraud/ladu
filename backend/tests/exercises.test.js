@@ -180,7 +180,7 @@ describe('POST /api/exercises/savePerformanceAction - Performance Modifiers', ()
                 ],
                 tags: [],
             });
-        const wordId = wordRes.body._id;
+        const wordId = wordRes.body.id;
 
         // Fetch the translation that was created
         const [trans] = await db.select().from(translations).where(eq(translations.wordId, wordId)).limit(1);

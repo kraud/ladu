@@ -246,7 +246,7 @@ Remove the Slice-1 primitives gallery from `App.tsx`.
   - `protected routes require a valid session` — no session → `/` and `/review` redirect to `/login` (with `redirect=`); a planted **expired-token** `localStorage['ladu.session']` is discarded and `/` still redirects.
   - `a UI language chosen on a public route persists across reload and into the session` — pick Español in the public selector on `/login` → page is Spanish → reload → still Spanish (i18next `localStorage` cache) → sign in → Home is Spanish and the protected header language button shows `ES`.
   - Infra: `pg` + `dotenv` + `@types/pg` added to the `e2e` workspace; `fixtures/db.ts` opens a `pg.Pool` on the repo-root `.env` `DATABASE_URL` and exposes `getVerifyToken` + best-effort `deleteUsersByEmail`. The suite runs against **`keelapp_v2_dev`**, uses unique `e2e-<ts>-<n>@ladu.test` emails, and `afterAll` deletes them (verified: 0 rows left, user count unchanged). CI still has no `e2e` job (Phase 8, unchanged).
-- **Phase 1 is done.** Remaining: the user's baseline commit.
+- **Phase 1 is done and committed.** All five slices + the two final user-requested additions (registration language picker / public UI-language selector; Account page) landed on `main` via **PR #1** (merge `0cf091f`, branch `auth-and-app-shell`). Final Phase-1 state: backend **144/144**, frontend **98/98**, e2e **7/7**, build green. The "one baseline commit" of `CLAUDE.md` §working-rules is satisfied.
 
 ### Final Phase-1 change — registration language picker + public UI-language selector (done 2026-09-10)
 

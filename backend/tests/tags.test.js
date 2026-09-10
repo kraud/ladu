@@ -144,7 +144,7 @@ describe('Tag sharing lifecycle', () => {
         const res = await request(app)
             .post('/api/tags')
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ label: 'Shared', visibility: 'Private', words: [{ _id: word._id }] });
+            .send({ label: 'Shared', visibility: 'Private', words: [{ _id: word.id }] });
         return res.body;
     };
 
@@ -278,7 +278,7 @@ describe('Tag clone authorization', () => {
         const tag = await request(app)
             .post('/api/tags')
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ label: 'PublicTag', visibility: 'Public', words: [{ _id: word._id }] });
+            .send({ label: 'PublicTag', visibility: 'Public', words: [{ _id: word.id }] });
 
         const res = await request(app)
             .post('/api/tags/addExternalTag')
@@ -294,7 +294,7 @@ describe('Tag clone authorization', () => {
         const tag = await request(app)
             .post('/api/tags')
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ label: 'PrivateTag', visibility: 'Private', words: [{ _id: word._id }] });
+            .send({ label: 'PrivateTag', visibility: 'Private', words: [{ _id: word.id }] });
 
         const res = await request(app)
             .post('/api/tags/addExternalTag')
@@ -309,7 +309,7 @@ describe('Tag clone authorization', () => {
         const tag = await request(app)
             .post('/api/tags')
             .set('Authorization', `Bearer ${owner.token}`)
-            .send({ label: 'Hidden', visibility: 'Private', words: [{ _id: word._id }] });
+            .send({ label: 'Hidden', visibility: 'Private', words: [{ _id: word.id }] });
 
         const res = await request(app)
             .get(`/api/tags/${tag.body._id}`)
