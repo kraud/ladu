@@ -54,6 +54,25 @@ export function languageByKey(key: string): UiLanguage | undefined {
 }
 
 /**
+ * `"EN"` / `"English"` → the CSS var reference for that language's accent
+ * (`--lang-gb`/`--lang-de`/`--lang-es`/`--lang-ee` in `styles/tokens.css` —
+ * English is keyed `gb`, matching the flag convention). Falls back to
+ * `--lang-gb` for an unknown key.
+ */
+const TINT_VAR_BY_KEY: Record<UiLanguage['key'], string> = {
+    EN: '--lang-gb',
+    ES: '--lang-es',
+    DE: '--lang-de',
+    EE: '--lang-ee',
+};
+
+export function langTint(keyOrLabel: string): string {
+    const entry = languageByKey(keyOrLabel) ?? languageByLabel(keyOrLabel);
+    const cssVar = entry ? TINT_VAR_BY_KEY[entry.key] : TINT_VAR_BY_KEY.EN;
+    return `var(${cssVar})`;
+}
+
+/**
  * i18next language code → stored label. Region variants are stripped
  * (`"es-ES"` → `"Spanish"`); an unknown code falls back to `"English"` so a
  * login/register payload always carries a valid `uiLanguage`.

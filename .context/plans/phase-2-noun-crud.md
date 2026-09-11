@@ -185,7 +185,82 @@ Backend untouched since Slice 1 (145/145).
 
 ---
 
-## Slice 3 — Form engine core: config + renderer + `TranslationCard`
+## Slice 3 — Form engine core: config + renderer + `TranslationCard` ✅ done (2026-09-11)
+
+### Outcome — what landed, and where it diverged from the plan below
+
+- **Five shadcn/Base UI primitives added**: `radio-group.tsx`, `checkbox.tsx`, `dialog.tsx`,
+  `alert-dialog.tsx` (all hand-authored against `@base-ui/react/{radio-group,radio,checkbox,
+  dialog,alert-dialog}`, following `sheet.tsx`'s pattern of aliasing the primitive's own
+  `Root`/`Trigger`/`Portal`/`Backdrop`/`Popup`/`Title`/`Description`/`Close` parts), plus
+  `textarea.tsx` (no Base UI primitive exists for it — a plain native `<textarea>` styled
+  like `input.tsx`). All wrapped in `React.forwardRef` per the Phase 1 lesson.
+- **`form-engine/configs/{types,nouns,index}.ts`** — `NOUN_CONFIGS` is derived from
+  `WordCasesData.Noun` (`ts/wordCasesDataByPoS.ts`) filtered by language, plus two
+  structural fields the registry does not carry at all: `regularity` (all four languages)
+  and `gender` (ES/DE, anchored on the registry's own gender rows). **Key mechanical
+  finding**: the old app's per-language RHF field name (`"singular"`,
+  `"singularNominativ"`...) is exactly `caseName` with the trailing language code
+  stripped (`NounCases.singularNominativDE` → `"singularNominativ"`) — this holds for
+  all 25 noun cases across all four languages, so `FieldConfig.name` is derived
+  mechanically rather than hand-listed, and doubles as the regression test's mechanism.
+  `required` is likewise derived structurally (`plurality === Singular && declination ===
+  Nominative`, or `isNounProperty` for gender) rather than hand-flagged per field.
+  **Divergence**: `FieldConfig` also carries `requiredMessageKey` / `invalidMessageKey`
+  (i18n keys for the yup messages), set by `nouns.ts` from the existing
+  `wordRelated:wordForm.noun.errors.form*` block — keeps `buildYupSchema.ts` fully
+  generic (no PoS/language-specific key-naming knowledge), which the plan's prose didn't
+  spell out but follows from "config is data."
+- **`buildYupSchema.ts`** — generic over any `TranslationFormConfig`; reads validation
+  messages off the config, not off `pos`/`lang`.
+- **`FieldRenderer.tsx`** — `displayOnly` gating rule turned out to be a single clean
+  predicate, not a per-field flag: **hidden only when non-required AND empty**. Checked
+  against every field in `forms-nouns.md` — every gated field there is non-required, every
+  required field (including ES/DE gender) is never gated — so no extra config field was
+  needed to reproduce the old per-field `getDisabledInputFieldDisplayLogic` behaviour.
+  displayOnly renders as static text (radio fields show the matched option's label).
+- **`TranslationCard.tsx`** — owns its own `useForm` + yup resolver per card (mirrors the
+  old app's per-language forms pushing `{language, cases, ...}` up independently, rather
+  than one shared giant form). Accepts `initialCases` (hydration), `displayOnly`,
+  `onRemove`/`onClear`/`removeDisabled`; the "push up to parent state" wiring
+  (`useWordFormState`) is Slice 4. Autocomplete row is a comment-marked mount point only.
+- **`lib/language.ts`** — added `langTint(keyOrLabel)`, resolving to
+  `var(--lang-{gb,de,es,ee})` (English keyed `gb`, matching the flag convention already in
+  `FlagIcon`).
+- **i18n (D4)** — `wordRelated:wordForm.noun.fields.*` added in all four locales (25 keys:
+  one per `NounCases` value), plus a new `wordRelated:wordForm.noun.errors.form*.
+  regularityRequired` key in all four locales — `forms-nouns.md` documents this yup
+  message for the noun regularity field, but only the *verb* error block had it; reused
+  the verb block's already-translated string per locale rather than inventing new copy.
+  **EE flagged for the user to check**: singular/plural/case-name glossary terms for
+  fields belonging to *other* languages (e.g. what "Singular accusative" reads as when
+  the UI is Estonian) used the Estonian linguistic loanwords (`Akusatiiv`, `Genitiiv`,
+  `Daativ`, `Partitiiv`) rather than Estonian's own native case names, to avoid confusing
+  them with EE's own `nimetav`/`omastav`/`osastav` fields — a judgment call, not a
+  transcription.
+- **Test-infra fix, not scoped to this slice but required by it**: jsdom ships no
+  `PointerEvent` constructor; Base UI's Radio/Checkbox/Dialog click handlers construct one
+  to re-dispatch a click carrying modifier keys, which threw "is not a constructor" the
+  first time a test clicked one. Added a minimal `MouseEvent`-based polyfill to
+  `test/setup.ts` — this was going to be needed the first time *any* Base UI control got
+  a click-interaction test (Slice 4's Checkbox, Slice 5's AlertDialog), not noun-specific.
+
+**Tests**: `configs/nouns.test.ts` (the config → old-field-list regression test, all four
+languages, names + order + `required` flags + the `caseName = name + suffix` invariant);
+`buildYupSchema.test.ts` (required/optional, noNumbers, regularity oneOf, gender
+required+oneOf, per language); `FieldRenderer.test.tsx` (one render per kind, displayOnly
+gating in both directions, a real radio click); `TranslationCard.test.tsx` (one mount per
+language + native name, hydration from `initialCases`, Clear/Remove visibility and
+`removeDisabled`).
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**105 → 133** (28 new: 5 config, 6 yup, 8 FieldRenderer, 5 TranslationCard, minus test-count
+rounding). Backend untouched since Slice 1 (145/145, not re-run this slice — no backend
+files touched).
+
+---
+
+### Original plan (superseded by the outcome above)
 
 - Add the five held-over shadcn primitives: `radio-group`, `checkbox`, `textarea`,
   `alert-dialog`, `dialog` (Phosphor icon swap; wrap in `React.forwardRef` where an RHF
