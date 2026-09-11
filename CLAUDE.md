@@ -7,6 +7,9 @@ Context for working in this monorepo. Read this first every session. It applies 
 
 ---
 
+## Communication
+All the information must be done under the standard STE100 of communication.
+
 ## 1. What Ladu is
 
 A multilingual vocabulary manager for **polyglots** — people who already speak several languages and want to keep *all* of them alive, not just study one new pair. A **Word** is one concept (e.g. "to dance") that holds **translations in many languages at once**, each with full grammatical detail (conjugations, declensions, gender…). Stored data feeds an **adaptive exercise engine** (spaced-repetition / forgetting-curve) that generates cross-language practice.

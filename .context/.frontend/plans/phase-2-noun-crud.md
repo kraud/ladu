@@ -138,27 +138,50 @@ the tracked record the finished work is diffed against at the phase gate.
 
 ---
 
-## Slice 2 — `features/words` data layer (no visible UI)
+## Slice 2 — `features/words` data layer (no visible UI) ✅ done (2026-09-10)
 
-- `types.ts` — `WordBE` (response, `id`-only), `CreateWordBody`
-  `{ partOfSpeech, clue?, translations: [{ language, cases: [{ caseName, word }] }] }`,
-  `UpdateWordBody` `{ id, ...CreateWordBody }`. Imports `TranslationItem` / `WordItem`
-  from `ts/interfaces.ts`.
-- `api.ts` — `getWords`, `getWordById`, `createWord`, `updateWord`, `deleteWord` (typed
-  axios on `api/client.ts`). No `deleteMany` / `simple` / `searchWord` (Phase 3).
-- `keys.ts` — `wordsKeys`: `['words']`, `['words', id]`.
-- `hooks.ts` — `useWord(id)`, `useCreateWord`, `useUpdateWord`, `useDeleteWord`.
-  Mutations: `onSuccess` toast + `invalidateQueries(['words'])` + `['metrics']` (declared
-  now; no consumer until Phase 3.5). No status booleans — `isPending` drives button state.
-- `app/query-client.ts` — mark the Phase 2 invalidation-graph line active
-  (`createWord / updateWord / deleteWord => ['words'], ['metrics']`).
-- `test/msw/wordHandlers.ts` — in-memory fake of the five endpoints (incl. 403 on
-  non-owner get), installed per-test via `server.use`.
+### Outcome — what landed, and where it diverged from the plan below
 
-**Runnable:** tests + build green; no route change yet (Phase 1 Slice 2 precedent).
+- **`features/words/types.ts`** — `WordBE` (word + `TranslationBE` + `WordTagRef`,
+  `id`-only, ISO-string dates), `CreateWordBody` / `TranslationInput` / `UpdateWordBody`
+  (`extends CreateWordBody` + `id`), `DeleteWordResponse` (`{ id }`). Pinned against the
+  post-Slice-1 controller; the tag shape is a raw Drizzle `tags` row (**not** the
+  `ts/interfaces.ts` form-model `TagData`), stubbed because Phase 2 never renders tags.
+  The form-local model (`WordData` / `TranslationItem` from `ts/interfaces.ts`) is not
+  imported here — it belongs to the form engine (Slice 3).
+- **`features/words/api.ts`** — `getWords`, `getWordById`, `createWord`, `updateWord`,
+  `deleteWord`. `updateWord` sends the id in both the path and the body (old-contract
+  parity; the controller only reads `req.params.id`). No `simple` / `searchWord` /
+  `deleteMany` (Phase 3).
+- **`features/words/keys.ts`** — `wordKeys` = `{ all: ['words'], list(filters?), detail(id) }`.
+  **Divergence:** the leaf keys are namespaced — `detail(id)` → `['words','detail',id]`,
+  `list()` → `['words','list', …]` — not the schematic `['words', id]` in the plan, so a
+  word UUID can never collide with a Phase-3 filters object at the same position.
+  `app/query-client.ts`'s invalidation-graph comment updated to match and marked ACTIVE.
+- **`features/words/hooks.ts`** — `useWord(id)` (query; `enabled: id !== ''`),
+  `useCreateWord` / `useUpdateWord` / `useDeleteWord` (mutations). **Divergence: no toasts
+  and no navigation in the hooks.** They only run the invalidation graph — invalidate
+  `wordKeys.all` + `['metrics']` on every mutation; `useUpdateWord` also `setQueryData`s
+  the detail key, `useDeleteWord` `removeQueries` it. The success UX (create → morph
+  toast + "See details" → `/word/:id`; update → relock; delete → `/`) and the backend
+  message → i18n-key mapping (`errors.ts` + a `wordRelated:apiErrors.*` block) move to
+  **Slice 4** with the first page, since they vary per call site — this matches
+  `useUpdateProfile`, not `useLogin`. Pages pass `{ onSuccess, onError }` to `mutate()`.
+- **No `useWords` list hook** — `getWords` (the api fn) exists, but nothing in Phase 2
+  renders a list, so the list hook is deferred to Phase 3's `useWordsInfinite`.
+  Invalidation is proved in tests by spying on `queryClient.invalidateQueries`.
+- **`test/msw/wordHandlers.ts`** — `makeWordHandlers({ callerId, seed })` factory
+  (mirrors `makeAuthHandlers`). Bearer token not verified — tests set `callerId`
+  directly. `GET /:id` non-owner → 403; **`PUT` / `DELETE` non-owner → 401** (faithful:
+  only `getWordById` got the 403 in Slice 1). Captures `POST` / `PUT` bodies in
+  `.requests` for payload-shape assertions; drops blank case values like the controller.
+- **`api/types.ts`** — `CursorPage` doc note corrected ("lands in Phase 2" → "Phase 3").
 
-**Tests:** create -> `['words']` invalidated + payload shape; update; delete -> navigate
-seam; `useWord` success + 403.
+**Verified:** `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**98 → 105** (7 new hook tests: `useWord` owned / 403 / empty-id-idle; `useCreateWord`
+exact nested payload + invalidation, and the < 2-translations error; `useUpdateWord`
+detail-cache write + invalidation; `useDeleteWord` cache removal + invalidation).
+Backend untouched since Slice 1 (145/145).
 
 ---
 
@@ -184,6 +207,11 @@ required); the **config -> old-field-list regression test** for all four noun la
 ## Slice 4 — `WordForm` orchestrator + `AddWordPage` (create flow)
 
 - `form-engine/useWordFormState.ts` + `form-engine/WordForm.tsx`.
+- `features/words/errors.ts` — backend message → i18n-key map (`wordErrorKey`), mirroring
+  `features/auth/errors.ts`; + a `wordRelated:apiErrors.*` block (`wordNotFound`,
+  `notAuthorized`, `missingPartOfSpeech`, `notEnoughTranslations`) in all four locales,
+  EE flagged. Moved here from Slice 2 — the hooks carry no toasts, so the first page that
+  shows one owns the mapping. `AddWordPage` / `WordPage` `onError` → `toast.error(t(wordErrorKey(err)))`.
 - `components/common/PartOfSpeechSelector.tsx` — 4 radio cards; Noun enabled, the other
   three disabled with `wordRelated:partOfSpeechSelector.missingImplementationPoS`.
 - `lib/words.ts` — `filterTranslationsByUserLanguages` (port of

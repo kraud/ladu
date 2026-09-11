@@ -270,7 +270,7 @@ In progress. Seven slices (0–6); the user commits and re-confirms between each
 |---|---|
 | 0 — persist the plan | ✅ done |
 | 1 — backend: `_id` strip on word responses + `GET /api/words/:id` ownership check (403) + tests | ✅ done 2026-09-10 — backend **145/145** green; `snapshot/endpoints.md` corrected (`data-model.md` §2.1 already `id`-clean) |
-| 2 — `features/words` data layer (types / api / keys / hooks / MSW) | not started |
+| 2 — `features/words` data layer (types / api / keys / hooks / MSW) | ✅ done 2026-09-10 — `features/words/{types,api,keys,hooks}.ts` + `test/msw/wordHandlers.ts`; hooks do invalidation only (toasts/nav deferred to the pages); `wordKeys` namespaced; frontend **98 → 105**, build green |
 | 3 — form engine core: configs + `buildYupSchema` + `FieldRenderer` + `TranslationCard` + 5 held-over shadcn primitives + regression test | not started |
 | 4 — `WordForm` orchestrator + `PartOfSpeechSelector` + `AddWordPage` (create) | not started |
 | 5 — `WordPage` (owner view / edit / delete) | not started |
