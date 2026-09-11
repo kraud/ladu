@@ -1,6 +1,6 @@
 # Frontend `src/` Structure & Component Breakdown
 
-*2026-09-07. Proposal for the reimplementation frontend's file layout, derived from the UI-blueprint (`snapshot/ui/00–06`, behaviour) and `MOCKUPS/` (design language). Review target — nothing scaffolded yet. Pairs with `CLAUDE.md` §5 (frontend invariants) and `new-repo-build-plan.md` §5 (phases).*
+*2026-09-07. Proposal for the reimplementation frontend's file layout, derived from the UI-blueprint (`snapshot/ui/00–06`, behaviour) and `MOCKUPS/` (design language). Review target — nothing scaffolded yet. Pairs with the frontend invariants in [`.context/README.md`](../README.md) and [`.context/plans/new-repo-build-plan.md`](../plans/new-repo-build-plan.md) §5 (phases).*
 
 ---
 
@@ -210,7 +210,7 @@ pages/       — route-level compositions; imported by routes/*.
 
 Shared, one per app (not per feature): `app/query-client.ts` holds the **staleTime policy table** and `app/` also carries the **invalidation graph** as a doc comment / typed map, seeded from `frontend-migration-plan.md` §5.2 and extended each phase.
 
-> Per-phase scope (what each phase actually creates) lives in `new-repo-build-plan.md` §5 and the per-phase files in `plans/` — this document stays scope-agnostic so it does not drift as the roadmap changes.
+> Per-phase scope (what each phase actually creates) lives in [`.context/plans/new-repo-build-plan.md`](../plans/new-repo-build-plan.md) §5 and the per-phase files in [`.context/plans/`](../plans/) — this document stays scope-agnostic so it does not drift as the roadmap changes.
 
 ---
 

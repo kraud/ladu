@@ -8,7 +8,7 @@ build or its dependency tree.
 ## What it's for
 
 **Every phase ends with a green e2e run covering that phase's vertical slice** —
-this is a required gate in `.context/.frontend/new-repo-build-plan.md` §5, not
+this is a required gate in `.context/plans/new-repo-build-plan.md` §5, not
 optional polish. MSW/Vitest tests prove units and flows in isolation; this suite
 proves the real backend + real Postgres + real browser actually work together.
 

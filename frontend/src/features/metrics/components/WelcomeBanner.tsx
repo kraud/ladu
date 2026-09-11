@@ -8,7 +8,7 @@ const ROTATE_MS = 3800;
  * Post-login banner: "Welcome, {name}" + a one-line greeting that rotates
  * through the four UI languages (EN→ES→DE→EE), each shown in its own language.
  * Phase 1 Home is *only* this — the metrics query, stat cards and charts are
- * Phase 3.5 (`plans/phase-1-auth-app-shell.md` decisions 5–7).
+ * Phase 3.5 (`.context/plans/phase-1-auth-app-shell.md` decisions 5–7).
  */
 export function WelcomeBanner({ name }: { name: string }) {
     const { t, i18n } = useTranslation('dashboard');

@@ -18,7 +18,7 @@ It also fixes four §8.4 defects on day one: unguarded protected routes, unguard
 **Decisions taken with the user (2026-09-10) — Dashboard/metrics re-scope:**
 
 5. **Metrics move out of Phase 1.** `GET /api/users/getUserMetrics` aggregates `words` + `translations` only (`backend/controllers/metricController.ts:15,47-157`) — no exercise-performance dependency — so on a fresh account with no way to create a word, every number it returns is structurally zero and the "loading/loaded/empty" gate can only ever hit the empty branch. Slice 4 keeps the real app shell but its `/` route becomes a **Home page that is only the welcome banner** (name + cycling EN→ES→DE→EE greeting) with an `EmptyState` CTA to Add Word. No `useQuery`, no stat cards, no charts in Phase 1.
-6. **The full Dashboard is the new Phase 3.5** (`plans/phase-3-5-dashboard-metrics.md`): the metrics query + `staleTime` policy, `UserInfoPanel` stat cards, and *both* blueprint charts (pie: words per PoS; bar: translations per language/month — both word-derived). Phase 5 keeps exercises + performance only.
+6. **The full Dashboard is the new Phase 3.5** (`phase-3-5-dashboard-metrics.md`, same folder): the metrics query + `staleTime` policy, `UserInfoPanel` stat cards, and *both* blueprint charts (pie: words per PoS; bar: translations per language/month — both word-derived). Phase 5 keeps exercises + performance only.
 7. **Consequence:** Phase 1 now ships no `useQuery` at all — the read path is first exercised in Phase 2. Recorded in `new-repo-build-plan.md` Phase 1 scope so the kill-switch pace note accounts for the narrower surface.
 
 Work proceeds in **five reviewable slices**, each independently runnable. The user commits between slices, and **confirms before each new slice starts** — no slice begins without an explicit go-ahead.
@@ -27,7 +27,7 @@ Work proceeds in **five reviewable slices**, each independently runnable. The us
 
 ## Slice 0 — Persist this plan into the repo
 
-Copy this plan verbatim to **`.context/.frontend/plans/phase-1-auth-app-shell.md`** (the directory exists and is currently empty). It becomes the tracked record of what was intended, so the finished work can be diffed against it at the phase gate and the deliberate deviations in Slice 5 are auditable. Subsequent phases add their own file alongside it.
+This plan is tracked at **`.context/plans/phase-1-auth-app-shell.md`** (this file). It is the record of what was intended, so the finished work can be diffed against it at the phase gate and the deliberate deviations in Slice 5 are auditable. Subsequent phases add their own file alongside it in the same folder.
 
 ---
 

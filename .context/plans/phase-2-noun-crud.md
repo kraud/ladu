@@ -97,8 +97,8 @@ request / response specifics.
 
 ## Slice 0 — Persist this plan
 
-Copy this plan to `.context/.frontend/plans/phase-2-noun-crud.md` (this file). It becomes
-the tracked record the finished work is diffed against at the phase gate.
+This plan is tracked at `.context/plans/phase-2-noun-crud.md` (this file). It is
+the record the finished work is diffed against at the phase gate.
 
 ---
 

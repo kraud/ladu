@@ -5,7 +5,7 @@ import { defineConfig, devices } from '@playwright/test';
  *
  * Boots the REAL backend (:5001) + the frontend dev server (:5173) together and
  * drives them through a browser. One `*.spec.ts` per phase's vertical slice —
- * see `.context/.frontend/new-repo-build-plan.md` §5 (phase gates) and §6.
+ * see `.context/plans/new-repo-build-plan.md` §5 (phase gates) and §6.
  *
  * Prerequisites (NOT managed here — same ones the backend Jest suite needs):
  *   1. `npm run docker:up`      — local Postgres (host :5433)

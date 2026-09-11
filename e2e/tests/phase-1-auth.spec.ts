@@ -3,7 +3,7 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
  * Phase 1 — auth + app shell, vertical slice against the real stack
- * (`.context/.frontend/new-repo-build-plan.md` §5 gate).
+ * (`.context/plans/new-repo-build-plan.md` §5 gate).
  *
  * register (with the >= 2-language picker) -> verify via the DB token ->
  * land on Home -> log out -> log in through the form; plus decision-1
