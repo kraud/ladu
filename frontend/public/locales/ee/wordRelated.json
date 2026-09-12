@@ -2,7 +2,14 @@
   "addWordPage": {
     "title": "Lisa uus {{currentPoS}}",
     "titleDefault": "Lisa uus sõna",
-    "subtitle": "Kõik kohustuslikud väljad tuleb enne salvestamist täita"
+    "subtitle": "Kõik kohustuslikud väljad tuleb enne salvestamist täita",
+    "toastCreateSuccess": "Sõna on edukalt loodud"
+  },
+  "apiErrors": {
+    "wordNotFound": "Seda sõna ei leitud.",
+    "notAuthorized": "Sul pole juurdepääsu sellele sõnale.",
+    "missingPartOfSpeech": "Palun vali sõnaliik.",
+    "notEnoughTranslations": "Lisa enne salvestamist vähemalt kaks tõlget."
   },
   "displayWord": {
     "titlePos": "Üksikasjalik vaatamine: {{currentPoS}}",
@@ -90,27 +97,61 @@
     "clue": "Vihje"
   },
   "wordForm": {
+    "hints": {
+      "minTranslations": "Lisa enne salvestamist vähemalt 2 tõlget."
+    },
     "errors": {
       "noNumbers": "Ei tohi sisaldada numbreid"
     },
     "noun": {
       "errors": {
         "formEN": {
-          "singularFormRequired": "'Ainsus' on kohustuslik"
+          "singularFormRequired": "'Ainsus' on kohustuslik",
+          "regularityRequired": "See pole valik"
         },
         "formES": {
           "singularFormRequired": "'Ainsuse' vorm on kohustuslik",
-          "genderRequired": "'Soo' valik on kohustuslik"
+          "genderRequired": "'Soo' valik on kohustuslik",
+          "regularityRequired": "See pole valik"
         },
         "formDE": {
           "singularFormRequired": "'Ainsuse nimetav' on kohustuslik",
-          "genderRequired": "'Soo' valik on kohustuslik"
+          "genderRequired": "'Soo' valik on kohustuslik",
+          "regularityRequired": "See pole valik"
         },
         "formEE": {
           "singularFormRequired": "'Ainsuse nimetav' on kohustuslik",
           "searchInEnglishLabel": "Otsi nimisõna inglise keeles",
-          "searchInEnglishWarning": "Ettevaatust, see ei tööta kõigi nimisõnade puhul! Vajadusel proovi eesti keeles."
+          "searchInEnglishWarning": "Ettevaatust, see ei tööta kõigi nimisõnade puhul! Vajadusel proovi eesti keeles.",
+          "regularityRequired": "See pole valik"
         }
+      },
+      "fields": {
+        "regularityEN": "Reeglipärasus",
+        "singularEN": "Ainsus",
+        "pluralEN": "Mitmus",
+        "regularityES": "Reeglipärasus",
+        "genderES": "Sugu",
+        "singularES": "Ainsus",
+        "pluralES": "Mitmus",
+        "regularityDE": "Reeglipärasus",
+        "genderDE": "Sugu",
+        "singularNominativDE": "Ainsus nimetav",
+        "pluralNominativDE": "Mitmus nimetav",
+        "singularAkkusativDE": "Ainsus akusatiiv",
+        "pluralAkkusativDE": "Mitmus akusatiiv",
+        "singularGenitivDE": "Ainsus genitiiv",
+        "pluralGenitivDE": "Mitmus genitiiv",
+        "singularDativDE": "Ainsus daativ",
+        "pluralDativDE": "Mitmus daativ",
+        "regularityEE": "Reeglipärasus",
+        "singularNimetavEE": "Ainsus nimetav",
+        "pluralNimetavEE": "Mitmus nimetav",
+        "singularOmastavEE": "Ainsus omastav",
+        "pluralOmastavEE": "Mitmus omastav",
+        "singularOsastavEE": "Ainsus osastav",
+        "pluralOsastavEE": "Mitmus osastav",
+        "shortFormEE": "Lühike sisseütlev"
       }
     },
     "adjective": {

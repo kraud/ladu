@@ -48,7 +48,7 @@ const protect = asyncHandler(async (req: any, res: any, next: any) => {
                 throw new Error('Not authorized');
             }
 
-            // Postgres `id` only — the legacy `_id` alias is gone (new-repo-build-plan.md §4).
+            // Postgres `id` only — the legacy `_id` alias is gone (.context/plans/new-repo-build-plan.md §4).
             req.user = user;
             next();
         } catch (error) {

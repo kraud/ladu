@@ -7,6 +7,9 @@ Context for working in this monorepo. Read this first every session. It applies 
 
 ---
 
+## Communication
+All the information must be done under the standard STE100 of communication.
+
 ## 1. What Ladu is
 
 A multilingual vocabulary manager for **polyglots** — people who already speak several languages and want to keep *all* of them alive, not just study one new pair. A **Word** is one concept (e.g. "to dance") that holds **translations in many languages at once**, each with full grammatical detail (conjugations, declensions, gender…). Stored data feeds an **adaptive exercise engine** (spaced-repetition / forgetting-curve) that generates cross-language practice.
@@ -37,7 +40,7 @@ This is a **from-scratch re-implementation**, not the live app.
 - **One feature at a time, small vertical slices.** Each slice ends with something runnable.
 - **No one-shotting big features.** Prioritise changes the user can *review, understand, and commit* before moving on.
 - **Docs + tests are written alongside the feature**, not deferred.
-- **Every phase ends with a green Playwright e2e run.** One spec per phase in the `e2e/` workspace, walking that phase's vertical slice against the real backend + Postgres + a browser. `npm run test:e2e` is a required gate — see `.context/.frontend/new-repo-build-plan.md` §6. Interactive browser driving mid-session comes from the `@playwright/mcp` server in `.mcp.json`.
+- **Every phase ends with a green Playwright e2e run.** One spec per phase in the `e2e/` workspace, walking that phase's vertical slice against the real backend + Postgres + a browser. `npm run test:e2e` is a required gate — see `.context/plans/new-repo-build-plan.md` §6. Interactive browser driving mid-session comes from the `@playwright/mcp` server in `.mcp.json`.
 - **Ask before assuming.** On any critical/ambiguous decision, check with the user — do not guess.
 - **Friendships, notifications, tags and tag-sharing are explicitly deferred until after Phases 1–3.** Prior agents started the backend social redesign (§8.2/§8.3): keep its **schema changes**, but its controllers/tests are not to be reconciled now. Backend tests tied to friendship/tag_shares may be removed or left failing for now — "no test there yet" is acceptable until we return to it.
 - The user commits the working tree once **Phase 0 is agreed done** — there is one baseline commit to make, not per-change commits yet.

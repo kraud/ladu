@@ -9,9 +9,12 @@
  *                                                     notifications, tag
  *
  * `_protected.beforeLoad` is the single centralised auth gate (fixes the old
- * app's per-page guards and its four unguarded pages). Every leaf below it is a
- * thin placeholder in Slice 2 — the Phase-1 gate is literally "visiting *any*
- * protected route unauthenticated redirects", which needs the routes to exist.
+ * app's per-page guards and its four unguarded pages). Most leaves below it
+ * were thin placeholders as of Slice 2 — the Phase-1 gate is literally
+ * "visiting *any* protected route unauthenticated redirects", which needed
+ * the routes to exist before their real pages did. `addWord` got its real
+ * page in Phase 2 Slice 4, `word` in Slice 5; the rest still await later
+ * slices/phases.
  */
 import {
     createRootRoute,
@@ -32,6 +35,8 @@ import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage';
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
 import { DashboardPage } from '@/features/metrics/pages/DashboardPage';
 import { AccountPage } from '@/features/account/pages/AccountPage';
+import { AddWordPage } from '@/features/words/pages/AddWordPage';
+import { WordPage } from '@/features/words/pages/WordPage';
 
 /** Temporary leaf for routes whose real page lands in a later slice. */
 function Placeholder({ title, note }: { title: string; note?: string }) {
@@ -101,13 +106,13 @@ const dashboardRoute = createRoute({
 const addWordRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/addWord/{-$partOfSpeech}',
-    component: () => <Placeholder title="Add word" note="Form engine lands in Phase 2." />,
+    component: AddWordPage,
 });
 
 const wordRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/word/$wordId',
-    component: () => <Placeholder title="Word" note="View / edit lands in Phase 2." />,
+    component: WordPage,
 });
 
 const reviewRoute = createRoute({

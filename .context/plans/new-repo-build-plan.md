@@ -1,8 +1,8 @@
 # New-Repo Reimplementation Build Plan
 
-*2026-09-05. Planning only — no code was changed. Executing the verdict of [frontend-reimplementation-study.md](./frontend-reimplementation-study.md) §11: a **new repository** (npm-workspaces monorepo: copied backend + clean-slate frontend), built in small vertical slices, deployed to a temporary domain, cutover by manual domain switch. Companion documents: the study (§7 target shape, §8 deficiency catalog, §9 flow catalog, §11 verdict), [frontend-migration-plan.md](./frontend-migration-plan.md) (durable library decisions + Appendix B behavioral inventory, all of which transfer 1:1 as the rewrite's specification).*
+*2026-09-05. Planning only — no code was changed. Executing the verdict of [frontend-reimplementation-study.md](../.frontend/frontend-reimplementation-study.md) §11: a **new repository** (npm-workspaces monorepo: copied backend + clean-slate frontend), built in small vertical slices, deployed to a temporary domain, cutover by manual domain switch. Companion document: the study (§7 target shape, §8 deficiency catalog, §9 flow catalog, §11 verdict).*
 
-**The documentation snapshot this plan is built on lives in [`snapshot/`](./snapshot/)** — fourteen files + the [`ui/`](./ui/) blueprint collection (7 files), ~4,100 lines total, every claim carrying `file:line` evidence, produced 2026-09-05 (see §3). It has two halves: the **behavior inventory** (what each page/component does — the "long list of use cases") and the **data model + form/logic specs** (the enums, interfaces, case registry, per-form field lists, Review-table column+cell model, exercise-flow card model, autocomplete transforms, and general utility functions you need to literally rebuild the forms).
+**The documentation snapshot this plan is built on lives in [`snapshot/`](../.frontend/snapshot/)** — fourteen files + the [`ui/`](../.frontend/snapshot/ui/) blueprint collection (7 files), ~4,100 lines total, every claim carrying `file:line` evidence, produced 2026-09-05 (see §3). It has two halves: the **behavior inventory** (what each page/component does — the "long list of use cases") and the **data model + form/logic specs** (the enums, interfaces, case registry, per-form field lists, Review-table column+cell model, exercise-flow card model, autocomplete transforms, and general utility functions you need to literally rebuild the forms).
 
 ---
 
@@ -24,7 +24,7 @@ keelapp-v2/
 ```
 
 - The current repo (`keelapp`) stays **untouched and live on the real domain** the entire time — it is the executable specification ("what should happen?" = run it).
-- The new repo deploys to a **temporary domain** when its parity checklist is green; the user manually switches the real domain (decision in `.context/production-migration-plan.md`, platform still undecided — everything here is deploy-agnostic: pure HTTP, no persistent connections).
+- The new repo deploys to a **temporary domain** when its parity checklist is green; the user manually switches the real domain (platform still undecided — everything here is deploy-agnostic: pure HTTP, no persistent connections).
 - Start small (user decision): Phase 1 = auth (register/login + verify/reset), Phase 2 = create/view **nouns** with translations in ≥3 languages (EN/ES/DE/EE — all four come free from the config-driven form engine). Each phase ships something runnable.
 - **Kill-switch** (study §11): after Phase 1's vertical slice, if measured pace suggests the full rewrite exceeds ~2× the migration-plan effort, stop and execute the corrected migration plan instead.
 
@@ -44,7 +44,7 @@ Tradeoff accepted: the inventory abstracts — it cannot carry every incidental 
 
 ## 3. Documentation snapshot (produced)
 
-Ten files under [`snapshot/`](./snapshot/), all generated 2026-09-05 by reading the actual code (not the prior docs), every claim carrying `file:line`:
+Ten files under [`snapshot/`](../.frontend/snapshot/), all generated 2026-09-05 by reading the actual code (not the prior docs), every claim carrying `file:line`:
 
 **Half A — behavior inventory** (what each page/component does — the use-case list):
 
@@ -70,7 +70,7 @@ Ten files under [`snapshot/`](./snapshot/), all generated 2026-09-05 by reading 
 | `general-use-functions.md` | Full export inventory of `generalUseFunctions.ts` (748 lines): all ~30 helpers — language/PoS lookups, avatar/color, friendship-button logic, filter extraction, word-chip/primary-case display, timers, sorting, color interpolation — with quirks + port/test guidance | 180 lines |
 | `autocomplete.md` | The 8 autocomplete endpoint variants + the 4 shared EE/ES sanitize transforms (exact case mappings + word-form codes), the found/partial/not-found status, and the 4 inline (non-shared) sanitizers to lift | 150 lines |
 
-**UI blueprint** — [`ui/`](./ui/) (7 files, ~700 lines): design-neutral, screen-by-screen layout + interaction spec for the reimplementation frontend (built for AI-assisted UI development). `00-global.md` fixes the shell, navigation, shared patterns, states, and the §8 intentional deltas; 01–06 cover auth, Dashboard, word editor, Review table, Practice flow, and social views. Feed 00→06 in order.
+**UI blueprint** — [`ui/`](../.frontend/snapshot/ui/) (7 files, ~700 lines): design-neutral, screen-by-screen layout + interaction spec for the reimplementation frontend (built for AI-assisted UI development). `00-global.md` fixes the shell, navigation, shared patterns, states, and the §8 intentional deltas; 01–06 cover auth, Dashboard, word editor, Review table, Practice flow, and social views. Feed 00→06 in order.
 
 Key snapshot facts the roadmap relies on:
 
@@ -193,7 +193,7 @@ Split out of Phase 1 (2026-09-10): the metrics endpoint aggregates `words` + `tr
 - **e2e** (`phase-7-tag-shares.spec.ts`, two browser contexts): user A shares a tag → user B accepts → B gets an independent editable clone whose words keep every translation + case (the data-loss bug); a non-viewer is refused on `getTagById`/`followTag`/clone; Account language-order drag persists.
 
 ### Phase 8 — Deploy + parity + cutover
-- Deploy to the temporary domain (platform per `.context/production-migration-plan.md` when decided).
+- Deploy to the temporary domain (platform still undecided).
 - **Route-parity checklist**: per route (12 + catch-all), walk every use case in the snapshot files against the new build; **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
 - User manually switches the real domain. Old repo becomes greppable reference; archive when satisfied.
 - **Gate**: checklist + annex fully green; zero unexplained parity failures.
@@ -228,18 +228,19 @@ Performed 2026-09-05, before this plan was written:
 
 ## 9. Progress — quick reference
 
-*Snapshot 2026-09-08. This is the "where are we" glance for when work resumes; keep the tail current as slices land. Per-slice detail — goals, decisions taken with the user, what actually shipped vs. what was planned — lives in [`plans/`](./plans/), one file per phase.*
+*Snapshot 2026-09-08. This is the "where are we" glance for when work resumes; keep the tail current as slices land. Per-slice detail — goals, decisions taken with the user, what actually shipped vs. what was planned — lives in the per-phase files in this folder, one file per phase.*
 
 | Phase | Status |
 |---|---|
 | 0 — Scaffold + backend copy | ✅ done — commit `c030b68`; backend 130/130 green |
-| 1 — Auth + app shell | ✅ done 2026-09-10 — branch `auth-and-app-shell`; backend 141/141, frontend 89/89, e2e 7/7, build green (breakdown below) |
-| 2, 3, 3.5, 4–8 | not started |
+| 1 — Auth + app shell | ✅ **done & committed** 2026-09-10 — merged to `main` via PR #1 (`0cf091f`); final state backend 144/144, frontend 98/98, e2e 7/7, build green (breakdown below) |
+| 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
+| 3, 3.5, 4–8 | not started |
 
-- **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../../.context/README.md).
-- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB).
+- **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).
+- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form) — `npm run test:e2e` is 9/9 green.
 
-### Phase 1 — [`plans/phase-1-auth-app-shell.md`](./plans/phase-1-auth-app-shell.md)
+### Phase 1 — [`phase-1-auth-app-shell.md`](./phase-1-auth-app-shell.md)
 
 Five reviewable slices; the user commits and re-confirms between each.
 
@@ -250,15 +251,33 @@ Five reviewable slices; the user commits and re-confirms between each.
 | 2 — app plumbing (axios client + 401 interceptor, Zustand `persist` session, typed router, `ProtectedRoute`, real 404, MSW infra) | ✅ done 2026-09-08 — frontend 42/42 + build green; guard + 404 verified in-browser |
 | 3 — auth pages (register / verify / login / logout / reset) | ✅ done 2026-09-08 — frontend 74/74 + build green; backend 130/130 green |
 | 4 — app shell + Home (`AppHeader`, `LanguageSelector`, `UserMenu`, welcome banner) | ✅ done 2026-09-10 — frontend 81/81 + build green; shell + language switch + logout + nav-gate + mobile Sheet verified in-browser |
-| 5 — backend hygiene + phase gate | ✅ done 2026-09-10 — leaks closed (`serializeUser` allowlist; both `userColumnsWithoutPassword` trimmed); registration language picker + public UI-language selector added; `phase-1-auth.spec.ts` written; backend **141/141**, frontend **89/89**, **e2e 7/7**, build green; grep gate + guard verified. Remaining: the user's baseline commit |
-| 5b — Account page (profile + language editing) | ✅ done 2026-09-10 — user-requested "one last modification". `features/account/` (`AccountPage` view/edit + `ProfileForm` + `buildProfileSchema`); edits name/username/languages only; `updateUser` now backend-validates `languages` (>= 2, like registration); zero-languages edge case → warning banner; `LanguagePicker` moved to `components/common/`; new `account` i18n namespace (EE flagged). backend **144/144**, frontend **98/98**, **e2e 7/7**, build green |
+| 5 — backend hygiene + phase gate | ✅ done 2026-09-10 — leaks closed (`serializeUser` allowlist; both `userColumnsWithoutPassword` trimmed); registration language picker + public UI-language selector added; `phase-1-auth.spec.ts` written; grep gate + guard verified |
+| 5b — Account page (profile + language editing) | ✅ done 2026-09-10 — user-requested "one last modification". `features/account/` (`AccountPage` view/edit + `ProfileForm` + `buildProfileSchema`); edits name/username/languages only; `updateUser` now backend-validates `languages` (>= 2, like registration); zero-languages edge case → warning banner; `LanguagePicker` moved to `components/common/`; new `account` i18n namespace (EE flagged) |
+| **commit** | ✅ 2026-09-10 — everything above landed on `main` via **PR #1** (`0cf091f`, from branch `auth-and-app-shell`). Final Phase-1 state: backend **144/144**, frontend **98/98**, **e2e 7/7**, build green |
 
 Deviations agreed with the user (full text in the plan's Slice 4/5 outcomes): no `VerifyEmailBanner` (unverified users are blocked at login); five shadcn primitives (`dialog`, `alert-dialog`, `checkbox`, `radio-group`, `textarea`) held to Phase 2; Dashboard/metrics (metrics query, stat cards, both word-derived charts) re-scoped to **Phase 3.5** (2026-09-10) — Phase 1 Home is only the welcome banner and ships **no `useQuery`**; `button.tsx` wrapped in `forwardRef` (React-18 ref support, first needed by `sheet.tsx`). **Three blueprint additions** (none in `ui/01-auth.md`): a language-selection step in registration (`users.languages`, >= 2, selection order; backend-validated); a UI-language selector on the public routes (persists via the i18next detector cache, and is written to `users.uiLanguage` on the login/register request); and a **profile-editing subset of the Account page** (`/user` — name/username/languages, backend-validated `updateUser`; the full tags/friends/DnD Account page stays Phase 7). Kill-switch (study §11b): 5 slices / 3 sessions, landed on scope, reusable design-system cost paid down — **verdict: continue the rewrite**; re-evaluate if Phase 3's form engine overruns. The Phase 1 e2e spec (`phase-1-auth.spec.ts`, 4 tests) landed 2026-09-10 — `npm run test:e2e` is 7/7 green (local only; no CI job until Phase 8).
 
-**Dashboard/metrics re-scoped out of Phase 1 (2026-09-10):** Slice 4 originally bundled the app shell with a Dashboard reading `getUserMetrics`. Since that endpoint aggregates `words` + `translations` only, it has nothing to show until Phases 2–3 exist. Slice 4 now ships the shell plus a Home page that is only the welcome banner; the full Dashboard (metrics query, stat cards, both word-derived charts) moved to the new **Phase 3.5** — see [`plans/phase-3-5-dashboard-metrics.md`](./plans/phase-3-5-dashboard-metrics.md). Phase 5 lost its "+ Dashboard charts" for the same reason. The `getUserMetrics` path correction (blueprint's `/api/metrics/...` → real `/api/users/getUserMetrics`) now lives in the Phase 3.5 file.
+**Dashboard/metrics re-scoped out of Phase 1 (2026-09-10):** Slice 4 originally bundled the app shell with a Dashboard reading `getUserMetrics`. Since that endpoint aggregates `words` + `translations` only, it has nothing to show until Phases 2–3 exist. Slice 4 now ships the shell plus a Home page that is only the welcome banner; the full Dashboard (metrics query, stat cards, both word-derived charts) moved to the new **Phase 3.5** — see [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md). Phase 5 lost its "+ Dashboard charts" for the same reason. The `getUserMetrics` path correction (blueprint's `/api/metrics/...` → real `/api/users/getUserMetrics`) now lives in the Phase 3.5 file.
 
 **`_id` correction (2026-09-08):** the `_id` MongoDB artifact is being removed as-we-go, not in one refactor — see the standing rule in §4. Frontend done in Slice 2: `ts/interfaces.ts` (`UserData`/`NotificationData`/`FriendshipData`/`TagData`/`FilterItem` → `id`) and `authStore` (`RawUser._id` and the `raw._id` fallback dropped) plus their tests. **Slice 3 (2026-09-08) swept the entire auth/user/metrics backend surface** (Option B, agreed with the user): `serializeUser` / `serializeLoginUser` / `publicUserResponse` / `authMiddleware` (`serializeAuthenticatedUser` wrapper deleted) / `getBasicUserMetrics`'s internal arg / `metricController.calculateBasicUserMetrics`'s param type — all `id` now, no `_id` anywhere in that surface. `backend/tests/auth.test.js` plus the `registerAndLogin` call sites in `tests/{words,exercises,tags,notifications}.test.js` updated; backend 130/130 green. **Remaining `_id` aliases** live only in `wordController` / `tagController` / `notificationController` / `exerciseController` responses — stripped in their consuming phases (2/4/6). Slice 5's backend scope is now just the bcrypt-hash and `passwordTokens` leaks + the phase gate.
+- **Phase 2 Slice 1 (2026-09-10):** the word-response surface is now `id`-only — `WordResponse` / `AssembledTranslation` (`services/wordService.ts`), `simplifyWord` and the `deleteWord` `{ id }` response (`wordController.ts`). `exerciseController.fetchWordsWithData` remaps to its own internal legacy `_id` shape so the exercise-generation helpers are untouched. Tests updated: `words.test.js`, `exercises.test.js`, `snapshots.test.js`, `tags.test.js` (word-id reads), `unit/wordService.test.js`. Still carrying `_id`: `tagController` (`normalizeTag`), `notificationController`, and the `/simple` + tag-filter request-input readers — stripped in Phases 4 / 6.
 
-### Phase 3.5 — [`plans/phase-3-5-dashboard-metrics.md`](./plans/phase-3-5-dashboard-metrics.md)
+### Phase 2 — [`phase-2-noun-crud.md`](./phase-2-noun-crud.md)
+
+✅ **Done and gated 2026-09-12.** Seven slices (0–6); the user committed and re-confirmed between each. Decisions D1–D4 taken with the user 2026-09-10 (pagination deferred to Phase 3; clue-only, no tags field; `GET /api/words/:id` returns 403 for non-owner with the non-owner read-only view deferred to Phase 4; noun field labels i18n-keyed).
+
+| Slice | Status |
+|---|---|
+| 0 — persist the plan | ✅ done |
+| 1 — backend: `_id` strip on word responses + `GET /api/words/:id` ownership check (403) + tests | ✅ done 2026-09-10 — backend **145/145** green; `snapshot/endpoints.md` corrected (`data-model.md` §2.1 already `id`-clean) |
+| 2 — `features/words` data layer (types / api / keys / hooks / MSW) | ✅ done 2026-09-10 — `features/words/{types,api,keys,hooks}.ts` + `test/msw/wordHandlers.ts`; hooks do invalidation only (toasts/nav deferred to the pages); `wordKeys` namespaced; frontend **98 → 105**, build green |
+| 3 — form engine core: configs + `buildYupSchema` + `FieldRenderer` + `TranslationCard` + 5 held-over shadcn primitives + regression test | ✅ done 2026-09-11 — frontend **105 → 133**, build green |
+| 4 — `WordForm` orchestrator + `PartOfSpeechSelector` + `AddWordPage` (create) | ✅ done 2026-09-12 — frontend **133 → 180**, build green |
+| 5 — `WordPage` (owner view / edit / delete) | ✅ done 2026-09-12 — `WordPage` owns its own read-only View (no `displayOnly` mode added to `WordForm`) + an Edit state mounting `WordForm` unchanged; new `ConfirmDialog` (first consumer of Slice 3's unused `alert-dialog`); zero new i18n keys needed (old-app locale scaffolding already had them). Frontend **180 → 188**, build green |
+| 6 — phase gate: `phase-2-noun-crud.spec.ts` + docs + full green run | ✅ done 2026-09-12 — real-stack e2e spec (2 tests); found and fixed a real bug along the way (below); final gate backend **145/145**, frontend **188/188**, e2e **9/9**, build green; `grep -r "_id" frontend/src/features/words` = 0 |
+
+**Bug found by the Slice 6 e2e gate:** `WordPage`'s not-found/403 handling and its **Return** button called `router.history.back()` unconditionally. For a *direct* landing on `/word/:id` (a bookmarked or shared link, or — as the e2e non-owner test does — a hard `page.goto`) there is no client-side history to pop into: the browser either no-ops or unloads the current document for whatever came before the tab's session, taking the just-shown toast down with it before it's ever seen. Fixed with `useCanGoBack()`: when there's nothing to go back to, fall back to a client-side `navigate({ to: '/' })`, which stays inside the SPA and keeps the toast visible. Same-session "Return" clicks are unaffected. See `WordPage.tsx`'s `goBack()` and the Phase 2 plan's Slice 6 outcome for the full e2e trace that surfaced this.
+
+### Phase 3.5 — [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md)
 
 Not started. Created 2026-09-10 by splitting the Dashboard/metrics work out of Phase 1 Slice 4 (rationale above). Depends on Phase 3 — needs words of every PoS in the DB before the numbers and charts mean anything. Stub plan records the backend surface, the i18n split, and the open questions to resolve when it starts.

@@ -18,7 +18,7 @@ It also fixes four §8.4 defects on day one: unguarded protected routes, unguard
 **Decisions taken with the user (2026-09-10) — Dashboard/metrics re-scope:**
 
 5. **Metrics move out of Phase 1.** `GET /api/users/getUserMetrics` aggregates `words` + `translations` only (`backend/controllers/metricController.ts:15,47-157`) — no exercise-performance dependency — so on a fresh account with no way to create a word, every number it returns is structurally zero and the "loading/loaded/empty" gate can only ever hit the empty branch. Slice 4 keeps the real app shell but its `/` route becomes a **Home page that is only the welcome banner** (name + cycling EN→ES→DE→EE greeting) with an `EmptyState` CTA to Add Word. No `useQuery`, no stat cards, no charts in Phase 1.
-6. **The full Dashboard is the new Phase 3.5** (`plans/phase-3-5-dashboard-metrics.md`): the metrics query + `staleTime` policy, `UserInfoPanel` stat cards, and *both* blueprint charts (pie: words per PoS; bar: translations per language/month — both word-derived). Phase 5 keeps exercises + performance only.
+6. **The full Dashboard is the new Phase 3.5** (`phase-3-5-dashboard-metrics.md`, same folder): the metrics query + `staleTime` policy, `UserInfoPanel` stat cards, and *both* blueprint charts (pie: words per PoS; bar: translations per language/month — both word-derived). Phase 5 keeps exercises + performance only.
 7. **Consequence:** Phase 1 now ships no `useQuery` at all — the read path is first exercised in Phase 2. Recorded in `new-repo-build-plan.md` Phase 1 scope so the kill-switch pace note accounts for the narrower surface.
 
 Work proceeds in **five reviewable slices**, each independently runnable. The user commits between slices, and **confirms before each new slice starts** — no slice begins without an explicit go-ahead.
@@ -27,7 +27,7 @@ Work proceeds in **five reviewable slices**, each independently runnable. The us
 
 ## Slice 0 — Persist this plan into the repo
 
-Copy this plan verbatim to **`.context/.frontend/plans/phase-1-auth-app-shell.md`** (the directory exists and is currently empty). It becomes the tracked record of what was intended, so the finished work can be diffed against it at the phase gate and the deliberate deviations in Slice 5 are auditable. Subsequent phases add their own file alongside it.
+This plan is tracked at **`.context/plans/phase-1-auth-app-shell.md`** (this file). It is the record of what was intended, so the finished work can be diffed against it at the phase gate and the deliberate deviations in Slice 5 are auditable. Subsequent phases add their own file alongside it in the same folder.
 
 ---
 
@@ -246,7 +246,7 @@ Remove the Slice-1 primitives gallery from `App.tsx`.
   - `protected routes require a valid session` — no session → `/` and `/review` redirect to `/login` (with `redirect=`); a planted **expired-token** `localStorage['ladu.session']` is discarded and `/` still redirects.
   - `a UI language chosen on a public route persists across reload and into the session` — pick Español in the public selector on `/login` → page is Spanish → reload → still Spanish (i18next `localStorage` cache) → sign in → Home is Spanish and the protected header language button shows `ES`.
   - Infra: `pg` + `dotenv` + `@types/pg` added to the `e2e` workspace; `fixtures/db.ts` opens a `pg.Pool` on the repo-root `.env` `DATABASE_URL` and exposes `getVerifyToken` + best-effort `deleteUsersByEmail`. The suite runs against **`keelapp_v2_dev`**, uses unique `e2e-<ts>-<n>@ladu.test` emails, and `afterAll` deletes them (verified: 0 rows left, user count unchanged). CI still has no `e2e` job (Phase 8, unchanged).
-- **Phase 1 is done.** Remaining: the user's baseline commit.
+- **Phase 1 is done and committed.** All five slices + the two final user-requested additions (registration language picker / public UI-language selector; Account page) landed on `main` via **PR #1** (merge `0cf091f`, branch `auth-and-app-shell`). Final Phase-1 state: backend **144/144**, frontend **98/98**, e2e **7/7**, build green. The "one baseline commit" of `CLAUDE.md` §working-rules is satisfied.
 
 ### Final Phase-1 change — registration language picker + public UI-language selector (done 2026-09-10)
 

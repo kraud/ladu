@@ -2,7 +2,14 @@
   "addWordPage": {
     "title": "Füge ein neues {{currentPoS}} hinzu",
     "titleDefault": "Füge ein neues Wort hinzu",
-    "subtitle": "Alle Pflichtfelder müssen ausgefüllt werden, bevor gespeichert werden kann"
+    "subtitle": "Alle Pflichtfelder müssen ausgefüllt werden, bevor gespeichert werden kann",
+    "toastCreateSuccess": "Das Wort wurde erfolgreich erstellt"
+  },
+  "apiErrors": {
+    "wordNotFound": "Dieses Wort konnte nicht gefunden werden.",
+    "notAuthorized": "Du hast keinen Zugriff auf dieses Wort.",
+    "missingPartOfSpeech": "Bitte wähle eine Wortart aus.",
+    "notEnoughTranslations": "Füge mindestens zwei Übersetzungen hinzu, bevor du speicherst."
   },
   "displayWord": {
     "titlePos": "Detailansicht: {{currentPoS}}",
@@ -90,27 +97,61 @@
     "clue": "Hinweis"
   },
   "wordForm": {
+    "hints": {
+      "minTranslations": "Füge mindestens 2 Übersetzungen hinzu, bevor du speichern kannst."
+    },
     "errors": {
       "noNumbers": "Darf keine Zahlen enthalten"
     },
     "noun": {
       "errors": {
         "formEN": {
-          "singularFormRequired": "'Singular' ist erforderlich"
+          "singularFormRequired": "'Singular' ist erforderlich",
+          "regularityRequired": "Das ist keine Option"
         },
         "formES": {
           "singularFormRequired": "'Singular'-Form ist erforderlich",
-          "genderRequired": "Die Auswahl des 'Geschlechts' ist erforderlich"
+          "genderRequired": "Die Auswahl des 'Geschlechts' ist erforderlich",
+          "regularityRequired": "Das ist keine Option"
         },
         "formDE": {
           "singularFormRequired": "'Singular Nominativ' ist erforderlich",
-          "genderRequired": "Die Auswahl des 'Geschlechts' ist erforderlich"
+          "genderRequired": "Die Auswahl des 'Geschlechts' ist erforderlich",
+          "regularityRequired": "Das ist keine Option"
         },
         "formEE": {
           "singularFormRequired": "'Singular Nimetav' ist erforderlich",
           "searchInEnglishLabel": "Suche nach Substantiven auf Englisch",
-          "searchInEnglishWarning": "Vorsicht, das funktioniert nicht für alle Substantive! Versuchen Sie es bei Bedarf auf Estnisch."
+          "searchInEnglishWarning": "Vorsicht, das funktioniert nicht für alle Substantive! Versuchen Sie es bei Bedarf auf Estnisch.",
+          "regularityRequired": "Das ist keine Option"
         }
+      },
+      "fields": {
+        "regularityEN": "Regelmäßigkeit",
+        "singularEN": "Singular",
+        "pluralEN": "Plural",
+        "regularityES": "Regelmäßigkeit",
+        "genderES": "Geschlecht",
+        "singularES": "Singular",
+        "pluralES": "Plural",
+        "regularityDE": "Regelmäßigkeit",
+        "genderDE": "Geschlecht",
+        "singularNominativDE": "Singular Nominativ",
+        "pluralNominativDE": "Plural Nominativ",
+        "singularAkkusativDE": "Singular Akkusativ",
+        "pluralAkkusativDE": "Plural Akkusativ",
+        "singularGenitivDE": "Singular Genitiv",
+        "pluralGenitivDE": "Plural Genitiv",
+        "singularDativDE": "Singular Dativ",
+        "pluralDativDE": "Plural Dativ",
+        "regularityEE": "Regelmäßigkeit",
+        "singularNimetavEE": "Singular Nominativ",
+        "pluralNimetavEE": "Plural Nominativ",
+        "singularOmastavEE": "Singular Genitiv",
+        "pluralOmastavEE": "Plural Genitiv",
+        "singularOsastavEE": "Singular Partitiv",
+        "pluralOsastavEE": "Plural Partitiv",
+        "shortFormEE": "Kurzer Illativ"
       }
     },
     "adjective": {

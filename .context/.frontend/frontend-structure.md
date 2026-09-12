@@ -1,6 +1,6 @@
 # Frontend `src/` Structure & Component Breakdown
 
-*2026-09-07. Proposal for the reimplementation frontend's file layout, derived from the UI-blueprint (`snapshot/ui/00–06`, behaviour) and `MOCKUPS/` (design language). Review target — nothing scaffolded yet. Pairs with `CLAUDE.md` §5 (frontend invariants) and `new-repo-build-plan.md` §5 (phases).*
+*2026-09-07. Proposal for the reimplementation frontend's file layout, derived from the UI-blueprint (`snapshot/ui/00–06`, behaviour) and `MOCKUPS/` (design language). Review target — nothing scaffolded yet. Pairs with the frontend invariants in [`.context/README.md`](../README.md) and [`.context/plans/new-repo-build-plan.md`](../plans/new-repo-build-plan.md) §5 (phases).*
 
 ---
 
@@ -105,16 +105,25 @@ frontend/src/
 │   │   ├── hooks.ts             # useWordsInfinite, useWord, useCreateWord, useUpdateWord, useDeleteWord, useBulkDeleteWords
 │   │   ├── keys.ts              # ['words'], ['words', filters], ['words', id] key factory
 │   │   ├── types.ts             # WordData, TranslationItem, TableWordData (real dataXX simplified shape)
-│   │   ├── form-engine/
-│   │   │   ├── WordForm.tsx         # orchestrator: PoS step → translation grid → clue → tags → sticky save bar
-│   │   │   ├── TranslationCard.tsx  # one language: tinted top border, header+ring, config-driven body,
-│   │   │   │                        #   autocomplete row, Clear / Remove (disabled at 2), in-place language switch
-│   │   │   ├── FieldRenderer.tsx    # FieldConfig → text input / radio group (regularity, gender) / checkbox
-│   │   │   ├── useWordFormState.ts  # RHF wiring, per-translation completionState, dirty tracking, save gating
+│   │   ├── form-engine/         # (Phase 2 Slice 3-4 actual, diverged from the original sketch below)
+│   │   │   ├── WordForm.tsx         # orchestrator: PoS gate → translation grid → "+ Add language" dialog →
+│   │   │   │                        #   clue textarea → sticky save bar. No tags (D2 — deferred past Phase 3;
+│   │   │   │                        #   slots into WordForm in Phase 4).
+│   │   │   ├── TranslationCard.tsx  # one language: tinted top border, header (flag + native name),
+│   │   │   │                        #   config-driven body, Clear / Remove (disabled at 2 slots), a reserved
+│   │   │   │                        #   autocomplete mount point (Phase 3). Owns its own RHF instance + yup
+│   │   │   │                        #   resolver per card — NOT a shared form. No in-place language switch;
+│   │   │   │                        #   changing a slot's language is Remove + re-Add.
+│   │   │   ├── buildYupSchema.ts    # (config, t) → yup object — generic over any TranslationFormConfig
+│   │   │   ├── FieldRenderer.tsx    # FieldConfig → text input / radio group (regularity, gender) / checkbox;
+│   │   │   │                        #   `displayOnly` renders static text, hidden when non-required + empty
+│   │   │   ├── useWordFormState.ts  # plain React state (translations[]/partOfSpeech/clue) + derived
+│   │   │   │                        #   per-slot completion/dirty aggregation and save gating — each
+│   │   │   │                        #   TranslationCard owns its own RHF instance, not this hook
 │   │   │   └── configs/
 │   │   │       ├── index.ts         # getFormConfig(pos, lang) → TranslationFormConfig
 │   │   │       ├── types.ts         # FieldConfig, TranslationFormConfig
-│   │   │       ├── nouns.ts         # 4 lang configs (Phase 2) — from NounCasesData registry
+│   │   │       ├── nouns.ts         # 4 lang configs (Phase 2) — derived from the shared WordCasesData.Noun registry
 │   │   │       ├── verbs.ts adjectives.ts adverbs.ts   # Phase 3 — registry (verbs) / enums (adj/adv); NO EE adverb
 │   │   ├── review/
 │   │   │   ├── ReviewTable.tsx      # TanStack Table instance; stable-id row selection
@@ -210,7 +219,7 @@ pages/       — route-level compositions; imported by routes/*.
 
 Shared, one per app (not per feature): `app/query-client.ts` holds the **staleTime policy table** and `app/` also carries the **invalidation graph** as a doc comment / typed map, seeded from `frontend-migration-plan.md` §5.2 and extended each phase.
 
-> Per-phase scope (what each phase actually creates) lives in `new-repo-build-plan.md` §5 and the per-phase files in `plans/` — this document stays scope-agnostic so it does not drift as the roadmap changes.
+> Per-phase scope (what each phase actually creates) lives in [`.context/plans/new-repo-build-plan.md`](../plans/new-repo-build-plan.md) §5 and the per-phase files in [`.context/plans/`](../plans/) — this document stays scope-agnostic so it does not drift as the roadmap changes.
 
 ---
 

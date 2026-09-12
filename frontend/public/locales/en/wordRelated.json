@@ -2,7 +2,14 @@
   "addWordPage": {
     "title": "Add a new {{currentPoS}}",
     "titleDefault": "Add a new word",
-    "subtitle": "All the required fields must be completed before saving"
+    "subtitle": "All the required fields must be completed before saving",
+    "toastCreateSuccess": "Word was created successfully"
+  },
+  "apiErrors": {
+    "wordNotFound": "This word could not be found.",
+    "notAuthorized": "You don't have access to this word.",
+    "missingPartOfSpeech": "Please choose a part of speech.",
+    "notEnoughTranslations": "Add at least two translations before saving."
   },
   "displayWord": {
     "titlePos": "Detailed view: {{currentPoS}}",
@@ -90,27 +97,61 @@
     "clue": "Clue"
   },
   "wordForm": {
+    "hints": {
+      "minTranslations": "Add at least 2 translations before you can save."
+    },
     "errors": {
       "noNumbers": "Must not include numbers"
     },
     "noun": {
       "errors": {
         "formEN": {
-          "singularFormRequired": "'Singular' is required"
+          "singularFormRequired": "'Singular' is required",
+          "regularityRequired": "That is not an option"
         },
         "formES": {
           "singularFormRequired": "'Singular' form is required",
-          "genderRequired": "'Gender' selection is required"
+          "genderRequired": "'Gender' selection is required",
+          "regularityRequired": "That is not an option"
         },
         "formDE": {
           "singularFormRequired": "'Singular nominativ' is required",
-          "genderRequired": "'Gender' selection is required"
+          "genderRequired": "'Gender' selection is required",
+          "regularityRequired": "That is not an option"
         },
         "formEE": {
           "singularFormRequired": "'Singular nimetav' is required",
           "searchInEnglishLabel": "Search noun in english",
-          "searchInEnglishWarning": "Careful, this won't work for all nouns! If needed, try in Estonian."
+          "searchInEnglishWarning": "Careful, this won't work for all nouns! If needed, try in Estonian.",
+          "regularityRequired": "That is not an option"
         }
+      },
+      "fields": {
+        "regularityEN": "Regularity",
+        "singularEN": "Singular",
+        "pluralEN": "Plural",
+        "regularityES": "Regularity",
+        "genderES": "Gender",
+        "singularES": "Singular",
+        "pluralES": "Plural",
+        "regularityDE": "Regularity",
+        "genderDE": "Gender",
+        "singularNominativDE": "Singular nominative",
+        "pluralNominativDE": "Plural nominative",
+        "singularAkkusativDE": "Singular accusative",
+        "pluralAkkusativDE": "Plural accusative",
+        "singularGenitivDE": "Singular genitive",
+        "pluralGenitivDE": "Plural genitive",
+        "singularDativDE": "Singular dative",
+        "pluralDativDE": "Plural dative",
+        "regularityEE": "Regularity",
+        "singularNimetavEE": "Singular nominative",
+        "pluralNimetavEE": "Plural nominative",
+        "singularOmastavEE": "Singular genitive",
+        "pluralOmastavEE": "Plural genitive",
+        "singularOsastavEE": "Singular partitive",
+        "pluralOsastavEE": "Plural partitive",
+        "shortFormEE": "Short illative"
       }
     },
     "adjective": {

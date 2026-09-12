@@ -3,8 +3,9 @@
  *
  * Kept deliberately small: `backend/middleware/errorMiddleware.js` only ever
  * emits `{ message }`, so `ApiError` has exactly one field. Cursor pagination
- * lands in Phase 2 (`getWordsSimplified`); `CursorPage` is declared now so the
- * shape is fixed before the first consumer.
+ * lands in Phase 3 with the Review table (`getWordsSimplified` + a
+ * `useInfiniteQuery`); `CursorPage` is declared now so the shape is fixed
+ * before the first consumer.
  */
 
 /** The only error body the backend returns (errorMiddleware.js). */

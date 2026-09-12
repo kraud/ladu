@@ -136,7 +136,7 @@ describe('Data Snapshots - Migration Baseline', () => {
                 ],
                 tags: [],
             });
-        const wordId = wordRes.body._id;
+        const wordId = wordRes.body.id;
         const estonianTrans = wordRes.body.translations.find(
             (t) => t.language === 'Estonian',
         );
@@ -145,7 +145,7 @@ describe('Data Snapshots - Migration Baseline', () => {
             .post('/api/exercises/saveTranslationPerformance')
             .set('Authorization', `Bearer ${token}`)
             .send({
-                translationId: estonianTrans._id,
+                translationId: estonianTrans.id,
                 translationLanguage: 'Estonian',
                 word: wordId,
                 caseName: 'singularNimetavEE',
@@ -169,7 +169,7 @@ describe('Data Snapshots - Migration Baseline', () => {
                 ],
                 tags: [],
             });
-        const wordId = wordRes.body._id;
+        const wordId = wordRes.body.id;
 
         const res = await request(app)
             .post('/api/tags')

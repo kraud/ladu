@@ -17,8 +17,13 @@
  *     verifyEmail    ⇒ queryClient.clear()      // enters the app as a new session
  *     updateProfile  ⇒ setSession(next)         // store-only; no query cache yet
  *
- *   Phase 2 (nouns)  — add: createWord/updateWord/deleteWord ⇒ ['words'], ['metrics'] (no ['metrics'] consumer until 3.5)
- *   Phase 3 (review) — add: ['words', filters] cursor pages
+ *   Phase 2 (nouns)  — ACTIVE: createWord/updateWord/deleteWord ⇒ invalidate
+ *                      `wordKeys.all` (['words'] — list + every detail) and
+ *                      ['metrics']. updateWord also `setQueryData` on the detail
+ *                      key; deleteWord `removeQueries` it. No ['metrics'] consumer
+ *                      until Phase 3.5, so that edge is a harmless no-op for now.
+ *                      Keys: `features/words/keys.ts` (`wordKeys`).
+ *   Phase 3 (review) — add: `wordKeys.list(filters)` cursor pages
  *   Phase 3.5 (dash) — add: useUserMetrics(['metrics'], staleTime 5min); word CRUD above now has a consumer
  *   Phase 4 (tags)   — add: bulk-add-tags ⇒ ['tags', id, 'wordCount'] + ['words']
  *   Phase 5 (exers)  — add: save/​master/​forget performance ⇒ setQueryData on ['exercises']

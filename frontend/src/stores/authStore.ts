@@ -36,7 +36,7 @@ export interface SessionUser {
  *  - register (`publicUserResponse`): no `token` — never persisted, but normalizes anyway
  *
  * `id` only. `_id` is a MongoDB artifact with no place in new frontend code
- * (new-repo-build-plan.md §4): the Postgres schema has no such column. The auth
+ * (.context/plans/new-repo-build-plan.md §4): the Postgres schema has no such column. The auth
  * serializers in `userController.ts` still emit a legacy `_id` alias; it is
  * stripped in the Phase 1 auth slice, and this normalizer never reads it.
  */

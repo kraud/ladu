@@ -52,16 +52,14 @@ backend Jest suite) plus `e2e:install` once. Details: [`e2e/README.md`](../e2e/R
 | Path | What it is | Authority |
 |------|-----------|-----------|
 | `.context/overview.md` | Product/domain spec, feature requirements, workflows | **Authoritative** |
-| `.context/.frontend/new-repo-build-plan.md` | **THE plan we follow** — phased roadmap, architecture decisions, invariants | **Authoritative** |
+| `.context/plans/new-repo-build-plan.md` | **THE plan we follow** — phased roadmap, architecture decisions, invariants | **Authoritative** |
+| `.context/plans/phase-*.md` | Per-phase slice plans, one file per phase — goals, decisions taken with the user, shipped-vs-planned record. Diff the finished work against them at each phase gate. | **Working record** |
 | `.context/.frontend/snapshot/*.md` (14 files) | Frozen 2026-09-05: behaviour inventory of every old page/component + full data model, case registry, per-form yup schemas, Review-table + exercise-flow specs, autocomplete transforms | **Primary working spec** — read the relevant file before building a feature |
 | `.context/.frontend/snapshot/ui/00-global.md … 06-social.md` (7 files) | **UI-blueprint**: what each screen must *do* — shell, navigation, screen-by-screen layout + interaction spec + the §8 intentional deltas. Built from the old frontend. Feed `00`→`06` in order. | **Authoritative for feature behaviour/UX** — this is the vision we implement |
 | `MOCKUPS/` | HTML/CSS mockups (`index.html`, `auth/`, `word-editor.html`, `review.html`, `assets/`). The **design language** — how things look (layout, spacing, colour, typography, components). | **Authoritative for visual design** — the lens the UI-blueprint is rendered through |
 | `.context/.frontend/frontend-structure.md` | `frontend/src/` layout + component breakdown + blueprint→module map; decisions D1–D5 resolved | **Authoritative for FE file structure** |
-| `.context/.frontend/frontend-migration-plan.md` | The superseded in-place-refactor plan. Kept for its **Appendix B behavioural inventory** + library verdicts | Reference only |
-| `.context/archive/` | `root.md` + `production-migration-plan.md` — old MERN/CRA/Redux stack description + a MongoDB→Postgres deploy discussion. **Stale**; history only (see `archive/README.md`). Deploy notes may be revisited at Phase 8. | Archived |
 
-> **The goal: implement the feature vision described in the UI-blueprint (`snapshot/ui/`), using the MOCKUPS as the visual lens.** Blueprint = behaviour + intent; mockups = look + feel.
-> (The build plan text points at `.context/.frontend/ui/` — the files actually live under `.context/.frontend/snapshot/ui/`.)
+> **The goal: implement the feature vision described in the UI-blueprint (`.context/.frontend/snapshot/ui/`), using the MOCKUPS as the visual lens.** Blueprint = behaviour + intent; mockups = look + feel.
 
 ---
 

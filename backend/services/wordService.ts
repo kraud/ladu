@@ -40,9 +40,12 @@ type TagRow = typeof tags.$inferSelect;
 /**
  * A single translation with its grammatical cases,
  * matching the legacy embedded shape.
+ *
+ * `id` only — the old `_id` alias (a MongoDB artifact with no column in the
+ * Drizzle schema) was dropped in Phase 2 Slice 1; the new frontend reads `id`.
  */
 export interface AssembledTranslation {
-    _id: string;
+    id: string;
     language: string;
     cases: Array<{ word: string; caseName: string }>;
 }
@@ -53,9 +56,10 @@ export interface AssembledTranslation {
  *
  * The old schema stored translations + cases as a nested subdocument.
  * Here they are spread into this flat-ish shape by fetchWordsWithRelations.
+ *
+ * `id` only — the `_id` alias was dropped in Phase 2 Slice 1.
  */
 export interface WordResponse {
-    _id: string;
     id: string;
     user: string;
     partOfSpeech: string;
@@ -110,7 +114,7 @@ const fetchTranslationsMap = async (
     const map = new Map<string, AssembledTranslation[]>();
     for (const t of translationRows) {
         const entry: AssembledTranslation = {
-            _id: t.id,
+            id: t.id,
             language: t.language,
             cases: (casesByTranslationId.get(t.id) || []).map((c) => ({
                 word: c.word,
@@ -178,7 +182,6 @@ const assembleWord = (
     translationsMap: Map<string, AssembledTranslation[]>,
     tagsMap: Map<string, TagRow[]>,
 ): WordResponse => ({
-    _id: word.id,
     id: word.id,
     user: word.userId,
     partOfSpeech: word.partOfSpeech,

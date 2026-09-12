@@ -34,7 +34,7 @@ Auth column: ✅ = `protect` middleware on the route; ❌ = unguarded (by design
 | GET | `/api/words/simple` | ✅ (`wordRoutes.js:13`) | Filtered/simplified words for table view (`wordController.ts:478-566`) | `getWordsSimplified` (`wordService.ts:27-38`) | Query param `filters` (JSON array); own words + followed-tag words |
 | GET | `/api/words/searchWord` | ✅ (`wordRoutes.js:15`) | Case-insensitive search across any translation case (`wordController.ts:936-1022`) | `searchWord` (`wordService.ts:83-94`) | Query param `query`; excludes `gender%`/`gradable%` cases |
 | GET | `/api/words/getAllWordDataByWord` | ✅ (`wordRoutes.js:17`) | Legacy generic word query (`wordController.ts:1069-1072`) | **none** (backend-only) | **TODO-marked** (`wordRoutes.js:17`) |
-| GET | `/api/words/:id` | ✅ (`wordRoutes.js:19`) | Single word with translations/cases/tags (`wordController.ts:571-580`) | `getWordById` (`wordService.ts:40-48`) | 400 "Word not found" if missing |
+| GET | `/api/words/:id` | ✅ (`wordRoutes.js:19`) | Single word with translations/cases/tags (`wordController.ts:571-580`) | `getWordById` (`wordService.ts:40-48`) | 400 "Word not found" if missing; **403 "User not authorized" if not the author** (added Phase 2 Slice 1; Phase 4 widens to owner-OR-followed-tag) |
 | POST | `/api/words` | ✅ (`wordRoutes.js:21`) | Create word + translations + cases + tag links (`wordController.ts:585-650`) | `createWord` (`wordService.ts:7-15`) | 400 unless `partOfSpeech` and ≥2 translations |
 | PUT | `/api/words/:id` | ✅ (`wordRoutes.js:23`) | Update word, diff-sync translations/cases/tags (`wordController.ts:655-860`) | `updateWordById` (`wordService.ts:73-81`) | Body key `id` used for URL (`wordService.ts:79`); 401 if not owner; deletes exercise-perf rows for removed translations |
 | DELETE | `/api/words/deleteMany` | ✅ (`wordRoutes.js:26`) | Delete multiple words (`wordController.ts:897-934`) | `deleteManyWordsById` (`wordService.ts:60-71`) | `wordsId: string[]` in request **body** of a DELETE; route must stay before `/:id` (`wordRoutes.js:25`) |
@@ -147,11 +147,11 @@ Auth column: ✅ = `protect` middleware on the route; ❌ = unguarded (by design
 ### Word create — `POST /api/words`
 - Request body: `{ partOfSpeech, clue?, translations: [{ language, cases: [{ caseName, word }] }], tags?: [{ _id? | id? }] }`. 400 "Please add part of speech" (`wordController.ts:586-589`); 400 "Please add 2 or more translations" (`:590-593`).
 - Flow: insert word (`userId = req.user.id`, `clue ?? null`, `:596-603`) → insert one `translations` row per language (`:606-613`) → insert `translation_cases` per case (`:615-633`) → insert `tag_words` links, tolerating `_id` or `id` keys and filtering falsy ids (`:636-645`).
-- Response 200: single fully-assembled `WordResponse` (`wordController.ts:647-649`), shape per `wordService.ts:57-69`: `{ _id, id, user, partOfSpeech, translations: [{ _id, language, cases: [{ word, caseName }] }], clue, isCloned, originalCreator, tags: [tagRow], createdAt, updatedAt }`.
+- Response 200: single fully-assembled `WordResponse` (`wordController.ts:647-649`), shape per `services/wordService.ts`: `{ id, user, partOfSpeech, translations: [{ id, language, cases: [{ word, caseName }] }], clue, isCloned, originalCreator, tags: [tagRow], createdAt, updatedAt }`. **`_id` removed Phase 2 Slice 1** — word and translation responses are `id`-only.
 
 ### Word get — `GET /api/words` and `GET /api/words/:id`
 - `GET /api/words`: all words where `userId = req.user.id`, assembled via `fetchWordsWithRelations` (`wordController.ts:454-464`) → `WordResponse[]`. **Only own words** — followed-tag words are not included here (unlike `/simple`).
-- `GET /api/words/:id`: any single word by ID with relations; 400 "Word not found" when missing (`wordController.ts:571-580`). No ownership check — an authed user can fetch another user's word by ID (known gap).
+- `GET /api/words/:id`: any single word by ID with relations; 400 "Word not found" when missing (`wordController.ts:571-580`). **Ownership check added Phase 2 Slice 1**: 403 "User not authorized" unless `wordData.user === req.user.id` (Phase 4 will widen this to also allow words in tags the user follows).
 
 ### Word update — `PUT /api/words/:id`
 - URL id from `updatedData.id` (`wordService.ts:79`); body is the `WordDataBE` word plus `translations`, `tags`, optional `partOfSpeech`/`clue`/`user`.

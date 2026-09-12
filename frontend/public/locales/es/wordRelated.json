@@ -2,7 +2,14 @@
   "addWordPage": {
     "title": "Añadir un nuevo {{currentPoS}}",
     "titleDefault": "Añadir una nueva palabra",
-    "subtitle": "Todos los campos obligatorios deben completarse antes de guardar"
+    "subtitle": "Todos los campos obligatorios deben completarse antes de guardar",
+    "toastCreateSuccess": "La palabra se creó correctamente"
+  },
+  "apiErrors": {
+    "wordNotFound": "No se pudo encontrar esta palabra.",
+    "notAuthorized": "No tienes acceso a esta palabra.",
+    "missingPartOfSpeech": "Por favor, elige una categoría gramatical.",
+    "notEnoughTranslations": "Añade al menos dos traducciones antes de guardar."
   },
   "displayWord": {
     "titlePos": "Vista detallada: {{currentPoS}}",
@@ -90,27 +97,61 @@
     "clue": "Pista"
   },
   "wordForm": {
+    "hints": {
+      "minTranslations": "Añade al menos 2 traducciones antes de poder guardar."
+    },
     "errors": {
       "noNumbers": "No debe incluir números"
     },
     "noun": {
       "errors": {
         "formEN": {
-          "singularFormRequired": "'Singular' es obligatorio"
+          "singularFormRequired": "'Singular' es obligatorio",
+          "regularityRequired": "Esa no es una opción"
         },
         "formES": {
           "singularFormRequired": "La forma 'singular' es obligatoria",
-          "genderRequired": "La selección de 'género' es obligatoria"
+          "genderRequired": "La selección de 'género' es obligatoria",
+          "regularityRequired": "Esa no es una opción"
         },
         "formDE": {
           "singularFormRequired": "'Singular nominativ' es obligatorio",
-          "genderRequired": "La selección de 'género' es obligatoria"
+          "genderRequired": "La selección de 'género' es obligatoria",
+          "regularityRequired": "Esa no es una opción"
         },
         "formEE": {
           "singularFormRequired": "'Singular nimetav' es obligatorio",
           "searchInEnglishLabel": "Buscar el sustantivo en inglés",
-          "searchInEnglishWarning": "Cuidado, esto no funciona con todos los sustantivos. De ser necesario, pruebe buscar en estonio."
+          "searchInEnglishWarning": "Cuidado, esto no funciona con todos los sustantivos. De ser necesario, pruebe buscar en estonio.",
+          "regularityRequired": "Esa no es una opción"
         }
+      },
+      "fields": {
+        "regularityEN": "Regularidad",
+        "singularEN": "Singular",
+        "pluralEN": "Plural",
+        "regularityES": "Regularidad",
+        "genderES": "Género",
+        "singularES": "Singular",
+        "pluralES": "Plural",
+        "regularityDE": "Regularidad",
+        "genderDE": "Género",
+        "singularNominativDE": "Singular nominativo",
+        "pluralNominativDE": "Plural nominativo",
+        "singularAkkusativDE": "Singular acusativo",
+        "pluralAkkusativDE": "Plural acusativo",
+        "singularGenitivDE": "Singular genitivo",
+        "pluralGenitivDE": "Plural genitivo",
+        "singularDativDE": "Singular dativo",
+        "pluralDativDE": "Plural dativo",
+        "regularityEE": "Regularidad",
+        "singularNimetavEE": "Singular nominativo",
+        "pluralNimetavEE": "Plural nominativo",
+        "singularOmastavEE": "Singular genitivo",
+        "pluralOmastavEE": "Plural genitivo",
+        "singularOsastavEE": "Singular partitivo",
+        "pluralOsastavEE": "Plural partitivo",
+        "shortFormEE": "Ilativo corto"
       }
     },
     "adjective": {
