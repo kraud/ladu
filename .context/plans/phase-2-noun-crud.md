@@ -279,7 +279,85 @@ required); the **config -> old-field-list regression test** for all four noun la
 
 ---
 
-## Slice 4 — `WordForm` orchestrator + `AddWordPage` (create flow)
+## Slice 4 — `WordForm` orchestrator + `AddWordPage` (create flow) ✅ done (2026-09-12)
+
+### Outcome — what landed, and where it diverged from the plan below
+
+- **`form-engine/useWordFormState.ts`** — built exactly to the design section's spec
+  (translations[] add/remove/clear-slot, per-slot completion/dirty pushed up from
+  `TranslationCard`, `canSave` = `>= 2 slots, all complete, something dirty`). **One
+  addition not spelled out in the plan**: `resetTokens` (`Partial<Record<Lang, number>>`),
+  a per-language bump counter passed to `TranslationCard` as `resetKey`. It exists because
+  each card owns its own RHF instance keyed off `defaultValues` (mount-time only, not the
+  reactive `values` option — a `values`-controlled form would resync from its own `onChange`
+  echo every keystroke and snap `isDirty` back to `false`). Clear needed an explicit
+  "resync now" signal a passive echo can't produce, so `clearTranslation` bumps the token
+  for that slot's language; **this is also the seam Slice 5's Cancel will reuse** (see
+  below) — `useWordFormState`'s own header comment already flags that hydration "runs
+  once, off the props present at mount" and that the component **remounts via a `key`**
+  rather than re-hydrating a live form on `initialWord` swap.
+- **`form-engine/WordForm.tsx`** — orchestrator built to spec: PoS gate (create mode
+  only — edit mode's `initialWord.partOfSpeech` is always present, so the gate line
+  is structurally unreachable there, matching D3's "unreachable in practice" pattern) ->
+  translation grid -> "+ Add language" dialog (a `Dialog`, not an inline row) -> clue
+  textarea -> sticky save bar. **Signature already carries everything Slice 5 needs**
+  (`mode: 'create' | 'edit'`, `initialWord?`, `onDelete?`) so Slice 5 should need **no
+  signature change** to this component — confirmed by its own header comment ("this slice
+  only wires the create path... so Slice 5 doesn't need to change this component's
+  signature"). **What it does *not* yet have**: any read-only / view-mode rendering — it
+  always renders the full editable grid. `TranslationCard`'s `displayOnly` prop (built in
+  Slice 3 for D3) is wired through `FieldRenderer` but `WordForm` never passes it down.
+  Slice 5's read-only "view before Edit is clicked" state is therefore **not** a `WordForm`
+  concern per the current design — see the Slice 5 revision below.
+- **`components/common/PartOfSpeechSelector.tsx`** — all ten `PartOfSpeech` values render
+  (not just the four planned languages' concern — this is PoS, not language), Noun the
+  only enabled radio; the other nine show `missingImplementationPoS` inline. Widening to
+  Verb/Adjective/Adverb in Phase 3 is a one-line change to `SHIPPED_POS`.
+- **`lib/words.ts`** — beyond the planned `filterTranslationsByUserLanguages`, two more
+  helpers landed **ahead of their Slice 5 need**: `primaryCaseWord(pos, translation)` (the
+  one required singular/nominative case value, for a word's page title) and
+  `partOfSpeechLabelKey(pos)` / `partOfSpeechFromRouteParam(param)`. Slice 5's `WordPage`
+  title can consume `primaryCaseWord` + `partOfSpeechLabelKey` directly — no new helper
+  needed there.
+- **`lib/toast.tsx`** — new, not originally planned as a separate file (the plan's Slice 4
+  bullets described the toast behaviour inline on `AddWordPage`). Extracted because the
+  "loading -> success-with-action or loading -> error" morph is reusable — **Slice 5's
+  Update/Delete flows reuse `startLoadingToast` / `resolveLoadingToastSuccess` /
+  `resolveLoadingToastError` as-is**, no new toast plumbing needed.
+- **`features/words/errors.ts`** — `wordErrorKey` maps all four backend messages
+  (`wordNotFound`, `notAuthorized`, `missingPartOfSpeech`, `notEnoughTranslations`) even
+  though only the last two are reachable from `AddWordPage` (create can't 403/404). The
+  first two exist for `WordPage`'s `useWord` error branch — **Slice 5 needs no changes to
+  this file**, just a call site.
+- **`AddWordPage.tsx`** — matches the plan: typed route param -> `WordForm` create mode ->
+  toast morph -> "See details" -> `/word/$wordId`, then **remounts `WordForm` via a
+  `formKey` bump** (not a call into a form-level `reset` API) to clear the PoS gate back to
+  ungated. This is the same remount-key pattern `useWordFormState` calls out for a future
+  edit-mode reset — Slice 5's Cancel should follow it.
+- **`app/router.tsx`** — `/addWord/{-$partOfSpeech}` -> `AddWordPage`; `/word/$wordId`
+  still the Slice-2-era `Placeholder`, swapped in Slice 5.
+- **Divergence — `alert-dialog.tsx` was already added in Slice 3** (it's in the held-over
+  primitive list there), not Slice 4. It exists, unused so far; **Slice 5's `ConfirmDialog`
+  is its first consumer.**
+
+**Tests**: `useWordFormState.test.ts` (16 — create-mode add/remove/clear/canAddMore/
+canSave/reset/buildPayload, edit-mode hydration filtering + re-offering a dropped
+language); `WordForm.test.tsx` (8 — PoS gate show/hide, add/remove/clear via the picker,
+min-translations hint, exact nested save payload); `PartOfSpeechSelector.test.tsx` (2);
+`errors.test.ts` (2); `TranslationCard.test.tsx` (+9 over Slice 3's baseline — the
+`onChange` push-up contract, `resetKey` resync); `AddWordPage.test.tsx` (3 — create +
+morph + navigate, route-param PoS skip, generic-error preserves form state);
+`lib/words.test.ts` (7).
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**133 → 180** (47 new, matches the file-by-file counts above exactly). `grep -r "_id"
+frontend/src/features/words` = 0 (only a doc-comment reference and an
+`hooks.test.tsx` `not.toHaveProperty('_id')` assertion, both expected). Backend untouched
+since Slice 1 (145/145, not re-run this slice — no backend files touched).
+
+---
+
+### Original plan (superseded by the outcome above)
 
 - `form-engine/useWordFormState.ts` + `form-engine/WordForm.tsx`.
 - `features/words/errors.ts` — backend message → i18n-key map (`wordErrorKey`), mirroring
@@ -307,23 +385,120 @@ add / remove / clear a language slot; `filterTranslationsByUserLanguages` unit t
 
 ---
 
-## Slice 5 — `WordPage` (view / edit / delete)
+## Slice 5 — `WordPage` (view / edit / delete) ✅ done (2026-09-12)
 
-- `features/words/pages/WordPage.tsx` — `useWord(wordId)`; skeleton while loading;
-  not-found / 403 -> error toast + `navigate(-1)`; owner -> `WordForm` edit mode with
-  **Edit <-> Cancel** toggle + **Update**; **Back** (history-back); **Delete** ->
-  `ConfirmDialog` -> `useDeleteWord` -> toast -> navigate `/`. No non-owner branch (D3).
-- `components/common/ConfirmDialog.tsx` — `alert-dialog` wrapper for destructive confirms.
-- Edit hydration via `filterTranslationsByUserLanguages(initialWord.translations)`; Cancel
-  restores from `initialWord`; `partOfSpeech` shown read-only (immutable after creation).
-- Update -> `useUpdateWord` -> success toast, re-lock fields, stay on the page.
-- `app/router.tsx` — `/word/$wordId` leaf -> `WordPage`.
+### Outcome — what landed, and where it diverged from the revised plan below
+
+- Built to the revision below almost exactly: `WordPage` owns View (read-only
+  `TranslationCard displayOnly` grid) and Edit (`WordForm mode="edit"`) as two branches of
+  one ternary, with `editKey` bumped on every Edit click and `ConfirmDialog` (new,
+  `components/common/ConfirmDialog.tsx`) as the ` alert-dialog` wrapper for delete.
+- **Divergence — a page-level Cancel button, not inside `WordForm`.** The revision's prose
+  didn't spell out exactly where Cancel lives; it landed as a small `Button` above the
+  mounted `WordForm` (`WordPage.tsx`, the `editing` branch), flipping `editing` back to
+  `false` directly — `WordForm` itself still has no Cancel concept of its own, consistent
+  with it staying scoped to "compose, don't orchestrate page-level navigation between
+  view/edit."
+- **Divergence — zero new i18n keys.** `wordRelated:displayWord.{titlePos,titleSimple,
+  subtitle,toastUpdateSuccess}` and `common:buttons.{edit,cancel,return,delete,confirm,
+  confirmDelete}` / `common:status.word.{savedSuccess,deletedSuccess}` already existed,
+  fully translated in all four locales — leftover scaffolding from the old app's locale
+  files that nothing had consumed yet. `status.word.savedSuccess` turned out unused (the
+  update-success toast uses the more specific `displayWord.toastUpdateSuccess` instead,
+  matching the key `lib/words.ts`'s comments already pointed at); `deletedSuccess` is used
+  as planned.
+- **Headline word, not just PoS, in the page title** — confirms the Slice 4 outcome's read
+  of `primaryCaseWord`'s own doc-comment ("used for a word's page title"): the `<h1>` is
+  the word's own primary case value (e.g. "house"), with `wordRelated:displayWord.titlePos`
+  ("Detailed view: Noun") rendered as a `meta` eyebrow line above it, not as the `<h1>`
+  itself. Falls back to `titleSimple` in the unreachable case `primaryCaseWord` returns `''`.
+- **Not-found / 403 navigation uses `useRouter().history.back()`**, not
+  `navigate({ to: '..' })` — `..` has no defined resolution one level above a pathless
+  `_protected` layout route, so `router.history.back()` (used identically for the View
+  state's own **Return** button) is the one mechanism for "leave this page" throughout.
+  Verified in tests via `vi.spyOn(router.history, 'back')`, not by asserting a landing path
+  (a single-entry `createMemoryHistory` — `renderApp`'s only mode — makes `.back()` a
+  no-op past index 0, so path-based assertions would be meaningless there).
+- **`ConfirmDialog`'s `destructive` styling** bakes `buttonVariants({ variant: 'destructive'
+  })` into `AlertDialogAction`'s `className` prop, appended *after* the component's own
+  baked-in `variant: 'default'` classes — relies on `cn`'s `tailwind-merge` pass to resolve
+  the conflicting `bg-*` utilities in the destructive className's favour. Not independently
+  verified beyond "the button renders and the click handler fires" (tests assert behaviour,
+  not computed color) — worth an eyeball in the browser before Phase 3 reuses
+  `ConfirmDialog` elsewhere.
+- **`app/router.tsx`** — `/word/$wordId` -> `WordPage`; header comment updated ("`word` in
+  Slice 5").
+
+**Tests** (`WordPage.test.tsx`, 8): read-only view render (heading, PoS eyebrow, clue,
+zero `textbox`/`Clear` elements); Return calls `history.back()`; not-found and
+non-owner-403 each toast the mapped message and call `history.back()`; edit round-trip
+(exact `PUT` body incl. `id`, toast, drops back to View showing the persisted change);
+Cancel discards an in-progress edit with zero requests made; delete-confirm Cancel makes
+no request; confirming delete removes the word, toasts, and navigates to `/`.
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**180 → 188** (the 8 above). `grep -r "_id" frontend/src/features/words` unchanged (0 real
+hits). Backend untouched since Slice 1 (not re-run this slice — no backend files touched).
+
+---
+
+### Revised plan (superseded by the outcome above, but accurate enough to keep for context)
+
+**Revised against the Slice 4 outcome** (2026-09-12): `WordForm` has no read-only
+rendering mode of its own — it always renders the full editable grid (Slice 4 outcome,
+above). Rather than bolt a `readOnly`/`displayOnly` prop onto `WordForm` (which would
+duplicate `TranslationCard`'s existing `displayOnly` contract one layer up, and widen an
+orchestrator whose own docstring scopes it to "compose/edit"), `WordPage` owns its two
+render states directly:
+
+- **View state (default on load)**: `WordPage` renders its own read-only layout — page
+  title from `partOfSpeechLabelKey(word.partOfSpeech)` + `primaryCaseWord(...)` (both
+  already built in Slice 4 for exactly this), one `<TranslationCard displayOnly lang=...
+  initialCases=...>` per translation (no `onChange`/`onRemove`/`onClear`), the clue as
+  static text. **Edit** / **Back** / **Delete** buttons live here, not inside `WordForm`.
+- **Edit state**: swaps in `<WordForm mode="edit" initialWord={word} key={editKey}
+  onSubmit={...} onDelete={...} submitting={...}>` — unchanged from the Slice 4 signature,
+  confirming that outcome note. **Cancel** does **not** need a form-level "restore" API:
+  it just flips back to View state and drops the mounted `WordForm` (React unmounts it,
+  discarding whatever `useWordFormState` had in flight) — the exact remount-discards-state
+  pattern `useWordFormState`'s own header comment anticipates, reused here with a plain
+  state flip instead of `AddWordPage`'s `formKey` bump (there is nothing to preserve across
+  Cancel, since the freshly-unmounted form's home *is* the read-only view of `word`, not a
+  blank slate). `editKey` still bumps once per Edit click so a second Edit after a failed
+  Update starts from a clean `useWordFormState`, not the previous attempt's half-typed state.
+- `partOfSpeech` is never shown as an input in either state — the view title carries it,
+  and `WordForm` edit mode already skips its own PoS gate whenever `initialWord` is set
+  (Slice 4 outcome), so there is no PoS control to disable.
+
+Concretely:
+
+- `features/words/pages/WordPage.tsx` — `useWord(wordId)`; a `Skeleton` (already in
+  `components/ui/skeleton.tsx`, unused since Phase 1) while loading; on error, `toast.error
+  (t(wordErrorKey(error)))` + `navigate({ to: '..' })` (D3: only `wordNotFound` /
+  `notAuthorized` are reachable here, both already mapped in `features/words/errors.ts` —
+  no changes needed there). Owner is implicit: D3 means a successful fetch is always the
+  caller's own word, so there is still no non-owner branch to write.
+- `components/common/ConfirmDialog.tsx` — wraps `alert-dialog.tsx` (added in Slice 3,
+  unused until now): `{ title, description, confirmLabel, cancelLabel, destructive?,
+  onConfirm }`. First and only consumer this slice is the delete confirm.
+- Update -> `useUpdateWord`, wrapped in the Slice 4 `startLoadingToast` /
+  `resolveLoadingToastSuccess` / `resolveLoadingToastError` trio (no new toast plumbing) ->
+  on success, drop back to View state (re-locks fields by construction, since View never
+  mounts an editable form) and stay on `/word/:id`; on error, stay in Edit state with
+  whatever was typed (`WordForm`'s own local state is untouched by a failed mutation).
+- Delete -> `ConfirmDialog` -> `useDeleteWord` -> loading/success/error toast trio ->
+  success navigates `/`.
+- `app/router.tsx` — `/word/$wordId` leaf: swap the Slice-2-era `Placeholder` for
+  `WordPage`.
 
 **Runnable:** full loop — add, open, edit a case, save, reload, delete.
 
-**Tests (MSW):** edit round-trip — load a word, change one case, save, assert the `PUT`
-body + cache update; Cancel restores; delete confirm -> navigate `/`; not-found -> toast
-+ back.
+**Tests (MSW):** view render (title + read-only fields, no inputs); Edit shows the same
+editable grid `WordForm.test.tsx` already covers, pre-filled; edit round-trip — load a
+word, change one case, save, assert the exact `PUT` body + detail-cache write + drop back
+to View with the new value visible; Cancel discards an in-progress edit and returns to the
+unchanged View state; delete confirm -> `DELETE` called -> navigate `/`; delete cancel ->
+no call, dialog closes; not-found / 403 -> toast + `navigate({ to: '..' })`.
 
 ---
 
