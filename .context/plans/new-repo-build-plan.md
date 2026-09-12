@@ -234,11 +234,11 @@ Performed 2026-09-05, before this plan was written:
 |---|---|
 | 0 — Scaffold + backend copy | ✅ done — commit `c030b68`; backend 130/130 green |
 | 1 — Auth + app shell | ✅ **done & committed** 2026-09-10 — merged to `main` via PR #1 (`0cf091f`); final state backend 144/144, frontend 98/98, e2e 7/7, build green (breakdown below) |
-| 2 — Noun create/view (form engine v1) | 🚧 **in progress** — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md). Slice 1 (backend `_id` strip on word responses + `GET /api/words/:id` ownership check) done; Slices 2–6 pending |
+| 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
 | 3, 3.5, 4–8 | not started |
 
 - **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).
-- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB).
+- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form) — `npm run test:e2e` is 9/9 green.
 
 ### Phase 1 — [`phase-1-auth-app-shell.md`](./phase-1-auth-app-shell.md)
 
@@ -264,17 +264,19 @@ Deviations agreed with the user (full text in the plan's Slice 4/5 outcomes): no
 
 ### Phase 2 — [`phase-2-noun-crud.md`](./phase-2-noun-crud.md)
 
-In progress. Seven slices (0–6); the user commits and re-confirms between each. Decisions D1–D4 taken with the user 2026-09-10 (pagination deferred to Phase 3; clue-only, no tags field; `GET /api/words/:id` returns 403 for non-owner with the non-owner read-only view deferred to Phase 4; noun field labels i18n-keyed).
+✅ **Done and gated 2026-09-12.** Seven slices (0–6); the user committed and re-confirmed between each. Decisions D1–D4 taken with the user 2026-09-10 (pagination deferred to Phase 3; clue-only, no tags field; `GET /api/words/:id` returns 403 for non-owner with the non-owner read-only view deferred to Phase 4; noun field labels i18n-keyed).
 
 | Slice | Status |
 |---|---|
 | 0 — persist the plan | ✅ done |
 | 1 — backend: `_id` strip on word responses + `GET /api/words/:id` ownership check (403) + tests | ✅ done 2026-09-10 — backend **145/145** green; `snapshot/endpoints.md` corrected (`data-model.md` §2.1 already `id`-clean) |
 | 2 — `features/words` data layer (types / api / keys / hooks / MSW) | ✅ done 2026-09-10 — `features/words/{types,api,keys,hooks}.ts` + `test/msw/wordHandlers.ts`; hooks do invalidation only (toasts/nav deferred to the pages); `wordKeys` namespaced; frontend **98 → 105**, build green |
-| 3 — form engine core: configs + `buildYupSchema` + `FieldRenderer` + `TranslationCard` + 5 held-over shadcn primitives + regression test | not started |
-| 4 — `WordForm` orchestrator + `PartOfSpeechSelector` + `AddWordPage` (create) | not started |
-| 5 — `WordPage` (owner view / edit / delete) | not started |
-| 6 — phase gate: `phase-2-noun-crud.spec.ts` + docs + full green run | not started |
+| 3 — form engine core: configs + `buildYupSchema` + `FieldRenderer` + `TranslationCard` + 5 held-over shadcn primitives + regression test | ✅ done 2026-09-11 — frontend **105 → 133**, build green |
+| 4 — `WordForm` orchestrator + `PartOfSpeechSelector` + `AddWordPage` (create) | ✅ done 2026-09-12 — frontend **133 → 180**, build green |
+| 5 — `WordPage` (owner view / edit / delete) | ✅ done 2026-09-12 — `WordPage` owns its own read-only View (no `displayOnly` mode added to `WordForm`) + an Edit state mounting `WordForm` unchanged; new `ConfirmDialog` (first consumer of Slice 3's unused `alert-dialog`); zero new i18n keys needed (old-app locale scaffolding already had them). Frontend **180 → 188**, build green |
+| 6 — phase gate: `phase-2-noun-crud.spec.ts` + docs + full green run | ✅ done 2026-09-12 — real-stack e2e spec (2 tests); found and fixed a real bug along the way (below); final gate backend **145/145**, frontend **188/188**, e2e **9/9**, build green; `grep -r "_id" frontend/src/features/words` = 0 |
+
+**Bug found by the Slice 6 e2e gate:** `WordPage`'s not-found/403 handling and its **Return** button called `router.history.back()` unconditionally. For a *direct* landing on `/word/:id` (a bookmarked or shared link, or — as the e2e non-owner test does — a hard `page.goto`) there is no client-side history to pop into: the browser either no-ops or unloads the current document for whatever came before the tab's session, taking the just-shown toast down with it before it's ever seen. Fixed with `useCanGoBack()`: when there's nothing to go back to, fall back to a client-side `navigate({ to: '/' })`, which stays inside the SPA and keeps the toast visible. Same-session "Return" clicks are unaffected. See `WordPage.tsx`'s `goBack()` and the Phase 2 plan's Slice 6 outcome for the full e2e trace that surfaced this.
 
 ### Phase 3.5 — [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md)
 

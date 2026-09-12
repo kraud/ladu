@@ -14,7 +14,7 @@
  * (decision D3), so a successful load here is always the caller's own word.
  */
 import { useEffect, useState } from 'react';
-import { getRouteApi, useNavigate, useRouter } from '@tanstack/react-router';
+import { getRouteApi, useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { Button } from '@/components/ui/button';
@@ -40,10 +40,23 @@ export function WordPage() {
     const wordQuery = useWord(wordId);
     const updateWord = useUpdateWord();
     const deleteWord = useDeleteWord();
+    const canGoBack = useCanGoBack();
 
     const [editing, setEditing] = useState(false);
     const [editKey, setEditKey] = useState(0);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+    // A plain `router.history.back()` when there's no client-side history to
+    // pop into (a bookmarked/shared `/word/:id` link, or any other direct
+    // landing on this route) leaves the SPA runtime entirely — the browser
+    // either no-ops or unloads the current document for whatever came before
+    // this tab's session, taking the toast with it. `useCanGoBack` tells
+    // those two cases apart; falling back to `navigate({ to: '/' })` is a
+    // same-document client-side transition, so the toast survives it.
+    function goBack() {
+        if (canGoBack) router.history.back();
+        else void navigate({ to: '/' });
+    }
 
     // D3: the only reachable failures are "not found" and "not the owner" —
     // there is nothing useful to show inline, so bounce back where the user
@@ -51,8 +64,9 @@ export function WordPage() {
     useEffect(() => {
         if (!wordQuery.isError) return;
         toast.error(t(wordErrorKey(wordQuery.error)));
-        router.history.back();
-    }, [wordQuery.isError, wordQuery.error, router, t]);
+        goBack();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [wordQuery.isError, wordQuery.error, t]);
 
     if (wordQuery.isPending) {
         return (
@@ -160,7 +174,7 @@ export function WordPage() {
                     )}
 
                     <div className="flex gap-2">
-                        <Button type="button" variant="outline" onClick={() => router.history.back()}>
+                        <Button type="button" variant="outline" onClick={goBack}>
                             {t('common:buttons.return')}
                         </Button>
                         <Button type="button" onClick={startEdit}>

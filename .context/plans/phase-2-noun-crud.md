@@ -502,7 +502,68 @@ no call, dialog closes; not-found / 403 -> toast + `navigate({ to: '..' })`.
 
 ---
 
-## Slice 6 — Phase gate
+## Slice 6 — Phase gate ✅ done (2026-09-12) — **Phase 2 complete**
+
+### Outcome — what landed, and where it diverged from the plan below
+
+- **`e2e/tests/phase-2-noun-crud.spec.ts`** (2 tests, `test.describe.serial`, following
+  `phase-1-auth.spec.ts`'s conventions): registers both users straight through
+  `POST /api/users` + a DB-read verification token (`registerAndVerify`, mirroring
+  `phase-1-auth.spec.ts`'s decision-1 test) — only login and the word CRUD itself go
+  through the real UI, since the plan's "through the real form" concern is the *word*
+  flow, not re-proving registration a second time. Test 1: sign in -> Add Word -> Noun ->
+  three translations (EN/ES/DE, >= 3 per the plan) through the real "+ Add language"
+  dialog -> Save -> `WordPage` shows every translation's required case, read-only ->
+  **survives a reload** -> Edit one case -> Save -> **persists across a second reload**.
+  Test 2: a second user hard-navigating to the first user's `/word/:id` gets the mapped
+  403 toast and ends up back at `/` — exercised through the browser, not a raw API
+  assertion, per the plan's own framing.
+- **Divergence — `getByRole(..., { name })` needed `exact: true`.** Unlike RTL's
+  `getByLabelText`/`getByRole` (exact-by-default), Playwright's accessible-name matching
+  defaults to a case-insensitive **substring** match — `getByRole('radio', { name: 'el' })`
+  silently matched both the Spanish "el" (masculine) *and* "el/la" (neutral) gender
+  options. Not a product bug, a test-authoring pitfall worth flagging for future e2e specs
+  reusing `nouns.ts`'s gender radios (ES has "el/la", DE has no such overlap).
+- **Bug found and fixed — `WordPage`'s `router.history.back()` could strand the toast.**
+  Test 2's non-owner scenario is *only* reachable by landing on `/word/:id` directly (no
+  list view exists yet to link there from) — exactly the real-world shape of a bookmarked
+  or shared link. `router.history.back()` from a document with no prior client-side
+  history either no-ops or unloads the current document for whatever the browser had
+  before this tab's session — either way the `toast.error` just shown vanishes with it
+  before a user (or a test) can see it. Fixed in `WordPage.tsx` with `useCanGoBack()`:
+  `goBack()` calls `router.history.back()` when there's somewhere to pop into, else
+  `navigate({ to: '/' })` — a same-document client-side transition, so the toast survives.
+  Applied to both the error-effect and the View state's **Return** button. The three
+  `WordPage.test.tsx` tests that previously spied on `router.history.back()` were rewritten
+  to assert the landing path instead, since `renderApp`'s single-entry memory history means
+  `useCanGoBack()` is `false` in every one of them — they now exercise the same fallback
+  path the e2e non-owner test does. Frontend test count unchanged (188 — same tests,
+  different assertions).
+- **`.context/.frontend/frontend-structure.md`** — the `form-engine/` subtree (`:108-118`
+  at plan-authoring time) had diverged in several small ways: no `buildYupSchema.ts` line
+  (new in Slice 3), `WordForm.tsx`'s description still said "→ clue → tags →" (D2 dropped
+  tags from Phase 2 entirely) and didn't mention the "+ Add language" dialog,
+  `TranslationCard.tsx`'s said "in-place language switch" (never built — Remove + re-Add
+  instead) and didn't note it owns its own RHF instance per card, `useWordFormState.ts`'s
+  said "RHF wiring" (it holds plain state; RHF lives in each card, not this hook), and
+  `nouns.ts`'s said "NounCasesData registry" (the actual export is the shared
+  `WordCasesData.Noun`). All corrected in place.
+- **`new-repo-build-plan.md` §9** — Phase 2's progress table filled in through Slice 6;
+  the top-level phase table and the test-infra bullet updated to match; the bug found
+  above is called out there too (not just here) since it's the kind of finding future
+  phases should know to watch for (any page reachable by a direct/bookmarked URL with a
+  "go back" affordance needs the same `useCanGoBack` treatment — Phase 4's non-owner
+  `WordPage` branch and Phase 3's Review-table deep links are the next candidates).
+
+**Verified**: `npm test` (backend) **145/145**; `npm test -w frontend` **188/188**;
+`npm run build -w frontend` green; `npm run test:e2e` **9/9** (all phases: 3 smoke + 4
+phase-1 + 2 phase-2); `grep -r "_id" frontend/src/features/words` = 0 (the same two
+expected non-hits from Slice 4: a doc comment and a `not.toHaveProperty('_id')`
+assertion).
+
+---
+
+### Original plan (superseded by the outcome above)
 
 - `e2e/tests/phase-2-noun-crud.spec.ts`: a logged-in user adds a noun with >= 3 language
   translations through the real form -> save -> reload `WordPage` -> all translations +

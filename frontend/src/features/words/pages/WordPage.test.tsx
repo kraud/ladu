@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
@@ -60,36 +60,37 @@ describe('WordPage — view', () => {
         expect(screen.getByRole('button', { name: 'Return' })).toBeInTheDocument();
     });
 
-    it('Return navigates back', async () => {
+    // `renderApp` always boots a single-entry memory history, so `useCanGoBack()`
+    // is false in every one of these — `goBack()` takes the `navigate({ to: '/' })`
+    // fallback throughout, not `router.history.back()` (see `WordPage.tsx`).
+
+    it('Return navigates Home when there is no client-side history to pop into', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [SEED] }).handlers);
         const { router } = await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
-        const backSpy = vi.spyOn(router.history, 'back');
 
         await screen.findByRole('button', { name: 'Return' });
         await userEvent.setup().click(screen.getByRole('button', { name: 'Return' }));
 
-        expect(backSpy).toHaveBeenCalled();
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
     });
 
-    it('shows a toast and navigates back for a not-found word', async () => {
+    it('shows a toast and navigates Home for a not-found word', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id }).handlers);
         const { router } = await renderApp({ initialEntry: '/word/missing-id', session: SESSION });
-        const backSpy = vi.spyOn(router.history, 'back');
 
         expect(await screen.findByText('This word could not be found.')).toBeInTheDocument();
-        expect(backSpy).toHaveBeenCalled();
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
         expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
     });
 
-    it('shows a toast and navigates back for another user\'s word', async () => {
+    it('shows a toast and navigates Home for another user\'s word', async () => {
         server.use(
             ...makeWordHandlers({ callerId: SESSION.id, seed: [{ ...SEED, user: 'someone-else' }] }).handlers,
         );
         const { router } = await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
-        const backSpy = vi.spyOn(router.history, 'back');
 
         expect(await screen.findByText("You don't have access to this word.")).toBeInTheDocument();
-        expect(backSpy).toHaveBeenCalled();
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
     });
 });
 
