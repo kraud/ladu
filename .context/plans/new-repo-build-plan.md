@@ -235,7 +235,8 @@ Performed 2026-09-05, before this plan was written:
 | 0 — Scaffold + backend copy | ✅ done — commit `c030b68`; backend 130/130 green |
 | 1 — Auth + app shell | ✅ **done & committed** 2026-09-10 — merged to `main` via PR #1 (`0cf091f`); final state backend 144/144, frontend 98/98, e2e 7/7, build green (breakdown below) |
 | 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
-| 3, 3.5, 4–8 | not started |
+| 3 — Form engine completion + autocomplete + Review | 🟡 planned 2026-09-12 — plan: [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md); 10 slices (0–9), not yet started |
+| 3.5, 4–8 | not started |
 
 - **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).
 - **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form) — `npm run test:e2e` is 9/9 green.
