@@ -2,15 +2,23 @@
  * One language slot in the word editor: header (flag + native name, tinted
  * top border), config-driven body via `FieldRenderer`, and Clear/Remove
  * footer actions. Owns its own RHF instance + yup resolver — each card
- * validates independently and (from Slice 4, via `useWordFormState`) pushes
- * its own `{ language, cases, completionState, isDirty }` up to the parent
- * form state, mirroring the old app's per-language forms.
+ * validates independently and pushes its own
+ * `{ cases, completionState, isDirty }` up to the parent (`useWordFormState`)
+ * on every change, mirroring the old app's per-language forms pushing up
+ * independently rather than one shared giant form.
+ *
+ * Completion is computed from the yup schema directly (`schema.isValidSync`),
+ * not RHF's own `formState.isValid` — the latter only reflects reality once a
+ * validation pass has run (a submit, or an explicit `trigger()`), and forcing
+ * that on mount would also flip on the *visible* field-level error messages
+ * for a freshly-added, still-empty card. Field-level errors stay driven by
+ * `mode: 'onBlur'`, decoupled from the word-level completion signal.
  *
  * The autocomplete row (EE/DE/ES noun autocomplete) is a Phase 3 concern —
  * only its mount point is reserved here.
  */
-import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useMemo, useRef } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -20,8 +28,15 @@ import { langTint, languageByLabel } from '@/lib/language';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
 import { buildYupSchema } from './buildYupSchema';
+import type { FieldConfig } from './configs/types';
 import { getFormConfig } from './configs';
 import { FieldRenderer } from './FieldRenderer';
+
+export interface TranslationCardChange {
+    cases: WordItem[];
+    completionState: boolean;
+    isDirty: boolean;
+}
 
 export interface TranslationCardProps {
     lang: Lang;
@@ -32,6 +47,30 @@ export interface TranslationCardProps {
     onRemove?: () => void;
     onClear?: () => void;
     removeDisabled?: boolean;
+    /** Fires on every value change (never in `displayOnly` mode). */
+    onChange?: (next: TranslationCardChange) => void;
+    /**
+     * Bump this (e.g. from `useWordFormState`'s `resetTokens`) to force the
+     * card back to `initialCases` — an explicit "resync now" signal, since the
+     * card otherwise never re-reads `initialCases` after mount (see the
+     * `useForm` comment below for why). Change detection is by value, not by
+     * presence, so the very first render never fires a spurious reset.
+     */
+    resetKey?: number;
+}
+
+/** `FieldConfig[]` + current RHF values -> the persisted `WordItem[]`, blank/checkbox-less values dropped. */
+function fieldsToCases(fields: FieldConfig[], values: Record<string, unknown>): WordItem[] {
+    const cases: WordItem[] = [];
+    for (const field of fields) {
+        // No PoS uses a checkbox-backed case yet (Phase 3 decides that encoding).
+        if (field.kind === 'checkbox') continue;
+        const raw = values[field.name];
+        let word = typeof raw === 'string' ? raw : '';
+        if (field.kind === 'text' && field.lowercase) word = word.toLowerCase();
+        if (word !== '') cases.push({ caseName: field.caseName, word });
+    }
+    return cases;
 }
 
 export function TranslationCard({
@@ -42,6 +81,8 @@ export function TranslationCard({
     onRemove,
     onClear,
     removeDisabled = false,
+    onChange,
+    resetKey,
 }: TranslationCardProps) {
     const { t } = useTranslation();
     const config = getFormConfig(pos, lang);
@@ -60,11 +101,59 @@ export function TranslationCard({
         );
     }, [config, initialCases]);
 
+    // Plain `defaultValues` (mount-time only), NOT the reactive `values` option:
+    // this card's own `onChange` echoes its cases back up into `useWordFormState`,
+    // which is exactly what `initialCases` is computed from on the next parent
+    // render. A `values`-controlled form would resync from that echo on every
+    // keystroke, snapping `formState.isDirty` back to `false` right after RHF
+    // set it `true` — since after the resync, "current" once again equals the
+    // (echoed) "default". Each card owns its state for its whole lifetime once
+    // mounted; a genuine external reset (Clear, and future edit-mode Cancel)
+    // instead calls `form.reset()` explicitly via `resetKey` below.
     const form = useForm({
         resolver: schema ? yupResolver(schema) : undefined,
         defaultValues,
-        values: defaultValues,
+        mode: 'onBlur',
     });
+
+    // The explicit resync path `values` would otherwise have provided: fires
+    // only when `resetKey` itself changes value (not on every `defaultValues`
+    // recompute, which happens on every keystroke via the echo above) — that's
+    // what tells apart "the parent is just echoing what I told it" (ignored)
+    // from "something wants a real reset" (acted on). Guards against firing on
+    // mount, where `defaultValues` is already the form's initial state.
+    const lastResetKey = useRef(resetKey);
+    useEffect(() => {
+        if (resetKey === undefined || resetKey === lastResetKey.current) return;
+        lastResetKey.current = resetKey;
+        form.reset(defaultValues);
+    }, [resetKey, defaultValues, form]);
+
+    const watched = useWatch({ control: form.control }) as Record<string, unknown>;
+    const { isDirty } = form.formState;
+
+    const cases = useMemo(
+        () => (config ? fieldsToCases(config.fields, watched) : []),
+        [config, watched],
+    );
+    const completionState = useMemo(() => {
+        if (!schema) return false;
+        try {
+            return schema.isValidSync(watched);
+        } catch {
+            return false;
+        }
+    }, [schema, watched]);
+
+    useEffect(() => {
+        if (displayOnly) return;
+        onChange?.({ cases, completionState, isDirty });
+        // `onChange` intentionally excluded: the parent always passes an
+        // equivalent closure (bound to this card's stable index), so
+        // including it would re-fire this effect — and re-set the identical
+        // parent state — on every parent render, without changing behaviour.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [cases, completionState, isDirty, displayOnly]);
 
     if (!config) {
         return (

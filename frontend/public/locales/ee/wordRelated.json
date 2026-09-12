@@ -2,7 +2,14 @@
   "addWordPage": {
     "title": "Lisa uus {{currentPoS}}",
     "titleDefault": "Lisa uus sõna",
-    "subtitle": "Kõik kohustuslikud väljad tuleb enne salvestamist täita"
+    "subtitle": "Kõik kohustuslikud väljad tuleb enne salvestamist täita",
+    "toastCreateSuccess": "Sõna on edukalt loodud"
+  },
+  "apiErrors": {
+    "wordNotFound": "Seda sõna ei leitud.",
+    "notAuthorized": "Sul pole juurdepääsu sellele sõnale.",
+    "missingPartOfSpeech": "Palun vali sõnaliik.",
+    "notEnoughTranslations": "Lisa enne salvestamist vähemalt kaks tõlget."
   },
   "displayWord": {
     "titlePos": "Üksikasjalik vaatamine: {{currentPoS}}",
@@ -90,6 +97,9 @@
     "clue": "Vihje"
   },
   "wordForm": {
+    "hints": {
+      "minTranslations": "Lisa enne salvestamist vähemalt 2 tõlget."
+    },
     "errors": {
       "noNumbers": "Ei tohi sisaldada numbreid"
     },

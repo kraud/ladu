@@ -2,7 +2,14 @@
   "addWordPage": {
     "title": "Añadir un nuevo {{currentPoS}}",
     "titleDefault": "Añadir una nueva palabra",
-    "subtitle": "Todos los campos obligatorios deben completarse antes de guardar"
+    "subtitle": "Todos los campos obligatorios deben completarse antes de guardar",
+    "toastCreateSuccess": "La palabra se creó correctamente"
+  },
+  "apiErrors": {
+    "wordNotFound": "No se pudo encontrar esta palabra.",
+    "notAuthorized": "No tienes acceso a esta palabra.",
+    "missingPartOfSpeech": "Por favor, elige una categoría gramatical.",
+    "notEnoughTranslations": "Añade al menos dos traducciones antes de guardar."
   },
   "displayWord": {
     "titlePos": "Vista detallada: {{currentPoS}}",
@@ -90,6 +97,9 @@
     "clue": "Pista"
   },
   "wordForm": {
+    "hints": {
+      "minTranslations": "Añade al menos 2 traducciones antes de poder guardar."
+    },
     "errors": {
       "noNumbers": "No debe incluir números"
     },

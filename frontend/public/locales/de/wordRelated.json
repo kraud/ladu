@@ -2,7 +2,14 @@
   "addWordPage": {
     "title": "Füge ein neues {{currentPoS}} hinzu",
     "titleDefault": "Füge ein neues Wort hinzu",
-    "subtitle": "Alle Pflichtfelder müssen ausgefüllt werden, bevor gespeichert werden kann"
+    "subtitle": "Alle Pflichtfelder müssen ausgefüllt werden, bevor gespeichert werden kann",
+    "toastCreateSuccess": "Das Wort wurde erfolgreich erstellt"
+  },
+  "apiErrors": {
+    "wordNotFound": "Dieses Wort konnte nicht gefunden werden.",
+    "notAuthorized": "Du hast keinen Zugriff auf dieses Wort.",
+    "missingPartOfSpeech": "Bitte wähle eine Wortart aus.",
+    "notEnoughTranslations": "Füge mindestens zwei Übersetzungen hinzu, bevor du speicherst."
   },
   "displayWord": {
     "titlePos": "Detailansicht: {{currentPoS}}",
@@ -90,6 +97,9 @@
     "clue": "Hinweis"
   },
   "wordForm": {
+    "hints": {
+      "minTranslations": "Füge mindestens 2 Übersetzungen hinzu, bevor du speichern kannst."
+    },
     "errors": {
       "noNumbers": "Darf keine Zahlen enthalten"
     },
