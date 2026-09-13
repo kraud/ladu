@@ -12,14 +12,15 @@ export interface RadioOption {
 }
 
 /**
- * A field starts a new visual group when it carries one of these and the
- * previous field's `group` (if any) has a different `headingKey` — e.g. a
- * verb tense block ("Present", "Simple past"...). Purely presentational:
- * never affects validation or persistence.
+ * One stacked heading line above a field — e.g. a verb's mood ("Indicativo")
+ * or the tense block under it ("Presente"). `heading` is displayed verbatim,
+ * like `RadioOption.label` — these are the target language's own grammatical
+ * terms, invariant across interface language, not i18n-translated UI copy.
+ * Purely presentational: never affects validation or persistence.
  */
 export interface FieldGroup {
-    headingKey: string;
-    /** 1 = a top-level heading (a verb's mood, e.g. "Indicative"); 2 = the tense block under it. */
+    heading: string;
+    /** 1 = a top-level heading; 2 = a heading nested under it. Reused for further nesting (Spanish stacks two level-2 lines under one level-1 heading). */
     level: 1 | 2;
 }
 
@@ -28,10 +29,12 @@ export interface FieldGroup {
  * sibling field named `field` currently equals `equals`. Hidden fields
  * validate as optional and their value is dropped on save (Spanish
  * adjective's gender-driven field set, German adverb's non-gradable branch).
+ * `equals` is `boolean` for a checkbox sibling (Estonian's `searchInEnglish`
+ * relaxing `infinitiveMa`'s pattern), `string` for a radio/select one.
  */
 export interface FieldVisibility {
     field: string;
-    equals: string;
+    equals: string | boolean;
 }
 
 /**
@@ -42,6 +45,13 @@ export interface FieldVisibility {
 export interface FieldPattern {
     regex: RegExp;
     messageKey: string;
+    /**
+     * Skip the `.matches()` entirely while the named sibling field currently
+     * equals `equals` — the pattern still applies otherwise, and `required`
+     * is never affected (Estonian's `-ma` ending is optional once
+     * `searchInEnglish` is checked, but the field itself stays required).
+     */
+    relaxedWhen?: FieldVisibility;
 }
 
 /**
@@ -64,10 +74,23 @@ interface FieldConfigBase {
      * the regression test pins against `forms-nouns.md`.
      */
     name: string;
-    /** The persisted case enum value (language-suffixed), e.g. `NounCases.singularEN`. */
-    caseName: CaseName;
-    /** `wordRelated` i18n key for the field's label (D4 — keyed by `caseName`, so EN/ES text can differ even for the "same" case). */
-    labelKey: string;
+    /**
+     * The persisted case enum value (language-suffixed), e.g.
+     * `NounCases.singularEN`. Omit only for a `persisted: false` field with no
+     * backing case at all (Estonian `searchInEnglish`) — `caseName` is never
+     * read once `persisted` is `false`.
+     */
+    caseName?: CaseName;
+    /** `wordRelated` i18n key for the field's label (D4 — keyed by `caseName`, so EN/ES text can differ even for the "same" case). Omit when `label` is set. */
+    labelKey?: string;
+    /**
+     * A literal, already-resolved label — bypasses `t()` entirely, like
+     * `RadioOption.label`. For text tied to the target language itself
+     * rather than the interface language (a verb conjugation's pronoun:
+     * "Yo", "Ich", "Mina" — the same word regardless of which of the four
+     * interface languages is active). Takes precedence over `labelKey`.
+     */
+    label?: string;
     required: boolean;
     /** i18n key for the yup `.required()` message. Present when `required` is true. */
     requiredMessageKey?: string;
@@ -80,13 +103,15 @@ interface FieldConfigBase {
      * `true` when omitted.
      */
     persisted?: boolean;
-    group?: FieldGroup;
+    /** Outer-to-inner stack of headings printed before this field, whenever they differ from the previous field's (see `FieldGroup`). */
+    group?: FieldGroup[];
     visibleWhen?: FieldVisibility;
     adornment?: FieldAdornment;
 }
 
 export interface TextFieldConfig extends FieldConfigBase {
     kind: 'text';
+    caseName: CaseName;
     /** Lowercase the value before persisting. Noun text cases: all languages except German (which keeps capitalization). */
     lowercase: boolean;
     pattern?: FieldPattern;
@@ -94,20 +119,24 @@ export interface TextFieldConfig extends FieldConfigBase {
 
 export interface RadioFieldConfig extends FieldConfigBase {
     kind: 'radio';
+    caseName: CaseName;
     options: RadioOption[];
 }
 
+/** The one kind that can be genuinely case-less (Estonian's form-only `searchInEnglish`) — `caseName` stays optional, inherited from the base. */
 export interface CheckboxFieldConfig extends FieldConfigBase {
     kind: 'checkbox';
 }
 
 export interface SelectFieldConfig extends FieldConfigBase {
     kind: 'select';
+    caseName: CaseName;
     options: RadioOption[];
 }
 
 export interface MultiSelectFieldConfig extends FieldConfigBase {
     kind: 'multi-select';
+    caseName: CaseName;
     options: RadioOption[];
     /** Selected option values -> the single persisted case string (German verb cases: `['accusativeDE','genitiveDE'] -> "AG"`). */
     encode: (selected: string[]) => string;

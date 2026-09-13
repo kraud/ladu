@@ -171,6 +171,51 @@ describe('buildYupSchema', () => {
         });
     });
 
+    describe('text field pattern.relaxedWhen', () => {
+        const field: FieldConfig = {
+            kind: 'text',
+            name: 'infinitiveMa',
+            caseName: CASE_NAME,
+            labelKey: 'infinitiveMa',
+            required: true,
+            requiredMessageKey: 'infinitiveMaRequired',
+            lowercase: true,
+            pattern: {
+                regex: /^(?!.*\d).*(ma)$/,
+                messageKey: 'infinitiveMaNotMatching',
+                relaxedWhen: { field: 'searchInEnglish', equals: true },
+            },
+        };
+
+        it('enforces the pattern while the relaxing sibling does not match', async () => {
+            const schema = buildYupSchema(configOf(field), t);
+            await expect(
+                schema.validate({ infinitiveMa: 'dance', searchInEnglish: false }),
+            ).rejects.toMatchObject({ message: 'infinitiveMaNotMatching' });
+        });
+
+        it('drops the pattern once the relaxing sibling matches', async () => {
+            const schema = buildYupSchema(configOf(field), t);
+            await expect(
+                schema.validate({ infinitiveMa: 'dance', searchInEnglish: true }),
+            ).resolves.toBeTruthy();
+        });
+
+        it('still requires the field while relaxed', async () => {
+            const schema = buildYupSchema(configOf(field), t);
+            await expect(
+                schema.validate({ infinitiveMa: '', searchInEnglish: true }),
+            ).rejects.toMatchObject({ message: 'infinitiveMaRequired' });
+        });
+
+        it('still accepts a matching value while relaxed', async () => {
+            const schema = buildYupSchema(configOf(field), t);
+            await expect(
+                schema.validate({ infinitiveMa: 'tantsima', searchInEnglish: true }),
+            ).resolves.toBeTruthy();
+        });
+    });
+
     describe('visibleWhen', () => {
         const gender: FieldConfig = {
             kind: 'radio',

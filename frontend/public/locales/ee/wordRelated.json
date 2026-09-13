@@ -200,11 +200,13 @@
           "infinitiveNonFiniteRequired": "Infinitiiv mittefiniitne on kohustuslik",
           "gerundNonFiniteRequired": "Gerundiiv mittefiniitne on kohustuslik",
           "participleNonFiniteRequired": "Partitsiip mittefiniitne on kohustuslik",
+          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-ar', '-er' või '-ir').",
           "regularityRequired": "See pole valik"
         },
         "formDE": {
           "infinitiveNonFiniteRequired": "Infinitiiv mittefiniitne on kohustuslik",
-          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-en', '-ern', '-eln')."
+          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-en', '-ern', '-eln').",
+          "regularityRequired": "See pole valik"
         },
         "formEE": {
           "infinitiveMaRequired": "-ma infinitiiv on kohustuslik",
@@ -213,6 +215,21 @@
           "searchInEnglishLabel": "Otsi verbi inglise keeles",
           "searchInEnglishWarning": "Olge ettevaatlik, see ei toimi kõigi verbidega! Vajadusel proovige eesti keeles."
         }
+      },
+      "fields": {
+        "regularityEN": "Reeglipärasus",
+        "regularityES": "Reeglipärasus",
+        "regularityDE": "Reeglipärasus",
+        "regularityEE": "Reeglipärasus",
+        "infinitiveNonFiniteSimpleES": "Lihtne infinitiiv mittefiniitne",
+        "gerundNonFiniteSimpleES": "Lihtne gerundiiv mittefiniitne",
+        "participleNonFiniteSimpleES": "Lihtne partitsiip mittefiniitne",
+        "infinitiveDE": "Infinitiiv",
+        "auxVerbDE": "Abitegusõna",
+        "prefixDE": "Eesliide",
+        "caseTypeDE": "Tegusõna kääne",
+        "infinitiveMaEE": "-ma infinitiiv",
+        "infinitiveDaEE": "-da infinitiiv"
       }
     },
     "autocompleteTranslationButton": {

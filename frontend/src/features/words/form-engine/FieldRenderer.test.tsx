@@ -19,7 +19,7 @@ const genderField = esConfig.fields.find((f) => f.name === 'gender')!;
 const checkboxField: FieldConfig = {
     kind: 'checkbox',
     name: 'searchInEnglish',
-    caseName: radioField.caseName,
+    caseName: radioField.caseName!,
     labelKey: 'wordRelated:wordForm.noun.errors.formEE.searchInEnglishLabel',
     required: false,
 };
@@ -27,7 +27,7 @@ const checkboxField: FieldConfig = {
 const selectField: FieldConfig = {
     kind: 'select',
     name: 'auxiliaryVerb',
-    caseName: radioField.caseName,
+    caseName: radioField.caseName!,
     labelKey: 'auxiliaryVerb',
     required: true,
     options: [
@@ -39,7 +39,7 @@ const selectField: FieldConfig = {
 const multiSelectField: FieldConfig = {
     kind: 'multi-select',
     name: 'verbCases',
-    caseName: radioField.caseName,
+    caseName: radioField.caseName!,
     labelKey: 'verbCases',
     required: false,
     options: [
@@ -54,7 +54,7 @@ const multiSelectField: FieldConfig = {
 const visibleWhenField: FieldConfig = {
     kind: 'text',
     name: 'neutralSingular',
-    caseName: radioField.caseName,
+    caseName: radioField.caseName!,
     labelKey: 'neutralSingular',
     required: true,
     lowercase: true,
@@ -64,7 +64,7 @@ const visibleWhenField: FieldConfig = {
 const adornedField: FieldConfig = {
     kind: 'text',
     name: 'indicativePerfect1s',
-    caseName: radioField.caseName,
+    caseName: radioField.caseName!,
     labelKey: 'indicativePerfect1s',
     required: false,
     lowercase: true,
@@ -201,7 +201,7 @@ describe('FieldRenderer', () => {
         const genderField: FieldConfig = {
             kind: 'radio',
             name: 'gender',
-            caseName: radioField.caseName,
+            caseName: radioField.caseName!,
             labelKey: 'gender',
             required: true,
             options: [

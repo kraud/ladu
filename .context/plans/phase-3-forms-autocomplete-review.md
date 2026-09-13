@@ -136,7 +136,7 @@ Each ends runnable; the user commits and re-confirms between them.
 |---|---|
 | 0 — persist this plan | ✅ done |
 | 1 — form engine v2 | ✅ done 2026-09-12 |
-| 2 — verb configs | not started |
+| 2 — verb configs | ✅ done 2026-09-13 |
 | 3 — adjective and adverb configs | not started |
 | 4 — autocomplete | not started |
 | 5 — backend: list contract | not started |
@@ -219,6 +219,87 @@ this slice, per the same pattern Phase 2 followed for its non-backend slices.
 tables, the new `wordRelated:wordForm.verb.*` keys in all four locales (Estonian flagged for
 review), and `SHIPPED_POS` widened to include Verb. Regression test pins all four field lists
 against `snapshot/forms-verbs.md`.
+
+### Outcome — what landed (2026-09-13)
+
+Two decisions were checked with the user before implementation and both affected the engine
+surface, not just `verbs.ts`:
+
+- **Pronoun labels and tense/mood group headings are hardcoded native-language strings in
+  `verbs.ts`**, not i18n keys — they're the target language's own grammatical terms (`"Yo"`,
+  `"Ich"`, `"Mina"`), invariant across interface language, exactly like `nouns.ts`'s
+  `GENDER_OPTIONS`/`REGULARITY_OPTIONS` already treat gender/regularity values. Only genuinely
+  UI-descriptive field labels (`"Infinitive"`, `"Auxiliary verb"`...) go through
+  `wordRelated:wordForm.verb.fields.*`, matching `nouns.ts`'s existing pattern — about 13 keys x 4
+  locales, reconciling with the phase plan's original "~56 keys" D7 estimate.
+- **Spanish keeps all three of its stacked headings** ("Modo indicativo:" / "Tiempo simple:" /
+  "Presente") rather than collapsing to two — `FieldGroup` moved from a single object to an
+  outer-to-inner array (`group?: FieldGroup[]`), and `TranslationCard`'s `fieldStartsGroup` became
+  `groupHeadingsToPrint`, which diffs the array against the previous field's and returns only the
+  changed tail (so an already-visible outer heading never reprints).
+
+Three further engine additions, made without a separate check-in since each is either a direct
+analogy to an already-approved mechanism or forced by real registry data, all flagged in the
+implementation report handed back for review:
+
+- **`FieldPattern.relaxedWhen?: FieldVisibility`** — Estonian's `-ma` infinitive pattern is
+  conditionally relaxed by the `searchInEnglish` checkbox, which is neither `visibleWhen` (hides a
+  field) nor a static `pattern`. `buildYupSchema.ts` branches on it the same way it already
+  branches on `visibleWhen`, via `base.when(relaxedWhen.field, { is, then: () => base, otherwise:
+  () => withPattern })` — the field stays required either way, only the extra `.matches()` is
+  conditionally dropped.
+- **`FieldVisibility.equals` widened to `string | boolean`** — forced by `relaxedWhen` watching a
+  checkbox (a real `boolean` RHF value) for the first time; every existing `visibleWhen` consumer
+  watches a radio/select (`string`), so this is additive.
+- **`FieldConfigBase.label?: string` (a literal, non-`t()` label) and `labelKey` became optional.**
+  `FieldRenderer`/`TranslationCard` always called `t()` unconditionally on `labelKey`/`headingKey`;
+  routing pronoun/heading text through a missing i18n key was rejected as unsafe (this test harness
+  fails on a missing key rather than rendering it literally, per Slice 1's own note on English-first
+  key authoring). `label`, when present, bypasses `t()` entirely — mirroring how `RadioOption.label`
+  already works. `FieldGroup.headingKey` was renamed to `heading` for the same reason and dropped
+  its `t()` call in `TranslationCard`'s render loop.
+- **`caseName` is optional only on `CheckboxFieldConfig`** (all other kinds keep it required) —
+  needed for Estonian's `searchInEnglish`, a `persisted: false` checkbox with no backing case enum
+  at all (unlike the Spanish adjective `gender` example already in the docs, which does have one).
+  Keeping it required on the other four kinds meant `fieldsToCases`/`casesToFieldValues` narrow
+  correctly for free after their existing `kind === 'checkbox'` branches — no runtime guard needed.
+
+`configs/verbs.ts` follows the design almost exactly as planned, with the registry itself turning
+out simpler than expected: every language's tense rows are *already* in registry declaration order
+matching the old form's render order (no per-row sorting needed anywhere) — the manifest work is
+entirely property-row ordering/exclusion up front, done with a `isTenseRow` type-predicate filter
+(drops every property row uniformly) plus, for Spanish only, a `mood === indicativeES` filter that
+excludes the conditional/imperative rows and both compound non-finite rows in one step (they carry
+different `mood` values already). `regularity` is synthesized unconditionally for all four
+languages via `VerbCases['regularity' + suffix]`, exactly like `nouns.ts`, regardless of whether
+the registry happens to carry that row (EN/ES do, DE/EE don't).
+
+Two intentional deltas beyond the ones D4 already lists, both cosmetic (group-heading text, never
+validation): German's own heading was the untranslated English word "Indicative:" in the old form —
+fixed to "Indikativ". Spanish's own Future-tense heading was likewise the untranslated English word
+"Future" — fixed to "Futuro". `formDE.regularityRequired` was added (missing before — the old form's
+DE regularity radio reused `formEN`'s key, a copy-paste bug); `formES.infinitiveNotMatching` was
+added too (the old ES form hardcoded that message as a raw English string outside i18n entirely).
+
+**Tests**: `configs/verbs.test.ts` (new, 7 tests) pins all four field-name lists and required-field
+sets against `forms-verbs.md`, the `caseName === name + suffix` invariant (carving out
+`auxiliaryVerb`/`verbCases`, whose old-app names never matched their case names mechanically, and
+`persisted: false` fields), and that every conjugation field carries a non-empty pronoun label.
+`buildYupSchema.test.ts` (+4: `relaxedWhen` enforced/dropped/still-required/still-accepting).
+`TranslationCard.test.tsx`: `fieldStartsGroup`'s tests became `groupHeadingsToPrint`'s (same
+boundary cases, plus one multi-level stack case), and a new `TranslationCard — Verb` block (+4)
+exercises the full render pipeline end to end for the first time against a real config — English's
+two-level stack, Spanish's three-level stack printing the changed tail only, German's select +
+multi-select + live adornment (switching `auxiliaryVerb` from haben to sein flips the Perfect
+adornment from "habe" to "bin"), and Estonian's checkbox-relaxed pattern (which only clears once
+`infinitiveMa` itself is next blurred — a `mode: 'onBlur'` characteristic of the existing engine,
+not new behaviour). `FieldRenderer.test.tsx` needed one mechanical fix: `radioField.caseName` is
+now `CaseName | undefined` at the `FieldConfig` union level, so five hand-built fixtures gained a
+`!`. `PartOfSpeechSelector.test.tsx` updated for Verb now being enabled (8 disabled parts of speech,
+not 9).
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**220 → 237** (17 new). Backend untouched — not re-run this slice, same pattern as Slice 1.
 
 **Slice 3 — adjective and adverb configs.** `configs/adjectives.ts` (4 languages) and
 `configs/adverbs.ts` (3 — there is no Estonian adverb form). Spanish adjective gender branching

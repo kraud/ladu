@@ -200,11 +200,13 @@
           "infinitiveNonFiniteRequired": "Das nicht-finite Infinitiv ist erforderlich",
           "gerundNonFiniteRequired": "Das nicht-finite Gerundium ist erforderlich",
           "participleNonFiniteRequired": "Das nicht-finite Partizip ist erforderlich",
+          "infinitiveNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-ar', '-er' oder '-ir').",
           "regularityRequired": "Das ist keine Option"
         },
         "formDE": {
           "infinitiveNonFiniteRequired": "Das nicht-finite Infinitiv ist erforderlich",
-          "infinitiveNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-en', '-ern', '-eln')."
+          "infinitiveNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-en', '-ern', '-eln').",
+          "regularityRequired": "Das ist keine Option"
         },
         "formEE": {
           "infinitiveMaRequired": "-ma Infinitiv ist erforderlich",
@@ -213,6 +215,21 @@
           "searchInEnglishLabel": "Verb auf Englisch suchen",
           "searchInEnglishWarning": "Vorsicht, das funktioniert nicht bei allen Verben! Falls nötig, versuchen Sie es auf Estnisch."
         }
+      },
+      "fields": {
+        "regularityEN": "Regelmäßigkeit",
+        "regularityES": "Regelmäßigkeit",
+        "regularityDE": "Regelmäßigkeit",
+        "regularityEE": "Regelmäßigkeit",
+        "infinitiveNonFiniteSimpleES": "Einfaches nicht-finites Infinitiv",
+        "gerundNonFiniteSimpleES": "Einfaches nicht-finites Gerundium",
+        "participleNonFiniteSimpleES": "Einfaches nicht-finites Partizip",
+        "infinitiveDE": "Infinitiv",
+        "auxVerbDE": "Hilfsverb",
+        "prefixDE": "Präfix",
+        "caseTypeDE": "Kasus",
+        "infinitiveMaEE": "-ma-Infinitiv",
+        "infinitiveDaEE": "-da-Infinitiv"
       }
     },
     "autocompleteTranslationButton": {

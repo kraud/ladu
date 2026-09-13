@@ -200,11 +200,13 @@
           "infinitiveNonFiniteRequired": "Infinitive non-finite is required",
           "gerundNonFiniteRequired": "Gerund non-finite is required",
           "participleNonFiniteRequired": "Participle non-finite is required",
+          "infinitiveNotMatching": "Please input infinitive form (ends in '-ar', '-er' or '-ir').",
           "regularityRequired": "That is not an option"
         },
         "formDE": {
           "infinitiveNonFiniteRequired": "Infinitive non-finite is required",
-          "infinitiveNotMatching": "Please input infinitive form (ends in '-en', '-ern' '-eln')."
+          "infinitiveNotMatching": "Please input infinitive form (ends in '-en', '-ern' '-eln').",
+          "regularityRequired": "That is not an option"
         },
         "formEE": {
           "infinitiveMaRequired": "-ma infinitive is required",
@@ -213,6 +215,21 @@
           "searchInEnglishLabel": "Search verb in english",
           "searchInEnglishWarning": "Careful, this won't work for all verbs! If needed, try in Estonian."
         }
+      },
+      "fields": {
+        "regularityEN": "Regularity",
+        "regularityES": "Regularity",
+        "regularityDE": "Regularity",
+        "regularityEE": "Regularity",
+        "infinitiveNonFiniteSimpleES": "Infinitive non-finite simple",
+        "gerundNonFiniteSimpleES": "Gerund non-finite simple",
+        "participleNonFiniteSimpleES": "Participle non-finite simple",
+        "infinitiveDE": "Infinitive",
+        "auxVerbDE": "Auxiliary verb",
+        "prefixDE": "Prefix",
+        "caseTypeDE": "Verb case",
+        "infinitiveMaEE": "-ma infinitive",
+        "infinitiveDaEE": "-da infinitive"
       }
     },
     "autocompleteTranslationButton": {

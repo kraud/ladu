@@ -2,9 +2,9 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
-import { Lang, NounCases } from '@/ts/enums';
+import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 import type { FieldConfig } from './configs/types';
-import { casesToFieldValues, fieldsToCases, fieldStartsGroup, TranslationCard } from './TranslationCard';
+import { casesToFieldValues, fieldsToCases, groupHeadingsToPrint, TranslationCard } from './TranslationCard';
 
 const CASE_NAME = NounCases.singularEN; // arbitrary — these helpers never inspect it.
 
@@ -126,6 +126,66 @@ describe('TranslationCard', () => {
     });
 });
 
+describe('TranslationCard — Verb', () => {
+    it('mounts an English verb card with its stacked group heading and hardcoded pronoun labels', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EN} pos={PartOfSpeech.verb} />);
+        expect(screen.getByText('Simple')).toBeInTheDocument();
+        expect(screen.getByText('Present')).toBeInTheDocument();
+        // "I"/"They" each label 4 fields (once per tense) — assert presence, not uniqueness.
+        expect(screen.getAllByText('I').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('They').length).toBeGreaterThan(0);
+    });
+
+    it('mounts a Spanish verb card printing all three stacked headings once, then only the changed tail', () => {
+        renderWithProviders(<TranslationCard lang={Lang.ES} pos={PartOfSpeech.verb} />);
+        expect(screen.getByText('Modo indicativo')).toBeInTheDocument();
+        expect(screen.getByText('Tiempo simple')).toBeInTheDocument();
+        expect(screen.getByText('Presente')).toBeInTheDocument();
+        expect(screen.getByText('Pretérito imperfecto')).toBeInTheDocument();
+        // "Modo indicativo" and "Tiempo simple" each appear exactly once — not reprinted for the later tense blocks.
+        expect(screen.getAllByText('Modo indicativo')).toHaveLength(1);
+        expect(screen.getAllByText('Tiempo simple')).toHaveLength(1);
+    });
+
+    it('mounts a German verb card with select, multi-select, and a conjugated-auxiliary adornment', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TranslationCard
+                lang={Lang.DE}
+                pos={PartOfSpeech.verb}
+                initialCases={[{ caseName: VerbCases.auxVerbDE, word: 'haben' }]}
+            />,
+        );
+        expect(screen.getByText('Indikativ')).toBeInTheDocument();
+        expect(screen.getByText('Perfekt')).toBeInTheDocument();
+        expect(screen.getByRole('combobox', { name: 'Auxiliary verb' })).toHaveTextContent('haben');
+        expect(screen.getByText('Accusative')).toBeInTheDocument();
+        // The Perfect tense's adornment reflects the hydrated auxiliaryVerb ("haben" -> "habe" for 1s).
+        expect(screen.getByText('habe')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('combobox', { name: 'Auxiliary verb' }));
+        await user.click(screen.getByRole('option', { name: 'sein' }));
+        await waitFor(() => expect(screen.getByText('bin')).toBeInTheDocument());
+    });
+
+    it('mounts an Estonian verb card whose infinitiveMa pattern relaxes once searchInEnglish is checked', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.verb} />);
+        expect(screen.getByText('Kindel')).toBeInTheDocument();
+
+        await user.type(screen.getByLabelText('-ma infinitive'), 'dance');
+        await user.tab();
+        expect(screen.getByText("Please input infinitive form (ends in '-ma').")).toBeInTheDocument();
+
+        await user.click(screen.getByRole('checkbox', { name: 'Search verb in english' }));
+        await user.click(screen.getByLabelText('-ma infinitive'));
+        await user.tab();
+        await waitFor(() =>
+            expect(screen.queryByText("Please input infinitive form (ends in '-ma').")).not.toBeInTheDocument(),
+        );
+    });
+});
+
 describe('fieldsToCases', () => {
     const multiSelect: FieldConfig = {
         kind: 'multi-select',
@@ -228,7 +288,7 @@ describe('fieldsToCases', () => {
     });
 });
 
-describe('fieldStartsGroup', () => {
+describe('groupHeadingsToPrint', () => {
     const present: FieldConfig = {
         kind: 'text',
         name: 'presentEN',
@@ -236,29 +296,58 @@ describe('fieldStartsGroup', () => {
         labelKey: 'presentEN',
         required: false,
         lowercase: true,
-        group: { headingKey: 'present', level: 2 },
+        group: [{ heading: 'Present', level: 2 }],
     };
     const presentTwo: FieldConfig = { ...present, name: 'presentEN2' };
-    const past: FieldConfig = { ...present, name: 'pastEN', group: { headingKey: 'past', level: 2 } };
+    const past: FieldConfig = { ...present, name: 'pastEN', group: [{ heading: 'Past', level: 2 }] };
     const ungrouped: FieldConfig = { ...present, name: 'regularity', group: undefined };
 
-    it('is true for the first field of a group', () => {
-        expect(fieldStartsGroup([present], 0)).toBe(true);
+    const indicativePresent: FieldConfig = {
+        ...present,
+        name: 'indicativePresentES',
+        group: [
+            { heading: 'Modo indicativo', level: 1 },
+            { heading: 'Tiempo simple', level: 2 },
+            { heading: 'Presente', level: 2 },
+        ],
+    };
+    const indicativeImperfect: FieldConfig = {
+        ...indicativePresent,
+        name: 'indicativeImperfectES',
+        group: [
+            { heading: 'Modo indicativo', level: 1 },
+            { heading: 'Tiempo simple', level: 2 },
+            { heading: 'Pret. imperfecto', level: 2 },
+        ],
+    };
+
+    it('prints the whole stack for the first field of a group', () => {
+        expect(groupHeadingsToPrint([present], 0)).toEqual([{ heading: 'Present', level: 2 }]);
     });
 
-    it('is false for a later field in the same group', () => {
-        expect(fieldStartsGroup([present, presentTwo], 1)).toBe(false);
+    it('prints nothing for a later field in the same group', () => {
+        expect(groupHeadingsToPrint([present, presentTwo], 1)).toEqual([]);
     });
 
-    it('is true again once the group heading changes', () => {
-        expect(fieldStartsGroup([present, past], 1)).toBe(true);
+    it('prints again once the group heading changes', () => {
+        expect(groupHeadingsToPrint([present, past], 1)).toEqual([{ heading: 'Past', level: 2 }]);
     });
 
-    it('is false for a field with no group at all', () => {
-        expect(fieldStartsGroup([ungrouped], 0)).toBe(false);
+    it('prints nothing for a field with no group at all', () => {
+        expect(groupHeadingsToPrint([ungrouped], 0)).toEqual([]);
     });
 
-    it('is true for a grouped field directly following an ungrouped one', () => {
-        expect(fieldStartsGroup([ungrouped, present], 1)).toBe(true);
+    it('prints the stack for a grouped field directly following an ungrouped one', () => {
+        expect(groupHeadingsToPrint([ungrouped, present], 1)).toEqual([{ heading: 'Present', level: 2 }]);
+    });
+
+    it('prints only the tail that changed in a multi-level stack', () => {
+        expect(groupHeadingsToPrint([indicativePresent, indicativeImperfect], 1)).toEqual([
+            { heading: 'Pret. imperfecto', level: 2 },
+        ]);
+    });
+
+    it('prints the full multi-level stack the first time it appears', () => {
+        expect(groupHeadingsToPrint([indicativePresent], 0)).toEqual(indicativePresent.group);
     });
 });

@@ -37,7 +37,7 @@ function optionLabel(options: { value: string; label: string }[], value: unknown
 export function FieldRenderer({ field, displayOnly = false }: FieldRendererProps) {
     const { control } = useFormContext();
     const { t } = useTranslation();
-    const label = t(field.labelKey);
+    const label = field.label ?? t(field.labelKey ?? '');
 
     // Dummy fallback name (the field's own) when there's nothing to watch —
     // watching a field's own value is a harmless no-op, and keeps this a

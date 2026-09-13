@@ -7,7 +7,9 @@
  * Two config features change *which* schema a field gets, not just its rules:
  *  - `pattern` (text fields only) layers one more `.matches()` on top of the
  *    base rules (Spanish infinitive `ar|er|ir`, German `en|ern|eln`, Estonian
- *    `-ma`).
+ *    `-ma`) — optionally dropped while `pattern.relaxedWhen`'s sibling field
+ *    matches (Estonian's `-ma` ending relaxes once `searchInEnglish` is
+ *    checked; the field stays required either way).
  *  - `visibleWhen` swaps in an unconstrained, optional fallback schema
  *    whenever the named sibling field's value doesn't equal the configured
  *    one — a hidden field always validates as present-but-optional,
@@ -37,7 +39,15 @@ function textFieldSchema(field: Extract<FieldConfig, { kind: 'text' }>, t: Trans
               .string()
               .nullable()
               .matches(/^[^0-9]+$|^$/, noNumbers);
-    return field.pattern ? base.matches(field.pattern.regex, t(field.pattern.messageKey)) : base;
+    if (!field.pattern) return base;
+    const withPattern = base.matches(field.pattern.regex, t(field.pattern.messageKey));
+    const relaxedWhen = field.pattern.relaxedWhen;
+    if (!relaxedWhen) return withPattern;
+    return base.when(relaxedWhen.field, {
+        is: (value: unknown) => value === relaxedWhen.equals,
+        then: () => base,
+        otherwise: () => withPattern,
+    });
 }
 
 function radioFieldSchema(field: Extract<FieldConfig, { kind: 'radio' }>, t: TranslateFn): yup.AnySchema {

@@ -28,7 +28,7 @@ import { langTint, languageByLabel } from '@/lib/language';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
 import { buildYupSchema } from './buildYupSchema';
-import type { FieldConfig } from './configs/types';
+import type { FieldConfig, FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
 import { FieldRenderer } from './FieldRenderer';
 
@@ -110,16 +110,21 @@ export function casesToFieldValues(fields: FieldConfig[], cases: WordItem[] | un
 }
 
 /**
- * True when `fields[index]` opens a new visual group — it carries a `group`
- * whose heading differs from the previous field's (no `group` at all counts
- * as "no heading"). Exported for direct testing; `TranslationCard`'s render
- * loop is the only real caller.
+ * The heading lines to print before `fields[index]`: the tail of its `group`
+ * stack starting at the first entry that differs from the previous field's
+ * (by `heading`) — empty if nothing changed. A field whose `group` is
+ * entirely new (the previous field has no group, or a shorter one) prints
+ * its whole stack; one that only changes its innermost tense prints just
+ * that entry, leaving an already-visible outer heading (a verb's mood) in
+ * place. Exported for direct testing; `TranslationCard`'s render loop is the
+ * only real caller.
  */
-export function fieldStartsGroup(fields: FieldConfig[], index: number): boolean {
-    const field = fields[index];
-    if (!field.group) return false;
-    const previous = index > 0 ? fields[index - 1] : undefined;
-    return previous?.group?.headingKey !== field.group.headingKey;
+export function groupHeadingsToPrint(fields: FieldConfig[], index: number): FieldGroup[] {
+    const group = fields[index].group;
+    if (!group || group.length === 0) return [];
+    const previousGroup = index > 0 ? (fields[index - 1].group ?? []) : [];
+    const firstDiff = group.findIndex((entry, i) => entry.heading !== previousGroup[i]?.heading);
+    return firstDiff === -1 ? [] : group.slice(firstDiff);
 }
 
 export function TranslationCard({
@@ -233,17 +238,18 @@ export function TranslationCard({
                     {/* Autocomplete row (EE/DE/ES noun autocomplete) — Phase 3 mount point. */}
                     {config.fields.map((field, index) => (
                         <Fragment key={field.name}>
-                            {fieldStartsGroup(config.fields, index) && field.group && (
+                            {groupHeadingsToPrint(config.fields, index).map((heading) => (
                                 <p
+                                    key={heading.heading}
                                     className={
-                                        field.group.level === 1
+                                        heading.level === 1
                                             ? 'mt-2 text-sm font-semibold text-foreground underline'
                                             : 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
                                     }
                                 >
-                                    {t(field.group.headingKey)}
+                                    {heading.heading}
                                 </p>
-                            )}
+                            ))}
                             <FieldRenderer field={field} displayOnly={displayOnly} />
                         </Fragment>
                     ))}
