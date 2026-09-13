@@ -135,7 +135,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | Slice | Status |
 |---|---|
 | 0 — persist this plan | ✅ done |
-| 1 — form engine v2 | not started |
+| 1 — form engine v2 | ✅ done 2026-09-12 |
 | 2 — verb configs | not started |
 | 3 — adjective and adverb configs | not started |
 | 4 — autocomplete | not started |
@@ -150,6 +150,70 @@ Each ends runnable; the user commits and re-confirms between them.
 **Slice 1 — form engine v2.** Extend `configs/types.ts`, `buildYupSchema.ts`, `FieldRenderer.tsx`
 and `TranslationCard.tsx` with the seven additions above. No new configs yet. Tests cover each new
 kind, conditional visibility in both directions, pattern messages, and the acronym round-trip.
+
+### Outcome — what landed (2026-09-12)
+
+Built to the design section above with no deviations. All seven additions landed as planned:
+
+- **`configs/types.ts`** — `FieldKind` gained `'select'` and `'multi-select'`; `FieldConfigBase`
+  gained `persisted?`, `group?`, `visibleWhen?`, `adornment?`; `TextFieldConfig` gained `pattern?`.
+  New exported types: `FieldGroup { headingKey, level: 1 | 2 }`, `FieldVisibility { field, equals }`,
+  `FieldPattern { regex, messageKey }`, `FieldAdornment { watchField, values }`,
+  `SelectFieldConfig`, `MultiSelectFieldConfig` (the latter carrying `encode`/`decode` functions,
+  not a data-only shape — the acronym mapping is config, not engine, logic). `RadioOption` is
+  reused as the option type for `select` and `multi-select` too, rather than introducing a
+  parallel `FieldOption` alias.
+- **`buildYupSchema.ts`** — `pattern` layers one more `.matches()` onto a text field's base schema
+  (chained after required/optional, before `visibleWhen`). `visibleWhen` is applied last, via
+  `schema.when(visibility.field, { is, then: () => schema, otherwise: () => hiddenFallbackSchema(kind) })`
+  — a hidden field always validates against an unconstrained optional schema of the right base
+  shape, regardless of its own `required` flag. `select` mirrors `radio`'s required/optional split;
+  `multi-select` is always `yup.array().of(yup.string()).default([])` — no consumer needs a
+  required one.
+- **`FieldRenderer.tsx`** — added `select` (shadcn `Select`) and `multi-select` (a checkbox group
+  toggling array membership) render branches, both with `displayOnly` text variants (select: the
+  matched option label; multi-select: selected labels joined with `, `). `visibleWhen` is resolved
+  with a `useWatch` on the sibling field *before* the `FormField` mounts — a hidden field renders
+  `null` outright, in both modes, rather than being disabled. `adornment` renders a read-only
+  `<span>` before a text input's `FormControl`, sourced from a second `useWatch`; kept outside
+  `FormControl` (which clones props onto its one child) so the label's `htmlFor` still targets the
+  actual `<input>`. `isEmptyValue` now treats an empty array as empty, so an all-unchecked
+  multi-select is gated the same way an empty text field is in `displayOnly` mode.
+- **`TranslationCard.tsx`** — `fieldsToCases` and its hydration counterpart were pulled out of
+  inline `useMemo` callbacks into two named exports, `fieldsToCases` and `casesToFieldValues`,
+  specifically so Slice 1's encode/decode round trip and the two new drop rules (`persisted:
+  false`, hidden by `visibleWhen`) could be unit-tested against hand-built configs — no real
+  config exercises `multi-select` or `visibleWhen` until Slices 2–3. A third export,
+  `fieldStartsGroup(fields, index)`, is the pure boundary check the render loop uses to decide
+  when to print a group heading (a field's `group.headingKey` differs from the previous field's);
+  extracting it gave the same direct-testability without needing a grouped config to exist yet.
+  The render loop wraps each field in a `Fragment` and prints the heading (`level: 1` underlined,
+  `level: 2` as a small muted eyebrow) immediately before the field that starts a new group.
+- **One deviation from the plan's literal architecture table**: `adornment` (not `adornmentKey`).
+  The German perfect/future prefix is the *conjugated auxiliary verb itself* (a German word,
+  identical regardless of UI language), not translated UI copy — so it isn't a job for `t()`. The
+  config instead supplies a small `values` lookup table straight from a sibling field's value to
+  the prefix text. This still delivers the plan's "read-only prefixes on the German perfect and
+  future inputs" capability; only the internal shape changed.
+- **Type-checking note**: `textFieldSchema`'s two conditional branches (required vs. optional)
+  produce differently-typed `yup.StringSchema` instantiations (nullable vs. not) that `tsc`
+  refused to unify under an explicit `yup.StringSchema` variable annotation. Removed the
+  annotation and let the ternary's result flow untyped into the `yup.AnySchema` return position
+  instead — same runtime behaviour, no `as`/`@ts-ignore`.
+
+**Tests**: `buildYupSchema.test.ts` (+12: select required/optional/invalid, multi-select
+empty/non-empty, pattern reject/accept, visibleWhen required-while-matching/optional-once-not/
+still-accepts-a-leftover-value); `FieldRenderer.test.tsx` (+7: select render+pick+displayOnly,
+multi-select render+toggle+displayOnly-join+displayOnly-empty-hidden, visibleWhen both directions
+via a two-field harness, adornment appearing once the watched sibling resolves); `TranslationCard.test.tsx`
+(+17: `fieldsToCases`' four drop/keep rules, the multi-select encode/decode round trip via
+`casesToFieldValues`, and `fieldStartsGroup`'s five boundary cases). A new `MultiHarness` helper in
+`FieldRenderer.test.tsx` mounts several fields on one shared RHF instance for the two features that
+depend on a sibling's live value.
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**188 → 220** (32 new, matching the file-by-file counts above). Backend untouched — not re-run
+this slice, per the same pattern Phase 2 followed for its non-backend slices.
 
 **Slice 2 — verb configs.** `configs/verbs.ts` with the four manifests, the pronoun and tense
 tables, the new `wordRelated:wordForm.verb.*` keys in all four locales (Estonian flagged for

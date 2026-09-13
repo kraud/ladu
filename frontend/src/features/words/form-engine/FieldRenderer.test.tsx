@@ -24,11 +24,76 @@ const checkboxField: FieldConfig = {
     required: false,
 };
 
+const selectField: FieldConfig = {
+    kind: 'select',
+    name: 'auxiliaryVerb',
+    caseName: radioField.caseName,
+    labelKey: 'auxiliaryVerb',
+    required: true,
+    options: [
+        { value: 'haben', label: 'haben' },
+        { value: 'sein', label: 'sein' },
+    ],
+};
+
+const multiSelectField: FieldConfig = {
+    kind: 'multi-select',
+    name: 'verbCases',
+    caseName: radioField.caseName,
+    labelKey: 'verbCases',
+    required: false,
+    options: [
+        { value: 'accusativeDE', label: 'Accusative' },
+        { value: 'dativeDE', label: 'Dative' },
+        { value: 'genitiveDE', label: 'Genitive' },
+    ],
+    encode: (selected) => selected.join(','),
+    decode: (word) => (word ? word.split(',') : []),
+};
+
+const visibleWhenField: FieldConfig = {
+    kind: 'text',
+    name: 'neutralSingular',
+    caseName: radioField.caseName,
+    labelKey: 'neutralSingular',
+    required: true,
+    lowercase: true,
+    visibleWhen: { field: 'gender', equals: 'Neutral' },
+};
+
+const adornedField: FieldConfig = {
+    kind: 'text',
+    name: 'indicativePerfect1s',
+    caseName: radioField.caseName,
+    labelKey: 'indicativePerfect1s',
+    required: false,
+    lowercase: true,
+    adornment: { watchField: 'auxiliaryVerb', values: { haben: 'habe', sein: 'bin' } },
+};
+
+function defaultValueFor(field: FieldConfig): unknown {
+    if (field.kind === 'checkbox') return false;
+    if (field.kind === 'multi-select') return [];
+    return '';
+}
+
 function Harness({ field, displayOnly, value }: { field: FieldConfig; displayOnly?: boolean; value?: unknown }) {
-    const form = useForm({ defaultValues: { [field.name]: value ?? (field.kind === 'checkbox' ? false : '') } });
+    const form = useForm({ defaultValues: { [field.name]: value ?? defaultValueFor(field) } });
     return (
         <Form {...form}>
             <FieldRenderer field={field} displayOnly={displayOnly} />
+        </Form>
+    );
+}
+
+/** Mounts several fields on one shared RHF instance — for cases where one field's rendering depends on a sibling's live value (`visibleWhen`, `adornment`). */
+function MultiHarness({ fields, defaultValues }: { fields: FieldConfig[]; defaultValues: Record<string, unknown> }) {
+    const form = useForm({ defaultValues });
+    return (
+        <Form {...form}>
+            {fields.map((f) => (
+                <FieldRenderer key={f.name} field={f} />
+            ))}
         </Form>
     );
 }
@@ -81,5 +146,104 @@ describe('FieldRenderer', () => {
         renderWithProviders(<Harness field={radioField} displayOnly value="regular" />);
         expect(screen.getByText('Regularity')).toBeInTheDocument();
         expect(screen.getByText('regular')).toBeInTheDocument();
+    });
+
+    describe('select field', () => {
+        it('renders a select with one option per value and lets the user pick one', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<Harness field={selectField} />);
+
+            await user.click(screen.getByRole('combobox'));
+            const option = await screen.findByRole('option', { name: 'sein' });
+            await user.click(option);
+
+            expect(screen.getByRole('combobox')).toHaveTextContent('sein');
+        });
+
+        it('displayOnly: shows the matched option label as static text', () => {
+            renderWithProviders(<Harness field={selectField} displayOnly value="haben" />);
+            expect(screen.getByText('haben')).toBeInTheDocument();
+            expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('multi-select field', () => {
+        it('renders one checkbox per option and toggles independently', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<Harness field={multiSelectField} />);
+
+            const accusative = screen.getByRole('checkbox', { name: 'Accusative' });
+            const dative = screen.getByRole('checkbox', { name: 'Dative' });
+            expect(accusative).not.toBeChecked();
+
+            await user.click(accusative);
+            await user.click(dative);
+
+            expect(accusative).toBeChecked();
+            expect(dative).toBeChecked();
+            expect(screen.getByRole('checkbox', { name: 'Genitive' })).not.toBeChecked();
+        });
+
+        it('displayOnly: joins the selected labels', () => {
+            renderWithProviders(
+                <Harness field={multiSelectField} displayOnly value={['accusativeDE', 'genitiveDE']} />,
+            );
+            expect(screen.getByText('Accusative, Genitive')).toBeInTheDocument();
+        });
+
+        it('displayOnly: an empty selection is hidden (non-required, empty)', () => {
+            renderWithProviders(<Harness field={multiSelectField} displayOnly value={[]} />);
+            expect(screen.queryByText('verbCases')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('visibleWhen', () => {
+        const genderField: FieldConfig = {
+            kind: 'radio',
+            name: 'gender',
+            caseName: radioField.caseName,
+            labelKey: 'gender',
+            required: true,
+            options: [
+                { value: 'Neutral', label: 'Neutral' },
+                { value: 'M/F', label: 'M/F' },
+            ],
+        };
+
+        it('hides the field until the controlling sibling matches, and shows it once it does', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(
+                <MultiHarness
+                    fields={[genderField, visibleWhenField]}
+                    defaultValues={{ gender: 'M/F', neutralSingular: '' }}
+                />,
+            );
+
+            expect(screen.queryByLabelText('neutralSingular')).not.toBeInTheDocument();
+
+            await user.click(screen.getByRole('radio', { name: 'Neutral' }));
+            expect(screen.getByLabelText('neutralSingular')).toBeInTheDocument();
+
+            await user.click(screen.getByRole('radio', { name: 'M/F' }));
+            expect(screen.queryByLabelText('neutralSingular')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('adornment', () => {
+        it('shows the prefix mapped from the watched sibling value, and none when there is no entry', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(
+                <MultiHarness
+                    fields={[selectField, adornedField]}
+                    defaultValues={{ auxiliaryVerb: '', indicativePerfect1s: '' }}
+                />,
+            );
+
+            expect(screen.queryByText('habe')).not.toBeInTheDocument();
+
+            await user.click(screen.getByRole('combobox'));
+            await user.click(await screen.findByRole('option', { name: 'haben' }));
+            expect(screen.getByText('habe')).toBeInTheDocument();
+        });
     });
 });

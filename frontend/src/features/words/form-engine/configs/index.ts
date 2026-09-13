@@ -18,10 +18,16 @@ export function getFormConfig(pos: PartOfSpeech, lang: Lang): TranslationFormCon
 export type {
     CaseName,
     CheckboxFieldConfig,
+    FieldAdornment,
     FieldConfig,
+    FieldGroup,
     FieldKind,
+    FieldPattern,
+    FieldVisibility,
+    MultiSelectFieldConfig,
     RadioFieldConfig,
     RadioOption,
+    SelectFieldConfig,
     TextFieldConfig,
     TranslationFormConfig,
 } from './types';

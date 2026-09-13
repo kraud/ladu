@@ -17,7 +17,7 @@
  * The autocomplete row (EE/DE/ES noun autocomplete) is a Phase 3 concern —
  * only its mount point is reserved here.
  */
-import { useEffect, useMemo, useRef } from 'react';
+import { Fragment, useEffect, useMemo, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
@@ -59,18 +59,67 @@ export interface TranslationCardProps {
     resetKey?: number;
 }
 
-/** `FieldConfig[]` + current RHF values -> the persisted `WordItem[]`, blank/checkbox-less values dropped. */
-function fieldsToCases(fields: FieldConfig[], values: Record<string, unknown>): WordItem[] {
+/**
+ * `FieldConfig[]` + current RHF values -> the persisted `WordItem[]`.
+ * Dropped, in order: a field hidden by its own `visibleWhen` (the sibling it
+ * depends on doesn't currently equal the configured value); a field marked
+ * `persisted: false` (form-only, e.g. Estonian `searchInEnglish`, Spanish
+ * adjective `gender`); a `checkbox` field (no PoS backs a case with one
+ * today); and finally, any field whose resulting word is blank.
+ *
+ * Exported for direct unit testing against hand-built configs — the encode
+ * round-trip (multi-select) and the two drop rules above don't need a real
+ * noun/verb/adjective config to exercise.
+ */
+export function fieldsToCases(fields: FieldConfig[], values: Record<string, unknown>): WordItem[] {
     const cases: WordItem[] = [];
     for (const field of fields) {
-        // No PoS uses a checkbox-backed case yet (Phase 3 decides that encoding).
+        if (field.persisted === false) continue;
+        if (field.visibleWhen && values[field.visibleWhen.field] !== field.visibleWhen.equals) continue;
         if (field.kind === 'checkbox') continue;
+
         const raw = values[field.name];
-        let word = typeof raw === 'string' ? raw : '';
-        if (field.kind === 'text' && field.lowercase) word = word.toLowerCase();
+        let word: string;
+        if (field.kind === 'multi-select') {
+            word = field.encode(Array.isArray(raw) ? (raw as string[]) : []);
+        } else {
+            word = typeof raw === 'string' ? raw : '';
+            if (field.kind === 'text' && field.lowercase) word = word.toLowerCase();
+        }
         if (word !== '') cases.push({ caseName: field.caseName, word });
     }
     return cases;
+}
+
+/**
+ * The inverse hydration step: stored `WordItem[]` -> one RHF default value
+ * per field. A `multi-select` field's stored word is a single encoded string
+ * (e.g. the German verb-case acronym) — `field.decode` expands it back into
+ * the selected option values the checkbox group needs. Exported alongside
+ * `fieldsToCases` for the same reason.
+ */
+export function casesToFieldValues(fields: FieldConfig[], cases: WordItem[] | undefined): Record<string, unknown> {
+    const byCaseName = new Map((cases ?? []).map((item) => [item.caseName, item.word]));
+    return Object.fromEntries(
+        fields.map((field) => {
+            if (field.kind === 'checkbox') return [field.name, false];
+            if (field.kind === 'multi-select') return [field.name, field.decode(byCaseName.get(field.caseName) ?? '')];
+            return [field.name, byCaseName.get(field.caseName) ?? ''];
+        })
+    );
+}
+
+/**
+ * True when `fields[index]` opens a new visual group — it carries a `group`
+ * whose heading differs from the previous field's (no `group` at all counts
+ * as "no heading"). Exported for direct testing; `TranslationCard`'s render
+ * loop is the only real caller.
+ */
+export function fieldStartsGroup(fields: FieldConfig[], index: number): boolean {
+    const field = fields[index];
+    if (!field.group) return false;
+    const previous = index > 0 ? fields[index - 1] : undefined;
+    return previous?.group?.headingKey !== field.group.headingKey;
 }
 
 export function TranslationCard({
@@ -88,18 +137,10 @@ export function TranslationCard({
     const config = getFormConfig(pos, lang);
     const schema = useMemo(() => (config ? buildYupSchema(config, t) : undefined), [config, t]);
 
-    const defaultValues = useMemo(() => {
-        if (!config) {
-            return {};
-        }
-        const byCaseName = new Map((initialCases ?? []).map((item) => [item.caseName, item.word]));
-        return Object.fromEntries(
-            config.fields.map((field) => [
-                field.name,
-                field.kind === 'checkbox' ? false : (byCaseName.get(field.caseName) ?? ''),
-            ])
-        );
-    }, [config, initialCases]);
+    const defaultValues = useMemo(
+        () => (config ? casesToFieldValues(config.fields, initialCases) : {}),
+        [config, initialCases]
+    );
 
     // Plain `defaultValues` (mount-time only), NOT the reactive `values` option:
     // this card's own `onChange` echoes its cases back up into `useWordFormState`,
@@ -190,8 +231,21 @@ export function TranslationCard({
             <Form {...form}>
                 <div className="flex flex-col gap-3">
                     {/* Autocomplete row (EE/DE/ES noun autocomplete) — Phase 3 mount point. */}
-                    {config.fields.map((field) => (
-                        <FieldRenderer key={field.name} field={field} displayOnly={displayOnly} />
+                    {config.fields.map((field, index) => (
+                        <Fragment key={field.name}>
+                            {fieldStartsGroup(config.fields, index) && field.group && (
+                                <p
+                                    className={
+                                        field.group.level === 1
+                                            ? 'mt-2 text-sm font-semibold text-foreground underline'
+                                            : 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
+                                    }
+                                >
+                                    {t(field.group.headingKey)}
+                                </p>
+                            )}
+                            <FieldRenderer field={field} displayOnly={displayOnly} />
+                        </Fragment>
                     ))}
                 </div>
             </Form>
