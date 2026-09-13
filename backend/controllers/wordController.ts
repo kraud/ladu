@@ -31,9 +31,11 @@ const { getWordsIdFromFollowedTagsByUserId } = require("./tagController.ts");
 
 const {
   and,
+  desc,
   eq,
   ilike,
   inArray,
+  lt,
   ne,
   not,
   or,
@@ -50,11 +52,6 @@ const {
     fetchWordWithRelations,
 } = require('../services/wordService');
 import type { WordResponse, AssembledTranslation } from '../services/wordService';
-
-/** Minimal identifier used during filter-merging. */
-interface WordIdOnly {
-  id: string;
-}
 
 // ---------------------------------------------------------------------------
 // Types for translation diffing (used by updateWord)
@@ -99,35 +96,6 @@ interface TranslationDiffResult {
 //  and fetchWordWithRelations are now in backend/services/wordService.ts)
 
 // ---------------------------------------------------------------------------
-// HELPERS: Tag-based word filtering
-// ---------------------------------------------------------------------------
-
-/**
- * Given an array of tag filters (each with `_id`), find all word ids that
- * belong to those tags. This mirrors the old `getWordsByTagFiltering()`.
- *
- * NB! The old implementation returned *full* WordResponse objects (not just
- * ids) with their resolved tags.  We keep the same contract here.
- */
-const getWordsByTagFiltering = async (
-  tagFilters: Array<{ _id: string }>,
-): Promise<WordResponse[]> => {
-  const tagIds = tagFilters.map((t) => t._id);
-
-  // Step 1 – find all word ids linked to the requested tag ids
-  const junctionRows = await db
-    .select({ wordId: tagWords.wordId })
-    .from(tagWords)
-    .where(inArray(tagWords.tagId, tagIds));
-
-  const uniqueWordIds = [...new Set(junctionRows.map((j) => j.wordId))];
-  if (uniqueWordIds.length === 0) return [];
-
-  // Step 2 – fetch the full word documents and their relations
-  return fetchWordsWithRelations(uniqueWordIds);
-};
-
-// ---------------------------------------------------------------------------
 // HELPERS: Simplified-word field extraction (getWordsSimplified)
 // ---------------------------------------------------------------------------
 
@@ -161,7 +129,10 @@ const getRequiredFieldsData = (
             dataDE: findByCaseName("singularNominativDE")!,
           };
         default:
-          throw new Error("Language not found for this part of speech (Noun)");
+          console.warn(
+            `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Noun"`,
+          );
+          return {};
       }
     }
     case "Adverb": {
@@ -173,9 +144,10 @@ const getRequiredFieldsData = (
         case "German":
           return { dataDE: findByCaseName("adverbDE")! };
         default:
-          throw new Error(
-            "Language not found for this part of speech (Adverb)",
+          console.warn(
+            `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Adverb"`,
           );
+          return {};
       }
     }
     case "Adjective": {
@@ -192,9 +164,10 @@ const getRequiredFieldsData = (
         case "Estonian":
           return { dataEE: findByCaseName("algvorreEE")! };
         default:
-          throw new Error(
-            "Language not found for this part of speech (Adjective)",
+          console.warn(
+            `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Adjective"`,
           );
+          return {};
       }
     }
     case "Verb": {
@@ -208,11 +181,17 @@ const getRequiredFieldsData = (
         case "German":
           return { dataDE: findByCaseName("infinitiveDE")! };
         default:
-          throw new Error("Language not found for this part of speech (Verb)");
+          console.warn(
+            `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Verb"`,
+          );
+          return {};
       }
     }
     default:
-      throw new Error("Part of speech not found");
+      console.warn(
+        `getRequiredFieldsData: unrecognized part of speech "${partOfSpeech}"`,
+      );
+      return {};
   }
 };
 
@@ -228,87 +207,6 @@ const languageToFieldName = (language: string): string => {
     German: "registeredCasesDE",
   };
   return map[language] || "";
-};
-
-// ---------------------------------------------------------------------------
-// HELPERS: Filter merging & intersection (for getWordsSimplified)
-// ---------------------------------------------------------------------------
-
-/**
- * Merge filters that share the same `type` so each type is queried only once.
- * Mirrors the old loop that builds `newSortedFilters`.
- */
-interface RawFilter {
-  type: string;
-  filterValue?: any;
-  restrictiveArray?: any[];
-}
-
-interface MergedFilter {
-  type: string;
-  filterValue: any[];
-}
-
-const mergeFiltersByType = (filters: RawFilter[]): MergedFilter[] => {
-  const merged: MergedFilter[] = [];
-
-  for (const raw of filters) {
-    const idx = merged.findIndex((m) => m.type === raw.type);
-
-    if (idx === -1) {
-      // First occurrence of this type
-      if (raw.type === "tag") {
-        // Tag filters carry a `restrictiveArray` instead of a single value
-        merged.push({
-          type: raw.type,
-          filterValue: raw.restrictiveArray || [],
-        });
-      } else {
-        merged.push({
-          type: raw.type,
-          filterValue: raw.filterValue !== undefined ? [raw.filterValue] : [],
-        });
-      }
-    } else {
-      // Append to existing type
-      merged[idx] = {
-        ...merged[idx],
-        filterValue: [...merged[idx].filterValue, raw.filterValue],
-      };
-    }
-  }
-
-  return merged;
-};
-
-/**
- * Given result arrays from multiple filter types, return only the words whose
- * IDs appear in EVERY array.  Mirrors the old intersection logic.
- */
-const intersectWordResults = (grouped: WordResponse[][]): WordResponse[] => {
-  if (grouped.length === 0) return [];
-  if (grouped.length === 1) return grouped[0];
-
-  // Collect all word IDs per group
-  const idSets = grouped.map((words) => new Set(words.map((w) => w.id)));
-
-  // The intersection: IDs present in every set
-  const intersection = [...idSets[0]].filter((id) =>
-    idSets.every((set) => set.has(id)),
-  );
-
-  // Preserve full objects (deduplicated by id, first occurrence kept)
-  const seen = new Set<string>();
-  const result: WordResponse[] = [];
-  for (const group of grouped) {
-    for (const word of group) {
-      if (intersection.includes(word.id) && !seen.has(word.id)) {
-        seen.add(word.id);
-        result.push(word);
-      }
-    }
-  }
-  return result;
 };
 
 /**
@@ -451,7 +349,43 @@ const getWordsByFollowedTag = asyncHandler(async (req: any, res: any) => {
   res.status(200).json(matchingWordsId);
 });
 
-// @desc    Get words with simplified data (table view with filters)
+// ---------------------------------------------------------------------------
+// HELPERS: query-param parsing & keyset cursor (for getWordsSimplified)
+// ---------------------------------------------------------------------------
+
+const DEFAULT_PAGE_LIMIT = 50;
+const MAX_PAGE_LIMIT = 100;
+
+/** A repeatable query param (`?pos=Noun&pos=Verb`) arrives as an array only
+ * when given more than once; normalise the single-value case too. */
+const parseArrayParam = (value: any): string[] => {
+  if (value === undefined) return [];
+  return Array.isArray(value) ? value : [value];
+};
+
+const parseLimitParam = (value: any): number => {
+  const parsed = value !== undefined ? parseInt(value, 10) : DEFAULT_PAGE_LIMIT;
+  if (!Number.isFinite(parsed)) return DEFAULT_PAGE_LIMIT;
+  return Math.min(Math.max(parsed, 1), MAX_PAGE_LIMIT);
+};
+
+const encodeCursor = (createdAt: Date, id: string): string =>
+  Buffer.from(`${createdAt.toISOString()}|${id}`, "utf-8").toString("base64");
+
+const decodeCursor = (cursor: string): { createdAt: Date; id: string } | null => {
+  try {
+    const [createdAtStr, id] = Buffer.from(cursor, "base64")
+      .toString("utf-8")
+      .split("|");
+    const createdAt = new Date(createdAtStr);
+    if (!id || Number.isNaN(createdAt.getTime())) return null;
+    return { createdAt, id };
+  } catch {
+    return null;
+  }
+};
+
+// @desc    Get words with simplified data (table view with filters + keyset pagination)
 // @route   GET /api/words/simple
 // @access  Private
 const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
@@ -459,10 +393,6 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   const followedTagWordIds = await getWordsIdFromFollowedTagsByUserId(
     req.user.id,
   );
-
-  const rawFilters: RawFilter[] =
-    req.query.filters !== undefined ? req.query.filters : [];
-  const mergedFilters = mergeFiltersByType(rawFilters);
 
   // Base access condition: own words OR words from followed tags
   const accessCondition = or(
@@ -472,76 +402,102 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
       : sql`false`,
   );
 
-  // We collect the full WordResponse objects per filter type, then intersect
-  // if multiple types are present.
-  let resultsByType: WordResponse[][] = [];
+  const conditions = [accessCondition];
 
-  if (mergedFilters.length > 0) {
-    for (const filter of mergedFilters) {
-      if (filter.type === "tag") {
-        // Tag filtering delegates to the separate helper that resolves
-        // tagWords first, then fetches full word data.
-        const wordsByTag = await getWordsByTagFiltering(filter.filterValue);
-        resultsByType.push(wordsByTag);
-      } else if (filter.type === "PoS") {
-        const rows = await db
-          .select()
-          .from(words)
-          .where(
-            and(
-              inArray(words.partOfSpeech, filter.filterValue),
-              accessCondition,
-            ),
-          );
-
-        const ids = rows.map((r) => r.id);
-        resultsByType.push(await fetchWordsWithRelations(ids));
-      } else if (filter.type === "gender") {
-        // Gender filter: look for a case row whose word matches AND whose
-        // caseName starts with "gender".
-        const matchingRows = await db
-          .selectDistinct({ wordId: words.id })
-          .from(words)
-          .innerJoin(translations, eq(words.id, translations.wordId))
-          .innerJoin(
-            translationCases,
-            eq(translations.id, translationCases.translationId),
-          )
-          .where(
-            and(
-              inArray(translationCases.word, filter.filterValue),
-              ilike(translationCases.caseName, "gender%"),
-              accessCondition,
-            ),
-          );
-
-        const ids = matchingRows.map((r) => r.wordId);
-        resultsByType.push(await fetchWordsWithRelations(ids));
-      }
-      // Additional filter types can be added here in the future.
-    }
-  } else {
-    // No filters — return all accessible words
-    const rows = await db.select().from(words).where(accessCondition);
-    const ids = rows.map((r) => r.id);
-    resultsByType.push(await fetchWordsWithRelations(ids));
+  const posValues = parseArrayParam(req.query.pos);
+  if (posValues.length > 0) {
+    conditions.push(inArray(words.partOfSpeech, posValues));
   }
 
-  // Intersect results across filter types (word must match ALL active filters)
-  const processedResults = intersectWordResults(resultsByType);
+  const genderValues = parseArrayParam(req.query.gender);
+  if (genderValues.length > 0) {
+    const genderWordIds = db
+      .select({ id: translations.wordId })
+      .from(translationCases)
+      .innerJoin(translations, eq(translationCases.translationId, translations.id))
+      .where(
+        and(
+          inArray(translationCases.word, genderValues),
+          ilike(translationCases.caseName, "gender%"),
+        ),
+      );
+    conditions.push(inArray(words.id, genderWordIds));
+  }
 
-  // Simplify each result for the table view
-  const partsOfSpeech = new Set<string>();
-  const wordsSimplified = processedResults.map((word) => {
-    partsOfSpeech.add(word.partOfSpeech);
-    return simplifyWord(word);
-  });
+  const q: string | undefined = req.query.q;
+  if (q) {
+    // Same matching rule as GET /api/words/searchWord: substring match on any
+    // stored case word, excluding gender/gradable metadata rows.
+    const matchingWordIds = db
+      .select({ id: translations.wordId })
+      .from(translationCases)
+      .innerJoin(translations, eq(translationCases.translationId, translations.id))
+      .where(
+        and(
+          ilike(translationCases.word, `%${q}%`),
+          not(ilike(translationCases.caseName, "gender%")),
+          not(ilike(translationCases.caseName, "gradable%")),
+        ),
+      );
+    conditions.push(inArray(words.id, matchingWordIds));
+  }
 
-  res.status(200).json({
-    amount: wordsSimplified.length,
-    partsOfSpeechIncluded: Array.from(partsOfSpeech),
-    words: wordsSimplified,
-  });
+  const tagIds = parseArrayParam(req.query.tag);
+  if (tagIds.length > 0) {
+    const tagWordIds = db
+      .select({ id: tagWords.wordId })
+      .from(tagWords)
+      .where(inArray(tagWords.tagId, tagIds));
+    conditions.push(inArray(words.id, tagWordIds));
+  }
+
+  if (req.query.cursor !== undefined) {
+    const cursor = decodeCursor(req.query.cursor);
+    if (!cursor) {
+      res.status(400);
+      throw new Error("Invalid cursor");
+    }
+    // Keyset condition for ORDER BY created_at DESC, id DESC: strictly older
+    // than the cursor row, or tied on created_at and strictly smaller id.
+    // (A raw `(created_at, id) < ($1, $2)` row-value comparison was tried
+    // first but Postgres does not reliably type-infer the composite literal's
+    // parameters here, so it silently failed to filter.)
+    conditions.push(
+      or(
+        lt(words.createdAt, cursor.createdAt),
+        and(eq(words.createdAt, cursor.createdAt), lt(words.id, cursor.id)),
+      ),
+    );
+  }
+
+  const limit = parseLimitParam(req.query.limit);
+
+  const pageRows = await db
+    .select()
+    .from(words)
+    .where(and(...conditions))
+    .orderBy(desc(words.createdAt), desc(words.id))
+    .limit(limit + 1);
+
+  const hasMore = pageRows.length > limit;
+  const rows = hasMore ? pageRows.slice(0, limit) : pageRows;
+  const nextCursor = hasMore
+    ? encodeCursor(rows[rows.length - 1].createdAt, rows[rows.length - 1].id)
+    : null;
+
+  // Fetch full relations, then re-order to match the cursor-ordered rows —
+  // fetchWordsWithRelations' own SELECT ... WHERE id IN (...) does not
+  // preserve input order.
+  const orderedIds = rows.map((r) => r.id);
+  const fullWordsById = new Map(
+    (await fetchWordsWithRelations(orderedIds)).map((w) => [w.id, w]),
+  );
+  const items = orderedIds
+    .map((id) => fullWordsById.get(id))
+    .filter((w): w is WordResponse => w !== undefined)
+    .map(simplifyWord);
+
+  res.status(200).json({ items, nextCursor });
 });
 
 // @desc    Get a single word by ID (with tags resolved)

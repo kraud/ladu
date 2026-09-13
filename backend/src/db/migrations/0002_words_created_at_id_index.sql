@@ -1,0 +1,1 @@
+CREATE INDEX "words_created_at_id_idx" ON "words" USING btree ("created_at","id");
