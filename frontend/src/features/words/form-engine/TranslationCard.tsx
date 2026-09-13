@@ -28,7 +28,7 @@ import { langTint, languageByLabel } from '@/lib/language';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
 import { buildYupSchema } from './buildYupSchema';
-import type { FieldConfig, FieldGroup } from './configs/types';
+import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
 import { FieldRenderer } from './FieldRenderer';
 
@@ -75,8 +75,9 @@ export function fieldsToCases(fields: FieldConfig[], values: Record<string, unkn
     const cases: WordItem[] = [];
     for (const field of fields) {
         if (field.persisted === false) continue;
-        if (field.visibleWhen && values[field.visibleWhen.field] !== field.visibleWhen.equals) continue;
+        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, values[field.visibleWhen.field])) continue;
         if (field.kind === 'checkbox') continue;
+        if (!field.caseName) continue; // a case-less radio (Spanish adjective's `gender`) — always `persisted: false` in practice, guarded again here for the type checker.
 
         const raw = values[field.name];
         let word: string;
@@ -103,6 +104,7 @@ export function casesToFieldValues(fields: FieldConfig[], cases: WordItem[] | un
     return Object.fromEntries(
         fields.map((field) => {
             if (field.kind === 'checkbox') return [field.name, false];
+            if (!field.caseName) return [field.name, '']; // a case-less radio has nothing to hydrate from
             if (field.kind === 'multi-select') return [field.name, field.decode(byCaseName.get(field.caseName) ?? '')];
             return [field.name, byCaseName.get(field.caseName) ?? ''];
         })

@@ -11,13 +11,13 @@
  *    matches (Estonian's `-ma` ending relaxes once `searchInEnglish` is
  *    checked; the field stays required either way).
  *  - `visibleWhen` swaps in an unconstrained, optional fallback schema
- *    whenever the named sibling field's value doesn't equal the configured
- *    one — a hidden field always validates as present-but-optional,
- *    regardless of its own `required` flag (Spanish adjective's gender
- *    branch, German adverb's non-gradable branch — `forms-adjectives-adverbs.md`).
+ *    whenever the field is hidden per `matchesVisibility` (see `configs/types.ts`)
+ *    — a hidden field always validates as present-but-optional, regardless of
+ *    its own `required` flag (Spanish adjective's gender branch, German
+ *    adverb's non-gradable branch — `forms-adjectives-adverbs.md`).
  */
 import * as yup from 'yup';
-import type { FieldConfig, FieldKind, TranslationFormConfig } from './configs/types';
+import { matchesVisibility, type FieldConfig, type FieldKind, type TranslationFormConfig } from './configs/types';
 
 /** Just enough of i18next's `t` for message lookup — no interpolation needed. */
 export type TranslateFn = (key: string) => string;
@@ -44,7 +44,7 @@ function textFieldSchema(field: Extract<FieldConfig, { kind: 'text' }>, t: Trans
     const relaxedWhen = field.pattern.relaxedWhen;
     if (!relaxedWhen) return withPattern;
     return base.when(relaxedWhen.field, {
-        is: (value: unknown) => value === relaxedWhen.equals,
+        is: (value: unknown) => matchesVisibility(relaxedWhen, value),
         then: () => base,
         otherwise: () => withPattern,
     });
@@ -107,7 +107,7 @@ export function buildYupSchema(config: TranslationFormConfig, t: TranslateFn): y
         const visibility = field.visibleWhen;
         shape[field.name] = visibility
             ? schema.when(visibility.field, {
-                  is: (value: unknown) => value === visibility.equals,
+                  is: (value: unknown) => matchesVisibility(visibility, value),
                   then: () => schema,
                   otherwise: () => hiddenFallbackSchema(field.kind),
               })

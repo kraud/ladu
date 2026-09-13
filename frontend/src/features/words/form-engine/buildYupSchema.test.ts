@@ -262,4 +262,51 @@ describe('buildYupSchema', () => {
             ).resolves.toBeTruthy();
         });
     });
+
+    describe('visibleWhen with invert', () => {
+        // `gradable` itself is `required: false` here so these tests isolate
+        // `comparative`'s visibility from `gradable`'s own requiredness (which
+        // has its own coverage above, in the plain `radio field` describe block).
+        const gradable: FieldConfig = {
+            kind: 'radio',
+            name: 'gradable',
+            caseName: CASE_NAME,
+            labelKey: 'gradable',
+            required: false,
+            options: [
+                { value: 'Gradable', label: 'Gradable' },
+                { value: 'Non-gradable', label: 'Non-gradable' },
+            ],
+        };
+        const comparative: FieldConfig = {
+            kind: 'text',
+            name: 'comparative',
+            caseName: CASE_NAME,
+            labelKey: 'comparative',
+            required: false,
+            lowercase: true,
+            visibleWhen: { field: 'gradable', equals: 'Non-gradable', invert: true },
+        };
+
+        it('is visible (any value accepted) while the sibling does not equal the configured one', async () => {
+            const schema = buildYupSchema(configOf(gradable, comparative), t);
+            await expect(
+                schema.validate({ gradable: 'Gradable', comparative: 'more' }),
+            ).resolves.toBeTruthy();
+        });
+
+        it('is visible even before the sibling has any value at all', async () => {
+            const schema = buildYupSchema(configOf(gradable, comparative), t);
+            await expect(
+                schema.validate({ gradable: '', comparative: 'more' }),
+            ).resolves.toBeTruthy();
+        });
+
+        it('falls back to the unconstrained hidden schema once the sibling equals the configured one', async () => {
+            const schema = buildYupSchema(configOf(gradable, comparative), t);
+            await expect(
+                schema.validate({ gradable: 'Non-gradable', comparative: 'leftover' }),
+            ).resolves.toBeTruthy();
+        });
+    });
 });

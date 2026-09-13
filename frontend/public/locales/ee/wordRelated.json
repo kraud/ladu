@@ -170,10 +170,33 @@
           "positiveDegreeRequired": "Positiivvorm on kohustuslik"
         },
         "formEE": {
-          "algvorreFormRequired": "Meessoo ainsusvorm on kohustuslik",
-          "keskvorreFormRequired": "Naissoo ainsusvorm on kohustuslik",
-          "ulivorreFormRequired": "Kesksugu ainsusvorm on kohustuslik"
+          "algvorreFormRequired": "Algvõrre on kohustuslik",
+          "keskvorreFormRequired": "Keskvõrre on kohustuslik",
+          "ulivorreFormRequired": "Ülivõrre on kohustuslik"
         }
+      },
+      "fields": {
+        "positiveEN": "Algvõrre",
+        "comparativeEN": "Keskvõrre",
+        "superlativeEN": "Ülivõrre",
+        "positiveDE": "Algvõrre",
+        "komparativDE": "Keskvõrre",
+        "superlativDE": "Ülivõrre",
+        "gender": "Sugu",
+        "neutralSingularES": "Kesksugu ainsus",
+        "neutralPluralES": "Kesksugu mitmus",
+        "maleSingularES": "Meessoo ainsus",
+        "malePluralES": "Meessoo mitmus",
+        "femaleSingularES": "Naissoo ainsus",
+        "femalePluralES": "Naissoo mitmus",
+        "algvorreEE": "Algvõrre",
+        "keskvorreEE": "Keskvõrre",
+        "ulivorreEE": "Ülivõrre",
+        "pluralNimetavEE": "Mitmus nimetav",
+        "singularOmastavEE": "Ainsus omastav",
+        "pluralOmastavEE": "Mitmus omastav",
+        "singularOsastavEE": "Ainsus osastav",
+        "pluralOsastavEE": "Mitmus osastav"
       }
     },
     "adverb": {
@@ -188,6 +211,18 @@
           "adverbRequired": "Määrsõna on kohustuslik",
           "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         }
+      },
+      "fields": {
+        "adverbEN": "Määrsõna",
+        "comparativeEN": "Keskvõrre",
+        "superlativeEN": "Ülivõrre",
+        "adverbES": "Määrsõna",
+        "comparativeES": "Keskvõrre",
+        "superlativeES": "Ülivõrre",
+        "gradableDE": "Astestatav",
+        "adverbDE": "Määrsõna",
+        "comparativeDE": "Keskvõrre",
+        "superlativeDE": "Ülivõrre"
       }
     },
     "verb": {

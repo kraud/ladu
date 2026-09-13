@@ -1,0 +1,132 @@
+/**
+ * Adjective form configs, one per language. Unlike nouns/verbs there is no
+ * `WordCasesData` registry entry for adjectives at all — these are authored
+ * directly from the `AdjectiveCases` enum against
+ * `forms-adjectives-adverbs.md`, the same way that snapshot's own old forms
+ * were hand-written rather than registry-driven.
+ *
+ * Field order and lists key off that snapshot's "Rendered field order" per
+ * language. Spanish branches its whole field set on a `gender` radio that has
+ * no backing case at all (`persisted: false`) via `visibleWhen` — the engine
+ * primitive Slice 1 built for exactly this shape.
+ */
+import { AdjectiveCases, Lang, PartOfSpeech } from '@/ts/enums';
+import type { FieldConfig, FieldVisibility, RadioOption, TranslationFormConfig } from './types';
+
+function labelKey(key: string): string {
+    return `wordRelated:wordForm.adjective.fields.${key}`;
+}
+
+/** `wordRelated:wordForm.adjective.errors.form{EN,ES,DE,EE}.<key>` — the per-language adjective error block already in `wordRelated.json`. */
+function adjectiveErrorKey(suffix: string, key: string): string {
+    return `wordRelated:wordForm.adjective.errors.form${suffix}.${key}`;
+}
+
+function degreeField(
+    caseName: AdjectiveCases,
+    name: string,
+    required: boolean,
+    requiredMessageKey?: string,
+    visibleWhen?: FieldVisibility
+): FieldConfig {
+    return {
+        kind: 'text',
+        name,
+        caseName,
+        labelKey: labelKey(caseName),
+        required,
+        requiredMessageKey,
+        lowercase: true,
+        visibleWhen,
+    };
+}
+
+function buildEnConfig(): TranslationFormConfig {
+    const suffix = 'EN';
+    return {
+        pos: PartOfSpeech.adjective,
+        lang: Lang.EN,
+        fields: [
+            degreeField(AdjectiveCases.positiveEN, 'positive', true, adjectiveErrorKey(suffix, 'positiveDegreeRequired')),
+            degreeField(AdjectiveCases.comparativeEN, 'comparative', false),
+            degreeField(AdjectiveCases.superlativeEN, 'superlative', false),
+        ],
+    };
+}
+
+function buildDeConfig(): TranslationFormConfig {
+    const suffix = 'DE';
+    return {
+        pos: PartOfSpeech.adjective,
+        lang: Lang.DE,
+        fields: [
+            degreeField(AdjectiveCases.positiveDE, 'positive', true, adjectiveErrorKey(suffix, 'positiveDegreeRequired')),
+            degreeField(AdjectiveCases.komparativDE, 'komparativ', false),
+            degreeField(AdjectiveCases.superlativDE, 'superlativ', false),
+        ],
+    };
+}
+
+const GENDER_OPTIONS: RadioOption[] = [
+    { value: 'Neutral', label: 'Neutral' },
+    { value: 'M/F', label: 'M/F' },
+];
+
+function buildEsConfig(): TranslationFormConfig {
+    const suffix = 'ES';
+    const genderRequiredKey = adjectiveErrorKey(suffix, 'genderRequired');
+    const gender: FieldConfig = {
+        kind: 'radio',
+        name: 'gender',
+        labelKey: labelKey('gender'),
+        required: true,
+        requiredMessageKey: genderRequiredKey,
+        invalidMessageKey: genderRequiredKey,
+        persisted: false,
+        options: GENDER_OPTIONS,
+    };
+    const neutralWhen: FieldVisibility = { field: 'gender', equals: 'Neutral' };
+    const mfWhen: FieldVisibility = { field: 'gender', equals: 'M/F' };
+
+    return {
+        pos: PartOfSpeech.adjective,
+        lang: Lang.ES,
+        fields: [
+            gender,
+            // Neutral branch: both fields required.
+            degreeField(AdjectiveCases.neutralSingularES, 'neutralSingular', true, adjectiveErrorKey(suffix, 'singularNeutralDegreeRequired'), neutralWhen),
+            degreeField(AdjectiveCases.neutralPluralES, 'neutralPlural', true, adjectiveErrorKey(suffix, 'pluralNeutralDegreeRequired'), neutralWhen),
+            // M/F branch: only the singulars are required, the plurals stay optional — verbatim old-app asymmetry.
+            degreeField(AdjectiveCases.maleSingularES, 'maleSingular', true, adjectiveErrorKey(suffix, 'singularMasculineDegreeRequired'), mfWhen),
+            degreeField(AdjectiveCases.malePluralES, 'malePlural', false, undefined, mfWhen),
+            degreeField(AdjectiveCases.femaleSingularES, 'femaleSingular', true, adjectiveErrorKey(suffix, 'singularFemaleDegreeRequired'), mfWhen),
+            degreeField(AdjectiveCases.femalePluralES, 'femalePlural', false, undefined, mfWhen),
+        ],
+    };
+}
+
+function buildEeConfig(): TranslationFormConfig {
+    const suffix = 'EE';
+    return {
+        pos: PartOfSpeech.adjective,
+        lang: Lang.EE,
+        fields: [
+            degreeField(AdjectiveCases.algvorreEE, 'algvorre', true, adjectiveErrorKey(suffix, 'algvorreFormRequired')),
+            // keskvorre/ulivorre: required (D4 fix — the old app had them both `.nullable()` AND `.required()`, a contradiction).
+            degreeField(AdjectiveCases.keskvorreEE, 'keskvorre', true, adjectiveErrorKey(suffix, 'keskvorreFormRequired')),
+            degreeField(AdjectiveCases.ulivorreEE, 'ulivorre', true, adjectiveErrorKey(suffix, 'ulivorreFormRequired')),
+            degreeField(AdjectiveCases.pluralNimetavEE, 'pluralNimetav', false),
+            degreeField(AdjectiveCases.singularOmastavEE, 'singularOmastav', false),
+            degreeField(AdjectiveCases.pluralOmastavEE, 'pluralOmastav', false),
+            degreeField(AdjectiveCases.singularOsastavEE, 'singularOsastav', false),
+            degreeField(AdjectiveCases.pluralOsastavEE, 'pluralOsastav', false),
+        ],
+    };
+}
+
+export const ADJECTIVE_CONFIGS: Record<Lang, TranslationFormConfig> = {
+    [Lang.EN]: buildEnConfig(),
+    [Lang.ES]: buildEsConfig(),
+    [Lang.DE]: buildDeConfig(),
+    [Lang.EE]: buildEeConfig(),
+};

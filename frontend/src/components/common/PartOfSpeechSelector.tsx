@@ -17,8 +17,13 @@ const ALL_POS = [
     PartOfSpeech.numerals,
 ];
 
-/** Parts of speech the form engine ships against so far — the rest render disabled. */
-const SHIPPED_POS: readonly PartOfSpeech[] = [PartOfSpeech.noun, PartOfSpeech.verb];
+/** Parts of speech the form engine ships against — the remaining six render disabled. */
+const SHIPPED_POS: readonly PartOfSpeech[] = [
+    PartOfSpeech.noun,
+    PartOfSpeech.verb,
+    PartOfSpeech.adjective,
+    PartOfSpeech.adverb,
+];
 
 const POS_DESCRIPTION_KEY: Record<PartOfSpeech, string> = {
     [PartOfSpeech.noun]: 'wordRelated:partOfSpeechSelector.description.noun.info',
@@ -35,10 +40,9 @@ const POS_DESCRIPTION_KEY: Record<PartOfSpeech, string> = {
 
 /**
  * The `WordForm` create-mode gate: pick a part of speech before any
- * translation card renders. Noun and Verb are selectable so far — the rest
- * render as disabled radio cards captioned with `missingImplementationPoS`,
- * so the full inventory stays visible (Adjective/Adverb arrive later in
- * Phase 3 by simply widening `SHIPPED_POS` further).
+ * translation card renders. Noun, Verb, Adjective and Adverb are
+ * selectable — the remaining six render as disabled radio cards captioned
+ * with `missingImplementationPoS`, so the full inventory stays visible.
  */
 export function PartOfSpeechSelector({
     value,

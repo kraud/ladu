@@ -7,7 +7,7 @@
  *
  * Two config features are resolved here, ahead of the field's own control:
  *  - `visibleWhen` — the field renders nothing at all (in either mode) unless
- *    the named sibling field currently equals the configured value.
+ *    `matchesVisibility` (`configs/types.ts`) says so.
  *  - `adornment` — a read-only prefix shown before a `text` field's input,
  *    looked up from a sibling field's current value.
  */
@@ -18,7 +18,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { FieldConfig } from './configs/types';
+import { matchesVisibility, type FieldConfig } from './configs/types';
 
 export interface FieldRendererProps {
     field: FieldConfig;
@@ -44,7 +44,7 @@ export function FieldRenderer({ field, displayOnly = false }: FieldRendererProps
     // single unconditional hook call regardless of whether `visibleWhen` /
     // `adornment` are configured.
     const controllingValue = useWatch({ control, name: field.visibleWhen?.field ?? field.name });
-    const isVisible = !field.visibleWhen || controllingValue === field.visibleWhen.equals;
+    const isVisible = !field.visibleWhen || matchesVisibility(field.visibleWhen, controllingValue);
 
     const adornmentSource = field.adornment?.watchField;
     const watchedAdornmentValue = useWatch({ control, name: adornmentSource ?? field.name });

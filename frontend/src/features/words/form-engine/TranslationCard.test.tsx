@@ -186,6 +186,55 @@ describe('TranslationCard — Verb', () => {
     });
 });
 
+describe('TranslationCard — Adjective', () => {
+    it('switches the Spanish adjective field set when gender changes, dropping the other branch on save', async () => {
+        const user = userEvent.setup();
+        const onChange = vi.fn();
+        renderWithProviders(<TranslationCard lang={Lang.ES} pos={PartOfSpeech.adjective} onChange={onChange} />);
+
+        expect(screen.queryByLabelText('Male singular')).not.toBeInTheDocument();
+        await user.click(screen.getByRole('radio', { name: 'M/F' }));
+        expect(screen.getByLabelText('Male singular')).toBeInTheDocument();
+        expect(screen.queryByLabelText('Neutral singular')).not.toBeInTheDocument();
+
+        await user.type(screen.getByLabelText('Male singular'), 'Alto');
+        await waitFor(() =>
+            expect(onChange).toHaveBeenLastCalledWith(
+                expect.objectContaining({ cases: [{ caseName: 'maleSingularES', word: 'alto' }] }),
+            ),
+        );
+
+        // Switching back to Neutral drops the M/F value entirely — gender itself is never persisted.
+        await user.click(screen.getByRole('radio', { name: 'Neutral' }));
+        await waitFor(() => expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ cases: [] })));
+    });
+});
+
+describe('TranslationCard — Adverb', () => {
+    it('hides German comparative/superlative only once Non-gradable is explicitly picked', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.adverb} />);
+
+        // Visible by default, before gradable has any value. Labels read in the
+        // active *interface* language (English here), describing the German
+        // field — "Komparativ"/"Superlativ" only appear in the German locale.
+        expect(screen.getByLabelText('Comparative')).toBeInTheDocument();
+        expect(screen.getByLabelText('Superlative')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('radio', { name: 'Non-gradable' }));
+        expect(screen.queryByLabelText('Comparative')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('Superlative')).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('radio', { name: 'Gradable' }));
+        expect(screen.getByLabelText('Comparative')).toBeInTheDocument();
+    });
+
+    it('there is no Estonian adverb card', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.adverb} />);
+        expect(screen.getByText('That language is not available yet')).toBeInTheDocument();
+    });
+});
+
 describe('fieldsToCases', () => {
     const multiSelect: FieldConfig = {
         kind: 'multi-select',

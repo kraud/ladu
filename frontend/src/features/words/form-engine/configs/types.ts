@@ -26,15 +26,26 @@ export interface FieldGroup {
 
 /**
  * A field only renders — and only validates against its own rules — when the
- * sibling field named `field` currently equals `equals`. Hidden fields
- * validate as optional and their value is dropped on save (Spanish
- * adjective's gender-driven field set, German adverb's non-gradable branch).
- * `equals` is `boolean` for a checkbox sibling (Estonian's `searchInEnglish`
- * relaxing `infinitiveMa`'s pattern), `string` for a radio/select one.
+ * sibling field named `field` currently equals `equals` (or, when `invert` is
+ * true, when it does *not* — German adverb's comparative/superlative are
+ * visible by default and hidden only once `gradable === 'Non-gradable'` is
+ * explicitly chosen). Hidden fields validate as optional and their value is
+ * dropped on save (Spanish adjective's gender-driven field set, German
+ * adverb's non-gradable branch). `equals` is `boolean` for a checkbox sibling
+ * (Estonian's `searchInEnglish` relaxing `infinitiveMa`'s pattern), `string`
+ * for a radio/select one.
  */
 export interface FieldVisibility {
     field: string;
     equals: string | boolean;
+    /** Flips the comparison: visible when the sibling does NOT equal `equals`. Defaults to `false`. */
+    invert?: boolean;
+}
+
+/** The one comparison `visibleWhen` means everywhere it's consumed (schema, render, persistence) — kept in one place so `invert` can't drift between them. */
+export function matchesVisibility(visibility: FieldVisibility, value: unknown): boolean {
+    const equal = value === visibility.equals;
+    return visibility.invert ? !equal : equal;
 }
 
 /**
@@ -117,13 +128,12 @@ export interface TextFieldConfig extends FieldConfigBase {
     pattern?: FieldPattern;
 }
 
+/** `caseName` stays optional, inherited from the base — a radio can be a genuinely case-less UI branch selector (Spanish adjective's `gender`), same as a checkbox can (Estonian's `searchInEnglish`). */
 export interface RadioFieldConfig extends FieldConfigBase {
     kind: 'radio';
-    caseName: CaseName;
     options: RadioOption[];
 }
 
-/** The one kind that can be genuinely case-less (Estonian's form-only `searchInEnglish`) — `caseName` stays optional, inherited from the base. */
 export interface CheckboxFieldConfig extends FieldConfigBase {
     kind: 'checkbox';
 }

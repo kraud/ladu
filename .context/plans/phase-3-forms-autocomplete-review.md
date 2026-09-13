@@ -137,7 +137,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 0 — persist this plan | ✅ done |
 | 1 — form engine v2 | ✅ done 2026-09-12 |
 | 2 — verb configs | ✅ done 2026-09-13 |
-| 3 — adjective and adverb configs | not started |
+| 3 — adjective and adverb configs | ✅ done 2026-09-13 |
 | 4 — autocomplete | not started |
 | 5 — backend: list contract | not started |
 | 6 — Review table core | not started |
@@ -305,6 +305,73 @@ not 9).
 `configs/adverbs.ts` (3 — there is no Estonian adverb form). Spanish adjective gender branching
 and German adverb gradable branching exercise Slice 1's `visibleWhen`. `SHIPPED_POS` opens fully.
 Regression tests pin all seven field lists against `snapshot/forms-adjectives-adverbs.md`.
+
+### Outcome — what landed (2026-09-13)
+
+Much lighter than Slice 2: no registry at all (`AdjectiveCases`/`AdverbCases` have no
+`WordCasesData` entry — every field is authored directly from the enum against the snapshot), no
+pronoun/tense-heading complexity, and every required field validates with the engine's plain
+default rule (no consumer in this slice needed `pattern`). One engine addition, checked with the
+user before implementation:
+
+- **`FieldVisibility` gained `invert?: boolean`** — German adverb's `comparative`/`superlative` are
+  visible by default and hidden only once `gradable` is explicitly set to `"Non-gradable"`, the
+  first `visibleWhen` consumer that isn't a positive "show when equals" match. A new
+  `matchesVisibility(visibility, value)` helper (`configs/types.ts`) centralizes the equals/invert
+  comparison so `buildYupSchema.ts`, `FieldRenderer.tsx` and `TranslationCard.tsx`'s
+  `fieldsToCases` — the three places that already each re-implemented the plain equals check —
+  can't drift from each other now that there are two comparison modes instead of one.
+- **A second, unplanned type change**: Spanish adjective's `gender` field is a `persisted: false`
+  **radio**, not a checkbox — the first case-less field of a non-checkbox kind. Slice 2's tightening
+  (`caseName: CaseName` required on every kind except `CheckboxFieldConfig`) didn't anticipate this,
+  so `RadioFieldConfig.caseName` reverted to optional (inherited from the base) alongside an
+  explicit `if (!field.caseName) continue;` / `?? ''` guard in `fieldsToCases`/`casesToFieldValues`
+  — replacing the free type-narrowing Slice 2 relied on with a one-line runtime check in the two
+  places that actually read `caseName`.
+
+`configs/adjectives.ts` and `configs/adverbs.ts` both follow the design exactly as planned. Every
+field name falls out mechanically from `stripLangSuffix(caseName, suffix)` — unlike verbs, there
+are no naming exceptions, so neither regression test needs a carve-out list. Spanish's gender
+branch is one flat field array (`gender` + all six branch fields) with `visibleWhen` doing the
+branch-switching; German's `gradable` branch is the same shape with `invert` on the two hidden
+fields.
+
+Three intentional deltas, all flagged for review, none touching validation:
+- **German adjective's own `positive` field label was the untranslated English word "Positive"**
+  in the old form, inconsistent with its own siblings "Komparativ"/"Superlativ" — fixed to
+  "Positiv", the same category of leftover-untranslated-label bug Slice 2 fixed twice for verbs.
+- **Spanish gender's `oneOf` error message was the bare hardcoded string `"Required"`** in one of
+  the old app's two schema branches (vs. the proper i18n key in the other) — both now use the
+  existing `formES.genderRequired` key.
+- **Estonian adjective's three degree-required error messages were copy-pasted from Spanish's
+  wording** (`algvorreFormRequired` read "Masculine singular degree is required" in every locale
+  file, describing Spanish gender concepts, not Estonian degree concepts) — rewritten to actually
+  describe algvõrre/keskvõrre/ülivõrre (positive/comparative/superlative degree) in each locale.
+
+New `wordRelated:wordForm.adjective.fields.*` / `wordForm.adverb.fields.*` keys in all four locale
+files, following `nouns.ts`'s established convention exactly: each locale translates the concept
+into its own words (matching `nouns.ts`'s own `singularNimetavEE`-style precedent of translating
+Estonian's nimetav/omastav/osastav case names into nominative/genitive/partitive elsewhere, but
+keeping them native in the Estonian locale file itself) rather than reproducing the old app's
+occasionally-untranslated literal text. Radio option labels (`Neutral`/`M/F`, `Gradable`/
+`Non-gradable`) stay literal/untranslated, matching `RadioOption`'s existing no-i18n convention.
+Estonian translations across both new `fields` blocks are flagged for review, same as every other
+slice this phase.
+
+**Tests**: `configs/adjectives.test.ts` (new, 6 tests) and `configs/adverbs.test.ts` (new, 6 tests)
+pin field-name lists and required-field sets per language against the snapshot, plus — the first
+configs to need it — the *visible* subset per branch (Spanish's Neutral vs. M/F gender branches;
+German's gradable/non-gradable), and the `caseName === name + suffix` invariant (no carve-outs
+needed). `buildYupSchema.test.ts` (+3: `invert` visible-while-not-equal, visible-before-any-value,
+hidden-once-equal). `TranslationCard.test.tsx` gained `TranslationCard — Adjective` (+1: the
+Spanish gender switch end to end, asserting the dropped branch's value never reaches `onChange`)
+and `TranslationCard — Adverb` (+2: the German gradable switch showing/hiding live, and the missing
+Estonian adverb route falling back to the existing "language not available" card).
+`PartOfSpeechSelector.test.tsx` updated for Adjective/Adverb now being enabled (6 disabled parts of
+speech, not 8).
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**237 → 259** (22 new). Backend untouched — not re-run this slice, same pattern as Slices 1–2.
 
 **Slice 4 — autocomplete.** The feature module, `useDebouncedCallback`, `AutocompleteRow`, MSW
 handlers for all eight endpoints, and the found/partial/not-found status. Backend fix in the same

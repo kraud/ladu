@@ -170,10 +170,33 @@
           "positiveDegreeRequired": "El grado positivo es obligatorio"
         },
         "formEE": {
-          "algvorreFormRequired": "El grado singular masculino es obligatorio",
-          "keskvorreFormRequired": "El grado singular femenino es obligatorio",
-          "ulivorreFormRequired": "El grado singular neutro es obligatorio"
+          "algvorreFormRequired": "El grado positivo es obligatorio",
+          "keskvorreFormRequired": "El grado comparativo es obligatorio",
+          "ulivorreFormRequired": "El grado superlativo es obligatorio"
         }
+      },
+      "fields": {
+        "positiveEN": "Positivo",
+        "comparativeEN": "Comparativo",
+        "superlativeEN": "Superlativo",
+        "positiveDE": "Positivo",
+        "komparativDE": "Comparativo",
+        "superlativDE": "Superlativo",
+        "gender": "Género",
+        "neutralSingularES": "Neutro singular",
+        "neutralPluralES": "Neutro plural",
+        "maleSingularES": "Masculino singular",
+        "malePluralES": "Masculino plural",
+        "femaleSingularES": "Femenino singular",
+        "femalePluralES": "Femenino plural",
+        "algvorreEE": "Grado positivo",
+        "keskvorreEE": "Grado comparativo",
+        "ulivorreEE": "Grado superlativo",
+        "pluralNimetavEE": "Plural nominativo",
+        "singularOmastavEE": "Singular genitivo",
+        "pluralOmastavEE": "Plural genitivo",
+        "singularOsastavEE": "Singular partitivo",
+        "pluralOsastavEE": "Plural partitivo"
       }
     },
     "adverb": {
@@ -188,6 +211,18 @@
           "adverbRequired": "El adverbio es obligatorio",
           "gradableRequired": "La selección de 'gradual' es obligatoria"
         }
+      },
+      "fields": {
+        "adverbEN": "Adverbio",
+        "comparativeEN": "Comparativo",
+        "superlativeEN": "Superlativo",
+        "adverbES": "Adverbio",
+        "comparativeES": "Comparativo",
+        "superlativeES": "Superlativo",
+        "gradableDE": "Graduable",
+        "adverbDE": "Adverbio",
+        "comparativeDE": "Comparativo",
+        "superlativeDE": "Superlativo"
       }
     },
     "verb": {

@@ -170,10 +170,33 @@
           "positiveDegreeRequired": "Positivform ist erforderlich"
         },
         "formEE": {
-          "algvorreFormRequired": "Maskuline Singularform ist erforderlich",
-          "keskvorreFormRequired": "Feminine Singularform ist erforderlich",
-          "ulivorreFormRequired": "Neutrale Singularform ist erforderlich"
+          "algvorreFormRequired": "Positivform ist erforderlich",
+          "keskvorreFormRequired": "Komparativform ist erforderlich",
+          "ulivorreFormRequired": "Superlativform ist erforderlich"
         }
+      },
+      "fields": {
+        "positiveEN": "Positiv",
+        "comparativeEN": "Komparativ",
+        "superlativeEN": "Superlativ",
+        "positiveDE": "Positiv",
+        "komparativDE": "Komparativ",
+        "superlativDE": "Superlativ",
+        "gender": "Geschlecht",
+        "neutralSingularES": "Neutrum Singular",
+        "neutralPluralES": "Neutrum Plural",
+        "maleSingularES": "Maskulinum Singular",
+        "malePluralES": "Maskulinum Plural",
+        "femaleSingularES": "Femininum Singular",
+        "femalePluralES": "Femininum Plural",
+        "algvorreEE": "Positivform",
+        "keskvorreEE": "Komparativform",
+        "ulivorreEE": "Superlativform",
+        "pluralNimetavEE": "Plural Nominativ",
+        "singularOmastavEE": "Singular Genitiv",
+        "pluralOmastavEE": "Plural Genitiv",
+        "singularOsastavEE": "Singular Partitiv",
+        "pluralOsastavEE": "Plural Partitiv"
       }
     },
     "adverb": {
@@ -188,6 +211,18 @@
           "adverbRequired": "Das Adverb ist erforderlich",
           "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         }
+      },
+      "fields": {
+        "adverbEN": "Adverb",
+        "comparativeEN": "Komparativ",
+        "superlativeEN": "Superlativ",
+        "adverbES": "Adverb",
+        "comparativeES": "Komparativ",
+        "superlativeES": "Superlativ",
+        "gradableDE": "Steigerbar",
+        "adverbDE": "Adverb",
+        "comparativeDE": "Komparativ",
+        "superlativeDE": "Superlativ"
       }
     },
     "verb": {

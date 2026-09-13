@@ -170,10 +170,33 @@
           "positiveDegreeRequired": "Positive degree is required"
         },
         "formEE": {
-          "algvorreFormRequired": "Masculine singular degree is required",
-          "keskvorreFormRequired": "Female singular degree is required",
-          "ulivorreFormRequired": "Neutral singular degree is required"
+          "algvorreFormRequired": "Positive degree is required",
+          "keskvorreFormRequired": "Comparative degree is required",
+          "ulivorreFormRequired": "Superlative degree is required"
         }
+      },
+      "fields": {
+        "positiveEN": "Positive",
+        "comparativeEN": "Comparative",
+        "superlativeEN": "Superlative",
+        "positiveDE": "Positive",
+        "komparativDE": "Comparative",
+        "superlativDE": "Superlative",
+        "gender": "Gender",
+        "neutralSingularES": "Neutral singular",
+        "neutralPluralES": "Neutral plural",
+        "maleSingularES": "Male singular",
+        "malePluralES": "Male plural",
+        "femaleSingularES": "Female singular",
+        "femalePluralES": "Female plural",
+        "algvorreEE": "Positive degree",
+        "keskvorreEE": "Comparative degree",
+        "ulivorreEE": "Superlative degree",
+        "pluralNimetavEE": "Plural nominative",
+        "singularOmastavEE": "Singular genitive",
+        "pluralOmastavEE": "Plural genitive",
+        "singularOsastavEE": "Singular partitive",
+        "pluralOsastavEE": "Plural partitive"
       }
     },
     "adverb": {
@@ -188,6 +211,18 @@
           "adverbRequired": "Adverb is required",
           "gradableRequired": "'Gradable' selection is required"
         }
+      },
+      "fields": {
+        "adverbEN": "Adverb",
+        "comparativeEN": "Comparative",
+        "superlativeEN": "Superlative",
+        "adverbES": "Adverb",
+        "comparativeES": "Comparative",
+        "superlativeES": "Superlative",
+        "gradableDE": "Gradable",
+        "adverbDE": "Adverb",
+        "comparativeDE": "Comparative",
+        "superlativeDE": "Superlative"
       }
     },
     "verb": {
