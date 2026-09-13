@@ -1,6 +1,8 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { makeAutocompleteHandlers } from '@/test/msw/autocompleteHandlers';
+import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 import type { FieldConfig } from './configs/types';
@@ -232,6 +234,86 @@ describe('TranslationCard — Adverb', () => {
     it('there is no Estonian adverb card', () => {
         renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.adverb} />);
         expect(screen.getByText('That language is not available yet')).toBeInTheDocument();
+    });
+});
+
+describe('TranslationCard — Autocomplete integration (one case per language with a lookup endpoint)', () => {
+    it('English verb: typing into simplePresent1s fills the other empty tense fields on Fill', async () => {
+        const user = userEvent.setup();
+        const fake = makeAutocompleteHandlers({
+            englishVerb: {
+                foundVerb: true,
+                verbData: {
+                    language: 'English',
+                    cases: [
+                        { caseName: 'simplePresent1sEN', word: 'run' },
+                        { caseName: 'simplePresent2sEN', word: 'run' },
+                        { caseName: 'simplePresent3sEN', word: 'runs' },
+                    ],
+                },
+            },
+        });
+        server.use(...fake.handlers);
+
+        renderWithProviders(<TranslationCard lang={Lang.EN} pos={PartOfSpeech.verb} />);
+        // "I" labels one field per tense (present/past/future/conditional) — the first is simplePresent1s, the query field.
+        await user.type(screen.getAllByLabelText('I')[0], 'run');
+
+        await waitFor(() => expect(screen.getByRole('button', { name: /fill in/i })).toBeEnabled(), { timeout: 2000 });
+        await user.click(screen.getByRole('button', { name: /fill in/i }));
+        await waitFor(() => expect(screen.getAllByLabelText('He/She/it')[0]).toHaveValue('runs'));
+    });
+
+    it('Spanish verb: the infinitive drives the lookup', async () => {
+        const user = userEvent.setup();
+        const fake = makeAutocompleteHandlers({
+            spanishVerb: {
+                foundVerb: true,
+                verbData: { language: 'Spanish', cases: [{ caseName: 'indicativePresent1sES', word: 'bailo' }] },
+            },
+        });
+        server.use(...fake.handlers);
+
+        renderWithProviders(<TranslationCard lang={Lang.ES} pos={PartOfSpeech.verb} />);
+        await user.type(screen.getByLabelText('Infinitive non-finite simple'), 'bailar');
+
+        await waitFor(() => expect(fake.requests).toHaveLength(1), { timeout: 2000 });
+        expect(fake.requests[0].query).toBe('bailar');
+    });
+
+    it('German noun: the singular nominative field drives the lookup and Fill writes the gender radio', async () => {
+        const user = userEvent.setup();
+        const fake = makeAutocompleteHandlers({
+            germanNoun: {
+                foundNoun: true,
+                nounData: { language: 'German', cases: [{ caseName: 'genderDE', word: 'das' }] },
+            },
+        });
+        server.use(...fake.handlers);
+
+        renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.noun} />);
+        await user.type(screen.getByLabelText('Singular nominative'), 'Haus');
+
+        await waitFor(() => expect(screen.getByRole('button', { name: /fill in/i })).toBeEnabled(), { timeout: 2000 });
+        await user.click(screen.getByRole('button', { name: /fill in/i }));
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'das' })).toBeChecked());
+    });
+
+    it('Estonian verb: the lookup fires off infinitiveMa, gated by the same field the pattern validation uses', async () => {
+        const user = userEvent.setup();
+        const fake = makeAutocompleteHandlers({
+            estonianVerb: {
+                searchResult: [{ wordClasses: ['verb'], wordForms: [{ code: 'Inf', value: 'tantsida' }] }],
+            },
+        });
+        server.use(...fake.handlers);
+
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.verb} />);
+        await user.type(screen.getByLabelText('-ma infinitive'), 'tantsima');
+
+        await waitFor(() => expect(screen.getByRole('button', { name: /fill in/i })).toBeEnabled(), { timeout: 2000 });
+        await user.click(screen.getByRole('button', { name: /fill in/i }));
+        await waitFor(() => expect(screen.getByLabelText('-da infinitive')).toHaveValue('tantsida'));
     });
 });
 

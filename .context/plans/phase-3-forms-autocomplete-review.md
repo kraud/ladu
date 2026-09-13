@@ -138,7 +138,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 1 — form engine v2 | ✅ done 2026-09-12 |
 | 2 — verb configs | ✅ done 2026-09-13 |
 | 3 — adjective and adverb configs | ✅ done 2026-09-13 |
-| 4 — autocomplete | not started |
+| 4 — autocomplete | ✅ done 2026-09-13 |
 | 5 — backend: list contract | not started |
 | 6 — Review table core | not started |
 | 7 — filters, toolbar, bulk bar | not started |
@@ -376,6 +376,133 @@ speech, not 8).
 **Slice 4 — autocomplete.** The feature module, `useDebouncedCallback`, `AutocompleteRow`, MSW
 handlers for all eight endpoints, and the found/partial/not-found status. Backend fix in the same
 slice: the three Estonian handlers respond 502 instead of hanging on an external-API failure.
+
+### Outcome — what landed (2026-09-13)
+
+No engine changes — `configs/types.ts`, `buildYupSchema.ts` and `FieldRenderer.tsx` are all
+untouched this slice, as scoped. Two stale details in the plan text itself, found while
+implementing, corrected here rather than in the design section above (which stays as written for
+history): the mount point is `TranslationCard.tsx`'s render loop (a bare comment, not a stubbed
+status row — nothing rendered there before this slice), and it had drifted to line 240, not 192.
+
+**Backend fix.** `getVerbEE`/`getNounEE`/`getAdjectiveEE` in `autocompleteTranslationController.ts`
+shared one `.then(res.json).catch(console.error)` tail with no response on failure. Extracted into
+one `respondFromEstonianAPI(res, url)` helper (used by all three) that responds `502` with a
+generic JSON message on rejection — including a `JSON.parse` failure inside `getDataFromAPI` itself,
+which previously threw uncaught inside the `.then` and was never actually reaching the `.catch` at
+all. New `backend/tests/autocomplete.test.js` coverage (+3) mocks `https.get`'s returned request
+object to emit an `'error'` event and asserts `502`, not a hang — the existing "returns data" test's
+own mock only ever wires the `'data'`/`'end'` events on the *response* object, so this needed its
+own mock shape (the request object's `.on('error', ...)`, not the response's).
+
+**Frontend feature module**, `features/autocomplete/{types,api,keys,transforms,hooks}.ts`, built to
+the plan's four-file shape. Real deviations, all found by reading the current backend controller
+directly rather than trusting the plan's framing or the old frontend's assumptions:
+
+- **Only 4 transform functions exist, not 8.** `getVerbEN`, `getVerbES`, `getVerbDE`, `getNounDE`,
+  and `getNounGenderES` (Spanish noun-gender) all share one wire envelope verified directly against
+  `autocompleteTranslationController.ts` — a `found<Type>` flag plus an optional `<type>Data.cases`
+  array of `{caseName, word}` — so one `transformGenericLookup` covers all five. Only the three
+  Estonian endpoints (a raw external-dictionary passthrough with no such envelope) need a bespoke
+  transform each. This also means the plan's "four sanitizers ported verbatim" from the old
+  sibling repo's `autocompleteFormFunctions.ts` is really **three**: `sanitizeDataStructureEENoun`,
+  `EEAdjective`, and `EEVerb` port over directly (as `transformEENoun`/`EEAdjective`/`EEVerb`). The
+  fourth, `sanitizeDataStructureESVerb`, assumed a deeply-nested `verbData.indicative.present...`
+  response shape that the *current* `getVerbES` controller does not produce — it already returns
+  the same flat `{caseName, word}[]` array as every other non-Estonian endpoint (confirmed by
+  reading the controller, not assumed), so Spanish verb needs no bespoke transform at all, just the
+  generic one. The plan's other three "currently inline" ports (ES noun-gender, DE verb, DE noun)
+  turned out to need no bespoke code either, for the same reason — verified against
+  `NounFormES.tsx`/`NounFormDE.tsx`/`VerbFormDE.tsx` in the old repo, which confirmed the field
+  names but nothing behavioural beyond what the generic transform already does.
+- **`AutocompleteResult.cases` is a `Map<CaseName, string>`, not a `Partial<Record<CaseName, string>>`
+  as sketched in the architecture section above.** `CaseName` unions four separate enums that share
+  string values across each other (`NounCases.regularityEN` and `VerbCases.regularityEN` are both
+  `"regularityEN"`), which breaks `tsc`'s ability to index a `Record` keyed by the union at all
+  (`error TS7053: Element implicitly has an 'any' type`) — confirmed with an isolated repro before
+  reaching for a workaround. `TranslationCard.tsx`'s own `casesToFieldValues` hits this identical
+  shape (case name -> word) and already sidesteps it with a `Map`; this slice follows that existing
+  precedent rather than introducing a second pattern for the same problem.
+- **The registry keys fields by their RHF `name`, not by `CaseName`.** The Estonian `searchInEnglish`
+  checkbox — the one extra field the registry needs to watch — is `persisted: false` with no
+  `caseName` at all, so a `CaseName`-keyed registry couldn't reference it. `AutocompleteEndpoint`
+  carries `queryFieldName`/`extraFieldName` as plain RHF field-name strings instead; `AutocompleteRow`
+  separately maps a result's `CaseName` keys onto sibling fields' RHF names by scanning
+  `config.fields` for a matching `caseName`, so the two naming schemes never need to unify.
+- **English's query field is `simplePresent1s`, not an infinitive field — there is no stored
+  English infinitive case.** Confirmed against the old repo's `VerbFormEN.tsx` (the only remaining
+  file that needed reading beyond the current backend controller, since this mapping isn't
+  derivable from the controller alone): the old form already used its own `simplePresent1s` input
+  as the query for `GET .../english/verb/:infinitiveVerb`, debounced via the same module-global
+  timer, gated on that field's own validity. This slice's registry reproduces that mapping exactly.
+- **Only EE verb's registry entry has an `extraFieldName`.** The `searchInEnglish` checkbox exists
+  only on the Estonian *verb* config (added in Slice 2 for its `relaxedWhen` pattern feature) — the
+  Estonian noun and adjective configs never grew one in Slices 1–3, despite the backend accepting
+  `?searchInEnglish=true` on all three endpoints. EE noun and EE adjective lookups therefore always
+  search natively for now. Adding that checkbox to `configs/nouns.ts`/`configs/adjectives.ts` would
+  be a real (if small) product-behaviour addition outside this slice's scope, not a bug fix, so it
+  was left out and flagged here rather than guessed at.
+- **`lib/useDebouncedCallback.ts` exports a value-debounce, not a callback-debounce** — a plain
+  `useEffect`+`setTimeout` hook that returns the settled value, one timer per hook instance (the
+  actual fix for the old module-global `setTimerTriggerFunction`, which a *single* shared timer id
+  meant two fields debouncing at once would cancel each other's lookups). The file name matches the
+  plan's reservation; the export shape doesn't, since `AutocompleteRow` only ever needs "this field's
+  value, settled," and wrapping a callback would add a memoization concern with no behavioural gain.
+
+**`AutocompleteRow`** lives beside `TranslationCard.tsx` (form-engine UI), not inside the
+`features/autocomplete/` module (data/transport only), matching the engine's existing
+component/feature split. It renders `null` outright for every `(language, PoS)` pair absent from
+the registry (confirmed coverage: EN verb only; ES/DE verb+noun; EE verb+noun+adjective — 8 pairs
+total, matching the phase plan's endpoint count). For a covered pair it watches the query field (and,
+EE verb only, `searchInEnglish`) via `useWatch`, debounces the value, and fires
+`useAutocompleteTranslation` automatically once the lookup is enabled — no manual "search" trigger,
+per the user's decision. A status line (`loading`/`foundMatch`/`partialMatch`/`noMatch`, reusing and
+extending the existing `wordForm.autocompleteTranslationButton.*` i18n keys rather than the plan's
+suggested new `wordRelated:autocomplete.*` namespace — those keys already existed, unused, in all
+four locale files from an earlier phase, with exactly the copy this slice needed) only shows once a
+non-blank query has actually run; clearing the field back to blank hides it again rather than
+leaving a stale result on screen. The **Fill** button is the one manual action — enabled only on
+`found`/`partial` — and, per the user's decision, writes a looked-up case only into a field whose
+current value is empty, iterating `config.fields` and skipping any field the user has already typed
+into. No new UI primitive: the status text is a plain `<span>`, not a shadcn `Badge` (none exists in
+`components/ui/` yet), which is a one-line, easily-swapped choice rather than a new dependency for
+one slice.
+
+**MSW handlers** — new `test/msw/autocompleteHandlers.ts`, following `wordHandlers.ts`'s
+factory-returning-state pattern: `makeAutocompleteHandlers(responses)` returns `{ handlers, requests
+}`, with per-endpoint response overrides and a request log for payload/query assertions, covering
+all 8 routes (a bare failure marker `{ status: N }` on the three Estonian slots doubles as the
+502-path fixture for future tests, though this slice's failure-path coverage lives entirely in the
+new backend Jest tests).
+
+**i18n** — three new keys added to the existing `wordForm.autocompleteTranslationButton` block
+(`partialMatch`, `loading`, `fillButton`) in all four locale files, alongside the four keys already
+sitting there unused since an earlier phase. Estonian copy flagged for review, same as every prior
+slice this phase.
+
+**Tests**: `features/autocomplete/transforms.test.ts` (new, 18 tests) — the three Estonian
+transforms' found/not-found branches including the short-form and shared-past-perfect-form
+mappings, `transformGenericLookup`'s found/partial/not-found branches and its empty-word drop rule,
+and the full 8-entry registry coverage table plus each entry's `queryFieldName`/`extraFieldName`
+pinned directly (the same "pin the exact list" discipline the config regression tests already use).
+`features/autocomplete/hooks.test.tsx` (new, 5 tests, against the new MSW handlers): disabled for an
+uncovered `(language, PoS)` pair, disabled for a blank query, a found English verb, a found Estonian
+verb through its bespoke transform, and a not-found German noun. `lib/useDebouncedCallback.test.ts`
+(new, 5 tests, fake timers): initial value, no update before the delay, update once it elapses, timer
+reset on every intermediate change, and two hook instances never sharing a timer.
+`features/words/form-engine/AutocompleteRow.test.tsx` (new, 5 tests): renders nothing for an
+uncovered pair, automatic debounced fetch showing a found status, a not-found status with Fill
+disabled, Fill only writing the empty sibling field, and the Estonian `searchInEnglish` checkbox
+reaching the query. `TranslationCard.test.tsx` gained a `TranslationCard — Autocomplete integration`
+block (+4, one per language with any registry entry): English verb typing into `simplePresent1s`
+then Fill populating `simplePresent3s` ("He/She/it") while leaving nothing else touched, Spanish verb
+confirming the infinitive field drives the request, German noun typing the singular nominative then
+Fill checking the gender radio, and Estonian verb typing `infinitiveMa` then Fill populating
+`infinitiveDa`.
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend` **259 → 296**
+(37 new, matching the file-by-file counts above); `npm test` (backend) **145 → 148** (+3, the new
+Estonian-failure-path tests) — the first backend run since Slice 1, unchanged otherwise.
 
 **Slice 5 — backend: list contract.** `getWordsSimplified` gains `?cursor=&limit=` keyset
 pagination and flat filter params (`pos`, `gender`, `q`) replacing the JSON `filters` array; the

@@ -271,7 +271,10 @@
       "label": "Vervollständigen {{wordType}}",
       "emptyQuery": "Bitte geben Sie zuerst '{{requiredField}}' ein.",
       "noMatch": "Entschuldigung, wir kennen dieses Wort nicht!",
-      "foundMatch": "Es gibt Informationen über dieses Wort in unserem System."
+      "foundMatch": "Es gibt Informationen über dieses Wort in unserem System.",
+      "partialMatch": "Wir sind uns nicht ganz sicher, aber das ist unsere beste Vermutung.",
+      "loading": "Suche läuft...",
+      "fillButton": "Ausfüllen"
     }
   }
 }

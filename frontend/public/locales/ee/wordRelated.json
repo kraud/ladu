@@ -271,7 +271,10 @@
       "label": "Automaatselt täida {{wordType}}",
       "emptyQuery": "Palun sisesta esmalt '{{requiredField}}'.",
       "noMatch": "Vabandust, me ei tunne seda sõna!",
-      "foundMatch": "Meie süsteemis on selle sõna kohta teavet."
+      "foundMatch": "Meie süsteemis on selle sõna kohta teavet.",
+      "partialMatch": "Me pole täiesti kindlad, kuid see on meie parim oletus.",
+      "loading": "Otsimine...",
+      "fillButton": "Täida"
     }
   }
 }

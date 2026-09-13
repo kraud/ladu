@@ -14,8 +14,8 @@
  * for a freshly-added, still-empty card. Field-level errors stay driven by
  * `mode: 'onBlur'`, decoupled from the word-level completion signal.
  *
- * The autocomplete row (EE/DE/ES noun autocomplete) is a Phase 3 concern —
- * only its mount point is reserved here.
+ * `AutocompleteRow` renders itself out for every `(lang, pos)` pair with no
+ * lookup endpoint — this card never branches on that.
  */
 import { Fragment, useEffect, useMemo, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -27,6 +27,7 @@ import { FlagIcon } from '@/components/common/FlagIcon';
 import { langTint, languageByLabel } from '@/lib/language';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
+import { AutocompleteRow } from './AutocompleteRow';
 import { buildYupSchema } from './buildYupSchema';
 import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
@@ -237,7 +238,7 @@ export function TranslationCard({
 
             <Form {...form}>
                 <div className="flex flex-col gap-3">
-                    {/* Autocomplete row (EE/DE/ES noun autocomplete) — Phase 3 mount point. */}
+                    {!displayOnly && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} />}
                     {config.fields.map((field, index) => (
                         <Fragment key={field.name}>
                             {groupHeadingsToPrint(config.fields, index).map((heading) => (

@@ -271,7 +271,10 @@
       "label": "Autocomplete {{wordType}}",
       "emptyQuery": "Please input '{{requiredField}}' first.",
       "noMatch": "Sorry, we don't know this word!",
-      "foundMatch": "There is information about this word stored in our system."
+      "foundMatch": "There is information about this word stored in our system.",
+      "partialMatch": "We're not fully sure, but here's our best guess.",
+      "loading": "Looking up...",
+      "fillButton": "Fill in"
     }
   }
 }

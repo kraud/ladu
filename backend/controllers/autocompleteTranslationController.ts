@@ -74,9 +74,29 @@ function getDataFromAPI(url: string): Promise<any> {
         https.get(url, (response) => {
             let data = '';
             response.on('data', (chunk: string) => { data += chunk; });
-            response.on('end', () => { resolve(JSON.parse(data)); });
+            response.on('end', () => {
+                try {
+                    resolve(JSON.parse(data));
+                } catch (parseError) {
+                    reject(parseError);
+                }
+            });
         }).on('error', (error) => { reject(error); });
     });
+}
+
+/**
+ * Fetch from the Estonian dictionary API and forward the result, responding
+ * 502 instead of leaving the request hanging when the upstream call fails
+ * (network error, timeout, or a non-JSON body).
+ */
+function respondFromEstonianAPI(res: any, url: string): void {
+    getDataFromAPI(url)
+        .then((data) => res.status(200).json(data))
+        .catch((error: unknown) => {
+            console.error('Error in Estonian API request:', error);
+            res.status(502).json({ message: 'Estonian dictionary lookup failed' });
+        });
 }
 
 // ===========================================================================
@@ -309,9 +329,7 @@ const getVerbEE = asyncHandler(async (req: any, res: any) => {
     let searchURL = `${EESTI_API_URL}/${req.params.infinitiveMaVerb}`;
     if (searchInEnglish) searchURL += '?lg=en';
 
-    getDataFromAPI(searchURL)
-        .then((data) => res.status(200).json(data))
-        .catch((error) => console.error('Error in Estonian API request:', error));
+    respondFromEstonianAPI(res, searchURL);
 });
 
 // @desc    Get Estonian noun info by singular-nominative form
@@ -331,9 +349,7 @@ const getNounEE = asyncHandler(async (req: any, res: any) => {
     let searchURL = `${EESTI_API_URL}/${req.params.singularNominativeNoun}`;
     if (searchInEnglish) searchURL += '?lg=en';
 
-    getDataFromAPI(searchURL)
-        .then((data) => res.status(200).json(data))
-        .catch((error) => console.error('Error in Estonian API request:', error));
+    respondFromEstonianAPI(res, searchURL);
 });
 
 // @desc    Get Estonian adjective info
@@ -353,9 +369,7 @@ const getAdjectiveEE = asyncHandler(async (req: any, res: any) => {
     let searchURL = `${EESTI_API_URL}/${req.params.singularAdjective}`;
     if (searchInEnglish) searchURL += '?lg=en';
 
-    getDataFromAPI(searchURL)
-        .then((data) => res.status(200).json(data))
-        .catch((error) => console.error('Error in Estonian API request:', error));
+    respondFromEstonianAPI(res, searchURL);
 });
 
 // ===========================================================================

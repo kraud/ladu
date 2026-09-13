@@ -271,7 +271,10 @@
       "label": "Autocompletar {{wordType}}",
       "emptyQuery": "Por favor, introduce primero '{{requiredField}}'.",
       "noMatch": "¡Lo sentimos, no conocemos esta palabra!",
-      "foundMatch": "Hay información sobre esta palabra almacenada en nuestro sistema."
+      "foundMatch": "Hay información sobre esta palabra almacenada en nuestro sistema.",
+      "partialMatch": "No estamos completamente seguros, pero esta es nuestra mejor estimación.",
+      "loading": "Buscando...",
+      "fillButton": "Rellenar"
     }
   }
 }
