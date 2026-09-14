@@ -19,15 +19,11 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { matchesVisibility, type FieldConfig } from './configs/types';
+import { isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
 
 export interface FieldRendererProps {
     field: FieldConfig;
     displayOnly?: boolean;
-}
-
-function isEmptyValue(value: unknown): boolean {
-    if (Array.isArray(value)) return value.length === 0;
-    return value === undefined || value === null || value === '';
 }
 
 function optionLabel(options: { value: string; label: string }[], value: unknown): string {
@@ -59,7 +55,7 @@ export function FieldRenderer({ field, displayOnly = false }: FieldRendererProps
             control={control}
             name={field.name}
             render={({ field: rhf }) => {
-                const hidden = displayOnly && !field.required && isEmptyValue(rhf.value);
+                const hidden = isHiddenInDisplayOnly(field, rhf.value, displayOnly);
                 if (hidden) {
                     return <></>;
                 }

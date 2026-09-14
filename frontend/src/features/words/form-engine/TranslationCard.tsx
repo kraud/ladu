@@ -32,6 +32,7 @@ import { buildYupSchema } from './buildYupSchema';
 import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
 import { FieldRenderer } from './FieldRenderer';
+import { buildLayoutItems, isHiddenInDisplayOnly } from './fieldLayout';
 
 export interface TranslationCardChange {
     cases: WordItem[];
@@ -185,6 +186,23 @@ export function TranslationCard({
         () => (config ? fieldsToCases(config.fields, watched) : []),
         [config, watched],
     );
+
+    // Fields the current form state would actually render — a `visibleWhen`
+    // mismatch or (in `displayOnly`) an empty non-required field is dropped
+    // *before* `buildLayoutItems` groups fields into rows/columns, so a
+    // hidden branch (Spanish adjective gender, German adverb non-gradable)
+    // never leaves a blank cell behind. See `fieldLayout.ts`'s file header.
+    const visibleFields = useMemo(() => {
+        if (!config) return [];
+        return config.fields.filter((field) => {
+            if (field.visibleWhen && !matchesVisibility(field.visibleWhen, watched[field.visibleWhen.field])) {
+                return false;
+            }
+            return !isHiddenInDisplayOnly(field, watched[field.name], displayOnly);
+        });
+    }, [config, watched, displayOnly]);
+
+    const layoutItems = useMemo(() => buildLayoutItems(visibleFields), [visibleFields]);
     const completionState = useMemo(() => {
         if (!schema) return false;
         try {
@@ -239,9 +257,11 @@ export function TranslationCard({
             <Form {...form}>
                 <div className="flex flex-col gap-3">
                     {!displayOnly && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} />}
-                    {config.fields.map((field, index) => (
-                        <Fragment key={field.name}>
-                            {groupHeadingsToPrint(config.fields, index).map((heading) => (
+                    {layoutItems.map((item) => (
+                        <Fragment
+                            key={item.kind === 'field' ? item.field.name : item.fields.map((field) => field.name).join('|')}
+                        >
+                            {groupHeadingsToPrint(visibleFields, item.index).map((heading) => (
                                 <p
                                     key={heading.heading}
                                     className={
@@ -253,7 +273,30 @@ export function TranslationCard({
                                     {heading.heading}
                                 </p>
                             ))}
-                            <FieldRenderer field={field} displayOnly={displayOnly} />
+                            {item.kind === 'field' ? (
+                                <FieldRenderer field={item.field} displayOnly={displayOnly} />
+                            ) : (
+                                <div
+                                    className="grid gap-x-4 gap-y-3"
+                                    style={{ gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, 1fr))` }}
+                                >
+                                    {item.columnHeadings?.map((heading, columnIndex) => (
+                                        <p
+                                            key={`heading-${columnIndex}`}
+                                            className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                                        >
+                                            {heading ?? ''}
+                                        </p>
+                                    ))}
+                                    {item.cells.map((rowFields, rowIndex) =>
+                                        rowFields.map((field, columnIndex) => (
+                                            <div key={`${rowIndex}-${columnIndex}`}>
+                                                {field && <FieldRenderer field={field} displayOnly={displayOnly} />}
+                                            </div>
+                                        )),
+                                    )}
+                                </div>
+                            )}
                         </Fragment>
                     ))}
                 </div>

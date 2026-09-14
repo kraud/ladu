@@ -72,4 +72,37 @@ describe('getFormConfig(Noun, lang) — old field-list parity', () => {
             }
         }
     });
+
+    describe('layout — singular/plural pair onto the same row', () => {
+        it('German: each declension pairs its singular and plural under one row key, columns are Singular/Plural', () => {
+            const config = getFormConfig(PartOfSpeech.noun, Lang.DE)!;
+            expect(config.fields.find((f) => f.name === 'singularNominativ')?.layout).toEqual({
+                row: 'Nominative',
+                column: 'Singular',
+            });
+            expect(config.fields.find((f) => f.name === 'pluralNominativ')?.layout).toEqual({
+                row: 'Nominative',
+                column: 'Plural',
+            });
+            expect(config.fields.find((f) => f.name === 'singularDativ')?.layout).toEqual({
+                row: 'Dative',
+                column: 'Singular',
+            });
+        });
+
+        it('gender and regularity are not paired', () => {
+            const config = getFormConfig(PartOfSpeech.noun, Lang.DE)!;
+            expect(config.fields.find((f) => f.name === 'gender')?.layout).toBeUndefined();
+            expect(config.fields.find((f) => f.name === 'regularity')?.layout).toBeUndefined();
+        });
+
+        it('Estonian: the shortForm property field is not paired', () => {
+            const config = getFormConfig(PartOfSpeech.noun, Lang.EE)!;
+            expect(config.fields.find((f) => f.name === 'shortForm')?.layout).toBeUndefined();
+            expect(config.fields.find((f) => f.name === 'singularNimetav')?.layout).toEqual({
+                row: 'Nominative',
+                column: 'Singular',
+            });
+        });
+    });
 });

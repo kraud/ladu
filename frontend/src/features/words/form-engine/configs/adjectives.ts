@@ -11,7 +11,7 @@
  * primitive Slice 1 built for exactly this shape.
  */
 import { AdjectiveCases, Lang, PartOfSpeech } from '@/ts/enums';
-import type { FieldConfig, FieldVisibility, RadioOption, TranslationFormConfig } from './types';
+import type { FieldConfig, FieldLayout, FieldVisibility, RadioOption, TranslationFormConfig } from './types';
 
 function labelKey(key: string): string {
     return `wordRelated:wordForm.adjective.fields.${key}`;
@@ -27,7 +27,8 @@ function degreeField(
     name: string,
     required: boolean,
     requiredMessageKey?: string,
-    visibleWhen?: FieldVisibility
+    visibleWhen?: FieldVisibility,
+    layout?: FieldLayout
 ): FieldConfig {
     return {
         kind: 'text',
@@ -38,6 +39,7 @@ function degreeField(
         requiredMessageKey,
         lowercase: true,
         visibleWhen,
+        layout,
     };
 }
 
@@ -88,19 +90,24 @@ function buildEsConfig(): TranslationFormConfig {
     const neutralWhen: FieldVisibility = { field: 'gender', equals: 'Neutral' };
     const mfWhen: FieldVisibility = { field: 'gender', equals: 'M/F' };
 
+    // Singular/plural share a row; M/F additionally stacks male above female —
+    // 1 row x 2 columns for Neutral, 2 rows x 2 columns for M/F.
+    const singularColumn = 'Singular';
+    const pluralColumn = 'Plural';
+
     return {
         pos: PartOfSpeech.adjective,
         lang: Lang.ES,
         fields: [
             gender,
             // Neutral branch: both fields required.
-            degreeField(AdjectiveCases.neutralSingularES, 'neutralSingular', true, adjectiveErrorKey(suffix, 'singularNeutralDegreeRequired'), neutralWhen),
-            degreeField(AdjectiveCases.neutralPluralES, 'neutralPlural', true, adjectiveErrorKey(suffix, 'pluralNeutralDegreeRequired'), neutralWhen),
+            degreeField(AdjectiveCases.neutralSingularES, 'neutralSingular', true, adjectiveErrorKey(suffix, 'singularNeutralDegreeRequired'), neutralWhen, { row: 'neutral', column: singularColumn }),
+            degreeField(AdjectiveCases.neutralPluralES, 'neutralPlural', true, adjectiveErrorKey(suffix, 'pluralNeutralDegreeRequired'), neutralWhen, { row: 'neutral', column: pluralColumn }),
             // M/F branch: only the singulars are required, the plurals stay optional — verbatim old-app asymmetry.
-            degreeField(AdjectiveCases.maleSingularES, 'maleSingular', true, adjectiveErrorKey(suffix, 'singularMasculineDegreeRequired'), mfWhen),
-            degreeField(AdjectiveCases.malePluralES, 'malePlural', false, undefined, mfWhen),
-            degreeField(AdjectiveCases.femaleSingularES, 'femaleSingular', true, adjectiveErrorKey(suffix, 'singularFemaleDegreeRequired'), mfWhen),
-            degreeField(AdjectiveCases.femalePluralES, 'femalePlural', false, undefined, mfWhen),
+            degreeField(AdjectiveCases.maleSingularES, 'maleSingular', true, adjectiveErrorKey(suffix, 'singularMasculineDegreeRequired'), mfWhen, { row: 'male', column: singularColumn }),
+            degreeField(AdjectiveCases.malePluralES, 'malePlural', false, undefined, mfWhen, { row: 'male', column: pluralColumn }),
+            degreeField(AdjectiveCases.femaleSingularES, 'femaleSingular', true, adjectiveErrorKey(suffix, 'singularFemaleDegreeRequired'), mfWhen, { row: 'female', column: singularColumn }),
+            degreeField(AdjectiveCases.femalePluralES, 'femalePlural', false, undefined, mfWhen, { row: 'female', column: pluralColumn }),
         ],
     };
 }

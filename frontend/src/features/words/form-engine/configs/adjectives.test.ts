@@ -91,6 +91,26 @@ describe('getFormConfig(Adjective, lang) — old field-list parity', () => {
         it('neither branch renders while gender is unset', () => {
             expect(visibleNames(config.fields, { gender: '' })).toEqual(['gender']);
         });
+
+        it('layout pairs singular/plural onto the same row, one row per gender branch', () => {
+            expect(config.fields.find((f) => f.name === 'neutralSingular')?.layout).toEqual({
+                row: 'neutral',
+                column: 'Singular',
+            });
+            expect(config.fields.find((f) => f.name === 'neutralPlural')?.layout).toEqual({
+                row: 'neutral',
+                column: 'Plural',
+            });
+            expect(config.fields.find((f) => f.name === 'maleSingular')?.layout).toEqual({
+                row: 'male',
+                column: 'Singular',
+            });
+            expect(config.fields.find((f) => f.name === 'femalePlural')?.layout).toEqual({
+                row: 'female',
+                column: 'Plural',
+            });
+            expect(config.fields.find((f) => f.name === 'gender')?.layout).toBeUndefined();
+        });
     });
 
     it('every field.caseName is field.name + the language suffix, except persisted:false fields', () => {

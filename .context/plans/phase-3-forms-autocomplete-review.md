@@ -143,7 +143,9 @@ Each ends runnable; the user commits and re-confirms between them.
 | 6 — Review table core | ✅ done 2026-09-14 |
 | 7 — filters, toolbar, bulk bar | ✅ done 2026-09-14 |
 | 8 — cell dialog | ✅ done 2026-09-14 |
-| 9 — phase gate | not started |
+| 9 — form layout: paired rows (nouns, Spanish adjectives) | ✅ done 2026-09-15 |
+| 10 — form layout: verb tense columns + width | not started |
+| 11 — phase gate | not started |
 
 **Slice 0 — persist this plan.** This file.
 
@@ -984,7 +986,90 @@ rather than reopening Slice 7:
 (no net change — no new tests needed, existing coverage already pins the toggle's two accessible
 names and the conditional content around it). Backend untouched.
 
-**Slice 9 — phase gate.** `e2e/tests/phase-3-review.spec.ts`, doc updates, full green run.
+**Slice 9 — form layout: paired rows (nouns, Spanish adjectives).** User feedback after Slice 8:
+the form engine's behaviour is correct but every `TranslationCard` renders `config.fields` as one
+flat vertical list, wasting the horizontal space the screen already has — a German noun is 8
+stacked case inputs, a German verb 24. Nouns should pair each grammatical case's singular and
+plural onto the same row; Spanish adjectives should pair singular/plural, with the M/F branch
+stacking male above female (2 rows x 2 columns). Verbs (tense-as-column) and the width changes
+they need are Slice 10 — this slice only touches configs with no `layout` conflicts today, so
+verb rendering is provably unchanged.
+
+### Decisions taken with the user (2026-09-15)
+
+- **D32 — verb forms get room from a wide shell + full-width verb cards**, not a fixed dialog
+  width or horizontal scroll. The word routes will opt into `AppShell`'s existing (currently dead)
+  `wide` prop for `max-w-7xl`; verb cards render one per row while other parts of speech keep the
+  2-up card grid. (Applies to Slice 10.)
+- **D33 — the cell dialog widens only for verbs** (~960px), staying 640px for nouns, adjectives
+  and adverbs. (Applies to Slice 10.)
+- **D34 — field labels do not change.** Pairing fields onto a row does not introduce column
+  captions or shortened per-field labels for nouns/adjectives (verbs do get column captions —
+  they already exist today as `group` headings, just repositioned) — no new i18n keys, no risk to
+  `getByLabel` selectors.
+- **D35 — the grid layout applies in read-only mode too** (word detail page, dialog view mode), so
+  viewing and editing look the same. Empty optional fields are already hidden in `displayOnly`
+  (`FieldRenderer`'s existing rule); the layout engine excludes them before measuring rows/columns
+  so a sparse word collapses cleanly instead of leaving gaps.
+
+### Outcome — what landed (2026-09-15)
+
+- **`configs/types.ts`** — new `FieldLayout` (`row`, `column`, optional `columnHeading`), attached
+  as `layout?: FieldLayout` on `FieldConfigBase`. Purely presentational, like `FieldGroup`: never
+  read by `buildYupSchema`, `fieldsToCases`, or `casesToFieldValues`.
+- **New `form-engine/fieldLayout.ts`** — `buildLayoutItems(fields)` groups an already-filtered
+  `FieldConfig[]` into the sequence `TranslationCard` renders: a field with no `layout` stays a
+  standalone item; a maximal run of consecutive `layout`-bearing fields sharing the same `group`
+  stack becomes one grid block (rows/columns derived from `layout.row`/`layout.column` in
+  first-appearance order, `cells[r][c]` left `undefined` where no field claims that pairing).
+  Callers must pre-filter to what will actually render — a hidden field inside a block would
+  otherwise leave a blank row/column. `isHiddenInDisplayOnly` (the `displayOnly` half of that
+  filter; `visibleWhen` already had `matchesVisibility`) moved here from `FieldRenderer.tsx`'s
+  private `isEmptyValue`, so both call sites share one rule.
+- **`TranslationCard.tsx`** — computes `visibleFields` (config fields minus `visibleWhen` misses
+  and, in `displayOnly`, empty non-required fields) via `useMemo` off the existing `watched`
+  state, then `buildLayoutItems(visibleFields)` instead of mapping `config.fields` directly.
+  `groupHeadingsToPrint` now diffs against `visibleFields` (previously the unfiltered
+  `config.fields`) — a no-op for every config today (adjectives/nouns carry no `group` at all;
+  verb tense fields have no `visibleWhen`), kept for a hidden field between two same-heading
+  siblings, a case Slice 10 could introduce. A grid block renders as one `display:grid` div
+  (`gridTemplateColumns` sized to its column count); row-major DOM order plus native grid
+  auto-placement needs no explicit `gridRow`/`gridColumn` styles, so field order inside a block
+  still matches config order.
+- **`FieldRenderer.tsx`** — its private `isEmptyValue` and inline displayOnly-hidden check are
+  now the shared `isEmptyValue`/`isHiddenInDisplayOnly` imports from `fieldLayout.ts`; no
+  behavioural change.
+- **`configs/nouns.ts`** — `toTextField` adds `layout: { row: row.declination, column:
+  row.plurality }` for real case rows (`NounData`); property rows (EE's `shortForm`) get no
+  layout and stay full-width.
+- **`configs/adjectives.ts`** — Spanish only: `degreeField` gained an optional `layout` param;
+  the neutral/male/female branch fields each get `{ row: 'neutral'|'male'|'female', column:
+  'Singular'|'Plural' }`. English, German, Estonian and every adverb config: untouched.
+
+**Tests**: new `fieldLayout.test.ts` (18 tests) — standalone-field passthrough, 1x2 and multi-row
+grid derivation, first-appearance row/column ordering, `columnHeadings` emission, undefined cells
+for un-paired positions, a new block starting when the `group` stack changes, the Spanish-adjective
+shape collapsing to just the surviving branch once hidden fields are pre-filtered, and
+`isEmptyValue`/`isHiddenInDisplayOnly` directly. `configs/nouns.test.ts` and
+`configs/adjectives.test.ts` gained `layout` assertions per language/branch. Every pre-existing
+`TranslationCard`, `FieldRenderer`, `WordForm`, `WordPage` and `CellDialog` test passed
+**unmodified** — they are label/role-based, which is the regression signal that this stayed
+presentational.
+
+**Verified**: `npx tsc --noEmit -p frontend` clean; `npx vitest run -w frontend` **469 → 491**
+(+22: 18 in new `fieldLayout.test.ts`, 3 in `nouns.test.ts`, 1 in `adjectives.test.ts`) — full
+suite green, no regressions, no existing test edited. Browser (manual, via a throwaway
+registered+verified+deleted account against the local dev stack): German noun shows 4 declension
+rows of Singular/Plural side by side; Spanish adjective shows the M/F branch as 2 rows x 2 columns
+(male above female) and collapses to 1 row x 2 columns back on Neutral. Backend untouched.
+
+**Slice 10 — form layout: verb tense columns + width.** Not started. Moves each verb tense's
+`group` entry into `layout.column`/`layout.columnHeading` (mood stays in `group`, printed once
+above the block); the four width changes from D32/D33 (`app/router.tsx` `staticData.wide` on the
+word routes, `protected-layout.tsx` reading it, a shared `translationGridClass(pos)` for the
+`WordForm.tsx`/`WordPage.tsx` card grids, `CellDialog.tsx`'s verb-dependent max width).
+
+**Slice 11 — phase gate.** `e2e/tests/phase-3-review.spec.ts`, doc updates, full green run.
 
 ## Files
 

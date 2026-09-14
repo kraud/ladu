@@ -49,6 +49,24 @@ export function matchesVisibility(visibility: FieldVisibility, value: unknown): 
 }
 
 /**
+ * Groups this field into a 2D layout block with every sibling field that
+ * shares `row`/`column` identity and sits in the same consecutive run (see
+ * `fieldLayout.ts`) — a noun case's singular next to its plural, a Spanish
+ * adjective's gender/number grid, a verb's tense-as-column grid. Purely
+ * presentational: never affects validation, visibility or persistence, and
+ * has no bearing on `config.fields`'s own order (the source of truth the
+ * regression tests pin).
+ */
+export interface FieldLayout {
+    /** Row identity within the block; fields sharing it render side by side. */
+    row: string;
+    /** Column identity within the block. */
+    column: string;
+    /** Caption printed once above the column. Omit for no caption (nouns, adjectives). */
+    columnHeading?: string;
+}
+
+/**
  * An extra `.matches()` layered on top of a text field's base rules (Spanish
  * infinitive must end in `ar`/`er`/`ir`, German in `en`/`ern`/`eln`, Estonian
  * `-ma` infinitive in `ma`).
@@ -118,6 +136,7 @@ interface FieldConfigBase {
     group?: FieldGroup[];
     visibleWhen?: FieldVisibility;
     adornment?: FieldAdornment;
+    layout?: FieldLayout;
 }
 
 export interface TextFieldConfig extends FieldConfigBase {
