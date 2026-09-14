@@ -641,6 +641,14 @@
     flex-wrap: wrap;
     gap: 6px;
   }
+  /* `will-change` hints the reorder animation (`lib/useFlipAnimation.ts`) —
+     it only ever transitions `transform`, so this is the one property that
+     benefits. `transition` on opacity/color (not transform, which the FLIP
+     animation drives imperatively via inline style) eases the grey-out. */
+  .lang-chip {
+    will-change: transform;
+    transition: opacity 0.15s ease, color 0.15s ease;
+  }
   .lang-chip[data-hidden] {
     opacity: 0.55;
     color: var(--muted);

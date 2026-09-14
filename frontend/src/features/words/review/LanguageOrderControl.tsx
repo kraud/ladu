@@ -9,12 +9,18 @@
  * greys its chip out via `[data-hidden]` without moving it. A hidden chip's
  * arrows are disabled (nothing to reorder it relative to — hidden order was
  * never meaningful, only the visible set's order ever reaches the URL).
+ *
+ * A ← / → move animates the two swapped chips sliding past each other
+ * (`lib/useFlipAnimation.ts`) rather than jumping instantly, so a reorder
+ * reads as a movement — the visual feedback a drag gesture would otherwise
+ * give for free, now that dragging itself is gone (D19).
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { languageByKey } from '@/lib/language';
+import { useFlipAnimation } from '@/lib/useFlipAnimation';
 import type { LangKey } from '@/features/words/types';
 import { MIN_VISIBLE_LANGUAGES } from './search';
 import { hideLanguage, initialOrder, moveWithinOrder, reconcileOrder, showLanguage } from './languageOrder';
@@ -33,6 +39,7 @@ const ARROW_BUTTON_CLASS =
 export function LanguageOrderControl({ active, allLanguages, onChange }: LanguageOrderControlProps) {
     const { t } = useTranslation();
     const [order, setOrder] = useState(() => initialOrder(active, allLanguages));
+    const registerChip = useFlipAnimation<LangKey>(order);
 
     // Reconciles `order` when the account's language set changes, or when
     // `active` changed from OUTSIDE this component (a direct URL edit,
@@ -76,6 +83,7 @@ export function LanguageOrderControl({ active, allLanguages, onChange }: Languag
                     return (
                         <span
                             key={key}
+                            ref={registerChip(key)}
                             className="chip lang-chip"
                             data-lang={key}
                             data-hidden={isVisible ? undefined : true}
