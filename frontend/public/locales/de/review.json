@@ -8,5 +8,46 @@
     "hiddenLanguages": "Versteckt",
     "public": "Öffentlich",
     "description": "Beschreibung"
+  },
+  "table": {
+    "posAbbr": {
+      "noun": "subst.",
+      "verb": "v.",
+      "adjective": "adj.",
+      "adverb": "adv.",
+      "preposition": "präp.",
+      "conjunction": "konj.",
+      "pronoun": "pron.",
+      "interjection": "interj.",
+      "properNoun": "eigenn.",
+      "numerals": "num."
+    },
+    "selectAll": "Alle Zeilen auswählen",
+    "selectRow": "Dieses Wort auswählen",
+    "ownerMe": "Du",
+    "ownerGroup": "Von einem gefolgten Tag",
+    "ringDetail": "{{value}} von {{total}} Fällen",
+    "addTranslation": "{{language}}-Übersetzung hinzufügen",
+    "blockedTranslation": "Nicht übersetzt — schreibgeschütztes Wort aus einem gefolgten Tag",
+    "loaded": "{{loaded}} von {{total}} angezeigt",
+    "allLoaded": "Alle {{total}} geladen",
+    "loadMore": "Mehr laden"
+  },
+  "empty": {
+    "noWords": {
+      "title": "Noch keine Wörter",
+      "description": "Füge dein erstes Wort hinzu, um dein Wörterbuch aufzubauen.",
+      "action": "Wort hinzufügen"
+    },
+    "noMatches": {
+      "title": "Kein Wort entspricht deinen Filtern",
+      "description": "Versuche eine andere Suche oder lösche die Filter.",
+      "action": "Filter löschen"
+    },
+    "noLanguages": {
+      "title": "Füge eine zweite Sprache hinzu, um Review zu nutzen",
+      "description": "Review braucht mindestens zwei konfigurierte Sprachen.",
+      "action": "Zum Konto"
+    }
   }
 }

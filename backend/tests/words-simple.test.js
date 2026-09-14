@@ -6,6 +6,11 @@
  * the `{ items, nextCursor }` response shape, followed-tag access, and the
  * getRequiredFieldsData fix (an unrecognised language/part of speech no
  * longer 500s the whole list).
+ *
+ * Phase 3 Slice 6 added `total` — the count matching the filters alone,
+ * computed before the cursor predicate so it stays constant across pages of
+ * one filter set (see the pagination block below for what "constant" means
+ * across a sequence of requests where a row is inserted mid-page).
  */
 
 const request = require('supertest');
@@ -172,6 +177,7 @@ describe('GET /api/words/simple - filters', () => {
         const ids = res.body.items.map((w) => w.id);
         expect(ids).toContain(noun.body.id);
         expect(ids).not.toContain(verb.body.id);
+        expect(res.body.total).toBe(1);
     });
 
     it('filters by multiple pos values (repeated key)', async () => {
@@ -267,6 +273,7 @@ describe('GET /api/words/simple - pagination', () => {
         const page1 = await request(app).get('/api/words/simple?limit=2').set('Authorization', `Bearer ${token}`);
         expect(page1.body.items).toHaveLength(2);
         expect(page1.body.nextCursor).not.toBeNull();
+        expect(page1.body.total).toBe(3);
 
         // Insert a fourth word AFTER page 1's cursor was issued.
         const dRes = await create(token, {
@@ -278,6 +285,12 @@ describe('GET /api/words/simple - pagination', () => {
             .set('Authorization', `Bearer ${token}`);
         expect(page2.body.items).toHaveLength(1);
         expect(page2.body.nextCursor).toBeNull();
+        // The filtered total is computed before the cursor is applied, so it
+        // reflects the count as of THIS request (now 4, the word inserted
+        // between pages included) rather than page 1's total of 3 — it is
+        // stable across pages of the SAME request sequence, not a frozen
+        // snapshot from when the cursor was issued.
+        expect(page2.body.total).toBe(4);
 
         const allIds = [...page1.body.items, ...page2.body.items].map((w) => w.id);
         expect(new Set(allIds)).toEqual(new Set(createdIds));

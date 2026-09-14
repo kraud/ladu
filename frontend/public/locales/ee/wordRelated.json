@@ -9,7 +9,11 @@
     "wordNotFound": "Seda sõna ei leitud.",
     "notAuthorized": "Sul pole juurdepääsu sellele sõnale.",
     "missingPartOfSpeech": "Palun vali sõnaliik.",
-    "notEnoughTranslations": "Lisa enne salvestamist vähemalt kaks tõlget."
+    "notEnoughTranslations": "Lisa enne salvestamist vähemalt kaks tõlget.",
+    "invalidCursor": "See lehelink on aegunud — laadi loend uuesti.",
+    "noWordIdsProvided": "Kustutamiseks vali vähemalt üks sõna.",
+    "someWordsMissing": "Mõnda valitud sõnadest ei leitud.",
+    "notAuthorizedToDeleteSome": "Saad kustutada ainult endale kuuluvaid sõnu."
   },
   "displayWord": {
     "titlePos": "Üksikasjalik vaatamine: {{currentPoS}}",

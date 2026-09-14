@@ -31,6 +31,7 @@ const { getWordsIdFromFollowedTagsByUserId } = require("./tagController.ts");
 
 const {
   and,
+  count,
   desc,
   eq,
   ilike,
@@ -451,6 +452,13 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     conditions.push(inArray(words.id, tagWordIds));
   }
 
+  // Total matching the filters alone (not the cursor page) — computed before
+  // the keyset predicate is added below, so it stays constant across pages.
+  const [{ value: total }] = await db
+    .select({ value: count() })
+    .from(words)
+    .where(and(...conditions));
+
   if (req.query.cursor !== undefined) {
     const cursor = decodeCursor(req.query.cursor);
     if (!cursor) {
@@ -497,7 +505,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     .filter((w): w is WordResponse => w !== undefined)
     .map(simplifyWord);
 
-  res.status(200).json({ items, nextCursor });
+  res.status(200).json({ items, nextCursor, total });
 });
 
 // @desc    Get a single word by ID (with tags resolved)

@@ -9,7 +9,11 @@
     "wordNotFound": "This word could not be found.",
     "notAuthorized": "You don't have access to this word.",
     "missingPartOfSpeech": "Please choose a part of speech.",
-    "notEnoughTranslations": "Add at least two translations before saving."
+    "notEnoughTranslations": "Add at least two translations before saving.",
+    "invalidCursor": "That page link has expired — reload the list.",
+    "noWordIdsProvided": "Select at least one word to delete.",
+    "someWordsMissing": "Some of the selected words could not be found.",
+    "notAuthorizedToDeleteSome": "You can only delete words you own."
   },
   "displayWord": {
     "titlePos": "Detailed view: {{currentPoS}}",

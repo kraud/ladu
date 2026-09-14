@@ -405,6 +405,191 @@
     border-top: 1px solid var(--border);
     margin: 0;
   }
+
+  /* ─── review table (Phase 3 Slice 6) ─────────────────────────── */
+  .main-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .tablewrap {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100dvh - 296px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .dtable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    min-width: 640px;
+  }
+  .dtable th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .dtable th.lang-col {
+    color: var(--fg);
+  }
+  .dtable td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .dtable td.word-cell {
+    max-width: 220px;
+  }
+  .dtable tbody tr {
+    transition: background 0.08s ease;
+  }
+  .dtable tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .dtable tbody tr:hover {
+    background: var(--hover);
+  }
+  .dtable tbody tr.selected {
+    background: var(--accent-soft);
+  }
+  .dtable tbody tr.selected:hover {
+    background: var(--accent-soft2);
+  }
+
+  .cell-word {
+    font-weight: 500;
+  }
+  .cell-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    border-radius: 5px;
+  }
+  .cell-btn:hover {
+    background: var(--fg-soft2);
+  }
+  .cell-add {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px dashed var(--fg-soft2);
+    color: var(--muted);
+  }
+  .cell-add:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .cell-block {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    color: var(--fg-soft2);
+  }
+
+  .pos-abbr {
+    display: block;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .owner-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+  }
+  .owner-me {
+    background: var(--fg-soft2);
+    color: var(--fg);
+  }
+  .owner-group {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  /* Nouns only, next to the primary case when the "Display gender" toolbar
+     switch (Slice 7) is on. `.gender-m` uses the --lang-gb token rather than
+     the mockup's literal #2c4a8a — same color, ported through the existing
+     per-language token instead of a second copy of the hex. */
+  .gender-chip {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .gender-m {
+    background: color-mix(in oklch, var(--lang-gb) 14%, transparent);
+    color: var(--lang-gb);
+  }
+  .gender-f {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .gender-n {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+
+  /* completion ring — hover on a language cell reveals `.ring-detail` */
+  .ring {
+    --pct: 50;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex: none;
+    background: conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--fg-soft2) 0);
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+  .ring::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: inherit;
+    position: absolute;
+  }
+  .ring-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .ring-wrap .ring-detail {
+    display: none;
+  }
+  td:hover .ring-wrap .ring-detail,
+  .ring-wrap:hover .ring-detail {
+    display: inline;
+  }
+
+  .footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 /* ─── responsive (≤920px) ────────────────────────────────────── */

@@ -9,7 +9,11 @@
     "wordNotFound": "No se pudo encontrar esta palabra.",
     "notAuthorized": "No tienes acceso a esta palabra.",
     "missingPartOfSpeech": "Por favor, elige una categoría gramatical.",
-    "notEnoughTranslations": "Añade al menos dos traducciones antes de guardar."
+    "notEnoughTranslations": "Añade al menos dos traducciones antes de guardar.",
+    "invalidCursor": "Ese enlace de página ha caducado — vuelve a cargar la lista.",
+    "noWordIdsProvided": "Selecciona al menos una palabra para eliminar.",
+    "someWordsMissing": "No se pudieron encontrar algunas de las palabras seleccionadas.",
+    "notAuthorizedToDeleteSome": "Solo puedes eliminar palabras que te pertenecen."
   },
   "displayWord": {
     "titlePos": "Vista detallada: {{currentPoS}}",

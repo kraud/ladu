@@ -8,5 +8,46 @@
     "hiddenLanguages": "Hidden",
     "public": "Public",
     "description": "Description"
+  },
+  "table": {
+    "posAbbr": {
+      "noun": "n.",
+      "verb": "v.",
+      "adjective": "adj.",
+      "adverb": "adv.",
+      "preposition": "prep.",
+      "conjunction": "conj.",
+      "pronoun": "pron.",
+      "interjection": "interj.",
+      "properNoun": "prop.",
+      "numerals": "num."
+    },
+    "selectAll": "Select all rows",
+    "selectRow": "Select this word",
+    "ownerMe": "You",
+    "ownerGroup": "From a followed tag",
+    "ringDetail": "{{value}} of {{total}} cases",
+    "addTranslation": "Add {{language}} translation",
+    "blockedTranslation": "Not translated — read-only word from a followed tag",
+    "loaded": "Showing {{loaded}} of {{total}}",
+    "allLoaded": "All {{total}} loaded",
+    "loadMore": "Load more"
+  },
+  "empty": {
+    "noWords": {
+      "title": "No words yet",
+      "description": "Add your first word to start building your dictionary.",
+      "action": "Add a word"
+    },
+    "noMatches": {
+      "title": "No words match your filters",
+      "description": "Try a different search or clear your filters.",
+      "action": "Clear filters"
+    },
+    "noLanguages": {
+      "title": "Add a second language to use Review",
+      "description": "Review needs at least two configured languages.",
+      "action": "Go to Account"
+    }
   }
 }

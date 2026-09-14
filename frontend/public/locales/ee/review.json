@@ -8,5 +8,46 @@
     "hiddenLanguages": "Peidetud",
     "public": "Avalik",
     "description": "Kirjeldus"
+  },
+  "table": {
+    "posAbbr": {
+      "noun": "nim.",
+      "verb": "tgs.",
+      "adjective": "omd.",
+      "adverb": "mrs.",
+      "preposition": "kaassõna",
+      "conjunction": "sidesõna",
+      "pronoun": "asesõna",
+      "interjection": "hüüdsõna",
+      "properNoun": "pärisnim.",
+      "numerals": "arvsõna"
+    },
+    "selectAll": "Vali kõik read",
+    "selectRow": "Vali see sõna",
+    "ownerMe": "Sina",
+    "ownerGroup": "Jälgitavast sildist",
+    "ringDetail": "{{value}} / {{total}} vormist",
+    "addTranslation": "Lisa {{language}} tõlge",
+    "blockedTranslation": "Tõlkimata — jälgitava sildi kirjutuskaitstud sõna",
+    "loaded": "Näidatakse {{loaded}} / {{total}}",
+    "allLoaded": "Kõik {{total}} laaditud",
+    "loadMore": "Laadi rohkem"
+  },
+  "empty": {
+    "noWords": {
+      "title": "Veel pole sõnu",
+      "description": "Lisa oma esimene sõna, et alustada sõnastiku koostamist.",
+      "action": "Lisa sõna"
+    },
+    "noMatches": {
+      "title": "Ükski sõna ei vasta su filtritele",
+      "description": "Proovi teistsugust otsingut või tühjenda filtrid.",
+      "action": "Tühjenda filtrid"
+    },
+    "noLanguages": {
+      "title": "Lisa teine keel, et kasutada ülevaadet",
+      "description": "Ülevaade vajab vähemalt kahte seadistatud keelt.",
+      "action": "Mine kontole"
+    }
   }
 }

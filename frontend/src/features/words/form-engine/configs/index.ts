@@ -44,3 +44,10 @@ export type {
     TextFieldConfig,
     TranslationFormConfig,
 } from './types';
+
+// `matchesVisibility` is the one place the `visibleWhen`/`invert` comparison
+// lives (`configs/types.ts`); the Review table's completion-ring denominator
+// (`features/words/review/completion.ts`) needs the exact same comparison
+// `TranslationCard.tsx` uses, so it is re-exported here rather than
+// reimplemented against a second copy that could drift.
+export { matchesVisibility } from './types';

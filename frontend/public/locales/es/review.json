@@ -8,5 +8,46 @@
     "hiddenLanguages": "Oculto",
     "public": "Público",
     "description": "Descripción"
+  },
+  "table": {
+    "posAbbr": {
+      "noun": "sust.",
+      "verb": "v.",
+      "adjective": "adj.",
+      "adverb": "adv.",
+      "preposition": "prep.",
+      "conjunction": "conj.",
+      "pronoun": "pron.",
+      "interjection": "interj.",
+      "properNoun": "n. pr.",
+      "numerals": "núm."
+    },
+    "selectAll": "Seleccionar todas las filas",
+    "selectRow": "Seleccionar esta palabra",
+    "ownerMe": "Tú",
+    "ownerGroup": "De una etiqueta seguida",
+    "ringDetail": "{{value}} de {{total}} casos",
+    "addTranslation": "Añadir traducción en {{language}}",
+    "blockedTranslation": "Sin traducir — palabra de solo lectura de una etiqueta seguida",
+    "loaded": "Mostrando {{loaded}} de {{total}}",
+    "allLoaded": "Las {{total}} cargadas",
+    "loadMore": "Cargar más"
+  },
+  "empty": {
+    "noWords": {
+      "title": "Todavía no hay palabras",
+      "description": "Añade tu primera palabra para empezar a construir tu diccionario.",
+      "action": "Añadir una palabra"
+    },
+    "noMatches": {
+      "title": "Ninguna palabra coincide con tus filtros",
+      "description": "Prueba otra búsqueda o borra los filtros.",
+      "action": "Borrar filtros"
+    },
+    "noLanguages": {
+      "title": "Añade un segundo idioma para usar Revisión",
+      "description": "Revisión necesita al menos dos idiomas configurados.",
+      "action": "Ir a mi cuenta"
+    }
   }
 }

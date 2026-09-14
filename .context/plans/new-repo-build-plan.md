@@ -235,7 +235,7 @@ Performed 2026-09-05, before this plan was written:
 | 0 — Scaffold + backend copy | ✅ done — commit `c030b68`; backend 130/130 green |
 | 1 — Auth + app shell | ✅ **done & committed** 2026-09-10 — merged to `main` via PR #1 (`0cf091f`); final state backend 144/144, frontend 98/98, e2e 7/7, build green (breakdown below) |
 | 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
-| 3 — Form engine completion + autocomplete + Review | 🟡 planned 2026-09-12 — plan: [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md); 10 slices (0–9), not yet started |
+| 3 — Form engine completion + autocomplete + Review | 🟡 in progress 2026-09-12 — plan: [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md); 10 slices (0–9), **0–6 done**, 7–9 remain |
 | 3.5, 4–8 | not started |
 
 - **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).
@@ -261,7 +261,7 @@ Deviations agreed with the user (full text in the plan's Slice 4/5 outcomes): no
 **Dashboard/metrics re-scoped out of Phase 1 (2026-09-10):** Slice 4 originally bundled the app shell with a Dashboard reading `getUserMetrics`. Since that endpoint aggregates `words` + `translations` only, it has nothing to show until Phases 2–3 exist. Slice 4 now ships the shell plus a Home page that is only the welcome banner; the full Dashboard (metrics query, stat cards, both word-derived charts) moved to the new **Phase 3.5** — see [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md). Phase 5 lost its "+ Dashboard charts" for the same reason. The `getUserMetrics` path correction (blueprint's `/api/metrics/...` → real `/api/users/getUserMetrics`) now lives in the Phase 3.5 file.
 
 **`_id` correction (2026-09-08):** the `_id` MongoDB artifact is being removed as-we-go, not in one refactor — see the standing rule in §4. Frontend done in Slice 2: `ts/interfaces.ts` (`UserData`/`NotificationData`/`FriendshipData`/`TagData`/`FilterItem` → `id`) and `authStore` (`RawUser._id` and the `raw._id` fallback dropped) plus their tests. **Slice 3 (2026-09-08) swept the entire auth/user/metrics backend surface** (Option B, agreed with the user): `serializeUser` / `serializeLoginUser` / `publicUserResponse` / `authMiddleware` (`serializeAuthenticatedUser` wrapper deleted) / `getBasicUserMetrics`'s internal arg / `metricController.calculateBasicUserMetrics`'s param type — all `id` now, no `_id` anywhere in that surface. `backend/tests/auth.test.js` plus the `registerAndLogin` call sites in `tests/{words,exercises,tags,notifications}.test.js` updated; backend 130/130 green. **Remaining `_id` aliases** live only in `wordController` / `tagController` / `notificationController` / `exerciseController` responses — stripped in their consuming phases (2/4/6). Slice 5's backend scope is now just the bcrypt-hash and `passwordTokens` leaks + the phase gate.
-- **Phase 2 Slice 1 (2026-09-10):** the word-response surface is now `id`-only — `WordResponse` / `AssembledTranslation` (`services/wordService.ts`), `simplifyWord` and the `deleteWord` `{ id }` response (`wordController.ts`). `exerciseController.fetchWordsWithData` remaps to its own internal legacy `_id` shape so the exercise-generation helpers are untouched. Tests updated: `words.test.js`, `exercises.test.js`, `snapshots.test.js`, `tags.test.js` (word-id reads), `unit/wordService.test.js`. Still carrying `_id`: `tagController` (`normalizeTag`), `notificationController`, and the `/simple` + tag-filter request-input readers — stripped in Phases 4 / 6.
+- **Phase 2 Slice 1 (2026-09-10):** the word-response surface is now `id`-only — `WordResponse` / `AssembledTranslation` (`services/wordService.ts`), `simplifyWord` and the `deleteWord` `{ id }` response (`wordController.ts`). `exerciseController.fetchWordsWithData` remaps to its own internal legacy `_id` shape so the exercise-generation helpers are untouched. Tests updated: `words.test.js`, `exercises.test.js`, `snapshots.test.js`, `tags.test.js` (word-id reads), `unit/wordService.test.js`. Still carrying `_id`: `tagController` (`normalizeTag`) and `notificationController` — stripped in Phases 4 / 6. The `/simple` + tag-filter request-input readers were stripped ahead of schedule by Phase 3 Slice 5 (2026-09-13): `getWordsSimplified` now takes a flat, repeatable `?tag=<uuid>` param instead of a JSON `filters` array keyed by `_id`.
 
 ### Phase 2 — [`phase-2-noun-crud.md`](./phase-2-noun-crud.md)
 
@@ -278,6 +278,36 @@ Deviations agreed with the user (full text in the plan's Slice 4/5 outcomes): no
 | 6 — phase gate: `phase-2-noun-crud.spec.ts` + docs + full green run | ✅ done 2026-09-12 — real-stack e2e spec (2 tests); found and fixed a real bug along the way (below); final gate backend **145/145**, frontend **188/188**, e2e **9/9**, build green; `grep -r "_id" frontend/src/features/words` = 0 |
 
 **Bug found by the Slice 6 e2e gate:** `WordPage`'s not-found/403 handling and its **Return** button called `router.history.back()` unconditionally. For a *direct* landing on `/word/:id` (a bookmarked or shared link, or — as the e2e non-owner test does — a hard `page.goto`) there is no client-side history to pop into: the browser either no-ops or unloads the current document for whatever came before the tab's session, taking the just-shown toast down with it before it's ever seen. Fixed with `useCanGoBack()`: when there's nothing to go back to, fall back to a client-side `navigate({ to: '/' })`, which stays inside the SPA and keeps the toast visible. Same-session "Return" clicks are unaffected. See `WordPage.tsx`'s `goBack()` and the Phase 2 plan's Slice 6 outcome for the full e2e trace that surfaced this.
+
+### Phase 3 — [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md)
+
+🟡 **In progress.** Ten slices (0–9); the user commits and re-confirms between each. Decisions
+D1–D7 taken 2026-09-12 (tags deferred to Phase 4; the in-cell translation editor ships last so it
+can be cut; no header global search; language order lives in the URL; verb/adjective/adverb labels
+composed from pronoun/tense tables, not enumerated per case). D8–D12 taken 2026-09-14 for Slice 6
+(the list endpoint gains a `total`; the table is styled with ported mockup CSS; Slice 6 already
+reads/sends URL filters; no sorting yet; the completion ring reads as a case count, not a percent).
+
+| Slice | Status |
+|---|---|
+| 0 — persist the plan | ✅ done |
+| 1 — form engine v2 (7 `FieldConfig` additions: select/multi-select/group/visibleWhen/pattern/adornment/persisted) | ✅ done 2026-09-12 — frontend **188 → 220**, build green |
+| 2 — verb configs (4 languages, pronoun + tense tables) | ✅ done 2026-09-13 — frontend **220 → 237** |
+| 3 — adjective and adverb configs (7 configs; `visibleWhen.invert` added) | ✅ done 2026-09-13 — frontend **237 → 259** |
+| 4 — autocomplete (8-endpoint registry, per-instance debounce, Estonian 502-on-failure backend fix) | ✅ done 2026-09-13 — frontend **259 → 296**; backend **145 → 148** |
+| 5 — backend: list contract (`?cursor=&limit=`, flat `pos`/`gender`/`q`, `{ items, nextCursor }`) | ✅ done 2026-09-13 — backend **148 → 161** (new `words-simple.test.js`, 13 tests) |
+| 6 — Review table core (`WordSimpleBE`, `useWordsInfinite`/`useBulkDeleteWords`, `ReviewTable` on TanStack Table, completion ring, both empty states) | ✅ done 2026-09-14 — added `total` to `/simple` (D8, backend **161 → 163**); frontend **296 → 378**, build green; route `/review` now real |
+| 7 — filters, toolbar, bulk bar | not started |
+| 8 — cell dialog | not started |
+| 9 — phase gate | not started |
+
+Full per-slice detail (deviations, exact files, test breakdowns) lives in the phase plan file
+linked above, appended as each slice lands — Slice 6's outcome there also has the two real findings
+worth knowing without opening the full record: `ReviewTable` had to become fully router/store-free
+(navigation as callback props, not `<Link>`) once a test proved `renderWithProviders` has no router
+context; and the backend's any-401-clears-the-session interceptor is a latent hazard the bulk-delete
+UI closes by construction (`enableRowSelection` excludes non-owned rows) rather than by patching
+the interceptor itself.
 
 ### Phase 3.5 — [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md)
 

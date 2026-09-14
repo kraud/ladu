@@ -31,7 +31,7 @@ Auth column: ✅ = `protect` middleware on the route; ❌ = unguarded (by design
 |---|---|---|---|---|---|
 | GET | `/api/words` | ✅ (`wordRoutes.js:9`) | All words owned by the user, full `WordResponse[]` (`wordController.ts:454-464`) | `getWords` (`wordService.ts:17-25`) | No pagination |
 | GET | `/api/words/getWordsRelatedToFollowedTag` | ✅ (`wordRoutes.js:11`) | Word IDs belonging to tags the user follows (`wordController.ts:469-473`) | **none** (backend-only) | Returns plain `string[]` |
-| GET | `/api/words/simple` | ✅ (`wordRoutes.js:13`) | Filtered/simplified words for table view (`wordController.ts:478-566`) | `getWordsSimplified` (`wordService.ts:27-38`) | Query param `filters` (JSON array); own words + followed-tag words |
+| GET | `/api/words/simple` | ✅ (`wordRoutes.js:13`) | Filtered/simplified words for table view (`wordController.ts:478-566`) | `getWordsSimplified` (`wordService.ts:27-38`) | Query param `filters` (JSON array); own words + followed-tag words. **Superseded by Phase 3 Slice 5/6 — see the note under `getWordsSimplified` below; this row describes the pre-rewrite contract.** |
 | GET | `/api/words/searchWord` | ✅ (`wordRoutes.js:15`) | Case-insensitive search across any translation case (`wordController.ts:936-1022`) | `searchWord` (`wordService.ts:83-94`) | Query param `query`; excludes `gender%`/`gradable%` cases |
 | GET | `/api/words/getAllWordDataByWord` | ✅ (`wordRoutes.js:17`) | Legacy generic word query (`wordController.ts:1069-1072`) | **none** (backend-only) | **TODO-marked** (`wordRoutes.js:17`) |
 | GET | `/api/words/:id` | ✅ (`wordRoutes.js:19`) | Single word with translations/cases/tags (`wordController.ts:571-580`) | `getWordById` (`wordService.ts:40-48`) | 400 "Word not found" if missing; **403 "User not authorized" if not the author** (added Phase 2 Slice 1; Phase 4 widens to owner-OR-followed-tag) |
@@ -162,10 +162,30 @@ Auth column: ✅ = `protect` middleware on the route; ❌ = unguarded (by design
 - Response 200: re-assembled `WordResponse` (`:858-859`).
 
 ### getWordsSimplified — `GET /api/words/simple`
+
+> **Superseded by Phase 3 Slice 5 (2026-09-13) and Slice 6 (2026-09-14).** Everything below this
+> note is the as-of-2026-09-05 record of the OLD app's contract, kept for history per the standing
+> `_id` rule. The live contract is now:
+> - Query params are flat and repeatable, not a JSON `filters` array: `pos`, `gender`, `tag`
+>   (each `?key=value&key=value2`), a single `q` (substring match, same rule as `searchWord`
+>   below), `cursor` (opaque, base64 `"<ISO createdAt>|<uuid>"`), `limit` (default 50, max 100).
+> - Response 200 is `{ items: SimplifiedWord[], nextCursor: string | null, total: number }` —
+>   keyset-paginated (`created_at DESC, id DESC`), not the old `{ amount, partsOfSpeechIncluded, words }`.
+>   `total` counts the filters alone (not the page) and stays constant across pages of one filter set.
+> - An unrecognised language or part of speech in `SimplifiedWord`'s per-row extraction returns
+>   `{}` for that row's fields (a `console.warn`, not a throw) — it no longer 500s the whole list.
+> - The tag filter is a plain `?tag=<uuid>` (repeatable), not a `restrictiveArray` of `{_id}`
+>   objects — the `_id` reader was stripped here, ahead of the Phase 4/6 schedule the build plan's
+>   `_id` ledger originally predicted.
+>
+> See `.context/plans/phase-3-forms-autocomplete-review.md`'s Slice 5/6 outcomes for the full
+> implementation record (the keyset predicate's Postgres parameter-inference gotcha, the new
+> `words_created_at_id_idx` index, the frontend `WordSimpleBE` type, etc).
+
 - Query param `filters`: JSON string/array of `RawFilter { type, filterValue?, restrictiveArray? }` (`wordController.ts:262-266`, sent at `wordService.ts:32-34`); filters of the same `type` merged (`:273-303`). Supported types: `tag` (value = array of `{_id}` via `restrictiveArray`), `PoS` (array of POS strings), `gender` (array of gender words, matched against `translation_cases.word` where `caseName` ILIKE `gender%`, `:520-541`).
 - Access scope: own words **OR** words of followed tags (`:488-494`). Multiple filter types are intersected; no filters = all accessible words (`:544-549`).
 - Response 200 (`:561-565`): `{ amount: number, partsOfSpeechIncluded: string[], words: SimplifiedWord[] }`.
-- `SimplifiedWord` (`simplifyWord`, `:339-360` + `getRequiredFieldsData`/`languageToFieldName` `:160-252`): `{ tags, partOfSpeech, createdAt, updatedAt, id, user, dataEN?/dataES?/dataDE?/dataEE? (per-language representative case), registeredCasesEE/EN/ES/DE? (case count per language), storedLanguages: string[] }`. Representative-case mapping: Adjective → `positiveEN`/`maleSingularES`-or-`neutralSingularES`/`positiveDE`/`algvorreEE`; Verb → `simplePresent1sEN`/`infinitiveNonFiniteSimpleES`/`infinitiveDE`/`infinitiveMaEE`; Noun handled by the `Noun`/default branches (`:167-237`). Missing cases throw (`:216-218,232-236`) → 500 via error handler.
+- `SimplifiedWord` (`simplifyWord`, `:339-360` + `getRequiredFieldsData`/`languageToFieldName` `:160-252`): `{ tags, partOfSpeech, createdAt, updatedAt, id, user, dataEN?/dataES?/dataDE?/dataEE? (per-language representative case), registeredCasesEE/EN/ES/DE? (case count per language), storedLanguages: string[] }`. Representative-case mapping: Adjective → `positiveEN`/`maleSingularES`-or-`neutralSingularES`/`positiveDE`/`algvorreEE`; Verb → `simplePresent1sEN`/`infinitiveNonFiniteSimpleES`/`infinitiveDE`/`infinitiveMaEE`; Noun handled by the `Noun`/default branches (`:167-237`). Missing cases throw (`:216-218,232-236`) → 500 via error handler. **(Old-app behaviour — the live controller returns `{}` instead, see the note above.)**
 
 ### autocompleteTranslations — the 8 `GET /api/autocompleteTranslations/...` endpoints
 - Common: all `protect`-guarded, no DB access; library-backed ones respond 200 even on miss with `{ foundVerb: false }` / `{ foundNoun: false }`.

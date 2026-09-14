@@ -139,8 +139,8 @@ Each ends runnable; the user commits and re-confirms between them.
 | 2 — verb configs | ✅ done 2026-09-13 |
 | 3 — adjective and adverb configs | ✅ done 2026-09-13 |
 | 4 — autocomplete | ✅ done 2026-09-13 |
-| 5 — backend: list contract | not started |
-| 6 — Review table core | not started |
+| 5 — backend: list contract | ✅ done 2026-09-13 |
+| 6 — Review table core | ✅ done 2026-09-14 |
 | 7 — filters, toolbar, bulk bar | not started |
 | 8 — cell dialog | not started |
 | 9 — phase gate | not started |
@@ -512,11 +512,147 @@ endpoint: row shape per part of speech, gender and part-of-speech filtering, pag
 boundaries, and followed-tag access. Response becomes `{ items, nextCursor }`, matching the
 `CursorPage<T>` type already declared and unused in `api/types.ts`.
 
+### Outcome — what landed (2026-09-13)
+
+Built to the design section above with no deviations. `wordController.ts`'s `getWordsSimplified`
+was rewritten end to end: `parseArrayParam` normalises a repeated query key (`?pos=Noun&pos=Verb`)
+or a single value to `string[]`; `pos`/`gender`/`q`/`tag` each compile to an `AND`-ed, uncorrelated
+subquery `IN` condition rather than the old separate-round-trips-plus-in-memory-intersection
+approach — the base access condition (`own words OR words from followed tags`) still gates every
+one of them, so a `tag` filter cannot leak another user's words (pinned by a test).
+
+Keyset pagination orders `created_at DESC, id DESC`. The cursor is base64 of
+`"<ISO createdAt>|<uuid>"`; a raw `(created_at, id) < ($1, $2)` row-value comparison was tried
+first but Postgres does not reliably type-infer the composite literal's parameters there, so it
+silently failed to filter — the shipped predicate expands to
+`created_at < $1 OR (created_at = $1 AND id < $2)` instead, with a code comment recording why. The
+page query fetches `limit + 1` to detect `hasMore` without a second round trip. New migration
+`0002_words_created_at_id_index.sql` adds `words_created_at_id_idx` on `(created_at, id)`; it is
+ASC/ASC against a DESC/DESC scan, which Postgres satisfies by scanning the index backwards rather
+than needing a second DESC-specific index.
+
+**Tests**: new `backend/tests/words-simple.test.js` (13 tests) — row shape per part of speech
+(including the two regression cases: an unrecognised language and an unrecognised part of speech
+both return 200 with the offending key simply absent, not a 500); single and repeated-key `pos`;
+`gender`; `q` substring match; tag inclusion and the tag-filter-cannot-leak-another-user's-words
+case; pagination (a word inserted between two page requests is excluded from the already-issued
+cursor, and the union of both pages equals every created id) and the malformed-cursor 400; followed-
+tag access.
+
+**Verified**: `npm test` (backend) **148 → 161** (jest run at the time; see Slice 6 below for the
+count after that slice's `total` addition). Frontend untouched — not re-run this slice, per the same
+pattern non-frontend slices have followed all phase.
+
 **Slice 6 — Review table core.** `WordSimpleBE` row type, `getWordsSimplified` / `deleteMany` in
 `api.ts`, `useWordsInfinite` / `useBulkDeleteWords` in `hooks.ts`, the `ReviewTable` on TanStack
 Table with `getRowId` by word id, the column factory (select/owner, Type, language columns), Load
 more, skeleton rows, and both empty states. Route swaps its placeholder and declares
 `validateSearch`.
+
+### Decisions taken with the user (2026-09-14)
+
+- **D8 — `/simple` gains a `total`.** The Slice 5 response (`{ items, nextCursor }`) carries no
+  count matching the filters, which the mockup's footer and the Slice 7 toolbar need. One
+  `count()` query runs against the filter conditions before the cursor predicate is added, so it
+  stays constant across pages of one filter set. Response becomes `{ items, nextCursor, total }` —
+  `CursorPage<T>` widened to match.
+- **D9 — the table is styled with ported mockup CSS, not a shadcn `table` primitive.** Continues
+  the Phase 1–2 precedent (`.card`/`.chip`/`.empty`/`.skeleton` already live in `globals.css`).
+- **D10 — Slice 6 reads `q`/`pos`/`gender` from the URL and sends them**, a slice earlier than the
+  plan's original split, so the phase's "filters survive reload" gate is testable now; Slice 7
+  only adds the UI that writes the URL.
+- **D11 — no sorting in Slice 6.** `GET /api/words/simple` has no sort parameter (order is
+  hardcoded `created_at DESC, id DESC`) and a client-side sort would silently sort only the pages
+  already loaded. Headers ship with no sort control; a backend sort parameter is future work.
+- **D12 — the completion ring's hover detail reads "N of M cases", not a percentage.** The row
+  carries a bare `registeredCasesXX` count, not which cases were filled in, so an exact percentage
+  is undecidable for the two configs (Spanish adjective, German adverb) that branch their whole
+  field set on a `visibleWhen`-controlled sibling. The ring's arc still fills proportionally
+  (clamped to 100%); only the text is a count.
+
+### Outcome — what landed (2026-09-14)
+
+Built to the design section above, plus one type-system finding that turned out NOT to be a
+problem: the `TS7053` failure that forced `TranslationCard`'s `casesToFieldValues` onto a `Map` in
+the autocomplete slice (Slice 4) was specific to `Record<CaseName, T>`, where `CaseName` unions
+four enums with colliding string values. `WordSimpleBE`'s dynamic keys derive from
+`'EN'|'ES'|'DE'|'EE'` (`LangKey`, an alias of `lib/language.ts`'s `UiLanguage['key']`) — a
+collision-free literal union — so template-literal mapped types (`{ [K in LangKey as
+\`data${K}\`]?: string }`) are fully indexable with plain property access. No `Map` needed here.
+
+- **`WordSimpleBE`** — flat, dynamically-keyed, `tags: WordTagRef[]` (the same shape `WordBE.tags`
+  already carries — not a second type). Every `data*` key is optional even when the language IS
+  stored: `getRequiredFieldsData` looks up the required case via `.find()`, and when a translation
+  was persisted without it the key is simply absent from the JSON. This gives a cell **three**
+  states, not two — `review/row.ts`'s `hasTranslation` (reads `storedLanguages`) is the
+  authoritative "is there a translation" check, deliberately separate from `headlineWord`.
+- **The completion ring's denominator (`review/completion.ts`)** mirrors `TranslationCard.tsx`'s
+  `fieldsToCases` drop rules (`persisted: false`, `checkbox`, no `caseName`) over
+  `getFormConfig(pos, lang).fields`, with one refinement beyond a flat filtered count: a field
+  gated by `visibleWhen` is evaluated against every one of its controlling sibling's own declared
+  option values (not a fixed true/false guess), and only the largest resulting branch is added to
+  the total — a config can only ever be on one branch at a time. This handles `invert` (German
+  adverb's `gradable`) the same way it handles a positive match (Spanish adjective's `gender`)
+  with one algorithm. Verified exact against every noun/verb/adjective/adverb config's pinned field
+  list; returns 0 (no ring rendered) for the six unshipped parts of speech and for Estonian adverb,
+  which has no config by design.
+- **A real hazard found and closed by construction, not by a try/catch**: `apiClient`'s response
+  interceptor clears the session on *any* 401, and `deleteManyWords` answers 401 for "User not
+  authorized to delete at least one of the words". A naive bulk-delete UI over a list that includes
+  followed-tag rows could hit that branch and silently log the user out. `ReviewTable`'s
+  `enableRowSelection: (row) => row.original.user === userId` makes the branch unreachable from
+  this UI — flagged for the user as a candidate for a narrower interceptor fix later, not fixed
+  here since that's a cross-cutting change outside this slice.
+- **`ReviewTable` is deliberately router- and store-free** — every input, including navigation, is
+  a prop (`onAddWord: () => void`, not a `<Link>`) — found necessary, not just tidy: `test/render.tsx`'s
+  `renderWithProviders` has no router context, and an internal `<Link>` crashed
+  (`useLinkProps`/`TypeError: Cannot read properties of null`) the first time a test exercised the
+  "no words yet" empty state. `ReviewPage` is the only place `<Link>`/`useNavigate` appear.
+- **`resolveLanguageOrder(search.lang, user.languages)`** (D6): URL order wins for the keys it
+  names, anything omitted or unrecognised is appended in the account's own order — a partial or
+  stale `?lang=` can never lose a column. The zero-language edge case (reachable by a direct URL
+  bypassing the header's own ≥2-language nav gate, since `_protected.beforeLoad` only checks the
+  token) renders an `EmptyState` linking to `/user` instead of a zero-column table.
+- **MSW**: `/simple` and `/deleteMany` were added *inside* the existing `makeWordHandlers` factory,
+  ahead of the `:id`-parameterised routes — registering them as a second, later factory would have
+  them silently swallowed by `*/api/words/:id` matching `:id === 'simple'`/`'deleteMany'` first
+  (MSW matches in registration order). The fake's row simplifier hardcodes the backend's own
+  primary-case table rather than reusing `lib/words.ts`'s `primaryCaseWord`, which picks the first
+  `required` text field and disagrees with the backend for Spanish adjectives (`neutralSingularES`
+  vs. the backend's male-first fallback). `AppHeader.test.tsx`'s existing "lets Review through"
+  test needed a `makeWordHandlers` registration it didn't need before, now that `/review` mounts a
+  real page that fires a real request instead of a static placeholder.
+- **`review.json`** grew a `table` block (PoS abbreviations for the Type column, the owner-dot
+  tooltips, the ring detail string, Add/Block a11y labels, the loaded/all-loaded footer copy) and
+  an `empty` block (`noWords` / `noMatches` / `noLanguages`) in all four locales — English first.
+  Estonian copy flagged for review, same as every prior slice this phase.
+
+**Tests**: `backend/tests/words-simple.test.js` (+2, the `total` assertions: stays constant across
+pages of one filter set and reflects a `pos` filter). `features/words/review/search.test.ts` (new,
+18 tests) — all three array input forms, unknown `pos`/`lang` values dropped, the numeric/boolean
+`q` un-coercion (the router's `qss.toValue` trap), `resolveLanguageOrder`'s four cases.
+`features/words/review/completion.test.ts` (new, 21 tests) — every noun/verb/adjective/adverb
+combination pinned against its config's real field list, including the Spanish-adjective and
+German-adverb branch collapses, the two "no config" zero cases, and memoisation stability.
+`features/words/review/row.test.ts` (new, 6 tests) — the four `LangKey` accessors, including the
+stored-without-headline case. `components/common/CompletionRing.test.tsx` (new, 4 tests) — no-ring
+at zero total, proportional `--pct`, the >100% clamp, the always-rendered (CSS-hidden) detail text.
+`features/words/review/WordCell.test.tsx` (new, 6 tests) — all three cell states, the gender-chip
+toggle, and the no-ring case. `features/words/review/ReviewTable.test.tsx` (new, 9 tests) — header
+order, stable-id selection surviving a data replace, a non-owned row's checkbox disabled, skeleton
+row/column counts, both empty states plus the error state, Load more gating. `features/words/pages/ReviewPage.test.tsx`
+(new, 6 tests, via `renderApp`) — the placeholder is gone, a URL `pos` filter reaches the request,
+`?lang=` reorders columns, Load more appends a second page (51 seeded words), both empty states.
+`features/words/hooks.test.tsx` (+11) — `normalizeWordFilters` canonicalisation,
+`useWordsInfinite` paging via `nextCursor` (including a 51-word two-page run), the repeatable-`pos`
+query-string encoding, `useBulkDeleteWords`'s cache cleanup/invalidation and all three error
+branches. `features/words/errors.test.ts` (+4, the four new mapped messages).
+`components/layout/AppHeader.test.tsx` — its "lets Review through" case now registers word
+handlers.
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**296 → 378** (82 new); `npm test` (backend) **148 → 163** (+15 total for Slices 5+6 combined —
+13 from Slice 5's new test file plus the 2 `total` assertions this slice added to it).
 
 **Slice 7 — filters, toolbar, bulk bar.** The collapsible filter bar (gender chips, part-of-speech
 chips, dnd-kit language order), the toolbar (debounced local search, Display-gender switch, row

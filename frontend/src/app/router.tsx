@@ -37,6 +37,8 @@ import { DashboardPage } from '@/features/metrics/pages/DashboardPage';
 import { AccountPage } from '@/features/account/pages/AccountPage';
 import { AddWordPage } from '@/features/words/pages/AddWordPage';
 import { WordPage } from '@/features/words/pages/WordPage';
+import { ReviewPage } from '@/features/words/pages/ReviewPage';
+import { validateReviewSearch } from '@/features/words/review/search';
 
 /** Temporary leaf for routes whose real page lands in a later slice. */
 function Placeholder({ title, note }: { title: string; note?: string }) {
@@ -118,7 +120,8 @@ const wordRoute = createRoute({
 const reviewRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/review',
-    component: () => <Placeholder title="Review" note="Table lands in Phase 3." />,
+    validateSearch: validateReviewSearch,
+    component: ReviewPage,
 });
 
 const practiceRoute = createRoute({
