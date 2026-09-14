@@ -67,6 +67,15 @@
     "allLoaded": "All {{total}} loaded",
     "loadMore": "Load more"
   },
+  "cellDialog": {
+    "title": "{{word}} — {{language}}",
+    "deleteTranslation": "Delete translation",
+    "confirmDeleteTitle": "Delete the {{language}} translation?",
+    "confirmDeleteDescription": "This permanently removes this translation's cases and your practice history for it.",
+    "savedToast": "{{language}} translation updated",
+    "removedToast": "{{language}} translation removed",
+    "maxTranslations": "This word already has the maximum of 4 translations."
+  },
   "empty": {
     "noWords": {
       "title": "No words yet",

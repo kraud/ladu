@@ -67,6 +67,15 @@
     "allLoaded": "Kõik {{total}} laaditud",
     "loadMore": "Laadi rohkem"
   },
+  "cellDialog": {
+    "title": "{{word}} — {{language}}",
+    "deleteTranslation": "Kustuta tõlge",
+    "confirmDeleteTitle": "Kustutada {{language}} tõlge?",
+    "confirmDeleteDescription": "See eemaldab jäädavalt selle tõlke vormid ja sinu harjutamisajaloo selle kohta.",
+    "savedToast": "{{language}} tõlge uuendatud",
+    "removedToast": "{{language}} tõlge eemaldatud",
+    "maxTranslations": "Sellel sõnal on juba maksimaalne arv (4) tõlkeid."
+  },
   "empty": {
     "noWords": {
       "title": "Veel pole sõnu",

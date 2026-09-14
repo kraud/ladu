@@ -67,6 +67,15 @@
     "allLoaded": "Alle {{total}} geladen",
     "loadMore": "Mehr laden"
   },
+  "cellDialog": {
+    "title": "{{word}} — {{language}}",
+    "deleteTranslation": "Übersetzung löschen",
+    "confirmDeleteTitle": "{{language}}-Übersetzung löschen?",
+    "confirmDeleteDescription": "Dadurch werden die Fälle dieser Übersetzung und dein Übungsverlauf dafür endgültig entfernt.",
+    "savedToast": "{{language}}-Übersetzung aktualisiert",
+    "removedToast": "{{language}}-Übersetzung entfernt",
+    "maxTranslations": "Dieses Wort hat bereits die maximale Anzahl von 4 Übersetzungen."
+  },
   "empty": {
     "noWords": {
       "title": "Noch keine Wörter",

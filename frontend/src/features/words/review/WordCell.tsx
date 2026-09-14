@@ -74,19 +74,31 @@ export function WordCell({ row, langKey, isOwn, showGender, showProgress, onOpen
     const total = expectedCaseCount(row.partOfSpeech, langKey);
     const gender = genderValue(row, langKey);
     const showGenderChip = showGender && row.partOfSpeech === PartOfSpeech.noun && gender !== undefined;
+    const genderChip = showGenderChip && gender !== undefined && (
+        <span className={`gender-chip ${genderClass(gender) ?? ''}`}>{gender}</span>
+    );
 
     return (
         <div className="ring-wrap">
-            <button
-                type="button"
-                className="cell-btn cell-word"
-                onClick={() => onOpenCell?.(row.id, langKey)}
-            >
-                {word ?? '—'}
-                {showGenderChip && gender !== undefined && (
-                    <span className={`gender-chip ${genderClass(gender) ?? ''}`}>{gender}</span>
-                )}
-            </button>
+            {isOwn ? (
+                <button
+                    type="button"
+                    className="cell-btn cell-word"
+                    onClick={() => onOpenCell?.(row.id, langKey)}
+                >
+                    {word ?? '—'}
+                    {genderChip}
+                </button>
+            ) : (
+                // A followed-tag word's filled cell is not clickable: `GET
+                // /api/words/:id` 403s a non-owner outright until Phase 4
+                // adds followed-tag read access (D28), so opening the dialog
+                // here would only fail.
+                <span className="cell-word" title={t('review:table.blockedTranslation')}>
+                    {word ?? '—'}
+                    {genderChip}
+                </span>
+            )}
             {showProgress && (
                 <CompletionRing
                     value={value}

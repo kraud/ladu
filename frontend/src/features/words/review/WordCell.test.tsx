@@ -184,4 +184,52 @@ describe('WordCell — translation stored', () => {
         expect(screen.getByRole('button')).toHaveTextContent('house');
         expect(document.querySelector('.ring')).not.toBeInTheDocument();
     });
+
+    it('is not a button and does not call onOpenCell for a non-own (followed-tag) word (D28)', () => {
+        const onOpenCell = vi.fn();
+        const row = baseRow({ dataEN: 'house', registeredCasesEN: 2, storedLanguages: ['English'] });
+        renderWithProviders(
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <WordCell
+                                row={row}
+                                langKey="EN"
+                                isOwn={false}
+                                showGender
+                                showProgress
+                                onOpenCell={onOpenCell}
+                            />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>,
+        );
+
+        expect(screen.queryByRole('button')).not.toBeInTheDocument();
+        const wordSpan = screen.getByText('house');
+        expect(wordSpan.tagName).toBe('SPAN');
+        fireEvent.click(wordSpan);
+        expect(onOpenCell).not.toHaveBeenCalled();
+    });
+
+    it('is still a button and still calls onOpenCell for an own filled cell', () => {
+        const onOpenCell = vi.fn();
+        const row = baseRow({ dataEN: 'house', registeredCasesEN: 2, storedLanguages: ['English'] });
+        renderWithProviders(
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <WordCell row={row} langKey="EN" isOwn showGender showProgress onOpenCell={onOpenCell} />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>,
+        );
+
+        fireEvent.click(screen.getByRole('button'));
+        expect(onOpenCell).toHaveBeenCalledWith('word-1', 'EN');
+    });
 });

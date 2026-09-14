@@ -770,24 +770,32 @@ const updateWord = asyncHandler(async (req: any, res: any) => {
     }
   }
 
-  // Diff tag associations and apply changes
-  const incomingTags: Array<{ _id?: string; id?: string }> = req.body.tags || [];
-  const { toRemove, toAdd } = await diffTagWords(req.params.id, incomingTags);
+  // Diff tag associations and apply changes — but ONLY when the caller
+  // actually sent a `tags` field. `req.body.tags || []` used to treat an
+  // absent key the same as an explicit empty array, so any partial update
+  // (e.g. a translations-only PUT, which is every PUT this frontend sends —
+  // `UpdateWordBody` has no `tags` field) silently deleted every tag
+  // association on the word. Mirrors the `translations !== undefined` guard
+  // above.
+  if (req.body.tags !== undefined) {
+    const incomingTags: Array<{ _id?: string; id?: string }> = req.body.tags;
+    const { toRemove, toAdd } = await diffTagWords(req.params.id, incomingTags);
 
-  if (toRemove.length > 0) {
-    await db
-      .delete(tagWords)
-      .where(
-        and(
-          eq(tagWords.wordId, req.params.id),
-          inArray(tagWords.tagId, toRemove),
-        ),
-      );
-  }
-  if (toAdd.length > 0) {
-    await db
-      .insert(tagWords)
-      .values(toAdd.map((tagId) => ({ tagId, wordId: req.params.id })));
+    if (toRemove.length > 0) {
+      await db
+        .delete(tagWords)
+        .where(
+          and(
+            eq(tagWords.wordId, req.params.id),
+            inArray(tagWords.tagId, toRemove),
+          ),
+        );
+    }
+    if (toAdd.length > 0) {
+      await db
+        .insert(tagWords)
+        .values(toAdd.map((tagId) => ({ tagId, wordId: req.params.id })));
+    }
   }
 
   // Update word fields — only set fields that are explicitly provided

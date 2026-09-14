@@ -142,7 +142,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 5 — backend: list contract | ✅ done 2026-09-13 |
 | 6 — Review table core | ✅ done 2026-09-14 |
 | 7 — filters, toolbar, bulk bar | ✅ done 2026-09-14 |
-| 8 — cell dialog | not started |
+| 8 — cell dialog | ✅ done 2026-09-14 |
 | 9 — phase gate | not started |
 
 **Slice 0 — persist this plan.** This file.
@@ -870,6 +870,119 @@ off removes every `.ring` from the page.
 translation, fed by `useWord` and rendered through `TranslationCard`. Save updates the word and
 refreshes the list; Delete translation is author-only and hidden unless the word keeps at least
 three translations. Empty cells show Add for own words and a block icon for followed-tag words.
+
+### Decisions taken with the user (2026-09-14)
+
+- **D25 — the tag-wipe bug is fixed in the backend.** `updateWord` read `req.body.tags || []`,
+  so a PUT that omits `tags` (every PUT this frontend sends — `UpdateWordBody` has no `tags`
+  field) silently deleted every tag association on the word, including from the already-shipped
+  `WordPage` edit path. Fixed with a `req.body.tags !== undefined` guard mirroring the one
+  `translations` already had, plus two new Jest tests.
+- **D26 — the open cell lives in local React state**, not the URL, matching `BulkActionBar`'s own
+  confirm dialog. Browser Back leaves `/review` rather than closing the dialog.
+- **D27 — Delete translation goes behind `ConfirmDialog`**, unlike the mockup's immediate delete —
+  consistent with `WordPage`'s delete and the bulk bar, and not cheaply reversible (the backend
+  destroys the translation's cases and the user's `exercise_performances` rows for it).
+
+Three further calls made by the agent, each reversible and flagged for review:
+
+- **D28 — the dialog is own-words-only this slice; the spec'd read-only variant is deferred to
+  Phase 4.** `GET /api/words/:id` 403s a non-owner outright (its own comment says followed-tag
+  read access arrives in Phase 4), and with tags deferred (D1) there is no way to even produce a
+  followed-tag word in this app yet — the branch is unreachable, not merely unbuilt.
+  `WordCell.tsx`'s filled-cell button gained the `isOwn` guard its empty-cell branch already had;
+  a non-own row's filled cells now render an inert `<span>` instead of a button that would 403.
+- **D29 — the save payload is built from the fetched `WordBE` directly, not through
+  `useWordFormState`'s `filterTranslationsByUserLanguages`.** That helper drops any translation in
+  a language the account no longer lists — correct for the compose form, wrong here, since the
+  backend deletes a translation by omission (`diffTranslations`) and a case by omission too. The
+  dialog always sends the word's complete stored translation set with exactly one language's cases
+  changed, and always sends that language's complete case set.
+- **D30 — the dialog reuses the repo's `Dialog`/`DialogHeader`/`DialogFooter` primitives** (only
+  `max-w-[640px]` overridden to match the mockup's `dialog.wide`), not the mockup's own
+  `.dlg-head`/`.dlg-body`/`.dlg-foot` bands — consistent with `WordForm`'s existing add-language
+  dialog.
+
+### Outcome — what landed (2026-09-14)
+
+Built to the design section above with no further deviations.
+
+- **`review/CellDialog.tsx`** (new) — router- and store-free like every other file in `review/`.
+  Keyed `${wordId}:${langKey}` by `ReviewPage` so switching cells remounts it, since
+  `TranslationCard` hydrates from `initialCases` at mount only (the same reason `WordPage`'s
+  `editKey` exists). Three states fall out of one `existingIndex = word.translations.findIndex(...)`
+  lookup: edit (`TranslationCard` pre-filled), add (`initialCases={[]}`, no Delete button), and a
+  guarded add-at-cap (a hint replaces the card once a word already holds `MAX_TRANSLATIONS` — 4 —
+  stored languages, reachable only when one of them is outside the account's current language
+  list). A query-error `useEffect` toasts and calls `onClose()`, mirroring `WordPage`'s own
+  pattern exactly rather than toasting inline during render.
+- **`review/WordCell.tsx`** — the filled-cell branch now checks `isOwn` the same way the empty-cell
+  branch already did (D28): an own cell stays a `<button>`; a non-own cell renders a plain `<span>`
+  carrying the same `blockedTranslation` title the empty-cell glyph uses.
+- **`pages/ReviewPage.tsx`** — a `cellTarget` state (`{ wordId, langKey } | null`) plus a
+  `useCallback`-wrapped `onOpenCell` (load-bearing, not tidiness — it sits in `ReviewTable`'s own
+  `columns` `useMemo` dep array, so an inline arrow would rebuild every column on every render).
+  `CellDialog` mounts as a sibling of `.layout`, matching `BulkActionBar`'s own `ConfirmDialog`
+  ownership pattern (D26).
+- **`backend/controllers/wordController.ts`** — `updateWord`'s tag-diff block now runs only inside
+  `if (req.body.tags !== undefined)` (D25).
+- **`review.json`** grew a `cellDialog` block (`title`, `deleteTranslation`,
+  `confirmDeleteTitle`/`Description`, `savedToast`, `removedToast`, `maxTranslations`) in all four
+  locales, English first. `readOnlyHint`/`addTitle` from the original plan sketch were dropped as
+  unneeded once D28 made the read-only path unreachable and the add case reused the edit dialog's
+  own title format. Estonian copy flagged for review, as every prior slice this phase.
+
+**Tests**: `review/CellDialog.test.tsx` (new, 10 tests) — the loading skeleton (queried via
+`[data-slot="skeleton"]`, asserted on the synchronous first render before the query settles); an
+edit prefilled from the fetched word; Save disabled while hydrated-but-clean, disabled again once
+dirtied into an empty required field, enabled once valid again; the D29 payload claim itself,
+asserted against the MSW request log — every translation present, only the edited language's cases
+changed; a successful save's toast + `onClose`; the add case appending a third language rather than
+replacing either existing one, with no Delete button rendered for it; Delete hidden at 2 stored
+translations, shown at 3, and its confirm round trip sending the set minus that language (asserting
+the native-language toast text, not the English word — same convention `WordCell` already follows);
+a failed fetch closing the dialog and toasting the mapped error message.
+`review/WordCell.test.tsx` (+2): a non-own filled cell renders no button and never calls
+`onOpenCell`; an own filled cell still does. `pages/ReviewPage.test.tsx` (+3, via `renderApp`):
+clicking a filled cell opens the dialog pre-filled with that language's stored cases; saving closes
+it, toasts, and the row's headline word updates with no manual refresh (proving the existing
+`useUpdateWord` invalidation edge reaches the Review list); clicking an empty cell's Add button
+opens the same dialog empty. `backend/tests/words.test.js` (new `PUT /api/words/:id - Update Word`
+describe block, +2 — the first tests this endpoint had at all): a `tags`-omitting PUT preserves the
+word's existing tag association; an explicit `tags: []` still clears it, pinning the guard's
+intended behaviour didn't regress.
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**450 → 469** (19 new); `npm test` (backend) **163 → 165** (+2).
+
+### Fourth round of user-review fixes (2026-09-14)
+
+One more correction, caught in a final pass before the phase gate — touches Slice 7's
+`FilterBar.tsx`, not Slice 8's own files, but landed in this working session so it's recorded here
+rather than reopening Slice 7:
+
+- **D31 — the filter bar's show/hide toggle button is now a fixed part of one persistent header
+  row, present in both collapsed and expanded states, always first/leftmost.** Previously the
+  button changed both position and DOM parent between states — first element of a
+  collapsed-only `.fb-collapsed` strip vs. the last element of the expanded `.fb-body`, after a
+  `grow` spacer inside a `flex-wrap` row (so at narrower widths, where the filter groups wrap onto
+  a second line, it wasn't even reliably anchored to a corner). This is a **deviation from
+  `MOCKUPS/review.html`**, which has the identical layout (`review.html:101-144`) — confirmed
+  before fixing that the mockup itself carries the bug, not just this port of it. Presented to the
+  user as three options (persistent header with the toggle pinned left, pinned right, or leave
+  as-is matching the mockup exactly); the user picked pinned-left, matching the collapsed state's
+  already-correct layout. `.fb-collapsed` (CSS) renamed to `.fb-header` and now renders in both
+  states; only the icon (caret down/up) and two collapsed-only fragments (the active-filter hint
+  and the language-order summary) change between states — the toggle button, the "Filters" eyebrow,
+  and the active-count pill are now always present and always in the same position. `.fb-body`
+  (the filter groups themselves) gained a top border + margin to visually separate it from the
+  header when expanded, and lost its own trailing `grow` + button. No prop or behavioural contract
+  change — `FilterBar.test.tsx`'s 13 existing tests (all behaviour-based: button accessible names
+  and visible text, not DOM position) passed unmodified.
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend` **469 → 469**
+(no net change — no new tests needed, existing coverage already pins the toggle's two accessible
+names and the conditional content around it). Backend untouched.
 
 **Slice 9 — phase gate.** `e2e/tests/phase-3-review.spec.ts`, doc updates, full green run.
 

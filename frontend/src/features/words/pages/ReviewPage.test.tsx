@@ -295,3 +295,49 @@ describe('ReviewPage — Slice 7: bulk actions', () => {
         expect(screen.getByRole('button', { name: 'View' })).toBeDisabled();
     });
 });
+
+describe('ReviewPage — Slice 8: cell dialog', () => {
+    it('clicking a filled cell opens the dialog with that language\'s stored cases', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [nounSeed('cat', 'w1')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await user.click(await screen.findByRole('button', { name: 'cat' }));
+
+        expect(await screen.findByRole('dialog')).toBeInTheDocument();
+        expect(await screen.findByLabelText('Singular')).toHaveValue('cat');
+    });
+
+    it('saving closes the dialog and the row reflects the new headline word', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [nounSeed('cat', 'w1')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await user.click(await screen.findByRole('button', { name: 'cat' }));
+
+        const singular = await screen.findByLabelText('Singular');
+        await user.clear(singular);
+        await user.type(singular, 'kitten');
+        await user.click(screen.getByRole('button', { name: 'Save' }));
+
+        expect(await screen.findByText('English translation updated')).toBeInTheDocument();
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+        expect(await screen.findByText('kitten')).toBeInTheDocument();
+        expect(screen.queryByText('cat')).not.toBeInTheDocument();
+    });
+
+    it('clicking an empty cell\'s Add button opens the same dialog empty', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [nounSeed('cat', 'w1')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await screen.findByText('cat');
+        await user.click(screen.getByRole('button', { name: 'Add Deutsch translation' }));
+
+        expect(await screen.findByRole('dialog')).toBeInTheDocument();
+        expect(await screen.findByLabelText('Singular nominative')).toHaveValue('');
+    });
+});

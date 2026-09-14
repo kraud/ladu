@@ -624,6 +624,9 @@
     flex-wrap: wrap;
     gap: 10px 36px;
     align-items: flex-start;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
   }
   .fb-group {
     display: flex;
@@ -668,7 +671,10 @@
   .lang-flag-toggle:disabled {
     cursor: not-allowed;
   }
-  .fb-collapsed {
+  /* The filter bar's persistent header row (Slice 8 follow-up): rendered in
+     BOTH collapsed and expanded states so the show/hide toggle never changes
+     position — see `FilterBar.tsx`'s own header comment for why. */
+  .fb-header {
     display: flex;
     align-items: center;
     gap: 10px;

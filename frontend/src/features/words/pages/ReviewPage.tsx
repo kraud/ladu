@@ -5,9 +5,9 @@
  * `.main-col` > toolbar + bulk bar + `<ReviewTable>`, per the phase plan's
  * "Composition" section — `ReviewTable` itself needs no change, since its own
  * early-return empty/error states would otherwise swallow a toolbar nested
- * inside it). The cell dialog is Slice 8.
+ * inside it). Slice 8 adds the cell dialog.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import type { RowSelectionState } from '@tanstack/react-table';
@@ -20,6 +20,7 @@ import { useBulkDeleteWords, useWordsInfinite } from '../hooks';
 import { wordErrorKey } from '../errors';
 import type { LangKey } from '../types';
 import { BulkActionBar } from '../review/BulkActionBar';
+import { CellDialog } from '../review/CellDialog';
 import { FilterBar } from '../review/FilterBar';
 import { ReviewTable } from '../review/ReviewTable';
 import { TableToolbar } from '../review/TableToolbar';
@@ -77,6 +78,13 @@ export function ReviewPage() {
     const [showProgress, setShowProgress] = useState(true);
 
     const bulkDelete = useBulkDeleteWords();
+
+    // `useCallback` is load-bearing, not tidiness: `onOpenCell` sits in
+    // `ReviewTable`'s own `columns` `useMemo` dep array (`ReviewTable.tsx`),
+    // so an inline arrow here would rebuild every column on every render.
+    const [cellTarget, setCellTarget] = useState<{ wordId: string; langKey: LangKey } | null>(null);
+    const handleOpenCell = useCallback((wordId: string, langKey: LangKey) => setCellTarget({ wordId, langKey }), []);
+    const closeCellDialog = useCallback(() => setCellTarget(null), []);
 
     function updateSearch(patch: Partial<ReviewSearch>) {
         void navigate({ search: (prev) => ({ ...prev, ...patch }) });
@@ -176,9 +184,19 @@ export function ReviewPage() {
                         hasActiveFilters={hasActiveFilters(search)}
                         onClearFilters={() => void navigate({ search: (prev) => ({ lang: prev.lang }) })}
                         onAddWord={() => void navigate({ to: '/addWord/{-$partOfSpeech}' })}
+                        onOpenCell={handleOpenCell}
                     />
                 </div>
             </div>
+
+            {cellTarget && (
+                <CellDialog
+                    key={`${cellTarget.wordId}:${cellTarget.langKey}`}
+                    wordId={cellTarget.wordId}
+                    langKey={cellTarget.langKey}
+                    onClose={closeCellDialog}
+                />
+            )}
         </div>
     );
 }

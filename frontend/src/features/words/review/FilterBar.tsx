@@ -2,6 +2,15 @@
  * The collapsible filter bar (D5 — a bar above the table, not the blueprint's
  * left sidebar). Gender + Part of speech chips, then the language order
  * control. No Tags group (D1).
+ *
+ * The show/hide toggle lives in one persistent header row, rendered in BOTH
+ * states, always as the first/leftmost element — a deliberate deviation from
+ * `MOCKUPS/review.html` (a real usability fix, flagged for the user): the
+ * mockup puts the expand button first in a collapsed-only strip but the
+ * collapse button LAST in the expanded body (after a `grow` spacer inside a
+ * `flex-wrap` row, so at narrower widths it isn't even reliably anchored to a
+ * corner). Only the icon (caret down/up) and the collapsed-only summary text
+ * change between states; the button itself never moves.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -71,112 +80,101 @@ export function FilterBar({
 
     const activeCount = gender.length + pos.length + (hasQuery ? 1 : 0);
 
-    if (collapsed) {
-        return (
-            <div className="card filterbar">
-                <div className="fb-collapsed">
-                    <button
-                        type="button"
-                        className="icon-btn"
-                        aria-label={t('review:filters.show')}
-                        title={t('review:filters.show')}
-                        onClick={() => setCollapsed(false)}
-                    >
-                        <CaretDownIcon size={16} />
-                    </button>
-                    <span className="eyebrow">{t('review:filters.title')}</span>
-                    {activeCount > 0 && <span className="active-pill">{activeCount}</span>}
+    return (
+        <div className="card filterbar">
+            <div className="fb-header">
+                <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label={t(collapsed ? 'review:filters.show' : 'review:filters.collapse')}
+                    title={t(collapsed ? 'review:filters.show' : 'review:filters.collapse')}
+                    onClick={() => setCollapsed((prev) => !prev)}
+                >
+                    {collapsed ? <CaretDownIcon size={16} /> : <CaretUpIcon size={16} />}
+                </button>
+                <span className="eyebrow">{t('review:filters.title')}</span>
+                {activeCount > 0 && <span className="active-pill">{activeCount}</span>}
+                {collapsed && (
                     <span className="hint">
                         {activeCount === 0
                             ? t('review:filters.noneActive')
                             : t('review:filters.activeCount', { count: activeCount })}
                     </span>
-                    <span className="grow" />
+                )}
+                <span className="grow" />
+                {collapsed && (
                     <span className="meta">
                         {t('review:filters.languageOrder')}: {activeLanguages.join(' → ')}
                     </span>
-                </div>
+                )}
             </div>
-        );
-    }
 
-    return (
-        <div className="card filterbar">
-            <div className="fb-body">
-                <div className="fb-group">
-                    <div className="fhead">
-                        <span className="label">{t('review:filters.gender')}</span>
-                        {gender.length > 0 && (
-                            <button
-                                type="button"
-                                className="hint underline"
-                                onClick={() => onGenderChange(undefined)}
-                            >
-                                {t('review:filters.clear')}
-                            </button>
-                        )}
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        {GENDER_BY_LANGUAGE.map((group) => (
-                            <div key={group.key} className="flex flex-wrap items-center gap-2">
-                                <span className="hint flex items-center gap-1">
-                                    <FlagIcon lang={group.key} /> {group.key}
-                                </span>
-                                <div className="chips">
-                                    {group.values.map((value) => (
-                                        <button
-                                            key={value}
-                                            type="button"
-                                            className="chip"
-                                            aria-pressed={gender.includes(value)}
-                                            onClick={() => toggleGenderValue(value)}
-                                        >
-                                            {value}
-                                        </button>
-                                    ))}
+            {!collapsed && (
+                <div className="fb-body">
+                    <div className="fb-group">
+                        <div className="fhead">
+                            <span className="label">{t('review:filters.gender')}</span>
+                            {gender.length > 0 && (
+                                <button
+                                    type="button"
+                                    className="hint underline"
+                                    onClick={() => onGenderChange(undefined)}
+                                >
+                                    {t('review:filters.clear')}
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            {GENDER_BY_LANGUAGE.map((group) => (
+                                <div key={group.key} className="flex flex-wrap items-center gap-2">
+                                    <span className="hint flex items-center gap-1">
+                                        <FlagIcon lang={group.key} /> {group.key}
+                                    </span>
+                                    <div className="chips">
+                                        {group.values.map((value) => (
+                                            <button
+                                                key={value}
+                                                type="button"
+                                                className="chip"
+                                                aria-pressed={gender.includes(value)}
+                                                onClick={() => toggleGenderValue(value)}
+                                            >
+                                                {value}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
+
+                    <div className="fb-group">
+                        <div className="fhead">
+                            <span className="label">{t('review:filters.partOfSpeech')}</span>
+                        </div>
+                        <div className="chips">
+                            {SHIPPED_POS.map((value) => (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    className="chip"
+                                    aria-pressed={pos.includes(value)}
+                                    title={t(partOfSpeechLabelKey(value))}
+                                    onClick={() => togglePos(value)}
+                                >
+                                    {t(posAbbrKey(value))}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <LanguageOrderControl
+                        active={activeLanguages}
+                        allLanguages={allLanguages}
+                        onChange={onLanguagesChange}
+                    />
                 </div>
-
-                <div className="fb-group">
-                    <div className="fhead">
-                        <span className="label">{t('review:filters.partOfSpeech')}</span>
-                    </div>
-                    <div className="chips">
-                        {SHIPPED_POS.map((value) => (
-                            <button
-                                key={value}
-                                type="button"
-                                className="chip"
-                                aria-pressed={pos.includes(value)}
-                                title={t(partOfSpeechLabelKey(value))}
-                                onClick={() => togglePos(value)}
-                            >
-                                {t(posAbbrKey(value))}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <LanguageOrderControl
-                    active={activeLanguages}
-                    allLanguages={allLanguages}
-                    onChange={onLanguagesChange}
-                />
-
-                <span className="grow" />
-                <button
-                    type="button"
-                    className="icon-btn"
-                    aria-label={t('review:filters.collapse')}
-                    title={t('review:filters.collapse')}
-                    onClick={() => setCollapsed(true)}
-                >
-                    <CaretUpIcon size={16} />
-                </button>
-            </div>
+            )}
         </div>
     );
 }
