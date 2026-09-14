@@ -18,6 +18,19 @@ import { buildWordColumns } from './columns';
 const SKELETON_ROWS = 8;
 const SKELETON_MORE_ROWS = 3;
 
+/** select/owner and `partOfSpeech` shrink to their own content's width (`.shrink-col`, CSS `width: 1%` trick); language columns get the wider `.lang-col`/`.word-cell` treatment. */
+function headerClassName(columnId: string): string | undefined {
+    if (columnId === 'select' || columnId === 'partOfSpeech') return 'shrink-col';
+    if (columnId.startsWith('lang_')) return 'lang-col';
+    return undefined;
+}
+
+function cellClassName(columnId: string): string | undefined {
+    if (columnId === 'select' || columnId === 'partOfSpeech') return 'shrink-col';
+    if (columnId.startsWith('lang_')) return 'word-cell';
+    return undefined;
+}
+
 export interface ReviewTableProps {
     rows: WordSimpleBE[];
     /** Column order and set — `resolveLanguageOrder(search.lang, user.languages)` (D6). */
@@ -25,6 +38,8 @@ export interface ReviewTableProps {
     userId: string;
     userName: string;
     showGender: boolean;
+    /** Toolbar "Display progress" switch — gates the completion ring per cell. */
+    showProgress: boolean;
     isPending: boolean;
     isFetchingNextPage: boolean;
     isError: boolean;
@@ -59,6 +74,7 @@ export function ReviewTable({
     userId,
     userName,
     showGender,
+    showProgress,
     isPending,
     isFetchingNextPage,
     isError,
@@ -77,8 +93,8 @@ export function ReviewTable({
     const { t } = useTranslation();
 
     const columns = useMemo(
-        () => buildWordColumns({ languages, userId, userName, showGender, t, onOpenCell }),
-        [languages, userId, userName, showGender, t, onOpenCell],
+        () => buildWordColumns({ languages, userId, userName, showGender, showProgress, t, onOpenCell }),
+        [languages, userId, userName, showGender, showProgress, t, onOpenCell],
     );
 
     const table = useReactTable({
@@ -135,10 +151,7 @@ export function ReviewTable({
                         {table.getHeaderGroups().map((headerGroup) => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
-                                    <th
-                                        key={header.id}
-                                        className={header.column.id.startsWith('lang_') ? 'lang-col' : undefined}
-                                    >
+                                    <th key={header.id} className={headerClassName(header.column.id)}>
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(header.column.columnDef.header, header.getContext())}
@@ -161,10 +174,7 @@ export function ReviewTable({
                             : table.getRowModel().rows.map((row) => (
                                   <tr key={row.id} className={row.getIsSelected() ? 'selected' : undefined}>
                                       {row.getVisibleCells().map((cell) => (
-                                          <td
-                                              key={cell.id}
-                                              className={cell.column.id.startsWith('lang_') ? 'word-cell' : undefined}
-                                          >
+                                          <td key={cell.id} className={cellClassName(cell.column.id)}>
                                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                           </td>
                                       ))}

@@ -9,6 +9,40 @@
     "public": "Öffentlich",
     "description": "Beschreibung"
   },
+  "filters": {
+    "title": "Filter",
+    "show": "Filter anzeigen",
+    "collapse": "Filter einklappen",
+    "noneActive": "Keine Filter aktiv",
+    "activeCount_one": "{{count}} Filter aktiv",
+    "activeCount_other": "{{count}} Filter aktiv",
+    "gender": "Genus",
+    "clear": "Löschen",
+    "partOfSpeech": "Wortart",
+    "languageOrder": "Sprachreihenfolge",
+    "languageOrderHint": "Mit den Pfeilen sortieren · min. 2 sichtbar",
+    "moveEarlier": "{{language}} nach vorne verschieben",
+    "moveLater": "{{language}} nach hinten verschieben",
+    "hideLanguage": "{{language}} ausblenden",
+    "showLanguage": "{{language}} einblenden"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Wörter suchen…",
+    "searchLabel": "Tabelle filtern",
+    "displayGender": "Genus anzeigen",
+    "displayProgress": "Fortschritt anzeigen",
+    "rowCount": "{{count}} von {{total}} Wörtern"
+  },
+  "bulk": {
+    "selected": "ausgewählt",
+    "view": "Ansehen",
+    "delete": "Löschen",
+    "confirmTitle_one": "{{count}} Wort löschen?",
+    "confirmTitle_other": "{{count}} Wörter löschen?",
+    "confirmDescription": "Dadurch werden {{count}} Wort/Wörter für alle endgültig entfernt, mit denen sie geteilt wurden.",
+    "deletedToast_one": "{{count}} Wort gelöscht",
+    "deletedToast_other": "{{count}} Wörter gelöscht"
+  },
   "table": {
     "posAbbr": {
       "noun": "subst.",

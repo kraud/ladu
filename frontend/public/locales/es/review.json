@@ -9,6 +9,40 @@
     "public": "Público",
     "description": "Descripción"
   },
+  "filters": {
+    "title": "Filtros",
+    "show": "Mostrar filtros",
+    "collapse": "Ocultar filtros",
+    "noneActive": "No hay filtros aplicados",
+    "activeCount_one": "{{count}} filtro activo",
+    "activeCount_other": "{{count}} filtros activos",
+    "gender": "Género",
+    "clear": "Borrar",
+    "partOfSpeech": "Categoría gramatical",
+    "languageOrder": "Orden de idiomas",
+    "languageOrderHint": "Usa las flechas para reordenar · mín. 2 visibles",
+    "moveEarlier": "Mover {{language}} antes",
+    "moveLater": "Mover {{language}} después",
+    "hideLanguage": "Ocultar {{language}}",
+    "showLanguage": "Mostrar {{language}}"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Buscar palabras…",
+    "searchLabel": "Filtrar tabla",
+    "displayGender": "Mostrar género",
+    "displayProgress": "Mostrar progreso",
+    "rowCount": "{{count}} de {{total}} palabras"
+  },
+  "bulk": {
+    "selected": "seleccionadas",
+    "view": "Ver",
+    "delete": "Eliminar",
+    "confirmTitle_one": "¿Eliminar {{count}} palabra?",
+    "confirmTitle_other": "¿Eliminar {{count}} palabras?",
+    "confirmDescription": "Esto elimina definitivamente {{count}} palabra(s) para todos con quienes se comparten.",
+    "deletedToast_one": "{{count}} palabra eliminada",
+    "deletedToast_other": "{{count}} palabras eliminadas"
+  },
   "table": {
     "posAbbr": {
       "noun": "sust.",

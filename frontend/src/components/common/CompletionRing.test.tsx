@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { CompletionRing } from './CompletionRing';
 
@@ -20,8 +21,16 @@ describe('CompletionRing', () => {
         expect(ring.style.getPropertyValue('--pct')).toBe('100');
     });
 
-    it('always renders the (CSS-hidden-until-hover) detail text', () => {
+    it('does not render the detail text until the ring is hovered/focused (a real tooltip, not an inline reveal)', () => {
         render(<CompletionRing value={1} total={4} detail="1 of 4 cases" />);
-        expect(screen.getByText('1 of 4 cases')).toBeInTheDocument();
+        expect(screen.queryByText('1 of 4 cases')).not.toBeInTheDocument();
+    });
+
+    it('shows the detail text in a floating tooltip on hover', async () => {
+        const user = userEvent.setup();
+        render(<CompletionRing value={1} total={4} detail="1 of 4 cases" />);
+
+        await user.hover(document.querySelector('.ring') as HTMLElement);
+        expect(await screen.findByText('1 of 4 cases')).toBeInTheDocument();
     });
 });

@@ -9,6 +9,40 @@
     "public": "Public",
     "description": "Description"
   },
+  "filters": {
+    "title": "Filters",
+    "show": "Show filters",
+    "collapse": "Collapse filters",
+    "noneActive": "No filters applied",
+    "activeCount_one": "{{count}} filter active",
+    "activeCount_other": "{{count}} filters active",
+    "gender": "Gender",
+    "clear": "Clear",
+    "partOfSpeech": "Part of speech",
+    "languageOrder": "Language order",
+    "languageOrderHint": "Use the arrows to reorder · min 2 shown",
+    "moveEarlier": "Move {{language}} earlier",
+    "moveLater": "Move {{language}} later",
+    "hideLanguage": "Hide {{language}}",
+    "showLanguage": "Show {{language}}"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Search words…",
+    "searchLabel": "Filter table",
+    "displayGender": "Display gender",
+    "displayProgress": "Display progress",
+    "rowCount": "{{count}} of {{total}} words"
+  },
+  "bulk": {
+    "selected": "selected",
+    "view": "View",
+    "delete": "Delete",
+    "confirmTitle_one": "Delete {{count}} word?",
+    "confirmTitle_other": "Delete {{count}} words?",
+    "confirmDescription": "This permanently removes {{count}} word(s) for everyone they're shared with.",
+    "deletedToast_one": "{{count}} word deleted",
+    "deletedToast_other": "{{count}} words deleted"
+  },
   "table": {
     "posAbbr": {
       "noun": "n.",

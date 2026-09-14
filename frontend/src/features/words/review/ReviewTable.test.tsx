@@ -27,6 +27,7 @@ const baseProps: ReviewTableProps = {
     userId: 'me',
     userName: 'Kai Rebane',
     showGender: true,
+    showProgress: true,
     isPending: false,
     isFetchingNextPage: false,
     isError: false,
@@ -57,6 +58,17 @@ describe('ReviewTable — headers', () => {
         // select, type, DE, EN
         expect(headers[2]).toContain('DE');
         expect(headers[3]).toContain('EN');
+    });
+
+    it('marks the select and Type columns `.shrink-col` so neither takes width the language columns need', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} />);
+        const headers = screen.getAllByRole('columnheader');
+        expect(headers[0]).toHaveClass('shrink-col');
+        expect(headers[1]).toHaveClass('shrink-col');
+        const selectCell = document.querySelector('tbody tr td:nth-child(1)');
+        const typeCell = document.querySelector('tbody tr td:nth-child(2)');
+        expect(selectCell).toHaveClass('shrink-col');
+        expect(typeCell).toHaveClass('shrink-col');
     });
 });
 

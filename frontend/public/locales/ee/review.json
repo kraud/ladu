@@ -9,6 +9,40 @@
     "public": "Avalik",
     "description": "Kirjeldus"
   },
+  "filters": {
+    "title": "Filtrid",
+    "show": "Näita filtreid",
+    "collapse": "Peida filtrid",
+    "noneActive": "Ühtegi filtrit pole rakendatud",
+    "activeCount_one": "{{count}} filter aktiivne",
+    "activeCount_other": "{{count}} filtrit aktiivne",
+    "gender": "Sugu",
+    "clear": "Tühjenda",
+    "partOfSpeech": "Sõnaliik",
+    "languageOrder": "Keelte järjekord",
+    "languageOrderHint": "Järjesta nooltega · vähemalt 2 nähtavat",
+    "moveEarlier": "Nihuta {{language}} varasemaks",
+    "moveLater": "Nihuta {{language}} hilisemaks",
+    "hideLanguage": "Peida {{language}}",
+    "showLanguage": "Näita {{language}}"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Otsi sõnu…",
+    "searchLabel": "Filtreeri tabelit",
+    "displayGender": "Näita sugu",
+    "displayProgress": "Näita edenemist",
+    "rowCount": "{{count}} / {{total}} sõnast"
+  },
+  "bulk": {
+    "selected": "valitud",
+    "view": "Vaata",
+    "delete": "Kustuta",
+    "confirmTitle_one": "Kustutada {{count}} sõna?",
+    "confirmTitle_other": "Kustutada {{count}} sõna?",
+    "confirmDescription": "See eemaldab {{count}} sõna jäädavalt kõigilt, kellega neid on jagatud.",
+    "deletedToast_one": "{{count}} sõna kustutatud",
+    "deletedToast_other": "{{count}} sõna kustutatud"
+  },
   "table": {
     "posAbbr": {
       "noun": "nim.",

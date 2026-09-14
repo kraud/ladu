@@ -141,7 +141,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 4 — autocomplete | ✅ done 2026-09-13 |
 | 5 — backend: list contract | ✅ done 2026-09-13 |
 | 6 — Review table core | ✅ done 2026-09-14 |
-| 7 — filters, toolbar, bulk bar | not started |
+| 7 — filters, toolbar, bulk bar | ✅ done 2026-09-14 |
 | 8 — cell dialog | not started |
 | 9 — phase gate | not started |
 
@@ -655,10 +655,216 @@ handlers.
 13 from Slice 5's new test file plus the 2 `total` assertions this slice added to it).
 
 **Slice 7 — filters, toolbar, bulk bar.** The collapsible filter bar (gender chips, part-of-speech
-chips, dnd-kit language order), the toolbar (debounced local search, Display-gender switch, row
+chips, a language order control), the toolbar (debounced local search, Display-gender switch, row
 count), and the bulk bar with View at exactly one selection and Delete at one or more behind a
 `ConfirmDialog`. Every filter round-trips through the URL. Create-exercises and Assign-tag are
 absent, not disabled — they arrive with Phases 5 and 4.
+
+### Decisions taken with the user (2026-09-14)
+
+- **D13 — the language control reorders *and* hides.** `?lang=` becomes the **visible set, in
+  order**, superseding D6's "omitted keys are appended" rule from Slice 6. Implements the
+  blueprint's two-container list (`ui/04-review.md:32`) and finally uses the
+  `fieldLabels.activeLanguages` / `hiddenLanguages` keys that had sat unused in all four locales
+  since Slice 6. A min-2 floor applies; a stale/short `?lang=` falls back to the full account order.
+- **D14 — the Display-gender switch appears only when a noun is actually loaded**, reproducing the
+  spirit of `review-table.md:79-81` (the old app gated on the PoS filter including Noun). Corrected
+  after the first user review: gating on the *filter chip* rather than the *loaded rows* hid the
+  switch even when nouns were plainly on screen in the unfiltered list — the switch now reads
+  `rows.some(r => r.partOfSpeech === Noun)` instead.
+- **D15 — search stays server-side.** `?q=` keeps substring-matching every stored case word
+  server-side (as Slice 6 already wired), not the blueprint's "filters the visible rows
+  client-side" (`ui/04-review.md:42`) — a client-side filter would only ever search pages already
+  loaded, the same reasoning D11 already applied to sorting.
+
+Three further calls made without a separate check-in, each small and reversible:
+
+- **D16 — gender chips are per-language, not cross-language groups.** The first build grouped
+  German and Spanish spellings under one chip each (`der · el`, `die · la`, `das · el/la`); user
+  review asked for German (`der`/`die`/`das`) and Spanish (`el`/`la`/`el/la`) as two separate rows
+  of single-value chips instead, leaving a multi-language badge for a possible future pass. Each
+  chip now toggles exactly one stored case value.
+- **D17 — draggable table headers are out of scope.** `ui/04-review.md:40` also wants column
+  headers themselves draggable; Slice 7's own scope line names only the filter-bar control.
+- **D18 — `ReviewTable.tsx` is untouched.** See "Composition" below — the toolbar and bulk bar
+  mount in `ReviewPage`, not inside `ReviewTable`'s own render tree.
+- **D19 — the language control has no drag-and-drop.** The first build was a two-container
+  dnd-kit list (Active ⇄ Hidden); user review asked for a single flat row instead, with an eye /
+  eye-slash button toggling visibility (replacing the earlier X-to-hide / +-to-show pair) and the
+  existing ← / → arrows doing the reordering, unchanged. This also means `@dnd-kit/*` — installed
+  since Slice 6 — has **no consumer** in the app; nothing imports it, so it never reaches the
+  production bundle (confirmed by the build output shrinking after the rewrite). It stays installed
+  in case a later phase wants a real drag interaction elsewhere.
+- **D20 — hiding a language must not move it.** D19's first cut recomputed the flat row fresh every
+  render as `[...active, ...hidden]`, so a hidden language always visually relocated to the end of
+  the row (mixed in among the other hidden languages, in account order) — a second round of user
+  review caught this. The control now owns a stable `order` array (local state, holding every
+  account language exactly once) that visibility toggles never touch; only an explicit ← / → move
+  changes a language's position. Showing a hidden language re-inserts it at its existing `order`
+  slot rather than appending it, and reordering swaps two *visible* languages by value wherever
+  they sit in `order`, so a hidden language sitting between them is never disturbed by that swap.
+
+### Outcome — what landed (2026-09-14)
+
+**Composition.** The mockup nests the toolbar and bulk bar *inside* `.main-col`, above
+`.tablewrap`. But `ReviewTable` early-returns its empty/error states, replacing its whole
+`.main-col` — a toolbar rendered inside it would vanish exactly when the user most needs it
+(filtered to nothing, needing the search box to clear it). So `ReviewPage` now owns an outer
+`.main-col` rendering `TableToolbar` → `BulkActionBar` → `<ReviewTable>` (which keeps its own inner
+`.main-col`); both are `flex-direction: column; gap: 12px`, so nesting reproduces the mockup's
+spacing exactly. `ReviewTable.tsx` needed no edit at all (D18) — its 9 Slice-6 tests stayed green
+throughout.
+
+**`review/search.ts`** — `resolveLanguageOrder` rewritten for D13 (visible-set-in-order, min-2
+floor, full account-order fallback below that), plus a newly-exported `accountLanguageOrder`
+(the pure "account order, ignoring the URL" half, needed by both `ReviewPage` — to seed the
+Hidden column of the language control — and by `resolveLanguageOrder` itself). All 5 of Slice 6's
+`resolveLanguageOrder` tests were rewritten for the new semantics; `hasActiveFilters` and
+`reviewSearchToFilters` were untouched.
+
+**`review/languageOrder.ts`** (new, twice-revised) — the array math behind the language control,
+split out as pure functions for the same reason `row.ts`/`completion.ts` already exist. Its final
+shape (D20): `initialOrder` (seeds the stable `order` state on mount — active languages first, in
+their given order, then the rest of the account in account order), `reconcileOrder` (keeps `order`
+in step with the account's language set, and rebuilds only when `active` changed from *outside*
+this component's own actions — a direct URL edit or browser back/forward; returns `prev` by
+reference, not just by value, when nothing changed, so `LanguageOrderControl`'s `setState` call can
+bail out of the extra render), `hideLanguage` (unchanged — drops from `active`, floor-guarded),
+`showLanguage` (re-inserts into `active` at the language's existing `order` position — the fix
+D20 needed, replacing the plain-append it had before), and `moveWithinOrder` (swaps two *visible*
+languages by value wherever they sit in `order`, returning both the new `order` and the new
+`active` together, so a hidden language between them never moves). The drag-adapter function
+(`computeDragEndChange`) and its container-id constants from the first (D19) rewrite are gone.
+
+**`review/LanguageOrderControl.tsx`** (new, twice-revised) — a single flat row rendering the stable
+`order` array (component state, not recomputed from props each render). Each chip is a ← / eye
+(-slash) / → triplet: the eye toggles visibility (`hideLanguage`/`showLanguage`) without ever
+calling `setOrder` — position is a separate concern from visibility by construction, not by
+convention — and the arrows call `moveWithinOrder`, updating both `order` and firing `onChange`
+with the derived `active`. A hidden chip's arrows are simply disabled (nothing to reorder it
+relative to) and it renders slightly greyed via a `[data-hidden]` CSS hook. A `useEffect` on
+`[active, allLanguages]` runs `reconcileOrder` after every change; because every one of this
+component's own actions already leaves `order`'s visible subset in exact agreement with the
+`active` it just passed to `onChange`, that effect is a same-reference no-op immediately after any
+of them — it only does real work for a genuine external change. No `DndContext`, no sensors, no
+drag state at all.
+
+**`review/FilterBar.tsx`** (new) — the collapsible `.card.filterbar`, defaulting to expanded (the
+mockup's own default). PoS chips are generic `.chip` toggles; `columns.tsx`'s private `posAbbrKey`
+helper was exported so the filter chips and the Type column share one abbreviation source rather
+than duplicating the PartOfSpeech→abbreviation map. Gender chips are two per-language rows (D16),
+each labelled with the language's native name (`languageByKey('DE').native` = "Deutsch") and a
+`FlagIcon`, never translated — consistent with how `WordCell`/`LanguagePicker` already treat
+language names. No Tags group, per D1.
+
+**`review/TableToolbar.tsx`** (new) — the debounced (500 ms) search box, built on the existing
+`lib/useDebouncedCallback.ts` value-debounce, and the Display-gender `Switch`. `showSwitch` is a
+plain boolean prop — `TableToolbar` itself has no opinion on what drives it; `ReviewPage` supplies
+it from `rows.some(r => r.partOfSpeech === Noun)` (D14, corrected after user review — see above).
+One bug found and fixed by its own test before this ever reached a real page: the naive `useEffect`
+on the debounced value fires on **mount** too (React runs every effect after the first render),
+which would have written a spurious `q: undefined` navigate on every single page load before any
+typing happened. A `useRef` mount guard skips that first firing.
+
+**`review/BulkActionBar.tsx`** (new) — owns its own `ConfirmDialog` state (reusing
+`components/common/ConfirmDialog.tsx` unchanged) rather than pushing a `confirming` boolean up into
+`ReviewPage`, matching how self-contained the rest of the review feature's small components already
+are. Renders `null` at zero selection; View enabled only at exactly one; Delete calls
+`useBulkDeleteWords` (Slice 6, unchanged) through `ReviewPage`'s toast/error wiring.
+
+**`components/ui/switch.tsx`** (new) — a plain `<button aria-pressed>` with a `.track` knob
+(`MOCKUPS/review.html:159-161`), not `@base-ui/react/switch` — per D9, small enough that porting the
+exact mockup markup was simpler than onboarding a new base-ui primitive for its one consumer.
+
+**CSS** — `.layout`, `.filterbar`, `.fb-body`, `.fb-group`, `.fb-collapsed`, `.active-pill`,
+`.chips`, `.lang-chip`, `.toolbar`, `.switch` (+`.track`), and `.bulkbar` ported from
+`MOCKUPS/review.html:9-62` into `globals.css`, translating `var(--radius)` → `var(--radius-md)`.
+One real deviation from the plan's literal architecture: the bulk bar's buttons **are** shadcn
+`Button` (the `.btn` family is deliberately never ported, D9), so `.bulkbar`'s button overrides are
+written against `.bulkbar [data-slot="button"]` — the attribute shadcn's own `button.tsx` already
+stamps on every instance — rather than requiring a marker class on every consumer.
+
+**i18n** — new `filters.*`, `toolbar.*` and `bulk.*` blocks in all four `review.json` locales,
+English authored first. Estonian copy flagged for review, as every slice this phase.
+
+**Tests**: `features/words/review/search.test.ts` (net +9: 2 new `accountLanguageOrder` cases, the
+5 `resolveLanguageOrder` cases rewritten to 7 for D13's visible-set semantics).
+`features/words/review/languageOrder.test.ts` (18 tests) — every pure function's normal and
+boundary cases (including the min-2 floor and the D20 fix's core claims: `showLanguage` re-inserts
+at the language's existing `order` slot rather than appending, `moveWithinOrder` leaves a hidden
+language sitting between two swapped visible ones untouched, and `reconcileOrder` returns the exact
+same array reference when nothing changed). `features/words/review/LanguageOrderControl.test.tsx`
+(11 tests) — rendering, ± reorder both directions, hide (allowed and floor-blocked), show, a hidden
+chip's arrows both disabled, the `[data-hidden]` marker present only on hidden chips, and a
+dedicated "hiding preserves position" block (3 tests, via a `Controlled` wrapper owning `active`
+state across re-renders): hide-then-show returns a language to its exact original slot rather than
+the end; hiding the first language leaves the row order otherwise unchanged; a manual reorder
+survives an unrelated language's hide/show round trip. `features/words/review/FilterBar.test.tsx`
+(13 tests) — collapse/expand, the active-count pill (including gender values counting
+individually), both per-language gender groups rendering and toggling independently (D16), Clear's
+conditional visibility, PoS toggle on/off, no Tags group. `features/words/review/TableToolbar.test.tsx`
+(7 tests, fake timers) — the debounce window, timer reset on keystroke, whitespace-only mapping to
+`undefined`, external-reset resync, the switch's conditional visibility (prop-driven, D14's actual
+gate lives in `ReviewPage`), row count. `features/words/review/BulkActionBar.test.tsx` (5 tests) —
+zero-selection null render, View's exactly-one gate, the confirm-dialog round trip, Cancel doing
+nothing. `features/words/pages/ReviewPage.test.tsx` (+8, via `renderApp`/MSW): a PoS chip narrowing
+the list and reaching the request, a single per-language gender chip reaching the request, a filter
+surviving a real reload (a fresh `renderApp` mount at the post-filter URL, not just a client-side
+re-render), hiding a language dropping its column with **zero** extra `/simple` requests (proving
+`lang` truly never re-triggers the query), the Display-gender switch appearing once a noun is
+loaded with no PoS filter applied and staying absent with none loaded (D14's regression test), and
+both bulk-delete tests (confirm round-trip removing the rows with a pluralized success toast;
+View's exactly-one gate end to end).
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green — and its output bundle shrank
+(963 KB → ~923 KB minified) once `@dnd-kit/*` lost its only would-be consumer under D19; `npm test -w frontend`
+**378 → 445** (67 net new). Backend untouched — not re-run this slice, same pattern as every
+non-backend slice this phase.
+
+### Third round of user-review fixes (2026-09-14)
+
+Four more corrections, made after a second pass over the running app — none change the URL
+contract or any backend behaviour, so all stay inside this slice rather than opening a new one:
+
+- **D21 — the gender filter's per-language label is the 2-letter code (`DE`/`ES`), not the native
+  name (`Deutsch`/`Español`).** The flag already identifies the language; the code reads faster
+  next to three short case-word chips than a full native name does.
+- **D22 — the Type column shrinks to its abbreviation's own width.** `.dtable`'s auto table layout
+  (`width: 100%`, no explicit per-column widths) was stretching every column — including a 2–4
+  character abbreviation — to share the table's leftover space evenly. `ReviewTable.tsx` now tags
+  that column `.pos-col` (header and cell alike), and `globals.css` applies the standard
+  auto-layout "shrink to content" trick: `width: 1%` plus `white-space: nowrap` forces the browser
+  to give that column only what its content needs, leaving the freed space for the language
+  columns instead. (This is the first edit to `ReviewTable.tsx` since D18 — that decision was about
+  Slice 7's initial composition choice, not a permanent freeze on the file.)
+- **D23 — the completion detail is a real floating `Tooltip`, not an inline CSS hover-reveal.** The
+  old `.ring-wrap:hover .ring-detail { display: inline }` trick rendered the "N of M cases" text
+  *inline*, next to the ring, which pushed the word text and gender chip sideways while hovering —
+  exactly the layout-shift the user flagged. New `components/ui/tooltip.tsx` wraps
+  `@base-ui/react/tooltip` (installed already, unused until now) in the same thin-wrapper style as
+  `dialog.tsx`/`checkbox.tsx`; `CompletionRing` now renders the ring as a focusable `TooltipTrigger`
+  and the detail as `TooltipContent`, portal-rendered so it floats over the table instead of
+  occupying flow layout. Reachable by keyboard focus, not just hover.
+- **D24 — the completion ring itself is now gated behind a new "Display progress" toolbar switch**,
+  built the same way as "Display gender" but **always visible** rather than noun-gated — completion
+  applies to every part of speech with a config, not just nouns. Threads through exactly the same
+  chain gender already does: `ReviewPage` (new `showProgress` state, default on) →
+  `TableToolbar` (new `Switch`) → `ReviewTable` → `columns.tsx`'s `BuildColumnsOptions` →
+  `WordCell` (skips rendering `CompletionRing` entirely when off).
+
+**Tests**: `FilterBar.test.tsx`'s gender-group test rewritten for the 2-letter label, scoped with
+`within()` since the same code also appears in the language-order chips on the same page.
+`ReviewTable.test.tsx` (+1): both the Type header and its cells carry `.pos-col`.
+`CompletionRing.test.tsx`'s "always renders detail text" test replaced with two: the detail text is
+absent until interaction, and `userEvent.hover` on the ring reveals it via `findByText` (exercising
+the tooltip's real open delay rather than mocking it away). `WordCell.test.tsx` (+1, all call sites
+gained `showProgress`): the ring disappears entirely when `showProgress` is off even though a
+config exists. `TableToolbar.test.tsx` (+1): the new switch shows regardless of `showSwitch`
+(unlike gender) and toggles. `ReviewPage.test.tsx` (+1): the switch is on by default and turning it
+off removes every `.ring` from the page.
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**445 → 450** (5 net new). Backend untouched.
 
 **Slice 8 — cell dialog.** Clicking a filled cell opens a `Dialog` with that language's full
 translation, fed by `useWord` and rendered through `TranslationCard`. Save updates the word and

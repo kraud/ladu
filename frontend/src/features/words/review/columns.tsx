@@ -8,8 +8,8 @@ import { PartOfSpeech } from '@/ts/enums';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 import { WordCell } from './WordCell';
 
-/** `Noun` -> `"review:table.posAbbr.noun"`, mirroring `lib/words.ts`'s `partOfSpeechLabelKey`. */
-function posAbbrKey(pos: PartOfSpeech): string {
+/** `Noun` -> `"review:table.posAbbr.noun"`, mirroring `lib/words.ts`'s `partOfSpeechLabelKey`. Exported for `FilterBar`'s PoS chips (Slice 7), same abbreviations as the Type column. */
+export function posAbbrKey(pos: PartOfSpeech): string {
     const key = (Object.keys(PartOfSpeech) as (keyof typeof PartOfSpeech)[]).find(
         (candidate) => PartOfSpeech[candidate] === pos,
     );
@@ -24,6 +24,8 @@ export interface BuildColumnsOptions {
     userName: string;
     /** Toolbar "Display gender" switch (Slice 7). Defaults to visible until that switch exists. */
     showGender: boolean;
+    /** Toolbar "Display progress" switch — gates the completion ring per cell. */
+    showProgress: boolean;
     t: TFunction;
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
 }
@@ -34,7 +36,7 @@ export interface BuildColumnsOptions {
  * point needs to change when it lands.
  */
 export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSimpleBE>[] {
-    const { languages, userId, userName, showGender, t, onOpenCell } = options;
+    const { languages, userId, userName, showGender, showProgress, t, onOpenCell } = options;
 
     const selectColumn: ColumnDef<WordSimpleBE> = {
         id: 'select',
@@ -94,6 +96,7 @@ export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSi
                 langKey={langKey}
                 isOwn={row.original.user === userId}
                 showGender={showGender}
+                showProgress={showProgress}
                 onOpenCell={onOpenCell}
             />
         ),

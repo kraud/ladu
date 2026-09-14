@@ -105,22 +105,35 @@ export function hasActiveFilters(search: ReviewSearch): boolean {
     return search.q !== undefined || search.pos !== undefined || search.gender !== undefined;
 }
 
-/**
- * URL order wins; anything the URL omits (or an unrecognised/stale label) is
- * appended in the user's own account order, so a partial or bad `?lang=` can
- * never lose a column outright.
- */
-export function resolveLanguageOrder(
-    fromUrl: LangKey[] | undefined,
-    userLanguages: readonly string[],
-): LangKey[] {
+/** The account's own language order, as `LangKey`s — ignores the URL entirely. */
+export function accountLanguageOrder(userLanguages: readonly string[]): LangKey[] {
     const base: LangKey[] = [];
     for (const label of userLanguages) {
         const entry = languageByLabel(label);
         if (entry) base.push(entry.key);
     }
+    return base;
+}
+
+/** The lowest number of visible language columns the language-order control ever allows (D13). */
+export const MIN_VISIBLE_LANGUAGES = 2;
+
+/**
+ * `?lang=` is the **visible set, in order** (D13) — not merely a reordering of
+ * every account language. Omitting a key hides that column; there is no
+ * "anything omitted is appended" fallback, unlike the pre-Slice-7 D6 contract
+ * this replaces. A stale/unknown key is dropped, and if fewer than
+ * `MIN_VISIBLE_LANGUAGES` survive that filtering, the whole thing falls back
+ * to the full account order — a hand-mangled or very stale URL must never
+ * strand the table at zero or one column.
+ */
+export function resolveLanguageOrder(
+    fromUrl: LangKey[] | undefined,
+    userLanguages: readonly string[],
+): LangKey[] {
+    const base = accountLanguageOrder(userLanguages);
     if (!fromUrl) return base;
     const allowed = new Set(base);
-    const ordered = fromUrl.filter((key) => allowed.has(key));
-    return [...ordered, ...base.filter((key) => !ordered.includes(key))];
+    const visible = Array.from(new Set(fromUrl.filter((key) => allowed.has(key))));
+    return visible.length >= MIN_VISIBLE_LANGUAGES ? visible : base;
 }

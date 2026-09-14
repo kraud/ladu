@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { PartOfSpeech } from '@/ts/enums';
+import type { LangKey } from '@/features/words/types';
 import {
+    accountLanguageOrder,
     hasActiveFilters,
     resolveLanguageOrder,
     reviewSearchToFilters,
@@ -91,7 +93,17 @@ describe('hasActiveFilters', () => {
     });
 });
 
-describe('resolveLanguageOrder', () => {
+describe('accountLanguageOrder', () => {
+    it('maps each configured label to its LangKey, in account order', () => {
+        expect(accountLanguageOrder(['German', 'English', 'Spanish'])).toEqual(['DE', 'EN', 'ES']);
+    });
+
+    it('drops an unrecognised label', () => {
+        expect(accountLanguageOrder(['German', 'Klingon'])).toEqual(['DE']);
+    });
+});
+
+describe('resolveLanguageOrder (D13 — visible set, not merely reorder)', () => {
     const userLanguages = ['German', 'English', 'Spanish'];
 
     it('uses the account order when the URL supplies nothing', () => {
@@ -99,15 +111,31 @@ describe('resolveLanguageOrder', () => {
     });
 
     it('the URL order wins for the keys it names', () => {
-        expect(resolveLanguageOrder(['EN', 'DE'], userLanguages)).toEqual(['EN', 'DE', 'ES']);
+        expect(resolveLanguageOrder(['EN', 'DE'], userLanguages)).toEqual(['EN', 'DE']);
     });
 
-    it('appends anything the URL omits, in the account order', () => {
-        expect(resolveLanguageOrder(['ES'], userLanguages)).toEqual(['ES', 'DE', 'EN']);
+    it('hides anything the URL omits — no longer appended (supersedes pre-Slice-7 D6)', () => {
+        expect(resolveLanguageOrder(['ES', 'EN'], userLanguages)).toEqual(['ES', 'EN']);
     });
 
-    it('drops a stale/unknown key from the URL rather than losing a column', () => {
-        expect(resolveLanguageOrder(['EE', 'EN'], userLanguages)).toEqual(['EN', 'DE', 'ES']);
+    it('drops a stale/unknown key while keeping the rest, when 2+ survive', () => {
+        expect(resolveLanguageOrder(['EE', 'EN', 'DE'], userLanguages)).toEqual(['EN', 'DE']);
+    });
+
+    it('de-duplicates a repeated key', () => {
+        expect(resolveLanguageOrder(['EN', 'EN', 'DE'], userLanguages)).toEqual(['EN', 'DE']);
+    });
+
+    it('falls back to the full account order when fewer than 2 keys survive', () => {
+        expect(resolveLanguageOrder(['EN'], userLanguages)).toEqual(['DE', 'EN', 'ES']);
+    });
+
+    it('falls back to the full account order when every key is unknown', () => {
+        expect(resolveLanguageOrder(['XX', 'YY'] as unknown as LangKey[], userLanguages)).toEqual([
+            'DE',
+            'EN',
+            'ES',
+        ]);
     });
 
     it('returns an empty order when the account has no configured languages', () => {

@@ -26,6 +26,8 @@ export interface WordCellProps {
     /** `row.user === session user id`. Gates Add vs. the read-only Block glyph on an empty cell. */
     isOwn: boolean;
     showGender: boolean;
+    /** Toolbar "Display progress" switch — the completion ring renders only while this is on. */
+    showProgress: boolean;
     /** Unset in Slice 6 — the cell renders inert buttons until Slice 8 wires the editor dialog. */
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
 }
@@ -40,7 +42,7 @@ export interface WordCellProps {
  *   3. a translation with a headline word -> the word, an optional gender
  *      chip, and the completion ring.
  */
-export function WordCell({ row, langKey, isOwn, showGender, onOpenCell }: WordCellProps) {
+export function WordCell({ row, langKey, isOwn, showGender, showProgress, onOpenCell }: WordCellProps) {
     const { t } = useTranslation();
     // Language names are shown in their OWN native form, matching
     // `LanguagePicker`'s convention (design commandment: never treat one
@@ -85,11 +87,13 @@ export function WordCell({ row, langKey, isOwn, showGender, onOpenCell }: WordCe
                     <span className={`gender-chip ${genderClass(gender) ?? ''}`}>{gender}</span>
                 )}
             </button>
-            <CompletionRing
-                value={value}
-                total={total}
-                detail={t('review:table.ringDetail', { value, total })}
-            />
+            {showProgress && (
+                <CompletionRing
+                    value={value}
+                    total={total}
+                    detail={t('review:table.ringDetail', { value, total })}
+                />
+            )}
         </div>
     );
 }

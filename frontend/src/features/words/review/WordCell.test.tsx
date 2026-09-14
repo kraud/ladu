@@ -27,7 +27,14 @@ describe('WordCell — no translation stored', () => {
                 <tbody>
                     <tr>
                         <td>
-                            <WordCell row={row} langKey="EN" isOwn showGender onOpenCell={onOpenCell} />
+                            <WordCell
+                                row={row}
+                                langKey="EN"
+                                isOwn
+                                showGender
+                                showProgress
+                                onOpenCell={onOpenCell}
+                            />
                         </td>
                     </tr>
                 </tbody>
@@ -47,7 +54,7 @@ describe('WordCell — no translation stored', () => {
                 <tbody>
                     <tr>
                         <td>
-                            <WordCell row={row} langKey="EN" isOwn={false} showGender />
+                            <WordCell row={row} langKey="EN" isOwn={false} showGender showProgress />
                         </td>
                     </tr>
                 </tbody>
@@ -67,7 +74,7 @@ describe('WordCell — translation stored', () => {
                 <tbody>
                     <tr>
                         <td>
-                            <WordCell row={row} langKey="EN" isOwn showGender />
+                            <WordCell row={row} langKey="EN" isOwn showGender showProgress />
                         </td>
                     </tr>
                 </tbody>
@@ -75,8 +82,7 @@ describe('WordCell — translation stored', () => {
         );
 
         expect(screen.getByRole('button')).toHaveTextContent('house');
-        // English noun's expected count is 3 (regularity, singular, plural).
-        expect(screen.getByText('2 of 3 cases')).toBeInTheDocument();
+        expect(document.querySelector('.ring')).toBeInTheDocument();
     });
 
     it('renders a dash when the language is stored but has no headline case', () => {
@@ -91,7 +97,7 @@ describe('WordCell — translation stored', () => {
                 <tbody>
                     <tr>
                         <td>
-                            <WordCell row={row} langKey="ES" isOwn showGender />
+                            <WordCell row={row} langKey="ES" isOwn showGender showProgress />
                         </td>
                     </tr>
                 </tbody>
@@ -115,7 +121,7 @@ describe('WordCell — translation stored', () => {
                 <tbody>
                     <tr>
                         <td>
-                            <WordCell row={row} langKey="DE" isOwn showGender />
+                            <WordCell row={row} langKey="DE" isOwn showGender showProgress />
                         </td>
                     </tr>
                 </tbody>
@@ -128,7 +134,7 @@ describe('WordCell — translation stored', () => {
                 <tbody>
                     <tr>
                         <td>
-                            <WordCell row={row} langKey="DE" isOwn showGender={false} />
+                            <WordCell row={row} langKey="DE" isOwn showGender={false} showProgress />
                         </td>
                     </tr>
                 </tbody>
@@ -150,7 +156,7 @@ describe('WordCell — translation stored', () => {
                 <tbody>
                     <tr>
                         <td>
-                            <WordCell row={row} langKey="EE" isOwn showGender />
+                            <WordCell row={row} langKey="EE" isOwn showGender showProgress />
                         </td>
                     </tr>
                 </tbody>
@@ -158,6 +164,24 @@ describe('WordCell — translation stored', () => {
         );
 
         expect(screen.getByRole('button')).toHaveTextContent('kiiresti');
+        expect(document.querySelector('.ring')).not.toBeInTheDocument();
+    });
+
+    it('hides the completion ring entirely when showProgress is off, even with a config', () => {
+        const row = baseRow({ dataEN: 'house', registeredCasesEN: 2, storedLanguages: ['English'] });
+        renderWithProviders(
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <WordCell row={row} langKey="EN" isOwn showGender showProgress={false} />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>,
+        );
+
+        expect(screen.getByRole('button')).toHaveTextContent('house');
         expect(document.querySelector('.ring')).not.toBeInTheDocument();
     });
 });
