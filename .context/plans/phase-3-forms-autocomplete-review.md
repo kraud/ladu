@@ -145,7 +145,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 8 — cell dialog | ✅ done 2026-09-14 |
 | 9 — form layout: paired rows (nouns, Spanish adjectives) | ✅ done 2026-09-15 |
 | 10 — form layout: verb tense columns + width | ✅ done 2026-09-15 |
-| 11 — phase gate | not started |
+| 11 — phase gate | ✅ done 2026-09-15 — **Phase 3 complete** |
 
 **Slice 0 — persist this plan.** This file.
 
@@ -1307,6 +1307,83 @@ at the time they were recorded.
 D42 additionally checked in the browser against the real stack (throwaway spec, deleted after the
 run): `/review` renders `switch "Display progress"` unpressed with zero `.ring` elements, and
 clicking it adds them.
+
+### Decisions taken with the user (2026-09-15)
+
+- **D44 — the top-level gate line "row selection asserted to survive a filter change in a test"
+  is reinterpreted, not implemented literally.** `ReviewPage.tsx:76-78` deliberately resets
+  `rowSelection` to `{}` on every `filtersKey` change — added in Slice 6 specifically so a
+  selected id can't silently target a word that just dropped out of view. A literal
+  "survives a filter change" test would contradict that shipped, reasoned-about behaviour. The
+  gate's real intent — frontend invariant #5, "stable-id row selection (never index)" — is what
+  `ReviewTable.test.tsx`'s Slice 6 "survives a data replace" test already covers structurally; this
+  slice closes the gate by pinning the actual product behaviour at the `ReviewPage` integration
+  level instead: selection clears on a real filter change (even for a row that stays visible under
+  the new filter, ruling out "it happened to still be there" as a false positive), and survives
+  Load More paging within one filter, where TanStack Table's `getRowId` is what's actually being
+  exercised.
+
+### Outcome — what landed (2026-09-15)
+
+- **`e2e/tests/phase-3-review.spec.ts`** (new, 1 test, following `phase-1-auth.spec.ts`/
+  `phase-2-noun-crud.spec.ts` conventions) — the vertical slice from the "Verification" section
+  below, walked for real: register + verify → sign in → a German noun through the real
+  "+ Add translation" flow, typing `Baum` into "Singular nominative" and letting the real
+  (offline, dictionary-backed — `getNounDE` never calls an external API, so this needed no network
+  mocking) autocomplete lookup fill gender via "Fill in" → a Verb, the first e2e coverage of the
+  Slice 9/10 wide-shell tense-grid layout → `/review`, filtered to Verb, filter confirmed to
+  survive a real `page.reload()` → **Load more** paging in a second page seeded directly through
+  `POST /api/words` (50 extra Verb words in `beforeAll`, oldest-first, so the one on the second
+  page is deterministic) → selecting that second-page row and landing on it via View, proving
+  navigation resolves by the row's stable word id, not a position a second page would shift.
+- **Bug found and fixed — `e2e/fixtures/db.ts`'s `pool` was a per-worker-process singleton, not a
+  per-file one.** Every `*.spec.ts` file calls `closePool()` in its own `afterAll`, which is only
+  safe if each file gets its own worker process — true by luck locally (more CPU cores than spec
+  files, so `fullyParallel` usually schedules one file per worker) but **guaranteed to break** under
+  `workers: CI ? 1 : undefined` the moment Phase 8 wires up the deferred CI job: every file would
+  then share one process, and whichever file's `afterAll` runs first kills the pool for every file
+  still queued behind it in that worker. Reproduced locally with `--workers=1` (`phase-2`'s
+  `afterAll` throws `Cannot use a pool after calling end on the pool`), the same category of find as
+  Phase 2 Slice 6's `useCanGoBack` bug — a latent bug this phase's gate pass was the first thing to
+  actually exercise. Fixed with a lazy, re-openable `getPool()` instead of a plain module-scope
+  `pool`: `closePool()` is now a no-op once already closed, and any later call from another file in
+  the same worker transparently reopens a fresh pool. Verified both ways: `--workers=1` (all 10
+  tests share one process) and the default parallel run, both green.
+- **`ReviewPage.test.tsx`** (+2, per D44) — a new "Slice 11: selection lifecycle" block: a real PoS
+  filter change clears the selection even for a row (`cat`) that stays visible under the new filter
+  (ruling out "it's still on screen" as a false-positive reason for the assertion to hold); a
+  selection survives **Load more** within the same filter, asserted against the *same* DOM node
+  (TanStack Table keeps rows already on screen mounted across an append) rather than re-querying by
+  text, so the assertion actually exercises `getRowId`, not incidental DOM stability.
+- **`.context/.frontend/frontend-structure.md`** reconciled against what Phase 3 actually shipped
+  (same kind of pass as Phase 2 Slice 6's `frontend-structure.md` fixes): the `review/` sketch
+  still named `FilterSidebar`/`DualListDnD`, both superseded during Slice 7 (D5, D19/D20) by
+  `FilterBar`/`LanguageOrderControl` — `DualListDnD` was never built at all, confirmed by grep
+  (`@dnd-kit` has zero consumers in `src/`); `WordCell.tsx`, `TableToolbar.tsx`, `languageOrder.ts`,
+  `search.ts`, `row.ts`, `completion.ts` and `fieldLayout.ts` weren't listed; `AppShell`'s `wide`
+  prop was documented backwards (it reads a route's `staticData.wide`, and it's the word-editor
+  routes that opt in, not Review — Slice 10's own outcome already flagged this exact docstring
+  error in `AppShell.tsx` itself, just not here yet); `autocomplete/transforms.ts`'s description
+  still guessed at the plan's original "4 sanitizers" framing instead of the Slice 4 outcome's
+  actual 1-generic-plus-3-Estonian-bespoke shape; `words/types.ts` still named the never-ported
+  `TableWordData` instead of the real `WordSimpleBE`.
+- **Gate-wording note, not a code change**: `grep -rn "setTimerTriggerFunction" frontend/src`
+  returns **one** hit — `useDebouncedCallback.ts`'s own docstring, explaining what the hook
+  replaced, not a surviving instance of the pattern. Recorded as an expected non-hit, the same
+  treatment Phase 2 Slice 6 gave its two expected `_id` non-hits, rather than editing the comment
+  to dodge the literal grep.
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
+**538 → 540** (+2, `ReviewPage.test.tsx` — the plan's last recorded count, 535, was already stale
+by the time this slice started, independent of this slice's own changes: re-verified against a
+`git stash` of just this slice's test edit, the baseline was actually 538, not 535). `npm test`
+(backend) **165/165**, unchanged — no backend files touched this slice. `npm run test:e2e`
+**9 → 10** (+1, the new spec), verified green both under the default parallel run and under
+`--workers=1` (the CI shape) after the `fixtures/db.ts` fix. Phase 3 gate: all four commands green;
+the `setTimerTriggerFunction` grep and the selection-lifecycle invariant are both closed per D44
+above.
+
+**Phase 3 complete.**
 
 ## Files
 

@@ -22,11 +22,23 @@ if (!connectionString) {
     );
 }
 
-const pool = new pg.Pool({ connectionString });
+// A lazy, re-creatable singleton, NOT a plain module-scope `pool` — Playwright
+// runs multiple `*.spec.ts` files inside the same worker process (guaranteed
+// under `workers: 1`, the CI setting above, and possible locally whenever
+// there are more spec files than workers). Every file imports this same
+// module instance, so a plain `pool.end()` in one file's `afterAll` would
+// kill the connection out from under every other file sharing that worker.
+// `getPool()` transparently reopens after a close instead.
+let pool: pg.Pool | undefined;
+
+function getPool(): pg.Pool {
+    if (!pool) pool = new pg.Pool({ connectionString });
+    return pool;
+}
 
 /** The email-verification token minted for `email` at registration. */
 export async function getVerifyToken(email: string): Promise<{ userId: string; token: string }> {
-    const { rows } = await pool.query<{ userId: string; token: string }>(
+    const { rows } = await getPool().query<{ userId: string; token: string }>(
         `SELECT u.id AS "userId", t.token
            FROM users u
            JOIN tokens t ON t.user_id = u.id
@@ -43,7 +55,7 @@ export async function deleteUsersByEmail(emails: string[]): Promise<void> {
     try {
         // FK cascade removes the matching `tokens` rows; Phase-1 accounts have
         // no words / tags / friendships attached.
-        await pool.query(`DELETE FROM users WHERE lower(email) = ANY($1::text[])`, [
+        await getPool().query(`DELETE FROM users WHERE lower(email) = ANY($1::text[])`, [
             emails.map((e) => e.toLowerCase()),
         ]);
     } catch (error) {
@@ -51,6 +63,10 @@ export async function deleteUsersByEmail(emails: string[]): Promise<void> {
     }
 }
 
+/** Safe to call from every spec file's `afterAll`, in any order — a no-op once already closed, and `getPool()` reopens transparently if another file still needs it after. */
 export async function closePool(): Promise<void> {
-    await pool.end();
+    if (!pool) return;
+    const current = pool;
+    pool = undefined;
+    await current.end();
 }

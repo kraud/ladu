@@ -348,3 +348,54 @@ describe('ReviewPage — Slice 8: cell dialog', () => {
         expect(await screen.findByLabelText('Singular nominative')).toHaveValue('');
     });
 });
+
+describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, frontend-invariant #5)', () => {
+    it('a real filter change clears the selection, even for a row that stays visible', async () => {
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [nounSeed('cat', 'w1'), verbSeed('run', 'w2')],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        const catRow = (await screen.findByText('cat')).closest('tr')!;
+        await user.click(within(catRow).getByRole('checkbox'));
+        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+
+        // Filters to Noun — `cat` stays on screen, `run` drops off. The
+        // selection is not carried across the filter change regardless: a
+        // row surviving the new filter by coincidence is not evidence the
+        // selection "survived", ReviewPage.tsx resets `rowSelection` on every
+        // `filtersKey` change unconditionally (ReviewPage.tsx:76-78).
+        await user.click(screen.getByRole('button', { name: 'n.' }));
+        await waitFor(() => expect(fake.simpleQueries).toHaveLength(2));
+        expect(await screen.findByText('cat')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument();
+    });
+
+    it('a selection survives Load more paging in the next batch of the same filter', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(String(i), `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(51)); // 50 words + header row
+
+        const firstRow = screen.getAllByRole('row')[1]!;
+        await user.click(within(firstRow).getByRole('checkbox'));
+        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+
+        await user.click(screen.getByRole('button', { name: 'Load more' }));
+        await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(52)); // 51 words + header row
+
+        // Same DOM row (TanStack Table's `getRowId` keys by word id, so
+        // appending a second page does not remount rows already on screen) —
+        // its checkbox is still checked and the bulk bar still reflects one
+        // selection, proving selection tracks the row's stable id across a
+        // data-append, not a positional index that a second page would shift.
+        expect(within(firstRow).getByRole('checkbox')).toBeChecked();
+        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+    });
+});
