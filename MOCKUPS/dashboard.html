@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard · Ladu</title>
+<link rel="stylesheet" href="assets/app.css" />
+<style>
+  main { padding-block: 20px 56px; }
+
+  /* avatar menu (page-scoped, mirrors profile.html) */
+  .menu-anchor { position: relative; }
+  .avatar-menu {
+    position: absolute; top: calc(100% + 6px); right: 0; z-index: 50;
+    min-width: 180px; padding: 6px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.12);
+  }
+  .avatar-menu[hidden] { display: none; }
+  .avatar-menu a, .avatar-menu button {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    height: 34px; padding: 0 10px; border-radius: 7px;
+    font-size: 13.5px; font-weight: 500; color: var(--fg); text-align: left;
+  }
+  .avatar-menu a:hover, .avatar-menu button:hover { background: var(--fg-soft); }
+  .avatar-menu a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .avatar-menu .sep { height: 1px; background: var(--border); margin: 5px 4px; }
+  .avatar-menu .logout { color: var(--danger); }
+
+  /* welcome banner */
+  .welcome { margin-bottom: 20px; }
+  .welcome h1 { font-size: 28px; }
+  .greeting {
+    display: inline-block; min-height: 1.5em; margin-top: 2px;
+    font-family: var(--font-display); font-style: italic;
+    font-size: 16px; color: var(--muted);
+    transition: opacity .3s ease;
+  }
+  .greeting.fade { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    .greeting { transition: none; }
+    .skeleton { animation: none; }
+  }
+
+  /* layout */
+  .dash-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: start; }
+  @media (max-width: 920px) { .dash-grid { grid-template-columns: 1fr; } }
+
+  /* stat cards */
+  .stat-stack { display: flex; flex-direction: column; gap: 12px; }
+  .stat-card { padding: 16px 18px; }
+  .stat-card .s-num {
+    font-family: var(--font-display); font-size: 34px; font-weight: 600;
+    letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums;
+  }
+  .stat-card .s-label { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .stat-card .s-sub { font-size: 11.5px; color: var(--muted); font-family: var(--font-mono); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
+  .stat-card.warn .s-num { color: var(--warning); }
+  .stat-card .meter { margin-top: 10px; }
+  .stat-card.warn .meter > span { background: var(--warning); }
+  .sk-num { width: 90px; height: 34px; }
+  .sk-label { width: 130px; height: 14px; margin-top: 8px; }
+
+  /* metrics panel */
+  .metrics { padding: 18px 20px; display: flex; flex-direction: column; gap: 22px; }
+  .chart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .chart-head h2 { font-size: 15px; font-weight: 600; }
+  .chart-title-note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .seg { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 999px; padding: 2px; gap: 2px; flex: none; background: var(--bg); }
+  .seg button { height: 24px; padding: 0 11px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--muted); transition: background .1s ease, color .1s ease; }
+  .seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+  .seg button:hover:not([aria-pressed="true"]) { color: var(--fg); }
+  .chart-block + .chart-block { border-top: 1px solid var(--border); padding-top: 20px; }
+
+  /* pie */
+  .pie-wrap { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+  .pie-legend { display: flex; flex-direction: column; gap: 7px; min-width: 190px; }
+  .legend-row {
+    display: grid; grid-template-columns: 12px 1fr auto auto; gap: 10px; align-items: center;
+    font-size: 13px; padding: 3px 6px; border-radius: 6px;
+  }
+  .legend-row .dot { width: 10px; height: 10px; border-radius: 3px; }
+  .legend-row .l-name { color: var(--fg); font-weight: 500; }
+  .legend-row .l-count { font-family: var(--font-mono); font-size: 12.5px; color: var(--fg); font-variant-numeric: tabular-nums; }
+  .legend-row .l-pct { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
+  a.legend-row, svg a { cursor: pointer; }
+  a.legend-row:hover { background: var(--fg-soft); }
+  .worst-hint { font-size: 12px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+  .worst-hint a { color: var(--accent); font-weight: 600; }
+  .seg-link { stroke-dasharray: 3 3; }
+  svg a:hover path.seg { filter: brightness(1.08); }
+
+  /* bar */
+  .bar-svg text { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+  .bar-svg .grid-line { stroke: var(--border); stroke-width: 1; }
+  .bar-svg .bar { transition: opacity .12s ease; }
+  .bar-svg .bar:hover { opacity: .78; }
+  .bar-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; }
+  .bar-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .bar-legend .dot { width: 9px; height: 9px; border-radius: 3px; }
+
+  /* empty state */
+  .chart-empty { padding: 36px 20px; }
+
+  @media (max-width: 640px) {
+    .pie-wrap { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header" data-od-id="app-header">
+  <div class="container app-header-inner">
+    <a class="logo" href="dashboard.html"><span class="logo-mark">L</span>Ladu</a>
+    <nav class="app-nav">
+      <a href="word-editor.html">Add Word</a>
+      <a href="#" title="Spec 05 pending">Practice</a>
+      <a href="review.html">Review</a>
+    </nav>
+    <div class="grow"></div>
+    <div class="searchbox">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input placeholder="Search words or tags…" aria-label="Global search" />
+      <span class="mode-switch" role="group" aria-label="Search mode">
+        <button aria-pressed="true">Word</button><button aria-pressed="false">Tag</button>
+      </span>
+    </div>
+    <div class="row" style="gap: 8px;">
+      <span class="select" style="width: auto; height: 32px; display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 0 26px 0 10px;">
+        <svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>
+        EN
+      </span>
+      <button class="icon-btn" aria-label="Notifications, 3 unread">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <span class="menu-anchor">
+        <button class="avatar has-badge" id="avatar-btn" data-count="3" aria-haspopup="true" aria-expanded="false" aria-label="Account menu — Kai Rebane, 3 unread">KR</button>
+        <div class="avatar-menu" id="avatar-menu" hidden>
+          <a href="dashboard.html" class="active">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+            Dashboard
+          </a>
+          <a href="profile.html">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+            Account
+          </a>
+          <a href="#">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            Notifications
+          </a>
+          <div class="sep"></div>
+          <a href="auth/login.html" class="logout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+            Log out
+          </a>
+        </div>
+      </span>
+    </div>
+  </div>
+</header>
+
+<main class="container page">
+
+  <!-- ─── welcome banner ─── -->
+  <section class="welcome" data-od-id="welcome-banner">
+    <h1 class="h1">Welcome back, <span id="welcome-name">Kai Rebane</span></h1>
+    <span class="greeting" id="greeting" aria-live="polite">Welcome back — let's add a few words today.</span>
+  </section>
+
+  <div class="dash-grid">
+
+    <!-- ─── info panel ─── -->
+    <aside class="stat-stack" data-od-id="info-panel" aria-label="Vocabulary totals">
+      <div class="card stat-card">
+        <div class="s-num" id="stat-words"><span class="skeleton sk-num" style="display:block;"></span></div>
+        <div class="s-label" id="stat-words-label"><span class="skeleton sk-label" style="display:block;"></span></div>
+        <div class="s-sub" id="stat-words-sub" hidden></div>
+      </div>
+      <div class="card stat-card">
+        <div class="s-num" id="stat-transl"><span class="skeleton sk-num" style="display:block;"></span></div>
+        <div class="s-label" id="stat-transl-label"><span class="skeleton sk-label" style="display:block;"></span></div>
+        <div class="s-sub" id="stat-transl-sub" hidden></div>
+      </div>
+      <div class="card stat-card warn" id="stat-inc-card">
+        <div class="s-num" id="stat-inc"><span class="skeleton sk-num" style="display:block;"></span></div>
+        <div class="s-label" id="stat-inc-label"><span class="skeleton sk-label" style="display:block;"></span></div>
+        <div class="meter" id="stat-inc-meter" hidden><span id="stat-inc-meter-fill" style="width: 0%;"></span></div>
+      </div>
+    </aside>
+
+    <!-- ─── metrics panel ─── -->
+    <section class="card metrics" data-od-id="metrics-panel">
+      <div class="chart-block" id="pie-block">
+        <div class="chart-head">
+          <div>
+            <h2 id="pie-title">Words by part of speech</h2>
+            <div class="chart-title-note">Smallest group is clickable — it takes you straight to adding that kind of word</div>
+          </div>
+          <span class="seg" role="group" aria-label="Pie metric">
+            <button data-pie-metric="words" aria-pressed="true">Words</button>
+            <button data-pie-metric="translations" aria-pressed="false">Translations</button>
+          </span>
+        </div>
+        <div class="pie-wrap" id="pie-wrap"></div>
+      </div>
+
+      <div class="chart-block" id="bar-block">
+        <div class="chart-head">
+          <div>
+            <h2 id="bar-title">By month</h2>
+            <div class="chart-title-note" id="bar-note">Translations added per language, last 7 months</div>
+          </div>
+          <span class="row" style="gap: 8px; flex-wrap: wrap;">
+            <span class="seg" role="group" aria-label="Bar grouping">
+              <button data-bar-group="month" aria-pressed="true">By month</button>
+              <button data-bar-group="language" aria-pressed="false">By language</button>
+            </span>
+            <span class="seg" role="group" aria-label="Bar metric">
+              <button data-bar-metric="translations" aria-pressed="true">Translations</button>
+              <button data-bar-metric="words" aria-pressed="false">Words</button>
+            </span>
+          </span>
+        </div>
+        <div id="bar-wrap"></div>
+      </div>
+
+      <div class="empty" id="empty-state" hidden>
+        <div class="e-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M12 8v6m-3-3h6"/></svg>
+        </div>
+        <p>Add your first words to see statistics</p>
+        <a class="btn btn-primary btn-sm" href="word-editor.html">Add your first word</a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+
+/* ─────────────── data (sample, Kai Rebane demo persona) ─────────────── */
+const POS_ORDER = ['n', 'v', 'adj', 'adv'];
+const POS_NAME = { n: 'Nouns', v: 'Verbs', adj: 'Adjectives', adv: 'Adverbs' };
+const CHARTS_COLORS = { n: '#0f766e', v: '#b8352f', adj: '#a35a0a', adv: '#2c4a8a' };
+
+const DATA = {
+  words:    { n: 168, v: 112, adj: 84, adv: 48 },
+  translations: { n: 486, v: 322, adj: 241, adv: 138 },
+  months: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+  langs: [
+    { id: 'en', name: 'English', color: '#2c4a8a', words: [52, 62, 70, 61, 66, 58, 43], translations: [47, 59, 66, 57, 61, 52, 59] },
+    { id: 'de', name: 'Deutsch', color: '#42403c', words: [46, 54, 62, 49, 53, 41, 58], translations: [50, 58, 66, 52, 56, 44, 62] },
+    { id: 'ee', name: 'Eesti',   color: '#2265a8', words: [28, 32, 37, 30, 34, 26, 38], translations: [31, 35, 40, 33, 37, 28, 42] },
+    { id: 'es', name: 'Español', color: '#b8352f', words: [10, 13, 16, 12, 15, 11, 14], translations: [18, 22, 26, 20, 24, 19, 23] }
+  ]
+};
+const totalWords = POS_ORDER.reduce((s, p) => s + DATA.words[p], 0);       // 412
+const totalTransl = POS_ORDER.reduce((s, p) => s + DATA.translations[p], 0); // 1187
+const incomplete = 37;
+
+/* ─────────────── greeting (EN → ES → DE → EE) ─────────────── */
+const GREETINGS = [
+  'Welcome back — let\u2019s add a few words today.',
+  '¡Bienvenido de nuevo! Tu estantería te espera.',
+  'Willkommen zurück — dein Regal wartet.',
+  'Tere tulemast tagasi — riiul ootab.'
+];
+let gIdx = 0;
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (reducedMotion) {
+  $('#greeting').textContent = GREETINGS[0];
+} else {
+  setInterval(() => {
+    const el = $('#greeting');
+    el.classList.add('fade');
+    setTimeout(() => {
+      gIdx = (gIdx + 1) % GREETINGS.length;
+      el.textContent = GREETINGS[gIdx];
+      el.classList.remove('fade');
+    }, 300);
+  }, 3400);
+}
+
+/* ─────────────── pie (donut) ─────────────── */
+let pieMetric = 'words';
+function polar(cx, cy, r, deg) {
+  const rad = (deg - 90) * Math.PI / 180;
+  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+}
+function donutSeg(cx, cy, ro, ri, a0, a1) {
+  const large = a1 - a0 > 180 ? 1 : 0;
+  const [x0, y0] = polar(cx, cy, ro, a0), [x1, y1] = polar(cx, cy, ro, a1);
+  const [x2, y2] = polar(cx, cy, ri, a1), [x3, y3] = polar(cx, cy, ri, a0);
+  return `M${x0.toFixed(2)} ${y0.toFixed(2)} A${ro} ${ro} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} L${x2.toFixed(2)} ${y2.toFixed(2)} A${ri} ${ri} 0 ${large} 0 ${x3.toFixed(2)} ${y3.toFixed(2)} Z`;
+}
+function renderPie() {
+  const wrap = $('#pie-wrap');
+  const vals = DATA[pieMetric];
+  const total = POS_ORDER.reduce((s, p) => s + vals[p], 0);
+  const worst = POS_ORDER.reduce((min, p) => vals[p] < vals[min] ? p : min, 'n');
+  $('#pie-title').textContent = pieMetric === 'words' ? 'Words by part of speech' : 'Translations by part of speech';
+
+  const cx = 110, cy = 110, ro = 86, ri = 56;
+  let angle = 0;
+  let segs = '';
+  POS_ORDER.forEach(p => {
+    const sweep = vals[p] / total * 360;
+    const isWorst = p === worst;
+    const path = `<path class="seg" d="${donutSeg(cx, cy, ro, ri, angle, angle + sweep)}" fill="${CHARTS_COLORS[p]}" ${isWorst ? 'stroke="#1d1b17" stroke-width="1.5" stroke-dasharray="3 3"' : ''}/>`;
+    segs += isWorst
+      ? `<a href="word-editor.html?pos=${p}"><title>Only ${vals[p]} ${POS_NAME[p].toLowerCase()} — click to add more</title>${path}</a>`
+      : path;
+    angle += sweep;
+  });
+  const center = `
+    <text x="${cx}" y="${cy - 4}" text-anchor="middle" style="font-family: var(--font-display); font-size: 26px; font-weight: 600; fill: var(--fg);">${total.toLocaleString('en')}</text>
+    <text x="${cx}" y="${cy + 16}" text-anchor="middle" style="font-family: var(--font-mono); font-size: 10px; fill: var(--muted); letter-spacing: .06em;">${pieMetric === 'words' ? 'WORDS' : 'TRANSLATIONS'}</text>`;
+
+  const legend = POS_ORDER.map(p => {
+    const pct = Math.round(vals[p] / total * 100);
+    const isWorst = p === worst;
+    const row = `<span class="dot" style="background:${CHARTS_COLORS[p]};"></span><span class="l-name">${POS_NAME[p]}</span><span class="l-count">${vals[p].toLocaleString('en')}</span><span class="l-pct">${pct}%</span>`;
+    return isWorst
+      ? `<a class="legend-row" href="word-editor.html?pos=${p}" title="Add more ${POS_NAME[p].toLowerCase()}">${row}</a>`
+      : `<span class="legend-row">${row}</span>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <svg width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="${pieMetric === 'words' ? 'Words' : 'Translations'} by part of speech">${segs}${center}</svg>
+    <div>
+      <div class="pie-legend">${legend}</div>
+      <p class="worst-hint">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        Fewest: <a href="word-editor.html?pos=${worst}">${POS_NAME[worst].toLowerCase()}</a> — click to add more
+      </p>
+    </div>`;
+}
+
+/* ─────────────── bar ─────────────── */
+let barMetric = 'translations'; // words | translations
+let barGroup = 'month';         // month | language
+function renderBar() {
+  const wrap = $('#bar-wrap');
+  $('#bar-title').textContent = barGroup === 'month' ? 'By month' : 'By language';
+  const metricName = barMetric === 'words' ? 'Words' : 'Translations';
+  $('#bar-note').textContent = barGroup === 'month'
+    ? `${metricName} added per language, last 7 months`
+    : `${metricName} on the shelf, per language`;
+
+  /* dataset for current metric */
+  const series = DATA.langs.map(l => ({ ...l, values: l[barMetric] }));
+
+  const W = 640, H = 240, padL = 40, padR = 8, padT = 10, padB = 26;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  let groups, maxVal;
+  if (barGroup === 'month') {
+    groups = DATA.months.map((m, i) => ({ label: m, bars: series.map(l => ({ color: l.color, name: l.name, value: l.values[i] })) }));
+    maxVal = Math.max(...series.flatMap(l => l.values));
+  } else {
+    groups = series.map(l => ({ label: l.name, bars: [{ color: l.color, name: l.name, value: l.values.reduce((a, b) => a + b, 0) }] }));
+    maxVal = Math.max(...groups.map(g => g.bars[0].value));
+  }
+  const niceMax = Math.ceil(maxVal / 20) * 20;
+  const groupGap = 18, barGap = 2;
+  const groupW = plotW / groups.length;
+  const barW = barGroup === 'month'
+    ? Math.min((groupW - groupGap - barGap * (series.length - 1)) / series.length, 14)
+    : Math.min((groupW - groupGap) / 1, 56);
+
+  let svg = `<svg class="bar-svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;" role="img" aria-label="${$('#bar-note').textContent}">`;
+  /* gridlines + y labels */
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + plotH - plotH * i / 4;
+    const v = Math.round(niceMax * i / 4);
+    svg += `<line class="grid-line" x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}"/>`;
+    svg += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end">${v}</text>`;
+  }
+  /* bars + x labels */
+  groups.forEach((g, gi) => {
+    const gx = padL + gi * groupW;
+    const totalW = g.bars.length * barW + (g.bars.length - 1) * barGap;
+    let bx = gx + (groupW - totalW) / 2;
+    g.bars.forEach(b => {
+      const h = Math.max(2, b.value / niceMax * plotH);
+      svg += `<rect class="bar" x="${bx.toFixed(1)}" y="${(padT + plotH - h).toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="${b.color}"><title>${b.name}: ${b.value.toLocaleString('en')} ${metricName.toLowerCase()}</title></rect>`;
+      bx += barW + barGap;
+    });
+    svg += `<text x="${(gx + groupW / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle">${g.label}</text>`;
+  });
+  svg += '</svg>';
+
+  const legend = `<div class="bar-legend">${series.map(l => `<span><span class="dot" style="background:${l.color};"></span>${l.name}</span>`).join('')}</div>`;
+  wrap.innerHTML = svg + legend;
+}
+
+/* ─────────────── metric / group toggles ─────────────── */
+document.querySelectorAll('[data-pie-metric]').forEach(b => b.addEventListener('click', () => {
+  pieMetric = b.dataset.pieMetric;
+  document.querySelectorAll('[data-pie-metric]').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  renderPie();
+}));
+document.querySelectorAll('[data-bar-metric]').forEach(b => b.addEventListener('click', () => {
+  barMetric = b.dataset.barMetric;
+  document.querySelectorAll('[data-bar-metric]').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  renderBar();
+}));
+document.querySelectorAll('[data-bar-group]').forEach(b => b.addEventListener('click', () => {
+  barGroup = b.dataset.barGroup;
+  document.querySelectorAll('[data-bar-group]').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  renderBar();
+}));
+
+/* ─────────────── avatar menu ─────────────── */
+const avatarBtn = $('#avatar-btn'), avatarMenu = $('#avatar-menu');
+avatarBtn.addEventListener('click', () => {
+  const open = avatarMenu.hidden;
+  avatarMenu.hidden = !open;
+  avatarBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+document.addEventListener('click', e => {
+  if (!avatarMenu.hidden && !e.target.closest('.menu-anchor')) {
+    avatarMenu.hidden = true;
+    avatarBtn.setAttribute('aria-expanded', 'false');
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !avatarMenu.hidden) {
+    avatarMenu.hidden = true;
+    avatarBtn.setAttribute('aria-expanded', 'false');
+    avatarBtn.focus();
+  }
+});
+
+/* ─────────────── paint (loading → data | empty) ─────────────── */
+function paintData() {
+  $('#stat-words').textContent = totalWords.toLocaleString('en');
+  $('#stat-words-label').textContent = 'Words on your shelf';
+  $('#stat-words-sub').hidden = false;
+  $('#stat-words-sub').textContent = `+${DATA.words.n + DATA.words.v + DATA.words.adj + DATA.words.adv > 0 ? DATA.langs.reduce((s, l) => s + l.words[6], 0) : 0} this month`;
+
+  $('#stat-transl').textContent = totalTransl.toLocaleString('en');
+  $('#stat-transl-label').textContent = 'Translations recorded';
+  $('#stat-transl-sub').hidden = false;
+  $('#stat-transl-sub').textContent = `${(totalTransl / totalWords).toFixed(1)} per word on average`;
+
+  $('#stat-inc').textContent = incomplete.toLocaleString('en');
+  $('#stat-inc-label').textContent = 'Incomplete words';
+  $('#stat-inc-meter').hidden = false;
+  $('#stat-inc-meter-fill').style.width = Math.round(incomplete / totalWords * 100) + '%';
+
+  $('#pie-wrap').hidden = false;
+  $('#bar-wrap').hidden = false;
+  $('#empty-state').hidden = true;
+  renderPie();
+  renderBar();
+}
+
+function paintEmpty() {
+  /* new user, zero words: stat cards show 0, charts give way to the empty state */
+  $('#stat-words').textContent = '0';
+  $('#stat-words-label').textContent = 'Words on your shelf';
+  $('#stat-transl').textContent = '0';
+  $('#stat-transl-label').textContent = 'Translations recorded';
+  $('#stat-inc').textContent = '0';
+  $('#stat-inc-label').textContent = 'Incomplete words';
+  $('#pie-wrap').hidden = true;
+  $('#bar-wrap').hidden = true;
+  $('#empty-state').hidden = false;
+}
+
+/* boot: skeleton placeholders (~700 ms) → data (demo persona has words) */
+setTimeout(() => {
+  totalWords > 0 ? paintData() : paintEmpty();
+}, 700);
+</script>
+</body>
+</html>
