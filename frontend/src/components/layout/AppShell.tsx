@@ -4,7 +4,10 @@ import { AppHeader } from '@/components/layout/AppHeader';
 
 /**
  * Frame for every authenticated route: the sticky `AppHeader` over a single
- * centered content column. Review opts into the wider container via `wide`.
+ * centered content column. `wide` is passed down by `ProtectedLayout`, which
+ * reads it off the current leaf route's `staticData.wide` (`app/router.tsx`)
+ * — currently the word compose/edit/detail routes, for the verb
+ * tense-column grid.
  * The auth gate is not here — it is `_protected.beforeLoad` in `app/router.tsx`
  * (fixes the old render-then-redirect bug).
  */

@@ -144,7 +144,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 7 — filters, toolbar, bulk bar | ✅ done 2026-09-14 |
 | 8 — cell dialog | ✅ done 2026-09-14 |
 | 9 — form layout: paired rows (nouns, Spanish adjectives) | ✅ done 2026-09-15 |
-| 10 — form layout: verb tense columns + width | not started |
+| 10 — form layout: verb tense columns + width | ✅ done 2026-09-15 |
 | 11 — phase gate | not started |
 
 **Slice 0 — persist this plan.** This file.
@@ -1063,11 +1063,55 @@ registered+verified+deleted account against the local dev stack): German noun sh
 rows of Singular/Plural side by side; Spanish adjective shows the M/F branch as 2 rows x 2 columns
 (male above female) and collapses to 1 row x 2 columns back on Neutral. Backend untouched.
 
-**Slice 10 — form layout: verb tense columns + width.** Not started. Moves each verb tense's
-`group` entry into `layout.column`/`layout.columnHeading` (mood stays in `group`, printed once
-above the block); the four width changes from D32/D33 (`app/router.tsx` `staticData.wide` on the
-word routes, `protected-layout.tsx` reading it, a shared `translationGridClass(pos)` for the
+**Slice 10 — form layout: verb tense columns + width.** Moves each verb tense's `group` entry
+into `layout.column`/`layout.columnHeading` (mood stays in `group`, printed once above the
+block); the four width changes from D32/D33 (`app/router.tsx` `staticData.wide` on the word
+routes, `protected-layout.tsx` reading it, a shared `translationGridClass(pos)` for the
 `WordForm.tsx`/`WordPage.tsx` card grids, `CellDialog.tsx`'s verb-dependent max width).
+
+### Outcome — what landed (2026-09-15)
+
+Built to the design section above with no further deviations. The Slice 9 `fieldLayout.ts`/
+`TranslationCard.tsx` machinery needed **zero JS changes** to support verbs — only the verb
+configs changed, confirming it was built generically enough the first time.
+
+- **`configs/verbs.ts`** — a new `tenseLayout(row, columnHeading)` helper returns
+  `{ row: slotOf(row), column: row.tense, columnHeading }`; every language's tense-row loop now
+  sets `layout: tenseLayout(row, ...)` and trims its own `group` array down to the outer stack
+  only (`[EN_TOP_GROUP]`; `[ES_MOOD_GROUP, ES_SIMPLE_TENSE_GROUP]`; `[DE_TOP_GROUP]`;
+  `[EE_TOP_GROUP]`). German's `deAdornment(row)` call is untouched — the adornment is keyed off
+  the field's own `name`/`caseName`, not its position in `group` or `layout`.
+- **`app/router.tsx`** — a `declare module '@tanstack/react-router' { interface
+  StaticDataRouteOption { wide?: boolean } }` augmentation, then `staticData: { wide: true }` on
+  `addWordRoute` and `wordRoute`.
+- **`routes/protected-layout.tsx`** — `useMatches()` plus `matches.some((m) =>
+  m.staticData.wide)`, passed to `AppShell`. `AppShell.tsx`'s docstring (which claimed Review was
+  the `wide` consumer — never true, `wide` was dead code before this slice) corrected to describe
+  the real read path.
+- **New `TranslationCard.translationGridClass(pos?)`** — `'grid grid-cols-1 gap-4'` for
+  `PartOfSpeech.verb`, the existing `'grid grid-cols-1 gap-4 sm:grid-cols-2'` otherwise (including
+  when `pos` is omitted, for `WordPage`'s loading skeleton, which doesn't know the PoS yet).
+  Replaces the hardcoded class at `WordForm.tsx`'s card grid and both of `WordPage.tsx`'s
+  (skeleton and read-only view).
+- **`review/CellDialog.tsx`** — a local `dialogMaxWidthClass(pos?)` (`max-w-[960px]` for verbs,
+  the existing `max-w-[640px]` otherwise) replaces both hardcoded `DialogContent` widths (the
+  loading skeleton, called with no `pos`, and the loaded dialog, called with `word.partOfSpeech`).
+
+**Tests**: `configs/verbs.test.ts` gained a `layout` describe block (4 new tests) — EN's tense
+becomes the (captioned) column and pronoun slot the row while the outer "Simple" heading stays in
+`group`; ES's outer two-level group stack is unchanged; DE's auxiliary adornment survives the
+move; EE's three tenses resolve to three distinct columns. Every pre-existing `TranslationCard`,
+`FieldRenderer`, `WordForm`, `WordPage`, `CellDialog` and `app/router` test passed **unmodified**.
+
+**Verified**: `npx tsc --noEmit -p frontend` clean; `npx vitest run -w frontend` **491 → 495**
+(+4, all in `verbs.test.ts`) — full suite green, no regressions, no existing test edited. Browser
+(manual, via a throwaway registered+verified+deleted account against the local dev stack): German
+verb renders 4 tense columns (Präsens/Perfekt/Futur I/Präteritum) x 6 pronoun rows inside the wide
+(`max-w-7xl`) shell, with the `habe`/`hast`/.../`werde`/`wirst`/... auxiliary adornments still
+showing per-cell in the Perfekt/Futur I columns; Spanish verb renders "Modo indicativo" once above
+"Tiempo simple" once above its own 4 tense columns; opening the German verb's cell from `/review`
+renders the dialog at `max-w-[960px]` (confirmed via `DialogContent`'s computed class) with the
+same 4x6 grid comfortably inside it. Backend untouched.
 
 **Slice 11 — phase gate.** `e2e/tests/phase-3-review.spec.ts`, doc updates, full green run.
 

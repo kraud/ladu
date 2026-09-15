@@ -27,7 +27,7 @@ import { useUpdateWord, useWord } from '../hooks';
 import { wordErrorKey } from '../errors';
 import { primaryCaseWord } from '@/lib/words';
 import { languageByKey } from '@/lib/language';
-import { Lang } from '@/ts/enums';
+import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
 import type { LangKey, TranslationInput } from '../types';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
@@ -38,6 +38,13 @@ import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast
 // an edge case worth guarding rather than a routine limit to surface loudly.
 const MAX_TRANSLATIONS = 4;
 const MIN_TRANSLATIONS_TO_ALLOW_DELETE = 3;
+
+// A verb's tense-column grid needs more than the dialog's default width; the
+// loading skeleton (PoS not fetched yet) and every other part of speech keep
+// the narrower one.
+function dialogMaxWidthClass(pos?: PartOfSpeech): string {
+    return pos === PartOfSpeech.verb ? 'max-w-[960px]' : 'max-w-[640px]';
+}
 
 export interface CellDialogProps {
     wordId: string;
@@ -70,7 +77,7 @@ export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
     if (wordQuery.isPending) {
         return (
             <Dialog open onOpenChange={(open) => !open && onClose()}>
-                <DialogContent className="max-w-[640px]">
+                <DialogContent className={dialogMaxWidthClass()}>
                     <DialogHeader>
                         <Skeleton className="h-5 w-40" />
                     </DialogHeader>
@@ -155,7 +162,7 @@ export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
 
     return (
         <Dialog open onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-[640px]">
+            <DialogContent className={dialogMaxWidthClass(word.partOfSpeech)}>
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <FlagIcon lang={langKey} title={native} />

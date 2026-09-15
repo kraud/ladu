@@ -178,4 +178,44 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
             }
         }
     });
+
+    describe('layout — each tense becomes a column, pronoun becomes a row', () => {
+        it('English: tense is the column (captioned), pronoun slot is the row, mood stays in group', () => {
+            const config = getFormConfig(PartOfSpeech.verb, Lang.EN)!;
+            const present1s = config.fields.find((f) => f.name === 'simplePresent1s')!;
+            const past1s = config.fields.find((f) => f.name === 'simplePast1s')!;
+            expect(present1s.layout).toEqual({ row: '1S', column: 'Present-Simple', columnHeading: 'Present' });
+            expect(past1s.layout).toEqual({ row: '1S', column: 'Past-Simple', columnHeading: 'Past' });
+            // Same pronoun slot -> same row key, regardless of tense.
+            expect(present1s.layout?.row).toBe(past1s.layout?.row);
+            // The tense heading no longer lives in `group` — only the outer "Simple" heading does.
+            expect(present1s.group).toEqual([{ heading: 'Simple', level: 1 }]);
+            expect(config.fields.find((f) => f.name === 'regularity')?.layout).toBeUndefined();
+        });
+
+        it('Spanish: the outer mood/tense-type group stack is unchanged, only the innermost tense heading moved to layout', () => {
+            const config = getFormConfig(PartOfSpeech.verb, Lang.ES)!;
+            const present1s = config.fields.find((f) => f.name === 'indicativePresent1s')!;
+            expect(present1s.group).toEqual([
+                { heading: 'Modo indicativo', level: 1 },
+                { heading: 'Tiempo simple', level: 2 },
+            ]);
+            expect(present1s.layout).toEqual({ row: '1S', column: 'Present', columnHeading: 'Presente' });
+        });
+
+        it('German: the auxiliary adornment survives the move to layout', () => {
+            const config = getFormConfig(PartOfSpeech.verb, Lang.DE)!;
+            const perfect1s = config.fields.find((f) => f.name === 'indicativePerfect1s')!;
+            expect(perfect1s.layout).toEqual({ row: '1S', column: 'Perfect', columnHeading: 'Perfekt' });
+            expect(perfect1s.adornment).toBeDefined();
+        });
+
+        it('Estonian: three tenses become three columns sharing one row set', () => {
+            const config = getFormConfig(PartOfSpeech.verb, Lang.EE)!;
+            const columns = new Set(
+                config.fields.filter((f) => f.layout).map((f) => f.layout!.column),
+            );
+            expect(columns).toEqual(new Set(['Present', 'Simple-Past', 'Past-Perfect']));
+        });
+    });
 });

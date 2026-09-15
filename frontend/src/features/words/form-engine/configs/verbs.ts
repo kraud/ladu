@@ -41,6 +41,7 @@ import type {
     FieldAdornment,
     FieldConfig,
     FieldGroup,
+    FieldLayout,
     FieldPattern,
     RadioOption,
     TextFieldConfig,
@@ -130,6 +131,11 @@ const PRONOUN_LABELS: Record<Lang, Partial<Record<PronounSlot, string>>> = {
 
 function pronounLabel(lang: Lang, row: VerbTenseData): string {
     return PRONOUN_LABELS[lang][slotOf(row)] ?? '';
+}
+
+/** Pronoun -> row, tense -> column: each tense becomes a side-by-side column, with the tense name printed once as its caption. */
+function tenseLayout(row: VerbTenseData, columnHeading: string): FieldLayout {
+    return { row: slotOf(row), column: row.tense, columnHeading };
 }
 
 // ---- tense/mood group headings — also hardcoded native terms ----
@@ -253,7 +259,8 @@ function buildEnConfig(): TranslationFormConfig {
             required,
             requiredMessageKey: required ? verbErrorKey(suffix, 'simplePresentRequired') : undefined,
             lowercase: true,
-            group: [EN_TOP_GROUP, { heading: EN_TENSE_HEADINGS[row.tense as TenseVerbEN]!, level: 2 }],
+            group: [EN_TOP_GROUP],
+            layout: tenseLayout(row, EN_TENSE_HEADINGS[row.tense as TenseVerbEN]!),
         });
     }
     return { pos: PartOfSpeech.verb, lang: Lang.EN, fields };
@@ -283,7 +290,8 @@ function buildEsConfig(): TranslationFormConfig {
             label: pronounLabel(Lang.ES, row),
             required: false,
             lowercase: true,
-            group: [ES_MOOD_GROUP, ES_SIMPLE_TENSE_GROUP, { heading: ES_TENSE_HEADINGS[row.tense as TenseVerbES]!, level: 2 }],
+            group: [ES_MOOD_GROUP, ES_SIMPLE_TENSE_GROUP],
+            layout: tenseLayout(row, ES_TENSE_HEADINGS[row.tense as TenseVerbES]!),
         });
     }
     return { pos: PartOfSpeech.verb, lang: Lang.ES, fields };
@@ -335,7 +343,8 @@ function buildDeConfig(): TranslationFormConfig {
             label: pronounLabel(Lang.DE, row),
             required: false,
             lowercase: true,
-            group: [DE_TOP_GROUP, { heading: DE_TENSE_HEADINGS[row.tense as TenseVerbDE]!, level: 2 }],
+            group: [DE_TOP_GROUP],
+            layout: tenseLayout(row, DE_TENSE_HEADINGS[row.tense as TenseVerbDE]!),
             adornment: deAdornment(row),
         });
     }
@@ -384,7 +393,8 @@ function buildEeConfig(): TranslationFormConfig {
             label: pronounLabel(Lang.EE, row),
             required: false,
             lowercase: true,
-            group: [EE_TOP_GROUP, { heading: EE_TENSE_HEADINGS[row.tense as TenseVerbEE]!, level: 2 }],
+            group: [EE_TOP_GROUP],
+            layout: tenseLayout(row, EE_TENSE_HEADINGS[row.tense as TenseVerbEE]!),
         });
     }
     return { pos: PartOfSpeech.verb, lang: Lang.EE, fields };

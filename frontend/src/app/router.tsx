@@ -40,6 +40,14 @@ import { WordPage } from '@/features/words/pages/WordPage';
 import { ReviewPage } from '@/features/words/pages/ReviewPage';
 import { validateReviewSearch } from '@/features/words/review/search';
 
+/** `staticData.wide` opts a leaf route into `AppShell`'s wider `max-w-7xl` container — the word
+ * compose/edit/detail pages need it for the verb tense-column grid. Read by `ProtectedLayout`. */
+declare module '@tanstack/react-router' {
+    interface StaticDataRouteOption {
+        wide?: boolean;
+    }
+}
+
 /** Temporary leaf for routes whose real page lands in a later slice. */
 function Placeholder({ title, note }: { title: string; note?: string }) {
     return (
@@ -109,12 +117,14 @@ const addWordRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/addWord/{-$partOfSpeech}',
     component: AddWordPage,
+    staticData: { wide: true },
 });
 
 const wordRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/word/$wordId',
     component: WordPage,
+    staticData: { wide: true },
 });
 
 const reviewRoute = createRoute({

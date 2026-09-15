@@ -40,6 +40,17 @@ export interface TranslationCardChange {
     isDirty: boolean;
 }
 
+/**
+ * The class for the container arranging multiple `TranslationCard`s (the
+ * compose form, the word detail page, both edit and read-only). Verb cards
+ * need the full row for their tense-column grid; every other part of speech
+ * keeps the compact 2-up layout. `pos` is omitted where it isn't known yet
+ * (a loading skeleton) — defaults to the 2-up layout, the common case.
+ */
+export function translationGridClass(pos?: PartOfSpeech): string {
+    return pos === PartOfSpeech.verb ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 gap-4 sm:grid-cols-2';
+}
+
 export interface TranslationCardProps {
     lang: Lang;
     /** Defaults to Noun — the only part of speech the engine ships in Phase 2. */

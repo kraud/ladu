@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { PartOfSpeechSelector } from '@/components/common/PartOfSpeechSelector';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
-import { TranslationCard } from './TranslationCard';
+import { TranslationCard, translationGridClass } from './TranslationCard';
 import { useWordFormState } from './useWordFormState';
 import type { CreateWordBody, UpdateWordBody, WordBE } from '../types';
 
@@ -58,7 +58,7 @@ export function WordForm({ mode, initialWord, defaultPartOfSpeech, onSubmit, onD
 
     return (
         <div className="flex flex-col gap-5">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className={translationGridClass(partOfSpeech)}>
                 {state.translations.map((translation, index) => (
                     <TranslationCard
                         key={translation.language}

@@ -20,7 +20,7 @@ import { toast } from 'react-toastify';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { TranslationCard } from '../form-engine/TranslationCard';
+import { TranslationCard, translationGridClass } from '../form-engine/TranslationCard';
 import { WordForm } from '../form-engine/WordForm';
 import { useDeleteWord, useUpdateWord, useWord } from '../hooks';
 import { wordErrorKey } from '../errors';
@@ -73,7 +73,7 @@ export function WordPage() {
             <div className="flex flex-col gap-4">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-8 w-64" />
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className={translationGridClass()}>
                     <Skeleton className="h-64" />
                     <Skeleton className="h-64" />
                 </div>
@@ -151,7 +151,7 @@ export function WordPage() {
                 </div>
             ) : (
                 <div className="flex flex-col gap-5">
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className={translationGridClass(word.partOfSpeech)}>
                         {word.translations.map((translation) => (
                             <TranslationCard
                                 key={translation.language}
