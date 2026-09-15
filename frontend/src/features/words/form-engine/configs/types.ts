@@ -64,6 +64,17 @@ export interface FieldLayout {
     column: string;
     /** Caption printed once above the column. Omit for no caption (nouns, adjectives). */
     columnHeading?: string;
+    /**
+     * Explicit block-boundary key: two adjacent layout fields merge into the
+     * same grid only when this matches (`undefined` merges with
+     * `undefined`, the default for every existing config). Needed only when
+     * two *different* row/column vocabularies sit back-to-back with nothing
+     * non-`layout` between them to end the block naturally — e.g. German
+     * verb's `infinitive`/`auxiliaryVerb`/`prefix` row immediately followed
+     * by its `regularity`/`verbCases` row. Without it those five fields
+     * would merge into one sparse 2x5 grid instead of two clean rows.
+     */
+    block?: string;
 }
 
 /**

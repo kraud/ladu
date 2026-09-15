@@ -149,7 +149,7 @@ export function FieldRenderer({ field, displayOnly = false }: FieldRendererProps
                         <FormItem>
                             <FormLabel>{label}</FormLabel>
                             <FormControl>
-                                <div className="flex flex-col gap-1.5">
+                                <div className="flex flex-row flex-wrap gap-x-4 gap-y-1.5">
                                     {field.options.map((option) => (
                                         <label key={option.value} className="flex items-center gap-1.5 text-sm">
                                             <Checkbox

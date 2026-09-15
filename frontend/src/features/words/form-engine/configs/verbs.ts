@@ -94,7 +94,8 @@ function requiredTextField(
     caseName: VerbCases,
     name: string,
     requiredMessageKey: string,
-    pattern?: FieldPattern
+    pattern?: FieldPattern,
+    layout?: FieldLayout
 ): TextFieldConfig {
     return {
         kind: 'text',
@@ -105,6 +106,7 @@ function requiredTextField(
         requiredMessageKey,
         lowercase: true,
         pattern,
+        layout,
     };
 }
 
@@ -273,12 +275,27 @@ function buildEsConfig(): TranslationFormConfig {
     const tenseRows = rows.filter(isTenseRow).filter((row) => row.mood === VerbMoodES.indicativeES);
 
     const fields: FieldConfig[] = [
-        requiredTextField(VerbCases.infinitiveNonFiniteSimpleES, 'infinitiveNonFiniteSimple', verbErrorKey(suffix, 'infinitiveNonFiniteRequired'), {
-            regex: /^(?!.*\d).*(ar|er|ir)$/,
-            messageKey: verbErrorKey(suffix, 'infinitiveNotMatching'),
-        }),
-        requiredTextField(VerbCases.gerundNonFiniteSimpleES, 'gerundNonFiniteSimple', verbErrorKey(suffix, 'gerundNonFiniteRequired')),
-        requiredTextField(VerbCases.participleNonFiniteSimpleES, 'participleNonFiniteSimple', verbErrorKey(suffix, 'participleNonFiniteRequired')),
+        requiredTextField(
+            VerbCases.infinitiveNonFiniteSimpleES,
+            'infinitiveNonFiniteSimple',
+            verbErrorKey(suffix, 'infinitiveNonFiniteRequired'),
+            { regex: /^(?!.*\d).*(ar|er|ir)$/, messageKey: verbErrorKey(suffix, 'infinitiveNotMatching') },
+            { row: 'nonFinite', column: 'infinitive' }
+        ),
+        requiredTextField(
+            VerbCases.gerundNonFiniteSimpleES,
+            'gerundNonFiniteSimple',
+            verbErrorKey(suffix, 'gerundNonFiniteRequired'),
+            undefined,
+            { row: 'nonFinite', column: 'gerund' }
+        ),
+        requiredTextField(
+            VerbCases.participleNonFiniteSimpleES,
+            'participleNonFiniteSimple',
+            verbErrorKey(suffix, 'participleNonFiniteRequired'),
+            undefined,
+            { row: 'nonFinite', column: 'participle' }
+        ),
         regularityField(Lang.ES),
     ];
 
@@ -301,12 +318,20 @@ function buildDeConfig(): TranslationFormConfig {
     const suffix = LANG_SUFFIX[Lang.DE];
     const tenseRows = WordCasesData.Verb.filter((row) => row.language === Lang.DE).filter(isTenseRow);
 
+    // Two layout rows ahead of the tense grid: infinitive/auxiliaryVerb/prefix, then
+    // regularity/verbCases. Reordered from the old app's field list (regularity used to sit
+    // right after infinitive) so the two row's fields are each contiguous — `buildLayoutItems`
+    // groups consecutive `layout`-bearing fields, and the distinct `block` ids below keep the
+    // two rows from merging into one sparse 2x5 grid despite sitting back-to-back with nothing
+    // non-`layout` between them (D36 — see `.context/plans/phase-3-forms-autocomplete-review.md`).
     const fields: FieldConfig[] = [
-        requiredTextField(VerbCases.infinitiveDE, 'infinitive', verbErrorKey(suffix, 'infinitiveNonFiniteRequired'), {
-            regex: /^(?!.*\d).*(en|ern|eln)$/,
-            messageKey: verbErrorKey(suffix, 'infinitiveNotMatching'),
-        }),
-        regularityField(Lang.DE),
+        requiredTextField(
+            VerbCases.infinitiveDE,
+            'infinitive',
+            verbErrorKey(suffix, 'infinitiveNonFiniteRequired'),
+            { regex: /^(?!.*\d).*(en|ern|eln)$/, messageKey: verbErrorKey(suffix, 'infinitiveNotMatching') },
+            { row: 'meta1', column: 'infinitive', block: 'verbMeta1' }
+        ),
         {
             kind: 'select',
             name: 'auxiliaryVerb',
@@ -314,6 +339,7 @@ function buildDeConfig(): TranslationFormConfig {
             labelKey: labelKey(VerbCases.auxVerbDE),
             required: false,
             options: AUX_VERB_OPTIONS,
+            layout: { row: 'meta1', column: 'auxiliaryVerb', block: 'verbMeta1' },
         },
         {
             kind: 'select',
@@ -322,7 +348,9 @@ function buildDeConfig(): TranslationFormConfig {
             labelKey: labelKey(VerbCases.prefixDE),
             required: false,
             options: PREFIX_OPTIONS,
+            layout: { row: 'meta1', column: 'prefix', block: 'verbMeta1' },
         },
+        { ...regularityField(Lang.DE), layout: { row: 'meta2', column: 'regularity', block: 'verbMeta2' } },
         {
             kind: 'multi-select',
             name: 'verbCases',
@@ -332,6 +360,7 @@ function buildDeConfig(): TranslationFormConfig {
             options: VERB_CASE_OPTIONS,
             encode: encodeVerbCases,
             decode: decodeVerbCases,
+            layout: { row: 'meta2', column: 'verbCases', block: 'verbMeta2' },
         },
     ];
 
@@ -376,12 +405,19 @@ function buildEeConfig(): TranslationFormConfig {
             messageKey: verbErrorKey(suffix, 'infinitiveMaNotMatching'),
             relaxedWhen: { field: 'searchInEnglish', equals: true },
         },
+        layout: { row: 'infinitives', column: 'ma' },
     };
 
     const fields: FieldConfig[] = [
         searchInEnglish,
         infinitiveMa,
-        requiredTextField(VerbCases.infinitiveDaEE, 'infinitiveDa', verbErrorKey(suffix, 'infinitiveDaRequired')),
+        requiredTextField(
+            VerbCases.infinitiveDaEE,
+            'infinitiveDa',
+            verbErrorKey(suffix, 'infinitiveDaRequired'),
+            undefined,
+            { row: 'infinitives', column: 'da' }
+        ),
         regularityField(Lang.EE),
     ];
 

@@ -1113,6 +1113,78 @@ showing per-cell in the Perfekt/Futur I columns; Spanish verb renders "Modo indi
 renders the dialog at `max-w-[960px]` (confirmed via `DialogContent`'s computed class) with the
 same 4x6 grid comfortably inside it. Backend untouched.
 
+### Fifth round of user-review fixes (2026-09-15)
+
+The property fields ahead of each verb's tense grid still rendered as a plain vertical list —
+untouched by Slice 10, which only regrouped the tense grid itself. The user asked for three more
+groupings before Slice 11: Spanish's infinitive/gerund/participle onto one row; German's
+infinitive/auxiliaryVerb/prefix onto one row and regularity/verbCases onto a second; Estonian's
+`-ma`/`-da` infinitives onto one row. English needs no change (it only ever had `regularity`
+ahead of the grid).
+
+- **`configs/types.ts`** — `FieldLayout` gains an optional `block?: string`. Two adjacent
+  `layout`-bearing fields merge into one grid only when this matches (`undefined` merges with
+  `undefined`, so every existing config is unaffected by default). Needed because
+  `buildLayoutItems` merges *any* run of consecutive `layout`-bearing fields sharing a `group`
+  stack, regardless of whether their `row`/`column` vocabularies actually overlap — harmless for
+  nouns/adjectives/verb-tenses (each row in those blocks reuses the same column set), but German's
+  two new meta rows share no columns at all, so without `block` they'd merge into one sparse 2x5
+  grid (3 real cells in row 1, 2 in row 2, the other 5 positions blank) instead of two clean rows.
+- **`fieldLayout.ts`** — `groupStackKey` is now wrapped by a `blockKey` helper that appends
+  `layout.block` (defaulting to `''`) before comparing; `buildLayoutItems`'s merge condition uses
+  `blockKey` instead of the bare group-stack key.
+- **`configs/verbs.ts`**:
+  - **Spanish** — `infinitiveNonFiniteSimple`/`gerundNonFiniteSimple`/`participleNonFiniteSimple`
+    (already contiguous, immediately followed by the non-`layout` `regularity` field) each get
+    `layout: { row: 'nonFinite', column: <name> }`. No reorder, no `block` needed.
+  - **Estonian** — `infinitiveMa`/`infinitiveDa` (already contiguous) get
+    `layout: { row: 'infinitives', column: 'ma' | 'da' }`. Same reasoning.
+  - **German (D36 — intentional field-order change)** — `regularity` moved to sit *after*
+    `auxiliaryVerb`/`prefix` instead of right after `infinitive`, so both target rows become
+    physically contiguous: `[infinitive, auxiliaryVerb, prefix, regularity, verbCases]`, up from
+    `[infinitive, regularity, auxiliaryVerb, prefix, verbCases]`. `infinitive`/`auxiliaryVerb`/
+    `prefix` get `layout: { row: 'meta1', column: <name>, block: 'verbMeta1' }`; `regularity`/
+    `verbCases` get `layout: { row: 'meta2', column: <name>, block: 'verbMeta2' }`. This is a
+    deliberate deviation from the old app's field order (like D4's validation fixes) — it changes
+    nothing about validation, persistence or values, only where two fields sit in `config.fields`.
+  - `requiredTextField` gained an optional trailing `layout` parameter (used by Spanish and
+    Estonian above); `regularityField(Lang.DE)`'s return is spread with an added `layout` at the
+    German call site rather than threading a parameter through a helper shared by all four
+    languages.
+
+**Tests**: `configs/verbs.test.ts`'s pinned German field-name-order test updated to the new order
+(with a comment pointing at D36); its Estonian `layout` test narrowed from `f.layout` to `f.group`
+so the `-ma`/`-da` infinitives' own row doesn't leak into the tense-column assertion; a new "layout
+— property-row groupings" describe block (4 tests) pins the Spanish row, the German two-row split
+including that the two `block` ids differ, the Estonian row, and that English's `regularity` still
+carries no `layout`. Every other pre-existing test passed unmodified.
+
+**Verified**: `npx tsc --noEmit -p frontend` clean; `npx vitest run -w frontend` **495 → 499**
+(+4, all in `verbs.test.ts`) — full suite green. Browser (throwaway registered+verified+deleted
+account, all four languages): German renders exactly two rows ahead of the tense grid (Infinitive/
+Auxiliary verb/Prefix, then Regularity/Verb case) with no blank gaps; Spanish's three non-finite
+fields sit on one row; Estonian's two infinitives sit on one row. Backend untouched.
+
+### Sixth round of user-review fixes (2026-09-15)
+
+German verb's `verbCases` checkbox group (Accusative/Dative/Genitive) still stacked its three
+options vertically inside its own field — a different concern from every fix above, which only
+ever arranged *separate fields* into rows via `layout`. This is the first (and, today, only)
+`multi-select` field in the engine, so the fix is a plain CSS change local to `FieldRenderer.tsx`,
+nothing to do with `fieldLayout.ts`'s block/row/column machinery.
+
+- **`FieldRenderer.tsx`** — the multi-select branch's option wrapper changes from
+  `flex flex-col gap-1.5` to `flex flex-row flex-wrap gap-x-4 gap-y-1.5`, matching the row-based
+  spacing already used elsewhere (`gap-x-4` between the field's own row-mates via `fieldLayout`'s
+  grid). `flex-wrap` keeps it correct if a future multi-select ever has more options than fit on
+  one line.
+
+**Tests**: none needed — `FieldRenderer.test.tsx`'s multi-select tests assert `getByRole('checkbox', {name})` and `toBeChecked()`, never DOM layout, so all passed unmodified.
+
+**Verified**: `npx tsc --noEmit -p frontend` clean; `npx vitest run -w frontend` still **499/499**
+green (no test count change). Browser: German verb's Accusative/Dative/Genitive checkboxes render
+on one row next to the "Verb case" label. Backend untouched.
+
 **Slice 11 — phase gate.** `e2e/tests/phase-3-review.spec.ts`, doc updates, full green run.
 
 ## Files
@@ -1160,6 +1232,11 @@ Beyond D1 to D7, the validation fixes D4 authorizes:
   verb field key.
 - The stale `TableWordData` type is not ported. The row type is written against the live
   controller response.
+- **D36 (Slice 10, fifth round of fixes)** — German verb's `config.fields` order changes from
+  `[infinitive, regularity, auxiliaryVerb, prefix, verbCases, ...]` to `[infinitive,
+  auxiliaryVerb, prefix, regularity, verbCases, ...]`, so the two property rows the user asked for
+  (infinitive/auxiliaryVerb/prefix; regularity/verbCases) are each contiguous. Values, validation
+  and persistence are unaffected — only the array position of two fields moved.
 
 ## Verification
 

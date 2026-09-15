@@ -79,13 +79,16 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => !requiredNames.includes(f.name)).every((f) => !f.required)).toBe(true);
     });
 
-    it('German: infinitive, regularity, auxiliaryVerb, prefix, verbCases, 4 tenses x 6 pronoun slots', () => {
+    it('German: infinitive, auxiliaryVerb, prefix, regularity, verbCases, 4 tenses x 6 pronoun slots', () => {
         const config = getFormConfig(PartOfSpeech.verb, Lang.DE)!;
+        // D36 — reordered from the old app's list (regularity used to sit right after
+        // infinitive) so infinitive/auxiliaryVerb/prefix and regularity/verbCases each form one
+        // contiguous, side-by-side row ahead of the tense grid. See `layout` assertions below.
         expect(config.fields.map((f) => f.name)).toEqual([
             'infinitive',
-            'regularity',
             'auxiliaryVerb',
             'prefix',
+            'regularity',
             'verbCases',
             'indicativePresent1s',
             'indicativePresent2s',
@@ -212,10 +215,57 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
 
         it('Estonian: three tenses become three columns sharing one row set', () => {
             const config = getFormConfig(PartOfSpeech.verb, Lang.EE)!;
+            // `f.group` narrows to the tense-grid fields — the `-ma`/`-da` infinitives also carry
+            // `layout` (their own row, tested below) but no `group`.
             const columns = new Set(
-                config.fields.filter((f) => f.layout).map((f) => f.layout!.column),
+                config.fields.filter((f) => f.group).map((f) => f.layout!.column),
             );
             expect(columns).toEqual(new Set(['Present', 'Simple-Past', 'Past-Perfect']));
+        });
+    });
+
+    describe('layout — property-row groupings ahead of the tense grid', () => {
+        it('Spanish: infinitive/gerund/participle share one row, three columns', () => {
+            const config = getFormConfig(PartOfSpeech.verb, Lang.ES)!;
+            const infinitive = config.fields.find((f) => f.name === 'infinitiveNonFiniteSimple')!;
+            const gerund = config.fields.find((f) => f.name === 'gerundNonFiniteSimple')!;
+            const participle = config.fields.find((f) => f.name === 'participleNonFiniteSimple')!;
+            expect(infinitive.layout).toEqual({ row: 'nonFinite', column: 'infinitive' });
+            expect(gerund.layout).toEqual({ row: 'nonFinite', column: 'gerund' });
+            expect(participle.layout).toEqual({ row: 'nonFinite', column: 'participle' });
+            expect(config.fields.find((f) => f.name === 'regularity')?.layout).toBeUndefined();
+        });
+
+        it('German: infinitive/auxiliaryVerb/prefix share one row; regularity/verbCases share a separate one', () => {
+            const config = getFormConfig(PartOfSpeech.verb, Lang.DE)!;
+            const infinitive = config.fields.find((f) => f.name === 'infinitive')!;
+            const auxiliaryVerb = config.fields.find((f) => f.name === 'auxiliaryVerb')!;
+            const prefix = config.fields.find((f) => f.name === 'prefix')!;
+            const regularity = config.fields.find((f) => f.name === 'regularity')!;
+            const verbCases = config.fields.find((f) => f.name === 'verbCases')!;
+
+            expect(infinitive.layout).toEqual({ row: 'meta1', column: 'infinitive', block: 'verbMeta1' });
+            expect(auxiliaryVerb.layout).toEqual({ row: 'meta1', column: 'auxiliaryVerb', block: 'verbMeta1' });
+            expect(prefix.layout).toEqual({ row: 'meta1', column: 'prefix', block: 'verbMeta1' });
+            expect(regularity.layout).toEqual({ row: 'meta2', column: 'regularity', block: 'verbMeta2' });
+            expect(verbCases.layout).toEqual({ row: 'meta2', column: 'verbCases', block: 'verbMeta2' });
+            // Distinct `block` ids are load-bearing: without them these two rows, sitting
+            // back-to-back with nothing non-`layout` between them, would merge into one sparse
+            // 2x5 grid instead of two clean rows (see `fieldLayout.ts`'s `blockKey`).
+            expect(infinitive.layout?.block).not.toBe(regularity.layout?.block);
+        });
+
+        it('Estonian: the -ma/-da infinitives share one row, two columns', () => {
+            const config = getFormConfig(PartOfSpeech.verb, Lang.EE)!;
+            const ma = config.fields.find((f) => f.name === 'infinitiveMa')!;
+            const da = config.fields.find((f) => f.name === 'infinitiveDa')!;
+            expect(ma.layout).toEqual({ row: 'infinitives', column: 'ma' });
+            expect(da.layout).toEqual({ row: 'infinitives', column: 'da' });
+        });
+
+        it('English: no property-row field carries a layout', () => {
+            const config = getFormConfig(PartOfSpeech.verb, Lang.EN)!;
+            expect(config.fields.find((f) => f.name === 'regularity')?.layout).toBeUndefined();
         });
     });
 });
