@@ -115,6 +115,10 @@
     "buttons": {
       "changeWordType": "Cambiar tipo de palabra"
     },
+    "emptyState": {
+      "title": "Aún no hay traducciones",
+      "description": "Añade una traducción desde el menú lateral."
+    },
     "sidebar": {
       "collapse": "Contraer la barra lateral",
       "expand": "Expandir la barra lateral",

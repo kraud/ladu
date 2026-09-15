@@ -14,6 +14,7 @@ import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
+import { EmptyState } from '@/components/common/EmptyState';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { PartOfSpeechSelector } from '@/components/common/PartOfSpeechSelector';
 import { ArrowsClockwiseIcon, FloppyDiskIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
@@ -156,23 +157,31 @@ export function WordForm({
     return (
         <WordEditorLayout sidebar={sidebar}>
             <div className="flex flex-col gap-5">
-                <div className={translationGridClass(partOfSpeech)}>
-                    {state.translations.map((translation, index) => (
-                        <TranslationCard
-                            key={translation.language}
-                            lang={translation.language}
-                            pos={partOfSpeech}
-                            initialCases={translation.cases}
-                            onChange={(next) => state.updateTranslation(index, next)}
-                            onRemove={() => state.removeTranslation(index)}
-                            onClear={() => state.clearTranslation(index)}
-                            resetKey={state.resetTokens[translation.language] ?? 0}
-                            // Never disabled — Remove is always available; the < 2 translations
-                            // case is surfaced instead as a hint next to the Save action in the sidebar.
-                            removeDisabled={false}
-                        />
-                    ))}
-                </div>
+                {state.translations.length === 0 ? (
+                    <EmptyState
+                        icon={<PlusIcon size={20} />}
+                        title={t('wordRelated:wordForm.emptyState.title')}
+                        description={t('wordRelated:wordForm.emptyState.description')}
+                    />
+                ) : (
+                    <div className={translationGridClass(partOfSpeech)}>
+                        {state.translations.map((translation, index) => (
+                            <TranslationCard
+                                key={translation.language}
+                                lang={translation.language}
+                                pos={partOfSpeech}
+                                initialCases={translation.cases}
+                                onChange={(next) => state.updateTranslation(index, next)}
+                                onRemove={() => state.removeTranslation(index)}
+                                onClear={() => state.clearTranslation(index)}
+                                resetKey={state.resetTokens[translation.language] ?? 0}
+                                // Never disabled — Remove is always available; the < 2 translations
+                                // case is surfaced instead as a hint next to the Save action in the sidebar.
+                                removeDisabled={false}
+                            />
+                        ))}
+                    </div>
+                )}
 
                 <ConfirmDialog
                     open={confirmChangeTypeOpen}

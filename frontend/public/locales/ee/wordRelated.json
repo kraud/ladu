@@ -115,6 +115,10 @@
     "buttons": {
       "changeWordType": "Muuda sõnaliiki"
     },
+    "emptyState": {
+      "title": "Tõlkeid pole veel lisatud",
+      "description": "Lisa tõlge külgmenüüst."
+    },
     "sidebar": {
       "collapse": "Ahenda külgriba",
       "expand": "Laienda külgriba",

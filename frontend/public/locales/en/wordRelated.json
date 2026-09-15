@@ -115,6 +115,10 @@
     "buttons": {
       "changeWordType": "Change word type"
     },
+    "emptyState": {
+      "title": "No translations yet",
+      "description": "Add a translation from the side menu."
+    },
     "sidebar": {
       "collapse": "Collapse sidebar",
       "expand": "Expand sidebar",

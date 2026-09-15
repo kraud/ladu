@@ -115,6 +115,10 @@
     "buttons": {
       "changeWordType": "Wortart ändern"
     },
+    "emptyState": {
+      "title": "Noch keine Übersetzungen",
+      "description": "Füge eine Übersetzung über das Seitenmenü hinzu."
+    },
     "sidebar": {
       "collapse": "Seitenleiste einklappen",
       "expand": "Seitenleiste ausklappen",
