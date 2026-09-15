@@ -20,7 +20,7 @@ const SESSION = {
 };
 
 async function addLanguage(user: ReturnType<typeof userEvent.setup>, native: string) {
-    await user.click(screen.getByRole('button', { name: 'Add another translation' }));
+    await user.click(screen.getByRole('button', { name: 'Add translation' }));
     await user.click(await screen.findByRole('button', { name: native }));
 }
 
@@ -35,7 +35,7 @@ describe('WordForm — create mode', () => {
         await user.click(screen.getByRole('radio', { name: /Noun/ }));
 
         expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Add another translation' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Add translation' })).toBeInTheDocument();
     });
 
     it('skips the gate when defaultPartOfSpeech is given', () => {
@@ -186,12 +186,12 @@ describe('WordForm — create mode', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
         // Only Spanish is left to add.
-        await user.click(screen.getByRole('button', { name: 'Add another translation' }));
+        await user.click(screen.getByRole('button', { name: 'Add translation' }));
         expect(screen.getByRole('button', { name: 'Español' })).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'English' })).not.toBeInTheDocument();
     });
 
-    it('keeps Remove enabled even at 2 slots, and disables Add another translation once every language is used', async () => {
+    it('keeps Remove enabled even at 2 slots, and disables Add translation once every language is used', async () => {
         const user = userEvent.setup();
         renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
             session: SESSION,
@@ -201,7 +201,7 @@ describe('WordForm — create mode', () => {
         await addLanguage(user, 'Español');
 
         expect(screen.getAllByRole('button', { name: 'Remove' })[0]).toBeEnabled();
-        expect(screen.getByRole('button', { name: 'Add another translation' })).toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Add translation' })).toBeDisabled();
     });
 
     it('shows the min-translations hint below 2 slots and hides it once 2 are added', async () => {

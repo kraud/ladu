@@ -850,7 +850,8 @@ contract or any backend behaviour, so all stay inside this slice rather than ope
 - **D24 — the completion ring itself is now gated behind a new "Display progress" toolbar switch**,
   built the same way as "Display gender" but **always visible** rather than noun-gated — completion
   applies to every part of speech with a config, not just nouns. Threads through exactly the same
-  chain gender already does: `ReviewPage` (new `showProgress` state, default on) →
+  chain gender already does: `ReviewPage` (new `showProgress` state, **default off since
+  2026-09-15 — amended by D42**) →
   `TableToolbar` (new `Switch`) → `ReviewTable` → `columns.tsx`'s `BuildColumnsOptions` →
   `WordCell` (skips rendering `CompletionRing` entirely when off).
 
@@ -862,8 +863,8 @@ absent until interaction, and `userEvent.hover` on the ring reveals it via `find
 the tooltip's real open delay rather than mocking it away). `WordCell.test.tsx` (+1, all call sites
 gained `showProgress`): the ring disappears entirely when `showProgress` is off even though a
 config exists. `TableToolbar.test.tsx` (+1): the new switch shows regardless of `showSwitch`
-(unlike gender) and toggles. `ReviewPage.test.tsx` (+1): the switch is on by default and turning it
-off removes every `.ring` from the page.
+(unlike gender) and toggles. `ReviewPage.test.tsx` (+1, **inverted 2026-09-15 per D42**): the switch
+is off by default and turning it on adds every `.ring` to the page.
 
 **Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npm test -w frontend`
 **445 → 450** (5 net new). Backend untouched.
@@ -1273,6 +1274,39 @@ Close/Edit only; Edit revealing the full form; typing over "Baum" then Cancel re
 read-only view with "Baum" intact; a fresh Verb's empty DE card collapsing to "Nothing entered yet".
 
 **Slice 11 — phase gate.** `e2e/tests/phase-3-review.spec.ts`, doc updates, full green run.
+
+### Eighth round of user-review fixes (2026-09-15)
+
+Two tweaks on already-shipped surfaces, raised after the seventh round.
+
+- **D42 — the "Display progress" switch now starts off.** `ReviewPage`'s `showProgress` default
+  flips `true` → `false`, so `/review` no longer paints a completion ring in every language column
+  before the user asks for one. The switch itself, its always-visible placement (D24) and
+  `WordCell`'s gate are unchanged — only the initial state moves, `aria-pressed=false` on first
+  paint. `ReviewPage.test.tsx`'s Slice 7 case is **inverted**, not just re-pinned: both of its
+  assertions read the default (a ring present before the click, none after), so they only hold while
+  the default is on. It now asserts off → click → on, and pins the switch's `aria-pressed`.
+- **D43 — the add-translation button reads "Add translation"**, shortened from "Add another
+  translation" in all four locales (`common:buttons.addAnotherTranslation` → `Add translation` /
+  `Agregar traducción` / `Übersetzung hinzufügen` / `Lisa tõlge`). The i18n key keeps its old name —
+  this is copy, not a rename, and `review:addTranslation` ("Add {{language}} translation") stays a
+  separate key. `WordForm.tsx` needed no change: it renders the key, so every locale picks the new
+  text up. Accessible-name assertions in `WordForm.test.tsx`, `AddWordPage.test.tsx`,
+  `SidebarAction.test.tsx` and the phase-2 e2e spec's three button clicks followed the new text.
+
+Test repair carried along, unrelated to D42/D43 but found while running the gate:
+`e2e/tests/phase-2-noun-crud.spec.ts` asserted `role=heading` on the `/addWord` gate prompt, which
+D37 moved into the page's subtitle paragraph. It now uses `getByText`, matching
+`AddWordPage.test.tsx`. It failed before this round's changes and blocked the phase gate.
+
+The historical records that still carry the old copy — `snapshot/pages-word-flow.md` (the old app's
+flow) and D39's quote of the button label above — are left as written, since they describe the state
+at the time they were recorded.
+
+**Verified**: `npm test -w frontend` **535 passed** (57 files); `npm run test:e2e` **9 passed**.
+D42 additionally checked in the browser against the real stack (throwaway spec, deleted after the
+run): `/review` renders `switch "Display progress"` unpressed with zero `.ring` elements, and
+clicking it adds them.
 
 ## Files
 

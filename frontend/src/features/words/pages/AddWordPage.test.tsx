@@ -25,9 +25,9 @@ afterEach(() => {
 });
 
 async function fillEnEs(user: ReturnType<typeof userEvent.setup>) {
-    await user.click(screen.getByRole('button', { name: 'Add another translation' }));
+    await user.click(screen.getByRole('button', { name: 'Add translation' }));
     await user.click(await screen.findByRole('button', { name: 'English' }));
-    await user.click(screen.getByRole('button', { name: 'Add another translation' }));
+    await user.click(screen.getByRole('button', { name: 'Add translation' }));
     await user.click(await screen.findByRole('button', { name: 'Español' }));
 
     const [singularEN, singularES] = screen.getAllByLabelText('Singular');

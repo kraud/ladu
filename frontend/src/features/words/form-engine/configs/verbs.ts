@@ -333,7 +333,7 @@ function buildDeConfig(): TranslationFormConfig {
             { row: 'meta1', column: 'infinitive', block: 'verbMeta1' }
         ),
         {
-            kind: 'select',
+            kind: 'toggle',
             name: 'auxiliaryVerb',
             caseName: VerbCases.auxVerbDE,
             labelKey: labelKey(VerbCases.auxVerbDE),

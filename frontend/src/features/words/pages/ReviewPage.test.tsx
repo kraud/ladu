@@ -236,17 +236,19 @@ describe('ReviewPage — Slice 7: Display-gender switch (D14, fixed after user r
 });
 
 describe('ReviewPage — Slice 7: Display-progress switch', () => {
-    it('is on by default and hides every completion ring when turned off', async () => {
+    it('is off by default and shows every completion ring once turned on', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [verbSeed('run', 'w1')] });
         server.use(...fake.handlers);
 
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/review', session: SESSION });
         await screen.findByText('run');
-        expect(document.querySelector('.ring')).toBeInTheDocument();
-
-        await user.click(screen.getByText('Display progress').closest('button')!);
         expect(document.querySelector('.ring')).not.toBeInTheDocument();
+
+        const toggle = screen.getByText('Display progress').closest('button')!;
+        expect(toggle).toHaveAttribute('aria-pressed', 'false');
+        await user.click(toggle);
+        expect(document.querySelector('.ring')).toBeInTheDocument();
     });
 });
 

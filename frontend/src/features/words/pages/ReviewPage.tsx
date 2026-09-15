@@ -75,7 +75,7 @@ export function ReviewPage() {
 
     // Not persisted in the URL (matches the mockup) — a display concern, not a filter.
     const [showGender, setShowGender] = useState(true);
-    const [showProgress, setShowProgress] = useState(true);
+    const [showProgress, setShowProgress] = useState(false);
 
     const bulkDelete = useBulkDeleteWords();
 

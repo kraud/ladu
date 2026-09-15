@@ -219,7 +219,7 @@ describe('TranslationCard — Verb', () => {
         expect(screen.getAllByText('Tiempo simple')).toHaveLength(1);
     });
 
-    it('mounts a German verb card with select, multi-select, and a conjugated-auxiliary adornment', async () => {
+    it('mounts a German verb card with a segmented toggle, multi-select, and a conjugated-auxiliary adornment', async () => {
         const user = userEvent.setup();
         renderWithProviders(
             <TranslationCard
@@ -230,14 +230,20 @@ describe('TranslationCard — Verb', () => {
         );
         expect(screen.getByText('Indikativ')).toBeInTheDocument();
         expect(screen.getByText('Perfekt')).toBeInTheDocument();
-        expect(screen.getByRole('combobox', { name: 'Auxiliary verb' })).toHaveTextContent('haben');
+        expect(screen.getByRole('radio', { name: 'haben' })).toBeChecked();
+        expect(screen.getByRole('radio', { name: 'sein' })).not.toBeChecked();
         expect(screen.getByText('Accusative')).toBeInTheDocument();
         // The Perfect tense's adornment reflects the hydrated auxiliaryVerb ("haben" -> "habe" for 1s).
         expect(screen.getByText('habe')).toBeInTheDocument();
 
-        await user.click(screen.getByRole('combobox', { name: 'Auxiliary verb' }));
-        await user.click(screen.getByRole('option', { name: 'sein' }));
+        await user.click(screen.getByRole('radio', { name: 'sein' }));
         await waitFor(() => expect(screen.getByText('bin')).toBeInTheDocument());
+        expect(screen.getByRole('radio', { name: 'sein' })).toBeChecked();
+
+        // Clicking the already-active option again clears the selection.
+        await user.click(screen.getByRole('radio', { name: 'sein' }));
+        expect(screen.getByRole('radio', { name: 'sein' })).not.toBeChecked();
+        expect(screen.getByRole('radio', { name: 'haben' })).not.toBeChecked();
     });
 
     it('mounts an Estonian verb card whose infinitiveMa pattern relaxes once searchInEnglish is checked', async () => {

@@ -36,6 +36,18 @@ const selectField: FieldConfig = {
     ],
 };
 
+const toggleField: FieldConfig = {
+    kind: 'toggle',
+    name: 'auxiliaryVerb',
+    caseName: radioField.caseName!,
+    labelKey: 'auxiliaryVerb',
+    required: false,
+    options: [
+        { value: 'haben', label: 'haben' },
+        { value: 'sein', label: 'sein' },
+    ],
+};
+
 const multiSelectField: FieldConfig = {
     kind: 'multi-select',
     name: 'verbCases',
@@ -125,6 +137,18 @@ describe('FieldRenderer', () => {
         expect(irregular).toBeChecked();
     });
 
+    it('clicking an already-selected radio option unselects it', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<Harness field={radioField} value="irregular" />);
+        const irregular = screen.getByRole('radio', { name: 'irregular' });
+        expect(irregular).toBeChecked();
+
+        await user.click(irregular);
+
+        expect(irregular).not.toBeChecked();
+        expect(screen.getByRole('radio', { name: 'regular' })).not.toBeChecked();
+    });
+
     it('displayOnly: hides a non-required empty field entirely', () => {
         renderWithProviders(<Harness field={radioField} displayOnly value="" />);
         expect(screen.queryByText('Regularity')).not.toBeInTheDocument();
@@ -164,6 +188,41 @@ describe('FieldRenderer', () => {
             renderWithProviders(<Harness field={selectField} displayOnly value="haben" />);
             expect(screen.getByText('haben')).toBeInTheDocument();
             expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('toggle field', () => {
+        it('renders both options at once and lets the user pick one', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<Harness field={toggleField} />);
+
+            const haben = screen.getByRole('radio', { name: 'haben' });
+            const sein = screen.getByRole('radio', { name: 'sein' });
+            expect(haben).not.toBeChecked();
+            expect(sein).not.toBeChecked();
+
+            await user.click(sein);
+
+            expect(sein).toBeChecked();
+            expect(haben).not.toBeChecked();
+        });
+
+        it('clicking the already-active option clears the selection', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<Harness field={toggleField} value="haben" />);
+            const haben = screen.getByRole('radio', { name: 'haben' });
+            expect(haben).toBeChecked();
+
+            await user.click(haben);
+
+            expect(haben).not.toBeChecked();
+            expect(screen.getByRole('radio', { name: 'sein' })).not.toBeChecked();
+        });
+
+        it('displayOnly: shows the matched option label as static text', () => {
+            renderWithProviders(<Harness field={toggleField} displayOnly value="sein" />);
+            expect(screen.getByText('sein')).toBeInTheDocument();
+            expect(screen.queryByRole('radio')).not.toBeInTheDocument();
         });
     });
 

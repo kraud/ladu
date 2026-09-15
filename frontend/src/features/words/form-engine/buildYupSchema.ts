@@ -64,7 +64,8 @@ function radioFieldSchema(field: Extract<FieldConfig, { kind: 'radio' }>, t: Tra
         .matches(optionsPattern, t(field.invalidMessageKey ?? NO_NUMBERS_KEY));
 }
 
-function selectFieldSchema(field: Extract<FieldConfig, { kind: 'select' }>, t: TranslateFn): yup.AnySchema {
+/** Shared by `select` and `toggle` — both are a plain "one of these option values, or empty" field. */
+function selectFieldSchema(field: Extract<FieldConfig, { kind: 'select' | 'toggle' }>, t: TranslateFn): yup.AnySchema {
     const values = field.options.map((option) => option.value);
     if (field.required) {
         const message = t(field.requiredMessageKey ?? field.invalidMessageKey ?? NO_NUMBERS_KEY);
@@ -87,6 +88,7 @@ function baseFieldSchema(field: FieldConfig, t: TranslateFn): yup.AnySchema {
         case 'checkbox':
             return yup.boolean();
         case 'select':
+        case 'toggle':
             return selectFieldSchema(field, t);
         case 'multi-select':
             return multiSelectFieldSchema();

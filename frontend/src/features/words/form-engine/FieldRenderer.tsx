@@ -18,6 +18,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { matchesVisibility, type FieldConfig } from './configs/types';
 import { isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
 
@@ -62,7 +63,7 @@ export function FieldRenderer({ field, displayOnly = false }: FieldRendererProps
 
                 if (displayOnly) {
                     let displayValue: string;
-                    if (field.kind === 'radio' || field.kind === 'select') {
+                    if (field.kind === 'radio' || field.kind === 'select' || field.kind === 'toggle') {
                         displayValue = optionLabel(field.options, rhf.value);
                     } else if (field.kind === 'multi-select') {
                         const selected: unknown[] = Array.isArray(rhf.value) ? rhf.value : [];
@@ -103,12 +104,46 @@ export function FieldRenderer({ field, displayOnly = false }: FieldRendererProps
                             <FormControl>
                                 <RadioGroup value={rhf.value ?? ''} onValueChange={rhf.onChange}>
                                     {field.options.map((option) => (
-                                        <label key={option.value} className="flex items-center gap-1.5 text-sm">
+                                        <label
+                                            key={option.value}
+                                            className="flex items-center gap-1.5 text-sm"
+                                            // Base UI's own radio click never fires `onValueChange` again for a
+                                            // re-click of the already-selected option (native radio semantics:
+                                            // clicking a checked radio can't uncheck it). Intercepted here, ahead
+                                            // of that internal handling, so a re-click clears the field instead —
+                                            // `stopPropagation` (capture phase, before the click reaches the
+                                            // radio itself) keeps Base UI from re-selecting the same value right
+                                            // back afterward.
+                                            onClickCapture={(event) => {
+                                                if (rhf.value === option.value) {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                    rhf.onChange('');
+                                                }
+                                            }}
+                                        >
                                             <RadioGroupItem value={option.value} />
                                             {option.label}
                                         </label>
                                     ))}
                                 </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    );
+                }
+
+                if (field.kind === 'toggle') {
+                    return (
+                        <FormItem>
+                            <FormLabel>{label}</FormLabel>
+                            <FormControl>
+                                <SegmentedToggle
+                                    value={rhf.value}
+                                    onValueChange={rhf.onChange}
+                                    options={field.options}
+                                    aria-label={label}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

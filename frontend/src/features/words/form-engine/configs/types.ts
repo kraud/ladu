@@ -3,7 +3,7 @@ import type { AdjectiveCases, AdverbCases, Lang, NounCases, PartOfSpeech, VerbCa
 /** Every case-name enum a `FieldConfig` can point at, across all four parts of speech. */
 export type CaseName = NounCases | VerbCases | AdjectiveCases | AdverbCases;
 
-export type FieldKind = 'text' | 'radio' | 'checkbox' | 'select' | 'multi-select';
+export type FieldKind = 'text' | 'radio' | 'checkbox' | 'select' | 'multi-select' | 'toggle';
 
 /** One selectable value in a `radio`/`select`/`multi-select` field. Values are displayed verbatim (no i18n) — they are the grammatical terms themselves (`"el"`, `"der"`, `"regular"`...), matching the old app. */
 export interface RadioOption {
@@ -184,12 +184,28 @@ export interface MultiSelectFieldConfig extends FieldConfigBase {
     decode: (word: string) => string[];
 }
 
+/**
+ * A two-option segmented control — a `select`/`radio` alternative for a
+ * binary field that reads better with both choices shown at once (German
+ * verb's `auxiliaryVerb`: haben/sein). Validates and persists exactly like
+ * `select` (see `buildYupSchema.ts`'s shared `selectFieldSchema`); the only
+ * difference is `FieldRenderer`'s control (`SegmentedToggle`, which also
+ * supports clicking the active option again to clear it).
+ */
+export interface ToggleFieldConfig extends FieldConfigBase {
+    kind: 'toggle';
+    caseName: CaseName;
+    /** Exactly two options — `SegmentedToggle` renders a fixed two-segment pill. */
+    options: RadioOption[];
+}
+
 export type FieldConfig =
     | TextFieldConfig
     | RadioFieldConfig
     | CheckboxFieldConfig
     | SelectFieldConfig
-    | MultiSelectFieldConfig;
+    | MultiSelectFieldConfig
+    | ToggleFieldConfig;
 
 export interface TranslationFormConfig {
     pos: PartOfSpeech;
