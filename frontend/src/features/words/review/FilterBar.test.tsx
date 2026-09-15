@@ -1,9 +1,14 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
+import { useUiStore } from '@/stores/uiStore';
 import { PartOfSpeech } from '@/ts/enums';
 import { FilterBar, type FilterBarProps } from './FilterBar';
+
+afterEach(() => {
+    useUiStore.setState({ reviewSidebarCollapsed: false, reviewFilterPosition: 'top' });
+});
 
 const baseProps: FilterBarProps = {
     gender: [],
@@ -136,5 +141,36 @@ describe('FilterBar — no Tags group (D1)', () => {
     it('renders no Tags label', () => {
         renderWithProviders(<FilterBar {...baseProps} />);
         expect(screen.queryByText('Tags')).not.toBeInTheDocument();
+    });
+});
+
+describe('FilterBar — sidebar position', () => {
+    it('moves to a sidebar, stacking filter groups in a column, and back to the top', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} />);
+
+        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
+        expect(useUiStore.getState().reviewFilterPosition).toBe('sidebar');
+        expect(screen.getByText('Part of speech').closest('aside')).toBeInTheDocument();
+        expect(screen.getByText('Gender').closest('.fb-body')).toHaveClass('fb-body--sidebar');
+
+        await user.click(screen.getByRole('button', { name: 'Move filters to top' }));
+        expect(useUiStore.getState().reviewFilterPosition).toBe('top');
+        expect(screen.getByText('Part of speech').closest('aside')).not.toBeInTheDocument();
+    });
+
+    it('collapses to an icon rail once in sidebar position, hiding the title and hint text', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} pos={[PartOfSpeech.noun]} />);
+
+        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
+        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
+
+        expect(screen.queryByText('Filters')).not.toBeInTheDocument();
+        expect(screen.queryByText('Part of speech')).not.toBeInTheDocument();
+        expect(screen.getByText('1')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Show filters' }));
+        expect(screen.getByText('Filters')).toBeInTheDocument();
     });
 });

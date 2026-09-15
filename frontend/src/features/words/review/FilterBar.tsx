@@ -1,7 +1,13 @@
 /**
- * The collapsible filter bar (D5 — a bar above the table, not the blueprint's
- * left sidebar). Gender + Part of speech chips, then the language order
- * control. No Tags group (D1).
+ * The collapsible filter bar (D5). Gender + Part of speech chips, then the
+ * language order control. No Tags group (D1). Can sit above the table (a
+ * horizontal bar) or, via the position toggle next to the collapse arrow, as
+ * a left sidebar — mirroring `WordEditorLayout`'s collapsible action sidebar
+ * (icon-rail width when collapsed, full width otherwise). Both the collapse
+ * state and the position live in `uiStore` (`reviewSidebarCollapsed` /
+ * `reviewFilterPosition`), session-scoped like `WordEditorLayout`'s own
+ * `wordSidebarCollapsed`, so they survive this component's own remounts
+ * (e.g. filter changes elsewhere on the page) without being persisted.
  *
  * The show/hide toggle lives in one persistent header row, rendered in BOTH
  * states, always as the first/leftmost element — a deliberate deviation from
@@ -10,14 +16,23 @@
  * collapse button LAST in the expanded body (after a `grow` spacer inside a
  * `flex-wrap` row, so at narrower widths it isn't even reliably anchored to a
  * corner). Only the icon (caret down/up) and the collapsed-only summary text
- * change between states; the button itself never moves.
+ * change between states; the button itself never moves. The position toggle
+ * sits immediately after it.
+ *
+ * In sidebar position, the filter groups (gender, PoS, language order) stack
+ * in a column instead of wrapping in a row (`fb-body--sidebar`), and a
+ * collapsed sidebar narrows to an icon rail rather than just hiding its body
+ * — there's no room left for the eyebrow/hint text at that width, so the
+ * header itself stacks vertically and drops everything but the two toggles
+ * and the active-filter count.
  */
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
+import { CaretDownIcon, CaretUpIcon, RowsIcon, SidebarSimpleIcon } from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { GenderDE, GenderES, PartOfSpeech } from '@/ts/enums';
 import { partOfSpeechLabelKey } from '@/lib/words';
+import { cn } from '@/lib/utils';
+import { useUiStore } from '@/stores/uiStore';
 import type { LangKey } from '@/features/words/types';
 import { posAbbrKey } from './columns';
 import { LanguageOrderControl } from './LanguageOrderControl';
@@ -66,7 +81,12 @@ export function FilterBar({
     onLanguagesChange,
 }: FilterBarProps) {
     const { t } = useTranslation();
-    const [collapsed, setCollapsed] = useState(false);
+    const collapsed = useUiStore((s) => s.reviewSidebarCollapsed);
+    const setCollapsed = useUiStore((s) => s.setReviewSidebarCollapsed);
+    const position = useUiStore((s) => s.reviewFilterPosition);
+    const setPosition = useUiStore((s) => s.setReviewFilterPosition);
+    const isSidebar = position === 'sidebar';
+    const isRail = isSidebar && collapsed;
 
     function toggleGenderValue(value: string) {
         const next = gender.includes(value) ? gender.filter((v) => v !== value) : [...gender, value];
@@ -79,38 +99,62 @@ export function FilterBar({
     }
 
     const activeCount = gender.length + pos.length + (hasQuery ? 1 : 0);
+    const Container = isSidebar ? 'aside' : 'div';
 
     return (
-        <div className="card filterbar">
-            <div className="fb-header">
+        <Container
+            className={cn(
+                'card filterbar',
+                isSidebar && [
+                    'sticky top-[68px] flex max-h-[calc(100dvh-84px)] flex-col overflow-y-auto transition-[width] duration-150',
+                    collapsed ? 'w-14' : 'w-64',
+                    'max-[920px]:static max-[920px]:!w-full max-[920px]:max-h-none',
+                ],
+            )}
+        >
+            <div className={cn('fb-header', isRail && 'fb-header--rail')}>
                 <button
                     type="button"
                     className="icon-btn"
                     aria-label={t(collapsed ? 'review:filters.show' : 'review:filters.collapse')}
                     title={t(collapsed ? 'review:filters.show' : 'review:filters.collapse')}
-                    onClick={() => setCollapsed((prev) => !prev)}
+                    onClick={() => setCollapsed(!collapsed)}
                 >
                     {collapsed ? <CaretDownIcon size={16} /> : <CaretUpIcon size={16} />}
                 </button>
-                <span className="eyebrow">{t('review:filters.title')}</span>
-                {activeCount > 0 && <span className="active-pill">{activeCount}</span>}
-                {collapsed && (
-                    <span className="hint">
-                        {activeCount === 0
-                            ? t('review:filters.noneActive')
-                            : t('review:filters.activeCount', { count: activeCount })}
-                    </span>
+                <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label={t(isSidebar ? 'review:filters.moveToTop' : 'review:filters.moveToSidebar')}
+                    title={t(isSidebar ? 'review:filters.moveToTop' : 'review:filters.moveToSidebar')}
+                    onClick={() => setPosition(isSidebar ? 'top' : 'sidebar')}
+                >
+                    {isSidebar ? <RowsIcon size={16} /> : <SidebarSimpleIcon size={16} />}
+                </button>
+                {!isRail && (
+                    <>
+                        <span className="eyebrow">{t('review:filters.title')}</span>
+                        {activeCount > 0 && <span className="active-pill">{activeCount}</span>}
+                        {collapsed && (
+                            <span className="hint">
+                                {activeCount === 0
+                                    ? t('review:filters.noneActive')
+                                    : t('review:filters.activeCount', { count: activeCount })}
+                            </span>
+                        )}
+                        <span className="grow" />
+                        {collapsed && !isSidebar && (
+                            <span className="meta">
+                                {t('review:filters.languageOrder')}: {activeLanguages.join(' → ')}
+                            </span>
+                        )}
+                    </>
                 )}
-                <span className="grow" />
-                {collapsed && (
-                    <span className="meta">
-                        {t('review:filters.languageOrder')}: {activeLanguages.join(' → ')}
-                    </span>
-                )}
+                {isRail && activeCount > 0 && <span className="active-pill">{activeCount}</span>}
             </div>
 
             {!collapsed && (
-                <div className="fb-body">
+                <div className={cn('fb-body', isSidebar && 'fb-body--sidebar')}>
                     <div className="fb-group">
                         <div className="fhead">
                             <span className="label">{t('review:filters.gender')}</span>
@@ -175,6 +219,6 @@ export function FilterBar({
                     />
                 </div>
             )}
-        </div>
+        </Container>
     );
 }

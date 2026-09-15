@@ -24,7 +24,9 @@
     "moveEarlier": "Nihuta {{language}} varasemaks",
     "moveLater": "Nihuta {{language}} hilisemaks",
     "hideLanguage": "Peida {{language}}",
-    "showLanguage": "Näita {{language}}"
+    "showLanguage": "Näita {{language}}",
+    "moveToSidebar": "Vii filtrid külgribale",
+    "moveToTop": "Vii filtrid üles"
   },
   "toolbar": {
     "searchPlaceholder": "Otsi sõnu…",

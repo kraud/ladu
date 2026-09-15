@@ -114,19 +114,24 @@ function buildEsConfig(): TranslationFormConfig {
 
 function buildEeConfig(): TranslationFormConfig {
     const suffix = 'EE';
+    // Positive/comparative/superlative share one row (3 columns); the
+    // omastav and osastav singular/plural pairs each share a row (2
+    // columns) the same way nouns pair singular/plural per declension case.
+    const singularColumn = 'Singular';
+    const pluralColumn = 'Plural';
     return {
         pos: PartOfSpeech.adjective,
         lang: Lang.EE,
         fields: [
-            degreeField(AdjectiveCases.algvorreEE, 'algvorre', true, adjectiveErrorKey(suffix, 'algvorreFormRequired')),
+            degreeField(AdjectiveCases.algvorreEE, 'algvorre', true, adjectiveErrorKey(suffix, 'algvorreFormRequired'), undefined, { row: 'degree', column: 'Positive' }),
             // keskvorre/ulivorre: required (D4 fix — the old app had them both `.nullable()` AND `.required()`, a contradiction).
-            degreeField(AdjectiveCases.keskvorreEE, 'keskvorre', true, adjectiveErrorKey(suffix, 'keskvorreFormRequired')),
-            degreeField(AdjectiveCases.ulivorreEE, 'ulivorre', true, adjectiveErrorKey(suffix, 'ulivorreFormRequired')),
+            degreeField(AdjectiveCases.keskvorreEE, 'keskvorre', true, adjectiveErrorKey(suffix, 'keskvorreFormRequired'), undefined, { row: 'degree', column: 'Comparative' }),
+            degreeField(AdjectiveCases.ulivorreEE, 'ulivorre', true, adjectiveErrorKey(suffix, 'ulivorreFormRequired'), undefined, { row: 'degree', column: 'Superlative' }),
             degreeField(AdjectiveCases.pluralNimetavEE, 'pluralNimetav', false),
-            degreeField(AdjectiveCases.singularOmastavEE, 'singularOmastav', false),
-            degreeField(AdjectiveCases.pluralOmastavEE, 'pluralOmastav', false),
-            degreeField(AdjectiveCases.singularOsastavEE, 'singularOsastav', false),
-            degreeField(AdjectiveCases.pluralOsastavEE, 'pluralOsastav', false),
+            degreeField(AdjectiveCases.singularOmastavEE, 'singularOmastav', false, undefined, undefined, { row: 'omastav', column: singularColumn }),
+            degreeField(AdjectiveCases.pluralOmastavEE, 'pluralOmastav', false, undefined, undefined, { row: 'omastav', column: pluralColumn }),
+            degreeField(AdjectiveCases.singularOsastavEE, 'singularOsastav', false, undefined, undefined, { row: 'osastav', column: singularColumn }),
+            degreeField(AdjectiveCases.pluralOsastavEE, 'pluralOsastav', false, undefined, undefined, { row: 'osastav', column: pluralColumn }),
         ],
     };
 }

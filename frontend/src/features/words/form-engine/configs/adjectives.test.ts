@@ -49,6 +49,18 @@ describe('getFormConfig(Adjective, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => !required.includes(f.name)).every((f) => !f.required)).toBe(true);
     });
 
+    it('Estonian layout: positive/comparative/superlative share one row; omastav and osastav pair singular/plural', () => {
+        const config = getFormConfig(PartOfSpeech.adjective, Lang.EE)!;
+        expect(config.fields.find((f) => f.name === 'algvorre')?.layout).toEqual({ row: 'degree', column: 'Positive' });
+        expect(config.fields.find((f) => f.name === 'keskvorre')?.layout).toEqual({ row: 'degree', column: 'Comparative' });
+        expect(config.fields.find((f) => f.name === 'ulivorre')?.layout).toEqual({ row: 'degree', column: 'Superlative' });
+        expect(config.fields.find((f) => f.name === 'pluralNimetav')?.layout).toBeUndefined();
+        expect(config.fields.find((f) => f.name === 'singularOmastav')?.layout).toEqual({ row: 'omastav', column: 'Singular' });
+        expect(config.fields.find((f) => f.name === 'pluralOmastav')?.layout).toEqual({ row: 'omastav', column: 'Plural' });
+        expect(config.fields.find((f) => f.name === 'singularOsastav')?.layout).toEqual({ row: 'osastav', column: 'Singular' });
+        expect(config.fields.find((f) => f.name === 'pluralOsastav')?.layout).toEqual({ row: 'osastav', column: 'Plural' });
+    });
+
     describe('Spanish — gender-branched field set', () => {
         const config = getFormConfig(PartOfSpeech.adjective, Lang.ES)!;
 

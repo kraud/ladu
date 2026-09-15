@@ -24,7 +24,9 @@
     "moveEarlier": "{{language}} nach vorne verschieben",
     "moveLater": "{{language}} nach hinten verschieben",
     "hideLanguage": "{{language}} ausblenden",
-    "showLanguage": "{{language}} einblenden"
+    "showLanguage": "{{language}} einblenden",
+    "moveToSidebar": "Filter in die Seitenleiste verschieben",
+    "moveToTop": "Filter nach oben verschieben"
   },
   "toolbar": {
     "searchPlaceholder": "Wörter suchen…",

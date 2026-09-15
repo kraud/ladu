@@ -628,6 +628,14 @@
     padding-top: 10px;
     border-top: 1px solid var(--border);
   }
+  /* Sidebar position (Slice 7 follow-up): filter groups stack in a column
+     instead of wrapping in a row — there's no spare width beside the table
+     to wrap into. */
+  .fb-body--sidebar {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 16px;
+  }
   .fb-group {
     display: flex;
     flex-direction: column;
@@ -679,6 +687,12 @@
     align-items: center;
     gap: 10px;
     padding: 2px 0;
+  }
+  /* Collapsed sidebar (icon rail, ≥920px): no room for the eyebrow/hint
+     text at `w-14`, so the two toggles stack instead of sitting in a row. */
+  .fb-header--rail {
+    flex-direction: column;
+    gap: 6px;
   }
   .active-pill {
     font-family: var(--font-mono);
@@ -834,5 +848,11 @@
   }
   .fb-body {
     gap: 10px 24px;
+  }
+  /* The sidebar's icon rail is a desktop-width affordance (`FilterBar.tsx`'s
+     Tailwind classes already force the aside back to a full-width, static
+     block below this breakpoint) — the header row reverts to match. */
+  .fb-header--rail {
+    flex-direction: row;
   }
 }

@@ -13,7 +13,9 @@ import { useTranslation } from 'react-i18next';
 import type { RowSelectionState } from '@tanstack/react-table';
 import { EmptyState } from '@/components/common/EmptyState';
 import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
+import { useUiStore } from '@/stores/uiStore';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
 import { PartOfSpeech } from '@/ts/enums';
 import { useBulkDeleteWords, useWordsInfinite } from '../hooks';
@@ -38,6 +40,8 @@ export function ReviewPage() {
     const { t } = useTranslation();
     const search = route.useSearch();
     const navigate = route.useNavigate();
+
+    const filterPosition = useUiStore((s) => s.reviewFilterPosition);
 
     const user = useAuthStore((s) => s.user);
     const userId = user?.id ?? '';
@@ -136,7 +140,12 @@ export function ReviewPage() {
     return (
         <div className="flex flex-col gap-4">
             <h1 className="h1">{t('common:header.review')}</h1>
-            <div className="layout">
+            <div
+                className={cn(
+                    'layout',
+                    filterPosition === 'sidebar' && 'flex items-start gap-4 max-[920px]:flex-col max-[920px]:gap-3',
+                )}
+            >
                 <FilterBar
                     gender={search.gender ?? []}
                     pos={search.pos ?? []}
@@ -147,7 +156,7 @@ export function ReviewPage() {
                     onPosChange={(next) => updateSearch({ pos: next })}
                     onLanguagesChange={(next) => updateSearch({ lang: next as LangKey[] })}
                 />
-                <div className="main-col">
+                <div className={cn('main-col', filterPosition === 'sidebar' && 'flex-1')}>
                     <TableToolbar
                         initialQuery={search.q ?? ''}
                         onQueryChange={(next) => updateSearch({ q: next })}

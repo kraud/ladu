@@ -24,7 +24,9 @@
     "moveEarlier": "Move {{language}} earlier",
     "moveLater": "Move {{language}} later",
     "hideLanguage": "Hide {{language}}",
-    "showLanguage": "Show {{language}}"
+    "showLanguage": "Show {{language}}",
+    "moveToSidebar": "Move filters to sidebar",
+    "moveToTop": "Move filters to top"
   },
   "toolbar": {
     "searchPlaceholder": "Search words…",
