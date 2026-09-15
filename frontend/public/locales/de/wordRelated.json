@@ -91,14 +91,19 @@
   },
   "translationFormGeneric": {
     "selectLanguage": "Wähle eine Sprache für das neue Wort",
-    "switchLanguage": "Sprache wechseln:"
+    "switchLanguage": "Sprache wechseln:",
+    "collapse": "Übersetzung einklappen",
+    "expand": "Übersetzung ausklappen",
+    "caseCount": "{{value}} von {{total}} Fällen",
+    "emptyCard": "Noch nichts eingegeben"
   },
   "wordFormSelector": {
     "languageNotAvailable": "Diese Sprache ist noch nicht verfügbar",
     "partOfSpeechNotAvailable": "Diese Wortart ist noch nicht verfügbar"
   },
   "formComponentLabel": {
-    "clue": "Hinweis"
+    "clue": "Hinweis",
+    "tags": "Tags"
   },
   "wordForm": {
     "hints": {
@@ -106,6 +111,20 @@
     },
     "errors": {
       "noNumbers": "Darf keine Zahlen enthalten"
+    },
+    "buttons": {
+      "changeWordType": "Wortart ändern"
+    },
+    "sidebar": {
+      "collapse": "Seitenleiste einklappen",
+      "expand": "Seitenleiste ausklappen",
+      "openMenu": "Menü öffnen",
+      "closeMenu": "Menü schließen",
+      "tagsComingSoon": "Demnächst verfügbar"
+    },
+    "confirmChangeType": {
+      "title": "Wortart ändern?",
+      "description": "Die bereits eingegebenen Übersetzungen werden verworfen."
     },
     "noun": {
       "errors": {

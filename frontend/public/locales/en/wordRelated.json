@@ -91,14 +91,19 @@
   },
   "translationFormGeneric": {
     "selectLanguage": "Pick a language for the new word",
-    "switchLanguage": "Switch language:"
+    "switchLanguage": "Switch language:",
+    "collapse": "Collapse translation",
+    "expand": "Expand translation",
+    "caseCount": "{{value}} of {{total}} cases",
+    "emptyCard": "Nothing entered yet"
   },
   "wordFormSelector": {
     "languageNotAvailable": "That language is not available yet",
     "partOfSpeechNotAvailable": "That part of speech is not available yet"
   },
   "formComponentLabel": {
-    "clue": "Clue"
+    "clue": "Clue",
+    "tags": "Tags"
   },
   "wordForm": {
     "hints": {
@@ -106,6 +111,20 @@
     },
     "errors": {
       "noNumbers": "Must not include numbers"
+    },
+    "buttons": {
+      "changeWordType": "Change word type"
+    },
+    "sidebar": {
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "tagsComingSoon": "Coming soon"
+    },
+    "confirmChangeType": {
+      "title": "Change word type?",
+      "description": "The translations you have entered will be discarded."
     },
     "noun": {
       "errors": {

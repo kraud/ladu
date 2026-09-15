@@ -20,6 +20,7 @@ import {
     type FieldConfig,
     type FieldVisibility,
 } from '@/features/words/form-engine/configs';
+import { isPersistedCaseField } from '@/features/words/form-engine/fieldLayout';
 import type { LangKey } from '@/features/words/types';
 
 const LANG_BY_KEY: Record<LangKey, Lang> = {
@@ -28,11 +29,6 @@ const LANG_BY_KEY: Record<LangKey, Lang> = {
     DE: Lang.DE,
     EE: Lang.EE,
 };
-
-/** `fieldsToCases`' own drop rules, minus the "resulting word is blank" one (there's no value to read here). */
-function isPersistedCaseField(field: FieldConfig): boolean {
-    return field.persisted !== false && field.kind !== 'checkbox' && Boolean(field.caseName);
-}
 
 function hasVisibility(field: FieldConfig): field is FieldConfig & { visibleWhen: FieldVisibility } {
     return field.visibleWhen !== undefined;

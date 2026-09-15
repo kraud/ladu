@@ -91,14 +91,19 @@
   },
   "translationFormGeneric": {
     "selectLanguage": "Vali uue sõna keel",
-    "switchLanguage": "Keele vahetamine:"
+    "switchLanguage": "Keele vahetamine:",
+    "collapse": "Ahenda tõlge",
+    "expand": "Laienda tõlge",
+    "caseCount": "{{value}} / {{total}} käänet",
+    "emptyCard": "Veel midagi sisestamata"
   },
   "wordFormSelector": {
     "languageNotAvailable": "See keel pole veel saadaval",
     "partOfSpeechNotAvailable": "See osa kõnest pole veel saadaval"
   },
   "formComponentLabel": {
-    "clue": "Vihje"
+    "clue": "Vihje",
+    "tags": "Sildid"
   },
   "wordForm": {
     "hints": {
@@ -106,6 +111,20 @@
     },
     "errors": {
       "noNumbers": "Ei tohi sisaldada numbreid"
+    },
+    "buttons": {
+      "changeWordType": "Muuda sõnaliiki"
+    },
+    "sidebar": {
+      "collapse": "Ahenda külgriba",
+      "expand": "Laienda külgriba",
+      "openMenu": "Ava menüü",
+      "closeMenu": "Sulge menüü",
+      "tagsComingSoon": "Tulekul"
+    },
+    "confirmChangeType": {
+      "title": "Muuta sõnaliiki?",
+      "description": "Sisestatud tõlked lähevad kaotsi."
     },
     "noun": {
       "errors": {

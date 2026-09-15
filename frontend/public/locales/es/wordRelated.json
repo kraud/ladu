@@ -91,14 +91,19 @@
   },
   "translationFormGeneric": {
     "selectLanguage": "Elige un idioma para la nueva palabra",
-    "switchLanguage": "Cambiar idioma:"
+    "switchLanguage": "Cambiar idioma:",
+    "collapse": "Contraer traducción",
+    "expand": "Expandir traducción",
+    "caseCount": "{{value}} de {{total}} casos",
+    "emptyCard": "Nada introducido todavía"
   },
   "wordFormSelector": {
     "languageNotAvailable": "Ese idioma aún no está disponible",
     "partOfSpeechNotAvailable": "Esa categoría gramatical aún no está disponible"
   },
   "formComponentLabel": {
-    "clue": "Pista"
+    "clue": "Pista",
+    "tags": "Etiquetas"
   },
   "wordForm": {
     "hints": {
@@ -106,6 +111,20 @@
     },
     "errors": {
       "noNumbers": "No debe incluir números"
+    },
+    "buttons": {
+      "changeWordType": "Cambiar tipo de palabra"
+    },
+    "sidebar": {
+      "collapse": "Contraer la barra lateral",
+      "expand": "Expandir la barra lateral",
+      "openMenu": "Abrir menú",
+      "closeMenu": "Cerrar menú",
+      "tagsComingSoon": "Próximamente"
+    },
+    "confirmChangeType": {
+      "title": "¿Cambiar el tipo de palabra?",
+      "description": "Las traducciones que has introducido se descartarán."
     },
     "noun": {
       "errors": {

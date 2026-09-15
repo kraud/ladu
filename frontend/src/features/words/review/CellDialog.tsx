@@ -11,6 +11,12 @@
  * the word has at least 3 translations, so the result never drops below the
  * create-time minimum of 2.
  *
+ * D41: a cell with an existing translation opens read-only (`TranslationCard
+ * displayOnly`) with an Edit button — the common case is "let me look at
+ * this", not straight into editing. An empty cell (`isAdd`) skips that step
+ * and opens directly in edit mode, with no Edit button since there is
+ * nothing to view yet.
+ *
  * Router- and store-free like every other file in `review/` — every input is
  * a prop, so `renderWithProviders` can mount it with no router context.
  */
@@ -58,6 +64,13 @@ export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
     const updateWord = useUpdateWord();
     const [draft, setDraft] = useState<TranslationCardChange | null>(null);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
+    const [editing, setEditing] = useState(false);
+    // Bumped on every mode switch so `TranslationCard` remounts and
+    // rehydrates from `initialCases` — it only ever reads that prop at mount
+    // (see `TranslationCard.tsx`'s own `useForm` comment), so this is what
+    // makes Cancel genuinely discard a typed edit rather than leaving it in
+    // the card's RHF state. Same mechanism as `WordPage.tsx`'s `editKey`.
+    const [cardKey, setCardKey] = useState(0);
 
     // Same "nothing useful to show inline" reasoning as `WordPage`'s own
     // query-error effect — close and toast rather than growing a dedicated
@@ -102,9 +115,32 @@ export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
     const isAdd = !existing;
     const atMax = isAdd && word.translations.length >= MAX_TRANSLATIONS;
     const canDelete = !isAdd && word.translations.length >= MIN_TRANSLATIONS_TO_ALLOW_DELETE;
+    // An add always edits straight away — there's nothing to view yet (D41).
+    const isEditing = editing || isAdd;
 
     const headline = word.translations[0] ? primaryCaseWord(word.partOfSpeech, word.translations[0]) : '';
     const title = t('review:cellDialog.title', { word: headline || t('wordRelated:displayWord.titleSimple'), language: native });
+    // No `useMemo` here (this branch is reached after the loading/error
+    // returns above, so an unconditional hook can't live here) — a fresh
+    // array on every render is harmless anyway, since `TranslationCard`
+    // (remounted via `cardKey` on every mode switch) only reads this prop
+    // once, at mount.
+    const initialCases = (existing?.cases as WordItem[] | undefined) ?? [];
+
+    function startEdit() {
+        setDraft(null);
+        setCardKey((key) => key + 1);
+        setEditing(true);
+    }
+
+    // Only reachable for an existing translation (`isAdd`'s Cancel is
+    // `onClose` directly) — remounts the card so a typed-but-unsaved edit is
+    // discarded, not merely hidden.
+    function cancelEdit() {
+        setDraft(null);
+        setCardKey((key) => key + 1);
+        setEditing(false);
+    }
 
     function buildTranslations(cases: WordItem[]): TranslationInput[] {
         const next: TranslationInput[] = word.translations.map((tr) => ({
@@ -174,9 +210,11 @@ export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
                     <p className="hint">{t('review:cellDialog.maxTranslations')}</p>
                 ) : (
                     <TranslationCard
+                        key={cardKey}
                         lang={lang}
                         pos={word.partOfSpeech}
-                        initialCases={(existing?.cases as WordItem[] | undefined) ?? []}
+                        initialCases={initialCases}
+                        displayOnly={!isEditing}
                         onChange={setDraft}
                     />
                 )}
@@ -192,16 +230,29 @@ export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
                             {t('review:cellDialog.deleteTranslation')}
                         </Button>
                     )}
-                    <Button type="button" variant="outline" onClick={onClose}>
-                        {t('common:buttons.cancel')}
-                    </Button>
-                    <Button
-                        type="button"
-                        disabled={atMax || !draft?.isDirty || !draft.completionState || updateWord.isPending}
-                        onClick={save}
-                    >
-                        {t('common:buttons.saveChanges')}
-                    </Button>
+                    {isEditing ? (
+                        <>
+                            <Button type="button" variant="outline" onClick={isAdd ? onClose : cancelEdit}>
+                                {t('common:buttons.cancel')}
+                            </Button>
+                            <Button
+                                type="button"
+                                disabled={atMax || !draft?.isDirty || !draft.completionState || updateWord.isPending}
+                                onClick={save}
+                            >
+                                {t('common:buttons.saveChanges')}
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button type="button" variant="outline" onClick={onClose}>
+                                {t('common:buttons.close')}
+                            </Button>
+                            <Button type="button" onClick={startEdit}>
+                                {t('common:buttons.edit')}
+                            </Button>
+                        </>
+                    )}
                 </DialogFooter>
             </DialogContent>
 

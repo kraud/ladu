@@ -24,6 +24,15 @@ interface UiState {
     /** Review filter sidebar collapsed state (Phase 3). */
     reviewSidebarCollapsed: boolean;
     setReviewSidebarCollapsed: (collapsed: boolean) => void;
+
+    /**
+     * Word editor's left action sidebar (`WordEditorLayout`) collapsed to an
+     * icon rail. Shared across create/edit/view so the state doesn't reset
+     * when a user toggles Edit on `/word/:id` — session-scoped like
+     * `reviewSidebarCollapsed`, not persisted.
+     */
+    wordSidebarCollapsed: boolean;
+    setWordSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -35,4 +44,7 @@ export const useUiStore = create<UiState>()((set) => ({
 
     reviewSidebarCollapsed: false,
     setReviewSidebarCollapsed: (reviewSidebarCollapsed) => set({ reviewSidebarCollapsed }),
+
+    wordSidebarCollapsed: false,
+    setWordSidebarCollapsed: (wordSidebarCollapsed) => set({ wordSidebarCollapsed }),
 }));

@@ -22,17 +22,29 @@ export function AddWordPage() {
     const navigate = useNavigate();
     const { partOfSpeech: posParam } = route.useParams();
 
-    // Seeded once from the route param; cleared after a successful create so
-    // the next word starts back at the PoS gate — the old app's `resetAll`
+    // Seeded once from the route param; cleared after a successful create, or
+    // when the user changes their mind via "Change word type" (D39), so the
+    // next word starts back at the PoS gate — the old app's `resetAll`
     // (`WordForm.tsx:291-305`) cleared the picked PoS too, not just the cards.
-    const [defaultPartOfSpeech, setDefaultPartOfSpeech] = useState(() => partOfSpeechFromRouteParam(posParam));
+    const [partOfSpeech, setPartOfSpeech] = useState(() => partOfSpeechFromRouteParam(posParam));
     const [formKey, setFormKey] = useState(0);
 
     const createWord = useCreateWord();
 
-    const title = defaultPartOfSpeech
-        ? t('wordRelated:addWordPage.title', { currentPoS: t(partOfSpeechLabelKey(defaultPartOfSpeech)) })
+    // D37/D38: one heading pair, tracking the picked type rather than only
+    // the route param — before a PoS is picked this doubles as the gate's own
+    // title (`PartOfSpeechSelector` renders no heading of its own).
+    const title = partOfSpeech
+        ? t('wordRelated:addWordPage.title', { currentPoS: t(partOfSpeechLabelKey(partOfSpeech)) })
         : t('wordRelated:addWordPage.titleDefault');
+    const subtitle = partOfSpeech
+        ? t('wordRelated:addWordPage.subtitle')
+        : t('wordRelated:partOfSpeechSelector.title');
+
+    function resetToGate() {
+        setPartOfSpeech(undefined);
+        setFormKey((key) => key + 1);
+    }
 
     function handleSubmit(body: CreateWordBody | UpdateWordBody) {
         const toastId = startLoadingToast(t('common:status.saving'));
@@ -42,8 +54,7 @@ export function AddWordPage() {
                     label: t('common:buttons.clickToSeeDetailsWord'),
                     onClick: () => void navigate({ to: '/word/$wordId', params: { wordId: word.id } }),
                 });
-                setDefaultPartOfSpeech(undefined);
-                setFormKey((key) => key + 1);
+                resetToGate();
             },
             onError: (error) => {
                 resolveLoadingToastError(toastId, t(wordErrorKey(error)));
@@ -55,13 +66,15 @@ export function AddWordPage() {
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
                 <h1 className="h1">{title}</h1>
-                <p className="meta">{t('wordRelated:addWordPage.subtitle')}</p>
+                <p className="meta">{subtitle}</p>
             </div>
             <WordForm
                 key={formKey}
                 mode="create"
-                defaultPartOfSpeech={defaultPartOfSpeech}
+                defaultPartOfSpeech={partOfSpeech}
                 onSubmit={handleSubmit}
+                onChangePartOfSpeech={resetToGate}
+                onPartOfSpeechChange={setPartOfSpeech}
                 submitting={createWord.isPending}
             />
         </div>

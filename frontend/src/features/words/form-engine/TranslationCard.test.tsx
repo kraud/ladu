@@ -29,21 +29,91 @@ describe('TranslationCard', () => {
         expect(screen.getByDisplayValue('cat')).toBeInTheDocument();
     });
 
-    it('shows Clear and Remove actions unless displayOnly', () => {
-        renderWithProviders(<TranslationCard lang={Lang.EN} />);
+    it('shows Clear and Remove actions when their handlers are passed, unless displayOnly', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EN} onClear={vi.fn()} onRemove={vi.fn()} />);
         expect(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
     });
 
-    it('hides Clear/Remove in displayOnly mode', () => {
-        renderWithProviders(<TranslationCard lang={Lang.EN} displayOnly />);
+    // `CellDialog` renders this card with neither handler — it has nothing for
+    // Clear/Remove to do (a cell edits exactly one already-placed language).
+    it('hides Clear/Remove when no handler is passed', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EN} />);
+        expect(screen.queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+    });
+
+    it('hides Clear/Remove in displayOnly mode even when handlers are passed', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EN} displayOnly onClear={vi.fn()} onRemove={vi.fn()} />);
         expect(screen.queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
     });
 
     it('disables Remove when removeDisabled is set', () => {
-        renderWithProviders(<TranslationCard lang={Lang.EN} removeDisabled />);
+        renderWithProviders(<TranslationCard lang={Lang.EN} onClear={vi.fn()} onRemove={vi.fn()} removeDisabled />);
         expect(screen.getByRole('button', { name: 'Remove' })).toBeDisabled();
+    });
+
+    describe('collapse', () => {
+        it('toggling the caret CSS-hides the field body and shows a "word · N of M cases" summary', async () => {
+            // The body is hidden via a `hidden` class, not unmounted (see
+            // `TranslationCard.tsx`'s own comment on why) — the test harness
+            // runs with `css: false` (`vite.config.ts`), so a class-presence
+            // check is the meaningful assertion here, not element absence.
+            const user = userEvent.setup();
+            renderWithProviders(
+                <TranslationCard lang={Lang.EN} initialCases={[{ caseName: NounCases.singularEN, word: 'house' }]} />,
+            );
+
+            expect(screen.getByLabelText('Singular').closest('.hidden')).not.toBeInTheDocument();
+            await user.click(screen.getByRole('button', { name: 'Collapse translation' }));
+
+            expect(screen.getByLabelText('Singular').closest('.hidden')).toBeInTheDocument();
+            expect(screen.getByText('house · 1 of 3 cases')).toBeInTheDocument();
+
+            await user.click(screen.getByRole('button', { name: 'Expand translation' }));
+            expect(screen.getByLabelText('Singular').closest('.hidden')).not.toBeInTheDocument();
+        });
+
+        it('shows a muted "nothing entered yet" hint when collapsed with no cases', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<TranslationCard lang={Lang.EN} />);
+
+            await user.click(screen.getByRole('button', { name: 'Collapse translation' }));
+            expect(screen.getByText('Nothing entered yet')).toBeInTheDocument();
+        });
+
+        it('works in displayOnly mode too', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(
+                <TranslationCard
+                    lang={Lang.EN}
+                    displayOnly
+                    initialCases={[{ caseName: NounCases.singularEN, word: 'house' }]}
+                />,
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Collapse translation' }));
+            expect(screen.getByText('house · 1 of 3 cases')).toBeInTheDocument();
+        });
+
+        it('keeps reporting completionState/cases through onChange while collapsed (the body is CSS-hidden, not unmounted)', async () => {
+            const user = userEvent.setup();
+            const onChange = vi.fn();
+            renderWithProviders(<TranslationCard lang={Lang.EN} onChange={onChange} />);
+
+            await user.click(screen.getByRole('button', { name: 'Collapse translation' }));
+            onChange.mockClear();
+
+            await user.type(screen.getByLabelText('Singular'), 'House');
+            await waitFor(() =>
+                expect(onChange).toHaveBeenLastCalledWith({
+                    cases: [{ caseName: NounCases.singularEN, word: 'house' }],
+                    completionState: true,
+                    isDirty: true,
+                }),
+            );
+        });
     });
 
     it('calls onChange with completionState:false while the required field is empty', () => {

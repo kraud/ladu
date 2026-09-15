@@ -43,6 +43,9 @@ const POS_DESCRIPTION_KEY: Record<PartOfSpeech, string> = {
  * translation card renders. Noun, Verb, Adjective and Adverb are
  * selectable — the remaining six render as disabled radio cards captioned
  * with `missingImplementationPoS`, so the full inventory stays visible.
+ *
+ * Renders no heading of its own (D37) — `AddWordPage` owns the single
+ * title/subtitle pair shown while this gate is up.
  */
 export function PartOfSpeechSelector({
     value,
@@ -55,10 +58,6 @@ export function PartOfSpeechSelector({
 
     return (
         <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-                <h2 className="h2">{t('wordRelated:partOfSpeechSelector.title')}</h2>
-                <p className="meta">{t('wordRelated:partOfSpeechSelector.subtitle')}</p>
-            </div>
             <RadioGroup
                 value={value ?? ''}
                 onValueChange={(next) => onChange(next as PartOfSpeech)}

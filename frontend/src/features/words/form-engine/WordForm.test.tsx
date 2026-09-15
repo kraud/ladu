@@ -1,9 +1,10 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
 import { futureToken } from '@/test/tokens';
-import { NounCases, PartOfSpeech } from '@/ts/enums';
+import { Lang, NounCases, PartOfSpeech } from '@/ts/enums';
+import type { WordBE } from '../types';
 import { WordForm } from './WordForm';
 
 const SESSION = {
@@ -24,14 +25,16 @@ async function addLanguage(user: ReturnType<typeof userEvent.setup>, native: str
 }
 
 describe('WordForm — create mode', () => {
+    // D37: the gate's own heading moved to `AddWordPage` — `WordForm` renders
+    // no heading of its own, only the PoS radio group.
     it('gates on part of speech, then hides the gate once Noun is picked', async () => {
         const user = userEvent.setup();
         renderWithProviders(<WordForm mode="create" onSubmit={vi.fn()} />, { session: SESSION });
 
-        expect(screen.getByRole('heading', { name: 'What kind of word is it?' })).toBeInTheDocument();
+        expect(screen.getByRole('radiogroup')).toBeInTheDocument();
         await user.click(screen.getByRole('radio', { name: /Noun/ }));
 
-        expect(screen.queryByRole('heading', { name: 'What kind of word is it?' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Add another translation' })).toBeInTheDocument();
     });
 
@@ -39,7 +42,137 @@ describe('WordForm — create mode', () => {
         renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
             session: SESSION,
         });
-        expect(screen.queryByRole('heading', { name: 'What kind of word is it?' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
+    });
+
+    it('fires onPartOfSpeechChange the moment a type is picked on the gate', async () => {
+        const user = userEvent.setup();
+        const onPartOfSpeechChange = vi.fn();
+        renderWithProviders(
+            <WordForm mode="create" onSubmit={vi.fn()} onPartOfSpeechChange={onPartOfSpeechChange} />,
+            { session: SESSION },
+        );
+
+        await user.click(screen.getByRole('radio', { name: /Noun/ }));
+        expect(onPartOfSpeechChange).toHaveBeenCalledWith(PartOfSpeech.noun);
+    });
+
+    describe('Change word type', () => {
+        it('shows only when onChangePartOfSpeech is passed, and only in create mode', () => {
+            const { unmount } = renderWithProviders(
+                <WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />,
+                { session: SESSION },
+            );
+            expect(screen.queryByRole('button', { name: 'Change word type' })).not.toBeInTheDocument();
+            unmount();
+
+            renderWithProviders(
+                <WordForm
+                    mode="create"
+                    defaultPartOfSpeech={PartOfSpeech.noun}
+                    onSubmit={vi.fn()}
+                    onChangePartOfSpeech={vi.fn()}
+                />,
+                { session: SESSION },
+            );
+            expect(screen.getByRole('button', { name: 'Change word type' })).toBeInTheDocument();
+        });
+
+        it('returns to the gate immediately on an untouched form', async () => {
+            const user = userEvent.setup();
+            const onChangePartOfSpeech = vi.fn();
+            renderWithProviders(
+                <WordForm
+                    mode="create"
+                    defaultPartOfSpeech={PartOfSpeech.noun}
+                    onSubmit={vi.fn()}
+                    onChangePartOfSpeech={onChangePartOfSpeech}
+                />,
+                { session: SESSION },
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Change word type' }));
+            expect(onChangePartOfSpeech).toHaveBeenCalledTimes(1);
+            expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+        });
+
+        it('confirms before discarding a form with typed content; Cancel keeps the form', async () => {
+            const user = userEvent.setup();
+            const onChangePartOfSpeech = vi.fn();
+            renderWithProviders(
+                <WordForm
+                    mode="create"
+                    defaultPartOfSpeech={PartOfSpeech.noun}
+                    onSubmit={vi.fn()}
+                    onChangePartOfSpeech={onChangePartOfSpeech}
+                />,
+                { session: SESSION },
+            );
+
+            await addLanguage(user, 'English');
+            await user.type(screen.getByLabelText('Singular'), 'House');
+
+            await user.click(screen.getByRole('button', { name: 'Change word type' }));
+            const dialog = await screen.findByRole('alertdialog');
+            expect(onChangePartOfSpeech).not.toHaveBeenCalled();
+
+            await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+            expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+            expect(onChangePartOfSpeech).not.toHaveBeenCalled();
+            expect(screen.getByLabelText('Singular')).toHaveValue('House');
+        });
+
+        it('Confirm discards the form and calls onChangePartOfSpeech', async () => {
+            const user = userEvent.setup();
+            const onChangePartOfSpeech = vi.fn();
+            renderWithProviders(
+                <WordForm
+                    mode="create"
+                    defaultPartOfSpeech={PartOfSpeech.noun}
+                    onSubmit={vi.fn()}
+                    onChangePartOfSpeech={onChangePartOfSpeech}
+                />,
+                { session: SESSION },
+            );
+
+            await addLanguage(user, 'English');
+            await user.type(screen.getByLabelText('Singular'), 'House');
+
+            await user.click(screen.getByRole('button', { name: 'Change word type' }));
+            const dialog = await screen.findByRole('alertdialog');
+            await user.click(within(dialog).getByRole('button', { name: 'Change word type' }));
+
+            expect(onChangePartOfSpeech).toHaveBeenCalledTimes(1);
+        });
+
+        it('is absent in edit mode even when onChangePartOfSpeech is passed — partOfSpeech is immutable after creation', () => {
+            const initialWord: WordBE = {
+                id: 'word-1',
+                user: SESSION.id,
+                partOfSpeech: PartOfSpeech.noun,
+                translations: [
+                    { id: 'tr-1', language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'house' }] },
+                    { id: 'tr-2', language: Lang.ES, cases: [{ caseName: NounCases.singularES, word: 'casa' }] },
+                ],
+                clue: null,
+                isCloned: false,
+                originalCreator: null,
+                tags: [],
+                createdAt: '2026-01-01T00:00:00.000Z',
+                updatedAt: '2026-01-01T00:00:00.000Z',
+            };
+            renderWithProviders(
+                <WordForm
+                    mode="edit"
+                    initialWord={initialWord}
+                    onSubmit={vi.fn()}
+                    onDelete={vi.fn()}
+                    onChangePartOfSpeech={vi.fn()}
+                />,
+                { session: SESSION },
+            );
+            expect(screen.queryByRole('button', { name: 'Change word type' })).not.toBeInTheDocument();
+        });
     });
 
     it('adds a language via the picker dialog, closes it, and removes availableLanguages from it next time', async () => {

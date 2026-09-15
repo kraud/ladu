@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { renderApp } from '@/test/render';
@@ -297,7 +297,7 @@ describe('ReviewPage — Slice 7: bulk actions', () => {
 });
 
 describe('ReviewPage — Slice 8: cell dialog', () => {
-    it('clicking a filled cell opens the dialog with that language\'s stored cases', async () => {
+    it('clicking a filled cell opens the dialog, read-only, with that language\'s stored cases (D41)', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [nounSeed('cat', 'w1')] });
         server.use(...fake.handlers);
 
@@ -305,7 +305,11 @@ describe('ReviewPage — Slice 8: cell dialog', () => {
         await renderApp({ initialEntry: '/review', session: SESSION });
         await user.click(await screen.findByRole('button', { name: 'cat' }));
 
-        expect(await screen.findByRole('dialog')).toBeInTheDocument();
+        const dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getAllByText('cat').length).toBeGreaterThan(0);
+        expect(within(dialog).queryByRole('textbox')).not.toBeInTheDocument();
+
+        await user.click(within(dialog).getByRole('button', { name: 'Edit' }));
         expect(await screen.findByLabelText('Singular')).toHaveValue('cat');
     });
 
@@ -316,6 +320,7 @@ describe('ReviewPage — Slice 8: cell dialog', () => {
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/review', session: SESSION });
         await user.click(await screen.findByRole('button', { name: 'cat' }));
+        await user.click(await screen.findByRole('button', { name: 'Edit' }));
 
         const singular = await screen.findByLabelText('Singular');
         await user.clear(singular);

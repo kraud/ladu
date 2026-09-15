@@ -1185,6 +1185,93 @@ nothing to do with `fieldLayout.ts`'s block/row/column machinery.
 green (no test count change). Browser: German verb's Accusative/Dative/Genitive checkboxes render
 on one row next to the "Verb case" label. Backend untouched.
 
+### Seventh round of user-review fixes (2026-09-15)
+
+Six more UX problems raised before the phase gate, all in the create/edit/view word surface, so the
+Slice 11 e2e spec walks the flow the user actually wants rather than pinning the current one:
+`/addWord` stacked two title/subtitle pairs; the create-mode PoS gate was one-way (no way back
+without reloading); two cards on one grid row stretched to equal height; a translation card was
+always fully expanded, forcing a long scroll for verbs; the Review cell dialog dropped straight into
+edit mode even for an existing translation; and (found while reading, same header) `CellDialog`
+rendered `TranslationCard`'s Clear/Remove buttons with no handlers wired — dead buttons.
+
+- **D37 — one heading pair on `/addWord`.** `PartOfSpeechSelector` lost its internal `h2` +
+  subtitle (`"Not sure what's what? Hover over the buttons..."`, also inaccurate — the descriptions
+  render inline, not on hover); `AddWordPage` now supplies both lines, switching the subtitle
+  between `partOfSpeechSelector.title` and `addWordPage.subtitle` on whether a PoS is picked.
+- **D38 — the page title tracks the picked type**, not just the route param. `WordForm` gained
+  `onPartOfSpeechChange` (fired the moment the gate's `onChange` fires) alongside the existing
+  `defaultPartOfSpeech` seed, so `AddWordPage` can mirror the live selection into its own state.
+- **D39 — Change word type confirms only when there is something to lose.** New
+  `useWordFormState.hasContent` (`translations.some(t => t.cases.length > 0) || clue !== ''`) gates
+  a `ConfirmDialog`; an untouched form returns to the gate on one click. Create mode only —
+  `partOfSpeech` is immutable after creation, so `WordForm`'s new `onChangePartOfSpeech` prop is
+  simply absent in edit mode. The button sits beside "Add another translation" in one flex row.
+- **D40 — a collapsed translation card summarises as headline word + case count.** Each
+  `TranslationCard` gained its own `collapsed` state (mirroring `FilterBar.tsx`'s pattern) and a
+  caret toggle in the header, always present in both display and edit mode so it never moves (the
+  D31 lesson). Collapsed, the header shows `primaryCaseWord` + "N of M cases" (or a muted "Nothing
+  entered yet" for an empty card) next to the flag/language name. The field body is hidden via a
+  `hidden` class, **not unmounted** — `AutocompleteRow`'s live `useWatch` and the card's own RHF
+  instance keep running underneath, so `onChange`'s `cases`/`completionState` echo to the parent
+  stays correct while collapsed. The exact denominator reuses the same drop rules
+  `review/completion.ts` already used for its ring: `isPersistedCaseField` moved from a private
+  function there into `form-engine/fieldLayout.ts` (alongside `isEmptyValue`/`isHiddenInDisplayOnly`,
+  centralised there in Slice 9 for the same reason) so both consumers can't drift apart.
+- **D41 — the Review cell dialog opens read-only when a translation exists**, with an explicit Edit
+  button; an empty cell still opens straight into edit mode (nothing to view yet), with no Edit
+  button. `CellDialog` gained `editing` + a `cardKey` bump on every mode switch — the same
+  remount-to-rehydrate mechanism `WordPage.tsx`'s `editKey` already uses — so Cancel from edit mode
+  genuinely discards a typed change (verified in the browser: typing over "Baum" then Cancel
+  restores the stored value) rather than leaving it sitting in the card's RHF state. Footer becomes
+  Delete/Close/Edit in display mode, Delete/Cancel/Save in edit mode.
+
+One more fix bundled in without a separate decision point — found reading `CellDialog.tsx` while
+implementing D41, not something D41 itself required: `TranslationCard`'s Clear/Remove buttons now
+render only when their `onClear`/`onRemove` handler is passed (`WordForm` always passes both;
+`CellDialog` passes neither, since a cell edits exactly one already-placed language slot — there is
+nothing for either button to do there).
+
+`translationGridClass` (`TranslationCard.tsx`) also gained `items-start` in both branches, fixing the
+equal-height stretch (CSS grid's default `align-items: stretch`) that left dead space under a
+shorter card next to a taller one — a one-line fix shared by `WordForm`'s grid and both of
+`WordPage`'s.
+
+New i18n keys (`wordForm.buttons.changeWordType`, `wordForm.confirmChangeType.{title,description}`,
+`translationFormGeneric.{collapse,expand,caseCount,emptyCard}`) in all four locale files, English
+first. Estonian copy flagged for review, as every prior slice this phase.
+
+**Tests**: `PartOfSpeechSelector.test.tsx` (no change needed — it never asserted the heading).
+`AddWordPage.test.tsx` (+2): the single heading pair before/after picking a PoS, replacing the two
+heading-role assertions the old two-heading layout needed; a new "Change word type returns to the
+gate" case. `WordForm.test.tsx` (+7, in a new "Change word type" describe block, plus the gate
+test updated to assert a `radiogroup` instead of the now-removed heading): shows only with the prop
+in create mode, absent in edit mode even with the prop passed, untouched-form immediate return,
+confirm-and-cancel keeping the form, confirm-and-confirm discarding it, and `onPartOfSpeechChange`
+firing on pick. `TranslationCard.test.tsx` (+9): the two Clear/Remove tests updated for the new
+handler-gating (`shows...when their handlers are passed`, `hides...when no handler is passed`,
+`hides...in displayOnly even when handlers are passed`), plus a new "collapse" describe block
+(toggle hides the body and shows the summary — asserted via the `.hidden` class, since the test
+harness runs with `css: false` and can't compute real `display:none`; the muted empty-card hint;
+working in `displayOnly`; and the load-bearing regression test that `onChange` keeps firing correctly
+while the body is collapsed). `CellDialog.test.tsx` (+3 net, restructured into a new "CellDialog —
+display" describe block plus the existing "edit" tests now routed through a shared `openForEdit`
+helper): read-only-with-Edit-and-no-Save on open, Edit revealing inputs, Cancel discarding a typed
+change and returning to display; the add-mode "no Delete button" test also now asserts no Edit
+button. `ReviewPage.test.tsx`'s two Slice-8 cell-dialog tests updated to click Edit before touching
+an input, and to assert the read-only state first (scoped with `within(dialog)` since the row's own
+"cat" button and the dialog's read-only text collide on a bare `getByText`).
+
+**Verified**: `npm run build -w frontend` (tsc -b + vite) green; `npx vitest run -w frontend`
+**499 → 513** (14 net new). Backend untouched. Browser (throwaway registered+verified+deleted
+account, EN+DE): confirmed in order — one heading pair on `/addWord`; title/subtitle switching live
+on pick; Change word type returning instantly on an untouched form and behind a confirm dialog once
+a case was typed, both from a Noun form with EN+DE cards; the EN/DE grid no longer stretching the
+shorter EN card to DE's height; collapsing the EN card to "house · 1 of 3 cases"; saving the word;
+opening its DE cell from `/review` read-only ("Gender: der" / "Singular nominative: Baum") with
+Close/Edit only; Edit revealing the full form; typing over "Baum" then Cancel restoring the
+read-only view with "Baum" intact; a fresh Verb's empty DE card collapsing to "Nothing entered yet".
+
 **Slice 11 — phase gate.** `e2e/tests/phase-3-review.spec.ts`, doc updates, full green run.
 
 ## Files

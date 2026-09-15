@@ -78,20 +78,61 @@ describe('CellDialog — loading', () => {
     });
 });
 
-describe('CellDialog — edit', () => {
-    it('prefills the card from the fetched word\'s stored cases for that language', async () => {
+// D41: a cell with an existing translation opens read-only first — this
+// helper reaches the editable form the way a user would, via the Edit button.
+async function openForEdit(user: ReturnType<typeof userEvent.setup>) {
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+}
+
+describe('CellDialog — display', () => {
+    it('opens read-only, prefilled from the fetched word\'s stored cases, with no Save button', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
         renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'ES', onClose: vi.fn() });
 
-        expect(await screen.findByLabelText('Singular')).toHaveValue('casa');
-        expect(screen.getByRole('radio', { name: 'el' })).toBeChecked();
+        expect(await screen.findByText('casa')).toBeInTheDocument();
+        expect(screen.getByText('el')).toBeInTheDocument();
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     });
 
+    it('Edit reveals the editable inputs; Close closes the dialog directly', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        const user = userEvent.setup();
+        const onClose = vi.fn();
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose });
+
+        await openForEdit(user);
+        expect(await screen.findByLabelText('Singular')).toHaveValue('house');
+
+        await user.click(screen.getByRole('button', { name: 'Close' }));
+        expect(onClose).toHaveBeenCalled();
+    });
+
+    it('Cancel from edit mode returns to read-only and discards the typed change', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        const user = userEvent.setup();
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose: vi.fn() });
+
+        await openForEdit(user);
+        const singular = await screen.findByLabelText('Singular');
+        await user.clear(singular);
+        await user.type(singular, 'cottage');
+
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+        expect(await screen.findByText('house')).toBeInTheDocument();
+        expect(screen.queryByText('cottage')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    });
+});
+
+describe('CellDialog — edit', () => {
     it('Save is disabled until the card is both dirty and valid', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
         const user = userEvent.setup();
         renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose: vi.fn() });
 
+        await openForEdit(user);
         const singular = await screen.findByLabelText('Singular');
         expect(singular).toHaveValue('house');
         // Hydrated-but-unedited: valid, but not dirty.
@@ -111,6 +152,7 @@ describe('CellDialog — edit', () => {
         const user = userEvent.setup();
         renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose: vi.fn() });
 
+        await openForEdit(user);
         const singular = await screen.findByLabelText('Singular');
         await user.clear(singular);
         await user.type(singular, 'cottage');
@@ -138,6 +180,7 @@ describe('CellDialog — edit', () => {
         const onClose = vi.fn();
         renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose });
 
+        await openForEdit(user);
         const singular = await screen.findByLabelText('Singular');
         await user.clear(singular);
         await user.type(singular, 'cottage');
@@ -167,12 +210,13 @@ describe('CellDialog — add', () => {
         expect(body.translations.map((tr) => tr.language)).toEqual(['English', 'Spanish', 'German']);
     });
 
-    it('has no Delete translation button', async () => {
+    it('has no Delete translation button and no Edit button — it opens straight into edit mode (D41)', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
         renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'DE', onClose: vi.fn() });
 
         await screen.findByLabelText('Singular nominative');
         expect(screen.queryByRole('button', { name: 'Delete translation' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
     });
 });
 
@@ -181,7 +225,7 @@ describe('CellDialog — delete translation', () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
         renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose: vi.fn() });
 
-        await screen.findByLabelText('Singular');
+        await screen.findByText('house');
         expect(screen.queryByRole('button', { name: 'Delete translation' })).not.toBeInTheDocument();
     });
 
@@ -191,7 +235,9 @@ describe('CellDialog — delete translation', () => {
         const user = userEvent.setup();
         renderDialog({ wordId: THREE_LANG_WORD.id, langKey: 'DE', onClose: vi.fn() });
 
-        await screen.findByLabelText('Singular nominative');
+        // Available straight from the read-only display state (D41) — Delete
+        // doesn't require entering edit mode first.
+        await screen.findByText('Baum');
         await user.click(screen.getByRole('button', { name: 'Delete translation' }));
 
         const dialog = await screen.findByRole('alertdialog');

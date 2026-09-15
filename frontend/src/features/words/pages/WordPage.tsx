@@ -10,6 +10,11 @@
  * unmounts the form — there is nothing to restore, since the read-only view
  * beneath it already reflects the persisted word.
  *
+ * Both states share `WordEditorLayout`'s collapsible left action sidebar —
+ * the view state builds its own (`viewSidebar`: Return/Delete + Edit),
+ * while the edit state's sidebar is `WordForm`'s own, with Cancel injected
+ * via `extraActions` — so toggling Edit never reshuffles the page.
+ *
  * No non-owner branch: `GET /api/words/:id` already 403s a non-owner fetch
  * (decision D3), so a successful load here is always the caller's own word.
  */
@@ -17,9 +22,13 @@ import { useEffect, useState } from 'react';
 import { getRouteApi, useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { Button } from '@/components/ui/button';
+import { ArrowLeftIcon, PencilSimpleIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
+import { useUiStore } from '@/stores/uiStore';
+import { SidebarAction } from '../layout/SidebarAction';
+import { SidebarFields } from '../layout/SidebarFields';
+import { WordEditorLayout } from '../layout/WordEditorLayout';
 import { TranslationCard, translationGridClass } from '../form-engine/TranslationCard';
 import { WordForm } from '../form-engine/WordForm';
 import { useDeleteWord, useUpdateWord, useWord } from '../hooks';
@@ -45,6 +54,7 @@ export function WordPage() {
     const [editing, setEditing] = useState(false);
     const [editKey, setEditKey] = useState(0);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
+    const collapsed = useUiStore((s) => s.wordSidebarCollapsed);
 
     // A plain `router.history.back()` when there's no client-side history to
     // pop into (a bookmarked/shared `/word/:id` link, or any other direct
@@ -122,6 +132,32 @@ export function WordPage() {
 
     const posLabel = t(partOfSpeechLabelKey(word.partOfSpeech));
 
+    const viewSidebar = (
+        <div className="flex h-full flex-col gap-4">
+            <div className="flex flex-col gap-2">
+                <SidebarAction icon={<ArrowLeftIcon size={18} />} onClick={goBack} collapsed={collapsed}>
+                    {t('common:buttons.return')}
+                </SidebarAction>
+                <SidebarAction
+                    icon={<TrashIcon size={18} />}
+                    variant="destructive"
+                    onClick={() => setConfirmingDelete(true)}
+                    collapsed={collapsed}
+                >
+                    {t('common:buttons.delete')}
+                </SidebarAction>
+            </div>
+
+            <SidebarFields clue={word.clue ?? ''} collapsed={collapsed} />
+
+            <div className="mt-auto sticky bottom-0 flex flex-col gap-2 border-t border-border bg-background pt-3">
+                <SidebarAction variant="default" icon={<PencilSimpleIcon size={18} />} onClick={startEdit} collapsed={collapsed}>
+                    {t('common:buttons.edit')}
+                </SidebarAction>
+            </div>
+        </div>
+    );
+
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
@@ -131,26 +167,21 @@ export function WordPage() {
             </div>
 
             {editing ? (
-                <div className="flex flex-col gap-3">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="self-start"
-                        onClick={() => setEditing(false)}
-                    >
-                        {t('common:buttons.cancel')}
-                    </Button>
-                    <WordForm
-                        key={editKey}
-                        mode="edit"
-                        initialWord={word}
-                        onSubmit={handleUpdate}
-                        onDelete={() => setConfirmingDelete(true)}
-                        submitting={updateWord.isPending}
-                    />
-                </div>
+                <WordForm
+                    key={editKey}
+                    mode="edit"
+                    initialWord={word}
+                    onSubmit={handleUpdate}
+                    onDelete={() => setConfirmingDelete(true)}
+                    submitting={updateWord.isPending}
+                    extraActions={
+                        <SidebarAction icon={<XIcon size={18} />} onClick={() => setEditing(false)} collapsed={collapsed}>
+                            {t('common:buttons.cancel')}
+                        </SidebarAction>
+                    }
+                />
             ) : (
-                <div className="flex flex-col gap-5">
+                <WordEditorLayout sidebar={viewSidebar}>
                     <div className={translationGridClass(word.partOfSpeech)}>
                         {word.translations.map((translation) => (
                             <TranslationCard
@@ -165,26 +196,7 @@ export function WordPage() {
                             />
                         ))}
                     </div>
-
-                    {word.clue && (
-                        <div className="field">
-                            <p className="label">{t('wordRelated:formComponentLabel.clue')}</p>
-                            <p className="text-sm text-foreground">{word.clue}</p>
-                        </div>
-                    )}
-
-                    <div className="flex gap-2">
-                        <Button type="button" variant="outline" onClick={goBack}>
-                            {t('common:buttons.return')}
-                        </Button>
-                        <Button type="button" onClick={startEdit}>
-                            {t('common:buttons.edit')}
-                        </Button>
-                        <Button type="button" variant="destructive" onClick={() => setConfirmingDelete(true)}>
-                            {t('common:buttons.delete')}
-                        </Button>
-                    </div>
-                </div>
+                </WordEditorLayout>
             )}
 
             <ConfirmDialog

@@ -17,14 +17,16 @@
  * `AutocompleteRow` renders itself out for every `(lang, pos)` pair with no
  * lookup endpoint — this card never branches on that.
  */
-import { Fragment, useEffect, useMemo, useRef } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
+import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { langTint, languageByLabel } from '@/lib/language';
+import { primaryCaseWord } from '@/lib/words';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
 import { AutocompleteRow } from './AutocompleteRow';
@@ -32,7 +34,7 @@ import { buildYupSchema } from './buildYupSchema';
 import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
 import { FieldRenderer } from './FieldRenderer';
-import { buildLayoutItems, isHiddenInDisplayOnly } from './fieldLayout';
+import { buildLayoutItems, isHiddenInDisplayOnly, isPersistedCaseField } from './fieldLayout';
 
 export interface TranslationCardChange {
     cases: WordItem[];
@@ -48,7 +50,9 @@ export interface TranslationCardChange {
  * (a loading skeleton) — defaults to the 2-up layout, the common case.
  */
 export function translationGridClass(pos?: PartOfSpeech): string {
-    return pos === PartOfSpeech.verb ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 gap-4 sm:grid-cols-2';
+    return pos === PartOfSpeech.verb
+        ? 'grid grid-cols-1 items-start gap-4'
+        : 'grid grid-cols-1 items-start gap-4 sm:grid-cols-2';
 }
 
 export interface TranslationCardProps {
@@ -154,6 +158,7 @@ export function TranslationCard({
     resetKey,
 }: TranslationCardProps) {
     const { t } = useTranslation();
+    const [collapsed, setCollapsed] = useState(false);
     const config = getFormConfig(pos, lang);
     const schema = useMemo(() => (config ? buildYupSchema(config, t) : undefined), [config, t]);
 
@@ -198,22 +203,35 @@ export function TranslationCard({
         [config, watched],
     );
 
-    // Fields the current form state would actually render — a `visibleWhen`
-    // mismatch or (in `displayOnly`) an empty non-required field is dropped
-    // *before* `buildLayoutItems` groups fields into rows/columns, so a
-    // hidden branch (Spanish adjective gender, German adverb non-gradable)
-    // never leaves a blank cell behind. See `fieldLayout.ts`'s file header.
-    const visibleFields = useMemo(() => {
+    // Fields the current form state would actually render, split in two
+    // steps so the collapsed-card case count (below) can use the first
+    // without the second: `branchFields` drops a `visibleWhen` mismatch only
+    // (i.e. what a COMPLETE translation would persist for the branch this
+    // form is currently on); `visibleFields` additionally drops an empty
+    // non-required field in `displayOnly` — the pre-`buildLayoutItems` filter
+    // `fieldLayout.ts`'s file header describes, so a hidden branch (Spanish
+    // adjective gender, German adverb non-gradable) never leaves a blank cell
+    // behind.
+    const branchFields = useMemo(() => {
         if (!config) return [];
-        return config.fields.filter((field) => {
-            if (field.visibleWhen && !matchesVisibility(field.visibleWhen, watched[field.visibleWhen.field])) {
-                return false;
-            }
-            return !isHiddenInDisplayOnly(field, watched[field.name], displayOnly);
-        });
-    }, [config, watched, displayOnly]);
+        return config.fields.filter(
+            (field) => !field.visibleWhen || matchesVisibility(field.visibleWhen, watched[field.visibleWhen.field]),
+        );
+    }, [config, watched]);
+    const visibleFields = useMemo(
+        () => branchFields.filter((field) => !isHiddenInDisplayOnly(field, watched[field.name], displayOnly)),
+        [branchFields, watched, displayOnly],
+    );
 
     const layoutItems = useMemo(() => buildLayoutItems(visibleFields), [visibleFields]);
+    // The collapsed-card summary's denominator: how many cases a COMPLETE
+    // translation on this branch would persist — mirrors `fieldsToCases`'
+    // drop rules via the shared `isPersistedCaseField` (also used by
+    // `review/completion.ts`'s ring, over the same field list shape).
+    const expectedCaseCount = useMemo(
+        () => branchFields.filter(isPersistedCaseField).length,
+        [branchFields],
+    );
     const completionState = useMemo(() => {
         if (!schema) return false;
         try {
@@ -242,31 +260,67 @@ export function TranslationCard({
     }
 
     const langEntry = languageByLabel(lang);
+    const headline = primaryCaseWord(pos, { language: lang, cases });
+    const caseCountText = t('wordRelated:translationFormGeneric.caseCount', {
+        value: cases.length,
+        total: expectedCaseCount,
+    });
+    const summary = headline ? `${headline} · ${caseCountText}` : t('wordRelated:translationFormGeneric.emptyCard');
 
     return (
         <div
             className="flex flex-col gap-4 rounded-lg border bg-card p-4"
             style={{ borderTopColor: langTint(lang), borderTopWidth: 2 }}
         >
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
                     <FlagIcon lang={lang} title={langEntry?.native ?? lang} />
-                    {langEntry?.native ?? lang}
+                    <span className="shrink-0">{langEntry?.native ?? lang}</span>
+                    {collapsed && <span className="hint truncate">{summary}</span>}
                 </div>
-                {!displayOnly && (
-                    <div className="flex gap-2">
-                        <Button type="button" variant="ghost" size="sm" onClick={onClear}>
-                            {t('common:buttons.clear')}
-                        </Button>
-                        <Button type="button" variant="ghost" size="sm" onClick={onRemove} disabled={removeDisabled}>
-                            {t('common:buttons.remove')}
-                        </Button>
-                    </div>
-                )}
+                <div className="flex shrink-0 items-center gap-2">
+                    {!displayOnly && (
+                        <>
+                            {onClear && (
+                                <Button type="button" variant="ghost" size="sm" onClick={onClear}>
+                                    {t('common:buttons.clear')}
+                                </Button>
+                            )}
+                            {onRemove && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={onRemove}
+                                    disabled={removeDisabled}
+                                >
+                                    {t('common:buttons.remove')}
+                                </Button>
+                            )}
+                        </>
+                    )}
+                    <button
+                        type="button"
+                        className="icon-btn"
+                        aria-label={t(
+                            collapsed
+                                ? 'wordRelated:translationFormGeneric.expand'
+                                : 'wordRelated:translationFormGeneric.collapse',
+                        )}
+                        title={t(
+                            collapsed
+                                ? 'wordRelated:translationFormGeneric.expand'
+                                : 'wordRelated:translationFormGeneric.collapse',
+                        )}
+                        onClick={() => setCollapsed((prev) => !prev)}
+                    >
+                        {collapsed ? <CaretDownIcon size={16} /> : <CaretUpIcon size={16} />}
+                    </button>
+                </div>
             </div>
 
             <Form {...form}>
-                <div className="flex flex-col gap-3">
+                <div className={collapsed ? 'hidden' : 'flex flex-col gap-3'}>
                     {!displayOnly && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} />}
                     {layoutItems.map((item) => (
                         <Fragment
