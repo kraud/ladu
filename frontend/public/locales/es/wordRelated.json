@@ -9,7 +9,11 @@
     "wordNotFound": "No se pudo encontrar esta palabra.",
     "notAuthorized": "No tienes acceso a esta palabra.",
     "missingPartOfSpeech": "Por favor, elige una categoría gramatical.",
-    "notEnoughTranslations": "Añade al menos dos traducciones antes de guardar."
+    "notEnoughTranslations": "Añade al menos dos traducciones antes de guardar.",
+    "invalidCursor": "Ese enlace de página ha caducado — vuelve a cargar la lista.",
+    "noWordIdsProvided": "Selecciona al menos una palabra para eliminar.",
+    "someWordsMissing": "No se pudieron encontrar algunas de las palabras seleccionadas.",
+    "notAuthorizedToDeleteSome": "Solo puedes eliminar palabras que te pertenecen."
   },
   "displayWord": {
     "titlePos": "Vista detallada: {{currentPoS}}",
@@ -87,14 +91,19 @@
   },
   "translationFormGeneric": {
     "selectLanguage": "Elige un idioma para la nueva palabra",
-    "switchLanguage": "Cambiar idioma:"
+    "switchLanguage": "Cambiar idioma:",
+    "collapse": "Contraer traducción",
+    "expand": "Expandir traducción",
+    "caseCount": "{{value}} de {{total}} casos",
+    "emptyCard": "Nada introducido todavía"
   },
   "wordFormSelector": {
     "languageNotAvailable": "Ese idioma aún no está disponible",
     "partOfSpeechNotAvailable": "Esa categoría gramatical aún no está disponible"
   },
   "formComponentLabel": {
-    "clue": "Pista"
+    "clue": "Pista",
+    "tags": "Etiquetas"
   },
   "wordForm": {
     "hints": {
@@ -102,6 +111,24 @@
     },
     "errors": {
       "noNumbers": "No debe incluir números"
+    },
+    "buttons": {
+      "changeWordType": "Cambiar tipo de palabra"
+    },
+    "emptyState": {
+      "title": "Aún no hay traducciones",
+      "description": "Añade una traducción desde el menú lateral."
+    },
+    "sidebar": {
+      "collapse": "Contraer la barra lateral",
+      "expand": "Expandir la barra lateral",
+      "openMenu": "Abrir menú",
+      "closeMenu": "Cerrar menú",
+      "tagsComingSoon": "Próximamente"
+    },
+    "confirmChangeType": {
+      "title": "¿Cambiar el tipo de palabra?",
+      "description": "Las traducciones que has introducido se descartarán."
     },
     "noun": {
       "errors": {
@@ -170,10 +197,33 @@
           "positiveDegreeRequired": "El grado positivo es obligatorio"
         },
         "formEE": {
-          "algvorreFormRequired": "El grado singular masculino es obligatorio",
-          "keskvorreFormRequired": "El grado singular femenino es obligatorio",
-          "ulivorreFormRequired": "El grado singular neutro es obligatorio"
+          "algvorreFormRequired": "El grado positivo es obligatorio",
+          "keskvorreFormRequired": "El grado comparativo es obligatorio",
+          "ulivorreFormRequired": "El grado superlativo es obligatorio"
         }
+      },
+      "fields": {
+        "positiveEN": "Positivo",
+        "comparativeEN": "Comparativo",
+        "superlativeEN": "Superlativo",
+        "positiveDE": "Positivo",
+        "komparativDE": "Comparativo",
+        "superlativDE": "Superlativo",
+        "gender": "Género",
+        "neutralSingularES": "Neutro singular",
+        "neutralPluralES": "Neutro plural",
+        "maleSingularES": "Masculino singular",
+        "malePluralES": "Masculino plural",
+        "femaleSingularES": "Femenino singular",
+        "femalePluralES": "Femenino plural",
+        "algvorreEE": "Grado positivo",
+        "keskvorreEE": "Grado comparativo",
+        "ulivorreEE": "Grado superlativo",
+        "pluralNimetavEE": "Plural nominativo",
+        "singularOmastavEE": "Singular genitivo",
+        "pluralOmastavEE": "Plural genitivo",
+        "singularOsastavEE": "Singular partitivo",
+        "pluralOsastavEE": "Plural partitivo"
       }
     },
     "adverb": {
@@ -188,6 +238,18 @@
           "adverbRequired": "El adverbio es obligatorio",
           "gradableRequired": "La selección de 'gradual' es obligatoria"
         }
+      },
+      "fields": {
+        "adverbEN": "Adverbio",
+        "comparativeEN": "Comparativo",
+        "superlativeEN": "Superlativo",
+        "adverbES": "Adverbio",
+        "comparativeES": "Comparativo",
+        "superlativeES": "Superlativo",
+        "gradableDE": "Graduable",
+        "adverbDE": "Adverbio",
+        "comparativeDE": "Comparativo",
+        "superlativeDE": "Superlativo"
       }
     },
     "verb": {
@@ -200,11 +262,13 @@
           "infinitiveNonFiniteRequired": "El infinitivo no finito es obligatorio",
           "gerundNonFiniteRequired": "El gerundio no finito es obligatorio",
           "participleNonFiniteRequired": "El participio no finito es obligatorio",
+          "infinitiveNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-ar', '-er' o '-ir').",
           "regularityRequired": "Esa no es una opción"
         },
         "formDE": {
           "infinitiveNonFiniteRequired": "El infinitivo no finito es obligatorio",
-          "infinitiveNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-en', '-ern', '-eln')."
+          "infinitiveNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-en', '-ern', '-eln').",
+          "regularityRequired": "Esa no es una opción"
         },
         "formEE": {
           "infinitiveMaRequired": "El infinitivo en -ma es obligatorio",
@@ -213,13 +277,31 @@
           "searchInEnglishLabel": "Buscar verbo en inglés",
           "searchInEnglishWarning": "¡Cuidado, esto no funcionará para todos los verbos! Si es necesario, prueba en estonio."
         }
+      },
+      "fields": {
+        "regularityEN": "Regularidad",
+        "regularityES": "Regularidad",
+        "regularityDE": "Regularidad",
+        "regularityEE": "Regularidad",
+        "infinitiveNonFiniteSimpleES": "Infinitivo no finito simple",
+        "gerundNonFiniteSimpleES": "Gerundio no finito simple",
+        "participleNonFiniteSimpleES": "Participio no finito simple",
+        "infinitiveDE": "Infinitivo",
+        "auxVerbDE": "Verbo auxiliar",
+        "prefixDE": "Prefijo",
+        "caseTypeDE": "Caso verbal",
+        "infinitiveMaEE": "Infinitivo en -ma",
+        "infinitiveDaEE": "Infinitivo en -da"
       }
     },
     "autocompleteTranslationButton": {
       "label": "Autocompletar {{wordType}}",
       "emptyQuery": "Por favor, introduce primero '{{requiredField}}'.",
       "noMatch": "¡Lo sentimos, no conocemos esta palabra!",
-      "foundMatch": "Hay información sobre esta palabra almacenada en nuestro sistema."
+      "foundMatch": "Hay información sobre esta palabra almacenada en nuestro sistema.",
+      "partialMatch": "No estamos completamente seguros, pero esta es nuestra mejor estimación.",
+      "loading": "Buscando...",
+      "fillButton": "Rellenar"
     }
   }
 }

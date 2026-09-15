@@ -2,6 +2,15 @@ INFRA NOTE: no `write` tool is exposed to this subagent (only read/grep/glob/web
 
 ### Review (route /review) — pages/Review.tsx
 Purpose: browse/edit/delete the user's vocabulary as a multilingual table with server-side filters (PoS/gender/tags), per-column DnD language ordering, global search, row bulk actions, and hand-off of selected rows to /practice.
+
+> **Superseded by Phase 3 Slice 5/6 (2026-09-13/14)**: this whole section transcribes the OLD app's
+> `Review.tsx`/Redux flow. Two of its specific claims are now wrong about the NEW backend: item 10's
+> "reduceFullTagData strips TagData to {_id}" tag-filter contract and item 26's endpoint being
+> unpaginated (`{amount, partsOfSpeechIncluded, words}`) — the live `GET /api/words/simple` takes a
+> flat repeatable `?tag=<uuid>` and returns keyset-paginated `{ items, nextCursor, total }`. See
+> `endpoints.md`'s `getWordsSimplified` note. The rewrite's actual filter/pagination behaviour lives
+> in `frontend/src/features/words/review/search.ts` and `hooks.ts`'s `useWordsInfinite`, not here.
+
 Use cases:
 1. Mount w/ no URL params -> unfiltered load `dispatch(getWordsSimplified())` when size===0 (Review.tsx:78-102).
 2. Mount w/ `?tags=<id>` -> only tags[0] fetched `dispatch(getTagById(searchParams.getAll("tags")[0]))`; placeholder currentTagFilters restrictiveArray=[{_id:param}] per tag (78-102). Multiple tags NOT all hydrated (TODO:86).

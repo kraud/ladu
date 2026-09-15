@@ -7,7 +7,15 @@ import { getApiErrorMessage } from '@/api/types';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
-import { useCreateWord, useDeleteWord, useUpdateWord, useWord } from './hooks';
+import {
+    normalizeWordFilters,
+    useBulkDeleteWords,
+    useCreateWord,
+    useDeleteWord,
+    useUpdateWord,
+    useWord,
+    useWordsInfinite,
+} from './hooks';
 import { wordKeys } from './keys';
 import type { CreateWordBody } from './types';
 
@@ -151,5 +159,137 @@ describe('useDeleteWord', () => {
         expect(queryClient.getQueryData(wordKeys.detail('word-seed'))).toBeUndefined();
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: wordKeys.all });
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['metrics'] });
+    });
+});
+
+function verbSeed(label: string, id = `word-${label}`): SeedWord {
+    return {
+        id,
+        user: ME,
+        partOfSpeech: PartOfSpeech.verb,
+        translations: [{ language: Lang.EN, cases: [{ caseName: 'simplePresent1sEN', word: label }] }],
+    };
+}
+
+function nounSeed(label: string, id = `word-${label}`): SeedWord {
+    return {
+        id,
+        user: ME,
+        partOfSpeech: PartOfSpeech.noun,
+        translations: [{ language: Lang.EN, cases: [{ caseName: 'singularEN', word: label }] }],
+    };
+}
+
+describe('normalizeWordFilters', () => {
+    it('sorts arrays so equivalent filter sets hash to the same query key', () => {
+        expect(normalizeWordFilters({ pos: [PartOfSpeech.verb, PartOfSpeech.noun] })).toEqual(
+            normalizeWordFilters({ pos: [PartOfSpeech.noun, PartOfSpeech.verb] }),
+        );
+    });
+
+    it('treats a blank or whitespace-only q the same as no q at all', () => {
+        expect(normalizeWordFilters({ q: '   ' })).toEqual(normalizeWordFilters({}));
+        expect(normalizeWordFilters({ q: '' }).q).toBeUndefined();
+    });
+
+    it('collapses an empty array to undefined so the key stays clean', () => {
+        expect(normalizeWordFilters({ pos: [] })).toEqual({});
+    });
+
+    it('trims a real query and leaves arrays alone', () => {
+        expect(normalizeWordFilters({ q: '  cat  ', gender: ['der'] })).toEqual({
+            q: 'cat',
+            gender: ['der'],
+        });
+    });
+});
+
+describe('useWordsInfinite', () => {
+    it('fetches the first page and reports no next page when everything fits in one', async () => {
+        const { wrapper } = setup([verbSeed('a'), verbSeed('b'), verbSeed('c')]);
+        const { result } = renderHook(() => useWordsInfinite(), { wrapper });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.pages[0].items).toHaveLength(3);
+        expect(result.current.data?.pages[0].total).toBe(3);
+        expect(result.current.hasNextPage).toBe(false);
+    });
+
+    it('sends pos as repeatable query keys, not axios\'s default pos[] form', async () => {
+        const { fake, wrapper } = setup([nounSeed('a'), verbSeed('b')]);
+        const { result } = renderHook(
+            () => useWordsInfinite({ pos: [PartOfSpeech.noun, PartOfSpeech.verb] }),
+            { wrapper },
+        );
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(fake.simpleQueries[0]).toContain('pos=Noun');
+        expect(fake.simpleQueries[0]).toContain('pos=Verb');
+        expect(fake.simpleQueries[0]).not.toContain('%5B%5D'); // the encoded `[]` axios would emit
+    });
+
+    it('pages via nextCursor once more words exist than fit on one page', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(String(i)));
+        const { wrapper } = setup(words);
+        const { result } = renderHook(() => useWordsInfinite(), { wrapper });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.pages[0].items).toHaveLength(50);
+        expect(result.current.hasNextPage).toBe(true);
+
+        void result.current.fetchNextPage();
+        await waitFor(() => expect(result.current.data?.pages).toHaveLength(2));
+
+        expect(result.current.data?.pages[1].items).toHaveLength(1);
+        expect(result.current.hasNextPage).toBe(false);
+        const allIds = new Set(result.current.data?.pages.flatMap((p) => p.items.map((w) => w.id)));
+        expect(allIds.size).toBe(51);
+    });
+});
+
+describe('useBulkDeleteWords', () => {
+    it('removes each detail cache entry and invalidates words + metrics', async () => {
+        const { queryClient, wrapper, invalidateSpy } = setup([verbSeed('a'), verbSeed('b')]);
+        queryClient.setQueryData(wordKeys.detail('word-a'), { id: 'word-a' });
+        queryClient.setQueryData(wordKeys.detail('word-b'), { id: 'word-b' });
+
+        const { result } = renderHook(() => useBulkDeleteWords(), { wrapper });
+        result.current.mutate(['word-a', 'word-b']);
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data).toEqual({ deletedCount: 2 });
+        expect(queryClient.getQueryData(wordKeys.detail('word-a'))).toBeUndefined();
+        expect(queryClient.getQueryData(wordKeys.detail('word-b'))).toBeUndefined();
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: wordKeys.all });
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['metrics'] });
+    });
+
+    it('surfaces "No word IDs provided" for an empty selection', async () => {
+        const { wrapper } = setup();
+        const { result } = renderHook(() => useBulkDeleteWords(), { wrapper });
+
+        result.current.mutate([]);
+        await waitFor(() => expect(result.current.isError).toBe(true));
+        expect(getApiErrorMessage(result.current.error)).toBe('No word IDs provided');
+    });
+
+    it('surfaces "Some words are missing" for an unknown id', async () => {
+        const { wrapper } = setup([verbSeed('a')]);
+        const { result } = renderHook(() => useBulkDeleteWords(), { wrapper });
+
+        result.current.mutate(['word-a', 'does-not-exist']);
+        await waitFor(() => expect(result.current.isError).toBe(true));
+        expect(getApiErrorMessage(result.current.error)).toBe('Some words are missing');
+    });
+
+    it('surfaces the not-authorized message when a selected word is not the caller\'s', async () => {
+        const { wrapper } = setup([{ ...verbSeed('a'), user: OTHER }]);
+        const { result } = renderHook(() => useBulkDeleteWords(), { wrapper });
+
+        result.current.mutate(['word-a']);
+        await waitFor(() => expect(result.current.isError).toBe(true));
+        expect(getApiErrorMessage(result.current.error)).toBe(
+            'User not authorized to delete at least one of the words',
+        );
     });
 });

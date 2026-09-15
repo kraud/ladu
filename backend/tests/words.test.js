@@ -197,6 +197,56 @@ describe('GET /api/words/:id - Get Word By ID', () => {
 });
 
 // ===========================================================================
+// PUT /api/words/:id - Update Word
+// ===========================================================================
+describe('PUT /api/words/:id - Update Word', () => {
+    let token, userId, wordId, tagId;
+
+    beforeEach(async () => {
+        const data = await registerAndLogin();
+        token = data.token;
+        userId = data.id;
+
+        const [tag] = await db.insert(tags).values({
+            authorId: userId,
+            label: 'U',
+            visibility: 'Private',
+        }).returning();
+        tagId = tag.id;
+
+        const r = await request(app).post('/api/words').set('Authorization', `Bearer ${token}`)
+            .send(wordPayload({ tags: [{ _id: tagId }] }));
+        wordId = r.body.id;
+    });
+
+    // A `tags`-less PUT is exactly the shape `UpdateWordBody` sends (it has no
+    // `tags` field) — before the fix, `req.body.tags || []` diffed against an
+    // empty array and deleted every association on any such update.
+    it('preserves existing tag associations when `tags` is omitted from the body', async () => {
+        const res = await request(app)
+            .put(`/api/words/${wordId}`).set('Authorization', `Bearer ${token}`)
+            .send({ partOfSpeech: 'Verb', translations: [t('English', 'walk', 'simplePresent1sEN'), t('Estonian', 'kõndima', 'infinitiveMaEE')] });
+
+        expect(res.statusCode).toBe(200);
+
+        const tagWordRows = await db.select().from(tagWords).where(eq(tagWords.wordId, wordId));
+        expect(tagWordRows).toHaveLength(1);
+        expect(tagWordRows[0].tagId).toBe(tagId);
+    });
+
+    it('removes tag associations when `tags` is explicitly sent empty', async () => {
+        const res = await request(app)
+            .put(`/api/words/${wordId}`).set('Authorization', `Bearer ${token}`)
+            .send({ tags: [] });
+
+        expect(res.statusCode).toBe(200);
+
+        const tagWordRows = await db.select().from(tagWords).where(eq(tagWords.wordId, wordId));
+        expect(tagWordRows).toHaveLength(0);
+    });
+});
+
+// ===========================================================================
 // DELETE /api/words/:id - Delete Word
 // ===========================================================================
 describe('DELETE /api/words/:id - Delete Word', () => {

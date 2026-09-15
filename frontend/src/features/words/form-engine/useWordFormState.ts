@@ -101,6 +101,10 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
 
     const canAddMore = translations.length < MAX_TRANSLATIONS && availableLanguages.length > 0;
     const belowMinTranslations = translations.length < MIN_TRANSLATIONS;
+    // Whether changing the part of speech would discard anything — a slot
+    // added but never typed into (`cases: []`) isn't content. Drives the
+    // create-mode "Change word type" confirm gate.
+    const hasContent = translations.some((t) => t.cases.length > 0) || clue !== '';
     const canSave =
         translations.length >= MIN_TRANSLATIONS &&
         translations.every((t) => t.completionState) &&
@@ -128,6 +132,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
         canAddMore,
         canSave,
         belowMinTranslations,
+        hasContent,
         resetTokens,
         addTranslation,
         removeTranslation,

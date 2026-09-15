@@ -53,6 +53,9 @@ function toTextField(row: NounCasesData, suffix: string, lowercase: boolean): Te
         required,
         requiredMessageKey: required ? nounErrorKey(suffix, 'singularFormRequired') : undefined,
         lowercase,
+        // Pairs a case's singular and plural onto the same row (EE's `shortForm` property
+        // row has no plurality/declination of its own and stays full-width, unpaired).
+        layout: row.isNounProperty ? undefined : { row: row.declination, column: row.plurality },
     };
 }
 

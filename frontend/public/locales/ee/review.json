@@ -8,5 +8,91 @@
     "hiddenLanguages": "Peidetud",
     "public": "Avalik",
     "description": "Kirjeldus"
+  },
+  "filters": {
+    "title": "Filtrid",
+    "show": "Näita filtreid",
+    "collapse": "Peida filtrid",
+    "noneActive": "Ühtegi filtrit pole rakendatud",
+    "activeCount_one": "{{count}} filter aktiivne",
+    "activeCount_other": "{{count}} filtrit aktiivne",
+    "gender": "Sugu",
+    "clear": "Tühjenda",
+    "partOfSpeech": "Sõnaliik",
+    "languageOrder": "Keelte järjekord",
+    "languageOrderHint": "Järjesta nooltega · vähemalt 2 nähtavat",
+    "moveEarlier": "Nihuta {{language}} varasemaks",
+    "moveLater": "Nihuta {{language}} hilisemaks",
+    "hideLanguage": "Peida {{language}}",
+    "showLanguage": "Näita {{language}}",
+    "moveToSidebar": "Vii filtrid külgribale",
+    "moveToTop": "Vii filtrid üles"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Otsi sõnu…",
+    "searchLabel": "Filtreeri tabelit",
+    "displayGender": "Näita sugu",
+    "displayProgress": "Näita edenemist",
+    "rowCount": "{{count}} / {{total}} sõnast"
+  },
+  "bulk": {
+    "selected": "valitud",
+    "view": "Vaata",
+    "delete": "Kustuta",
+    "confirmTitle_one": "Kustutada {{count}} sõna?",
+    "confirmTitle_other": "Kustutada {{count}} sõna?",
+    "confirmDescription": "See eemaldab {{count}} sõna jäädavalt kõigilt, kellega neid on jagatud.",
+    "deletedToast_one": "{{count}} sõna kustutatud",
+    "deletedToast_other": "{{count}} sõna kustutatud"
+  },
+  "table": {
+    "posAbbr": {
+      "noun": "nim.",
+      "verb": "tgs.",
+      "adjective": "omd.",
+      "adverb": "mrs.",
+      "preposition": "kaassõna",
+      "conjunction": "sidesõna",
+      "pronoun": "asesõna",
+      "interjection": "hüüdsõna",
+      "properNoun": "pärisnim.",
+      "numerals": "arvsõna"
+    },
+    "selectAll": "Vali kõik read",
+    "selectRow": "Vali see sõna",
+    "ownerMe": "Sina",
+    "ownerGroup": "Jälgitavast sildist",
+    "ringDetail": "{{value}} / {{total}} vormist",
+    "addTranslation": "Lisa {{language}} tõlge",
+    "blockedTranslation": "Tõlkimata — jälgitava sildi kirjutuskaitstud sõna",
+    "loaded": "Näidatakse {{loaded}} / {{total}}",
+    "allLoaded": "Kõik {{total}} laaditud",
+    "loadMore": "Laadi rohkem"
+  },
+  "cellDialog": {
+    "title": "{{word}} — {{language}}",
+    "deleteTranslation": "Kustuta tõlge",
+    "confirmDeleteTitle": "Kustutada {{language}} tõlge?",
+    "confirmDeleteDescription": "See eemaldab jäädavalt selle tõlke vormid ja sinu harjutamisajaloo selle kohta.",
+    "savedToast": "{{language}} tõlge uuendatud",
+    "removedToast": "{{language}} tõlge eemaldatud",
+    "maxTranslations": "Sellel sõnal on juba maksimaalne arv (4) tõlkeid."
+  },
+  "empty": {
+    "noWords": {
+      "title": "Veel pole sõnu",
+      "description": "Lisa oma esimene sõna, et alustada sõnastiku koostamist.",
+      "action": "Lisa sõna"
+    },
+    "noMatches": {
+      "title": "Ükski sõna ei vasta su filtritele",
+      "description": "Proovi teistsugust otsingut või tühjenda filtrid.",
+      "action": "Tühjenda filtrid"
+    },
+    "noLanguages": {
+      "title": "Lisa teine keel, et kasutada ülevaadet",
+      "description": "Ülevaade vajab vähemalt kahte seadistatud keelt.",
+      "action": "Mine kontole"
+    }
   }
 }

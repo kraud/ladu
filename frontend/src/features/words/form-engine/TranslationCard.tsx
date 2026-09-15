@@ -14,28 +14,45 @@
  * for a freshly-added, still-empty card. Field-level errors stay driven by
  * `mode: 'onBlur'`, decoupled from the word-level completion signal.
  *
- * The autocomplete row (EE/DE/ES noun autocomplete) is a Phase 3 concern —
- * only its mount point is reserved here.
+ * `AutocompleteRow` renders itself out for every `(lang, pos)` pair with no
+ * lookup endpoint — this card never branches on that.
  */
-import { useEffect, useMemo, useRef } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
+import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { langTint, languageByLabel } from '@/lib/language';
+import { primaryCaseWord } from '@/lib/words';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
+import { AutocompleteRow } from './AutocompleteRow';
 import { buildYupSchema } from './buildYupSchema';
-import type { FieldConfig } from './configs/types';
+import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
 import { FieldRenderer } from './FieldRenderer';
+import { buildLayoutItems, isHiddenInDisplayOnly, isPersistedCaseField } from './fieldLayout';
 
 export interface TranslationCardChange {
     cases: WordItem[];
     completionState: boolean;
     isDirty: boolean;
+}
+
+/**
+ * The class for the container arranging multiple `TranslationCard`s (the
+ * compose form, the word detail page, both edit and read-only). Verb cards
+ * need the full row for their tense-column grid; every other part of speech
+ * keeps the compact 2-up layout. `pos` is omitted where it isn't known yet
+ * (a loading skeleton) — defaults to the 2-up layout, the common case.
+ */
+export function translationGridClass(pos?: PartOfSpeech): string {
+    return pos === PartOfSpeech.verb
+        ? 'grid grid-cols-1 items-start gap-4'
+        : 'grid grid-cols-1 items-start gap-4 sm:grid-cols-2';
 }
 
 export interface TranslationCardProps {
@@ -59,18 +76,74 @@ export interface TranslationCardProps {
     resetKey?: number;
 }
 
-/** `FieldConfig[]` + current RHF values -> the persisted `WordItem[]`, blank/checkbox-less values dropped. */
-function fieldsToCases(fields: FieldConfig[], values: Record<string, unknown>): WordItem[] {
+/**
+ * `FieldConfig[]` + current RHF values -> the persisted `WordItem[]`.
+ * Dropped, in order: a field hidden by its own `visibleWhen` (the sibling it
+ * depends on doesn't currently equal the configured value); a field marked
+ * `persisted: false` (form-only, e.g. Estonian `searchInEnglish`, Spanish
+ * adjective `gender`); a `checkbox` field (no PoS backs a case with one
+ * today); and finally, any field whose resulting word is blank.
+ *
+ * Exported for direct unit testing against hand-built configs — the encode
+ * round-trip (multi-select) and the two drop rules above don't need a real
+ * noun/verb/adjective config to exercise.
+ */
+export function fieldsToCases(fields: FieldConfig[], values: Record<string, unknown>): WordItem[] {
     const cases: WordItem[] = [];
     for (const field of fields) {
-        // No PoS uses a checkbox-backed case yet (Phase 3 decides that encoding).
+        if (field.persisted === false) continue;
+        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, values[field.visibleWhen.field])) continue;
         if (field.kind === 'checkbox') continue;
+        if (!field.caseName) continue; // a case-less radio (Spanish adjective's `gender`) — always `persisted: false` in practice, guarded again here for the type checker.
+
         const raw = values[field.name];
-        let word = typeof raw === 'string' ? raw : '';
-        if (field.kind === 'text' && field.lowercase) word = word.toLowerCase();
+        let word: string;
+        if (field.kind === 'multi-select') {
+            word = field.encode(Array.isArray(raw) ? (raw as string[]) : []);
+        } else {
+            word = typeof raw === 'string' ? raw : '';
+            if (field.kind === 'text' && field.lowercase) word = word.toLowerCase();
+        }
         if (word !== '') cases.push({ caseName: field.caseName, word });
     }
     return cases;
+}
+
+/**
+ * The inverse hydration step: stored `WordItem[]` -> one RHF default value
+ * per field. A `multi-select` field's stored word is a single encoded string
+ * (e.g. the German verb-case acronym) — `field.decode` expands it back into
+ * the selected option values the checkbox group needs. Exported alongside
+ * `fieldsToCases` for the same reason.
+ */
+export function casesToFieldValues(fields: FieldConfig[], cases: WordItem[] | undefined): Record<string, unknown> {
+    const byCaseName = new Map((cases ?? []).map((item) => [item.caseName, item.word]));
+    return Object.fromEntries(
+        fields.map((field) => {
+            if (field.kind === 'checkbox') return [field.name, false];
+            if (!field.caseName) return [field.name, '']; // a case-less radio has nothing to hydrate from
+            if (field.kind === 'multi-select') return [field.name, field.decode(byCaseName.get(field.caseName) ?? '')];
+            return [field.name, byCaseName.get(field.caseName) ?? ''];
+        })
+    );
+}
+
+/**
+ * The heading lines to print before `fields[index]`: the tail of its `group`
+ * stack starting at the first entry that differs from the previous field's
+ * (by `heading`) — empty if nothing changed. A field whose `group` is
+ * entirely new (the previous field has no group, or a shorter one) prints
+ * its whole stack; one that only changes its innermost tense prints just
+ * that entry, leaving an already-visible outer heading (a verb's mood) in
+ * place. Exported for direct testing; `TranslationCard`'s render loop is the
+ * only real caller.
+ */
+export function groupHeadingsToPrint(fields: FieldConfig[], index: number): FieldGroup[] {
+    const group = fields[index].group;
+    if (!group || group.length === 0) return [];
+    const previousGroup = index > 0 ? (fields[index - 1].group ?? []) : [];
+    const firstDiff = group.findIndex((entry, i) => entry.heading !== previousGroup[i]?.heading);
+    return firstDiff === -1 ? [] : group.slice(firstDiff);
 }
 
 export function TranslationCard({
@@ -85,21 +158,14 @@ export function TranslationCard({
     resetKey,
 }: TranslationCardProps) {
     const { t } = useTranslation();
+    const [collapsed, setCollapsed] = useState(false);
     const config = getFormConfig(pos, lang);
     const schema = useMemo(() => (config ? buildYupSchema(config, t) : undefined), [config, t]);
 
-    const defaultValues = useMemo(() => {
-        if (!config) {
-            return {};
-        }
-        const byCaseName = new Map((initialCases ?? []).map((item) => [item.caseName, item.word]));
-        return Object.fromEntries(
-            config.fields.map((field) => [
-                field.name,
-                field.kind === 'checkbox' ? false : (byCaseName.get(field.caseName) ?? ''),
-            ])
-        );
-    }, [config, initialCases]);
+    const defaultValues = useMemo(
+        () => (config ? casesToFieldValues(config.fields, initialCases) : {}),
+        [config, initialCases]
+    );
 
     // Plain `defaultValues` (mount-time only), NOT the reactive `values` option:
     // this card's own `onChange` echoes its cases back up into `useWordFormState`,
@@ -136,6 +202,36 @@ export function TranslationCard({
         () => (config ? fieldsToCases(config.fields, watched) : []),
         [config, watched],
     );
+
+    // Fields the current form state would actually render, split in two
+    // steps so the collapsed-card case count (below) can use the first
+    // without the second: `branchFields` drops a `visibleWhen` mismatch only
+    // (i.e. what a COMPLETE translation would persist for the branch this
+    // form is currently on); `visibleFields` additionally drops an empty
+    // non-required field in `displayOnly` — the pre-`buildLayoutItems` filter
+    // `fieldLayout.ts`'s file header describes, so a hidden branch (Spanish
+    // adjective gender, German adverb non-gradable) never leaves a blank cell
+    // behind.
+    const branchFields = useMemo(() => {
+        if (!config) return [];
+        return config.fields.filter(
+            (field) => !field.visibleWhen || matchesVisibility(field.visibleWhen, watched[field.visibleWhen.field]),
+        );
+    }, [config, watched]);
+    const visibleFields = useMemo(
+        () => branchFields.filter((field) => !isHiddenInDisplayOnly(field, watched[field.name], displayOnly)),
+        [branchFields, watched, displayOnly],
+    );
+
+    const layoutItems = useMemo(() => buildLayoutItems(visibleFields), [visibleFields]);
+    // The collapsed-card summary's denominator: how many cases a COMPLETE
+    // translation on this branch would persist — mirrors `fieldsToCases`'
+    // drop rules via the shared `isPersistedCaseField` (also used by
+    // `review/completion.ts`'s ring, over the same field list shape).
+    const expectedCaseCount = useMemo(
+        () => branchFields.filter(isPersistedCaseField).length,
+        [branchFields],
+    );
     const completionState = useMemo(() => {
         if (!schema) return false;
         try {
@@ -164,34 +260,109 @@ export function TranslationCard({
     }
 
     const langEntry = languageByLabel(lang);
+    const headline = primaryCaseWord(pos, { language: lang, cases });
+    const caseCountText = t('wordRelated:translationFormGeneric.caseCount', {
+        value: cases.length,
+        total: expectedCaseCount,
+    });
+    const summary = headline ? `${headline} · ${caseCountText}` : t('wordRelated:translationFormGeneric.emptyCard');
 
     return (
         <div
             className="flex flex-col gap-4 rounded-lg border bg-card p-4"
             style={{ borderTopColor: langTint(lang), borderTopWidth: 2 }}
         >
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
                     <FlagIcon lang={lang} title={langEntry?.native ?? lang} />
-                    {langEntry?.native ?? lang}
+                    <span className="shrink-0">{langEntry?.native ?? lang}</span>
+                    {collapsed && <span className="hint truncate">{summary}</span>}
                 </div>
-                {!displayOnly && (
-                    <div className="flex gap-2">
-                        <Button type="button" variant="ghost" size="sm" onClick={onClear}>
-                            {t('common:buttons.clear')}
-                        </Button>
-                        <Button type="button" variant="ghost" size="sm" onClick={onRemove} disabled={removeDisabled}>
-                            {t('common:buttons.remove')}
-                        </Button>
-                    </div>
-                )}
+                <div className="flex shrink-0 items-center gap-2">
+                    {!displayOnly && (
+                        <>
+                            {onClear && (
+                                <Button type="button" variant="ghost" size="sm" onClick={onClear}>
+                                    {t('common:buttons.clear')}
+                                </Button>
+                            )}
+                            {onRemove && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={onRemove}
+                                    disabled={removeDisabled}
+                                >
+                                    {t('common:buttons.remove')}
+                                </Button>
+                            )}
+                        </>
+                    )}
+                    <button
+                        type="button"
+                        className="icon-btn"
+                        aria-label={t(
+                            collapsed
+                                ? 'wordRelated:translationFormGeneric.expand'
+                                : 'wordRelated:translationFormGeneric.collapse',
+                        )}
+                        title={t(
+                            collapsed
+                                ? 'wordRelated:translationFormGeneric.expand'
+                                : 'wordRelated:translationFormGeneric.collapse',
+                        )}
+                        onClick={() => setCollapsed((prev) => !prev)}
+                    >
+                        {collapsed ? <CaretDownIcon size={16} /> : <CaretUpIcon size={16} />}
+                    </button>
+                </div>
             </div>
 
             <Form {...form}>
-                <div className="flex flex-col gap-3">
-                    {/* Autocomplete row (EE/DE/ES noun autocomplete) — Phase 3 mount point. */}
-                    {config.fields.map((field) => (
-                        <FieldRenderer key={field.name} field={field} displayOnly={displayOnly} />
+                <div className={collapsed ? 'hidden' : 'flex flex-col gap-3'}>
+                    {!displayOnly && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} />}
+                    {layoutItems.map((item) => (
+                        <Fragment
+                            key={item.kind === 'field' ? item.field.name : item.fields.map((field) => field.name).join('|')}
+                        >
+                            {groupHeadingsToPrint(visibleFields, item.index).map((heading) => (
+                                <p
+                                    key={heading.heading}
+                                    className={
+                                        heading.level === 1
+                                            ? 'mt-2 text-sm font-semibold text-foreground underline'
+                                            : 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
+                                    }
+                                >
+                                    {heading.heading}
+                                </p>
+                            ))}
+                            {item.kind === 'field' ? (
+                                <FieldRenderer field={item.field} displayOnly={displayOnly} />
+                            ) : (
+                                <div
+                                    className="grid gap-x-4 gap-y-3"
+                                    style={{ gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, 1fr))` }}
+                                >
+                                    {item.columnHeadings?.map((heading, columnIndex) => (
+                                        <p
+                                            key={`heading-${columnIndex}`}
+                                            className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                                        >
+                                            {heading ?? ''}
+                                        </p>
+                                    ))}
+                                    {item.cells.map((rowFields, rowIndex) =>
+                                        rowFields.map((field, columnIndex) => (
+                                            <div key={`${rowIndex}-${columnIndex}`}>
+                                                {field && <FieldRenderer field={field} displayOnly={displayOnly} />}
+                                            </div>
+                                        )),
+                                    )}
+                                </div>
+                            )}
+                        </Fragment>
                     ))}
                 </div>
             </Form>

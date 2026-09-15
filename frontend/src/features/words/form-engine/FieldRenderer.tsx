@@ -4,59 +4,94 @@
  * `getDisabledInputFieldDisplayLogic`); a required field, or any field that
  * has a value, always renders — as static text in `displayOnly` mode, as an
  * editable control otherwise.
+ *
+ * Two config features are resolved here, ahead of the field's own control:
+ *  - `visibleWhen` — the field renders nothing at all (in either mode) unless
+ *    `matchesVisibility` (`configs/types.ts`) says so.
+ *  - `adornment` — a read-only prefix shown before a `text` field's input,
+ *    looked up from a sibling field's current value.
  */
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import type { FieldConfig } from './configs/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
+import { matchesVisibility, type FieldConfig } from './configs/types';
+import { isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
 
 export interface FieldRendererProps {
     field: FieldConfig;
     displayOnly?: boolean;
 }
 
-function isEmptyValue(value: unknown): boolean {
-    return value === undefined || value === null || value === '';
+function optionLabel(options: { value: string; label: string }[], value: unknown): string {
+    return options.find((option) => option.value === value)?.label ?? String(value ?? '');
 }
 
 export function FieldRenderer({ field, displayOnly = false }: FieldRendererProps) {
     const { control } = useFormContext();
     const { t } = useTranslation();
-    const label = t(field.labelKey);
+    const label = field.label ?? t(field.labelKey ?? '');
+
+    // Dummy fallback name (the field's own) when there's nothing to watch —
+    // watching a field's own value is a harmless no-op, and keeps this a
+    // single unconditional hook call regardless of whether `visibleWhen` /
+    // `adornment` are configured.
+    const controllingValue = useWatch({ control, name: field.visibleWhen?.field ?? field.name });
+    const isVisible = !field.visibleWhen || matchesVisibility(field.visibleWhen, controllingValue);
+
+    const adornmentSource = field.adornment?.watchField;
+    const watchedAdornmentValue = useWatch({ control, name: adornmentSource ?? field.name });
+    const adornmentText = field.adornment ? field.adornment.values[String(watchedAdornmentValue ?? '')] : undefined;
+
+    if (!isVisible) {
+        return null;
+    }
 
     return (
         <FormField
             control={control}
             name={field.name}
             render={({ field: rhf }) => {
-                const hidden = displayOnly && !field.required && isEmptyValue(rhf.value);
+                const hidden = isHiddenInDisplayOnly(field, rhf.value, displayOnly);
                 if (hidden) {
                     return <></>;
                 }
 
                 if (displayOnly) {
-                    const displayValue =
-                        field.kind === 'radio'
-                            ? (field.options.find((option) => option.value === rhf.value)?.label ?? rhf.value)
-                            : rhf.value;
+                    let displayValue: string;
+                    if (field.kind === 'radio' || field.kind === 'select' || field.kind === 'toggle') {
+                        displayValue = optionLabel(field.options, rhf.value);
+                    } else if (field.kind === 'multi-select') {
+                        const selected: unknown[] = Array.isArray(rhf.value) ? rhf.value : [];
+                        displayValue = selected.map((value) => optionLabel(field.options, value)).join(', ');
+                    } else {
+                        displayValue = String(rhf.value ?? '');
+                    }
                     return (
                         <FormItem>
                             <FormLabel>{label}</FormLabel>
-                            <p className="text-sm text-foreground">{isEmptyValue(displayValue) ? '—' : String(displayValue)}</p>
+                            <p className="text-sm text-foreground">{isEmptyValue(displayValue) ? '—' : displayValue}</p>
                         </FormItem>
                     );
                 }
 
                 if (field.kind === 'text') {
+                    const input = <Input {...rhf} value={rhf.value ?? ''} />;
                     return (
                         <FormItem>
                             <FormLabel>{label}</FormLabel>
-                            <FormControl>
-                                <Input {...rhf} value={rhf.value ?? ''} />
-                            </FormControl>
+                            {adornmentText ? (
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-sm text-muted-foreground">{adornmentText}</span>
+                                    <FormControl>{input}</FormControl>
+                                </div>
+                            ) : (
+                                <FormControl>{input}</FormControl>
+                            )}
                             <FormMessage />
                         </FormItem>
                     );
@@ -69,12 +104,97 @@ export function FieldRenderer({ field, displayOnly = false }: FieldRendererProps
                             <FormControl>
                                 <RadioGroup value={rhf.value ?? ''} onValueChange={rhf.onChange}>
                                     {field.options.map((option) => (
-                                        <label key={option.value} className="flex items-center gap-1.5 text-sm">
+                                        <label
+                                            key={option.value}
+                                            className="flex items-center gap-1.5 text-sm"
+                                            // Base UI's own radio click never fires `onValueChange` again for a
+                                            // re-click of the already-selected option (native radio semantics:
+                                            // clicking a checked radio can't uncheck it). Intercepted here, ahead
+                                            // of that internal handling, so a re-click clears the field instead —
+                                            // `stopPropagation` (capture phase, before the click reaches the
+                                            // radio itself) keeps Base UI from re-selecting the same value right
+                                            // back afterward.
+                                            onClickCapture={(event) => {
+                                                if (rhf.value === option.value) {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                    rhf.onChange('');
+                                                }
+                                            }}
+                                        >
                                             <RadioGroupItem value={option.value} />
                                             {option.label}
                                         </label>
                                     ))}
                                 </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    );
+                }
+
+                if (field.kind === 'toggle') {
+                    return (
+                        <FormItem>
+                            <FormLabel>{label}</FormLabel>
+                            <FormControl>
+                                <SegmentedToggle
+                                    value={rhf.value}
+                                    onValueChange={rhf.onChange}
+                                    options={field.options}
+                                    aria-label={label}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    );
+                }
+
+                if (field.kind === 'select') {
+                    return (
+                        <FormItem>
+                            <FormLabel>{label}</FormLabel>
+                            <FormControl>
+                                <Select value={rhf.value ?? ''} onValueChange={rhf.onChange}>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {field.options.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    );
+                }
+
+                if (field.kind === 'multi-select') {
+                    const selected: string[] = Array.isArray(rhf.value) ? rhf.value : [];
+                    const toggle = (optionValue: string, checked: boolean) => {
+                        rhf.onChange(
+                            checked ? [...selected, optionValue] : selected.filter((value) => value !== optionValue)
+                        );
+                    };
+                    return (
+                        <FormItem>
+                            <FormLabel>{label}</FormLabel>
+                            <FormControl>
+                                <div className="flex flex-row flex-wrap gap-x-4 gap-y-1.5">
+                                    {field.options.map((option) => (
+                                        <label key={option.value} className="flex items-center gap-1.5 text-sm">
+                                            <Checkbox
+                                                checked={selected.includes(option.value)}
+                                                onCheckedChange={(checked) => toggle(option.value, !!checked)}
+                                            />
+                                            {option.label}
+                                        </label>
+                                    ))}
+                                </div>
                             </FormControl>
                             <FormMessage />
                         </FormItem>

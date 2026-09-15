@@ -8,5 +8,91 @@
     "hiddenLanguages": "Oculto",
     "public": "Público",
     "description": "Descripción"
+  },
+  "filters": {
+    "title": "Filtros",
+    "show": "Mostrar filtros",
+    "collapse": "Ocultar filtros",
+    "noneActive": "No hay filtros aplicados",
+    "activeCount_one": "{{count}} filtro activo",
+    "activeCount_other": "{{count}} filtros activos",
+    "gender": "Género",
+    "clear": "Borrar",
+    "partOfSpeech": "Categoría gramatical",
+    "languageOrder": "Orden de idiomas",
+    "languageOrderHint": "Usa las flechas para reordenar · mín. 2 visibles",
+    "moveEarlier": "Mover {{language}} antes",
+    "moveLater": "Mover {{language}} después",
+    "hideLanguage": "Ocultar {{language}}",
+    "showLanguage": "Mostrar {{language}}",
+    "moveToSidebar": "Mover filtros a la barra lateral",
+    "moveToTop": "Mover filtros arriba"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Buscar palabras…",
+    "searchLabel": "Filtrar tabla",
+    "displayGender": "Mostrar género",
+    "displayProgress": "Mostrar progreso",
+    "rowCount": "{{count}} de {{total}} palabras"
+  },
+  "bulk": {
+    "selected": "seleccionadas",
+    "view": "Ver",
+    "delete": "Eliminar",
+    "confirmTitle_one": "¿Eliminar {{count}} palabra?",
+    "confirmTitle_other": "¿Eliminar {{count}} palabras?",
+    "confirmDescription": "Esto elimina definitivamente {{count}} palabra(s) para todos con quienes se comparten.",
+    "deletedToast_one": "{{count}} palabra eliminada",
+    "deletedToast_other": "{{count}} palabras eliminadas"
+  },
+  "table": {
+    "posAbbr": {
+      "noun": "sust.",
+      "verb": "v.",
+      "adjective": "adj.",
+      "adverb": "adv.",
+      "preposition": "prep.",
+      "conjunction": "conj.",
+      "pronoun": "pron.",
+      "interjection": "interj.",
+      "properNoun": "n. pr.",
+      "numerals": "núm."
+    },
+    "selectAll": "Seleccionar todas las filas",
+    "selectRow": "Seleccionar esta palabra",
+    "ownerMe": "Tú",
+    "ownerGroup": "De una etiqueta seguida",
+    "ringDetail": "{{value}} de {{total}} casos",
+    "addTranslation": "Añadir traducción en {{language}}",
+    "blockedTranslation": "Sin traducir — palabra de solo lectura de una etiqueta seguida",
+    "loaded": "Mostrando {{loaded}} de {{total}}",
+    "allLoaded": "Las {{total}} cargadas",
+    "loadMore": "Cargar más"
+  },
+  "cellDialog": {
+    "title": "{{word}} — {{language}}",
+    "deleteTranslation": "Eliminar traducción",
+    "confirmDeleteTitle": "¿Eliminar la traducción en {{language}}?",
+    "confirmDeleteDescription": "Esto elimina permanentemente los casos de esta traducción y tu historial de práctica en ella.",
+    "savedToast": "Traducción en {{language}} actualizada",
+    "removedToast": "Traducción en {{language}} eliminada",
+    "maxTranslations": "Esta palabra ya tiene el máximo de 4 traducciones."
+  },
+  "empty": {
+    "noWords": {
+      "title": "Todavía no hay palabras",
+      "description": "Añade tu primera palabra para empezar a construir tu diccionario.",
+      "action": "Añadir una palabra"
+    },
+    "noMatches": {
+      "title": "Ninguna palabra coincide con tus filtros",
+      "description": "Prueba otra búsqueda o borra los filtros.",
+      "action": "Borrar filtros"
+    },
+    "noLanguages": {
+      "title": "Añade un segundo idioma para usar Revisión",
+      "description": "Revisión necesita al menos dos idiomas configurados.",
+      "action": "Ir a mi cuenta"
+    }
   }
 }

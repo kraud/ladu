@@ -102,3 +102,43 @@ describe('Protected routes - 401 without auth', () => {
         expect(res.statusCode).toBe(401);
     });
 });
+
+describe('Estonian endpoints respond 502 on upstream failure instead of hanging', () => {
+    let token;
+
+    beforeEach(async () => {
+        token = await registerAndLogin();
+        jest.spyOn(https, 'get').mockImplementation(() => ({
+            on: (event, handler) => {
+                if (event === 'error') handler(new Error('upstream unreachable'));
+                return { on: () => {} };
+            },
+        }));
+    });
+
+    afterEach(() => { jest.restoreAllMocks(); });
+
+    it('responds 502 for the verb lookup', async () => {
+        const res = await request(app)
+            .get('/api/autocompleteTranslations/estonian/verb/jooksma')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(res.statusCode).toBe(502);
+    });
+
+    it('responds 502 for the noun lookup', async () => {
+        const res = await request(app)
+            .get('/api/autocompleteTranslations/estonian/noun/maja')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(res.statusCode).toBe(502);
+    });
+
+    it('responds 502 for the adjective lookup', async () => {
+        const res = await request(app)
+            .get('/api/autocompleteTranslations/estonian/adjective/hea')
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(res.statusCode).toBe(502);
+    });
+});

@@ -9,7 +9,11 @@
     "wordNotFound": "Seda sõna ei leitud.",
     "notAuthorized": "Sul pole juurdepääsu sellele sõnale.",
     "missingPartOfSpeech": "Palun vali sõnaliik.",
-    "notEnoughTranslations": "Lisa enne salvestamist vähemalt kaks tõlget."
+    "notEnoughTranslations": "Lisa enne salvestamist vähemalt kaks tõlget.",
+    "invalidCursor": "See lehelink on aegunud — laadi loend uuesti.",
+    "noWordIdsProvided": "Kustutamiseks vali vähemalt üks sõna.",
+    "someWordsMissing": "Mõnda valitud sõnadest ei leitud.",
+    "notAuthorizedToDeleteSome": "Saad kustutada ainult endale kuuluvaid sõnu."
   },
   "displayWord": {
     "titlePos": "Üksikasjalik vaatamine: {{currentPoS}}",
@@ -87,14 +91,19 @@
   },
   "translationFormGeneric": {
     "selectLanguage": "Vali uue sõna keel",
-    "switchLanguage": "Keele vahetamine:"
+    "switchLanguage": "Keele vahetamine:",
+    "collapse": "Ahenda tõlge",
+    "expand": "Laienda tõlge",
+    "caseCount": "{{value}} / {{total}} käänet",
+    "emptyCard": "Veel midagi sisestamata"
   },
   "wordFormSelector": {
     "languageNotAvailable": "See keel pole veel saadaval",
     "partOfSpeechNotAvailable": "See osa kõnest pole veel saadaval"
   },
   "formComponentLabel": {
-    "clue": "Vihje"
+    "clue": "Vihje",
+    "tags": "Sildid"
   },
   "wordForm": {
     "hints": {
@@ -102,6 +111,24 @@
     },
     "errors": {
       "noNumbers": "Ei tohi sisaldada numbreid"
+    },
+    "buttons": {
+      "changeWordType": "Muuda sõnaliiki"
+    },
+    "emptyState": {
+      "title": "Tõlkeid pole veel lisatud",
+      "description": "Lisa tõlge külgmenüüst."
+    },
+    "sidebar": {
+      "collapse": "Ahenda külgriba",
+      "expand": "Laienda külgriba",
+      "openMenu": "Ava menüü",
+      "closeMenu": "Sulge menüü",
+      "tagsComingSoon": "Tulekul"
+    },
+    "confirmChangeType": {
+      "title": "Muuta sõnaliiki?",
+      "description": "Sisestatud tõlked lähevad kaotsi."
     },
     "noun": {
       "errors": {
@@ -170,10 +197,33 @@
           "positiveDegreeRequired": "Positiivvorm on kohustuslik"
         },
         "formEE": {
-          "algvorreFormRequired": "Meessoo ainsusvorm on kohustuslik",
-          "keskvorreFormRequired": "Naissoo ainsusvorm on kohustuslik",
-          "ulivorreFormRequired": "Kesksugu ainsusvorm on kohustuslik"
+          "algvorreFormRequired": "Algvõrre on kohustuslik",
+          "keskvorreFormRequired": "Keskvõrre on kohustuslik",
+          "ulivorreFormRequired": "Ülivõrre on kohustuslik"
         }
+      },
+      "fields": {
+        "positiveEN": "Algvõrre",
+        "comparativeEN": "Keskvõrre",
+        "superlativeEN": "Ülivõrre",
+        "positiveDE": "Algvõrre",
+        "komparativDE": "Keskvõrre",
+        "superlativDE": "Ülivõrre",
+        "gender": "Sugu",
+        "neutralSingularES": "Kesksugu ainsus",
+        "neutralPluralES": "Kesksugu mitmus",
+        "maleSingularES": "Meessoo ainsus",
+        "malePluralES": "Meessoo mitmus",
+        "femaleSingularES": "Naissoo ainsus",
+        "femalePluralES": "Naissoo mitmus",
+        "algvorreEE": "Algvõrre",
+        "keskvorreEE": "Keskvõrre",
+        "ulivorreEE": "Ülivõrre",
+        "pluralNimetavEE": "Mitmus nimetav",
+        "singularOmastavEE": "Ainsus omastav",
+        "pluralOmastavEE": "Mitmus omastav",
+        "singularOsastavEE": "Ainsus osastav",
+        "pluralOsastavEE": "Mitmus osastav"
       }
     },
     "adverb": {
@@ -188,6 +238,18 @@
           "adverbRequired": "Määrsõna on kohustuslik",
           "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         }
+      },
+      "fields": {
+        "adverbEN": "Määrsõna",
+        "comparativeEN": "Keskvõrre",
+        "superlativeEN": "Ülivõrre",
+        "adverbES": "Määrsõna",
+        "comparativeES": "Keskvõrre",
+        "superlativeES": "Ülivõrre",
+        "gradableDE": "Astestatav",
+        "adverbDE": "Määrsõna",
+        "comparativeDE": "Keskvõrre",
+        "superlativeDE": "Ülivõrre"
       }
     },
     "verb": {
@@ -200,11 +262,13 @@
           "infinitiveNonFiniteRequired": "Infinitiiv mittefiniitne on kohustuslik",
           "gerundNonFiniteRequired": "Gerundiiv mittefiniitne on kohustuslik",
           "participleNonFiniteRequired": "Partitsiip mittefiniitne on kohustuslik",
+          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-ar', '-er' või '-ir').",
           "regularityRequired": "See pole valik"
         },
         "formDE": {
           "infinitiveNonFiniteRequired": "Infinitiiv mittefiniitne on kohustuslik",
-          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-en', '-ern', '-eln')."
+          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-en', '-ern', '-eln').",
+          "regularityRequired": "See pole valik"
         },
         "formEE": {
           "infinitiveMaRequired": "-ma infinitiiv on kohustuslik",
@@ -213,13 +277,31 @@
           "searchInEnglishLabel": "Otsi verbi inglise keeles",
           "searchInEnglishWarning": "Olge ettevaatlik, see ei toimi kõigi verbidega! Vajadusel proovige eesti keeles."
         }
+      },
+      "fields": {
+        "regularityEN": "Reeglipärasus",
+        "regularityES": "Reeglipärasus",
+        "regularityDE": "Reeglipärasus",
+        "regularityEE": "Reeglipärasus",
+        "infinitiveNonFiniteSimpleES": "Lihtne infinitiiv mittefiniitne",
+        "gerundNonFiniteSimpleES": "Lihtne gerundiiv mittefiniitne",
+        "participleNonFiniteSimpleES": "Lihtne partitsiip mittefiniitne",
+        "infinitiveDE": "Infinitiiv",
+        "auxVerbDE": "Abitegusõna",
+        "prefixDE": "Eesliide",
+        "caseTypeDE": "Tegusõna kääne",
+        "infinitiveMaEE": "-ma infinitiiv",
+        "infinitiveDaEE": "-da infinitiiv"
       }
     },
     "autocompleteTranslationButton": {
       "label": "Automaatselt täida {{wordType}}",
       "emptyQuery": "Palun sisesta esmalt '{{requiredField}}'.",
       "noMatch": "Vabandust, me ei tunne seda sõna!",
-      "foundMatch": "Meie süsteemis on selle sõna kohta teavet."
+      "foundMatch": "Meie süsteemis on selle sõna kohta teavet.",
+      "partialMatch": "Me pole täiesti kindlad, kuid see on meie parim oletus.",
+      "loading": "Otsimine...",
+      "fillButton": "Täida"
     }
   }
 }

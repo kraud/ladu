@@ -8,6 +8,8 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderApp } from '@/test/render';
 import { futureToken } from '@/test/tokens';
+import { server } from '@/test/msw/server';
+import { makeWordHandlers } from '@/test/msw/wordHandlers';
 
 const baseSession = {
     id: 'u1',
@@ -49,6 +51,9 @@ describe('AppHeader nav gating', () => {
     });
 
     it('lets Review through with ≥2 languages', async () => {
+        // The real ReviewPage (Slice 6) fires GET /api/words/simple on mount.
+        server.use(...makeWordHandlers({ callerId: baseSession.id }).handlers);
+
         const user = userEvent.setup();
         const { router } = await renderApp({
             session: { ...baseSession, languages: ['English', 'Spanish'] },

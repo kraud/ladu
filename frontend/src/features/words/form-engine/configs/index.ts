@@ -1,16 +1,29 @@
 import type { Lang, PartOfSpeech } from '@/ts/enums';
 import { PartOfSpeech as PoS } from '@/ts/enums';
+import { ADJECTIVE_CONFIGS } from './adjectives';
+import { ADVERB_CONFIGS } from './adverbs';
 import { NOUN_CONFIGS } from './nouns';
+import { VERB_CONFIGS } from './verbs';
 import type { TranslationFormConfig } from './types';
 
 /**
- * `(PartOfSpeech, Lang) -> TranslationFormConfig`. Only Noun ships in Phase 2;
- * Verb / Adjective / Adverb are Phase 3 configs against the same registry-driven
- * pattern (`nouns.ts`), added as more branches here.
+ * `(PartOfSpeech, Lang) -> TranslationFormConfig`. All four parts of speech
+ * Phase 3 models ship. Adverb has no Estonian config at all (matching the old
+ * app's own missing route), so that combination falls through to `undefined`
+ * — `TranslationCard` already renders its "language not available" fallback.
  */
 export function getFormConfig(pos: PartOfSpeech, lang: Lang): TranslationFormConfig | undefined {
     if (pos === PoS.noun) {
         return NOUN_CONFIGS[lang];
+    }
+    if (pos === PoS.verb) {
+        return VERB_CONFIGS[lang];
+    }
+    if (pos === PoS.adjective) {
+        return ADJECTIVE_CONFIGS[lang];
+    }
+    if (pos === PoS.adverb) {
+        return ADVERB_CONFIGS[lang];
     }
     return undefined;
 }
@@ -18,10 +31,23 @@ export function getFormConfig(pos: PartOfSpeech, lang: Lang): TranslationFormCon
 export type {
     CaseName,
     CheckboxFieldConfig,
+    FieldAdornment,
     FieldConfig,
+    FieldGroup,
     FieldKind,
+    FieldPattern,
+    FieldVisibility,
+    MultiSelectFieldConfig,
     RadioFieldConfig,
     RadioOption,
+    SelectFieldConfig,
     TextFieldConfig,
     TranslationFormConfig,
 } from './types';
+
+// `matchesVisibility` is the one place the `visibleWhen`/`invert` comparison
+// lives (`configs/types.ts`); the Review table's completion-ring denominator
+// (`features/words/review/completion.ts`) needs the exact same comparison
+// `TranslationCard.tsx` uses, so it is re-exported here rather than
+// reimplemented against a second copy that could drift.
+export { matchesVisibility } from './types';

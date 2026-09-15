@@ -10,6 +10,13 @@ describe('wordErrorKey', () => {
         ['User not authorized', 'wordRelated:apiErrors.notAuthorized'],
         ['Please add part of speech', 'wordRelated:apiErrors.missingPartOfSpeech'],
         ['Please add 2 or more translations', 'wordRelated:apiErrors.notEnoughTranslations'],
+        ['Invalid cursor', 'wordRelated:apiErrors.invalidCursor'],
+        ['No word IDs provided', 'wordRelated:apiErrors.noWordIdsProvided'],
+        ['Some words are missing', 'wordRelated:apiErrors.someWordsMissing'],
+        [
+            'User not authorized to delete at least one of the words',
+            'wordRelated:apiErrors.notAuthorizedToDeleteSome',
+        ],
     ])('maps %j → %j', (message, key) => {
         expect(wordErrorKey(apiError(message))).toBe(key);
     });

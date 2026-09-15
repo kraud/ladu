@@ -25,9 +25,9 @@ afterEach(() => {
 });
 
 async function fillEnEs(user: ReturnType<typeof userEvent.setup>) {
-    await user.click(screen.getByRole('button', { name: 'Add another translation' }));
+    await user.click(screen.getByRole('button', { name: 'Add translation' }));
     await user.click(await screen.findByRole('button', { name: 'English' }));
-    await user.click(screen.getByRole('button', { name: 'Add another translation' }));
+    await user.click(screen.getByRole('button', { name: 'Add translation' }));
     await user.click(await screen.findByRole('button', { name: 'Español' }));
 
     const [singularEN, singularES] = screen.getAllByLabelText('Singular');
@@ -44,8 +44,14 @@ describe('AddWordPage', () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/addWord', session: SESSION });
 
-        expect(screen.getByRole('heading', { name: 'What kind of word is it?' })).toBeInTheDocument();
+        // D37: one heading pair before a PoS is picked.
+        expect(screen.getByRole('heading', { name: 'Add a new word' })).toBeInTheDocument();
+        expect(screen.getByText('What kind of word is it?')).toBeInTheDocument();
         await user.click(screen.getByRole('radio', { name: /Noun/ }));
+
+        // D38: the title tracks the picked type, the subtitle switches too.
+        expect(await screen.findByRole('heading', { name: 'Add a new Noun' })).toBeInTheDocument();
+        expect(screen.getByText('All the required fields must be completed before saving')).toBeInTheDocument();
 
         await fillEnEs(user);
         await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled());
@@ -70,7 +76,8 @@ describe('AddWordPage', () => {
 
         // The form reset and the PoS gate is back — still on /addWord.
         expect(router.state.location.pathname).toBe('/addWord');
-        expect(await screen.findByRole('heading', { name: 'What kind of word is it?' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Add a new word' })).toBeInTheDocument();
+        expect(screen.getByText('What kind of word is it?')).toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: 'Click here to see the new word' }));
         const createdId = fake.store.values().next().value?.id;
@@ -81,8 +88,21 @@ describe('AddWordPage', () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id }).handlers);
         await renderApp({ initialEntry: '/addWord/noun', session: SESSION });
 
-        expect(screen.queryByRole('heading', { name: 'What kind of word is it?' })).not.toBeInTheDocument();
+        expect(screen.queryByText('What kind of word is it?')).not.toBeInTheDocument();
         expect(await screen.findByRole('heading', { name: 'Add a new Noun' })).toBeInTheDocument();
+        expect(screen.getByText('All the required fields must be completed before saving')).toBeInTheDocument();
+    });
+
+    it('Change word type returns to the gate and resets the title/subtitle', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id }).handlers);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/addWord/noun', session: SESSION });
+
+        expect(await screen.findByRole('heading', { name: 'Add a new Noun' })).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Change word type' }));
+
+        expect(screen.getByRole('heading', { name: 'Add a new word' })).toBeInTheDocument();
+        expect(screen.getByText('What kind of word is it?')).toBeInTheDocument();
     });
 
     it('shows the generic error toast for an unmapped backend failure and preserves form state', async () => {

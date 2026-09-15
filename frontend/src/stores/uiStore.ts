@@ -11,6 +11,7 @@ import { create } from 'zustand';
 import type { PartOfSpeech } from '@/ts/enums';
 
 type SearchMode = 'words' | 'tags';
+type ReviewFilterPosition = 'top' | 'sidebar';
 
 interface UiState {
     /** PoS chosen on the Add Word step, remembered across the form (Phase 2). */
@@ -21,9 +22,22 @@ interface UiState {
     searchMode: SearchMode;
     setSearchMode: (mode: SearchMode) => void;
 
-    /** Review filter sidebar collapsed state (Phase 3). */
+    /** Review filter bar collapsed to its header row (top) or an icon rail (sidebar). */
     reviewSidebarCollapsed: boolean;
     setReviewSidebarCollapsed: (collapsed: boolean) => void;
+
+    /** Review filter bar's position: a bar above the table, or a collapsible left sidebar. */
+    reviewFilterPosition: ReviewFilterPosition;
+    setReviewFilterPosition: (position: ReviewFilterPosition) => void;
+
+    /**
+     * Word editor's left action sidebar (`WordEditorLayout`) collapsed to an
+     * icon rail. Shared across create/edit/view so the state doesn't reset
+     * when a user toggles Edit on `/word/:id` — session-scoped like
+     * `reviewSidebarCollapsed`, not persisted.
+     */
+    wordSidebarCollapsed: boolean;
+    setWordSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -35,4 +49,10 @@ export const useUiStore = create<UiState>()((set) => ({
 
     reviewSidebarCollapsed: false,
     setReviewSidebarCollapsed: (reviewSidebarCollapsed) => set({ reviewSidebarCollapsed }),
+
+    reviewFilterPosition: 'top',
+    setReviewFilterPosition: (reviewFilterPosition) => set({ reviewFilterPosition }),
+
+    wordSidebarCollapsed: false,
+    setWordSidebarCollapsed: (wordSidebarCollapsed) => set({ wordSidebarCollapsed }),
 }));

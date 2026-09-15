@@ -32,6 +32,13 @@ type SimplifiedWord = {
 
 > **Discrepancy to note for the rewrite**: the FE type `TableWordData` (`ReviewTableColumns.tsx:13-40`) declares `singularEN`/`singularNimetavEE`/`genderDE`/`singularNominativDE`/`genderES`/`singularES`/`registeredCases*` — but the column factory actually reads `dataDE`/`dataEE`/`dataEN`/`dataES` accessors (`ReviewTableColumns.tsx:63,79,94,109`). The type is stale; the **actual** row fields are the `dataXX`/`genderXX`/`registeredCasesXX` set above. Rebuild against the real response (`wordController.ts:155-232`), not the stale type.
 
+> **Superseded by Phase 3 Slice 5/6 (2026-09-13/14)** — this row shape is now the live frontend
+> type (`WordSimpleBE` in `frontend/src/features/words/types.ts`), no rebuild needed. Two things
+> this section predates: the request is no longer a JSON `filters` array keyed by tag `{_id}` — it
+> is flat, repeatable `?pos=&gender=&tag=` params plus `q`/`cursor`/`limit` — and the response is
+> keyset-paginated `{ items, nextCursor, total }`, not an unpaginated `{ words: SimplifiedWord[] }`.
+> See `endpoints.md`'s `getWordsSimplified` note and the phase plan's Slice 5/6 outcomes.
+
 ### 2.1 The "primary case" mapping (what `dataXX` contains)
 
 `getWordsSimplified` extracts exactly one case per language — the **required/representative** case for that PoS. From `wordController.ts:155-232`:

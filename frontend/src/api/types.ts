@@ -13,10 +13,16 @@ export interface ApiError {
     message: string;
 }
 
-/** A page of a cursor-paginated list. `nextCursor === null` means the end. */
+/**
+ * A page of a cursor-paginated list. `nextCursor === null` means the end.
+ * `total` is the count matching the filters alone (not the page) — computed
+ * server-side before the cursor predicate is applied, so it stays constant
+ * across pages of the same filter set (Phase 3 Slice 6, `getWordsSimplified`).
+ */
 export interface CursorPage<T> {
     items: T[];
     nextCursor: string | null;
+    total: number;
 }
 
 /** Every backend id is a Postgres UUID string. */

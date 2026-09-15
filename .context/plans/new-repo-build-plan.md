@@ -235,10 +235,11 @@ Performed 2026-09-05, before this plan was written:
 | 0 — Scaffold + backend copy | ✅ done — commit `c030b68`; backend 130/130 green |
 | 1 — Auth + app shell | ✅ **done & committed** 2026-09-10 — merged to `main` via PR #1 (`0cf091f`); final state backend 144/144, frontend 98/98, e2e 7/7, build green (breakdown below) |
 | 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
-| 3, 3.5, 4–8 | not started |
+| 3 — Form engine completion + autocomplete + Review | ✅ **done** 2026-09-15 — plan: [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md); 12 slices (0–11), all done; final state backend **165/165**, frontend **540/540**, e2e **10/10**, build green (breakdown below) |
+| 3.5, 4–8 | not started |
 
 - **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).
-- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form) — `npm run test:e2e` is 9/9 green.
+- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form). `phase-3-review.spec.ts` landed 2026-09-15 (1 test; creates a noun and a verb through the real engine — including a real offline autocomplete lookup — then filters/reloads/paginates/selects on `/review`); the same slice fixed `fixtures/db.ts`'s pool-per-worker sharing bug (see the Phase 3 write-up below) — `npm run test:e2e` is 10/10 green, verified both at the default parallelism and under `--workers=1` (the shape CI will eventually use).
 
 ### Phase 1 — [`phase-1-auth-app-shell.md`](./phase-1-auth-app-shell.md)
 
@@ -260,7 +261,7 @@ Deviations agreed with the user (full text in the plan's Slice 4/5 outcomes): no
 **Dashboard/metrics re-scoped out of Phase 1 (2026-09-10):** Slice 4 originally bundled the app shell with a Dashboard reading `getUserMetrics`. Since that endpoint aggregates `words` + `translations` only, it has nothing to show until Phases 2–3 exist. Slice 4 now ships the shell plus a Home page that is only the welcome banner; the full Dashboard (metrics query, stat cards, both word-derived charts) moved to the new **Phase 3.5** — see [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md). Phase 5 lost its "+ Dashboard charts" for the same reason. The `getUserMetrics` path correction (blueprint's `/api/metrics/...` → real `/api/users/getUserMetrics`) now lives in the Phase 3.5 file.
 
 **`_id` correction (2026-09-08):** the `_id` MongoDB artifact is being removed as-we-go, not in one refactor — see the standing rule in §4. Frontend done in Slice 2: `ts/interfaces.ts` (`UserData`/`NotificationData`/`FriendshipData`/`TagData`/`FilterItem` → `id`) and `authStore` (`RawUser._id` and the `raw._id` fallback dropped) plus their tests. **Slice 3 (2026-09-08) swept the entire auth/user/metrics backend surface** (Option B, agreed with the user): `serializeUser` / `serializeLoginUser` / `publicUserResponse` / `authMiddleware` (`serializeAuthenticatedUser` wrapper deleted) / `getBasicUserMetrics`'s internal arg / `metricController.calculateBasicUserMetrics`'s param type — all `id` now, no `_id` anywhere in that surface. `backend/tests/auth.test.js` plus the `registerAndLogin` call sites in `tests/{words,exercises,tags,notifications}.test.js` updated; backend 130/130 green. **Remaining `_id` aliases** live only in `wordController` / `tagController` / `notificationController` / `exerciseController` responses — stripped in their consuming phases (2/4/6). Slice 5's backend scope is now just the bcrypt-hash and `passwordTokens` leaks + the phase gate.
-- **Phase 2 Slice 1 (2026-09-10):** the word-response surface is now `id`-only — `WordResponse` / `AssembledTranslation` (`services/wordService.ts`), `simplifyWord` and the `deleteWord` `{ id }` response (`wordController.ts`). `exerciseController.fetchWordsWithData` remaps to its own internal legacy `_id` shape so the exercise-generation helpers are untouched. Tests updated: `words.test.js`, `exercises.test.js`, `snapshots.test.js`, `tags.test.js` (word-id reads), `unit/wordService.test.js`. Still carrying `_id`: `tagController` (`normalizeTag`), `notificationController`, and the `/simple` + tag-filter request-input readers — stripped in Phases 4 / 6.
+- **Phase 2 Slice 1 (2026-09-10):** the word-response surface is now `id`-only — `WordResponse` / `AssembledTranslation` (`services/wordService.ts`), `simplifyWord` and the `deleteWord` `{ id }` response (`wordController.ts`). `exerciseController.fetchWordsWithData` remaps to its own internal legacy `_id` shape so the exercise-generation helpers are untouched. Tests updated: `words.test.js`, `exercises.test.js`, `snapshots.test.js`, `tags.test.js` (word-id reads), `unit/wordService.test.js`. Still carrying `_id`: `tagController` (`normalizeTag`) and `notificationController` — stripped in Phases 4 / 6. The `/simple` + tag-filter request-input readers were stripped ahead of schedule by Phase 3 Slice 5 (2026-09-13): `getWordsSimplified` now takes a flat, repeatable `?tag=<uuid>` param instead of a JSON `filters` array keyed by `_id`.
 
 ### Phase 2 — [`phase-2-noun-crud.md`](./phase-2-noun-crud.md)
 
@@ -277,6 +278,58 @@ Deviations agreed with the user (full text in the plan's Slice 4/5 outcomes): no
 | 6 — phase gate: `phase-2-noun-crud.spec.ts` + docs + full green run | ✅ done 2026-09-12 — real-stack e2e spec (2 tests); found and fixed a real bug along the way (below); final gate backend **145/145**, frontend **188/188**, e2e **9/9**, build green; `grep -r "_id" frontend/src/features/words` = 0 |
 
 **Bug found by the Slice 6 e2e gate:** `WordPage`'s not-found/403 handling and its **Return** button called `router.history.back()` unconditionally. For a *direct* landing on `/word/:id` (a bookmarked or shared link, or — as the e2e non-owner test does — a hard `page.goto`) there is no client-side history to pop into: the browser either no-ops or unloads the current document for whatever came before the tab's session, taking the just-shown toast down with it before it's ever seen. Fixed with `useCanGoBack()`: when there's nothing to go back to, fall back to a client-side `navigate({ to: '/' })`, which stays inside the SPA and keeps the toast visible. Same-session "Return" clicks are unaffected. See `WordPage.tsx`'s `goBack()` and the Phase 2 plan's Slice 6 outcome for the full e2e trace that surfaced this.
+
+### Phase 3 — [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md)
+
+✅ **Done and gated 2026-09-15.** Twelve slices (0–11), the largest phase so far; the user commits
+and re-confirms between each. Decisions D1–D7 taken 2026-09-12 (tags deferred to Phase 4; the
+in-cell translation editor ships last so it can be cut; no header global search; language order
+lives in the URL; verb/adjective/adverb labels composed from pronoun/tense tables, not enumerated
+per case). D8–D24 taken 2026-09-14 across Slices 6–8 (the list endpoint gains a `total`; the table
+is styled with ported mockup CSS; no sorting yet; the completion ring reads as a case count; the
+language control reorders *and* hides with a min-2 floor and no drag-and-drop; search stays
+server-side; the cell dialog is own-words-only this phase; a tag-wipe bug found and fixed in
+`updateWord`). D25–D43 taken/found 2026-09-14/15 across Slices 8–10 and four rounds of user-review
+fixes (paired-row and tense-column form layouts; a wide shell + wide cell dialog for verbs;
+collapsible translation cards; the Review cell dialog opens read-only with an explicit Edit; the
+"Display progress" switch defaults off). D44 taken 2026-09-15 closing Slice 11's own gate wording
+(see below).
+
+| Slice | Status |
+|---|---|
+| 0 — persist the plan | ✅ done |
+| 1 — form engine v2 (7 `FieldConfig` additions: select/multi-select/group/visibleWhen/pattern/adornment/persisted) | ✅ done 2026-09-12 — frontend **188 → 220**, build green |
+| 2 — verb configs (4 languages, pronoun + tense tables) | ✅ done 2026-09-13 — frontend **220 → 237** |
+| 3 — adjective and adverb configs (7 configs; `visibleWhen.invert` added) | ✅ done 2026-09-13 — frontend **237 → 259** |
+| 4 — autocomplete (8-endpoint registry, per-instance debounce, Estonian 502-on-failure backend fix) | ✅ done 2026-09-13 — frontend **259 → 296**; backend **145 → 148** |
+| 5 — backend: list contract (`?cursor=&limit=`, flat `pos`/`gender`/`q`, `{ items, nextCursor }`) | ✅ done 2026-09-13 — backend **148 → 161** (new `words-simple.test.js`, 13 tests) |
+| 6 — Review table core (`WordSimpleBE`, `useWordsInfinite`/`useBulkDeleteWords`, `ReviewTable` on TanStack Table, completion ring, both empty states) | ✅ done 2026-09-14 — added `total` to `/simple` (D8, backend **161 → 163**); frontend **296 → 378**, build green; route `/review` now real |
+| 7 — filters, toolbar, bulk bar (`FilterBar`, `LanguageOrderControl`, `TableToolbar`, `BulkActionBar`) | ✅ done 2026-09-14 — frontend **378 → 450** |
+| 8 — cell dialog (`CellDialog`; backend tag-wipe bug fix) | ✅ done 2026-09-14 — backend **163 → 165**; frontend **450 → 469** |
+| 9 — form layout: paired rows (nouns, Spanish adjectives) | ✅ done 2026-09-15 — frontend **469 → 491** |
+| 10 — form layout: verb tense columns + wide shell/dialog | ✅ done 2026-09-15 — frontend **491 → 499**; six further rounds of user-review layout/UX fixes landed in this window, frontend **499 → 535** |
+| 11 — phase gate: `phase-3-review.spec.ts` + docs + full green run | ✅ done 2026-09-15 — real-stack e2e spec (1 test); found and fixed a real e2e-infra bug along the way (below); final gate backend **165/165**, frontend **540/540**, e2e **10/10**, build green; `grep -rn "setTimerTriggerFunction" frontend/src` = 1 expected non-hit (a docstring) |
+
+Full per-slice detail (deviations, exact files, test breakdowns) lives in the phase plan file
+linked above, appended as each slice lands — a few findings worth knowing without opening the full
+record: `ReviewTable` had to become fully router/store-free (navigation as callback props, not
+`<Link>`) once a test proved `renderWithProviders` has no router context; the backend's
+any-401-clears-the-session interceptor is a latent hazard the bulk-delete UI closes by construction
+(`enableRowSelection` excludes non-owned rows) rather than by patching the interceptor itself; and
+`updateWord` was silently wiping a word's tags on every edit-dialog save (`req.body.tags || []`
+treating "field omitted" the same as "clear the tags") until Slice 8 guarded it the same way
+`translations` already was.
+
+**Bug found by the Slice 11 e2e gate:** `e2e/fixtures/db.ts`'s pg `Pool` is a per-worker-process
+singleton — every `*.spec.ts` file's `afterAll` calls `closePool()`, which is only safe if each
+file gets its own Playwright worker process. That held by luck locally (more CPU cores than spec
+files), but `playwright.config.ts` sets `workers: CI ? 1 : undefined` — the very first CI run
+(Phase 8) would have put every spec file in one shared process, and whichever file's `afterAll` ran
+first would kill the pool for every file still queued behind it. Reproduced locally with
+`--workers=1` once a third spec file (this phase's) existed to collide with it. Fixed with a lazy,
+re-openable `getPool()` instead of a plain module-scope `pool` — `closePool()` is now a no-op once
+already closed, and a later call from another file in the same worker transparently reopens a fresh
+pool. Verified both under `--workers=1` and the default parallel run.
 
 ### Phase 3.5 — [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md)
 

@@ -8,5 +8,91 @@
     "hiddenLanguages": "Hidden",
     "public": "Public",
     "description": "Description"
+  },
+  "filters": {
+    "title": "Filters",
+    "show": "Show filters",
+    "collapse": "Collapse filters",
+    "noneActive": "No filters applied",
+    "activeCount_one": "{{count}} filter active",
+    "activeCount_other": "{{count}} filters active",
+    "gender": "Gender",
+    "clear": "Clear",
+    "partOfSpeech": "Part of speech",
+    "languageOrder": "Language order",
+    "languageOrderHint": "Use the arrows to reorder · min 2 shown",
+    "moveEarlier": "Move {{language}} earlier",
+    "moveLater": "Move {{language}} later",
+    "hideLanguage": "Hide {{language}}",
+    "showLanguage": "Show {{language}}",
+    "moveToSidebar": "Move filters to sidebar",
+    "moveToTop": "Move filters to top"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Search words…",
+    "searchLabel": "Filter table",
+    "displayGender": "Display gender",
+    "displayProgress": "Display progress",
+    "rowCount": "{{count}} of {{total}} words"
+  },
+  "bulk": {
+    "selected": "selected",
+    "view": "View",
+    "delete": "Delete",
+    "confirmTitle_one": "Delete {{count}} word?",
+    "confirmTitle_other": "Delete {{count}} words?",
+    "confirmDescription": "This permanently removes {{count}} word(s) for everyone they're shared with.",
+    "deletedToast_one": "{{count}} word deleted",
+    "deletedToast_other": "{{count}} words deleted"
+  },
+  "table": {
+    "posAbbr": {
+      "noun": "n.",
+      "verb": "v.",
+      "adjective": "adj.",
+      "adverb": "adv.",
+      "preposition": "prep.",
+      "conjunction": "conj.",
+      "pronoun": "pron.",
+      "interjection": "interj.",
+      "properNoun": "prop.",
+      "numerals": "num."
+    },
+    "selectAll": "Select all rows",
+    "selectRow": "Select this word",
+    "ownerMe": "You",
+    "ownerGroup": "From a followed tag",
+    "ringDetail": "{{value}} of {{total}} cases",
+    "addTranslation": "Add {{language}} translation",
+    "blockedTranslation": "Not translated — read-only word from a followed tag",
+    "loaded": "Showing {{loaded}} of {{total}}",
+    "allLoaded": "All {{total}} loaded",
+    "loadMore": "Load more"
+  },
+  "cellDialog": {
+    "title": "{{word}} — {{language}}",
+    "deleteTranslation": "Delete translation",
+    "confirmDeleteTitle": "Delete the {{language}} translation?",
+    "confirmDeleteDescription": "This permanently removes this translation's cases and your practice history for it.",
+    "savedToast": "{{language}} translation updated",
+    "removedToast": "{{language}} translation removed",
+    "maxTranslations": "This word already has the maximum of 4 translations."
+  },
+  "empty": {
+    "noWords": {
+      "title": "No words yet",
+      "description": "Add your first word to start building your dictionary.",
+      "action": "Add a word"
+    },
+    "noMatches": {
+      "title": "No words match your filters",
+      "description": "Try a different search or clear your filters.",
+      "action": "Clear filters"
+    },
+    "noLanguages": {
+      "title": "Add a second language to use Review",
+      "description": "Review needs at least two configured languages.",
+      "action": "Go to Account"
+    }
   }
 }

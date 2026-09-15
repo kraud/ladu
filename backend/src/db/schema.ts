@@ -70,16 +70,22 @@ export const users = pgTable('users', {
 // Mapped from: backend/models/wordModel.js
 // Translations & cases are extracted into their own tables (normalized).
 // ---------------------------------------------------------------------------
-export const words = pgTable('words', {
-    id:                uuid('id').primaryKey().defaultRandom(),
-    userId:            uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    partOfSpeech:      varchar('part_of_speech', { length: 100 }).notNull(),
-    clue:              text('clue'),
-    isCloned:          boolean('is_cloned').notNull().default(false),
-    // If this word was cloned from another user's word, store the original creator
-    originalCreatorId: uuid('original_creator_id').references(() => users.id, { onDelete: 'set null' }),
-    ...timestamps,
-});
+export const words = pgTable(
+    'words',
+    {
+        id:                uuid('id').primaryKey().defaultRandom(),
+        userId:            uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        partOfSpeech:      varchar('part_of_speech', { length: 100 }).notNull(),
+        clue:              text('clue'),
+        isCloned:          boolean('is_cloned').notNull().default(false),
+        // If this word was cloned from another user's word, store the original creator
+        originalCreatorId: uuid('original_creator_id').references(() => users.id, { onDelete: 'set null' }),
+        ...timestamps,
+    },
+    // Backs the keyset-pagination ORDER BY (created_at DESC, id DESC) used by
+    // getWordsSimplified (Phase 3 Slice 5).
+    (table) => [index('words_created_at_id_idx').on(table.createdAt, table.id)],
+);
 
 // ---------------------------------------------------------------------------
 // TRANSLATIONS

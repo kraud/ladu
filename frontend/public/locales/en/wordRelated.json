@@ -9,7 +9,11 @@
     "wordNotFound": "This word could not be found.",
     "notAuthorized": "You don't have access to this word.",
     "missingPartOfSpeech": "Please choose a part of speech.",
-    "notEnoughTranslations": "Add at least two translations before saving."
+    "notEnoughTranslations": "Add at least two translations before saving.",
+    "invalidCursor": "That page link has expired — reload the list.",
+    "noWordIdsProvided": "Select at least one word to delete.",
+    "someWordsMissing": "Some of the selected words could not be found.",
+    "notAuthorizedToDeleteSome": "You can only delete words you own."
   },
   "displayWord": {
     "titlePos": "Detailed view: {{currentPoS}}",
@@ -87,14 +91,19 @@
   },
   "translationFormGeneric": {
     "selectLanguage": "Pick a language for the new word",
-    "switchLanguage": "Switch language:"
+    "switchLanguage": "Switch language:",
+    "collapse": "Collapse translation",
+    "expand": "Expand translation",
+    "caseCount": "{{value}} of {{total}} cases",
+    "emptyCard": "Nothing entered yet"
   },
   "wordFormSelector": {
     "languageNotAvailable": "That language is not available yet",
     "partOfSpeechNotAvailable": "That part of speech is not available yet"
   },
   "formComponentLabel": {
-    "clue": "Clue"
+    "clue": "Clue",
+    "tags": "Tags"
   },
   "wordForm": {
     "hints": {
@@ -102,6 +111,24 @@
     },
     "errors": {
       "noNumbers": "Must not include numbers"
+    },
+    "buttons": {
+      "changeWordType": "Change word type"
+    },
+    "emptyState": {
+      "title": "No translations yet",
+      "description": "Add a translation from the side menu."
+    },
+    "sidebar": {
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "tagsComingSoon": "Coming soon"
+    },
+    "confirmChangeType": {
+      "title": "Change word type?",
+      "description": "The translations you have entered will be discarded."
     },
     "noun": {
       "errors": {
@@ -170,10 +197,33 @@
           "positiveDegreeRequired": "Positive degree is required"
         },
         "formEE": {
-          "algvorreFormRequired": "Masculine singular degree is required",
-          "keskvorreFormRequired": "Female singular degree is required",
-          "ulivorreFormRequired": "Neutral singular degree is required"
+          "algvorreFormRequired": "Positive degree is required",
+          "keskvorreFormRequired": "Comparative degree is required",
+          "ulivorreFormRequired": "Superlative degree is required"
         }
+      },
+      "fields": {
+        "positiveEN": "Positive",
+        "comparativeEN": "Comparative",
+        "superlativeEN": "Superlative",
+        "positiveDE": "Positive",
+        "komparativDE": "Comparative",
+        "superlativDE": "Superlative",
+        "gender": "Gender",
+        "neutralSingularES": "Neutral singular",
+        "neutralPluralES": "Neutral plural",
+        "maleSingularES": "Male singular",
+        "malePluralES": "Male plural",
+        "femaleSingularES": "Female singular",
+        "femalePluralES": "Female plural",
+        "algvorreEE": "Positive degree",
+        "keskvorreEE": "Comparative degree",
+        "ulivorreEE": "Superlative degree",
+        "pluralNimetavEE": "Plural nominative",
+        "singularOmastavEE": "Singular genitive",
+        "pluralOmastavEE": "Plural genitive",
+        "singularOsastavEE": "Singular partitive",
+        "pluralOsastavEE": "Plural partitive"
       }
     },
     "adverb": {
@@ -188,6 +238,18 @@
           "adverbRequired": "Adverb is required",
           "gradableRequired": "'Gradable' selection is required"
         }
+      },
+      "fields": {
+        "adverbEN": "Adverb",
+        "comparativeEN": "Comparative",
+        "superlativeEN": "Superlative",
+        "adverbES": "Adverb",
+        "comparativeES": "Comparative",
+        "superlativeES": "Superlative",
+        "gradableDE": "Gradable",
+        "adverbDE": "Adverb",
+        "comparativeDE": "Comparative",
+        "superlativeDE": "Superlative"
       }
     },
     "verb": {
@@ -200,11 +262,13 @@
           "infinitiveNonFiniteRequired": "Infinitive non-finite is required",
           "gerundNonFiniteRequired": "Gerund non-finite is required",
           "participleNonFiniteRequired": "Participle non-finite is required",
+          "infinitiveNotMatching": "Please input infinitive form (ends in '-ar', '-er' or '-ir').",
           "regularityRequired": "That is not an option"
         },
         "formDE": {
           "infinitiveNonFiniteRequired": "Infinitive non-finite is required",
-          "infinitiveNotMatching": "Please input infinitive form (ends in '-en', '-ern' '-eln')."
+          "infinitiveNotMatching": "Please input infinitive form (ends in '-en', '-ern' '-eln').",
+          "regularityRequired": "That is not an option"
         },
         "formEE": {
           "infinitiveMaRequired": "-ma infinitive is required",
@@ -213,13 +277,31 @@
           "searchInEnglishLabel": "Search verb in english",
           "searchInEnglishWarning": "Careful, this won't work for all verbs! If needed, try in Estonian."
         }
+      },
+      "fields": {
+        "regularityEN": "Regularity",
+        "regularityES": "Regularity",
+        "regularityDE": "Regularity",
+        "regularityEE": "Regularity",
+        "infinitiveNonFiniteSimpleES": "Infinitive non-finite simple",
+        "gerundNonFiniteSimpleES": "Gerund non-finite simple",
+        "participleNonFiniteSimpleES": "Participle non-finite simple",
+        "infinitiveDE": "Infinitive",
+        "auxVerbDE": "Auxiliary verb",
+        "prefixDE": "Prefix",
+        "caseTypeDE": "Verb case",
+        "infinitiveMaEE": "-ma infinitive",
+        "infinitiveDaEE": "-da infinitive"
       }
     },
     "autocompleteTranslationButton": {
       "label": "Autocomplete {{wordType}}",
       "emptyQuery": "Please input '{{requiredField}}' first.",
       "noMatch": "Sorry, we don't know this word!",
-      "foundMatch": "There is information about this word stored in our system."
+      "foundMatch": "There is information about this word stored in our system.",
+      "partialMatch": "We're not fully sure, but here's our best guess.",
+      "loading": "Looking up...",
+      "fillButton": "Fill in"
     }
   }
 }

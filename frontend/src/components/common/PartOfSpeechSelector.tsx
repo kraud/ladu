@@ -17,8 +17,13 @@ const ALL_POS = [
     PartOfSpeech.numerals,
 ];
 
-/** The only part of speech the form engine ships against in Phase 2 — the rest render disabled. */
-const SHIPPED_POS: readonly PartOfSpeech[] = [PartOfSpeech.noun];
+/** Parts of speech the form engine ships against — the remaining six render disabled. */
+const SHIPPED_POS: readonly PartOfSpeech[] = [
+    PartOfSpeech.noun,
+    PartOfSpeech.verb,
+    PartOfSpeech.adjective,
+    PartOfSpeech.adverb,
+];
 
 const POS_DESCRIPTION_KEY: Record<PartOfSpeech, string> = {
     [PartOfSpeech.noun]: 'wordRelated:partOfSpeechSelector.description.noun.info',
@@ -35,10 +40,12 @@ const POS_DESCRIPTION_KEY: Record<PartOfSpeech, string> = {
 
 /**
  * The `WordForm` create-mode gate: pick a part of speech before any
- * translation card renders. Noun is the only selectable option in Phase 2 —
- * the other nine render as disabled radio cards captioned with
- * `missingImplementationPoS`, so the full inventory stays visible (Phase 3
- * adds Verb/Adjective/Adverb by simply widening `SHIPPED_POS`).
+ * translation card renders. Noun, Verb, Adjective and Adverb are
+ * selectable — the remaining six render as disabled radio cards captioned
+ * with `missingImplementationPoS`, so the full inventory stays visible.
+ *
+ * Renders no heading of its own (D37) — `AddWordPage` owns the single
+ * title/subtitle pair shown while this gate is up.
  */
 export function PartOfSpeechSelector({
     value,
@@ -51,10 +58,6 @@ export function PartOfSpeechSelector({
 
     return (
         <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-                <h2 className="h2">{t('wordRelated:partOfSpeechSelector.title')}</h2>
-                <p className="meta">{t('wordRelated:partOfSpeechSelector.subtitle')}</p>
-            </div>
             <RadioGroup
                 value={value ?? ''}
                 onValueChange={(next) => onChange(next as PartOfSpeech)}
