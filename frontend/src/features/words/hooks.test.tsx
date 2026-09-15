@@ -17,6 +17,7 @@ import {
     useWordsInfinite,
 } from './hooks';
 import { wordKeys } from './keys';
+import { metricsKeys } from '@/features/metrics/keys';
 import type { CreateWordBody } from './types';
 
 const ME = 'user-me';
@@ -105,7 +106,7 @@ describe('useCreateWord', () => {
             },
         });
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: wordKeys.all });
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['metrics'] });
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: metricsKeys.all });
     });
 
     it('surfaces the < 2 translations error from the backend', async () => {
@@ -142,7 +143,7 @@ describe('useUpdateWord', () => {
         expect(cached).toEqual(result.current.data);
         expect(result.current.data?.translations[0].cases[0].word).toBe('home');
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: wordKeys.all });
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['metrics'] });
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: metricsKeys.all });
     });
 });
 
@@ -158,7 +159,7 @@ describe('useDeleteWord', () => {
         expect(result.current.data).toEqual({ id: 'word-seed' });
         expect(queryClient.getQueryData(wordKeys.detail('word-seed'))).toBeUndefined();
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: wordKeys.all });
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['metrics'] });
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: metricsKeys.all });
     });
 });
 
@@ -261,7 +262,7 @@ describe('useBulkDeleteWords', () => {
         expect(queryClient.getQueryData(wordKeys.detail('word-a'))).toBeUndefined();
         expect(queryClient.getQueryData(wordKeys.detail('word-b'))).toBeUndefined();
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: wordKeys.all });
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['metrics'] });
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: metricsKeys.all });
     });
 
     it('surfaces "No word IDs provided" for an empty selection', async () => {

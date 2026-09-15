@@ -193,7 +193,7 @@ Each ends runnable; the user commits and re-confirms between them.
 |---|---|
 | 0 — persist the plan | ✅ done |
 | 1 — backend: `tests/metrics.test.js` | ✅ done 2026-09-16 — 10 tests, all green (backend 165 → 175); no production code change |
-| 2 — `features/metrics` data layer + selectors + MSW handlers + close `METRICS_KEY` contract | not started |
+| 2 — `features/metrics` data layer + selectors + MSW handlers + close `METRICS_KEY` contract | ✅ done 2026-09-16 — frontend 540 → 564; build green |
 | 3 — Dashboard CSS port + `StatCard`/`UserInfoPanel` + skeletons | not started |
 | 4 — `chartColors.ts` + `PieChart` + distribution toggle | not started |
 | 5 — `BarChart` + both toggles + `SegmentedToggle.allowDeselect`; drop c3/d3 | not started |
