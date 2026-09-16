@@ -163,10 +163,10 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 Split out of Phase 1 (2026-09-10): the metrics endpoint aggregates `words` + `translations` only (`backend/controllers/metricController.ts`), so the Dashboard has nothing to show until Phases 2–3 can create words. This is the first phase to exercise the **read** path against the real backend.
 
 - Backend: `GET /api/users/getUserMetrics` already exists and is already `id`-only — but has **no Jest coverage at all**. Add it here: the six fields (`totalWords`, `wordsPerPOS`, `translationsPerLanguage`, `translationsPerLanguageAndPOS`, `wordsPerMonth`, `incompleteWordsCount`), fresh-account zeros, per-user isolation.
-- Frontend: `features/metrics/{api,keys,hooks}.ts` (`getUserMetrics`, `staleTime: 5 * 60_000`); `UserInfoPanel` stat cards; `MetricsPanel` with the pie (words per PoS) and bar (translations per language / per month) plus their words↔translations metric toggles; `chartColors`; charts **code-split behind the route**; the `dashboard.json` `charts.*` keys wired; skeleton loading; zero-words empty state with the "Add your first words" CTA → `/addWord`; chart worst-category click → `/addWord/<pos>`.
+- Frontend: `features/metrics/{api,keys,hooks}.ts` (`getUserMetrics`, `staleTime: 5 * 60_000`); `UserInfoPanel` stat cards; `MetricsPanel` with the pie (words per PoS) and bar (translations per language / per month) plus their words↔translations metric toggles; `chartColors`; the `dashboard.json` `charts.*` keys wired; skeleton loading; zero-words empty state with the "Add your first words" CTA → `/addWord`; chart worst-category click → `/addWord/<pos>`. **Shipped differently than sketched here**: the charts are hand-rolled inline SVG, not a chart library, so there is nothing to code-split — `c3`/`d3` were installed but imported nowhere and were dropped from `package.json` instead (phase file D2/D11).
 - Invalidation: word CRUD ⇒ `['metrics']` — the edge is declared in Phase 2 but has no consumer until now.
-- **Gate**: a seeded account renders totals matching the DB; a fresh account renders the empty state; the charts land in a separate chunk; backend metrics tests green.
-- **e2e** (`phase-3-5-dashboard.spec.ts`): log in on an account holding words across ≥2 PoS and ≥2 languages → Dashboard totals and both charts match the data; a fresh account shows the empty state.
+- **Gate**: a seeded account renders totals matching the DB; a fresh account renders the empty state; backend metrics tests green.
+- **e2e** (`phase-3-5-dashboard.spec.ts`): log in on an account holding words across ≥2 PoS and ≥2 languages → Dashboard totals and both charts match the data, every chart control works, and a word added through the real form refreshes the totals; a fresh account shows the empty state.
 
 ### Phase 4 — Tags
 - Tag CRUD, follow/unfollow as **two distinct mutations** (the overloaded-slot hook dies), `TagInfoModal` without op-booleans, `AutocompleteMultiple` (tag picker), bulk-add-tags-to-words with declared invalidation edges (`['tags', id, 'wordCount']` + `['words']`), `filterTags` kept per §3.
@@ -236,10 +236,11 @@ Performed 2026-09-05, before this plan was written:
 | 1 — Auth + app shell | ✅ **done & committed** 2026-09-10 — merged to `main` via PR #1 (`0cf091f`); final state backend 144/144, frontend 98/98, e2e 7/7, build green (breakdown below) |
 | 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
 | 3 — Form engine completion + autocomplete + Review | ✅ **done** 2026-09-15 — plan: [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md); 12 slices (0–11), all done; final state backend **165/165**, frontend **540/540**, e2e **10/10**, build green (breakdown below) |
-| 3.5, 4–8 | not started |
+| 3.5 — Dashboard + user metrics | ✅ **done** 2026-09-16 — plan: [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md); 8 slices (0–7), all done; final state backend **175/175**, frontend **611/611**, e2e **12/12**, build green (breakdown below) |
+| 4–8 | not started |
 
 - **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).
-- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form). `phase-3-review.spec.ts` landed 2026-09-15 (1 test; creates a noun and a verb through the real engine — including a real offline autocomplete lookup — then filters/reloads/paginates/selects on `/review`); the same slice fixed `fixtures/db.ts`'s pool-per-worker sharing bug (see the Phase 3 write-up below) — `npm run test:e2e` is 10/10 green, verified both at the default parallelism and under `--workers=1` (the shape CI will eventually use).
+- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form). `phase-3-review.spec.ts` landed 2026-09-15 (1 test; creates a noun and a verb through the real engine — including a real offline autocomplete lookup — then filters/reloads/paginates/selects on `/review`); the same slice fixed `fixtures/db.ts`'s pool-per-worker sharing bug (see the Phase 3 write-up below). `phase-3-5-dashboard.spec.ts` landed 2026-09-16 (2 tests; a seeded account drives every stat card, both charts, all three chart toggles and the worst-category link, adds a word through the real form and confirms the `['metrics']` invalidation edge, plus a second fresh account for the empty state) — `npm run test:e2e` is 12/12 green, verified both at the default parallelism and under `--workers=1` (the shape CI will eventually use).
 
 ### Phase 1 — [`phase-1-auth-app-shell.md`](./phase-1-auth-app-shell.md)
 
@@ -333,4 +334,26 @@ pool. Verified both under `--workers=1` and the default parallel run.
 
 ### Phase 3.5 — [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md)
 
-Not started. Created 2026-09-10 by splitting the Dashboard/metrics work out of Phase 1 Slice 4 (rationale above). Depends on Phase 3 — needs words of every PoS in the DB before the numbers and charts mean anything. Stub plan records the backend surface, the i18n split, and the open questions to resolve when it starts.
+✅ **Done 2026-09-16.** Created 2026-09-10 by splitting the Dashboard/metrics work out of Phase 1
+Slice 4. Eight slices (0–7); decisions D1–D12 taken with the user 2026-09-16 (bar chart's
+month/language × grouped/separate control set; hand-rolled inline SVG charts instead of a chart
+library, dropping `c3`/`d3`; toggle state is local component state; the mockup's copy is ignored in
+favour of the existing i18n keys; a language-less account shows `—` rather than a lying `0%`).
+
+| Slice | Status |
+|---|---|
+| 0 — persist the plan | ✅ done |
+| 1 — backend: `tests/metrics.test.js` | ✅ done 2026-09-16 — 10 tests; backend **165 → 175** |
+| 2 — `features/metrics` data layer + selectors + MSW handlers + close `METRICS_KEY` contract | ✅ done 2026-09-16 — frontend **540 → 564** |
+| 3 — Dashboard CSS port + `StatCard`/`UserInfoPanel` + skeletons | ✅ done 2026-09-16 — frontend **564 → 573** |
+| 4 — `chartColors.ts` + `PieChart` + distribution toggle | ✅ done 2026-09-16 — frontend **573 → 582** |
+| 5 — `BarChart` + both toggles + `SegmentedToggle.allowDeselect`; drop c3/d3 | ✅ done 2026-09-16 — frontend **582 → 593** |
+| 6 — `MetricsPanel` composition, empty/error states, i18n | ✅ done 2026-09-16 — frontend **593 → 598**; manually verified against the real backend via Playwright MCP |
+| 7 — phase gate: `phase-3-5-dashboard.spec.ts` + docs + full green run | ✅ done 2026-09-16 — real-stack e2e spec (2 tests); found and fixed a real bug along the way (below); final gate backend **175/175**, frontend **611/611** (two post-Slice-6 UI commits had already moved it past 598), e2e **12/12**, build green; `grep -rn "c3\|from 'd3'" frontend/src frontend/package.json` = 0 |
+
+**Bug found by the Slice 7 e2e gate:** the bar chart's month-range `Select` trigger showed the raw
+option *value* ("6", "all") instead of its label ("Last 6 months", "All time"). Base UI's
+`<Select.Value>` renders the selected value verbatim unless given a children function to map it to
+a label, and `MetricsPanel.tsx`'s `<SelectValue />` had none — no test exercised the trigger's
+rendered text closely enough to catch it before the e2e spec drove it directly. Fixed by passing
+that mapper.

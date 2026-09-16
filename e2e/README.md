@@ -12,7 +12,8 @@ this is a required gate in `.context/plans/new-repo-build-plan.md` §5, not
 optional polish. MSW/Vitest tests prove units and flows in isolation; this suite
 proves the real backend + real Postgres + real browser actually work together.
 
-One spec file per phase: `tests/phase-1-auth.spec.ts`, `tests/phase-2-noun-crud.spec.ts`, …
+One spec file per phase: `tests/phase-1-auth.spec.ts`, `tests/phase-2-noun-crud.spec.ts`,
+`tests/phase-3-review.spec.ts`, `tests/phase-3-5-dashboard.spec.ts`, …
 `tests/smoke.spec.ts` is the Phase 0 harness check.
 
 ## Prerequisites

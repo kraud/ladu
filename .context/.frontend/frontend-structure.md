@@ -96,10 +96,30 @@ frontend/src/
 │   │   ├── components/          # LoginForm, RegisterForm, ResetPasswordForm, VerifyEmailStatus
 │   │   └── pages/               # LoginPage, RegisterPage, VerifyEmailPage, ResetPasswordPage
 │   │
-│   ├── metrics/
-│   │   ├── api.ts hooks.ts      # getUserMetrics → useUserMetrics (staleTime ~5min)
-│   │   ├── components/          # UserInfoPanel (stat cards), MetricsPanel, charts/{PieChart,BarChart,chartColors}
-│   │   └── pages/DashboardPage.tsx   # welcome banner (cycling greeting) + info + metrics panels
+│   ├── metrics/                 # Phase 3.5 — all new
+│   │   ├── api.ts               # getUserMetrics() → GET /api/users/getUserMetrics
+│   │   ├── keys.ts              # metricsKeys.all = ['metrics'] — closes the `METRICS_KEY` contract
+│   │   │                        #   `features/words/hooks.ts` held open since Phase 2
+│   │   ├── hooks.ts             # useUserMetrics() → useQuery, staleTime 5 * 60_000 (first per-query override)
+│   │   ├── types.ts             # BasicUserMetricsBE + the five row shapes (mind `label` vs `language` on
+│   │   │                        #   translationsPerLanguageAndPOS)
+│   │   ├── selectors.ts         # pure, fully unit-tested: totalTranslations, wordsAddedThisMonth,
+│   │   │                        #   translationsPerWord, incompletePercent, pieSeries, worstSegment,
+│   │   │                        #   barSeriesByMonth/byLanguage (12-month window + zero-fill), availableBarMonthRanges
+│   │   ├── components/
+│   │   │   ├── WelcomeBanner.tsx    # rotating EN/ES/DE/EE greeting alongside the `<h1>` welcome heading
+│   │   │   ├── StatCard.tsx         # one stat tile: number + label + either a sub-line or a `.meter` (both,
+│   │   │   │                        #   for the incomplete-words card — count on top, meter, share below)
+│   │   │   ├── UserInfoPanel.tsx    # the 3 StatCards; incomplete-card reads `authStore.user.languages`
+│   │   │   │                        #   (not the metrics payload) to tell "0% incomplete" from "can't compute" (D10)
+│   │   │   ├── MetricsPanel.tsx     # both chart blocks + all 3 toggles (local state, D4) + the month-range
+│   │   │   │                        #   `Select`; loading/error/empty gates; both worst-segment `useNavigate()`
+│   │   │   │                        #   cases (D7)
+│   │   │   └── charts/
+│   │   │       ├── chartColors.ts   # PoS → token, Lang → token
+│   │   │       ├── PieChart.tsx     # donut + legend; only the worst-segment legend row is interactive
+│   │   │       └── BarChart.tsx     # grouped/stacked bars; per-bar value in a Base UI tooltip, not a native `<title>`
+│   │   └── pages/DashboardPage.tsx   # WelcomeBanner + UserInfoPanel + MetricsPanel
 │   │
 │   ├── words/
 │   │   ├── api.ts               # getWords (cursor), getWordById, createWord, updateWord, deleteWord, deleteMany,
@@ -224,7 +244,7 @@ frontend/src/
 |------------------|-----------|-------------------|----------------|
 | Shell (00) | `routes/protected-layout.tsx` | `components/layout` | AppShell, AppHeader, GlobalSearch, LanguageSelector, UserMenu, VerifyEmailBanner |
 | Login / Register / Verify / Reset / 404 (01) | `routes/{login,register,verify,reset-password,not-found}.tsx` | `features/auth` | LoginForm, RegisterForm, VerifyEmailStatus, ResetPasswordForm |
-| Dashboard (02) | `routes/dashboard.tsx` | `features/metrics` | DashboardPage, UserInfoPanel, MetricsPanel, PieChart, BarChart |
+| Dashboard (02) | `routes/dashboard.tsx` | `features/metrics` | DashboardPage, WelcomeBanner, UserInfoPanel, StatCard, MetricsPanel, PieChart, BarChart, chartColors |
 | Word editor (03) | `routes/{add-word,word}.tsx` | `features/words/form-engine` | WordForm, TranslationCard, FieldRenderer, PartOfSpeechSelector, TagPicker (Phase 4), AutocompleteRow |
 | Review table (04) | `routes/review.tsx` | `features/words/review` (+ `autocomplete` via CellDialog) | ReviewTable, columns, WordCell, FilterBar, LanguageOrderControl, TableToolbar, BulkActionBar, CellDialog, CompletionRing |
 | Practice (05) | `routes/practice.tsx` | `features/exercises` | ParameterMenu, ExerciseCard, Text/MC cards, PerformanceControls, EndScreen, ResultRow |

@@ -10,9 +10,9 @@ describe('StatCard', () => {
         expect(screen.getByText('+3 this month')).toBeInTheDocument();
     });
 
-    it('renders a meter instead of the sub-line when meterPercent is given', () => {
-        render(<StatCard value="25%" label="Incomplete words" sub="ignored" meterPercent={25} />);
-        expect(screen.queryByText('ignored')).not.toBeInTheDocument();
+    it('renders both a meter and a sub-line when meterPercent and sub are given', () => {
+        render(<StatCard value="3" label="Incomplete words" sub="25% incomplete" meterPercent={25} />);
+        expect(screen.getByText('25% incomplete')).toBeInTheDocument();
         const meter = screen.getByRole('progressbar', { name: 'Incomplete words' });
         expect(meter).toHaveAttribute('aria-valuenow', '25');
         expect((meter.firstElementChild as HTMLElement).style.width).toBe('25%');

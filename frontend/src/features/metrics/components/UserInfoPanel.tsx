@@ -44,11 +44,13 @@ export function UserInfoPanel() {
             />
             <StatCard
                 warn
-                value={hasLanguages ? `${percent}%` : '—'}
+                value={hasLanguages ? String(metrics.incompleteWordsCount) : '—'}
                 label={t('userInfoCards.incompleteWords')}
                 meterPercent={hasLanguages ? percent : undefined}
                 sub={
-                    hasLanguages ? undefined : (
+                    hasLanguages ? (
+                        t('userInfoCards.sub.incompleteShare', { value: percent })
+                    ) : (
                         <Link to="/user">{t('userInfoCards.noLanguages')}</Link>
                     )
                 }

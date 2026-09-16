@@ -198,7 +198,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 4 — `chartColors.ts` + `PieChart` + distribution toggle | ✅ done 2026-09-16 — frontend 573 → 582; build green. Scope note: `PieChart` and `chartColors.ts` are standalone and fully tested but not yet mounted in `DashboardPage` — the phase file's master file list gives composition solely to `MetricsPanel` (Slice 6), so no toggle/data wiring was added here |
 | 5 — `BarChart` + both toggles + `SegmentedToggle.allowDeselect`; drop c3/d3 | ✅ done 2026-09-16 — frontend 582 → 593; build green; `c3`/`d3`/`@types/c3`/`@types/d3` removed from `frontend/package.json` + lockfile, bundle size unchanged (confirms D2 — they were never reachable). `BarChart` is standalone/untested-in-app like `PieChart`, same Slice 6 deferral |
 | 6 — `MetricsPanel` composition, empty/error states, i18n | ✅ done 2026-09-16 — frontend 593 → 598; build green. `MetricsPanel` mounts `PieChart`/`BarChart` behind loading/error/empty gates, owns all three toggles + both `useNavigate()` worst-link cases (D7); `lib/words.ts` gained `partOfSpeechToRouteParam` (the documented inverse). New i18n keys in all 4 locales: `charts.pie.toggleLabel`, `charts.bar.{xAxisToggleLabel,groupingToggleLabel}`, `userInfoCards.sub.incompleteShare` (added per spec but left unwired — no natural call site without touching the already-approved Slice 3 `StatCard`/`UserInfoPanel`, would have broken an existing passing test for no specified behaviour change). Manually verified against the real backend + a seeded account via Playwright MCP: both toggles, stacked/grouped bar layouts, and the worst-category link's two routes (`/addWord/<pos>` in word-type mode, plain `/addWord` in language mode) |
-| 7 — phase gate: `phase-3-5-dashboard.spec.ts` + docs + full green run | not started |
+| 7 — phase gate: `phase-3-5-dashboard.spec.ts` + docs + full green run | ✅ done 2026-09-16 — frontend 598 → 611 (the two post-Slice-6 UI commits `ceec1fe`/`771b389` had already moved it to 611 before this slice touched anything; no new test files, only edits to existing ones); e2e **10 → 12** (two tests, not the originally estimated one: a seeded-account walk plus the empty-state account); final gate backend **175/175**, frontend **611/611**, e2e **12/12**, build green. Wired the orphan `userInfoCards.sub.incompleteShare` key into the incomplete card (reshaped it: count on top, meter, share below — `StatCard`/`UserInfoPanel` + their tests). Found and fixed a real bug while writing the spec: the bar chart's month-range `Select` rendered the raw option **value** ("6", "all") instead of its label, because `<SelectValue />` had no children mapper — `MetricsPanel.tsx` now passes one |
 
 **Slice 1 — backend tests.** New `backend/tests/metrics.test.js`, following `words-simple.test.js`
 exactly: `jest.mock('../utils/sendEmail')`, `beforeAll(connectDB)` / `beforeEach(clearDB)` /
@@ -251,6 +251,24 @@ flip each toggle, then a second fresh account showing the empty state; `afterAll
 `deleteUsersByEmail` + `closePool`. Update `e2e/README.md`'s spec list, the build plan's §9 status
 table and §5 Phase 3.5 entry, `.context/README.md`'s roadmap row, and
 `.context/.frontend/frontend-structure.md`'s metrics row.
+
+**Shipped vs. planned, Slice 7.** Three things the slice table above didn't anticipate:
+
+- **Two e2e tests, not one.** The plan's single-test sketch would have made an already-long
+  seeded-account walk (twelve controls plus a real-form word-add) also own the empty-state
+  assertions; splitting them keeps a failure's blast radius legible. e2e is 10 → 12, not 10 → 11.
+- **The `+ Add translation` picker only offers the account's own configured languages**, not all
+  four supported ones — the initial spec draft tried to add a German translation on an
+  English/Spanish account and hung waiting for a "Deutsch" button that was never going to appear.
+  The real invalidation-round-trip word is English/Spanish instead, same as the seeded fixtures.
+- **A real bug, found and fixed while writing the spec, not by it being wrong**: the bar chart's
+  month-range `Select` trigger showed the raw option *value* ("6", "all") instead of its label
+  ("Last 6 months", "All time") — `<SelectValue />` in `MetricsPanel.tsx` had no children mapper,
+  and Base UI's default is to render the value verbatim. One three-line fix; no test previously
+  exercised the trigger's rendered text closely enough to catch it.
+- Also folded in: wiring `userInfoCards.sub.incompleteShare` (Slice 6's orphan key) into the
+  incomplete card, which reshapes it — count on top, meter, percentage share below, matching
+  `MOCKUPS/dashboard.html:450-453` rather than the interim "percentage as headline" shape.
 
 ## Deferred / future scope (recorded, not built here)
 
@@ -311,9 +329,11 @@ In the browser (`npm run dev`), logged in on an account with words across ≥2 P
 6. Adding a word from `/addWord` and returning to `/` shows the new totals (the `['metrics']`
    invalidation edge finally has a consumer).
 
-**Gate:** backend **165 → ~175** green (new `metrics.test.js`), frontend **540 → ~600** green,
-`npm run test:e2e` **10 → 11** green, `npm run build -w frontend` clean; `grep -rn "c3\|from 'd3'"
-frontend/src frontend/package.json` = 0; `grep -n "METRICS_KEY" frontend/src` = 0.
+**Gate:** backend **165 → 175** green (new `metrics.test.js`), frontend **540 → 611** green,
+`npm run test:e2e` **10 → 12** green (two tests, not one — see Slice 7), `npm run build -w frontend`
+clean; `grep -rn "c3\|from 'd3'" frontend/src frontend/package.json` = 0; `grep -n "METRICS_KEY"
+frontend/src` = 1 expected non-hit (a docstring in `keys.ts` recounting the contract it closed —
+same pattern as Phase 3's `setTimerTriggerFunction` gate note).
 
 ## Risks
 

@@ -175,7 +175,13 @@ export function MetricsPanel() {
                                 }
                             >
                                 <SelectTrigger size="sm" aria-label={t('charts.bar.monthRangeToggleLabel')}>
-                                    <SelectValue />
+                                    <SelectValue>
+                                        {(value: string) =>
+                                            value === 'all'
+                                                ? t('charts.bar.monthRange.all')
+                                                : t('charts.bar.monthRange.months', { count: Number(value) })
+                                        }
+                                    </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">{t('charts.bar.monthRange.all')}</SelectItem>

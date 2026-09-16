@@ -63,7 +63,8 @@ describe('UserInfoPanel (via DashboardPage)', () => {
         expect(stats().getByText('Total words')).toBeInTheDocument();
         expect(stats().getByText('15')).toBeInTheDocument(); // totalTranslations = 10 + 5
         expect(stats().getByText('Total translations')).toBeInTheDocument();
-        expect(stats().getByText('30%')).toBeInTheDocument(); // 3 / 10
+        expect(stats().getByText('3')).toBeInTheDocument(); // incompleteWordsCount
+        expect(stats().getByText('30% incomplete')).toBeInTheDocument(); // 3 / 10
         const meter = stats().getByRole('progressbar', { name: 'Incomplete words' });
         expect(meter).toHaveAttribute('aria-valuenow', '30');
     });

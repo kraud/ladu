@@ -5,9 +5,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface StatCardProps {
     value: string;
     label: string;
-    /** A one-line sub-caption below the number. Mutually exclusive with `meterPercent`. */
+    /** A one-line sub-caption below the number, or below the meter when both are given. */
     sub?: ReactNode;
-    /** Renders a filled `.meter` bar instead of `sub` (0-100, clamped). */
+    /** Renders a filled `.meter` bar between the number and `sub` (0-100, clamped). */
     meterPercent?: number;
     /** Amber number + amber meter fill — the incomplete-words card. */
     warn?: boolean;
@@ -23,7 +23,7 @@ export function StatCard({ value, label, sub, meterPercent, warn }: StatCardProp
         <div className={cn('card stat-card', warn && 'warn')}>
             <div className="s-num num">{value}</div>
             <div className="s-label">{label}</div>
-            {meterPercent != null ? (
+            {meterPercent != null && (
                 <div
                     className="meter"
                     role="progressbar"
@@ -34,9 +34,8 @@ export function StatCard({ value, label, sub, meterPercent, warn }: StatCardProp
                 >
                     <span style={{ width: `${Math.min(100, Math.max(0, meterPercent))}%` }} />
                 </div>
-            ) : (
-                sub && <div className="s-sub">{sub}</div>
             )}
+            {sub && <div className="s-sub">{sub}</div>}
         </div>
     );
 }
