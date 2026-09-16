@@ -989,11 +989,26 @@
     stroke: var(--border);
     stroke-width: 1;
   }
-  .bar-svg .bar {
-    transition: opacity 0.12s ease;
+  .bar-plot {
+    position: relative;
   }
-  .bar-svg .bar:hover {
-    opacity: 0.78;
+  .bar-hits {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  /* One hit area per non-zero bar, sized from the same geometry as the rect.
+     The hover wash replaces the old `.bar:hover` opacity fade, because the hit
+     area now sits over the bar and takes the pointer events. */
+  .bar-hit {
+    position: absolute;
+    display: block;
+    pointer-events: auto;
+    border-radius: 2.5px;
+    transition: background 0.12s ease;
+  }
+  .bar-hit:hover {
+    background: var(--fg-soft);
   }
   .bar-legend {
     display: flex;

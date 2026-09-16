@@ -100,6 +100,25 @@ describe('DashboardPage — MetricsPanel', () => {
         expect(await screen.findByRole('img', { name: 'Words per language' })).toBeInTheDocument();
     });
 
+    it('names the icon-only bar grouping options with their tooltips', async () => {
+        server.use(...makeMetricsHandlers(POPULATED).handlers);
+
+        await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+
+        await screen.findByRole('img', { name: 'Words per month' });
+        const groupingToggle = screen.getByRole('radiogroup', { name: 'Bar chart grouping' });
+        // The two options are icons only, so `title` is the whole contract:
+        // it is the hover tooltip and the accessible name.
+        expect(within(groupingToggle).getByRole('radio', { name: 'Grouped' })).toHaveAttribute(
+            'title',
+            'Grouped',
+        );
+        expect(within(groupingToggle).getByRole('radio', { name: 'Separated' })).toHaveAttribute(
+            'title',
+            'Separated',
+        );
+    });
+
     it('links the pie chart worst category to /addWord/<pos>', async () => {
         server.use(...makeMetricsHandlers(POPULATED).handlers);
 

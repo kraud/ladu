@@ -32,13 +32,13 @@ describe('PieChart', () => {
     it('renders one legend row per segment with name, count and percent', () => {
         render(<PieChart segments={SEGMENTS} total={100} unitLabel="words" worst={SEGMENTS[2]!} ariaLabel="chart" />);
         expect(screen.getByText('Nouns')).toBeInTheDocument();
-        expect(screen.getByText('30')).toBeInTheDocument();
+        expect(screen.getByText('[30]')).toBeInTheDocument();
         expect(screen.getByText('30%')).toBeInTheDocument();
         expect(screen.getByText('Verbs')).toBeInTheDocument();
-        expect(screen.getByText('60')).toBeInTheDocument();
+        expect(screen.getByText('[60]')).toBeInTheDocument();
         expect(screen.getByText('60%')).toBeInTheDocument();
         expect(screen.getByText('Adjectives')).toBeInTheDocument();
-        expect(screen.getByText('10')).toBeInTheDocument();
+        expect(screen.getByText('[10]')).toBeInTheDocument();
         expect(screen.getByText('10%')).toBeInTheDocument();
     });
 

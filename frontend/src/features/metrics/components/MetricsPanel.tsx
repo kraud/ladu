@@ -196,10 +196,12 @@ export function MetricsPanel() {
                                 {
                                     value: 'stacked',
                                     label: <RowsIcon size={14} />,
+                                    title: t('common:buttons.grouped'),
                                 },
                                 {
                                     value: 'separate',
                                     label: <ColumnsIcon size={14} />,
+                                    title: t('common:buttons.separated'),
                                 },
                             ]}
                         />

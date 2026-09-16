@@ -11,7 +11,15 @@
  * layout, so the bar-width/x-position maths below generalises the mockup's
  * `barW`/`bx` logic to a variable bar count per group instead of porting it
  * verbatim.
+ *
+ * Each bar's value is shown in a `Tooltip`, not in a native SVG `<title>`:
+ * only a real tooltip element lets us set the hover delay, and the chart is
+ * mouse-only either way (`role="img"` hides the bars from assistive tech).
+ * The tooltip's trigger is a transparent HTML hit area laid over the bar —
+ * `BarChart`'s geometry list feeds both, so they cannot drift apart.
  */
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
 const W = 640;
 const H = 240;
 const PAD_L = 40;
@@ -46,12 +54,41 @@ export interface BarChartProps {
     series: BarSeriesMeta[];
     /** `true` = one bar per group, PoS segments stacked. `false` = one bar per PoS, side by side. */
     stacked: boolean;
-    /** Translated unit noun ("words" / "translations"), used in each bar's native tooltip. */
+    /** Translated unit noun ("words" / "translations"), used in each bar's tooltip. */
     unitLabel: string;
     ariaLabel: string;
+    /** Milliseconds to hover a bar before its tooltip opens. */
+    tooltipDelay?: number;
+    /**
+     * Milliseconds after a tooltip closes during which the next bar's tooltip
+     * opens instantly — what makes sweeping across the bars feel immediate.
+     */
+    tooltipTimeout?: number;
 }
 
-export function BarChart({ groups, series, stacked, unitLabel, ariaLabel }: BarChartProps) {
+/** One drawn bar, in `0 0 640 240` viewBox units — shared by the SVG rect and its hit area. */
+interface BarGeometry {
+    key: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    color: string;
+    tooltip: string;
+}
+
+const DEFAULT_TOOLTIP_DELAY = 100;
+const DEFAULT_TOOLTIP_TIMEOUT = 400;
+
+export function BarChart({
+    groups,
+    series,
+    stacked,
+    unitLabel,
+    ariaLabel,
+    tooltipDelay = DEFAULT_TOOLTIP_DELAY,
+    tooltipTimeout = DEFAULT_TOOLTIP_TIMEOUT,
+}: BarChartProps) {
     const maxVal = stacked
         ? Math.max(0, ...groups.map((g) => g.values.reduce((sum, v) => sum + v, 0)))
         : Math.max(0, ...groups.flatMap((g) => g.values));
@@ -74,59 +111,89 @@ export function BarChart({ groups, series, stacked, unitLabel, ariaLabel }: BarC
         value: Math.round((niceMax * i) / 4),
     }));
 
+    // One pass builds every drawn bar. Zero-value series still advance `bx`, so
+    // a gap stays where their bar would have been (grouped layout only).
+    const bars: BarGeometry[] = [];
+    groups.forEach((group, groupIndex) => {
+        const gx = PAD_L + groupIndex * groupW;
+        const totalWidth = barsPerGroup * barWidth + Math.max(barsPerGroup - 1, 0) * BAR_GAP;
+        let bx = gx + (groupW - totalWidth) / 2;
+        let cumulativeHeight = 0;
+
+        series.forEach((s, seriesIndex) => {
+            const value = group.values[seriesIndex] ?? 0;
+            const x = bx;
+            if (!stacked) bx += barWidth + BAR_GAP;
+            if (value <= 0) return;
+
+            const height = Math.max(1, (value / niceMax) * PLOT_H);
+            const y = stacked ? PAD_T + PLOT_H - cumulativeHeight - height : PAD_T + PLOT_H - height;
+            if (stacked) cumulativeHeight += height;
+
+            bars.push({
+                key: `${group.xLabel}|${s.key}`,
+                x,
+                y,
+                width: barWidth,
+                height,
+                color: s.color,
+                tooltip: `${s.label}: ${value.toLocaleString()} ${unitLabel}`,
+            });
+        });
+    });
+
     return (
         <div className="bar-wrap">
-            <svg className="bar-svg" viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={ariaLabel}>
-                {yTicks.map(({ y, value }) => (
-                    <g key={value}>
-                        <line className="grid-line" x1={PAD_L} y1={y} x2={W - PAD_R} y2={y} />
-                        <text x={PAD_L - 6} y={y + 3} textAnchor="end">
-                            {value}
-                        </text>
-                    </g>
-                ))}
-                {groups.map((group, groupIndex) => {
-                    const gx = PAD_L + groupIndex * groupW;
-                    const totalWidth = barsPerGroup * barWidth + Math.max(barsPerGroup - 1, 0) * BAR_GAP;
-                    let bx = gx + (groupW - totalWidth) / 2;
-                    let cumulativeHeight = 0;
-
-                    return (
-                        <g key={group.xLabel}>
-                            {series.map((s, seriesIndex) => {
-                                const value = group.values[seriesIndex] ?? 0;
-                                const x = bx;
-                                if (!stacked) bx += barWidth + BAR_GAP;
-                                if (value <= 0) return null;
-
-                                const height = Math.max(1, (value / niceMax) * PLOT_H);
-                                const y = stacked
-                                    ? PAD_T + PLOT_H - cumulativeHeight - height
-                                    : PAD_T + PLOT_H - height;
-                                if (stacked) cumulativeHeight += height;
-
-                                return (
-                                    <rect
-                                        key={s.key}
-                                        className="bar"
-                                        x={x}
-                                        y={y}
-                                        width={barWidth}
-                                        height={height}
-                                        rx={2.5}
-                                        fill={s.color}
-                                    >
-                                        <title>{`${s.label}: ${value.toLocaleString()} ${unitLabel}`}</title>
-                                    </rect>
-                                );
-                            })}
-                            <text x={gx + groupW / 2} y={H - 8} textAnchor="middle">
-                                {group.xLabel}
+            <div className="bar-plot">
+                <svg className="bar-svg" viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={ariaLabel}>
+                    {yTicks.map(({ y, value }) => (
+                        <g key={value}>
+                            <line className="grid-line" x1={PAD_L} y1={y} x2={W - PAD_R} y2={y} />
+                            <text x={PAD_L - 6} y={y + 3} textAnchor="end">
+                                {value}
                             </text>
                         </g>
-                    );
-                })}
-            </svg>
+                    ))}
+                    {bars.map((bar) => (
+                        <rect
+                            key={bar.key}
+                            className="bar"
+                            x={bar.x}
+                            y={bar.y}
+                            width={bar.width}
+                            height={bar.height}
+                            rx={2.5}
+                            fill={bar.color}
+                        />
+                    ))}
+                    {groups.map((group, groupIndex) => (
+                        <text key={group.xLabel} x={PAD_L + groupIndex * groupW + groupW / 2} y={H - 8} textAnchor="middle">
+                            {group.xLabel}
+                        </text>
+                    ))}
+                </svg>
+                {/* The SVG scales with `width="100%"` and keeps its viewBox ratio, so a
+                    bar's viewBox coordinates map straight onto the plot box as percentages. */}
+                <TooltipProvider delay={tooltipDelay} timeout={tooltipTimeout}>
+                    <div className="bar-hits">
+                        {bars.map((bar) => (
+                            <Tooltip key={bar.key}>
+                                <TooltipTrigger
+                                    className="bar-hit"
+                                    style={{
+                                        left: `${(bar.x / W) * 100}%`,
+                                        top: `${(bar.y / H) * 100}%`,
+                                        width: `${(bar.width / W) * 100}%`,
+                                        height: `${(bar.height / H) * 100}%`,
+                                    }}
+                                    render={<span />}
+                                />
+                                <TooltipContent>{bar.tooltip}</TooltipContent>
+                            </Tooltip>
+                        ))}
+                    </div>
+                </TooltipProvider>
+            </div>
             <div className="bar-legend">
                 {series.map((s) => (
                     <span key={s.key}>

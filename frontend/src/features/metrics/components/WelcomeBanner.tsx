@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UI_LANGUAGES } from '@/lib/language';
 
-const ROTATE_MS = 38000;
+const ROTATE_MS = 5000;
 
 /**
  * Post-login banner: "Welcome, {name}" + a one-line greeting that rotates

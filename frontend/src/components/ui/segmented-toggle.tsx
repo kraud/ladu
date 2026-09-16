@@ -4,6 +4,11 @@ import { cn } from 'cn';
 export interface SegmentedToggleOption {
     value: string;
     label: React.ReactNode;
+    /**
+     * Native hover tooltip. Also carries the option's accessible name when
+     * `label` is icon-only — e.g. the dashboard's stacked/separate toggle.
+     */
+    title?: string;
 }
 
 export interface SegmentedToggleProps {
@@ -57,6 +62,7 @@ const SegmentedToggle = React.forwardRef<HTMLDivElement, SegmentedToggleProps>(
                         role="radio"
                         aria-checked={index === activeIndex}
                         data-active={index === activeIndex}
+                        title={option.title}
                         className="segmented-toggle-segment"
                         onClick={() => {
                             if (index === activeIndex) {

@@ -5,6 +5,11 @@ function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
 }
 
+/** Shared open delay/close window for a group of tooltips — e.g. a chart's bars. */
+function TooltipProvider({ ...props }: TooltipPrimitive.Provider.Props) {
+  return <TooltipPrimitive.Provider {...props} />
+}
+
 function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
 }
@@ -33,4 +38,4 @@ function TooltipContent({
   )
 }
 
-export { Tooltip, TooltipTrigger, TooltipContent }
+export { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent }

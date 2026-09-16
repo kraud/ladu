@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BarChart, type BarChartGroup, type BarSeriesMeta } from './BarChart';
 
 const SERIES: BarSeriesMeta[] = [
@@ -13,6 +13,10 @@ const GROUPS: BarChartGroup[] = [
 ];
 
 describe('BarChart', () => {
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
     it('renders the svg with an accessible label', () => {
         render(<BarChart groups={GROUPS} series={SERIES} stacked={false} unitLabel="words" ariaLabel="Words per month" />);
         expect(screen.getByRole('img', { name: 'Words per month' })).toBeInTheDocument();
@@ -30,17 +34,74 @@ describe('BarChart', () => {
         expect(screen.getByText('Verbs')).toBeInTheDocument();
     });
 
-    it('renders a native tooltip title for every non-zero bar, skipping zero-value ones', () => {
+    it('lays a hit area over every non-zero bar, in the bar’s own coordinates', () => {
         const { container } = render(
             <BarChart groups={GROUPS} series={SERIES} stacked={false} unitLabel="words" ariaLabel="chart" />,
         );
-        const titles = Array.from(container.querySelectorAll('title')).map((t) => t.textContent);
-        expect(titles).toEqual(
-            expect.arrayContaining(['Nouns: 3 words', 'Verbs: 2 words', 'Nouns: 5 words']),
+        const rects = Array.from(container.querySelectorAll('rect.bar'));
+        const hits = Array.from(container.querySelectorAll<HTMLElement>('.bar-hit'));
+
+        // 2026-07 Verbs: 0 has no bar, so it gets no hit area either.
+        expect(rects).toHaveLength(3);
+        expect(hits).toHaveLength(3);
+
+        // The hit area must sit exactly on its bar, or the tooltip fires from the wrong place.
+        rects.forEach((rect, index) => {
+            const hit = hits[index]!;
+            expect(hit.style.left).toBe(`${(Number(rect.getAttribute('x')) / 640) * 100}%`);
+            expect(hit.style.top).toBe(`${(Number(rect.getAttribute('y')) / 240) * 100}%`);
+            expect(hit.style.width).toBe(`${(Number(rect.getAttribute('width')) / 640) * 100}%`);
+            expect(hit.style.height).toBe(`${(Number(rect.getAttribute('height')) / 240) * 100}%`);
+        });
+    });
+
+    // A real hover fires mouseenter then mousemove; Base UI starts its open
+    // timer off that pair. Fake timers then pin the delay exactly.
+    it('opens the bar value in a tooltip only after the default 100 ms hover delay', async () => {
+        vi.useFakeTimers();
+        const { container } = render(
+            <BarChart groups={GROUPS} series={SERIES} stacked={false} unitLabel="words" ariaLabel="chart" />,
         );
-        // 2026-07 has Verbs: 0 — no bar/tooltip for it.
-        expect(titles).not.toContain('Verbs: 0 words');
-        expect(titles).toHaveLength(3);
+        const hit = container.querySelector<HTMLElement>('.bar-hit')!;
+
+        fireEvent.mouseEnter(hit);
+        fireEvent.mouseMove(hit);
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(99);
+        });
+        expect(screen.queryByText('Nouns: 3 words')).not.toBeInTheDocument();
+
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(1);
+        });
+        expect(screen.getByText('Nouns: 3 words')).toBeInTheDocument();
+    });
+
+    it('honours a custom tooltipDelay', async () => {
+        vi.useFakeTimers();
+        const { container } = render(
+            <BarChart
+                groups={GROUPS}
+                series={SERIES}
+                stacked={false}
+                unitLabel="words"
+                ariaLabel="chart"
+                tooltipDelay={500}
+            />,
+        );
+        const hit = container.querySelector<HTMLElement>('.bar-hit')!;
+
+        fireEvent.mouseEnter(hit);
+        fireEvent.mouseMove(hit);
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(100);
+        });
+        expect(screen.queryByText('Nouns: 3 words')).not.toBeInTheDocument();
+
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(400);
+        });
+        expect(screen.getByText('Nouns: 3 words')).toBeInTheDocument();
     });
 
     it('renders the same bar count whether stacked or grouped (layout differs, data does not)', () => {
