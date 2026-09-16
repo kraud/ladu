@@ -194,10 +194,10 @@ Each ends runnable; the user commits and re-confirms between them.
 | 0 — persist the plan | ✅ done |
 | 1 — backend: `tests/metrics.test.js` | ✅ done 2026-09-16 — 10 tests, all green (backend 165 → 175); no production code change |
 | 2 — `features/metrics` data layer + selectors + MSW handlers + close `METRICS_KEY` contract | ✅ done 2026-09-16 — frontend 540 → 564; build green |
-| 3 — Dashboard CSS port + `StatCard`/`UserInfoPanel` + skeletons | not started |
-| 4 — `chartColors.ts` + `PieChart` + distribution toggle | not started |
-| 5 — `BarChart` + both toggles + `SegmentedToggle.allowDeselect`; drop c3/d3 | not started |
-| 6 — `MetricsPanel` composition, empty/error states, i18n | not started |
+| 3 — Dashboard CSS port + `StatCard`/`UserInfoPanel` + skeletons | ✅ done — frontend 564 → 573; build green |
+| 4 — `chartColors.ts` + `PieChart` + distribution toggle | ✅ done 2026-09-16 — frontend 573 → 582; build green. Scope note: `PieChart` and `chartColors.ts` are standalone and fully tested but not yet mounted in `DashboardPage` — the phase file's master file list gives composition solely to `MetricsPanel` (Slice 6), so no toggle/data wiring was added here |
+| 5 — `BarChart` + both toggles + `SegmentedToggle.allowDeselect`; drop c3/d3 | ✅ done 2026-09-16 — frontend 582 → 593; build green; `c3`/`d3`/`@types/c3`/`@types/d3` removed from `frontend/package.json` + lockfile, bundle size unchanged (confirms D2 — they were never reachable). `BarChart` is standalone/untested-in-app like `PieChart`, same Slice 6 deferral |
+| 6 — `MetricsPanel` composition, empty/error states, i18n | ✅ done 2026-09-16 — frontend 593 → 598; build green. `MetricsPanel` mounts `PieChart`/`BarChart` behind loading/error/empty gates, owns all three toggles + both `useNavigate()` worst-link cases (D7); `lib/words.ts` gained `partOfSpeechToRouteParam` (the documented inverse). New i18n keys in all 4 locales: `charts.pie.toggleLabel`, `charts.bar.{xAxisToggleLabel,groupingToggleLabel}`, `userInfoCards.sub.incompleteShare` (added per spec but left unwired — no natural call site without touching the already-approved Slice 3 `StatCard`/`UserInfoPanel`, would have broken an existing passing test for no specified behaviour change). Manually verified against the real backend + a seeded account via Playwright MCP: both toggles, stacked/grouped bar layouts, and the worst-category link's two routes (`/addWord/<pos>` in word-type mode, plain `/addWord` in language mode) |
 | 7 — phase gate: `phase-3-5-dashboard.spec.ts` + docs + full green run | not started |
 
 **Slice 1 — backend tests.** New `backend/tests/metrics.test.js`, following `words-simple.test.js`

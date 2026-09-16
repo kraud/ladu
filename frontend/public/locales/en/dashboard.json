@@ -10,7 +10,8 @@
     "noLanguages": "Add your languages",
     "sub": {
       "wordsThisMonth": "+{{count}} this month",
-      "perWordAverage": "{{value}} per word average"
+      "perWordAverage": "{{value}} per word average",
+      "incompleteShare": "{{value}}% incomplete"
     }
   },
   "charts": {
@@ -27,12 +28,21 @@
         "newWordByCategory": "Click here to add a new {{category}}",
         "newWordByLanguage": "Click here to add a new word in {{language}}"
       },
-      "worstCategory": "Your worst category is:"
+      "worstCategory": "Your worst category is:",
+      "toggleLabel": "Pie chart distribution"
     },
     "bar": {
       "title": {
         "wordMetric": "Words per month",
         "translationMetric": "Words per language"
+      },
+      "xAxisToggleLabel": "Bar chart X axis",
+      "groupingToggleLabel": "Bar chart grouping",
+      "monthRangeToggleLabel": "Bar chart month range",
+      "monthRange": {
+        "all": "All time",
+        "months_one": "Last month",
+        "months_other": "Last {{count}} months"
       }
     }
   },

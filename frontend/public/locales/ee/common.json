@@ -79,9 +79,9 @@
     "detailedView": "Detailne vaade",
     "assignTag": "Määra silt",
     "deleteSelected": "Kustuta valitud",
-    "groupByType": "Rühmitage tüübi järgi",
-    "separateByType": "Eraldage tüübi järgi",
-    "distributionByWordType": "Sõna tüüp",
+    "grouped": "Rühmitatud",
+    "separated": "Eraldatud",
+    "distributionByWordType": "Tüüp",
     "distributionByLanguage": "Keel",
     "byMonth": "Kuu",
     "byLanguage": "Keel"

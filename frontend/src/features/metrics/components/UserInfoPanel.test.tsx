@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
@@ -46,21 +46,25 @@ describe('UserInfoPanel (via DashboardPage)', () => {
         const { container } = await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
 
         expect(container.querySelectorAll('.sk-num').length).toBeGreaterThan(0);
-        await waitFor(() => expect(screen.getByText('10')).toBeInTheDocument());
+        // Scoped to `.stat-stack` — MetricsPanel's chart gridlines/legend can
+        // repeat the same digits (Slice 6), so an unscoped query is ambiguous.
+        const stats = () => within(container.querySelector('.stat-stack') as HTMLElement);
+        await waitFor(() => expect(stats().getByText('10')).toBeInTheDocument());
     });
 
     it('renders the three stat cards from the metrics response', async () => {
         const fake = makeMetricsHandlers(populated);
         server.use(...fake.handlers);
 
-        await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+        const { container } = await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
 
-        await waitFor(() => expect(screen.getByText('10')).toBeInTheDocument());
-        expect(screen.getByText('Total words')).toBeInTheDocument();
-        expect(screen.getByText('15')).toBeInTheDocument(); // totalTranslations = 10 + 5
-        expect(screen.getByText('Total translations')).toBeInTheDocument();
-        expect(screen.getByText('30%')).toBeInTheDocument(); // 3 / 10
-        const meter = screen.getByRole('progressbar', { name: 'Incomplete words' });
+        const stats = () => within(container.querySelector('.stat-stack') as HTMLElement);
+        await waitFor(() => expect(stats().getByText('10')).toBeInTheDocument());
+        expect(stats().getByText('Total words')).toBeInTheDocument();
+        expect(stats().getByText('15')).toBeInTheDocument(); // totalTranslations = 10 + 5
+        expect(stats().getByText('Total translations')).toBeInTheDocument();
+        expect(stats().getByText('30%')).toBeInTheDocument(); // 3 / 10
+        const meter = stats().getByRole('progressbar', { name: 'Incomplete words' });
         expect(meter).toHaveAttribute('aria-valuenow', '30');
     });
 

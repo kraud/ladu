@@ -55,7 +55,11 @@ export function BarChart({ groups, series, stacked, unitLabel, ariaLabel }: BarC
     const maxVal = stacked
         ? Math.max(0, ...groups.map((g) => g.values.reduce((sum, v) => sum + v, 0)))
         : Math.max(0, ...groups.flatMap((g) => g.values));
-    const niceMax = Math.max(20, Math.ceil(maxVal / 20) * 20);
+    // 4 gridline steps: the tallest bar is sized to fit within the first 3, so
+    // the top step is always exactly 1 tick of headroom above it — never a
+    // fixed "20" regardless of how little data there is.
+    const yStep = Math.max(1, Math.ceil(maxVal / 3));
+    const niceMax = yStep * 4;
 
     const groupW = groups.length > 0 ? PLOT_W / groups.length : PLOT_W;
     const barsPerGroup = stacked ? 1 : Math.max(series.length, 1);

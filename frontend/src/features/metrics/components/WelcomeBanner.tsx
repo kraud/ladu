@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UI_LANGUAGES } from '@/lib/language';
 
-const ROTATE_MS = 3800;
+const ROTATE_MS = 38000;
 
 /**
  * Post-login banner: "Welcome, {name}" + a one-line greeting that rotates
@@ -34,14 +34,14 @@ export function WelcomeBanner({ name }: { name: string }) {
     });
 
     return (
-        <header className="flex flex-col gap-1">
+        <header className="flex flex-row gap-3">
             <h1 className="h1">{t('welcome.title', { name })}</h1>
             <p
                 key={index}
                 data-lang={lang.i18n}
                 lang={lang.i18n}
                 aria-live="polite"
-                className="page meta text-[13.5px]"
+                className="page meta text-[13.5px] content-end"
             >
                 {greeting}
             </p>

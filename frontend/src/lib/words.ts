@@ -67,3 +67,14 @@ export function partOfSpeechFromRouteParam(param: string | undefined): PartOfSpe
     );
     return key ? PartOfSpeech[key] : undefined;
 }
+
+/**
+ * The inverse of `partOfSpeechFromRouteParam`: a `PartOfSpeech` value -> its
+ * `/addWord/{-$partOfSpeech}` route param (the enum's own key, e.g. `"noun"`).
+ * Used by the Dashboard's pie chart to link its worst category straight to
+ * `/addWord/<pos>` (Phase 3.5 D7).
+ */
+export function partOfSpeechToRouteParam(pos: PartOfSpeech): string {
+    const key = (Object.keys(PartOfSpeech) as (keyof typeof PartOfSpeech)[]).find((k) => PartOfSpeech[k] === pos);
+    return key ?? 'noun';
+}

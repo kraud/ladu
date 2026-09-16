@@ -3,7 +3,7 @@ import { cn } from 'cn';
 
 export interface SegmentedToggleOption {
     value: string;
-    label: string;
+    label: React.ReactNode;
 }
 
 export interface SegmentedToggleProps {

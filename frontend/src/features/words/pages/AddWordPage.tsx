@@ -64,9 +64,9 @@ export function AddWordPage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-row gap-3">
                 <h1 className="h1">{title}</h1>
-                <p className="meta">{subtitle}</p>
+                <p className="meta content-end">{subtitle}</p>
             </div>
             <WordForm
                 key={formKey}

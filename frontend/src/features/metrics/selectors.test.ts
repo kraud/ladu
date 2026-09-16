@@ -2,11 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { PartOfSpeech } from '@/ts/enums';
 import type { BasicUserMetricsBE } from './types';
 import {
+    availableBarMonthRanges,
     barSeriesByLanguage,
     barSeriesByMonth,
     CREATABLE_POS,
+    earliestWordsPerMonthLabel,
     incompletePercent,
     monthLabel,
+    monthsOfHistory,
     pieSeries,
     totalTranslations,
     translationsPerWord,
@@ -164,6 +167,52 @@ describe('barSeriesByMonth', () => {
 
     it('defaults to a 12-month window ending on the real current month', () => {
         expect(barSeriesByMonth(EMPTY)).toHaveLength(12);
+    });
+
+    it('"all" widens the window to the account\'s full history', () => {
+        const groups = barSeriesByMonth(POPULATED, 'all', new Date(2026, 8, 20));
+        // Earliest row is 2026-08 — 2026-08 through 2026-09 is 2 months.
+        expect(groups.map((g) => g.xLabel)).toEqual(['2026-08', '2026-09']);
+    });
+});
+
+describe('earliestWordsPerMonthLabel', () => {
+    it('finds the chronologically earliest label, regardless of row order', () => {
+        expect(earliestWordsPerMonthLabel(POPULATED)).toBe('2026-08');
+    });
+
+    it('is null for an account with no word-creation history', () => {
+        expect(earliestWordsPerMonthLabel(EMPTY)).toBeNull();
+    });
+});
+
+describe('monthsOfHistory', () => {
+    it('counts whole months from the earliest label through now, inclusive', () => {
+        expect(monthsOfHistory(POPULATED, new Date(2026, 8, 20))).toBe(2); // 2026-08, 2026-09
+    });
+
+    it('is 1 (not 0) for an account with no history yet', () => {
+        expect(monthsOfHistory(EMPTY, new Date(2026, 8, 20))).toBe(1);
+    });
+});
+
+describe('availableBarMonthRanges', () => {
+    it('only offers ranges the account actually has data reaching back to', () => {
+        // Earliest row 2026-08, "now" is October 2026: 3 months of history
+        // (2026-08, 2026-09, 2026-10) — 12 and 6 are excluded, 3 and 1 remain.
+        expect(availableBarMonthRanges(POPULATED, new Date(2026, 9, 20))).toEqual([3, 1]);
+    });
+
+    it('always includes 1, even for a brand-new account', () => {
+        expect(availableBarMonthRanges(EMPTY, new Date(2026, 8, 20))).toEqual([1]);
+    });
+
+    it('offers every range once history covers a full year', () => {
+        const yearOld: BasicUserMetricsBE = {
+            ...EMPTY,
+            wordsPerMonth: [{ label: '2025-09', partOfSpeech: PartOfSpeech.noun, count: 1 }],
+        };
+        expect(availableBarMonthRanges(yearOld, new Date(2026, 8, 20))).toEqual([12, 6, 3, 1]);
     });
 });
 

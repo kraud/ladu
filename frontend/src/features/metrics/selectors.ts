@@ -116,16 +116,66 @@ function seriesFromCounts(counts: Map<PartOfSpeech, number>): Array<{ pos: PartO
 }
 
 /**
+ * The earliest `"YYYY-MM"` label present in `wordsPerMonth`, or `null` for an
+ * account with no word-creation history at all. `"YYYY-MM"` labels sort
+ * lexicographically the same as chronologically, so a plain string min works.
+ */
+export function earliestWordsPerMonthLabel(metrics: BasicUserMetricsBE): string | null {
+    if (metrics.wordsPerMonth.length === 0) return null;
+    return metrics.wordsPerMonth.reduce(
+        (min, row) => (row.label < min ? row.label : min),
+        metrics.wordsPerMonth[0]!.label,
+    );
+}
+
+/** Whole calendar months between a `"YYYY-MM"` label and `now`'s month, inclusive of both ends. */
+function monthsSinceLabel(label: string, now: Date): number {
+    const [year, month] = label.split('-').map(Number) as [number, number];
+    return (now.getFullYear() - year) * 12 + (now.getMonth() - (month - 1)) + 1;
+}
+
+/**
+ * How many calendar months of word-creation history an account has, counting
+ * the current month — the span the bar chart's "all" range option covers.
+ * `1` (never `0`) for an account with no history yet, so callers always have
+ * at least the current month to render.
+ */
+export function monthsOfHistory(metrics: BasicUserMetricsBE, now: Date = new Date()): number {
+    const earliest = earliestWordsPerMonthLabel(metrics);
+    if (!earliest) return 1;
+    return Math.max(1, monthsSinceLabel(earliest, now));
+}
+
+/** The bar chart's fixed month-range choices, widest first — see `availableBarMonthRanges`. */
+export const BAR_MONTH_RANGE_OPTIONS = [12, 6, 3, 1] as const;
+export type BarMonthRangeOption = (typeof BAR_MONTH_RANGE_OPTIONS)[number];
+
+/**
+ * Which of `BAR_MONTH_RANGE_OPTIONS` make sense to offer, given how much
+ * history the account actually has — e.g. an account with 3 months of data
+ * only offers `3` and `1`, never `12`/`6` (there'd be nothing extra to show).
+ * Never empty: `1` always qualifies, since `monthsOfHistory` is never 0.
+ */
+export function availableBarMonthRanges(metrics: BasicUserMetricsBE, now: Date = new Date()): BarMonthRangeOption[] {
+    const history = monthsOfHistory(metrics, now);
+    return BAR_MONTH_RANGE_OPTIONS.filter((option) => option <= history);
+}
+
+/**
  * "By month" bar data: the last `monthsBack` calendar months (default 12),
  * oldest first, ending on `now`'s month — zero-filled, since `wordsPerMonth`
  * only contains rows for months that actually had activity (D8). Counts are
  * **words** (D9) — `wordsPerMonth` has no translation/language dimension.
+ * `monthsBack: 'all'` widens the window to `monthsOfHistory` — as far back as
+ * the account's data goes.
  */
 export function barSeriesByMonth(
     metrics: BasicUserMetricsBE,
-    monthsBack = 12,
+    monthsBack: number | 'all' = 12,
     now: Date = new Date(),
 ): BarGroup[] {
+    const window = monthsBack === 'all' ? monthsOfHistory(metrics, now) : monthsBack;
+
     const byLabel = new Map<string, Map<PartOfSpeech, number>>();
     for (const row of metrics.wordsPerMonth) {
         const forMonth = byLabel.get(row.label) ?? new Map<PartOfSpeech, number>();
@@ -134,7 +184,7 @@ export function barSeriesByMonth(
     }
 
     const groups: BarGroup[] = [];
-    for (let i = monthsBack - 1; i >= 0; i--) {
+    for (let i = window - 1; i >= 0; i--) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const label = monthLabel(d);
         groups.push({ xLabel: label, series: seriesFromCounts(byLabel.get(label) ?? new Map()) });

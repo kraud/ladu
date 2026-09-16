@@ -89,8 +89,8 @@ export function PieChart({ segments, total, unitLabel, worst, onWorstClick, aria
                         <>
                             <span className="dot" style={{ background: segment.color }} aria-hidden="true" />
                             <span className="l-name">{segment.label}</span>
-                            <span className="l-count">{segment.count.toLocaleString()}</span>
                             <span className="l-pct">{percent}%</span>
+                            <span className="l-count">[{segment.count.toLocaleString()}]</span>
                         </>
                     );
                     return (

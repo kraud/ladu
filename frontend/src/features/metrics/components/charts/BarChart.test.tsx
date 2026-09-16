@@ -67,4 +67,28 @@ describe('BarChart', () => {
         render(<BarChart groups={[]} series={SERIES} stacked={false} unitLabel="words" ariaLabel="chart" />);
         expect(screen.getByRole('img', { name: 'chart' })).toBeInTheDocument();
     });
+
+    it('scales the y axis to the data instead of a fixed 20 when values are small', () => {
+        const fewGroups: BarChartGroup[] = [{ xLabel: '2026-09', values: [3, 0] }];
+        const { container } = render(
+            <BarChart groups={fewGroups} series={SERIES} stacked={false} unitLabel="words" ariaLabel="chart" />,
+        );
+        const labels = Array.from(container.querySelectorAll('line.grid-line + text')).map((t) => t.textContent);
+        // Highest value is 3: top gridline is exactly 1 tick above the tick it fits under (0/1/2/3/4), not 20.
+        expect(labels).toEqual(['0', '1', '2', '3', '4']);
+    });
+
+    it('never lets the tallest bar reach the top gridline (always keeps 1 tick of headroom)', () => {
+        const tallGroups: BarChartGroup[] = [{ xLabel: '2026-09', values: [17, 0] }];
+        const { container } = render(
+            <BarChart groups={tallGroups} series={SERIES} stacked={false} unitLabel="words" ariaLabel="chart" />,
+        );
+        const labels = Array.from(container.querySelectorAll('line.grid-line + text')).map((t) =>
+            Number(t.textContent),
+        );
+        const niceMax = Math.max(...labels);
+        expect(17).toBeLessThan(niceMax);
+        // The tallest bar never spans more than the first 3 of the 4 gridline steps.
+        expect(17).toBeLessThanOrEqual((niceMax * 3) / 4);
+    });
 });

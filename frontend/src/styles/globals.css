@@ -778,6 +778,10 @@
   .segmented-toggle-segment {
     position: relative;
     z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     flex: 1 1 0;
     min-width: 56px;
     padding: 0 14px;
@@ -993,6 +997,7 @@
   }
   .bar-legend {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     gap: 6px 16px;
     margin-top: 10px;
@@ -1008,6 +1013,30 @@
     width: 9px;
     height: 9px;
     border-radius: 3px;
+  }
+
+  /* ─── dashboard: metrics panel composition (Phase 3.5 slice 6) ─ */
+  .metrics {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .chart-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .chart-head h2 {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .chart-block + .chart-block {
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
   }
 }
 
