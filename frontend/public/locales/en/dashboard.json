@@ -5,8 +5,13 @@
   },
   "userInfoCards": {
     "totalWords": "Total words",
+    "totalTranslations": "Total translations",
     "incompleteWords": "Incomplete words",
-    "languages": "Languages"
+    "noLanguages": "Add your languages",
+    "sub": {
+      "wordsThisMonth": "+{{count}} this month",
+      "perWordAverage": "{{value}} per word average"
+    }
   },
   "charts": {
     "pie": {

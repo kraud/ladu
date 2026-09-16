@@ -5,8 +5,13 @@
   },
   "userInfoCards": {
     "totalWords": "Kokku sõnu",
+    "totalTranslations": "Kokku tõlkeid",
     "incompleteWords": "Puudulikud sõnad",
-    "languages": "Keeled"
+    "noLanguages": "Lisa oma keeled",
+    "sub": {
+      "wordsThisMonth": "+{{count}} sel kuul",
+      "perWordAverage": "{{value}} sõna kohta keskmiselt"
+    }
   },
   "charts": {
     "pie": {

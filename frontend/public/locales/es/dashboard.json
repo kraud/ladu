@@ -5,8 +5,13 @@
   },
   "userInfoCards": {
     "totalWords": "Total de palabras",
+    "totalTranslations": "Total de traducciones",
     "incompleteWords": "Palabras incompletas",
-    "languages": "Idiomas"
+    "noLanguages": "Agrega tus idiomas",
+    "sub": {
+      "wordsThisMonth": "+{{count}} este mes",
+      "perWordAverage": "{{value}} por palabra en promedio"
+    }
   },
   "charts": {
     "pie": {

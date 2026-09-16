@@ -2,14 +2,21 @@
  * UserMenu logout: `clearSession()` + `queryClient.clear()` + redirect to
  * `/login` (the `useLogout` seam the old `Header` did with three dispatches).
  */
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderApp } from '@/test/render';
+import { server } from '@/test/msw/server';
+import { makeMetricsHandlers } from '@/test/msw/metricsHandlers';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
 
 describe('UserMenu', () => {
+    beforeEach(() => {
+        // Both tests mount `/` (the Dashboard), which now fires `useUserMetrics()`.
+        server.use(...makeMetricsHandlers().handlers);
+    });
+
     it('logout clears the session and the query cache, then redirects to /login', async () => {
         const user = userEvent.setup();
         const { router, queryClient } = await renderApp({
