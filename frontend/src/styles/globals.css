@@ -904,6 +904,76 @@
     height: 14px;
     margin-top: 8px;
   }
+
+  /* ─── dashboard: pie chart (Phase 3.5 slice 4) ─────────────── */
+  .pie-wrap {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .pie-total {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    fill: var(--fg);
+  }
+  .pie-unit {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .pie-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 190px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .legend-row {
+    display: grid;
+    grid-template-columns: 12px 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    font-size: 13px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    text-align: left;
+  }
+  .legend-row .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+  .legend-row .l-name {
+    color: var(--fg);
+    font-weight: 500;
+  }
+  .legend-row .l-count {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .legend-row .l-pct {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    width: 44px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  button.legend-row {
+    cursor: pointer;
+  }
+  button.legend-row:hover {
+    background: var(--fg-soft);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
