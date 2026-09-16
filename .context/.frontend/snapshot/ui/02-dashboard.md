@@ -25,9 +25,8 @@ Post-login landing: welcome + at-a-glance vocabulary stats with drill-down chart
 - **Welcome banner**: "Welcome back, {name}" + an auto-cycling localized greeting (one line, rotates through the 4 UI languages every few seconds — CSS/JS interval, subtle).
 - **Info panel** (left, ~1/3): stat cards — total words, total translations, incomplete-words count. Simple number + label cards in a vertical stack.
 - **Metrics panel** (right, ~2/3): two charts (keep c3/D3 or swap for Recharts — visually equivalent):
-  - **Pie**: words per part-of-speech, colors keyed by PoS (`chartsColors` mapping).
-  - **Bar**: translations per language (and per month view); grouped-by toggle (by PoS / by language; by month / by language).
-  - Each chart has a small toggle for its metric type (words ↔ translations).
+  - **Pie**: words per part-of-speech view mode (colors keyed by PoS (`chartsColors` mapping)) and per language view mode (also with a fixed colour per language)
+  - **Bar**: translations per language view (and per month view); grouped-by toggle (switches showing 1 bar with the values per PoS in different colours one on top of the other, or betweet 1 bar per PoS per month/language (depending on what is selected as the view mode)
   - Chart "worst category" click → `/addWord/<pos>` shortcut (keep).
 
 ## States

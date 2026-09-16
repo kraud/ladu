@@ -49,6 +49,11 @@ export async function getVerifyToken(email: string): Promise<{ userId: string; t
     return rows[0];
 }
 
+/** Backdates `words.created_at` for the given ids — lets a spec put a word outside the current calendar month without waiting for real time to pass (used to exercise the Dashboard's month-range selector, which is otherwise a single-option no-op on an account created during the run). */
+export async function backdateWordsCreatedAt(wordIds: string[], date: Date): Promise<void> {
+    await getPool().query(`UPDATE words SET created_at = $2 WHERE id = ANY($1::uuid[])`, [wordIds, date]);
+}
+
 /** Best-effort teardown — never throws, so a cleanup failure can't fail a run. */
 export async function deleteUsersByEmail(emails: string[]): Promise<void> {
     if (emails.length === 0) return;

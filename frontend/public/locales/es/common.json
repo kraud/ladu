@@ -79,9 +79,9 @@
     "detailedView": "Vista detallada",
     "assignTag": "Asignar Tags",
     "deleteSelected": "Borrar seleccionados",
-    "groupByType": "Agrupar por tipo",
-    "separateByType": "Separar por tipo",
-    "distributionByWordType": "Tipo de palabra",
+    "grouped": "Agrupado",
+    "separated": "Separado",
+    "distributionByWordType": "Tipo",
     "distributionByLanguage": "Idioma",
     "byMonth": "Mes",
     "byLanguage": "Idioma"

@@ -5,8 +5,14 @@
   },
   "userInfoCards": {
     "totalWords": "Kokku sõnu",
+    "totalTranslations": "Kokku tõlkeid",
     "incompleteWords": "Puudulikud sõnad",
-    "languages": "Keeled"
+    "noLanguages": "Lisa oma keeled",
+    "sub": {
+      "wordsThisMonth": "+{{count}} sel kuul",
+      "perWordAverage": "{{value}} sõna kohta keskmiselt",
+      "incompleteShare": "{{value}}% puudulik"
+    }
   },
   "charts": {
     "pie": {
@@ -22,12 +28,21 @@
         "newWordByCategory": "Klõpsa siia, et lisada uus {{category}}",
         "newWordByLanguage": "Klõpsa siia, et lisada uus sõna keeles {{language}}"
       },
-      "worstCategory": "Sinu halvim kategooria on:"
+      "worstCategory": "Sinu halvim kategooria on:",
+      "toggleLabel": "Sektordiagrammi jaotus"
     },
     "bar": {
       "title": {
         "wordMetric": "Sõnad kuude kaupa",
         "translationMetric": "Sõnad keele kohta"
+      },
+      "xAxisToggleLabel": "Tulpdiagrammi X-telg",
+      "groupingToggleLabel": "Tulpdiagrammi rühmitus",
+      "monthRangeToggleLabel": "Tulpdiagrammi kuude vahemik",
+      "monthRange": {
+        "all": "Kogu aeg",
+        "months_one": "Viimane kuu",
+        "months_other": "Viimased {{count}} kuud"
       }
     }
   },

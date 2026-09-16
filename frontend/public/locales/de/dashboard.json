@@ -5,8 +5,14 @@
   },
   "userInfoCards": {
     "totalWords": "Gesamtwörter",
+    "totalTranslations": "Gesamtübersetzungen",
     "incompleteWords": "Unvollständige Wörter",
-    "languages": "Sprachen"
+    "noLanguages": "Füge deine Sprachen hinzu",
+    "sub": {
+      "wordsThisMonth": "+{{count}} diesen Monat",
+      "perWordAverage": "{{value}} pro Wort im Durchschnitt",
+      "incompleteShare": "{{value}}% unvollständig"
+    }
   },
   "charts": {
     "pie": {
@@ -22,12 +28,21 @@
         "newWordByCategory": "Klicken Sie hier, um ein neues {{category}} hinzuzufügen",
         "newWordByLanguage": "Klicken Sie hier, um ein neues Wort in {{language}} hinzuzufügen"
       },
-      "worstCategory": "Ihre schlechteste Kategorie ist:"
+      "worstCategory": "Ihre schlechteste Kategorie ist:",
+      "toggleLabel": "Verteilung des Kreisdiagramms"
     },
     "bar": {
       "title": {
         "wordMetric": "Wörter pro Monat",
         "translationMetric": "Wörter pro Sprache"
+      },
+      "xAxisToggleLabel": "X-Achse des Balkendiagramms",
+      "groupingToggleLabel": "Gruppierung des Balkendiagramms",
+      "monthRangeToggleLabel": "Monatsbereich des Balkendiagramms",
+      "monthRange": {
+        "all": "Gesamter Zeitraum",
+        "months_one": "Letzter Monat",
+        "months_other": "Letzte {{count}} Monate"
       }
     }
   },

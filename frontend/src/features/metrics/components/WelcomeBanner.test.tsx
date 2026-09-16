@@ -20,14 +20,15 @@ describe('WelcomeBanner', () => {
         const { container } = renderWithProviders(<WelcomeBanner name="Kai" />);
         const lang = () => container.querySelector('[data-lang]')?.getAttribute('data-lang');
 
+        // One step per rotation tick — mirrors `ROTATE_MS` in WelcomeBanner.
         expect(lang()).toBe('en');
-        act(() => vi.advanceTimersByTime(3800));
+        act(() => vi.advanceTimersByTime(5000));
         expect(lang()).toBe('es');
-        act(() => vi.advanceTimersByTime(3800));
+        act(() => vi.advanceTimersByTime(5000));
         expect(lang()).toBe('de');
-        act(() => vi.advanceTimersByTime(3800));
+        act(() => vi.advanceTimersByTime(5000));
         expect(lang()).toBe('ee');
-        act(() => vi.advanceTimersByTime(3800));
+        act(() => vi.advanceTimersByTime(5000));
         expect(lang()).toBe('en'); // wraps
     });
 });

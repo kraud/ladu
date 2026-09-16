@@ -3,7 +3,12 @@ import { cn } from 'cn';
 
 export interface SegmentedToggleOption {
     value: string;
-    label: string;
+    label: React.ReactNode;
+    /**
+     * Native hover tooltip. Also carries the option's accessible name when
+     * `label` is icon-only — e.g. the dashboard's stacked/separate toggle.
+     */
+    title?: string;
 }
 
 export interface SegmentedToggleProps {
@@ -12,6 +17,15 @@ export interface SegmentedToggleProps {
     onValueChange: (value: string) => void;
     /** Exactly two options — see the component doc comment below. */
     options: SegmentedToggleOption[];
+    /**
+     * Whether clicking the already-active option clears the value. Defaults
+     * to `true` (the original toggle-to-unselect behaviour, matched to the
+     * `radio`/`select` field kinds this was built for). The Phase 3.5
+     * dashboard charts pass `false` — a chart's X-axis/grouping control is
+     * binary state, not an optional field, so it must always keep exactly
+     * one option selected.
+     */
+    allowDeselect?: boolean;
     'aria-label'?: string;
     className?: string;
 }
@@ -30,7 +44,7 @@ export interface SegmentedToggleProps {
  * radio group, since neither option is inherently a default.
  */
 const SegmentedToggle = React.forwardRef<HTMLDivElement, SegmentedToggleProps>(
-    ({ value, onValueChange, options, className, 'aria-label': ariaLabel }, ref) => {
+    ({ value, onValueChange, options, allowDeselect = true, className, 'aria-label': ariaLabel }, ref) => {
         const activeIndex = options.findIndex((option) => option.value === value);
 
         return (
@@ -48,8 +62,15 @@ const SegmentedToggle = React.forwardRef<HTMLDivElement, SegmentedToggleProps>(
                         role="radio"
                         aria-checked={index === activeIndex}
                         data-active={index === activeIndex}
+                        title={option.title}
                         className="segmented-toggle-segment"
-                        onClick={() => onValueChange(index === activeIndex ? '' : option.value)}
+                        onClick={() => {
+                            if (index === activeIndex) {
+                                if (allowDeselect) onValueChange('');
+                                return;
+                            }
+                            onValueChange(option.value);
+                        }}
                     >
                         {option.label}
                     </button>

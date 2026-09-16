@@ -4,8 +4,8 @@
  *
  * Invalidation graph (`app/query-client.ts`), Phase 2 edges:
  *   createWord / updateWord / deleteWord  ⇒  invalidate `wordKeys.all` (list +
- *   every detail) and `['metrics']` (declared now; first consumer is the
- *   Phase 3.5 dashboard — a no-op until then).
+ *   every detail) and `metricsKeys.all` (declared in Phase 2; the Phase 3.5
+ *   `useUserMetrics` is its first real consumer).
  *
  * No toasts and no navigation here: those vary per call site (create morphs a
  * "Saving…" toast and links to the new word; update re-locks the form; delete
@@ -23,14 +23,8 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as wordApi from './api';
 import { wordKeys } from './keys';
+import { metricsKeys } from '@/features/metrics/keys';
 import type { CreateWordBody, UpdateWordBody, WordListFilters } from './types';
-
-/**
- * `['metrics']` is owned by `features/metrics` from Phase 3.5; until that module
- * grows a `keys.ts`, the edge is spelled out here (and in the query-client
- * invalidation-graph comment).
- */
-const METRICS_KEY = ['metrics'] as const;
 
 /** One word by id. Disabled for an empty id so a not-yet-known route param doesn't fire. */
 export function useWord(id: string) {
@@ -48,7 +42,7 @@ export function useCreateWord() {
         mutationFn: (body: CreateWordBody) => wordApi.createWord(body),
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: wordKeys.all });
-            void queryClient.invalidateQueries({ queryKey: METRICS_KEY });
+            void queryClient.invalidateQueries({ queryKey: metricsKeys.all });
         },
     });
 }
@@ -63,7 +57,7 @@ export function useUpdateWord() {
             // from it immediately, then let the list refetch in the background.
             queryClient.setQueryData(wordKeys.detail(word.id), word);
             void queryClient.invalidateQueries({ queryKey: wordKeys.all });
-            void queryClient.invalidateQueries({ queryKey: METRICS_KEY });
+            void queryClient.invalidateQueries({ queryKey: metricsKeys.all });
         },
     });
 }
@@ -76,7 +70,7 @@ export function useDeleteWord() {
         onSuccess: (_result, id) => {
             queryClient.removeQueries({ queryKey: wordKeys.detail(id) });
             void queryClient.invalidateQueries({ queryKey: wordKeys.all });
-            void queryClient.invalidateQueries({ queryKey: METRICS_KEY });
+            void queryClient.invalidateQueries({ queryKey: metricsKeys.all });
         },
     });
 }
@@ -145,7 +139,7 @@ export function useBulkDeleteWords() {
         onSuccess: (_result, ids) => {
             for (const id of ids) queryClient.removeQueries({ queryKey: wordKeys.detail(id) });
             void queryClient.invalidateQueries({ queryKey: wordKeys.all });
-            void queryClient.invalidateQueries({ queryKey: METRICS_KEY });
+            void queryClient.invalidateQueries({ queryKey: metricsKeys.all });
         },
     });
 }

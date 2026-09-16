@@ -3,13 +3,14 @@
  * configured languages; Practice never does. Walked through the real shell on
  * `/` via `renderApp`.
  */
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderApp } from '@/test/render';
 import { futureToken } from '@/test/tokens';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
+import { makeMetricsHandlers } from '@/test/msw/metricsHandlers';
 
 const baseSession = {
     id: 'u1',
@@ -23,6 +24,11 @@ const baseSession = {
 };
 
 describe('AppHeader nav gating', () => {
+    beforeEach(() => {
+        // Every test here starts on `/` (the Dashboard), which fires `useUserMetrics()`.
+        server.use(...makeMetricsHandlers().handlers);
+    });
+
     it('blocks Add Word with <2 languages and offers a route to Account', async () => {
         const user = userEvent.setup();
         const { router } = await renderApp({
