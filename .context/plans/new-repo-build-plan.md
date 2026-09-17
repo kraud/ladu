@@ -128,7 +128,8 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 | 5 | Exercises + performance | 3 |
 | 6 | Social: friendships + notifications + users (redesigned models) | 1 |
 | 7 | Tag shares/clone + Account + polish | 4, 6 |
-| 8 | Deploy + parity checklist + cutover | all |
+| D | **Deployment pipeline** (staging + production on the real domain) — see [`.dev-context/deployment-strategy.md`](../../.dev-context/deployment-strategy.md) | 3.5 |
+| 8 | Parity checklist + apex cutover | all |
 
 ### Phase 0 — Scaffold + backend copy
 - Workspaces; Vite frontend with the full stack above; CI running backend Jest + frontend Vitest/build.
@@ -192,12 +193,12 @@ Split out of Phase 1 (2026-09-10): the metrics endpoint aggregates `words` + `tr
 - **Gate**: §8.2/§8.3 intentional-deltas each have a green verification; full-suite green.
 - **e2e** (`phase-7-tag-shares.spec.ts`, two browser contexts): user A shares a tag → user B accepts → B gets an independent editable clone whose words keep every translation + case (the data-loss bug); a non-viewer is refused on `getTagById`/`followTag`/clone; Account language-order drag persists.
 
-### Phase 8 — Deploy + parity + cutover
-- Deploy to the temporary domain (platform still undecided).
+### Phase 8 — Parity + cutover
+- Deployment moved forward (2026-09-16): `app.` and `staging.` subdomains of the real domain run v2 from the pipeline in [`.dev-context/deployment-strategy.md`](../../.dev-context/deployment-strategy.md), and every phase after 3.5 ships through it. Phase 8 no longer deploys; it verifies parity and switches the apex.
 - **Route-parity checklist**: per route (12 + catch-all), walk every use case in the snapshot files against the new build; **intentional-deltas annex** lists every §8-driven behavior change with its own verification (decline action, visibility-aware polling, clone preserving translations, server-side authz + notifications, 401→logout, guards on the 4 pages, URL-persisted filters, pagination).
-- User manually switches the real domain. Old repo becomes greppable reference; archive when satisfied.
+- User points the apex domain at the VPS (Terraform) once `landing/` is ready. Old repo becomes greppable reference; archive when satisfied.
 - **Gate**: checklist + annex fully green; zero unexplained parity failures.
-- **e2e**: the full `e2e/tests/` suite (Phases 1–7 specs, incl. 3.5) green against the temp-domain build; the intentional-deltas annex items each map to a passing assertion. This is also the moment to stand up the deferred CI `e2e` job so the suite guards `main` post-cutover.
+- **e2e**: the full `e2e/tests/` suite (Phases 1–7 specs, incl. 3.5) green in CI and the deployed smoke spec green against `app.`; the intentional-deltas annex items each map to a passing assertion.
 
 ## 6. Testing strategy
 
@@ -205,7 +206,7 @@ Split out of Phase 1 (2026-09-10): the metrics endpoint aggregates `words` + `tr
 - Contract types derived from the live backend (Drizzle schema as source of truth); the `endpoints.md` shapes section is the seed for the typed API layer.
 - The form engine gets a generation test: config → yup field list must equal the old form's field list (the one place old/new are diffed mechanically).
 - Per-phase gates above are grep- or test-verifiable — no "looks done".
-- **Playwright e2e, one spec per phase** (`e2e/` workspace — a third workspace beside `backend/`/`frontend/`). Where MSW/Vitest mock the network, the e2e spec runs the *real* stack: `playwright.config.ts` → `webServer` boots `npm run dev -w backend` (real Postgres, migrations applied) + the Vite dev server, and Chromium walks the phase's headline user journey. A green `npm run test:e2e` is a required gate for every phase, written alongside the feature — not batched into Phase 8. Deps and browser binaries stay in `e2e/` so they never enter the `frontend` `tsc -b` / Vite build or its dependency tree. Interactive browser driving mid-session (exploring a flow, drafting selectors, screenshots) comes from the `@playwright/mcp` server in `.mcp.json`; it and the suite are independent. **CI**: no `e2e` job yet — it is a local gate until the suite has several phases of stable specs, then Phase 8 adds the job (Postgres service + both servers + `playwright install`). See [`e2e/README.md`](../../e2e/README.md).
+- **Playwright e2e, one spec per phase** (`e2e/` workspace — a third workspace beside `backend/`/`frontend/`). Where MSW/Vitest mock the network, the e2e spec runs the *real* stack: `playwright.config.ts` → `webServer` boots `npm run dev -w backend` (real Postgres, migrations applied) + the Vite dev server, and Chromium walks the phase's headline user journey. A green `npm run test:e2e` is a required gate for every phase, written alongside the feature — not batched into Phase 8. Deps and browser binaries stay in `e2e/` so they never enter the `frontend` `tsc -b` / Vite build or its dependency tree. Interactive browser driving mid-session (exploring a flow, drafting selectors, screenshots) comes from the `@playwright/mcp` server in `.mcp.json`; it and the suite are independent. **CI**: the deployment pipeline's Phase A adds the `e2e` job (Postgres service + both servers + `playwright install`, `--workers=1`); a separate `deployed-smoke.spec.ts` runs against staging on each deploy. See [`e2e/README.md`](../../e2e/README.md).
 
 ## 7. Risks
 
