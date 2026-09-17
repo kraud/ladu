@@ -171,7 +171,7 @@ Total effort: about 3–4 days. After Phase D, each feature phase (5–7) goes t
    - B2: set **Caps & Alerts to $0** for every category.
    - For any service that asks for a card: do not use it unless it has a hard cap.
 
-### Phase A — CI hardening (½ day)
+### Phase A — CI hardening (½ day) — ✅ done
 
 - `.nvmrc` = 24. Add `engines` to the root `package.json`.
 - ESLint (flat config) in `backend` and `frontend`. Add `lint` scripts. Fix or suppress the current errors.
@@ -179,7 +179,7 @@ Total effort: about 3–4 days. After Phase D, each feature phase (5–7) goes t
   - **Deferred:** `controllers/tagController.ts`, `friendshipController.ts` and `notificationController.ts` are excluded from the backend typecheck gate (`tsconfig.json` `exclude`) — ~40 pre-existing `noImplicitAny`/type errors there, left for when friendships/notifications/tags/tag-sharing come off the deferred list (see CLAUDE.md). Fix and re-include then.
 - Rename `test.yml` → `ci.yml`. Add the `lint`, `typecheck` and `e2e` jobs (see §3).
 - Ruleset, Dependabot, CodeQL, secret scanning, PR template.
-- **Gate:** a test PR shows all checks green, and the ruleset blocks a merge while a check is red.
+- **Gate:** a test PR shows all checks green, and the ruleset blocks a merge while a check is red. ✅ Verified 2026-09-17 — ruleset active on `main`, all 5 `ci.yml` jobs (lint, typecheck, backend, frontend, e2e) required and green.
 
 ### Phase B — Containers (½–1 day)
 
