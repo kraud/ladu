@@ -441,8 +441,8 @@ async function getRequiredAmountOfExercises(
     const requireMultiple = amountOfExercises > exercisesByWord.length;
     const requireFewer = amountOfExercises < exercisesByWord.length;
 
-    let availableExercisesByWord = [...exercisesByWord];
-    let filteredExercises: any[] = [];
+    const availableExercisesByWord = [...exercisesByWord];
+    let filteredExercises: any[];
 
     const randomlySelectExerciseByWord = async (
         exercisesListByWord: any[],
@@ -475,7 +475,7 @@ async function getRequiredAmountOfExercises(
         available: any[],
         neededAmount: number,
     ): Promise<any[]> => {
-        let selected: any[] = [];
+        const selected: any[] = [];
         let wordsInRandomOrder = [...available];
         while (selected.length < neededAmount) {
             if (isExerciseSelectionRandom) shuffleArray(wordsInRandomOrder);
@@ -509,9 +509,9 @@ const getValuesForMultiLangAndMultipleChoiceExerciseByDifficulty = (
     partOfSpeech: string,
     requiredAmount: number,
 ): string[] => {
-    let shuffledTranslations = [...matchingWord.translations];
+    const shuffledTranslations = [...matchingWord.translations];
     shuffleArray(shuffledTranslations);
-    let returnValues: string[] = [];
+    const returnValues: string[] = [];
 
     switch (exerciseDifficulty) {
         case 0: {
@@ -619,7 +619,7 @@ const getOtherValuesForMultiLangAndMultipleChoiceExercise = (
         case 'matching-words': {
             const shuffledWords = [...allMatchingWords];
             shuffleArray(shuffledWords);
-            let optionsFound: string[] = [];
+            const optionsFound: string[] = [];
             shuffledWords.forEach((word) => {
                 if (requiredAmount > optionsFound.length) {
                     const accepted = getValuesForMultiLangAndMultipleChoiceExerciseByDifficulty(
@@ -751,7 +751,7 @@ const getExercises = asyncHandler(async (req: any, res: any) => {
     }
 
     // Generate exercises per word
-    let exercisesByWord: any[] = [];
+    const exercisesByWord: any[] = [];
     sampledWordData.forEach((matchingWord) => {
         const matchingExercisesPerWord = findExercisesByEquivalentTranslations(
             matchingWord,
@@ -779,7 +779,7 @@ const getExercises = asyncHandler(async (req: any, res: any) => {
         );
     }
 
-    let filteredExercises = await getRequiredAmountOfExercises(
+    const filteredExercises = await getRequiredAmountOfExercises(
         exercisesByWord,
         parameters.amountOfExercises,
         userId,

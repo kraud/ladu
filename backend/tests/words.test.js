@@ -15,7 +15,6 @@
  *     table, so test tags are created with the authenticated user's UUID.
  */
 
-const crypto = require('crypto');
 const request = require('supertest');
 const { eq, inArray, sql } = require('drizzle-orm');
 const app = require('../app');

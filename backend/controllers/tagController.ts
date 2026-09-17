@@ -183,7 +183,7 @@ const searchTags = asyncHandler(async (req: any, res: any) => {
     : undefined;
   const authorIsCurrentUser = eq(tags.authorId, req.user.id);
 
-  let allowedTagIds: string[] | null = null;
+  let allowedTagIds: string[];
   if (includeOtherUserTags) {
     const friendRows = await db
       .select({
@@ -238,7 +238,7 @@ const searchTags = asyncHandler(async (req: any, res: any) => {
     allowedTagIds = allowedRows.map((row) => row.id);
   }
 
-  const tagRows = await getTagsByIdsWithWords(allowedTagIds || []);
+  const tagRows = await getTagsByIdsWithWords(allowedTagIds);
   const searchResultTags = tagRows
     .filter(
       (tagRow) =>

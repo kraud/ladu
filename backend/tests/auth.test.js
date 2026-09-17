@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const request = require('supertest');
 const { eq } = require('drizzle-orm');
 const app = require('../app');

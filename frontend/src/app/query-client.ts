@@ -27,7 +27,7 @@
  *   Phase 3.5 (dash) — ACTIVE: `useUserMetrics` (`metricsKeys.all`, staleTime
  *                      5min) — the Phase 2 edge above now has a real consumer.
  *   Phase 4 (tags)   — add: bulk-add-tags ⇒ ['tags', id, 'wordCount'] + ['words']
- *   Phase 5 (exers)  — add: save/​master/​forget performance ⇒ setQueryData on ['exercises']
+ *   Phase 5 (exers)  — add: save/master/forget performance ⇒ setQueryData on ['exercises']
  *                       (getUserMetrics aggregates words/translations only — a practice
  *                        session does not change it; no `metricsKeys.all` edge here)
  *   Phase 6 (social) — add: friend actions ⇒ ['friendships'], ['notifications']

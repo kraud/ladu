@@ -242,7 +242,7 @@ const findMatches = (
 // @route   POST /api/exercises/saveTranslationPerformance
 // @access  Private
 const saveTranslationPerformance = asyncHandler(async (req: any, res: any) => {
-    let performanceId: string | undefined = req.body.performanceId;
+    const performanceId: string | undefined = req.body.performanceId;
 
     let perfRow: typeof exercisePerformances.$inferSelect | undefined;
 
@@ -296,7 +296,7 @@ const saveTranslationPerformance = asyncHandler(async (req: any, res: any) => {
 
     // Update existing performance
     const allCases = await fetchCasesGrouped([perfRow.id]);
-    let cases = allCases.get(perfRow.id) || [];
+    const cases = allCases.get(perfRow.id) || [];
 
     let statByCaseName = cases.find((s) => s.caseName === req.body.caseName);
 
