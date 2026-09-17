@@ -1,0 +1,28 @@
+# Serves the built SPA (frontend/dist, copied to /srv by frontend/Dockerfile).
+# SPA fallback: any path without a matching file serves index.html, so
+# client-side routing (TanStack Router) works on a hard refresh / deep link.
+
+:80 {
+    root * /srv
+    encode gzip
+
+    # `header` runs before `try_files` in Caddy's default directive order, so
+    # these match the ORIGINAL request path — e.g. a deep-link request like
+    # /some/route never matches @assets and gets index.html's no-cache header,
+    # even though try_files later rewrites it to serve /index.html.
+    #
+    # Both matchers are used (rather than one + an unmatched default) because
+    # Caddy reorders multiple `header` directives, running unmatched ones
+    # last — that would silently overwrite the @assets override below.
+    @assets path /assets/*
+    @notAssets not path /assets/*
+
+    # Vite hashes filenames under /assets — safe to cache forever.
+    header @assets Cache-Control "public, max-age=31536000, immutable"
+    # index.html (served at / and as the SPA fallback target) must always
+    # revalidate, since it references the current hashed asset names.
+    header @notAssets Cache-Control "no-cache"
+
+    try_files {path} /index.html
+    file_server
+}
