@@ -27,7 +27,7 @@
     "english-verbs-gerunds": "^3.3.0",
     "english-verbs-helper": "^3.3.0",
     "english-verbs-irregular": "^3.3.0",
-    "express": "^4.18.1",
+    "express": "^4.22.3",
     "express-async-handler": "^1.2.0",
     "german-verbs": "^5.3.0",
     "german-verbs-dict": "^3.3.0",
