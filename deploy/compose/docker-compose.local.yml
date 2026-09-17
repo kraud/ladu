@@ -1,0 +1,82 @@
+# LOCAL-TESTING ONLY override for the Phase B gate — layer this on top of
+# platform.yml and app.yml to run the whole stack locally without GHCR
+# images or real Cloudflare/ACME. Never referenced by deploy.sh or Ansible.
+#
+# APEX_DOMAIN must resolve to loopback with no /etc/hosts edit — a
+# *.localhost domain (e.g. ladu.localhost) does that everywhere (Node,
+# curl, Chromium) per RFC 6761. EDGE_HTTP_PORT avoids needing root for the
+# privileged port 80 (see platform.yml).
+#
+# All three files together, in one project (simpler than mirroring
+# platform/app as separate real-world projects for a one-off local test):
+#   EDGE_HTTP_PORT=8080 APEX_DOMAIN=ladu.localhost ENVIRONMENT=prod \
+#   POSTGRES_SUPERUSER=ladu POSTGRES_SUPERUSER_PASSWORD=ladu_local_pw \
+#     docker compose -f platform.yml -f app.yml -f docker-compose.local.yml \
+#       -p ladu-local up -d --build
+#
+# The networks override below is needed only for this combined-invocation
+# style: app.yml marks `edge` external (expects platform.yml's separate
+# project to have created it already), which — being the later file in a
+# three-file merge — would otherwise win over platform.yml's own
+# (non-external, creating) definition of the same network key.
+
+services:
+  postgres:
+    environment:
+      POSTGRES_DB: ladu_prod_local
+    # Published (unlike production) only so e2e/fixtures/db.ts — which
+    # intentionally reads the dev DB directly to fetch verification tokens,
+    # bypassing the app entirely — can be pointed at this DB instead via a
+    # DATABASE_URL shell env var (dotenv won't override one already set).
+    ports:
+      - "55432:5432"
+
+  edge:
+    volumes:
+      - ./local.Caddyfile:/etc/caddy/Caddyfile:ro
+    # CLOUDFLARE_API_TOKEN isn't read by local.Caddyfile at all (no
+    # acme_dns), but platform.yml's environment block still interpolates
+    # it, so it must be set to *something* non-empty for `docker compose up`.
+    environment:
+      CLOUDFLARE_API_TOKEN: unused-locally
+
+  landing:
+    build:
+      context: ../../landing
+    image: ladu-landing:local
+
+  web:
+    build:
+      context: ../..
+      dockerfile: frontend/Dockerfile
+    image: ladu-web:local
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+      args:
+        GIT_SHA: local-test
+    image: ladu-backend:local
+    # Published directly (unlike production) so the e2e suite's Node-side
+    # `request` fixture calls (Playwright APIRequestContext, not a browser —
+    # doesn't go through Chromium, so *.localhost resolution doesn't help
+    # it reach an edge-routed hostname the way page navigation does) can
+    # hit the backend without going through edge.
+    ports:
+      - "5002:5001"
+    environment:
+      DATABASE_URL: postgresql://ladu:ladu_local_pw@postgres:5432/ladu_prod_local
+      JWT_SECRET: local_test_secret
+      BASE_URL: http://app.ladu.localhost:${EDGE_HTTP_PORT:-8080}
+      URL_EESTI_LANG_API: https://api.sonapi.ee/v2
+      EMAIL_HOST: localhost
+      EMAIL_PORT: "1025"
+      EMAIL_USER: local@ladu.test
+      EMAIL_PASS: local_test_pass
+      EMAIL_SECURE: "false"
+
+networks:
+  edge:
+    name: edge
+    external: false
