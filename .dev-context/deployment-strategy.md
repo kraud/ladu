@@ -175,6 +175,8 @@ Total effort: about 3–4 days. After Phase D, each feature phase (5–7) goes t
 
 - `.nvmrc` = 24. Add `engines` to the root `package.json`.
 - ESLint (flat config) in `backend` and `frontend`. Add `lint` scripts. Fix or suppress the current errors.
+- `typecheck` scripts (`tsc --noEmit` backend, `tsc -b` frontend). Backend also needed `"moduleDetection": "force"` in `tsconfig.json` (require()-only `.ts` files were being treated as global scripts, so same-named top-level `const`s collided across files) and `: typeof import(...)` annotations on `require()` calls that were silently typed `any` (`db`, `wordService`, etc.) — that surfaced real bugs (e.g. a `wordController.ts` insert that could receive `tagId: undefined`), now fixed.
+  - **Deferred:** `controllers/tagController.ts`, `friendshipController.ts` and `notificationController.ts` are excluded from the backend typecheck gate (`tsconfig.json` `exclude`) — ~40 pre-existing `noImplicitAny`/type errors there, left for when friendships/notifications/tags/tag-sharing come off the deferred list (see CLAUDE.md). Fix and re-include then.
 - Rename `test.yml` → `ci.yml`. Add the `lint`, `typecheck` and `e2e` jobs (see §3).
 - Ruleset, Dependabot, CodeQL, secret scanning, PR template.
 - **Gate:** a test PR shows all checks green, and the ruleset blocks a merge while a check is red.

@@ -13,12 +13,12 @@
  */
 
 const { and, eq, inArray, or, sql } = require('drizzle-orm');
-const { db } = require('../src/db');
+const { db }: typeof import('../src/db') = require('../src/db');
 const {
     exercisePerformanceCases,
     exercisePerformances,
     words,
-} = require('../src/db/schema');
+}: typeof import('../src/db/schema') = require('../src/db/schema');
 const {
     calculateAging,
     calculateNewPercentageOfKnowledge,
@@ -32,7 +32,7 @@ const { verbGroupedCategoriesSingleLanguage } = require('../utils/equivalentTran
 const asyncHandler = require('express-async-handler');
 
 // Shared word-assembly helpers (translations, cases, tags).
-const { fetchWordsWithRelations } = require('../services/wordService');
+const { fetchWordsWithRelations }: typeof import('../services/wordService') = require('../services/wordService');
 
 // Re-exported from tagController's Drizzle version
 const { getWordsIdFromFollowedTagsByUserId } = require('./tagController.ts');
@@ -173,7 +173,7 @@ const fetchPerformancesForWords = async (
 // EXERCISE-GENERATION HELPERS (ported from the JS original)
 // ===========================================================================
 
-const getFormattedExerciseForMultiLang = (type: string, itemA: any, itemB: any, partOfSpeech: string) => {
+const getFormattedExerciseForMultiLang = (type: string, itemA: any, itemB: any, partOfSpeech: string): any => {
     switch (type) {
         case 'Multiple-Choice':
             return {

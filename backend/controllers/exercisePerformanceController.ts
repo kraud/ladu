@@ -10,8 +10,8 @@
  * Route usage is declared in ../routes/exerciseRoutes.js (still CJS).
  */
 
-const { db } = require('../src/db');
-const { exercisePerformanceCases, exercisePerformances } = require('../src/db/schema');
+const { db }: typeof import('../src/db') = require('../src/db');
+const { exercisePerformanceCases, exercisePerformances }: typeof import('../src/db/schema') = require('../src/db/schema');
 
 const { and, eq, inArray, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 const asyncHandler = require('express-async-handler');
@@ -175,7 +175,7 @@ const calculateNewPercentageOfKnowledge = (
  * records (as returned by toPerformanceResponse).
  */
 const findMatches = (
-    word: { exercises: any[] },
+    word: { exercises: any[]; _id: string },
     translationsPerformanceArray: PerformanceResponse[],
 ): any[] => {
     return word.exercises

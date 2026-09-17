@@ -18,14 +18,14 @@
  * translations+cases join themselves.
  */
 
-const { db } = require('../src/db');
+const { db }: typeof import('../src/db') = require('../src/db');
 const {
     tags,
     tagWords,
     translationCases,
     translations,
     words,
-} = require('../src/db/schema');
+}: typeof import('../src/db/schema') = require('../src/db/schema');
 const { inArray } = require('drizzle-orm');
 
 // ---------------------------------------------------------------------------
@@ -249,7 +249,7 @@ const getWordsByIds = async (wordIds: string[]): Promise<WordRow[]> => {
     return db.select().from(words).where(inArray(words.id, wordIds));
 };
 
-module.exports = {
+export {
     fetchTranslationsMap,
     fetchTagsMap,
     assembleWord,

@@ -11,8 +11,8 @@
  */
 
 const { count, eq, inArray, sql } = require("drizzle-orm");
-const { db } = require("../src/db");
-const { translations, words } = require("../src/db/schema");
+const { db }: typeof import("../src/db") = require("../src/db");
+const { translations, words }: typeof import("../src/db/schema") = require("../src/db/schema");
 
 interface BasicUserMetrics {
   translationsPerLanguage: Array<{

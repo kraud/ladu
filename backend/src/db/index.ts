@@ -37,4 +37,4 @@ const pool = new Pool({ connectionString });
 // Create the Drizzle ORM instance, passing the schema for the relational query API.
 const db = drizzle(pool, { schema });
 
-module.exports = { pool, db };
+export = { pool, db };

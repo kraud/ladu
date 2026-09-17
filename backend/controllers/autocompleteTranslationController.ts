@@ -8,7 +8,7 @@
  * Route usage is declared in ../routes/autocompleteTranslationRoutes.js.
  */
 
-const https = require('https');
+const https: typeof import('https') = require('https');
 
 const asyncHandler = require('express-async-handler');
 const isWord = require('is-word');
