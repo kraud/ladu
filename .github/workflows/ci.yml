@@ -80,3 +80,58 @@ jobs:
       - run: npm ci
       - run: npm run test -w frontend
       - run: npm run build -w frontend
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: keelapp_user
+          POSTGRES_PASSWORD: keelapp_password
+          POSTGRES_DB: keelapp_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U keelapp_user"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # The webServer-spawned backend runs in dev mode (not NODE_ENV=test), so
+      # it reads DATABASE_URL, not TEST_DATABASE_URL, and applies migrations
+      # itself at startup (backend/api/index.js) — no separate migrate step.
+      DATABASE_URL: postgresql://keelapp_user:keelapp_password@localhost:5432/keelapp_e2e
+      JWT_SECRET: e2e_test_secret
+      BASE_URL: http://localhost:5173
+      # sendMail (backend/utils/sendEmail.js) catches its own send errors and
+      # never rejects, so registration/verification flows work without a real
+      # mailbox — these just need to be set so nodemailer.createTransport
+      # doesn't get undefined values.
+      EMAIL_HOST: localhost
+      EMAIL_PORT: "1025"
+      EMAIL_USER: e2e@ladu.test
+      EMAIL_PASS: e2e_test_pass
+      EMAIL_SECURE: "false"
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 14
