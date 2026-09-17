@@ -24,3 +24,12 @@ node_modules/.cache/ms-playwright
 
 # playwright MCP interactive-session scratch
 .playwright-mcp
+
+# terraform (state lives in HCP Terraform, not locally)
+deploy/terraform/.terraform
+deploy/terraform/*.tfstate*
+deploy/terraform/crash.log
+deploy/terraform/override.tf
+deploy/terraform/override.tf.json
+deploy/terraform/*_override.tf
+deploy/terraform/*_override.tf.json
