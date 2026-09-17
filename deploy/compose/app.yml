@@ -1,0 +1,51 @@
+# App stack — one instance per environment, deployed by deploy/scripts/deploy.sh
+# (Phase D) against the same file twice: once with ENVIRONMENT=staging, once
+# with ENVIRONMENT=prod. Requires deploy/compose/platform.yml already running
+# (shares its `edge` network and its postgres) — see that file for why.
+#
+# Invoke with ENVIRONMENT, IMAGE_TAG (the commit SHA GHCR images are tagged
+# with — see §3) and an env file set, e.g.:
+#   ENVIRONMENT=staging IMAGE_TAG=<sha> docker compose -f app.yml \
+#     --env-file /opt/ladu/staging/.env up -d
+#
+# Service keys stay generic (web/backend) so one file serves both
+# environments; each gets a network alias/container name suffixed with
+# ENVIRONMENT (web-prod, backend-staging, ...) — those are the literal
+# hostnames deploy/caddy/Caddyfile proxies to.
+
+name: ladu-${ENVIRONMENT}
+
+services:
+  web:
+    image: ghcr.io/kraud/ladu-web:${IMAGE_TAG:-latest}
+    container_name: web-${ENVIRONMENT}
+    restart: unless-stopped
+    networks:
+      edge:
+        aliases:
+          - web-${ENVIRONMENT}
+    # No ports published — reached only through edge's reverse_proxy.
+
+  backend:
+    image: ghcr.io/kraud/ladu-backend:${IMAGE_TAG:-latest}
+    container_name: backend-${ENVIRONMENT}
+    restart: unless-stopped
+    env_file:
+      # Resolved relative to this compose file's location by default; the
+      # deploy script must invoke compose with --env-file pointed at
+      # /opt/ladu/<env>/.env (written by the GitHub Environment deploy job —
+      # see deploy/env/app.env.example), or place a copy alongside this file.
+      - .env
+    networks:
+      edge:
+        aliases:
+          - backend-${ENVIRONMENT}
+    # No ports published — reached only through edge's reverse_proxy.
+    # No depends_on: postgres lives in platform.yml, a different Compose
+    # project — Ansible brings platform up first and keeps it running, so
+    # ordering here isn't needed the way it would be within one project.
+
+networks:
+  edge:
+    name: edge
+    external: true
