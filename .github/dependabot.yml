@@ -10,6 +10,13 @@ updates:
       npm-dependencies:
         patterns:
           - "*"
+    ignore:
+      # ts-jest doesn't support TypeScript 7's compiler API yet (TS7 split
+      # it into a native/Rust implementation) — a major bump here breaks
+      # every backend Jest suite outright. Drop this once ts-jest adds
+      # support, or the repo migrates off ts-jest.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
