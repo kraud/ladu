@@ -1,0 +1,7 @@
+# Build context here is deploy/caddy/ itself (see Dockerfile) — a separate
+# context from the root .dockerignore, which only applies to builds that use
+# the repo root as context (backend/, frontend/).
+
+.DS_Store
+.env
+*.env

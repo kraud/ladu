@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node api/index.js",
     "dev": "nodemon --config nodemon.json api/index.js",
+    "migrate": "node scripts/migrate.js",
     "test": "jest --config jest.config.js --forceExit --detectOpenHandles",
     "test:watch": "jest --config jest.config.js --watch --forceExit --detectOpenHandles",
     "test:coverage": "jest --config jest.config.js --coverage --forceExit --detectOpenHandles",

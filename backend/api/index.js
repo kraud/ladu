@@ -12,19 +12,20 @@ require('tsx/cjs');
 const colors = require('colors');
 const path = require('path');
 // Load the repo-root .env regardless of the cwd this process was launched from.
-const dotenv = require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true });
+// In production, env vars are injected directly (Docker Compose env file);
+// there is no repo-root .env to load.
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true });
+}
 const app = require('../app');
 const port = process.env.PORT || 5001;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PostgreSQL connection & migration (replaces legacy MongoDB connectDB)
+// PostgreSQL connection (replaces legacy MongoDB connectDB)
 // ─────────────────────────────────────────────────────────────────────────────
 const { Pool } = require('pg');
-const { drizzle } = require('drizzle-orm/node-postgres');
-const { migrate } = require('drizzle-orm/node-postgres/migrator');
 
 const connectionString = process.env.DATABASE_URL;
-const migrationsFolder = path.resolve(__dirname, '../src/db/migrations');
 
 if (!connectionString) {
     console.error('DATABASE_URL environment variable is not set.'.red.bold);
@@ -34,14 +35,11 @@ if (!connectionString) {
 const startServer = async () => {
     const pool = new Pool({ connectionString });
 
-    // Verify the database is reachable
+    // Verify the database is reachable. Migrations are applied separately,
+    // before this process starts — see backend/scripts/migrate.js.
     await pool.query('SELECT 1');
 
-    // Apply any pending Drizzle migrations so the schema is always up to date.
-    // This is the same pattern used in backend/tests/db.js.
-    await migrate(drizzle(pool), { migrationsFolder });
-
-    console.log(`PostgreSQL connected — migrations applied`.cyan.underline);
+    console.log(`PostgreSQL connected`.cyan.underline);
 
     // Share the pool with the rest of the app.
     // Controllers import `db` / `pool` from ../src/db which creates its own

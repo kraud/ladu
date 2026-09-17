@@ -1,0 +1,58 @@
+# LOCAL-TESTING ONLY — used by docker-compose.local.yml to bind-mount over
+# /etc/caddy/Caddyfile inside the same edge image built from deploy/caddy/
+# (so this exercises the real xcaddy build), for the Phase B gate: running
+# the full stack locally with the prod compose files. Never referenced by
+# deploy.sh or Ansible.
+#
+# Mirrors deploy/caddy/Caddyfile's routing exactly, with two swaps that
+# can't be done with env vars alone:
+#   - No `acme_dns cloudflare` (there's no real Cloudflare zone locally) —
+#     site addresses use an explicit http:// scheme instead, which tells
+#     Caddy not to attempt automatic HTTPS for them at all.
+#   - {$APEX_DOMAIN} is expected to be *.localhost (e.g. ladu.localhost),
+#     which every resolver — including Node's and Chromium's — already
+#     resolves to loopback with no /etc/hosts edit needed.
+# If deploy/caddy/Caddyfile's routing changes, mirror the change here too.
+
+(security_headers) {
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+}
+
+http://{$APEX_DOMAIN} {
+    import security_headers
+    reverse_proxy landing:80
+}
+
+http://www.{$APEX_DOMAIN} {
+    redir http://{$APEX_DOMAIN}{uri} permanent
+}
+
+http://app.{$APEX_DOMAIN} {
+    import security_headers
+
+    handle /api/* {
+        reverse_proxy backend-prod:5001
+    }
+
+    handle {
+        reverse_proxy web-prod:80
+    }
+}
+
+http://staging.{$APEX_DOMAIN} {
+    import security_headers
+
+    handle /api/* {
+        reverse_proxy backend-staging:5001
+    }
+
+    handle {
+        reverse_proxy web-staging:80
+    }
+}

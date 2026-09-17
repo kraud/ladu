@@ -1,0 +1,63 @@
+# Platform stack — one instance for the whole VPS, brought up once by the
+# Ansible `platform` role (Phase C), not per-deploy. staging and production
+# (deploy/compose/app.yml) share this postgres and this edge proxy.
+#
+# `edge` is built locally rather than pulled from GHCR: deploy/caddy/
+# changes rarely and isn't part of the CI image-build pipeline
+# (.dev-context/deployment-strategy.md §3 builds only backend/web/landing
+# per commit). `landing` IS part of that pipeline despite being a single
+# instance like postgres/edge, since apex has no staging/prod split.
+#
+# Variables (POSTGRES_SUPERUSER*, APEX_DOMAIN, CLOUDFLARE_API_TOKEN,
+# IMAGE_TAG) come from /opt/ladu/platform/.env, written by Ansible from
+# Vault (Phase C) — not deploy/env/app.env.example, which is app.yml's.
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - edge
+    # No ports published — only reachable from other containers on `edge`.
+    # Per-environment databases/users (ladu_staging, ladu_prod) are created
+    # by Ansible, not here.
+
+  edge:
+    build:
+      context: ../caddy
+    restart: unless-stopped
+    environment:
+      APEX_DOMAIN: ${APEX_DOMAIN}
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+    # Overridable so local testing (docker-compose.local.yml) can bind
+    # non-privileged host ports instead — Compose merges `ports` lists by
+    # concatenation across -f files, not replacement, so a local override
+    # can't just add a different mapping without both taking effect.
+    ports:
+      - "${EDGE_HTTP_PORT:-80}:80"
+      - "${EDGE_HTTPS_PORT:-443}:443"
+    networks:
+      - edge
+    # The only service in either compose file that publishes ports — Docker
+    # bypasses ufw for published ports, so nothing else may add one.
+
+  landing:
+    image: ghcr.io/kraud/ladu-landing:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    networks:
+      - edge
+    # No ports published — reached only through edge's reverse_proxy.
+
+networks:
+  # Fixed (non project-prefixed) name so app.yml's staging/prod projects can
+  # join it as an external network and reach postgres + be reached by edge.
+  edge:
+    name: edge
+
+volumes:
+  postgres_data:

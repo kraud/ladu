@@ -1,0 +1,8 @@
+# Serves the static landing/ site (copied to /srv by landing/Dockerfile).
+# Plain multi-page static site — no SPA fallback needed.
+
+:80 {
+    root * /srv
+    encode gzip
+    file_server
+}

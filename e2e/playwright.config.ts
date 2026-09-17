@@ -51,7 +51,9 @@ export default defineConfig({
     // keep `npm run dev` running in another terminal while iterating locally.
     webServer: [
         {
-            command: 'npm run dev -w backend',
+            // Migrations are a separate step from server startup (backend/scripts/migrate.js)
+            // — the backend no longer applies them itself on boot.
+            command: 'npm run migrate -w backend && npm run dev -w backend',
             cwd: '..',
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.

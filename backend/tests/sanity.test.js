@@ -16,6 +16,12 @@ describe('Sanity Check', () => {
         expect(res.body).toHaveProperty('message', 'Hello world!');
     });
 
+    it('GET /api/health responds with 200, status ok and a sha', async () => {
+        const res = await request(app).get('/api/health');
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual({ status: 'ok', sha: expect.any(String) });
+    });
+
     it('signin helper generates a valid JWT', () => {
         const token = global.signin('abc123');
         expect(token).toBeDefined();
