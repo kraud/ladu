@@ -18,6 +18,20 @@ module.exports = tseslint.config(
     },
   },
   {
+    // jest-environment-node@27 (this project's Jest version, from 2022)
+    // builds its sandboxed global scope from an older Node global list that
+    // predates globalThis.crypto — unlike real Node 24 runtime code, test
+    // files genuinely don't have a global `crypto` and must require() it.
+    files: ["tests/**/*.{js,ts}"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+        crypto: "off",
+      },
+    },
+  },
+  {
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "warn",
