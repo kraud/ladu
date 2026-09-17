@@ -12,7 +12,11 @@ require('tsx/cjs');
 const colors = require('colors');
 const path = require('path');
 // Load the repo-root .env regardless of the cwd this process was launched from.
-const dotenv = require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true });
+// In production, env vars are injected directly (Docker Compose env file);
+// there is no repo-root .env to load.
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true });
+}
 const app = require('../app');
 const port = process.env.PORT || 5001;
 

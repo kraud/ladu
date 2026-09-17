@@ -5,6 +5,12 @@ const { pool } = require('./src/db')
 
 const app = express()
 
+// Behind Cloudflare + the edge Caddy reverse proxy in production (exactly one
+// hop inside the Docker network) — trusts X-Forwarded-* from that hop so
+// req.ip/req.protocol reflect the real client. Harmless in dev, where no
+// proxy sits in front and no X-Forwarded-* header is sent.
+app.set('trust proxy', 1)
+
 // FE and BE are served same-origin in production (single project), and local
 // dev goes through the Vite proxy, so no CORS is needed by default. For
 // cross-origin setups, set CORS_ORIGIN to a comma-separated origin allowlist.
