@@ -10,8 +10,8 @@
  * Route usage is declared in ../routes/exerciseRoutes.js (still CJS).
  */
 
-const { db } = require('../src/db');
-const { exercisePerformanceCases, exercisePerformances } = require('../src/db/schema');
+const { db }: typeof import('../src/db') = require('../src/db');
+const { exercisePerformanceCases, exercisePerformances }: typeof import('../src/db/schema') = require('../src/db/schema');
 
 const { and, eq, inArray, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 const asyncHandler = require('express-async-handler');
@@ -175,7 +175,7 @@ const calculateNewPercentageOfKnowledge = (
  * records (as returned by toPerformanceResponse).
  */
 const findMatches = (
-    word: { exercises: any[] },
+    word: { exercises: any[]; _id: string },
     translationsPerformanceArray: PerformanceResponse[],
 ): any[] => {
     return word.exercises
@@ -242,7 +242,7 @@ const findMatches = (
 // @route   POST /api/exercises/saveTranslationPerformance
 // @access  Private
 const saveTranslationPerformance = asyncHandler(async (req: any, res: any) => {
-    let performanceId: string | undefined = req.body.performanceId;
+    const performanceId: string | undefined = req.body.performanceId;
 
     let perfRow: typeof exercisePerformances.$inferSelect | undefined;
 
@@ -296,7 +296,7 @@ const saveTranslationPerformance = asyncHandler(async (req: any, res: any) => {
 
     // Update existing performance
     const allCases = await fetchCasesGrouped([perfRow.id]);
-    let cases = allCases.get(perfRow.id) || [];
+    const cases = allCases.get(perfRow.id) || [];
 
     let statByCaseName = cases.find((s) => s.caseName === req.body.caseName);
 

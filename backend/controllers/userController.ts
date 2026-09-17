@@ -1,14 +1,14 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const { db } = require("../src/db");
+const { db }: typeof import("../src/db") = require("../src/db");
 const {
   friendships,
   tokens,
   users,
   words,
   translations,
-} = require("../src/db/schema");
+}: typeof import("../src/db/schema") = require("../src/db/schema");
 
 const {
   and,

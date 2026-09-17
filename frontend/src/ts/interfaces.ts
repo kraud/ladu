@@ -191,7 +191,7 @@ export type EquivalentTranslationValues = {
 } & (TextInput | MultipleChoice)
 
 export type PerformanceStats = {
-    knowledge: Number,
+    knowledge: number,
     performance: any,
     wordId: string
 }

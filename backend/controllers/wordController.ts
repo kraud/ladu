@@ -15,7 +15,7 @@
  * Route usage is declared in ../routes/wordRoutes.js (still CJS).
  */
 
-const { db } = require("../src/db");
+const { db }: typeof import("../src/db") = require("../src/db");
 const {
   tags,
   tagWords,
@@ -24,7 +24,7 @@ const {
   words,
   exercisePerformances,
   exercisePerformanceCases,
-} = require("../src/db/schema");
+}: typeof import("../src/db/schema") = require("../src/db/schema");
 
 // Re-exported helper from the migrated tag controller.
 const { getWordsIdFromFollowedTagsByUserId } = require("./tagController.ts");
@@ -51,7 +51,7 @@ const {
     assembleWord,
     fetchWordsWithRelations,
     fetchWordWithRelations,
-} = require('../services/wordService');
+}: typeof import('../services/wordService') = require('../services/wordService');
 import type { WordResponse, AssembledTranslation } from '../services/wordService';
 
 // ---------------------------------------------------------------------------
@@ -590,7 +590,10 @@ const setWord = asyncHandler(async (req: any, res: any) => {
       .values(
         incomingTags
           .map((tag) => ({ tagId: tag._id ?? tag.id, wordId: newWord.id }))
-          .filter((item) => typeof item.tagId === 'string' && item.tagId.length > 0),
+          .filter(
+            (item): item is { tagId: string; wordId: string } =>
+              typeof item.tagId === 'string' && item.tagId.length > 0,
+          ),
       );
   }
 

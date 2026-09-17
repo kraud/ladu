@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # npm workspaces monorepo — a single entry at the root covers backend,
+  # frontend and e2e (Dependabot reads the workspaces field itself).
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Docker base images: add one entry per directory once Phase B creates the
+  # Dockerfiles (backend/, frontend/, landing/, deploy/caddy/) — Dependabot's
+  # docker ecosystem needs an exact directory per Dockerfile, not a recursive
+  # scan, so there's nothing to point at yet.

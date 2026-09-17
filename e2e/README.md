@@ -55,6 +55,12 @@ server and this suite are independent — specs run through `@playwright/test`.
 
 ## CI
 
-Not wired yet — e2e is a **local** phase gate for now (needs Postgres + both
-servers + browsers). A GitHub Actions `e2e` job is a documented follow-up once
-the suite has a few phases' worth of specs and is stable.
+Wired as the `e2e` job in `.github/workflows/ci.yml`: a Postgres service
+container, `playwright install --with-deps chromium`, then `npm run test:e2e`.
+The webServer-spawned backend runs in dev mode and applies migrations itself
+at startup, so there's no separate migrate step. Dummy `EMAIL_*` values are
+set — `sendMail` (`backend/utils/sendEmail.js`) catches its own send errors
+and never rejects, so registration/verification flows work without a real
+mailbox; `fixtures/db.ts` reads the verification token straight from the
+`tokens` table instead. On failure, the HTML report uploads as the
+`playwright-report` artifact.

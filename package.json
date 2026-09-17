@@ -28,6 +28,9 @@
   },
   "author": "Kevin Raud",
   "license": "MIT",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "devDependencies": {
     "concurrently": "^7.6.0"
   }
