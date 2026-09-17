@@ -1,6 +1,6 @@
 # Deployment Strategy — Ladu v2
 
-> Status: **planned, not started**. Last revised 2026-09-16.
+> Status: **Phases 0, A, B done** (2026-09-17). Phase C (server + DNS as code) is next. Last revised 2026-09-17.
 > Goal: run v2 on the real domain **now**, and ship each later feature phase
 > through a real CI/CD pipeline (staging → production).
 > Cost limit: ≤ ~€7/mo. No service may charge by usage without a hard cap.
@@ -181,7 +181,7 @@ Total effort: about 3–4 days. After Phase D, each feature phase (5–7) goes t
 - Ruleset, Dependabot, CodeQL, secret scanning, PR template.
 - **Gate:** a test PR shows all checks green, and the ruleset blocks a merge while a check is red. ✅ Verified 2026-09-17 — ruleset active on `main`, all 5 `ci.yml` jobs (lint, typecheck, backend, frontend, e2e) required and green.
 
-### Phase B — Containers (½–1 day)
+### Phase B — Containers (½–1 day) — ✅ done
 
 Code changes:
 - `backend/scripts/migrate.js`: runs the Drizzle `migrate()` (logic moved out of `api/index.js`). Dev still runs migrations with `npm run db:migrate`, and the e2e `webServer` must call it before it starts the backend.
@@ -193,11 +193,14 @@ Code changes:
 New files:
 - `backend/Dockerfile`: `node:24-alpine`, `npm ci --omit=dev` for the backend workspace, non-root user, `HEALTHCHECK`. The backend still runs `.ts` through `tsx`, so `tsx` must be a runtime dependency.
 - `frontend/Dockerfile`: multi-stage, Node build → `caddy:alpine` with `dist/` + a small Caddyfile.
-- `landing/`: static site (HTML/CSS, no framework for now) + `landing/Dockerfile` (`caddy:alpine`).
+- `landing/`: static site (HTML/CSS, no framework for now — real content is still future work) + `landing/Dockerfile` (`caddy:alpine`).
 - `deploy/caddy/Dockerfile` (`xcaddy` + Cloudflare DNS module) and `deploy/caddy/Caddyfile` (host routing, `/api` → backend, security headers, `www` → apex redirect).
 - `deploy/compose/platform.yml`, `deploy/compose/app.yml`, `deploy/env/app.env.example`.
-- `.dockerignore` files.
-- **Gate:** the full stack runs locally with the prod compose files (with `tls internal` or a local override), and the e2e suite passes against it.
+- `.dockerignore` files: one at the repo root (build context for `backend`/`frontend`, which need the shared npm-workspaces lockfile) plus one each in `landing/` and `deploy/caddy/` (self-contained build contexts of their own).
+- **Two decisions the plan left open, resolved while building this phase:**
+  - `landing` lives in `platform.yml` alongside `edge`/`postgres` (not `app.yml`) — it's a singleton with no staging/prod split, even though CI builds it per-commit like `backend`/`web` (§3).
+  - `edge` is built locally (`build:` in `platform.yml`), not pulled from GHCR — it's absent from §3's CI image-build list and changes rarely, so it doesn't need the per-commit pipeline.
+- **Gate:** the full stack runs locally with the prod compose files (with `tls internal` or a local override), and the e2e suite passes against it. ✅ Verified 2026-09-17 — `deploy/compose/docker-compose.local.yml` + `deploy/compose/local.Caddyfile` (local-testing only, never used by `deploy.sh`/Ansible) build all five images and run them together over plain HTTP on a `*.localhost` domain (loopback with no `/etc/hosts` edit, per RFC 6761) instead of Cloudflare ACME. Confirmed: migrations apply via the containerized `migrate.js`; edge routes apex/`www`/`app.`/`staging.` correctly, including proxying `staging.` to a distinct (absent) upstream; SPA fallback, security headers, and the health endpoint's baked-in `GIT_SHA` all check out; all 12 existing e2e tests (every prior phase's spec, unmodified) pass through a real browser against the real containers. `platform.yml`'s edge `ports` were parametrized (`${EDGE_HTTP_PORT:-80}` / `${EDGE_HTTPS_PORT:-443}`) so the local override can redirect them — Compose merges `ports` lists by concatenation across `-f` files, not replacement.
 
 ### Phase C — Server and DNS as code (½–1 day)
 
@@ -246,8 +249,8 @@ backend/Dockerfile, backend/scripts/migrate.js
 frontend/Dockerfile
 landing/            static site + Dockerfile
 deploy/
-  caddy/            Dockerfile, Caddyfile
-  compose/          platform.yml, app.yml
+  caddy/            Dockerfile, Caddyfile, .dockerignore
+  compose/          platform.yml, app.yml, docker-compose.local.yml + local.Caddyfile (local-testing only)
   env/              *.env.example
   scripts/          deploy.sh, backup.sh, restore-test.sh
   ansible/          inventory, site.yml, roles/, group_vars/ (Vault)
