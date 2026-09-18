@@ -5,7 +5,7 @@
   become: true
   roles:
     - base
+    - firewall
   # Remaining roles are added one at a time, in later slices:
-  #   firewall  - ufw, Cloudflare IP allowlist for 80/443
   #   docker    - Docker Engine + Compose plugin
   #   platform  - /opt/ladu dirs, platform.yml up, DBs/users, log rotation
