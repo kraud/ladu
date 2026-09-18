@@ -24,3 +24,16 @@ node_modules/.cache/ms-playwright
 
 # playwright MCP interactive-session scratch
 .playwright-mcp
+
+# terraform (state lives in HCP Terraform, not locally)
+deploy/terraform/.terraform
+deploy/terraform/*.tfstate*
+deploy/terraform/crash.log
+deploy/terraform/override.tf
+deploy/terraform/override.tf.json
+deploy/terraform/*_override.tf
+deploy/terraform/*_override.tf.json
+
+# ansible (vault password is local-only; never decrypt the vault file itself)
+deploy/ansible/.vault_pass
+deploy/ansible/*.retry

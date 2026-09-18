@@ -1,6 +1,6 @@
 # Deployment Strategy — Ladu v2
 
-> Status: **Phases 0, A, B done** (2026-09-17). Phase C (server + DNS as code) is next. Last revised 2026-09-17.
+> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) is next. Last revised 2026-09-18.
 > Goal: run v2 on the real domain **now**, and ship each later feature phase
 > through a real CI/CD pipeline (staging → production).
 > Cost limit: ≤ ~€7/mo. No service may charge by usage without a hard cap.
@@ -202,22 +202,22 @@ New files:
   - `edge` is built locally (`build:` in `platform.yml`), not pulled from GHCR — it's absent from §3's CI image-build list and changes rarely, so it doesn't need the per-commit pipeline.
 - **Gate:** the full stack runs locally with the prod compose files (with `tls internal` or a local override), and the e2e suite passes against it. ✅ Verified 2026-09-17 — `deploy/compose/docker-compose.local.yml` + `deploy/compose/local.Caddyfile` (local-testing only, never used by `deploy.sh`/Ansible) build all five images and run them together over plain HTTP on a `*.localhost` domain (loopback with no `/etc/hosts` edit, per RFC 6761) instead of Cloudflare ACME. Confirmed: migrations apply via the containerized `migrate.js`; edge routes apex/`www`/`app.`/`staging.` correctly, including proxying `staging.` to a distinct (absent) upstream; SPA fallback, security headers, and the health endpoint's baked-in `GIT_SHA` all check out; all 12 existing e2e tests (every prior phase's spec, unmodified) pass through a real browser against the real containers. `platform.yml`'s edge `ports` were parametrized (`${EDGE_HTTP_PORT:-80}` / `${EDGE_HTTPS_PORT:-443}`) so the local override can redirect them — Compose merges `ports` lists by concatenation across `-f` files, not replacement.
 
-### Phase C — Server and DNS as code (½–1 day)
+### Phase C — Server and DNS as code (½–1 day) — ✅ done
 
 `deploy/ansible/` (inventory, `site.yml`, roles, Vault file):
 - `base`: `deploy` user (SSH key only), `PermitRootLogin no`, `PasswordAuthentication no`, unattended-upgrades, fail2ban, timezone, swap file (1 GB).
 - `firewall`: ufw default deny. Allow 22. Allow 80/443 **only from Cloudflare IP ranges** (the role downloads the ranges).
-- `docker`: Docker Engine + Compose plugin. Add `deploy` to the `docker` group. Note: this gives `deploy` root-level access, which is acceptable for this project.
-- `platform`: `/opt/ladu/{platform,staging,prod}`, platform `.env` from Vault, `platform.yml` up, create DBs and users, log rotation for Docker.
+- `docker`: Docker Engine + Compose plugin (installed via `deb822_repository`, not the now-deprecated `apt_repository`). Add `deploy` to the `docker` group. Note: this gives `deploy` root-level access, which is acceptable for this project.
+- `platform`: `/opt/ladu/{platform,staging,prod}`, platform `.env` from Vault, `platform.yml` up (via `community.docker.docker_compose_v2`), create DBs and users (via `community.docker.docker_container_exec`, since postgres publishes no port), log rotation for Docker. Also renders Caddy's `trusted_proxies` list (the TODO Phase B left) from the same live Cloudflare range fetch the `firewall` role uses, mounted in rather than baked into the image. Adds persistent `caddy_data`/`caddy_config` volumes so recreating `edge` doesn't burn Let's Encrypt's duplicate-certificate rate limit. Closes the "Docker bypasses ufw" gap with a `docker.service.d` drop-in that reapplies Cloudflare-only `DOCKER-USER` rules after every Docker start (Docker discards that chain's contents each time). `landing` is deliberately excluded from `platform.yml up` — no image exists in GHCR until Phase D's first deploy — Caddy still starts and gets its certificate fine; only the apex route would 502 until then, and the apex isn't part of this gate.
 - `backup`: see Phase E.
 
 `deploy/terraform/` (Cloudflare provider, HCP Terraform backend):
-- Import the existing records (`terraform import`).
-- Records: apex + `www` (Vercel first, VPS later), `app`, `staging` (A/AAAA, proxied).
+- Imported the existing records via declarative `import` blocks (Terraform 1.5+), not the `terraform import` CLI command — lets applies run remotely on HCP Terraform with no local Cloudflare credentials at all.
+- Records: apex + `www` untouched (still Vercel — switched later, see below), `app`, `staging` (A **and** AAAA, proxied).
 - Zone settings: SSL **Full (strict)**, Always Use HTTPS, minimum TLS 1.2.
-- Resend records: SPF, DKIM, DMARC (`p=none` first), bounce MX.
-- Scoped API tokens: one for Terraform, one for Caddy DNS-01 (`Zone:DNS:Edit` on this zone only).
-- **Gate:** `ansible-playbook site.yml` runs twice with no changes on the second run (idempotent). `terraform plan` shows no changes. `https://staging.mydomain.com.ar` shows a Caddy placeholder page with a valid certificate.
+- Resend records: DKIM TXT + two CNAMEs (Resend's current verification flow — not the older raw MX+SPF-TXT pattern this doc originally assumed) + DMARC (`p=none`).
+- Scoped API tokens: the Terraform token itself was created manually in Cloudflare's dashboard (bootstrap — Terraform can't hand itself its own credential) and lives only as an HCP Terraform workspace variable; the Caddy DNS-01 token (`Zone:DNS:Edit` on this zone only) *is* Terraform-managed.
+- **Gate:** ✅ Verified 2026-09-18 — `ansible-playbook site.yml` (all four roles) runs twice with zero changes on the second run. `terraform plan` shows no changes. `https://staging.ladu.com.ar` and `https://app.ladu.com.ar` present real per-hostname Let's Encrypt certificates (confirmed by connecting directly to the VPS's IP, bypassing Cloudflare) — they 502 rather than showing a placeholder page, since Caddy correctly reverse-proxies to `web-staging`/`backend-staging` containers that don't exist until Phase D deploys `app.yml`; the certificate is what this gate is actually about, and that's real. Also confirmed the DOCKER-USER fix live: direct-IP access to the VPS times out post-fix, Cloudflare-proxied access is unaffected.
 
 ### Phase D — Deploy workflow (½–1 day)
 

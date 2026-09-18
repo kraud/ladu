@@ -1,0 +1,152 @@
+---
+# Tasks below this point are untagged and safe to run any time: they only
+# ever add access (the deploy user, its key, sudo), never remove any.
+# The tasks at the bottom, tagged `ssh_lockdown`, remove root/password SSH
+# access — run those only after manually confirming `ssh deploy@<host>`
+# works, using --skip-tags ssh_lockdown on the first run.
+
+- name: Set the system timezone
+  ansible.builtin.timezone:
+    name: "{{ timezone }}"
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - sudo
+      - unattended-upgrades
+      - fail2ban
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Create the deploy user
+  ansible.builtin.user:
+    name: "{{ deploy_user }}"
+    shell: /bin/bash
+    groups: sudo
+    append: true
+    create_home: true
+
+- name: Install the deploy user's SSH key
+  ansible.posix.authorized_key:
+    user: "{{ deploy_user }}"
+    key: "{{ lookup('file', deploy_public_key_path) }}"
+    state: present
+
+- name: Allow deploy passwordless sudo
+  ansible.builtin.template:
+    src: sudoers_deploy.j2
+    dest: "/etc/sudoers.d/{{ deploy_user }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+- name: Enable automatic security updates
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure the APT periodic-update timers are enabled
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - apt-daily.timer
+    - apt-daily-upgrade.timer
+
+- name: Enable the fail2ban sshd jail
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.local
+    content: |
+      [sshd]
+      enabled = true
+    owner: root
+    group: root
+    mode: "0644"
+  register: fail2ban_jail
+
+- name: Ensure fail2ban is enabled and running
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started
+
+- name: Restart fail2ban if its jail config changed
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: restarted
+  when: fail2ban_jail.changed
+
+- name: Check current swap devices
+  ansible.builtin.command: swapon --show=NAME --noheadings
+  register: swap_status
+  changed_when: false
+
+- name: Create the swap file
+  ansible.builtin.command: fallocate -l {{ swap_size_mb }}M /swapfile
+  args:
+    creates: /swapfile
+  when: swap_status.stdout == ""
+
+- name: Secure the swap file's permissions
+  ansible.builtin.file:
+    path: /swapfile
+    mode: "0600"
+  when: swap_status.stdout == ""
+
+- name: Format the swap file
+  ansible.builtin.command: mkswap /swapfile
+  when: swap_status.stdout == ""
+
+- name: Enable the swap file
+  ansible.builtin.command: swapon /swapfile
+  when: swap_status.stdout == ""
+
+- name: Persist the swap file in fstab
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: "/swapfile none swap sw 0 0"
+    state: present
+
+# --- Point of no easy return: disables root and password SSH login. ---
+
+- name: Disable SSH password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PasswordAuthentication\s'
+    line: "PasswordAuthentication no"
+    backup: true
+  register: sshd_password_auth
+  tags:
+    - ssh_lockdown
+
+- name: Disable SSH root login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PermitRootLogin\s'
+    line: "PermitRootLogin no"
+    backup: true
+  register: sshd_root_login
+  tags:
+    - ssh_lockdown
+
+- name: Validate the sshd configuration before reloading
+  ansible.builtin.command: sshd -t
+  changed_when: false
+  tags:
+    - ssh_lockdown
+
+- name: Reload sshd to apply the hardening
+  ansible.builtin.systemd:
+    name: ssh
+    state: reloaded
+  when: sshd_password_auth.changed or sshd_root_login.changed
+  tags:
+    - ssh_lockdown

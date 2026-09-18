@@ -1,0 +1,4 @@
+# Placeholder for local testing (docker-compose.local.yml's own
+# local.Caddyfile doesn't import this, so its content doesn't matter here).
+# On the real VPS, the Ansible `platform` role (Phase C) overwrites the
+# deployed copy of this file with the live Cloudflare IP ranges.

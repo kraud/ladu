@@ -1,0 +1,55 @@
+---
+# Ordering matters: every allow rule must exist BEFORE ufw is enabled, or
+# the very SSH connection running this playbook could be cut. `ufw enable`
+# is deliberately the last task in this file.
+
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: Set default incoming policy to deny
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Set default outgoing policy to allow
+  community.general.ufw:
+    direction: outgoing
+    policy: allow
+
+- name: Allow SSH from anywhere
+  community.general.ufw:
+    rule: allow
+    proto: tcp
+    port: "22"
+
+- name: Fetch current Cloudflare IPv4 ranges
+  ansible.builtin.uri:
+    url: https://www.cloudflare.com/ips-v4
+    return_content: true
+  register: cloudflare_ipv4
+  retries: 3
+  delay: 5
+  until: cloudflare_ipv4.status == 200
+
+- name: Fetch current Cloudflare IPv6 ranges
+  ansible.builtin.uri:
+    url: https://www.cloudflare.com/ips-v6
+    return_content: true
+  register: cloudflare_ipv6
+  retries: 3
+  delay: 5
+  until: cloudflare_ipv6.status == 200
+
+- name: Allow HTTP/HTTPS from Cloudflare IP ranges only
+  community.general.ufw:
+    rule: allow
+    proto: tcp
+    src: "{{ item }}"
+    port: "80,443"
+  loop: "{{ cloudflare_ipv4.content.split() + cloudflare_ipv6.content.split() }}"
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled

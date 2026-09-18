@@ -1,0 +1,13 @@
+---
+- name: Configure the Ladu VPS
+  hosts: vps
+  gather_facts: true
+  become: true
+  roles:
+    - base
+    - firewall
+    - docker
+    - platform
+  # `platform` itself lands in four reviewable steps (see its tasks/main.yml
+  # comments): 8a file sync + dirs, 8b Vault secrets, 8c bring the stack up,
+  # 8d DOCKER-USER firewall fix + log rotation.
