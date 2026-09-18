@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
 
+# No job here pushes anywhere or writes packages — every job only needs to
+# read the checked-out code (flagged by CodeQL: "Workflow does not contain
+# permissions").
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint (ESLint)
