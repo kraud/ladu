@@ -1,0 +1,7 @@
+# Non-secret variables shared by every role. Secrets (DB passwords, the
+# Cloudflare DNS token for Caddy, etc.) go in vault.yml, encrypted, added
+# once the `platform` role needs them.
+
+domain: ladu.com.ar
+deploy_user: deploy
+timezone: Etc/UTC

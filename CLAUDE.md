@@ -39,6 +39,7 @@ This is a **from-scratch re-implementation**, not the live app.
 
 - **One feature at a time, small vertical slices.** Each slice ends with something runnable.
 - **No one-shotting big features.** Prioritise changes the user can *review, understand, and commit* before moving on.
+- **Each slice starts with a plain-language overview, before touching any files.** Explain what the slice does and why, and explain any tool or concept it introduces (e.g. what Ansible is, what a Vault is, what a Terraform provider is) — do not assume familiarity. This applies throughout the deployment-strategy work (`.dev-context/deployment-strategy.md`), where learning the tooling is as much the point as shipping it.
 - **Docs + tests are written alongside the feature**, not deferred.
 - **Every phase ends with a green Playwright e2e run.** One spec per phase in the `e2e/` workspace, walking that phase's vertical slice against the real backend + Postgres + a browser. `npm run test:e2e` is a required gate — see `.context/plans/new-repo-build-plan.md` §6. Interactive browser driving mid-session comes from the `@playwright/mcp` server in `.mcp.json`.
 - **Ask before assuming.** On any critical/ambiguous decision, check with the user — do not guess.

@@ -33,3 +33,7 @@ deploy/terraform/override.tf
 deploy/terraform/override.tf.json
 deploy/terraform/*_override.tf
 deploy/terraform/*_override.tf.json
+
+# ansible (vault password is local-only; never decrypt the vault file itself)
+deploy/ansible/.vault_pass
+deploy/ansible/*.retry
