@@ -15,3 +15,9 @@ variable "domain" {
   type        = string
   default     = "ladu.com.ar"
 }
+
+variable "vps_ipv4" {
+  description = "Public IPv4 address of the Netcup VPS hosting app./staging."
+  type        = string
+  default     = "152.53.146.206"
+}
