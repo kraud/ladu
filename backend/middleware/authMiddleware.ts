@@ -34,7 +34,9 @@ const protect = asyncHandler(async (req: any, res: any, next: any) => {
             token = rawToken;
 
             // Verify the signature and recover the user id embedded at login.
-            const decoded = jwt.verify(rawToken, process.env.JWT_SECRET as string) as unknown as { id: string };
+            // algorithms is explicit (not inferred) so a forged token can't switch
+            // to a different algorithm than the one generateToken() signs with.
+            const decoded = jwt.verify(rawToken, process.env.JWT_SECRET as string, { algorithms: ['HS256'] }) as unknown as { id: string };
 
             // Load the current user from PostgreSQL so downstream handlers use fresh profile data.
             const [user] = await db

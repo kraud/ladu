@@ -1,6 +1,6 @@
 # Deployment Strategy — Ladu v2
 
-> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) is next. Last revised 2026-09-18.
+> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) in progress — sub-slice D-a done (2026-09-19). Last revised 2026-09-19.
 > Goal: run v2 on the real domain **now**, and ship each later feature phase
 > through a real CI/CD pipeline (staging → production).
 > Cost limit: ≤ ~€7/mo. No service may charge by usage without a hard cap.
@@ -221,9 +221,31 @@ New files:
 
 ### Phase D — Deploy workflow (½–1 day)
 
-- `deploy.yml`, `deploy.sh`, GitHub Environments + secrets, `deployed-smoke.spec.ts`, staging smoke account.
-- Move email to Resend: verify the domain, set the `EMAIL_*` secrets for both environments.
-- **Gate:** a merge to `main` deploys to staging and production with no manual step. A deploy with a broken health check rolls back to the previous SHA. Verification and password-reset emails from `app.` arrive and do not go to spam.
+Broken into sub-slices, same pattern as Phase C's 8a–8d:
+
+- **D-a** — CI image build + scan gate. **✅ done (2026-09-19).**
+- **D-b** — GHCR publishing on merge to `main`.
+- **D-c** — SSH deploy key + `deploy/scripts/deploy.sh`, tested by hand against staging.
+- **D-d** — Staging job in `deploy.yml`, GitHub `staging` Environment + secrets.
+- **D-e** — Smoke e2e gate (`deployed-smoke.spec.ts`, staging smoke account) between staging and production.
+- **D-f** — Production job, `concurrency: deploy`, rollback proven with a deliberately broken health check.
+- **D-g** — Resend cutover: verify the domain, confirm `EMAIL_*` secrets in both environments, confirm real delivery.
+
+- **Gate (whole phase):** a merge to `main` deploys to staging and production with no manual step. A deploy with a broken health check rolls back to the previous SHA. Verification and password-reset emails from `app.` arrive and do not go to spam.
+
+#### D-a — CI image build + scan gate — ✅ done
+
+Added the `images` job to `ci.yml` (§3 described this job from Phase A onward, but it was never actually added — this closes that gap). Matrix over the three Dockerfiles (`backend`, `web` from `frontend/Dockerfile`, `landing`), each built with `docker/build-push-action` (`push: false`, `load: true` — the same step D-b extends with `push: true`) and scanned with `aquasecurity/trivy-action`, failing on HIGH/CRITICAL findings that have a fix (`ignore-unfixed: true`).
+
+Scanning locally before wiring this into CI (`docker build` + a local `aquasec/trivy` container, matching the exact flags the CI step uses) surfaced three real, unrelated issues — fixed rather than worked around:
+
+- `jsonwebtoken@8.5.1` → `^9.0.3` (breaking major bump; fixed a signature-validation-bypass advisory). Only two call sites in the whole backend (`userController.ts` sign, `authMiddleware.ts` verify), both plain HS256 with a shared secret. Also added an explicit `algorithms: ['HS256']` to the `jwt.verify()` call — the actual defense against algorithm-confusion attacks, independent of package version. Verified: `tsc --noEmit` clean, full Jest suite (176 tests) green.
+- `nodemailer@^6.9.14` → `^10.0.10` (breaking major bump; fixed 11 advisories, mostly SMTP/header injection and SSRF-adjacent issues). `@types/nodemailer` stayed at its old `^8.0.1` pin — harmless, since nothing in `.ts` imports nodemailer's types; only `sendEmail.js` (plain JS, `require`) touches it. Verified: `tsc --noEmit` clean, full Jest suite green.
+- `backend/Dockerfile` runtime stage now strips the npm CLI the `node:24-alpine` base image bundles (`/usr/local/lib/node_modules/npm` and `corepack`, plus their `/usr/local/bin` symlinks) — the container never runs `npm`/`npx` (`CMD` is `node api/index.js`; migrations run via `node scripts/migrate.js`), so npm's own vendored sub-dependencies (`tar`, `ip-address`, `brace-expansion`) were dead code that also happened to carry CVEs. Removing them is a real fix, not an ignore — and shrinks the image.
+
+One class of finding couldn't be fixed locally: 15 HIGH findings (14 CVE IDs + one GHSA-only advisory, `GHSA-hrxh-6v49-42gf`) against `/usr/bin/caddy` in both the `web` and `landing` images — Go-stdlib/gRPC-Go CVEs baked into the `caddy:alpine` base image. Confirmed `caddy:alpine`, `caddy:2-alpine` and `caddy:2.11-alpine` all resolve to the same digest (Caddy v2.11.4) — no rebuilt upstream image exists yet with a patched Go toolchain. Added root `.trivyignore` (read via the trivy-action `trivyignores` input) listing exactly these IDs with a comment explaining why and when to remove each (when it stops appearing in a scan). The backend image carries none of these — the shared ignore file is a no-op for it.
+
+**Gate:** ✅ Verified 2026-09-19 — all three images build locally exactly as the CI step builds them (same `docker build` invocation), and a local Trivy scan with the same flags CI uses (`--severity HIGH,CRITICAL --ignore-unfixed --exit-code 1`, plus `--ignorefile .trivyignore` for web/landing) exits 0 for all three. `ci.yml` YAML validated. Input names for both pinned actions (`docker/build-push-action@v7.4.0`, `aquasecurity/trivy-action@v0.36.0`) confirmed against their `action.yml` at the pinned commit via the GitHub API, rather than assumed.
 
 ### Phase E — Backups and monitoring (½ day)
 

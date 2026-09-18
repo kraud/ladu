@@ -136,3 +136,50 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report/
           retention-days: 14
+
+  images:
+    name: Docker images (build + Trivy scan)
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Build context is the repo root for backend/frontend (npm
+          # workspaces share one root lockfile — see each Dockerfile's own
+          # top comment), and landing/ itself for landing (not a workspace).
+          - image: backend
+            dockerfile: backend/Dockerfile
+            context: .
+            build-args: GIT_SHA=${{ github.sha }}
+          - image: web
+            dockerfile: frontend/Dockerfile
+            context: .
+            build-args: ""
+          - image: landing
+            dockerfile: landing/Dockerfile
+            context: landing
+            build-args: ""
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build ladu-${{ matrix.image }}
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: false
+          load: true
+          tags: ladu-${{ matrix.image }}:ci
+          build-args: ${{ matrix.build-args }}
+      - name: Scan ladu-${{ matrix.image }} for vulnerabilities
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
+        with:
+          image-ref: ladu-${{ matrix.image }}:ci
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          # See .trivyignore's own comment: CVEs the web/landing images carry
+          # only because caddy:alpine hasn't been rebuilt against a patched
+          # Go toolchain yet — nothing on our side to fix.
+          trivyignores: .trivyignore
