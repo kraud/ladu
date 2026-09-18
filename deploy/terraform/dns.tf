@@ -155,7 +155,6 @@ import {
 # Dedicated records take priority over the *.ladu.com.ar wildcard above,
 # so these two hostnames now point at the VPS instead of Vercel. Every
 # other subdomain keeps resolving through the wildcard, unaffected.
-# IPv6 (AAAA) is added once the VPS's global IPv6 address is confirmed.
 
 resource "cloudflare_dns_record" "app_a" {
   zone_id = var.cloudflare_zone_id
@@ -166,11 +165,29 @@ resource "cloudflare_dns_record" "app_a" {
   proxied = true
 }
 
+resource "cloudflare_dns_record" "app_aaaa" {
+  zone_id = var.cloudflare_zone_id
+  name    = "app.${var.domain}"
+  type    = "AAAA"
+  content = var.vps_ipv6
+  ttl     = 1
+  proxied = true
+}
+
 resource "cloudflare_dns_record" "staging_a" {
   zone_id = var.cloudflare_zone_id
   name    = "staging.${var.domain}"
   type    = "A"
   content = var.vps_ipv4
+  ttl     = 1
+  proxied = true
+}
+
+resource "cloudflare_dns_record" "staging_aaaa" {
+  zone_id = var.cloudflare_zone_id
+  name    = "staging.${var.domain}"
+  type    = "AAAA"
+  content = var.vps_ipv6
   ttl     = 1
   proxied = true
 }

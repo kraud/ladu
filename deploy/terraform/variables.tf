@@ -21,3 +21,9 @@ variable "vps_ipv4" {
   type        = string
   default     = "152.53.146.206"
 }
+
+variable "vps_ipv6" {
+  description = "Public IPv6 address of the Netcup VPS hosting app./staging."
+  type        = string
+  default     = "2a0a:4cc0:c1:20b4:c8fb:e6ff:fe5e:f195"
+}
