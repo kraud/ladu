@@ -1,0 +1,45 @@
+---
+# Sub-slice 8a: get the platform stack's files onto the VPS and lay out
+# /opt/ladu/. Deliberately narrow — only platform.yml and the caddy/ build
+# context are synced (not the whole deploy/ folder, and never ansible/ or
+# terraform/). No secrets, no containers started yet.
+
+- name: Install rsync (needed by the synchronize tasks below)
+  ansible.builtin.apt:
+    name: rsync
+    state: present
+
+- name: Create the /opt/ladu directory layout
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0750"
+  loop:
+    - /opt/ladu
+    - /opt/ladu/platform
+    - /opt/ladu/platform/compose
+    - /opt/ladu/platform/caddy
+    - /opt/ladu/staging
+    - /opt/ladu/prod
+
+- name: Sync platform.yml
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../compose/platform.yml"
+    dest: /opt/ladu/platform/compose/platform.yml
+    delete: true
+    perms: false
+    owner: false
+    group: false
+  become: false
+
+- name: Sync the Caddy build context
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../caddy/"
+    dest: /opt/ladu/platform/caddy/
+    delete: true
+    perms: false
+    owner: false
+    group: false
+  become: false

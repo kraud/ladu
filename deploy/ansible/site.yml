@@ -7,6 +7,7 @@
     - base
     - firewall
     - docker
-  # Remaining role, added in the next slice:
-  #   platform  - /opt/ladu dirs, platform.yml up, DBs/users, log rotation,
-  #               and the DOCKER-USER firewall fix for published ports
+    - platform
+  # `platform` itself lands in four reviewable steps (see its tasks/main.yml
+  # comments): 8a file sync + dirs, 8b Vault secrets, 8c bring the stack up,
+  # 8d DOCKER-USER firewall fix + log rotation.
