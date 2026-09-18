@@ -183,3 +183,87 @@
   loop_control:
     label: "{{ item.db_name }}"
   become: false
+
+# --- Sub-slice 8d: close the DOCKER-USER gap, and Docker log rotation. ---
+
+- name: Fetch current Cloudflare IPv4 ranges
+  ansible.builtin.uri:
+    url: https://www.cloudflare.com/ips-v4
+    return_content: true
+  register: cf_ipv4_dockeruser
+  retries: 3
+  delay: 5
+  until: cf_ipv4_dockeruser.status == 200
+
+- name: Fetch current Cloudflare IPv6 ranges
+  ansible.builtin.uri:
+    url: https://www.cloudflare.com/ips-v6
+    return_content: true
+  register: cf_ipv6_dockeruser
+  retries: 3
+  delay: 5
+  until: cf_ipv6_dockeruser.status == 200
+
+- name: Write the DOCKER-USER firewall script
+  ansible.builtin.template:
+    src: docker-user-firewall.sh.j2
+    dest: /usr/local/bin/docker-user-firewall.sh
+    owner: root
+    group: root
+    mode: "0755"
+  vars:
+    cloudflare_ipv4_ranges: "{{ cf_ipv4_dockeruser.content.split() }}"
+    cloudflare_ipv6_ranges: "{{ cf_ipv6_dockeruser.content.split() }}"
+
+- name: Create the docker.service.d directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install the docker.service drop-in that reapplies it on every start
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/docker.service.d/docker-user-firewall.conf
+    content: |
+      [Service]
+      ExecStartPost=/usr/local/bin/docker-user-firewall.sh
+    owner: root
+    group: root
+    mode: "0644"
+  register: docker_user_dropin
+
+- name: Reload systemd units if the drop-in changed
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: docker_user_dropin.changed
+
+- name: Apply the DOCKER-USER rules now, not just on the next Docker start
+  ansible.builtin.command: /usr/local/bin/docker-user-firewall.sh
+  changed_when: false
+
+- name: Configure Docker's default container log rotation
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+    owner: root
+    group: root
+    mode: "0644"
+  register: docker_daemon_json
+
+- name: Restart Docker if its daemon config changed
+  # Safe: postgres/edge both use `restart: unless-stopped`, so they come
+  # back up automatically. This also re-triggers the docker-user-firewall
+  # drop-in above, as a live end-to-end check that the hook itself works.
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+  when: docker_daemon_json.changed
