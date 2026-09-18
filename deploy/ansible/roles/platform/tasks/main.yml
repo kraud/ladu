@@ -54,3 +54,132 @@
     group: "{{ deploy_user }}"
     mode: "0600"
   no_log: true
+
+# --- Sub-slice 8c: bring the stack up for real. ---
+# `landing` is deliberately excluded from the services below: Phase D (not
+# built yet) is what pushes the first real image to GHCR, so
+# ghcr.io/kraud/ladu-landing doesn't exist yet. Caddy still starts and gets
+# its certificate fine either way -- only the apex route would 502 until
+# landing exists, and the apex isn't part of Phase C's gate.
+
+- name: Install python3-requests (needed by the docker_container_exec module)
+  ansible.builtin.apt:
+    name: python3-requests
+    state: present
+
+- name: Create the caddy-config directory for the generated trusted-proxies file
+  ansible.builtin.file:
+    path: /opt/ladu/platform/caddy-config
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0750"
+
+- name: Fetch current Cloudflare IPv4 ranges
+  ansible.builtin.uri:
+    url: https://www.cloudflare.com/ips-v4
+    return_content: true
+  register: cf_ipv4_platform
+  retries: 3
+  delay: 5
+  until: cf_ipv4_platform.status == 200
+
+- name: Fetch current Cloudflare IPv6 ranges
+  ansible.builtin.uri:
+    url: https://www.cloudflare.com/ips-v6
+    return_content: true
+  register: cf_ipv6_platform
+  retries: 3
+  delay: 5
+  until: cf_ipv6_platform.status == 200
+
+- name: Write Caddy's trusted-proxies snippet
+  ansible.builtin.template:
+    src: trusted_proxies.caddy.j2
+    dest: /opt/ladu/platform/caddy-config/trusted_proxies.caddy
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0644"
+  vars:
+    cloudflare_ranges: "{{ cf_ipv4_platform.content.split() + cf_ipv6_platform.content.split() }}"
+  register: trusted_proxies_file
+
+- name: Bring up postgres and edge
+  community.docker.docker_compose_v2:
+    project_src: /opt/ladu/platform/compose
+    project_name: ladu-platform
+    files:
+      - platform.yml
+    env_files:
+      - ../.env
+    services:
+      - postgres
+      - edge
+    state: present
+  become: false
+
+- name: Restart edge if the trusted-proxies list changed
+  community.docker.docker_compose_v2:
+    project_src: /opt/ladu/platform/compose
+    project_name: ladu-platform
+    files:
+      - platform.yml
+    env_files:
+      - ../.env
+    services:
+      - edge
+    state: restarted
+  become: false
+  when: trusted_proxies_file.changed
+
+- name: Wait for Postgres to accept connections
+  community.docker.docker_container_exec:
+    container: ladu-platform-postgres-1
+    command: "pg_isready -U {{ postgres_superuser }}"
+  register: pg_ready
+  until: pg_ready.rc == 0
+  retries: 10
+  delay: 3
+  become: false
+  changed_when: false
+
+- name: Create the environment databases
+  community.docker.docker_container_exec:
+    container: ladu-platform-postgres-1
+    command: "psql -U {{ postgres_superuser }} -c \"CREATE DATABASE {{ item.db_name }}\""
+  register: create_db
+  failed_when: create_db.rc != 0 and 'already exists' not in create_db.stderr
+  changed_when: create_db.rc == 0
+  loop: "{{ environments }}"
+  loop_control:
+    label: "{{ item.db_name }}"
+  become: false
+
+- name: Create the environment database users
+  community.docker.docker_container_exec:
+    container: ladu-platform-postgres-1
+    command: >-
+      psql -U {{ postgres_superuser }} -c
+      "CREATE USER {{ item.db_user }} WITH ENCRYPTED PASSWORD '{{ item.db_password }}'"
+  register: create_user
+  failed_when: create_user.rc != 0 and 'already exists' not in create_user.stderr
+  changed_when: create_user.rc == 0
+  loop: "{{ environments }}"
+  loop_control:
+    label: "{{ item.db_user }}"
+  no_log: true
+  become: false
+
+- name: Grant each environment's user full privileges on its own database
+  community.docker.docker_container_exec:
+    container: ladu-platform-postgres-1
+    command: >-
+      psql -U {{ postgres_superuser }} -c
+      "GRANT ALL PRIVILEGES ON DATABASE {{ item.db_name }} TO {{ item.db_user }}"
+  register: grant_result
+  failed_when: grant_result.rc != 0
+  changed_when: false
+  loop: "{{ environments }}"
+  loop_control:
+    label: "{{ item.db_name }}"
+  become: false

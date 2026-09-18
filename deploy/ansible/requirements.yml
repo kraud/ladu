@@ -8,3 +8,8 @@ collections:
   # community.general.ufw configures the firewall (no ufw module in core).
   - name: community.general
     version: ">=8.0.0"
+  # docker_compose_v2 (shells out to the CLI) and docker_container_exec
+  # (talks to the Docker API via python3-requests, installed in the
+  # platform role) bring up platform.yml and provision the databases.
+  - name: community.docker
+    version: ">=3.10.0"
