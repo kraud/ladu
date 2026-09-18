@@ -1,6 +1,6 @@
 # Deployment Strategy — Ladu v2
 
-> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) is next. Last revised 2026-09-18.
+> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) in progress — sub-slice D-a done (2026-09-19). Last revised 2026-09-19.
 > Goal: run v2 on the real domain **now**, and ship each later feature phase
 > through a real CI/CD pipeline (staging → production).
 > Cost limit: ≤ ~€7/mo. No service may charge by usage without a hard cap.
@@ -221,9 +221,56 @@ New files:
 
 ### Phase D — Deploy workflow (½–1 day)
 
-- `deploy.yml`, `deploy.sh`, GitHub Environments + secrets, `deployed-smoke.spec.ts`, staging smoke account.
-- Move email to Resend: verify the domain, set the `EMAIL_*` secrets for both environments.
-- **Gate:** a merge to `main` deploys to staging and production with no manual step. A deploy with a broken health check rolls back to the previous SHA. Verification and password-reset emails from `app.` arrive and do not go to spam.
+Broken into sub-slices, same pattern as Phase C's 8a–8d:
+
+- **D-a** — CI image build + scan gate. **✅ done (2026-09-19).**
+- **D-b** — GHCR publishing on merge to `main`. **Code done (2026-09-19), gate pending a real merge.**
+- **D-c** — SSH deploy key + `deploy/scripts/deploy.sh`, tested by hand against staging. **Code + server prep done (2026-09-19), live run pending D-b's first real GHCR push.**
+- **D-d** — Staging job in `deploy.yml`, GitHub `staging` Environment + secrets.
+- **D-e** — Smoke e2e gate (`deployed-smoke.spec.ts`, staging smoke account) between staging and production.
+- **D-f** — Production job, `concurrency: deploy`, rollback proven with a deliberately broken health check.
+- **D-g** — Resend cutover: verify the domain, confirm `EMAIL_*` secrets in both environments, confirm real delivery.
+
+- **Gate (whole phase):** a merge to `main` deploys to staging and production with no manual step. A deploy with a broken health check rolls back to the previous SHA. Verification and password-reset emails from `app.` arrive and do not go to spam.
+
+#### D-a — CI image build + scan gate — ✅ done
+
+Added the `images` job to `ci.yml` (§3 described this job from Phase A onward, but it was never actually added — this closes that gap). Matrix over the three Dockerfiles (`backend`, `web` from `frontend/Dockerfile`, `landing`), each built with `docker/build-push-action` (`push: false`, `load: true` — the same step D-b extends with `push: true`) and scanned with `aquasecurity/trivy-action`, failing on HIGH/CRITICAL findings that have a fix (`ignore-unfixed: true`).
+
+Scanning locally before wiring this into CI (`docker build` + a local `aquasec/trivy` container, matching the exact flags the CI step uses) surfaced three real, unrelated issues — fixed rather than worked around:
+
+- `jsonwebtoken@8.5.1` → `^9.0.3` (breaking major bump; fixed a signature-validation-bypass advisory). Only two call sites in the whole backend (`userController.ts` sign, `authMiddleware.ts` verify), both plain HS256 with a shared secret. Also added an explicit `algorithms: ['HS256']` to the `jwt.verify()` call — the actual defense against algorithm-confusion attacks, independent of package version. Verified: `tsc --noEmit` clean, full Jest suite (176 tests) green.
+- `nodemailer@^6.9.14` → `^10.0.10` (breaking major bump; fixed 11 advisories, mostly SMTP/header injection and SSRF-adjacent issues). `@types/nodemailer` stayed at its old `^8.0.1` pin — harmless, since nothing in `.ts` imports nodemailer's types; only `sendEmail.js` (plain JS, `require`) touches it. Verified: `tsc --noEmit` clean, full Jest suite green.
+- `backend/Dockerfile` runtime stage now strips the npm CLI the `node:24-alpine` base image bundles (`/usr/local/lib/node_modules/npm` and `corepack`, plus their `/usr/local/bin` symlinks) — the container never runs `npm`/`npx` (`CMD` is `node api/index.js`; migrations run via `node scripts/migrate.js`), so npm's own vendored sub-dependencies (`tar`, `ip-address`, `brace-expansion`) were dead code that also happened to carry CVEs. Removing them is a real fix, not an ignore — and shrinks the image.
+
+One class of finding couldn't be fixed locally: 15 HIGH findings (14 CVE IDs + one GHSA-only advisory, `GHSA-hrxh-6v49-42gf`) against `/usr/bin/caddy` in both the `web` and `landing` images — Go-stdlib/gRPC-Go CVEs baked into the `caddy:alpine` base image. Confirmed `caddy:alpine`, `caddy:2-alpine` and `caddy:2.11-alpine` all resolve to the same digest (Caddy v2.11.4) — no rebuilt upstream image exists yet with a patched Go toolchain. Added root `.trivyignore` (read via the trivy-action `trivyignores` input) listing exactly these IDs with a comment explaining why and when to remove each (when it stops appearing in a scan). The backend image carries none of these — the shared ignore file is a no-op for it.
+
+**Gate:** ✅ Verified 2026-09-19 — all three images build locally exactly as the CI step builds them (same `docker build` invocation), and a local Trivy scan with the same flags CI uses (`--severity HIGH,CRITICAL --ignore-unfixed --exit-code 1`, plus `--ignorefile .trivyignore` for web/landing) exits 0 for all three. `ci.yml` YAML validated. Input names for both pinned actions (`docker/build-push-action@v7.4.0`, `aquasecurity/trivy-action@v0.36.0`) confirmed against their `action.yml` at the pinned commit via the GitHub API, rather than assumed.
+
+#### D-b — GHCR publishing on merge to `main` — code done, gate pending
+
+New `deploy.yml`, triggered only on `push: branches: [main]` (PRs stay on `ci.yml`), with `concurrency: {group: deploy, cancel-in-progress: false}` so a second merge can't race an in-flight deploy — set up now even though D-b is the only job in the file so far, since D-d/D-f append jobs to this same workflow rather than starting a new one. One job, `build-and-push`: logs into `ghcr.io` with `docker/login-action` using the ambient `GITHUB_TOKEN`, then rebuilds the same three images `ci.yml`'s `images` job already built and Trivy-scanned on this exact commit (no need to scan again here) — this time with `push: true` instead of `load: true`, tagged `ghcr.io/kraud/ladu-<image>:<full 40-char commit SHA>`. The repo's default `GITHUB_TOKEN` permissions are read-only (`gh api repos/kraud/ladu/actions/permissions/workflow` → `"default_workflow_permissions":"read"`), so the job declares `permissions: {contents: read, packages: write}` explicitly.
+
+**GHCR package visibility — a manual step, once per image, after the first real push.** Checked GitHub's docs directly (no REST endpoint exists for this — confirmed by fetching the Packages REST reference and the container-registry visibility guide): a package's visibility can only be changed through the web UI, and going private→public is **irreversible**. Newly published GHCR packages default to private. So the first successful run of this workflow creates `ladu-backend`, `ladu-web` and `ladu-landing` as private packages, and each needs one manual "Change visibility → Public" click in that package's own Settings page before the VPS can `docker compose pull` them without stored registry credentials (the decision from the original slice-D breakdown: public packages, since the repo is already public, so nothing needs a pull token on the VPS).
+
+**Gate:** pending — this only exercises for real on an actual push to `main`. Verified everything reachable without that: YAML validates, and `docker/login-action`'s input names (`registry`, `username`, `password`) were confirmed against its `action.yml` at the pinned commit (`v4.6.0`) the same way as D-a's actions, not assumed. Full gate (packages appear in GHCR tagged with the right SHA, then made public) to confirm after merging.
+
+#### D-c — SSH deploy key + `deploy/scripts/deploy.sh` — code + server prep done, live run pending
+
+A dedicated `ed25519` keypair (`~/.ssh/ladu_ci_deploy`) rather than reusing the Ansible admin key (`~/.ssh/ladu_deploy`) — narrower purpose (only ever needs to SSH in and run `deploy.sh`), and it's the half that eventually becomes a GitHub secret in D-d, so it shouldn't be the same key that has full server-config access from a developer's machine. Its public half is installed by a new task in the `base` role (`ci_deploy_public_key_path` in `group_vars/all/vars.yml`), added via a plain `authorized_key` task alongside the existing one — not `exclusive`, so it only adds, never replaces the admin key.
+
+`deploy/scripts/deploy.sh <env> <sha>` implements §3 exactly: `docker compose pull` → `docker compose run --rm backend node scripts/migrate.js` (a failure here exits before touching running containers) → `docker compose up -d` → poll `${BASE_URL}/api/health` (read straight out of that environment's already-present `.env`, rather than re-deriving the per-environment hostname a second time) for up to 60s until the body contains `"sha":"<sha>"` → on success, record `<sha>` in `deployed_sha` next to the script; on failure, `up -d` again with whatever SHA `deployed_sha` last recorded, then exit non-zero. Matches the doc's own description of the script's lifecycle: copied to `/opt/ladu/<env>/` fresh on every deploy (alongside `app.yml`, also copied fresh — neither is Ansible-managed like `platform.yml`, since both are inherently per-deploy artifacts, not one-time infra), while `.env` persists across deploys and is only ever rewritten, not touched by this script.
+
+Server prep done by hand (VPS-modifying commands go through the user, not me — see below):
+- `ansible-playbook site.yml` installed the new key — one `changed` task, everything else `ok`, same idempotent pattern as every Phase C gate. Verified working: `ssh -i ~/.ssh/ladu_ci_deploy deploy@<host>` succeeds.
+- `/opt/ladu/staging/.env` written with real values: `DATABASE_URL` (real `ladu_staging` password, read from the encrypted vault — `ansible-vault view group_vars/all/vault.yml`, not something I can read myself), a freshly generated throwaway `JWT_SECRET` (`openssl rand -hex 32` — disposable, since D-d's job always rewrites `.env` from real GitHub secrets on every deploy anyway), `BASE_URL=https://staging.ladu.com.ar`, `URL_EESTI_LANG_API=https://api.sonapi.ee/v2` (pulled from the local dev `.env` — same real API both environments use). `EMAIL_*` are placeholders (real Resend credentials are D-g's job) — safe, because the health check never touches email and `sendEmail.js` swallows send errors rather than throwing.
+- `app.yml` and `deploy.sh` copied to `/opt/ladu/staging/`, `deploy.sh` made executable.
+
+**Why the live run is pending, not done:** `deploy.sh`'s first real step is `docker compose pull`, which needs an image to actually exist at `ghcr.io/kraud/ladu-<image>:<sha>` — and none does yet, since D-b's `deploy.yml` has never run for real (no push to `main` yet). Rather than manually push a throwaway test image to GHCR early — extra shared-state noise for no real gain — the plan is to run `deploy.sh staging <sha>` for real the moment this PR merges and D-b's job publishes the first real images. That one run closes both D-b's and D-c's gates together, against the actual artifact the pipeline will use going forward.
+
+Two VPS-touching checks were blocked by the local permission classifier and intentionally not worked around: re-running Ansible (`[Production Reads]`... actually a write, blocked as a real-infra change) and a direct `psql` connectivity check against `ladu_staging` (`[Production Reads]`). Both are fine to skip here — the Ansible run and its result were already confirmed by the user directly, and DB connectivity is exactly what the pending migration step will prove.
+
+**Gate:** pending the live run described above.
 
 ### Phase E — Backups and monitoring (½ day)
 

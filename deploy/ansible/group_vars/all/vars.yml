@@ -6,6 +6,11 @@
 domain: ladu.com.ar
 deploy_user: deploy
 deploy_public_key_path: ~/.ssh/ladu_deploy.pub
+# Separate from deploy_public_key_path above: this one's private half is
+# what GitHub Actions uses (Phase D) to SSH in and run deploy.sh — narrower
+# purpose than the admin key used for full server config, so it gets its own
+# keypair rather than reusing the admin one.
+ci_deploy_public_key_path: ~/.ssh/ladu_ci_deploy.pub
 timezone: Etc/UTC
 
 postgres_superuser: ladu_admin

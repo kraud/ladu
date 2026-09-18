@@ -33,6 +33,12 @@
     key: "{{ lookup('file', deploy_public_key_path) }}"
     state: present
 
+- name: Install the CI deploy user's SSH key (Phase D — GitHub Actions)
+  ansible.posix.authorized_key:
+    user: "{{ deploy_user }}"
+    key: "{{ lookup('file', ci_deploy_public_key_path) }}"
+    state: present
+
 - name: Allow deploy passwordless sudo
   ansible.builtin.template:
     src: sudoers_deploy.j2

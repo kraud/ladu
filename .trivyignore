@@ -1,0 +1,26 @@
+# Read by aquasecurity/trivy-action in the `images` CI job (.github/workflows/ci.yml).
+#
+# All entries below are Go-stdlib CVEs inside the Caddy binary bundled in the
+# upstream `caddy:alpine` base image (frontend/Dockerfile, landing/Dockerfile).
+# Trivy reports them as "fixed" because a fix exists in Go itself, but
+# caddy:alpine hasn't been rebuilt against a patched Go toolchain yet —
+# confirmed 2026-09-18 by checking caddy:alpine, caddy:2-alpine and
+# caddy:2.11-alpine all resolve to the same digest (Caddy v2.11.4). There is
+# nothing to change on our side until upstream rebuilds; remove entries here
+# as each stops appearing in a scan (meaning caddy:alpine has caught up).
+CVE-2026-27145
+CVE-2026-33818
+CVE-2026-39821
+CVE-2026-39822
+CVE-2026-42504
+CVE-2026-46600
+CVE-2026-56852
+CVE-2026-56853
+CVE-2026-56854
+CVE-2026-56858
+CVE-2026-56859
+CVE-2026-56860
+CVE-2026-56862
+CVE-2026-84304
+CVE-2026-84445
+GHSA-hrxh-6v49-42gf

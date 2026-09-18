@@ -23,6 +23,14 @@ WORKDIR /app
 
 RUN addgroup -S ladu && adduser -S ladu -G ladu
 
+# The base image bundles npm's own CLI (with its own vendored, independently
+# versioned dependencies) even though nothing here ever runs `npm`/`npx` —
+# only `node api/index.js` / `node scripts/migrate.js`. Stripping it removes
+# that unused code (and the CVEs a security scan finds in it) rather than
+# just ignoring the findings.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
 
