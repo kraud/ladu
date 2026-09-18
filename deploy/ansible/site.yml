@@ -6,6 +6,7 @@
   roles:
     - base
     - firewall
-  # Remaining roles are added one at a time, in later slices:
-  #   docker    - Docker Engine + Compose plugin
-  #   platform  - /opt/ladu dirs, platform.yml up, DBs/users, log rotation
+    - docker
+  # Remaining role, added in the next slice:
+  #   platform  - /opt/ladu dirs, platform.yml up, DBs/users, log rotation,
+  #               and the DOCKER-USER firewall fix for published ports
