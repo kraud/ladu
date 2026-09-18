@@ -1,0 +1,7 @@
+---
+# ansible.posix ships the authorized_key module, which authored_key needs
+# to install the deploy user's SSH key (moved out of ansible-core years
+# ago into this separate collection).
+collections:
+  - name: ansible.posix
+    version: ">=1.5.0"

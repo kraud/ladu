@@ -3,9 +3,9 @@
   hosts: vps
   gather_facts: true
   become: true
-  roles: []
-  # Roles are added one at a time, in later slices, in this order:
-  #   base      - deploy user, SSH hardening, unattended-upgrades, fail2ban, swap
+  roles:
+    - base
+  # Remaining roles are added one at a time, in later slices:
   #   firewall  - ufw, Cloudflare IP allowlist for 80/443
   #   docker    - Docker Engine + Compose plugin
   #   platform  - /opt/ladu dirs, platform.yml up, DBs/users, log rotation

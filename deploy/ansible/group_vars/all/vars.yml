@@ -4,4 +4,5 @@
 
 domain: ladu.com.ar
 deploy_user: deploy
+deploy_public_key_path: ~/.ssh/ladu_deploy.pub
 timezone: Etc/UTC
