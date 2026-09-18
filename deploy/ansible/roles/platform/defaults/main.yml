@@ -1,0 +1,6 @@
+---
+# Landing has no staging/prod split (deployment-strategy.md §Phase B), so
+# platform.yml's landing service just needs some tag to exist in GHCR.
+# Phase D's deploy step will start setting this per-commit; "latest" is a
+# reasonable placeholder until that pipeline exists.
+image_tag: latest

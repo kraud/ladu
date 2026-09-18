@@ -43,3 +43,14 @@
     owner: false
     group: false
   become: false
+
+# --- Sub-slice 8b: real secrets, for the first time. ---
+
+- name: Write the platform .env file
+  ansible.builtin.template:
+    src: platform.env.j2
+    dest: /opt/ladu/platform/.env
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0600"
+  no_log: true

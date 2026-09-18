@@ -1,8 +1,23 @@
-# Non-secret variables shared by every role. Secrets (DB passwords, the
-# Cloudflare DNS token for Caddy, etc.) go in vault.yml, encrypted, added
-# once the `platform` role needs them.
+# Non-secret variables shared by every role. Secrets themselves live in
+# vault.yml (encrypted), prefixed vault_* by convention -- the names below
+# just wire the non-secret parts (usernames, DB names) together with them,
+# so a role never references vault_* directly.
 
 domain: ladu.com.ar
 deploy_user: deploy
 deploy_public_key_path: ~/.ssh/ladu_deploy.pub
 timezone: Etc/UTC
+
+postgres_superuser: ladu_admin
+postgres_superuser_password: "{{ vault_postgres_superuser_password }}"
+cloudflare_dns_token: "{{ vault_cloudflare_dns_token }}"
+
+environments:
+  - name: staging
+    db_name: ladu_staging
+    db_user: ladu_staging
+    db_password: "{{ vault_staging_db_password }}"
+  - name: prod
+    db_name: ladu_prod
+    db_user: ladu_prod
+    db_password: "{{ vault_prod_db_password }}"
