@@ -10,6 +10,12 @@ concurrency:
   group: deploy
   cancel-in-progress: false
 
+# Default for every job below; build-and-push narrows/extends this with its
+# own job-level block where it needs packages: write. Matches the same
+# CodeQL-flagged fix already applied to ci.yml.
+permissions:
+  contents: read
+
 jobs:
   build-and-push:
     name: Build and push images to GHCR
@@ -58,3 +64,89 @@ jobs:
           push: true
           tags: ghcr.io/kraud/ladu-${{ matrix.image }}:${{ github.sha }}
           build-args: ${{ matrix.build-args }}
+
+  staging:
+    name: Deploy staging
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    # Ties this job to the GitHub "staging" Environment: its own secret set
+    # (deployment-strategy.md §2 Secrets), plus deploy history on the repo's
+    # Environments page. VPS_HOST/VPS_DEPLOY_SSH_KEY/VPS_HOST_KEY are
+    # repository secrets instead (shared with the future `production` job),
+    # matching §2's table — only the app-level env vars are per-environment.
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up SSH
+        run: |
+          mkdir -p -m 700 ~/.ssh
+          cat > ~/.ssh/id_ed25519 <<'KEY'
+          ${{ secrets.VPS_DEPLOY_SSH_KEY }}
+          KEY
+          chmod 600 ~/.ssh/id_ed25519
+          # Pinned host key (not TOFU) — see deployment-strategy.md's D-d
+          # notes for how it was obtained.
+          echo "${{ secrets.VPS_HOST }} ${{ secrets.VPS_HOST_KEY }}" > ~/.ssh/known_hosts
+
+      - name: Write staging .env
+        run: |
+          ssh -i ~/.ssh/id_ed25519 deploy@${{ secrets.VPS_HOST }} \
+            "mkdir -p /opt/ladu/staging && cat > /opt/ladu/staging/.env && chmod 600 /opt/ladu/staging/.env" <<'ENVFILE'
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          BASE_URL=${{ secrets.BASE_URL }}
+          URL_EESTI_LANG_API=${{ secrets.URL_EESTI_LANG_API }}
+          EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT=${{ secrets.EMAIL_PORT }}
+          EMAIL_SECURE=${{ secrets.EMAIL_SECURE }}
+          EMAIL_USER=${{ secrets.EMAIL_USER }}
+          EMAIL_PASS=${{ secrets.EMAIL_PASS }}
+          ENVFILE
+
+      - name: Copy deploy.sh and app.yml
+        run: |
+          scp -i ~/.ssh/id_ed25519 deploy/compose/app.yml deploy/scripts/deploy.sh \
+            deploy@${{ secrets.VPS_HOST }}:/opt/ladu/staging/
+
+      - name: Run deploy.sh
+        run: |
+          ssh -i ~/.ssh/id_ed25519 deploy@${{ secrets.VPS_HOST }} \
+            "chmod +x /opt/ladu/staging/deploy.sh && cd /opt/ladu/staging && ./deploy.sh staging ${{ github.sha }}"
+
+  smoke:
+    name: Smoke e2e against staging
+    needs: staging
+    runs-on: ubuntu-latest
+    # Same Environment as the staging job — reads BASE_URL and the smoke
+    # account's credentials from its secrets (e2e/playwright.deploy.config.ts
+    # + e2e/tests/deployed-smoke.spec.ts). Nothing here has yet gated a
+    # `production` job on this one succeeding — D-f adds that with its own
+    # `needs: smoke`.
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+      - name: Run smoke test
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          SMOKE_TEST_EMAIL: ${{ secrets.SMOKE_TEST_EMAIL }}
+          SMOKE_TEST_PASSWORD: ${{ secrets.SMOKE_TEST_PASSWORD }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: npm run test:e2e:smoke
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: deployed-smoke-report
+          path: e2e/playwright-report/
+          retention-days: 14

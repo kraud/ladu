@@ -16,5 +16,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["playwright.config.ts", "tests", "fixtures"]
+  "include": ["playwright.config.ts", "playwright.deploy.config.ts", "tests", "fixtures"]
 }
