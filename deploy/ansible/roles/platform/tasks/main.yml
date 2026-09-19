@@ -184,6 +184,28 @@
     label: "{{ item.db_name }}"
   become: false
 
+# Database-level privileges above don't cover the public *schema* inside
+# that database. Postgres 15 stopped granting CREATE on the public schema
+# to everyone by default (only the schema's owner — here, postgres_superuser,
+# since it ran CREATE DATABASE — gets it automatically), so without this,
+# each environment's own user can connect and SELECT but can't CREATE TABLE
+# in its own database. Must target -d {{ item.db_name }} specifically —
+# schemas are per-database, so running this without -d would grant on
+# whatever database psql defaults to, not the one we mean.
+- name: Grant each environment's user rights on its database's public schema
+  community.docker.docker_container_exec:
+    container: ladu-platform-postgres-1
+    command: >-
+      psql -U {{ postgres_superuser }} -d {{ item.db_name }} -c
+      "GRANT ALL ON SCHEMA public TO {{ item.db_user }}"
+  register: schema_grant_result
+  failed_when: schema_grant_result.rc != 0
+  changed_when: false
+  loop: "{{ environments }}"
+  loop_control:
+    label: "{{ item.db_name }}"
+  become: false
+
 # --- Sub-slice 8d: close the DOCKER-USER gap, and Docker log rotation. ---
 
 - name: Fetch current Cloudflare IPv4 ranges

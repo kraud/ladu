@@ -40,5 +40,11 @@ const run = async () => {
 
 run().catch((err) => {
     console.error('Migration failed:'.red.bold, err.message || err);
+    // drizzle-orm wraps the real driver error (e.g. Postgres's actual
+    // "permission denied for schema public") in `.cause` — without this,
+    // only the failed query text is visible, not why it failed.
+    if (err.cause) {
+        console.error('Caused by:'.red, err.cause.message || err.cause);
+    }
     process.exit(1);
 });
