@@ -228,7 +228,7 @@ Broken into sub-slices, same pattern as Phase C's 8a–8d:
 - **D-c** — SSH deploy key + `deploy/scripts/deploy.sh`, tested by hand against staging. **✅ done (2026-09-19).**
 - **D-d** — Staging job in `deploy.yml`, GitHub `staging` Environment + secrets. **Code done (2026-09-19), gate pending a real merge.**
 - **D-e** — Smoke e2e gate (`deployed-smoke.spec.ts`, staging smoke account) between staging and production. **Code done, verified against real staging (2026-09-19), CI wiring pending the same merge as D-d.**
-- **D-f** — Production job, `concurrency: deploy`, rollback proven with a deliberately broken health check.
+- **D-f** — Production job, `concurrency: deploy`, rollback proven with a deliberately broken health check. **Job code done (2026-09-19), gate pending a real merge + the rollback proof.**
 - **D-g** — Resend cutover: verify the domain, confirm `EMAIL_*` secrets in both environments, confirm real delivery.
 
 - **Gate (whole phase):** a merge to `main` deploys to staging and production with no manual step. A deploy with a broken health check rolls back to the previous SHA. Verification and password-reset emails from `app.` arrive and do not go to spam.
@@ -304,6 +304,16 @@ No DB fixture access (`fixtures/db.ts` is dev-DB-only, and CI can't reach stagin
 - **TODO, not yet done:** `SMOKE_TEST_PASSWORD` is still the throwaway value (`REPLACE_ME_TEMP_PW_123!`) used for the one-off `curl` registration while setting this up — chosen for expediency, not meant to be the password long-term. Rotate it (update the account's password, then the GitHub secret to match) before this is relied on as a real gate rather than a just-verified one-off.
 
 **Gate:** ✅ Verified 2026-09-19 — ran `npm run test:e2e:smoke` locally (`BASE_URL=https://staging.ladu.com.ar`) against the real, already-deployed staging site: both tests passed (health SHA check, and the full login → create → delete flow) in under 5 seconds. The `deploy.yml` `smoke` job that runs this automatically in CI is unverified until the same merge that verifies D-d/D-b.
+
+**Follow-up caught after D-d/D-e merged:** `ci.yml`'s `e2e` job (the local-dev-stack suite, unrelated to `deploy.yml`) started failing — `playwright.config.ts`'s default `testDir: './tests'` globs every `*.spec.ts`, so it picked up `deployed-smoke.spec.ts` too and failed immediately for missing env vars that only `deploy.yml`'s `smoke` job ever sets. Fixed with `testIgnore: 'deployed-smoke.spec.ts'` on the main config — `playwright.deploy.config.ts` still targets it exclusively via its own `testMatch`. Small follow-up commit on the same PR, caught by CI itself before merge.
+
+#### D-f — Production job — job code done, gate pending
+
+New `production` job in `deploy.yml`, `needs: smoke`, gated behind a GitHub **`production` Environment** — otherwise identical to `staging`'s job (same SSH setup, same `.env`-write-then-`scp`-then-`deploy.sh` sequence), just pointed at `/opt/ladu/prod`, `ladu_prod`, and `app.ladu.com.ar`. Shares `staging`'s repository secrets (`VPS_HOST`, `VPS_DEPLOY_SSH_KEY`, `VPS_HOST_KEY`) — only the app-level env vars are per-Environment, per §2's own secrets table. `production`'s `JWT_SECRET` is a separate freshly generated value, not reused from staging.
+
+`concurrency: deploy` already covers this — it was set once at the workflow level in D-b and applies to every job in the file, so `build-and-push` → `staging` → `smoke` → `production` always serialize as one unit; nothing new needed for that part of D-f's stated scope.
+
+**Gate:** pending two things — a real merge (first real production deploy, establishing a `deployed_sha` baseline to prove rollback against), and then the rollback proof itself: a backend image built with a deliberately wrong `GIT_SHA` baked in, deployed on purpose, expected to fail its health check and roll back to the last good SHA without disturbing production. Not yet run.
 
 ### Phase E — Backups and monitoring (½ day)
 
