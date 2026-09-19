@@ -8,6 +8,9 @@
     - firewall
     - docker
     - platform
+    - backup
   # `platform` itself lands in four reviewable steps (see its tasks/main.yml
   # comments): 8a file sync + dirs, 8b Vault secrets, 8c bring the stack up,
   # 8d DOCKER-USER firewall fix + log rotation.
+  # `backup` is Phase E: nightly pg_dump of ladu_prod to Backblaze B2, plus
+  # a weekly restore test that pings an UptimeRobot heartbeat monitor.

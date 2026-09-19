@@ -344,11 +344,28 @@ Verified each fix live against staging before touching the GitHub secrets (faste
 
 ### Phase E — Backups and monitoring (½ day)
 
-- `backup` role: nightly `pg_dump -Fc ladu_prod` → `rclone` → B2 bucket (lifecycle: keep 30 days). Staging has no backup.
-- **Weekly restore test** (cron): download the latest dump → restore it into a temporary Postgres container → run a row count → remove the container. Send the result to an UptimeRobot heartbeat monitor. If the test does not run or fails, you get an alert.
-- UptimeRobot: HTTP monitors for `app.`, `staging.`, apex, and `/api/health`.
-- Sentry: backend (Express SDK) + frontend (React SDK). `environment` = staging/production, `release` = SHA.
-- **Gate:** one restore test completes. A stopped backend causes an alert within 5 minutes.
+Broken into sub-slices, same pattern as Phase D's D-a–D-g:
+
+- **E-a** — B2 bucket + a new Ansible `backup` role: nightly `pg_dump -Fc ladu_prod` inside the `postgres` container → `rclone copy` to the bucket, timestamped filenames, a lifecycle rule that deletes files 30 days after upload. Staging has no backup (reproducible from the deploy pipeline, not worth the cost).
+- **E-b** — `deploy/scripts/restore-test.sh` + a weekly cron via the `backup` role: download the latest dump → restore it into a throwaway `postgres:15-alpine` container (`docker run --rm`, no persistent volume) → run a row count as a sanity check → remove the container → ping an UptimeRobot **heartbeat** monitor on success. Heartbeat monitors are the reverse of a normal uptime check: the script pings *out* on success, and UptimeRobot alerts when a ping fails to arrive on schedule — the standard way to catch a cron job that silently stopped running.
+- **E-c** — UptimeRobot HTTP monitors: `app.`, `staging.`, apex, and `/api/health` specifically (the last one catches "200 but the DB is unreachable," since the health endpoint runs `SELECT 1`).
+- **E-d** — Sentry: two projects (`ladu-backend`, Express/Node SDK; `ladu-frontend`, React SDK), each project's single DSN shared across staging and production and distinguished at runtime by the `environment` tag, plus `release` = the same git SHA already baked into `/api/health`.
+
+Decisions made:
+- The restore test runs as a VPS cron job owned by the `backup` role, not a scheduled GitHub Actions workflow — it keeps the B2 credentials in one place (Ansible Vault) instead of also needing them as GitHub secrets, and matches how Phase C already grouped "`backup`: see Phase E" under that role.
+- One Sentry DSN per platform (backend, frontend) rather than four (one per platform per environment) — `environment: staging|production` in the SDK config does the separation Sentry's dashboard needs, and the free tier's event quota is shared either way.
+
+**Gate:** one restore test completes end to end and pings the heartbeat monitor. A stopped backend causes an UptimeRobot alert within 5 minutes.
+
+#### E-a/E-b — Backup role + restore test — code done, gate pending
+
+New `deploy/ansible/roles/backup/` (added to `site.yml` after `platform`): installs `rclone` (Debian's packaged version, using rclone's native `b2` backend -- account + key, not the S3-compatible endpoint -- since that's simpler and is what Backblaze's own rclone docs recommend) and `cron` (not guaranteed present on a minimal image), lays out `/opt/ladu/backup/`, syncs `deploy/scripts/backup.sh` and `restore-test.sh` from git (Ansible-managed, unlike `deploy.sh`/`app.yml` -- these don't vary per commit, so there's no reason for a GitHub Actions job to own them), writes `backup.env` (the two non-secret values the scripts need: `POSTGRES_SUPERUSER`, `B2_BUCKET_NAME`) and `rclone.conf` (the B2 credentials) as their own `0600` files rather than piggybacking on `platform/.env` -- keeps each stack's env file owned by the role that actually consumes it. Two `cron` module entries: nightly backup (03:00), weekly restore test (Sundays 04:00). A `logrotate.d` entry caps the two log files.
+
+`backup.sh`: `pg_dump -Fc` the `ladu_prod` database (via `docker compose exec -T postgres`, matching `postgres_superuser`'s existing DB-owner permissions from the `platform` role) → `rclone copy` to B2 → delete the local dump. `restore-test.sh`: find the newest dump in B2 (`rclone lsf`, sorted) → download it → restore into a throwaway `postgres:15-alpine` container (`docker run`, no volume, always removed via a `trap` even on failure) → `SELECT count(*) FROM words` as a proof-of-life query (not a hard "must be non-zero" check -- an early-stage prod DB may genuinely have few rows; the check is "the restored schema is queryable," not "it has data") → `curl` the UptimeRobot heartbeat URL only on success.
+
+New vault secrets (added by hand via `ansible-vault edit`, not by me -- same boundary as every other credential in this repo): `vault_b2_key_id`, `vault_b2_application_key`, `vault_uptimerobot_heartbeat_url`. Wired non-secret-side in `group_vars/all/vars.yml` (`b2_bucket_name`, plus pass-throughs for the three vault values), same pattern as `postgres_superuser_password`/`cloudflare_dns_token`.
+
+**Gate:** pending -- needs `ansible-playbook site.yml` run for real (installs the role) and both scripts triggered by hand once, to confirm a dump lands in B2 and a restore-test run pings the heartbeat monitor green.
 
 ### Later: switch the apex domain
 
