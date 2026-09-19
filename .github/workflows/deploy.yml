@@ -150,3 +150,50 @@ jobs:
           name: deployed-smoke-report
           path: e2e/playwright-report/
           retention-days: 14
+
+  production:
+    name: Deploy production
+    needs: smoke
+    runs-on: ubuntu-latest
+    # Mirrors the staging job exactly, one environment over — see its own
+    # comments for why each piece is there. VPS_HOST/VPS_DEPLOY_SSH_KEY/
+    # VPS_HOST_KEY are the same repository secrets both jobs share; only the
+    # app-level env vars below come from this job's own Environment.
+    environment: production
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up SSH
+        run: |
+          mkdir -p -m 700 ~/.ssh
+          cat > ~/.ssh/id_ed25519 <<'KEY'
+          ${{ secrets.VPS_DEPLOY_SSH_KEY }}
+          KEY
+          chmod 600 ~/.ssh/id_ed25519
+          echo "${{ secrets.VPS_HOST }} ${{ secrets.VPS_HOST_KEY }}" > ~/.ssh/known_hosts
+
+      - name: Write production .env
+        run: |
+          ssh -i ~/.ssh/id_ed25519 deploy@${{ secrets.VPS_HOST }} \
+            "mkdir -p /opt/ladu/prod && cat > /opt/ladu/prod/.env && chmod 600 /opt/ladu/prod/.env" <<'ENVFILE'
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          BASE_URL=${{ secrets.BASE_URL }}
+          URL_EESTI_LANG_API=${{ secrets.URL_EESTI_LANG_API }}
+          EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT=${{ secrets.EMAIL_PORT }}
+          EMAIL_SECURE=${{ secrets.EMAIL_SECURE }}
+          EMAIL_USER=${{ secrets.EMAIL_USER }}
+          EMAIL_PASS=${{ secrets.EMAIL_PASS }}
+          ENVFILE
+
+      - name: Copy deploy.sh and app.yml
+        run: |
+          scp -i ~/.ssh/id_ed25519 deploy/compose/app.yml deploy/scripts/deploy.sh \
+            deploy@${{ secrets.VPS_HOST }}:/opt/ladu/prod/
+
+      - name: Run deploy.sh
+        run: |
+          ssh -i ~/.ssh/id_ed25519 deploy@${{ secrets.VPS_HOST }} \
+            "chmod +x /opt/ladu/prod/deploy.sh && cd /opt/ladu/prod && ./deploy.sh prod ${{ github.sha }}"
