@@ -26,6 +26,12 @@ const CI = !!process.env.CI;
 
 export default defineConfig({
     testDir: './tests',
+    // deployed-smoke.spec.ts targets a real deployed environment (real
+    // BASE_URL, smoke-account credentials, EXPECTED_SHA) via its own
+    // playwright.deploy.config.ts — this config's testDir would otherwise
+    // pick it up too and fail immediately for missing env vars that only
+    // deploy.yml's `smoke` job ever sets.
+    testIgnore: 'deployed-smoke.spec.ts',
     fullyParallel: true,
     forbidOnly: CI,
     retries: CI ? 2 : 0,
