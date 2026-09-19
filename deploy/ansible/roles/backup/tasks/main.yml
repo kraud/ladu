@@ -1,0 +1,93 @@
+---
+# Phase E (E-a nightly backup, E-b weekly restore test): dump ladu_prod to
+# Backblaze B2 every night, and prove the latest dump actually restores
+# once a week. Staging has no backup -- it's reproducible from the deploy
+# pipeline, not worth the storage.
+#
+# rclone talks to B2 through its own native "b2" backend (account/key),
+# not the S3-compatible API -- simpler, and it's what Backblaze's own
+# rclone docs recommend.
+
+- name: Install rclone and cron
+  ansible.builtin.apt:
+    name:
+      - rclone
+      - cron
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Ensure cron is enabled and running
+  ansible.builtin.systemd:
+    name: cron
+    enabled: true
+    state: started
+
+- name: Create the backup directory
+  ansible.builtin.file:
+    path: /opt/ladu/backup
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0750"
+
+- name: Sync the backup and restore-test scripts
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../scripts/{{ item }}"
+    dest: "/opt/ladu/backup/{{ item }}"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0750"
+  loop:
+    - backup.sh
+    - restore-test.sh
+
+- name: Write the backup environment file
+  ansible.builtin.template:
+    src: backup.env.j2
+    dest: /opt/ladu/backup/backup.env
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0600"
+  no_log: true
+
+- name: Write the rclone config for the B2 remote
+  ansible.builtin.template:
+    src: rclone.conf.j2
+    dest: /opt/ladu/backup/rclone.conf
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0600"
+  no_log: true
+
+- name: Schedule the nightly backup
+  ansible.builtin.cron:
+    name: "ladu nightly backup"
+    user: "{{ deploy_user }}"
+    job: "/opt/ladu/backup/backup.sh >> /opt/ladu/backup/backup.log 2>&1"
+    hour: "3"
+    minute: "0"
+
+- name: Schedule the weekly restore test
+  ansible.builtin.cron:
+    name: "ladu weekly restore test"
+    user: "{{ deploy_user }}"
+    job: "/opt/ladu/backup/restore-test.sh >> /opt/ladu/backup/restore-test.log 2>&1"
+    weekday: "0"
+    hour: "4"
+    minute: "0"
+
+- name: Rotate the backup and restore-test logs
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/ladu-backup
+    content: |
+      /opt/ladu/backup/*.log {
+        weekly
+        rotate 4
+        compress
+        missingok
+        notifempty
+      }
+    owner: root
+    group: root
+    mode: "0644"

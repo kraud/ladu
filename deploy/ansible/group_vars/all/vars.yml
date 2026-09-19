@@ -17,6 +17,12 @@ postgres_superuser: ladu_admin
 postgres_superuser_password: "{{ vault_postgres_superuser_password }}"
 cloudflare_dns_token: "{{ vault_cloudflare_dns_token }}"
 
+# Phase E: nightly ladu_prod backup to Backblaze B2 + weekly restore test.
+b2_bucket_name: ladu-db-backups
+b2_key_id: "{{ vault_b2_key_id }}"
+b2_application_key: "{{ vault_b2_application_key }}"
+healthchecks_ping_url: "{{ vault_healthchecks_ping_url }}"
+
 environments:
   - name: staging
     db_name: ladu_staging
