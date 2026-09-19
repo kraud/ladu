@@ -31,7 +31,10 @@ module.exports = async(emailData) => {
 
     })
     const mailData = {
-        from: process.env.EMAIL_USER,
+        // EMAIL_USER is the SMTP auth username ("resend" for Resend's SMTP
+        // relay, not an email address) — the From header needs a real
+        // address on the verified sending domain instead.
+        from: process.env.EMAIL_FROM,
         to: emailData.email,
         subject: emailData.subject,
         ...getHTMLAndAttachedData(emailData),

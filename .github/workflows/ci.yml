@@ -123,6 +123,7 @@ jobs:
       EMAIL_USER: e2e@ladu.test
       EMAIL_PASS: e2e_test_pass
       EMAIL_SECURE: "false"
+      EMAIL_FROM: e2e@ladu.test
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

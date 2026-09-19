@@ -230,15 +230,20 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
     })
     .returning();
 
-  // Send the verification email after both user and token rows exist.
+  // Send the verification email after both user and token rows exist. Not
+  // awaited: sendEmail.js already catches its own send errors internally and
+  // never rejects, so awaiting it only ever adds latency, not safety — and
+  // with a slow or unreachable mail provider, that latency is the full SMTP
+  // timeout (~100s), blocking a response for a registration that already
+  // succeeded (.dev-context/deployment-strategy.md D-g).
   const url = `${process.env.BASE_URL}/user/${user.id}/verify/${token.token}`;
-  await sendMail({
+  sendMail({
     email: user.email,
     subject: "Verify Email",
     url,
     name: user.name,
     type: "verifyEmail",
-  });
+  }).catch((error: unknown) => console.error("Failed to send verification email:", error));
 
   res.status(201).json(publicUserResponse(user));
 });
@@ -500,22 +505,18 @@ const requestPasswordReset = asyncHandler(async (req: any, res: any) => {
     .set({ passwordTokens, updatedAt: new Date() })
     .where(eq(users.id, user.id));
 
-  try {
-    // Send the reset link only after the token has been persisted.
-    const url = `${process.env.BASE_URL}/resetPassword/${user.id}/${newPasswordToken}`;
-    await sendMail({
-      email: user.email,
-      subject: "Password reset link",
-      url,
-      name: user.name,
-      type: "resetPassword",
-    });
+  // Send the reset link only after the token has been persisted. Not
+  // awaited — see the register handler's own comment on why.
+  const url = `${process.env.BASE_URL}/resetPassword/${user.id}/${newPasswordToken}`;
+  sendMail({
+    email: user.email,
+    subject: "Password reset link",
+    url,
+    name: user.name,
+    type: "resetPassword",
+  }).catch((error: unknown) => console.error("Failed to send password reset email:", error));
 
-    res.status(200).json({});
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ message: "Internal Server Error" });
-  }
+  res.status(200).json({});
 });
 
 const updatePassword = asyncHandler(async (req: any, res: any) => {

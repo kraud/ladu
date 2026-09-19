@@ -1,6 +1,6 @@
 # Deployment Strategy — Ladu v2
 
-> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) in progress — D-a, D-b, D-c done, staging live at `staging.ladu.com.ar` (2026-09-19). Last revised 2026-09-19.
+> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) in progress — D-a through D-f done; staging live at `staging.ladu.com.ar`, production live at `app.ladu.com.ar`, rollback proven for real (2026-09-19). D-g (Resend cutover) next. Last revised 2026-09-19.
 > Goal: run v2 on the real domain **now**, and ship each later feature phase
 > through a real CI/CD pipeline (staging → production).
 > Cost limit: ≤ ~€7/mo. No service may charge by usage without a hard cap.
@@ -228,8 +228,8 @@ Broken into sub-slices, same pattern as Phase C's 8a–8d:
 - **D-c** — SSH deploy key + `deploy/scripts/deploy.sh`, tested by hand against staging. **✅ done (2026-09-19).**
 - **D-d** — Staging job in `deploy.yml`, GitHub `staging` Environment + secrets. **Code done (2026-09-19), gate pending a real merge.**
 - **D-e** — Smoke e2e gate (`deployed-smoke.spec.ts`, staging smoke account) between staging and production. **Code done, verified against real staging (2026-09-19), CI wiring pending the same merge as D-d.**
-- **D-f** — Production job, `concurrency: deploy`, rollback proven with a deliberately broken health check. **Job code done (2026-09-19), gate pending a real merge + the rollback proof.**
-- **D-g** — Resend cutover: verify the domain, confirm `EMAIL_*` secrets in both environments, confirm real delivery.
+- **D-f** — Production job, `concurrency: deploy`, rollback proven with a deliberately broken health check. **✅ done (2026-09-19).**
+- **D-g** — Resend cutover: verify the domain, confirm `EMAIL_*` secrets in both environments, confirm real delivery. **Code + secrets done (2026-09-19), gate pending a real merge + a real send test.**
 
 - **Gate (whole phase):** a merge to `main` deploys to staging and production with no manual step. A deploy with a broken health check rolls back to the previous SHA. Verification and password-reset emails from `app.` arrive and do not go to spam.
 
@@ -307,13 +307,30 @@ No DB fixture access (`fixtures/db.ts` is dev-DB-only, and CI can't reach stagin
 
 **Follow-up caught after D-d/D-e merged:** `ci.yml`'s `e2e` job (the local-dev-stack suite, unrelated to `deploy.yml`) started failing — `playwright.config.ts`'s default `testDir: './tests'` globs every `*.spec.ts`, so it picked up `deployed-smoke.spec.ts` too and failed immediately for missing env vars that only `deploy.yml`'s `smoke` job ever sets. Fixed with `testIgnore: 'deployed-smoke.spec.ts'` on the main config — `playwright.deploy.config.ts` still targets it exclusively via its own `testMatch`. Small follow-up commit on the same PR, caught by CI itself before merge.
 
-#### D-f — Production job — job code done, gate pending
+#### D-f — Production job — ✅ done
 
 New `production` job in `deploy.yml`, `needs: smoke`, gated behind a GitHub **`production` Environment** — otherwise identical to `staging`'s job (same SSH setup, same `.env`-write-then-`scp`-then-`deploy.sh` sequence), just pointed at `/opt/ladu/prod`, `ladu_prod`, and `app.ladu.com.ar`. Shares `staging`'s repository secrets (`VPS_HOST`, `VPS_DEPLOY_SSH_KEY`, `VPS_HOST_KEY`) — only the app-level env vars are per-Environment, per §2's own secrets table. `production`'s `JWT_SECRET` is a separate freshly generated value, not reused from staging.
 
 `concurrency: deploy` already covers this — it was set once at the workflow level in D-b and applies to every job in the file, so `build-and-push` → `staging` → `smoke` → `production` always serialize as one unit; nothing new needed for that part of D-f's stated scope.
 
-**Gate:** pending two things — a real merge (first real production deploy, establishing a `deployed_sha` baseline to prove rollback against), and then the rollback proof itself: a backend image built with a deliberately wrong `GIT_SHA` baked in, deployed on purpose, expected to fail its health check and roll back to the last good SHA without disturbing production. Not yet run.
+The real merge (PR #31) produced the first production deploy, giving `deployed_sha=9926732...` as a known-good baseline to roll back to. The rollback proof itself: built a `backend` image locally with `--build-arg GIT_SHA=deliberately-wrong-sha-for-rollback-test`, pulled the real already-deployed `web` image and re-tagged it (its content is irrelevant to this test — only the backend's `/api/health` response is what `deploy.sh` polls), pushed both under `ghcr.io/kraud/ladu-{backend,web}:rollback-test`, then ran `deploy.sh prod rollback-test` for real over SSH.
+
+Two real snags along the way, both resolved rather than worked around:
+- Pushing to GHCR needed registry auth I don't have (`docker push` is blocked by the local permission classifier as `[Production Deploy]`, correctly) — the user built nothing, but did the actual `docker login`/`push`/`deploy.sh` steps themselves, same boundary as every other VPS/production-touching action this whole phase.
+- `gh auth token` (used for the first `docker login` attempt) turned out to carry no `write:packages` scope, and the user's `gh` CLI is authenticated via an ambient `GITHUB_TOKEN` env var rather than its own stored credentials, so `gh auth refresh` couldn't fix it either. Resolved with a one-off classic PAT (`write:packages` only, named `ghcr-manual-push`), used directly for `docker login` instead — didn't touch the existing `gh`/env-var setup at all.
+- The first `deploy.sh prod rollback-test` attempt failed immediately, before even reaching the health check: `no matching manifest for linux/amd64/v4`. The `backend` image had been built locally on an Apple Silicon Mac without an explicit `--platform`, so Docker built it for `arm64` — confirmed via `docker image inspect --format '{{.Architecture}}'`. Every other image that had ever reached the VPS came from GitHub Actions' `ubuntu-latest` (x86_64) runners; this was the first one built locally by a human. Rebuilt with `--platform linux/amd64` explicitly, re-pushed, re-ran.
+
+**Gate:** ✅ Verified 2026-09-19 — `deploy.sh prod rollback-test` ran the full real sequence: pulled both images, ran migrations (a harmless no-op re-run against already-migrated `ladu_prod`), swapped both containers, polled `https://app.ladu.com.ar/api/health` for 60s, correctly never saw a matching SHA (impossible by construction), rolled back to `99267327...`, and exited non-zero. Independently confirmed afterward with a plain `curl https://app.ladu.com.ar/api/health` → `{"status":"ok","sha":"99267327abd5df57899d523f99881d3a51d57eb0"}` — production undisturbed. `rollback-test`-tagged images are still sitting in GHCR, harmless and clearly labeled; not cleaned up, optional.
+
+#### D-g — Resend cutover — code + secrets done, gate pending
+
+Real bug fixed, found back in D-e: `userController.ts`'s `register` and `requestPasswordReset` handlers both `await sendMail(...)` before responding. `sendEmail.js` already catches its own send errors internally and never rejects (`.then()/.catch()` around `transporter.sendMail`, always resolves) — so awaiting it was never about error handling, only ever added latency, and with a slow/unreachable mail provider that latency is the full SMTP timeout (the ~100s Cloudflare 524 seen in D-e). Fixed by not awaiting it at either call site — `sendMail(...).catch(...)`, response sent immediately after the DB write. `requestPasswordReset`'s `try/catch` (only ever there to turn a `sendMail` rejection into a 500, which per the above could never actually fire) was removed entirely, matching `register`'s existing style of trusting `asyncHandler` for real errors.
+
+Second real bug, same discovery: `sendEmail.js`'s `mailData.from` was set to `process.env.EMAIL_USER` — for Resend, that's the literal SMTP auth username `"resend"`, not an email address. Invisible until now because local dev's `.env` still uses the old Gmail setup, where `EMAIL_USER` happens to already be a real address. Fixed with a new `EMAIL_FROM` variable, separate from `EMAIL_USER` — `staging@ladu.com.ar` for staging, `noreply@ladu.com.ar` for production (both added as that environment's own GitHub secret). `deploy/env/app.env.example` and `ci.yml`'s `e2e` job env updated to match; local dev's real `.env` is the user's own git-ignored file, left untouched — they add `EMAIL_FROM` there by hand.
+
+Domain verification itself needed no new work — confirmed already "Verified" in Resend's dashboard from Phase C's Terraform-managed DKIM/CNAME/DMARC records. New: a Resend API key (`ladu-transactional-email`, sending-only access), set as `EMAIL_PASS` in both `staging` and `production` Environment secrets (one shared key across both — simpler, reasonable for a project this size).
+
+**Gate:** pending two things, both requiring the next real merge before they're checkable — the new `.env` values only reach the VPS on `deploy.sh`'s next run, same as every other Environment-secret change this phase: (1) a real registration against `staging.ladu.com.ar` and/or `app.ladu.com.ar` using an inbox the user controls, confirming the email actually arrives and isn't in spam; (2) confirming the response itself returns quickly now rather than hanging on the email send.
 
 ### Phase E — Backups and monitoring (½ day)
 
