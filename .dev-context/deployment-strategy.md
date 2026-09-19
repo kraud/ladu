@@ -1,6 +1,6 @@
 # Deployment Strategy — Ladu v2
 
-> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) in progress — sub-slice D-a done (2026-09-19). Last revised 2026-09-19.
+> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) in progress — D-a, D-b, D-c done, staging live at `staging.ladu.com.ar` (2026-09-19). Last revised 2026-09-19.
 > Goal: run v2 on the real domain **now**, and ship each later feature phase
 > through a real CI/CD pipeline (staging → production).
 > Cost limit: ≤ ~€7/mo. No service may charge by usage without a hard cap.
@@ -224,8 +224,8 @@ New files:
 Broken into sub-slices, same pattern as Phase C's 8a–8d:
 
 - **D-a** — CI image build + scan gate. **✅ done (2026-09-19).**
-- **D-b** — GHCR publishing on merge to `main`. **Code done (2026-09-19), gate pending a real merge.**
-- **D-c** — SSH deploy key + `deploy/scripts/deploy.sh`, tested by hand against staging. **Code + server prep done (2026-09-19), live run pending D-b's first real GHCR push.**
+- **D-b** — GHCR publishing on merge to `main`. **✅ done (2026-09-19).**
+- **D-c** — SSH deploy key + `deploy/scripts/deploy.sh`, tested by hand against staging. **✅ done (2026-09-19).**
 - **D-d** — Staging job in `deploy.yml`, GitHub `staging` Environment + secrets.
 - **D-e** — Smoke e2e gate (`deployed-smoke.spec.ts`, staging smoke account) between staging and production.
 - **D-f** — Production job, `concurrency: deploy`, rollback proven with a deliberately broken health check.
@@ -247,15 +247,15 @@ One class of finding couldn't be fixed locally: 15 HIGH findings (14 CVE IDs + o
 
 **Gate:** ✅ Verified 2026-09-19 — all three images build locally exactly as the CI step builds them (same `docker build` invocation), and a local Trivy scan with the same flags CI uses (`--severity HIGH,CRITICAL --ignore-unfixed --exit-code 1`, plus `--ignorefile .trivyignore` for web/landing) exits 0 for all three. `ci.yml` YAML validated. Input names for both pinned actions (`docker/build-push-action@v7.4.0`, `aquasecurity/trivy-action@v0.36.0`) confirmed against their `action.yml` at the pinned commit via the GitHub API, rather than assumed.
 
-#### D-b — GHCR publishing on merge to `main` — code done, gate pending
+#### D-b — GHCR publishing on merge to `main` — ✅ done
 
 New `deploy.yml`, triggered only on `push: branches: [main]` (PRs stay on `ci.yml`), with `concurrency: {group: deploy, cancel-in-progress: false}` so a second merge can't race an in-flight deploy — set up now even though D-b is the only job in the file so far, since D-d/D-f append jobs to this same workflow rather than starting a new one. One job, `build-and-push`: logs into `ghcr.io` with `docker/login-action` using the ambient `GITHUB_TOKEN`, then rebuilds the same three images `ci.yml`'s `images` job already built and Trivy-scanned on this exact commit (no need to scan again here) — this time with `push: true` instead of `load: true`, tagged `ghcr.io/kraud/ladu-<image>:<full 40-char commit SHA>`. The repo's default `GITHUB_TOKEN` permissions are read-only (`gh api repos/kraud/ladu/actions/permissions/workflow` → `"default_workflow_permissions":"read"`), so the job declares `permissions: {contents: read, packages: write}` explicitly.
 
-**GHCR package visibility — a manual step, once per image, after the first real push.** Checked GitHub's docs directly (no REST endpoint exists for this — confirmed by fetching the Packages REST reference and the container-registry visibility guide): a package's visibility can only be changed through the web UI, and going private→public is **irreversible**. Newly published GHCR packages default to private. So the first successful run of this workflow creates `ladu-backend`, `ladu-web` and `ladu-landing` as private packages, and each needs one manual "Change visibility → Public" click in that package's own Settings page before the VPS can `docker compose pull` them without stored registry credentials (the decision from the original slice-D breakdown: public packages, since the repo is already public, so nothing needs a pull token on the VPS).
+**GHCR package visibility — turned out to need no manual step.** Before the first real push, GitHub's own docs (Packages REST reference + the container-registry visibility guide) said newly published packages default to private and can only be flipped to public through the web UI — no REST endpoint for it. That turned out to be stale or inapplicable: after this workflow's first real run, all three packages (`ladu-backend`, `ladu-web`, `ladu-landing`) showed up already **public** — confirmed directly in each package's own Settings → Danger Zone ("This package is currently public"), not just assumed. Current GHCR behavior, at least for a package a `GITHUB_TOKEN` push links to a public repo, appears to inherit that repo's visibility automatically. Net effect is still the one from the original slice-D decision (public packages, no pull token needed on the VPS) — it just didn't need the manual click I'd planned for.
 
-**Gate:** pending — this only exercises for real on an actual push to `main`. Verified everything reachable without that: YAML validates, and `docker/login-action`'s input names (`registry`, `username`, `password`) were confirmed against its `action.yml` at the pinned commit (`v4.6.0`) the same way as D-a's actions, not assumed. Full gate (packages appear in GHCR tagged with the right SHA, then made public) to confirm after merging.
+**Gate:** ✅ Verified 2026-09-19 — PR #24 merged, `deploy.yml` ran on the merge commit (`b5c9fb0b`) and pushed all three images to GHCR, each already public as described above.
 
-#### D-c — SSH deploy key + `deploy/scripts/deploy.sh` — code + server prep done, live run pending
+#### D-c — SSH deploy key + `deploy/scripts/deploy.sh` — ✅ done
 
 A dedicated `ed25519` keypair (`~/.ssh/ladu_ci_deploy`) rather than reusing the Ansible admin key (`~/.ssh/ladu_deploy`) — narrower purpose (only ever needs to SSH in and run `deploy.sh`), and it's the half that eventually becomes a GitHub secret in D-d, so it shouldn't be the same key that has full server-config access from a developer's machine. Its public half is installed by a new task in the `base` role (`ci_deploy_public_key_path` in `group_vars/all/vars.yml`), added via a plain `authorized_key` task alongside the existing one — not `exclusive`, so it only adds, never replaces the admin key.
 
@@ -266,11 +266,19 @@ Server prep done by hand (VPS-modifying commands go through the user, not me —
 - `/opt/ladu/staging/.env` written with real values: `DATABASE_URL` (real `ladu_staging` password, read from the encrypted vault — `ansible-vault view group_vars/all/vault.yml`, not something I can read myself), a freshly generated throwaway `JWT_SECRET` (`openssl rand -hex 32` — disposable, since D-d's job always rewrites `.env` from real GitHub secrets on every deploy anyway), `BASE_URL=https://staging.ladu.com.ar`, `URL_EESTI_LANG_API=https://api.sonapi.ee/v2` (pulled from the local dev `.env` — same real API both environments use). `EMAIL_*` are placeholders (real Resend credentials are D-g's job) — safe, because the health check never touches email and `sendEmail.js` swallows send errors rather than throwing.
 - `app.yml` and `deploy.sh` copied to `/opt/ladu/staging/`, `deploy.sh` made executable.
 
-**Why the live run is pending, not done:** `deploy.sh`'s first real step is `docker compose pull`, which needs an image to actually exist at `ghcr.io/kraud/ladu-<image>:<sha>` — and none does yet, since D-b's `deploy.yml` has never run for real (no push to `main` yet). Rather than manually push a throwaway test image to GHCR early — extra shared-state noise for no real gain — the plan is to run `deploy.sh staging <sha>` for real the moment this PR merges and D-b's job publishes the first real images. That one run closes both D-b's and D-c's gates together, against the actual artifact the pipeline will use going forward.
+`deploy.sh`'s first real step (`docker compose pull`) needed an image to actually exist at `ghcr.io/kraud/ladu-<image>:<sha>`, so the live run waited for D-b's PR (#24) to merge and publish the first real images, then ran `deploy.sh staging <sha>` against them — one run closing both D-b's and D-c's gates together, against the actual artifact the pipeline uses going forward. (Two VPS-touching checks were blocked by the local permission classifier along the way — re-running Ansible, and a direct `psql` connectivity check — and intentionally not worked around; the user ran those steps directly instead.)
 
-Two VPS-touching checks were blocked by the local permission classifier and intentionally not worked around: re-running Ansible (`[Production Reads]`... actually a write, blocked as a real-infra change) and a direct `psql` connectivity check against `ladu_staging` (`[Production Reads]`). Both are fine to skip here — the Ansible run and its result were already confirmed by the user directly, and DB connectivity is exactly what the pending migration step will prove.
+**A real bug, not a scripting mistake, on the very first live run.** Migration failed on the first `CREATE TABLE` in `public`: `Migration failed: Failed query: CREATE TABLE "exercise_performance_cases" (...)`. Root cause: **PostgreSQL 15 stopped granting `CREATE` on the `public` schema to everyone by default** — only the schema's owner gets it automatically. The `platform` role's DB-provisioning (sub-slice 8b/8c) creates each environment's database as `postgres_superuser` (`ladu_admin`), making *it* the owner of `public`, then only grants `ladu_staging`/`ladu_prod` database-level privileges (`GRANT ALL PRIVILEGES ON DATABASE ...`) — which covers connecting and creating new schemas, but not creating objects inside the pre-existing `public` schema they don't own. Never caught before because local dev and CI sidestep it entirely: both use a single Postgres role (`keelapp_user`) as both the bootstrap superuser *and* the app's connecting user, so it already owns everything.
 
-**Gate:** pending the live run described above.
+Two fixes, both applied and verified against the real failure:
+- `platform` role: new task, `Grant each environment's user rights on its database's public schema` — `psql -U {{ postgres_superuser }} -d {{ item.db_name }} -c "GRANT ALL ON SCHEMA public TO {{ item.db_user }}"`. Must target `-d {{ item.db_name }}` specifically — schemas are per-database, so omitting it would grant on whichever database `psql` defaults to, not the one that matters. `changed_when: false`, matching the sibling database-level grant task right above it (Ansible can't detect whether a `GRANT` changed anything).
+- `backend/scripts/migrate.js`: the failed run's own error output was incomplete — `err.message` is Drizzle's wrapper (just the failed query text), and the actual Postgres reason lives in `err.cause`, which the catch block never logged. Now logs both.
+
+Confirmed safe to retry with no cleanup: `drizzle-orm`'s Postgres migrator (`node_modules/drizzle-orm/pg-core/dialect.js`) wraps every pending migration file in one `session.transaction(...)`, so the failed run rolled back completely — `ladu_staging` was still fully empty in `public` before the retry. (It does create its own `drizzle.__drizzle_migrations` tracking schema/table *before* that transaction starts, which succeeded — creating a new schema makes the creator its owner, unlike pre-existing `public`, so that part isn't affected by the same restriction.)
+
+After the Ansible fix was applied for real (`ok`, not `failed`, for both `ladu_staging` and `ladu_prod`), the exact same `deploy.sh staging b5c9fb0b0acea1475925f8e03c4b5897f59ced3e` command succeeded outright: images pulled, migrations applied, containers started, health check reported the right SHA within the 60s budget.
+
+**Gate:** ✅ Verified 2026-09-19 — `deploy.sh staging b5c9fb0b0acea1475925f8e03c4b5897f59ced3e` completed successfully end to end. Independently confirmed with a plain `curl https://staging.ladu.com.ar/api/health` (not a privileged VPS action) → `{"status":"ok","sha":"b5c9fb0b0acea1475925f8e03c4b5897f59ced3e"}`. The `migrate.js`/Ansible fixes that made this succeed are still uncommitted locally, pending their own small PR.
 
 ### Phase E — Backups and monitoring (½ day)
 
