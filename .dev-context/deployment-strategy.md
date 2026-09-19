@@ -1,6 +1,6 @@
 # Deployment Strategy — Ladu v2
 
-> Status: **Phases 0, A, B, C done** (2026-09-18). Phase D (deploy workflow) in progress — D-a through D-f done; staging live at `staging.ladu.com.ar`, production live at `app.ladu.com.ar`, rollback proven for real (2026-09-19). D-g (Resend cutover) next. Last revised 2026-09-19.
+> Status: **Phases 0, A, B, C, D done** (2026-09-19). Staging live at `staging.ladu.com.ar`, production live at `app.ladu.com.ar` — automated CI/CD, proven rollback, real transactional email on both. Phase E (backups and monitoring) is next. Last revised 2026-09-19.
 > Goal: run v2 on the real domain **now**, and ship each later feature phase
 > through a real CI/CD pipeline (staging → production).
 > Cost limit: ≤ ~€7/mo. No service may charge by usage without a hard cap.
@@ -229,7 +229,7 @@ Broken into sub-slices, same pattern as Phase C's 8a–8d:
 - **D-d** — Staging job in `deploy.yml`, GitHub `staging` Environment + secrets. **Code done (2026-09-19), gate pending a real merge.**
 - **D-e** — Smoke e2e gate (`deployed-smoke.spec.ts`, staging smoke account) between staging and production. **Code done, verified against real staging (2026-09-19), CI wiring pending the same merge as D-d.**
 - **D-f** — Production job, `concurrency: deploy`, rollback proven with a deliberately broken health check. **✅ done (2026-09-19).**
-- **D-g** — Resend cutover: verify the domain, confirm `EMAIL_*` secrets in both environments, confirm real delivery. **Staging verified for real (2026-09-19); production pending the next merge + one more real-inbox check.**
+- **D-g** — Resend cutover: verify the domain, confirm `EMAIL_*` secrets in both environments, confirm real delivery. **✅ done (2026-09-19) — Phase D complete.**
 
 - **Gate (whole phase):** a merge to `main` deploys to staging and production with no manual step. A deploy with a broken health check rolls back to the previous SHA. Verification and password-reset emails from `app.` arrive and do not go to spam.
 
@@ -322,7 +322,7 @@ Two real snags along the way, both resolved rather than worked around:
 
 **Gate:** ✅ Verified 2026-09-19 — `deploy.sh prod rollback-test` ran the full real sequence: pulled both images, ran migrations (a harmless no-op re-run against already-migrated `ladu_prod`), swapped both containers, polled `https://app.ladu.com.ar/api/health` for 60s, correctly never saw a matching SHA (impossible by construction), rolled back to `99267327...`, and exited non-zero. Independently confirmed afterward with a plain `curl https://app.ladu.com.ar/api/health` → `{"status":"ok","sha":"99267327abd5df57899d523f99881d3a51d57eb0"}` — production undisturbed. `rollback-test`-tagged images are still sitting in GHCR, harmless and clearly labeled; not cleaned up, optional.
 
-#### D-g — Resend cutover — staging verified, production pending
+#### D-g — Resend cutover — ✅ done
 
 Real bug fixed, found back in D-e: `userController.ts`'s `register` and `requestPasswordReset` handlers both `await sendMail(...)` before responding. `sendEmail.js` already catches its own send errors internally and never rejects (`.then()/.catch()` around `transporter.sendMail`, always resolves) — so awaiting it was never about error handling, only ever added latency, and with a slow/unreachable mail provider that latency is the full SMTP timeout (the ~100s Cloudflare 524 seen in D-e). Fixed by not awaiting it at either call site — `sendMail(...).catch(...)`, response sent immediately after the DB write. `requestPasswordReset`'s `try/catch` (only ever there to turn a `sendMail` rejection into a 500, which per the above could never actually fire) was removed entirely, matching `register`'s existing style of trusting `asyncHandler` for real errors.
 
@@ -338,7 +338,9 @@ The first real merge (with the fixes above) deployed cleanly and returned fast �
 
 Verified each fix live against staging before touching the GitHub secrets (faster iteration): manually edited `/opt/ladu/staging/.env`, recreated just the `backend` container (`ENVIRONMENT=staging IMAGE_TAG=<current sha> docker compose -f app.yml --env-file .env up -d backend`), retested. Once the send itself completed with no logged error, the user re-registered on staging with a real inbox and confirmed: email arrived, not in spam, verified the account successfully. `EMAIL_PORT` updated to `2465` in both Environments' GitHub secrets afterward, so the next real deploy carries the fix forward without relying on the manual VPS patch.
 
-**Gate:** ✅ staging verified for real (registration → real inbox → verified account, 2026-09-19). Production still needs its own confirmation — it never received either the port or `EMAIL_FROM` fix yet (only staging was manually patched during debugging); pending the merge that includes the `deploy.yml` heredoc fix, then one more real-inbox check against `app.ladu.com.ar` to close this out per the phase gate's own wording ("Verification and password-reset emails from `app.` arrive").
+**Gate:** ✅ Verified 2026-09-19 on both environments — registration → real inbox → verified account, on both `staging.ladu.com.ar` (`staging@ladu.com.ar` sender) and `app.ladu.com.ar` (`noreply@ladu.com.ar` sender, confirmed after the `deploy.yml` heredoc fix merged and production's container showed the correct `EMAIL_PORT=2465`/`EMAIL_FROM` via `docker exec ... printenv`). Same real inbox used for both — staging and production are separate databases (`ladu_staging`/`ladu_prod`), so no conflict registering the same address on each.
+
+**Phase D is now complete.** Every sub-slice (D-a through D-g) done and gate-verified for real against the live VPS: automated build/scan on every PR, automated publish + deploy to staging and production on every merge to `main`, a smoke e2e gate between them, a proven rollback path, and real transactional email delivery on both environments.
 
 ### Phase E — Backups and monitoring (½ day)
 
