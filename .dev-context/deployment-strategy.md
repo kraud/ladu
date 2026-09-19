@@ -226,8 +226,8 @@ Broken into sub-slices, same pattern as Phase C's 8a–8d:
 - **D-a** — CI image build + scan gate. **✅ done (2026-09-19).**
 - **D-b** — GHCR publishing on merge to `main`. **✅ done (2026-09-19).**
 - **D-c** — SSH deploy key + `deploy/scripts/deploy.sh`, tested by hand against staging. **✅ done (2026-09-19).**
-- **D-d** — Staging job in `deploy.yml`, GitHub `staging` Environment + secrets.
-- **D-e** — Smoke e2e gate (`deployed-smoke.spec.ts`, staging smoke account) between staging and production.
+- **D-d** — Staging job in `deploy.yml`, GitHub `staging` Environment + secrets. **Code done (2026-09-19), gate pending a real merge.**
+- **D-e** — Smoke e2e gate (`deployed-smoke.spec.ts`, staging smoke account) between staging and production. **Code done, verified against real staging (2026-09-19), CI wiring pending the same merge as D-d.**
 - **D-f** — Production job, `concurrency: deploy`, rollback proven with a deliberately broken health check.
 - **D-g** — Resend cutover: verify the domain, confirm `EMAIL_*` secrets in both environments, confirm real delivery.
 
@@ -278,7 +278,32 @@ Confirmed safe to retry with no cleanup: `drizzle-orm`'s Postgres migrator (`nod
 
 After the Ansible fix was applied for real (`ok`, not `failed`, for both `ladu_staging` and `ladu_prod`), the exact same `deploy.sh staging b5c9fb0b0acea1475925f8e03c4b5897f59ced3e` command succeeded outright: images pulled, migrations applied, containers started, health check reported the right SHA within the 60s budget.
 
-**Gate:** ✅ Verified 2026-09-19 — `deploy.sh staging b5c9fb0b0acea1475925f8e03c4b5897f59ced3e` completed successfully end to end. Independently confirmed with a plain `curl https://staging.ladu.com.ar/api/health` (not a privileged VPS action) → `{"status":"ok","sha":"b5c9fb0b0acea1475925f8e03c4b5897f59ced3e"}`. The `migrate.js`/Ansible fixes that made this succeed are still uncommitted locally, pending their own small PR.
+**Gate:** ✅ Verified 2026-09-19 — `deploy.sh staging b5c9fb0b0acea1475925f8e03c4b5897f59ced3e` completed successfully end to end. Independently confirmed with a plain `curl https://staging.ladu.com.ar/api/health` (not a privileged VPS action) → `{"status":"ok","sha":"b5c9fb0b0acea1475925f8e03c4b5897f59ced3e"}`. The `migrate.js`/Ansible fixes that made this succeed went out in their own small PR, merged separately before D-d started.
+
+#### D-d — Staging job in `deploy.yml` — code done, gate pending
+
+New `staging` job in `deploy.yml`, `needs: build-and-push`, gated behind a GitHub **`staging` Environment** (deploy history on the repo's Environments page, its own secret set, no protection rules — the doc calls for fully automatic promotion, no manual approval). It automates exactly the D-c manual sequence: write `/opt/ladu/staging/.env` from the Environment's secrets over SSH, `scp` a fresh `app.yml`/`deploy.sh` (same reasoning as D-c — both are per-deploy artifacts, not Ansible-managed), then run `deploy.sh staging ${{ github.sha }}`.
+
+Plain `ssh`/`scp` in `run:` steps rather than a third-party SSH action — one fewer dependency to pin/vet, consistent with `deploy.sh` itself being a plain script. Needed **three repository secrets** (shared with the future `production` job, per §2's own secrets table — only the app-level env vars are per-Environment): `VPS_HOST`, `VPS_DEPLOY_SSH_KEY` (private half of `~/.ssh/ladu_ci_deploy`), and `VPS_HOST_KEY`. That last one is an addition beyond what §2 originally listed: rather than trust-on-first-connect (blindly accepting whatever host key the runner sees), the workflow pins the VPS's real host key in `known_hosts` up front — fetched once via `ssh-keyscan -t ed25519 152.53.146.206` (safe, read-only, just a public key) and handed to the user to paste in, since it's not sensitive. The **`staging` Environment secrets** are the same set D-c used manually, minus `EMAIL_SERVICE` (dropped — always empty in practice, and `sendEmail.js` treats an unset var the same as an empty one, so no functional difference and one fewer secret).
+
+Verified before handing off: extracted the exact resolved `run:` script text with Ruby's YAML parser (not just eyeballing the file) to confirm GitHub's block-scalar indentation-stripping leaves both heredoc terminators (`KEY`, `ENVFILE`) at column 0 — required for a plain (non-`<<-`) heredoc to match, and easy to get subtly wrong inside an indented YAML block without checking. All secret values that could touch credential material (the SSH private key, `DATABASE_URL`, `JWT_SECRET`) were read and entered by the user directly in the GitHub UI, never passed through a tool call here.
+
+**Gate:** pending — this only exercises for real on an actual push to `main`, same as D-b. All repository and `staging` Environment secrets are now set.
+
+#### D-e — Smoke e2e gate — code done, verified against real staging
+
+New `e2e/playwright.deploy.config.ts` (no `webServer`, `baseURL` from `BASE_URL`, `testMatch` limited to `deployed-smoke.spec.ts`) and `e2e/tests/deployed-smoke.spec.ts`, run via a new `npm run test:e2e:smoke`. Deliberately its own config rather than reusing `playwright.config.ts` — that one always boots local dev servers, which is wrong for a spec whose entire point is hitting a real deployed environment.
+
+Steps, matching §3 exactly: `/api/health` reports the just-deployed SHA (`EXPECTED_SHA`, passed as `${{ github.sha }}`) -> log in with the persistent smoke account -> dashboard loads -> create a word through the real add-word form -> delete it through the real `WordPage` sidebar -> confirm-dialog flow. That last part needed care: Radix's `AlertDialog` renders `role="alertdialog"`, distinct from a plain `dialog` role, and both the sidebar's delete trigger and the dialog's own confirm action render the same accessible text ("Delete", from `common:buttons.delete` in `frontend/public/locales/en/common.json`) — found by reading `WordPage.tsx`/`ConfirmDialog.tsx` directly rather than guessing, then scoped the second click to `page.getByRole('alertdialog').getByRole('button', { name: 'Delete' })` to disambiguate.
+
+No DB fixture access (`fixtures/db.ts` is dev-DB-only, and CI can't reach staging's), so the smoke account itself needed one-time manual setup rather than the throwaway-per-run accounts other specs create:
+- Registered via a plain `curl POST /api/users` against the live site (`smoke-test@ladu.test`, matching the `@ladu.test` convention other specs already use for synthetic addresses) — this hung for ~100s and Cloudflare returned a `524` timeout, but the account was actually created: `userController.ts`'s `register` handler inserts the `users` and `tokens` rows *before* its `await sendMail(...)` call, so the DB write had already succeeded by the time the slow/placeholder-credentialed SMTP attempt to Resend finally gave up. Confirmed by a second registration attempt with the same email, which returned instantly with `"Email already in use"`.
+- **Real bug surfaced by this, not yet fixed — flagged for D-g:** registration (and password reset, same `await sendMail(...)` pattern in `userController.ts`) blocks the HTTP response on the full email send finishing. Harmless right now only because nothing is actually listening on the placeholder Resend credentials' other end long enough to matter for testing — but once D-g wires up real credentials, any slowness or hiccup on Resend's side will make registration *appear* to hang or fail for real users the same way it just did here, even though the write already succeeded. Fix: stop awaiting the send before responding (fire-and-forget with its own error handling). Deliberately not fixed as part of D-e — unrelated to the smoke gate itself, and D-g is precisely where this stops being masked.
+- No DB access for me to flip `verified = true` either (blocked by the same read/write restriction as D-c's connectivity check) — the user ran that one `UPDATE` by hand over SSH.
+- Two more `staging` Environment secrets beyond D-d's set: `SMOKE_TEST_EMAIL`, `SMOKE_TEST_PASSWORD`.
+- **TODO, not yet done:** `SMOKE_TEST_PASSWORD` is still the throwaway value (`REPLACE_ME_TEMP_PW_123!`) used for the one-off `curl` registration while setting this up — chosen for expediency, not meant to be the password long-term. Rotate it (update the account's password, then the GitHub secret to match) before this is relied on as a real gate rather than a just-verified one-off.
+
+**Gate:** ✅ Verified 2026-09-19 — ran `npm run test:e2e:smoke` locally (`BASE_URL=https://staging.ladu.com.ar`) against the real, already-deployed staging site: both tests passed (health SHA check, and the full login → create → delete flow) in under 5 seconds. The `deploy.yml` `smoke` job that runs this automatically in CI is unverified until the same merge that verifies D-d/D-b.
 
 ### Phase E — Backups and monitoring (½ day)
 
