@@ -103,6 +103,7 @@ jobs:
           EMAIL_SECURE=${{ secrets.EMAIL_SECURE }}
           EMAIL_USER=${{ secrets.EMAIL_USER }}
           EMAIL_PASS=${{ secrets.EMAIL_PASS }}
+          EMAIL_FROM=${{ secrets.EMAIL_FROM }}
           ENVFILE
 
       - name: Copy deploy.sh and app.yml
@@ -186,6 +187,7 @@ jobs:
           EMAIL_SECURE=${{ secrets.EMAIL_SECURE }}
           EMAIL_USER=${{ secrets.EMAIL_USER }}
           EMAIL_PASS=${{ secrets.EMAIL_PASS }}
+          EMAIL_FROM=${{ secrets.EMAIL_FROM }}
           ENVFILE
 
       - name: Copy deploy.sh and app.yml
