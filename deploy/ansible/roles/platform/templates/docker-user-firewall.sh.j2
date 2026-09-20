@@ -13,7 +13,16 @@ iptables -A DOCKER-USER -m conntrack --ctstate RELATED,ESTABLISHED -j RETURN
 {% for range in cloudflare_ipv4_ranges %}
 iptables -A DOCKER-USER -s {{ range }} -p tcp -m multiport --dports 80,443 -j RETURN
 {% endfor %}
-iptables -A DOCKER-USER -p tcp -m multiport --dports 80,443 -j DROP
+# -i {{ ansible_default_ipv4.interface }} scopes this DROP to traffic arriving
+# on the VPS's external interface only. Without it, this rule also matched a
+# container's own OUTBOUND connections to anything on port 80/443 elsewhere
+# on the internet -- those enter DOCKER-USER too, via the docker bridge
+# interface, not this one -- silently breaking any outbound HTTPS call a
+# container makes (discovered via Sentry's ingest requests timing out from
+# inside a container while the VPS host itself reached the same host fine;
+# same root cause almost certainly broke the Eesti dictionary API's
+# autocomplete calls since this rule first shipped in Phase C).
+iptables -A DOCKER-USER -i {{ ansible_default_ipv4.interface }} -p tcp -m multiport --dports 80,443 -j DROP
 iptables -A DOCKER-USER -j RETURN
 
 if ip6tables -L DOCKER-USER >/dev/null 2>&1; then
@@ -22,6 +31,10 @@ if ip6tables -L DOCKER-USER >/dev/null 2>&1; then
 {% for range in cloudflare_ipv6_ranges %}
   ip6tables -A DOCKER-USER -s {{ range }} -p tcp -m multiport --dports 80,443 -j RETURN
 {% endfor %}
-  ip6tables -A DOCKER-USER -p tcp -m multiport --dports 80,443 -j DROP
+  # Same interface, not a typo -- this VPS has one physical NIC handling
+  # both address families, so ansible_default_ipv4.interface names it
+  # correctly here too (ansible_default_ipv6 may not even be populated on a
+  # host with no IPv6 default route configured at the OS level).
+  ip6tables -A DOCKER-USER -i {{ ansible_default_ipv4.interface }} -p tcp -m multiport --dports 80,443 -j DROP
   ip6tables -A DOCKER-USER -j RETURN
 fi
