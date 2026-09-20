@@ -42,7 +42,14 @@ jobs:
           - image: web
             dockerfile: frontend/Dockerfile
             context: .
-            build-args: ""
+            # SENTRY_DSN_FRONTEND is a plain repository secret, not a
+            # staging/production Environment one -- this job builds the one
+            # shared web image before either environment's job runs, and has
+            # no `environment:` context of its own to read Environment
+            # secrets from (deployment-strategy.md Phase E, E-d).
+            build-args: |
+              GIT_SHA=${{ github.sha }}
+              SENTRY_DSN=${{ secrets.SENTRY_DSN_FRONTEND }}
           - image: landing
             dockerfile: landing/Dockerfile
             context: landing
@@ -104,6 +111,7 @@ jobs:
           EMAIL_USER=${{ secrets.EMAIL_USER }}
           EMAIL_PASS=${{ secrets.EMAIL_PASS }}
           EMAIL_FROM=${{ secrets.EMAIL_FROM }}
+          SENTRY_DSN=${{ secrets.SENTRY_DSN }}
           ENVFILE
 
       - name: Copy deploy.sh and app.yml
@@ -188,6 +196,7 @@ jobs:
           EMAIL_USER=${{ secrets.EMAIL_USER }}
           EMAIL_PASS=${{ secrets.EMAIL_PASS }}
           EMAIL_FROM=${{ secrets.EMAIL_FROM }}
+          SENTRY_DSN=${{ secrets.SENTRY_DSN }}
           ENVFILE
 
       - name: Copy deploy.sh and app.yml

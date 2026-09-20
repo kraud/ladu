@@ -17,6 +17,26 @@ const path = require('path');
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true });
 }
+
+// Must run before `require('../app')` — Sentry's Express integration only
+// auto-instruments express/http if it's already initialized when those
+// modules are first required. Gated on SENTRY_DSN actually being set,
+// rather than calling init() with dsn: undefined and trusting that to be
+// inert — init() patches Node's http/https modules for its default
+// integrations regardless of whether a DSN is configured, which is exactly
+// the kind of global side effect the test suite (SENTRY_DSN unset) doesn't
+// want. Sentry.captureException() elsewhere (setupExpressErrorHandler in
+// app.js) is a documented no-op when the SDK was never initialized, so
+// skipping init() entirely here is safe.
+const Sentry = require('@sentry/node');
+if (process.env.SENTRY_DSN) {
+    Sentry.init({
+        dsn: process.env.SENTRY_DSN,
+        environment: process.env.ENVIRONMENT || 'development',
+        release: process.env.GIT_SHA,
+    });
+}
+
 const app = require('../app');
 const port = process.env.PORT || 5001;
 

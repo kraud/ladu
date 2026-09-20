@@ -30,6 +30,14 @@ services:
     image: ghcr.io/kraud/ladu-backend:${IMAGE_TAG:-latest}
     container_name: backend-${ENVIRONMENT}
     restart: unless-stopped
+    environment:
+      # ENVIRONMENT is already exported by deploy.sh for this file's own
+      # naming interpolation above — reusing it here (Sentry's environment
+      # tag) instead of adding a new secret. Deliberately "staging"/"prod",
+      # not "production" — matches this repo's own naming everywhere else
+      # (ladu_prod, /opt/ladu/prod), even though GitHub's Environment
+      # feature itself is named "production".
+      ENVIRONMENT: ${ENVIRONMENT}
     env_file:
       # Resolved relative to this compose file's location by default; the
       # deploy script must invoke compose with --env-file pointed at
