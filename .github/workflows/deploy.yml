@@ -42,14 +42,7 @@ jobs:
           - image: web
             dockerfile: frontend/Dockerfile
             context: .
-            # SENTRY_DSN_FRONTEND is a plain repository secret, not a
-            # staging/production Environment one -- this job builds the one
-            # shared web image before either environment's job runs, and has
-            # no `environment:` context of its own to read Environment
-            # secrets from (deployment-strategy.md Phase E, E-d).
-            build-args: |
-              GIT_SHA=${{ github.sha }}
-              SENTRY_DSN=${{ secrets.SENTRY_DSN_FRONTEND }}
+            build-args: GIT_SHA=${{ github.sha }}
           - image: landing
             dockerfile: landing/Dockerfile
             context: landing
@@ -70,7 +63,20 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: true
           tags: ghcr.io/kraud/ladu-${{ matrix.image }}:${{ github.sha }}
-          build-args: ${{ matrix.build-args }}
+          # SENTRY_DSN_FRONTEND is appended here, not in the matrix above --
+          # GitHub Actions doesn't allow the `secrets` context inside
+          # `strategy.matrix` (only `github`/`needs`/`vars`/`inputs` are
+          # valid there); it's a semantic validation error, not a YAML
+          # syntax one, so it fails the whole run instantly with no job
+          # even starting, rather than a normal step failure. SENTRY_DSN_FRONTEND
+          # is a plain repository secret, not a staging/production
+          # Environment one -- this job builds the one shared web image
+          # before either environment's job runs, and has no `environment:`
+          # context of its own to read Environment secrets from
+          # (deployment-strategy.md Phase E, E-d).
+          build-args: |
+            ${{ matrix.build-args }}
+            ${{ matrix.image == 'web' && format('SENTRY_DSN={0}', secrets.SENTRY_DSN_FRONTEND) || '' }}
 
   staging:
     name: Deploy staging
