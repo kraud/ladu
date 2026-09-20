@@ -162,7 +162,10 @@ jobs:
           - image: web
             dockerfile: frontend/Dockerfile
             context: .
-            build-args: ""
+            # No SENTRY_DSN here -- this image is scanned and discarded, never
+            # deployed (deploy.yml's build-and-push job builds the real one
+            # with the real DSN). Sentry no-ops harmlessly without a DSN.
+            build-args: GIT_SHA=${{ github.sha }}
           - image: landing
             dockerfile: landing/Dockerfile
             context: landing

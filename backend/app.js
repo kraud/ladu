@@ -1,5 +1,6 @@
 const express = require('express')
 const asyncHandler = require('express-async-handler')
+const Sentry = require('@sentry/node')
 const { errorHandler } = require('./middleware/errorMiddleware')
 const { pool } = require('./src/db')
 
@@ -58,6 +59,11 @@ app.use('/api/tags', require('./routes/tagRoutes'))
 app.use('/api/tag-shares', require('./routes/tagShareRoutes'))
 app.use('/api/autocompleteTranslations', require('./routes/autocompleteTranslationRoutes'))
 app.use('/api/exercises', require('./routes/exerciseRoutes'))
+
+// Must come after every route (needs to see thrown errors) and before
+// errorHandler (which formats the response) — reports 5xx-worthy errors to
+// Sentry without changing what the client receives.
+Sentry.setupExpressErrorHandler(app)
 
 app.use(errorHandler)
 

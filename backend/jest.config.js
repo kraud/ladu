@@ -45,4 +45,15 @@ module.exports = {
         '^drizzle-orm/node-postgres$': '<rootDir>/../node_modules/drizzle-orm/node-postgres/index.cjs',
         '^drizzle-orm/node-postgres/migrator$': '<rootDir>/../node_modules/drizzle-orm/node-postgres/migrator.cjs',
     },
+
+    // @sentry/node's tracing integrations eagerly require several
+    // @sentry/server-utils subpaths (orchestrion, orchestrion/register, ...)
+    // at module load time, and each one hits the same Jest exports-
+    // resolution bug described above for drizzle-orm -- plain
+    // `node -e "require.resolve(...)"` resolves every one of them fine;
+    // Jest's resolver doesn't. A static moduleNameMapper entry per subpath
+    // is a losing game (any @sentry/node version bump can add more), so
+    // this delegates just that one package to Node's own resolution
+    // algorithm (proven correct above) instead of Jest's.
+    resolver: '<rootDir>/tests/sentryServerUtilsResolver.js',
 };
