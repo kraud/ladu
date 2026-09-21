@@ -4,7 +4,6 @@
  */
 export const environmentName = import.meta.env.VITE_ENVIRONMENT_NAME as string | undefined;
 export const iteration = import.meta.env.VITE_ITERATION as string | undefined;
-export const vercelBackendUrl = import.meta.env.VITE_VERCEL_BE_URL as string | undefined;
 export const baseUrl = import.meta.env.BASE_URL;
 
 // Baked in at image build time (frontend/Dockerfile) — one image serves

@@ -402,7 +402,7 @@ This almost certainly also silently broke the Eesti dictionary API autocomplete 
 
 **Gate:** ✅ Verified 2026-09-20 -- after both fixes above, `ladu-backend` received the diagnostic test event with no `ETIMEDOUT`, and separately confirmed the original curl-triggered `authMiddleware` event landed too. Both `ladu-backend` and `ladu-frontend` show real events from staging tagged with `environment: staging` and the deployed release SHA.
 
-### Switch the apex domain — prepared, not yet applied
+### Switch the apex domain — ✅ done (2026-09-21), Vercel projects still to archive
 
 Vercel is removed from the setup completely, not only for the apex.
 
@@ -416,12 +416,18 @@ Vercel is removed from the setup completely, not only for the apex.
 **Runbook (order matters):**
 1. Merge the branch to `main`. Wait for `deploy.yml`'s `build-and-push` job to push `ladu-landing:latest`.
 2. `ansible-playbook site.yml` from `deploy/ansible/`. Check on the VPS that the container runs: `docker ps --filter name=landing`.
-3. Test before DNS moves: `curl -sk --resolve ladu.com.ar:443:152.53.146.206 https://ladu.com.ar/` should return the new page.
+3. Test before DNS moves. Run these **on the VPS** (`ssh deploy@<vps>`): a test from outside the VPS cannot work, because the firewall only accepts ports 80/443 from Cloudflare's IP ranges (a `curl -s` then prints nothing after a long timeout, which looks like success but is not).
+   - `docker exec ladu-platform-landing-1 wget -qO- http://localhost/ | head -8` — the container serves the new page.
+   - `docker exec ladu-platform-edge-1 wget -qO- http://landing:80/ | grep -o "<title>.*</title>"` — edge reaches landing.
+   - `curl -sk -o /dev/null -w "%{http_code}\n" --resolve ladu.com.ar:443:127.0.0.1 https://ladu.com.ar/` — `200`. The same command for `www.ladu.com.ar` must give `301` to the apex.
+   - `-k` skips certificate checks, and Cloudflare is in Full (strict) mode, so also check the real certificates: `echo | openssl s_client -connect 127.0.0.1:443 -servername ladu.com.ar 2>/dev/null | openssl x509 -noout -issuer -subject -enddate` (issuer must be Let's Encrypt; repeat for `www.`).
 4. `terraform apply` from `deploy/terraform/` (or confirm the run in HCP Terraform).
-5. Check `https://ladu.com.ar` and `https://www.ladu.com.ar` (must redirect to the apex). Confirm the UptimeRobot apex monitor stays green.
+5. Check `https://ladu.com.ar` and `https://www.ladu.com.ar` (must redirect to the apex). Do not trust a single request: sample about 30 requests per hostname and check the *body*, not only the status code (the old site also returns `200`). Confirm the UptimeRobot apex monitor stays green.
 6. Archive the legacy Vercel projects.
 
-**Not verified yet:** the apply itself and the live page. Change this section to "done" with the date after step 5.
+**Result (2026-09-21):** `terraform apply` matched the plan (2 added, 2 changed, 5 destroyed). The apex served the new page on every request straight away (30 of 30). `www` needed about 10 minutes: for a while roughly 15% of `www` requests still returned the old Vercel site (both Cloudflare addresses, so not one bad address), then 30 of 30 redirected to the apex. The Cloudflare dashboard showed no extra `www` record and no Redirect/Origin rules, so this was Cloudflare's edge catching up, not a configuration fault. `app.` stayed healthy throughout.
+
+**Still to do:** step 6 — archive the legacy Vercel projects.
 
 ---
 
