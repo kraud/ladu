@@ -44,7 +44,7 @@
 
 | Hostname | Serves | When |
 |---|---|---|
-| `mydomain.com.ar` (+ `www` → redirect) | `landing/` (static) | Points at Vercel (legacy) until `landing/` is ready, then at the VPS |
+| `mydomain.com.ar` (+ `www` → redirect) | `landing/` (static) | Points at the VPS (was Vercel until the switch — see "Switch the apex domain") |
 | `app.mydomain.com.ar` | Production: frontend + `/api` | First deploy |
 | `staging.mydomain.com.ar` | Staging: frontend + `/api` | First deploy |
 
@@ -208,12 +208,12 @@ New files:
 - `base`: `deploy` user (SSH key only), `PermitRootLogin no`, `PasswordAuthentication no`, unattended-upgrades, fail2ban, timezone, swap file (1 GB).
 - `firewall`: ufw default deny. Allow 22. Allow 80/443 **only from Cloudflare IP ranges** (the role downloads the ranges).
 - `docker`: Docker Engine + Compose plugin (installed via `deb822_repository`, not the now-deprecated `apt_repository`). Add `deploy` to the `docker` group. Note: this gives `deploy` root-level access, which is acceptable for this project.
-- `platform`: `/opt/ladu/{platform,staging,prod}`, platform `.env` from Vault, `platform.yml` up (via `community.docker.docker_compose_v2`), create DBs and users (via `community.docker.docker_container_exec`, since postgres publishes no port), log rotation for Docker. Also renders Caddy's `trusted_proxies` list (the TODO Phase B left) from the same live Cloudflare range fetch the `firewall` role uses, mounted in rather than baked into the image. Adds persistent `caddy_data`/`caddy_config` volumes so recreating `edge` doesn't burn Let's Encrypt's duplicate-certificate rate limit. Closes the "Docker bypasses ufw" gap with a `docker.service.d` drop-in that reapplies Cloudflare-only `DOCKER-USER` rules after every Docker start (Docker discards that chain's contents each time). `landing` is deliberately excluded from `platform.yml up` — no image exists in GHCR until Phase D's first deploy — Caddy still starts and gets its certificate fine; only the apex route would 502 until then, and the apex isn't part of this gate.
+- `platform`: `/opt/ladu/{platform,staging,prod}`, platform `.env` from Vault, `platform.yml` up (via `community.docker.docker_compose_v2`), create DBs and users (via `community.docker.docker_container_exec`, since postgres publishes no port), log rotation for Docker. Also renders Caddy's `trusted_proxies` list (the TODO Phase B left) from the same live Cloudflare range fetch the `firewall` role uses, mounted in rather than baked into the image. Adds persistent `caddy_data`/`caddy_config` volumes so recreating `edge` doesn't burn Let's Encrypt's duplicate-certificate rate limit. Closes the "Docker bypasses ufw" gap with a `docker.service.d` drop-in that reapplies Cloudflare-only `DOCKER-USER` rules after every Docker start (Docker discards that chain's contents each time). `landing` was deliberately excluded from `platform.yml up` at this stage — no image existed in GHCR until Phase D's first deploy — Caddy still starts and gets its certificate fine; only the apex route would 502 until then, and the apex isn't part of this gate. (It gets its own task later — see "Switch the apex domain".)
 - `backup`: see Phase E.
 
 `deploy/terraform/` (Cloudflare provider, HCP Terraform backend):
 - Imported the existing records via declarative `import` blocks (Terraform 1.5+), not the `terraform import` CLI command — lets applies run remotely on HCP Terraform with no local Cloudflare credentials at all.
-- Records: apex + `www` untouched (still Vercel — switched later, see below), `app`, `staging` (A **and** AAAA, proxied).
+- Records: apex + `www` untouched at this stage (still Vercel — switched later, see "Switch the apex domain"), `app`, `staging` (A **and** AAAA, proxied).
 - Zone settings: SSL **Full (strict)**, Always Use HTTPS, minimum TLS 1.2.
 - Resend records: DKIM TXT + two CNAMEs (Resend's current verification flow — not the older raw MX+SPF-TXT pattern this doc originally assumed) + DMARC (`p=none`).
 - Scoped API tokens: the Terraform token itself was created manually in Cloudflare's dashboard (bootstrap — Terraform can't hand itself its own credential) and lives only as an HCP Terraform workspace variable; the Caddy DNS-01 token (`Zone:DNS:Edit` on this zone only) *is* Terraform-managed.
@@ -376,11 +376,11 @@ Three real bugs surfaced by the first live run, each fixed and re-verified rathe
 
 #### E-c — UptimeRobot HTTP monitors — configured, alert-firing not yet verified
 
-Four HTTP(s) monitors created by hand in the UptimeRobot dashboard (no Terraform provider for this -- Terraform here is Cloudflare-only, per the Decisions table), 5-minute interval: `https://app.ladu.com.ar`, `https://staging.ladu.com.ar`, `https://ladu.com.ar` (apex -- still the legacy Vercel landing page, not this repo's `landing/` yet), and `https://app.ladu.com.ar/api/health` specifically. That last one is production-only, not duplicated for staging -- staging's health is already exercised on every deploy by the CI/CD pipeline's own health check and the smoke e2e gate, so a dedicated monitor adds the least value there.
+Four HTTP(s) monitors created by hand in the UptimeRobot dashboard (no Terraform provider for this -- Terraform here is Cloudflare-only, per the Decisions table), 5-minute interval: `https://app.ladu.com.ar`, `https://staging.ladu.com.ar`, `https://ladu.com.ar` (apex -- the legacy Vercel landing page when these were created; it serves this repo's `landing/` after the switch), and `https://app.ladu.com.ar/api/health` specifically. That last one is production-only, not duplicated for staging -- staging's health is already exercised on every deploy by the CI/CD pipeline's own health check and the smoke e2e gate, so a dedicated monitor adds the least value there.
 
 **Gate:** not yet verified. Monitors are live and showing green, but the phase's actual stated gate -- "a stopped backend causes an UptimeRobot alert within 5 minutes" -- hasn't been tested yet (stop `backend-staging` for ~5-6 minutes, confirm an alert email arrives, start it back up). Deferred, not forgotten.
 
-#### E-d — Sentry (backend + frontend) — code done, gate pending
+#### E-d — Sentry (backend + frontend) — ✅ done
 
 `@sentry/node` initialized in `backend/api/index.js`, gated on `SENTRY_DSN` actually being set -- `Sentry.init()` patches Node's `http`/`https` modules for its default integrations regardless of whether a DSN is configured, which is exactly the kind of global side effect environments with no DSN (tests, CI) don't want; calling `Sentry.captureException()` (via `Sentry.setupExpressErrorHandler(app)` in `app.js`, unconditional) is a documented no-op when the SDK was never initialized, so skipping `init()` entirely is safe. `environment` comes from a new `ENVIRONMENT` var threaded through `deploy/compose/app.yml`'s `backend` service straight from the shell variable `deploy.sh` already exports for container naming -- no new secret needed, deliberately `"staging"`/`"prod"` (not `"production"`) to match this repo's own naming everywhere else (`ladu_prod`, `/opt/ladu/prod`), even though GitHub's own Environment feature is confusingly named `production`. `release` reuses the existing `GIT_SHA` env var `/api/health` already reads.
 
@@ -392,11 +392,36 @@ One real bug found and fixed along the way, unrelated to the intent of this chan
 
 Verified locally before handing off: backend (`typecheck`, `lint`, all 176 Jest tests) and frontend (`typecheck`, `lint`, all 611 Vitest tests) all green, plus a real `vite build` with test `VITE_GIT_SHA`/`VITE_SENTRY_DSN` values confirmed present in the built bundle by grepping `dist/assets/*.js` directly.
 
-**Gate:** pending -- needs a real merge/deploy (the `SENTRY_DSN`/`SENTRY_DSN_FRONTEND` GitHub secrets are set, but nothing has exercised them yet) and then one deliberate error triggered against staging, on both backend and frontend, confirmed to show up in their respective Sentry projects tagged with the right `environment`/`release`.
+**First real merge attempt failed outright** -- `deploy.yml`'s `web` matrix entry referenced `secrets.SENTRY_DSN_FRONTEND` directly inside `strategy.matrix.include`, which GitHub Actions doesn't allow (only `github`/`needs`/`vars`/`inputs` are valid contexts inside `matrix`). A semantic validation error, not a YAML syntax one -- it parsed fine with a plain YAML parser locally, but failed the whole run instantly on GitHub with 0 jobs ever starting, leaving staging/production on the previous image until fixed. Fix: moved the secret reference out of the matrix and into the build step's own `build-args`, appended conditionally only for the `web` image (`matrix.image == 'web' && format(...)`), where the `secrets` context is always valid. Own small merged PR (#38).
 
-### Later: switch the apex domain
+**Live verification, once the real deploy succeeded:** confirmed via `/api/health` that both `staging.ladu.com.ar` and `app.ladu.com.ar` reported the new SHA. Frontend: drove a real browser to `staging.ladu.com.ar` (Playwright MCP) and threw an uncaught error via `window.setTimeout` (so it escapes as a genuine uncaught exception the SDK's global `window.onerror` handler picks up, not just a rejected `evaluate()` call) -- showed up in `ladu-frontend` immediately. Backend: `curl`ed `/api/words` with an invalid Bearer token to trigger `authMiddleware.ts`'s thrown error (read `@sentry/core`'s actual `defaultShouldHandleError` source first to confirm it checks `error.status`/`.statusCode` on the **Error object**, not `res.statusCode` -- this codebase's thrown errors never set that, so it defaults to 500-worthy and gets captured even though the HTTP response correctly comes back 401) -- **nothing showed up in `ladu-backend`.**
 
-When `landing/` is ready: in Terraform, point the apex and `www` records at the VPS and remove the Vercel records. Then archive the legacy Vercel projects.
+**Second real bug, found chasing that silence, bigger than Sentry:** confirmed `SENTRY_DSN`/`ENVIRONMENT` were both correctly present in the running `backend-staging` container (`docker exec ... printenv`), and that the VPS *host* could reach Sentry's ingest endpoint instantly via `curl`. But a diagnostic Node script run *inside* the container (`docker exec backend-staging node -e "..."`, `Sentry.init({ ..., debug: true })`) showed the exact same request timing out with `ETIMEDOUT`/`ENETUNREACH` -- host reaches Sentry, container doesn't. Root cause, found by reading `deploy/ansible/roles/platform/templates/docker-user-firewall.sh.j2` directly rather than guessing: its final `DOCKER-USER` DROP rule (`-p tcp -m multiport --dports 80,443 -j DROP`, added in Phase C to block non-Cloudflare traffic reaching containers' published ports) had no source or interface restriction, so it also caught **outbound** connections a container makes to anything on port 443 -- not just inbound traffic. The Cloudflare-allow rules above it are correctly scoped by source IP already; only the final blanket DROP was the problem. Fixed by scoping that rule to the VPS's external interface only (`-i {{ ansible_default_ipv4.interface }}`, an Ansible fact already gathered via `gather_facts: true` -- no need to hardcode or ask the user to look up the interface name), since outbound container traffic enters `DOCKER-USER` via the docker bridge interface, not the external one. Own small merged PR.
+
+This almost certainly also silently broke the Eesti dictionary API autocomplete feature (`autocompleteTranslationController.ts` calls `https://api.sonapi.ee`, also HTTPS/443) ever since this rule first shipped in Phase C -- confirmed fixed too: autocomplete verified working on staging after the firewall fix, having presumably been broken in production this whole time with nothing surfacing it (no test exercises a real outbound call to that API; the feature just silently failed for actual users).
+
+**Gate:** ✅ Verified 2026-09-20 -- after both fixes above, `ladu-backend` received the diagnostic test event with no `ETIMEDOUT`, and separately confirmed the original curl-triggered `authMiddleware` event landed too. Both `ladu-backend` and `ladu-frontend` show real events from staging tagged with `environment: staging` and the deployed release SHA.
+
+### Switch the apex domain — prepared, not yet applied
+
+Vercel is removed from the setup completely, not only for the apex.
+
+**What changed in the repo:**
+- `landing/`: real hero page (`index.html`, `style.css`, `favicon.svg`) with a link to `https://app.ladu.com.ar`. `landing/Dockerfile` copies `favicon.svg`.
+- Discovered on the way: nothing ever started the `landing` container on the VPS. Ansible's `platform` role only brought up `postgres` and `edge`, and `deploy.sh` only handles `web`/`backend`. Applying the DNS change alone would have returned a 502 on the apex.
+- Fix (option A, chosen 2026-09-21 — may change later): the `platform` role has a separate `landing` task with `pull: always`. `deploy.yml` also pushes `ghcr.io/kraud/ladu-landing:latest`, because the role's `image_tag` defaults to `latest` and CI only pushed SHA tags before. The page is published by re-running `ansible-playbook site.yml`, not by the per-commit app deploy.
+- `deploy/terraform/dns.tf`: apex and `www` each get one A and one AAAA record pointing at the VPS. The existing apex and `www` A records are updated in place (`moved` blocks, so there is no gap). The second Vercel A record for each name is destroyed. The Vercel wildcard (`*.ladu.com.ar`, two A records) and the Vercel `_domainconnect` CNAME are destroyed. No wildcard replaces them: every hostname in use has its own record, and an unknown subdomain no longer resolves.
+- `terraform plan` (HCP Terraform, plan only): 2 to add, 2 to change, 5 to destroy — exactly the list above and nothing else.
+
+**Runbook (order matters):**
+1. Merge the branch to `main`. Wait for `deploy.yml`'s `build-and-push` job to push `ladu-landing:latest`.
+2. `ansible-playbook site.yml` from `deploy/ansible/`. Check on the VPS that the container runs: `docker ps --filter name=landing`.
+3. Test before DNS moves: `curl -sk --resolve ladu.com.ar:443:152.53.146.206 https://ladu.com.ar/` should return the new page.
+4. `terraform apply` from `deploy/terraform/` (or confirm the run in HCP Terraform).
+5. Check `https://ladu.com.ar` and `https://www.ladu.com.ar` (must redirect to the apex). Confirm the UptimeRobot apex monitor stays green.
+6. Archive the legacy Vercel projects.
+
+**Not verified yet:** the apply itself and the live page. Change this section to "done" with the date after step 5.
 
 ---
 

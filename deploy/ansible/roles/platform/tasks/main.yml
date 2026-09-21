@@ -56,11 +56,10 @@
   no_log: true
 
 # --- Sub-slice 8c: bring the stack up for real. ---
-# `landing` is deliberately excluded from the services below: Phase D (not
-# built yet) is what pushes the first real image to GHCR, so
-# ghcr.io/kraud/ladu-landing doesn't exist yet. Caddy still starts and gets
-# its certificate fine either way -- only the apex route would 502 until
-# landing exists, and the apex isn't part of Phase C's gate.
+# `landing` is started in its own task further down, not with postgres/edge:
+# it's the only service pulled from GHCR (edge is built locally, postgres is
+# a stock image), and it needs `pull: always` so a re-run picks up a newer
+# page without touching the other two.
 
 - name: Install python3-requests (needed by the docker_container_exec module)
   ansible.builtin.apt:
@@ -115,6 +114,24 @@
     services:
       - postgres
       - edge
+    state: present
+  become: false
+
+# Runs after edge on purpose (edge only needs landing at request time, so the
+# order isn't a hard dependency). `image_tag` defaults to `latest`, which
+# deploy.yml's build-and-push job moves on every merge to main. The page is
+# not part of the per-commit app deploy: re-run this role to publish a change.
+- name: Bring up landing (pulls the newest image)
+  community.docker.docker_compose_v2:
+    project_src: /opt/ladu/platform/compose
+    project_name: ladu-platform
+    files:
+      - platform.yml
+    env_files:
+      - ../.env
+    services:
+      - landing
+    pull: always
     state: present
   become: false
 
