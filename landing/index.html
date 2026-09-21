@@ -3,13 +3,53 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ladu</title>
+    <title>Ladu — keep all your languages alive</title>
+    <meta name="description" content="Ladu is a vocabulary manager for people who speak more than one language. Save each word once, with its translations in every language you know." />
+    <meta name="theme-color" content="#0f766e" />
+    <meta property="og:title" content="Ladu — keep all your languages alive" />
+    <meta property="og:description" content="A vocabulary manager for people who speak more than one language." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ladu.com.ar" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
+    <header class="site-header">
+        <a class="brand" href="/" aria-label="Ladu home">
+            <img src="/favicon.svg" alt="" width="28" height="28" />
+            <span>Ladu</span>
+        </a>
+        <a class="link-quiet" href="https://app.ladu.com.ar">Log in</a>
+    </header>
+
     <main>
-        <h1>Ladu</h1>
-        <p>A vocabulary manager for people who speak more than one language.</p>
+        <section class="hero">
+            <div class="hero-copy">
+                <h1>Keep all your languages alive.</h1>
+                <p class="lead">
+                    Ladu is a vocabulary manager for people who speak more than one language.
+                    Save each word once, with its translations in every language you know.
+                    Then practise them together.
+                </p>
+                <div class="actions">
+                    <a class="button" href="https://app.ladu.com.ar">Open Ladu</a>
+                </div>
+                <p class="note">English · Español · Deutsch · Eesti</p>
+            </div>
+
+            <div class="card" aria-label="Example word: to dance, in four languages">
+                <ul>
+                    <li class="lang lang-gb"><span class="code">EN</span><span class="term">to dance</span></li>
+                    <li class="lang lang-es"><span class="code">ES</span><span class="term">bailar</span></li>
+                    <li class="lang lang-de"><span class="code">DE</span><span class="term">tanzen</span></li>
+                    <li class="lang lang-ee"><span class="code">EE</span><span class="term">tantsima</span></li>
+                </ul>
+            </div>
+        </section>
     </main>
+
+    <footer class="site-footer">
+        <span>© Ladu</span>
+    </footer>
 </body>
 </html>
