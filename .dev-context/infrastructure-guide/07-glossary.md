@@ -5,11 +5,18 @@ language.
 
 ### Networking / DNS / TLS
 
-**DNS** — the system that turns a hostname (`app.ladu.com.ar`) into an IP
+**DNS (Domain Name System)** — the system that turns a hostname (`app.ladu.com.ar`) into an IP
 address. This project's DNS is hosted at Cloudflare.
 
 **A record / AAAA record** — a DNS record mapping a hostname to an IPv4 (A)
 or IPv6 (AAAA) address.
+
+**CDN (Content Delivery Network)** — a network of geographically distributed
+servers that cache and serve content closer to the visitor, reducing latency
+and absorbing traffic spikes before they ever reach the origin server (the
+VPS, here). Cloudflare's proxy doubles as this project's CDN — enabled
+automatically whenever a DNS record is proxied (see "Cloudflare proxy"
+below), with no separate CDN service or configuration needed.
 
 **CNAME record** — a DNS record mapping a hostname to *another* hostname
 instead of directly to an IP (used here for Resend's email-verification

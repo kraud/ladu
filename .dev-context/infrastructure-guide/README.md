@@ -31,10 +31,10 @@ with dates and root-causes is in the build log if you want it.
 | Domain | `ladu.com.ar` (real domain, live now — no temporary domain was used) |
 | Production | `https://app.ladu.com.ar` |
 | Staging | `https://staging.ladu.com.ar` |
-| Apex (`ladu.com.ar`, `www.`) | Still the **old Vercel landing page** — not this repo's `landing/` yet, see below |
+| Apex (`ladu.com.ar`, `www.`) | This repo's `landing/` page (`www.` redirects to the apex). Vercel is no longer used — see the switch runbook in `deployment-strategy.md` |
 | Server | 1 Netcup VPS (`152.53.146.206`), hosts staging + production together |
 | DNS/CDN/TLS termination | Cloudflare (proxied) |
-| Container registry | GHCR, `ghcr.io/kraud/ladu-{backend,web,landing}`, tagged by commit SHA |
+| Container registry | GHCR, `ghcr.io/kraud/ladu-{backend,web,landing}`, tagged by commit SHA (`landing` also has a moving `latest` tag) |
 | Cost | ≈ €6.81/month total (the VPS; everything else is on a free tier) |
 
 ## Known open items (as of 2026-09-21)

@@ -62,7 +62,14 @@ jobs:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
-          tags: ghcr.io/kraud/ladu-${{ matrix.image }}:${{ github.sha }}
+          # landing also gets a moving `latest` tag: it is not deployed per
+          # commit like backend/web -- Ansible's `platform` role pulls it
+          # (deploy/compose/platform.yml, IMAGE_TAG defaults to `latest`).
+          # Empty lines in `tags` are ignored, so the other two images get
+          # only their SHA tag.
+          tags: |
+            ghcr.io/kraud/ladu-${{ matrix.image }}:${{ github.sha }}
+            ${{ matrix.image == 'landing' && 'ghcr.io/kraud/ladu-landing:latest' || '' }}
           # SENTRY_DSN_FRONTEND is appended here, not in the matrix above --
           # GitHub Actions doesn't allow the `secrets` context inside
           # `strategy.matrix` (only `github`/`needs`/`vars`/`inputs` are

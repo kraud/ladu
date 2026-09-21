@@ -1,99 +1,69 @@
-# Records that already exist in Cloudflare, created outside Terraform
-# (via Vercel's domain-connect flow). This file only codifies the current
-# state — it makes no changes. New records (app/staging, email, etc.) are
-# added in later files once these are safely under Terraform management.
+# DNS records for the zone. Most of these were created outside Terraform
+# (originally via Vercel's domain-connect flow) and adopted with `import`
+# blocks. Vercel is no longer used for anything: the apex, www, and
+# app./staging. all point at the VPS, and the old Vercel wildcard and
+# domain-connect records were removed (see the apex/www section below).
 
-# --- Vercel wildcard (*.ladu.com.ar) ---
-# Currently what makes app./staging. resolve, until slice 2 gives them
-# their own dedicated records.
+# --- Apex + www (landing) ---
+# Both point at the VPS, where edge Caddy serves the landing container on the
+# apex and redirects www to the apex (deploy/caddy/Caddyfile).
+#
+# These were the Vercel A records. The `moved` blocks keep the resource that
+# already exists in Cloudflare (so it is updated in place, with no gap in
+# DNS) and just give it an honest name. The second Vercel A record for each
+# name is simply dropped, and Terraform destroys it.
 
-resource "cloudflare_dns_record" "wildcard_a_1" {
-  zone_id = var.cloudflare_zone_id
-  name    = "*.${var.domain}"
-  type    = "A"
-  content = "216.198.79.1"
-  ttl     = 1
-  proxied = true
+moved {
+  from = cloudflare_dns_record.apex_a_1
+  to   = cloudflare_dns_record.apex_a
 }
 
-import {
-  to = cloudflare_dns_record.wildcard_a_1
-  id = "${var.cloudflare_zone_id}/b5bb457732dd597820bd826e4a16b7f4"
-}
-
-resource "cloudflare_dns_record" "wildcard_a_2" {
-  zone_id = var.cloudflare_zone_id
-  name    = "*.${var.domain}"
-  type    = "A"
-  content = "64.29.17.1"
-  ttl     = 1
-  proxied = true
-}
-
-import {
-  to = cloudflare_dns_record.wildcard_a_2
-  id = "${var.cloudflare_zone_id}/214491ef4c8e0efba95955ba588ae52e"
-}
-
-# --- Vercel apex (ladu.com.ar) ---
-
-resource "cloudflare_dns_record" "apex_a_1" {
+resource "cloudflare_dns_record" "apex_a" {
   zone_id = var.cloudflare_zone_id
   name    = var.domain
   type    = "A"
-  content = "64.29.17.1"
+  content = var.vps_ipv4
   ttl     = 1
   proxied = true
 }
 
-import {
-  to = cloudflare_dns_record.apex_a_1
-  id = "${var.cloudflare_zone_id}/21f0c8b46a96ea1dc03ee681b6b35307"
-}
-
-resource "cloudflare_dns_record" "apex_a_2" {
+resource "cloudflare_dns_record" "apex_aaaa" {
   zone_id = var.cloudflare_zone_id
   name    = var.domain
-  type    = "A"
-  content = "216.198.79.1"
+  type    = "AAAA"
+  content = var.vps_ipv6
   ttl     = 1
   proxied = true
 }
 
-import {
-  to = cloudflare_dns_record.apex_a_2
-  id = "${var.cloudflare_zone_id}/4e22448b488b6542adb3d622c52d8059"
+moved {
+  from = cloudflare_dns_record.www_a_1
+  to   = cloudflare_dns_record.www_a
 }
 
-# --- Vercel www ---
-
-resource "cloudflare_dns_record" "www_a_1" {
+resource "cloudflare_dns_record" "www_a" {
   zone_id = var.cloudflare_zone_id
   name    = "www.${var.domain}"
   type    = "A"
-  content = "64.29.17.65"
+  content = var.vps_ipv4
   ttl     = 1
   proxied = true
 }
 
-import {
-  to = cloudflare_dns_record.www_a_1
-  id = "${var.cloudflare_zone_id}/202db2938fb931044eab9c4366f4d777"
-}
-
-resource "cloudflare_dns_record" "www_a_2" {
+resource "cloudflare_dns_record" "www_aaaa" {
   zone_id = var.cloudflare_zone_id
   name    = "www.${var.domain}"
-  type    = "A"
-  content = "216.198.79.1"
+  type    = "AAAA"
+  content = var.vps_ipv6
   ttl     = 1
   proxied = true
 }
 
-import {
-  to = cloudflare_dns_record.www_a_2
-  id = "${var.cloudflare_zone_id}/4b2611553e86c4fe06d6612fea89dc8e"
-}
+# --- No wildcard ---
+# The old *.ladu.com.ar wildcard (Vercel) is deliberately not recreated.
+# Every hostname in use has its own record, so an unknown subdomain now
+# fails to resolve instead of landing on a server that has no site for it.
+# Add a dedicated record (in this file) for any new subdomain.
 
 # --- CAA: which certificate authorities may issue for this domain ---
 # letsencrypt.org is already allowed, which is what Caddy will use later
@@ -152,9 +122,7 @@ import {
 }
 
 # --- VPS (app./staging.) ---
-# Dedicated records take priority over the *.ladu.com.ar wildcard above,
-# so these two hostnames now point at the VPS instead of Vercel. Every
-# other subdomain keeps resolving through the wildcard, unaffected.
+# The two environments served by the VPS. Each has its own A and AAAA record.
 
 resource "cloudflare_dns_record" "app_a" {
   zone_id = var.cloudflare_zone_id
@@ -190,20 +158,4 @@ resource "cloudflare_dns_record" "staging_aaaa" {
   content = var.vps_ipv6
   ttl     = 1
   proxied = true
-}
-
-# --- Vercel domain-connect marker ---
-
-resource "cloudflare_dns_record" "domainconnect_cname" {
-  zone_id = var.cloudflare_zone_id
-  name    = "_domainconnect.${var.domain}"
-  type    = "CNAME"
-  content = "_domainconnect.vercel-dns.com"
-  ttl     = 1
-  proxied = true
-}
-
-import {
-  to = cloudflare_dns_record.domainconnect_cname
-  id = "${var.cloudflare_zone_id}/7346d1230fea8f8a749a48c3150c4bd4"
 }

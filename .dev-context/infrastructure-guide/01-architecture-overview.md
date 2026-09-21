@@ -46,7 +46,7 @@ VPS :443 → Caddy ("edge" container)
   │  reads the Host header
   ├─ app.ladu.com.ar        /api/* → backend-prod:5001   else → web-prod:80
   ├─ staging.ladu.com.ar    /api/* → backend-staging:5001 else → web-staging:80
-  ├─ ladu.com.ar (apex)     → landing container (still legacy Vercel today — see below)
+  ├─ ladu.com.ar (apex)     → landing container
   └─ www.ladu.com.ar        → redirects to the apex
   ▼
 web-prod / web-staging (Caddy serving the built frontend, SPA fallback)
@@ -74,7 +74,9 @@ Contains:
   (not pulled from a registry — it changes rarely).
 - **`landing`** — the static marketing site at `landing/`, a singleton like
   postgres/edge (there's no staging/prod split for it), even though its image
-  *is* rebuilt on every commit like `backend`/`web`.
+  *is* rebuilt on every commit like `backend`/`web`. It is **not** deployed
+  per commit: Ansible's `platform` role pulls `ghcr.io/kraud/ladu-landing:latest`
+  (see "Publishing a change to the landing page" below).
 
 ### `app.yml` — one instance per environment
 
@@ -93,14 +95,21 @@ GHCR. The *same* image is then deployed to staging first and production
 second — staging never runs different code than what production is about to
 run.
 
-## Why the apex domain still shows the old site
+## The apex domain and Vercel
 
-`ladu.com.ar` and `www.ladu.com.ar` still point at the legacy Vercel-hosted
-landing page. This repo's own `landing/` container exists and is deployed to
-the VPS, but the DNS records for the bare domain haven't been switched over
-yet — that's a deliberate last step ("switch the apex domain" in the
-build log), done once `landing/` has real content instead of a placeholder.
-`app.` and `staging.` already point at the VPS.
+`ladu.com.ar` and `www.ladu.com.ar` point at the VPS, like `app.` and
+`staging.`. Vercel hosted the first version of the site. It is not used any
+more, and no Cloudflare record points at it. There is also no wildcard
+(`*.ladu.com.ar`) record: every hostname needs its own record in
+`deploy/terraform/dns.tf`, and an unknown subdomain does not resolve.
+
+### Publishing a change to the landing page
+
+The landing page does not deploy with the app. To publish a change:
+1. Merge it to `main`. `deploy.yml` builds the image and moves the `latest` tag.
+2. Run `ansible-playbook site.yml`. The playbook is idempotent, and the
+   `platform` role pulls `latest` again and recreates the `landing` container
+   if the image changed.
 
 ## Directory map: what each piece of `deploy/` is for
 

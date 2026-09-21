@@ -67,8 +67,9 @@ the dashboard is still where you *look*.
 
 **Reading it:**
 - **DNS tab** — the actual records. `app`/`staging` point at the VPS's IP
-  (proxied — orange cloud); the apex/`www` still point at Vercel (see
-  [`01-architecture-overview.md`](01-architecture-overview.md)).
+  (proxied — orange cloud); the apex/`www` also point at the VPS (see
+  [`01-architecture-overview.md`](01-architecture-overview.md)). There is no
+  wildcard record.
 - **SSL/TLS tab** — should show Full (strict) mode. This means Cloudflare
   requires a *valid* certificate on the VPS side too (Caddy's Let's Encrypt
   cert), not just on Cloudflare's own edge — if this ever showed anything
@@ -104,8 +105,7 @@ tab above is where to check what.
 **What it is:** external HTTP polling — the "is the site even reachable"
 check, from outside your own infrastructure. Four monitors, 5-minute
 interval: `https://app.ladu.com.ar`, `https://staging.ladu.com.ar`,
-`https://ladu.com.ar` (apex — currently checking the *legacy* Vercel site,
-not this repo), and `https://app.ladu.com.ar/api/health` specifically
+`https://ladu.com.ar` (apex — the `landing/` page), and `https://app.ladu.com.ar/api/health` specifically
 (production only — staging's health is already exercised by every deploy's
 own health check and the smoke e2e gate, so a dedicated monitor there adds
 little).
