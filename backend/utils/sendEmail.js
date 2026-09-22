@@ -31,7 +31,6 @@ function getEmailContent(emailData) {
 module.exports = async(emailData) => {
     const transporter =  nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
-        service: process.env.EMAIL_SERVICE,
         port: Number(process.env.EMAIL_PORT),
         secure: process.env.EMAIL_SECURE === 'true',
         auth: {
