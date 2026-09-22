@@ -107,17 +107,14 @@
   },
   "wordForm": {
     "hints": {
-      "minTranslations": "Add at least 2 translations before you can save."
+      "minTranslations": "Add at least 2 translations before you can save.",
+      "requiredFieldsDisclaimer": "Fields marked with * are required."
     },
     "errors": {
       "noNumbers": "Must not include numbers"
     },
     "buttons": {
       "changeWordType": "Change word type"
-    },
-    "emptyState": {
-      "title": "No translations yet",
-      "description": "Add a translation from the side menu."
     },
     "sidebar": {
       "collapse": "Collapse sidebar",
@@ -301,7 +298,10 @@
       "foundMatch": "There is information about this word stored in our system.",
       "partialMatch": "We're not fully sure, but here's our best guess.",
       "loading": "Looking up...",
-      "fillButton": "Fill in"
+      "autocompleteButton": "Use autocomplete values",
+      "valuesApplied": "Autocomplete values applied",
+      "supportLabel": "Autocomplete support",
+      "inputPlaceholder": "Type to autocomplete"
     }
   }
 }

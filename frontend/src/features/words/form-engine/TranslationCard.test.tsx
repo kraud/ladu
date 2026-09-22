@@ -35,6 +35,12 @@ describe('TranslationCard', () => {
         expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
     });
 
+    it('styles Remove as a destructive (red) action, distinct from the neutral Clear', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EN} onClear={vi.fn()} onRemove={vi.fn()} />);
+        expect(screen.getByRole('button', { name: 'Remove' })).toHaveClass('text-destructive');
+        expect(screen.getByRole('button', { name: 'Clear' })).not.toHaveClass('text-destructive');
+    });
+
     // `CellDialog` renders this card with neither handler — it has nothing for
     // Clear/Remove to do (a cell edits exactly one already-placed language).
     it('hides Clear/Remove when no handler is passed', () => {
@@ -73,6 +79,20 @@ describe('TranslationCard', () => {
 
             await user.click(screen.getByRole('button', { name: 'Expand translation' }));
             expect(screen.getByLabelText('Singular').closest('.hidden')).not.toBeInTheDocument();
+        });
+
+        it('hides the completion ring while collapsed — the summary text already states the same count', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(
+                <TranslationCard lang={Lang.EN} initialCases={[{ caseName: NounCases.singularEN, word: 'house' }]} />,
+            );
+
+            expect(document.querySelector('.ring')).toBeInTheDocument();
+            await user.click(screen.getByRole('button', { name: 'Collapse translation' }));
+            expect(document.querySelector('.ring')).not.toBeInTheDocument();
+
+            await user.click(screen.getByRole('button', { name: 'Expand translation' }));
+            expect(document.querySelector('.ring')).toBeInTheDocument();
         });
 
         it('shows a muted "nothing entered yet" hint when collapsed with no cases', async () => {
@@ -335,8 +355,8 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         // "I" labels one field per tense (present/past/future/conditional) — the first is simplePresent1s, the query field.
         await user.type(screen.getAllByLabelText('I')[0], 'run');
 
-        await waitFor(() => expect(screen.getByRole('button', { name: /fill in/i })).toBeEnabled(), { timeout: 2000 });
-        await user.click(screen.getByRole('button', { name: /fill in/i }));
+        await waitFor(() => expect(screen.getByRole('button', { name: /autocomplete/i })).toBeInTheDocument(), { timeout: 2000 });
+        await user.click(screen.getByRole('button', { name: /autocomplete/i }));
         await waitFor(() => expect(screen.getAllByLabelText('He/She/it')[0]).toHaveValue('runs'));
     });
 
@@ -370,8 +390,8 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.noun} />);
         await user.type(screen.getByLabelText('Singular nominative'), 'Haus');
 
-        await waitFor(() => expect(screen.getByRole('button', { name: /fill in/i })).toBeEnabled(), { timeout: 2000 });
-        await user.click(screen.getByRole('button', { name: /fill in/i }));
+        await waitFor(() => expect(screen.getByRole('button', { name: /autocomplete/i })).toBeInTheDocument(), { timeout: 2000 });
+        await user.click(screen.getByRole('button', { name: /autocomplete/i }));
         await waitFor(() => expect(screen.getByRole('radio', { name: 'das' })).toBeChecked());
     });
 
@@ -387,8 +407,8 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.verb} />);
         await user.type(screen.getByLabelText('-ma infinitive'), 'tantsima');
 
-        await waitFor(() => expect(screen.getByRole('button', { name: /fill in/i })).toBeEnabled(), { timeout: 2000 });
-        await user.click(screen.getByRole('button', { name: /fill in/i }));
+        await waitFor(() => expect(screen.getByRole('button', { name: /autocomplete/i })).toBeInTheDocument(), { timeout: 2000 });
+        await user.click(screen.getByRole('button', { name: /autocomplete/i }));
         await waitFor(() => expect(screen.getByLabelText('-da infinitive')).toHaveValue('tantsida'));
     });
 });

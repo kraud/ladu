@@ -89,11 +89,21 @@ function defaultValueFor(field: FieldConfig): unknown {
     return '';
 }
 
-function Harness({ field, displayOnly, value }: { field: FieldConfig; displayOnly?: boolean; value?: unknown }) {
+function Harness({
+    field,
+    displayOnly,
+    value,
+    autocompleteFieldName,
+}: {
+    field: FieldConfig;
+    displayOnly?: boolean;
+    value?: unknown;
+    autocompleteFieldName?: string;
+}) {
     const form = useForm({ defaultValues: { [field.name]: value ?? defaultValueFor(field) } });
     return (
         <Form {...form}>
-            <FieldRenderer field={field} displayOnly={displayOnly} />
+            <FieldRenderer field={field} displayOnly={displayOnly} autocompleteFieldName={autocompleteFieldName} />
         </Form>
     );
 }
@@ -115,6 +125,32 @@ describe('FieldRenderer', () => {
         renderWithProviders(<Harness field={textField} />);
         expect(screen.getByLabelText('Singular')).toBeInTheDocument();
         expect(screen.getByRole('textbox')).toBeInTheDocument();
+    });
+
+    it('marks a required field with a visible red asterisk, without changing its accessible name', () => {
+        renderWithProviders(<Harness field={textField} />);
+        // `textField` (noun singular) is required — the marker sits next to the
+        // label text, not inside it, so `getByLabelText('Singular')` (no
+        // trailing "*") keeps resolving the input everywhere else in the suite.
+        expect(screen.getByText('*')).toBeInTheDocument();
+        expect(screen.getByLabelText('Singular')).toBeInTheDocument();
+    });
+
+    it('omits the asterisk for a non-required field', () => {
+        renderWithProviders(<Harness field={radioField} />);
+        expect(screen.queryByText('*')).not.toBeInTheDocument();
+    });
+
+    it('gives the autocomplete-trigger field a bold label and a placeholder, but leaves other fields alone', () => {
+        renderWithProviders(<Harness field={textField} autocompleteFieldName="singular" />);
+        expect(screen.getByText('Singular')).toHaveClass('font-bold');
+        expect(screen.getByPlaceholderText('Type to autocomplete')).toBeInTheDocument();
+    });
+
+    it('does not bold the label or add a placeholder when this field is not the autocomplete trigger', () => {
+        renderWithProviders(<Harness field={textField} autocompleteFieldName="someOtherField" />);
+        expect(screen.getByText('Singular')).not.toHaveClass('font-bold');
+        expect(screen.queryByPlaceholderText('Type to autocomplete')).not.toBeInTheDocument();
     });
 
     it('renders a radio field with one option per value', () => {

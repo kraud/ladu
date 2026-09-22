@@ -12,9 +12,9 @@
  */
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { EmptyState } from '@/components/common/EmptyState';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { PartOfSpeechSelector } from '@/components/common/PartOfSpeechSelector';
 import { ArrowsClockwiseIcon, FloppyDiskIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
@@ -109,14 +109,6 @@ export function WordForm({
     const sidebar = (
         <div className="flex h-full flex-col gap-4">
             <div className="flex flex-col gap-2">
-                <SidebarAction
-                    icon={<PlusIcon size={18} />}
-                    disabled={!state.canAddMore}
-                    onClick={() => setAddLangOpen(true)}
-                    collapsed={collapsed}
-                >
-                    {t('common:buttons.addAnotherTranslation')}
-                </SidebarAction>
                 {mode === 'create' && onChangePartOfSpeech && (
                     <SidebarAction
                         icon={<ArrowsClockwiseIcon size={18} />}
@@ -135,6 +127,15 @@ export function WordForm({
             </div>
 
             <SidebarFields clue={state.clue} onClueChange={state.setClue} collapsed={collapsed} />
+
+            {!collapsed && (
+                <p className="hint">
+                    <span aria-hidden="true" className="text-destructive">
+                        *
+                    </span>{' '}
+                    {t('wordRelated:wordForm.hints.requiredFieldsDisclaimer')}
+                </p>
+            )}
 
             <div className="mt-auto sticky bottom-0 flex flex-col gap-2 border-t border-border bg-background pt-3">
                 {!collapsed && state.belowMinTranslations && (
@@ -157,31 +158,33 @@ export function WordForm({
     return (
         <WordEditorLayout sidebar={sidebar}>
             <div className="flex flex-col gap-5">
-                {state.translations.length === 0 ? (
-                    <EmptyState
-                        icon={<PlusIcon size={20} />}
-                        title={t('wordRelated:wordForm.emptyState.title')}
-                        description={t('wordRelated:wordForm.emptyState.description')}
-                    />
-                ) : (
-                    <div className={translationGridClass(partOfSpeech)}>
-                        {state.translations.map((translation, index) => (
-                            <TranslationCard
-                                key={translation.language}
-                                lang={translation.language}
-                                pos={partOfSpeech}
-                                initialCases={translation.cases}
-                                onChange={(next) => state.updateTranslation(index, next)}
-                                onRemove={() => state.removeTranslation(index)}
-                                onClear={() => state.clearTranslation(index)}
-                                resetKey={state.resetTokens[translation.language] ?? 0}
-                                // Never disabled — Remove is always available; the < 2 translations
-                                // case is surfaced instead as a hint next to the Save action in the sidebar.
-                                removeDisabled={false}
-                            />
-                        ))}
-                    </div>
-                )}
+                <div className={translationGridClass(partOfSpeech)}>
+                    {state.translations.map((translation, index) => (
+                        <TranslationCard
+                            key={translation.language}
+                            lang={translation.language}
+                            pos={partOfSpeech}
+                            initialCases={translation.cases}
+                            onChange={(next) => state.updateTranslation(index, next)}
+                            onRemove={() => state.removeTranslation(index)}
+                            onClear={() => state.clearTranslation(index)}
+                            resetKey={state.resetTokens[translation.language] ?? 0}
+                            // Never disabled — Remove is always available; the < 2 translations
+                            // case is surfaced instead as a hint next to the Save action in the sidebar.
+                            removeDisabled={false}
+                        />
+                    ))}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        disabled={!state.canAddMore}
+                        onClick={() => setAddLangOpen(true)}
+                        className="h-auto min-h-16 gap-2 border-dashed bg-card/60 text-muted-foreground hover:border-(--accent) hover:bg-(--accent-soft) hover:text-(--accent-strong)"
+                    >
+                        <PlusIcon size={16} />
+                        {t('common:buttons.addAnotherTranslation')}
+                    </Button>
+                </div>
 
                 <ConfirmDialog
                     open={confirmChangeTypeOpen}

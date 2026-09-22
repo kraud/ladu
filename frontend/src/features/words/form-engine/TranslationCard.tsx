@@ -1,8 +1,10 @@
 /**
- * One language slot in the word editor: header (flag + native name, tinted
- * top border), config-driven body via `FieldRenderer`, and Clear/Remove
- * footer actions. Owns its own RHF instance + yup resolver — each card
- * validates independently and pushes its own
+ * One language slot in the word editor: a tinted-bg header (flag + native
+ * name, the completion ring, the collapse toggle), a config-driven body via
+ * `FieldRenderer`, and a tinted-bg footer (autocomplete on the left,
+ * Clear/Remove on the right) — mirrors `MOCKUPS/word-editor.html`'s
+ * `.tcard-head`/`.tcard-foot` bars. Owns its own RHF instance + yup resolver
+ * — each card validates independently and pushes its own
  * `{ cases, completionState, isDirty }` up to the parent (`useWordFormState`)
  * on every change, mirroring the old app's per-language forms pushing up
  * independently rather than one shared giant form.
@@ -14,8 +16,13 @@
  * for a freshly-added, still-empty card. Field-level errors stay driven by
  * `mode: 'onBlur'`, decoupled from the word-level completion signal.
  *
- * `AutocompleteRow` renders itself out for every `(lang, pos)` pair with no
- * lookup endpoint — this card never branches on that.
+ * The header/body/footer bars all live inside the single CSS-hidden wrapper
+ * `collapsed` toggles — never a conditional `{!collapsed && …}` — so RHF's
+ * watchers (and `AutocompleteRow`'s own debounce/fetch state) keep running
+ * while the card is collapsed, matching the completion ring/summary this
+ * card still reports upward. `AutocompleteRow` renders itself out for every
+ * `(lang, pos)` pair with no lookup endpoint — this card never branches on
+ * that beyond gating the footer's own layout.
  */
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -24,11 +31,13 @@ import { useTranslation } from 'react-i18next';
 import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
+import { CompletionRing } from '@/components/common/CompletionRing';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { langTint, languageByLabel } from '@/lib/language';
 import { primaryCaseWord } from '@/lib/words';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
+import { getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
 import { AutocompleteRow } from './AutocompleteRow';
 import { buildYupSchema } from './buildYupSchema';
 import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
@@ -259,6 +268,9 @@ export function TranslationCard({
         );
     }
 
+    const autocompleteEndpoint = getAutocompleteEndpoint(lang, pos);
+    const hasAutocomplete = autocompleteEndpoint !== undefined;
+
     const langEntry = languageByLabel(lang);
     const headline = primaryCaseWord(pos, { language: lang, cases });
     const caseCountText = t('wordRelated:translationFormGeneric.caseCount', {
@@ -269,35 +281,18 @@ export function TranslationCard({
 
     return (
         <div
-            className="flex flex-col gap-4 rounded-lg border bg-card p-4"
+            className="flex flex-col overflow-hidden rounded-lg border bg-card"
             style={{ borderTopColor: langTint(lang), borderTopWidth: 2 }}
         >
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2 border-b border-border bg-background px-4 py-3">
                 <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
                     <FlagIcon lang={lang} title={langEntry?.native ?? lang} />
                     <span className="shrink-0">{langEntry?.native ?? lang}</span>
                     {collapsed && <span className="hint truncate">{summary}</span>}
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                    {!displayOnly && (
-                        <>
-                            {onClear && (
-                                <Button type="button" variant="ghost" size="sm" onClick={onClear}>
-                                    {t('common:buttons.clear')}
-                                </Button>
-                            )}
-                            {onRemove && (
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={onRemove}
-                                    disabled={removeDisabled}
-                                >
-                                    {t('common:buttons.remove')}
-                                </Button>
-                            )}
-                        </>
+                    {!displayOnly && !collapsed && (
+                        <CompletionRing value={cases.length} total={expectedCaseCount} detail={caseCountText} />
                     )}
                     <button
                         type="button"
@@ -320,50 +315,88 @@ export function TranslationCard({
             </div>
 
             <Form {...form}>
-                <div className={collapsed ? 'hidden' : 'flex flex-col gap-3'}>
-                    {!displayOnly && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} />}
-                    {layoutItems.map((item) => (
-                        <Fragment
-                            key={item.kind === 'field' ? item.field.name : item.fields.map((field) => field.name).join('|')}
-                        >
-                            {groupHeadingsToPrint(visibleFields, item.index).map((heading) => (
-                                <p
-                                    key={heading.heading}
-                                    className={
-                                        heading.level === 1
-                                            ? 'mt-2 text-sm font-semibold text-foreground underline'
-                                            : 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
-                                    }
-                                >
-                                    {heading.heading}
-                                </p>
-                            ))}
-                            {item.kind === 'field' ? (
-                                <FieldRenderer field={item.field} displayOnly={displayOnly} />
-                            ) : (
-                                <div
-                                    className="grid gap-x-4 gap-y-3"
-                                    style={{ gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, 1fr))` }}
-                                >
-                                    {item.columnHeadings?.map((heading, columnIndex) => (
-                                        <p
-                                            key={`heading-${columnIndex}`}
-                                            className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                                        >
-                                            {heading ?? ''}
-                                        </p>
-                                    ))}
-                                    {item.cells.map((rowFields, rowIndex) =>
-                                        rowFields.map((field, columnIndex) => (
-                                            <div key={`${rowIndex}-${columnIndex}`}>
-                                                {field && <FieldRenderer field={field} displayOnly={displayOnly} />}
-                                            </div>
-                                        )),
-                                    )}
-                                </div>
-                            )}
-                        </Fragment>
-                    ))}
+                <div className={collapsed ? 'hidden' : 'flex flex-col'}>
+                    <div className="flex flex-col gap-3 p-4">
+                        {layoutItems.map((item) => (
+                            <Fragment
+                                key={
+                                    item.kind === 'field' ? item.field.name : item.fields.map((field) => field.name).join('|')
+                                }
+                            >
+                                {groupHeadingsToPrint(visibleFields, item.index).map((heading) => (
+                                    <p
+                                        key={heading.heading}
+                                        className={
+                                            heading.level === 1
+                                                ? 'mt-2 text-sm font-semibold text-foreground underline'
+                                                : 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
+                                        }
+                                    >
+                                        {heading.heading}
+                                    </p>
+                                ))}
+                                {item.kind === 'field' ? (
+                                    <FieldRenderer
+                                        field={item.field}
+                                        displayOnly={displayOnly}
+                                        autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                    />
+                                ) : (
+                                    <div
+                                        className="grid gap-x-4 gap-y-3"
+                                        style={{ gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, 1fr))` }}
+                                    >
+                                        {item.columnHeadings?.map((heading, columnIndex) => (
+                                            <p
+                                                key={`heading-${columnIndex}`}
+                                                className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                                            >
+                                                {heading ?? ''}
+                                            </p>
+                                        ))}
+                                        {item.cells.map((rowFields, rowIndex) =>
+                                            rowFields.map((field, columnIndex) => (
+                                                <div key={`${rowIndex}-${columnIndex}`}>
+                                                    {field && (
+                                                        <FieldRenderer
+                                                            field={field}
+                                                            displayOnly={displayOnly}
+                                                            autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                                        />
+                                                    )}
+                                                </div>
+                                            )),
+                                        )}
+                                    </div>
+                                )}
+                            </Fragment>
+                        ))}
+                    </div>
+                    {!displayOnly && (hasAutocomplete || onClear || onRemove) && (
+                        <div className="flex items-center justify-between gap-2 border-t border-border bg-background px-4 py-2.5">
+                            <div className="min-w-0">
+                                {hasAutocomplete && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} />}
+                            </div>
+                            <div className="flex shrink-0 items-center gap-2">
+                                {onClear && (
+                                    <Button type="button" variant="ghost" size="sm" onClick={onClear}>
+                                        {t('common:buttons.clear')}
+                                    </Button>
+                                )}
+                                {onRemove && (
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={onRemove}
+                                        disabled={removeDisabled}
+                                    >
+                                        {t('common:buttons.remove')}
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </Form>
         </div>
