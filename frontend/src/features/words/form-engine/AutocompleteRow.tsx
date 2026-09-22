@@ -4,10 +4,14 @@
  * `features/autocomplete/transforms.ts`) — renders `null` for every other
  * combination (e.g. English nouns, every adverb). Watches the registry's
  * query field, and — Estonian verbs only — the `searchInEnglish` checkbox
- * next to it, fires the lookup once the debounced value settles. Filling the
- * empty case fields from a result is a separate, manual click on the
- * "Use autocomplete values" button: never automatic, and it only ever writes
- * into fields that are currently empty, never overwriting a typed value.
+ * next to it, fires the lookup once the debounced value settles. Writing the
+ * result's case values into the form is a separate, manual click on the
+ * "Use autocomplete values" button: never automatic, and — deliberately —
+ * it overwrites every field the lookup has an answer for, including one that
+ * already holds something else. The button only ever appears when at least
+ * one such field disagrees with the lookup in the first place (`valuesMatch`
+ * below), so by the time it's visible there's always a real, potentially
+ * wrong, value it's offering to replace.
  *
  * Lives in `TranslationCard`'s footer, left of Clear/Remove. Before the query
  * field has a value, or once a lookup comes back with nothing usable to fill
@@ -55,8 +59,16 @@ const DEBOUNCE_MS = 500;
 /** Neither field name is ever a real RHF field; `useWatch` on an unregistered name is a harmless no-op (same precedent as `FieldRenderer`'s own dummy-watch fallback). */
 const NO_FIELD = '__autocomplete_none__';
 
-function isEmpty(value: unknown): boolean {
-    return value === undefined || value === null || value === '';
+/**
+ * A looked-up case word -> the RHF value to write for `field`. Only
+ * `multi-select` needs a real conversion: the lookup's value is the encoded
+ * acronym (e.g. German verb cases' `"AG"`), never the selected-options array
+ * the field itself stores, so it has to go through `field.decode` first —
+ * setting the raw string directly would silently clear the checkboxes
+ * instead of checking them.
+ */
+function valueToApply(field: FieldConfig, looked: string): unknown {
+    return field.kind === 'multi-select' ? field.decode(looked) : looked;
 }
 
 /**
@@ -106,7 +118,7 @@ function valuesMatchLookup(
 
 export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
     const { t } = useTranslation();
-    const { control, getValues, setValue } = useFormContext();
+    const { control, setValue } = useFormContext();
     const endpoint = getAutocompleteEndpoint(lang, pos);
 
     const queryValue = useWatch({ control, name: endpoint?.queryFieldName ?? NO_FIELD }) as string | undefined;
@@ -141,14 +153,17 @@ export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
 
     const canFill = hasQuery && !isFetching && (data?.status === 'found' || data?.status === 'partial');
 
-    const handleFill = () => {
+    // Overwrites unconditionally — see the file header on why that's the
+    // right call once the button (`valuesMatch` below) has already decided
+    // there's a real disagreement to resolve.
+    const handleApply = () => {
         if (!data) return;
         for (const field of fields) {
             if (!field.caseName) continue;
             const looked = data.cases.get(field.caseName);
             if (looked === undefined) continue;
-            if (!isEmpty(getValues(field.name))) continue;
-            setValue(field.name, looked, { shouldDirty: true, shouldValidate: true });
+            if (field.visibleWhen && !matchesVisibility(field.visibleWhen, allValues[field.visibleWhen.field])) continue;
+            setValue(field.name, valueToApply(field, looked), { shouldDirty: true, shouldValidate: true });
         }
     };
 
@@ -162,7 +177,7 @@ export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
             );
         }
         return (
-            <Button type="button" variant="outline" size="sm" onClick={handleFill} className="gap-1.5">
+            <Button type="button" variant="outline" size="sm" onClick={handleApply} className="gap-1.5">
                 <PencilSimpleLineIcon size={14} />
                 {t('wordRelated:wordForm.autocompleteTranslationButton.autocompleteButton')}
             </Button>

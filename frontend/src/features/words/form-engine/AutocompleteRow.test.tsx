@@ -164,7 +164,7 @@ describe('AutocompleteRow', () => {
         expect(screen.queryByRole('button', { name: /autocomplete/i })).not.toBeInTheDocument();
     });
 
-    it('Fill only writes into empty fields — a pre-filled sibling is left untouched', async () => {
+    it('Apply overwrites every field the lookup found, including one that already holds a different (potentially wrong) value', async () => {
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
             englishVerb: {
@@ -181,9 +181,9 @@ describe('AutocompleteRow', () => {
         });
         server.use(...fake.handlers);
 
-        function FillHarness() {
+        function ApplyHarness() {
             const form = useForm({
-                defaultValues: { simplePresent1s: 'run', simplePresent2s: 'ALREADY TYPED', simplePresent3s: '' },
+                defaultValues: { simplePresent1s: 'run', simplePresent2s: 'WRONG VALUE', simplePresent3s: '' },
             });
             return (
                 <Form {...form}>
@@ -194,14 +194,15 @@ describe('AutocompleteRow', () => {
             );
         }
 
-        renderWithProviders(<FillHarness />);
+        renderWithProviders(<ApplyHarness />);
 
-        await waitFor(() => expect(screen.getByRole('button', { name: /autocomplete/i })).toBeInTheDocument(), {
+        await waitFor(() => expect(screen.getByRole('button', { name: /use autocomplete values/i })).toBeInTheDocument(), {
             timeout: 2000,
         });
-        await user.click(screen.getByRole('button', { name: /autocomplete/i }));
+        await user.click(screen.getByRole('button', { name: /use autocomplete values/i }));
 
-        expect(screen.getByLabelText('simplePresent2s-probe')).toHaveValue('ALREADY TYPED');
+        // The pre-existing (wrong) value is replaced, not preserved.
+        expect(screen.getByLabelText('simplePresent2s-probe')).toHaveValue('run');
         expect(screen.getByLabelText('simplePresent3s-probe')).toHaveValue('runs');
     });
 
