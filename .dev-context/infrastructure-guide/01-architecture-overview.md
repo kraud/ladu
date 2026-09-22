@@ -111,6 +111,75 @@ The landing page does not deploy with the app. To publish a change:
    `platform` role pulls `latest` again and recreates the `landing` container
    if the image changed.
 
+## The toolchain: which tool owns what, and how they hand off
+
+Four tools do the actual work — Terraform, Ansible, Caddy, and Docker
+Compose (driven both by Ansible and by GitHub Actions) — and the part worth
+internalizing is that **they almost never talk to each other directly.**
+Each owns one layer; the "connection" between layers is usually just "the
+previous tool's output is a value this one was configured to expect," not
+any live integration.
+
+```
+Terraform                Ansible                        GitHub Actions
+   │                        │                                  │
+   ▼                        ▼                                  ▼
+Cloudflare DNS/TLS   Installs Docker, sets up the        Runs deploy.sh,
+(who does the         firewall, creates the deploy        which drives
+ domain point at)      user, and — as one of its           Docker Compose
+                        tasks — builds + starts             for app.yml
+                        Caddy and Postgres                   only (web +
+                        (deploy/compose/platform.yml)        backend)
+                              │
+                              ▼
+                        Caddy (the "edge" container)
+                        reverse-proxies to whatever
+                        app.yml's containers started
+```
+
+- **Terraform** manages exactly one thing: Cloudflare. DNS records, TLS
+  mode, email-verification records. It has never heard of the VPS, Docker,
+  or Ansible — as far as Terraform's state is concerned, `app.ladu.com.ar`
+  is just "an A record pointing at this IP address," a plain string
+  (`var.vps_ipv4`) typed into a `.tf` file. It has no idea what's actually
+  listening on that IP, or whether it's even up.
+- **Ansible** manages the VPS itself — OS packages, the firewall, the
+  `deploy` user — and, as part of that, builds the Caddy image and starts
+  it (along with Postgres) via `platform.yml`. This is the one place two
+  tools' output *does* meet: Caddy needs a Cloudflare API token to prove
+  domain ownership for its certificate (the DNS-01 challenge — see the
+  glossary), and Ansible supplies that token from its own Vault — a
+  **separate, narrower-scoped** Cloudflare credential from the one
+  Terraform uses, created independently in Cloudflare's dashboard.
+  Terraform's DNS records and Ansible's Caddy config both have to agree on
+  the VPS's IP address, but nothing keeps them in sync automatically — if
+  the VPS were ever replaced, you'd update both by hand.
+- **Caddy** isn't something you invoke directly — it's a piece of software
+  Ansible packages into a custom Docker image (via `xcaddy`, a build tool
+  that compiles Caddy together with the `caddy-dns/cloudflare` plugin it
+  needs for the DNS-01 challenge) and starts as the `edge` container. It's
+  the thing every hostname Terraform created actually gets routed *to* —
+  Caddy itself has no awareness that Terraform exists; it just answers
+  whatever hostname shows up in the request.
+- **Docker Compose** is the mechanism both Ansible and GitHub Actions use to
+  start containers, but each owns a **different Compose project** (see
+  above): Ansible brings up `platform.yml` as project `ladu-platform`;
+  `deploy.sh` — run by GitHub Actions, on every merge — brings up `app.yml`
+  as `ladu-staging`/`ladu-prod`. `deploy.sh` never touches `platform.yml`,
+  and Ansible's `platform` role never touches `app.yml` — the two projects
+  only meet at the Docker network level (`app.yml`'s containers join the
+  `edge` network `platform.yml` already created).
+
+**The practical implication:** which tool to reach for depends on *which
+layer* a symptom is in. A DNS/TLS problem is Terraform's domain (or the
+Cloudflare dashboard). "The VPS itself is misconfigured" (a wrong firewall
+rule, Docker not installed right) is Ansible's. "The wrong code is running"
+is GitHub Actions/`deploy.sh`'s. Running the wrong tool for a given symptom
+— e.g. re-running Ansible to fix a bad application deploy — usually does
+nothing, because that tool doesn't own that layer. See
+[`05-troubleshooting-playbook.md`](05-troubleshooting-playbook.md) for
+symptom-specific guidance.
+
 ## Directory map: what each piece of `deploy/` is for
 
 | Path | What it does | Who runs it, when |

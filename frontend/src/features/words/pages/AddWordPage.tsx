@@ -64,9 +64,11 @@ export function AddWordPage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-row gap-3">
+            {/* Stacked on mobile; side-by-side with the subtitle bottom-aligned
+                from `sm` up. */}
+            <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
                 <h1 className="h1">{title}</h1>
-                <p className="meta content-end">{subtitle}</p>
+                <p className="meta sm:content-end">{subtitle}</p>
             </div>
             <WordForm
                 key={formKey}

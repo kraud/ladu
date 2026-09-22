@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { Check, X } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
+import { BrandLogo } from '@/components/common/BrandLogo';
 import { Button, buttonVariants } from '@/components/ui/button';
 
 type Status = 'pending' | 'success' | 'error';
@@ -24,9 +25,7 @@ export function VerifyEmailStatus({
 
     return (
         <div className="auth-shell page">
-            <span className="logo auth-banner">
-                <span className="logo-mark">L</span>Ladu
-            </span>
+            <BrandLogo variant="outline" height={64} title="Ladu" className="auth-banner" />
             <div className="card w-[min(420px,100%)] px-7 py-10 text-center">
                 {status === 'pending' && (
                     <>

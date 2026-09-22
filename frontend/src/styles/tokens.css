@@ -9,12 +9,22 @@
    ============================================================ */
 
 :root {
-  --bg: #fafaf6;
+  /* Brand pass 2026-09-21: the accent moved from the placeholder teal to the
+     real brand blue #007AFF. The neutrals were warm (paper-white, warm
+     hairlines) because they were tuned against teal. They are cooled here to
+     agree with a cold blue. Both sets are kept while we A/B them in the
+     running app — delete the losing comments once decided. */
+  --bg: #f7f8fa; /* was #fafaf6 — warm paper */
   --surface: #ffffff;
-  --fg: #1d1b17;
-  --muted: #6d6a62;
-  --border: #e6e3da;
-  --accent: #0f766e;
+  --fg: #1a1c20; /* was #1d1b17 — warm ink */
+  --muted: #666b73; /* was #6d6a62 — warm grey */
+  --border: #e3e5ea; /* was #e6e3da — warm hairline */
+  --accent: #007aff; /* was #0f766e — placeholder teal */
+
+  /* The accent as SMALL TEXT only. #007AFF is ~4.0:1 on --bg, under the AA
+     4.5:1 bar for body-size text. This is the same hue at ~5.8:1. Fills,
+     rings, marks and charts keep --accent. */
+  --accent-strong: #0062cc;
 
   /* derived — do not change */
   --accent-ink: #ffffff;
@@ -77,7 +87,7 @@
 
    shadcn's "muted" and "accent" are subtle hover/fill slots,
    NOT the same concept as our own --muted (gray text) or
-   --accent (brand teal) above, so they are deliberately mapped
+   --accent (brand blue) above, so they are deliberately mapped
    to --fg-soft / --fg instead of aliased to those names.
    @theme inline (not a plain @theme) so a future dark-mode
    override of the seeds propagates through without redeclaring

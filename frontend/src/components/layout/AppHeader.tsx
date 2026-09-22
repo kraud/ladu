@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { ListIcon } from '@phosphor-icons/react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { BrandLogo } from '@/components/common/BrandLogo';
 import { LanguageSelector } from '@/components/layout/LanguageSelector';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { featureFlags } from '@/app/feature-flags';
@@ -108,10 +109,7 @@ export function AppHeader() {
                     <SheetContent side="left" className="p-4">
                         <SheetHeader className="p-0">
                             <SheetTitle>
-                                <span className="logo">
-                                    <span className="logo-mark">L</span>
-                                    {t('common:appTitle')}
-                                </span>
+                                <BrandLogo height={24} title={t('common:appTitle')} />
                             </SheetTitle>
                         </SheetHeader>
                         <NavLinks
@@ -121,9 +119,8 @@ export function AppHeader() {
                     </SheetContent>
                 </Sheet>
 
-                <Link to="/" className="logo">
-                    <span className="logo-mark">L</span>
-                    {t('common:appTitle')}
+                <Link to="/" aria-label={t('common:appTitle')} className="flex items-center">
+                    <BrandLogo height={26} />
                 </Link>
 
                 <NavLinks className="app-nav max-[920px]:hidden" />

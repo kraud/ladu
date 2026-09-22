@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { BrandLogo } from '@/components/common/BrandLogo';
 import { cn } from '@/lib/utils';
 
 /**
@@ -21,9 +22,7 @@ export function AuthCard({
 }) {
     return (
         <div className="auth-shell page">
-            <span className="logo auth-banner">
-                <span className="logo-mark">L</span>Ladu
-            </span>
+            <BrandLogo variant="outline" height={64} title="Ladu" className="auth-banner" />
             <div className={cn('card card-pad auth-card', cardClassName)}>
                 {title && <h1 className="h2 mb-1">{title}</h1>}
                 {subtitle && <p className="mb-5 text-[13.5px] text-muted-foreground">{subtitle}</p>}

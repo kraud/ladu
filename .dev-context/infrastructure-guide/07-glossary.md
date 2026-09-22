@@ -53,6 +53,37 @@ incoming requests to the right one. Caddy is this project's reverse proxy:
 one process, listening on 80/443, deciding by hostname which container gets
 each request.
 
+**Caddy** — the specific reverse-proxy software this project uses (the
+`edge` container). Chosen partly for automatic HTTPS: point it at a domain
+and it requests and renews its own Let's Encrypt certificate with no manual
+certbot-style setup. Not installed from a package — Ansible builds it from
+source (via `xcaddy`, below) into a custom image, and it's the one piece of
+software every DNS record ultimately routes to. Configured by
+`deploy/caddy/Caddyfile`, a plain-text routing file (see "Request path, end
+to end" in [`01-architecture-overview.md`](01-architecture-overview.md)).
+
+**xcaddy** — Caddy's own build tool for compiling *plugins* into the Caddy
+binary. Stock Caddy doesn't support Cloudflare's DNS-01 challenge out of the
+box — this project uses `xcaddy` to build a custom image that bundles the
+`caddy-dns/cloudflare` plugin in, which is what actually lets Caddy prove
+domain ownership to Let's Encrypt via DNS instead of the more common (and
+here, impossible — the VPS isn't reachable except through Cloudflare)
+HTTP-01 challenge.
+
+**ACME** — the protocol Let's Encrypt and Caddy speak to each other to
+request and renew certificates automatically, with no human clicking
+"issue certificate." "DNS-01" (above) is one of the two ways ACME can verify
+you actually control a domain; "HTTP-01" (serving a file over plain HTTP) is
+the other, and isn't usable here since the VPS only accepts inbound traffic
+from Cloudflare.
+
+**Docker network** — a virtual network Docker containers can join, letting
+them reach each other by container/service name without any port being
+published to the host or the internet. `edge` is this project's one Docker
+network — `platform.yml` creates it, and `app.yml`'s containers join it as
+an "external" network so Caddy can reach them while nothing outside Docker
+can.
+
 ### Containers
 
 **Docker image** — a packaged, runnable snapshot of an application (code +
@@ -113,6 +144,30 @@ point-and-click changes, so changes are reviewable and repeatable.
 settings, email-verification records). Describes the *desired* state; you
 run `terraform plan` to preview a change and `terraform apply` to make it.
 
+**Terraform provider** — a plugin that teaches Terraform how to talk to one
+specific external system's API. This project uses exactly one, the
+Cloudflare provider — Terraform itself has no built-in idea of what a "DNS
+record" is; the provider translates `.tf` resources into real Cloudflare
+API calls.
+
+**Terraform resource** — one block in a `.tf` file describing one thing
+Terraform should manage (e.g. `resource "cloudflare_dns_record"
+"app_a" { ... }`). Terraform compares each resource's declared state against
+the real world (via the provider) and changes only what's different.
+
+**Terraform state** — Terraform's own record of what it currently manages
+and the last-known value of each resource — the thing that lets `terraform
+plan` say "here's what would change" instead of blindly reapplying
+everything every time. Stored remotely (see HCP Terraform, next) rather
+than as a local file on your laptop.
+
+**Terraform import block** — a way to bring a resource that already exists
+in the real world (here: DNS records created by Vercel's own setup flow,
+before Terraform existed in this project) under Terraform's management,
+without Terraform ever having created it. Used once, early on, to adopt the
+pre-existing Vercel-era records — new records since then are created by
+Terraform directly and need no import.
+
 **HCP Terraform (Terraform Cloud)** — where this project's Terraform *state*
 (its record of what it currently manages and its last-known values) is
 stored remotely, rather than as a local file — lets `terraform apply` run
@@ -135,6 +190,22 @@ tasks (this project has `base`, `firewall`, `docker`, `platform`, `backup`).
 
 **Ansible playbook** — the top-level file (`site.yml`) that says which
 roles run, in what order, against which hosts.
+
+**Ansible inventory** — the file listing which server(s) Ansible manages and
+how to reach them (`deploy/ansible/inventory/hosts.yml`). This project has
+exactly one host (the VPS) — no separate staging/production *servers*, since
+both environments live on the same machine (see
+[`01-architecture-overview.md`](01-architecture-overview.md)).
+
+**Ansible template (Jinja2)** — a config file with `{{ variable }}`
+placeholders (a `.j2` file) that Ansible fills in with real values before
+writing it to the server — e.g. `platform.env.j2` becomes the real
+`/opt/ladu/platform/.env` with actual passwords substituted in, and
+`docker-user-firewall.sh.j2` becomes a real firewall script with the
+VPS's actual network interface name and Cloudflare's actual IP ranges
+substituted in. This is how secrets and environment-specific values get
+into files without those values ever being hardcoded in a template that's
+committed to git.
 
 **Ansible Vault** — Ansible's built-in encryption for sensitive variables,
 so secrets can live in git safely (encrypted at rest) rather than as plain

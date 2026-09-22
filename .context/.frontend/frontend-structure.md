@@ -9,7 +9,7 @@
 | # | Decision | Resolution |
 |---|----------|-----------|
 | D1 | Routing style | **Code-based route tree** in `app/router.tsx` (no `@tanstack/router-plugin`). Small route set, still fully typed. Revisit file-based later if the tree grows. |
-| D2 | Design-system source | **Port `MOCKUPS/assets/app.css`** (warm paper `--bg`, teal `--accent`, serif display / sans UI / mono numerics, 36px controls, 4px grid, per-language `--lang-*` tints) into Tailwind v4 `@theme` tokens + a thin component-class layer. The blueprint's "neutral / shadcn defaults" note is subordinate — MOCKUPS is authoritative for look. |
+| D2 | Design-system source | **Port `MOCKUPS/assets/app.css`** (`--bg` paper, `--accent` — teal in the mockup, brand blue `#007AFF` since the 2026-09-21 brand pass, with `--accent-strong` for small text — serif display / sans UI / mono numerics, 36px controls, 4px grid, per-language `--lang-*` tints) into Tailwind v4 `@theme` tokens + a thin component-class layer. The blueprint's "neutral / shadcn defaults" note is subordinate — MOCKUPS is authoritative for look. |
 | D3 | shadcn/Base UI depth | **Add primitives per phase.** Phase-1 set: button, input, textarea, label, form (RHF bridge), dialog, alert-dialog, select, checkbox, radio-group, sheet, skeleton, dropdown-menu, toast host. |
 | D4 | Route files vs pages | **Thin `routes/*` files** compose `features/*/pages/*`. Guards, search-param schemas, and code-split boundaries live in `routes/` + `app/router.tsx`, never in feature code. |
 | D5 | Shared-logic folder | **`lib/`** (focused modules). Port from the old `generalUseFunctions.ts` only what a live feature needs, each with a test. |
@@ -251,7 +251,7 @@ frontend/src/
 | Account / Notifications / Tag view / modals (06) | `routes/{account,notifications,tag}.tsx` | `features/social`, `features/tags` | AccountPage, NotificationInbox, TagPage, TagInfoModal, FriendSearchModal, UserBadge, DualListDnD |
 
 **Design-language carry-over from `MOCKUPS/app.css`** (into `styles/` + `components/ui`):
-`--bg` warm paper / `--surface` / `--fg` ink / `--muted` / `--border` hairline / `--accent` teal (#0f766e); serif display font for headings & word titles, system sans for UI, mono for numerics/cases/badges; 36px controls, 4px spacing grid, `--radius` 8/12; per-language tints `--lang-gb/de/es/ee` used as 2px card-top borders and column-header accents; bottom-centre toasts; `.page` fade/slide keyframe for route transitions; skeleton shimmer; dense no-chrome tables.
+`--bg` paper / `--surface` / `--fg` ink / `--muted` / `--border` hairline / `--accent` brand blue (#007AFF; the mockup used teal #0f766e) plus `--accent-strong` (#0062CC) for accent-coloured small text; serif display font for headings & word titles, system sans for UI, mono for numerics/cases/badges; 36px controls, 4px spacing grid, `--radius` 8/12; per-language tints `--lang-gb/de/es/ee` used as 2px card-top borders and column-header accents; bottom-centre toasts; `.page` fade/slide keyframe for route transitions; skeleton shimmer; dense no-chrome tables.
 
 ---
 

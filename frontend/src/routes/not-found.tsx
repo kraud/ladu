@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { BrandLogo } from '@/components/common/BrandLogo';
 import { useAuthStore } from '@/stores/authStore';
 
 /**
@@ -53,9 +54,7 @@ export function NotFoundPage() {
 
     return (
         <div className="page flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
-            <span className="logo">
-                <span className="logo-mark">L</span>Ladu
-            </span>
+            <BrandLogo variant="outline" height={64} title="Ladu" />
 
             <span
                 className="font-display leading-none tracking-tight"

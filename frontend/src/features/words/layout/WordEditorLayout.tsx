@@ -13,8 +13,9 @@
  *
  * Below 920px (the app's one existing breakpoint — `AppHeader.tsx`,
  * `globals.css`'s `@media (max-width: 920px)` block) the sidebar becomes an
- * off-canvas drawer instead, opened by a floating trigger and closed by its
- * own header button, the backdrop, or Escape.
+ * off-canvas drawer instead, opened by a trigger that moves onto its own row
+ * above the grid, and closed by the drawer's own header button, the backdrop,
+ * or Escape.
  *
  * Rendered once — not duplicated inline+`Sheet` the way `AppHeader` renders
  * `NavLinks` twice — so every action button keeps exactly one accessible
@@ -51,7 +52,10 @@ export function WordEditorLayout({ sidebar, children }: { sidebar: ReactNode; ch
     }, [mobileOpen]);
 
     return (
-        <div className="flex items-start gap-4 lg:gap-6">
+        // Below 920px the drawer trigger gets its own row above the content —
+        // inline it would eat ~48px of the card grid's width. `items-stretch`
+        // (the column default) is what lets the content div take the full row.
+        <div className="flex items-start gap-4 max-[920px]:flex-col max-[920px]:items-stretch lg:gap-6">
             <button
                 type="button"
                 className="icon-btn hidden max-[920px]:grid"
