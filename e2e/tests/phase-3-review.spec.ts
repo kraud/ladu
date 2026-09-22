@@ -112,9 +112,9 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await page.getByRole('button', { name: 'Deutsch' }).click();
         await page.getByLabel('Singular nominative').fill('Baum');
         await expect(
-            page.getByText('There is information about this word stored in our system.'),
+            page.getByRole('button', { name: 'Use autocomplete values' }),
         ).toBeVisible({ timeout: 10_000 });
-        await page.getByRole('button', { name: 'Fill in' }).click();
+        await page.getByRole('button', { name: 'Use autocomplete values' }).click();
         await expect(page.getByRole('radio', { name: 'der', exact: true })).toBeChecked();
 
         await page.getByRole('button', { name: 'Add translation' }).click();

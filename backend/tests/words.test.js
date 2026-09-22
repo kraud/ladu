@@ -15,6 +15,11 @@
  *     table, so test tags are created with the authenticated user's UUID.
  */
 
+// Must run before `require('../app')` below — see auth.test.js's comment on
+// this same pattern for why (this file isn't Babel/ts-jest transformed, so
+// jest.mock hoisting never applies to it).
+jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+
 const crypto = require('crypto');
 const request = require('supertest');
 const { eq, inArray, sql } = require('drizzle-orm');
@@ -22,8 +27,6 @@ const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
 const { tags, tagWords, words } = require('../src/db/schema');
-
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());

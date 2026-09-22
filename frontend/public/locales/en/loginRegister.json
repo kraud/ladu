@@ -26,6 +26,16 @@
     "emailSent": "Email sent successfully!"
   },
   "unverifiedWarning": "You need to verify your account before signing in.",
+  "brand": {
+    "tagline": "Your words, four languages, one shelf.",
+    "supportedLanguages": "Supported in-app languages",
+    "subLogin": "Ladu keeps every word — and all its translations — in one place, across everything you study.",
+    "subRegister": "Pick at least two study languages — your table, exercises and review are built around them.",
+    "subResetRequest": "Enter the email on your account and we'll send you a reset link.",
+    "subResetSet": "Choose something you haven't used before — your reset link is valid for 30 minutes.",
+    "subVerify": "One click on the link, and your shelf is ready.",
+    "subNotFound": "This page isn't on the shelf — but everything else is."
+  },
   "login": {
     "title": "Login",
     "subtitle": "And get started!",
@@ -39,7 +49,19 @@
     "submitting": "Creating…",
     "emailSentToast": "We sent an email to {{email}} — open it to verify your account.",
     "languagesLabel": "Languages you're managing",
-    "languagesHint": "Pick at least two. You can add more and reorder them later."
+    "languagesHint": "Pick at least two. You can add more and reorder them later.",
+    "step1Pill": "Step 1 of 2 · Account",
+    "step1Title": "Create account",
+    "step1Subtitle": "We'll send a verification email once you're in.",
+    "step2Pill": "Step 2 of 2 · Languages",
+    "step2Title": "Choose your languages",
+    "step2Subtitle": "Pick at least two — the parts of speech below are available for every language.",
+    "continue": "Continue",
+    "continueHint": "Next: choose your study languages",
+    "back": "Back",
+    "languageCountEmpty": "Select at least two languages",
+    "languageCountSelected_one": "1 language selected",
+    "languageCountSelected_other": "{{count}} languages selected"
   },
   "resetPassword": {
     "titleReset": "Set a new password",

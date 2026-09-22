@@ -107,17 +107,14 @@
   },
   "wordForm": {
     "hints": {
-      "minTranslations": "Lisa enne salvestamist vähemalt 2 tõlget."
+      "minTranslations": "Lisa enne salvestamist vähemalt 2 tõlget.",
+      "requiredFieldsDisclaimer": "Tärniga (*) märgitud väljad on kohustuslikud."
     },
     "errors": {
       "noNumbers": "Ei tohi sisaldada numbreid"
     },
     "buttons": {
       "changeWordType": "Muuda sõnaliiki"
-    },
-    "emptyState": {
-      "title": "Tõlkeid pole veel lisatud",
-      "description": "Lisa tõlge külgmenüüst."
     },
     "sidebar": {
       "collapse": "Ahenda külgriba",
@@ -301,7 +298,10 @@
       "foundMatch": "Meie süsteemis on selle sõna kohta teavet.",
       "partialMatch": "Me pole täiesti kindlad, kuid see on meie parim oletus.",
       "loading": "Otsimine...",
-      "fillButton": "Täida"
+      "autocompleteButton": "Kasuta automaattäidetud väärtusi",
+      "valuesApplied": "Automaattäidetud väärtused on rakendatud",
+      "supportLabel": "Automaattäitmine saadaval",
+      "inputPlaceholder": "Sisesta automaattäitmiseks"
     }
   }
 }

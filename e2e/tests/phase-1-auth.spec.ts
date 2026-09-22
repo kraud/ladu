@@ -46,12 +46,15 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
         primary = { name: 'Kai Rebane', username: `kai${run}${seq}`, email, password: 'password123' };
 
         await page.goto('/register');
+        // Step 1 — profile data.
         await page.getByLabel(/^Name/).fill(primary.name);
         await page.getByLabel(/^Username/).fill(primary.username);
         await page.getByLabel(/^Email/).fill(primary.email);
         await page.getByLabel(/^Password/).fill(primary.password);
         await page.getByLabel(/^Confirm password/).fill(primary.password);
+        await page.getByRole('button', { name: 'Continue' }).click();
 
+        // Step 2 — language tiles.
         const submit = page.getByRole('button', { name: 'Create account' });
         await expect(submit).toBeDisabled();
         await page.getByRole('button', { name: 'English' }).click();

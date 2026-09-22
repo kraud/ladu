@@ -4,14 +4,17 @@
 :root {
     color-scheme: light dark;
 
-    --bg: #fafaf6;
+    /* Brand pass 2026-09-21: accent moved from placeholder teal to the brand
+       blue #007AFF, and the warm neutrals were cooled to agree with it. Old
+       values stay as comments while we A/B both sets. Mirrors tokens.css. */
+    --bg: #f7f8fa; /* was #fafaf6 — warm paper */
     --surface: #ffffff;
-    --fg: #1d1b17;
-    --muted: #6d6a62;
-    --border: #e6e3da;
-    --accent: #0f766e;
+    --fg: #1a1c20; /* was #1d1b17 — warm ink */
+    --muted: #666b73; /* was #6d6a62 — warm grey */
+    --border: #e3e5ea; /* was #e6e3da — warm hairline */
+    --accent: #007aff; /* was #0f766e — placeholder teal */
     --accent-ink: #ffffff;
-    --accent-hover: #0b5f58;
+    --accent-hover: #0062cc; /* was #0b5f58 */
 
     --lang-gb: #2c4a8a;
     --lang-de: #42403c;
@@ -24,14 +27,16 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg: #14130f;
-        --surface: #1d1b17;
-        --fg: #f1efe8;
-        --muted: #a6a298;
-        --border: #34322b;
-        --accent: #2dd4bf;
-        --accent-ink: #0b1f1c;
-        --accent-hover: #5eead4;
+        /* #007AFF is too saturated on a dark ground, so dark mode uses a
+           lighter blue with dark ink, the same shape the teal pair had. */
+        --bg: #121417; /* was #14130f */
+        --surface: #1b1e23; /* was #1d1b17 */
+        --fg: #eef0f4; /* was #f1efe8 */
+        --muted: #9aa0aa; /* was #a6a298 */
+        --border: #2c3036; /* was #34322b */
+        --accent: #4da3ff; /* was #2dd4bf */
+        --accent-ink: #062a52; /* was #0b1f1c */
+        --accent-hover: #7cbaff; /* was #5eead4 */
 
         --lang-gb: #7f9fe0;
         --lang-de: #b4b0a6;

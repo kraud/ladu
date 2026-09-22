@@ -6,7 +6,9 @@
       "Hier gibt es nichts zu sehen…",
       "No hay nada que ver aquí…",
       "Siin pole midagi vaadata…"
-    ]
+    ],
+    "goToDashboard": "Zum Dashboard",
+    "goToLogin": "Zur Anmeldung"
   },
   "header": {
     "addWord": "wort hinzufügen",

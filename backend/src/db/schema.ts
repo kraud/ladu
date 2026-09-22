@@ -60,8 +60,6 @@ export const users = pgTable('users', {
     uiLanguage:     varchar('ui_language', { length: 50 }),
     nativeLanguage: varchar('native_language', { length: 50 }),
     verified:       boolean('verified').default(false),
-    // Used for email-verification/password-reset tokens stored inline
-    passwordTokens: text('password_tokens').array().notNull().default([]),
     ...timestamps,
 });
 
@@ -230,13 +228,33 @@ export const notifications = pgTable('notifications', {
 // ---------------------------------------------------------------------------
 // TOKENS
 // Mapped from: backend/models/tokenModel.js
-// Used for email verification. The TTL is handled at the application layer.
+// Used for email verification. Verification links never expire (a deliberate
+// product decision, 2026-09-22) — no TTL is enforced anywhere against
+// `createdAt`, and `userId` stays UNIQUE (one outstanding token per user).
 // ---------------------------------------------------------------------------
 export const tokens = pgTable('tokens', {
     id:        uuid('id').primaryKey().defaultRandom(),
     userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
     token:     varchar('token', { length: 512 }).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// ---------------------------------------------------------------------------
+// PASSWORD_RESET_TOKENS
+// Replaces the old `users.password_tokens` text[] column (2026-09-22): reset
+// links now expire 30 minutes after `createdAt` and are single-use, enforced
+// by `updatePassword` checking `usedAt IS NULL` + the age window. Unlike
+// `tokens.userId`, `userId` here is NOT unique — a user may have several
+// outstanding reset requests at once (e.g. one per device); a successful
+// reset invalidates all of a user's other outstanding rows, not just the one
+// used.
+// ---------------------------------------------------------------------------
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+    id:        uuid('id').primaryKey().defaultRandom(),
+    userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    token:     varchar('token', { length: 512 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    usedAt:    timestamp('used_at'),
 });
 
 // ---------------------------------------------------------------------------
@@ -296,6 +314,7 @@ export const usersRelations = relations(users, ({ many }) => ({
     tagSharesReceived:  many(tagShares, { relationName: 'recipient' }),
     notifications:      many(notifications),
     tokens:             many(tokens),
+    passwordResetTokens: many(passwordResetTokens),
     exercisePerformances: many(exercisePerformances),
 }));
 
@@ -351,6 +370,10 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
 
 export const tokensRelations = relations(tokens, ({ one }) => ({
     user: one(users, { fields: [tokens.userId], references: [users.id] }),
+}));
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+    user: one(users, { fields: [passwordResetTokens.userId], references: [users.id] }),
 }));
 
 export const exercisePerformancesRelations = relations(exercisePerformances, ({ one, many }) => ({

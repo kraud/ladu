@@ -22,6 +22,13 @@
       "when": 1789315400147,
       "tag": "0002_words_created_at_id_index",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790080925492,
+      "tag": "0003_crazy_randall",
+      "breakpoints": true
     }
   ]
 }

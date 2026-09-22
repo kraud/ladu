@@ -81,7 +81,7 @@
     font-size: 13.5px; font-weight: 500; color: var(--fg); text-align: left;
   }
   .avatar-menu a:hover, .avatar-menu button:hover { background: var(--fg-soft); }
-  .avatar-menu a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .avatar-menu a.active { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
   .avatar-menu .sep { height: 1px; background: var(--border); margin: 5px 4px; }
   .avatar-menu .logout { color: var(--danger); }
 </style>
@@ -90,7 +90,7 @@
 
 <header class="app-header" data-od-id="app-header">
   <div class="container app-header-inner">
-    <a class="logo" href="index.html"><span class="logo-mark">L</span>Ladu</a>
+    <a class="logo" href="dashboard.html" aria-label="Ladu — dashboard"><img src="assets/ladu-title-with-icon.svg" alt="Ladu" style="height: 24px; width: auto;"></a>
     <nav class="app-nav">
       <a href="word-editor.html">Add Word</a>
       <a href="#" title="Spec 05 pending">Practice</a>
@@ -115,7 +115,7 @@
       <span class="menu-anchor">
         <button class="avatar has-badge" id="avatar-btn" data-count="3" aria-haspopup="true" aria-expanded="false" aria-label="Account menu — Kai Rebane, 3 unread">KR</button>
         <div class="avatar-menu" id="avatar-menu" hidden>
-          <a href="index.html">
+          <a href="dashboard.html">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
             Dashboard
           </a>

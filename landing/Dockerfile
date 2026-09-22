@@ -4,6 +4,7 @@
 FROM caddy:alpine
 
 COPY index.html style.css favicon.svg /srv/
+COPY brand/ /srv/brand/
 COPY Caddyfile /etc/caddy/Caddyfile
 
 EXPOSE 80

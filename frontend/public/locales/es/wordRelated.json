@@ -107,17 +107,14 @@
   },
   "wordForm": {
     "hints": {
-      "minTranslations": "Añade al menos 2 traducciones antes de poder guardar."
+      "minTranslations": "Añade al menos 2 traducciones antes de poder guardar.",
+      "requiredFieldsDisclaimer": "Los campos marcados con * son obligatorios."
     },
     "errors": {
       "noNumbers": "No debe incluir números"
     },
     "buttons": {
       "changeWordType": "Cambiar tipo de palabra"
-    },
-    "emptyState": {
-      "title": "Aún no hay traducciones",
-      "description": "Añade una traducción desde el menú lateral."
     },
     "sidebar": {
       "collapse": "Contraer la barra lateral",
@@ -301,7 +298,10 @@
       "foundMatch": "Hay información sobre esta palabra almacenada en nuestro sistema.",
       "partialMatch": "No estamos completamente seguros, pero esta es nuestra mejor estimación.",
       "loading": "Buscando...",
-      "fillButton": "Rellenar"
+      "autocompleteButton": "Usar valores autocompletados",
+      "valuesApplied": "Valores autocompletados aplicados",
+      "supportLabel": "Autocompletado disponible",
+      "inputPlaceholder": "Escribe para autocompletar"
     }
   }
 }

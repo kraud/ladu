@@ -6,7 +6,9 @@
       "Hier gibt es nichts zu sehen…",
       "No hay nada que ver aquí…",
       "Siin pole midagi vaadata…"
-    ]
+    ],
+    "goToDashboard": "Ava töölaud",
+    "goToLogin": "Ava sisselogimine"
   },
   "header": {
     "addWord": "lisa sõna",

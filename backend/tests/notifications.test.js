@@ -8,6 +8,11 @@
  *     just like the legacy controller.
  */
 
+// Must run before `require('../app')` below — see auth.test.js's comment on
+// this same pattern for why (this file isn't Babel/ts-jest transformed, so
+// jest.mock hoisting never applies to it).
+jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+
 const request = require('supertest');
 const { eq } = require('drizzle-orm');
 const app = require('../app');
@@ -16,7 +21,6 @@ const { db, pool } = require('../src/db');
 const { notifications } = require('../src/db/schema');
 
 jest.setTimeout(15000);
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());

@@ -107,17 +107,14 @@
   },
   "wordForm": {
     "hints": {
-      "minTranslations": "Füge mindestens 2 Übersetzungen hinzu, bevor du speichern kannst."
+      "minTranslations": "Füge mindestens 2 Übersetzungen hinzu, bevor du speichern kannst.",
+      "requiredFieldsDisclaimer": "Mit * markierte Felder sind Pflichtfelder."
     },
     "errors": {
       "noNumbers": "Darf keine Zahlen enthalten"
     },
     "buttons": {
       "changeWordType": "Wortart ändern"
-    },
-    "emptyState": {
-      "title": "Noch keine Übersetzungen",
-      "description": "Füge eine Übersetzung über das Seitenmenü hinzu."
     },
     "sidebar": {
       "collapse": "Seitenleiste einklappen",
@@ -301,7 +298,10 @@
       "foundMatch": "Es gibt Informationen über dieses Wort in unserem System.",
       "partialMatch": "Wir sind uns nicht ganz sicher, aber das ist unsere beste Vermutung.",
       "loading": "Suche läuft...",
-      "fillButton": "Ausfüllen"
+      "autocompleteButton": "Automatische Werte übernehmen",
+      "valuesApplied": "Automatische Werte übernommen",
+      "supportLabel": "Vervollständigung verfügbar",
+      "inputPlaceholder": "Zum Vervollständigen eingeben"
     }
   }
 }

@@ -26,18 +26,21 @@ afterEach(() => {
 });
 
 describe('register', () => {
-    it('gates "Create account" on >= 2 languages, then creates the account and lands on /login', async () => {
+    it('walks the two-step form, gates step 2 on >= 2 languages, then creates the account and lands on /login', async () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/register' });
 
-        await screen.findByRole('button', { name: 'Create account' });
+        // Step 1 — profile data.
+        await screen.findByRole('button', { name: 'Continue' });
         await user.type(screen.getByLabelText(/^Name/), 'Kai Rebane');
         await user.type(screen.getByLabelText(/^Username/), 'kai');
         await user.type(screen.getByLabelText(/^Email/), 'kai@example.com');
         await user.type(screen.getByLabelText(/^Password/), 'password123');
         await user.type(screen.getByLabelText(/^Confirm password/), 'password123');
+        await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-        // Still blocked — no languages picked.
+        // Step 2 — languages.
+        await screen.findByRole('button', { name: 'Create account' });
         expect(screen.getByRole('button', { name: 'Create account' })).toBeDisabled();
         await user.click(screen.getByRole('button', { name: 'English', pressed: false }));
         // One language is not enough.
@@ -56,6 +59,25 @@ describe('register', () => {
         const created = auth.userFor('kai@example.com');
         expect(created?.verified).toBe(false);
         expect(created?.languages).toEqual(['English', 'Spanish']);
+    });
+
+    it('"Back" on step 2 returns to step 1 with the entered values kept', async () => {
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/register' });
+
+        await screen.findByRole('button', { name: 'Continue' });
+        await user.type(screen.getByLabelText(/^Name/), 'Kai Rebane');
+        await user.type(screen.getByLabelText(/^Username/), 'kai');
+        await user.type(screen.getByLabelText(/^Email/), 'kai@example.com');
+        await user.type(screen.getByLabelText(/^Password/), 'password123');
+        await user.type(screen.getByLabelText(/^Confirm password/), 'password123');
+        await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+        await screen.findByRole('button', { name: 'Back' });
+        await user.click(screen.getByRole('button', { name: 'Back' }));
+
+        expect(await screen.findByLabelText(/^Name/)).toHaveValue('Kai Rebane');
+        expect(screen.getByLabelText(/^Email/)).toHaveValue('kai@example.com');
     });
 });
 
