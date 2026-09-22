@@ -5,11 +5,11 @@ const { users } = require('../src/db/schema');
 const { eq }: typeof import('drizzle-orm') = require('drizzle-orm');
 const asyncHandler = require('express-async-handler');
 
-// Columns loaded onto `req.user` for every protected route. Both the bcrypt
-// `password` hash and the `passwordTokens` reset-token array are excluded — they
-// would otherwise reach the client through `GET /me` (which returns `req.user`
-// verbatim). No handler reads `req.user.passwordTokens`; the reset flow queries
-// that column directly (Phase 1 Slice 5).
+// Columns loaded onto `req.user` for every protected route. The bcrypt
+// `password` hash is excluded — it would otherwise reach the client through
+// `GET /me` (which returns `req.user` verbatim). Password-reset tokens live
+// in their own `password_reset_tokens` table (2026-09-22), not a user column,
+// so there is nothing reset-related to exclude here any more.
 const userColumnsWithoutPassword = {
     id: users.id,
     name: users.name,

@@ -1,6 +1,6 @@
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { AuthCard } from '../components/AuthCard';
+import { AuthLayout } from '../components/AuthLayout';
 import { ResetPasswordForm } from '../components/ResetPasswordForm';
 
 const route = getRouteApi('/_public/resetPassword/{-$userId}/{-$tokenId}');
@@ -11,7 +11,12 @@ export function ResetPasswordPage() {
     const isSetMode = Boolean(userId && tokenId);
 
     return (
-        <AuthCard
+        <AuthLayout
+            blurb={
+                isSetMode
+                    ? t('loginRegister:brand.subResetSet')
+                    : t('loginRegister:brand.subResetRequest')
+            }
             title={
                 isSetMode
                     ? t('loginRegister:resetPassword.titleReset')
@@ -24,7 +29,7 @@ export function ResetPasswordPage() {
             }
             links={
                 <>
-                    <span>{t('loginRegister:switchSectionButtons.alreadyRegistered')}</span>
+                    <span>{t('loginRegister:switchSectionButtons.alreadyRegistered')}</span>{' '}
                     <Link to="/login">{t('loginRegister:switchSectionButtons.signIn')}</Link>
                 </>
             }
@@ -34,6 +39,6 @@ export function ResetPasswordPage() {
             ) : (
                 <ResetPasswordForm mode="request" />
             )}
-        </AuthCard>
+        </AuthLayout>
     );
 }

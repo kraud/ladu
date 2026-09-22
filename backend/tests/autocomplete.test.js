@@ -1,13 +1,20 @@
-const request = require('supertest');
-const https = require('https');
-const app = require('../app');
-const db = require('./db');
-
+// jest.mock calls run before `require('../app')` below — this file isn't
+// Babel/ts-jest transformed (only `.tsx?` matches `transform` in
+// jest.config.js), so Jest's automatic hoisting of `jest.mock` (which only
+// rewrites `import` syntax) doesn't apply; these lines execute in the
+// literal order written. Requiring `../app` first would let
+// userController.ts's own `require("../utils/sendEmail")` capture the real,
+// nodemailer-backed module instead of this mock.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 jest.mock('is-word', () => {
     const mockDict = { check: () => true };
     return () => mockDict;
 });
+
+const request = require('supertest');
+const https = require('https');
+const app = require('../app');
+const db = require('./db');
 
 beforeAll(() => db.connectDB());
 beforeEach(() => db.clearDB());

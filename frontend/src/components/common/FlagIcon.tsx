@@ -10,10 +10,15 @@ export function FlagIcon({
     lang,
     className,
     title,
+    width = 16,
+    height = 16,
 }: {
     lang: string;
     className?: string;
     title?: string;
+    /** Pixel box the flag renders in. Defaults to the 16×16 square every existing caller relies on. */
+    width?: number;
+    height?: number;
 }) {
     const entry: UiLanguage | undefined = languageByKey(lang) ?? languageByLabel(lang);
     if (!entry) return null;
@@ -23,9 +28,10 @@ export function FlagIcon({
             src={entry.flag}
             alt={title ?? ''}
             aria-hidden={title ? undefined : true}
-            width={16}
-            height={16}
-            className={cn('inline-block h-4 w-4 rounded-[3px] object-cover', className)}
+            width={width}
+            height={height}
+            style={{ width, height }}
+            className={cn('inline-block shrink-0 rounded-[3px] object-cover', className)}
         />
     );
 }

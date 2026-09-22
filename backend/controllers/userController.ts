@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { db }: typeof import("../src/db") = require("../src/db");
 const {
   friendships,
+  passwordResetTokens,
   tokens,
   users,
   words,
@@ -13,8 +14,10 @@ const {
 const {
   and,
   eq,
+  gt,
   ilike,
   inArray,
+  isNull,
   ne,
   or,
   sql,
@@ -26,10 +29,9 @@ const { calculateBasicUserMetrics } = require("./metricController");
 type UserRow = typeof users.$inferSelect;
 type NewUserRow = typeof users.$inferInsert;
 
-// Client-safe user columns. The bcrypt `password` hash and the `passwordTokens`
-// reset-token array are deliberately excluded so they never reach a response
-// (Phase 1 Slice 5 — the password-reset flow reads `passwordTokens` off its own
-// full-row queries, not this projection).
+// Client-safe user columns. The bcrypt `password` hash is deliberately
+// excluded so it never reaches a response. Password-reset tokens live in
+// their own table (`password_reset_tokens`), not a user column.
 const userColumnsWithoutPassword = {
   id: users.id,
   name: users.name,
@@ -93,8 +95,8 @@ const generateToken = (id: string) => {
 
 // Explicit allowlist of the user fields safe to return to a client. Never spread
 // a raw row here: `findUserById` selects every column (incl. the bcrypt
-// `password` hash and the `passwordTokens` reset-token array), and this is the
-// serializer for `getUserById` / `updateUser` / `verifyUser`.
+// `password` hash), and this is the serializer for
+// `getUserById` / `updateUser` / `verifyUser`.
 const serializeUser = (user: Partial<UserRow>) => ({
   id: user.id,
   name: user.name,
@@ -217,7 +219,6 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
       uiLanguage: resolvedUiLanguage,
       nativeLanguage: null,
       verified: false,
-      passwordTokens: [],
     } satisfies NewUserRow)
     .returning();
 
@@ -239,10 +240,10 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
   const url = `${process.env.BASE_URL}/user/${user.id}/verify/${token.token}`;
   sendMail({
     email: user.email,
-    subject: "Verify Email",
     url,
     name: user.name,
     type: "verifyEmail",
+    language: resolvedUiLanguage,
   }).catch((error: unknown) => console.error("Failed to send verification email:", error));
 
   res.status(201).json(publicUserResponse(user));
@@ -486,6 +487,10 @@ const verifyUser = asyncHandler(async (req: any, res: any) => {
   }
 });
 
+// Password-reset links expire this long after they're issued (2026-09-22
+// decision — unlike email verification, which never expires).
+const PASSWORD_RESET_TTL_MINUTES = 30;
+
 const requestPasswordReset = asyncHandler(async (req: any, res: any) => {
   const email = req.body.email;
 
@@ -496,24 +501,23 @@ const requestPasswordReset = asyncHandler(async (req: any, res: any) => {
     throw new Error("There is no user registered with the email given.");
   }
 
-  // Append a new reset token; multiple outstanding reset links remain valid until a password update.
+  // Insert a new reset-token row; a user may have several outstanding
+  // requests at once (e.g. one per device) until one of them is used.
   const newPasswordToken = crypto.randomBytes(32).toString("hex");
-  const passwordTokens = [...(user.passwordTokens || []), newPasswordToken];
-
-  await db
-    .update(users)
-    .set({ passwordTokens, updatedAt: new Date() })
-    .where(eq(users.id, user.id));
+  await db.insert(passwordResetTokens).values({
+    userId: user.id,
+    token: newPasswordToken,
+  });
 
   // Send the reset link only after the token has been persisted. Not
   // awaited — see the register handler's own comment on why.
   const url = `${process.env.BASE_URL}/resetPassword/${user.id}/${newPasswordToken}`;
   sendMail({
     email: user.email,
-    subject: "Password reset link",
     url,
     name: user.name,
     type: "resetPassword",
+    language: user.uiLanguage,
   }).catch((error: unknown) => console.error("Failed to send password reset email:", error));
 
   res.status(200).json({});
@@ -534,27 +538,49 @@ const updatePassword = asyncHandler(async (req: any, res: any) => {
     throw new Error("Invalid Link (no user match).");
   }
 
-  // Only a token stored on the user row can authorize a password change.
-  if (
-    user.passwordTokens === undefined ||
-    !user.passwordTokens.includes(token)
-  ) {
+  // A token only authorizes a password change while it matches this user,
+  // hasn't been used yet, and is within the 30-minute TTL.
+  const ttlCutoff = new Date(Date.now() - PASSWORD_RESET_TTL_MINUTES * 60_000);
+  const [resetToken] = await db
+    .select()
+    .from(passwordResetTokens)
+    .where(
+      and(
+        eq(passwordResetTokens.userId, user.id),
+        eq(passwordResetTokens.token, token),
+        isNull(passwordResetTokens.usedAt),
+        gt(passwordResetTokens.createdAt, ttlCutoff),
+      ),
+    )
+    .limit(1);
+
+  if (!resetToken) {
     res.status(400);
     throw new Error("Invalid token.");
   }
 
-  // Replace the password hash and clear all reset tokens so links cannot be reused.
+  // Replace the password hash, mark the used token, and invalidate every
+  // other outstanding reset request for this user so old links stop working.
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
+  const now = new Date();
 
   await db
     .update(users)
-    .set({
-      password: hashedPassword,
-      passwordTokens: [],
-      updatedAt: new Date(),
-    })
+    .set({ password: hashedPassword, updatedAt: now })
     .where(eq(users.id, user.id));
+  await db
+    .update(passwordResetTokens)
+    .set({ usedAt: now })
+    .where(eq(passwordResetTokens.id, resetToken.id));
+  await db
+    .delete(passwordResetTokens)
+    .where(
+      and(
+        eq(passwordResetTokens.userId, user.id),
+        ne(passwordResetTokens.id, resetToken.id),
+      ),
+    );
 
   res.status(200).json({});
 });

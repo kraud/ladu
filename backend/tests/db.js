@@ -112,6 +112,7 @@ const clearDB = async () => {
             translation_cases,
             translations,
             tokens,
+            password_reset_tokens,
             words,
             tags,
             users

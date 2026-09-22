@@ -1,15 +1,28 @@
+// `jest.mock` + the mocked module's own `require` MUST come before `require('../app')`
+// below. This file is plain CommonJS (not Babel/ts-jest transformed — only `.tsx?`
+// files go through the `transform` in jest.config.js), so Jest's automatic
+// `jest.mock` hoisting (which only rewrites `import` syntax) never applies here:
+// these lines run in the literal order they're written. `require('../app')` pulls
+// in `userController.ts`, which does its own top-level
+// `require("../utils/sendEmail")` — if that happened before this mock was
+// registered, the controller would capture the *real* nodemailer-backed module
+// (hitting live SMTP in every test run) instead of the mock.
+jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const sendMail = require('../utils/sendEmail');
+
 const crypto = require('crypto');
 const request = require('supertest');
 const { eq } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
-const { users, tokens } = require('../src/db/schema');
-
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const { users, tokens, passwordResetTokens } = require('../src/db/schema');
 
 beforeAll(() => testDb.connectDB());
-beforeEach(() => testDb.clearDB());
+beforeEach(async () => {
+    await testDb.clearDB();
+    sendMail.mockClear();
+});
 afterAll(async () => {
     await testDb.closeDB();
     await pool.end();
@@ -34,6 +47,15 @@ const findUserByEmail = async (email) => {
     const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
     return user;
 };
+
+// Read every password-reset token row for a user, newest first — tests assert
+// on count, `usedAt`, and `createdAt` across these rows.
+const findPasswordResetTokensByUserId = async (userId) =>
+    db
+        .select()
+        .from(passwordResetTokens)
+        .where(eq(passwordResetTokens.userId, userId))
+        .orderBy(passwordResetTokens.createdAt);
 
 // Read the verification token row by user id to assert token creation and deletion behavior.
 const findTokenByUserId = async (userId) => {
@@ -153,6 +175,18 @@ describe('POST /api/users - Registration', () => {
     it('fails with 400 for an unsupported uiLanguage', async () => {
         const res = await registerUser({ uiLanguage: 'Klingon' });
         expect(res.statusCode).toBe(400);
+    });
+
+    it('sends the verification email in the language chosen at registration', async () => {
+        await registerUser({ uiLanguage: 'German' });
+
+        expect(sendMail).toHaveBeenCalledTimes(1);
+        const [emailData] = sendMail.mock.calls[0];
+        expect(emailData).toMatchObject({
+            type: 'verifyEmail',
+            email: 'test@example.com',
+            language: 'German',
+        });
     });
 });
 
@@ -479,14 +513,33 @@ describe('Password Reset Flow', () => {
         expect(res.statusCode).toBe(200);
     });
 
-    it('stores a token in user.passwordTokens', async () => {
+    it('inserts a password_reset_tokens row for the user', async () => {
         await request(app)
             .post('/api/users/requestPasswordReset')
             .send({ email: 'test@example.com' });
 
-        // Password reset tokens are stored on the user row and consumed by updatePassword.
         const user = await findUserByEmail('test@example.com');
-        expect(user.passwordTokens.length).toBe(1);
+        const rows = await findPasswordResetTokensByUserId(user.id);
+        expect(rows.length).toBe(1);
+        expect(rows[0].usedAt).toBeNull();
+    });
+
+    it('sends the reset email in the account\'s stored uiLanguage', async () => {
+        await registerUser({
+            email: 'es-reset@example.com',
+            username: 'esreset',
+            uiLanguage: 'Spanish',
+        });
+
+        await request(app)
+            .post('/api/users/requestPasswordReset')
+            .send({ email: 'es-reset@example.com' });
+
+        const call = sendMail.mock.calls.find(
+            ([data]) => data.type === 'resetPassword' && data.email === 'es-reset@example.com',
+        );
+        expect(call).toBeDefined();
+        expect(call[0].language).toBe('Spanish');
     });
 
     it('fails when email is not registered', async () => {
@@ -499,23 +552,23 @@ describe('Password Reset Flow', () => {
 
     describe('PUT /api/users/updatePassword', () => {
         let user;
+        let token;
 
         beforeEach(async () => {
             await request(app)
                 .post('/api/users/requestPasswordReset')
                 .send({ email: 'test@example.com' });
             user = await findUserByEmail('test@example.com');
+            [token] = await findPasswordResetTokensByUserId(user.id);
         });
 
-        it('updates the password with valid token', async () => {
-            const token = user.passwordTokens[0];
-
+        it('updates the password with a valid token', async () => {
             const res = await request(app)
                 .put('/api/users/updatePassword')
                 .send({
                     userId: user.id,
                     password: 'newpassword456',
-                    token,
+                    token: token.token,
                 });
 
             expect(res.statusCode).toBe(200);
@@ -527,20 +580,51 @@ describe('Password Reset Flow', () => {
             expect(loginRes.statusCode).toBe(200);
         });
 
-        it('clears passwordTokens after update', async () => {
-            const token = user.passwordTokens[0];
+        it('marks the used token used and deletes every other outstanding row for the user', async () => {
+            // A second outstanding request from another device/tab.
+            await request(app)
+                .post('/api/users/requestPasswordReset')
+                .send({ email: 'test@example.com' });
+            expect((await findPasswordResetTokensByUserId(user.id)).length).toBe(2);
 
             await request(app)
                 .put('/api/users/updatePassword')
-                .send({
-                    userId: user.id,
-                    password: 'newpassword456',
-                    token,
-                });
+                .send({ userId: user.id, password: 'newpassword456', token: token.token });
 
-            // Clearing tokens prevents reset links from being reused after a successful password change.
-            const updated = await findUserByEmail('test@example.com');
-            expect(updated.passwordTokens).toEqual([]);
+            // The successful reset invalidates every OTHER outstanding row for
+            // this user — old links must stop working — while the used row
+            // itself is kept (marked `usedAt`) rather than deleted.
+            const remaining = await findPasswordResetTokensByUserId(user.id);
+            expect(remaining.length).toBe(1);
+            expect(remaining[0].id).toBe(token.id);
+            expect(remaining[0].usedAt).not.toBeNull();
+        });
+
+        it('rejects the same token on a second use', async () => {
+            await request(app)
+                .put('/api/users/updatePassword')
+                .send({ userId: user.id, password: 'newpassword456', token: token.token });
+
+            const res = await request(app)
+                .put('/api/users/updatePassword')
+                .send({ userId: user.id, password: 'yetanother789', token: token.token });
+
+            expect(res.statusCode).toBe(400);
+        });
+
+        it('rejects a token older than the 30-minute TTL', async () => {
+            // Backdate the row past the expiry window directly in the DB —
+            // there is no API surface for simulating elapsed time.
+            await db
+                .update(passwordResetTokens)
+                .set({ createdAt: new Date(Date.now() - 31 * 60_000) })
+                .where(eq(passwordResetTokens.id, token.id));
+
+            const res = await request(app)
+                .put('/api/users/updatePassword')
+                .send({ userId: user.id, password: 'newpassword456', token: token.token });
+
+            expect(res.statusCode).toBe(400);
         });
 
         it('fails with invalid token', async () => {
@@ -561,7 +645,7 @@ describe('Password Reset Flow', () => {
                 .send({
                     userId: crypto.randomUUID(),
                     password: 'newpassword456',
-                    token: user.passwordTokens[0],
+                    token: token.token,
                 });
 
             expect(res.statusCode).toBe(400);

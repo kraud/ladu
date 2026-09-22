@@ -1,18 +1,28 @@
 const nodemailer = require("nodemailer")
 const resetPassword = require("./resources/resetPassword")
 const verifyEmail = require("./resources/verifyEmail");
+const { stringsFor } = require("./resources/emailStrings");
 
-
-function getHTMLAndAttachedData(emailData) {
+// `emailData.type` selects both the template and its localized subject
+// (previously a hardcoded English literal at each controller call site).
+// `emailData.language` is one of the SUPPORTED_LANGUAGES labels
+// (userController.ts) or undefined/unrecognized — stringsFor() falls back to
+// English in either case, so a send never fails over a bad language value.
+function getEmailContent(emailData) {
+    const s = stringsFor(emailData.language);
     switch (emailData.type){
         case "resetPassword":
             return {
-                html: resetPassword.getHtmlComponent(emailData.name, emailData.url),
+                subject: s.subjectReset,
+                html: resetPassword.getHtmlComponent(emailData),
+                text: resetPassword.getTextComponent(emailData),
                 attachments: resetPassword.getAttachments()
             }
         case "verifyEmail":
             return {
-                html: verifyEmail.getHtmlComponent(emailData.name, emailData.url, emailData.email),
+                subject: s.subjectVerify,
+                html: verifyEmail.getHtmlComponent(emailData),
+                text: verifyEmail.getTextComponent(emailData),
                 attachments: verifyEmail.getAttachments()
             }
     }
@@ -36,8 +46,7 @@ module.exports = async(emailData) => {
         // address on the verified sending domain instead.
         from: process.env.EMAIL_FROM,
         to: emailData.email,
-        subject: emailData.subject,
-        ...getHTMLAndAttachedData(emailData),
+        ...getEmailContent(emailData),
     }
 
     async function generateHtmlAndSend(emailData) {

@@ -1,16 +1,20 @@
 import { Link } from '@tanstack/react-router';
 import { Check, X } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
-import { BrandLogo } from '@/components/common/BrandLogo';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { AuthLayout } from './AuthLayout';
 
 type Status = 'pending' | 'success' | 'error';
 
 /**
- * The three-state verification card (`MOCKUPS/auth/verify.html`): a spinning
- * ring while the request is in flight, a check + "Entering Ladu in Ns" countdown
- * on success, an × + "Back to sign in" on failure. Presentational only — the
- * page owns the request and the countdown.
+ * The three-state verification card (`MOCKUPS/auth/verify.html`), on the
+ * shared `AuthLayout` shell: a spinning ring while the request is in
+ * flight, a check + "Entering Ladu in Ns" countdown on success, an × on
+ * failure. Presentational only — the page owns the request and the
+ * countdown.
+ *
+ * Verification links never expire (no TTL is enforced server-side), so the
+ * failure state reads as an invalid link, not an expired one.
  */
 export function VerifyEmailStatus({
     status,
@@ -24,9 +28,8 @@ export function VerifyEmailStatus({
     const { t } = useTranslation();
 
     return (
-        <div className="auth-shell page">
-            <BrandLogo variant="outline" height={64} title="Ladu" className="auth-banner" />
-            <div className="card w-[min(420px,100%)] px-7 py-10 text-center">
+        <AuthLayout blurb={t('loginRegister:brand.subVerify')}>
+            <div className="text-center">
                 {status === 'pending' && (
                     <>
                         <span
@@ -82,6 +85,6 @@ export function VerifyEmailStatus({
                     </>
                 )}
             </div>
-        </div>
+        </AuthLayout>
     );
 }

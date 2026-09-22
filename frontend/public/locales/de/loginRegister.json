@@ -26,6 +26,16 @@
     "emailSent": "E-Mail erfolgreich gesendet!"
   },
   "unverifiedWarning": "Du musst dein Konto bestätigen, bevor du dich anmelden kannst.",
+  "brand": {
+    "tagline": "Deine Wörter, vier Sprachen, ein Regal.",
+    "supportedLanguages": "In der App verfügbare Sprachen",
+    "subLogin": "Ladu bewahrt jedes Wort — und alle seine Übersetzungen — an einem Ort, über alles, was du lernst.",
+    "subRegister": "Wähle mindestens zwei Lernsprachen — deine Tabelle, Übungen und Wiederholung richten sich danach.",
+    "subResetRequest": "Gib die E-Mail deines Kontos ein und wir senden dir einen Link zum Zurücksetzen.",
+    "subResetSet": "Wähle etwas, das du noch nicht verwendet hast — dein Link ist 30 Minuten gültig.",
+    "subVerify": "Ein Klick auf den Link, und dein Regal ist bereit.",
+    "subNotFound": "Diese Seite ist nicht im Regal — aber alles andere schon."
+  },
   "login": {
     "title": "Anmelden",
     "subtitle": "Und jetzt loslegen!",
@@ -39,7 +49,19 @@
     "submitting": "Wird erstellt…",
     "emailSentToast": "Wir haben eine E-Mail an {{email}} gesendet — öffne sie, um dein Konto zu bestätigen.",
     "languagesLabel": "Sprachen, die du verwaltest",
-    "languagesHint": "Wähle mindestens zwei. Du kannst später weitere hinzufügen und sie neu anordnen."
+    "languagesHint": "Wähle mindestens zwei. Du kannst später weitere hinzufügen und sie neu anordnen.",
+    "step1Pill": "Schritt 1 von 2 · Konto",
+    "step1Title": "Konto erstellen",
+    "step1Subtitle": "Wir senden dir eine Bestätigungs-E-Mail, sobald du dabei bist.",
+    "step2Pill": "Schritt 2 von 2 · Sprachen",
+    "step2Title": "Wähle deine Sprachen",
+    "step2Subtitle": "Wähle mindestens zwei — die unten gezeigten Wortarten sind für jede Sprache verfügbar.",
+    "continue": "Weiter",
+    "continueHint": "Als Nächstes: deine Lernsprachen wählen",
+    "back": "Zurück",
+    "languageCountEmpty": "Wähle mindestens zwei Sprachen",
+    "languageCountSelected_one": "1 Sprache ausgewählt",
+    "languageCountSelected_other": "{{count}} Sprachen ausgewählt"
   },
   "resetPassword": {
     "titleReset": "Neues Passwort festlegen",

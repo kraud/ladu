@@ -6,57 +6,163 @@
 <title>Create account · Ladu</title>
 <link rel="stylesheet" href="../assets/app.css" />
 <style>
+  .step-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent-text); background: var(--accent-soft);
+    border-radius: 999px; padding: 3px 10px; margin-bottom: 10px;
+  }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-grid .span2 { grid-column: 1 / -1; }
   @media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } }
+
+  /* step 2 — big language tiles */
+  .lang-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .lang-tile {
+    position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 7px;
+    padding: 16px; text-align: left;
+    border: 1.5px solid var(--border); border-radius: var(--radius-lg); background: var(--surface);
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .lang-tile:hover { border-color: color-mix(in oklch, var(--fg) 30%, transparent); }
+  .lang-tile[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+  .lang-tile .lt-flag { width: 32px; height: 23px; }
+  .lang-tile b { font-size: 15.5px; }
+  .lang-tile .lt-pos { font-size: 12px; color: var(--muted); }
+  .lang-tile .lt-check {
+    position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); color: #fff; display: none; place-items: center;
+  }
+  .lang-tile[aria-pressed="true"] .lt-check { display: grid; }
+  @media (max-width: 480px) { .lang-tiles { grid-template-columns: 1fr; } }
+
+  .step-pane { animation: page-in .2s ease; }
+  .step-actions { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+  .step-actions .grow { flex: 1; }
 </style>
 </head>
 <body>
 <div class="auth-shell page" data-od-id="register">
-  <a class="logo auth-banner" href="../index.html"><span class="logo-mark">L</span>Ladu</a>
 
-  <div class="card auth-card" style="padding: 24px;">
-    <h1 class="h2" style="margin-bottom: 4px;">Create account</h1>
-    <p class="muted" style="font-size: 13.5px; margin-bottom: 20px;">We'll send a verification email once you're in.</p>
-
-    <form id="reg-form" novalidate>
-      <div class="form-grid">
-        <div class="field">
-          <label class="label" for="name">Name <span class="req">*</span></label>
-          <input class="input" id="name" autocomplete="name" placeholder="Kai Rebane" required />
-          <span class="err" id="name-err">Name is required</span>
-        </div>
-        <div class="field">
-          <label class="label" for="username">Username <span class="req">*</span></label>
-          <input class="input" id="username" autocomplete="username" placeholder="kai" required />
-          <span class="err" id="username-err">Username is required</span>
-        </div>
-        <div class="field span2">
-          <label class="label" for="email">Email <span class="req">*</span></label>
-          <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com" required />
-          <span class="err" id="email-err">Enter a valid email address</span>
-        </div>
-        <div class="field">
-          <label class="label" for="password">Password <span class="req">*</span></label>
-          <input class="input" id="password" type="password" autocomplete="new-password" required />
-          <span class="err" id="password-err">At least 8 characters</span>
-        </div>
-        <div class="field">
-          <label class="label" for="password2">Confirm password <span class="req">*</span></label>
-          <input class="input" id="password2" type="password" autocomplete="new-password" required />
-          <span class="err" id="password2-err">Passwords must match</span>
-        </div>
-      </div>
-      <div class="row" style="gap: 8px; margin-top: 20px;">
-        <button class="btn btn-primary grow" id="submit" type="submit">Create account</button>
-        <button class="btn btn-secondary" id="reset" type="button">Reset</button>
-      </div>
-    </form>
-
-    <div class="auth-links">
-      <span>Already registered?</span><a href="login.html">Sign in</a>
+  <aside class="auth-brand" data-od-id="auth-brand">
+    <img class="auth-brand-mark" src="../assets/ladu-inside-bubble-outline.svg" alt="Ladu" width="190" height="178" />
+    <div class="stack-sm">
+      <p class="auth-tagline">Your words, four languages, one shelf.</p>
+      <p class="auth-sub">Pick at least two study languages — your table, exercises and review are built around them.</p>
     </div>
-  </div>
+    <div class="flag-row" aria-label="Supported in-app languages">
+      <span class="flag-chip"><svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>EN</span>
+      <span class="flag-chip"><svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#c60b1e"/><rect y="10" width="60" height="20" fill="#ffc400"/></svg>ES</span>
+      <span class="flag-chip"><svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#1d1b17"/><rect y="13.3" width="60" height="13.4" fill="#c8102e"/><rect y="26.6" width="60" height="13.4" fill="#f0b429"/></svg>DE</span>
+      <span class="flag-chip"><svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#0072ce"/><rect y="13.3" width="60" height="13.4" fill="#101010"/><rect y="26.6" width="60" height="13.4" fill="#fff"/></svg>EE</span>
+    </div>
+    <div class="auth-lang">
+      <label class="auth-lang-select">
+        <svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>
+        <select aria-label="Interface language">
+          <option selected>English</option>
+          <option>Español</option>
+          <option>Deutsch</option>
+          <option>Eesti</option>
+        </select>
+      </label>
+    </div>
+  </aside>
+
+  <main class="auth-panel">
+    <div class="auth-form">
+
+      <!-- ─── step 1: account data ─── -->
+      <section class="step-pane" id="step1" data-od-id="register-step1">
+        <span class="step-pill">Step 1 of 2 · Account</span>
+        <div class="form-head" style="margin-bottom: 18px;">
+          <h1 class="h2">Create account</h1>
+          <p>We'll send a verification email once you're in.</p>
+        </div>
+
+        <form id="reg-form" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label class="label" for="name">Name <span class="req">*</span></label>
+              <input class="input" id="name" autocomplete="name" placeholder="Kai Rebane" required />
+              <span class="err" id="name-err">Name is required</span>
+            </div>
+            <div class="field">
+              <label class="label" for="username">Username <span class="req">*</span></label>
+              <input class="input" id="username" autocomplete="username" placeholder="kai" required />
+              <span class="err" id="username-err">Username is required</span>
+            </div>
+            <div class="field span2">
+              <label class="label" for="email">Email <span class="req">*</span></label>
+              <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+              <span class="err" id="email-err">Enter a valid email address</span>
+            </div>
+            <div class="field">
+              <label class="label" for="password">Password <span class="req">*</span></label>
+              <input class="input" id="password" type="password" autocomplete="new-password" required />
+              <span class="err" id="password-err">At least 8 characters</span>
+            </div>
+            <div class="field">
+              <label class="label" for="password2">Confirm password <span class="req">*</span></label>
+              <input class="input" id="password2" type="password" autocomplete="new-password" required />
+              <span class="err" id="password2-err">Passwords must match</span>
+            </div>
+          </div>
+          <div class="step-actions">
+            <span class="hint grow">Next: choose your study languages</span>
+            <button class="btn btn-primary" id="to-step2" type="button">Continue</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ─── step 2: study languages ─── -->
+      <section class="step-pane" id="step2" data-od-id="register-step2" hidden>
+        <span class="step-pill">Step 2 of 2 · Languages</span>
+        <div class="form-head" style="margin-bottom: 18px;">
+          <h1 class="h2">Choose your languages</h1>
+          <p>Pick at least two — the parts of speech below are available for every language.</p>
+        </div>
+
+        <form id="lang-form" novalidate>
+          <div class="lang-tiles" role="group" aria-label="Study languages" id="lang-select">
+            <button type="button" class="lang-tile" data-lang="en" aria-pressed="false">
+              <span class="lt-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <svg class="lt-flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>
+              <b>English</b>
+              <span class="lt-pos">noun · verb · adjective</span>
+            </button>
+            <button type="button" class="lang-tile" data-lang="es" aria-pressed="false">
+              <span class="lt-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <svg class="lt-flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#c60b1e"/><rect y="10" width="60" height="20" fill="#ffc400"/></svg>
+              <b>Español</b>
+              <span class="lt-pos">noun · verb · adjective</span>
+            </button>
+            <button type="button" class="lang-tile" data-lang="de" aria-pressed="false">
+              <span class="lt-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <svg class="lt-flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#1d1b17"/><rect y="13.3" width="60" height="13.4" fill="#c8102e"/><rect y="26.6" width="60" height="13.4" fill="#f0b429"/></svg>
+              <b>Deutsch</b>
+              <span class="lt-pos">noun · verb · adjective</span>
+            </button>
+            <button type="button" class="lang-tile" data-lang="ee" aria-pressed="false">
+              <span class="lt-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <svg class="lt-flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#0072ce"/><rect y="13.3" width="60" height="13.4" fill="#101010"/><rect y="26.6" width="60" height="13.4" fill="#fff"/></svg>
+              <b>Eesti</b>
+              <span class="lt-pos">noun · verb · adjective</span>
+            </button>
+          </div>
+          <span class="err" id="languages-err" style="margin-top: 8px;">Please select at least two languages.</span>
+
+          <div class="step-actions">
+            <button class="btn btn-secondary" id="back-to-step1" type="button">Back</button>
+            <span class="hint grow" id="lang-count-hint">Select at least two languages</span>
+            <button class="btn btn-primary" id="submit" type="submit" disabled>Create account</button>
+          </div>
+        </form>
+      </section>
+
+    </div>
+  </main>
+
 </div>
 
 <div class="toast-stack" id="toasts"></div>
@@ -71,17 +177,12 @@ function toast(kind, msg) {
   $('#toasts').appendChild(el);
   setTimeout(() => el.remove(), 6000);
 }
+
+/* ─────────────── step 1 fields ─────────────── */
 const F = ['name', 'username', 'email', 'password', 'password2'].map(id => ({ id, el: $('#' + id), err: $('#' + id + '-err') }));
 F.forEach(f => f.el.addEventListener('input', () => { f.err.classList.remove('show'); f.el.removeAttribute('aria-invalid'); }));
 
-$('#reset').addEventListener('click', () => {
-  F.forEach(f => { f.el.value = ''; f.err.classList.remove('show'); f.el.removeAttribute('aria-invalid'); });
-  F[0].el.focus();
-});
-
-$('#reg-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const taken = ['kai', 'admin'].includes(F[1].el.value.trim().toLowerCase());
+function validateStep1() {
   const checks = [
     !F[0].el.value.trim(),
     !F[1].el.value.trim(),
@@ -95,17 +196,61 @@ $('#reg-form').addEventListener('submit', e => {
     F[i].el.setAttribute('aria-invalid', bad ? 'true' : 'false');
     if (bad && !firstBad) firstBad = F[i].el;
   });
-  if (firstBad) { firstBad.focus(); return; }
-  if (taken) { toast('error', 'That username is already taken.'); F[1].el.focus(); return; }
+  return firstBad;
+}
 
-  const btn = $('#submit');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Creating…';
+/* ─────────────── step navigation ─────────────── */
+function showStep(n) {
+  $('#step1').hidden = n !== 1;
+  $('#step2').hidden = n !== 2;
+  (n === 1 ? F[0] : { el: $('#lang-select').querySelector('.lang-tile') }).el.focus();
+}
+$('#to-step2').addEventListener('click', () => {
+  const firstBad = validateStep1();
+  if (firstBad) { firstBad.focus(); return; }
+  const taken = ['kai', 'admin'].includes(F[1].el.value.trim().toLowerCase());
+  if (taken) { toast('error', 'That username is already taken.'); F[1].el.focus(); return; }
+  showStep(2);
+});
+$('#back-to-step1').addEventListener('click', () => showStep(1));
+
+/* ─────────────── step 2: language tiles (min 2) ─────────────── */
+const langSel = new Set();
+const langTiles = [...document.querySelectorAll('#lang-select .lang-tile')];
+const submitBtn = $('#submit');
+function updateLangGate() {
+  const ok = langSel.size >= 2;
+  submitBtn.disabled = !ok;
+  $('#lang-count-hint').textContent = ok
+    ? `${langSel.size} languages selected`
+    : 'Select at least two languages';
+  if (ok) $('#languages-err').classList.remove('show');
+}
+langTiles.forEach(tile => tile.addEventListener('click', () => {
+  const on = tile.getAttribute('aria-pressed') === 'true';
+  tile.setAttribute('aria-pressed', on ? 'false' : 'true');
+  on ? langSel.delete(tile.dataset.lang) : langSel.add(tile.dataset.lang);
+  updateLangGate();
+}));
+updateLangGate();
+
+/* ─────────────── final submit ─────────────── */
+$('#lang-form').addEventListener('submit', e => {
+  e.preventDefault();
+  if (langSel.size < 2) {
+    $('#languages-err').classList.add('show');
+    langTiles[0].focus();
+    return;
+  }
+  if (validateStep1()) { showStep(1); return; }
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner"></span>Creating…';
   setTimeout(() => {
-    btn.disabled = false;
-    btn.textContent = 'Create account';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create account';
     toast('info', `We sent an email to ${F[2].el.value.trim()} — open it to verify your account.`);
-    setTimeout(() => location.href = '../index.html', 1400);
+    setTimeout(() => location.href = '../dashboard.html', 1400);
   }, 900);
 });
 </script>

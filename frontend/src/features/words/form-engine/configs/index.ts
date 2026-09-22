@@ -51,3 +51,5 @@ export type {
 // `TranslationCard.tsx` uses, so it is re-exported here rather than
 // reimplemented against a second copy that could drift.
 export { matchesVisibility } from './types';
+
+export { coverageForLanguage } from './coverage';

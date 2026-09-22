@@ -26,6 +26,16 @@
     "emailSent": "E-kiri edukalt saadetud!"
   },
   "unverifiedWarning": "Enne sisselogimist pead oma konto kinnitama.",
+  "brand": {
+    "tagline": "Sinu sõnad, neli keelt, üks riiul.",
+    "supportedLanguages": "Rakenduses toetatud keeled",
+    "subLogin": "Ladu hoiab iga sõna — ja kõiki selle tõlkeid — ühes kohas, kõige juures, mida õpid.",
+    "subRegister": "Vali vähemalt kaks õppekeelt — sinu tabel, harjutused ja kordamine ehitatakse nende ümber.",
+    "subResetRequest": "Sisesta oma konto e-post ja saadame sulle lähtestamise lingi.",
+    "subResetSet": "Vali midagi, mida sa varem kasutanud pole — link kehtib 30 minutit.",
+    "subVerify": "Üks klõps lingil ja sinu riiul on valmis.",
+    "subNotFound": "Seda lehte riiulil ei ole — aga kõik muu on."
+  },
   "login": {
     "title": "Logi sisse",
     "subtitle": "Alusta kohe!",
@@ -39,7 +49,19 @@
     "submitting": "Loomine…",
     "emailSentToast": "Saatsime e-kirja aadressile {{email}} — ava see, et oma konto kinnitada.",
     "languagesLabel": "Keeled, mida haldad",
-    "languagesHint": "Vali vähemalt kaks. Saad hiljem juurde lisada ja neid ümber järjestada."
+    "languagesHint": "Vali vähemalt kaks. Saad hiljem juurde lisada ja neid ümber järjestada.",
+    "step1Pill": "Samm 1/2 · Konto",
+    "step1Title": "Loo konto",
+    "step1Subtitle": "Saadame kinnituskirja niipea, kui oled liitunud.",
+    "step2Pill": "Samm 2/2 · Keeled",
+    "step2Title": "Vali oma keeled",
+    "step2Subtitle": "Vali vähemalt kaks — allpool toodud sõnaliigid on saadaval igas keeles.",
+    "continue": "Jätka",
+    "continueHint": "Järgmisena: vali oma õppekeeled",
+    "back": "Tagasi",
+    "languageCountEmpty": "Vali vähemalt kaks keelt",
+    "languageCountSelected_one": "1 keel valitud",
+    "languageCountSelected_other": "{{count}} keelt valitud"
   },
   "resetPassword": {
     "titleReset": "Määra uus parool",

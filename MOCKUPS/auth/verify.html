@@ -6,7 +6,6 @@
 <title>Verifying account · Ladu</title>
 <link rel="stylesheet" href="../assets/app.css" />
 <style>
-  .verify-card { width: min(420px, 100%); text-align: center; padding: 40px 28px; }
   .v-icon {
     width: 52px; height: 52px; border-radius: 50%;
     display: grid; place-items: center; margin: 0 auto 16px;
@@ -16,42 +15,72 @@
   .v-icon.failure { background: var(--danger-soft); color: var(--danger); }
   .v-state { display: none; }
   .v-state.active { display: block; animation: page-in .25s ease; }
+  .v-state h1 { font-size: 18px; }
+  .v-state p { font-size: 13.5px; color: var(--muted); margin-top: 6px; }
+  @media (prefers-reduced-motion: reduce) { .v-icon.validating { animation: none; border-top-color: var(--fg-soft2); } }
 </style>
 </head>
 <body>
 <div class="auth-shell page" data-od-id="verify">
-  <a class="logo auth-banner" href="../index.html"><span class="logo-mark">L</span>Ladu</a>
 
-  <div class="card verify-card">
-    <!-- State 1: validating -->
-    <div class="v-state active" id="s-validating">
-      <div class="v-icon validating" role="status" aria-label="Validating"></div>
-      <h1 class="h2" style="font-size: 18px;">Validating your account…</h1>
-      <p class="muted" style="font-size: 13.5px; margin-top: 6px;">This only takes a moment.</p>
+  <aside class="auth-brand" data-od-id="auth-brand">
+    <img class="auth-brand-mark" src="../assets/ladu-inside-bubble-outline.svg" alt="Ladu" width="190" height="178" />
+    <div class="stack-sm">
+      <p class="auth-tagline">Your words, four languages, one shelf.</p>
+      <p class="auth-sub">One click on the link, and your shelf is ready.</p>
     </div>
+    <div class="flag-row" aria-label="Supported in-app languages">
+      <span class="flag-chip"><svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>EN</span>
+      <span class="flag-chip"><svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#c60b1e"/><rect y="10" width="60" height="20" fill="#ffc400"/></svg>ES</span>
+      <span class="flag-chip"><svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#1d1b17"/><rect y="13.3" width="60" height="13.4" fill="#c8102e"/><rect y="26.6" width="60" height="13.4" fill="#f0b429"/></svg>DE</span>
+      <span class="flag-chip"><svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#0072ce"/><rect y="13.3" width="60" height="13.4" fill="#101010"/><rect y="26.6" width="60" height="13.4" fill="#fff"/></svg>EE</span>
+    </div>
+    <div class="auth-lang">
+      <label class="auth-lang-select">
+        <svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>
+        <select aria-label="Interface language">
+          <option selected>English</option>
+          <option>Español</option>
+          <option>Deutsch</option>
+          <option>Eesti</option>
+        </select>
+      </label>
+    </div>
+  </aside>
 
-    <!-- State 2: success -->
-    <div class="v-state" id="s-success">
-      <div class="v-icon success">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  <main class="auth-panel">
+    <div class="auth-form" style="text-align: center;">
+
+      <!-- State 1: validating -->
+      <div class="v-state active" id="s-validating">
+        <div class="v-icon validating" role="status" aria-label="Validating"></div>
+        <h1 class="h2">Validating your account…</h1>
+        <p>This only takes a moment.</p>
       </div>
-      <h1 class="h2" style="font-size: 18px;">Account verified</h1>
-      <p class="muted" style="font-size: 13.5px; margin-top: 6px;">Tere tulemast! Entering Ladu in <span class="num" id="count">3</span>s —</p>
-      <button class="btn btn-primary" id="enter" style="margin-top: 18px;">Enter now</button>
-    </div>
 
-    <!-- State 3: failure -->
-    <div class="v-state" id="s-failure">
-      <div class="v-icon failure">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      <!-- State 2: success -->
+      <div class="v-state" id="s-success">
+        <div class="v-icon success">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </div>
+        <h1 class="h2">Account verified</h1>
+        <p>Tere tulemast! Entering Ladu in <span class="num" id="count">3</span>s —</p>
+        <button class="btn btn-primary" id="enter" style="margin-top: 18px;">Enter now</button>
       </div>
-      <h1 class="h2" style="font-size: 18px;">This link has expired</h1>
-      <p class="muted" style="font-size: 13.5px; margin-top: 6px;">Verification links are valid for 24 hours. Request a new one from the sign-in screen.</p>
-      <a class="btn btn-secondary" href="login.html" style="margin-top: 18px;">Back to sign in</a>
-    </div>
-  </div>
 
-  <p class="meta" style="margin-top: 24px;">Demo: append <span class="kbd">?fail</span> to preview the failure state</p>
+      <!-- State 3: failure -->
+      <div class="v-state" id="s-failure">
+        <div class="v-icon failure">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </div>
+        <h1 class="h2">This link has expired</h1>
+        <p>Verification links are valid for 24 hours. Request a new one from the sign-in screen.</p>
+        <a class="btn btn-secondary" href="login.html" style="margin-top: 18px;">Back to sign in</a>
+      </div>
+
+    </div>
+  </main>
+
 </div>
 
 <script>
@@ -59,7 +88,7 @@ const show = id => {
   document.querySelectorAll('.v-state').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 };
-const go = () => location.href = '../index.html';
+const go = () => location.href = '../dashboard.html';
 
 if (new URLSearchParams(location.search).has('fail')) {
   show('s-failure');

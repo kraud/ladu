@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
+import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -34,7 +35,12 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
                     name="email"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t('loginRegister:formLabels.email')}</FormLabel>
+                            <span className="label-row">
+                                <FormLabel>{t('loginRegister:formLabels.email')}</FormLabel>
+                                <Link to="/resetPassword/{-$userId}/{-$tokenId}">
+                                    {t('loginRegister:switchSectionButtons.forgotPassword')}
+                                </Link>
+                            </span>
                             <FormControl>
                                 <Input
                                     type="email"

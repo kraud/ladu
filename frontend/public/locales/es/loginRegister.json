@@ -26,6 +26,16 @@
     "emailSent": "¡Correo enviado con éxito!"
   },
   "unverifiedWarning": "Debes verificar tu cuenta antes de iniciar sesión.",
+  "brand": {
+    "tagline": "Tus palabras, cuatro idiomas, un solo estante.",
+    "supportedLanguages": "Idiomas disponibles en la app",
+    "subLogin": "Ladu guarda cada palabra — y todas sus traducciones — en un solo lugar, en todo lo que estudias.",
+    "subRegister": "Elige al menos dos idiomas de estudio — tu tabla, ejercicios y repaso se organizan en torno a ellos.",
+    "subResetRequest": "Ingresa el correo de tu cuenta y te enviaremos un enlace para restablecerla.",
+    "subResetSet": "Elige algo que no hayas usado antes — tu enlace de restablecimiento es válido por 30 minutos.",
+    "subVerify": "Un clic en el enlace y tu estante estará listo.",
+    "subNotFound": "Esta página no está en el estante — pero todo lo demás sí."
+  },
   "login": {
     "title": "Iniciar sesión",
     "subtitle": "¡Y comienza ahora!",
@@ -39,7 +49,19 @@
     "submitting": "Creando…",
     "emailSentToast": "Enviamos un correo a {{email}} — ábrelo para verificar tu cuenta.",
     "languagesLabel": "Idiomas que gestionas",
-    "languagesHint": "Elige al menos dos. Podrás añadir más y reordenarlos más tarde."
+    "languagesHint": "Elige al menos dos. Podrás añadir más y reordenarlos más tarde.",
+    "step1Pill": "Paso 1 de 2 · Cuenta",
+    "step1Title": "Crear cuenta",
+    "step1Subtitle": "Te enviaremos un correo de verificación en cuanto te unas.",
+    "step2Pill": "Paso 2 de 2 · Idiomas",
+    "step2Title": "Elige tus idiomas",
+    "step2Subtitle": "Elige al menos dos — las categorías gramaticales disponibles abajo aplican a cada idioma.",
+    "continue": "Continuar",
+    "continueHint": "Siguiente: elige tus idiomas de estudio",
+    "back": "Atrás",
+    "languageCountEmpty": "Selecciona al menos dos idiomas",
+    "languageCountSelected_one": "1 idioma seleccionado",
+    "languageCountSelected_other": "{{count}} idiomas seleccionados"
   },
   "resetPassword": {
     "titleReset": "Establece una nueva contraseña",
