@@ -16,6 +16,7 @@ import * as authApi from './api';
 import { authErrorKey, OAuthCallbackError, oauthErrorKey } from './errors';
 import type {
     LoginRequest,
+    OAuthSignupCompleteRequest,
     RegisterRequest,
     RequestResetRequest,
     SetPasswordRequest,
@@ -159,13 +160,15 @@ export function useOAuthProviders() {
 }
 
 /**
- * Finishes the OAuth flow `/auth/callback` lands on: the URL fragment (never
- * a query string — fragments never reach server logs) carries either
- * `token=<jwt>` (outcome (a), an already-linked identity) or
- * `error=<code>` (anything else — Phase 2's "not yet supported" scope limit,
- * or a technical failure). A token alone isn't a full session: `getMe` has to
- * be called with it before `setSession` can fold in a real profile, which is
- * why this needs its own hook instead of reusing `useLogin`.
+ * Finishes the OAuth flow `/auth/callback` lands on for the two fragment
+ * shapes this hook handles: `token=<jwt>` (outcome (a), an already-linked
+ * identity) or `error=<code>` (outcome (c)'s "not yet supported" — Phase 4 —
+ * or a technical failure). The third shape, `ticket=<jwt>&mode=signup`
+ * (outcome (b)), never reaches this hook at all — `OAuthCallbackPage`
+ * renders `OAuthSignupForm` instead of firing this mutation. A token alone
+ * isn't a full session: `getMe` has to be called with it before `setSession`
+ * can fold in a real profile, which is why this needs its own hook instead
+ * of reusing `useLogin`.
  */
 export function useOAuthCallback() {
     const { t } = useTranslation();
@@ -198,5 +201,29 @@ export function useOAuthCallback() {
             toast.error(t(oauthErrorKey(error)));
             void navigate({ to: '/login' });
         },
+    });
+}
+
+/**
+ * Finishes outcome (b) — a brand-new Google identity — by POSTing the
+ * signup ticket `OAuthSignupForm` collected a username and languages for.
+ * The response carries a full profile + token already (`serializeLoginUser`
+ * on the backend), so this can call `setSession` directly, unlike
+ * `useOAuthCallback`'s bare `token=` case.
+ */
+export function useOAuthSignupComplete() {
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const setSession = useAuthStore((s) => s.setSession);
+
+    return useMutation({
+        mutationFn: (body: OAuthSignupCompleteRequest) => authApi.completeOAuthSignup(body),
+        onSuccess: (user) => {
+            queryClient.clear();
+            setSession(user);
+            void navigate({ to: '/' });
+        },
+        onError: (error) => toast.error(t(authErrorKey(error))),
     });
 }

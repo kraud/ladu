@@ -19,6 +19,8 @@ export type NormalizedIdentity = {
     sub: string;
     email: string;
     emailVerified: boolean;
+    /** Falls back to the email's local part on a token that omits it (see providers/google.ts). */
+    name: string;
 };
 
 /** One provider adapter — see providers/google.ts. */
@@ -29,4 +31,19 @@ export type OAuthProvider = {
     issuer: string;
     scope: string;
     mapClaims: (claims: Record<string, unknown>) => NormalizedIdentity;
+};
+
+/**
+ * The signup/link ticket's payload — a short-lived (10 min), purpose-typed
+ * JWT the callback hands the frontend when it can't log the user in directly
+ * (oauth-login-strategy.md "Rule": never accepted where a session JWT or the
+ * state JWT is expected, and vice versa). `oauth_signup` ships in Phase 3;
+ * `oauth_link` is Phase 4's.
+ */
+export type OAuthTicketPayload = {
+    typ: 'oauth_signup' | 'oauth_link';
+    provider: string;
+    sub: string;
+    email: string;
+    name: string;
 };

@@ -35,6 +35,9 @@ const MESSAGE_TO_KEY: Record<string, string> = {
     'Invalid format for UserId': 'loginRegister:apiErrors.invalidLink',
     'Invalid Link (no user match).': 'loginRegister:apiErrors.invalidLink',
     'Invalid token.': 'loginRegister:apiErrors.invalidToken',
+    // POST /api/auth/signup/complete (oauth-login-strategy.md Phase 3)
+    'Invalid or expired ticket': 'loginRegister:apiErrors.oauthInvalidTicket',
+    'This Google account is already linked to an account': 'loginRegister:apiErrors.oauthAlreadyLinked',
     // server-side catch-alls
     'Internal Server Error': GENERIC_ERROR_KEY,
 };
@@ -61,8 +64,8 @@ export class OAuthCallbackError extends Error {
 }
 
 const OAUTH_ERROR_CODE_TO_KEY: Record<string, string> = {
-    // Phase 2's own scope limit (oauth-login-strategy.md) — a real, expected
-    // outcome until Phases 3/4 ship signup and linking.
+    // Outcome (c) (oauth-login-strategy.md) — the email matches an existing
+    // password account. A real, expected outcome until Phase 4 ships linking.
     oauth_not_linked: 'loginRegister:apiErrors.oauthNotLinked',
     oauth_failed: 'loginRegister:apiErrors.oauthFailed',
 };

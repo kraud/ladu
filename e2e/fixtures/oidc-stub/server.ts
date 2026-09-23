@@ -19,6 +19,9 @@
  *   `login_hint` — the email the minted ID token carries (default a fixed
  *                   stub address).
  *   `sub`        — the subject claim (default derived from the email).
+ *   `name`       — the `name` claim (default a fixed stub name) — what a
+ *                   real Google token carries under the `profile` scope,
+ *                   used by Phase 3's signup-completion flow.
  */
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { randomBytes, createHash } from 'node:crypto';
@@ -36,6 +39,7 @@ type AuthCodeRecord = {
     nonce: string | undefined;
     sub: string;
     email: string;
+    name: string;
     expiresAt: number;
 };
 
@@ -93,6 +97,7 @@ function handleAuthorize(url: URL, res: ServerResponse): void {
 
     const email = params.get('login_hint') ?? 'stub-user@ladu.test';
     const sub = params.get('sub') ?? `stub-${createHash('sha256').update(email).digest('hex').slice(0, 16)}`;
+    const name = params.get('name') ?? 'Stub User';
 
     const code = base64url(randomBytes(24));
     authCodes.set(code, {
@@ -102,6 +107,7 @@ function handleAuthorize(url: URL, res: ServerResponse): void {
         nonce: params.get('nonce') ?? undefined,
         sub,
         email,
+        name,
         expiresAt: Date.now() + CODE_TTL_MS,
     });
 
@@ -145,6 +151,7 @@ async function handleToken(req: IncomingMessage, res: ServerResponse): Promise<v
     const idToken = await new SignJWT({
         email: record.email,
         email_verified: true,
+        name: record.name,
         nonce: record.nonce,
     })
         .setProtectedHeader({ alg: 'RS256', kid })

@@ -11,7 +11,7 @@ import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeAuthHandlers } from '@/test/msw/authHandlers';
 import { useAuthStore } from '@/stores/authStore';
-import { expiredToken } from '@/test/tokens';
+import { expiredToken, makeToken } from '@/test/tokens';
 import * as authApi from './api';
 
 let auth: ReturnType<typeof makeAuthHandlers>;
@@ -273,7 +273,7 @@ describe('OAuth callback (Phase 2)', () => {
         await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
         expect(
             await screen.findByText(
-                "This Google account isn't linked to a Ladu account yet. Creating a new account or linking one is coming soon — sign in with your password for now.",
+                'This Google account matches an existing password account. Linking sign-in methods is coming soon — sign in with your password for now.',
             ),
         ).toBeInTheDocument();
         expect(useAuthStore.getState().user).toBeNull();
@@ -284,5 +284,76 @@ describe('OAuth callback (Phase 2)', () => {
         await renderApp({ initialEntry: '/auth/callback' });
 
         expect(await screen.findByText('Something went wrong, try again.')).toBeInTheDocument();
+    });
+});
+
+describe('OAuth signup completion (Phase 3)', () => {
+    afterEach(() => {
+        window.location.hash = '';
+    });
+
+    const makeSignupTicket = (overrides: Record<string, unknown> = {}) =>
+        makeToken({
+            typ: 'oauth_signup',
+            provider: 'google',
+            sub: 'sub-1',
+            email: 'brandnew@example.com',
+            name: 'Brand New',
+            ...overrides,
+        });
+
+    it('a #ticket=&mode=signup fragment shows the signup screen, username prefilled from the ticket email', async () => {
+        window.location.hash = `#ticket=${makeSignupTicket()}&mode=signup`;
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        expect(await screen.findByLabelText(/^Username/)).toHaveValue('brandnew');
+    });
+
+    it('completes signup, signs in verified with no password, and lands on Home', async () => {
+        const user = userEvent.setup();
+        window.location.hash = `#ticket=${makeSignupTicket({ email: 'newperson@example.com', name: 'New Person' })}&mode=signup`;
+        const { router } = await renderApp({ initialEntry: '/auth/callback' });
+
+        await screen.findByLabelText(/^Username/);
+        await user.clear(screen.getByLabelText(/^Username/));
+        await user.type(screen.getByLabelText(/^Username/), 'newperson123');
+        await user.click(screen.getByRole('button', { name: 'English', pressed: false }));
+        await user.click(screen.getByRole('button', { name: 'Español', pressed: false }));
+
+        const submit = screen.getByRole('button', { name: 'Create account' });
+        await waitFor(() => expect(submit).toBeEnabled());
+        await user.click(submit);
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        expect(useAuthStore.getState().user?.username).toBe('newperson123');
+        expect(useAuthStore.getState().user?.verified).toBe(true);
+        expect(useAuthStore.getState().token).toBeTruthy();
+
+        const created = auth.userFor('newperson@example.com');
+        expect(created?.verified).toBe(true);
+    });
+
+    it('surfaces a duplicate-username error and stays on the form for a retry', async () => {
+        server.use(
+            ...makeAuthHandlers([
+                { email: 'someoneelse@example.com', password: 'x', username: 'taken', verified: true },
+            ]).handlers,
+        );
+        const user = userEvent.setup();
+        window.location.hash = `#ticket=${makeSignupTicket({ email: 'brandnew2@example.com' })}&mode=signup`;
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        await screen.findByLabelText(/^Username/);
+        await user.clear(screen.getByLabelText(/^Username/));
+        await user.type(screen.getByLabelText(/^Username/), 'taken');
+        await user.click(screen.getByRole('button', { name: 'English', pressed: false }));
+        await user.click(screen.getByRole('button', { name: 'Español', pressed: false }));
+        const submit = screen.getByRole('button', { name: 'Create account' });
+        await waitFor(() => expect(submit).toBeEnabled());
+        await user.click(submit);
+
+        expect(await screen.findByText('That username is already taken.')).toBeInTheDocument();
+        // Still on the signup form, not bounced anywhere — the ticket is reusable within its 10-minute window.
+        expect(screen.getByLabelText(/^Username/)).toBeInTheDocument();
     });
 });

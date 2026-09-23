@@ -89,6 +89,45 @@ export async function createLinkedOAuthUser(
     return { userId };
 }
 
+/**
+ * The row shape Phase 3's `oauth-3-google-signup.spec.ts` gate checks
+ * directly: `password IS NULL`, `verified = true`, and how many
+ * `oauth_identities` rows the account ended up with.
+ */
+export async function getUserAccountShape(
+    email: string,
+): Promise<{ userId: string; passwordIsNull: boolean; verified: boolean; oauthIdentityCount: number } | undefined> {
+    const { rows } = await getPool().query<{
+        id: string;
+        password: string | null;
+        verified: boolean;
+        identity_count: string;
+    }>(
+        `SELECT u.id, u.password, u.verified, count(oi.id) AS identity_count
+           FROM users u
+           LEFT JOIN oauth_identities oi ON oi.user_id = u.id
+          WHERE lower(u.email) = lower($1)
+          GROUP BY u.id`,
+        [email],
+    );
+    if (!rows[0]) return undefined;
+    return {
+        userId: rows[0].id,
+        passwordIsNull: rows[0].password === null,
+        verified: rows[0].verified,
+        oauthIdentityCount: Number(rows[0].identity_count),
+    };
+}
+
+/** True if a verification-token row exists for this email — Phase 3's proof that OAuth signup never sends mail. */
+export async function hasVerificationToken(email: string): Promise<boolean> {
+    const { rows } = await getPool().query(
+        `SELECT 1 FROM users u JOIN tokens t ON t.user_id = u.id WHERE lower(u.email) = lower($1)`,
+        [email],
+    );
+    return rows.length > 0;
+}
+
 /** Backdates `words.created_at` for the given ids — lets a spec put a word outside the current calendar month without waiting for real time to pass (used to exercise the Dashboard's month-range selector, which is otherwise a single-option no-op on an account created during the run). */
 export async function backdateWordsCreatedAt(wordIds: string[], date: Date): Promise<void> {
     await getPool().query(`UPDATE words SET created_at = $2 WHERE id = ANY($1::uuid[])`, [wordIds, date]);

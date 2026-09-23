@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getTokenExpiry, isTokenExpired } from './jwt';
+import { decodeJwtPayload, getTokenExpiry, isTokenExpired } from './jwt';
 import { makeToken, expiredToken, futureToken } from '@/test/tokens';
 
 describe('getTokenExpiry', () => {
@@ -53,5 +53,19 @@ describe('isTokenExpired', () => {
     it('treats the exact expiry instant as expired', () => {
         const exp = 1_700_000_000;
         expect(isTokenExpired(makeToken({ exp }), exp * 1000)).toBe(true);
+    });
+});
+
+describe('decodeJwtPayload', () => {
+    it('decodes an arbitrary payload shape (e.g. an OAuth ticket)', () => {
+        const token = makeToken({ typ: 'oauth_signup', email: 'kai@example.com' });
+        expect(decodeJwtPayload<{ typ: string; email: string }>(token)).toEqual({
+            typ: 'oauth_signup',
+            email: 'kai@example.com',
+        });
+    });
+
+    it('returns null for a malformed token', () => {
+        expect(decodeJwtPayload('garbage')).toBeNull();
     });
 });

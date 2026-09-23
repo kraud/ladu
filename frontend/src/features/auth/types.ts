@@ -104,3 +104,22 @@ export interface VerifyEmailResponse {
  * so this is what decides which buttons `OAuthButtons` renders.
  */
 export type OAuthProvidersResponse = Record<string, boolean>;
+
+/**
+ * The shape decoded (client-side, unverified — see `decodeJwtPayload`) out
+ * of an `oauth_signup` ticket, purely to prefill the username field with the
+ * email's local part. The server independently re-derives everything from
+ * its own verified copy of the ticket; nothing here is trusted.
+ */
+export interface OAuthSignupTicketPreview {
+    email?: string;
+}
+
+/** `POST /api/auth/signup/complete` body. */
+export interface OAuthSignupCompleteRequest {
+    ticket: string;
+    username: string;
+    /** Language labels the user manages — >= 2 required, selection order preserved. */
+    languages: string[];
+    uiLanguage: string;
+}

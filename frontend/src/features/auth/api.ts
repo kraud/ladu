@@ -9,6 +9,7 @@ import type {
     LoginRequest,
     LoginResponse,
     OAuthProvidersResponse,
+    OAuthSignupCompleteRequest,
     RegisterRequest,
     RegisterResponse,
     RequestResetRequest,
@@ -55,5 +56,10 @@ export async function updateProfile(body: UpdateProfileRequest): Promise<AuthUse
 
 export async function getOAuthProviders(): Promise<OAuthProvidersResponse> {
     const { data } = await apiClient.get<OAuthProvidersResponse>('/auth/providers');
+    return data;
+}
+
+export async function completeOAuthSignup(body: OAuthSignupCompleteRequest): Promise<AuthUser> {
+    const { data } = await apiClient.post<AuthUser>('/auth/signup/complete', body);
     return data;
 }

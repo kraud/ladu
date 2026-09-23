@@ -21,12 +21,16 @@
     "notEnoughLanguages": "Bitte wähle mindestens zwei Sprachen aus.",
     "invalidLanguage": "Diese Sprache wird nicht unterstützt.",
     "signInWithGoogle": "Dieses Konto meldet sich mit Google an — verwende stattdessen die Google-Schaltfläche.",
-    "oauthNotLinked": "Dieses Google-Konto ist noch mit keinem Ladu-Konto verknüpft. Ein neues Konto erstellen oder ein bestehendes verknüpfen wird bald möglich sein — melde dich vorerst mit deinem Passwort an.",
-    "oauthFailed": "Die Anmeldung mit Google hat nicht funktioniert. Bitte versuche es erneut oder nutze dein Passwort."
+    "oauthNotLinked": "Dieses Google-Konto passt zu einem bestehenden Passwort-Konto. Das Verknüpfen von Anmeldemethoden wird bald möglich sein — melde dich vorerst mit deinem Passwort an.",
+    "oauthFailed": "Die Anmeldung mit Google hat nicht funktioniert. Bitte versuche es erneut oder nutze dein Passwort.",
+    "oauthInvalidTicket": "Dieser Registrierungslink ist abgelaufen. Versuche es erneut mit „Mit Google fortfahren“.",
+    "oauthAlreadyLinked": "Dieses Google-Konto ist bereits mit einem Ladu-Konto verknüpft."
   },
   "oauth": {
     "continueWithGoogle": "Mit Google fortfahren",
-    "orContinueWith": "oder weiter mit"
+    "orContinueWith": "oder weiter mit",
+    "signupTitle": "Noch ein Schritt",
+    "signupSubtitle": "Registrierung mit Google abschließen — wähle einen Benutzernamen und deine Lernsprachen."
   },
   "toastMessages": {
     "passwordUpdated": "Passwort erfolgreich aktualisiert!",

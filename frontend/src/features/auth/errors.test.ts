@@ -21,6 +21,11 @@ describe('authErrorKey', () => {
             'There is no user registered with the email given.',
             'loginRegister:apiErrors.noUserForEmail',
         ],
+        ['Invalid or expired ticket', 'loginRegister:apiErrors.oauthInvalidTicket'],
+        [
+            'This Google account is already linked to an account',
+            'loginRegister:apiErrors.oauthAlreadyLinked',
+        ],
         ['Internal Server Error', GENERIC_ERROR_KEY],
     ])('maps %j → %j', (message, key) => {
         expect(authErrorKey(apiError(message))).toBe(key);

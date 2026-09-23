@@ -1,19 +1,24 @@
 // Same trap as auth.test.js:1-11 — `jest.mock` must come before `require('../app')`,
 // which pulls in userController.ts's own top-level `require("../utils/sendEmail")`.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
+const sendMail = require('../utils/sendEmail');
 
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const request = require('supertest');
+const { eq } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');
-const { pool } = require('../src/db');
+const { db, pool } = require('../src/db');
+const { users, oauthIdentities, tokens } = require('../src/db/schema');
 const { generateCodeVerifier, generateCodeChallenge, generateNonce } = require('../lib/oauth/pkce');
 const { issueStateToken, verifyStateToken } = require('../lib/oauth/stateToken');
+const { issueTicket, verifyTicket } = require('../lib/oauth/ticket');
 
 beforeAll(() => testDb.connectDB());
 beforeEach(async () => {
     await testDb.clearDB();
+    sendMail.mockClear();
 });
 afterAll(async () => {
     await testDb.closeDB();
@@ -95,5 +100,164 @@ describe('GET /api/auth/:provider/start', () => {
         expect(res.statusCode).toBe(404);
 
         if (originalId !== undefined) process.env.GOOGLE_CLIENT_ID = originalId;
+    });
+});
+
+describe('OAuth ticket', () => {
+    it('round-trips provider/sub/email/name through issue -> verify', () => {
+        const token = issueTicket({
+            typ: 'oauth_signup',
+            provider: 'google',
+            sub: 's',
+            email: 'e@x.com',
+            name: 'N',
+        });
+        const payload = verifyTicket(token, 'oauth_signup');
+        expect(payload).toMatchObject({
+            typ: 'oauth_signup',
+            provider: 'google',
+            sub: 's',
+            email: 'e@x.com',
+            name: 'N',
+        });
+    });
+
+    it('rejects a ticket checked against the wrong expected typ', () => {
+        const token = issueTicket({ typ: 'oauth_signup', provider: 'google', sub: 's', email: 'e@x.com', name: 'N' });
+        expect(() => verifyTicket(token, 'oauth_link')).toThrow();
+    });
+
+    it('rejects a real 30-day session JWT', () => {
+        const sessionToken = jwt.sign({ id: 'user-1' }, process.env.JWT_SECRET, { expiresIn: '30d' });
+        expect(() => verifyTicket(sessionToken, 'oauth_signup')).toThrow();
+    });
+});
+
+describe('POST /api/auth/signup/complete', () => {
+    const validTicket = (overrides = {}) =>
+        issueTicket({
+            typ: 'oauth_signup',
+            provider: 'google',
+            sub: 'sub-1',
+            email: 'newuser@example.com',
+            name: 'New User',
+            ...overrides,
+        });
+
+    it('fails with 400 for an invalid ticket', async () => {
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: 'not-a-real-ticket',
+            username: 'newuser',
+            languages: ['English', 'Spanish'],
+        });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('fails with 400 for a ticket of the wrong typ (e.g. a state token)', async () => {
+        const stateToken = issueStateToken({ provider: 'google', verifier: 'v', nonce: 'n', jti: 'j' });
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: stateToken,
+            username: 'newuser',
+            languages: ['English', 'Spanish'],
+        });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('fails with 400 when username is missing', async () => {
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            languages: ['English', 'Spanish'],
+        });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('fails with 400 when fewer than 2 languages are selected', async () => {
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            username: 'newuser',
+            languages: ['English'],
+        });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('fails with 400 for a duplicate username (case-insensitive)', async () => {
+        await db.insert(users).values({
+            name: 'Existing',
+            email: 'existing@example.com',
+            username: 'NewUser',
+            password: 'hash',
+            languages: ['English', 'Spanish'],
+            uiLanguage: 'English',
+            verified: true,
+        });
+
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            username: 'newuser',
+            languages: ['English', 'Spanish'],
+        });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Username already in use');
+    });
+
+    it("fails with 400 when the ticket's email is already registered", async () => {
+        await db.insert(users).values({
+            name: 'Existing',
+            email: 'newuser@example.com',
+            username: 'someoneelse',
+            password: 'hash',
+            languages: ['English', 'Spanish'],
+            uiLanguage: 'English',
+            verified: true,
+        });
+
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            username: 'brandnewusername',
+            languages: ['English', 'Spanish'],
+        });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Email already in use');
+    });
+
+    it('creates a password-less, verified account plus exactly one oauth_identities row, and returns a session token', async () => {
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            username: 'newuser',
+            languages: ['English', 'Spanish'],
+            uiLanguage: 'German',
+        });
+        expect(res.statusCode).toBe(201);
+        expect(res.body).toHaveProperty('token');
+        expect(res.body.username).toBe('newuser');
+        expect(res.body.uiLanguage).toBe('German');
+
+        const [user] = await db.select().from(users).where(eq(users.email, 'newuser@example.com'));
+        expect(user.password).toBeNull();
+        expect(user.verified).toBe(true);
+        expect(user.name).toBe('New User');
+
+        const identities = await db.select().from(oauthIdentities).where(eq(oauthIdentities.userId, user.id));
+        expect(identities).toHaveLength(1);
+        expect(identities[0]).toMatchObject({
+            provider: 'google',
+            providerUserId: 'sub-1',
+            emailAtLink: 'newuser@example.com',
+        });
+    });
+
+    it('never sends a verification email — no tokens row is created', async () => {
+        await request(app)
+            .post('/api/auth/signup/complete')
+            .send({
+                ticket: validTicket({ sub: 'sub-no-mail', email: 'nomail@example.com' }),
+                username: 'nomailuser',
+                languages: ['English', 'Spanish'],
+            });
+
+        const [user] = await db.select().from(users).where(eq(users.email, 'nomail@example.com'));
+        const tokenRows = await db.select().from(tokens).where(eq(tokens.userId, user.id));
+        expect(tokenRows).toHaveLength(0);
+        expect(sendMail).not.toHaveBeenCalled();
     });
 });

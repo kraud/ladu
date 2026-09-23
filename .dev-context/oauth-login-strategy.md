@@ -326,7 +326,19 @@ one-shotting the whole feature.
   `jest.mock('../utils/sendEmail', ...)` pattern, asserted at the e2e layer
   via absence of a verification-token row).
 - **Gate:** new-user OAuth signup works end-to-end, is immediately verified,
-  and never touches the mail sender.
+  and never touches the mail sender. **✅ done 2026-09-23** — full `test:e2e`
+  (24/24), full backend Jest (214/214, `oauth.test.js` gained ticket
+  issue/verify plus `/signup/complete` coverage: validation, duplicate
+  username/email, the success row shape, and no `tokens` row), full frontend
+  suite (642/642). Two real things this phase's own testing caught, not
+  assumed correct: `users.name` is `NOT NULL` but the signup screen only
+  collects username + languages, so the claim mapping now also carries
+  Google's `name` claim through the ticket (falling back to the email's
+  local part on a token that omits it); and Phase 2's own "unlinked identity"
+  e2e test was actually exercising outcome (b) with no existing account,
+  which this phase turns into a real signup instead of an error — fixed to
+  target outcome (c) (an email that matches a password account) instead,
+  which is what still 400s until Phase 4.
 
 ### Phase 4 — Linking to an existing password account (½–1 day)
 

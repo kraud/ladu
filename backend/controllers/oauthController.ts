@@ -1,9 +1,10 @@
 /**
- * OAuth sign-in — oauth-login-strategy.md. Phase 2 scope: only an
- * already-linked `oauth_identities` row can complete sign-in (outcome (a) in
- * the plan's flow diagram). A brand-new identity or one whose email matches
- * an existing password account (outcomes (b)/(c)) gets a clear "not yet
- * supported" redirect instead — Phases 3 and 4 build those.
+ * OAuth sign-in — oauth-login-strategy.md. Three callback outcomes:
+ * (a) an already-linked `oauth_identities` row logs straight in (Phase 2);
+ * (b) a `sub` with no matching email issues a signup ticket (Phase 3, this
+ *     file's newest piece); (c) a `sub` whose email matches an existing
+ *     password account still gets the "not yet supported" redirect — Phase 4
+ *     builds real linking.
  */
 const asyncHandler = require("express-async-handler");
 const { jwtVerify } = require("jose");
@@ -11,17 +12,25 @@ const { db }: typeof import("../src/db") = require("../src/db");
 const { oauthIdentities, users }: typeof import("../src/db/schema") = require("../src/db/schema");
 const { and, eq }: typeof import("drizzle-orm") = require("drizzle-orm");
 
-const { generateToken }: typeof import("./userController") = require("./userController");
+const {
+  generateToken,
+  serializeLoginUser,
+  normalizeLanguageSelection,
+  isSupportedLanguage,
+  findUserByUsernameInsensitive,
+  findUserByEmailInsensitive,
+}: typeof import("./userController") = require("./userController");
 const { getProvider, listConfiguredProviders }: typeof import("../lib/oauth/providers") = require("../lib/oauth/providers");
 const { generateCodeVerifier, generateCodeChallenge, generateNonce }: typeof import("../lib/oauth/pkce") = require("../lib/oauth/pkce");
 const { issueStateToken, verifyStateToken }: typeof import("../lib/oauth/stateToken") = require("../lib/oauth/stateToken");
+const { issueTicket, verifyTicket }: typeof import("../lib/oauth/ticket") = require("../lib/oauth/ticket");
 const { getDiscoveryDocument, getJwks }: typeof import("../lib/oauth/discovery") = require("../lib/oauth/discovery");
 
 const OAUTH_STATE_COOKIE = "__Host-ladu_oauth";
 const STATE_COOKIE_MAX_AGE_MS = 10 * 60 * 1000;
 
 const OAUTH_ERROR = {
-  // Phase 2's own scope limit — a real, expected outcome until Phases 3/4 ship.
+  // Outcome (c) — a real, expected outcome until Phase 4 ships linking.
   NOT_LINKED: "oauth_not_linked",
   // Anything else: a malformed callback, a provider/network error, a forged
   // or expired state, a failed token exchange or ID-token verification.
@@ -150,8 +159,6 @@ const callback = asyncHandler(async (req: any, res: any) => {
     });
     if (claims.nonce !== statePayload.nonce) throw new Error("Nonce mismatch");
 
-    // sub/email only — Phase 2 doesn't act on email_verified (nothing here
-    // branches on email yet; that starts in Phase 3/4).
     const identity = provider.mapClaims(claims as Record<string, unknown>);
 
     // Identity lookup is always by (provider, provider_user_id), never by
@@ -162,27 +169,127 @@ const callback = asyncHandler(async (req: any, res: any) => {
       .where(and(eq(oauthIdentities.provider, provider.name), eq(oauthIdentities.providerUserId, identity.sub)))
       .limit(1);
 
-    if (!existingIdentity) {
-      // Outcomes (b) new-email and (c) email-matches-password-account both
-      // land here in Phase 2 — Phase 3 (signup) and Phase 4 (linking) give
-      // each its own real screen instead of this shared "not yet" redirect.
+    if (existingIdentity) {
+      // Outcome (a) — already linked.
+      const [user] = await db.select().from(users).where(eq(users.id, existingIdentity.userId)).limit(1);
+      if (!user) throw new Error("Linked identity has no matching user row");
+
+      const token = generateToken(user.id);
+      res.redirect(`${frontendBase}/auth/callback#token=${token}`);
+      return;
+    }
+
+    const existingUser = await findUserByEmailInsensitive(identity.email);
+    if (existingUser) {
+      // Outcome (c) — email matches a password account. Phase 4 builds real
+      // linking; the message here already tells them what to do meanwhile.
       redirectWithError(OAUTH_ERROR.NOT_LINKED);
       return;
     }
 
-    const [user] = await db.select().from(users).where(eq(users.id, existingIdentity.userId)).limit(1);
-    if (!user) throw new Error("Linked identity has no matching user row");
-
-    const token = generateToken(user.id);
-    res.redirect(`${frontendBase}/auth/callback#token=${token}`);
+    // Outcome (b) — brand-new identity. A ticket, not an account: the
+    // browser hasn't chosen a username or confirmed languages yet.
+    const ticket = issueTicket({
+      typ: "oauth_signup",
+      provider: provider.name,
+      sub: identity.sub,
+      email: identity.email,
+      name: identity.name,
+    });
+    res.redirect(`${frontendBase}/auth/callback#ticket=${ticket}&mode=signup`);
   } catch (error) {
     console.error("OAuth callback error:", error);
     redirectWithError(OAUTH_ERROR.FAILED);
   }
 });
 
+const signupComplete = asyncHandler(async (req: any, res: any) => {
+  const { ticket, username, languages, uiLanguage } = req.body;
+
+  let payload;
+  try {
+    payload = verifyTicket(ticket, "oauth_signup");
+  } catch {
+    res.status(400);
+    throw new Error("Invalid or expired ticket");
+  }
+
+  if (!username) {
+    res.status(400);
+    throw new Error("Please add all fields");
+  }
+
+  // Same rule as regular registration, not relaxed (oauth-login-strategy.md).
+  const languagesResult = normalizeLanguageSelection(languages);
+  if (!languagesResult.ok) {
+    res.status(400);
+    throw new Error(languagesResult.message);
+  }
+
+  let resolvedUiLanguage = "English";
+  if (uiLanguage !== undefined && uiLanguage !== null && uiLanguage !== "") {
+    if (!isSupportedLanguage(uiLanguage)) {
+      res.status(400);
+      throw new Error("Invalid language selection");
+    }
+    resolvedUiLanguage = uiLanguage;
+  }
+
+  // Race guard: the ticket's identity may have been linked, or its email
+  // claimed by a password account, in the 10-minute window since it was
+  // issued (a retried request, another tab). Both make completing signup
+  // here wrong — re-run the same lookups the callback itself did.
+  const [alreadyLinked] = await db
+    .select()
+    .from(oauthIdentities)
+    .where(and(eq(oauthIdentities.provider, payload.provider), eq(oauthIdentities.providerUserId, payload.sub)))
+    .limit(1);
+  if (alreadyLinked) {
+    res.status(400);
+    throw new Error("This Google account is already linked to an account");
+  }
+
+  const emailExists = await findUserByEmailInsensitive(payload.email);
+  if (emailExists) {
+    res.status(400);
+    throw new Error("Email already in use");
+  }
+
+  const usernameExists = await findUserByUsernameInsensitive(username);
+  if (usernameExists) {
+    res.status(400);
+    throw new Error("Username already in use");
+  }
+
+  const [user] = await db
+    .insert(users)
+    .values({
+      name: payload.name,
+      email: payload.email,
+      username,
+      password: null,
+      languages: languagesResult.languages,
+      uiLanguage: resolvedUiLanguage,
+      nativeLanguage: null,
+      // Google already verified the address — the standard registration
+      // flow's confirmation email is deliberately skipped (Decisions).
+      verified: true,
+    })
+    .returning();
+
+  await db.insert(oauthIdentities).values({
+    userId: user.id,
+    provider: payload.provider,
+    providerUserId: payload.sub,
+    emailAtLink: payload.email,
+  });
+
+  res.status(201).json(serializeLoginUser(user));
+});
+
 export = {
   getProviders,
   startAuth,
   callback,
+  signupComplete,
 };

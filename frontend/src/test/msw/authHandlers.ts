@@ -12,6 +12,7 @@
  */
 import { http, HttpResponse } from 'msw';
 import { makeToken } from '@/test/tokens';
+import { decodeJwtPayload } from '@/lib/jwt';
 
 export interface SeedUser {
     id?: string;
@@ -42,6 +43,17 @@ const futureExp = () => Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
 const SUPPORTED_LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
 const isSupportedLanguage = (v: unknown): v is string =>
     typeof v === 'string' && SUPPORTED_LANGUAGES.includes(v);
+
+/** `InternalUser.password` has no null variant — this never matches a real login attempt. */
+const OAUTH_NO_PASSWORD = '<oauth-account-has-no-password>';
+
+interface OAuthSignupTicket {
+    typ?: string;
+    provider?: string;
+    sub?: string;
+    email?: string;
+    name?: string;
+}
 
 let counter = 0;
 const nextId = () => `user-${++counter}`;
@@ -105,6 +117,56 @@ export function makeAuthHandlers(
     const handlers = [
         // GET /api/auth/providers
         http.get('*/api/auth/providers', () => HttpResponse.json(oauthProviders)),
+
+        // POST /api/auth/signup/complete (oauth-login-strategy.md Phase 3)
+        http.post('*/api/auth/signup/complete', async ({ request }) => {
+            const body = (await request.json()) as Record<string, unknown>;
+            const ticket = typeof body.ticket === 'string' ? body.ticket : '';
+            const payload = decodeJwtPayload<OAuthSignupTicket>(ticket);
+            if (!payload || payload.typ !== 'oauth_signup' || typeof payload.email !== 'string') {
+                return HttpResponse.json({ message: 'Invalid or expired ticket' }, { status: 400 });
+            }
+
+            if (!body.username) {
+                return HttpResponse.json({ message: 'Please add all fields' }, { status: 400 });
+            }
+            const langs = body.languages;
+            if (!Array.isArray(langs)) {
+                return HttpResponse.json({ message: 'Please select at least 2 languages' }, { status: 400 });
+            }
+            if (!langs.every(isSupportedLanguage)) {
+                return HttpResponse.json({ message: 'Invalid language selection' }, { status: 400 });
+            }
+            if (new Set(langs).size < 2) {
+                return HttpResponse.json({ message: 'Please select at least 2 languages' }, { status: 400 });
+            }
+            if (
+                body.uiLanguage !== undefined &&
+                body.uiLanguage !== '' &&
+                !isSupportedLanguage(body.uiLanguage)
+            ) {
+                return HttpResponse.json({ message: 'Invalid language selection' }, { status: 400 });
+            }
+
+            if (find(payload.email)) {
+                return HttpResponse.json({ message: 'Email already in use' }, { status: 400 });
+            }
+            const username = body.username as string;
+            if ([...byEmail.values()].some((u) => u.username.toLowerCase() === username.toLowerCase())) {
+                return HttpResponse.json({ message: 'Username already in use' }, { status: 400 });
+            }
+
+            const u = put({
+                name: payload.name ?? username,
+                email: payload.email,
+                username,
+                password: OAUTH_NO_PASSWORD,
+                verified: true,
+                languages: [...new Set(langs as string[])],
+                uiLanguage: isSupportedLanguage(body.uiLanguage) ? body.uiLanguage : 'English',
+            });
+            return HttpResponse.json({ ...publicUser(u), token: issueToken(u) }, { status: 201 });
+        }),
 
         // POST /api/users — register
         http.post('*/api/users', async ({ request }) => {

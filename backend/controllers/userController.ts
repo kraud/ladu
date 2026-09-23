@@ -635,4 +635,10 @@ export = {
   // than duplicating session-minting logic for a second sign-in path.
   generateToken,
   serializeLoginUser,
+  // Reused by oauthController.ts's signup/callback flow (Phase 3) rather
+  // than duplicating registration's validation and lookup rules.
+  normalizeLanguageSelection,
+  isSupportedLanguage,
+  findUserByUsernameInsensitive,
+  findUserByEmailInsensitive,
 };

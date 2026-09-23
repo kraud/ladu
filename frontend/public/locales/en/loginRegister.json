@@ -21,12 +21,16 @@
     "notEnoughLanguages": "Please select at least two languages.",
     "invalidLanguage": "That language isn't supported.",
     "signInWithGoogle": "This account signs in with Google — use the Google button instead.",
-    "oauthNotLinked": "This Google account isn't linked to a Ladu account yet. Creating a new account or linking one is coming soon — sign in with your password for now.",
-    "oauthFailed": "Google sign-in didn't work. Please try again or use your password."
+    "oauthNotLinked": "This Google account matches an existing password account. Linking sign-in methods is coming soon — sign in with your password for now.",
+    "oauthFailed": "Google sign-in didn't work. Please try again or use your password.",
+    "oauthInvalidTicket": "That sign-up link has expired. Please try \"Continue with Google\" again.",
+    "oauthAlreadyLinked": "This Google account is already linked to a Ladu account."
   },
   "oauth": {
     "continueWithGoogle": "Continue with Google",
-    "orContinueWith": "or continue with"
+    "orContinueWith": "or continue with",
+    "signupTitle": "One more step",
+    "signupSubtitle": "Finishing sign-up with Google — choose a username and your study languages."
   },
   "toastMessages": {
     "passwordUpdated": "Password updated successfully!",

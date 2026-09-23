@@ -6,11 +6,20 @@
 import type { NormalizedIdentity, OAuthProvider } from '../types';
 
 function mapGoogleClaims(claims: Record<string, unknown>): NormalizedIdentity {
-    const { sub, email, email_verified: emailVerified } = claims;
+    const { sub, email, email_verified: emailVerified, name } = claims;
     if (typeof sub !== 'string' || typeof email !== 'string') {
         throw new Error('Google ID token missing sub/email');
     }
-    return { sub, email, emailVerified: emailVerified === true };
+    return {
+        sub,
+        email,
+        emailVerified: emailVerified === true,
+        // Google includes `name` under the `profile` scope this app requests
+        // (see `scope` below); fall back to the email's local part on the
+        // rare token that omits it — same fallback the signup-completion
+        // screen uses for the username prefill (Phase 3).
+        name: typeof name === 'string' && name.trim() !== '' ? name : email.split('@')[0],
+    };
 }
 
 /** `undefined` when GOOGLE_CLIENT_ID/SECRET aren't set — the caller treats that as "not configured". */
