@@ -45,20 +45,44 @@ fi
 echo "==> Starting containers"
 compose up -d
 
+# Shared by both readiness loops below: a container swap that never settles
+# (backend OR frontend) rolls back to whatever SHA was last recorded as
+# successfully deployed, same as before this was split into two checks.
+rollback() {
+    echo "$1" >&2
+    if [ -f "$DEPLOYED_SHA_FILE" ]; then
+        PREVIOUS_SHA="$(cat "$DEPLOYED_SHA_FILE")"
+        echo "==> Rolling back to $PREVIOUS_SHA" >&2
+        IMAGE_TAG="$PREVIOUS_SHA" compose up -d
+    else
+        echo "No previous deployed_sha on record — nothing to roll back to." >&2
+    fi
+    exit 1
+}
+
 echo "==> Waiting for $HEALTH_URL to report sha=$IMAGE_TAG (up to 60s)"
 attempt=0
 until curl -fsS "$HEALTH_URL" 2>/dev/null | grep -q "\"sha\":\"$IMAGE_TAG\""; do
     attempt=$((attempt + 1))
     if [ "$attempt" -ge 30 ]; then
-        echo "Health check did not report the new SHA in time." >&2
-        if [ -f "$DEPLOYED_SHA_FILE" ]; then
-            PREVIOUS_SHA="$(cat "$DEPLOYED_SHA_FILE")"
-            echo "==> Rolling back to $PREVIOUS_SHA" >&2
-            IMAGE_TAG="$PREVIOUS_SHA" compose up -d
-        else
-            echo "No previous deployed_sha on record — nothing to roll back to." >&2
-        fi
-        exit 1
+        rollback "Backend health check did not report the new SHA in time."
+    fi
+    sleep 2
+done
+
+# `compose up -d` recreates the `web` container at the same time as `backend`
+# — the health check above only ever proved the *backend* came back up.
+# Without this, a `web` container that's merely slow to start (or that Caddy
+# briefly can't reach mid-swap) goes undetected: the script exits "success"
+# while the site is still returning connection errors (2026-09-22 staging
+# incident — the post-deploy smoke job hit `net::ERR_ABORTED` on `/login`
+# for a good ~65s after this script had already declared victory).
+echo "==> Waiting for $BASE_URL to serve the frontend (up to 60s)"
+attempt=0
+until curl -fsS -o /dev/null "${BASE_URL%/}/"; do
+    attempt=$((attempt + 1))
+    if [ "$attempt" -ge 30 ]; then
+        rollback "Frontend did not become reachable in time."
     fi
     sleep 2
 done
