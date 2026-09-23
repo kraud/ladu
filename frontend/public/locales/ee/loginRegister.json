@@ -19,7 +19,8 @@
     "invalidToken": "See lähtestamise link on kehtetu või aegunud.",
     "noUserForEmail": "Selle e-postiga pole ühtegi kontot registreeritud.",
     "notEnoughLanguages": "Palun vali vähemalt kaks keelt.",
-    "invalidLanguage": "See keel ei ole toetatud."
+    "invalidLanguage": "See keel ei ole toetatud.",
+    "signInWithGoogle": "See konto logib sisse Google'iga — kasuta selle asemel Google'i nuppu."
   },
   "toastMessages": {
     "passwordUpdated": "Parool edukalt uuendatud!",

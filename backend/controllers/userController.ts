@@ -255,6 +255,15 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
   // Look up by email first so password comparison only runs for a real account.
   const user = email ? await findUserByEmailInsensitive(email) : undefined;
 
+  // A password-less (OAuth-only) account has no hash to compare against —
+  // point it at the right button instead of a confusing generic rejection.
+  // This confirms account existence to an unauthenticated caller, same as
+  // registerUser's "Email already in use" already does.
+  if (user && user.password === null) {
+    res.status(400);
+    throw new Error("Sign in with Google");
+  }
+
   if (!user || !(await bcrypt.compare(password || "", user.password))) {
     res.status(400);
     throw new Error("Invalid credentials");

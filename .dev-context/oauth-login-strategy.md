@@ -260,7 +260,10 @@ one-shotting the whole feature.
   cannot log in through the password form and sees the provider-specific
   message; an ordinary password account is unaffected.
 - **Gate:** migration applies cleanly to a populated dev DB; existing
-  `auth.test.js` suite still green; new guard test passes.
+  `auth.test.js` suite still green; new guard test passes. **✅ done
+  2026-09-23** — migration `0004` applied to dev + test DBs; `auth.test.js`
+  51/51 including 3 new guard tests; frontend `errors.ts` mapping + all four
+  locales; full `test:e2e` (19/19) and full frontend suite (626/626) green.
 
 ### Phase 2 — Sign in with Google, existing identity only (1 day)
 

@@ -17,6 +17,7 @@ export const GENERIC_ERROR_KEY = 'common:errors.somethingWrong';
 const MESSAGE_TO_KEY: Record<string, string> = {
     // login
     'Invalid credentials': 'loginRegister:apiErrors.invalidCredentials',
+    'Sign in with Google': 'loginRegister:apiErrors.signInWithGoogle',
     // register
     'Please add all fields': 'loginRegister:apiErrors.missingFields',
     'Email already in use': 'loginRegister:apiErrors.emailInUse',

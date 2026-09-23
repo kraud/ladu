@@ -7,6 +7,7 @@ const apiError = (message: string) => ({ response: { status: 400, data: { messag
 describe('authErrorKey', () => {
     it.each([
         ['Invalid credentials', 'loginRegister:apiErrors.invalidCredentials'],
+        ['Sign in with Google', 'loginRegister:apiErrors.signInWithGoogle'],
         ['Please add all fields', 'loginRegister:apiErrors.missingFields'],
         ['Email already in use', 'loginRegister:apiErrors.emailInUse'],
         ['Username already in use', 'loginRegister:apiErrors.usernameInUse'],

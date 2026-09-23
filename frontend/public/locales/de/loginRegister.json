@@ -19,7 +19,8 @@
     "invalidToken": "Dieser Link zum Zurücksetzen ist ungültig oder abgelaufen.",
     "noUserForEmail": "Mit dieser E-Mail ist kein Konto registriert.",
     "notEnoughLanguages": "Bitte wähle mindestens zwei Sprachen aus.",
-    "invalidLanguage": "Diese Sprache wird nicht unterstützt."
+    "invalidLanguage": "Diese Sprache wird nicht unterstützt.",
+    "signInWithGoogle": "Dieses Konto meldet sich mit Google an — verwende stattdessen die Google-Schaltfläche."
   },
   "toastMessages": {
     "passwordUpdated": "Passwort erfolgreich aktualisiert!",

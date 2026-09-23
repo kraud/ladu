@@ -49,6 +49,23 @@ export async function getVerifyToken(email: string): Promise<{ userId: string; t
     return rows[0];
 }
 
+/**
+ * Inserts a password-less, verified account directly — there's no signup
+ * flow that creates one yet (Phase 2/3 of oauth-login-strategy.md), but the
+ * row shape (password NULL, verified true, matching a real OAuth signup) is
+ * exactly what Phase 1's login guard has to handle.
+ */
+export async function createPasswordlessUser(email: string, opts: { name?: string; username?: string } = {}): Promise<{ userId: string }> {
+    const { rows } = await getPool().query<{ id: string }>(
+        `INSERT INTO users (name, email, username, password, languages, ui_language, verified)
+         VALUES ($1, $2, $3, NULL, ARRAY['English', 'Spanish'], 'English', true)
+         RETURNING id`,
+        [opts.name ?? 'OAuth Only', email, opts.username ?? email.split('@')[0]],
+    );
+    if (!rows[0]) throw new Error(`failed to seed password-less user ${email}`);
+    return { userId: rows[0].id };
+}
+
 /** Backdates `words.created_at` for the given ids — lets a spec put a word outside the current calendar month without waiting for real time to pass (used to exercise the Dashboard's month-range selector, which is otherwise a single-option no-op on an account created during the run). */
 export async function backdateWordsCreatedAt(wordIds: string[], date: Date): Promise<void> {
     await getPool().query(`UPDATE words SET created_at = $2 WHERE id = ANY($1::uuid[])`, [wordIds, date]);
