@@ -22,7 +22,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 const FRONTEND_URL = process.env.E2E_BASE_URL ?? 'http://localhost:5173';
 const BACKEND_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
-// Local stub OIDC issuer standing in for Google/Microsoft in tests —
+// Local stub OIDC issuer standing in for Google in tests —
 // see e2e/fixtures/oidc-stub/server.ts and oauth-login-strategy.md Phase 0.
 const OIDC_STUB_URL = process.env.OIDC_STUB_URL ?? 'http://localhost:4400';
 const CI = !!process.env.CI;
@@ -64,13 +64,12 @@ export default defineConfig({
             // — the backend no longer applies them itself on boot.
             command: 'npm run migrate -w backend && npm run dev -w backend',
             cwd: '..',
-            // OAUTH_ISSUER_GOOGLE/MICROSOFT point discovery at the local stub instead
-            // of the real providers — accepted by the backend only outside production
-            // (oauth-login-strategy.md Phase 0). No OAuth client code reads these yet;
-            // this proves the backend boots cleanly once they're set, ahead of Phase 2.
+            // OAUTH_ISSUER_GOOGLE points discovery at the local stub instead of the
+            // real provider — accepted by the backend only outside production
+            // (oauth-login-strategy.md Phase 0). No OAuth client code reads this yet;
+            // this proves the backend boots cleanly once it's set, ahead of Phase 2.
             env: {
                 OAUTH_ISSUER_GOOGLE: OIDC_STUB_URL,
-                OAUTH_ISSUER_MICROSOFT: OIDC_STUB_URL,
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.
@@ -92,8 +91,8 @@ export default defineConfig({
         {
             // Stub OIDC issuer for the OAuth phases — implements the real
             // discovery/authorize/token/jwks contract so the backend's OAuth
-            // client code runs against something that behaves like Google/
-            // Microsoft, without a live third-party account in CI.
+            // client code runs against something that behaves like Google,
+            // without a live third-party account in CI.
             command: 'npm run stub:oidc -w e2e',
             cwd: '..',
             url: `${OIDC_STUB_URL}/.well-known/openid-configuration`,

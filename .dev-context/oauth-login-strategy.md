@@ -1,11 +1,14 @@
 # OAuth Login Strategy — Ladu v2
 
-> Status: **Not started.** Planned 2026-09-23.
-> Goal: add "Sign in with Google" and "Sign in with Microsoft" as extra ways
-> in, alongside the existing email+password flow — without disturbing it and
-> without abandoning the hand-rolled JWT design.
-> Cost: **€0/mo.** Both providers are free to register and use at this scope;
-> nothing here touches the deployment plan's ≤ €7/mo budget.
+> Status: **In progress.** Phase 0 done 2026-09-23 — stub harness green,
+> Google Cloud OAuth client registered. Microsoft was dropped the same day:
+> Azure sign-in returned `AADSTS16000` on every account tried, so it never
+> got past registration (see Decisions).
+> Goal: add "Sign in with Google" as an extra way in, alongside the existing
+> email+password flow — without disturbing it and without abandoning the
+> hand-rolled JWT design.
+> Cost: **€0/mo.** Google is free to register and use at this scope; nothing
+> here touches the deployment plan's ≤ €7/mo budget.
 
 ---
 
@@ -16,28 +19,32 @@ the reasoning behind them, so the "why" survives alongside the "what":
 
 - **Account linking.** If an OAuth sign-in's email matches an existing
   password account, Ladu **requires the password once to link** — it never
-  auto-links and never dead-ends the user. Auto-linking on email match alone
-  is unsafe: Microsoft's ID token carries no `email_verified` claim, so an
-  attacker who controls *an* email address at Microsoft (not necessarily the
-  victim's own) could otherwise walk into someone else's account. Blocking
-  outright would be a dead end with no way forward. One password confirmation
-  screen is the middle ground, and it costs the user one extra step exactly
-  once.
+  auto-links and never dead-ends the user. Reaffirmed 2026-09-23 after
+  Microsoft was dropped (see below): Google's ID token does carry a reliable
+  `email_verified` claim, which would make auto-link on Google alone a
+  defensible option, but password-confirmed linking doesn't depend on
+  trusting a third party's verification claim indefinitely, was already the
+  design, and costs the user one extra step exactly once. Blocking outright
+  would be a dead end with no way forward.
 - **Multiple sign-in methods per account.** Yes, from day one. Modelled as a
   separate `oauth_identities` table (one row per linked provider) rather than
   columns on `users`, specifically so the linking answer above is
-  implementable and so a user can hold password + Google + Microsoft
+  implementable and so a user can hold both password and Google sign-in
   simultaneously. A one-method-per-account column design would need a painful
   migration the moment a second method was wanted, which is immediately —
-  Phase 6 below ships account-page linking in the same effort budget.
-- **Token-verification library.** **`jose`** for both providers. It is one
-  small, modern JWKS + JWT verification library that covers Google's and
-  Microsoft's ID tokens identically, closest to this repo's existing
-  hand-rolled `jsonwebtoken` style, and it is the only new runtime dependency
-  this plan adds. Rejected: `google-auth-library` + `jwks-rsa`/`jsonwebtoken`
-  (two dependencies, two verification idioms for what is structurally the
-  same job); `@azure/msal-node` (a large, session-and-cache-oriented SDK that
-  fights this app's stateless-JWT design — see [Rejected options](#rejected-options)).
+  Phase 5 below ships account-page linking in the same effort budget. The
+  table's `provider` column stays generic rather than Google-specific —
+  negligible cost today, and it's what would let a future provider be added
+  later without another migration, should one ever be wanted.
+- **Token-verification library.** **`jose`** for Google's ID tokens. One
+  small, modern JWKS + JWT verification library, closest to this repo's
+  existing hand-rolled `jsonwebtoken` style, and it is the only new runtime
+  dependency this plan adds. Rejected: `google-auth-library` + `jwks-rsa`/
+  `jsonwebtoken` (two dependencies, two verification idioms for what is
+  structurally the same job `jose` does alone). `jose` was originally picked
+  partly because it covered Microsoft's tokens with the same idiom too —
+  that reason dropped away with Microsoft (see [Rejected options](#rejected-options))
+  but the choice still stands on its own for Google.
 
 ---
 
@@ -45,15 +52,15 @@ the reasoning behind them, so the "why" survives alongside the "what":
 
 | Topic | Decision |
 |---|---|
-| Providers | **Google** and **Microsoft** only. Both are free to register and use. |
+| Providers | **Google** only. Microsoft was planned too but dropped — see Rejected options. |
 | Apple | Rejected — requires a paid ($99/yr) Apple Developer Program membership, which the user has ruled out. |
 | Flow | OAuth 2.0 / OIDC **authorization code + PKCE**, verified server-side. No Passport.js, no server-side sessions — stays consistent with the existing hand-rolled JWT design. |
-| Redirect shape | **Backend-handled redirect**: browser → `/api/auth/:provider/start` → provider → `/api/auth/:provider/callback` → backend mints the app JWT → redirects to the frontend. The client secret never reaches the browser, and both providers share one code path. |
+| Redirect shape | **Backend-handled redirect**: browser → `/api/auth/:provider/start` → provider → `/api/auth/:provider/callback` → backend mints the app JWT → redirects to the frontend. The client secret never reaches the browser. Routes stay parameterized by `:provider` even with just Google today, matching the identities table's generic `provider` column — so adding another provider later needs no route redesign. |
 | Account linking | OAuth email matches an existing password account → **require the password once** to link. Never auto-link, never dead-end (see "Open questions" above). |
 | Multiple methods | **Yes, from day one** — a separate `oauth_identities` table, one row per `(user, provider)`. |
-| Token verification | **`jose`** for both providers — one dependency, one idiom, closest to the current minimal-dependency style. |
-| Username on OAuth signup | Neither provider supplies one. Asked on the signup-completion screen, **prefilled from the email's local part and editable** — `users.username` is `NOT NULL UNIQUE` and the app treats it as a real, user-chosen handle elsewhere (Account page, `@username` display). |
-| Email confirmation | **Skipped** for OAuth signups — Google and Microsoft already verify the address, so new OAuth accounts are created with `verified: true` immediately. Language selection (≥ 2 supported languages) is **not** skipped; it still runs as its own signup step. |
+| Token verification | **`jose`** for Google's ID tokens — one dependency, closest to the current minimal-dependency style. |
+| Username on OAuth signup | Google doesn't supply one. Asked on the signup-completion screen, **prefilled from the email's local part and editable** — `users.username` is `NOT NULL UNIQUE` and the app treats it as a real, user-chosen handle elsewhere (Account page, `@username` display). |
+| Email confirmation | **Skipped** for OAuth signups — Google already verifies the address, so new OAuth accounts are created with `verified: true` immediately. Language selection (≥ 2 supported languages) is **not** skipped; it still runs as its own signup step. |
 | Connected methods UI | Not a separate settings screen. A read-only "Sign-in methods" row sits under the email row in the Account profile view; connect/disconnect controls appear only in the profile's existing edit mode. |
 | Token transport to the browser | URL **fragment** (`/auth/callback#token=…`), not a query string — fragments never reach the server's access logs or `Referer` headers. |
 | State/PKCE storage | A short-lived, purpose-typed JWT (`typ: 'oauth_state'`) in an `HttpOnly; Secure; SameSite=Lax` cookie, keeping the whole design stateless (no server-side session store). |
@@ -63,14 +70,14 @@ the reasoning behind them, so the "why" survives alongside the "what":
 | Option | Reason |
 |---|---|
 | Apple ("Sign in with Apple") | Requires the $99/yr Apple Developer Program. Ruled out by the user. |
-| Passport.js | Session-oriented by default; the app has no session store today and this plan doesn't want to introduce one just to gain a strategy-plugin system for two providers. |
+| Microsoft ("Sign in with Microsoft") | Azure sign-in returned `AADSTS16000` on every account tried (multiple personal outlook.com accounts, incognito windows, fully cleared sessions) — an unresolved Azure-side issue, not a plan defect. Dropped 2026-09-23 rather than sink more time into a second free provider. |
+| Passport.js | Session-oriented by default; the app has no session store today and this plan doesn't want to introduce one just to gain a strategy-plugin system this plan doesn't need. |
 | NextAuth.js / Auth.js | Built around Next.js's server conventions; this is a plain Express + Vite/React stack. Wrong shape for the framework. |
 | Auth0 / Clerk / a hosted identity provider | Usage-priced beyond free tiers and an external dependency for something the app can do itself in ~5 days; breaks both the €0 cost target and the point of building it by hand. |
-| `google-auth-library` + `jwks-rsa`/`jsonwebtoken` | Two dependencies, two different verification idioms, for what is the same job (verify a JWT against a JWKS) on both providers. |
-| `@azure/msal-node` | Built for session/token-cache-managed apps (desktop, confidential client with a token cache). This app has no session layer; MSAL's cache model fights the stateless JWT design. |
+| `google-auth-library` + `jwks-rsa`/`jsonwebtoken` | Two dependencies, two different verification idioms, for what is the same job `jose` does alone (verify a JWT against a JWKS). |
 | Frontend holds provider client IDs (`VITE_GOOGLE_CLIENT_ID`, etc.) | `frontend/Dockerfile` bakes one image that serves both staging and production (no build-time API URL, per its own header comment). A build-time client ID would force separate images per environment, breaking that design. The backend-redirect flow sidesteps this entirely — the frontend needs no client ID at all. |
-| Auto-link accounts on email match | Microsoft's ID token has no `email_verified` claim; auto-linking on email alone is an account-takeover vector. See "Open questions" above. |
-| One sign-in method per account (columns on `users`) | Works until a second method is wanted, which is immediately (Phase 6 ships linking). A dedicated identities table costs little now and avoids a later data migration. |
+| Auto-link accounts on email match | Reaffirmed 2026-09-23 even with Microsoft gone: password-confirmed linking doesn't depend on trusting a third party's verification claim indefinitely. Originally driven by Microsoft's missing `email_verified` claim specifically. See "Open questions" above. |
+| One sign-in method per account (columns on `users`) | Works until a second method is wanted, which is immediately (Phase 5 ships linking). A dedicated identities table costs little now and avoids a later data migration. |
 
 ---
 
@@ -79,7 +86,7 @@ the reasoning behind them, so the "why" survives alongside the "what":
 ### Flow
 
 ```
-Browser                    Backend                      Google / Microsoft
+Browser                    Backend                      Google
    │                          │                                │
    │  GET /api/auth/:p/start  │                                │
    ├─────────────────────────▶│  generate PKCE verifier+chall, │
@@ -116,7 +123,7 @@ session token, and never accepted where one is expected.
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /api/auth/providers` | Returns which providers are configured (`{ google: true, microsoft: true }`), driven by which env vars are set. The frontend uses this to decide which buttons to render — it never holds a client ID itself. |
+| `GET /api/auth/providers` | Returns which providers are configured (`{ google: true }`), driven by which env vars are set. The frontend uses this to decide which buttons to render — it never holds a client ID itself. |
 | `GET /api/auth/:provider/start` | Builds the PKCE challenge + nonce + state JWT, sets the state cookie, 302s to the provider's `/authorize`. |
 | `GET /api/auth/:provider/callback` | Validates state, exchanges the code, verifies the ID token, resolves outcome (a)/(b)/(c) above, 302s to the frontend with a fragment. |
 | `POST /api/auth/signup/complete` | Body `{ ticket, username, languages, uiLanguage }`. Validates the ticket, runs `normalizeLanguageSelection` (reused from `userController.ts`), creates the user with `verified: true` and no password, returns `serializeLoginUser`. |
@@ -148,25 +155,12 @@ claim and are validated against it. None of them is ever accepted where the
 
 - **Google**: the ID token includes `email_verified`. Require it `=== true`
   before treating the email as authoritative for linking.
-- **Microsoft, `common` tenant**: the issuer is
-  `https://login.microsoftonline.com/{tid}/v2.0`, where `{tid}` varies per
-  token — issuer validation must check the token's own `tid` against
-  Microsoft's multi-tenant issuer pattern, not compare against one constant
-  string. There is **no `email_verified` claim** at all, and personal
-  Microsoft accounts may carry only `preferred_username`, not `email`.
-  Because linking always requires a password (see Decisions), an unverified
-  Microsoft email cannot hijack an existing account; the residual risk — that
-  someone could *register a new account* against an email they don't
-  control — already exists today via the plain registration form, so it's
-  accepted here rather than solved twice.
 
 ### Env vars
 
 | Var | Purpose |
 |---|---|
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google OAuth app credentials. |
-| `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET` | Microsoft (Azure AD) app credentials. |
-| `MICROSOFT_TENANT` | `common` — allows both personal and work/school Microsoft accounts. |
 | `OAUTH_REDIRECT_BASE` | Base URL for building callback URIs; defaults to `BASE_URL` if unset. |
 
 New backend env vars touch the same four places every existing one does:
@@ -187,7 +181,7 @@ ALTER TABLE "users" ALTER COLUMN "password" DROP NOT NULL;
 CREATE TABLE "oauth_identities" (
     "id"                uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
     "user_id"           uuid NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
-    "provider"          varchar(32) NOT NULL,   -- 'google' | 'microsoft'
+    "provider"          varchar(32) NOT NULL,   -- 'google' (kept generic; extensible later)
     "provider_user_id"  varchar(255) NOT NULL,  -- the ID token's `sub`
     "email_at_link"     varchar(255) NOT NULL,  -- audit trail; never used for lookup
     "created_at"        timestamp DEFAULT now() NOT NULL,
@@ -211,18 +205,22 @@ leak between Jest test files.
 
 ## 4. Phases
 
-Total effort: about 5 days. Each phase ships as its own vertical slice with
+Total effort: about 4.5 days. Each phase ships as its own vertical slice with
 a Playwright e2e spec as its gate, per `CLAUDE.md`'s working rules — no
 one-shotting the whole feature.
 
 ### Phase 0 — Provider registration + local OIDC stub harness (½ day + provider review wait)
 
-- Register a Google Cloud OAuth 2.0 client and an Azure App registration,
-  with redirect URIs for `localhost:5001`, staging, and production.
-- Env wiring: the four vars above, in local `.env` and
+- Register a Google Cloud OAuth 2.0 client, with redirect URIs for
+  `localhost:5001`, staging, and production. An Azure App registration for
+  Microsoft was attempted too, but every account tried (multiple personal
+  outlook.com accounts, incognito windows, fully cleared sessions) hit
+  `AADSTS16000` at sign-in — an unresolved Azure-side issue. Dropped
+  2026-09-23; Microsoft is out of this plan (see Decisions).
+- Env wiring: `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, in local `.env` and
   `deploy/env/app.env.example`.
-- **The piece that makes every later phase testable without a live Google or
-  Microsoft account**: a tiny stub OIDC issuer at `e2e/fixtures/oidc-stub/`
+- **The piece that makes every later phase testable without a live Google
+  account**: a tiny stub OIDC issuer at `e2e/fixtures/oidc-stub/`
   — a Node HTTP server exposing `/.well-known/openid-configuration`,
   `/authorize` (auto-approves, no real consent screen), `/token`, and
   `/jwks`, signing ID tokens with a locally generated RSA key via `jose`.
@@ -237,9 +235,11 @@ one-shotting the whole feature.
   verification) rather than mocking it away.
 - **e2e** (`oauth-0-harness.spec.ts`): the stub's discovery document and
   JWKS endpoint are reachable, and the backend starts successfully with
-  `OAUTH_ISSUER_GOOGLE`/`OAUTH_ISSUER_MICROSOFT` pointed at it.
-- **Gate:** stub issuer up, backend boots against it, no real Google/
-  Microsoft account required to run the suite.
+  `OAUTH_ISSUER_GOOGLE` pointed at it.
+- **Gate:** stub issuer up, backend boots against it, no real Google account
+  required to run the suite. **✅ done 2026-09-23** — 5/5 new tests green,
+  full `test:e2e` suite (17/17) unaffected; Google Cloud OAuth client
+  registered with all three redirect URIs.
 
 ### Phase 1 — Schema and password-less login guard (½ day)
 
@@ -248,10 +248,9 @@ one-shotting the whole feature.
 - Guards `loginUser` (`userController.ts:252-280`): today
   `bcrypt.compare(password || '', user.password)` would throw or misbehave
   against a `null` hash once `password` is nullable. Add an explicit check —
-  a password-less account attempting password login gets a fixed,
-  provider-naming message ("Sign in with Google" / "Sign in with
-  Microsoft"), mapped through `features/auth/errors.ts`'s existing
-  message-to-i18n-key table.
+  a password-less account attempting password login gets a fixed message
+  ("Sign in with Google"), mapped through `features/auth/errors.ts`'s
+  existing message-to-i18n-key table.
 - This confirms the account exists to an unauthenticated caller, which the
   app already does today in `registerUser` ("Email already in use") and
   `requestPasswordReset` (silently succeeds either way — actually doesn't
@@ -284,8 +283,7 @@ one-shotting the whole feature.
   straight-login outcome, calls `setSession` exactly as `useLogin` does.
   MSW handlers added to `frontend/src/test/msw/authHandlers.ts`. New locale
   keys added to `loginRegister.json` in all four languages (en/es/de/ee).
-  Inline SVG brand marks for Google/Microsoft (Phosphor Icons has no brand
-  logos).
+  Inline SVG brand mark for Google (Phosphor Icons has no brand logos).
 - Scope limit for this phase: only an **already-linked** identity can log
   in. New-email and existing-email-match outcomes return a clear "not yet
   supported" error — Phases 3 and 4 build those.
@@ -307,7 +305,7 @@ one-shotting the whole feature.
 - `POST /api/auth/signup/complete` creates the user with `password: null`,
   `verified: true`, and **no confirmation email sent** — this is the one
   place the standard registration flow's email step is deliberately
-  skipped, because Google/Microsoft already verified the address.
+  skipped, because Google already verified the address.
 - **e2e** (`oauth-3-google-signup.spec.ts`): a brand-new Google identity via
   the stub completes the language step and lands signed in on Home; the DB
   row shows `verified = true`, `password IS NULL`, and exactly one
@@ -335,27 +333,11 @@ one-shotting the whole feature.
 - **Gate:** linking requires and correctly checks the password; a linked
   account subsequently logs in via either method.
 
-### Phase 5 — Microsoft, through the same adapter (½ day)
-
-- `providers/microsoft.ts`, built against the same adapter interface Phase 2
-  defined for Google: per-token issuer validation from the token's own
-  `tid`, `email` with a `preferred_username` fallback, no `email_verified`
-  check (none exists). A second stub-issuer instance covers it in tests.
-- This phase is deliberately small — if it turns out to need more than one
-  new adapter file, the Phase 2 abstraction was wrong, and that's worth
-  fixing before shipping rather than living with two divergent code paths.
-- **e2e** (`oauth-5-microsoft.spec.ts`): the login, signup, and linking
-  journeys from Phases 2–4 replayed against the Microsoft adapter and its
-  stub.
-- **Gate:** Microsoft sign-in, signup, and linking all work; no
-  provider-specific code exists outside `providers/microsoft.ts`.
-
-### Phase 6 — Connected methods in the Account profile (½ day)
+### Phase 5 — Connected methods in the Account profile (½ day)
 
 - `GET /api/auth/identities` (protected) feeds a "Sign-in methods" row
   placed directly under the email `InfoRow` in `ProfileView`
-  (`AccountPage.tsx:81-87`) — read-only chips ("Password", "Google",
-  "Microsoft").
+  (`AccountPage.tsx:81-87`) — read-only chips ("Password", "Google").
 - In `ProfileForm`, immediately below the existing disabled email block
   (`ProfileForm.tsx:102-116`), Connect/Disconnect controls — shown **only in
   the profile's existing edit mode**, per how the rest of the profile
@@ -365,30 +347,28 @@ one-shotting the whole feature.
 - Unlink is refused (400, surfaced as a toast) when it would remove the
   user's last sign-in method — a password-less user cannot unlink their only
   provider and lock themselves out.
-- **e2e** (`oauth-6-connected-methods.spec.ts`): a password-registered user
+- **e2e** (`oauth-5-connected-methods.spec.ts`): a password-registered user
   links Google from the profile edit view, sees it listed, then unlinks it;
   a user with only one method attempting to unlink it is blocked with a
   clear message.
 - **Gate:** connect/disconnect works from the Account page; the last-method
   guard holds.
 
-### Phase 7 — Ship: staging/production secrets, consent screens, deployed smoke (½ day)
+### Phase 6 — Ship: staging/production secrets, consent screen, deployed smoke (½ day)
 
-- Real Google/Microsoft client IDs and secrets into both GitHub Environment
-  secret sets and `deploy/env/app.env.example`; redirect URIs registered for
-  `staging.ladu.com.ar` and `app.ladu.com.ar`.
+- Real Google client ID and secret into both GitHub Environment secret sets
+  and `deploy/env/app.env.example` — redirect URIs were already registered
+  for `staging.ladu.com.ar` and `app.ladu.com.ar` back in Phase 0.
 - Google's OAuth consent screen published for the `openid email profile`
   scopes this plan uses — no further Google review is expected at that scope,
   but the doc flags the possibility in case scopes ever grow.
 - Confirm the staging smoke account (`smoke-test@ladu.test`) is unaffected —
   it stays password-based; OAuth is additive.
-- **e2e**: extends `deployed-smoke.spec.ts` with a real Google sign-in and a
-  real Microsoft sign-in against staging, then production, using disposable
-  test accounts on each provider (not the CI stub — this phase's whole point
-  is proving the real integration).
-- **Gate:** a real Google sign-in and a real Microsoft sign-in succeed on
-  staging, then on production, with no manual step beyond the one-time
-  consent-screen approval.
+- **e2e**: extends `deployed-smoke.spec.ts` with a real Google sign-in
+  against staging, then production, using a disposable test account (not
+  the CI stub — this phase's whole point is proving the real integration).
+- **Gate:** a real Google sign-in succeeds on staging, then on production,
+  with no manual step beyond the one-time consent-screen approval.
 
 ---
 
@@ -411,7 +391,8 @@ Layered the same way the rest of the repo already is:
   OAuth call left unmocked fails the suite outright — a forcing function to
   keep the handler list current, not an obstacle to work around.
 - **e2e (Playwright)** — one spec per phase against the stub issuer, per the
-  table above, following the existing `phase-N-*.spec.ts` naming and the
+  table above, following the `oauth-N-*.spec.ts` naming (kept distinct from
+  the main build plan's own `phase-N-*.spec.ts` files) and the
   `e2e/fixtures/db.ts` pattern (`deleteUsersByEmail`, `@ladu.test` synthetic
   addresses) for setup/teardown. `npm run test:e2e` remains the required
   gate.
@@ -429,12 +410,11 @@ Layered the same way the rest of the repo already is:
 | Item | Cost |
 |---|---|
 | Google Cloud OAuth 2.0 client (project required, no billing account needed for `openid email profile`) | €0 |
-| Azure App registration (`common` tenant, `openid email profile`) | €0 |
 | **Total** | **€0/mo** |
 
-Neither provider is usage-billed at the scopes this plan uses. Confirm scope
-list stays at `openid email profile` — broader scopes can trigger paid tiers
-or a formal verification review on either platform.
+Google isn't usage-billed at the scopes this plan uses. Confirm scope list
+stays at `openid email profile` — broader scopes can trigger paid tiers or a
+formal verification review.
 
 ---
 
@@ -453,12 +433,11 @@ or a formal verification review on either platform.
    the real discovery/token/JWKS contract, wired into CI instead of mocking
    the client library away
 5. Secret and redirect-URI management across three environments (local,
-   staging, production) for two external identity providers
+   staging, production) for an external identity provider
 
 ---
 
 ## 8. Sources
 
 - Google Identity — OpenID Connect: developers.google.com/identity/openid-connect/openid-connect (checked 2026-09-23)
-- Microsoft identity platform — ID tokens and the `common` authority: learn.microsoft.com/entra/identity-platform (checked 2026-09-23)
 - `jose` (JWT/JWK/JWKS library) docs: github.com/panva/jose (checked 2026-09-23)

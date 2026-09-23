@@ -7,10 +7,10 @@ import { createRemoteJWKSet, jwtVerify } from 'jose';
  *
  * Proves the stub issuer (e2e/fixtures/oidc-stub/server.ts) implements enough
  * of the real discovery/authorize/token/jwks contract to stand in for Google
- * and Microsoft in later phases, and that the backend boots cleanly with
- * `OAUTH_ISSUER_GOOGLE`/`OAUTH_ISSUER_MICROSOFT` pointed at it — before any
- * OAuth code exists to consume those vars. No real Google/Microsoft account
- * is used or required anywhere in this suite.
+ * in later phases, and that the backend boots cleanly with
+ * `OAUTH_ISSUER_GOOGLE` pointed at it — before any OAuth code exists to
+ * consume that var. No real Google account is used or required anywhere in
+ * this suite.
  */
 
 const OIDC_STUB_URL = process.env.OIDC_STUB_URL ?? 'http://localhost:4400';
@@ -45,7 +45,7 @@ test.describe('OAuth Phase 0 — stub issuer harness', () => {
         expect(key.kid).toBeTruthy();
     });
 
-    test('backend boots with OAUTH_ISSUER_GOOGLE/OAUTH_ISSUER_MICROSOFT set', async ({ request }) => {
+    test('backend boots with OAUTH_ISSUER_GOOGLE set', async ({ request }) => {
         const res = await request.get(`${API_URL}/`);
         expect(res.ok()).toBeTruthy();
     });

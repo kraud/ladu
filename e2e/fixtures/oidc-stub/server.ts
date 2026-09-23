@@ -2,18 +2,17 @@
  * Local stub OIDC issuer — OAuth Phase 0 (.dev-context/oauth-login-strategy.md §4).
  *
  * Implements the same discovery/authorize/token/jwks contract a real OIDC
- * provider (Google, Microsoft) exposes, so the backend's OAuth client code
- * (discovery, JWKS fetch + cache, PKCE code exchange, ID-token verification)
- * runs against something that behaves like a real issuer in CI, instead of
- * being mocked away. `/authorize` auto-approves — no consent screen — since
- * there is no honest way to drive a real one from a headless test run; that
- * is the one deliberate place this stub diverges from a real provider.
+ * provider (Google) exposes, so the backend's OAuth client code (discovery,
+ * JWKS fetch + cache, PKCE code exchange, ID-token verification) runs
+ * against something that behaves like a real issuer in CI, instead of being
+ * mocked away. `/authorize` auto-approves — no consent screen — since there
+ * is no honest way to drive a real one from a headless test run; that is
+ * the one deliberate place this stub diverges from a real provider.
  *
  * Run standalone: `npm run stub:oidc` from `e2e/` (wired as a third
  * `webServer` entry in `playwright.config.ts`). `OIDC_STUB_PORT` selects the
- * port, so a second instance can stand in for Microsoft once Phase 5 needs
- * one — Phase 0-4 point both `OAUTH_ISSUER_GOOGLE` and
- * `OAUTH_ISSUER_MICROSOFT` at this same instance.
+ * port, letting a second instance run alongside this one if a future
+ * provider ever needs its own.
  *
  * Test-only knobs on `/authorize` a real provider has no equivalent for,
  * used by e2e specs to control which identity signs in:
