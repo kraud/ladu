@@ -47,7 +47,7 @@ const isSupportedLanguage = (v: unknown): v is string =>
 /** `InternalUser.password` has no null variant — this never matches a real login attempt. */
 const OAUTH_NO_PASSWORD = '<oauth-account-has-no-password>';
 
-interface OAuthSignupTicket {
+interface OAuthTicketPayload {
     typ?: string;
     provider?: string;
     sub?: string;
@@ -67,6 +67,7 @@ export function makeAuthHandlers(
     const verifyTokens = new Map<string, string>(); // token → userId
     const resetTokens = new Map<string, string>(); // token → userId
     const sessions = new Map<string, string>(); // bearer token → userId
+    const linkedIdentities = new Map<string, string>(); // `${provider}:${sub}` → userId
 
     function put(u: SeedUser): InternalUser {
         const full: InternalUser = {
@@ -122,8 +123,14 @@ export function makeAuthHandlers(
         http.post('*/api/auth/signup/complete', async ({ request }) => {
             const body = (await request.json()) as Record<string, unknown>;
             const ticket = typeof body.ticket === 'string' ? body.ticket : '';
-            const payload = decodeJwtPayload<OAuthSignupTicket>(ticket);
-            if (!payload || payload.typ !== 'oauth_signup' || typeof payload.email !== 'string') {
+            const payload = decodeJwtPayload<OAuthTicketPayload>(ticket);
+            if (
+                !payload ||
+                payload.typ !== 'oauth_signup' ||
+                typeof payload.email !== 'string' ||
+                typeof payload.provider !== 'string' ||
+                typeof payload.sub !== 'string'
+            ) {
                 return HttpResponse.json({ message: 'Invalid or expired ticket' }, { status: 400 });
             }
 
@@ -165,7 +172,43 @@ export function makeAuthHandlers(
                 languages: [...new Set(langs as string[])],
                 uiLanguage: isSupportedLanguage(body.uiLanguage) ? body.uiLanguage : 'English',
             });
+            linkedIdentities.set(`${payload.provider}:${payload.sub}`, u.id);
             return HttpResponse.json({ ...publicUser(u), token: issueToken(u) }, { status: 201 });
+        }),
+
+        // POST /api/auth/link (oauth-login-strategy.md Phase 4)
+        http.post('*/api/auth/link', async ({ request }) => {
+            const body = (await request.json()) as Record<string, unknown>;
+            const ticket = typeof body.ticket === 'string' ? body.ticket : '';
+            const payload = decodeJwtPayload<OAuthTicketPayload>(ticket);
+            if (
+                !payload ||
+                payload.typ !== 'oauth_link' ||
+                typeof payload.email !== 'string' ||
+                typeof payload.provider !== 'string' ||
+                typeof payload.sub !== 'string'
+            ) {
+                return HttpResponse.json({ message: 'Invalid or expired ticket' }, { status: 400 });
+            }
+
+            const u = find(payload.email);
+            if (!u || u.password === OAUTH_NO_PASSWORD) {
+                return HttpResponse.json({ message: 'Invalid or expired ticket' }, { status: 400 });
+            }
+            if (u.password !== body.password) {
+                return HttpResponse.json({ message: 'Invalid credentials' }, { status: 400 });
+            }
+
+            const key = `${payload.provider}:${payload.sub}`;
+            if (linkedIdentities.has(key)) {
+                return HttpResponse.json(
+                    { message: 'This Google account is already linked to an account' },
+                    { status: 400 },
+                );
+            }
+
+            linkedIdentities.set(key, u.id);
+            return HttpResponse.json({ ...publicUser(u), token: issueToken(u) });
         }),
 
         // POST /api/users — register

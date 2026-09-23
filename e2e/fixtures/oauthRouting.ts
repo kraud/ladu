@@ -18,7 +18,7 @@ import type { Page } from '@playwright/test';
 
 export async function routeGoogleStartTo(
     page: Page,
-    identity: { email: string; sub: string; name?: string },
+    identity: { email: string; sub: string; name?: string; emailVerified?: boolean },
 ): Promise<void> {
     await page.route('**/api/auth/google/start*', async (route) => {
         const response = await route.fetch({ maxRedirects: 0 });
@@ -31,6 +31,7 @@ export async function routeGoogleStartTo(
         url.searchParams.set('login_hint', identity.email);
         url.searchParams.set('sub', identity.sub);
         if (identity.name) url.searchParams.set('name', identity.name);
+        if (identity.emailVerified === false) url.searchParams.set('email_verified', 'false');
         await route.fulfill({
             status: response.status(),
             headers: { ...response.headers(), location: url.toString() },

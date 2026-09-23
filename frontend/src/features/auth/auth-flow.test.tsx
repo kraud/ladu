@@ -267,14 +267,14 @@ describe('OAuth callback (Phase 2)', () => {
     });
 
     it('a #error= fragment toasts the mapped message and returns to /login', async () => {
-        window.location.hash = '#error=oauth_not_linked';
+        // oauth_failed is the only code the callback still produces as of
+        // Phase 4 — outcomes (b)/(c) both issue tickets now, not errors.
+        window.location.hash = '#error=oauth_failed';
         const { router } = await renderApp({ initialEntry: '/auth/callback' });
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
         expect(
-            await screen.findByText(
-                'This Google account matches an existing password account. Linking sign-in methods is coming soon — sign in with your password for now.',
-            ),
+            await screen.findByText("Google sign-in didn't work. Please try again or use your password."),
         ).toBeInTheDocument();
         expect(useAuthStore.getState().user).toBeNull();
     });
@@ -355,5 +355,62 @@ describe('OAuth signup completion (Phase 3)', () => {
         expect(await screen.findByText('That username is already taken.')).toBeInTheDocument();
         // Still on the signup form, not bounced anywhere — the ticket is reusable within its 10-minute window.
         expect(screen.getByLabelText(/^Username/)).toBeInTheDocument();
+    });
+});
+
+describe('OAuth linking to an existing password account (Phase 4)', () => {
+    afterEach(() => {
+        window.location.hash = '';
+    });
+
+    const makeLinkTicket = (overrides: Record<string, unknown> = {}) =>
+        makeToken({
+            typ: 'oauth_link',
+            provider: 'google',
+            sub: 'link-sub-1',
+            email: 'haspassword@example.com',
+            name: 'Has Password',
+            ...overrides,
+        });
+
+    it('a #ticket=&mode=link fragment shows the password-confirm screen naming the ticket email', async () => {
+        window.location.hash = `#ticket=${makeLinkTicket()}&mode=link`;
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        expect(await screen.findByText(/haspassword@example\.com/)).toBeInTheDocument();
+        expect(screen.getByLabelText(/^Password/)).toBeInTheDocument();
+    });
+
+    it('rejects a wrong password and stays on the form; the right password links and lands on Home', async () => {
+        server.use(
+            ...makeAuthHandlers([
+                {
+                    email: 'haspassword@example.com',
+                    password: 'correct-password',
+                    verified: true,
+                    name: 'Has Password',
+                },
+            ]).handlers,
+        );
+        const user = userEvent.setup();
+        window.location.hash = `#ticket=${makeLinkTicket()}&mode=link`;
+        const { router } = await renderApp({ initialEntry: '/auth/callback' });
+
+        await screen.findByLabelText(/^Password/);
+        await user.type(screen.getByLabelText(/^Password/), 'wrong-password');
+        await user.click(screen.getByRole('button', { name: 'Connect Google sign-in' }));
+
+        expect(await screen.findByText('Invalid email or password.')).toBeInTheDocument();
+        expect(useAuthStore.getState().user).toBeNull();
+
+        // Still on the confirm screen, not bounced anywhere — the ticket isn't
+        // consumed by a failed attempt, so a retry with the right password works.
+        await user.clear(screen.getByLabelText(/^Password/));
+        await user.type(screen.getByLabelText(/^Password/), 'correct-password');
+        await user.click(screen.getByRole('button', { name: 'Connect Google sign-in' }));
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        expect(useAuthStore.getState().user?.email).toBe('haspassword@example.com');
+        expect(useAuthStore.getState().token).toBeTruthy();
     });
 });

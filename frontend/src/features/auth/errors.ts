@@ -35,7 +35,8 @@ const MESSAGE_TO_KEY: Record<string, string> = {
     'Invalid format for UserId': 'loginRegister:apiErrors.invalidLink',
     'Invalid Link (no user match).': 'loginRegister:apiErrors.invalidLink',
     'Invalid token.': 'loginRegister:apiErrors.invalidToken',
-    // POST /api/auth/signup/complete (oauth-login-strategy.md Phase 3)
+    // POST /api/auth/signup/complete (Phase 3) and POST /api/auth/link
+    // (Phase 4) — both throw the same two messages for the same reasons.
     'Invalid or expired ticket': 'loginRegister:apiErrors.oauthInvalidTicket',
     'This Google account is already linked to an account': 'loginRegister:apiErrors.oauthAlreadyLinked',
     // server-side catch-alls
@@ -64,9 +65,10 @@ export class OAuthCallbackError extends Error {
 }
 
 const OAUTH_ERROR_CODE_TO_KEY: Record<string, string> = {
-    // Outcome (c) (oauth-login-strategy.md) — the email matches an existing
-    // password account. A real, expected outcome until Phase 4 ships linking.
-    oauth_not_linked: 'loginRegister:apiErrors.oauthNotLinked',
+    // `oauth_not_linked` (Phase 2's placeholder for outcome (c)) is gone —
+    // as of Phase 4, outcome (c) issues a real `oauth_link` ticket instead
+    // of an error fragment. `oauth_failed` is the only code the callback
+    // still produces (a technical failure — see oauthController.ts).
     oauth_failed: 'loginRegister:apiErrors.oauthFailed',
 };
 

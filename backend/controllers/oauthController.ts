@@ -1,12 +1,12 @@
 /**
- * OAuth sign-in — oauth-login-strategy.md. Three callback outcomes:
- * (a) an already-linked `oauth_identities` row logs straight in (Phase 2);
- * (b) a `sub` with no matching email issues a signup ticket (Phase 3, this
- *     file's newest piece); (c) a `sub` whose email matches an existing
- *     password account still gets the "not yet supported" redirect — Phase 4
- *     builds real linking.
+ * OAuth sign-in — oauth-login-strategy.md. Three callback outcomes, all real
+ * as of this file: (a) an already-linked `oauth_identities` row logs
+ * straight in (Phase 2); (b) a `sub` with no matching email issues a signup
+ * ticket (Phase 3); (c) a `sub` whose email matches an existing password
+ * account issues a link ticket (Phase 4, this file's newest piece).
  */
 const asyncHandler = require("express-async-handler");
+const bcrypt = require("bcryptjs");
 const { jwtVerify } = require("jose");
 const { db }: typeof import("../src/db") = require("../src/db");
 const { oauthIdentities, users }: typeof import("../src/db/schema") = require("../src/db/schema");
@@ -30,12 +30,10 @@ const OAUTH_STATE_COOKIE = "__Host-ladu_oauth";
 const STATE_COOKIE_MAX_AGE_MS = 10 * 60 * 1000;
 
 const OAUTH_ERROR = {
-  // Outcome (c) — a real, expected outcome until Phase 4 ships linking.
-  NOT_LINKED: "oauth_not_linked",
-  // Anything else: a malformed callback, a provider/network error, a forged
-  // or expired state, a failed token exchange or ID-token verification.
-  // Deliberately not split further — none of those distinctions are
-  // actionable for the person looking at the login screen.
+  // A malformed callback, a provider/network error, a forged or expired
+  // state, a failed token exchange or ID-token verification. Deliberately
+  // not split further — none of those distinctions are actionable for the
+  // person looking at the login screen.
   FAILED: "oauth_failed",
 } as const;
 
@@ -179,11 +177,23 @@ const callback = asyncHandler(async (req: any, res: any) => {
       return;
     }
 
-    const existingUser = await findUserByEmailInsensitive(identity.email);
+    // Only treat the email as authoritative for linking when Google says
+    // it's verified (oauth-login-strategy.md provider quirks) — an
+    // unverified email skips straight to outcome (b) instead of risking a
+    // link ticket tied to somebody else's account. The password
+    // `/api/auth/link` still requires is the real safety net either way;
+    // this is defense-in-depth on top of it, not instead of it.
+    const existingUser = identity.emailVerified ? await findUserByEmailInsensitive(identity.email) : undefined;
     if (existingUser) {
-      // Outcome (c) — email matches a password account. Phase 4 builds real
-      // linking; the message here already tells them what to do meanwhile.
-      redirectWithError(OAUTH_ERROR.NOT_LINKED);
+      // Outcome (c) — email matches a password account.
+      const ticket = issueTicket({
+        typ: "oauth_link",
+        provider: provider.name,
+        sub: identity.sub,
+        email: identity.email,
+        name: identity.name,
+      });
+      res.redirect(`${frontendBase}/auth/callback#ticket=${ticket}&mode=link`);
       return;
     }
 
@@ -287,9 +297,60 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
   res.status(201).json(serializeLoginUser(user));
 });
 
+const link = asyncHandler(async (req: any, res: any) => {
+  const { ticket, password } = req.body;
+
+  let payload;
+  try {
+    payload = verifyTicket(ticket, "oauth_link");
+  } catch {
+    res.status(400);
+    throw new Error("Invalid or expired ticket");
+  }
+
+  // Looked up fresh by email, not a stored id — the account this ticket
+  // targets could in principle have changed since it was issued (an email
+  // update in another tab, within the 10-minute window).
+  const user = await findUserByEmailInsensitive(payload.email);
+  if (!user || !user.password) {
+    res.status(400);
+    throw new Error("Invalid or expired ticket");
+  }
+
+  if (!(await bcrypt.compare(password || "", user.password))) {
+    res.status(400);
+    throw new Error("Invalid credentials");
+  }
+
+  // Race guard, same reasoning as signupComplete's: this exact identity may
+  // have been linked (to this account or another) since the ticket was
+  // issued. The ticket itself isn't consumed on a wrong password above —
+  // there's nothing to consume; it's a stateless bearer token, not tracked
+  // server-side, so a retry with the right password just works.
+  const [alreadyLinked] = await db
+    .select()
+    .from(oauthIdentities)
+    .where(and(eq(oauthIdentities.provider, payload.provider), eq(oauthIdentities.providerUserId, payload.sub)))
+    .limit(1);
+  if (alreadyLinked) {
+    res.status(400);
+    throw new Error("This Google account is already linked to an account");
+  }
+
+  await db.insert(oauthIdentities).values({
+    userId: user.id,
+    provider: payload.provider,
+    providerUserId: payload.sub,
+    emailAtLink: payload.email,
+  });
+
+  res.json(serializeLoginUser(user));
+});
+
 export = {
   getProviders,
   startAuth,
   callback,
   signupComplete,
+  link,
 };

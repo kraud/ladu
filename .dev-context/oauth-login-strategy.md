@@ -356,7 +356,22 @@ one-shotting the whole feature.
   click, no password; a wrong password on the confirm screen is rejected and
   retryable.
 - **Gate:** linking requires and correctly checks the password; a linked
-  account subsequently logs in via either method.
+  account subsequently logs in via either method. **✅ done 2026-09-23** —
+  full `test:e2e` (26/26), full backend Jest (221/221, `oauth.test.js`
+  gained `/api/auth/link` coverage: wrong password without linking, correct
+  password links, already-linked rejection, a password-less "account" as a
+  defensive edge case), full frontend suite (643/643). This phase also
+  closes the three-outcome model entirely — `oauth_not_linked` (Phase 2's
+  placeholder for outcome (c)) is now dead and removed from both the backend
+  and the frontend's error mapping/locale strings, since nothing produces it
+  any more. One correctness fix the plan's own "provider quirks" section
+  called for and Phase 3 hadn't applied yet: the email-match lookup that
+  decides new-signup vs. existing-account is now gated on Google's
+  `email_verified` claim, with a real e2e test (a new `email_verified` knob
+  on the Phase 0 stub) proving an unverified-email identity falls through to
+  signup instead of ever reaching the password-confirm screen — password
+  confirmation was already the real safety net regardless, this is
+  defense-in-depth on top of it, per the plan's own reasoning.
 
 ### Phase 5 — Connected methods in the Account profile (½ day)
 

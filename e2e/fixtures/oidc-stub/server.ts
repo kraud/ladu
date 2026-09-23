@@ -22,6 +22,10 @@
  *   `name`       — the `name` claim (default a fixed stub name) — what a
  *                   real Google token carries under the `profile` scope,
  *                   used by Phase 3's signup-completion flow.
+ *   `email_verified` — `'false'` to mint an unverified-email token (default
+ *                   `true`, matching what a real Google account's always
+ *                   is) — used by Phase 4 to prove the callback skips the
+ *                   email-match linking lookup when this is false.
  */
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { randomBytes, createHash } from 'node:crypto';
@@ -40,6 +44,7 @@ type AuthCodeRecord = {
     sub: string;
     email: string;
     name: string;
+    emailVerified: boolean;
     expiresAt: number;
 };
 
@@ -98,6 +103,7 @@ function handleAuthorize(url: URL, res: ServerResponse): void {
     const email = params.get('login_hint') ?? 'stub-user@ladu.test';
     const sub = params.get('sub') ?? `stub-${createHash('sha256').update(email).digest('hex').slice(0, 16)}`;
     const name = params.get('name') ?? 'Stub User';
+    const emailVerified = params.get('email_verified') !== 'false';
 
     const code = base64url(randomBytes(24));
     authCodes.set(code, {
@@ -108,6 +114,7 @@ function handleAuthorize(url: URL, res: ServerResponse): void {
         sub,
         email,
         name,
+        emailVerified,
         expiresAt: Date.now() + CODE_TTL_MS,
     });
 
@@ -150,7 +157,7 @@ async function handleToken(req: IncomingMessage, res: ServerResponse): Promise<v
     const now = Math.floor(Date.now() / 1000);
     const idToken = await new SignJWT({
         email: record.email,
-        email_verified: true,
+        email_verified: record.emailVerified,
         name: record.name,
         nonce: record.nonce,
     })

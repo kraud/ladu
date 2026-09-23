@@ -93,6 +93,19 @@ export function buildOAuthSignupSchema(t: TranslateFn): yup.ObjectSchema<OAuthSi
     });
 }
 
+export interface OAuthLinkValues {
+    password: string;
+}
+
+/** The password-confirm screen (oauth-login-strategy.md Phase 4, outcome (c))
+ * — one field. No "confirm password" — this isn't setting a new password,
+ * just proving the existing one. */
+export function buildOAuthLinkSchema(t: TranslateFn): yup.ObjectSchema<OAuthLinkValues> {
+    return yup.object({
+        password: yup.string().required(t('loginRegister:errors.passwordRequired')),
+    });
+}
+
 export interface ResetRequestValues {
     email: string;
 }

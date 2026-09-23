@@ -107,11 +107,13 @@ export type OAuthProvidersResponse = Record<string, boolean>;
 
 /**
  * The shape decoded (client-side, unverified — see `decodeJwtPayload`) out
- * of an `oauth_signup` ticket, purely to prefill the username field with the
- * email's local part. The server independently re-derives everything from
- * its own verified copy of the ticket; nothing here is trusted.
+ * of an `oauth_signup` or `oauth_link` ticket — `OAuthSignupForm` uses it to
+ * prefill the username field with the email's local part, `OAuthLinkForm`
+ * to show which account's password it's asking for. The server
+ * independently re-derives everything from its own verified copy of the
+ * ticket; nothing here is trusted.
  */
-export interface OAuthSignupTicketPreview {
+export interface OAuthTicketPreview {
     email?: string;
 }
 
@@ -122,4 +124,10 @@ export interface OAuthSignupCompleteRequest {
     /** Language labels the user manages — >= 2 required, selection order preserved. */
     languages: string[];
     uiLanguage: string;
+}
+
+/** `POST /api/auth/link` body. A wrong password is rejected without consuming the ticket — safe to retry. */
+export interface OAuthLinkRequest {
+    ticket: string;
+    password: string;
 }

@@ -43,37 +43,6 @@ test.describe('OAuth Phase 2 — Google sign-in', () => {
         await expect(page.getByRole('heading', { name: /Welcome, Google Linked/ })).toBeVisible();
     });
 
-    test('an identity whose email matches an existing password account gets a clear "not yet supported" message (outcome c)', async ({
-        page,
-        request,
-    }, testInfo) => {
-        // A brand-new email with *no* existing account is Phase 3's signup
-        // path now (outcome b) — this test needs outcome (c) specifically:
-        // the email must already belong to a password account.
-        const email = uniqueEmail(testInfo.parallelIndex);
-        createdEmails.push(email);
-        const res = await request.post(`${API_URL}/api/users`, {
-            data: {
-                name: 'Has A Password',
-                username: `haspw${run}${testInfo.parallelIndex}${seq}`,
-                email,
-                password: 'password123',
-                languages: ['English', 'Spanish'],
-                uiLanguage: 'English',
-            },
-        });
-        expect(res.status()).toBe(201);
-
-        const sub = `e2e-notlinked-sub-${run}-${testInfo.parallelIndex}-${seq}`;
-        await routeGoogleStartTo(page, { email, sub });
-
-        await page.goto('/login');
-        await page.getByRole('link', { name: 'Continue with Google' }).click();
-
-        await expect(page).toHaveURL(/\/login/);
-        await expect(page.getByText(/matches an existing password account/)).toBeVisible();
-    });
-
     test('existing email+password sign-in is unaffected by the OAuth button', async ({ page, request }, testInfo) => {
         const email = uniqueEmail(testInfo.parallelIndex);
         createdEmails.push(email);

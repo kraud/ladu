@@ -11,7 +11,7 @@ import { labelByI18nCode } from '@/lib/language';
 import { AuthLayout } from './AuthLayout';
 import { useOAuthSignupComplete } from '../hooks';
 import { buildOAuthSignupSchema, type OAuthSignupValues } from '../schemas';
-import type { OAuthSignupTicketPreview } from '../types';
+import type { OAuthTicketPreview } from '../types';
 
 /**
  * Outcome (b)'s screen (oauth-login-strategy.md Phase 3) — a brand-new
@@ -27,7 +27,7 @@ export function OAuthSignupForm({ ticket }: { ticket: string }) {
     const complete = useOAuthSignupComplete();
     const schema = useMemo(() => buildOAuthSignupSchema(t), [t]);
 
-    const email = useMemo(() => decodeJwtPayload<OAuthSignupTicketPreview>(ticket)?.email ?? '', [ticket]);
+    const email = useMemo(() => decodeJwtPayload<OAuthTicketPreview>(ticket)?.email ?? '', [ticket]);
     const defaultUsername = useMemo(() => email.split('@')[0] ?? '', [email]);
 
     const form = useForm<OAuthSignupValues>({

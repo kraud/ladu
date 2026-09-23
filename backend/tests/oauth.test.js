@@ -261,3 +261,128 @@ describe('POST /api/auth/signup/complete', () => {
         expect(sendMail).not.toHaveBeenCalled();
     });
 });
+
+describe('POST /api/auth/link', () => {
+    const bcrypt = require('bcryptjs');
+
+    const validTicket = (overrides = {}) =>
+        issueTicket({
+            typ: 'oauth_link',
+            provider: 'google',
+            sub: 'link-sub-1',
+            email: 'haspassword@example.com',
+            name: 'Has Password',
+            ...overrides,
+        });
+
+    async function seedPasswordUser(overrides = {}) {
+        const hashed = await bcrypt.hash('correct-password', 10);
+        const [user] = await db
+            .insert(users)
+            .values({
+                name: 'Has Password',
+                email: 'haspassword@example.com',
+                username: 'haspassword',
+                password: hashed,
+                languages: ['English', 'Spanish'],
+                uiLanguage: 'English',
+                verified: true,
+                ...overrides,
+            })
+            .returning();
+        return user;
+    }
+
+    it('fails with 400 for an invalid ticket', async () => {
+        const res = await request(app).post('/api/auth/link').send({ ticket: 'garbage', password: 'x' });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('fails with 400 for a ticket of the wrong typ (e.g. a signup ticket)', async () => {
+        const signupTicket = issueTicket({
+            typ: 'oauth_signup',
+            provider: 'google',
+            sub: 's',
+            email: 'e@x.com',
+            name: 'N',
+        });
+        const res = await request(app).post('/api/auth/link').send({ ticket: signupTicket, password: 'x' });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it("fails with 400 when the ticket's email has no matching account", async () => {
+        const res = await request(app).post('/api/auth/link').send({ ticket: validTicket(), password: 'x' });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid or expired ticket');
+    });
+
+    it('rejects a password-less account as a link target (defensive — link tickets should never point at one)', async () => {
+        await db.insert(users).values({
+            name: 'No Password',
+            email: 'haspassword@example.com',
+            username: 'nopassword',
+            password: null,
+            languages: ['English', 'Spanish'],
+            uiLanguage: 'English',
+            verified: true,
+        });
+        const res = await request(app).post('/api/auth/link').send({ ticket: validTicket(), password: 'anything' });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid or expired ticket');
+    });
+
+    it('rejects a wrong password without linking anything, and the ticket stays usable for a retry', async () => {
+        const user = await seedPasswordUser();
+
+        const wrongRes = await request(app).post('/api/auth/link').send({ ticket: validTicket(), password: 'wrong' });
+        expect(wrongRes.statusCode).toBe(400);
+        expect(wrongRes.body.message).toBe('Invalid credentials');
+
+        const identitiesAfterWrong = await db
+            .select()
+            .from(oauthIdentities)
+            .where(eq(oauthIdentities.userId, user.id));
+        expect(identitiesAfterWrong).toHaveLength(0);
+
+        // Same ticket, right password this time — nothing consumed it above.
+        const rightRes = await request(app)
+            .post('/api/auth/link')
+            .send({ ticket: validTicket(), password: 'correct-password' });
+        expect(rightRes.statusCode).toBe(200);
+    });
+
+    it('links on the correct password and returns a session token', async () => {
+        const user = await seedPasswordUser();
+
+        const res = await request(app)
+            .post('/api/auth/link')
+            .send({ ticket: validTicket(), password: 'correct-password' });
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('token');
+        expect(res.body.email).toBe('haspassword@example.com');
+
+        const identities = await db.select().from(oauthIdentities).where(eq(oauthIdentities.userId, user.id));
+        expect(identities).toHaveLength(1);
+        expect(identities[0]).toMatchObject({
+            provider: 'google',
+            providerUserId: 'link-sub-1',
+            emailAtLink: 'haspassword@example.com',
+        });
+    });
+
+    it('fails with 400 when the identity is already linked to an account', async () => {
+        const user = await seedPasswordUser();
+        await db.insert(oauthIdentities).values({
+            userId: user.id,
+            provider: 'google',
+            providerUserId: 'link-sub-1',
+            emailAtLink: 'haspassword@example.com',
+        });
+
+        const res = await request(app)
+            .post('/api/auth/link')
+            .send({ ticket: validTicket(), password: 'correct-password' });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('This Google account is already linked to an account');
+    });
+});

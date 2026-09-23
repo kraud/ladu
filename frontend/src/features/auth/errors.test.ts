@@ -42,11 +42,8 @@ describe('authErrorKey', () => {
 });
 
 describe('oauthErrorKey', () => {
-    it.each([
-        ['oauth_not_linked', 'loginRegister:apiErrors.oauthNotLinked'],
-        ['oauth_failed', 'loginRegister:apiErrors.oauthFailed'],
-    ])('maps %j → %j', (code, key) => {
-        expect(oauthErrorKey(new OAuthCallbackError(code))).toBe(key);
+    it('maps oauth_failed', () => {
+        expect(oauthErrorKey(new OAuthCallbackError('oauth_failed'))).toBe('loginRegister:apiErrors.oauthFailed');
     });
 
     it('falls back to the generic key for an unrecognised code', () => {

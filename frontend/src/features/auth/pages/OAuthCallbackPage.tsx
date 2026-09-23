@@ -2,18 +2,19 @@ import { useEffect, useRef } from 'react';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { useOAuthCallback } from '../hooks';
 import { OAuthSignupForm } from '../components/OAuthSignupForm';
+import { OAuthLinkForm } from '../components/OAuthLinkForm';
 
 /**
  * Where `GET /api/auth/:provider/callback` lands the browser after Google —
  * reads the URL fragment (never a query string — fragments never reach
- * server logs) and picks one of the three shapes `oauthController.ts` can
+ * server logs) and picks one of the four shapes `oauthController.ts` can
  * produce:
  *   `#token=<jwt>`                  outcome (a) — straight to `useOAuthCallback`.
- *   `#error=<code>`                 outcome (c) or a technical failure — same.
- *   `#ticket=<jwt>&mode=signup`     outcome (b) — renders the signup-completion
- *                                    screen instead of firing that mutation.
- * The branch happens here, in the parent, specifically so neither child
- * component needs a conditional hook call.
+ *   `#error=<code>`                 a technical failure — same.
+ *   `#ticket=<jwt>&mode=signup`     outcome (b) — the signup-completion screen.
+ *   `#ticket=<jwt>&mode=link`       outcome (c) — the password-confirm screen.
+ * The branch happens here, in the parent, specifically so none of the three
+ * child components needs a conditional hook call.
  */
 export function OAuthCallbackPage() {
     const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
@@ -23,6 +24,9 @@ export function OAuthCallbackPage() {
 
     if (ticket && mode === 'signup') {
         return <OAuthSignupForm ticket={ticket} />;
+    }
+    if (ticket && mode === 'link') {
+        return <OAuthLinkForm ticket={ticket} />;
     }
 
     return <OAuthCallbackRedirect hash={hash} />;

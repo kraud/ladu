@@ -21,16 +21,19 @@
     "notEnoughLanguages": "Palun vali vähemalt kaks keelt.",
     "invalidLanguage": "See keel ei ole toetatud.",
     "signInWithGoogle": "See konto logib sisse Google'iga — kasuta selle asemel Google'i nuppu.",
-    "oauthNotLinked": "See Google konto vastab olemasolevale parooliga kontole. Sisselogimisviiside sidumine on peagi saadaval — kasuta praegu oma parooli.",
     "oauthFailed": "Google'iga sisselogimine ebaõnnestus. Proovi uuesti või kasuta oma parooli.",
-    "oauthInvalidTicket": "See registreerimislink on aegunud. Proovi uuesti nuppu „Jätka Google'iga“.",
+    "oauthInvalidTicket": "See link on aegunud. Proovi uuesti nuppu „Jätka Google'iga“.",
     "oauthAlreadyLinked": "See Google konto on juba Ladu kontoga seotud."
   },
   "oauth": {
     "continueWithGoogle": "Jätka Google'iga",
     "orContinueWith": "või jätka",
     "signupTitle": "Veel üks samm",
-    "signupSubtitle": "Google'iga registreerimise lõpetamine — vali kasutajanimi ja oma õppekeeled."
+    "signupSubtitle": "Google'iga registreerimise lõpetamine — vali kasutajanimi ja oma õppekeeled.",
+    "linkTitle": "Kinnita oma parool",
+    "linkSubtitle": "Leidsime konto e-postiga {{email}} — sisesta oma parool üks kord, et ühendada Google'iga sisselogimine.",
+    "linkSubmit": "Ühenda Google'iga sisselogimine",
+    "linkingSubmitting": "Ühendamine…"
   },
   "toastMessages": {
     "passwordUpdated": "Parool edukalt uuendatud!",

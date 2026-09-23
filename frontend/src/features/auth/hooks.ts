@@ -16,6 +16,7 @@ import * as authApi from './api';
 import { authErrorKey, OAuthCallbackError, oauthErrorKey } from './errors';
 import type {
     LoginRequest,
+    OAuthLinkRequest,
     OAuthSignupCompleteRequest,
     RegisterRequest,
     RequestResetRequest,
@@ -162,13 +163,14 @@ export function useOAuthProviders() {
 /**
  * Finishes the OAuth flow `/auth/callback` lands on for the two fragment
  * shapes this hook handles: `token=<jwt>` (outcome (a), an already-linked
- * identity) or `error=<code>` (outcome (c)'s "not yet supported" — Phase 4 —
- * or a technical failure). The third shape, `ticket=<jwt>&mode=signup`
- * (outcome (b)), never reaches this hook at all — `OAuthCallbackPage`
- * renders `OAuthSignupForm` instead of firing this mutation. A token alone
- * isn't a full session: `getMe` has to be called with it before `setSession`
- * can fold in a real profile, which is why this needs its own hook instead
- * of reusing `useLogin`.
+ * identity) or `error=<code>` (a technical failure — the only code the
+ * callback still produces now that outcomes (b)/(c) both issue tickets
+ * instead). The other two shapes, `ticket=<jwt>&mode=signup` (outcome (b))
+ * and `ticket=<jwt>&mode=link` (outcome (c)), never reach this hook at all
+ * — `OAuthCallbackPage` renders `OAuthSignupForm`/`OAuthLinkForm` instead of
+ * firing this mutation. A token alone isn't a full session: `getMe` has to
+ * be called with it before `setSession` can fold in a real profile, which
+ * is why this needs its own hook instead of reusing `useLogin`.
  */
 export function useOAuthCallback() {
     const { t } = useTranslation();
@@ -219,6 +221,31 @@ export function useOAuthSignupComplete() {
 
     return useMutation({
         mutationFn: (body: OAuthSignupCompleteRequest) => authApi.completeOAuthSignup(body),
+        onSuccess: (user) => {
+            queryClient.clear();
+            setSession(user);
+            void navigate({ to: '/' });
+        },
+        onError: (error) => toast.error(t(authErrorKey(error))),
+    });
+}
+
+/**
+ * Finishes outcome (c) — a Google identity whose email matches an existing
+ * password account — by POSTing the link ticket `OAuthLinkForm` collected
+ * one password for. A wrong password's error toasts and the form stays up
+ * for a retry (`onError` doesn't navigate away, unlike `useOAuthCallback`'s)
+ * — the ticket isn't consumed by a failed attempt, so there's nothing to
+ * re-fetch or restart.
+ */
+export function useOAuthLinkComplete() {
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const setSession = useAuthStore((s) => s.setSession);
+
+    return useMutation({
+        mutationFn: (body: OAuthLinkRequest) => authApi.linkOAuthAccount(body),
         onSuccess: (user) => {
             queryClient.clear();
             setSession(user);
