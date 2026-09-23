@@ -1,6 +1,9 @@
 /**
- * A small in-memory fake of the four `userController` auth endpoints, for the
- * Phase-1 integration suite. Each call to `makeAuthHandlers()` gets its own
+ * A small in-memory fake of the `userController` auth endpoints, for the
+ * Phase-1 integration suite, plus `GET /api/auth/providers` (Phase 2 of
+ * oauth-login-strategy.md — `OAuthButtons` queries it on every
+ * Login/RegisterPage render, so every caller needs it mocked, not just
+ * OAuth-specific tests). Each call to `makeAuthHandlers()` gets its own
  * isolated store, so tests never share state.
  *
  * Responses mirror the live controller **after this slice's `_id` strip**:
@@ -43,7 +46,11 @@ const isSupportedLanguage = (v: unknown): v is string =>
 let counter = 0;
 const nextId = () => `user-${++counter}`;
 
-export function makeAuthHandlers(seed: SeedUser[] = []) {
+export function makeAuthHandlers(
+    seed: SeedUser[] = [],
+    options: { oauthProviders?: Record<string, boolean> } = {},
+) {
+    const oauthProviders = options.oauthProviders ?? { google: true };
     const byEmail = new Map<string, InternalUser>();
     const verifyTokens = new Map<string, string>(); // token → userId
     const resetTokens = new Map<string, string>(); // token → userId
@@ -96,6 +103,9 @@ export function makeAuthHandlers(seed: SeedUser[] = []) {
     };
 
     const handlers = [
+        // GET /api/auth/providers
+        http.get('*/api/auth/providers', () => HttpResponse.json(oauthProviders)),
+
         // POST /api/users — register
         http.post('*/api/users', async ({ request }) => {
             const body = (await request.json()) as Record<string, unknown>;

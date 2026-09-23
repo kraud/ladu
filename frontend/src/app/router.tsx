@@ -33,6 +33,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { RegisterPage } from '@/features/auth/pages/RegisterPage';
 import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage';
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
+import { OAuthCallbackPage } from '@/features/auth/pages/OAuthCallbackPage';
 import { DashboardPage } from '@/features/metrics/pages/DashboardPage';
 import { AccountPage } from '@/features/account/pages/AccountPage';
 import { AddWordPage } from '@/features/words/pages/AddWordPage';
@@ -92,6 +93,12 @@ const resetPasswordRoute = createRoute({
     getParentRoute: () => publicLayoutRoute,
     path: '/resetPassword/{-$userId}/{-$tokenId}',
     component: ResetPasswordPage,
+});
+
+const oauthCallbackRoute = createRoute({
+    getParentRoute: () => publicLayoutRoute,
+    path: '/auth/callback',
+    component: OAuthCallbackPage,
 });
 
 // ── Protected ──────────────────────────────────────────────────────────────
@@ -159,7 +166,13 @@ const tagRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
-    publicLayoutRoute.addChildren([loginRoute, registerRoute, verifyRoute, resetPasswordRoute]),
+    publicLayoutRoute.addChildren([
+        loginRoute,
+        registerRoute,
+        verifyRoute,
+        resetPasswordRoute,
+        oauthCallbackRoute,
+    ]),
     protectedLayoutRoute.addChildren([
         dashboardRoute,
         addWordRoute,

@@ -66,6 +66,29 @@ export async function createPasswordlessUser(email: string, opts: { name?: strin
     return { userId: rows[0].id };
 }
 
+/**
+ * Inserts a password-less, verified account already linked to an OAuth
+ * identity — `(provider, providerUserId)` must match what the stub issuer
+ * will mint (its `/authorize` accepts `login_hint`/`sub` query params to
+ * control exactly this). Phase 2's scope is deliberately limited to this
+ * already-linked case (oauth-login-strategy.md) — there's no signup/link
+ * flow yet to create this row through the UI.
+ */
+export async function createLinkedOAuthUser(
+    email: string,
+    provider: string,
+    providerUserId: string,
+    opts: { name?: string; username?: string } = {},
+): Promise<{ userId: string }> {
+    const { userId } = await createPasswordlessUser(email, opts);
+    await getPool().query(
+        `INSERT INTO oauth_identities (user_id, provider, provider_user_id, email_at_link)
+         VALUES ($1, $2, $3, $4)`,
+        [userId, provider, providerUserId, email],
+    );
+    return { userId };
+}
+
 /** Backdates `words.created_at` for the given ids — lets a spec put a word outside the current calendar month without waiting for real time to pass (used to exercise the Dashboard's month-range selector, which is otherwise a single-option no-op on an account created during the run). */
 export async function backdateWordsCreatedAt(wordIds: string[], date: Date): Promise<void> {
     await getPool().query(`UPDATE words SET created_at = $2 WHERE id = ANY($1::uuid[])`, [wordIds, date]);

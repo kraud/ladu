@@ -45,3 +45,32 @@ export function authErrorKey(error: unknown): string {
     if (message && message in MESSAGE_TO_KEY) return MESSAGE_TO_KEY[message];
     return GENERIC_ERROR_KEY;
 }
+
+/**
+ * Thrown by `useOAuthCallback` for the codes `oauthController.ts` puts on the
+ * `/auth/callback#error=<code>` fragment — a short code, not a message, since
+ * this one never passes through `errorMiddleware.js`'s `{ message }` shape at
+ * all (it arrives via a URL fragment from a browser redirect, not a JSON
+ * error response).
+ */
+export class OAuthCallbackError extends Error {
+    constructor(public readonly code: string) {
+        super(code);
+        this.name = 'OAuthCallbackError';
+    }
+}
+
+const OAUTH_ERROR_CODE_TO_KEY: Record<string, string> = {
+    // Phase 2's own scope limit (oauth-login-strategy.md) — a real, expected
+    // outcome until Phases 3/4 ship signup and linking.
+    oauth_not_linked: 'loginRegister:apiErrors.oauthNotLinked',
+    oauth_failed: 'loginRegister:apiErrors.oauthFailed',
+};
+
+/** The i18n key for an `OAuthCallbackError` (or any other failure, generically). Never throws. */
+export function oauthErrorKey(error: unknown): string {
+    if (error instanceof OAuthCallbackError && error.code in OAUTH_ERROR_CODE_TO_KEY) {
+        return OAUTH_ERROR_CODE_TO_KEY[error.code];
+    }
+    return GENERIC_ERROR_KEY;
+}

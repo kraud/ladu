@@ -8,6 +8,7 @@ import type {
     AuthUser,
     LoginRequest,
     LoginResponse,
+    OAuthProvidersResponse,
     RegisterRequest,
     RegisterResponse,
     RequestResetRequest,
@@ -49,5 +50,10 @@ export async function getMe(): Promise<AuthUser> {
 
 export async function updateProfile(body: UpdateProfileRequest): Promise<AuthUser> {
     const { data } = await apiClient.put<AuthUser>('/users/updateUser', body);
+    return data;
+}
+
+export async function getOAuthProviders(): Promise<OAuthProvidersResponse> {
+    const { data } = await apiClient.get<OAuthProvidersResponse>('/auth/providers');
     return data;
 }

@@ -616,7 +616,11 @@ const getBasicUserMetrics = asyncHandler(async (req: any, res: any) => {
   }
 });
 
-module.exports = {
+// `export =` (not `module.exports =`) so `typeof import("./userController")`
+// resolves — oauthController.ts uses that to type its typed require of
+// generateToken/serializeLoginUser. Compiles to the same `module.exports =`
+// under CommonJS; every existing plain `require(...)` caller is unaffected.
+export = {
   registerUser,
   loginUser,
   updateUser,
@@ -627,4 +631,8 @@ module.exports = {
   requestPasswordReset,
   updatePassword,
   getBasicUserMetrics,
+  // Reused by oauthController.ts (oauth-login-strategy.md Phase 2) rather
+  // than duplicating session-minting logic for a second sign-in path.
+  generateToken,
+  serializeLoginUser,
 };

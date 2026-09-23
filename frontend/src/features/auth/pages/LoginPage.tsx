@@ -2,6 +2,7 @@ import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { AuthLayout } from '../components/AuthLayout';
 import { LoginForm } from '../components/LoginForm';
+import { OAuthButtons } from '../components/OAuthButtons';
 
 const route = getRouteApi('/_public/login');
 
@@ -21,6 +22,7 @@ export function LoginPage() {
                 </>
             }
         >
+            <OAuthButtons />
             <LoginForm redirectTo={redirect ?? '/'} />
         </AuthLayout>
     );

@@ -20,7 +20,13 @@
     "noUserForEmail": "No account is registered with that email.",
     "notEnoughLanguages": "Please select at least two languages.",
     "invalidLanguage": "That language isn't supported.",
-    "signInWithGoogle": "This account signs in with Google — use the Google button instead."
+    "signInWithGoogle": "This account signs in with Google — use the Google button instead.",
+    "oauthNotLinked": "This Google account isn't linked to a Ladu account yet. Creating a new account or linking one is coming soon — sign in with your password for now.",
+    "oauthFailed": "Google sign-in didn't work. Please try again or use your password."
+  },
+  "oauth": {
+    "continueWithGoogle": "Continue with Google",
+    "orContinueWith": "or continue with"
   },
   "toastMessages": {
     "passwordUpdated": "Password updated successfully!",

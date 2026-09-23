@@ -275,7 +275,7 @@ one-shotting the whole feature.
 - `generateToken` and `serializeLoginUser` are exported from
   `userController.ts` (currently module-private) and reused by
   `oauthController.ts` rather than duplicated.
-- Frontend: a `useProviders` query hook (`features/auth/hooks.ts`) backing
+- Frontend: a `useOAuthProviders` query hook (`features/auth/hooks.ts`) backing
   an `OAuthButtons` component — rendered as a sibling above `LoginForm` and
   `RegisterForm` inside `AuthLayout`'s children (`LoginPage.tsx:24`,
   `RegisterPage.tsx:18-20`), so it sits outside the RHF `<form>` and needs
@@ -294,7 +294,17 @@ one-shotting the whole feature.
   pre-seeded via `e2e/fixtures/db.ts`, clicking "Continue with Google" walks
   through the stub issuer and lands signed in on Home.
 - **Gate:** Google login works end-to-end against the stub for a pre-linked
-  identity; existing email+password e2e specs unaffected.
+  identity; existing email+password e2e specs unaffected. **✅ done
+  2026-09-23** — full `test:e2e` (22/22), full backend Jest (203/203,
+  including new `oauth.test.js` PKCE/state-token/`/providers`/`/start`
+  coverage), full frontend suite (635/635). One real correctness bug caught
+  and fixed along the way: `route.fetch()` follows redirects by default, so
+  the e2e spec's first attempt at picking a stub identity silently walked
+  the whole chain instead of rewriting `/start`'s own redirect — fixed with
+  `maxRedirects: 0`. A second Jest-only issue (unrelated to the app itself):
+  `jose` ships ESM-only with no CJS build, which Jest's module system can't
+  execute without an explicit transform even though real Node handles it
+  natively — fixed in `jest.config.js`, scoped to just that package.
 
 ### Phase 3 — OAuth signup completion (1 day)
 

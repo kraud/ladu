@@ -53,6 +53,7 @@ app.get('/api/health', asyncHandler(async (req, res) => {
 // Routes
 app.use('/api/words', require('./routes/wordRoutes'))
 app.use('/api/users', require('./routes/userRoutes'))
+app.use('/api/auth', require('./routes/oauthRoutes'))
 app.use('/api/notifications', require('./routes/notificationRoutes'))
 app.use('/api/friendships', require('./routes/friendshipRoutes'))
 app.use('/api/tags', require('./routes/tagRoutes'))

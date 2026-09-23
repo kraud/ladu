@@ -97,3 +97,10 @@ export interface VerifyEmailResponse {
     user: AuthUser;
     message: string;
 }
+
+/**
+ * `GET /api/auth/providers` → 200. Which OAuth providers are configured
+ * server-side (env vars set) — the frontend never holds a client ID itself,
+ * so this is what decides which buttons `OAuthButtons` renders.
+ */
+export type OAuthProvidersResponse = Record<string, boolean>;

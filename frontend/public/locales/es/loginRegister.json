@@ -20,7 +20,13 @@
     "noUserForEmail": "No hay ninguna cuenta registrada con ese correo electrónico.",
     "notEnoughLanguages": "Selecciona al menos dos idiomas.",
     "invalidLanguage": "Ese idioma no es compatible.",
-    "signInWithGoogle": "Esta cuenta inicia sesión con Google — usa el botón de Google en su lugar."
+    "signInWithGoogle": "Esta cuenta inicia sesión con Google — usa el botón de Google en su lugar.",
+    "oauthNotLinked": "Esta cuenta de Google aún no está vinculada a una cuenta de Ladu. Próximamente podrás crear una cuenta nueva o vincular una existente — por ahora, inicia sesión con tu contraseña.",
+    "oauthFailed": "El inicio de sesión con Google no funcionó. Inténtalo de nuevo o usa tu contraseña."
+  },
+  "oauth": {
+    "continueWithGoogle": "Continuar con Google",
+    "orContinueWith": "o continuar con"
   },
   "toastMessages": {
     "passwordUpdated": "¡Contraseña actualizada con éxito!",

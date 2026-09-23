@@ -231,3 +231,58 @@ describe('session guards', () => {
         });
     });
 });
+
+describe('OAuth callback (Phase 2)', () => {
+    // `/auth/callback` reads a raw `window.location.hash` (never a query
+    // string) — `createMemoryHistory`'s `initialEntry` doesn't drive jsdom's
+    // real Location object, so the hash has to be set on it directly, the
+    // same way a real browser's would be after the backend's redirect.
+    afterEach(() => {
+        window.location.hash = '';
+    });
+
+    it('a #token= fragment signs the user in and lands on Home', async () => {
+        // Log in through the real form once, purely to get a real session
+        // token out of the fake backend — the OAuth callback's `token` is the
+        // same `generateToken` output a password login's is.
+        server.use(...makeAuthHandlers([
+            { email: 'oauth-a@example.com', password: 'password123', verified: true, name: 'OAuth User' },
+        ]).handlers);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/login' });
+        await screen.findByRole('button', { name: 'Sign in' });
+        await user.type(screen.getByLabelText('Email'), 'oauth-a@example.com');
+        await user.type(screen.getByLabelText('Password'), 'password123');
+        await user.click(screen.getByRole('button', { name: 'Sign in' }));
+        await waitFor(() => expect(useAuthStore.getState().token).toBeTruthy());
+        const token = useAuthStore.getState().token;
+        useAuthStore.getState().clearSession();
+
+        window.location.hash = `#token=${token}`;
+        const { router } = await renderApp({ initialEntry: '/auth/callback' });
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        expect(useAuthStore.getState().user?.email).toBe('oauth-a@example.com');
+        expect(useAuthStore.getState().token).toBe(token);
+    });
+
+    it('a #error= fragment toasts the mapped message and returns to /login', async () => {
+        window.location.hash = '#error=oauth_not_linked';
+        const { router } = await renderApp({ initialEntry: '/auth/callback' });
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
+        expect(
+            await screen.findByText(
+                "This Google account isn't linked to a Ladu account yet. Creating a new account or linking one is coming soon — sign in with your password for now.",
+            ),
+        ).toBeInTheDocument();
+        expect(useAuthStore.getState().user).toBeNull();
+    });
+
+    it('an unrecognised error code falls back to the generic message', async () => {
+        window.location.hash = '#error=something_unexpected';
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        expect(await screen.findByText('Something went wrong, try again.')).toBeInTheDocument();
+    });
+});
