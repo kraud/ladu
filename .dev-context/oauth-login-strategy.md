@@ -1,7 +1,9 @@
 # OAuth Login Strategy — Ladu v2
 
-> Status: **In progress.** Phase 0 done 2026-09-23 — stub harness green,
-> Google Cloud OAuth client registered. Microsoft was dropped the same day:
+> Status: **Done 2026-09-24.** Phases 0–5 done 2026-09-23; Phase 6 done
+> 2026-09-24 (real-Google redirect check in the staging smoke, production
+> confirmed by hand). Phase 0 delivered the stub harness and the Google Cloud
+> OAuth client registration. Microsoft was dropped the same day:
 > Azure sign-in returned `AADSTS16000` on every account tried, so it never
 > got past registration (see Decisions).
 > Goal: add "Sign in with Google" as an extra way in, alongside the existing
@@ -413,13 +415,64 @@ one-shotting the whole feature.
 - Google's OAuth consent screen published for the `openid email profile`
   scopes this plan uses — no further Google review is expected at that scope,
   but the doc flags the possibility in case scopes ever grow.
+  **✅ confirmed 2026-09-24** — Google Cloud Console shows Publishing status
+  "In production". (If it ever reads "Testing", only listed test users can
+  sign in.)
 - Confirm the staging smoke account (`smoke-test@ladu.test`) is unaffected —
   it stays password-based; OAuth is additive.
-- **e2e**: extends `deployed-smoke.spec.ts` with a real Google sign-in
-  against staging, then production, using a disposable test account (not
-  the CI stub — this phase's whole point is proving the real integration).
-- **Gate:** a real Google sign-in succeeds on staging, then on production,
-  with no manual step beyond the one-time consent-screen approval.
+- **e2e**: extends `deployed-smoke.spec.ts` with a real-Google **redirect
+  check**, not a full sign-in. It proves the one thing only Google can
+  confirm — that Google accepts our real client ID and registered redirect
+  URI — and it runs on staging in `deploy.yml`'s `smoke` job, before
+  `production` (see "Real Google smoke check" below).
+- **Gate:** the redirect check passes on staging in CI, and production's
+  `/api/auth/google/start` reaches Google's sign-in page.
+  **✅ done 2026-09-24** — the check is in the `smoke` job (deploy run
+  36036365497, commit `bd26642`: `3 passed`, production deployed after it);
+  production was then checked by hand and the Google sign-in page appeared at
+  `https://app.ladu.com.ar/api/auth/google/start`. A full automated sign-in
+  was deliberately not built — see below.
+
+#### Real Google smoke check
+
+What `deployed-smoke.spec.ts` ("Post-deploy smoke — Google sign-in wiring")
+does, with no Google account involved:
+
+1. `GET /api/auth/google/start` without following the redirect — expects a
+   302 and the `__Host-ladu_oauth` state cookie.
+2. Reads the authorize URL from `Location` and checks it: host
+   `accounts.google.com`, `client_id` equals the `GOOGLE_CLIENT_ID` secret,
+   `redirect_uri` equals `${BASE_URL}/api/auth/google/callback`,
+   `response_type=code`, `scope=openid email profile`, PKCE `S256`, and
+   `code_challenge` / `state` / `nonce` present.
+3. Opens that URL in the browser and fails if Google lands on its
+   `/signin/oauth/error` page. Anything else counts as accepted, so a
+   redesign of Google's own sign-in path cannot block a deploy. It never
+   matches on page text, which is localized. The failure message includes
+   the reason decoded from `?authError=` (`redirect_uri_mismatch`,
+   `invalid_client`) so a red run says what to fix.
+
+What Google shows (checked by hand against staging, 2026-09-24):
+
+| Request | Final URL | Meaning |
+|---|---|---|
+| Real flow | `accounts.google.com/v3/signin/identifier?...` | Accepted |
+| Wrong `redirect_uri` | `accounts.google.com/signin/oauth/error?authError=...` | `redirect_uri_mismatch` |
+| Wrong `client_id` | `accounts.google.com/signin/oauth/error?authError=...` | `invalid_client` |
+
+Why not a full automated sign-in: Google is known to flag and block
+automated sign-ins, so a disposable test account would make the deploy gate
+flaky for a reason unrelated to our code. The redirect check already covers
+the two values that can break in production (client ID, redirect URI). A
+full login stays a possible later step if that ever changes — it would need
+a disposable Google account and new GitHub secrets for it.
+
+Known limit: this check gates production but only runs on `main` (the deploy
+workflow does not run on PRs), so its first run was on the merge itself. If
+Google ever shows a bot check to GitHub's runner IPs, `smoke` fails — the
+fallback is to keep the URL assertions (steps 1–2) and drop the page load
+(step 3). It also does not check production: that was a one-time manual
+check.
 
 ---
 

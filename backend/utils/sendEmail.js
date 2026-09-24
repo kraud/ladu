@@ -40,11 +40,17 @@ module.exports = async(emailData) => {
         // Nodemailer's defaults (2 min connect, 30s greeting, 10 min socket)
         // are sized for a real mail provider having a bad day, not for a
         // send that's already fire-and-forget from the caller's point of
-        // view (userController.ts). Without a cap, a slow-to-refuse target
-        // (e.g. CI's deliberately-unreachable EMAIL_HOST) can tie up this
-        // single Node process for tens of real seconds, stalling unrelated
-        // requests on the same event loop — caught live via e2e flakes on
-        // whichever test happened to run right after a registration.
+        // view (userController.ts). The caps bound how long a hung attempt
+        // keeps its socket and timers alive.
+        //
+        // Trade-off: a provider slower than 5s in any one phase makes the
+        // send fail, and the failure is only logged below — not retried.
+        // Resend is normally far under that.
+        //
+        // This was once thought to fix a CI e2e flake (an unreachable
+        // EMAIL_HOST stalling the process). It did not: that flake was CI
+        // missing GOOGLE_CLIENT_ID/SECRET (see e2e/playwright.config.ts). The
+        // refusals in CI are instant, so the caps are not needed for it.
         connectionTimeout: 5_000,
         greetingTimeout: 5_000,
         socketTimeout: 5_000,

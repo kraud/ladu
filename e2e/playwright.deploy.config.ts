@@ -28,8 +28,10 @@ export default defineConfig({
     forbidOnly: CI,
     retries: 0,
     workers: 1,
+    // `github` alone prints only a pass count for a green run; `list` adds each
+    // test's name, so a run's log shows which smoke tests actually ran.
     reporter: CI
-        ? [['github'], ['html', { open: 'never' }]]
+        ? [['github'], ['list'], ['html', { open: 'never' }]]
         : [['list'], ['html', { open: 'never' }]],
     timeout: 30_000,
     expect: { timeout: 5_000 },
