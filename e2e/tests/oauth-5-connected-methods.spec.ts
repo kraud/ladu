@@ -59,6 +59,10 @@ async function registerVerifyAndOpenAccount(
 
 test.describe('OAuth Phase 5 — connected methods in the Account profile', () => {
     test('links Google from the profile edit view, sees it listed, then unlinks it', async ({ page, request }, testInfo) => {
+        // Register + verify + connect + disconnect — see
+        // oauth-3-google-signup.spec.ts's matching comment.
+        test.setTimeout(60_000);
+
         const email = uniqueEmail(testInfo.parallelIndex);
         createdEmails.push(email);
         const username = `e2e5connect${run}${testInfo.parallelIndex}${seq}`;
@@ -91,6 +95,10 @@ test.describe('OAuth Phase 5 — connected methods in the Account profile', () =
     test('a user whose only sign-in method is Google is blocked from unlinking it, with a clear message', async ({
         page,
     }, testInfo) => {
+        // Full signup flow + a disconnect attempt — see
+        // oauth-3-google-signup.spec.ts's matching comment.
+        test.setTimeout(60_000);
+
         const email = uniqueEmail(testInfo.parallelIndex);
         createdEmails.push(email);
         const sub = `e2e-lastmethod-sub-${run}-${testInfo.parallelIndex}-${seq}`;

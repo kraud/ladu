@@ -64,6 +64,10 @@ test.describe('OAuth Phase 4 — linking to an existing password account', () =>
         page,
         request,
     }, testInfo) => {
+        // Register + verify + two full OAuth round trips in one test — see
+        // oauth-3-google-signup.spec.ts's matching comment.
+        test.setTimeout(60_000);
+
         const email = uniqueEmail(testInfo.parallelIndex);
         createdEmails.push(email);
         const username = `e2e4link${run}${testInfo.parallelIndex}${seq}`;
@@ -96,6 +100,10 @@ test.describe('OAuth Phase 4 — linking to an existing password account', () =>
     });
 
     test('a wrong password is rejected and the form stays usable for a retry', async ({ page, request }, testInfo) => {
+        // Register + verify + two confirm-screen attempts — see
+        // oauth-3-google-signup.spec.ts's matching comment.
+        test.setTimeout(60_000);
+
         const email = uniqueEmail(testInfo.parallelIndex);
         createdEmails.push(email);
         const username = `e2e4wrong${run}${testInfo.parallelIndex}${seq}`;
@@ -122,6 +130,10 @@ test.describe('OAuth Phase 4 — linking to an existing password account', () =>
         page,
         request,
     }, testInfo) => {
+        // Register + verify + an OAuth round trip — see
+        // oauth-3-google-signup.spec.ts's matching comment.
+        test.setTimeout(60_000);
+
         const email = uniqueEmail(testInfo.parallelIndex);
         createdEmails.push(email);
         const username = `e2e4unver${run}${testInfo.parallelIndex}${seq}`;

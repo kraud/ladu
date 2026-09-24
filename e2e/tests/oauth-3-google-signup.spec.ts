@@ -62,6 +62,11 @@ test.describe('OAuth Phase 3 — Google signup completion', () => {
     });
 
     test('a duplicate username is rejected and the form stays usable for a retry', async ({ page }, testInfo) => {
+        // Two full signup round trips in one test — on CI's slower, single-worker
+        // runner this can outrun the 30s default (see phase-1-auth.spec.ts's own
+        // `setTimeout` for the same class of issue).
+        test.setTimeout(60_000);
+
         const takenEmail = uniqueEmail(testInfo.parallelIndex);
         createdEmails.push(takenEmail);
         const takenSub = `e2e-taken-sub-${run}-${testInfo.parallelIndex}-${seq}`;
