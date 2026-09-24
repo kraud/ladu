@@ -59,10 +59,6 @@ async function registerAndVerify(
     await expect(page).toHaveURL(/\/login/);
 }
 
-// Flaky in CI only — see the full diagnosis in oauth-2-google-login.spec.ts's
-// matching skip. Revisit in Phase 6.
-test.skip(() => !!process.env.CI, 'Flaky in CI — see git history for diagnosis; revisit in Phase 6');
-
 test.describe('OAuth Phase 4 — linking to an existing password account', () => {
     test('confirms with the password once, links, and a later visit signs in with one click, no password', async ({
         page,

@@ -68,8 +68,17 @@ export default defineConfig({
             // real provider — accepted by the backend only outside production
             // (oauth-login-strategy.md Phase 0). No OAuth client code reads this yet;
             // this proves the backend boots cleanly once it's set, ahead of Phase 2.
+            //
+            // GOOGLE_CLIENT_ID/SECRET are fake: the backend reports Google as
+            // "configured" (and the frontend renders "Continue with Google")
+            // only when both are set. Locally the repo-root .env supplies them
+            // (and wins — dotenv runs with override: true); CI has no .env, so
+            // without these the button never rendered there. The stub issuer
+            // accepts any client ID.
             env: {
                 OAUTH_ISSUER_GOOGLE: OIDC_STUB_URL,
+                GOOGLE_CLIENT_ID: 'e2e-stub-client-id',
+                GOOGLE_CLIENT_SECRET: 'e2e-stub-client-secret',
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.
