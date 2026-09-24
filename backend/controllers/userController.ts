@@ -234,9 +234,12 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
   // Send the verification email after both user and token rows exist. Not
   // awaited: sendEmail.js already catches its own send errors internally and
   // never rejects, so awaiting it only ever adds latency, not safety — and
-  // with a slow or unreachable mail provider, that latency is the full SMTP
-  // timeout (~100s), blocking a response for a registration that already
-  // succeeded (.dev-context/deployment-strategy.md D-g).
+  // with a slow or unreachable mail provider, that latency used to be
+  // nodemailer's full default timeout (~2 min), blocking a response for a
+  // registration that already succeeded (.dev-context/deployment-strategy.md
+  // D-g). sendEmail.js now caps its own connect/greeting/socket timeouts at
+  // 5s each, so the real worst case is much smaller — this still stays
+  // un-awaited regardless, since the response has no reason to wait on it.
   const url = `${process.env.BASE_URL}/user/${user.id}/verify/${token.token}`;
   sendMail({
     email: user.email,
