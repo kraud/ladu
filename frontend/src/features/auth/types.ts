@@ -97,3 +97,60 @@ export interface VerifyEmailResponse {
     user: AuthUser;
     message: string;
 }
+
+/**
+ * `GET /api/auth/providers` → 200. Which OAuth providers are configured
+ * server-side (env vars set) — the frontend never holds a client ID itself,
+ * so this is what decides which buttons `OAuthButtons` renders.
+ */
+export type OAuthProvidersResponse = Record<string, boolean>;
+
+/**
+ * The shape decoded (client-side, unverified — see `decodeJwtPayload`) out
+ * of an `oauth_signup` or `oauth_link` ticket — `OAuthSignupForm` uses it to
+ * prefill the username field with the email's local part, `OAuthLinkForm`
+ * to show which account's password it's asking for. The server
+ * independently re-derives everything from its own verified copy of the
+ * ticket; nothing here is trusted.
+ */
+export interface OAuthTicketPreview {
+    email?: string;
+}
+
+/** `POST /api/auth/signup/complete` body. */
+export interface OAuthSignupCompleteRequest {
+    ticket: string;
+    username: string;
+    /** Language labels the user manages — >= 2 required, selection order preserved. */
+    languages: string[];
+    uiLanguage: string;
+}
+
+/** `POST /api/auth/link` body. A wrong password is rejected without consuming the ticket — safe to retry. */
+export interface OAuthLinkRequest {
+    ticket: string;
+    password: string;
+}
+
+/** One row of `GET /api/auth/identities`'s `identities` array. */
+export interface OAuthIdentity {
+    id: string;
+    provider: string;
+}
+
+/**
+ * `GET /api/auth/identities` → 200 (protected). Feeds the Account page's
+ * "Sign-in methods" row. `hasPassword` isn't derivable from `identities`
+ * alone — a password-less account never gets less than one identity, but an
+ * account with both a password *and* a linked identity needs `hasPassword`
+ * spelled out to show the "Password" chip at all.
+ */
+export interface OAuthIdentitiesResponse {
+    hasPassword: boolean;
+    identities: OAuthIdentity[];
+}
+
+/** `POST /api/auth/:provider/link` (protected) → 200. The frontend does the actual navigation — see `useConnectOAuthProvider`. */
+export interface OAuthStartLinkResponse {
+    url: string;
+}

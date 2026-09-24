@@ -36,8 +36,18 @@ module.exports = async(emailData) => {
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
-        }
-
+        },
+        // Nodemailer's defaults (2 min connect, 30s greeting, 10 min socket)
+        // are sized for a real mail provider having a bad day, not for a
+        // send that's already fire-and-forget from the caller's point of
+        // view (userController.ts). Without a cap, a slow-to-refuse target
+        // (e.g. CI's deliberately-unreachable EMAIL_HOST) can tie up this
+        // single Node process for tens of real seconds, stalling unrelated
+        // requests on the same event loop — caught live via e2e flakes on
+        // whichever test happened to run right after a registration.
+        connectionTimeout: 5_000,
+        greetingTimeout: 5_000,
+        socketTimeout: 5_000,
     })
     const mailData = {
         // EMAIL_USER is the SMTP auth username ("resend" for Resend's SMTP

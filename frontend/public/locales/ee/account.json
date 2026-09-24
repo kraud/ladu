@@ -19,5 +19,16 @@
   },
   "toasts": {
     "discarded": "Muudatused tühistatud"
+  },
+  "signInMethods": {
+    "title": "Sisselogimisviisid",
+    "passwordLabel": "Parool",
+    "googleLabel": "Google",
+    "connect": "Ühenda Google",
+    "disconnect": "Katkesta ühendus",
+    "connectSuccess": "Google'iga sisselogimine ühendatud!",
+    "disconnectSuccess": "Ühendus katkestatud",
+    "confirmDisconnectTitle": "Katkestada Google'i ühendus?",
+    "confirmDisconnectDescription": "Saad selle igal ajal uuesti ühendada."
   }
 }

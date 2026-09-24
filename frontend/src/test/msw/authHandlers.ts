@@ -1,6 +1,9 @@
 /**
- * A small in-memory fake of the four `userController` auth endpoints, for the
- * Phase-1 integration suite. Each call to `makeAuthHandlers()` gets its own
+ * A small in-memory fake of the `userController` auth endpoints, for the
+ * Phase-1 integration suite, plus `GET /api/auth/providers` (Phase 2 of
+ * oauth-login-strategy.md — `OAuthButtons` queries it on every
+ * Login/RegisterPage render, so every caller needs it mocked, not just
+ * OAuth-specific tests). Each call to `makeAuthHandlers()` gets its own
  * isolated store, so tests never share state.
  *
  * Responses mirror the live controller **after this slice's `_id` strip**:
@@ -9,6 +12,7 @@
  */
 import { http, HttpResponse } from 'msw';
 import { makeToken } from '@/test/tokens';
+import { decodeJwtPayload } from '@/lib/jwt';
 
 export interface SeedUser {
     id?: string;
@@ -40,14 +44,44 @@ const SUPPORTED_LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
 const isSupportedLanguage = (v: unknown): v is string =>
     typeof v === 'string' && SUPPORTED_LANGUAGES.includes(v);
 
+/** `InternalUser.password` has no null variant — this never matches a real login attempt. */
+const OAUTH_NO_PASSWORD = '<oauth-account-has-no-password>';
+
+interface OAuthTicketPayload {
+    typ?: string;
+    provider?: string;
+    sub?: string;
+    email?: string;
+    name?: string;
+}
+
+interface InternalIdentity {
+    id: string;
+    userId: string;
+    provider: string;
+    providerUserId: string;
+}
+
 let counter = 0;
 const nextId = () => `user-${++counter}`;
 
-export function makeAuthHandlers(seed: SeedUser[] = []) {
+export function makeAuthHandlers(
+    seed: SeedUser[] = [],
+    options: { oauthProviders?: Record<string, boolean> } = {},
+) {
+    const oauthProviders = options.oauthProviders ?? { google: true };
     const byEmail = new Map<string, InternalUser>();
     const verifyTokens = new Map<string, string>(); // token → userId
     const resetTokens = new Map<string, string>(); // token → userId
     const sessions = new Map<string, string>(); // bearer token → userId
+    const linkedIdentities = new Map<string, InternalIdentity>(); // `${provider}:${sub}` → identity
+
+    let identityCounter = 0;
+    function linkIdentity(userId: string, provider: string, sub: string): InternalIdentity {
+        const identity: InternalIdentity = { id: `identity-${++identityCounter}`, userId, provider, providerUserId: sub };
+        linkedIdentities.set(`${provider}:${sub}`, identity);
+        return identity;
+    }
 
     function put(u: SeedUser): InternalUser {
         const full: InternalUser = {
@@ -96,6 +130,146 @@ export function makeAuthHandlers(seed: SeedUser[] = []) {
     };
 
     const handlers = [
+        // GET /api/auth/providers
+        http.get('*/api/auth/providers', () => HttpResponse.json(oauthProviders)),
+
+        // POST /api/auth/signup/complete (oauth-login-strategy.md Phase 3)
+        http.post('*/api/auth/signup/complete', async ({ request }) => {
+            const body = (await request.json()) as Record<string, unknown>;
+            const ticket = typeof body.ticket === 'string' ? body.ticket : '';
+            const payload = decodeJwtPayload<OAuthTicketPayload>(ticket);
+            if (
+                !payload ||
+                payload.typ !== 'oauth_signup' ||
+                typeof payload.email !== 'string' ||
+                typeof payload.provider !== 'string' ||
+                typeof payload.sub !== 'string'
+            ) {
+                return HttpResponse.json({ message: 'Invalid or expired ticket' }, { status: 400 });
+            }
+
+            if (!body.username) {
+                return HttpResponse.json({ message: 'Please add all fields' }, { status: 400 });
+            }
+            const langs = body.languages;
+            if (!Array.isArray(langs)) {
+                return HttpResponse.json({ message: 'Please select at least 2 languages' }, { status: 400 });
+            }
+            if (!langs.every(isSupportedLanguage)) {
+                return HttpResponse.json({ message: 'Invalid language selection' }, { status: 400 });
+            }
+            if (new Set(langs).size < 2) {
+                return HttpResponse.json({ message: 'Please select at least 2 languages' }, { status: 400 });
+            }
+            if (
+                body.uiLanguage !== undefined &&
+                body.uiLanguage !== '' &&
+                !isSupportedLanguage(body.uiLanguage)
+            ) {
+                return HttpResponse.json({ message: 'Invalid language selection' }, { status: 400 });
+            }
+
+            if (find(payload.email)) {
+                return HttpResponse.json({ message: 'Email already in use' }, { status: 400 });
+            }
+            const username = body.username as string;
+            if ([...byEmail.values()].some((u) => u.username.toLowerCase() === username.toLowerCase())) {
+                return HttpResponse.json({ message: 'Username already in use' }, { status: 400 });
+            }
+
+            const u = put({
+                name: payload.name ?? username,
+                email: payload.email,
+                username,
+                password: OAUTH_NO_PASSWORD,
+                verified: true,
+                languages: [...new Set(langs as string[])],
+                uiLanguage: isSupportedLanguage(body.uiLanguage) ? body.uiLanguage : 'English',
+            });
+            linkIdentity(u.id, payload.provider, payload.sub);
+            return HttpResponse.json({ ...publicUser(u), token: issueToken(u) }, { status: 201 });
+        }),
+
+        // POST /api/auth/link (oauth-login-strategy.md Phase 4)
+        http.post('*/api/auth/link', async ({ request }) => {
+            const body = (await request.json()) as Record<string, unknown>;
+            const ticket = typeof body.ticket === 'string' ? body.ticket : '';
+            const payload = decodeJwtPayload<OAuthTicketPayload>(ticket);
+            if (
+                !payload ||
+                payload.typ !== 'oauth_link' ||
+                typeof payload.email !== 'string' ||
+                typeof payload.provider !== 'string' ||
+                typeof payload.sub !== 'string'
+            ) {
+                return HttpResponse.json({ message: 'Invalid or expired ticket' }, { status: 400 });
+            }
+
+            const u = find(payload.email);
+            if (!u || u.password === OAUTH_NO_PASSWORD) {
+                return HttpResponse.json({ message: 'Invalid or expired ticket' }, { status: 400 });
+            }
+            if (u.password !== body.password) {
+                return HttpResponse.json({ message: 'Invalid credentials' }, { status: 400 });
+            }
+
+            const key = `${payload.provider}:${payload.sub}`;
+            if (linkedIdentities.has(key)) {
+                return HttpResponse.json(
+                    { message: 'This Google account is already linked to an account' },
+                    { status: 400 },
+                );
+            }
+
+            linkIdentity(u.id, payload.provider, payload.sub);
+            return HttpResponse.json({ ...publicUser(u), token: issueToken(u) });
+        }),
+
+        // GET /api/auth/identities (protected, oauth-login-strategy.md Phase 5)
+        http.get('*/api/auth/identities', ({ request }) => {
+            const u = userFromAuth(request);
+            if (!u) return new HttpResponse(null, { status: 401 });
+
+            const identities = [...linkedIdentities.values()]
+                .filter((i) => i.userId === u.id)
+                .map((i) => ({ id: i.id, provider: i.provider }));
+            return HttpResponse.json({ hasPassword: u.password !== OAUTH_NO_PASSWORD, identities });
+        }),
+
+        // DELETE /api/auth/identities/:id (protected, Phase 5)
+        http.delete('*/api/auth/identities/:id', ({ request, params }) => {
+            const u = userFromAuth(request);
+            if (!u) return new HttpResponse(null, { status: 401 });
+
+            const { id } = params as { id: string };
+            const entry = [...linkedIdentities.entries()].find(([, i]) => i.id === id && i.userId === u.id);
+            if (!entry) {
+                return HttpResponse.json({ message: 'Sign-in method not found' }, { status: 404 });
+            }
+
+            const remaining = [...linkedIdentities.values()].filter((i) => i.userId === u.id);
+            if (u.password === OAUTH_NO_PASSWORD && remaining.length <= 1) {
+                return HttpResponse.json({ message: 'Cannot remove your only sign-in method' }, { status: 400 });
+            }
+
+            linkedIdentities.delete(entry[0]);
+            return HttpResponse.json({});
+        }),
+
+        // POST /api/auth/:provider/link (protected start, Phase 5) — the
+        // real backend returns a real Google authorize URL; tests only need
+        // a stable shape `useConnectOAuthProvider` can read and navigate to.
+        http.post('*/api/auth/:provider/link', ({ request, params }) => {
+            const u = userFromAuth(request);
+            if (!u) return new HttpResponse(null, { status: 401 });
+
+            const { provider } = params as { provider: string };
+            if (!oauthProviders[provider]) {
+                return HttpResponse.json({ message: 'Unknown or unconfigured provider' }, { status: 404 });
+            }
+            return HttpResponse.json({ url: `https://accounts.google.com/o/oauth2/v2/auth?mock=1&provider=${provider}` });
+        }),
+
         // POST /api/users — register
         http.post('*/api/users', async ({ request }) => {
             const body = (await request.json()) as Record<string, unknown>;
@@ -262,6 +436,12 @@ export function makeAuthHandlers(seed: SeedUser[] = []) {
             if (!u) return undefined;
             for (const [token, id] of resetTokens) if (id === u.id) return token;
             return undefined;
+        },
+        /** Seeds an already-linked identity directly — for tests that start with Google pre-connected. */
+        linkIdentityFor(email: string, provider: string, sub: string): void {
+            const u = find(email);
+            if (!u) throw new Error(`no user found for ${email}`);
+            linkIdentity(u.id, provider, sub);
         },
         userFor(email: string) {
             const u = find(email);

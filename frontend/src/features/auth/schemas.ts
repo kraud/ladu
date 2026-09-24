@@ -75,6 +75,37 @@ export function buildRegisterSchema(t: TranslateFn): yup.ObjectSchema<RegisterVa
     });
 }
 
+export interface OAuthSignupValues {
+    username: string;
+    /** language *labels* ("English", …) the user manages — selection order preserved */
+    languages: string[];
+}
+
+/** The signup-completion screen (oauth-login-strategy.md Phase 3) — username +
+ * languages only; name/email came from the verified Google ID token. */
+export function buildOAuthSignupSchema(t: TranslateFn): yup.ObjectSchema<OAuthSignupValues> {
+    return yup.object({
+        username: yup.string().trim().required(t('loginRegister:errors.usernameRequired')),
+        languages: yup
+            .array(yup.string().required())
+            .min(2, t('common:userData.errors.notEnoughLanguages'))
+            .required(t('common:userData.errors.notEnoughLanguages')),
+    });
+}
+
+export interface OAuthLinkValues {
+    password: string;
+}
+
+/** The password-confirm screen (oauth-login-strategy.md Phase 4, outcome (c))
+ * — one field. No "confirm password" — this isn't setting a new password,
+ * just proving the existing one. */
+export function buildOAuthLinkSchema(t: TranslateFn): yup.ObjectSchema<OAuthLinkValues> {
+    return yup.object({
+        password: yup.string().required(t('loginRegister:errors.passwordRequired')),
+    });
+}
+
 export interface ResetRequestValues {
     email: string;
 }

@@ -63,6 +63,25 @@ const findTokenByUserId = async (userId) => {
     return token || null;
 };
 
+// Inserts a password-less account directly — there's no signup flow that
+// creates one yet (Phase 2/3), but the DB row shape (password: null,
+// verified: true, matching a real OAuth signup) is what Phase 1's login
+// guard has to handle.
+const createOAuthOnlyUser = (overrides = {}) =>
+    db
+        .insert(users)
+        .values({
+            name: 'OAuth Only',
+            email: 'oauth-only@example.com',
+            username: 'oauthonly',
+            password: null,
+            languages: ['English', 'Spanish'],
+            uiLanguage: 'English',
+            verified: true,
+            ...overrides,
+        })
+        .returning();
+
 describe('POST /api/users - Registration', () => {
     it('registers a new user and returns user data without password', async () => {
         const res = await registerUser();
@@ -308,6 +327,40 @@ describe('POST /api/users/login - Login', () => {
             .send({ email: 'test@example.com', password: 'password123', uiLanguage: 'Klingon' });
 
         expect(res.statusCode).toBe(400);
+    });
+
+    it('points a password-less (OAuth-only) account at the provider instead of "Invalid credentials"', async () => {
+        await createOAuthOnlyUser();
+
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'oauth-only@example.com', password: 'anything' });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Sign in with Google');
+    });
+
+    it('gives the same guard message with no password sent at all', async () => {
+        await createOAuthOnlyUser();
+
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'oauth-only@example.com' });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Sign in with Google');
+    });
+
+    it('leaves an ordinary password account unaffected by the guard', async () => {
+        // Already covered by "logs in with valid credentials" above; this
+        // asserts the negative directly — a password account never sees the
+        // OAuth-specific message.
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'wrongpassword' });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).not.toBe('Sign in with Google');
     });
 });
 

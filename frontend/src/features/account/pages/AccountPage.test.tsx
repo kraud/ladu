@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -7,6 +7,17 @@ import { server } from '@/test/msw/server';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
 import { AccountPage } from './AccountPage';
+
+// Every AccountPage render now fires `useOAuthIdentities` too (oauth-login-strategy.md
+// Phase 5, "Sign-in methods" row + Connect/Disconnect controls). A plain
+// password account with nothing connected is the right default for tests
+// that aren't about sign-in methods specifically — see SignInMethodsField.test.tsx
+// for the Connect/Disconnect flows themselves.
+beforeEach(() => {
+    server.use(
+        http.get('*/api/auth/identities', () => HttpResponse.json({ hasPassword: true, identities: [] })),
+    );
+});
 
 const SESSION = {
     id: 'u1',

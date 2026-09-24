@@ -19,5 +19,16 @@
   },
   "toasts": {
     "discarded": "Cambios descartados"
+  },
+  "signInMethods": {
+    "title": "Métodos de inicio de sesión",
+    "passwordLabel": "Contraseña",
+    "googleLabel": "Google",
+    "connect": "Conectar Google",
+    "disconnect": "Desconectar",
+    "connectSuccess": "¡Conectaste tu inicio de sesión con Google!",
+    "disconnectSuccess": "Desconectado",
+    "confirmDisconnectTitle": "¿Desconectar Google?",
+    "confirmDisconnectDescription": "Puedes volver a conectarlo cuando quieras."
   }
 }

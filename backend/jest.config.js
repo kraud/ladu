@@ -29,7 +29,26 @@ module.exports = {
                 diagnostics: false,
             },
         ],
+        // `jose` (oauth-login-strategy.md) ships ESM-only — no CJS build at
+        // all, unlike drizzle-orm/@sentry below, which at least publish one
+        // Jest's resolver just doesn't reach by default. Real Node (the dev/
+        // prod server, via tsx/cjs's require(esm) support) loads it fine;
+        // Jest's own module system doesn't understand `import` syntax without
+        // an explicit transform. ts-jest can down-level it the same way it
+        // does our own TS, with `allowJs` layered on the same tsconfig
+        // (module: CommonJS) so the output matches what the rest of the
+        // suite already expects.
+        '/node_modules/jose/.*\\.js$': [
+            'ts-jest',
+            {
+                tsconfig: { allowJs: true },
+                diagnostics: false,
+            },
+        ],
     },
+    // Escape jose from the default "ignore everything in node_modules" rule
+    // so the transform above actually runs on it.
+    transformIgnorePatterns: ['/node_modules/(?!jose/)'],
 
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 

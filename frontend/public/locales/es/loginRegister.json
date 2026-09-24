@@ -19,7 +19,22 @@
     "invalidToken": "Este enlace de restablecimiento no es válido o ha caducado.",
     "noUserForEmail": "No hay ninguna cuenta registrada con ese correo electrónico.",
     "notEnoughLanguages": "Selecciona al menos dos idiomas.",
-    "invalidLanguage": "Ese idioma no es compatible."
+    "invalidLanguage": "Ese idioma no es compatible.",
+    "signInWithGoogle": "Esta cuenta inicia sesión con Google — usa el botón de Google en su lugar.",
+    "oauthFailed": "El inicio de sesión con Google no funcionó. Inténtalo de nuevo o usa tu contraseña.",
+    "oauthInvalidTicket": "Ese enlace ha caducado. Prueba \"Continuar con Google\" de nuevo.",
+    "oauthAlreadyLinked": "Esta cuenta de Google ya está vinculada a una cuenta de Ladu.",
+    "oauthLastMethod": "No puedes eliminar tu único método de inicio de sesión."
+  },
+  "oauth": {
+    "continueWithGoogle": "Continuar con Google",
+    "orContinueWith": "o continuar con",
+    "signupTitle": "Un paso más",
+    "signupSubtitle": "Terminando el registro con Google — elige un nombre de usuario y tus idiomas de estudio.",
+    "linkTitle": "Confirma tu contraseña",
+    "linkSubtitle": "Encontramos una cuenta para {{email}} — ingresa tu contraseña una vez para conectar el inicio de sesión con Google.",
+    "linkSubmit": "Conectar inicio de sesión con Google",
+    "linkingSubmitting": "Conectando…"
   },
   "toastMessages": {
     "passwordUpdated": "¡Contraseña actualizada con éxito!",

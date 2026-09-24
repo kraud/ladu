@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { authErrorKey, GENERIC_ERROR_KEY } from './errors';
+import { authErrorKey, GENERIC_ERROR_KEY, OAuthCallbackError, oauthErrorKey } from './errors';
 
 /** Shape an axios-style error carrying the backend's `{ message }` body. */
 const apiError = (message: string) => ({ response: { status: 400, data: { message } } });
@@ -7,6 +7,7 @@ const apiError = (message: string) => ({ response: { status: 400, data: { messag
 describe('authErrorKey', () => {
     it.each([
         ['Invalid credentials', 'loginRegister:apiErrors.invalidCredentials'],
+        ['Sign in with Google', 'loginRegister:apiErrors.signInWithGoogle'],
         ['Please add all fields', 'loginRegister:apiErrors.missingFields'],
         ['Email already in use', 'loginRegister:apiErrors.emailInUse'],
         ['Username already in use', 'loginRegister:apiErrors.usernameInUse'],
@@ -20,6 +21,11 @@ describe('authErrorKey', () => {
             'There is no user registered with the email given.',
             'loginRegister:apiErrors.noUserForEmail',
         ],
+        ['Invalid or expired ticket', 'loginRegister:apiErrors.oauthInvalidTicket'],
+        [
+            'This Google account is already linked to an account',
+            'loginRegister:apiErrors.oauthAlreadyLinked',
+        ],
         ['Internal Server Error', GENERIC_ERROR_KEY],
     ])('maps %j → %j', (message, key) => {
         expect(authErrorKey(apiError(message))).toBe(key);
@@ -32,5 +38,20 @@ describe('authErrorKey', () => {
     it('falls back to the generic key when there is no api error body', () => {
         expect(authErrorKey(new Error('network down'))).toBe(GENERIC_ERROR_KEY);
         expect(authErrorKey(undefined)).toBe(GENERIC_ERROR_KEY);
+    });
+});
+
+describe('oauthErrorKey', () => {
+    it('maps oauth_failed', () => {
+        expect(oauthErrorKey(new OAuthCallbackError('oauth_failed'))).toBe('loginRegister:apiErrors.oauthFailed');
+    });
+
+    it('falls back to the generic key for an unrecognised code', () => {
+        expect(oauthErrorKey(new OAuthCallbackError('something_unexpected'))).toBe(GENERIC_ERROR_KEY);
+    });
+
+    it('falls back to the generic key for a non-OAuthCallbackError', () => {
+        expect(oauthErrorKey(new Error('network down'))).toBe(GENERIC_ERROR_KEY);
+        expect(oauthErrorKey(undefined)).toBe(GENERIC_ERROR_KEY);
     });
 });

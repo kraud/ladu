@@ -19,7 +19,22 @@
     "invalidToken": "This reset link is invalid or has expired.",
     "noUserForEmail": "No account is registered with that email.",
     "notEnoughLanguages": "Please select at least two languages.",
-    "invalidLanguage": "That language isn't supported."
+    "invalidLanguage": "That language isn't supported.",
+    "signInWithGoogle": "This account signs in with Google — use the Google button instead.",
+    "oauthFailed": "Google sign-in didn't work. Please try again or use your password.",
+    "oauthInvalidTicket": "That link has expired. Please try \"Continue with Google\" again.",
+    "oauthAlreadyLinked": "This Google account is already linked to a Ladu account.",
+    "oauthLastMethod": "You can't remove your only sign-in method."
+  },
+  "oauth": {
+    "continueWithGoogle": "Continue with Google",
+    "orContinueWith": "or continue with",
+    "signupTitle": "One more step",
+    "signupSubtitle": "Finishing sign-up with Google — choose a username and your study languages.",
+    "linkTitle": "Confirm your password",
+    "linkSubtitle": "We found an account for {{email}} — enter your password once to connect Google sign-in.",
+    "linkSubmit": "Connect Google sign-in",
+    "linkingSubmitting": "Connecting…"
   },
   "toastMessages": {
     "passwordUpdated": "Password updated successfully!",

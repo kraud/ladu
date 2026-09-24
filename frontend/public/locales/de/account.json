@@ -19,5 +19,16 @@
   },
   "toasts": {
     "discarded": "Änderungen verworfen"
+  },
+  "signInMethods": {
+    "title": "Anmeldemethoden",
+    "passwordLabel": "Passwort",
+    "googleLabel": "Google",
+    "connect": "Google verbinden",
+    "disconnect": "Trennen",
+    "connectSuccess": "Deine Google-Anmeldung wurde verbunden!",
+    "disconnectSuccess": "Getrennt",
+    "confirmDisconnectTitle": "Google trennen?",
+    "confirmDisconnectDescription": "Du kannst es jederzeit wieder verbinden."
   }
 }

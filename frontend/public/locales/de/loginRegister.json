@@ -19,7 +19,22 @@
     "invalidToken": "Dieser Link zum Zurücksetzen ist ungültig oder abgelaufen.",
     "noUserForEmail": "Mit dieser E-Mail ist kein Konto registriert.",
     "notEnoughLanguages": "Bitte wähle mindestens zwei Sprachen aus.",
-    "invalidLanguage": "Diese Sprache wird nicht unterstützt."
+    "invalidLanguage": "Diese Sprache wird nicht unterstützt.",
+    "signInWithGoogle": "Dieses Konto meldet sich mit Google an — verwende stattdessen die Google-Schaltfläche.",
+    "oauthFailed": "Die Anmeldung mit Google hat nicht funktioniert. Bitte versuche es erneut oder nutze dein Passwort.",
+    "oauthInvalidTicket": "Dieser Link ist abgelaufen. Versuche es erneut mit „Mit Google fortfahren“.",
+    "oauthAlreadyLinked": "Dieses Google-Konto ist bereits mit einem Ladu-Konto verknüpft.",
+    "oauthLastMethod": "Du kannst deine einzige Anmeldemethode nicht entfernen."
+  },
+  "oauth": {
+    "continueWithGoogle": "Mit Google fortfahren",
+    "orContinueWith": "oder weiter mit",
+    "signupTitle": "Noch ein Schritt",
+    "signupSubtitle": "Registrierung mit Google abschließen — wähle einen Benutzernamen und deine Lernsprachen.",
+    "linkTitle": "Bestätige dein Passwort",
+    "linkSubtitle": "Wir haben ein Konto für {{email}} gefunden — gib dein Passwort einmal ein, um die Google-Anmeldung zu verbinden.",
+    "linkSubmit": "Google-Anmeldung verbinden",
+    "linkingSubmitting": "Verbinde…"
   },
   "toastMessages": {
     "passwordUpdated": "Passwort erfolgreich aktualisiert!",

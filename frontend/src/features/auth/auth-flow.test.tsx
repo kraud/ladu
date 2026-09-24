@@ -11,7 +11,7 @@ import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeAuthHandlers } from '@/test/msw/authHandlers';
 import { useAuthStore } from '@/stores/authStore';
-import { expiredToken } from '@/test/tokens';
+import { expiredToken, makeToken } from '@/test/tokens';
 import * as authApi from './api';
 
 let auth: ReturnType<typeof makeAuthHandlers>;
@@ -229,5 +229,188 @@ describe('session guards', () => {
         expect(router.state.location.search).toMatchObject({
             redirect: expect.stringContaining('/review'),
         });
+    });
+});
+
+describe('OAuth callback (Phase 2)', () => {
+    // `/auth/callback` reads a raw `window.location.hash` (never a query
+    // string) — `createMemoryHistory`'s `initialEntry` doesn't drive jsdom's
+    // real Location object, so the hash has to be set on it directly, the
+    // same way a real browser's would be after the backend's redirect.
+    afterEach(() => {
+        window.location.hash = '';
+    });
+
+    it('a #token= fragment signs the user in and lands on Home', async () => {
+        // Log in through the real form once, purely to get a real session
+        // token out of the fake backend — the OAuth callback's `token` is the
+        // same `generateToken` output a password login's is.
+        server.use(...makeAuthHandlers([
+            { email: 'oauth-a@example.com', password: 'password123', verified: true, name: 'OAuth User' },
+        ]).handlers);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/login' });
+        await screen.findByRole('button', { name: 'Sign in' });
+        await user.type(screen.getByLabelText('Email'), 'oauth-a@example.com');
+        await user.type(screen.getByLabelText('Password'), 'password123');
+        await user.click(screen.getByRole('button', { name: 'Sign in' }));
+        await waitFor(() => expect(useAuthStore.getState().token).toBeTruthy());
+        const token = useAuthStore.getState().token;
+        useAuthStore.getState().clearSession();
+
+        window.location.hash = `#token=${token}`;
+        const { router } = await renderApp({ initialEntry: '/auth/callback' });
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        expect(useAuthStore.getState().user?.email).toBe('oauth-a@example.com');
+        expect(useAuthStore.getState().token).toBe(token);
+    });
+
+    it('a #error= fragment toasts the mapped message and returns to /login', async () => {
+        // oauth_failed is the only code the callback still produces as of
+        // Phase 4 — outcomes (b)/(c) both issue tickets now, not errors.
+        window.location.hash = '#error=oauth_failed';
+        const { router } = await renderApp({ initialEntry: '/auth/callback' });
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
+        expect(
+            await screen.findByText("Google sign-in didn't work. Please try again or use your password."),
+        ).toBeInTheDocument();
+        expect(useAuthStore.getState().user).toBeNull();
+    });
+
+    it('an unrecognised error code falls back to the generic message', async () => {
+        window.location.hash = '#error=something_unexpected';
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        expect(await screen.findByText('Something went wrong, try again.')).toBeInTheDocument();
+    });
+});
+
+describe('OAuth signup completion (Phase 3)', () => {
+    afterEach(() => {
+        window.location.hash = '';
+    });
+
+    const makeSignupTicket = (overrides: Record<string, unknown> = {}) =>
+        makeToken({
+            typ: 'oauth_signup',
+            provider: 'google',
+            sub: 'sub-1',
+            email: 'brandnew@example.com',
+            name: 'Brand New',
+            ...overrides,
+        });
+
+    it('a #ticket=&mode=signup fragment shows the signup screen, username prefilled from the ticket email', async () => {
+        window.location.hash = `#ticket=${makeSignupTicket()}&mode=signup`;
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        expect(await screen.findByLabelText(/^Username/)).toHaveValue('brandnew');
+    });
+
+    it('completes signup, signs in verified with no password, and lands on Home', async () => {
+        const user = userEvent.setup();
+        window.location.hash = `#ticket=${makeSignupTicket({ email: 'newperson@example.com', name: 'New Person' })}&mode=signup`;
+        const { router } = await renderApp({ initialEntry: '/auth/callback' });
+
+        await screen.findByLabelText(/^Username/);
+        await user.clear(screen.getByLabelText(/^Username/));
+        await user.type(screen.getByLabelText(/^Username/), 'newperson123');
+        await user.click(screen.getByRole('button', { name: 'English', pressed: false }));
+        await user.click(screen.getByRole('button', { name: 'Español', pressed: false }));
+
+        const submit = screen.getByRole('button', { name: 'Create account' });
+        await waitFor(() => expect(submit).toBeEnabled());
+        await user.click(submit);
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        expect(useAuthStore.getState().user?.username).toBe('newperson123');
+        expect(useAuthStore.getState().user?.verified).toBe(true);
+        expect(useAuthStore.getState().token).toBeTruthy();
+
+        const created = auth.userFor('newperson@example.com');
+        expect(created?.verified).toBe(true);
+    });
+
+    it('surfaces a duplicate-username error and stays on the form for a retry', async () => {
+        server.use(
+            ...makeAuthHandlers([
+                { email: 'someoneelse@example.com', password: 'x', username: 'taken', verified: true },
+            ]).handlers,
+        );
+        const user = userEvent.setup();
+        window.location.hash = `#ticket=${makeSignupTicket({ email: 'brandnew2@example.com' })}&mode=signup`;
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        await screen.findByLabelText(/^Username/);
+        await user.clear(screen.getByLabelText(/^Username/));
+        await user.type(screen.getByLabelText(/^Username/), 'taken');
+        await user.click(screen.getByRole('button', { name: 'English', pressed: false }));
+        await user.click(screen.getByRole('button', { name: 'Español', pressed: false }));
+        const submit = screen.getByRole('button', { name: 'Create account' });
+        await waitFor(() => expect(submit).toBeEnabled());
+        await user.click(submit);
+
+        expect(await screen.findByText('That username is already taken.')).toBeInTheDocument();
+        // Still on the signup form, not bounced anywhere — the ticket is reusable within its 10-minute window.
+        expect(screen.getByLabelText(/^Username/)).toBeInTheDocument();
+    });
+});
+
+describe('OAuth linking to an existing password account (Phase 4)', () => {
+    afterEach(() => {
+        window.location.hash = '';
+    });
+
+    const makeLinkTicket = (overrides: Record<string, unknown> = {}) =>
+        makeToken({
+            typ: 'oauth_link',
+            provider: 'google',
+            sub: 'link-sub-1',
+            email: 'haspassword@example.com',
+            name: 'Has Password',
+            ...overrides,
+        });
+
+    it('a #ticket=&mode=link fragment shows the password-confirm screen naming the ticket email', async () => {
+        window.location.hash = `#ticket=${makeLinkTicket()}&mode=link`;
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        expect(await screen.findByText(/haspassword@example\.com/)).toBeInTheDocument();
+        expect(screen.getByLabelText(/^Password/)).toBeInTheDocument();
+    });
+
+    it('rejects a wrong password and stays on the form; the right password links and lands on Home', async () => {
+        server.use(
+            ...makeAuthHandlers([
+                {
+                    email: 'haspassword@example.com',
+                    password: 'correct-password',
+                    verified: true,
+                    name: 'Has Password',
+                },
+            ]).handlers,
+        );
+        const user = userEvent.setup();
+        window.location.hash = `#ticket=${makeLinkTicket()}&mode=link`;
+        const { router } = await renderApp({ initialEntry: '/auth/callback' });
+
+        await screen.findByLabelText(/^Password/);
+        await user.type(screen.getByLabelText(/^Password/), 'wrong-password');
+        await user.click(screen.getByRole('button', { name: 'Connect Google sign-in' }));
+
+        expect(await screen.findByText('Invalid email or password.')).toBeInTheDocument();
+        expect(useAuthStore.getState().user).toBeNull();
+
+        // Still on the confirm screen, not bounced anywhere — the ticket isn't
+        // consumed by a failed attempt, so a retry with the right password works.
+        await user.clear(screen.getByLabelText(/^Password/));
+        await user.type(screen.getByLabelText(/^Password/), 'correct-password');
+        await user.click(screen.getByRole('button', { name: 'Connect Google sign-in' }));
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        expect(useAuthStore.getState().user?.email).toBe('haspassword@example.com');
+        expect(useAuthStore.getState().token).toBeTruthy();
     });
 });

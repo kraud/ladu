@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { AuthLayout } from '../components/AuthLayout';
 import { RegisterForm } from '../components/RegisterForm';
+import { OAuthButtons } from '../components/OAuthButtons';
 
 export function RegisterPage() {
     const { t } = useTranslation();
@@ -16,6 +17,7 @@ export function RegisterPage() {
                 </>
             }
         >
+            <OAuthButtons />
             <RegisterForm />
         </AuthLayout>
     );

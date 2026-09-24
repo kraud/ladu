@@ -129,6 +129,7 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 | 6 | Social: friendships + notifications + users (redesigned models) | 1 |
 | 7 | Tag shares/clone + Account + polish | 4, 6 |
 | D | **Deployment pipeline** (staging + production on the real domain) — see [`.dev-context/deployment-strategy.md`](../../.dev-context/deployment-strategy.md) | 3.5 |
+| O | **OAuth login** (Sign in with Google/Microsoft, alongside email+password) — see [`.dev-context/oauth-login-strategy.md`](../../.dev-context/oauth-login-strategy.md) | 1 |
 | 8 | Parity checklist + apex cutover | all |
 
 ### Phase 0 — Scaffold + backend copy

@@ -8,6 +8,11 @@ import type {
     AuthUser,
     LoginRequest,
     LoginResponse,
+    OAuthIdentitiesResponse,
+    OAuthLinkRequest,
+    OAuthProvidersResponse,
+    OAuthSignupCompleteRequest,
+    OAuthStartLinkResponse,
     RegisterRequest,
     RegisterResponse,
     RequestResetRequest,
@@ -50,4 +55,34 @@ export async function getMe(): Promise<AuthUser> {
 export async function updateProfile(body: UpdateProfileRequest): Promise<AuthUser> {
     const { data } = await apiClient.put<AuthUser>('/users/updateUser', body);
     return data;
+}
+
+export async function getOAuthProviders(): Promise<OAuthProvidersResponse> {
+    const { data } = await apiClient.get<OAuthProvidersResponse>('/auth/providers');
+    return data;
+}
+
+export async function completeOAuthSignup(body: OAuthSignupCompleteRequest): Promise<AuthUser> {
+    const { data } = await apiClient.post<AuthUser>('/auth/signup/complete', body);
+    return data;
+}
+
+export async function linkOAuthAccount(body: OAuthLinkRequest): Promise<AuthUser> {
+    const { data } = await apiClient.post<AuthUser>('/auth/link', body);
+    return data;
+}
+
+export async function getOAuthIdentities(): Promise<OAuthIdentitiesResponse> {
+    const { data } = await apiClient.get<OAuthIdentitiesResponse>('/auth/identities');
+    return data;
+}
+
+/** Returns the authorize URL — the caller does the actual navigation (`window.location.href = url`); see `useConnectOAuthProvider`. */
+export async function startOAuthLink(provider: string): Promise<OAuthStartLinkResponse> {
+    const { data } = await apiClient.post<OAuthStartLinkResponse>(`/auth/${encodeURIComponent(provider)}/link`);
+    return data;
+}
+
+export async function deleteOAuthIdentity(id: string): Promise<void> {
+    await apiClient.delete(`/auth/identities/${encodeURIComponent(id)}`);
 }

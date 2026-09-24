@@ -234,9 +234,12 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
   // Send the verification email after both user and token rows exist. Not
   // awaited: sendEmail.js already catches its own send errors internally and
   // never rejects, so awaiting it only ever adds latency, not safety — and
-  // with a slow or unreachable mail provider, that latency is the full SMTP
-  // timeout (~100s), blocking a response for a registration that already
-  // succeeded (.dev-context/deployment-strategy.md D-g).
+  // with a slow or unreachable mail provider, that latency used to be
+  // nodemailer's full default timeout (~2 min), blocking a response for a
+  // registration that already succeeded (.dev-context/deployment-strategy.md
+  // D-g). sendEmail.js now caps its own connect/greeting/socket timeouts at
+  // 5s each, so the real worst case is much smaller — this still stays
+  // un-awaited regardless, since the response has no reason to wait on it.
   const url = `${process.env.BASE_URL}/user/${user.id}/verify/${token.token}`;
   sendMail({
     email: user.email,
@@ -254,6 +257,15 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
 
   // Look up by email first so password comparison only runs for a real account.
   const user = email ? await findUserByEmailInsensitive(email) : undefined;
+
+  // A password-less (OAuth-only) account has no hash to compare against —
+  // point it at the right button instead of a confusing generic rejection.
+  // This confirms account existence to an unauthenticated caller, same as
+  // registerUser's "Email already in use" already does.
+  if (user && user.password === null) {
+    res.status(400);
+    throw new Error("Sign in with Google");
+  }
 
   if (!user || !(await bcrypt.compare(password || "", user.password))) {
     res.status(400);
@@ -607,7 +619,11 @@ const getBasicUserMetrics = asyncHandler(async (req: any, res: any) => {
   }
 });
 
-module.exports = {
+// `export =` (not `module.exports =`) so `typeof import("./userController")`
+// resolves — oauthController.ts uses that to type its typed require of
+// generateToken/serializeLoginUser. Compiles to the same `module.exports =`
+// under CommonJS; every existing plain `require(...)` caller is unaffected.
+export = {
   registerUser,
   loginUser,
   updateUser,
@@ -618,4 +634,18 @@ module.exports = {
   requestPasswordReset,
   updatePassword,
   getBasicUserMetrics,
+  // Reused by oauthController.ts (oauth-login-strategy.md Phase 2) rather
+  // than duplicating session-minting logic for a second sign-in path.
+  generateToken,
+  serializeLoginUser,
+  // Reused by oauthController.ts's signup/callback flow (Phase 3) rather
+  // than duplicating registration's validation and lookup rules.
+  normalizeLanguageSelection,
+  isSupportedLanguage,
+  findUserByUsernameInsensitive,
+  findUserByEmailInsensitive,
+  // Reused by oauthController.ts's identities endpoints (Phase 5) so an
+  // invalid :id param 404s cleanly instead of hitting Postgres with
+  // malformed uuid input.
+  isUuid,
 };

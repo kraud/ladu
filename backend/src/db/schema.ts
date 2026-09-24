@@ -54,7 +54,10 @@ export const users = pgTable('users', {
     name:           varchar('name', { length: 255 }).notNull(),
     email:          varchar('email', { length: 255 }).notNull().unique(),
     username:       varchar('username', { length: 255 }).notNull().unique(),
-    password:       varchar('password', { length: 255 }).notNull(),
+    // Nullable since oauth-login-strategy.md Phase 1: a Google-only account
+    // never sets a password hash. `loginUser` guards against NULL explicitly
+    // (userController.ts) rather than letting bcrypt.compare see it.
+    password:       varchar('password', { length: 255 }),
     // PostgreSQL native text[] array — mirrors the Mongoose [String] field
     languages:      text('languages').array().notNull().default([]),
     uiLanguage:     varchar('ui_language', { length: 50 }),
@@ -258,6 +261,34 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
 });
 
 // ---------------------------------------------------------------------------
+// OAUTH_IDENTITIES
+// New in Phase 1 (.dev-context/oauth-login-strategy.md) — one row per linked
+// external sign-in provider per user, supporting password + OAuth
+// simultaneously rather than one method per account. Empty until Phase 2
+// starts inserting rows. `provider` stays a plain varchar rather than a typed
+// enum with one value ('google' today) — negligible cost, and what would let
+// a future provider be added without another migration, should one ever be
+// wanted. **Identity lookup is always by `(provider, providerUserId)`, never
+// by email** — a provider's email can change; its `sub` cannot.
+// ---------------------------------------------------------------------------
+export const oauthIdentities = pgTable(
+    'oauth_identities',
+    {
+        id:             uuid('id').primaryKey().defaultRandom(),
+        userId:         uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        provider:       varchar('provider', { length: 32 }).notNull(),
+        providerUserId: varchar('provider_user_id', { length: 255 }).notNull(),
+        // Audit trail only — never used for lookup (see above).
+        emailAtLink:    varchar('email_at_link', { length: 255 }).notNull(),
+        ...timestamps,
+    },
+    (table) => [
+        uniqueIndex('oauth_identities_provider_sub_unique').on(table.provider, table.providerUserId),
+        index('oauth_identities_user_id_idx').on(table.userId),
+    ],
+);
+
+// ---------------------------------------------------------------------------
 // EXERCISE_PERFORMANCES
 // Mapped from: backend/models/exercisePerformanceModel.js
 // Tracks per-user, per-translation performance metrics.
@@ -315,6 +346,7 @@ export const usersRelations = relations(users, ({ many }) => ({
     notifications:      many(notifications),
     tokens:             many(tokens),
     passwordResetTokens: many(passwordResetTokens),
+    oauthIdentities:    many(oauthIdentities),
     exercisePerformances: many(exercisePerformances),
 }));
 
@@ -374,6 +406,10 @@ export const tokensRelations = relations(tokens, ({ one }) => ({
 
 export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
     user: one(users, { fields: [passwordResetTokens.userId], references: [users.id] }),
+}));
+
+export const oauthIdentitiesRelations = relations(oauthIdentities, ({ one }) => ({
+    user: one(users, { fields: [oauthIdentities.userId], references: [users.id] }),
 }));
 
 export const exercisePerformancesRelations = relations(exercisePerformances, ({ one, many }) => ({

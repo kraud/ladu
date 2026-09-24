@@ -12,8 +12,14 @@ interface JwtPayload {
     exp?: number;
 }
 
-/** base64url → JSON, tolerant of missing padding. Returns null on any failure. */
-function decodePayload(token: string): JwtPayload | null {
+/**
+ * base64url → JSON, tolerant of missing padding. Returns null on any
+ * failure. Never verifies the signature — callers never trust the result
+ * for anything security-relevant, only for reading a claim the *server*
+ * will independently re-check (e.g. an OAuth ticket's email, decoded here
+ * only to prefill a username suggestion).
+ */
+export function decodeJwtPayload<T = unknown>(token: string): T | null {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
 
@@ -23,10 +29,14 @@ function decodePayload(token: string): JwtPayload | null {
         const json = atob(padded);
         const parsed: unknown = JSON.parse(json);
         if (typeof parsed !== 'object' || parsed === null) return null;
-        return parsed as JwtPayload;
+        return parsed as T;
     } catch {
         return null;
     }
+}
+
+function decodePayload(token: string): JwtPayload | null {
+    return decodeJwtPayload<JwtPayload>(token);
 }
 
 /**

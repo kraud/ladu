@@ -113,6 +113,7 @@ const clearDB = async () => {
             translations,
             tokens,
             password_reset_tokens,
+            oauth_identities,
             words,
             tags,
             users
