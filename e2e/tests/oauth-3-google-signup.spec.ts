@@ -28,10 +28,6 @@ test.afterAll(async () => {
     await closePool();
 });
 
-// Flaky in CI only — see the full diagnosis in oauth-2-google-login.spec.ts's
-// matching skip. Revisit in Phase 6.
-test.skip(() => !!process.env.CI, 'Flaky in CI — see git history for diagnosis; revisit in Phase 6');
-
 test.describe('OAuth Phase 3 — Google signup completion', () => {
     test('a brand-new identity completes the language step and lands signed in, verified, password-less, no mail sent', async ({
         page,

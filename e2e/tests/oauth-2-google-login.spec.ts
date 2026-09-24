@@ -28,19 +28,6 @@ test.afterAll(async () => {
     await closePool();
 });
 
-// Flaky in CI only, across the whole "Continue with Google" flow (this file
-// and oauth-3/4/5): a preceding test elsewhere in the suite registers a real
-// password account, firing a real (un-awaited) SMTP attempt — on CI's
-// single-worker serial run that appears to occasionally stall the backend
-// long enough that some later test's very first render ("Continue with
-// Google") misses its 30s budget. It's moved between different tests across
-// runs, not stuck on one. Not reproducible locally (macOS refuses a closed
-// loopback port instantly; CI apparently does not). sendEmail.js now caps
-// its SMTP timeouts at 5s each as a real fix, but re-enable and confirm on a
-// real CI run before trusting it again — revisit properly in Phase 6, which
-// adds real (non-stub) Google e2e coverage anyway.
-test.skip(() => !!process.env.CI, 'Flaky in CI — see git history for diagnosis; revisit in Phase 6');
-
 test.describe('OAuth Phase 2 — Google sign-in', () => {
     test('an already-linked identity walks through the stub and lands signed in on Home', async ({ page }, testInfo) => {
         const email = uniqueEmail(testInfo.parallelIndex);
