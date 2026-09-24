@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { WarningCircleIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { FlagIcon } from '@/components/common/FlagIcon';
+import { GoogleIcon } from '@/components/common/GoogleIcon';
 import { useAuthStore } from '@/stores/authStore';
+import { useOAuthIdentities } from '@/features/auth/hooks';
 import { avatarColor, avatarInitials } from '@/lib/avatar';
 import { UI_LANGUAGES, languageByLabel } from '@/lib/language';
 import type { SessionUser } from '@/stores/authStore';
@@ -72,6 +74,7 @@ function ProfileView({
     const { t } = useTranslation();
     const total = UI_LANGUAGES.length;
     const hasLanguages = user.languages.length > 0;
+    const identities = useOAuthIdentities();
 
     return (
         <div className="flex flex-col gap-5">
@@ -84,6 +87,22 @@ function ProfileView({
                         value={`@${user.username}`}
                     />
                     <InfoRow label={t('loginRegister:formLabels.email')} value={user.email} />
+                    {identities.data && (
+                        <div className="grid grid-cols-[96px_1fr] items-baseline gap-3 py-1">
+                            <dt className="meta">{t('account:signInMethods.title')}</dt>
+                            <dd className="flex min-w-0 flex-wrap gap-1.5">
+                                {identities.data.hasPassword && (
+                                    <span className="chip">{t('account:signInMethods.passwordLabel')}</span>
+                                )}
+                                {identities.data.identities.some((i) => i.provider === 'google') && (
+                                    <span className="chip">
+                                        <GoogleIcon width={14} height={14} />
+                                        {t('account:signInMethods.googleLabel')}
+                                    </span>
+                                )}
+                            </dd>
+                        </div>
+                    )}
                 </dl>
             </div>
 

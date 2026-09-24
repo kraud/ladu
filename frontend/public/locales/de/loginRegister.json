@@ -23,7 +23,8 @@
     "signInWithGoogle": "Dieses Konto meldet sich mit Google an — verwende stattdessen die Google-Schaltfläche.",
     "oauthFailed": "Die Anmeldung mit Google hat nicht funktioniert. Bitte versuche es erneut oder nutze dein Passwort.",
     "oauthInvalidTicket": "Dieser Link ist abgelaufen. Versuche es erneut mit „Mit Google fortfahren“.",
-    "oauthAlreadyLinked": "Dieses Google-Konto ist bereits mit einem Ladu-Konto verknüpft."
+    "oauthAlreadyLinked": "Dieses Google-Konto ist bereits mit einem Ladu-Konto verknüpft.",
+    "oauthLastMethod": "Du kannst deine einzige Anmeldemethode nicht entfernen."
   },
   "oauth": {
     "continueWithGoogle": "Mit Google fortfahren",

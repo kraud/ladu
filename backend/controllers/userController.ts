@@ -641,4 +641,8 @@ export = {
   isSupportedLanguage,
   findUserByUsernameInsensitive,
   findUserByEmailInsensitive,
+  // Reused by oauthController.ts's identities endpoints (Phase 5) so an
+  // invalid :id param 404s cleanly instead of hitting Postgres with
+  // malformed uuid input.
+  isUuid,
 };

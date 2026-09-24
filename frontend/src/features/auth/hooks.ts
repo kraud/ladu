@@ -24,6 +24,9 @@ import type {
     UpdateProfileRequest,
 } from './types';
 
+/** Shared by `useOAuthIdentities`/`useDisconnectOAuthIdentity` so a disconnect invalidates the same cache entry the list query reads. */
+const OAUTH_IDENTITIES_QUERY_KEY = ['auth', 'identities'];
+
 /**
  * @param redirectTo where to land after a verified login — the `redirect`
  * search param the `_protected` guard stashed, or `/`.
@@ -250,6 +253,53 @@ export function useOAuthLinkComplete() {
             queryClient.clear();
             setSession(user);
             void navigate({ to: '/' });
+        },
+        onError: (error) => toast.error(t(authErrorKey(error))),
+    });
+}
+
+/**
+ * The Account page's "Sign-in methods" row (Phase 5) — which providers are
+ * connected, and whether the account also has a password. No `staleTime`
+ * override: unlike `useOAuthProviders` (env-configured, never changes at
+ * runtime), this changes whenever the user connects/disconnects, so the
+ * default "refetch on mount" behavior is what's wanted here.
+ */
+export function useOAuthIdentities() {
+    return useQuery({
+        queryKey: OAUTH_IDENTITIES_QUERY_KEY,
+        queryFn: authApi.getOAuthIdentities,
+    });
+}
+
+/**
+ * "Connect" in the profile edit view — POSTs to the protected start
+ * endpoint (needs an Authorization header, so unlike the public login
+ * button this can't be a plain `<a href>`) and then does the real top-level
+ * navigation itself with the authorize URL the response carries.
+ */
+export function useConnectOAuthProvider() {
+    const { t } = useTranslation();
+
+    return useMutation({
+        mutationFn: (provider: string) => authApi.startOAuthLink(provider),
+        onSuccess: ({ url }) => {
+            window.location.href = url;
+        },
+        onError: (error) => toast.error(t(authErrorKey(error))),
+    });
+}
+
+/** "Disconnect" in the profile edit view. The backend refuses (400) to remove the account's last sign-in method. */
+export function useDisconnectOAuthIdentity() {
+    const { t } = useTranslation();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => authApi.deleteOAuthIdentity(id),
+        onSuccess: () => {
+            toast.success(t('account:signInMethods.disconnectSuccess'));
+            void queryClient.invalidateQueries({ queryKey: OAUTH_IDENTITIES_QUERY_KEY });
         },
         onError: (error) => toast.error(t(authErrorKey(error))),
     });

@@ -23,7 +23,8 @@
     "signInWithGoogle": "See konto logib sisse Google'iga — kasuta selle asemel Google'i nuppu.",
     "oauthFailed": "Google'iga sisselogimine ebaõnnestus. Proovi uuesti või kasuta oma parooli.",
     "oauthInvalidTicket": "See link on aegunud. Proovi uuesti nuppu „Jätka Google'iga“.",
-    "oauthAlreadyLinked": "See Google konto on juba Ladu kontoga seotud."
+    "oauthAlreadyLinked": "See Google konto on juba Ladu kontoga seotud.",
+    "oauthLastMethod": "Sa ei saa eemaldada oma ainsat sisselogimisviisi."
   },
   "oauth": {
     "continueWithGoogle": "Jätka Google'iga",

@@ -11,6 +11,7 @@ import { useUpdateProfile } from '@/features/auth/hooks';
 import { UI_LANGUAGES } from '@/lib/language';
 import type { SessionUser } from '@/stores/authStore';
 import { buildProfileSchema, type ProfileValues } from '../schemas';
+import { SignInMethodsField } from './SignInMethodsField';
 
 /**
  * The Account profile-edit form: name, username, languages. Email is shown
@@ -113,6 +114,10 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
                         <p className="hint" id="account-email-hint">
                             {t('account:fields.emailHint')}
                         </p>
+                    </div>
+                    <div className="field sm:col-span-2">
+                        <span className="label">{t('account:signInMethods.title')}</span>
+                        <SignInMethodsField />
                     </div>
                     <FormField
                         control={form.control}

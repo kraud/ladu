@@ -19,5 +19,16 @@
   },
   "toasts": {
     "discarded": "Changes discarded"
+  },
+  "signInMethods": {
+    "title": "Sign-in methods",
+    "passwordLabel": "Password",
+    "googleLabel": "Google",
+    "connect": "Connect Google",
+    "disconnect": "Disconnect",
+    "connectSuccess": "Connected your Google sign-in!",
+    "disconnectSuccess": "Disconnected",
+    "confirmDisconnectTitle": "Disconnect Google?",
+    "confirmDisconnectDescription": "You can reconnect it any time."
   }
 }

@@ -5,13 +5,19 @@
  * mixing `export =` with any other export in the same file).
  */
 
-/** The state JWT's payload — see stateToken.ts. */
+/**
+ * The state JWT's payload — see stateToken.ts. `userId` is only present for
+ * the protected "connect a second provider from the Account page" start
+ * flow (Phase 5) — its absence is exactly what distinguishes that flow from
+ * an ordinary public login attempt in the shared `/callback` handler.
+ */
 export type OAuthStatePayload = {
     typ: 'oauth_state';
     provider: string;
     verifier: string;
     nonce: string;
     jti: string;
+    userId?: string;
 };
 
 /** What a provider adapter's `mapClaims` reduces a verified ID token down to. */

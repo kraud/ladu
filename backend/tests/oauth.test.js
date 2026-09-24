@@ -386,3 +386,210 @@ describe('POST /api/auth/link', () => {
         expect(res.body.message).toBe('This Google account is already linked to an account');
     });
 });
+
+describe('POST /api/auth/:provider/link (protected start, Phase 5)', () => {
+    const bcrypt = require('bcryptjs');
+
+    it('fails with 401 when not authenticated', async () => {
+        const res = await request(app).post('/api/auth/google/link');
+        expect(res.statusCode).toBe(401);
+    });
+
+    it('fails with 404 for an unknown provider name, even authenticated', async () => {
+        const [user] = await db
+            .insert(users)
+            .values({
+                name: 'Connector',
+                email: 'connector@example.com',
+                username: 'connector',
+                password: await bcrypt.hash('x', 10),
+                languages: ['English', 'Spanish'],
+                uiLanguage: 'English',
+                verified: true,
+            })
+            .returning();
+        const token = global.signin(user.id);
+
+        const res = await request(app)
+            .post('/api/auth/microsoft/link')
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.statusCode).toBe(404);
+    });
+
+    // The 200 { url } success path needs a real discovery fetch (this
+    // endpoint shares buildAuthorize with startAuth, whose own success path
+    // is Jest-untested for the same reason — see "GET /api/auth/:provider/start"
+    // above) — covered end to end against the Phase 0 stub in
+    // oauth-5-connected-methods.spec.ts instead.
+});
+
+describe('GET /api/auth/identities', () => {
+    const bcrypt = require('bcryptjs');
+
+    async function seedUser(overrides = {}) {
+        const [user] = await db
+            .insert(users)
+            .values({
+                name: 'Identities User',
+                email: 'identities@example.com',
+                username: 'identitiesuser',
+                password: await bcrypt.hash('x', 10),
+                languages: ['English', 'Spanish'],
+                uiLanguage: 'English',
+                verified: true,
+                ...overrides,
+            })
+            .returning();
+        return user;
+    }
+
+    it('fails with 401 when not authenticated', async () => {
+        const res = await request(app).get('/api/auth/identities');
+        expect(res.statusCode).toBe(401);
+    });
+
+    it('reports hasPassword: true and an empty list for a fresh password account', async () => {
+        const user = await seedUser();
+        const token = global.signin(user.id);
+
+        const res = await request(app).get('/api/auth/identities').set('Authorization', `Bearer ${token}`);
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual({ hasPassword: true, identities: [] });
+    });
+
+    it('lists linked identities and reports hasPassword: false for a password-less account', async () => {
+        const user = await seedUser({ password: null });
+        await db.insert(oauthIdentities).values({
+            userId: user.id,
+            provider: 'google',
+            providerUserId: 'sub-identities-1',
+            emailAtLink: 'identities@example.com',
+        });
+        const token = global.signin(user.id);
+
+        const res = await request(app).get('/api/auth/identities').set('Authorization', `Bearer ${token}`);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.hasPassword).toBe(false);
+        expect(res.body.identities).toHaveLength(1);
+        expect(res.body.identities[0]).toMatchObject({ provider: 'google' });
+        expect(res.body.identities[0]).toHaveProperty('id');
+    });
+});
+
+describe('DELETE /api/auth/identities/:id', () => {
+    const bcrypt = require('bcryptjs');
+
+    async function seedUser(email, overrides = {}) {
+        const [user] = await db
+            .insert(users)
+            .values({
+                name: 'Delete Identity User',
+                email,
+                username: email.split('@')[0],
+                password: await bcrypt.hash('x', 10),
+                languages: ['English', 'Spanish'],
+                uiLanguage: 'English',
+                verified: true,
+                ...overrides,
+            })
+            .returning();
+        return user;
+    }
+
+    it('fails with 401 when not authenticated', async () => {
+        const res = await request(app).delete('/api/auth/identities/00000000-0000-0000-0000-000000000000');
+        expect(res.statusCode).toBe(401);
+    });
+
+    it('fails with 404 for a non-uuid id', async () => {
+        const user = await seedUser('del-notuuid@example.com');
+        const token = global.signin(user.id);
+
+        const res = await request(app)
+            .delete('/api/auth/identities/not-a-uuid')
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.statusCode).toBe(404);
+    });
+
+    it("fails with 404 for another user's identity id, and leaves it untouched", async () => {
+        const owner = await seedUser('del-owner@example.com');
+        const [identity] = await db
+            .insert(oauthIdentities)
+            .values({
+                userId: owner.id,
+                provider: 'google',
+                providerUserId: 'sub-del-owner',
+                emailAtLink: 'del-owner@example.com',
+            })
+            .returning();
+        const attacker = await seedUser('del-attacker@example.com');
+        const token = global.signin(attacker.id);
+
+        const res = await request(app)
+            .delete(`/api/auth/identities/${identity.id}`)
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.statusCode).toBe(404);
+
+        const stillThere = await db.select().from(oauthIdentities).where(eq(oauthIdentities.id, identity.id));
+        expect(stillThere).toHaveLength(1);
+    });
+
+    it('refuses to remove a password-less account\'s only sign-in method', async () => {
+        const user = await seedUser('del-only@example.com', { password: null });
+        const [identity] = await db
+            .insert(oauthIdentities)
+            .values({ userId: user.id, provider: 'google', providerUserId: 'sub-del-only', emailAtLink: 'del-only@example.com' })
+            .returning();
+        const token = global.signin(user.id);
+
+        const res = await request(app)
+            .delete(`/api/auth/identities/${identity.id}`)
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Cannot remove your only sign-in method');
+
+        const stillThere = await db.select().from(oauthIdentities).where(eq(oauthIdentities.id, identity.id));
+        expect(stillThere).toHaveLength(1);
+    });
+
+    it('allows removing the identity when the account also has a password', async () => {
+        const user = await seedUser('del-haspw@example.com');
+        const [identity] = await db
+            .insert(oauthIdentities)
+            .values({ userId: user.id, provider: 'google', providerUserId: 'sub-del-haspw', emailAtLink: 'del-haspw@example.com' })
+            .returning();
+        const token = global.signin(user.id);
+
+        const res = await request(app)
+            .delete(`/api/auth/identities/${identity.id}`)
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.statusCode).toBe(200);
+
+        const remaining = await db.select().from(oauthIdentities).where(eq(oauthIdentities.userId, user.id));
+        expect(remaining).toHaveLength(0);
+    });
+
+    it('allows removing one identity when a second one would still remain', async () => {
+        const user = await seedUser('del-two@example.com', { password: null });
+        const [identityA] = await db
+            .insert(oauthIdentities)
+            .values({ userId: user.id, provider: 'google', providerUserId: 'sub-del-two-a', emailAtLink: 'del-two@example.com' })
+            .returning();
+        await db.insert(oauthIdentities).values({
+            userId: user.id,
+            provider: 'google',
+            providerUserId: 'sub-del-two-b',
+            emailAtLink: 'del-two@example.com',
+        });
+        const token = global.signin(user.id);
+
+        const res = await request(app)
+            .delete(`/api/auth/identities/${identityA.id}`)
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.statusCode).toBe(200);
+
+        const remaining = await db.select().from(oauthIdentities).where(eq(oauthIdentities.userId, user.id));
+        expect(remaining).toHaveLength(1);
+        expect(remaining[0].providerUserId).toBe('sub-del-two-b');
+    });
+});

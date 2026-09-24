@@ -131,3 +131,26 @@ export interface OAuthLinkRequest {
     ticket: string;
     password: string;
 }
+
+/** One row of `GET /api/auth/identities`'s `identities` array. */
+export interface OAuthIdentity {
+    id: string;
+    provider: string;
+}
+
+/**
+ * `GET /api/auth/identities` → 200 (protected). Feeds the Account page's
+ * "Sign-in methods" row. `hasPassword` isn't derivable from `identities`
+ * alone — a password-less account never gets less than one identity, but an
+ * account with both a password *and* a linked identity needs `hasPassword`
+ * spelled out to show the "Password" chip at all.
+ */
+export interface OAuthIdentitiesResponse {
+    hasPassword: boolean;
+    identities: OAuthIdentity[];
+}
+
+/** `POST /api/auth/:provider/link` (protected) → 200. The frontend does the actual navigation — see `useConnectOAuthProvider`. */
+export interface OAuthStartLinkResponse {
+    url: string;
+}

@@ -39,6 +39,8 @@ const MESSAGE_TO_KEY: Record<string, string> = {
     // (Phase 4) — both throw the same two messages for the same reasons.
     'Invalid or expired ticket': 'loginRegister:apiErrors.oauthInvalidTicket',
     'This Google account is already linked to an account': 'loginRegister:apiErrors.oauthAlreadyLinked',
+    // DELETE /api/auth/identities/:id (Phase 5)
+    'Cannot remove your only sign-in method': 'loginRegister:apiErrors.oauthLastMethod',
     // server-side catch-alls
     'Internal Server Error': GENERIC_ERROR_KEY,
 };
@@ -67,9 +69,15 @@ export class OAuthCallbackError extends Error {
 const OAUTH_ERROR_CODE_TO_KEY: Record<string, string> = {
     // `oauth_not_linked` (Phase 2's placeholder for outcome (c)) is gone —
     // as of Phase 4, outcome (c) issues a real `oauth_link` ticket instead
-    // of an error fragment. `oauth_failed` is the only code the callback
-    // still produces (a technical failure — see oauthController.ts).
+    // of an error fragment. `oauth_failed` is a technical failure; this map
+    // also covers the `#link-error=` fragment Phase 5's connect flow uses
+    // (a distinct fragment key from `#error=`, but the same short codes and
+    // the same lookup here — see oauthController.ts).
     oauth_failed: 'loginRegister:apiErrors.oauthFailed',
+    // Connect-flow only — this identity is already linked, just not to the
+    // account that started the connect attempt. Same user-facing meaning as
+    // the ticket-based message above, so it reuses that key.
+    oauth_already_linked: 'loginRegister:apiErrors.oauthAlreadyLinked',
 };
 
 /** The i18n key for an `OAuthCallbackError` (or any other failure, generically). Never throws. */

@@ -3,7 +3,10 @@
  * as of this file: (a) an already-linked `oauth_identities` row logs
  * straight in (Phase 2); (b) a `sub` with no matching email issues a signup
  * ticket (Phase 3); (c) a `sub` whose email matches an existing password
- * account issues a link ticket (Phase 4, this file's newest piece).
+ * account issues a link ticket (Phase 4). Phase 5 (this file's newest piece)
+ * adds a fourth path through the *same* `/callback` handler: connecting a
+ * second provider from the Account page, distinguished by the state JWT
+ * carrying a `userId` — see the "connect flow" comments below.
  */
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
@@ -19,12 +22,14 @@ const {
   isSupportedLanguage,
   findUserByUsernameInsensitive,
   findUserByEmailInsensitive,
+  isUuid,
 }: typeof import("./userController") = require("./userController");
 const { getProvider, listConfiguredProviders }: typeof import("../lib/oauth/providers") = require("../lib/oauth/providers");
 const { generateCodeVerifier, generateCodeChallenge, generateNonce }: typeof import("../lib/oauth/pkce") = require("../lib/oauth/pkce");
 const { issueStateToken, verifyStateToken }: typeof import("../lib/oauth/stateToken") = require("../lib/oauth/stateToken");
 const { issueTicket, verifyTicket }: typeof import("../lib/oauth/ticket") = require("../lib/oauth/ticket");
 const { getDiscoveryDocument, getJwks }: typeof import("../lib/oauth/discovery") = require("../lib/oauth/discovery");
+import type { OAuthProvider } from "../lib/oauth/types";
 
 const OAUTH_STATE_COOKIE = "__Host-ladu_oauth";
 const STATE_COOKIE_MAX_AGE_MS = 10 * 60 * 1000;
@@ -35,6 +40,9 @@ const OAUTH_ERROR = {
   // not split further — none of those distinctions are actionable for the
   // person looking at the login screen.
   FAILED: "oauth_failed",
+  // Connect-flow only (Phase 5): this identity is already linked, just not
+  // to the account that started this flow.
+  ALREADY_LINKED: "oauth_already_linked",
 } as const;
 
 /** `GET /api/auth/:provider/callback`'s redirect_uri — registered with the
@@ -61,34 +69,23 @@ function readCookie(req: any, name: string): string | undefined {
   return undefined;
 }
 
-const getProviders = asyncHandler(async (req: any, res: any) => {
-  res.json(listConfiguredProviders());
-});
-
-const startAuth = asyncHandler(async (req: any, res: any) => {
-  const provider = getProvider(req.params.provider);
-  if (!provider) {
-    res.status(404);
-    throw new Error("Unknown or unconfigured provider");
-  }
-
+/**
+ * The PKCE/state-JWT/authorize-URL mechanics shared by the public `/start`
+ * and the protected `/:provider/link` start (Phase 5) — they differ only in
+ * whether a `userId` rides along in the state JWT and how the result gets
+ * back to the browser (a 302 vs. a JSON `{ url }}` an authenticated `fetch`
+ * can read, since a plain `<a href>` can't carry an Authorization header).
+ */
+async function buildAuthorize(
+  provider: OAuthProvider,
+  extra: { userId?: string } = {},
+): Promise<{ stateJwt: string; authorizeUrl: string }> {
   const verifier = generateCodeVerifier();
   const challenge = generateCodeChallenge(verifier);
   const nonce = generateNonce();
   const jti = generateNonce();
 
-  const stateJwt = issueStateToken({ provider: provider.name, verifier, nonce, jti });
-
-  // `Secure` cookies (including `__Host-` prefixed ones) are accepted by
-  // browsers on http://localhost without TLS — localhost is treated as a
-  // secure context — so this works unchanged in local dev.
-  res.cookie(OAUTH_STATE_COOKIE, stateJwt, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: STATE_COOKIE_MAX_AGE_MS,
-  });
+  const stateJwt = issueStateToken({ provider: provider.name, verifier, nonce, jti, ...extra });
 
   const discovery = await getDiscoveryDocument(provider.issuer);
   const authorizeUrl = new URL(discovery.authorization_endpoint);
@@ -103,13 +100,62 @@ const startAuth = asyncHandler(async (req: any, res: any) => {
   authorizeUrl.searchParams.set("code_challenge", challenge);
   authorizeUrl.searchParams.set("code_challenge_method", "S256");
 
-  res.redirect(authorizeUrl.toString());
+  return { stateJwt, authorizeUrl: authorizeUrl.toString() };
+}
+
+function setStateCookie(res: any, stateJwt: string): void {
+  // `Secure` cookies (including `__Host-` prefixed ones) are accepted by
+  // browsers on http://localhost without TLS — localhost is treated as a
+  // secure context — so this works unchanged in local dev.
+  res.cookie(OAUTH_STATE_COOKIE, stateJwt, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: STATE_COOKIE_MAX_AGE_MS,
+  });
+}
+
+const getProviders = asyncHandler(async (req: any, res: any) => {
+  res.json(listConfiguredProviders());
+});
+
+const startAuth = asyncHandler(async (req: any, res: any) => {
+  const provider = getProvider(req.params.provider);
+  if (!provider) {
+    res.status(404);
+    throw new Error("Unknown or unconfigured provider");
+  }
+
+  const { stateJwt, authorizeUrl } = await buildAuthorize(provider);
+  setStateCookie(res, stateJwt);
+  res.redirect(authorizeUrl);
+});
+
+/** `POST /api/auth/:provider/link` (protected) — Phase 5's "connect a second provider" start, from the Account page. */
+const startLink = asyncHandler(async (req: any, res: any) => {
+  const provider = getProvider(req.params.provider);
+  if (!provider) {
+    res.status(404);
+    throw new Error("Unknown or unconfigured provider");
+  }
+
+  const { stateJwt, authorizeUrl } = await buildAuthorize(provider, { userId: req.user.id });
+  setStateCookie(res, stateJwt);
+  res.json({ url: authorizeUrl });
 });
 
 const callback = asyncHandler(async (req: any, res: any) => {
   const frontendBase = process.env.BASE_URL;
   const redirectWithError = (code: string) => {
     res.redirect(`${frontendBase}/auth/callback#error=${code}`);
+  };
+  // Phase 5's connect flow (below) never touches the caller's existing
+  // session — a failure there must not read as "you're logged out", the
+  // way `#error=` does to `useOAuthCallback` on the frontend. It gets its
+  // own fragment key instead.
+  const redirectWithLinkError = (code: string) => {
+    res.redirect(`${frontendBase}/auth/callback#link-error=${code}`);
   };
 
   const provider = getProvider(req.params.provider);
@@ -118,19 +164,37 @@ const callback = asyncHandler(async (req: any, res: any) => {
     return;
   }
 
+  // State is parsed in its own try/catch, *before* anything that knows
+  // whether this is a connect flow — a failure here can't tell the two
+  // apart yet, so it has to fall back to the safe-for-a-login-attempt
+  // `#error=` fragment regardless. Once `statePayload` exists, every later
+  // failure below knows `isConnectFlow` and uses the right one.
+  let statePayload;
   try {
     const cookieValue = readCookie(req, OAUTH_STATE_COOKIE);
     // Cleared unconditionally, before the outcome is even known — one-time use either way.
     res.clearCookie(OAUTH_STATE_COOKIE, { path: "/" });
     if (!cookieValue) throw new Error("Missing OAuth state cookie");
 
-    const statePayload = verifyStateToken(cookieValue);
+    statePayload = verifyStateToken(cookieValue);
     if (statePayload.provider !== provider.name) throw new Error("Provider mismatch");
 
-    const { code, state } = req.query;
-    if (typeof code !== "string" || typeof state !== "string" || state !== statePayload.jti) {
+    const { state } = req.query;
+    if (typeof state !== "string" || state !== statePayload.jti) {
       throw new Error("Invalid or mismatched OAuth state");
     }
+  } catch (error) {
+    console.error("OAuth callback state error:", error);
+    redirectWithError(OAUTH_ERROR.FAILED);
+    return;
+  }
+
+  const isConnectFlow = typeof statePayload.userId === "string";
+  const fail = isConnectFlow ? redirectWithLinkError : redirectWithError;
+
+  try {
+    const { code } = req.query;
+    if (typeof code !== "string") throw new Error("Missing code");
 
     const discovery = await getDiscoveryDocument(provider.issuer);
 
@@ -166,6 +230,27 @@ const callback = asyncHandler(async (req: any, res: any) => {
       .from(oauthIdentities)
       .where(and(eq(oauthIdentities.provider, provider.name), eq(oauthIdentities.providerUserId, identity.sub)))
       .limit(1);
+
+    if (isConnectFlow) {
+      // Phase 5 — connecting a second provider from the Account page. Never
+      // mints a session token: the caller is already logged in, and this
+      // flow's only job is inserting (or refusing to insert) one row.
+      if (existingIdentity && existingIdentity.userId !== statePayload.userId) {
+        fail(OAUTH_ERROR.ALREADY_LINKED);
+        return;
+      }
+      if (!existingIdentity) {
+        await db.insert(oauthIdentities).values({
+          userId: statePayload.userId as string,
+          provider: provider.name,
+          providerUserId: identity.sub,
+          emailAtLink: identity.email,
+        });
+      }
+      // Already linked to this same account — idempotent success either way.
+      res.redirect(`${frontendBase}/auth/callback#linked=${provider.name}`);
+      return;
+    }
 
     if (existingIdentity) {
       // Outcome (a) — already linked.
@@ -209,7 +294,7 @@ const callback = asyncHandler(async (req: any, res: any) => {
     res.redirect(`${frontendBase}/auth/callback#ticket=${ticket}&mode=signup`);
   } catch (error) {
     console.error("OAuth callback error:", error);
-    redirectWithError(OAUTH_ERROR.FAILED);
+    fail(OAUTH_ERROR.FAILED);
   }
 });
 
@@ -347,10 +432,57 @@ const link = asyncHandler(async (req: any, res: any) => {
   res.json(serializeLoginUser(user));
 });
 
+/** `GET /api/auth/identities` (protected) — feeds the Account page's "Sign-in methods" row. */
+const getIdentities = asyncHandler(async (req: any, res: any) => {
+  const [user] = await db.select({ password: users.password }).from(users).where(eq(users.id, req.user.id)).limit(1);
+  const identities = await db
+    .select({ id: oauthIdentities.id, provider: oauthIdentities.provider })
+    .from(oauthIdentities)
+    .where(eq(oauthIdentities.userId, req.user.id));
+
+  res.json({ hasPassword: !!user?.password, identities });
+});
+
+/** `DELETE /api/auth/identities/:id` (protected) — refuses to remove the caller's last sign-in method. */
+const deleteIdentity = asyncHandler(async (req: any, res: any) => {
+  const { id } = req.params;
+  if (!isUuid(id)) {
+    res.status(404);
+    throw new Error("Sign-in method not found");
+  }
+
+  const [identity] = await db
+    .select()
+    .from(oauthIdentities)
+    .where(and(eq(oauthIdentities.id, id), eq(oauthIdentities.userId, req.user.id)))
+    .limit(1);
+  if (!identity) {
+    res.status(404);
+    throw new Error("Sign-in method not found");
+  }
+
+  const [user] = await db.select({ password: users.password }).from(users).where(eq(users.id, req.user.id)).limit(1);
+  const remaining = await db
+    .select({ id: oauthIdentities.id })
+    .from(oauthIdentities)
+    .where(eq(oauthIdentities.userId, req.user.id));
+
+  if (!user?.password && remaining.length <= 1) {
+    res.status(400);
+    throw new Error("Cannot remove your only sign-in method");
+  }
+
+  await db.delete(oauthIdentities).where(eq(oauthIdentities.id, id));
+  res.json({});
+});
+
 export = {
   getProviders,
   startAuth,
+  startLink,
   callback,
   signupComplete,
   link,
+  getIdentities,
+  deleteIdentity,
 };

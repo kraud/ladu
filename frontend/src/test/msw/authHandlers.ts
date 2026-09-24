@@ -55,6 +55,13 @@ interface OAuthTicketPayload {
     name?: string;
 }
 
+interface InternalIdentity {
+    id: string;
+    userId: string;
+    provider: string;
+    providerUserId: string;
+}
+
 let counter = 0;
 const nextId = () => `user-${++counter}`;
 
@@ -67,7 +74,14 @@ export function makeAuthHandlers(
     const verifyTokens = new Map<string, string>(); // token → userId
     const resetTokens = new Map<string, string>(); // token → userId
     const sessions = new Map<string, string>(); // bearer token → userId
-    const linkedIdentities = new Map<string, string>(); // `${provider}:${sub}` → userId
+    const linkedIdentities = new Map<string, InternalIdentity>(); // `${provider}:${sub}` → identity
+
+    let identityCounter = 0;
+    function linkIdentity(userId: string, provider: string, sub: string): InternalIdentity {
+        const identity: InternalIdentity = { id: `identity-${++identityCounter}`, userId, provider, providerUserId: sub };
+        linkedIdentities.set(`${provider}:${sub}`, identity);
+        return identity;
+    }
 
     function put(u: SeedUser): InternalUser {
         const full: InternalUser = {
@@ -172,7 +186,7 @@ export function makeAuthHandlers(
                 languages: [...new Set(langs as string[])],
                 uiLanguage: isSupportedLanguage(body.uiLanguage) ? body.uiLanguage : 'English',
             });
-            linkedIdentities.set(`${payload.provider}:${payload.sub}`, u.id);
+            linkIdentity(u.id, payload.provider, payload.sub);
             return HttpResponse.json({ ...publicUser(u), token: issueToken(u) }, { status: 201 });
         }),
 
@@ -207,8 +221,53 @@ export function makeAuthHandlers(
                 );
             }
 
-            linkedIdentities.set(key, u.id);
+            linkIdentity(u.id, payload.provider, payload.sub);
             return HttpResponse.json({ ...publicUser(u), token: issueToken(u) });
+        }),
+
+        // GET /api/auth/identities (protected, oauth-login-strategy.md Phase 5)
+        http.get('*/api/auth/identities', ({ request }) => {
+            const u = userFromAuth(request);
+            if (!u) return new HttpResponse(null, { status: 401 });
+
+            const identities = [...linkedIdentities.values()]
+                .filter((i) => i.userId === u.id)
+                .map((i) => ({ id: i.id, provider: i.provider }));
+            return HttpResponse.json({ hasPassword: u.password !== OAUTH_NO_PASSWORD, identities });
+        }),
+
+        // DELETE /api/auth/identities/:id (protected, Phase 5)
+        http.delete('*/api/auth/identities/:id', ({ request, params }) => {
+            const u = userFromAuth(request);
+            if (!u) return new HttpResponse(null, { status: 401 });
+
+            const { id } = params as { id: string };
+            const entry = [...linkedIdentities.entries()].find(([, i]) => i.id === id && i.userId === u.id);
+            if (!entry) {
+                return HttpResponse.json({ message: 'Sign-in method not found' }, { status: 404 });
+            }
+
+            const remaining = [...linkedIdentities.values()].filter((i) => i.userId === u.id);
+            if (u.password === OAUTH_NO_PASSWORD && remaining.length <= 1) {
+                return HttpResponse.json({ message: 'Cannot remove your only sign-in method' }, { status: 400 });
+            }
+
+            linkedIdentities.delete(entry[0]);
+            return HttpResponse.json({});
+        }),
+
+        // POST /api/auth/:provider/link (protected start, Phase 5) — the
+        // real backend returns a real Google authorize URL; tests only need
+        // a stable shape `useConnectOAuthProvider` can read and navigate to.
+        http.post('*/api/auth/:provider/link', ({ request, params }) => {
+            const u = userFromAuth(request);
+            if (!u) return new HttpResponse(null, { status: 401 });
+
+            const { provider } = params as { provider: string };
+            if (!oauthProviders[provider]) {
+                return HttpResponse.json({ message: 'Unknown or unconfigured provider' }, { status: 404 });
+            }
+            return HttpResponse.json({ url: `https://accounts.google.com/o/oauth2/v2/auth?mock=1&provider=${provider}` });
         }),
 
         // POST /api/users — register
@@ -377,6 +436,12 @@ export function makeAuthHandlers(
             if (!u) return undefined;
             for (const [token, id] of resetTokens) if (id === u.id) return token;
             return undefined;
+        },
+        /** Seeds an already-linked identity directly — for tests that start with Google pre-connected. */
+        linkIdentityFor(email: string, provider: string, sub: string): void {
+            const u = find(email);
+            if (!u) throw new Error(`no user found for ${email}`);
+            linkIdentity(u.id, provider, sub);
         },
         userFor(email: string) {
             const u = find(email);

@@ -23,7 +23,8 @@
     "signInWithGoogle": "This account signs in with Google — use the Google button instead.",
     "oauthFailed": "Google sign-in didn't work. Please try again or use your password.",
     "oauthInvalidTicket": "That link has expired. Please try \"Continue with Google\" again.",
-    "oauthAlreadyLinked": "This Google account is already linked to a Ladu account."
+    "oauthAlreadyLinked": "This Google account is already linked to a Ladu account.",
+    "oauthLastMethod": "You can't remove your only sign-in method."
   },
   "oauth": {
     "continueWithGoogle": "Continue with Google",

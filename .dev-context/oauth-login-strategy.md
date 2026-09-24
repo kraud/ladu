@@ -392,7 +392,18 @@ one-shotting the whole feature.
   a user with only one method attempting to unlink it is blocked with a
   clear message.
 - **Gate:** connect/disconnect works from the Account page; the last-method
-  guard holds.
+  guard holds. **✅ done 2026-09-23** — full `test:e2e` (28/28), full backend
+  Jest (232/232, `oauth.test.js` gained `getIdentities`/`deleteIdentity`
+  coverage including the last-method guard), full frontend suite (70/70
+  files, 647/647 tests). New `POST /api/auth/:provider/link` (protected
+  start, carries the acting `userId` in the state JWT so `callback` can
+  branch into a fourth outcome — link-to-self — alongside the existing
+  three), `GET /api/auth/identities`, `DELETE /api/auth/identities/:id`.
+  One deliberate departure from a first draft: the Disconnect button is
+  never pre-emptively disabled for a last-method account — the click is
+  allowed through to the backend, whose 400 surfaces as the toast the plan
+  asks for, since a client-side guard would silently swallow the attempt
+  and nothing would ever explain why nothing happened.
 
 ### Phase 6 — Ship: staging/production secrets, consent screen, deployed smoke (½ day)
 

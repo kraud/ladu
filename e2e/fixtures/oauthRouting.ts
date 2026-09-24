@@ -38,3 +38,30 @@ export async function routeGoogleStartTo(
         });
     });
 }
+
+/**
+ * Same idea as `routeGoogleStartTo`, but for the protected, JSON-returning
+ * `/api/auth/google/link` endpoint used by the Account page's "Connect"
+ * button (oauth-login-strategy.md Phase 5) — there's no redirect chain to
+ * worry about here, just a `{ url }` body to rewrite before the page reads
+ * it and navigates itself.
+ */
+export async function routeGoogleConnectTo(
+    page: Page,
+    identity: { email: string; sub: string; name?: string; emailVerified?: boolean },
+): Promise<void> {
+    await page.route('**/api/auth/google/link', async (route) => {
+        const response = await route.fetch();
+        const body = (await response.json()) as { url: string };
+        const url = new URL(body.url);
+        url.searchParams.set('login_hint', identity.email);
+        url.searchParams.set('sub', identity.sub);
+        if (identity.name) url.searchParams.set('name', identity.name);
+        if (identity.emailVerified === false) url.searchParams.set('email_verified', 'false');
+        await route.fulfill({
+            status: response.status(),
+            headers: response.headers(),
+            body: JSON.stringify({ ...body, url: url.toString() }),
+        });
+    });
+}

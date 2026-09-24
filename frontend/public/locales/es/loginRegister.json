@@ -23,7 +23,8 @@
     "signInWithGoogle": "Esta cuenta inicia sesión con Google — usa el botón de Google en su lugar.",
     "oauthFailed": "El inicio de sesión con Google no funcionó. Inténtalo de nuevo o usa tu contraseña.",
     "oauthInvalidTicket": "Ese enlace ha caducado. Prueba \"Continuar con Google\" de nuevo.",
-    "oauthAlreadyLinked": "Esta cuenta de Google ya está vinculada a una cuenta de Ladu."
+    "oauthAlreadyLinked": "Esta cuenta de Google ya está vinculada a una cuenta de Ladu.",
+    "oauthLastMethod": "No puedes eliminar tu único método de inicio de sesión."
   },
   "oauth": {
     "continueWithGoogle": "Continuar con Google",
