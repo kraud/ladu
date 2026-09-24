@@ -125,6 +125,8 @@ jobs:
           EMAIL_PASS=${{ secrets.EMAIL_PASS }}
           EMAIL_FROM=${{ secrets.EMAIL_FROM }}
           SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
           ENVFILE
 
       - name: Copy deploy.sh and app.yml
@@ -210,6 +212,8 @@ jobs:
           EMAIL_PASS=${{ secrets.EMAIL_PASS }}
           EMAIL_FROM=${{ secrets.EMAIL_FROM }}
           SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
           ENVFILE
 
       - name: Copy deploy.sh and app.yml
