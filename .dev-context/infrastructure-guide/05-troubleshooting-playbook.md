@@ -67,9 +67,32 @@ artifact on failure) shows exactly which step failed and a trace/screenshot.
 **Fix:** most often this is a real UI regression — fix it locally, verify
 with `npm run test:e2e:smoke` pointed at staging
 (`BASE_URL=https://staging.ladu.com.ar npm run test:e2e:smoke` from `e2e/`,
-with `SMOKE_TEST_EMAIL`/`SMOKE_TEST_PASSWORD`/`EXPECTED_SHA` set), then
-merge the fix. Occasionally the flakiness is in the test's own selectors if
-UI text changed — same fix path either way, just in the spec instead.
+with `SMOKE_TEST_EMAIL`/`SMOKE_TEST_PASSWORD`/`EXPECTED_SHA`/`GOOGLE_CLIENT_ID`
+set), then merge the fix. Occasionally the flakiness is in the test's own
+selectors if UI text changed — same fix path either way, just in the spec
+instead.
+
+---
+
+### "Smoke e2e failed on 'Google sign-in wiring', so production never deployed"
+
+**What happened:** the login/create-word smoke passed, but the Google check
+failed. That check has nothing to do with the smoke account: it asks staging's
+`/api/auth/google/start` for the redirect to Google, then opens it and sees
+what Google says.
+
+**Check:** the failure message tells you which step broke.
+
+| Failure | Meaning | Fix |
+|---|---|---|
+| `Google rejected the request (redirect_uri_mismatch)` | The callback URL the backend sends (`${BASE_URL}/api/auth/google/callback`) is not in the OAuth client's list. Usually a changed `BASE_URL` secret. | Google Cloud Console → APIs & Services → Credentials → the OAuth client → **Authorized redirect URIs**: add the exact URL from the message, or correct `BASE_URL`. |
+| `Google rejected the request (invalid_client)` | Google does not know this client ID. The `GOOGLE_CLIENT_ID` secret is wrong or the client was deleted. | Compare the secret with the client ID in the Console. Fix the secret in **both** Environments, then redeploy. |
+| `client_id` or `redirect_uri` assertion fails, before Google is contacted | The two do not match what the test expects — for example `GOOGLE_CLIENT_ID` differs between the `staging` Environment and what the backend was deployed with. | Check the deploy `.env` was written from the same secret. |
+| Status is not 302, or the redirect is not to `accounts.google.com` | The backend has no Google provider (`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` missing on the server) or is down. | Check both secrets exist in the Environment, then redeploy. |
+| Lands on a captcha or "unusual traffic" page (no error path) | Google blocked GitHub's runner. Not a config problem. | Keep the URL assertions and drop the page load (step 3) in `deployed-smoke.spec.ts`. |
+
+Console changes to redirect URIs can take a few minutes to apply — re-run
+the job after waiting.
 
 ---
 

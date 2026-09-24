@@ -72,6 +72,7 @@ variable names, different (environment-appropriate) values:
 | `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASS` | Resend SMTP config — `EMAIL_PASS` is a Resend API key, currently the *same* key shared across both environments |
 | `EMAIL_FROM` | `staging@ladu.com.ar` or `noreply@ladu.com.ar` |
 | `SENTRY_DSN` | The **backend** Sentry project's DSN (same value both environments — `environment`/`release` tags do the separation, not separate DSNs) |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client for "Continue with Google". Written into each environment's deploy `.env`. Without both, the backend reports Google as not configured and the button does not render. The `smoke` job also reads `GOOGLE_CLIENT_ID` from the `staging` Environment (see below) — no separate secret for it |
 
 `staging` additionally has:
 
@@ -79,6 +80,18 @@ variable names, different (environment-appropriate) values:
 |---|---|
 | `SMOKE_TEST_EMAIL` | The persistent smoke-test account's email (`smoke-test@ladu.test`) |
 | `SMOKE_TEST_PASSWORD` | Its password — **currently still the throwaway value set during initial one-off setup, not yet rotated** |
+
+### Google check in the smoke job
+
+The `smoke` job passes `GOOGLE_CLIENT_ID` (from the `staging` Environment's
+existing secret above) to `deployed-smoke.spec.ts`, which checks that the
+staging backend sends Google exactly that client ID and that Google accepts
+it. The client ID is public — it appears in every redirect to Google — but
+it is still read from the secret so the test compares against the configured
+value, not a copy in the repo. If the secret is missing, the whole smoke job
+fails (all its env vars are required at load time), not only the Google
+check. Nothing new to rotate: the check uses no Google account and no
+client secret.
 
 ### The smoke-test account {#smoke-test-account}
 

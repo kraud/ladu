@@ -1,5 +1,12 @@
 # Plan — OAuth backlog: stub e2e flakiness + real Google smoke check
 
+> **Status: both slices done (2026-09-24).** Slice A: PR #49 (skips removed,
+> real cause was missing Google credentials in CI, not SMTP — see A3).
+> Slice B: PR #50 (redirect check in the staging smoke), production confirmed
+> by hand. Below is the plan as approved, with results filled in where they
+> changed it. Final docs: `.dev-context/oauth-login-strategy.md` Phase 6,
+> `infrastructure-guide/05` and `06`.
+
 ## Context
 
 Two items are left from the OAuth work (`.dev-context/oauth-login-strategy.md`):
@@ -95,6 +102,18 @@ Use the Playwright MCP browser against `https://staging.ladu.com.ar`:
 - Confirm that headless Chromium gets the normal sign-in page, not a bot
   challenge. Show the results to the user before Step B2.
 
+**B1 results (2026-09-24, staging, Playwright MCP browser):**
+
+| Request | Final URL | Meaning |
+|---|---|---|
+| `/api/auth/google/start` (real flow) | `accounts.google.com/v3/signin/identifier?...`, title "Sign in - Google Accounts" | Accepted |
+| Same authorize URL, wrong `redirect_uri` | `accounts.google.com/signin/oauth/error?authError=...` | `authError` decodes to `redirect_uri_mismatch` |
+| Same authorize URL, wrong `client_id` | `accounts.google.com/signin/oauth/error?authError=...` | `authError` decodes to `invalid_client` |
+
+The page text was German (browser locale), so B2 asserts on the URL path, not
+on text. The headless-from-a-CI-IP question was not answered by the spike; it
+was answered by the first real `smoke` run (below).
+
 **Step B2 — Add one test to `e2e/tests/deployed-smoke.spec.ts`.**
 Add a third test to the existing `test.describe.serial` block:
 1. `request.get(`${baseURL}/api/auth/google/start`, { maxRedirects: 0 })`
@@ -124,10 +143,15 @@ Also update `e2e/playwright.deploy.config.ts`'s comment if it lists the env vars
 (user supplies the values). Also run once with a wrong `GOOGLE_CLIENT_ID` to
 see the test fail for the right reason.
 
-**Step B5 — Production, one time, manual.**
+**Step B5 — Production, one time, manual. DONE (2026-09-24).**
 After the first deploy with this change, open
 `https://app.ladu.com.ar/api/auth/google/start` in a browser and confirm the
 Google sign-in page appears. Record the date in the docs.
+Result: the first `smoke` run (deploy run 36036365497, commit `bd26642`)
+showed `3 passed (9.6s)` — 2 old tests plus the new one; GitHub's `github`
+reporter prints counts, not names of passing tests, so the new test's name is
+not in the log. The user then checked production by hand and saw the Google
+sign-in page.
 
 **Step B6 — Docs.**
 - `.dev-context/oauth-login-strategy.md` §Phase 6 (~lines 418–422): change the
