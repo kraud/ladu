@@ -149,8 +149,9 @@ After the first deploy with this change, open
 Google sign-in page appears. Record the date in the docs.
 Result: the first `smoke` run (deploy run 36036365497, commit `bd26642`)
 showed `3 passed (9.6s)` — 2 old tests plus the new one; GitHub's `github`
-reporter prints counts, not names of passing tests, so the new test's name is
-not in the log. The user then checked production by hand and saw the Google
+reporter prints counts, not names of passing tests, so the new test's name was
+not in the log (fixed afterwards: `playwright.deploy.config.ts` now also uses
+the `list` reporter in CI). The user then checked production by hand and saw the Google
 sign-in page.
 
 **Step B6 — Docs.**
