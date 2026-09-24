@@ -41,6 +41,7 @@ COPY backend/tsconfig.json backend/tsconfig.json
 COPY backend/app.js backend/app.js
 COPY backend/api backend/api
 COPY backend/controllers backend/controllers
+COPY backend/lib backend/lib
 COPY backend/middleware backend/middleware
 COPY backend/routes backend/routes
 COPY backend/scripts backend/scripts
