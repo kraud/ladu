@@ -10,7 +10,7 @@ import { defineConfig, devices } from '@playwright/test';
  * user would (`.dev-context/deployment-strategy.md` §3).
  *
  * Run: BASE_URL=https://staging.ladu.com.ar SMOKE_TEST_EMAIL=... \
- *      SMOKE_TEST_PASSWORD=... EXPECTED_SHA=<sha> \
+ *      SMOKE_TEST_PASSWORD=... EXPECTED_SHA=<sha> GOOGLE_CLIENT_ID=... \
  *      npm run test:e2e:smoke
  */
 
