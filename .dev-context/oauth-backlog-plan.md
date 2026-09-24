@@ -54,17 +54,23 @@ spike results from B1) as work continues.
   job status.
 - Record each run ID and result in the PR description.
 
-**Step A3 — Only if a run fails or shows flaky:**
-1. Set `EMAIL_HOST: 127.0.0.1` in `.github/workflows/ci.yml` (e2e job env,
-   ~line 121). This removes DNS resolution of `localhost` (IPv6 `::1` first,
-   then IPv4) as a cause. Restart the 5-run count.
-2. If it still fails: get real timing evidence. Add a temporary log of the
-   SMTP error and its elapsed time in `sendEmail.js`'s `.catch` (it already
-   logs `err`), and read the backend output in the Playwright report
-   (`stdout: 'pipe'` is already set in `playwright.config.ts`).
-3. Last option: control test order (e.g. Playwright `projects` with
-   `dependencies`, so the oauth specs run before registration-heavy specs).
-   Ask the user before this step.
+**Step A3 — First CI run after A1 failed. Real cause found (2026-09-24).**
+- The CI log showed every "Continue with Google" test failing on all 3
+  attempts, waiting for a link that never rendered. The SMTP errors in the
+  log were instant `ECONNREFUSED`, not slow. So the SMTP theory (and the 5 s
+  timeout cap in `sendEmail.js`) was not the cause.
+- Real cause: the frontend shows the link only if `/api/auth/providers`
+  reports `google: true`. The backend reports that only if `GOOGLE_CLIENT_ID`
+  and `GOOGLE_CLIENT_SECRET` are set. Locally the gitignored repo-root `.env`
+  supplies them. CI has no `.env`, and `ci.yml` did not set them.
+- Fix: fake `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in the backend `env`
+  block of `e2e/playwright.config.ts`. The stub issuer accepts any client ID.
+  No GitHub secret needed. Restart the 5-run count from the first run with
+  this fix.
+- Fallbacks, only if a run still fails after this fix (get evidence first):
+  1. `EMAIL_HOST: 127.0.0.1` in `ci.yml`.
+  2. Control test order (Playwright `projects` with `dependencies`). Ask the
+     user before this step.
 
 **Step A4 — Docs.** Update the "Phase 6 / revisit" comments that referred to
 the skip (spec files, and any mention in `.dev-context/oauth-login-strategy.md`)
