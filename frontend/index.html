@@ -6,13 +6,20 @@
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <title>Ladu</title>
         <!-- Sets the theme before first paint (no light→dark flash). Same rule as
-             src/lib/theme.ts: saved choice first, OS preference second. Keep in sync. -->
+             src/lib/theme.ts + src/lib/handoff.ts: a ?theme= from the landing page
+             first (applied here only; the app saves it and cleans the address),
+             then the saved choice, then the OS preference. Keep in sync. -->
         <script>
             (function () {
                 var theme = null;
-                try {
-                    theme = localStorage.getItem('ladu.theme');
-                } catch (e) {}
+                var fromUrl = /[?&]theme=(light|dark)(?:&|#|$)/i.exec(window.location.search);
+                if (fromUrl) {
+                    theme = fromUrl[1].toLowerCase();
+                } else {
+                    try {
+                        theme = localStorage.getItem('ladu.theme');
+                    } catch (e) {}
+                }
                 if (theme !== 'light' && theme !== 'dark') {
                     theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                 }

@@ -79,7 +79,7 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 1 — dark palette + theme store + no-flash script + `ThemeToggle` on the auth screens | `tokens.css` dark block; `styles.css` variant; `index.html` inline script; `lib/theme.ts` (external store, see outcome); `components/layout/ThemeToggle.tsx` + `PublicThemeToggle.tsx`; slot in `AuthLayout` next to `PublicLanguageSelector`; hard-coded-colour audit; tests. | ✅ done 2026-09-25 — frontend **660/660**, `tsc -b` + eslint + `vite build` green |
 | 2 — backend `users.theme` | Drizzle migration; validation; register/login/OAuth signup/`updateUser`; serializer allowlists; Jest tests. | ✅ done 2026-09-25 — backend **244/244**, `tsc` + eslint green |
 | 3 — header switch + login/register carry-over | Header `ThemeToggle` saves through `useUpdateProfile`; login/register/Google sign-up send `theme` per D7; session applies the row value. | ✅ done 2026-09-25 — frontend **670/670**, `tsc -b` + eslint + `vite build` green |
-| 4 — URL handoff | Read `?theme=` once (D6), save it, remove `?theme=` and `?lng=` from the URL. | not started |
+| 4 — URL handoff | Read `?theme=` once (D6), save it, remove `?theme=` and `?lng=` from the URL. | ✅ done 2026-09-25 — frontend **680/680**, `tsc -b` + eslint + `vite build` green |
 | 5 — landing page | Language selector + theme switch under the language list (left side); ES/DE/EE texts; `[data-theme]` palette; links add `?lng=&theme=`; `<html lang>`; Dockerfile. | not started |
 | 6 — phase gate | `phase-3-9-theme.spec.ts`; both themes checked on every screen; docs; full green run. | not started |
 | 7+ — small fixes | Added later by the user. | not started |
@@ -231,3 +231,45 @@ faint bubble is just the thin outline, not a theme problem. No change made.
 - Still open: the auth screens' "carry to the app" is only tested through the login form. The
   registration path stores the theme on the new row (backend-tested) but there is no frontend test
   for it yet.
+
+## Slice 4 outcome (2026-09-25)
+
+**Shipped.** The app reads `?lng=` and `?theme=` once at boot, uses them, saves them and removes them
+from the address. The landing links (Slice 5) only have to add these two parameters.
+
+New: `lib/handoff.ts` (+test). Changed: `i18n.ts` (calls `takeHandoffParams()` first; starts in
+the handoff language), `index.html` (the no-flash script also reads `?theme=`).
+
+**How it works**
+
+- **Timing:** `i18n.ts` is the first app module to run, so it takes the parameters before i18next's
+  detector or the router see the address. The values are read and the address is cleaned in one
+  step, with no timing dependency on i18next's async start and no router desync.
+- **Theme:** an address value beats the saved browser choice (D6). It is saved with `setTheme`, so it
+  is now the browser's choice. The inline script in `index.html` applies it first, so the first paint
+  is already right.
+- **Language:** i18next starts with `lng` set to it and caches it, like the language selector does.
+  A reload without the parameter keeps it. Accepted codes: `en`, `es`, `de`, `ee` (any letter case).
+- **Cleaning:** only `lng` and `theme` are removed. Other parameters (for example `?redirect=`) keep
+  their exact text, and the `#…` fragment (the Google sign-in result) is not touched. An invalid value
+  (`?theme=system`, `?lng=fr`) is ignored but still removed.
+- **Signed-in users:** not special-cased. Once a session exists, the account's theme and language win
+  (Slice 3). A signed-in user who arrives with a different theme in the address sees a short switch
+  back to the account theme. This is the accepted edge case of the landing page keeping its own
+  choice.
+
+**Tests (+10, frontend 680/680):** `parseHandoff` (both values, all four codes, letter case, invalid
+values, other parameters kept, keys that only look similar), `takeHandoffParams` (apply + save + clean,
+beats a saved choice, keeps other parameters and the fragment, does nothing when absent, invalid
+values cleaned).
+
+**Checked by hand** (Playwright MCP, dev server): `/login?lng=es&theme=dark` on empty storage gives
+a Spanish, dark login page, the address becomes `/login`, and a reload keeps both. `?redirect=%2Freview`
+survives the cleaning. `/?lng=ee&theme=dark` while signed out ends on `/login?redirect=%2F` in Estonian
+and dark with no leftover parameters.
+
+**Found, not fixed here (candidate for the "small fixes" list)**
+
+- `<html lang>` stays `en` when the UI language changes, in the whole app. Screen readers and
+  browser translation use it. It is a two-line fix in `i18n.ts` (`languageChanged` handler).
+- `.dev-context/` and the landing docs are not updated yet for the link format. Slice 5 does that.
