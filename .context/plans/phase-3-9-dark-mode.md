@@ -422,3 +422,31 @@ goes `et` for `?lng=ee`, then `es` after the selector, and survives a reload).
 
 **Not done here:** the OS-preference listener (`initTheme`) can still re-apply the OS theme on the 404
 if the OS switches while the preview is on. It is a rare case, accepted.
+
+## Follow-up: code-scanning alert on `landing/app.js` (2026-09-25)
+
+GitHub code scanning (github-advanced-security) flagged `applyLinks()` in `landing/app.js`: "DOM text
+reinterpreted as HTML without escaping meta-characters". The link address was built by joining
+`data-app` (text read from the page) and `language` / the stored theme (read from storage) into an
+`href`. The values were checked before that, so it could not be exploited as written. But the scanner
+could not see the checks, and nothing stopped a bad `data-app` value from becoming a link.
+
+Changes (in `landing/app.js` only):
+
+- **`appHref(path)`** builds the address with `new URL(path, APP_ORIGIN)` and `searchParams.set`, so
+  the values are encoded. It **refuses** any address whose origin is not `APP_ORIGIN`
+  (`//other.example`, `https://other.example`, `javascript:...`). A refused link keeps its static
+  `href` from the HTML.
+- **Constants only:** `knownLang()` returns the language table's own code, never the stored or browser
+  string. `storedTheme()` returns the literal `'light'` or `'dark'`. So unchecked text cannot reach the
+  address.
+- The unused `isLang()` helper is removed.
+
+Checked in a browser: normal links are unchanged (`?lng=es&theme=dark`). Hostile stored values (a
+`"><img onerror>` language, a `javascript:` theme) give `?lng=en` with no theme. Hostile `data-app`
+values are refused. A normal path (`/login`) still works. The root link now has a trailing slash
+(`https://app.ladu.com.ar/?lng=es`), which is the same address.
+
+Not changed: the picker still adds its check icon with `insertAdjacentHTML` from a constant string.
+It takes no outside text, so it is not flagged. It could be replaced with `createElementNS` if the
+scanner ever objects.

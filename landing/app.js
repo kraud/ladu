@@ -114,23 +114,28 @@
         }
     }
 
-    function isLang(code) {
-        return LANGS.some(function (l) {
-            return l.code === code;
-        });
-    }
-
     function langByCode(code) {
         return LANGS.filter(function (l) {
             return l.code === code;
         })[0];
     }
 
+    /* The table's own code for `code`, or null. Returning the table's constant
+       (never the stored / browser string) keeps unchecked text out of anything
+       built from it, such as the links into the app. */
+    function knownLang(code) {
+        var entry = langByCode(code);
+        return entry ? entry.code : null;
+    }
+
     /* ---------- theme ---------- */
 
     function storedTheme() {
         var value = read(THEME_KEY);
-        return value === 'light' || value === 'dark' ? value : null;
+        /* literals, not `value`: only 'light' or 'dark' can ever come out */
+        if (value === 'light') return 'light';
+        if (value === 'dark') return 'dark';
+        return null;
     }
 
     function systemTheme() {
@@ -144,13 +149,13 @@
     /* ---------- language ---------- */
 
     function detectLanguage() {
-        var saved = read(LANG_KEY);
-        if (isLang(saved)) return saved;
+        var saved = knownLang(read(LANG_KEY));
+        if (saved) return saved;
         var preferred = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
         for (var i = 0; i < preferred.length; i += 1) {
             var base = String(preferred[i] || '').slice(0, 2).toLowerCase();
             if (base === 'et') base = 'ee'; /* ISO Estonian -> the app's code */
-            if (isLang(base)) return base;
+            if (knownLang(base)) return knownLang(base);
         }
         return 'en';
     }
@@ -180,12 +185,30 @@
         });
     }
 
-    /* The links into the app: ?lng always, &theme only for a choice made here. */
-    function applyLinks() {
+    /* The address of `path` in the app, with the visitor's choices: ?lng always,
+       &theme only for a choice made here. Built with URL and refused unless it
+       stays on the app's own origin, so a `data-app` value such as
+       "//other.example" or "javascript:..." can never become a link. Returns
+       null for a refused path. */
+    function appHref(path) {
+        var url;
+        try {
+            url = new URL(path, APP_ORIGIN);
+        } catch (e) {
+            return null;
+        }
+        if (url.origin !== APP_ORIGIN) return null;
+        url.searchParams.set('lng', knownLang(language) || 'en');
         var chosen = storedTheme();
-        var query = '?lng=' + language + (chosen ? '&theme=' + chosen : '');
+        if (chosen) url.searchParams.set('theme', chosen);
+        return url.toString();
+    }
+
+    function applyLinks() {
         document.querySelectorAll('[data-app]').forEach(function (a) {
-            a.setAttribute('href', APP_ORIGIN + a.getAttribute('data-app') + query);
+            var href = appHref(a.getAttribute('data-app') || '');
+            /* refused: leave the static href from the HTML as it is */
+            if (href) a.setAttribute('href', href);
         });
     }
 
