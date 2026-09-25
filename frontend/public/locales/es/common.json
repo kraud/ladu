@@ -33,6 +33,10 @@
     "goToAccount": "Ir a la cuenta",
     "menu": "Menú"
   },
+  "theme": {
+    "switchToDark": "Cambiar al tema oscuro",
+    "switchToLight": "Cambiar al tema claro"
+  },
   "sections": {
     "dashboard": "Panel",
     "tags": "Tags",

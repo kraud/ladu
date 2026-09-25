@@ -33,6 +33,10 @@
     "goToAccount": "Go to Account",
     "menu": "Menu"
   },
+  "theme": {
+    "switchToDark": "Switch to dark theme",
+    "switchToLight": "Switch to light theme"
+  },
   "sections": {
     "dashboard": "Dashboard",
     "tags": "Tags",

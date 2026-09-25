@@ -137,7 +137,7 @@ export function WordForm({
                 </p>
             )}
 
-            <div className="mt-auto sticky bottom-0 flex flex-col gap-2 border-t border-border bg-background pt-3">
+            <div className="mt-auto sticky bottom-0 flex flex-col gap-2 border-t border-border bg-card pt-3">
                 {!collapsed && state.belowMinTranslations && (
                     <p className="hint">{t('wordRelated:wordForm.hints.minTranslations')}</p>
                 )}

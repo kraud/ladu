@@ -1,0 +1,139 @@
+# Phase 3.9 — Dark mode + small fixes
+
+## Context
+
+Added 2026-09-25 (see `new-repo-build-plan.md` §5). This phase adds a light/dark theme to three
+places: the landing page (`landing/`), the auth screens and the logged-in app. The landing page
+also gets a language selector. The theme and the language must carry over: landing → auth screens →
+logged-in app.
+
+Only **light** and **dark** are offered. There is no "system" option in the switch. The OS
+preference is used only as the **start value** (D1).
+
+The user will list the "small fixes" after the dark-mode slices are done. They become Slice 7+.
+
+## Decisions taken with the user
+
+- **D1 — Start value = OS preference (2026-09-25).** A first visit with no stored choice follows
+  `prefers-color-scheme`. The switch itself only has light and dark. The OS value is **not saved**
+  until the user presses the switch. So a visitor who never touches the switch keeps following the
+  OS.
+- **D2 — Storage = user row + browser (2026-09-25).** A new `users.theme` column
+  (`'light' | 'dark'`, nullable), same pattern as `users.uiLanguage`. Also `localStorage` in the
+  app and on the landing page.
+- **D3 — Landing → app handoff = URL parameters (2026-09-25).** The landing (`ladu.com.ar`) and the
+  app (`app.ladu.com.ar`) are different origins. `localStorage` does not carry over. The landing
+  links add `?lng=es&theme=dark`. The app reads them once, saves them, and removes them from the
+  URL. i18next already reads `?lng=`.
+- **D4 — Landing texts (2026-09-25).** Claude drafts ES/DE/EE. The EE text is flagged for user
+  review.
+- **D5 — Small fixes (2026-09-25).** Not defined yet. The user adds them after Slice 6.
+
+### Calls made by the agent rather than asked — each reversible
+
+- **D6 — Precedence on the client.** Highest first: `?theme=` in the URL → saved browser choice →
+  OS preference. The URL wins because it carries the latest choice made on the landing page.
+- **D7 — Login sends the theme only if the user chose it.** `uiLanguage` is always sent at login
+  and overwrites the user row. If theme did the same, a user who logs in on a new device (OS
+  default, no choice made) would overwrite the theme they saved on another device. So: send `theme`
+  only when a saved browser choice exists. Otherwise send nothing. The backend then keeps the row
+  value, and the app applies it after login. If the row is empty (existing users), the app keeps the
+  current theme and does not write it.
+- **D8 — Attribute, not class.** The theme is `data-theme="light|dark"` on `<html>`. This is what
+  `tokens.css:1-9` already planned. The shadcn variant in `styles.css:11` changes from
+  `.dark` to `[data-theme="dark"]`. Also set `color-scheme` per theme so native controls and
+  scrollbars follow.
+- **D9 — No flash.** A small inline script in `frontend/index.html` sets `data-theme` before the
+  first paint. The React store reads the same value.
+
+## What the exploration established
+
+- **Tokens**: `frontend/src/styles/tokens.css` holds six seed colours (`--bg`, `--surface`, `--fg`,
+  `--muted`, `--border`, `--accent`). The derived tones use `color-mix()`, so they recompute. Dark
+  overrides are: seeds + `--accent-strong`/`--accent-ink`, `--lang-*`, `--success`, `--danger`,
+  `--warning`.
+- **Dark values exist**: `landing/style.css:28-45` already has a dark palette (under
+  `prefers-color-scheme`). Reuse it, so the app and the landing page match. `landing/style.css`
+  says the two files are "kept in sync by hand".
+- **Hard-coded colours to audit**: `frontend/src/styles/globals.css` (4 hex values),
+  `components/common/GoogleIcon.tsx` (brand colours — keep), `lib/avatar.ts`, and the chart
+  colours in `features/metrics/components/charts/` (`chartColors.ts`).
+- **Language selectors — the two patterns to copy**:
+  `components/layout/PublicLanguageSelector.tsx` (public: `i18n.changeLanguage`, cached in
+  `localStorage['i18nextLng']`) and `components/layout/LanguageSelector.tsx` (header: saves through
+  `useUpdateProfile`, full payload). Slots: `.auth-lang` in `AuthLayout.tsx`; `AppHeader.tsx:81`.
+- **Backend**: `users.ui_language` and `users.native_language` are `varchar` in
+  `backend/src/db/schema.ts:63-64`. `theme` follows the same shape. Paths to cover: register,
+  login, OAuth callback, `updateUser`, and the `serializeUser` allowlist.
+- **Landing**: plain static HTML, no JS (`landing/index.html`, 55 lines). The language list is
+  `<p class="note">` in `.hero-copy` (left side). `landing/Dockerfile` lists files by name, so a new
+  JS file needs a new `COPY` entry.
+
+## Slices
+
+Each slice ends with something runnable. The user reviews and commits between slices.
+
+| Slice | Scope | Status |
+|---|---|---|
+| 0 — persist the plan | This file. Row status in `new-repo-build-plan.md` §9. | ✅ done 2026-09-25 |
+| 1 — dark palette + theme store + no-flash script + `ThemeToggle` on the auth screens | `tokens.css` dark block; `styles.css` variant; `index.html` inline script; `lib/theme.ts` (external store, see outcome); `components/layout/ThemeToggle.tsx` + `PublicThemeToggle.tsx`; slot in `AuthLayout` next to `PublicLanguageSelector`; hard-coded-colour audit; tests. | ✅ done 2026-09-25 — frontend **660/660**, `tsc -b` + eslint + `vite build` green |
+| 2 — backend `users.theme` | Drizzle migration; validation; register/login/OAuth/`updateUser`; `serializeUser` allowlist; Jest tests. | not started |
+| 3 — header switch + login/register carry-over | Header `ThemeToggle` saves through `useUpdateProfile`; login/register send `theme` per D7; session applies the row value. | not started |
+| 4 — URL handoff | Read `?theme=` once (D6), save it, remove `?theme=` and `?lng=` from the URL. | not started |
+| 5 — landing page | Language selector + theme switch under the language list (left side); ES/DE/EE texts; `[data-theme]` palette; links add `?lng=&theme=`; `<html lang>`; Dockerfile. | not started |
+| 6 — phase gate | `phase-3-9-theme.spec.ts`; both themes checked on every screen; docs; full green run. | not started |
+| 7+ — small fixes | Added later by the user. | not started |
+
+## Gate
+
+- Backend and frontend suites green. Build green.
+- Every screen checked in both themes (Playwright MCP screenshots): landing, all auth screens, 404,
+  Home/Dashboard, Add Word, Word page, Review, Account.
+- No theme flash on reload.
+- **e2e** (`phase-3-9-theme.spec.ts`):
+  1. Open `/login?lng=es&theme=dark` → the page is Spanish and dark. The parameters are removed.
+  2. Switch the theme on the auth screen → log in → the app stays dark.
+  3. Switch the theme in the header → reload and log in from a new browser context → the theme comes
+     back from the user row.
+  4. A user with no saved choice follows the OS preference (`colorScheme` emulation).
+
+## Slice 1 outcome (2026-09-25)
+
+**Shipped.** The auth screens have a light/dark switch next to the language selector. The whole
+app and the auth screens render in dark. The choice is saved in the browser only (no backend yet —
+that is Slice 2).
+
+New files: `lib/theme.ts` (+test), `components/layout/{ThemeToggle,PublicThemeToggle}.tsx` (+test).
+Changed: `index.html` (inline no-flash script), `main.tsx` (`initTheme()`), `styles.css` (`dark`
+variant now follows `[data-theme='dark']`), `styles/tokens.css` (dark block), `styles/globals.css`,
+`AuthLayout.tsx`, `WordForm.tsx`, `WordPage.tsx`, `common.json` × 4 (`theme.switchToDark` /
+`switchToLight`; **EE strings flagged for the user to check**).
+
+**Deviations from the slice plan**
+
+- **No Zustand store.** The theme is an external store in `lib/theme.ts`, read with
+  `useSyncExternalStore`. Reason: the inline script in `index.html` must read the same saved value
+  before React loads, so it is a bare `'light' | 'dark'` string under `localStorage['ladu.theme']`,
+  not a `persist` JSON blob. It also keeps to the "three stores" rule in `stores/uiStore.ts`. The
+  phase-level wording ("Zustand `persist`") in `new-repo-build-plan.md` §5 is superseded by this.
+- **Neutral derived tokens now mix in `srgb`** (`--fg-soft`, `--fg-soft2`, `--hover`,
+  `--border-strong`), and the auth panel too. In the dark theme `--fg` has almost no chroma, so an
+  `oklch` mix has no usable hue and Chrome rendered a faint red-brown tint (seen on the auth panel).
+  Accent and state tones keep `oklch`.
+- **New `--danger-ink` token** (white in light, dark ink in dark) for the count badge. The
+  language-tile check uses `--accent-ink` instead of a fixed `#fff`.
+- **Bulk bar** (`.bulkbar`): the fixed white overlays and the fixed pink "danger" text became
+  `--bg` / `--danger` mixes, because in the dark theme this bar is light.
+- **Two sticky save bars** (`WordForm`, `WordPage`) used `bg-background` inside a `--surface` card.
+  It was almost invisible in light and a dark band in dark. Now `bg-card`.
+
+**Checked by hand in the browser** (Playwright MCP, dark): login, register (desktop + 390 px wide),
+Home, Add Word. Start value follows the OS; the switch saves the choice; the choice survives a
+login. Not yet checked (Slice 6 covers every screen in both themes): Review, Word page, Account,
+Dashboard charts, dialogs, 404.
+
+**Known, not fixed here**
+
+- The header logo's speech-bubble outline is dark blue and low-contrast on the dark header
+  (`BrandLogo`). Look at it in Slice 3 when the header gets its switch.
+- 2 pre-existing eslint warnings in `ReviewPage.tsx` (`userLanguages` memo). Untouched.

@@ -5,6 +5,9 @@ import { Providers } from './app/Providers';
 import { gitSha, sentryDsn } from './env';
 import './i18n';
 import './styles.css';
+import { initTheme } from './lib/theme';
+
+initTheme();
 
 // One built image serves both staging and production (frontend/Dockerfile's
 // own top comment), so `environment` can't be a build-time value the way

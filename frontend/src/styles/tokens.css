@@ -2,13 +2,14 @@
    Ladu — design tokens
    Ported from MOCKUPS/assets/app.css. Six seed colors + derived
    tones via color-mix(in oklch, ...). Palette and type live only
-   here. A future dark mode only needs to reassign the six seeds
-   below (bg/surface/fg/muted/border/accent) under a
-   `:root:not([data-theme="light"])` + `:root[data-theme="dark"]`
-   pair — every derived tone recomputes from them automatically.
+   here. Dark mode (Phase 3.9) reassigns the six seeds (bg/surface/fg/
+   muted/border/accent) under `:root[data-theme='dark']` further down —
+   every derived tone recomputes from them automatically.
    ============================================================ */
 
 :root {
+  color-scheme: light;
+
   /* Brand pass 2026-09-21: the accent moved from the placeholder teal to the
      real brand blue #007AFF. The neutrals were warm (paper-white, warm
      hairlines) because they were tuned against teal. They are cooled here to
@@ -26,19 +27,22 @@
      rings, marks and charts keep --accent. */
   --accent-strong: #0062cc;
 
-  /* derived — do not change */
+  /* derived — do not change. The four neutral tones mix in srgb, not oklch:
+     a near-neutral seed (the dark --fg has chroma ~0.006) has no usable hue, and
+     an oklch mix then renders a faint red tint. Accent/state tones keep oklch. */
   --accent-ink: #ffffff;
   --accent-soft: color-mix(in oklch, var(--accent) 12%, transparent);
   --accent-soft2: color-mix(in oklch, var(--accent) 22%, transparent);
-  --fg-soft: color-mix(in oklch, var(--fg) 5%, transparent);
-  --fg-soft2: color-mix(in oklch, var(--fg) 10%, transparent);
-  --hover: color-mix(in oklch, var(--fg) 4%, var(--surface));
-  --border-strong: color-mix(in oklch, var(--fg) 25%, transparent);
+  --fg-soft: color-mix(in srgb, var(--fg) 5%, transparent);
+  --fg-soft2: color-mix(in srgb, var(--fg) 10%, transparent);
+  --hover: color-mix(in srgb, var(--fg) 4%, var(--surface));
+  --border-strong: color-mix(in srgb, var(--fg) 25%, transparent);
 
   /* state colors */
   --success: #1a7f37;
   --success-soft: color-mix(in oklch, var(--success) 12%, transparent);
   --danger: #c03038;
+  --danger-ink: #ffffff;
   --danger-soft: color-mix(in oklch, var(--danger) 11%, transparent);
   --warning: #a35a0a;
   --warning-soft: color-mix(in oklch, var(--warning) 14%, transparent);
@@ -48,6 +52,35 @@
   --lang-de: #42403c;
   --lang-es: #b8352f;
   --lang-ee: #2265a8;
+}
+
+/* Dark theme (Phase 3.9). `lib/theme.ts` sets `data-theme` on <html>; only the
+   seeds and the state/identity colours are reassigned here — every derived
+   tone (`--accent-soft`, `--fg-soft`, `--hover`, …) recomputes from them.
+   Values match landing/style.css's dark block so the two look like one product.
+   `--accent-strong` is the accent as small text: on a dark ground that means a
+   LIGHTER blue, not the darker one used in light mode. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #121417;
+  --surface: #1b1e23;
+  --fg: #eef0f4;
+  --muted: #9aa0aa;
+  --border: #2c3036;
+  --accent: #4da3ff;
+  --accent-strong: #7cbaff;
+  --accent-ink: #062a52;
+
+  --success: #4cc36b;
+  --danger: #f0686f;
+  --danger-ink: #2a0a0c;
+  --warning: #e0a03c;
+
+  --lang-gb: #7f9fe0;
+  --lang-de: #b4b0a6;
+  --lang-es: #ef7d76;
+  --lang-ee: #6fb0ec;
 }
 
 /* ------------------------------------------------------------

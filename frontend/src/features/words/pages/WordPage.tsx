@@ -150,7 +150,7 @@ export function WordPage() {
 
             <SidebarFields clue={word.clue ?? ''} collapsed={collapsed} />
 
-            <div className="mt-auto sticky bottom-0 flex flex-col gap-2 border-t border-border bg-background pt-3">
+            <div className="mt-auto sticky bottom-0 flex flex-col gap-2 border-t border-border bg-card pt-3">
                 <SidebarAction variant="default" icon={<PencilSimpleIcon size={18} />} onClick={startEdit} collapsed={collapsed}>
                     {t('common:buttons.edit')}
                 </SidebarAction>

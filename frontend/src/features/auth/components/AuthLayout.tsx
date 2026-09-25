@@ -3,13 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { BrandLogo } from '@/components/common/BrandLogo';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { PublicLanguageSelector } from '@/components/layout/PublicLanguageSelector';
+import { PublicThemeToggle } from '@/components/layout/PublicThemeToggle';
 import { UI_LANGUAGES } from '@/lib/language';
 
 /**
  * The shared frame for every public auth screen + the 404
  * (`MOCKUPS/auth/*.html`): a full-height two-column `.auth-shell` — a brand
  * "ground" on the left (mark, tagline, one screen-specific blurb line, the
- * four supported-language flags, and the interface-language selector) and a
+ * four supported-language flags, and the interface-language selector + theme
+ * switch) and a
  * framed, inset `.auth-panel` on the right holding the actual form.
  *
  * `blurb` is each screen's own `.auth-sub` line. `showLanguageSelector`
@@ -50,8 +52,9 @@ export function AuthLayout({
                     ))}
                 </div>
                 {showLanguageSelector && (
-                    <div className="auth-lang">
+                    <div className="auth-lang flex items-center gap-1">
                         <PublicLanguageSelector />
+                        <PublicThemeToggle />
                     </div>
                 )}
             </aside>
