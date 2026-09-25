@@ -61,6 +61,10 @@ export const users = pgTable('users', {
     // PostgreSQL native text[] array — mirrors the Mongoose [String] field
     languages:      text('languages').array().notNull().default([]),
     uiLanguage:     varchar('ui_language', { length: 50 }),
+    // 'light' | 'dark' (validated in userController, like `uiLanguage`). NULL
+    // means the user never chose one, so the client keeps following the OS
+    // (.context/plans/phase-3-9-dark-mode.md D1/D7).
+    theme:          varchar('theme', { length: 10 }),
     nativeLanguage: varchar('native_language', { length: 50 }),
     verified:       boolean('verified').default(false),
     ...timestamps,

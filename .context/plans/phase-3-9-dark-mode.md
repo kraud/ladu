@@ -77,7 +77,7 @@ Each slice ends with something runnable. The user reviews and commits between sl
 |---|---|---|
 | 0 — persist the plan | This file. Row status in `new-repo-build-plan.md` §9. | ✅ done 2026-09-25 |
 | 1 — dark palette + theme store + no-flash script + `ThemeToggle` on the auth screens | `tokens.css` dark block; `styles.css` variant; `index.html` inline script; `lib/theme.ts` (external store, see outcome); `components/layout/ThemeToggle.tsx` + `PublicThemeToggle.tsx`; slot in `AuthLayout` next to `PublicLanguageSelector`; hard-coded-colour audit; tests. | ✅ done 2026-09-25 — frontend **660/660**, `tsc -b` + eslint + `vite build` green |
-| 2 — backend `users.theme` | Drizzle migration; validation; register/login/OAuth/`updateUser`; `serializeUser` allowlist; Jest tests. | not started |
+| 2 — backend `users.theme` | Drizzle migration; validation; register/login/OAuth signup/`updateUser`; serializer allowlists; Jest tests. | ✅ done 2026-09-25 — backend **244/244**, `tsc` + eslint green |
 | 3 — header switch + login/register carry-over | Header `ThemeToggle` saves through `useUpdateProfile`; login/register send `theme` per D7; session applies the row value. | not started |
 | 4 — URL handoff | Read `?theme=` once (D6), save it, remove `?theme=` and `?lng=` from the URL. | not started |
 | 5 — landing page | Language selector + theme switch under the language list (left side); ES/DE/EE texts; `[data-theme]` palette; links add `?lng=&theme=`; `<html lang>`; Dockerfile. | not started |
@@ -137,3 +137,42 @@ Dashboard charts, dialogs, 404.
 - The header logo's speech-bubble outline is dark blue and low-contrast on the dark header
   (`BrandLogo`). Look at it in Slice 3 when the header gets its switch.
 - 2 pre-existing eslint warnings in `ReviewPage.tsx` (`userLanguages` memo). Untouched.
+
+## Slice 2 outcome (2026-09-25)
+
+**Shipped.** The backend stores, validates and returns a per-user theme. The frontend does not use it
+yet (Slice 3).
+
+- **Column:** `users.theme varchar(10)`, nullable, no default. `NULL` = "the user never chose one".
+  Migration `0005_users_theme.sql` (one `ALTER TABLE … ADD COLUMN`). Applied to the dev and test
+  databases. The deploy script applies it on staging and production (`deploy.sh` → `scripts/migrate.js`).
+- **Validation:** one helper, `parseThemeInput` (`userController.ts`), exported and reused by
+  `oauthController.ts`. Absent (`undefined` / `null` / `""`) means "no choice". Anything except
+  `light` or `dark` returns 400 `Invalid theme selection` (so `system` is refused on purpose).
+- **Where it is accepted:**
+  | Endpoint | Behaviour |
+  |---|---|
+  | `POST /api/users` (register) | Stored when given. Otherwise `NULL`. |
+  | `POST /api/users/login` | Saved to the row **only when sent** and different (D7). Absent → the stored theme is returned unchanged. |
+  | `PUT /api/users/updateUser` | `theme ?? stored`. A profile edit that omits it (for example a UI-language change) keeps it. |
+  | `POST /api/auth/signup/complete` (Google sign-up) | Stored when given. Otherwise `NULL`. |
+- **Where it is returned:** `serializeUser`, `serializeLoginUser`, `publicUserResponse`, and `getMe`
+  (`authMiddleware` column list). It is `null` when unset (like `uiLanguage`, not omitted like
+  `nativeLanguage`).
+- **Tests (+12, backend 244/244):** register (omit / store / four bad values, no account created),
+  login (store / null / omit keeps / different overwrites / bad value leaves the stored one), `getMe`
+  shape, `updateUser` (save / omit keeps / bad value changes nothing), Google sign-up (store / reject).
+
+**Correction to the phase plan:** it said "the OAuth callback accepts the theme". The callback
+(`GET /api/auth/:provider/callback`) is a browser redirect with no request body, so it cannot carry
+one. Only the sign-up completion request can. A returning Google user gets the saved theme from the
+row through `serializeLoginUser`. What Slice 3 must do for the Google **start** link is still open:
+a `theme` query parameter on the start URL would have to travel through the signed state token.
+Decide that in Slice 3.
+
+**Known, not fixed here**
+
+- `.context/.frontend/snapshot/*.md` still describe the old user shape. They are frozen by their own
+  maintenance rule, so they are not edited.
+- The dev backend on port 5001 was restarted by nodemon and reads the new column. If a dev backend
+  from before this slice is still running without nodemon, restart it.

@@ -196,6 +196,33 @@ describe('POST /api/users - Registration', () => {
         expect(res.statusCode).toBe(400);
     });
 
+    it('stores no theme when the register request omits it', async () => {
+        const res = await registerUser();
+        expect(res.statusCode).toBe(201);
+        expect(res.body.theme).toBeNull();
+
+        const user = await findUserByEmail('test@example.com');
+        expect(user.theme).toBeNull();
+    });
+
+    it('persists a supported theme from the register request', async () => {
+        const res = await registerUser({ theme: 'dark' });
+        expect(res.statusCode).toBe(201);
+        expect(res.body.theme).toBe('dark');
+
+        const user = await findUserByEmail('test@example.com');
+        expect(user.theme).toBe('dark');
+    });
+
+    it('fails with 400 for an unsupported theme, without creating the account', async () => {
+        for (const theme of ['system', 'Dark', 'blue', 5]) {
+            const res = await registerUser({ theme });
+            expect(res.statusCode).toBe(400);
+            expect(res.body.message).toBe('Invalid theme selection');
+        }
+        expect(await findUserByEmail('test@example.com')).toBeUndefined();
+    });
+
     it('sends the verification email in the language chosen at registration', async () => {
         await registerUser({ uiLanguage: 'German' });
 
@@ -329,6 +356,68 @@ describe('POST /api/users/login - Login', () => {
         expect(res.statusCode).toBe(400);
     });
 
+    it('persists a theme chosen on the login screen', async () => {
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123', theme: 'dark' });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.theme).toBe('dark');
+
+        const user = await findUserByEmail('test@example.com');
+        expect(user.theme).toBe('dark');
+    });
+
+    it('returns a null theme for an account that never chose one', async () => {
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123' });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.theme).toBeNull();
+    });
+
+    it('keeps the stored theme when the login request omits it (a new device must not overwrite it)', async () => {
+        await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123', theme: 'dark' });
+
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123' });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.theme).toBe('dark');
+        expect((await findUserByEmail('test@example.com')).theme).toBe('dark');
+    });
+
+    it('overwrites the stored theme when the login request sends a different one', async () => {
+        await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123', theme: 'dark' });
+
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123', theme: 'light' });
+
+        expect(res.body.theme).toBe('light');
+        expect((await findUserByEmail('test@example.com')).theme).toBe('light');
+    });
+
+    it('rejects an unsupported theme on login and leaves the stored theme alone', async () => {
+        await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123', theme: 'dark' });
+
+        const res = await request(app)
+            .post('/api/users/login')
+            .send({ email: 'test@example.com', password: 'password123', theme: 'system' });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid theme selection');
+        expect((await findUserByEmail('test@example.com')).theme).toBe('dark');
+    });
+
     it('points a password-less (OAuth-only) account at the provider instead of "Invalid credentials"', async () => {
         await createOAuthOnlyUser();
 
@@ -384,6 +473,7 @@ describe('GET /api/users/me - Profile', () => {
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('email', 'test@example.com');
         expect(res.body).toHaveProperty('name', 'Test User');
+        expect(res.body).toHaveProperty('theme', null);
         expect(res.body).not.toHaveProperty('password');
         expect(res.body).not.toHaveProperty('passwordTokens');
     });
@@ -456,6 +546,57 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
 
         expect(res.statusCode).toBe(200);
         expect(res.body.languages).toEqual(['German', 'English', 'Spanish']);
+    });
+
+    it('saves the theme and returns it', async () => {
+        const res = await request(app)
+            .put('/api/users/updateUser')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                email: 'test@example.com',
+                name: 'Test User',
+                username: 'testuser',
+                theme: 'dark',
+            });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.theme).toBe('dark');
+        expect((await findUserByEmail('test@example.com')).theme).toBe('dark');
+
+        const me = await request(app).get('/api/users/me').set('Authorization', `Bearer ${token}`);
+        expect(me.body.theme).toBe('dark');
+    });
+
+    it('keeps the stored theme when a later profile edit omits it (e.g. a UI-language change)', async () => {
+        await request(app)
+            .put('/api/users/updateUser')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ email: 'test@example.com', name: 'Test User', username: 'testuser', theme: 'dark' });
+
+        const res = await request(app)
+            .put('/api/users/updateUser')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ email: 'test@example.com', name: 'Test User', username: 'testuser', uiLanguage: 'German' });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.uiLanguage).toBe('German');
+        expect(res.body.theme).toBe('dark');
+    });
+
+    it('fails with 400 for an unsupported theme and changes nothing', async () => {
+        const res = await request(app)
+            .put('/api/users/updateUser')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                email: 'test@example.com',
+                name: 'Changed Name',
+                username: 'testuser',
+                theme: 'system',
+            });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid theme selection');
+        expect((await findUserByEmail('test@example.com')).name).toBe('Test User');
     });
 
     it('fails with 400 when fewer than 2 languages are sent', async () => {

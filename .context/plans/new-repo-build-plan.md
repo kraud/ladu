@@ -189,7 +189,7 @@ Where the switch goes:
 | Auth screens | Next to the language selector (`.auth-lang` in `AuthLayout`). |
 | Logged-in app | In the header, next to the language selector (`AppHeader`). |
 
-- **Backend**: a Drizzle migration adds `users.theme` (`'light' | 'dark'`, nullable). `register`, `login`, the OAuth callback and `updateUser` accept and validate it. The `serializeUser` allowlist includes it. Jest tests cover each path.
+- **Backend**: a Drizzle migration adds `users.theme` (`'light' | 'dark'`, nullable). `register`, `login`, the Google sign-up completion and `updateUser` accept and validate it (the OAuth callback is a redirect with no body, so it cannot). The `serializeUser` allowlist includes it. Jest tests cover each path.
 - **Frontend — palette**: `tokens.css` already plans for this (change the six seed colours under `:root[data-theme="dark"]`; the derived tones recompute). Reuse the dark values from `landing/style.css`. Also set dark values for `--lang-*`, `--success`, `--danger` and `--warning`. Change the shadcn variant in `styles.css` from `.dark` to `[data-theme="dark"]`. Audit the hard-coded colours (`globals.css`, `lib/avatar.ts`, the chart colours).
 - **Frontend — theme state**: a Zustand `persist` store. An inline script in `index.html` sets `data-theme` before the first paint, so there is no flash.
 - **Frontend — switch**: a `ThemeToggle` component (light/dark only). The public version is next to `PublicLanguageSelector`. The header version is next to `LanguageSelector` and saves through `useUpdateProfile`, like `uiLanguage`.
@@ -283,7 +283,7 @@ Performed 2026-09-05, before this plan was written:
 | 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
 | 3 — Form engine completion + autocomplete + Review | ✅ **done** 2026-09-15 — plan: [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md); 12 slices (0–11), all done; final state backend **165/165**, frontend **540/540**, e2e **10/10**, build green (breakdown below) |
 | 3.5 — Dashboard + user metrics | ✅ **done** 2026-09-16 — plan: [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md); 8 slices (0–7), all done; final state backend **175/175**, frontend **611/611**, e2e **12/12**, build green (breakdown below) |
-| 3.9 — Dark mode + small fixes | 🚧 in progress — plan: [`phase-3-9-dark-mode.md`](./phase-3-9-dark-mode.md); Slices 0–1 done 2026-09-25 (theme switch + dark palette on the auth screens; browser-only) |
+| 3.9 — Dark mode + small fixes | 🚧 in progress — plan: [`phase-3-9-dark-mode.md`](./phase-3-9-dark-mode.md); Slices 0–2 done 2026-09-25 (dark palette + switch on the auth screens; backend `users.theme`) |
 | 4–8 | not started |
 
 - **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).
