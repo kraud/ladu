@@ -133,6 +133,16 @@ export async function backdateWordsCreatedAt(wordIds: string[], date: Date): Pro
     await getPool().query(`UPDATE words SET created_at = $2 WHERE id = ANY($1::uuid[])`, [wordIds, date]);
 }
 
+/** The `users.theme` value for an account (`null` = the user never chose one) — Phase 3.9's proof that a theme choice reached the row, and that a login without a choice did not overwrite it. */
+export async function getUserTheme(email: string): Promise<string | null> {
+    const { rows } = await getPool().query<{ theme: string | null }>(
+        `SELECT theme FROM users WHERE lower(email) = lower($1)`,
+        [email],
+    );
+    if (!rows[0]) throw new Error(`no user found for ${email}`);
+    return rows[0].theme;
+}
+
 /** Best-effort teardown — never throws, so a cleanup failure can't fail a run. */
 export async function deleteUsersByEmail(emails: string[]): Promise<void> {
     if (emails.length === 0) return;

@@ -81,8 +81,9 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 3 — header switch + login/register carry-over | Header `ThemeToggle` saves through `useUpdateProfile`; login/register/Google sign-up send `theme` per D7; session applies the row value. | ✅ done 2026-09-25 — frontend **670/670**, `tsc -b` + eslint + `vite build` green |
 | 4 — URL handoff | Read `?theme=` once (D6), save it, remove `?theme=` and `?lng=` from the URL. | ✅ done 2026-09-25 — frontend **680/680**, `tsc -b` + eslint + `vite build` green |
 | 5 — landing page | Language selector + theme switch under the language list (left side); ES/DE/EE texts; `[data-theme]` palette; links add `?lng=&theme=`; `<html lang>`; Dockerfile. | ✅ done 2026-09-25 — checked in a browser; Docker image builds. **EE texts need the user's review** |
-| 6 — phase gate | `phase-3-9-theme.spec.ts`; both themes checked on every screen; docs; full green run. | not started |
-| 7+ — small fixes | Added later by the user. | not started |
+| 6 — phase gate | `phase-3-9-theme.spec.ts`; both themes checked on every screen; docs; full green run. | ✅ done 2026-09-25 — backend **244/244**, frontend **680/680**, e2e **32/32** (default and `--workers=1`), `tsc -b` + eslint + build green |
+| 7 — small fixes, part 1 | A page-only theme switch on the 404; `<html lang>` follows the interface language. | ✅ done 2026-09-25 — frontend **688/688**, e2e **34/34** |
+| 8+ — small fixes, part 2 | Added later by the user. | waiting for the user's list |
 
 ## Gate
 
@@ -327,3 +328,97 @@ contains `app.js` and `flags/`.
   landing → app handoff end to end.
 - The production landing links go to `https://app.ladu.com.ar`, so the real handoff can only be
   walked on staging/production. Slice 4's browser check covered the app side.
+
+## Slice 6 outcome (2026-09-25) — the dark-mode gate
+
+**Gate: green.** Backend **244/244**, frontend **680/680**, e2e **32/32** (run at default
+parallelism and with `--workers=1`, the CI shape), `tsc -b`, eslint and `vite build` clean. Slices
+0–6 are the dark-mode part of the phase. Slice 7+ (the small fixes) waits for the user's list.
+
+**New e2e spec** `e2e/tests/phase-3-9-theme.spec.ts` (4 tests, real backend + Postgres + browser) and
+a `getUserTheme` fixture in `e2e/fixtures/db.ts`:
+
+1. **Handoff:** `/login?lng=es&theme=dark` gives a Spanish, dark login page with a clean address, and a
+   reload keeps both. `?redirect=` survives, and an address value beats a saved choice.
+   `/?lng=ee&theme=dark` ends on `/login?redirect=%2F`, in Estonian and dark.
+2. **Auth-screen choice:** the theme pressed on the login screen rides along with the login, and the row
+   goes from `NULL` to `dark`.
+3. **Header switch and a new device:** a login with no choice leaves the row `NULL`. The header switch
+   writes `dark` to the row. A fresh browser (OS light, no saved choice) starts light, logs in without
+   touching the theme, ends dark, and the login did **not** overwrite the row. Switching back on the new
+   device writes `light`.
+4. **OS start value:** with no saved choice the page follows the OS (`dark` and `light`), the OS value
+   is not saved, and a pressed switch beats it, also after a reload.
+
+**The spec can fail.** Mutation check: with `useSessionTheme` disabled, test 3 fails and the other
+three pass. The file was restored (`git diff` empty).
+
+**Screen sweep** (Playwright MCP, real backend, seeded account, light and dark, desktop and phone).
+Checked: login, register (both steps), reset request, bad verify link, 404, Home with both charts,
+Add Word (type picker, noun form, language dialog), Word page (view, edit, delete dialog), Review
+(filters, table, selected row with the bulk bar, cell dialog), Account (view and edit), the phone
+header, the navigation sheet, a phone Review table, an error toast. Two more real problems found and
+fixed:
+
+- **Toasts were white in the dark theme.** `Providers.tsx` hard-coded `theme="light"` on the
+  `ToastContainer`. It now follows the theme (`useTheme()`).
+- **Bulk bar buttons in the dark theme** had a grey fill and weak "Delete" text. Since Slice 1 the shadcn
+  `dark:` variants really apply, and the `Button` outline variant's `dark:` fill (a utilities-layer
+  rule) beat the bar's own component-layer rules. Those rules now use `!important` on
+  `background` / `border-color`, with a comment saying why.
+
+**Not swept, same layout as swept screens:** verify-success, set-new-password, and the Google
+sign-up / link screens (all inside `AuthLayout`).
+
+**Found, not fixed (candidates for the "small fixes" list)**
+
+- **The 404 page has no theme switch.** *Fixed in Slice 7.*
+- **`<html lang>` stays `en`** when the UI language changes in the app. *Fixed in Slice 7.*
+- **A signed-in user arriving with a different `?theme=`** sees a short switch back to the account
+  theme (Slice 4 edge case).
+- **Nothing serves `landing/` in the e2e suite**, so the landing → app link is checked by hand (Slice
+  5) and the app side by test 1 above.
+
+**Environment note.** `playwright.config.ts` reuses a backend already running on port 5001. A backend
+started by hand (`npm run dev -w backend`) lacks the `OAUTH_ISSUER_GOOGLE` stub settings the config
+gives to its own backend, so the 8 OAuth specs time out against it. Run the e2e suite with port 5001
+free, or start the backend the way the config does. (Found because a backend of mine held the port.)
+
+## Slice 7 outcome (2026-09-25) — small fixes, part 1
+
+Two fixes the user asked for after the gate. Frontend **688/688** (+8), e2e **34/34** (+2, default and
+`--workers=1`), `tsc -b`, eslint and `vite build` clean. Backend untouched.
+
+**1. A theme switch on the 404 page that only lives on that page.**
+
+- New `components/layout/PageThemeToggle.tsx`. It changes `data-theme` and its own state, and nothing
+  else: no `localStorage` write, no request. So the choice is not saved, does not become the "saved
+  choice" that a later login sends (D7), and does not reach the account. Leaving the page restores what
+  applies normally (`currentTheme()`: the saved choice, else the OS preference). A reload also resets it.
+- `AuthLayout` got a `themeToggle` prop. Its default is the saved-choice `PublicThemeToggle` next to
+  the language selector, as before. The 404 passes `<PageThemeToggle />` with
+  `showLanguageSelector={false}`, so it shows the switch alone. The 404 still has no language
+  selector (the Phase 1 decision stands).
+- The switch sits bottom-left, where the language row is on the other auth screens.
+- **How the request was read:** "no need to store/transfer that" was taken as not saved in the browser
+  and not sent to the account. If the 404 choice should be saved like the other public screens, change
+  `themeToggle={<PageThemeToggle />}` to nothing (the default) in `routes/not-found.tsx`.
+
+**2. `<html lang>` follows the interface language.**
+
+- `lib/language.ts`: `htmlLangByI18nCode()` (region variants stripped, unknown gives `en`, and the
+  app's Estonian code `ee` becomes the HTML tag `et`, because `ee` is the code for Ewe) and
+  `bindHtmlLang(i18n)`, which sets the attribute at once and on every `languageChanged`.
+- `i18n.ts` calls `bindHtmlLang(i18n)` before `init`, so the first detection (saved choice, browser
+  language, or a `?lng=` handoff) is caught too. This covers every change path: the public selector,
+  the header selector's session sync, and the handoff.
+- The landing page already did this (Slice 5).
+
+**Tests:** `routes/not-found.test.tsx` (switch shown and no language selector; page-only: nothing saved
+and the normal theme comes back on leaving; a saved choice is restored, not the OS value),
+`language.test.ts` (the mapper, and `bindHtmlLang` at start-up, on change and when bound late), and two
+e2e tests in `phase-3-9-theme.spec.ts` (404 switch: nothing saved and a reload resets it; `<html lang>`
+goes `et` for `?lng=ee`, then `es` after the selector, and survives a reload).
+
+**Not done here:** the OS-preference listener (`initTheme`) can still re-apply the OS theme on the 404
+if the OS switches while the preview is on. It is a rare case, accepted.

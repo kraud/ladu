@@ -8,6 +8,8 @@
  * (`getLangKeyByLabel`, `getCurrentLangTranslated`) and hardcoded EN=GB flag
  * mappings — one table here replaces all of it.
  */
+import type { i18n as I18nInstance } from 'i18next';
+
 export interface UiLanguage {
     key: 'EN' | 'ES' | 'DE' | 'EE';
     /** the value stored in `SessionUser.uiLanguage` / `languages[]` (`Lang` enum value) */
@@ -70,6 +72,31 @@ export function langTint(keyOrLabel: string): string {
     const entry = languageByKey(keyOrLabel) ?? languageByLabel(keyOrLabel);
     const cssVar = entry ? TINT_VAR_BY_KEY[entry.key] : TINT_VAR_BY_KEY.EN;
     return `var(${cssVar})`;
+}
+
+/**
+ * i18next language code → the BCP 47 tag for `<html lang>`. Same as the code,
+ * except Estonian: the app's `ee` is the ISO code for Ewe, the HTML tag is
+ * `et`. Region variants are stripped; anything unknown falls back to `en`.
+ */
+export function htmlLangByI18nCode(code: string | null | undefined): string {
+    const base = (code ?? '').split('-')[0]!.toLowerCase();
+    const language = byI18n.get(base as UiLanguage['i18n']);
+    if (!language) return 'en';
+    return language.i18n === 'ee' ? 'et' : language.i18n;
+}
+
+/**
+ * Keep `<html lang>` in step with the interface language, now and on every
+ * change (screen readers and browser translation read it). Call once, before
+ * `init`, so the first detection is caught too.
+ */
+export function bindHtmlLang(instance: Pick<I18nInstance, 'on' | 'language'>): void {
+    const apply = (code: string | undefined) => {
+        document.documentElement.setAttribute('lang', htmlLangByI18nCode(code));
+    };
+    if (instance.language) apply(instance.language);
+    instance.on('languageChanged', apply);
 }
 
 /**

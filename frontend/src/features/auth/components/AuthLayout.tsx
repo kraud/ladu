@@ -17,10 +17,14 @@ import { UI_LANGUAGES } from '@/lib/language';
  * `blurb` is each screen's own `.auth-sub` line. `showLanguageSelector`
  * is false for the 404, which renders outside the `_public` layout and
  * deliberately has no language switcher (Phase 1 decision, unchanged here).
+ * `themeToggle` defaults to the saved-choice `PublicThemeToggle` next to the
+ * language selector; the 404 passes a page-only switch instead (Phase 3.9,
+ * Slice 7), so it shows a switch without the selector.
  */
 export function AuthLayout({
     blurb,
     showLanguageSelector = true,
+    themeToggle = showLanguageSelector ? <PublicThemeToggle /> : null,
     title,
     subtitle,
     children,
@@ -28,6 +32,7 @@ export function AuthLayout({
 }: {
     blurb: string;
     showLanguageSelector?: boolean;
+    themeToggle?: ReactNode;
     title?: string;
     subtitle?: string;
     children: ReactNode;
@@ -51,10 +56,10 @@ export function AuthLayout({
                         </span>
                     ))}
                 </div>
-                {showLanguageSelector && (
+                {(showLanguageSelector || themeToggle) && (
                     <div className="auth-lang flex items-center gap-1">
-                        <PublicLanguageSelector />
-                        <PublicThemeToggle />
+                        {showLanguageSelector && <PublicLanguageSelector />}
+                        {themeToggle}
                     </div>
                 )}
             </aside>

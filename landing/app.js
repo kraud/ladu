@@ -25,7 +25,6 @@
     /* Estonian is `ee` for the app (carried over from v1) but `et` in HTML. */
     var HTML_LANG = { en: 'en', es: 'es', de: 'de', ee: 'et' };
 
-    /* TODO(user review): the Estonian (ee) strings are drafted, not checked. */
     var STRINGS = {
         en: {
             title: 'Ladu — keep all your languages alive',

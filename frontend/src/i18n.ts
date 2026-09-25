@@ -3,10 +3,15 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Backend from 'i18next-http-backend';
 import { takeHandoffParams } from '@/lib/handoff';
+import { bindHtmlLang } from '@/lib/language';
 
 // The first app module to run at boot, so the landing page's `?lng=&theme=` is
 // read before i18next's detector or the router see the address (lib/handoff.ts).
 const handoff = takeHandoffParams();
+
+// `<html lang>` follows the interface language (bound before init so the
+// first detection sets it).
+bindHtmlLang(i18n);
 
 i18n
     .use(Backend)
