@@ -13,6 +13,7 @@
 import { http, HttpResponse } from 'msw';
 import { makeToken } from '@/test/tokens';
 import { decodeJwtPayload } from '@/lib/jwt';
+import { isTheme, type Theme } from '@/lib/theme';
 
 export interface SeedUser {
     id?: string;
@@ -23,6 +24,7 @@ export interface SeedUser {
     verified?: boolean;
     languages?: string[];
     uiLanguage?: string;
+    theme?: Theme | null;
     nativeLanguage?: string | null;
 }
 
@@ -35,6 +37,7 @@ interface InternalUser {
     verified: boolean;
     languages: string[];
     uiLanguage: string;
+    theme: Theme | null;
     nativeLanguage: string | null;
 }
 
@@ -93,6 +96,7 @@ export function makeAuthHandlers(
             verified: u.verified ?? false,
             languages: u.languages ?? [],
             uiLanguage: u.uiLanguage ?? 'English',
+            theme: u.theme ?? null,
             nativeLanguage: u.nativeLanguage ?? null,
         };
         byEmail.set(full.email.toLowerCase(), full);
@@ -111,6 +115,7 @@ export function makeAuthHandlers(
         username: u.username,
         languages: u.languages,
         uiLanguage: u.uiLanguage,
+        theme: u.theme,
         nativeLanguage: u.nativeLanguage,
         verified: u.verified,
     });
@@ -185,6 +190,7 @@ export function makeAuthHandlers(
                 verified: true,
                 languages: [...new Set(langs as string[])],
                 uiLanguage: isSupportedLanguage(body.uiLanguage) ? body.uiLanguage : 'English',
+                theme: isTheme(body.theme) ? body.theme : null,
             });
             linkIdentity(u.id, payload.provider, payload.sub);
             return HttpResponse.json({ ...publicUser(u), token: issueToken(u) }, { status: 201 });
@@ -310,6 +316,7 @@ export function makeAuthHandlers(
                 verified: false,
                 languages: [...new Set(langs as string[])],
                 uiLanguage: isSupportedLanguage(body.uiLanguage) ? body.uiLanguage : 'English',
+                theme: isTheme(body.theme) ? body.theme : null,
             });
             const verifyToken = `vt-${u.id}`;
             verifyTokens.set(verifyToken, u.id);
@@ -318,7 +325,7 @@ export function makeAuthHandlers(
 
         // POST /api/users/login
         http.post('*/api/users/login', async ({ request }) => {
-            const { email, password, uiLanguage } = (await request.json()) as Record<string, unknown>;
+            const { email, password, uiLanguage, theme } = (await request.json()) as Record<string, unknown>;
             const u = find(email);
             if (!u || u.password !== password) {
                 return HttpResponse.json({ message: 'Invalid credentials' }, { status: 400 });
@@ -327,6 +334,8 @@ export function makeAuthHandlers(
                 return HttpResponse.json({ message: 'Invalid language selection' }, { status: 400 });
             }
             if (isSupportedLanguage(uiLanguage)) u.uiLanguage = uiLanguage;
+            // Same rule as `userController.loginUser`: saved only when sent.
+            if (isTheme(theme)) u.theme = theme;
             const payload: Record<string, unknown> = { ...publicUser(u), token: issueToken(u) };
             if (u.nativeLanguage === null) delete payload.nativeLanguage;
             return HttpResponse.json(payload);
@@ -417,6 +426,7 @@ export function makeAuthHandlers(
             if (typeof body.name === 'string') u.name = body.name;
             if (typeof body.username === 'string') u.username = body.username;
             if (typeof body.uiLanguage === 'string') u.uiLanguage = body.uiLanguage;
+            if (isTheme(body.theme)) u.theme = body.theme;
             u.nativeLanguage = body.nativeLanguage === undefined ? null : (body.nativeLanguage as string | null);
             return HttpResponse.json(publicUser(u));
         }),

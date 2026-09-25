@@ -14,6 +14,7 @@
 import { create } from 'zustand';
 import { persist, type PersistStorage, type StorageValue } from 'zustand/middleware';
 import { isTokenExpired } from '@/lib/jwt';
+import { isTheme, type Theme } from '@/lib/theme';
 
 /** The normalized session user — the only shape the app reads. */
 export interface SessionUser {
@@ -24,6 +25,12 @@ export interface SessionUser {
     /** language *labels* ("English", "Spanish", …) in the user's preferred order */
     languages: string[];
     uiLanguage: string;
+    /**
+     * The theme saved on the user row; `null` = never chose one (the browser
+     * keeps its own start value). A session persisted before Phase 3.9 has no
+     * key at all — read it as `null` too.
+     */
+    theme?: Theme | null;
     nativeLanguage: string | null;
     verified: boolean;
 }
@@ -47,6 +54,7 @@ export interface RawUser {
     username?: string;
     languages?: unknown;
     uiLanguage?: string | null;
+    theme?: string | null;
     nativeLanguage?: string | null;
     verified?: boolean | null;
     token?: string;
@@ -77,6 +85,7 @@ export function toSessionUser(raw: RawUser): SessionUser {
         username: raw.username ?? '',
         languages: Array.isArray(raw.languages) ? raw.languages.filter((l): l is string => typeof l === 'string') : [],
         uiLanguage: raw.uiLanguage ?? 'English',
+        theme: isTheme(raw.theme) ? raw.theme : null,
         nativeLanguage: raw.nativeLanguage ?? null,
         // `users.verified` is nullable. A missing flag on a getMe refresh must
         // not log the user out — login/verify already gate the unverified path

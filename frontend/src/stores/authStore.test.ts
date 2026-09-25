@@ -28,9 +28,19 @@ describe('toSessionUser — normalizes every backend shape', () => {
             username: 'ada',
             languages: ['English', 'Spanish'],
             uiLanguage: 'English',
+            theme: null,
             nativeLanguage: null,
             verified: true,
         });
+    });
+
+    it('keeps a saved theme and reads anything else (missing, null, "system") as null', () => {
+        const base = { id: 'u9', email: 't@x.com' };
+        expect(toSessionUser({ ...base, theme: 'dark' }).theme).toBe('dark');
+        expect(toSessionUser({ ...base, theme: 'light' }).theme).toBe('light');
+        expect(toSessionUser({ ...base, theme: null }).theme).toBeNull();
+        expect(toSessionUser({ ...base }).theme).toBeNull();
+        expect(toSessionUser({ ...base, theme: 'system' }).theme).toBeNull();
     });
 
     it('verify / getMe shape: full row', () => {

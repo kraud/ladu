@@ -9,6 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useLogin } from '../hooks';
 import { buildLoginSchema, type LoginValues } from '../schemas';
 import { labelByI18nCode } from '@/lib/language';
+import { themeForRequest } from '@/lib/theme';
 
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
     const { t, i18n } = useTranslation();
@@ -26,8 +27,13 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
                 noValidate
                 className="flex flex-col gap-4"
                 onSubmit={form.handleSubmit((values) =>
-                    // Persist the language chosen on the login screen onto the row.
-                    login.mutate({ ...values, uiLanguage: labelByI18nCode(i18n.language) }),
+                    // Persist the language chosen on the login screen onto the row,
+                    // and the theme too — but only if the user actually chose one.
+                    login.mutate({
+                        ...values,
+                        uiLanguage: labelByI18nCode(i18n.language),
+                        theme: themeForRequest(),
+                    }),
                 )}
             >
                 <FormField

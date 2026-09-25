@@ -33,7 +33,7 @@ function notify(): void {
     listeners.forEach((listener) => listener());
 }
 
-function isTheme(value: unknown): value is Theme {
+export function isTheme(value: unknown): value is Theme {
     return value === 'light' || value === 'dark';
 }
 
@@ -45,6 +45,17 @@ export function readStoredTheme(): Theme | null {
     } catch {
         return null;
     }
+}
+
+/**
+ * The theme to put on a login / register / sign-up request: the saved choice,
+ * or `undefined` (key omitted) when the user never pressed the switch. Sending
+ * the OS-derived start value would let a login on a new device overwrite the
+ * theme saved on the user's row (D7). The backend keeps the stored theme when
+ * the key is absent.
+ */
+export function themeForRequest(): Theme | undefined {
+    return readStoredTheme() ?? undefined;
 }
 
 /** The OS preference; `light` where `matchMedia` is missing. */

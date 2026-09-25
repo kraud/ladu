@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { AppHeader } from '@/components/layout/AppHeader';
+import { useSessionTheme } from '@/components/layout/useSessionTheme';
 
 /**
  * Frame for every authenticated route: the sticky `AppHeader` over a single
@@ -12,6 +13,8 @@ import { AppHeader } from '@/components/layout/AppHeader';
  * (fixes the old render-then-redirect bug).
  */
 export function AppShell({ children, wide }: { children: ReactNode; wide?: boolean }) {
+    useSessionTheme();
+
     return (
         <div className="min-h-dvh">
             <AppHeader />

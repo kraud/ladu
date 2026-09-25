@@ -9,6 +9,7 @@ import { LanguageTiles } from '@/components/common/LanguageTiles';
 import { useRegister } from '../hooks';
 import { buildRegisterSchema, type RegisterValues } from '../schemas';
 import { labelByI18nCode } from '@/lib/language';
+import { themeForRequest } from '@/lib/theme';
 
 const DEFAULTS: RegisterValues = {
     name: '',
@@ -64,6 +65,7 @@ export function RegisterForm() {
                             password,
                             languages: langs,
                             uiLanguage: labelByI18nCode(i18n.language),
+                            theme: themeForRequest(),
                         });
                     },
                     // Belt-and-braces: if a step-1 field is somehow still invalid

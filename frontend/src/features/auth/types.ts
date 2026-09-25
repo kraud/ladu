@@ -1,3 +1,5 @@
+import type { Theme } from '@/lib/theme';
+
 /**
  * Auth request/response contracts — re-pinned against the live
  * `backend/controllers/userController.ts` (2026-09-08), not the snapshot.
@@ -18,6 +20,12 @@ export interface LoginRequest {
      * omitted, the stored preference is left untouched.
      */
     uiLanguage?: string;
+    /**
+     * The theme, sent ONLY when the user chose one on this browser
+     * (`themeForRequest()`). Saved to the row; omitted, the stored theme is kept
+     * and returned.
+     */
+    theme?: Theme;
 }
 
 /** `POST /api/users` body — `password2` is validated client-side and never sent. */
@@ -30,6 +38,8 @@ export interface RegisterRequest {
     languages: string[];
     /** The UI language chosen on the register screen; stored on the new row. */
     uiLanguage: string;
+    /** The theme chosen on the register screen, if any; stored on the new row. */
+    theme?: Theme;
 }
 
 /** `GET /api/users/:userId/verify/:tokenId` path params. */
@@ -67,6 +77,8 @@ export interface UpdateProfileRequest {
     languages: string[];
     uiLanguage: string;
     nativeLanguage: string | null;
+    /** Optional: an edit that omits it keeps the stored theme (unlike `nativeLanguage`). */
+    theme?: Theme;
 }
 
 /**
@@ -81,6 +93,8 @@ export interface AuthUser {
     username: string;
     languages: string[];
     uiLanguage: string;
+    /** `null` until the user chooses a theme. */
+    theme?: Theme | null;
     nativeLanguage?: string | null;
     verified: boolean;
     token?: string;
@@ -124,6 +138,7 @@ export interface OAuthSignupCompleteRequest {
     /** Language labels the user manages — >= 2 required, selection order preserved. */
     languages: string[];
     uiLanguage: string;
+    theme?: Theme;
 }
 
 /** `POST /api/auth/link` body. A wrong password is rejected without consuming the ticket — safe to retry. */

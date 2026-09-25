@@ -78,7 +78,7 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 0 — persist the plan | This file. Row status in `new-repo-build-plan.md` §9. | ✅ done 2026-09-25 |
 | 1 — dark palette + theme store + no-flash script + `ThemeToggle` on the auth screens | `tokens.css` dark block; `styles.css` variant; `index.html` inline script; `lib/theme.ts` (external store, see outcome); `components/layout/ThemeToggle.tsx` + `PublicThemeToggle.tsx`; slot in `AuthLayout` next to `PublicLanguageSelector`; hard-coded-colour audit; tests. | ✅ done 2026-09-25 — frontend **660/660**, `tsc -b` + eslint + `vite build` green |
 | 2 — backend `users.theme` | Drizzle migration; validation; register/login/OAuth signup/`updateUser`; serializer allowlists; Jest tests. | ✅ done 2026-09-25 — backend **244/244**, `tsc` + eslint green |
-| 3 — header switch + login/register carry-over | Header `ThemeToggle` saves through `useUpdateProfile`; login/register send `theme` per D7; session applies the row value. | not started |
+| 3 — header switch + login/register carry-over | Header `ThemeToggle` saves through `useUpdateProfile`; login/register/Google sign-up send `theme` per D7; session applies the row value. | ✅ done 2026-09-25 — frontend **670/670**, `tsc -b` + eslint + `vite build` green |
 | 4 — URL handoff | Read `?theme=` once (D6), save it, remove `?theme=` and `?lng=` from the URL. | not started |
 | 5 — landing page | Language selector + theme switch under the language list (left side); ES/DE/EE texts; `[data-theme]` palette; links add `?lng=&theme=`; `<html lang>`; Dockerfile. | not started |
 | 6 — phase gate | `phase-3-9-theme.spec.ts`; both themes checked on every screen; docs; full green run. | not started |
@@ -176,3 +176,58 @@ Decide that in Slice 3.
   maintenance rule, so they are not edited.
 - The dev backend on port 5001 was restarted by nodemon and reads the new column. If a dev backend
   from before this slice is still running without nodemon, restart it.
+
+## Slice 3 outcome (2026-09-25)
+
+**Shipped.** The header has a light/dark switch next to the language selector. It saves the choice to
+the user row. A theme chosen on the auth screens follows the user through login. On a new device the
+row's theme is applied after login.
+
+Decision taken with the user: **the Google start link does not carry the theme** (recommendation
+accepted). A new Google user gets the OS default until they press the switch. A returning Google user
+gets the row's theme. Revisit only if it is missed: the value would have to travel through the signed
+state token.
+
+New: `components/layout/ThemeSelector.tsx` (header container), `components/layout/useSessionTheme.ts`
+(the row wins after sign-in), `themeForRequest()` + exported `isTheme` in `lib/theme.ts`.
+Changed: `AppHeader` (mounts `ThemeSelector`), `AppShell` (mounts `useSessionTheme`),
+`features/auth/types.ts` (`theme` on login / register / updateProfile / OAuth signup / `AuthUser`),
+`stores/authStore.ts` (`SessionUser.theme`, normalised: anything except light/dark becomes `null`),
+`LoginForm`, `RegisterForm`, `OAuthSignupForm` (send `themeForRequest()`), `test/msw/authHandlers.ts`
+(the mock backend knows `theme`).
+
+**How the pieces fit**
+
+- **Header switch:** the page and `localStorage` change first, so it feels instant. Then
+  `updateProfile` saves a full payload plus `theme` (the endpoint clears `nativeLanguage` when that
+  key is absent). The button is disabled while the save runs, so two quick clicks cannot race and a
+  stale echo cannot flip the page back. A failed save shows the usual error toast. The page keeps the
+  chosen theme.
+- **Sending the theme at sign-in (D7):** the three forms send the *saved* browser choice only
+  (`themeForRequest()`). With no saved choice the key is omitted, and the backend keeps the row value.
+  The OS-derived start value is never sent.
+- **After sign-in (`useSessionTheme`):** if the row has a theme and it differs from the browser's saved
+  choice, the row wins: it is applied and saved in the browser. If the row has none, nothing happens.
+  It runs in `AppShell`, so one effect covers form login, email verify, Google callback, Google
+  sign-up and account link.
+- **Old sessions:** a session saved in `localStorage` before this slice has no `theme` key. It is read
+  as `null`, with no migration.
+
+**Tests (+10, frontend 670/670):** `ThemeSelector` (instant change, full payload, disabled while
+saving, kept on failure, no session), `useSessionTheme` (applies / row wins / row empty), login flow
+(choice on the login screen is saved to the row; no choice does not overwrite the row and the row's
+theme is applied), `toSessionUser` theme normalisation.
+
+**Checked by hand** (Playwright MCP, real backend): a login with no chosen theme leaves the row
+`NULL`; the header switch writes `dark` to the row; after clearing browser storage (a "new device",
+OS light) a login with no choice ends dark with `ladu.theme = dark` saved; the header fits at 390 px.
+
+**Removed from "Known" in Slice 1:** the header logo. All three brand SVGs are pure `#007AFF`. The
+faint bubble is just the thin outline, not a theme problem. No change made.
+
+**Not done here**
+
+- Not run: e2e. The auth flow is unchanged, and the spec for this phase is Slice 6.
+- Still open: the auth screens' "carry to the app" is only tested through the login form. The
+  registration path stores the theme on the new row (backend-tested) but there is no frontend test
+  for it yet.
