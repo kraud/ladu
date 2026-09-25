@@ -208,6 +208,70 @@ behaviour and adds coverage. It also fits the app model, because the app needs o
 named set of cases per language and part of speech — not a full paradigm. The Estonian noun
 needs 7 cases. The Estonian verb needs 20 cells. `snapshot/word-cases-data.md` lists them all.
 
+### 5.1 Can we identify every case? — verified audit
+
+**Yes, with caveats.** The tags are canonical and machine-readable, so each app case becomes a
+**selector**, not a filled cell. The selector is a predicate: "the form whose tag set contains
+`{first-person, indicative, present, singular}`". This is the same pattern the app already uses
+for Estonian. `snapshot/autocomplete.md` §2 records
+`getWordFromWordFormsList(wordForms, code)`, which finds a form by `code ===`. The same function
+becomes "find the form whose tags match".
+
+I audited every EN, ES and DE entry in the registry (`snapshot/word-cases-data.md`, 105 entries)
+against the real `forms[]` data.
+
+| group | registry entries | identifiable from kaikki | what is missing |
+|-------|------------------|--------------------------|-----------------|
+| EN noun | 2 | **2** | — |
+| ES noun | 3 | **3** | — |
+| DE noun | 9 | **9** | — |
+| EN verb | 21 | **10** | 10 periphrastic, 1 flag |
+| ES verb | 42 | **38** | 2 periphrastic, 1 absent, 1 flag |
+| DE verb | 28 | **26** | 2 flags (unverified) |
+| **total** | **105** | **88 (84%)** | 12 periphrastic, 1 absent, 4 flags |
+
+Evidence for each verb group:
+
+- **German verbs — the best case.** All four tenses are present as forms.
+  `tanze → [first-person, indicative, present, singular]`, `tanzte → [first-person, indicative, preterite, singular]`,
+  `habe getanzt → [first-person, indicative, multiword-construction, perfect, singular]`,
+  `werde tanzen → [first-person, future, future-i, indicative, multiword-construction, singular]`.
+  The auxiliary is present too: `haben` and `sein` carry the `auxiliary` tag, which matches the
+  app's `auxVerbDE` field. Only `caseTypeDE` and `prefixDE` are unverified — they are not forms.
+- **Spanish verbs.** Non-finite simple forms (`bailar → [infinitive]`, `bailando → [gerund]`,
+  `bailado → [participle, past]`), perfect simple past (`preterite`), future, conditional,
+  imperfect and the five imperatives are all present and tagged.
+- **English verbs — two real gaps.** The `simpleFuture*` and `simpleConditional*` cases are
+  **absent**. I checked `run`, `walk`, `be` and `talk`. No form in any of them carries a
+  `future` or `conditional` tag. English Wiktionary's verb tables do not list `will run` or
+  `would run` as forms. This is consistent, not a one-entry gap.
+- **Spanish `imperative1sES`** has no form. Spanish has no first-person singular imperative.
+- **English `regularityEN` and Spanish `regularityES`** are flags, not forms. kaikki does not
+  state them. Keep the generator, or compute the flag by diffing the listed forms against the
+  regular rule.
+
+**The 13 missing forms are cheap.** 10 English future/conditional forms are `will`/`would` plus
+the bare infinitive. The 2 Spanish compound non-finites are `haber`/`habiendo` plus the
+participle. These are 4 lines of rule code. They do not need a data source.
+
+**Caveat A — several forms can match one selector.** One tag combination can have more than one
+form. Spanish `baila [imperative, informal, second-person, singular]` and
+`bailás [imperative, informal, second-person, singular, vos-form]` both match a naive selector
+for `imperative2sES`. English `run` also has `runnest` and `ranst` tagged `archaic`. The ingest
+step needs a deterministic tie-break. A global "drop archaic/obsolete/rare/nonstandard" list is
+safe, but it must be per-case for `informal`/`formal` — that pair **is** the difference between
+`imperative2sES` and `imperative3sES` in Spanish. Also drop the placeholder value `'-'`.
+
+**Caveat B — the schema is fine, the entry coverage is the unknown.** I sampled 6 entries. An
+entry that has no inflection table on Wiktionary will return partial forms. **Before we commit,
+we must audit coverage**: ingest a few thousand lemmas per language and count how many have the
+forms each registry entry needs. This is the main remaining risk and it is measurable. Slice B in
+section 9 should include that measurement.
+
+**Caveat C — one more selector per case.** The mapping is 105 hand-written predicates for
+EN/ES/DE, each with a unit test. It is mechanical, but it is real work and it is the bulk of the
+ingest slice. It should be written as data (a table), not as code.
+
 ---
 
 ## 6. Recommendation
@@ -387,6 +451,8 @@ All checks were made on 2026-09-25.
 | Dump sizes (EN 3,095 MiB, ES 989 MiB, DE 1,026 MiB, EE 52 MiB) | `Content-Length` header of each per-language JSONL |
 | EE has 12,595 distinct word forms | `https://kaikki.org/dictionary/Estonian/index.html` |
 | Form arrays for `bailar`, `tanzen`, `Haus`, `run`, `casa`, `maja` | Downloaded each entry page and parsed the embedded JSON |
+| No English `future` or `conditional` form exists | Downloaded `run`, `walk`, `be`, `talk`; no form in any of them has a `future` or `conditional` tag |
+| Every EN/ES/DE registry entry audited against real tags | Section 5.1; sources `snapshot/word-cases-data.md` and the downloaded entries above |
 | Wiktextract lemma and inflection counts | Ylonen, *Wiktextract: Wiktionary as Machine-Readable Structured Data*, LREC 2022, Table 1 |
 | Postprocessed JSONL is deprecated | Notice on each kaikki language page, linking to `tatuylonen/wiktextract` issue 1178 |
 | Wikidata Lexeme counts | `https://www.wikidata.org/wiki/Wikidata:Lexicographical_data/Statistics/Counts_of_various_things_by_language` |

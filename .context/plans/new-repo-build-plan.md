@@ -283,7 +283,7 @@ Performed 2026-09-05, before this plan was written:
 | 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
 | 3 — Form engine completion + autocomplete + Review | ✅ **done** 2026-09-15 — plan: [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md); 12 slices (0–11), all done; final state backend **165/165**, frontend **540/540**, e2e **10/10**, build green (breakdown below) |
 | 3.5 — Dashboard + user metrics | ✅ **done** 2026-09-16 — plan: [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md); 8 slices (0–7), all done; final state backend **175/175**, frontend **611/611**, e2e **12/12**, build green (breakdown below) |
-| 3.9 — Dark mode + small fixes | 🚧 in progress — plan: [`phase-3-9-dark-mode.md`](./phase-3-9-dark-mode.md); Slices 0–4 done 2026-09-25 (dark palette; switch on the auth screens and in the header; backend `users.theme`; login carry-over; `?lng=&theme=` handoff) |
+| 3.9 — Dark mode + small fixes | 🚧 in progress — plan: [`phase-3-9-dark-mode.md`](./phase-3-9-dark-mode.md); Slices 0–5 done 2026-09-25 (dark palette; switch on the auth screens, header and landing page; backend `users.theme`; login carry-over; `?lng=&theme=` handoff; landing language selector) |
 | 4–8 | not started |
 
 - **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).

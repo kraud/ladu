@@ -80,7 +80,7 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 2 — backend `users.theme` | Drizzle migration; validation; register/login/OAuth signup/`updateUser`; serializer allowlists; Jest tests. | ✅ done 2026-09-25 — backend **244/244**, `tsc` + eslint green |
 | 3 — header switch + login/register carry-over | Header `ThemeToggle` saves through `useUpdateProfile`; login/register/Google sign-up send `theme` per D7; session applies the row value. | ✅ done 2026-09-25 — frontend **670/670**, `tsc -b` + eslint + `vite build` green |
 | 4 — URL handoff | Read `?theme=` once (D6), save it, remove `?theme=` and `?lng=` from the URL. | ✅ done 2026-09-25 — frontend **680/680**, `tsc -b` + eslint + `vite build` green |
-| 5 — landing page | Language selector + theme switch under the language list (left side); ES/DE/EE texts; `[data-theme]` palette; links add `?lng=&theme=`; `<html lang>`; Dockerfile. | not started |
+| 5 — landing page | Language selector + theme switch under the language list (left side); ES/DE/EE texts; `[data-theme]` palette; links add `?lng=&theme=`; `<html lang>`; Dockerfile. | ✅ done 2026-09-25 — checked in a browser; Docker image builds. **EE texts need the user's review** |
 | 6 — phase gate | `phase-3-9-theme.spec.ts`; both themes checked on every screen; docs; full green run. | not started |
 | 7+ — small fixes | Added later by the user. | not started |
 
@@ -273,3 +273,57 @@ and dark with no leftover parameters.
 - `<html lang>` stays `en` when the UI language changes, in the whole app. Screen readers and
   browser translation use it. It is a two-line fix in `i18n.ts` (`languageChanged` handler).
 - `.dev-context/` and the landing docs are not updated yet for the link format. Slice 5 does that.
+
+## Slice 5 outcome (2026-09-25)
+
+**Shipped.** The landing page has a language selector and a light/dark switch, in one row under the
+list of languages on the left side. The page is in EN/ES/DE/EE. The theme has the dark palette. The
+links into the app carry the visitor's choices.
+
+New: `landing/app.js`, `landing/flags/{GB,ES,DE,EE}.svg` (copied from `frontend/public/`).
+Changed: `index.html`, `privacy.html`, `style.css`, `Dockerfile` (copies `app.js` and `flags/`).
+
+**How it works**
+
+- **Theme:** `style.css` follows `data-theme` on `<html>`, as the app does. A small script in the head
+  sets it before the first paint. Start value: saved choice, then the OS preference. There is a
+  no-script fallback (`prefers-color-scheme` on `:root:not([data-theme])`), so a visitor without JS
+  still gets the OS theme. The two dark blocks hold the same values as `frontend/src/styles/tokens.css`
+  and must be kept in sync by hand.
+- **Language:** saved choice, then the browser language, then English. Estonian browsers report `et`;
+  the script maps it to the app's code `ee`. `<html lang>` is set to `et` for Estonian (`ee` is the
+  code for Ewe). It also sets the page title, the meta description and the `og:` tags.
+- **Selector:** a small script-built menu, same look as the app's `LanguageMenu`: flag + code, four
+  items with native names and a check. Keyboard: Arrow Up/Down, Home, End, Escape (returns focus),
+  Tab, and click outside all work.
+- **Links into the app (D3, D7):** "Log in" and "Open Ladu" get `?lng=<code>`. They also get
+  `&theme=<choice>` **only** when the visitor pressed the switch on the landing page. Sending the
+  OS default as a "choice" would let a returning user on a new device overwrite the theme saved on
+  their account (the Slice 3 rule). The app reads both once and cleans the address (Slice 4).
+- **Without script:** the language/theme row stays hidden (it would do nothing). The page shows in
+  English with plain links to the app.
+- **Privacy page:** the legal text stays English. It gets the theme switch in its header, the same
+  dark palette, and the same links. Its header and footer follow the language chosen on the home
+  page. It has no language selector.
+
+**Checked by hand** (Playwright MCP, local static server, real browser): light and dark, Spanish, the
+row position under the language list, the menu, selecting a language (text, title, `lang`, links,
+switch label), the switch (links gain `&theme=dark`), reload persistence, the privacy page (a theme
+change there carries back to the home page), keyboard use, click outside, a phone width (390 px),
+and browser-language detection in fresh profiles (`et-EE` gives Estonian, `de-AT` gives German,
+`fr-FR` gives English, and none of them adds a `theme` parameter). The Docker image builds and
+contains `app.js` and `flags/`.
+
+**Please check**
+
+- **The Estonian texts** (`STRINGS.ee` in `landing/app.js`, marked with a `TODO(user review)`
+  comment): title, description, heading, paragraph, "Ava Ladu", "Logi sisse", "Privaatsus", the
+  labels. Remove the TODO comment after review.
+- **The Spanish and German texts** are also drafted by Claude.
+
+**Not done here**
+
+- No automated test: the landing page has no test setup, and Slice 6's e2e spec covers the
+  landing → app handoff end to end.
+- The production landing links go to `https://app.ladu.com.ar`, so the real handoff can only be
+  walked on staging/production. Slice 4's browser check covered the app side.

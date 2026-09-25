@@ -2,7 +2,7 @@
    page and the app look like one product. Keep the two in sync by hand. */
 
 :root {
-    color-scheme: light dark;
+    color-scheme: light;
 
     /* Brand pass 2026-09-21: accent moved from placeholder teal to the brand
        blue #007AFF, and the warm neutrals were cooled to agree with it. Old
@@ -12,6 +12,7 @@
     --fg: #1a1c20; /* was #1d1b17 — warm ink */
     --muted: #666b73; /* was #6d6a62 — warm grey */
     --border: #e3e5ea; /* was #e6e3da — warm hairline */
+    --fg-soft: color-mix(in srgb, var(--fg) 5%, transparent);
     --accent: #007aff; /* was #0f766e — placeholder teal */
     --accent-ink: #ffffff;
     --accent-hover: #0062cc; /* was #0b5f58 */
@@ -25,18 +26,42 @@
     --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
+/* Dark theme (Phase 3.9). The page sets `data-theme` on <html> before first
+   paint (inline script in index.html / privacy.html; app.js flips it). The
+   values below match frontend/src/styles/tokens.css. #007AFF is too saturated
+   on a dark ground, so dark mode uses a lighter blue with dark ink. */
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --bg: #121417; /* was #14130f */
+    --surface: #1b1e23; /* was #1d1b17 */
+    --fg: #eef0f4; /* was #f1efe8 */
+    --muted: #9aa0aa; /* was #a6a298 */
+    --border: #2c3036; /* was #34322b */
+    --accent: #4da3ff; /* was #2dd4bf */
+    --accent-ink: #062a52; /* was #0b1f1c */
+    --accent-hover: #7cbaff; /* was #5eead4 */
+
+    --lang-gb: #7f9fe0;
+    --lang-de: #b4b0a6;
+    --lang-es: #ef7d76;
+    --lang-ee: #6fb0ec;
+}
+
+/* No-script fallback: without JS nothing sets `data-theme`, so follow the OS.
+   Same values as the block above — keep the two in sync. */
 @media (prefers-color-scheme: dark) {
-    :root {
-        /* #007AFF is too saturated on a dark ground, so dark mode uses a
-           lighter blue with dark ink, the same shape the teal pair had. */
-        --bg: #121417; /* was #14130f */
-        --surface: #1b1e23; /* was #1d1b17 */
-        --fg: #eef0f4; /* was #f1efe8 */
-        --muted: #9aa0aa; /* was #a6a298 */
-        --border: #2c3036; /* was #34322b */
-        --accent: #4da3ff; /* was #2dd4bf */
-        --accent-ink: #062a52; /* was #0b1f1c */
-        --accent-hover: #7cbaff; /* was #5eead4 */
+    :root:not([data-theme]) {
+        color-scheme: dark;
+
+        --bg: #121417;
+        --surface: #1b1e23;
+        --fg: #eef0f4;
+        --muted: #9aa0aa;
+        --border: #2c3036;
+        --accent: #4da3ff;
+        --accent-ink: #062a52;
+        --accent-hover: #7cbaff;
 
         --lang-gb: #7f9fe0;
         --lang-de: #b4b0a6;
@@ -157,6 +182,134 @@ h1 {
     margin: 1.5rem 0 0;
     font-size: 0.85rem;
     color: var(--muted);
+}
+
+/* Language selector + theme switch, under the language list. Same look as the
+   app's `.icon-btn` / LanguageMenu. Shown only when script is running
+   (`.js` is set by the inline script in <head>): without it they do nothing. */
+.controls,
+.header-tools .theme-btn {
+    display: none;
+}
+
+.js .controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0.75rem 0 0 -0.5rem; /* pull the buttons' padding into the text edge */
+}
+
+.header-tools {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.js .header-tools .theme-btn {
+    display: inline-flex;
+}
+
+.tool-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2rem;
+    min-width: 2rem;
+    padding: 0 0.5rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.tool-btn:hover,
+.tool-btn[aria-expanded='true'] {
+    background: var(--fg-soft);
+    color: var(--fg);
+}
+
+.tool-btn.icon-only {
+    justify-content: center;
+    padding: 0;
+}
+
+.flag {
+    display: block;
+    border-radius: 2px;
+}
+
+/* The switch shows the theme a click goes TO: moon in light, sun in dark. */
+.theme-btn .icon-sun,
+:root[data-theme='dark'] .theme-btn .icon-moon {
+    display: none;
+}
+
+:root[data-theme='dark'] .theme-btn .icon-sun {
+    display: block;
+}
+
+.picker {
+    position: relative;
+}
+
+.picker-menu {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    z-index: 10;
+    min-width: 11rem;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.35);
+}
+
+.picker-menu[hidden] {
+    display: none;
+}
+
+.picker-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.9rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.picker-item:hover,
+.picker-item:focus-visible {
+    background: var(--fg-soft);
+}
+
+.picker-item-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.picker-item .check {
+    visibility: hidden;
+}
+
+.picker-item[aria-checked='true'] .check {
+    visibility: visible;
 }
 
 /* Example word card: one concept, four languages, each with its own colour. */
