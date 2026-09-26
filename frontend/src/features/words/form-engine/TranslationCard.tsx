@@ -16,6 +16,12 @@
  * for a freshly-added, still-empty card. Field-level errors stay driven by
  * `mode: 'onBlur'`, decoupled from the word-level completion signal.
  *
+ * `bare` drops the card's own chrome — the header (flag, name, completion ring,
+ * collapse toggle) and the frame (border, rounded corners, coloured top line,
+ * background) — for a host that already supplies both: the Review cell
+ * dialog, whose title shows the language. The fields and the footer's
+ * autocomplete/Clear row stay (unframed); it never collapses.
+ *
  * The header/body/footer bars all live inside the single CSS-hidden wrapper
  * `collapsed` toggles — never a conditional `{!collapsed && …}` — so RHF's
  * watchers (and `AutocompleteRow`'s own debounce/fetch state) keep running
@@ -30,6 +36,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
 import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Form } from '@/components/ui/form';
 import { CompletionRing } from '@/components/common/CompletionRing';
 import { FlagIcon } from '@/components/common/FlagIcon';
@@ -93,6 +100,8 @@ export interface TranslationCardProps {
     pos?: PartOfSpeech;
     initialCases?: WordItem[];
     displayOnly?: boolean;
+    /** No header and no frame — the host (a dialog) already has both. See the file header. */
+    bare?: boolean;
     onRemove?: () => void;
     onClear?: () => void;
     removeDisabled?: boolean;
@@ -183,6 +192,7 @@ export function TranslationCard({
     pos = PartOfSpeech.noun,
     initialCases,
     displayOnly = false,
+    bare = false,
     onRemove,
     onClear,
     removeDisabled = false,
@@ -306,42 +316,44 @@ export function TranslationCard({
 
     return (
         <div
-            className="flex flex-col overflow-hidden rounded-lg border bg-card"
-            style={{ borderTopColor: langTint(lang), borderTopWidth: 2 }}
+            className={cn('flex flex-col', !bare && 'overflow-hidden rounded-lg border bg-card')}
+            style={bare ? undefined : { borderTopColor: langTint(lang), borderTopWidth: 2 }}
         >
-            <div className="flex items-center justify-between gap-2 border-b border-border bg-background px-4 py-3">
-                <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
-                    <FlagIcon lang={lang} title={langEntry?.native ?? lang} />
-                    <span className="shrink-0">{langEntry?.native ?? lang}</span>
-                    {collapsed && <span className="hint truncate">{summary}</span>}
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                    {!displayOnly && !collapsed && (
-                        <CompletionRing value={cases.length} total={expectedCaseCount} detail={caseCountText} />
-                    )}
-                    <button
-                        type="button"
-                        className="icon-btn"
-                        aria-label={t(
-                            collapsed
-                                ? 'wordRelated:translationFormGeneric.expand'
-                                : 'wordRelated:translationFormGeneric.collapse',
+            {!bare && (
+                <div className="flex items-center justify-between gap-2 border-b border-border bg-background px-4 py-3">
+                    <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
+                        <FlagIcon lang={lang} title={langEntry?.native ?? lang} />
+                        <span className="shrink-0">{langEntry?.native ?? lang}</span>
+                        {collapsed && <span className="hint truncate">{summary}</span>}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                        {!displayOnly && !collapsed && (
+                            <CompletionRing value={cases.length} total={expectedCaseCount} detail={caseCountText} />
                         )}
-                        title={t(
-                            collapsed
-                                ? 'wordRelated:translationFormGeneric.expand'
-                                : 'wordRelated:translationFormGeneric.collapse',
-                        )}
-                        onClick={() => setCollapsed((prev) => !prev)}
-                    >
-                        {collapsed ? <CaretDownIcon size={16} /> : <CaretUpIcon size={16} />}
-                    </button>
+                        <button
+                            type="button"
+                            className="icon-btn"
+                            aria-label={t(
+                                collapsed
+                                    ? 'wordRelated:translationFormGeneric.expand'
+                                    : 'wordRelated:translationFormGeneric.collapse',
+                            )}
+                            title={t(
+                                collapsed
+                                    ? 'wordRelated:translationFormGeneric.expand'
+                                    : 'wordRelated:translationFormGeneric.collapse',
+                            )}
+                            onClick={() => setCollapsed((prev) => !prev)}
+                        >
+                            {collapsed ? <CaretDownIcon size={16} /> : <CaretUpIcon size={16} />}
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <Form {...form}>
                 <div className={collapsed ? 'hidden' : 'flex flex-col'}>
-                    <div className="flex flex-col gap-3 p-4">
+                    <div className={cn('flex flex-col gap-3', !bare && 'p-4')}>
                         {layoutItems.map((item) => (
                             <Fragment
                                 key={
@@ -411,7 +423,12 @@ export function TranslationCard({
                         ))}
                     </div>
                     {!displayOnly && (hasAutocomplete || onClear || onRemove) && (
-                        <div className="flex items-center justify-between gap-2 border-t border-border bg-background px-4 py-2.5">
+                        <div
+                            className={cn(
+                                'flex items-center justify-between gap-2',
+                                !bare && 'border-t border-border bg-background px-4 py-2.5',
+                            )}
+                        >
                             <div className="min-w-0">
                                 {hasAutocomplete && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} />}
                             </div>

@@ -215,6 +215,8 @@ export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
                         pos={word.partOfSpeech}
                         initialCases={initialCases}
                         displayOnly={!isEditing}
+                        // The dialog's own title already shows the language: no second header or frame.
+                        bare
                         onChange={setDraft}
                     />
                 )}

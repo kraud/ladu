@@ -93,7 +93,7 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 15 — small fixes, part 9 | Review, phone: filters and display switches in a side menu. | ✅ done 2026-09-26 — frontend **733/733** |
 | 16 — small fixes, part 10 | Review, desktop sidebar: collapse button points left/right. | ✅ done 2026-09-26 — frontend **736/736** |
 | 17 — small fixes, part 11 | Review, desktop sidebar: "Language order" title and hint in a column. | ✅ done 2026-09-26 — frontend **742/742** |
-| 18 — small fixes, part 12 | Cell dialog: translation form without its own header and frame. | not started |
+| 18 — small fixes, part 12 | Cell dialog: translation form without its own header and frame. | ✅ done 2026-09-26 — frontend **751/751** |
 
 ## Gate
 
@@ -766,3 +766,35 @@ menu would look better with the same stacking. Say if you want it there too.
   `column` in the sidebar, `row` again after moving back (the utility classes do win over the
   `.fb-group .fhead` rule); `column` in the 390px phone menu. Screenshots of the sidebar and the
   phone menu look right in light.
+
+## Slice 18 outcome (2026-09-26) — small fixes, part 12
+
+**The Review cell dialog (view, edit and add from the "+" cells) no longer shows a second header or a frame around the form.**
+
+- **Before:** the dialog's own title ("cat — Deutsch", with the flag) sat above a `TranslationCard` that
+  drew its own header (flag, language name, completion ring, collapse arrow) and a rounded, bordered
+  card with a coloured top line.
+- **Now:** `TranslationCard` has a `bare` prop. Bare = no header (so no collapse logic, ring or repeated
+  name) and no frame (no border, rounded corners, coloured top line, background or `p-4` padding). The
+  fields and the footer row stay: the autocomplete status/button and Clear/Remove (when given), but
+  unframed (no top border, no tinted band). `CellDialog` passes `bare`. The word forms (Add Word, Word
+  page) do not pass it and are unchanged.
+- **Behaviour kept:** a bare card still reports changes upward, so the dialog's Save still depends on
+  the same completion/dirty values. The read-only view (`displayOnly`) works bare too.
+- **Trade-off:** the completion ring is not shown in the dialog any more (it lived in the header).
+  Save's enabled state and the required-field messages still tell the user what is missing.
+- **Tests (+9, frontend 751/751):** `TranslationCard` (default keeps header and frame; bare has no
+  name, collapse toggle, ring, border, rounded corners, background, top line or padding; the footer
+  stays unframed with Clear; still reports changes; bare + read-only); `CellDialog` view, edit and add
+  (the title is the only header: no bare language label, one flag, no collapse toggle, no ring, no
+  rounded border). Mutation check: without `bare` in `CellDialog`, the 3 dialog tests fail. `tsc -b`,
+  eslint and `vite build` clean. e2e Review spec passes.
+- **Checked visually** (Playwright, real backend, seeded word): view of a filled Spanish cell, edit,
+  and add on an empty German cell with the autocomplete button; light and dark.
+
+## Small-fixes list (Slices 11–18): all done
+
+Slices 11–18 cover every item of the list. Frontend **751/751**, `tsc -b`, eslint and `vite build`
+clean; e2e Phase 1, 2, 3, 3.5, 3.9 and Review specs pass as of each slice. The full e2e suite
+(including the OAuth specs, which need port 5001 free) was not re-run at the end of the list. Texts to
+check by the user: the ES/DE/EE drafts added in Slices 12, 14 and 15.

@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { makeAutocompleteHandlers } from '@/test/msw/autocompleteHandlers';
@@ -502,6 +502,63 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         await waitFor(() => expect(screen.getByRole('button', { name: /autocomplete/i })).toBeInTheDocument(), { timeout: 2000 });
         await user.click(screen.getByRole('button', { name: /autocomplete/i }));
         await waitFor(() => expect(screen.getByLabelText('-da infinitive')).toHaveValue('tantsida'));
+    });
+});
+
+describe('TranslationCard — bare (inside a dialog that has its own header)', () => {
+    it('by default draws the header (name, ring, collapse toggle) and the frame', () => {
+        const { container } = renderWithProviders(<TranslationCard lang={Lang.EN} />);
+        expect(screen.getByText('English')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Collapse translation' })).toBeInTheDocument();
+        expect(container.firstElementChild).toHaveClass('rounded-lg', 'border', 'bg-card');
+    });
+
+    it('bare: no header — no name, no collapse toggle, no completion ring — and no frame', () => {
+        const { container } = renderWithProviders(<TranslationCard lang={Lang.EN} bare />);
+        expect(screen.queryByText('English')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /translation/i })).not.toBeInTheDocument();
+        expect(container.querySelector('.ring')).not.toBeInTheDocument();
+
+        const root = container.firstElementChild as HTMLElement;
+        expect(root).not.toHaveClass('border', 'rounded-lg', 'bg-card', 'overflow-hidden');
+        expect(root.style.borderTopWidth).toBe(''); // the coloured top line
+    });
+
+    it('bare: the fields are still there, without the card padding', () => {
+        const { container } = renderWithProviders(<TranslationCard lang={Lang.EN} bare />);
+        expect(screen.getByLabelText('Singular')).toBeInTheDocument();
+        expect(container.querySelector('.p-4')).not.toBeInTheDocument();
+    });
+
+    it('bare: the footer (autocomplete row, Clear) stays, unframed', () => {
+        renderWithProviders(<TranslationCard lang={Lang.ES} bare onClear={() => {}} />);
+        const footer = screen.getByTestId('autocomplete-status').closest('div.justify-between')!;
+        expect(footer).not.toHaveClass('border-t', 'bg-background');
+        expect(within(footer as HTMLElement).getByRole('button', { name: 'Clear' })).toBeInTheDocument();
+    });
+
+    it('bare: still reports changes upward (the dialog\'s Save depends on it)', async () => {
+        const user = userEvent.setup();
+        const onChange = vi.fn();
+        renderWithProviders(<TranslationCard lang={Lang.EN} bare onChange={onChange} />);
+        await user.type(screen.getByLabelText('Singular'), 'House');
+        await waitFor(() =>
+            expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ completionState: true, isDirty: true })),
+        );
+    });
+
+    it('bare + displayOnly (the dialog\'s read-only view): values as text, no header, no frame', () => {
+        const { container } = renderWithProviders(
+            <TranslationCard
+                lang={Lang.EN}
+                bare
+                displayOnly
+                initialCases={[{ caseName: NounCases.singularEN, word: 'house' }]}
+            />,
+        );
+        expect(screen.getByText('house')).toBeInTheDocument();
+        expect(screen.queryByText('English')).not.toBeInTheDocument();
+        expect(container.firstElementChild).not.toHaveClass('border');
     });
 });
 

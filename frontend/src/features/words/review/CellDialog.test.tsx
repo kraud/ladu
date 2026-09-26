@@ -220,6 +220,49 @@ describe('CellDialog — add', () => {
     });
 });
 
+describe('CellDialog — one header, no frame around the form (Slice 18)', () => {
+    /**
+     * The dialog's title ("house — English") is the only header. The card's own header used to
+     * add a second flag + a bare language-name label, a collapse toggle and a completion ring.
+     */
+    function expectOnlyDialogHeader(native: string) {
+        const dialog = screen.getByRole('dialog');
+        expect(within(dialog).getByRole('heading', { name: new RegExp(`— ${native}$`) })).toBeInTheDocument();
+        expect(within(dialog).queryByText(native)).not.toBeInTheDocument(); // the card header's own label
+        expect(within(dialog).queryAllByRole('img', { name: native })).toHaveLength(1); // one flag, in the title
+        expect(within(dialog).queryByRole('button', { name: /collapse translation|expand translation/i })).not.toBeInTheDocument();
+        expect(dialog.querySelector('.ring')).not.toBeInTheDocument();
+        // No card frame: neither the rounded border nor the coloured top line.
+        expect(dialog.querySelector('.rounded-lg.border')).not.toBeInTheDocument();
+    }
+
+    it('view (a filled cell): the dialog title is the only header', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose: vi.fn() });
+
+        await screen.findByText('house');
+        expectOnlyDialogHeader('English');
+    });
+
+    it('edit (Edit pressed): still one header, and the fields are there', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        const user = userEvent.setup();
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose: vi.fn() });
+
+        await openForEdit(user);
+        expect(await screen.findByLabelText('Singular')).toHaveValue('house');
+        expectOnlyDialogHeader('English');
+    });
+
+    it('add (an empty cell): still one header, straight in edit mode', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'DE', onClose: vi.fn() });
+
+        await screen.findByLabelText('Singular nominative');
+        expectOnlyDialogHeader('Deutsch');
+    });
+});
+
 describe('CellDialog — delete translation', () => {
     it('is hidden when the word has only 2 stored translations', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
