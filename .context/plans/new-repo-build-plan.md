@@ -124,6 +124,7 @@ Each phase: scope → gate. Order chosen so every phase ends with a runnable app
 | 2 | **Noun create/view, ≥3 languages** (second critical feature) | 1 |
 | 3 | Form engine → all PoS + autocomplete + Review | 2 |
 | 3.5 | **Dashboard + user metrics** (the `getUserMetrics` query, stat cards, both word-derived charts) | 3 |
+| 3.9 | **Dark mode + small fixes** (light/dark theme on landing, auth and app; landing language selector) | 3.5 |
 | 4 | Tags | 3 |
 | 5 | Exercises + performance | 3 |
 | 6 | Social: friendships + notifications + users (redesigned models) | 1 |
@@ -169,6 +170,49 @@ Split out of Phase 1 (2026-09-10): the metrics endpoint aggregates `words` + `tr
 - Invalidation: word CRUD ⇒ `['metrics']` — the edge is declared in Phase 2 but has no consumer until now.
 - **Gate**: a seeded account renders totals matching the DB; a fresh account renders the empty state; backend metrics tests green.
 - **e2e** (`phase-3-5-dashboard.spec.ts`): log in on an account holding words across ≥2 PoS and ≥2 languages → Dashboard totals and both charts match the data, every chart control works, and a word added through the real form refreshes the totals; a fresh account shows the empty state.
+
+### Phase 3.9 — Dark mode + small fixes
+
+Added 2026-09-25. This phase adds a light/dark theme to the landing page, the auth screens and the app. It also adds a language selector to the landing page. The choices of theme and language must carry over: landing → auth screens → logged-in app. Only **light** and **dark** are offered. There is no "system" option. The user will list the "small fixes" after the dark-mode slices are done.
+
+Decisions taken with the user (2026-09-25):
+- **Storage**: the theme is stored on the user row (new `users.theme` column, same pattern as `uiLanguage`) and in the browser.
+- **Landing → app handoff**: URL parameters (`?lng=es&theme=dark`). The landing (`ladu.com.ar`) and the app (`app.ladu.com.ar`) are different origins, so `localStorage` does not carry over.
+- **Landing texts**: Claude drafts the ES/DE/EE texts. The EE text is flagged for user review.
+- **Small fixes**: not defined yet. The user adds them later.
+
+Where the switch goes:
+
+| Screen | Position |
+|---|---|
+| Landing | Under the list of languages, on the left side. A language selector is also on this page (same as the auth screens). |
+| Auth screens | Next to the language selector (`.auth-lang` in `AuthLayout`). |
+| Logged-in app | In the header, next to the language selector (`AppHeader`). |
+
+- **Backend**: a Drizzle migration adds `users.theme` (`'light' | 'dark'`, nullable). `register`, `login`, the Google sign-up completion and `updateUser` accept and validate it (the OAuth callback is a redirect with no body, so it cannot). The `serializeUser` allowlist includes it. Jest tests cover each path.
+- **Frontend — palette**: `tokens.css` already plans for this (change the six seed colours under `:root[data-theme="dark"]`; the derived tones recompute). Reuse the dark values from `landing/style.css`. Also set dark values for `--lang-*`, `--success`, `--danger` and `--warning`. Change the shadcn variant in `styles.css` from `.dark` to `[data-theme="dark"]`. Audit the hard-coded colours (`globals.css`, `lib/avatar.ts`, the chart colours).
+- **Frontend — theme state**: a Zustand `persist` store. An inline script in `index.html` sets `data-theme` before the first paint, so there is no flash.
+- **Frontend — switch**: a `ThemeToggle` component (light/dark only). The public version is next to `PublicLanguageSelector`. The header version is next to `LanguageSelector` and saves through `useUpdateProfile`, like `uiLanguage`.
+- **Frontend — carry-over at login**: login, register and the OAuth start send the current theme, like `uiLanguage`. After login, the user row is the source of truth.
+- **Frontend — URL handoff**: at start-up, read `?theme=` once (i18next already reads `?lng=`), save it, and remove both parameters from the URL.
+- **Landing**: a language selector (EN/ES/DE/EE) and a theme switch. Small inline JS; the choice is kept in the landing's own `localStorage`. The `prefers-color-scheme` block in `style.css` becomes `[data-theme="dark"]`. The "Log in" and "Open Ladu" links add `?lng=…&theme=…`. `<html lang>` follows the selected language. If a JS file is added, update the COPY list in `landing/Dockerfile`.
+- **Start value** (decided 2026-09-25): a first visit with no stored choice follows the OS preference. The switch still offers only light and dark.
+
+Slices (each one ends with something runnable):
+
+| Slice | Scope |
+|---|---|
+| 0 | Persist the plan (`phase-3-9-dark-mode.md`) |
+| 1 | Dark palette + theme store + no-flash script + `ThemeToggle` on the auth screens |
+| 2 | Backend: `users.theme` + tests |
+| 3 | Header `ThemeToggle` + login/register carry-over |
+| 4 | URL handoff (`?theme=`, remove parameters) |
+| 5 | Landing: language selector + theme switch + translations |
+| 6 | Phase gate: e2e + docs + full green run |
+| 7+ | Small fixes (added later by the user) |
+
+- **Gate**: backend and frontend suites green. Every screen checked in both themes (Playwright MCP screenshots). No theme flash on reload.
+- **e2e** (`phase-3-9-theme.spec.ts`): open `/login?lng=es&theme=dark` → the page is Spanish and dark, and the parameters are removed. Switch the theme on the auth screen → log in → the app stays dark. Switch the theme in the header → reload and log in from a new browser context → the theme comes back from the user row.
 
 ### Phase 4 — Tags
 - Tag CRUD, follow/unfollow as **two distinct mutations** (the overloaded-slot hook dies), `TagInfoModal` without op-booleans, `AutocompleteMultiple` (tag picker), bulk-add-tags-to-words with declared invalidation edges (`['tags', id, 'wordCount']` + `['words']`), `filterTags` kept per §3.
@@ -239,10 +283,11 @@ Performed 2026-09-05, before this plan was written:
 | 2 — Noun create/view (form engine v1) | ✅ **done** 2026-09-12 — plan: [`phase-2-noun-crud.md`](./phase-2-noun-crud.md); final state backend **145/145**, frontend **188/188**, e2e **9/9**, build green (breakdown below) |
 | 3 — Form engine completion + autocomplete + Review | ✅ **done** 2026-09-15 — plan: [`phase-3-forms-autocomplete-review.md`](./phase-3-forms-autocomplete-review.md); 12 slices (0–11), all done; final state backend **165/165**, frontend **540/540**, e2e **10/10**, build green (breakdown below) |
 | 3.5 — Dashboard + user metrics | ✅ **done** 2026-09-16 — plan: [`phase-3-5-dashboard-metrics.md`](./phase-3-5-dashboard-metrics.md); 8 slices (0–7), all done; final state backend **175/175**, frontend **611/611**, e2e **12/12**, build green (breakdown below) |
+| 3.9 — Dark mode + small fixes | ✅ **dark mode done & gated** 2026-09-25 (Slices 0–6) — plan: [`phase-3-9-dark-mode.md`](./phase-3-9-dark-mode.md); light/dark theme on the landing page, auth screens and app (switch on all three; backend `users.theme`; login carry-over; `?lng=&theme=` handoff; landing language selector); final state backend **244/244**, frontend **696/696**, e2e **34/34**, build green. Small fixes: 404 theme switch and `<html lang>` (Slice 7), form-row bottom alignment (Slice 8), out-of-flow validation messages on rows with a mandatory field (Slices 9–10) done; more (Slice 11+) waiting for the user's list |
 | 4–8 | not started |
 
 - **Context docs refactored** (commit `891ffba`): `CLAUDE.md` is now product intro + working rules only; commands, target stack, invariants, spec index and roadmap table moved to [`.context/README.md`](../README.md).
-- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form). `phase-3-review.spec.ts` landed 2026-09-15 (1 test; creates a noun and a verb through the real engine — including a real offline autocomplete lookup — then filters/reloads/paginates/selects on `/review`); the same slice fixed `fixtures/db.ts`'s pool-per-worker sharing bug (see the Phase 3 write-up below). `phase-3-5-dashboard.spec.ts` landed 2026-09-16 (2 tests; a seeded account drives every stat card, both charts, all three chart toggles and the worst-category link, adds a word through the real form and confirms the `['metrics']` invalidation edge, plus a second fresh account for the empty state) — `npm run test:e2e` is 12/12 green, verified both at the default parallelism and under `--workers=1` (the shape CI will eventually use).
+- **Test infra** (commit `39fe6d6`): the `e2e/` Playwright workspace + the `@playwright/mcp` server (`.mcp.json`) landed. `e2e/tests/smoke.spec.ts` (Phase 0 harness check) is green; per-phase specs (`phase-N-*.spec.ts`) are authored as each phase reaches its gate. `phase-1-auth.spec.ts` landed 2026-09-10 (4 tests; the workspace gained `pg` + `dotenv` + `fixtures/db.ts` for reading the verification token off the dev DB). `phase-2-noun-crud.spec.ts` landed 2026-09-12 (2 tests; registers users straight through the API + DB-read verification token, everything else through the real form). `phase-3-review.spec.ts` landed 2026-09-15 (1 test; creates a noun and a verb through the real engine — including a real offline autocomplete lookup — then filters/reloads/paginates/selects on `/review`); the same slice fixed `fixtures/db.ts`'s pool-per-worker sharing bug (see the Phase 3 write-up below). `phase-3-9-theme.spec.ts` landed 2026-09-25 (6 tests; handoff, login carry-over, row theme on a fresh browser, OS start value, 404 switch, `<html lang>`). `phase-3-5-dashboard.spec.ts` landed 2026-09-16 (2 tests; a seeded account drives every stat card, both charts, all three chart toggles and the worst-category link, adds a word through the real form and confirms the `['metrics']` invalidation edge, plus a second fresh account for the empty state) — `npm run test:e2e` is 12/12 green, verified both at the default parallelism and under `--workers=1` (the shape CI will eventually use).
 
 ### Phase 1 — [`phase-1-auth-app-shell.md`](./phase-1-auth-app-shell.md)
 

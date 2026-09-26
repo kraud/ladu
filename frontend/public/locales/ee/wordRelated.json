@@ -90,7 +90,6 @@
     "missingImplementationPoS": "Seda sõnaliiki ei ole veel rakendatud, vabandame!"
   },
   "translationFormGeneric": {
-    "selectLanguage": "Vali uue sõna keel",
     "switchLanguage": "Keele vahetamine:",
     "collapse": "Ahenda tõlge",
     "expand": "Laienda tõlge",
@@ -108,13 +107,16 @@
   "wordForm": {
     "hints": {
       "minTranslations": "Lisa enne salvestamist vähemalt 2 tõlget.",
-      "requiredFieldsDisclaimer": "Tärniga (*) märgitud väljad on kohustuslikud."
+      "requiredFieldsDisclaimer": "Tärniga (*) märgitud väljad on kohustuslikud.",
+      "incomplete": "Täida kõigis tõlgetes kõik kohustuslikud väljad (märgitud *-ga).",
+      "noChanges": "Tee muudatus, et salvestada."
     },
     "errors": {
       "noNumbers": "Ei tohi sisaldada numbreid"
     },
     "buttons": {
-      "changeWordType": "Muuda sõnaliiki"
+      "changeWordType": "Muuda sõnaliiki",
+      "saveWord": "Salvesta sõna"
     },
     "sidebar": {
       "collapse": "Ahenda külgriba",
@@ -126,6 +128,10 @@
     "confirmChangeType": {
       "title": "Muuta sõnaliiki?",
       "description": "Sisestatud tõlked lähevad kaotsi."
+    },
+    "confirmRemoveTranslation": {
+      "title": "Eemalda see tõlge?",
+      "description": "Tõlge ({{language}}) ja kõik selles sisestatu eemaldatakse."
     },
     "noun": {
       "errors": {

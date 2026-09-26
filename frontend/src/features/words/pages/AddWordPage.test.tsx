@@ -25,10 +25,8 @@ afterEach(() => {
 });
 
 async function fillEnEs(user: ReturnType<typeof userEvent.setup>) {
-    await user.click(screen.getByRole('button', { name: 'Add translation' }));
-    await user.click(await screen.findByRole('button', { name: 'English' }));
-    await user.click(screen.getByRole('button', { name: 'Add translation' }));
-    await user.click(await screen.findByRole('button', { name: 'Español' }));
+    await user.click(screen.getByRole('button', { name: 'English' }));
+    await user.click(screen.getByRole('button', { name: 'Español' }));
 
     const [singularEN, singularES] = screen.getAllByLabelText('Singular');
     await user.type(singularEN!, 'House');
@@ -54,8 +52,8 @@ describe('AddWordPage', () => {
         expect(screen.getByText('All the required fields must be completed before saving')).toBeInTheDocument();
 
         await fillEnEs(user);
-        await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled());
-        await user.click(screen.getByRole('button', { name: 'Save' }));
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
+        await user.click(screen.getByRole('button', { name: 'Save word' }));
 
         expect(await screen.findByText('Word was created successfully')).toBeInTheDocument();
         expect(fake.requests).toHaveLength(1);
@@ -114,8 +112,8 @@ describe('AddWordPage', () => {
         await renderApp({ initialEntry: '/addWord/noun', session: SESSION });
 
         await fillEnEs(user);
-        await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled());
-        await user.click(screen.getByRole('button', { name: 'Save' }));
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
+        await user.click(screen.getByRole('button', { name: 'Save word' }));
 
         expect(await screen.findByText('Something went wrong, try again.')).toBeInTheDocument();
         // Nothing was reset — the filled fields are still there (lowercasing

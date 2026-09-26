@@ -90,7 +90,6 @@
     "missingImplementationPoS": "Diese Wortart ist noch nicht implementiert, es tut uns leid!"
   },
   "translationFormGeneric": {
-    "selectLanguage": "Wähle eine Sprache für das neue Wort",
     "switchLanguage": "Sprache wechseln:",
     "collapse": "Übersetzung einklappen",
     "expand": "Übersetzung ausklappen",
@@ -108,13 +107,16 @@
   "wordForm": {
     "hints": {
       "minTranslations": "Füge mindestens 2 Übersetzungen hinzu, bevor du speichern kannst.",
-      "requiredFieldsDisclaimer": "Mit * markierte Felder sind Pflichtfelder."
+      "requiredFieldsDisclaimer": "Mit * markierte Felder sind Pflichtfelder.",
+      "incomplete": "Fülle in allen Übersetzungen alle Pflichtfelder (mit * markiert) aus.",
+      "noChanges": "Nimm eine Änderung vor, um speichern zu können."
     },
     "errors": {
       "noNumbers": "Darf keine Zahlen enthalten"
     },
     "buttons": {
-      "changeWordType": "Wortart ändern"
+      "changeWordType": "Wortart ändern",
+      "saveWord": "Wort speichern"
     },
     "sidebar": {
       "collapse": "Seitenleiste einklappen",
@@ -126,6 +128,10 @@
     "confirmChangeType": {
       "title": "Wortart ändern?",
       "description": "Die bereits eingegebenen Übersetzungen werden verworfen."
+    },
+    "confirmRemoveTranslation": {
+      "title": "Diese Übersetzung entfernen?",
+      "description": "Die Übersetzung ({{language}}) und alles, was du darin eingegeben hast, wird entfernt."
     },
     "noun": {
       "errors": {

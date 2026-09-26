@@ -55,7 +55,13 @@ const THREE_LANG_WORD = {
     ],
 };
 
-function renderDialog(ui: { wordId: string; langKey: 'EN' | 'ES' | 'DE' | 'EE'; onClose: () => void }) {
+function renderDialog(ui: {
+    wordId: string;
+    langKey: 'EN' | 'ES' | 'DE' | 'EE';
+    onClose: () => void;
+    nativeLanguage?: string | null;
+    userLanguages?: readonly string[];
+}) {
     return renderWithProviders(
         <>
             <CellDialog {...ui} />
@@ -89,7 +95,8 @@ describe('CellDialog — display', () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
         renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'ES', onClose: vi.fn() });
 
-        expect(await screen.findByText('casa')).toBeInTheDocument();
+        // Twice now: the dialog title and the read-only value.
+        expect(await screen.findAllByText('casa')).toHaveLength(2);
         expect(screen.getByText('el')).toBeInTheDocument();
         expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
@@ -120,7 +127,7 @@ describe('CellDialog — display', () => {
         await user.type(singular, 'cottage');
 
         await user.click(screen.getByRole('button', { name: 'Cancel' }));
-        expect(await screen.findByText('house')).toBeInTheDocument();
+        expect(await screen.findAllByText('house')).toHaveLength(2); // title + read-only value
         expect(screen.queryByText('cottage')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     });
@@ -220,12 +227,143 @@ describe('CellDialog — add', () => {
     });
 });
 
+describe('CellDialog — one header, no frame around the form (Slice 18)', () => {
+    /**
+     * The dialog's title is the only header: the flag plus the headword, no language name. The card's
+     * own header used to add a second flag + a bare language-name label, a collapse toggle and a ring.
+     */
+    function expectOnlyDialogHeader(native: string, headword: string) {
+        const dialog = screen.getByRole('dialog');
+        expect(within(dialog).getByRole('heading').textContent).toBe(headword);
+        expect(within(dialog).queryByText(native)).not.toBeInTheDocument(); // no language name anywhere as text
+        expect(within(dialog).queryAllByRole('img', { name: native })).toHaveLength(1); // one flag, in the title
+        expect(within(dialog).queryByRole('button', { name: /collapse translation|expand translation/i })).not.toBeInTheDocument();
+        expect(dialog.querySelector('.ring')).not.toBeInTheDocument();
+        // No card frame: neither the rounded border nor the coloured top line.
+        expect(dialog.querySelector('.rounded-lg.border')).not.toBeInTheDocument();
+    }
+
+    it('view (a filled cell): the dialog title is the only header', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose: vi.fn() });
+
+        await screen.findByRole('button', { name: 'Edit' }); // read-only view is up (the word also appears in the title, so no text lookup)
+        expectOnlyDialogHeader('English', 'house');
+    });
+
+    it('edit (Edit pressed): still one header, and the fields are there', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        const user = userEvent.setup();
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose: vi.fn() });
+
+        await openForEdit(user);
+        expect(await screen.findByLabelText('Singular')).toHaveValue('house');
+        expectOnlyDialogHeader('English', 'house');
+    });
+
+    it('add (an empty cell): still one header, straight in edit mode', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'DE', onClose: vi.fn() });
+
+        await screen.findByLabelText('Singular nominative');
+        expectOnlyDialogHeader('Deutsch', 'house');
+    });
+});
+
+describe('CellDialog — title: the headword, in the right language', () => {
+    const title = () => screen.getByRole('dialog').querySelector('[data-slot="dialog-title"]')!.textContent;
+
+    it("view: the dialog language's own main case, not the word's first translation", async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'ES', onClose: vi.fn() });
+
+        await screen.findByRole('button', { name: 'Edit' }); // read-only view is up (the word also appears in the title, so no text lookup)
+        expect(title()).toBe('casa'); // the first translation is English ("house")
+    });
+
+    it('edit: the title keeps the same headword while editing', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        const user = userEvent.setup();
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'ES', onClose: vi.fn() });
+
+        await openForEdit(user);
+        await screen.findByLabelText('Singular');
+        expect(title()).toBe('casa');
+    });
+
+    it('view/edit ignore the native language: an existing translation shows its own word', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({
+            wordId: TWO_LANG_WORD.id,
+            langKey: 'EN',
+            onClose: vi.fn(),
+            nativeLanguage: 'Spanish',
+            userLanguages: ['Spanish', 'English'],
+        });
+
+        await screen.findByRole('button', { name: 'Edit' }); // read-only view is up (the word also appears in the title, so no text lookup)
+        expect(title()).toBe('house');
+    });
+
+    it('create: the native language\'s main case when the word has a translation in it', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({
+            wordId: TWO_LANG_WORD.id,
+            langKey: 'DE',
+            onClose: vi.fn(),
+            nativeLanguage: 'Spanish',
+            userLanguages: ['English', 'Spanish', 'German'],
+        });
+
+        await screen.findByLabelText('Singular nominative');
+        expect(title()).toBe('casa');
+    });
+
+    it('create, no native language: the first account language the word has', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({
+            wordId: TWO_LANG_WORD.id,
+            langKey: 'DE',
+            onClose: vi.fn(),
+            nativeLanguage: null,
+            userLanguages: ['Spanish', 'English', 'German'],
+        });
+
+        await screen.findByLabelText('Singular nominative');
+        expect(title()).toBe('casa');
+    });
+
+    it('create, native language not on the word yet: falls back to the first account language it has', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({
+            wordId: TWO_LANG_WORD.id,
+            langKey: 'DE',
+            onClose: vi.fn(),
+            nativeLanguage: 'German', // the language being added: no translation yet
+            userLanguages: ['English', 'Spanish', 'German'],
+        });
+
+        await screen.findByLabelText('Singular nominative');
+        expect(title()).toBe('house');
+    });
+
+    it('never shows the language name in the title (the flag names it)', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'ES', onClose: vi.fn() });
+
+        await screen.findByRole('button', { name: 'Edit' }); // read-only view is up (the word also appears in the title, so no text lookup)
+        expect(title()).not.toMatch(/Español|Spanish|—/);
+        // The language is still announced, through the flag.
+        expect(within(screen.getByRole('dialog')).getByRole('img', { name: 'Español' })).toBeInTheDocument();
+    });
+});
+
 describe('CellDialog — delete translation', () => {
     it('is hidden when the word has only 2 stored translations', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
         renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'EN', onClose: vi.fn() });
 
-        await screen.findByText('house');
+        await screen.findByRole('button', { name: 'Edit' }); // read-only view is up (the word also appears in the title, so no text lookup)
         expect(screen.queryByRole('button', { name: 'Delete translation' })).not.toBeInTheDocument();
     });
 
@@ -237,7 +375,7 @@ describe('CellDialog — delete translation', () => {
 
         // Available straight from the read-only display state (D41) — Delete
         // doesn't require entering edit mode first.
-        await screen.findByText('Baum');
+        await screen.findByRole('button', { name: 'Edit' }); // read-only view is up (the word also appears in the title, so no text lookup)
         await user.click(screen.getByRole('button', { name: 'Delete translation' }));
 
         const dialog = await screen.findByRole('alertdialog');

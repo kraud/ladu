@@ -1,8 +1,10 @@
 import '@testing-library/jest-dom/vitest';
-import { afterAll, afterEach, beforeAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { server } from './msw/server';
 import { useAuthStore } from '@/stores/authStore';
+import { useUiStore } from '@/stores/uiStore';
+import { restoreViewport } from './viewport';
 
 // jsdom's scrollTo throws "Not implemented"; TanStack Router's scroll
 // restoration calls it on every navigation. Replace it with a no-op.
@@ -31,7 +33,15 @@ if (typeof window.PointerEvent === 'undefined') {
 // app must never reach the real network in tests.
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 
+// The word editor sidebar starts collapsed in the app (`uiStore`); most tests
+// work with its fields, so they start expanded. `SidebarFields.test.tsx` covers
+// the collapsed default explicitly.
+beforeEach(() => {
+    useUiStore.setState({ wordSidebarCollapsed: false });
+});
+
 afterEach(() => {
+    restoreViewport();
     server.resetHandlers();
     cleanup();
     useAuthStore.getState().clearSession();

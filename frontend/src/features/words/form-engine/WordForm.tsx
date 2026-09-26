@@ -1,7 +1,9 @@
 /**
  * The word compose/edit orchestrator: PoS gate -> `WordEditorLayout` (a
- * collapsible left sidebar of actions/clue/tags-placeholder, next to the
- * translation grid) -> "+ Add language" dialog. Shared by `AddWordPage`
+ * collapsible left sidebar of clue/tags, the translation grid and a sticky
+ * bottom bar with the actions and the reason Save is disabled; the grid ends in the "+ Add translation" tile — one chip per
+ * still-free language, so a click adds it with no dialog; the tile is not
+ * rendered once nothing more can be added). Shared by `AddWordPage`
  * (create) and `WordPage` (edit); `initialWord`/`onDelete`/`extraActions`
  * exist so each call site can add its own actions (Cancel, Delete) without
  * this component learning about navigation.
@@ -10,21 +12,19 @@
  * forwards events. No toasts, no navigation — those are call-site concerns
  * (`AddWordPage`'s `onSubmit`).
  */
-import { type ReactNode, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { FlagIcon } from '@/components/common/FlagIcon';
+import { languageByLabel } from '@/lib/language';
 import { PartOfSpeechSelector } from '@/components/common/PartOfSpeechSelector';
 import { ArrowsClockwiseIcon, FloppyDiskIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
-import { useUiStore } from '@/stores/uiStore';
-import { SidebarAction } from '../layout/SidebarAction';
 import { SidebarFields } from '../layout/SidebarFields';
+import type { EditorAction } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
 import { TranslationCard, translationGridClass } from './TranslationCard';
-import { useWordFormState } from './useWordFormState';
+import { translationHasData, useWordFormState } from './useWordFormState';
 import type { CreateWordBody, UpdateWordBody, WordBE } from '../types';
 
 export interface WordFormProps {
@@ -51,10 +51,10 @@ export interface WordFormProps {
     onPartOfSpeechChange?: (pos: PartOfSpeech) => void;
     /**
      * Edit mode only: lets `WordPage` inject its own Cancel action into the
-     * sidebar's action group, without this component learning anything about
-     * navigation.
+     * bottom bar's action group, without this component learning anything
+     * about navigation.
      */
-    extraActions?: ReactNode;
+    extraActions?: EditorAction[];
 }
 
 export function WordForm({
@@ -70,9 +70,9 @@ export function WordForm({
 }: WordFormProps) {
     const { t } = useTranslation();
     const state = useWordFormState({ initialWord, defaultPartOfSpeech });
-    const [addLangOpen, setAddLangOpen] = useState(false);
     const [confirmChangeTypeOpen, setConfirmChangeTypeOpen] = useState(false);
-    const collapsed = useUiStore((s) => s.wordSidebarCollapsed);
+    // The language whose Remove is waiting for a confirmation (by language, not index, so it stays right if the list changes).
+    const [removeCandidate, setRemoveCandidate] = useState<Lang | null>(null);
 
     function pickPartOfSpeech(pos: PartOfSpeech) {
         state.setPartOfSpeech(pos);
@@ -88,11 +88,6 @@ export function WordForm({
     if (!state.partOfSpeech) return null;
     const partOfSpeech = state.partOfSpeech;
 
-    function pickLanguage(lang: Lang) {
-        state.addTranslation(lang);
-        setAddLangOpen(false);
-    }
-
     function handleChangePartOfSpeechClick() {
         if (state.hasContent) {
             setConfirmChangeTypeOpen(true);
@@ -101,62 +96,69 @@ export function WordForm({
         }
     }
 
+    // An empty card goes at once; one holding anything (saved or not) asks first.
+    function handleRemove(index: number) {
+        const translation = state.translations[index];
+        if (!translation) return;
+        if (translationHasData(translation)) setRemoveCandidate(translation.language);
+        else state.removeTranslation(index);
+    }
+
+    function confirmRemove() {
+        const index = state.translations.findIndex((translation) => translation.language === removeCandidate);
+        if (index !== -1) state.removeTranslation(index);
+        setRemoveCandidate(null);
+    }
+
     function handleSave() {
         const payload = state.buildPayload();
         onSubmit(mode === 'edit' && initialWord ? { ...payload, id: initialWord.id } : payload);
     }
 
-    const sidebar = (
-        <div className="flex h-full flex-col gap-4">
-            <div className="flex flex-col gap-2">
-                {mode === 'create' && onChangePartOfSpeech && (
-                    <SidebarAction
-                        icon={<ArrowsClockwiseIcon size={18} />}
-                        onClick={handleChangePartOfSpeechClick}
-                        collapsed={collapsed}
-                    >
-                        {t('wordRelated:wordForm.buttons.changeWordType')}
-                    </SidebarAction>
-                )}
-                {extraActions}
-                {mode === 'edit' && onDelete && (
-                    <SidebarAction icon={<TrashIcon size={18} />} variant="destructive" onClick={onDelete} collapsed={collapsed}>
-                        {t('common:buttons.delete')}
-                    </SidebarAction>
-                )}
-            </div>
+    const actions: EditorAction[] = [
+        ...(mode === 'create' && onChangePartOfSpeech
+            ? [
+                  {
+                      key: 'change-word-type',
+                      label: t('wordRelated:wordForm.buttons.changeWordType'),
+                      icon: <ArrowsClockwiseIcon size={18} />,
+                      onClick: handleChangePartOfSpeechClick,
+                  },
+              ]
+            : []),
+        ...(mode === 'edit' ? (extraActions ?? []) : []),
+        ...(mode === 'edit' && onDelete
+            ? [
+                  {
+                      key: 'delete',
+                      label: t('common:buttons.delete'),
+                      icon: <TrashIcon size={18} />,
+                      variant: 'destructive' as const,
+                      onClick: onDelete,
+                  },
+              ]
+            : []),
+    ];
 
-            <SidebarFields clue={state.clue} onClueChange={state.setClue} collapsed={collapsed} />
-
-            {!collapsed && (
-                <p className="hint">
-                    <span aria-hidden="true" className="text-destructive">
-                        *
-                    </span>{' '}
-                    {t('wordRelated:wordForm.hints.requiredFieldsDisclaimer')}
-                </p>
-            )}
-
-            <div className="mt-auto sticky bottom-0 flex flex-col gap-2 border-t border-border bg-background pt-3">
-                {!collapsed && state.belowMinTranslations && (
-                    <p className="hint">{t('wordRelated:wordForm.hints.minTranslations')}</p>
-                )}
-                <SidebarAction
-                    variant="default"
-                    icon={submitting ? <span className="spinner" /> : <FloppyDiskIcon size={18} />}
-                    disabled={!state.canSave || submitting}
-                    onClick={handleSave}
-                    collapsed={collapsed}
-                    hint={state.belowMinTranslations ? t('wordRelated:wordForm.hints.minTranslations') : undefined}
-                >
-                    {submitting ? t('common:status.saving') : t('common:buttons.saveChanges')}
-                </SidebarAction>
-            </div>
-        </div>
-    );
+    // Save's "why not" message; nothing is shown once Save is enabled.
+    const statusText =
+        submitting || !state.saveBlockReason
+            ? undefined
+            : t(`wordRelated:wordForm.hints.${state.saveBlockReason}`);
 
     return (
-        <WordEditorLayout sidebar={sidebar}>
+        <WordEditorLayout
+            sidebar={<SidebarFields clue={state.clue} onClueChange={state.setClue} />}
+            actions={actions}
+            primary={{
+                label: submitting ? t('common:status.saving') : t('wordRelated:wordForm.buttons.saveWord'),
+                icon: submitting ? <span className="spinner" /> : <FloppyDiskIcon size={18} />,
+                onClick: handleSave,
+                disabled: !state.canSave || submitting,
+            }}
+            statusText={statusText}
+            showRequiredHint
+        >
             <div className="flex flex-col gap-5">
                 <div className={translationGridClass(partOfSpeech)}>
                     {state.translations.map((translation, index) => (
@@ -166,25 +168,53 @@ export function WordForm({
                             pos={partOfSpeech}
                             initialCases={translation.cases}
                             onChange={(next) => state.updateTranslation(index, next)}
-                            onRemove={() => state.removeTranslation(index)}
+                            onRemove={() => handleRemove(index)}
                             onClear={() => state.clearTranslation(index)}
                             resetKey={state.resetTokens[translation.language] ?? 0}
                             // Never disabled — Remove is always available; the < 2 translations
-                            // case is surfaced instead as a hint next to the Save action in the sidebar.
+                            // case is surfaced instead as the reason in the bottom bar.
                             removeDisabled={false}
                         />
                     ))}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        disabled={!state.canAddMore}
-                        onClick={() => setAddLangOpen(true)}
-                        className="h-auto min-h-16 gap-2 border-dashed bg-card/60 text-muted-foreground hover:border-(--accent) hover:bg-(--accent-soft) hover:text-(--accent-strong)"
-                    >
-                        <PlusIcon size={16} />
-                        {t('common:buttons.addAnotherTranslation')}
-                    </Button>
+                    {state.canAddMore && (
+                        <div
+                            role="group"
+                            aria-label={t('common:buttons.addAnotherTranslation')}
+                            className="flex min-h-28 flex-col items-center justify-center gap-4 rounded-lg border border-dashed bg-card/60 p-5 text-sm font-medium text-muted-foreground transition-colors hover:border-(--accent) hover:bg-(--accent-soft) hover:text-(--accent-strong)"
+                        >
+                            <span className="flex items-center gap-2" aria-hidden="true">
+                                <PlusIcon size={16} />
+                                {t('common:buttons.addAnotherTranslation')}
+                            </span>
+                            <div className="flex flex-wrap justify-center gap-3">
+                                {state.availableLanguages.map((lang) => (
+                                    <button
+                                        key={lang.key}
+                                        type="button"
+                                        className="chip"
+                                        onClick={() => state.addTranslation(lang.label as Lang)}
+                                    >
+                                        <FlagIcon lang={lang.key} />
+                                        {lang.native}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                <ConfirmDialog
+                    open={removeCandidate !== null}
+                    onOpenChange={(open) => {
+                        if (!open) setRemoveCandidate(null);
+                    }}
+                    title={t('wordRelated:wordForm.confirmRemoveTranslation.title')}
+                    description={t('wordRelated:wordForm.confirmRemoveTranslation.description', {
+                        language: languageByLabel(removeCandidate)?.native ?? removeCandidate ?? '',
+                    })}
+                    confirmLabel={t('common:buttons.remove')}
+                    onConfirm={confirmRemove}
+                />
 
                 <ConfirmDialog
                     open={confirmChangeTypeOpen}
@@ -197,27 +227,6 @@ export function WordForm({
                         onChangePartOfSpeech?.();
                     }}
                 />
-
-                <Dialog open={addLangOpen} onOpenChange={setAddLangOpen}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>{t('wordRelated:translationFormGeneric.selectLanguage')}</DialogTitle>
-                        </DialogHeader>
-                        <div className="flex flex-wrap gap-2">
-                            {state.availableLanguages.map((lang) => (
-                                <button
-                                    key={lang.key}
-                                    type="button"
-                                    className="chip"
-                                    onClick={() => pickLanguage(lang.label as Lang)}
-                                >
-                                    <FlagIcon lang={lang.key} />
-                                    {lang.native}
-                                </button>
-                            ))}
-                        </div>
-                    </DialogContent>
-                </Dialog>
             </div>
         </WordEditorLayout>
     );

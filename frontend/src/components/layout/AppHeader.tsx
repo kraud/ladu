@@ -6,6 +6,7 @@ import { ListIcon } from '@phosphor-icons/react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { BrandLogo } from '@/components/common/BrandLogo';
 import { LanguageSelector } from '@/components/layout/LanguageSelector';
+import { ThemeSelector } from '@/components/layout/ThemeSelector';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { featureFlags } from '@/app/feature-flags';
 import { useAuthStore } from '@/stores/authStore';
@@ -79,6 +80,7 @@ function HeaderRight() {
                 </div>
             )}
             <LanguageSelector />
+            <ThemeSelector />
             {featureFlags.notifications && (
                 <button type="button" className="icon-btn" aria-label="Notifications" />
             )}

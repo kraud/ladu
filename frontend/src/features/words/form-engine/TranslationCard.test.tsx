@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { makeAutocompleteHandlers } from '@/test/msw/autocompleteHandlers';
@@ -6,7 +6,13 @@ import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 import type { FieldConfig } from './configs/types';
-import { casesToFieldValues, fieldsToCases, groupHeadingsToPrint, TranslationCard } from './TranslationCard';
+import {
+    casesToFieldValues,
+    fieldsHaveData,
+    fieldsToCases,
+    groupHeadingsToPrint,
+    TranslationCard,
+} from './TranslationCard';
 
 const CASE_NAME = NounCases.singularEN; // arbitrary — these helpers never inspect it.
 
@@ -20,6 +26,90 @@ describe('TranslationCard', () => {
         renderWithProviders(<TranslationCard lang={lang} />);
         expect(screen.getByText(native)).toBeInTheDocument();
         expect(screen.getByText('Regularity')).toBeInTheDocument();
+    });
+
+    it('bottom-aligns the cells of a paired row (an autocomplete field next to a plain one)', () => {
+        // Spanish nouns pair the autocomplete trigger (bold label, 2px border, taller)
+        // with a plain field. Without `items-end` their input bottoms drift apart.
+        renderWithProviders(<TranslationCard lang={Lang.ES} />);
+
+        const row = screen.getByLabelText('Singular').closest('.grid');
+        expect(row).toHaveClass('items-end');
+        expect(row).toContainElement(screen.getByLabelText('Plural'));
+    });
+
+    it('reserves room under a mandatory field and shows its validation message out of the flow', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={Lang.EN} />);
+
+        const item = screen.getByLabelText('Singular').closest('[data-slot="form-item"]');
+        expect(item).toHaveClass('relative', 'pb-4');
+
+        await user.type(screen.getByLabelText('Singular'), 'abc1');
+        await user.tab();
+
+        // `position: absolute` inside the reserved strip: the message adds no height.
+        const message = await screen.findByText('Must not include numbers');
+        expect(item).toContainElement(message);
+        expect(message).toHaveClass('absolute', 'bottom-0', 'truncate');
+        // Cut to one line if too long, so the full text is on hover.
+        expect(message).toHaveAttribute('title', 'Must not include numbers');
+    });
+
+    describe('message room is reserved per row, only where a field is mandatory', () => {
+        const itemOf = (label: string) => screen.getByLabelText(label).closest('[data-slot="form-item"]');
+
+        it('a row with a mandatory field reserves room for ALL its cells, optional ones included', () => {
+            renderWithProviders(<TranslationCard lang={Lang.DE} />);
+
+            // Singular nominative is mandatory; Plural nominative, its row partner, is not.
+            expect(itemOf('Singular nominative')).toHaveClass('pb-4');
+            expect(itemOf('Plural nominative')).toHaveClass('pb-4');
+        });
+
+        it('a row with no mandatory field is left as it was: no reserved room, message in the flow', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<TranslationCard lang={Lang.DE} />);
+
+            expect(itemOf('Singular accusative')).not.toHaveClass('pb-4');
+            expect(itemOf('Plural accusative')).not.toHaveClass('pb-4');
+
+            await user.type(screen.getByLabelText('Singular accusative'), 'abc1');
+            await user.tab();
+            const message = await screen.findByText('Must not include numbers');
+            expect(message).not.toHaveClass('absolute');
+        });
+
+        it('cells of a row with a mandatory field bottom-align; cells of an optional row stay top-aligned', () => {
+            renderWithProviders(<TranslationCard lang={Lang.DE} />);
+            const cellOf = (label: string) => screen.getByLabelText(label).closest('[data-slot="form-item"]')?.parentElement;
+
+            expect(cellOf('Singular nominative')).toHaveClass('self-end');
+            expect(cellOf('Plural nominative')).toHaveClass('self-end');
+            expect(cellOf('Singular accusative')).toHaveClass('self-start');
+            expect(cellOf('Plural accusative')).toHaveClass('self-start');
+        });
+
+        it('a lone optional field reserves nothing; a lone mandatory field does', () => {
+            renderWithProviders(<TranslationCard lang={Lang.DE} />);
+
+            // Regularity is optional, Gender is mandatory (both single-field rows).
+            expect(screen.getByText('Regularity').closest('[data-slot="form-item"]')).not.toHaveClass('pb-4');
+            expect(screen.getByText('Gender').closest('[data-slot="form-item"]')).toHaveClass('pb-4');
+        });
+    });
+
+    it('reserves nothing in displayOnly (no messages there)', () => {
+        renderWithProviders(
+            <TranslationCard
+                lang={Lang.EN}
+                displayOnly
+                initialCases={[{ caseName: NounCases.singularEN, word: 'house' }]}
+            />,
+        );
+
+        const item = screen.getByText('Singular').closest('[data-slot="form-item"]');
+        expect(item).not.toHaveClass('pb-4');
     });
 
     it('hydrates from initialCases', () => {
@@ -131,6 +221,7 @@ describe('TranslationCard', () => {
                     cases: [{ caseName: NounCases.singularEN, word: 'house' }],
                     completionState: true,
                     isDirty: true,
+                    hasData: true,
                 }),
             );
         });
@@ -140,7 +231,7 @@ describe('TranslationCard', () => {
         const onChange = vi.fn();
         renderWithProviders(<TranslationCard lang={Lang.EN} onChange={onChange} />);
 
-        expect(onChange).toHaveBeenCalledWith({ cases: [], completionState: false, isDirty: false });
+        expect(onChange).toHaveBeenCalledWith({ cases: [], completionState: false, isDirty: false, hasData: false });
     });
 
     it('pushes up lowercased cases and flips complete/dirty once the required field is filled', async () => {
@@ -155,6 +246,7 @@ describe('TranslationCard', () => {
                 cases: [{ caseName: NounCases.singularEN, word: 'house' }],
                 completionState: true,
                 isDirty: true,
+                hasData: true,
             }),
         );
     });
@@ -175,7 +267,7 @@ describe('TranslationCard', () => {
 
         await waitFor(() => expect(screen.getByLabelText('Singular')).toHaveValue(''));
         await waitFor(() =>
-            expect(onChange).toHaveBeenLastCalledWith({ cases: [], completionState: false, isDirty: false }),
+            expect(onChange).toHaveBeenLastCalledWith({ cases: [], completionState: false, isDirty: false, hasData: false }),
         );
 
         // The card still works normally afterward.
@@ -413,6 +505,63 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
     });
 });
 
+describe('TranslationCard — bare (inside a dialog that has its own header)', () => {
+    it('by default draws the header (name, ring, collapse toggle) and the frame', () => {
+        const { container } = renderWithProviders(<TranslationCard lang={Lang.EN} />);
+        expect(screen.getByText('English')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Collapse translation' })).toBeInTheDocument();
+        expect(container.firstElementChild).toHaveClass('rounded-lg', 'border', 'bg-card');
+    });
+
+    it('bare: no header — no name, no collapse toggle, no completion ring — and no frame', () => {
+        const { container } = renderWithProviders(<TranslationCard lang={Lang.EN} bare />);
+        expect(screen.queryByText('English')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /translation/i })).not.toBeInTheDocument();
+        expect(container.querySelector('.ring')).not.toBeInTheDocument();
+
+        const root = container.firstElementChild as HTMLElement;
+        expect(root).not.toHaveClass('border', 'rounded-lg', 'bg-card', 'overflow-hidden');
+        expect(root.style.borderTopWidth).toBe(''); // the coloured top line
+    });
+
+    it('bare: the fields are still there, without the card padding', () => {
+        const { container } = renderWithProviders(<TranslationCard lang={Lang.EN} bare />);
+        expect(screen.getByLabelText('Singular')).toBeInTheDocument();
+        expect(container.querySelector('.p-4')).not.toBeInTheDocument();
+    });
+
+    it('bare: the footer (autocomplete row, Clear) stays, unframed', () => {
+        renderWithProviders(<TranslationCard lang={Lang.ES} bare onClear={() => {}} />);
+        const footer = screen.getByTestId('autocomplete-status').closest('div.justify-between')!;
+        expect(footer).not.toHaveClass('border-t', 'bg-background');
+        expect(within(footer as HTMLElement).getByRole('button', { name: 'Clear' })).toBeInTheDocument();
+    });
+
+    it('bare: still reports changes upward (the dialog\'s Save depends on it)', async () => {
+        const user = userEvent.setup();
+        const onChange = vi.fn();
+        renderWithProviders(<TranslationCard lang={Lang.EN} bare onChange={onChange} />);
+        await user.type(screen.getByLabelText('Singular'), 'House');
+        await waitFor(() =>
+            expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ completionState: true, isDirty: true })),
+        );
+    });
+
+    it('bare + displayOnly (the dialog\'s read-only view): values as text, no header, no frame', () => {
+        const { container } = renderWithProviders(
+            <TranslationCard
+                lang={Lang.EN}
+                bare
+                displayOnly
+                initialCases={[{ caseName: NounCases.singularEN, word: 'house' }]}
+            />,
+        );
+        expect(screen.getByText('house')).toBeInTheDocument();
+        expect(screen.queryByText('English')).not.toBeInTheDocument();
+        expect(container.firstElementChild).not.toHaveClass('border');
+    });
+});
+
 describe('fieldsToCases', () => {
     const multiSelect: FieldConfig = {
         kind: 'multi-select',
@@ -576,5 +725,41 @@ describe('groupHeadingsToPrint', () => {
 
     it('prints the full multi-level stack the first time it appears', () => {
         expect(groupHeadingsToPrint([indicativePresent], 0)).toEqual(indicativePresent.group);
+    });
+});
+
+describe('fieldsHaveData', () => {
+    const base = { caseName: CASE_NAME, labelKey: 'x', required: false };
+    const text: FieldConfig = { ...base, kind: 'text', name: 'singular', lowercase: false };
+    const radio: FieldConfig = {
+        ...base,
+        kind: 'radio',
+        name: 'gender',
+        persisted: false,
+        options: [{ value: 'Neutral', label: 'Neutral' }],
+    };
+    const checkbox: FieldConfig = { ...base, kind: 'checkbox', name: 'searchInEnglish', persisted: false };
+    const multi: FieldConfig = {
+        ...base,
+        kind: 'multi-select',
+        name: 'verbCases',
+        options: [{ value: 'dativeDE', label: 'Dative' }],
+        encode: () => '',
+        decode: () => [],
+    };
+
+    it('is false for blank, whitespace-only and default values', () => {
+        expect(fieldsHaveData([text, radio, multi], { singular: '', gender: '', verbCases: [] })).toBe(false);
+        expect(fieldsHaveData([text], { singular: '   ' })).toBe(false);
+    });
+
+    it('counts typed text, a chosen radio (even one that is never persisted) and a ticked option', () => {
+        expect(fieldsHaveData([text], { singular: 'house' })).toBe(true);
+        expect(fieldsHaveData([radio], { gender: 'Neutral' })).toBe(true);
+        expect(fieldsHaveData([multi], { verbCases: ['dativeDE'] })).toBe(true);
+    });
+
+    it('ignores a form-only checkbox — a ticked "search in English" alone is not data', () => {
+        expect(fieldsHaveData([checkbox], { searchInEnglish: true })).toBe(false);
     });
 });

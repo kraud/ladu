@@ -20,6 +20,7 @@ const {
   serializeLoginUser,
   normalizeLanguageSelection,
   isSupportedLanguage,
+  parseThemeInput,
   findUserByUsernameInsensitive,
   findUserByEmailInsensitive,
   isUuid,
@@ -299,7 +300,7 @@ const callback = asyncHandler(async (req: any, res: any) => {
 });
 
 const signupComplete = asyncHandler(async (req: any, res: any) => {
-  const { ticket, username, languages, uiLanguage } = req.body;
+  const { ticket, username, languages, uiLanguage, theme } = req.body;
 
   let payload;
   try {
@@ -328,6 +329,13 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
       throw new Error("Invalid language selection");
     }
     resolvedUiLanguage = uiLanguage;
+  }
+
+  // Same optional theme as registration; absent -> NULL.
+  const themeResult = parseThemeInput(theme);
+  if (!themeResult.ok) {
+    res.status(400);
+    throw new Error("Invalid theme selection");
   }
 
   // Race guard: the ticket's identity may have been linked, or its email
@@ -365,6 +373,7 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
       password: null,
       languages: languagesResult.languages,
       uiLanguage: resolvedUiLanguage,
+      theme: themeResult.theme,
       nativeLanguage: null,
       // Google already verified the address — the standard registration
       // flow's confirmation email is deliberately skipped (Decisions).

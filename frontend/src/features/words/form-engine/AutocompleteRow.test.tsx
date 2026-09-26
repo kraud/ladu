@@ -77,6 +77,25 @@ describe('AutocompleteRow', () => {
         expect(screen.queryByTestId('autocomplete-status')).not.toBeInTheDocument();
     });
 
+    it('draws the ready button in the brand colour (accent fill, border and text), in both themes', async () => {
+        const fake = makeAutocompleteHandlers({
+            englishVerb: {
+                foundVerb: true,
+                verbData: { language: 'English', cases: [{ caseName: 'simplePresent3sEN', word: 'runs' }] },
+            },
+        });
+        server.use(...fake.handlers);
+
+        renderWithProviders(
+            <Harness lang={Lang.EN} pos={PartOfSpeech.verb} fields={enVerbFields} defaultValues={{ simplePresent1s: 'run' }} />
+        );
+
+        const button = await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 });
+        expect(button).toHaveClass('border-(--accent)', 'bg-(--accent-soft)', 'text-(--accent-strong)');
+        // The outline variant's own dark fill/border must be overridden too.
+        expect(button).toHaveClass('dark:border-(--accent)', 'dark:bg-(--accent-soft)');
+    });
+
     it('shows "values applied" instead of a button once every case the lookup found already matches the form — no click needed', async () => {
         // Mirrors opening an existing translation that was originally saved
         // from this same autocomplete suggestion: the query field is already

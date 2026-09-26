@@ -74,7 +74,7 @@
     position: sticky;
     top: 0;
     z-index: 20;
-    background: color-mix(in oklch, var(--bg) 90%, transparent);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
   }
@@ -175,7 +175,7 @@
     height: 16px;
     padding: 0 4px;
     background: var(--danger);
-    color: #fff;
+    color: var(--danger-ink);
     border-radius: 999px;
     font-size: 10px;
     font-weight: 700;
@@ -346,7 +346,9 @@
     margin: 20px;
     border-radius: 20px;
     min-height: calc(100dvh - 40px);
-    background: color-mix(in oklch, var(--fg) 4%, var(--bg));
+    /* srgb, not oklch: on the near-neutral dark seeds the oklch mix loses its
+       hue and renders a faint red-brown tint. */
+    background: color-mix(in srgb, var(--fg) 4%, var(--bg));
   }
   .auth-form {
     width: min(360px, 100%);
@@ -491,7 +493,7 @@
     height: 22px;
     border-radius: 50%;
     background: var(--accent);
-    color: #fff;
+    color: var(--accent-ink);
     display: none;
     place-items: center;
   }
@@ -991,29 +993,34 @@
     font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 700;
-    background: rgb(255 255 255 / 0.14);
+    background: color-mix(in srgb, var(--bg) 14%, transparent);
     border-radius: 999px;
     padding: 3px 10px;
   }
   /* The bulk bar's buttons ARE shadcn `Button` (the `.btn` family is never
      ported, D9) — targeted here by its `data-slot` rather than a class, so
-     no extra marker class is needed on every consumer. */
+     no extra marker class is needed on every consumer.
+     `!important` on background/border: the `Button` outline variant carries
+     `dark:` utilities (fill + border for the dark theme) that live in the
+     utilities layer and would otherwise beat these component-layer rules. */
   .bulkbar [data-slot='button'] {
     height: 32px;
     color: var(--bg);
-    border-color: rgb(255 255 255 / 0.25);
-    background: transparent;
+    border-color: color-mix(in srgb, var(--bg) 25%, transparent) !important;
+    background: transparent !important;
     font-size: 13px;
   }
   .bulkbar [data-slot='button']:hover:not(:disabled) {
-    background: rgb(255 255 255 / 0.12);
-    border-color: rgb(255 255 255 / 0.45);
+    background: color-mix(in srgb, var(--bg) 12%, transparent) !important;
+    border-color: color-mix(in srgb, var(--bg) 45%, transparent) !important;
   }
   .bulkbar [data-slot='button']:disabled {
     opacity: 0.35;
   }
   .bulkbar [data-slot='button'].danger {
-    color: #f19a9a;
+    /* The bar is inverted (light text on a dark bar, or the reverse in the dark
+       theme), so the "danger" tint is mixed toward --bg, not a fixed pink. */
+    color: color-mix(in oklch, var(--danger) 55%, var(--bg));
   }
 
   /* ─── dashboard (Phase 3.5) ─────────────────────────────────── */

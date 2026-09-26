@@ -11,6 +11,7 @@
   },
   "filters": {
     "title": "Filter",
+    "display": "Anzeige",
     "show": "Filter anzeigen",
     "collapse": "Filter einklappen",
     "noneActive": "Keine Filter aktiv",
@@ -70,7 +71,6 @@
     "loadMore": "Mehr laden"
   },
   "cellDialog": {
-    "title": "{{word}} — {{language}}",
     "deleteTranslation": "Übersetzung löschen",
     "confirmDeleteTitle": "{{language}}-Übersetzung löschen?",
     "confirmDeleteDescription": "Dadurch werden die Fälle dieser Übersetzung und dein Übungsverlauf dafür endgültig entfernt.",

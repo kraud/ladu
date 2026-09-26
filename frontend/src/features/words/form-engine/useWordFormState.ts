@@ -15,6 +15,18 @@ import type { TranslationItem, WordItem } from '@/ts/interfaces';
 import type { TranslationCardChange } from './TranslationCard';
 import type { WordBE } from '../types';
 
+/** Why the Save button is disabled (`null` when it is enabled). */
+export type SaveBlockReason = 'minTranslations' | 'incomplete' | 'noChanges';
+
+/**
+ * Whether Remove would throw something away. The card reports `hasData` from
+ * its own field values; a slot that has not reported yet (a hydrated word
+ * before its cards mount) falls back to its cases.
+ */
+export function translationHasData(translation: TranslationItem): boolean {
+    return translation.hasData ?? translation.cases.length > 0;
+}
+
 const MAX_TRANSLATIONS = 4;
 const MIN_TRANSLATIONS = 2;
 
@@ -50,6 +62,10 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     const [translations, setTranslations] = useState<TranslationItem[]>(seed.translations);
     const [clue, setClueValue] = useState(seed.clue);
     const [clueDirty, setClueDirty] = useState(false);
+    // Removing a slot changes the word, but leaves every remaining card and the
+    // clue untouched — so no card reports `isDirty`. Without this flag, taking a
+    // translation away from a saved word could never enable Save.
+    const [translationRemoved, setTranslationRemoved] = useState(false);
     // One bump counter per language — `TranslationCard`'s `resetKey` prop.
     const [resetTokens, setResetTokens] = useState<Partial<Record<Lang, number>>>({});
 
@@ -59,11 +75,12 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     }, [translations, userLanguages]);
 
     const addTranslation = useCallback((language: Lang) => {
-        setTranslations((prev) => [...prev, { language, cases: [], completionState: false, isDirty: true }]);
+        setTranslations((prev) => [...prev, { language, cases: [], completionState: false, isDirty: true, hasData: false }]);
     }, []);
 
     const removeTranslation = useCallback((index: number) => {
         setTranslations((prev) => prev.filter((_, i) => i !== index));
+        setTranslationRemoved(true);
     }, []);
 
     // Clearing a slot resets its *parent* state, but the mounted `TranslationCard`
@@ -76,7 +93,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     const clearTranslation = (index: number) => {
         const language = translations[index]?.language;
         setTranslations((prev) =>
-            prev.map((t, i) => (i === index ? { ...t, cases: [], completionState: false, isDirty: true } : t)),
+            prev.map((t, i) => (i === index ? { ...t, cases: [], completionState: false, isDirty: true, hasData: false } : t)),
         );
         if (language) {
             setResetTokens((prev) => ({ ...prev, [language]: (prev[language] ?? 0) + 1 }));
@@ -97,6 +114,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
         setTranslations([]);
         setClueValue('');
         setClueDirty(false);
+        setTranslationRemoved(false);
     }, []);
 
     const canAddMore = translations.length < MAX_TRANSLATIONS && availableLanguages.length > 0;
@@ -105,10 +123,20 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     // added but never typed into (`cases: []`) isn't content. Drives the
     // create-mode "Change word type" confirm gate.
     const hasContent = translations.some((t) => t.cases.length > 0) || clue !== '';
-    const canSave =
-        translations.length >= MIN_TRANSLATIONS &&
-        translations.every((t) => t.completionState) &&
-        (translations.some((t) => t.isDirty) || clueDirty);
+    const hasEnoughTranslations = translations.length >= MIN_TRANSLATIONS;
+    const allComplete = translations.every((t) => t.completionState);
+    const hasChanges = translations.some((t) => t.isDirty) || clueDirty || translationRemoved;
+    const canSave = hasEnoughTranslations && allComplete && hasChanges;
+    // Why Save is disabled, for the editor's bottom bar. One reason at a time,
+    // most fundamental first: too few translations, then a required field
+    // still missing somewhere, then nothing changed yet. `null` = can save.
+    const saveBlockReason: SaveBlockReason | null = !hasEnoughTranslations
+        ? 'minTranslations'
+        : !allComplete
+          ? 'incomplete'
+          : !hasChanges
+            ? 'noChanges'
+            : null;
 
     const buildPayload = useCallback(
         () => ({
@@ -131,6 +159,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
         availableLanguages,
         canAddMore,
         canSave,
+        saveBlockReason,
         belowMinTranslations,
         hasContent,
         resetTokens,

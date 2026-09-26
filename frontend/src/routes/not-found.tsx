@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { AuthLayout } from '@/features/auth/components/AuthLayout';
+import { PageThemeToggle } from '@/components/layout/PageThemeToggle';
 
 /**
  * 404 — built from `MOCKUPS/auth/404.html`: the shared brand shell, serif
@@ -15,7 +16,9 @@ import { AuthLayout } from '@/features/auth/components/AuthLayout';
  * shows every language regardless of the UI language.
  *
  * Renders outside the `_public` layout and deliberately has no interface-
- * language selector — a standing Phase 1 decision, unchanged here.
+ * language selector — a standing Phase 1 decision, unchanged here. It does
+ * have a light/dark switch (Phase 3.9, Slice 7) that only lives on this page:
+ * nothing is saved or sent (`PageThemeToggle`).
  */
 const FALLBACK_LINES = [
     'Nothing to see here…',
@@ -57,7 +60,11 @@ export function NotFoundPage() {
     }, [lines.length]);
 
     return (
-        <AuthLayout blurb={t('loginRegister:brand.subNotFound')} showLanguageSelector={false}>
+        <AuthLayout
+            blurb={t('loginRegister:brand.subNotFound')}
+            showLanguageSelector={false}
+            themeToggle={<PageThemeToggle />}
+        >
             <div className="text-center">
                 <span
                     className="font-display leading-none tracking-tight"

@@ -220,6 +220,29 @@ describe('POST /api/auth/signup/complete', () => {
         expect(res.body.message).toBe('Email already in use');
     });
 
+    it('stores the theme chosen before signing up with Google, and rejects an unsupported one', async () => {
+        const bad = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            username: 'themeuser',
+            languages: ['English', 'Spanish'],
+            theme: 'system',
+        });
+        expect(bad.statusCode).toBe(400);
+        expect(bad.body.message).toBe('Invalid theme selection');
+
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            username: 'themeuser',
+            languages: ['English', 'Spanish'],
+            theme: 'dark',
+        });
+        expect(res.statusCode).toBe(201);
+        expect(res.body.theme).toBe('dark');
+
+        const [user] = await db.select().from(users).where(eq(users.email, 'newuser@example.com'));
+        expect(user.theme).toBe('dark');
+    });
+
     it('creates a password-less, verified account plus exactly one oauth_identities row, and returns a session token', async () => {
         const res = await request(app).post('/api/auth/signup/complete').send({
             ticket: validTicket(),

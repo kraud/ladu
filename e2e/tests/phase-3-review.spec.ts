@@ -108,7 +108,6 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await expect(page).toHaveURL('/addWord');
         await page.getByRole('radio', { name: /Noun/ }).click();
 
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'Deutsch' }).click();
         await page.getByLabel('Singular nominative').fill('Baum');
         await expect(
@@ -117,7 +116,6 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await page.getByRole('button', { name: 'Use autocomplete values' }).click();
         await expect(page.getByRole('radio', { name: 'der', exact: true })).toBeChecked();
 
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'English' }).click();
         await page.getByLabel('Singular', { exact: true }).fill('Tree');
 
@@ -129,14 +127,12 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await expect(page).toHaveURL('/addWord');
         await page.getByRole('radio', { name: /Verb/ }).click();
 
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'English' }).click();
         // Every simple-tense 1s field shares the pronoun label "I" (verbs.ts
         // labels conjugation fields by pronoun, not by tense) — only
         // `simplePresent1s` is required, addressed by its RHF field name.
         await page.locator('input[name="simplePresent1s"]').fill('run');
 
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'Deutsch' }).click();
         await page.getByLabel('Infinitive').fill('laufen');
 

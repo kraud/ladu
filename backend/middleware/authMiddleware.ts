@@ -17,6 +17,7 @@ const userColumnsWithoutPassword = {
     username: users.username,
     languages: users.languages,
     uiLanguage: users.uiLanguage,
+    theme: users.theme,
     nativeLanguage: users.nativeLanguage,
     verified: users.verified,
     createdAt: users.createdAt,

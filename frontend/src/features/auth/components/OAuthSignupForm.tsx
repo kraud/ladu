@@ -8,6 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { LanguageTiles } from '@/components/common/LanguageTiles';
 import { decodeJwtPayload } from '@/lib/jwt';
 import { labelByI18nCode } from '@/lib/language';
+import { themeForRequest } from '@/lib/theme';
 import { AuthLayout } from './AuthLayout';
 import { useOAuthSignupComplete } from '../hooks';
 import { buildOAuthSignupSchema, type OAuthSignupValues } from '../schemas';
@@ -56,6 +57,7 @@ export function OAuthSignupForm({ ticket }: { ticket: string }) {
                             username,
                             languages: langs,
                             uiLanguage: labelByI18nCode(i18n.language),
+                            theme: themeForRequest(),
                         });
                     })}
                 >

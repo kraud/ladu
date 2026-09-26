@@ -1,15 +1,18 @@
 /**
- * The toolbar above the table: debounced search box, the Display-gender
- * switch (D14 — shown only when there's a noun to apply it to), the
- * Display-progress switch (gates the per-cell completion ring, always
- * visible — unlike gender it applies to every part of speech), and the
- * loaded/total row count.
+ * The toolbar above the table: debounced search box, the display switches
+ * (`DisplayOptions` — Display gender, D14, only when there's a noun to apply
+ * it to; Display progress, which gates the per-cell completion ring and
+ * applies to every part of speech), and the loaded/total row count.
+ *
+ * On a phone the switches live in `MobileFilters`' side menu instead
+ * (`hideDisplayOptions`), and that menu's trigger comes in through `leading`,
+ * before the search box. Search and the count stay here either way.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react';
-import { Switch } from '@/components/ui/switch';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
+import { DisplayOptions } from './DisplayOptions';
 
 const SEARCH_DEBOUNCE_MS = 500;
 
@@ -25,6 +28,10 @@ export interface TableToolbarProps {
     onShowProgressChange: (next: boolean) => void;
     loadedCount: number;
     total: number;
+    /** Rendered before the search box (the phone's Filters button). */
+    leading?: ReactNode;
+    /** The switches are somewhere else (the phone's side menu). */
+    hideDisplayOptions?: boolean;
 }
 
 export function TableToolbar({
@@ -37,6 +44,8 @@ export function TableToolbar({
     onShowProgressChange,
     loadedCount,
     total,
+    leading,
+    hideDisplayOptions = false,
 }: TableToolbarProps) {
     const { t } = useTranslation();
     const [value, setValue] = useState(initialQuery);
@@ -65,6 +74,7 @@ export function TableToolbar({
 
     return (
         <div className="toolbar">
+            {leading}
             <div className="searchbox">
                 <MagnifyingGlassIcon size={14} />
                 <input
@@ -74,20 +84,15 @@ export function TableToolbar({
                     aria-label={t('review:toolbar.searchLabel')}
                 />
             </div>
-            {showSwitch && (
-                <Switch
-                    aria-pressed={showGender}
-                    onClick={() => onShowGenderChange(!showGender)}
-                >
-                    {t('review:toolbar.displayGender')}
-                </Switch>
+            {!hideDisplayOptions && (
+                <DisplayOptions
+                    showGenderSwitch={showSwitch}
+                    showGender={showGender}
+                    onShowGenderChange={onShowGenderChange}
+                    showProgress={showProgress}
+                    onShowProgressChange={onShowProgressChange}
+                />
             )}
-            <Switch
-                aria-pressed={showProgress}
-                onClick={() => onShowProgressChange(!showProgress)}
-            >
-                {t('review:toolbar.displayProgress')}
-            </Switch>
             <span className="meta" style={{ marginLeft: 'auto' }}>
                 {t('review:toolbar.rowCount', { count: loadedCount, total })}
             </span>

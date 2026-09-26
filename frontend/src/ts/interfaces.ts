@@ -22,6 +22,7 @@ export type TranslationItem = {
 export type InternalStatus = {
     completionState?: boolean // used while completing forms, not saved on BE
     isDirty?: boolean // used while completing forms, not saved on BE
+    hasData?: boolean // any field holds a value (saved or not) — gates the remove confirmation; not saved on BE
 }
 
 export interface WordItem {

@@ -90,7 +90,6 @@
     "missingImplementationPoS": "This part of speech is not implemented yet, we're sorry!"
   },
   "translationFormGeneric": {
-    "selectLanguage": "Pick a language for the new word",
     "switchLanguage": "Switch language:",
     "collapse": "Collapse translation",
     "expand": "Expand translation",
@@ -108,13 +107,16 @@
   "wordForm": {
     "hints": {
       "minTranslations": "Add at least 2 translations before you can save.",
-      "requiredFieldsDisclaimer": "Fields marked with * are required."
+      "requiredFieldsDisclaimer": "Fields marked with * are required.",
+      "incomplete": "Fill in every required field (marked *) in all translations.",
+      "noChanges": "Make a change to enable saving."
     },
     "errors": {
       "noNumbers": "Must not include numbers"
     },
     "buttons": {
-      "changeWordType": "Change word type"
+      "changeWordType": "Change word type",
+      "saveWord": "Save word"
     },
     "sidebar": {
       "collapse": "Collapse sidebar",
@@ -126,6 +128,10 @@
     "confirmChangeType": {
       "title": "Change word type?",
       "description": "The translations you have entered will be discarded."
+    },
+    "confirmRemoveTranslation": {
+      "title": "Remove this translation?",
+      "description": "The {{language}} translation and everything entered in it will be removed."
     },
     "noun": {
       "errors": {

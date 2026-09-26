@@ -94,16 +94,23 @@ function Harness({
     displayOnly,
     value,
     autocompleteFieldName,
+    reserveMessageSpace,
 }: {
     field: FieldConfig;
     displayOnly?: boolean;
     value?: unknown;
     autocompleteFieldName?: string;
+    reserveMessageSpace?: boolean;
 }) {
     const form = useForm({ defaultValues: { [field.name]: value ?? defaultValueFor(field) } });
     return (
         <Form {...form}>
-            <FieldRenderer field={field} displayOnly={displayOnly} autocompleteFieldName={autocompleteFieldName} />
+            <FieldRenderer
+                field={field}
+                displayOnly={displayOnly}
+                autocompleteFieldName={autocompleteFieldName}
+                reserveMessageSpace={reserveMessageSpace}
+            />
         </Form>
     );
 }
@@ -121,6 +128,21 @@ function MultiHarness({ fields, defaultValues }: { fields: FieldConfig[]; defaul
 }
 
 describe('FieldRenderer', () => {
+    it('reserves message room only when asked (reserveMessageSpace), and never in displayOnly', () => {
+        const itemOf = () => screen.getByText('Singular').closest('[data-slot="form-item"]');
+
+        const plain = renderWithProviders(<Harness field={textField} />);
+        expect(itemOf()).not.toHaveClass('pb-4');
+        plain.unmount();
+
+        const reserved = renderWithProviders(<Harness field={textField} reserveMessageSpace />);
+        expect(itemOf()).toHaveClass('relative', 'pb-4');
+        reserved.unmount();
+
+        renderWithProviders(<Harness field={textField} value="house" displayOnly reserveMessageSpace />);
+        expect(itemOf()).not.toHaveClass('pb-4');
+    });
+
     it('renders a text field as an editable input', () => {
         renderWithProviders(<Harness field={textField} />);
         expect(screen.getByLabelText('Singular')).toBeInTheDocument();

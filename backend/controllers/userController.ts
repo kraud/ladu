@@ -39,6 +39,7 @@ const userColumnsWithoutPassword = {
   username: users.username,
   languages: users.languages,
   uiLanguage: users.uiLanguage,
+  theme: users.theme,
   nativeLanguage: users.nativeLanguage,
   verified: users.verified,
   createdAt: users.createdAt,
@@ -60,6 +61,27 @@ const SUPPORTED_LANGUAGES = ["English", "Spanish", "German", "Estonian"];
 
 const isSupportedLanguage = (value: unknown): value is string =>
   typeof value === "string" && SUPPORTED_LANGUAGES.includes(value);
+
+// The two themes the app offers (Phase 3.9). There is no "system" value: the
+// OS preference is only the client's start value, never stored.
+const SUPPORTED_THEMES = ["light", "dark"];
+
+// Read the optional `theme` a client sends (register, login, updateUser,
+// OAuth signup). Absent (undefined / null / "") -> `theme: null`, meaning "no
+// choice made — keep what is stored". Present but not light/dark -> `ok: false`,
+// so the caller can set `res.status(400)`. Same absent-vs-invalid rule as
+// `uiLanguage`.
+const parseThemeInput = (
+  value: unknown,
+): { ok: true; theme: string | null } | { ok: false } => {
+  if (value === undefined || value === null || value === "") {
+    return { ok: true, theme: null };
+  }
+  if (typeof value === "string" && SUPPORTED_THEMES.includes(value)) {
+    return { ok: true, theme: value };
+  }
+  return { ok: false };
+};
 
 // Validate + normalize a `languages` array a client sends (registration, and a
 // profile edit on `updateUser`): every entry must be a supported language, and
@@ -104,6 +126,7 @@ const serializeUser = (user: Partial<UserRow>) => ({
   username: user.username,
   languages: user.languages,
   uiLanguage: user.uiLanguage,
+  theme: user.theme,
   nativeLanguage: user.nativeLanguage,
   verified: user.verified,
   createdAt: user.createdAt,
@@ -117,6 +140,7 @@ const serializeLoginUser = (user: UserRow) => ({
   username: user.username,
   languages: user.languages,
   uiLanguage: user.uiLanguage,
+  theme: user.theme,
   nativeLanguage:
     user.nativeLanguage === null ? undefined : user.nativeLanguage,
   token: generateToken(user.id),
@@ -158,12 +182,14 @@ const publicUserResponse = (user: UserRow) => ({
   username: user.username,
   languages: user.languages,
   uiLanguage: user.uiLanguage,
+  theme: user.theme,
   nativeLanguage: user.nativeLanguage,
   verified: user.verified,
 });
 
 const registerUser = asyncHandler(async (req: any, res: any) => {
-  const { name, email, username, password, languages, uiLanguage } = req.body;
+  const { name, email, username, password, languages, uiLanguage, theme } =
+    req.body;
 
   // Validate the required registration fields before any database work.
   if (!name || !email || !username || !password) {
@@ -188,6 +214,13 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
       throw new Error("Invalid language selection");
     }
     resolvedUiLanguage = uiLanguage;
+  }
+
+  // The theme chosen on the register screen is stored when given; absent -> NULL.
+  const themeResult = parseThemeInput(theme);
+  if (!themeResult.ok) {
+    res.status(400);
+    throw new Error("Invalid theme selection");
   }
 
   // Enforce the app-level case-insensitive uniqueness rules used by the legacy API.
@@ -217,6 +250,7 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
       password: hashedPassword,
       languages: languagesResult.languages,
       uiLanguage: resolvedUiLanguage,
+      theme: themeResult.theme,
       nativeLanguage: null,
       verified: false,
     } satisfies NewUserRow)
@@ -253,7 +287,7 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
 });
 
 const loginUser = asyncHandler(async (req: any, res: any) => {
-  const { email, password, uiLanguage } = req.body;
+  const { email, password, uiLanguage, theme } = req.body;
 
   // Look up by email first so password comparison only runs for a real account.
   const user = email ? await findUserByEmailInsensitive(email) : undefined;
@@ -288,11 +322,27 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
     }
   }
 
+  // A theme is sent only when the user actually chose one on this browser
+  // (D7): it is saved to the row. Absent -> the stored theme is returned
+  // untouched, so signing in on a new device never overwrites it.
+  const themeResult = parseThemeInput(theme);
+  if (!themeResult.ok) {
+    res.status(400);
+    throw new Error("Invalid theme selection");
+  }
+  if (themeResult.theme !== null && themeResult.theme !== user.theme) {
+    await db
+      .update(users)
+      .set({ theme: themeResult.theme, updatedAt: new Date() })
+      .where(eq(users.id, user.id));
+    user.theme = themeResult.theme;
+  }
+
   res.json(serializeLoginUser(user));
 });
 
 const updateUser = asyncHandler(async (req: any, res: any) => {
-  const { email, name, username, languages, uiLanguage, nativeLanguage } =
+  const { email, name, username, languages, uiLanguage, theme, nativeLanguage } =
     req.body;
 
   // The route is protected, so req.user identifies the account allowed to edit itself.
@@ -345,6 +395,13 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
     throw new Error("Invalid language selection");
   }
 
+  // Theme: absent -> keep the stored value; present but not light/dark -> reject.
+  const themeResult = parseThemeInput(theme);
+  if (!themeResult.ok) {
+    res.status(400);
+    throw new Error("Invalid theme selection");
+  }
+
   // Only update profile fields owned by this endpoint; email and password stay unchanged.
   const [updatedUser] = await db
     .update(users)
@@ -353,6 +410,7 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
       username: username ?? userData.username,
       languages: resolvedLanguages,
       uiLanguage: uiLanguage ?? userData.uiLanguage,
+      theme: themeResult.theme ?? userData.theme,
       nativeLanguage: nativeLanguage === undefined ? null : nativeLanguage,
       updatedAt: new Date(),
     })
@@ -642,6 +700,7 @@ export = {
   // than duplicating registration's validation and lookup rules.
   normalizeLanguageSelection,
   isSupportedLanguage,
+  parseThemeInput,
   findUserByUsernameInsensitive,
   findUserByEmailInsensitive,
   // Reused by oauthController.ts's identities endpoints (Phase 5) so an

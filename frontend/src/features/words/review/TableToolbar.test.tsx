@@ -129,3 +129,20 @@ describe('TableToolbar — row count', () => {
         expect(screen.getByText('3 of 10 words')).toBeInTheDocument();
     });
 });
+
+describe('TableToolbar — phone layout', () => {
+    it('hideDisplayOptions removes both switches but keeps search and the count', () => {
+        renderWithProviders(<TableToolbar {...baseProps} showSwitch hideDisplayOptions />);
+        expect(screen.queryByText('Display gender')).not.toBeInTheDocument();
+        expect(screen.queryByText('Display progress')).not.toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: 'Filter table' })).toBeInTheDocument();
+        expect(screen.getByText('3 of 10 words')).toBeInTheDocument();
+    });
+
+    it('renders `leading` before the search box', () => {
+        renderWithProviders(<TableToolbar {...baseProps} leading={<button type="button">Lead</button>} />);
+        const lead = screen.getByRole('button', { name: 'Lead' });
+        const search = screen.getByRole('textbox', { name: 'Filter table' });
+        expect(lead.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+});

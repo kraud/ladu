@@ -156,6 +156,50 @@ describe('login', () => {
         expect(i18n.language).toBe('es');
     });
 
+    it('saves a theme chosen on the login screen to the row and keeps it in the app', async () => {
+        const seeded = makeAuthHandlers([
+            { email: 'v@example.com', password: 'password123', verified: true, id: 'u-v' },
+        ]);
+        server.use(...seeded.handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/login' });
+
+        await user.click(await screen.findByRole('button', { name: 'Switch to dark theme' }));
+        await user.type(screen.getByLabelText('Email'), 'v@example.com');
+        await user.type(screen.getByLabelText('Password'), 'password123');
+        await user.click(screen.getByRole('button', { name: 'Sign in' }));
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        expect(seeded.userFor('v@example.com')?.theme).toBe('dark');
+        expect(useAuthStore.getState().user?.theme).toBe('dark');
+        expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    });
+
+    it('a login with no chosen theme does not overwrite the row, and the row theme is applied', async () => {
+        // The account saved "dark" on another device; this browser has no saved choice.
+        const seeded = makeAuthHandlers([
+            { email: 'v@example.com', password: 'password123', verified: true, id: 'u-v', theme: 'dark' },
+        ]);
+        server.use(...seeded.handlers);
+        expect(localStorage.getItem('ladu.theme')).toBeNull();
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/login' });
+
+        await user.type(await screen.findByLabelText('Email'), 'v@example.com');
+        await user.type(screen.getByLabelText('Password'), 'password123');
+        await user.click(screen.getByRole('button', { name: 'Sign in' }));
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        expect(seeded.userFor('v@example.com')?.theme).toBe('dark');
+        await waitFor(() =>
+            expect(document.documentElement.getAttribute('data-theme')).toBe('dark'),
+        );
+        // The row's choice is now the browser's saved choice too.
+        expect(localStorage.getItem('ladu.theme')).toBe('dark');
+    });
+
     it('decision 1: an unverified account is warned and NOT signed in', async () => {
         server.use(...makeAuthHandlers([
             { email: 'u@example.com', password: 'password123', verified: false, id: 'u-u' },

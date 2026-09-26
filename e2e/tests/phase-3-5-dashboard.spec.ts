@@ -200,9 +200,7 @@ test.describe.serial('Phase 3.5 — Dashboard + user metrics', () => {
         // supported ones — so this word is EN+ES, same as the seeded fixtures.
         await page.goto('/addWord');
         await page.getByRole('radio', { name: /Noun/ }).click();
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'English' }).click();
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'Español' }).click();
         const [singularEN, singularES] = await page.getByLabel('Singular').all();
         await singularEN!.fill('House');

@@ -90,7 +90,6 @@
     "missingImplementationPoS": "Esta categoría gramatical aún no está implementada, ¡lo sentimos!"
   },
   "translationFormGeneric": {
-    "selectLanguage": "Elige un idioma para la nueva palabra",
     "switchLanguage": "Cambiar idioma:",
     "collapse": "Contraer traducción",
     "expand": "Expandir traducción",
@@ -108,13 +107,16 @@
   "wordForm": {
     "hints": {
       "minTranslations": "Añade al menos 2 traducciones antes de poder guardar.",
-      "requiredFieldsDisclaimer": "Los campos marcados con * son obligatorios."
+      "requiredFieldsDisclaimer": "Los campos marcados con * son obligatorios.",
+      "incomplete": "Rellena todos los campos obligatorios (marcados con *) en todas las traducciones.",
+      "noChanges": "Haz un cambio para poder guardar."
     },
     "errors": {
       "noNumbers": "No debe incluir números"
     },
     "buttons": {
-      "changeWordType": "Cambiar tipo de palabra"
+      "changeWordType": "Cambiar tipo de palabra",
+      "saveWord": "Guardar palabra"
     },
     "sidebar": {
       "collapse": "Contraer la barra lateral",
@@ -126,6 +128,10 @@
     "confirmChangeType": {
       "title": "¿Cambiar el tipo de palabra?",
       "description": "Las traducciones que has introducido se descartarán."
+    },
+    "confirmRemoveTranslation": {
+      "title": "¿Eliminar esta traducción?",
+      "description": "La traducción ({{language}}) y todo lo que has introducido en ella se eliminarán."
     },
     "noun": {
       "errors": {

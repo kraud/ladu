@@ -19,9 +19,9 @@ const SESSION = {
     token: futureToken(),
 };
 
+// The "+ Add translation" tile lists one chip per free language — a chip click adds it, no dialog.
 async function addLanguage(user: ReturnType<typeof userEvent.setup>, native: string) {
-    await user.click(screen.getByRole('button', { name: 'Add translation' }));
-    await user.click(await screen.findByRole('button', { name: native }));
+    await user.click(screen.getByRole('button', { name: native }));
 }
 
 describe('WordForm — create mode', () => {
@@ -35,7 +35,7 @@ describe('WordForm — create mode', () => {
         await user.click(screen.getByRole('radio', { name: /Noun/ }));
 
         expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Add translation' })).toBeInTheDocument();
+        expect(screen.getByRole('group', { name: 'Add translation' })).toBeInTheDocument();
     });
 
     it('skips the gate when defaultPartOfSpeech is given', () => {
@@ -175,23 +175,26 @@ describe('WordForm — create mode', () => {
         });
     });
 
-    it('adds a language via the picker dialog, closes it, and removes availableLanguages from it next time', async () => {
+    it('lists the free languages as chips under "Add translation"; a click adds the card and drops its chip', async () => {
         const user = userEvent.setup();
         renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
             session: SESSION,
         });
 
+        const tile = screen.getByRole('group', { name: 'Add translation' });
+        expect(within(tile).getByRole('button', { name: 'English' })).toBeInTheDocument();
+        expect(within(tile).getByRole('button', { name: 'Español' })).toBeInTheDocument();
+
         await addLanguage(user, 'English');
-        expect(screen.getByText('English')).toBeInTheDocument();
+        expect(screen.getByLabelText('Singular')).toBeInTheDocument();
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
         // Only Spanish is left to add.
-        await user.click(screen.getByRole('button', { name: 'Add translation' }));
-        expect(screen.getByRole('button', { name: 'Español' })).toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: 'English' })).not.toBeInTheDocument();
+        expect(within(tile).getByRole('button', { name: 'Español' })).toBeInTheDocument();
+        expect(within(tile).queryByRole('button', { name: 'English' })).not.toBeInTheDocument();
     });
 
-    it('keeps Remove enabled even at 2 slots, and disables Add translation once every language is used', async () => {
+    it('keeps Remove enabled even at 2 slots, and hides the Add translation tile once every language is used', async () => {
         const user = userEvent.setup();
         renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
             session: SESSION,
@@ -201,23 +204,50 @@ describe('WordForm — create mode', () => {
         await addLanguage(user, 'Español');
 
         expect(screen.getAllByRole('button', { name: 'Remove' })[0]).toBeEnabled();
-        expect(screen.getByRole('button', { name: 'Add translation' })).toBeDisabled();
+        expect(screen.queryByRole('group', { name: 'Add translation' })).not.toBeInTheDocument();
     });
 
-    it('shows the min-translations hint below 2 slots and hides it once 2 are added', async () => {
+    it('explains in the bottom bar why Save is disabled, and shows nothing once it is enabled', async () => {
         const user = userEvent.setup();
         renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
             session: SESSION,
         });
+        const bar = screen.getByTestId('word-editor-bar');
+        const reason = () => within(bar).queryByRole('status');
 
-        const hint = 'Add at least 2 translations before you can save.';
-        expect(screen.getByText(hint)).toBeInTheDocument();
+        expect(within(bar).getByText('Fields marked with * are required.')).toBeInTheDocument();
+        expect(reason()).toHaveTextContent('Add at least 2 translations before you can save.');
 
         await addLanguage(user, 'English');
-        expect(screen.getByText(hint)).toBeInTheDocument(); // still only 1 slot
+        expect(reason()).toHaveTextContent('Add at least 2 translations before you can save.'); // still only 1 slot
 
         await addLanguage(user, 'Español');
-        expect(screen.queryByText(hint)).not.toBeInTheDocument();
+        expect(reason()).toHaveTextContent('Fill in every required field (marked *) in all translations.');
+
+        const [singularEN, singularES] = screen.getAllByLabelText('Singular');
+        await user.type(singularEN!, 'House');
+        await user.type(singularES!, 'Casa');
+        await user.click(screen.getByRole('radio', { name: 'el' }));
+        await waitFor(() => expect(reason()).not.toBeInTheDocument());
+        expect(within(bar).getByRole('button', { name: 'Save word' })).toBeEnabled();
+    });
+
+    it('puts the actions in the bottom bar, not the sidebar', () => {
+        renderWithProviders(
+            <WordForm
+                mode="create"
+                defaultPartOfSpeech={PartOfSpeech.noun}
+                onSubmit={vi.fn()}
+                onChangePartOfSpeech={vi.fn()}
+            />,
+            { session: SESSION },
+        );
+        const bar = screen.getByTestId('word-editor-bar');
+        expect(within(bar).getByRole('button', { name: 'Change word type' })).toBeInTheDocument();
+        expect(within(bar).getByRole('button', { name: 'Save word' })).toBeInTheDocument();
+        const sidebar = screen.getByLabelText('Clue').closest('aside')!;
+        expect(within(sidebar).queryByRole('button', { name: 'Change word type' })).not.toBeInTheDocument();
+        expect(within(sidebar).queryByRole('button', { name: 'Save word' })).not.toBeInTheDocument();
     });
 
     it('gates Save on >= 2 complete + dirty slots, then submits the exact nested payload', async () => {
@@ -227,7 +257,7 @@ describe('WordForm — create mode', () => {
             session: SESSION,
         });
 
-        const save = () => screen.getByRole('button', { name: 'Save' });
+        const save = () => screen.getByRole('button', { name: 'Save word' });
         await addLanguage(user, 'English');
         await addLanguage(user, 'Español');
         expect(save()).toBeDisabled();
@@ -291,7 +321,157 @@ describe('WordForm — create mode', () => {
         expect(removeButtons[0]).toBeEnabled();
         await user.click(removeButtons[0]!);
 
-        expect(screen.queryByText('English')).not.toBeInTheDocument();
+        // The English card is gone (only Spanish's plain "Singular" field is left) and its
+        // language is free again, so its chip is back in the "Add translation" tile.
+        expect(screen.getAllByLabelText('Singular')).toHaveLength(1);
+        expect(
+            within(screen.getByRole('group', { name: 'Add translation' })).getByRole('button', { name: 'English' }),
+        ).toBeInTheDocument();
         expect(screen.getAllByRole('button', { name: 'Remove' })[0]).toBeEnabled(); // back to 2 slots, still enabled
+    });
+
+    describe('Remove confirmation', () => {
+        it('removes an empty card at once, with no dialog', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
+                session: SESSION,
+            });
+            await addLanguage(user, 'English');
+
+            await user.click(screen.getByRole('button', { name: 'Remove' }));
+            expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+            expect(screen.queryByLabelText('Singular')).not.toBeInTheDocument();
+        });
+
+        it('asks first when the card holds typed data (not yet saved); Cancel keeps it', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
+                session: SESSION,
+            });
+            await addLanguage(user, 'English');
+            await user.type(screen.getByLabelText('Singular'), 'House');
+
+            await user.click(screen.getByRole('button', { name: 'Remove' }));
+            const dialog = await screen.findByRole('alertdialog');
+            expect(within(dialog).getByText('Remove this translation?')).toBeInTheDocument();
+            expect(within(dialog).getByText(/The English translation and everything entered in it/)).toBeInTheDocument();
+
+            await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+            expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+            expect(screen.getByLabelText('Singular')).toHaveValue('House');
+        });
+
+        it('Confirm removes the card and frees its language again', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
+                session: SESSION,
+            });
+            await addLanguage(user, 'English');
+            await user.type(screen.getByLabelText('Singular'), 'House');
+
+            await user.click(screen.getByRole('button', { name: 'Remove' }));
+            const dialog = await screen.findByRole('alertdialog');
+            await user.click(within(dialog).getByRole('button', { name: 'Remove' }));
+
+            await waitFor(() => expect(screen.queryByLabelText('Singular')).not.toBeInTheDocument());
+            expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+            expect(
+                within(screen.getByRole('group', { name: 'Add translation' })).getByRole('button', { name: 'English' }),
+            ).toBeInTheDocument();
+        });
+
+        it('a card emptied by hand (typed, then deleted) goes without asking', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
+                session: SESSION,
+            });
+            await addLanguage(user, 'English');
+            await user.type(screen.getByLabelText('Singular'), 'Hi');
+            await user.clear(screen.getByLabelText('Singular'));
+
+            await user.click(screen.getByRole('button', { name: 'Remove' }));
+            expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+            expect(screen.queryByLabelText('Singular')).not.toBeInTheDocument();
+        });
+
+        it('a card emptied with Clear goes without asking', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
+                session: SESSION,
+            });
+            await addLanguage(user, 'English');
+            await user.type(screen.getByLabelText('Singular'), 'House');
+            await user.click(screen.getByRole('button', { name: 'Clear' }));
+            await waitFor(() => expect(screen.getByLabelText('Singular')).toHaveValue(''));
+
+            await user.click(screen.getByRole('button', { name: 'Remove' }));
+            expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+        });
+
+        it('edit mode: confirming the removal of a saved translation is enough to enable Save word', async () => {
+            const user = userEvent.setup();
+            const onSubmit = vi.fn();
+            const initialWord: WordBE = {
+                id: 'word-1',
+                user: SESSION.id,
+                partOfSpeech: PartOfSpeech.noun,
+                translations: [
+                    { id: 'tr-1', language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'house' }] },
+                    { id: 'tr-2', language: Lang.ES, cases: [{ caseName: NounCases.genderES, word: 'el' }, { caseName: NounCases.singularES, word: 'casa' }] },
+                    { id: 'tr-3', language: Lang.DE, cases: [{ caseName: NounCases.genderDE, word: 'das' }, { caseName: NounCases.singularNominativDE, word: 'Haus' }] },
+                ],
+                clue: null,
+                isCloned: false,
+                originalCreator: null,
+                tags: [],
+                createdAt: '2026-01-01T00:00:00.000Z',
+                updatedAt: '2026-01-01T00:00:00.000Z',
+            };
+            renderWithProviders(<WordForm mode="edit" initialWord={initialWord} onSubmit={onSubmit} />, {
+                session: { ...SESSION, languages: ['English', 'Spanish', 'German'] },
+            });
+
+            const bar = screen.getByTestId('word-editor-bar');
+            await waitFor(() =>
+                expect(within(bar).getByRole('status')).toHaveTextContent('Make a change to enable saving.'),
+            );
+            expect(within(bar).getByRole('button', { name: 'Save word' })).toBeDisabled();
+
+            await user.click(screen.getAllByRole('button', { name: 'Remove' })[0]!);
+            await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Remove' }));
+
+            await waitFor(() => expect(within(bar).getByRole('button', { name: 'Save word' })).toBeEnabled());
+            expect(within(bar).queryByRole('status')).not.toBeInTheDocument();
+
+            await user.click(within(bar).getByRole('button', { name: 'Save word' }));
+            const payload = onSubmit.mock.calls[0]![0] as { translations: { language: string }[] };
+            expect(payload.translations.map((t) => t.language)).toEqual(['Spanish', 'German']);
+        });
+
+        it('edit mode: a saved translation asks first, even when nothing was changed', async () => {
+            const user = userEvent.setup();
+            const initialWord: WordBE = {
+                id: 'word-1',
+                user: SESSION.id,
+                partOfSpeech: PartOfSpeech.noun,
+                translations: [
+                    { id: 'tr-1', language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'house' }] },
+                    { id: 'tr-2', language: Lang.ES, cases: [{ caseName: NounCases.singularES, word: 'casa' }] },
+                ],
+                clue: null,
+                isCloned: false,
+                originalCreator: null,
+                tags: [],
+                createdAt: '2026-01-01T00:00:00.000Z',
+                updatedAt: '2026-01-01T00:00:00.000Z',
+            };
+            renderWithProviders(<WordForm mode="edit" initialWord={initialWord} onSubmit={vi.fn()} />, {
+                session: SESSION,
+            });
+
+            await user.click(screen.getAllByRole('button', { name: 'Remove' })[0]!);
+            const dialog = await screen.findByRole('alertdialog');
+            expect(within(dialog).getByText(/The English translation/)).toBeInTheDocument();
+        });
     });
 });

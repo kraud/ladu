@@ -26,6 +26,7 @@ import { router } from '@/app/router';
 import { onUnauthorized } from '@/api/client';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { ErrorState } from '@/components/common/ErrorState';
+import { useTheme } from '@/lib/theme';
 
 function UnauthorizedRedirect() {
     useEffect(
@@ -39,6 +40,10 @@ function UnauthorizedRedirect() {
 }
 
 export function Providers() {
+    // Toasts follow the light/dark theme (Phase 3.9) — the container's own
+    // palette, not `tokens.css`, so it needs the value as a prop.
+    const { theme } = useTheme();
+
     return (
         <ErrorBoundary FallbackComponent={ErrorState}>
             <QueryClientProvider client={queryClient}>
@@ -50,7 +55,7 @@ export function Providers() {
                             position="bottom-center"
                             newestOnTop
                             closeOnClick
-                            theme="light"
+                            theme={theme}
                         />
                     </Suspense>
                 </I18nextProvider>

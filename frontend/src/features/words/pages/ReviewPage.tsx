@@ -14,6 +14,7 @@ import type { RowSelectionState } from '@tanstack/react-table';
 import { EmptyState } from '@/components/common/EmptyState';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
@@ -24,6 +25,7 @@ import type { LangKey } from '../types';
 import { BulkActionBar } from '../review/BulkActionBar';
 import { CellDialog } from '../review/CellDialog';
 import { FilterBar } from '../review/FilterBar';
+import { MobileFilters } from '../review/MobileFilters';
 import { ReviewTable } from '../review/ReviewTable';
 import { TableToolbar } from '../review/TableToolbar';
 import {
@@ -41,7 +43,10 @@ export function ReviewPage() {
     const search = route.useSearch();
     const navigate = route.useNavigate();
 
+    const isMobile = useIsMobile();
+    // Top/sidebar is a desktop choice; a phone gets the side menu (`MobileFilters`) instead.
     const filterPosition = useUiStore((s) => s.reviewFilterPosition);
+    const filtersInSidebar = !isMobile && filterPosition === 'sidebar';
 
     const user = useAuthStore((s) => s.user);
     const userId = user?.id ?? '';
@@ -119,6 +124,18 @@ export function ReviewPage() {
         });
     }
 
+    // Shared by the inline `FilterBar` (desktop) and `MobileFilters` (phone).
+    const filterBarProps = {
+        gender: search.gender ?? [],
+        pos: search.pos ?? [],
+        hasQuery: search.q !== undefined,
+        activeLanguages: languages,
+        allLanguages,
+        onGenderChange: (next: string[] | undefined) => updateSearch({ gender: next }),
+        onPosChange: (next: PartOfSpeech[] | undefined) => updateSearch({ pos: next }),
+        onLanguagesChange: (next: LangKey[]) => updateSearch({ lang: next }),
+    };
+
     // The header's language gate already blocks navigating here below two
     // languages, but a direct URL bypasses it (`_protected.beforeLoad` only
     // checks the token) — guard the zero-column case rather than rendering
@@ -141,22 +158,10 @@ export function ReviewPage() {
         <div className="flex flex-col gap-4">
             <h1 className="h1">{t('common:header.review')}</h1>
             <div
-                className={cn(
-                    'layout',
-                    filterPosition === 'sidebar' && 'flex items-start gap-4 max-[920px]:flex-col max-[920px]:gap-3',
-                )}
+                className={cn('layout', filtersInSidebar && 'flex items-start gap-4')}
             >
-                <FilterBar
-                    gender={search.gender ?? []}
-                    pos={search.pos ?? []}
-                    hasQuery={search.q !== undefined}
-                    activeLanguages={languages}
-                    allLanguages={allLanguages}
-                    onGenderChange={(next) => updateSearch({ gender: next })}
-                    onPosChange={(next) => updateSearch({ pos: next })}
-                    onLanguagesChange={(next) => updateSearch({ lang: next as LangKey[] })}
-                />
-                <div className={cn('main-col', filterPosition === 'sidebar' && 'flex-1')}>
+                {!isMobile && <FilterBar {...filterBarProps} />}
+                <div className={cn('main-col', filtersInSidebar && 'flex-1')}>
                     <TableToolbar
                         initialQuery={search.q ?? ''}
                         onQueryChange={(next) => updateSearch({ q: next })}
@@ -167,6 +172,19 @@ export function ReviewPage() {
                         onShowProgressChange={setShowProgress}
                         loadedCount={rows.length}
                         total={total}
+                        hideDisplayOptions={isMobile}
+                        leading={
+                            isMobile ? (
+                                <MobileFilters
+                                    {...filterBarProps}
+                                    showGenderSwitch={hasNounRows}
+                                    showGender={showGender}
+                                    onShowGenderChange={setShowGender}
+                                    showProgress={showProgress}
+                                    onShowProgressChange={setShowProgress}
+                                />
+                            ) : undefined
+                        }
                     />
                     <BulkActionBar
                         selectedCount={selectedIds.length}
@@ -204,6 +222,8 @@ export function ReviewPage() {
                     wordId={cellTarget.wordId}
                     langKey={cellTarget.langKey}
                     onClose={closeCellDialog}
+                    nativeLanguage={user?.nativeLanguage}
+                    userLanguages={userLanguages}
                 />
             )}
         </div>

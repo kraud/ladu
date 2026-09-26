@@ -17,6 +17,11 @@
  * and opens directly in edit mode, with no Edit button since there is
  * nothing to view yet.
  *
+ * The title is the word's main case beside the language's flag, with no
+ * language name: this language's own main case when viewing/editing, the
+ * native-language one (else the first account language the word has) when
+ * creating — see `cellTitle.ts`.
+ *
  * Router- and store-free like every other file in `review/` — every input is
  * a prop, so `renderWithProviders` can mount it with no router context.
  */
@@ -31,8 +36,8 @@ import { FlagIcon } from '@/components/common/FlagIcon';
 import { TranslationCard, type TranslationCardChange } from '../form-engine/TranslationCard';
 import { useUpdateWord, useWord } from '../hooks';
 import { wordErrorKey } from '../errors';
-import { primaryCaseWord } from '@/lib/words';
 import { languageByKey } from '@/lib/language';
+import { cellDialogHeadword } from './cellTitle';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
 import type { LangKey, TranslationInput } from '../types';
@@ -56,9 +61,13 @@ export interface CellDialogProps {
     wordId: string;
     langKey: LangKey;
     onClose: () => void;
+    /** `users.native_language` — picks the title's language when creating a translation (`cellTitle.ts`). */
+    nativeLanguage?: string | null;
+    /** The account's selected languages, in account order — the title's fallback when creating. */
+    userLanguages?: readonly string[];
 }
 
-export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
+export function CellDialog({ wordId, langKey, onClose, nativeLanguage, userLanguages }: CellDialogProps) {
     const { t } = useTranslation();
     const wordQuery = useWord(wordId);
     const updateWord = useUpdateWord();
@@ -118,8 +127,12 @@ export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
     // An add always edits straight away — there's nothing to view yet (D41).
     const isEditing = editing || isAdd;
 
-    const headline = word.translations[0] ? primaryCaseWord(word.partOfSpeech, word.translations[0]) : '';
-    const title = t('review:cellDialog.title', { word: headline || t('wordRelated:displayWord.titleSimple'), language: native });
+    // The title is the word alone (the flag beside it names the language): this
+    // language's own main case when viewing/editing, the user's native-language
+    // one (or the first account language the word has) when creating.
+    const title =
+        cellDialogHeadword(word.partOfSpeech, word.translations, lang, { isAdd, nativeLanguage, userLanguages }) ||
+        t('wordRelated:displayWord.titleSimple');
     // No `useMemo` here (this branch is reached after the loading/error
     // returns above, so an unconditional hook can't live here) — a fresh
     // array on every render is harmless anyway, since `TranslationCard`
@@ -215,6 +228,8 @@ export function CellDialog({ wordId, langKey, onClose }: CellDialogProps) {
                         pos={word.partOfSpeech}
                         initialCases={initialCases}
                         displayOnly={!isEditing}
+                        // The dialog's own title already shows the language: no second header or frame.
+                        bare
                         onChange={setDraft}
                     />
                 )}

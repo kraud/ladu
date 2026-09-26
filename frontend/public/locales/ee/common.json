@@ -33,6 +33,10 @@
     "goToAccount": "Ava konto",
     "menu": "Menüü"
   },
+  "theme": {
+    "switchToDark": "Lülita tumedale teemale",
+    "switchToLight": "Lülita heledale teemale"
+  },
   "sections": {
     "dashboard": "Dashboard",
     "tags": "Tags",
