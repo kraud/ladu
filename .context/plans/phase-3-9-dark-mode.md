@@ -90,7 +90,7 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 12 — small fixes, part 6 | Word forms: sticky bottom bar (Save word, Change word type, hints); sidebar for clue + tags only; icon rail with clue/tags buttons. | ✅ done 2026-09-26 — frontend **706/706** (see the review round in the Slice 12 outcome) |
 | 13 — small fixes, part 7 | "Use autocomplete values" in the brand colour. | ✅ done 2026-09-26 — frontend **707/707** |
 | 14 — small fixes, part 8 | Confirm before removing a translation that has data. | ✅ done 2026-09-26 — frontend **719/719** |
-| 15 — small fixes, part 9 | Review, phone: filters and display switches in a side menu. | not started |
+| 15 — small fixes, part 9 | Review, phone: filters and display switches in a side menu. | ✅ done 2026-09-26 — frontend **733/733** |
 | 16 — small fixes, part 10 | Review, desktop sidebar: collapse button points left/right. | not started |
 | 17 — small fixes, part 11 | Review, desktop sidebar: "Language order" title and hint in a column. | not started |
 | 18 — small fixes, part 12 | Cell dialog: translation form without its own header and frame. | not started |
@@ -689,3 +689,39 @@ when enabled, drawer with the actions).
   pass (no spec clicks Remove).
 - **Checked visually** (Playwright, real backend): empty card removed directly; card with data shows
   the dialog; Cancel keeps the value; Confirm removes. Light and dark.
+
+## Slice 15 outcome (2026-09-26) — small fixes, part 9
+
+**Review, phone (below 920px): the filters are in a side menu that can be hidden.** Desktop is unchanged.
+
+- **The trigger:** a "Filters" button (sliders icon) is the first item in the toolbar row, before the
+  search box. It shows the number of active filters, so a closed menu never hides that the table is
+  filtered (same count as the desktop pill: each gender and part-of-speech value, plus the search text).
+- **The menu:** the existing `Sheet` (`components/ui/sheet.tsx`), from the left, with a "Filters"
+  title and a close button (also closes on backdrop click and Escape). Inside, one column: Gender,
+  Part of speech, Language order, then a "Display" heading with the **Display gender** and **Display
+  progress** switches. The menu stays open after a choice, so several filters can be picked in a row;
+  the table updates behind it.
+- **Stays where it was:** the search box and the "x of y words" label (toolbar row above the table).
+- **One copy of each control:** `ReviewPage` uses `useIsMobile` (from Slice 12) to render either the
+  inline `FilterBar` (desktop) or `MobileFilters` (phone), never both. The stored top/sidebar choice is
+  a desktop setting and is ignored on a phone (it is kept for when the window is wide again).
+- **Code:** new `review/MobileFilters.tsx` and `review/DisplayOptions.tsx` (the two switches, shared
+  with `TableToolbar`, which on a phone gets `hideDisplayOptions` and the button through `leading`).
+  `FilterBar` got `layout="menu"` (only the groups in a column: no card, header, collapse or position
+  toggle) and an exported `activeFilterCount`. New text `review:filters.display` (4 languages;
+  **ES/DE/EE are drafts**). New test helper `test/viewport.ts` (`mockMobileViewport`), reset in
+  `test/setup.ts`; `WordEditorLayout.test.tsx` uses it too.
+- **Tests (+14, frontend 733/733):** `MobileFilters` (button only until opened; active count on the
+  button; one column + switches in the menu; chip and switch report changes; no gender switch without a
+  noun; closes); `FilterBar` menu layout (no card/header/toggles, ignores the stored position) and
+  `activeFilterCount`; `TableToolbar` (`hideDisplayOptions`, `leading`); `ReviewPage` on a phone (no
+  inline bar, search and count stay, switches in the menu; a filter in the menu reaches the request and
+  the button counts it; the progress switch in the menu shows the rings). `tsc -b`, eslint (the 2 old
+  `ReviewPage` warnings remain) and `vite build` clean. e2e Phase 1, 2, 3, 3.5, 3.9 and Review **15/15**.
+- **Checked visually** (Playwright, real backend, two seeded words): 390px closed, open, with filters
+  on, after closing, dark; and 1280px desktop after resizing back.
+
+**For Slice 17:** in the phone menu the "Language order" title and hint sit in one row and wrap
+awkwardly (the menu is about 280px wide). Slice 17 stacks them for the desktop sidebar; the phone
+menu would look better with the same stacking. Say if you want it there too.

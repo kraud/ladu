@@ -4,6 +4,7 @@ import { cleanup } from '@testing-library/react';
 import { server } from './msw/server';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
+import { restoreViewport } from './viewport';
 
 // jsdom's scrollTo throws "Not implemented"; TanStack Router's scroll
 // restoration calls it on every navigation. Replace it with a no-op.
@@ -40,6 +41,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+    restoreViewport();
     server.resetHandlers();
     cleanup();
     useAuthStore.getState().clearSession();

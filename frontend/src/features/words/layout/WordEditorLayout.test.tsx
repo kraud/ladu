@@ -3,20 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
 import { useUiStore } from '@/stores/uiStore';
+import { mockMobileViewport } from '@/test/viewport';
 import { WordEditorLayout } from './WordEditorLayout';
-
-const originalMatchMedia = window.matchMedia;
 
 afterEach(() => {
     useUiStore.setState({ wordSidebarCollapsed: false });
-    Object.defineProperty(window, 'matchMedia', { value: originalMatchMedia, writable: true, configurable: true });
 });
-
-/** Makes `(max-width: 920px)` match, i.e. the phone layout (jsdom has no `matchMedia`). */
-function useMobileViewport() {
-    const list = { matches: true, addEventListener: () => {}, removeEventListener: () => {} };
-    Object.defineProperty(window, 'matchMedia', { value: vi.fn(() => list), writable: true, configurable: true });
-}
 
 const ACTIONS = [
     { key: 'a', label: 'Change word type', icon: null, onClick: vi.fn() },
@@ -157,7 +149,7 @@ describe('WordEditorLayout', () => {
         });
 
         it('phone: the bar keeps only the reason and the primary button; the actions move into the drawer', async () => {
-            useMobileViewport();
+            mockMobileViewport();
             const user = userEvent.setup();
             renderWithProviders(
                 <WordEditorLayout
@@ -190,7 +182,7 @@ describe('WordEditorLayout', () => {
         });
 
         it('phone: ignores the stored rail preference — the drawer always shows the full sidebar', () => {
-            useMobileViewport();
+            mockMobileViewport();
             useUiStore.setState({ wordSidebarCollapsed: true });
             renderWithProviders(
                 <WordEditorLayout sidebar={<div>Sidebar content</div>}>

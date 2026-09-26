@@ -6,6 +6,7 @@ import { server } from '@/test/msw/server';
 import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
+import { mockMobileViewport } from '@/test/viewport';
 import { PartOfSpeech, Lang } from '@/ts/enums';
 
 const SESSION = {
@@ -397,5 +398,74 @@ describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, fro
         // data-append, not a positional index that a second page would shift.
         expect(within(firstRow).getByRole('checkbox')).toBeChecked();
         expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+    });
+});
+
+describe('ReviewPage — phone: filters in a side menu', () => {
+    it('has no inline filter bar; search and the count stay, the switches move into the menu', async () => {
+        mockMobileViewport();
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [nounSeed('cat', 'w1'), verbSeed('run', 'w2')],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await screen.findByText('cat');
+
+        // Outside the menu: search + count + the Filters button only.
+        expect(screen.queryByRole('button', { name: 'Collapse filters' })).not.toBeInTheDocument();
+        expect(screen.queryByText('Part of speech')).not.toBeInTheDocument();
+        expect(screen.queryByText('Display gender')).not.toBeInTheDocument();
+        expect(screen.queryByText('Display progress')).not.toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: 'Filter table' })).toBeInTheDocument();
+        expect(screen.getByText('2 of 2 words')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Filters' }));
+        const menu = await screen.findByRole('dialog');
+        expect(within(menu).getByText('Part of speech')).toBeInTheDocument();
+        expect(within(menu).getByText('Display gender')).toBeInTheDocument();
+        expect(within(menu).getByText('Display progress')).toBeInTheDocument();
+    });
+
+    it('a filter chosen in the menu reaches the request, and the button counts it', async () => {
+        mockMobileViewport();
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [nounSeed('cat', 'w1'), verbSeed('run', 'w2')],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await screen.findByText('cat');
+
+        await user.click(screen.getByRole('button', { name: 'Filters' }));
+        const menu = await screen.findByRole('dialog');
+        await user.click(within(menu).getByRole('button', { name: 'n.' }));
+        // The menu stays open, so several filters can be picked in a row.
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+        await waitFor(() => expect(fake.simpleQueries.at(-1)).toContain('pos=Noun'));
+
+        // Closed, the button still says how many filters are on.
+        await user.click(within(menu).getByRole('button', { name: 'Close' }));
+        await waitFor(() => expect(screen.getByRole('button', { name: /Filters/ })).toHaveTextContent('1'));
+    });
+
+    it('the Display progress switch in the menu turns the completion rings on', async () => {
+        mockMobileViewport();
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [verbSeed('run', 'w1')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await screen.findByText('run');
+        expect(document.querySelector('.ring')).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Filters' }));
+        const menu = await screen.findByRole('dialog');
+        await user.click(within(menu).getByText('Display progress').closest('button')!);
+        expect(document.querySelector('.ring')).toBeInTheDocument();
     });
 });

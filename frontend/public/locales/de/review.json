@@ -11,6 +11,7 @@
   },
   "filters": {
     "title": "Filter",
+    "display": "Anzeige",
     "show": "Filter anzeigen",
     "collapse": "Filter einklappen",
     "noneActive": "Keine Filter aktiv",

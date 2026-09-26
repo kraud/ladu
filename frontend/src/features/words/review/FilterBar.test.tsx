@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
 import { useUiStore } from '@/stores/uiStore';
 import { PartOfSpeech } from '@/ts/enums';
-import { FilterBar, type FilterBarProps } from './FilterBar';
+import { activeFilterCount, FilterBar, type FilterBarProps } from './FilterBar';
 
 afterEach(() => {
     useUiStore.setState({ reviewSidebarCollapsed: false, reviewFilterPosition: 'top' });
@@ -172,5 +172,38 @@ describe('FilterBar — sidebar position', () => {
 
         await user.click(screen.getByRole('button', { name: 'Show filters' }));
         expect(screen.getByText('Filters')).toBeInTheDocument();
+    });
+});
+
+describe('FilterBar — menu layout (the phone\'s side menu)', () => {
+    it('renders just the groups in a column: no card, header, collapse or position toggle', () => {
+        const { container } = renderWithProviders(<FilterBar {...baseProps} layout="menu" />);
+
+        expect(screen.getByText('Gender')).toBeInTheDocument();
+        expect(screen.getByText('Part of speech')).toBeInTheDocument();
+        expect(screen.getByText('Language order')).toBeInTheDocument();
+        expect(screen.getByText('Gender').closest('.fb-body')).toHaveClass('fb-body--sidebar');
+
+        expect(container.querySelector('.filterbar')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /filters/i })).not.toBeInTheDocument();
+        expect(screen.queryByText('Filters')).not.toBeInTheDocument();
+    });
+
+    it('ignores the stored top/sidebar position and still reports changes', async () => {
+        useUiStore.setState({ reviewFilterPosition: 'sidebar', reviewSidebarCollapsed: true });
+        const onPosChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} layout="menu" onPosChange={onPosChange} />);
+
+        expect(screen.getByText('Part of speech')).toBeInTheDocument(); // a collapsed sidebar would hide it
+        await user.click(screen.getByRole('button', { name: 'n.' }));
+        expect(onPosChange).toHaveBeenCalledWith([PartOfSpeech.noun]);
+    });
+});
+
+describe('activeFilterCount', () => {
+    it('counts each gender and part-of-speech value, plus the search text', () => {
+        expect(activeFilterCount([], [], false)).toBe(0);
+        expect(activeFilterCount(['der', 'die'], [PartOfSpeech.noun], true)).toBe(4);
     });
 });

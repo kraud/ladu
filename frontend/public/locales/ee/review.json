@@ -11,6 +11,7 @@
   },
   "filters": {
     "title": "Filtrid",
+    "display": "Kuva",
     "show": "Näita filtreid",
     "collapse": "Peida filtrid",
     "noneActive": "Ühtegi filtrit pole rakendatud",

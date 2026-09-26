@@ -19,6 +19,11 @@
  * change between states; the button itself never moves. The position toggle
  * sits immediately after it.
  *
+ * On a phone (`layout="menu"`, used by `MobileFilters`) none of the above
+ * applies: the groups render alone, in one column, inside the side menu —
+ * no card, no header, no collapse or position toggle (the menu itself opens
+ * and closes, and the stored top/sidebar preference is a desktop one).
+ *
  * In sidebar position, the filter groups (gender, PoS, language order) stack
  * in a column instead of wrapping in a row (`fb-body--sidebar`), and a
  * collapsed sidebar narrows to an icon rail rather than just hiding its body
@@ -68,6 +73,13 @@ export interface FilterBarProps {
     onGenderChange: (next: string[] | undefined) => void;
     onPosChange: (next: PartOfSpeech[] | undefined) => void;
     onLanguagesChange: (next: LangKey[]) => void;
+    /** `'menu'`: just the groups, in a column, for the phone's side menu. Defaults to the collapsible bar/sidebar. */
+    layout?: 'bar' | 'menu';
+}
+
+/** The number in the "N filters" pill: each gender and part-of-speech value, plus the search box when it has text. */
+export function activeFilterCount(gender: string[], pos: PartOfSpeech[], hasQuery: boolean): number {
+    return gender.length + pos.length + (hasQuery ? 1 : 0);
 }
 
 export function FilterBar({
@@ -79,6 +91,7 @@ export function FilterBar({
     onGenderChange,
     onPosChange,
     onLanguagesChange,
+    layout = 'bar',
 }: FilterBarProps) {
     const { t } = useTranslation();
     const collapsed = useUiStore((s) => s.reviewSidebarCollapsed);
@@ -98,8 +111,79 @@ export function FilterBar({
         onPosChange(next.length > 0 ? next : undefined);
     }
 
-    const activeCount = gender.length + pos.length + (hasQuery ? 1 : 0);
+    const activeCount = activeFilterCount(gender, pos, hasQuery);
     const Container = isSidebar ? 'aside' : 'div';
+
+    const groups = (
+        <>
+            <div className="fb-group">
+                <div className="fhead">
+                    <span className="label">{t('review:filters.gender')}</span>
+                    {gender.length > 0 && (
+                        <button
+                            type="button"
+                            className="hint underline"
+                            onClick={() => onGenderChange(undefined)}
+                        >
+                            {t('review:filters.clear')}
+                        </button>
+                    )}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    {GENDER_BY_LANGUAGE.map((group) => (
+                        <div key={group.key} className="flex flex-wrap items-center gap-2">
+                            <span className="hint flex items-center gap-1">
+                                <FlagIcon lang={group.key} /> {group.key}
+                            </span>
+                            <div className="chips">
+                                {group.values.map((value) => (
+                                    <button
+                                        key={value}
+                                        type="button"
+                                        className="chip"
+                                        aria-pressed={gender.includes(value)}
+                                        onClick={() => toggleGenderValue(value)}
+                                    >
+                                        {value}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="fb-group">
+                <div className="fhead">
+                    <span className="label">{t('review:filters.partOfSpeech')}</span>
+                </div>
+                <div className="chips">
+                    {SHIPPED_POS.map((value) => (
+                        <button
+                            key={value}
+                            type="button"
+                            className="chip"
+                            aria-pressed={pos.includes(value)}
+                            title={t(partOfSpeechLabelKey(value))}
+                            onClick={() => togglePos(value)}
+                        >
+                            {t(posAbbrKey(value))}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <LanguageOrderControl
+                active={activeLanguages}
+                allLanguages={allLanguages}
+                onChange={onLanguagesChange}
+            />
+        </>
+    );
+
+    if (layout === 'menu') {
+        return <div className="fb-body fb-body--sidebar mt-0 border-t-0 pt-0">{groups}</div>;
+    }
 
     return (
         <Container
@@ -155,68 +239,7 @@ export function FilterBar({
 
             {!collapsed && (
                 <div className={cn('fb-body', isSidebar && 'fb-body--sidebar')}>
-                    <div className="fb-group">
-                        <div className="fhead">
-                            <span className="label">{t('review:filters.gender')}</span>
-                            {gender.length > 0 && (
-                                <button
-                                    type="button"
-                                    className="hint underline"
-                                    onClick={() => onGenderChange(undefined)}
-                                >
-                                    {t('review:filters.clear')}
-                                </button>
-                            )}
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            {GENDER_BY_LANGUAGE.map((group) => (
-                                <div key={group.key} className="flex flex-wrap items-center gap-2">
-                                    <span className="hint flex items-center gap-1">
-                                        <FlagIcon lang={group.key} /> {group.key}
-                                    </span>
-                                    <div className="chips">
-                                        {group.values.map((value) => (
-                                            <button
-                                                key={value}
-                                                type="button"
-                                                className="chip"
-                                                aria-pressed={gender.includes(value)}
-                                                onClick={() => toggleGenderValue(value)}
-                                            >
-                                                {value}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="fb-group">
-                        <div className="fhead">
-                            <span className="label">{t('review:filters.partOfSpeech')}</span>
-                        </div>
-                        <div className="chips">
-                            {SHIPPED_POS.map((value) => (
-                                <button
-                                    key={value}
-                                    type="button"
-                                    className="chip"
-                                    aria-pressed={pos.includes(value)}
-                                    title={t(partOfSpeechLabelKey(value))}
-                                    onClick={() => togglePos(value)}
-                                >
-                                    {t(posAbbrKey(value))}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <LanguageOrderControl
-                        active={activeLanguages}
-                        allLanguages={allLanguages}
-                        onChange={onLanguagesChange}
-                    />
+                    {groups}
                 </div>
             )}
         </Container>
