@@ -617,9 +617,8 @@ when enabled, drawer with the actions).
 
 **Known, not fixed here**
 
-- In edit mode, removing one of three translations does not enable Save (no remaining card is
-  "dirty"), and the reason then says "Make a change…". This comes from how `isDirty` is tracked
-  (`canSave` did the same before). A fix belongs in `useWordFormState`.
+- ~~In edit mode, removing one of three translations does not enable Save~~ — **fixed**, see the
+  follow-up at the end of this file.
 - The Word page skeleton and the not-found redirect are unchanged.
 
 **Review round (2026-09-26)** — three fixes after the first look:
@@ -824,3 +823,36 @@ and clipping in the sidebar; natural width above the table) and the file records
 
 **If the fixed width drifts:** it is tied to the aside's `w-64` and the card/filterbar padding. If either
 changes, change `SIDEBAR_BODY_WIDTH` with it (the comment above the constant says so).
+
+## Follow-up (2026-09-26): removing a translation from a saved word enables Save word
+
+**Symptom (the "known issue" of Slice 12):** in edit mode, removing one of three translations left Save
+word disabled, and the reason said "Make a change to enable saving."
+
+**Cause:** Save needs "some change" (`useWordFormState.hasChanges`): a card reporting `isDirty`, or a
+clue edit. Removing a card changes neither, because the remaining cards are untouched.
+
+**Fix (`form-engine/useWordFormState.ts`):** a `translationRemoved` flag, set by `removeTranslation`
+and cleared by `reset`, counts as a change. The minimum still applies: going below 2 translations shows
+"Add at least 2 translations…", not the no-changes message.
+
+**Tests (+5, frontend 758/758):** `useWordFormState` (a hydrated word starts with nothing to save;
+removing one of three enables Save with no other edit; removing down to one is blocked by the minimum;
+`reset` clears the flag), and `WordForm` in edit mode (Save word is disabled with the "Make a change"
+reason; after confirming the removal it is enabled, the reason is gone, and the submitted payload lists
+only the two kept languages). Mutation check: without the flag, the two "enables Save" tests fail.
+`tsc -b`, eslint and `vite build` clean.
+
+**Checked in the real app** (Playwright, real backend): a saved noun with English, Spanish and German;
+Edit → Save word disabled; remove Spanish and confirm → Save word enabled, no reason; save → the
+backend returns English and German only.
+
+**Found while checking, not fixed: an intermittent e2e failure in the Phase 1 register test.** Twice in
+about ten runs together with other specs, `register -> verify -> Home -> logout -> form login` ended on
+`/register` with "Something went wrong, try again." It passes alone and on the unmodified code. Measured:
+`--repeat-each=10` gives **2 failures with 4 workers and 0 with 1 worker**; 10 concurrent registrations
+with unique users all succeed (201). Most likely cause: every spec builds its test users from
+`Date.now()` at module load plus a counter (`e2e-${run}-${seq}@ladu.test`, `kai${run}${seq}`), so two
+workers that load a spec in the same millisecond create the same user. The backend response was not
+captured, so this is not proven. A fix would add a random part to `run` in the 10 specs (or one shared
+helper). It is unrelated to Phase 3.9 and was left alone.

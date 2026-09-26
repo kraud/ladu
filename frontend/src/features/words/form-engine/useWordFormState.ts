@@ -62,6 +62,10 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     const [translations, setTranslations] = useState<TranslationItem[]>(seed.translations);
     const [clue, setClueValue] = useState(seed.clue);
     const [clueDirty, setClueDirty] = useState(false);
+    // Removing a slot changes the word, but leaves every remaining card and the
+    // clue untouched — so no card reports `isDirty`. Without this flag, taking a
+    // translation away from a saved word could never enable Save.
+    const [translationRemoved, setTranslationRemoved] = useState(false);
     // One bump counter per language — `TranslationCard`'s `resetKey` prop.
     const [resetTokens, setResetTokens] = useState<Partial<Record<Lang, number>>>({});
 
@@ -76,6 +80,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
 
     const removeTranslation = useCallback((index: number) => {
         setTranslations((prev) => prev.filter((_, i) => i !== index));
+        setTranslationRemoved(true);
     }, []);
 
     // Clearing a slot resets its *parent* state, but the mounted `TranslationCard`
@@ -109,6 +114,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
         setTranslations([]);
         setClueValue('');
         setClueDirty(false);
+        setTranslationRemoved(false);
     }, []);
 
     const canAddMore = translations.length < MAX_TRANSLATIONS && availableLanguages.length > 0;
@@ -119,7 +125,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     const hasContent = translations.some((t) => t.cases.length > 0) || clue !== '';
     const hasEnoughTranslations = translations.length >= MIN_TRANSLATIONS;
     const allComplete = translations.every((t) => t.completionState);
-    const hasChanges = translations.some((t) => t.isDirty) || clueDirty;
+    const hasChanges = translations.some((t) => t.isDirty) || clueDirty || translationRemoved;
     const canSave = hasEnoughTranslations && allComplete && hasChanges;
     // Why Save is disabled, for the editor's bottom bar. One reason at a time,
     // most fundamental first: too few translations, then a required field

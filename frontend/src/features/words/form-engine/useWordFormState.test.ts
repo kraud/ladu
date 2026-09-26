@@ -356,3 +356,68 @@ describe('translationHasData', () => {
         expect(translationHasData(result.current.translations[0]!)).toBe(false);
     });
 });
+
+describe('useWordFormState — removing a translation from a saved word', () => {
+    const threeLanguageWord: WordBE = {
+        id: 'word-1',
+        user: 'u1',
+        partOfSpeech: PartOfSpeech.noun,
+        translations: [
+            { id: 'tr-1', language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'house' }] },
+            { id: 'tr-2', language: Lang.ES, cases: [{ caseName: NounCases.singularES, word: 'casa' }] },
+            { id: 'tr-3', language: Lang.DE, cases: [{ caseName: NounCases.singularNominativDE, word: 'Haus' }] },
+        ],
+        clue: null,
+        isCloned: false,
+        originalCreator: null,
+        tags: [],
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    /** Mounted cards report complete + clean for every hydrated slot. */
+    function hydrated() {
+        seedSession(['English', 'Spanish', 'German']);
+        const hook = renderHook(() => useWordFormState({ initialWord: threeLanguageWord }));
+        for (let i = 0; i < 3; i++) {
+            act(() => hook.result.current.updateTranslation(i, { cases: [], completionState: true, isDirty: false }));
+        }
+        return hook;
+    }
+
+    it('starts with nothing to save', () => {
+        const { result } = hydrated();
+        expect(result.current.canSave).toBe(false);
+        expect(result.current.saveBlockReason).toBe('noChanges');
+    });
+
+    it('removing one of three makes Save available, with no other edit', () => {
+        const { result } = hydrated();
+        act(() => result.current.removeTranslation(0));
+
+        expect(result.current.translations).toHaveLength(2);
+        expect(result.current.saveBlockReason).toBeNull();
+        expect(result.current.canSave).toBe(true);
+    });
+
+    it('removing down to one translation is still blocked, by the minimum', () => {
+        const { result } = hydrated();
+        act(() => result.current.removeTranslation(0));
+        act(() => result.current.removeTranslation(0));
+
+        expect(result.current.canSave).toBe(false);
+        expect(result.current.saveBlockReason).toBe('minTranslations');
+    });
+
+    it('reset clears the removal, so a fresh word starts with nothing to save', () => {
+        const { result } = hydrated();
+        act(() => result.current.removeTranslation(0));
+        act(() => result.current.reset(PartOfSpeech.noun));
+        act(() => result.current.addTranslation(Lang.EN));
+        act(() => result.current.updateTranslation(0, { cases: [], completionState: true, isDirty: false }));
+        act(() => result.current.addTranslation(Lang.ES));
+        act(() => result.current.updateTranslation(1, { cases: [], completionState: true, isDirty: false }));
+
+        expect(result.current.saveBlockReason).toBe('noChanges');
+    });
+});

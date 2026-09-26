@@ -408,6 +408,46 @@ describe('WordForm — create mode', () => {
             expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
         });
 
+        it('edit mode: confirming the removal of a saved translation is enough to enable Save word', async () => {
+            const user = userEvent.setup();
+            const onSubmit = vi.fn();
+            const initialWord: WordBE = {
+                id: 'word-1',
+                user: SESSION.id,
+                partOfSpeech: PartOfSpeech.noun,
+                translations: [
+                    { id: 'tr-1', language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'house' }] },
+                    { id: 'tr-2', language: Lang.ES, cases: [{ caseName: NounCases.genderES, word: 'el' }, { caseName: NounCases.singularES, word: 'casa' }] },
+                    { id: 'tr-3', language: Lang.DE, cases: [{ caseName: NounCases.genderDE, word: 'das' }, { caseName: NounCases.singularNominativDE, word: 'Haus' }] },
+                ],
+                clue: null,
+                isCloned: false,
+                originalCreator: null,
+                tags: [],
+                createdAt: '2026-01-01T00:00:00.000Z',
+                updatedAt: '2026-01-01T00:00:00.000Z',
+            };
+            renderWithProviders(<WordForm mode="edit" initialWord={initialWord} onSubmit={onSubmit} />, {
+                session: { ...SESSION, languages: ['English', 'Spanish', 'German'] },
+            });
+
+            const bar = screen.getByTestId('word-editor-bar');
+            await waitFor(() =>
+                expect(within(bar).getByRole('status')).toHaveTextContent('Make a change to enable saving.'),
+            );
+            expect(within(bar).getByRole('button', { name: 'Save word' })).toBeDisabled();
+
+            await user.click(screen.getAllByRole('button', { name: 'Remove' })[0]!);
+            await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Remove' }));
+
+            await waitFor(() => expect(within(bar).getByRole('button', { name: 'Save word' })).toBeEnabled());
+            expect(within(bar).queryByRole('status')).not.toBeInTheDocument();
+
+            await user.click(within(bar).getByRole('button', { name: 'Save word' }));
+            const payload = onSubmit.mock.calls[0]![0] as { translations: { language: string }[] };
+            expect(payload.translations.map((t) => t.language)).toEqual(['Spanish', 'German']);
+        });
+
         it('edit mode: a saved translation asks first, even when nothing was changed', async () => {
             const user = userEvent.setup();
             const initialWord: WordBE = {
