@@ -1,7 +1,9 @@
 /**
  * The word compose/edit orchestrator: PoS gate -> `WordEditorLayout` (a
  * collapsible left sidebar of actions/clue/tags-placeholder, next to the
- * translation grid) -> "+ Add language" dialog. Shared by `AddWordPage`
+ * translation grid, which ends in the "+ Add translation" tile — one chip per
+ * still-free language, so a click adds it with no dialog; the tile is not
+ * rendered once nothing more can be added). Shared by `AddWordPage`
  * (create) and `WordPage` (edit); `initialWord`/`onDelete`/`extraActions`
  * exist so each call site can add its own actions (Cancel, Delete) without
  * this component learning about navigation.
@@ -12,8 +14,6 @@
  */
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { PartOfSpeechSelector } from '@/components/common/PartOfSpeechSelector';
@@ -70,7 +70,6 @@ export function WordForm({
 }: WordFormProps) {
     const { t } = useTranslation();
     const state = useWordFormState({ initialWord, defaultPartOfSpeech });
-    const [addLangOpen, setAddLangOpen] = useState(false);
     const [confirmChangeTypeOpen, setConfirmChangeTypeOpen] = useState(false);
     const collapsed = useUiStore((s) => s.wordSidebarCollapsed);
 
@@ -87,11 +86,6 @@ export function WordForm({
     // `partOfSpeech` from `initialWord` (a required field on `WordBE`).
     if (!state.partOfSpeech) return null;
     const partOfSpeech = state.partOfSpeech;
-
-    function pickLanguage(lang: Lang) {
-        state.addTranslation(lang);
-        setAddLangOpen(false);
-    }
 
     function handleChangePartOfSpeechClick() {
         if (state.hasContent) {
@@ -174,16 +168,31 @@ export function WordForm({
                             removeDisabled={false}
                         />
                     ))}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        disabled={!state.canAddMore}
-                        onClick={() => setAddLangOpen(true)}
-                        className="h-auto min-h-16 gap-2 border-dashed bg-card/60 text-muted-foreground hover:border-(--accent) hover:bg-(--accent-soft) hover:text-(--accent-strong)"
-                    >
-                        <PlusIcon size={16} />
-                        {t('common:buttons.addAnotherTranslation')}
-                    </Button>
+                    {state.canAddMore && (
+                        <div
+                            role="group"
+                            aria-label={t('common:buttons.addAnotherTranslation')}
+                            className="flex min-h-28 flex-col items-center justify-center gap-4 rounded-lg border border-dashed bg-card/60 p-5 text-sm font-medium text-muted-foreground transition-colors hover:border-(--accent) hover:bg-(--accent-soft) hover:text-(--accent-strong)"
+                        >
+                            <span className="flex items-center gap-2" aria-hidden="true">
+                                <PlusIcon size={16} />
+                                {t('common:buttons.addAnotherTranslation')}
+                            </span>
+                            <div className="flex flex-wrap justify-center gap-3">
+                                {state.availableLanguages.map((lang) => (
+                                    <button
+                                        key={lang.key}
+                                        type="button"
+                                        className="chip"
+                                        onClick={() => state.addTranslation(lang.label as Lang)}
+                                    >
+                                        <FlagIcon lang={lang.key} />
+                                        {lang.native}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <ConfirmDialog
@@ -197,27 +206,6 @@ export function WordForm({
                         onChangePartOfSpeech?.();
                     }}
                 />
-
-                <Dialog open={addLangOpen} onOpenChange={setAddLangOpen}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>{t('wordRelated:translationFormGeneric.selectLanguage')}</DialogTitle>
-                        </DialogHeader>
-                        <div className="flex flex-wrap gap-2">
-                            {state.availableLanguages.map((lang) => (
-                                <button
-                                    key={lang.key}
-                                    type="button"
-                                    className="chip"
-                                    onClick={() => pickLanguage(lang.label as Lang)}
-                                >
-                                    <FlagIcon lang={lang.key} />
-                                    {lang.native}
-                                </button>
-                            ))}
-                        </div>
-                    </DialogContent>
-                </Dialog>
             </div>
         </WordEditorLayout>
     );

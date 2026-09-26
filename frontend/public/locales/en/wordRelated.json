@@ -90,7 +90,6 @@
     "missingImplementationPoS": "This part of speech is not implemented yet, we're sorry!"
   },
   "translationFormGeneric": {
-    "selectLanguage": "Pick a language for the new word",
     "switchLanguage": "Switch language:",
     "collapse": "Collapse translation",
     "expand": "Expand translation",

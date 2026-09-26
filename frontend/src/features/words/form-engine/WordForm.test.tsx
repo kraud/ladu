@@ -19,9 +19,9 @@ const SESSION = {
     token: futureToken(),
 };
 
+// The "+ Add translation" tile lists one chip per free language — a chip click adds it, no dialog.
 async function addLanguage(user: ReturnType<typeof userEvent.setup>, native: string) {
-    await user.click(screen.getByRole('button', { name: 'Add translation' }));
-    await user.click(await screen.findByRole('button', { name: native }));
+    await user.click(screen.getByRole('button', { name: native }));
 }
 
 describe('WordForm — create mode', () => {
@@ -35,7 +35,7 @@ describe('WordForm — create mode', () => {
         await user.click(screen.getByRole('radio', { name: /Noun/ }));
 
         expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Add translation' })).toBeInTheDocument();
+        expect(screen.getByRole('group', { name: 'Add translation' })).toBeInTheDocument();
     });
 
     it('skips the gate when defaultPartOfSpeech is given', () => {
@@ -175,23 +175,26 @@ describe('WordForm — create mode', () => {
         });
     });
 
-    it('adds a language via the picker dialog, closes it, and removes availableLanguages from it next time', async () => {
+    it('lists the free languages as chips under "Add translation"; a click adds the card and drops its chip', async () => {
         const user = userEvent.setup();
         renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
             session: SESSION,
         });
 
+        const tile = screen.getByRole('group', { name: 'Add translation' });
+        expect(within(tile).getByRole('button', { name: 'English' })).toBeInTheDocument();
+        expect(within(tile).getByRole('button', { name: 'Español' })).toBeInTheDocument();
+
         await addLanguage(user, 'English');
-        expect(screen.getByText('English')).toBeInTheDocument();
+        expect(screen.getByLabelText('Singular')).toBeInTheDocument();
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
         // Only Spanish is left to add.
-        await user.click(screen.getByRole('button', { name: 'Add translation' }));
-        expect(screen.getByRole('button', { name: 'Español' })).toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: 'English' })).not.toBeInTheDocument();
+        expect(within(tile).getByRole('button', { name: 'Español' })).toBeInTheDocument();
+        expect(within(tile).queryByRole('button', { name: 'English' })).not.toBeInTheDocument();
     });
 
-    it('keeps Remove enabled even at 2 slots, and disables Add translation once every language is used', async () => {
+    it('keeps Remove enabled even at 2 slots, and hides the Add translation tile once every language is used', async () => {
         const user = userEvent.setup();
         renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
             session: SESSION,
@@ -201,7 +204,7 @@ describe('WordForm — create mode', () => {
         await addLanguage(user, 'Español');
 
         expect(screen.getAllByRole('button', { name: 'Remove' })[0]).toBeEnabled();
-        expect(screen.getByRole('button', { name: 'Add translation' })).toBeDisabled();
+        expect(screen.queryByRole('group', { name: 'Add translation' })).not.toBeInTheDocument();
     });
 
     it('shows the min-translations hint below 2 slots and hides it once 2 are added', async () => {
@@ -291,7 +294,12 @@ describe('WordForm — create mode', () => {
         expect(removeButtons[0]).toBeEnabled();
         await user.click(removeButtons[0]!);
 
-        expect(screen.queryByText('English')).not.toBeInTheDocument();
+        // The English card is gone (only Spanish's plain "Singular" field is left) and its
+        // language is free again, so its chip is back in the "Add translation" tile.
+        expect(screen.getAllByLabelText('Singular')).toHaveLength(1);
+        expect(
+            within(screen.getByRole('group', { name: 'Add translation' })).getByRole('button', { name: 'English' }),
+        ).toBeInTheDocument();
         expect(screen.getAllByRole('button', { name: 'Remove' })[0]).toBeEnabled(); // back to 2 slots, still enabled
     });
 });

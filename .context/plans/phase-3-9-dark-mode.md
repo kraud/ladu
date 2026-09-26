@@ -86,7 +86,14 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 8 — small fixes, part 2 | Word forms: bottom-align the cells of a field row (`items-end`). | ✅ done 2026-09-25 — frontend **689/689** |
 | 9 — small fixes, part 3 | Word forms: reserve room under every field; validation messages out of the layout flow. | ✅ done 2026-09-25 — frontend **691/691** |
 | 10 — small fixes, part 4 | Word forms: the reserved message room only on rows that have a mandatory field. | ✅ done 2026-09-26 — frontend **696/696** |
-| 11+ — small fixes, part 5 | Added later by the user. | waiting for the user's list |
+| 11 — small fixes, part 5 | Word forms: the "+ Add translation" tile lists the free languages as chips (no dialog). | ✅ done 2026-09-26 — frontend **696/696** |
+| 12 — small fixes, part 6 | Word forms: sticky bottom bar (Save word, Change word type, hints); sidebar for clue + tags only; icon rail with clue/tags buttons. | not started |
+| 13 — small fixes, part 7 | "Use autocomplete values" in the brand colour. | not started |
+| 14 — small fixes, part 8 | Confirm before removing a translation that has data. | not started |
+| 15 — small fixes, part 9 | Review, phone: filters and display switches in a side menu. | not started |
+| 16 — small fixes, part 10 | Review, desktop sidebar: collapse button points left/right. | not started |
+| 17 — small fixes, part 11 | Review, desktop sidebar: "Language order" title and hint in a column. | not started |
+| 18 — small fixes, part 12 | Cell dialog: translation form without its own header and frame. | not started |
 
 ## Gate
 
@@ -534,3 +541,25 @@ This narrows Slice 9. Every other row is back to how it was before Slice 9.
   message is in the flow; a lone optional field reserves nothing and a lone mandatory one does); the
   `self-end` / `self-start` split; the `reserveMessageSpace` prop on `FieldRenderer`. Frontend
   **696/696**, `tsc -b`, eslint and `vite build` clean. e2e Phase 1, 2, 3, 3.5 and 3.9 specs **15/15**.
+
+## Slice 11 outcome (2026-09-26) — small fixes, part 5
+
+**Word forms: pick the language straight from the "+ Add translation" tile.**
+
+- **What it does:** the dashed tile at the end of the translation grid now shows the label and, under
+  it, one chip per language that is still free (flag + native name). One click on a chip adds that
+  translation. The language dialog is gone (`Dialog` import, `addLangOpen` state and `pickLanguage`
+  removed from `WordForm.tsx`).
+- **Tile states:** the tile is a `role="group"` named "Add translation" (a button cannot hold other
+  buttons). When no translation can be added (four already, or every account language used) the
+  tile is **not rendered**. Removing a translation frees its language, so the tile and its chip come
+  back. The tile keeps the accent hover (border, background, text) on the whole tile.
+- **Spacing (review round):** tile padding `p-5`, minimum height `min-h-28`, `gap-4` between the
+  title and the chips, `gap-3` between chips.
+- **Removed:** the unused `wordRelated:translationFormGeneric.selectLanguage` key (4 locales).
+- **Tests:** `WordForm.test.tsx` (chips listed, a click adds the card and drops its chip, disabled
+  tile has no chips, a removed language's chip returns), `AddWordPage.test.tsx` (one click per
+  language). The three e2e specs and the smoke spec drop the extra "Add translation" click before
+  the language click. Frontend **696/696**, `tsc -b` and eslint clean (the 2 old `ReviewPage`
+  warnings remain). e2e Phase 2 and Phase 3 specs **11/11**.
+- **Checked visually** (Playwright, real backend): desktop and 390 px wide, light and dark.

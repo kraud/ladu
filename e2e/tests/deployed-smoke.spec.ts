@@ -73,11 +73,9 @@ test.describe.serial('Post-deploy smoke', () => {
         await expect(page).toHaveURL('/addWord');
         await page.getByRole('radio', { name: /Noun/ }).click();
 
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'English' }).click();
         await page.getByLabel('Singular', { exact: true }).first().fill('Smoke');
 
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'Español' }).click();
         await page.getByRole('radio', { name: 'el', exact: true }).click();
         await page.getByLabel('Singular', { exact: true }).last().fill('Humo');

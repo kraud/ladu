@@ -82,19 +82,16 @@ test.describe.serial('Phase 2 — noun create / view', () => {
         await page.getByRole('radio', { name: /Noun/ }).click();
 
         // English
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'English' }).click();
         await page.getByLabel('Singular', { exact: true }).first().fill('House');
 
         // Español — required gender + singular
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'Español' }).click();
         // Exact match — "el" would otherwise also match the "el/la" (neutral) option.
         await page.getByRole('radio', { name: 'el', exact: true }).click();
         await page.getByLabel('Singular', { exact: true }).last().fill('Casa');
 
         // Deutsch — required gender + singular nominative
-        await page.getByRole('button', { name: 'Add translation' }).click();
         await page.getByRole('button', { name: 'Deutsch' }).click();
         await page.getByRole('radio', { name: 'der', exact: true }).click();
         await page.getByLabel('Singular nominative').fill('Haus');
