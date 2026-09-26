@@ -31,10 +31,11 @@ interface UiState {
     setReviewFilterPosition: (position: ReviewFilterPosition) => void;
 
     /**
-     * Word editor's left action sidebar (`WordEditorLayout`) collapsed to an
-     * icon rail. Shared across create/edit/view so the state doesn't reset
-     * when a user toggles Edit on `/word/:id` — session-scoped like
-     * `reviewSidebarCollapsed`, not persisted.
+     * Word editor's left clue/tags sidebar (`WordEditorLayout`) collapsed to
+     * an icon rail. Starts collapsed: the translation cards are the main
+     * content, and the clue/tags are one click away on the rail. Shared across
+     * create/edit/view so the state doesn't reset when a user toggles Edit on
+     * `/word/:id` — session-scoped like `reviewSidebarCollapsed`, not persisted.
      */
     wordSidebarCollapsed: boolean;
     setWordSidebarCollapsed: (collapsed: boolean) => void;
@@ -53,6 +54,6 @@ export const useUiStore = create<UiState>()((set) => ({
     reviewFilterPosition: 'top',
     setReviewFilterPosition: (reviewFilterPosition) => set({ reviewFilterPosition }),
 
-    wordSidebarCollapsed: false,
+    wordSidebarCollapsed: true,
     setWordSidebarCollapsed: (wordSidebarCollapsed) => set({ wordSidebarCollapsed }),
 }));

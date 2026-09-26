@@ -55,9 +55,12 @@ describe('WordPage — view', () => {
         expect(screen.queryAllByRole('textbox')).toHaveLength(0);
         expect(screen.queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
 
-        expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Return' })).toBeInTheDocument();
+        // All three live in the bottom bar; the sidebar keeps only clue + tags.
+        const bar = screen.getByTestId('word-editor-bar');
+        expect(within(bar).getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+        expect(within(bar).getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+        expect(within(bar).getByRole('button', { name: 'Return' })).toBeInTheDocument();
+        expect(within(bar).queryByRole('status')).not.toBeInTheDocument();
     });
 
     // `renderApp` always boots a single-entry memory history, so `useCanGoBack()`
@@ -109,7 +112,7 @@ describe('WordPage — edit', () => {
         await user.clear(singularEN);
         await user.type(singularEN, 'Cottage');
 
-        await user.click(screen.getByRole('button', { name: 'Save' }));
+        await user.click(screen.getByRole('button', { name: 'Save word' }));
 
         expect(await screen.findByText('Word was updated successfully')).toBeInTheDocument();
         expect(fake.requests).toHaveLength(1);
@@ -129,7 +132,7 @@ describe('WordPage — edit', () => {
         });
 
         // Back to the read-only view, showing the persisted change.
-        await waitFor(() => expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument());
+        await waitFor(() => expect(screen.queryByRole('button', { name: 'Save word' })).not.toBeInTheDocument());
         expect(screen.getByRole('heading', { level: 1, name: 'cottage' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     });

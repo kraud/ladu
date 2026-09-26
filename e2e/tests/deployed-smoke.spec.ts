@@ -88,9 +88,9 @@ test.describe.serial('Post-deploy smoke', () => {
         await page.getByRole('button', { name: 'Click here to see the new word' }).click();
         await expect(page).toHaveURL(/\/word\/.+/);
 
-        // Delete through the real sidebar -> confirm dialog flow (WordPage.tsx).
+        // Delete through the real bottom bar -> confirm dialog flow (WordPage.tsx).
         // Radix's AlertDialog renders role="alertdialog", distinct from the
-        // sidebar's own "Delete" trigger button, so this scoping is required
+        // bar's own "Delete" trigger button, so this scoping is required
         // to avoid matching two same-named buttons at once.
         await page.getByRole('button', { name: 'Delete' }).click();
         await page.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();

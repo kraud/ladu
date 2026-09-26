@@ -107,13 +107,16 @@
   "wordForm": {
     "hints": {
       "minTranslations": "Añade al menos 2 traducciones antes de poder guardar.",
-      "requiredFieldsDisclaimer": "Los campos marcados con * son obligatorios."
+      "requiredFieldsDisclaimer": "Los campos marcados con * son obligatorios.",
+      "incomplete": "Rellena todos los campos obligatorios (marcados con *) en todas las traducciones.",
+      "noChanges": "Haz un cambio para poder guardar."
     },
     "errors": {
       "noNumbers": "No debe incluir números"
     },
     "buttons": {
-      "changeWordType": "Cambiar tipo de palabra"
+      "changeWordType": "Cambiar tipo de palabra",
+      "saveWord": "Guardar palabra"
     },
     "sidebar": {
       "collapse": "Contraer la barra lateral",

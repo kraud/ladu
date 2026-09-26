@@ -269,3 +269,63 @@ describe('useWordFormState — edit mode', () => {
         expect(result.current.availableLanguages).toEqual([]);
     });
 });
+
+describe('useWordFormState — saveBlockReason', () => {
+    it('is minTranslations below 2 slots, whatever else is true', () => {
+        seedSession(['English', 'Spanish']);
+        const { result } = renderHook(() => useWordFormState({ defaultPartOfSpeech: PartOfSpeech.noun }));
+        expect(result.current.saveBlockReason).toBe('minTranslations');
+
+        act(() => result.current.addTranslation(Lang.EN));
+        expect(result.current.saveBlockReason).toBe('minTranslations');
+    });
+
+    it('is incomplete with 2 slots while any slot is missing a required field', () => {
+        seedSession(['English', 'Spanish']);
+        const { result } = renderHook(() => useWordFormState({ defaultPartOfSpeech: PartOfSpeech.noun }));
+        act(() => result.current.addTranslation(Lang.EN));
+        act(() => result.current.addTranslation(Lang.ES));
+        expect(result.current.saveBlockReason).toBe('incomplete');
+
+        act(() => result.current.updateTranslation(0, { cases: [], completionState: true, isDirty: true }));
+        expect(result.current.saveBlockReason).toBe('incomplete'); // the second slot is still incomplete
+    });
+
+    it('is null once every slot is complete and something changed', () => {
+        seedSession(['English', 'Spanish']);
+        const { result } = renderHook(() => useWordFormState({ defaultPartOfSpeech: PartOfSpeech.noun }));
+        act(() => result.current.addTranslation(Lang.EN));
+        act(() => result.current.addTranslation(Lang.ES));
+        act(() => result.current.updateTranslation(0, { cases: [], completionState: true, isDirty: true }));
+        act(() => result.current.updateTranslation(1, { cases: [], completionState: true, isDirty: true }));
+        expect(result.current.saveBlockReason).toBeNull();
+        expect(result.current.canSave).toBe(true);
+    });
+
+    it('is noChanges for a hydrated, complete word nobody has touched', () => {
+        seedSession(['English', 'Spanish']);
+        const initialWord: WordBE = {
+            id: 'word-1',
+            user: 'u1',
+            partOfSpeech: PartOfSpeech.noun,
+            translations: [
+                { id: 'tr-1', language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'house' }] },
+                { id: 'tr-2', language: Lang.ES, cases: [{ caseName: NounCases.singularES, word: 'casa' }] },
+            ],
+            clue: null,
+            isCloned: false,
+            originalCreator: null,
+            tags: [],
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+        };
+        const { result } = renderHook(() => useWordFormState({ initialWord }));
+        // Hydrated slots start complete-but-clean only after their cards report; simulate that.
+        act(() => result.current.updateTranslation(0, { cases: [], completionState: true, isDirty: false }));
+        act(() => result.current.updateTranslation(1, { cases: [], completionState: true, isDirty: false }));
+        expect(result.current.saveBlockReason).toBe('noChanges');
+
+        act(() => result.current.setClue('a small building'));
+        expect(result.current.saveBlockReason).toBeNull();
+    });
+});

@@ -1,7 +1,7 @@
 /**
  * The word compose/edit orchestrator: PoS gate -> `WordEditorLayout` (a
- * collapsible left sidebar of actions/clue/tags-placeholder, next to the
- * translation grid, which ends in the "+ Add translation" tile — one chip per
+ * collapsible left sidebar of clue/tags, the translation grid and a sticky
+ * bottom bar with the actions and the reason Save is disabled; the grid ends in the "+ Add translation" tile — one chip per
  * still-free language, so a click adds it with no dialog; the tile is not
  * rendered once nothing more can be added). Shared by `AddWordPage`
  * (create) and `WordPage` (edit); `initialWord`/`onDelete`/`extraActions`
@@ -12,16 +12,15 @@
  * forwards events. No toasts, no navigation — those are call-site concerns
  * (`AddWordPage`'s `onSubmit`).
  */
-import { type ReactNode, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { PartOfSpeechSelector } from '@/components/common/PartOfSpeechSelector';
 import { ArrowsClockwiseIcon, FloppyDiskIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
-import { useUiStore } from '@/stores/uiStore';
-import { SidebarAction } from '../layout/SidebarAction';
 import { SidebarFields } from '../layout/SidebarFields';
+import type { EditorAction } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
 import { TranslationCard, translationGridClass } from './TranslationCard';
 import { useWordFormState } from './useWordFormState';
@@ -51,10 +50,10 @@ export interface WordFormProps {
     onPartOfSpeechChange?: (pos: PartOfSpeech) => void;
     /**
      * Edit mode only: lets `WordPage` inject its own Cancel action into the
-     * sidebar's action group, without this component learning anything about
-     * navigation.
+     * bottom bar's action group, without this component learning anything
+     * about navigation.
      */
-    extraActions?: ReactNode;
+    extraActions?: EditorAction[];
 }
 
 export function WordForm({
@@ -71,7 +70,6 @@ export function WordForm({
     const { t } = useTranslation();
     const state = useWordFormState({ initialWord, defaultPartOfSpeech });
     const [confirmChangeTypeOpen, setConfirmChangeTypeOpen] = useState(false);
-    const collapsed = useUiStore((s) => s.wordSidebarCollapsed);
 
     function pickPartOfSpeech(pos: PartOfSpeech) {
         state.setPartOfSpeech(pos);
@@ -100,57 +98,50 @@ export function WordForm({
         onSubmit(mode === 'edit' && initialWord ? { ...payload, id: initialWord.id } : payload);
     }
 
-    const sidebar = (
-        <div className="flex h-full flex-col gap-4">
-            <div className="flex flex-col gap-2">
-                {mode === 'create' && onChangePartOfSpeech && (
-                    <SidebarAction
-                        icon={<ArrowsClockwiseIcon size={18} />}
-                        onClick={handleChangePartOfSpeechClick}
-                        collapsed={collapsed}
-                    >
-                        {t('wordRelated:wordForm.buttons.changeWordType')}
-                    </SidebarAction>
-                )}
-                {extraActions}
-                {mode === 'edit' && onDelete && (
-                    <SidebarAction icon={<TrashIcon size={18} />} variant="destructive" onClick={onDelete} collapsed={collapsed}>
-                        {t('common:buttons.delete')}
-                    </SidebarAction>
-                )}
-            </div>
+    const actions: EditorAction[] = [
+        ...(mode === 'create' && onChangePartOfSpeech
+            ? [
+                  {
+                      key: 'change-word-type',
+                      label: t('wordRelated:wordForm.buttons.changeWordType'),
+                      icon: <ArrowsClockwiseIcon size={18} />,
+                      onClick: handleChangePartOfSpeechClick,
+                  },
+              ]
+            : []),
+        ...(mode === 'edit' ? (extraActions ?? []) : []),
+        ...(mode === 'edit' && onDelete
+            ? [
+                  {
+                      key: 'delete',
+                      label: t('common:buttons.delete'),
+                      icon: <TrashIcon size={18} />,
+                      variant: 'destructive' as const,
+                      onClick: onDelete,
+                  },
+              ]
+            : []),
+    ];
 
-            <SidebarFields clue={state.clue} onClueChange={state.setClue} collapsed={collapsed} />
-
-            {!collapsed && (
-                <p className="hint">
-                    <span aria-hidden="true" className="text-destructive">
-                        *
-                    </span>{' '}
-                    {t('wordRelated:wordForm.hints.requiredFieldsDisclaimer')}
-                </p>
-            )}
-
-            <div className="mt-auto sticky bottom-0 flex flex-col gap-2 border-t border-border bg-card pt-3">
-                {!collapsed && state.belowMinTranslations && (
-                    <p className="hint">{t('wordRelated:wordForm.hints.minTranslations')}</p>
-                )}
-                <SidebarAction
-                    variant="default"
-                    icon={submitting ? <span className="spinner" /> : <FloppyDiskIcon size={18} />}
-                    disabled={!state.canSave || submitting}
-                    onClick={handleSave}
-                    collapsed={collapsed}
-                    hint={state.belowMinTranslations ? t('wordRelated:wordForm.hints.minTranslations') : undefined}
-                >
-                    {submitting ? t('common:status.saving') : t('common:buttons.saveChanges')}
-                </SidebarAction>
-            </div>
-        </div>
-    );
+    // Save's "why not" message; nothing is shown once Save is enabled.
+    const statusText =
+        submitting || !state.saveBlockReason
+            ? undefined
+            : t(`wordRelated:wordForm.hints.${state.saveBlockReason}`);
 
     return (
-        <WordEditorLayout sidebar={sidebar}>
+        <WordEditorLayout
+            sidebar={<SidebarFields clue={state.clue} onClueChange={state.setClue} />}
+            actions={actions}
+            primary={{
+                label: submitting ? t('common:status.saving') : t('wordRelated:wordForm.buttons.saveWord'),
+                icon: submitting ? <span className="spinner" /> : <FloppyDiskIcon size={18} />,
+                onClick: handleSave,
+                disabled: !state.canSave || submitting,
+            }}
+            statusText={statusText}
+            showRequiredHint
+        >
             <div className="flex flex-col gap-5">
                 <div className={translationGridClass(partOfSpeech)}>
                     {state.translations.map((translation, index) => (
@@ -164,7 +155,7 @@ export function WordForm({
                             onClear={() => state.clearTranslation(index)}
                             resetKey={state.resetTokens[translation.language] ?? 0}
                             // Never disabled — Remove is always available; the < 2 translations
-                            // case is surfaced instead as a hint next to the Save action in the sidebar.
+                            // case is surfaced instead as the reason in the bottom bar.
                             removeDisabled={false}
                         />
                     ))}

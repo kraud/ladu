@@ -107,13 +107,16 @@
   "wordForm": {
     "hints": {
       "minTranslations": "Add at least 2 translations before you can save.",
-      "requiredFieldsDisclaimer": "Fields marked with * are required."
+      "requiredFieldsDisclaimer": "Fields marked with * are required.",
+      "incomplete": "Fill in every required field (marked *) in all translations.",
+      "noChanges": "Make a change to enable saving."
     },
     "errors": {
       "noNumbers": "Must not include numbers"
     },
     "buttons": {
-      "changeWordType": "Change word type"
+      "changeWordType": "Change word type",
+      "saveWord": "Save word"
     },
     "sidebar": {
       "collapse": "Collapse sidebar",

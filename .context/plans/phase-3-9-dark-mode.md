@@ -87,7 +87,7 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 9 — small fixes, part 3 | Word forms: reserve room under every field; validation messages out of the layout flow. | ✅ done 2026-09-25 — frontend **691/691** |
 | 10 — small fixes, part 4 | Word forms: the reserved message room only on rows that have a mandatory field. | ✅ done 2026-09-26 — frontend **696/696** |
 | 11 — small fixes, part 5 | Word forms: the "+ Add translation" tile lists the free languages as chips (no dialog). | ✅ done 2026-09-26 — frontend **696/696** |
-| 12 — small fixes, part 6 | Word forms: sticky bottom bar (Save word, Change word type, hints); sidebar for clue + tags only; icon rail with clue/tags buttons. | not started |
+| 12 — small fixes, part 6 | Word forms: sticky bottom bar (Save word, Change word type, hints); sidebar for clue + tags only; icon rail with clue/tags buttons. | ✅ done 2026-09-26 — frontend **706/706** (see the review round in the Slice 12 outcome) |
 | 13 — small fixes, part 7 | "Use autocomplete values" in the brand colour. | not started |
 | 14 — small fixes, part 8 | Confirm before removing a translation that has data. | not started |
 | 15 — small fixes, part 9 | Review, phone: filters and display switches in a side menu. | not started |
@@ -563,3 +563,78 @@ This narrows Slice 9. Every other row is back to how it was before Slice 9.
   the language click. Frontend **696/696**, `tsc -b` and eslint clean (the 2 old `ReviewPage`
   warnings remain). e2e Phase 2 and Phase 3 specs **11/11**.
 - **Checked visually** (Playwright, real backend): desktop and 390 px wide, light and dark.
+
+## Slice 12 outcome (2026-09-26) — small fixes, part 6
+
+**Word editor: a bottom bar (fixed to the viewport) holds the actions. The sidebar holds only the clue and the tags.**
+Same on Add Word, the Word page in edit mode and the Word page in view mode.
+
+**The bar** (`layout/WordEditorBar.tsx`, look from `MOCKUPS/word-editor.html` `.savebar`)
+
+- **Desktop:** left = the secondary actions (create: *Change word type*; edit: *Cancel*, *Delete*;
+  view: *Return*, *Delete*), then the "* Fields marked with * are required" note (create/edit).
+  Right = the reason Save is disabled, then the main button (*Save word*; *Edit* in view mode).
+- **Phone (max 920px):** only the reason and the main button, full width. The secondary actions are in
+  the drawer, above the clue. Choosing one closes the drawer.
+- **The reason** (`useWordFormState.saveBlockReason`, one at a time, in this order): `minTranslations`
+  (fewer than 2), `incomplete` (a required field is missing in some translation), `noChanges`.
+  Enabled Save shows **no** message. The button text changed from "Save" to **"Save word"** (new key
+  `wordForm.buttons.saveWord`; `hints.incomplete` and `hints.noChanges` are new; 4 languages, **the EE
+  texts need your check**). "Saving…" replaces the reason while a save runs.
+- **One copy of each action:** `WordEditorLayout` uses the new `useIsMobile` (`lib/useMediaQuery.ts`,
+  also used by Slice 15) to render the secondary actions in the bar (desktop) or the drawer (phone),
+  never both. So each button keeps one accessible name at every width. `matchMedia` is missing in
+  jsdom and reports `false` (desktop); the tests that need the phone stub it.
+- **API change:** `WordEditorLayout` now takes `actions`, `primary`, `statusText` and
+  `showRequiredHint`. `WordForm`'s `extraActions` is now `EditorAction[]` (was a node). The bar
+  background mixes in `srgb` (an `oklch` mix with transparent gave a faint pink tint, as in Slice 1).
+
+**The sidebar** (`layout/SidebarFields.tsx`)
+
+- Expanded: Clue and the Tags placeholder only. The collapse caret stays.
+- Collapsed (desktop rail): the expand caret plus a **Clue** button and a **Tags** button. Clue icon:
+  `PencilSimple` when empty, `PencilSimpleLine` when it has text. Tags icon: `Tag` regular, or duotone
+  with a count badge when `tagCount` > 0 (always 0 until Phase 4). The Clue button expands the sidebar
+  and focuses the clue field. The Tags button only expands it. A read-only word with no clue shows
+  only the Tags button.
+- `useWordSidebar` (new) gives `collapsed` = the stored preference **and** desktop. So a phone always
+  shows the full drawer, and the old `max-[920px]:` overrides in the fields are gone.
+
+**Removed:** `SidebarAction.tsx` and its test (nothing uses them now).
+
+**Tests (+9, frontend 705/705):** `useMediaQuery`; `useWordFormState.saveBlockReason` (all four
+outcomes); `WordEditorLayout` (desktop bar content, no reason when enabled, phone: actions only in the
+drawer and one copy each, the rail preference ignored on a phone); `SidebarFields` (rail buttons, both
+icon swaps, the badge, focus on Clue, no focus on Tags); `WordForm` (the reason changes as the form
+fills and disappears when Save is enabled; the actions are in the bar, not the sidebar); `WordPage`
+(Edit/Delete/Return in the bar). `tsc -b`, eslint (the 2 old `ReviewPage` warnings remain) and `vite
+build` clean. e2e Phase 1, 2, 3, 3.5, 3.9 and Review specs **15/15**. One Phase 1 run failed once
+(register did not redirect) and passed on 2 reruns and on the unmodified code; it does not touch this page.
+
+**Checked visually** (Playwright, real backend): Add Word (empty, incomplete, ready), the rail in light
+and dark, the Word page in view and edit, and a 390 px phone (reason shown when disabled, no message
+when enabled, drawer with the actions).
+
+**Known, not fixed here**
+
+- In edit mode, removing one of three translations does not enable Save (no remaining card is
+  "dirty"), and the reason then says "Make a change…". This comes from how `isDirty` is tracked
+  (`canSave` did the same before). A fix belongs in `useWordFormState`.
+- The Word page skeleton and the not-found redirect are unchanged.
+
+**Review round (2026-09-26)** — three fixes after the first look:
+
+1. **The bar was not at the bottom on a short page** (no translations yet), and **at the end of a long
+   page it stopped about 32px above the viewport bottom.** Cause: `position: sticky` cannot push a bar
+   down, and it stops where its parent ends (`AppShell`'s `py-8`). Fix: `WordEditorBar` is now
+   `position: fixed` (`inset-x-0 bottom-0`). Its inner row keeps the wide column (`max-w-7xl`, `px-6`).
+   A spacer of the bar's own height (measured with a `ResizeObserver`, because the phone bar grows
+   when the reason wraps to two lines) keeps the last content from hiding behind it. Measured in a
+   browser: the bar's bottom equals the viewport height on a short page, at the end of a long page
+   (verb, 2 translations) and on a 390px phone.
+2. **The sidebar starts collapsed.** `uiStore.wordSidebarCollapsed` now defaults to `true` (session
+   only, not saved). `test/setup.ts` sets it to `false` before each test, so the component tests
+   keep working with the open sidebar; `SidebarFields.test.tsx` checks the real default.
+3. Seen while checking, not changed: a toast (bottom-centre) can cover the middle of the bar for a
+   few seconds; on a phone it covers the Save button. After a save the form has already reset, so
+   nothing is lost. Tell me if the toast should move above the bar.

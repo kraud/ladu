@@ -207,20 +207,47 @@ describe('WordForm — create mode', () => {
         expect(screen.queryByRole('group', { name: 'Add translation' })).not.toBeInTheDocument();
     });
 
-    it('shows the min-translations hint below 2 slots and hides it once 2 are added', async () => {
+    it('explains in the bottom bar why Save is disabled, and shows nothing once it is enabled', async () => {
         const user = userEvent.setup();
         renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={vi.fn()} />, {
             session: SESSION,
         });
+        const bar = screen.getByTestId('word-editor-bar');
+        const reason = () => within(bar).queryByRole('status');
 
-        const hint = 'Add at least 2 translations before you can save.';
-        expect(screen.getByText(hint)).toBeInTheDocument();
+        expect(within(bar).getByText('Fields marked with * are required.')).toBeInTheDocument();
+        expect(reason()).toHaveTextContent('Add at least 2 translations before you can save.');
 
         await addLanguage(user, 'English');
-        expect(screen.getByText(hint)).toBeInTheDocument(); // still only 1 slot
+        expect(reason()).toHaveTextContent('Add at least 2 translations before you can save.'); // still only 1 slot
 
         await addLanguage(user, 'Español');
-        expect(screen.queryByText(hint)).not.toBeInTheDocument();
+        expect(reason()).toHaveTextContent('Fill in every required field (marked *) in all translations.');
+
+        const [singularEN, singularES] = screen.getAllByLabelText('Singular');
+        await user.type(singularEN!, 'House');
+        await user.type(singularES!, 'Casa');
+        await user.click(screen.getByRole('radio', { name: 'el' }));
+        await waitFor(() => expect(reason()).not.toBeInTheDocument());
+        expect(within(bar).getByRole('button', { name: 'Save word' })).toBeEnabled();
+    });
+
+    it('puts the actions in the bottom bar, not the sidebar', () => {
+        renderWithProviders(
+            <WordForm
+                mode="create"
+                defaultPartOfSpeech={PartOfSpeech.noun}
+                onSubmit={vi.fn()}
+                onChangePartOfSpeech={vi.fn()}
+            />,
+            { session: SESSION },
+        );
+        const bar = screen.getByTestId('word-editor-bar');
+        expect(within(bar).getByRole('button', { name: 'Change word type' })).toBeInTheDocument();
+        expect(within(bar).getByRole('button', { name: 'Save word' })).toBeInTheDocument();
+        const sidebar = screen.getByLabelText('Clue').closest('aside')!;
+        expect(within(sidebar).queryByRole('button', { name: 'Change word type' })).not.toBeInTheDocument();
+        expect(within(sidebar).queryByRole('button', { name: 'Save word' })).not.toBeInTheDocument();
     });
 
     it('gates Save on >= 2 complete + dirty slots, then submits the exact nested payload', async () => {
@@ -230,7 +257,7 @@ describe('WordForm — create mode', () => {
             session: SESSION,
         });
 
-        const save = () => screen.getByRole('button', { name: 'Save' });
+        const save = () => screen.getByRole('button', { name: 'Save word' });
         await addLanguage(user, 'English');
         await addLanguage(user, 'Español');
         expect(save()).toBeDisabled();

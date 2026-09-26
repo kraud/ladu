@@ -107,13 +107,16 @@
   "wordForm": {
     "hints": {
       "minTranslations": "Füge mindestens 2 Übersetzungen hinzu, bevor du speichern kannst.",
-      "requiredFieldsDisclaimer": "Mit * markierte Felder sind Pflichtfelder."
+      "requiredFieldsDisclaimer": "Mit * markierte Felder sind Pflichtfelder.",
+      "incomplete": "Fülle in allen Übersetzungen alle Pflichtfelder (mit * markiert) aus.",
+      "noChanges": "Nimm eine Änderung vor, um speichern zu können."
     },
     "errors": {
       "noNumbers": "Darf keine Zahlen enthalten"
     },
     "buttons": {
-      "changeWordType": "Wortart ändern"
+      "changeWordType": "Wortart ändern",
+      "saveWord": "Wort speichern"
     },
     "sidebar": {
       "collapse": "Seitenleiste einklappen",

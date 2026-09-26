@@ -15,6 +15,9 @@ import type { TranslationItem, WordItem } from '@/ts/interfaces';
 import type { TranslationCardChange } from './TranslationCard';
 import type { WordBE } from '../types';
 
+/** Why the Save button is disabled (`null` when it is enabled). */
+export type SaveBlockReason = 'minTranslations' | 'incomplete' | 'noChanges';
+
 const MAX_TRANSLATIONS = 4;
 const MIN_TRANSLATIONS = 2;
 
@@ -105,10 +108,20 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     // added but never typed into (`cases: []`) isn't content. Drives the
     // create-mode "Change word type" confirm gate.
     const hasContent = translations.some((t) => t.cases.length > 0) || clue !== '';
-    const canSave =
-        translations.length >= MIN_TRANSLATIONS &&
-        translations.every((t) => t.completionState) &&
-        (translations.some((t) => t.isDirty) || clueDirty);
+    const hasEnoughTranslations = translations.length >= MIN_TRANSLATIONS;
+    const allComplete = translations.every((t) => t.completionState);
+    const hasChanges = translations.some((t) => t.isDirty) || clueDirty;
+    const canSave = hasEnoughTranslations && allComplete && hasChanges;
+    // Why Save is disabled, for the editor's bottom bar. One reason at a time,
+    // most fundamental first: too few translations, then a required field
+    // still missing somewhere, then nothing changed yet. `null` = can save.
+    const saveBlockReason: SaveBlockReason | null = !hasEnoughTranslations
+        ? 'minTranslations'
+        : !allComplete
+          ? 'incomplete'
+          : !hasChanges
+            ? 'noChanges'
+            : null;
 
     const buildPayload = useCallback(
         () => ({
@@ -131,6 +144,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
         availableLanguages,
         canAddMore,
         canSave,
+        saveBlockReason,
         belowMinTranslations,
         hasContent,
         resetTokens,

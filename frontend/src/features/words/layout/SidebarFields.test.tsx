@@ -1,8 +1,13 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
+import { useUiStore } from '@/stores/uiStore';
 import { SidebarFields } from './SidebarFields';
+
+afterEach(() => {
+    useUiStore.setState({ wordSidebarCollapsed: false });
+});
 
 describe('SidebarFields — editable (create/edit)', () => {
     it('renders a labeled clue textarea and the disabled tags placeholder', () => {
@@ -19,15 +24,6 @@ describe('SidebarFields — editable (create/edit)', () => {
         await user.type(screen.getByLabelText('Clue'), 'a');
         expect(onClueChange).toHaveBeenCalledWith('a');
     });
-
-    // `hidden` is a real `display:none` in the app, restored below 920px via
-    // `max-[920px]:flex` — but `vite.config.ts` sets `test.css: false`, so
-    // jsdom never applies that, and the field stays queryable/present here.
-    // The class itself is what's under test.
-    it('collapsed: marks the block hidden (desktop only — restored on the mobile drawer)', () => {
-        const { container } = renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} collapsed />);
-        expect(container.firstElementChild).toHaveClass('hidden', 'max-[920px]:flex');
-    });
 });
 
 describe('SidebarFields — read-only (view)', () => {
@@ -43,8 +39,71 @@ describe('SidebarFields — read-only (view)', () => {
         expect(screen.getByText('Tags')).toBeInTheDocument();
     });
 
-    it('collapsed with no clue: renders nothing', () => {
-        const { container } = renderWithProviders(<SidebarFields clue="" collapsed />);
-        expect(container).toBeEmptyDOMElement();
+    it('collapsed with no clue: only the Tags button (nothing to open under Clue)', () => {
+        useUiStore.setState({ wordSidebarCollapsed: true });
+        renderWithProviders(<SidebarFields clue="" />);
+        expect(screen.queryByRole('button', { name: 'Clue' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Tags' })).toBeInTheDocument();
+    });
+});
+
+describe('SidebarFields — collapsed rail', () => {
+    it('is the app default: the store starts collapsed', () => {
+        expect(useUiStore.getInitialState().wordSidebarCollapsed).toBe(true);
+    });
+
+    function iconClass(button: HTMLElement) {
+        return button.querySelector('svg')?.innerHTML ?? '';
+    }
+
+    it('shows a Clue and a Tags button instead of the fields', () => {
+        useUiStore.setState({ wordSidebarCollapsed: true });
+        renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Clue' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Tags' })).toBeInTheDocument();
+    });
+
+    it('swaps the Clue icon once the clue has text (pencil-simple -> pencil-simple-line)', () => {
+        useUiStore.setState({ wordSidebarCollapsed: true });
+        const { rerender } = renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
+        const empty = iconClass(screen.getByRole('button', { name: 'Clue' }));
+        expect(screen.getByRole('button', { name: 'Clue' })).not.toHaveAttribute('data-filled');
+
+        rerender(<SidebarFields clue="a small building" onClueChange={vi.fn()} />);
+        const filled = iconClass(screen.getByRole('button', { name: 'Clue' }));
+        expect(screen.getByRole('button', { name: 'Clue' })).toHaveAttribute('data-filled', 'true');
+        expect(filled).not.toBe(empty);
+    });
+
+    it('swaps the Tags icon to duotone and shows a count once there are tags', () => {
+        useUiStore.setState({ wordSidebarCollapsed: true });
+        const { rerender } = renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
+        const plain = iconClass(screen.getByRole('button', { name: 'Tags' }));
+        expect(screen.queryByTestId('tag-count')).not.toBeInTheDocument();
+
+        rerender(<SidebarFields clue="" onClueChange={vi.fn()} tagCount={3} />);
+        expect(screen.getByTestId('tag-count')).toHaveTextContent('3');
+        expect(iconClass(screen.getByRole('button', { name: 'Tags' }))).not.toBe(plain);
+    });
+
+    it('the Clue button expands the sidebar and focuses the clue field', async () => {
+        const user = userEvent.setup();
+        useUiStore.setState({ wordSidebarCollapsed: true });
+        renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
+
+        await user.click(screen.getByRole('button', { name: 'Clue' }));
+        expect(useUiStore.getState().wordSidebarCollapsed).toBe(false);
+        expect(screen.getByLabelText('Clue')).toHaveFocus();
+    });
+
+    it('the Tags button expands the sidebar without moving focus into the clue', async () => {
+        const user = userEvent.setup();
+        useUiStore.setState({ wordSidebarCollapsed: true });
+        renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
+
+        await user.click(screen.getByRole('button', { name: 'Tags' }));
+        expect(useUiStore.getState().wordSidebarCollapsed).toBe(false);
+        expect(screen.getByLabelText('Clue')).not.toHaveFocus();
     });
 });
