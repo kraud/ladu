@@ -22,6 +22,90 @@ describe('TranslationCard', () => {
         expect(screen.getByText('Regularity')).toBeInTheDocument();
     });
 
+    it('bottom-aligns the cells of a paired row (an autocomplete field next to a plain one)', () => {
+        // Spanish nouns pair the autocomplete trigger (bold label, 2px border, taller)
+        // with a plain field. Without `items-end` their input bottoms drift apart.
+        renderWithProviders(<TranslationCard lang={Lang.ES} />);
+
+        const row = screen.getByLabelText('Singular').closest('.grid');
+        expect(row).toHaveClass('items-end');
+        expect(row).toContainElement(screen.getByLabelText('Plural'));
+    });
+
+    it('reserves room under a mandatory field and shows its validation message out of the flow', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={Lang.EN} />);
+
+        const item = screen.getByLabelText('Singular').closest('[data-slot="form-item"]');
+        expect(item).toHaveClass('relative', 'pb-4');
+
+        await user.type(screen.getByLabelText('Singular'), 'abc1');
+        await user.tab();
+
+        // `position: absolute` inside the reserved strip: the message adds no height.
+        const message = await screen.findByText('Must not include numbers');
+        expect(item).toContainElement(message);
+        expect(message).toHaveClass('absolute', 'bottom-0', 'truncate');
+        // Cut to one line if too long, so the full text is on hover.
+        expect(message).toHaveAttribute('title', 'Must not include numbers');
+    });
+
+    describe('message room is reserved per row, only where a field is mandatory', () => {
+        const itemOf = (label: string) => screen.getByLabelText(label).closest('[data-slot="form-item"]');
+
+        it('a row with a mandatory field reserves room for ALL its cells, optional ones included', () => {
+            renderWithProviders(<TranslationCard lang={Lang.DE} />);
+
+            // Singular nominative is mandatory; Plural nominative, its row partner, is not.
+            expect(itemOf('Singular nominative')).toHaveClass('pb-4');
+            expect(itemOf('Plural nominative')).toHaveClass('pb-4');
+        });
+
+        it('a row with no mandatory field is left as it was: no reserved room, message in the flow', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<TranslationCard lang={Lang.DE} />);
+
+            expect(itemOf('Singular accusative')).not.toHaveClass('pb-4');
+            expect(itemOf('Plural accusative')).not.toHaveClass('pb-4');
+
+            await user.type(screen.getByLabelText('Singular accusative'), 'abc1');
+            await user.tab();
+            const message = await screen.findByText('Must not include numbers');
+            expect(message).not.toHaveClass('absolute');
+        });
+
+        it('cells of a row with a mandatory field bottom-align; cells of an optional row stay top-aligned', () => {
+            renderWithProviders(<TranslationCard lang={Lang.DE} />);
+            const cellOf = (label: string) => screen.getByLabelText(label).closest('[data-slot="form-item"]')?.parentElement;
+
+            expect(cellOf('Singular nominative')).toHaveClass('self-end');
+            expect(cellOf('Plural nominative')).toHaveClass('self-end');
+            expect(cellOf('Singular accusative')).toHaveClass('self-start');
+            expect(cellOf('Plural accusative')).toHaveClass('self-start');
+        });
+
+        it('a lone optional field reserves nothing; a lone mandatory field does', () => {
+            renderWithProviders(<TranslationCard lang={Lang.DE} />);
+
+            // Regularity is optional, Gender is mandatory (both single-field rows).
+            expect(screen.getByText('Regularity').closest('[data-slot="form-item"]')).not.toHaveClass('pb-4');
+            expect(screen.getByText('Gender').closest('[data-slot="form-item"]')).toHaveClass('pb-4');
+        });
+    });
+
+    it('reserves nothing in displayOnly (no messages there)', () => {
+        renderWithProviders(
+            <TranslationCard
+                lang={Lang.EN}
+                displayOnly
+                initialCases={[{ caseName: NounCases.singularEN, word: 'house' }]}
+            />,
+        );
+
+        const item = screen.getByText('Singular').closest('[data-slot="form-item"]');
+        expect(item).not.toHaveClass('pb-4');
+    });
+
     it('hydrates from initialCases', () => {
         renderWithProviders(
             <TranslationCard lang={Lang.EN} initialCases={[{ caseName: NounCases.singularEN, word: 'cat' }]} />

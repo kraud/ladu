@@ -340,10 +340,17 @@ export function TranslationCard({
                                         field={item.field}
                                         displayOnly={displayOnly}
                                         autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                        reserveMessageSpace={item.field.required}
                                     />
                                 ) : (
+                                    // `items-end`: the autocomplete trigger's bold label and 2px border make
+                                    // its cell taller than its neighbours', so cells bottom-align — inputs
+                                    // then share one bottom edge instead of drifting by the difference.
+                                    // Only rows with a mandatory field use it (every autocomplete trigger is
+                                    // mandatory); an optional row's cells are `self-start`, so a message
+                                    // that takes its own line there cannot push a neighbour's input down.
                                     <div
-                                        className="grid gap-x-4 gap-y-3"
+                                        className="grid items-end gap-x-4 gap-y-3"
                                         style={{ gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, 1fr))` }}
                                     >
                                         {item.columnHeadings?.map((heading, columnIndex) => (
@@ -354,19 +361,25 @@ export function TranslationCard({
                                                 {heading ?? ''}
                                             </p>
                                         ))}
-                                        {item.cells.map((rowFields, rowIndex) =>
-                                            rowFields.map((field, columnIndex) => (
-                                                <div key={`${rowIndex}-${columnIndex}`}>
+                                        {item.cells.map((rowFields, rowIndex) => {
+                                            // The whole row reserves message room when any field in it is mandatory.
+                                            const reserveMessageSpace = rowFields.some((field) => field?.required);
+                                            return rowFields.map((field, columnIndex) => (
+                                                <div
+                                                    key={`${rowIndex}-${columnIndex}`}
+                                                    className={reserveMessageSpace ? 'self-end' : 'self-start'}
+                                                >
                                                     {field && (
                                                         <FieldRenderer
                                                             field={field}
                                                             displayOnly={displayOnly}
                                                             autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                                            reserveMessageSpace={reserveMessageSpace}
                                                         />
                                                     )}
                                                 </div>
-                                            )),
-                                        )}
+                                            ));
+                                        })}
                                     </div>
                                 )}
                             </Fragment>

@@ -27,6 +27,17 @@
  * only renders that one field with a heavier border, a bold label, a
  * magnifying-glass icon and a placeholder so it's obvious which field to
  * fill to trigger it.
+ *
+ * When `reserveMessageSpace` is set, the field reserves a strip of room under
+ * its control (`FIELD_ITEM`), and its validation message is positioned inside
+ * that strip out of the normal flow (`FIELD_MESSAGE`, `position: absolute`).
+ * So a message appearing or disappearing never changes the field's height — no
+ * row jumps, no field pushed down, and bottom-aligned rows (`TranslationCard`'s
+ * `items-end`) stay aligned. `TranslationCard` sets it for a row only when at
+ * least one field in that row is mandatory (the rows where a message is
+ * expected); every other row keeps the plain layout, where a message, should
+ * one appear, takes its own line. `displayOnly` fields have no messages and
+ * never reserve anything.
  */
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -39,12 +50,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { matchesVisibility, type FieldConfig } from './configs/types';
 import { isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
+import { cn } from '@/lib/utils';
+
+/** The strip reserved under an editable field for its message — one 16px line (`pb-4`, `leading-4` below). */
+const FIELD_ITEM = 'relative pb-4';
+/** The message itself: out of flow, pinned to the bottom of that strip, one line (an over-long one is cut with an ellipsis; `FormMessage` puts the full text in `title`). */
+const FIELD_MESSAGE = 'absolute inset-x-0 bottom-0 truncate leading-4';
 
 export interface FieldRendererProps {
     field: FieldConfig;
     displayOnly?: boolean;
     /** The RHF field name that drives this (lang, pos) pair's autocomplete lookup, if any. */
     autocompleteFieldName?: string;
+    /** Reserve a strip under the control and show its validation message out of the flow (see the file header). Ignored in `displayOnly`. */
+    reserveMessageSpace?: boolean;
 }
 
 function optionLabel(options: { value: string; label: string }[], value: unknown): string {
@@ -65,7 +84,12 @@ function FieldLabelRow({ label, required, bold }: { label: string; required: boo
     );
 }
 
-export function FieldRenderer({ field, displayOnly = false, autocompleteFieldName }: FieldRendererProps) {
+export function FieldRenderer({
+    field,
+    displayOnly = false,
+    autocompleteFieldName,
+    reserveMessageSpace = false,
+}: FieldRendererProps) {
     const { control } = useFormContext();
     const { t } = useTranslation();
     const label = field.label ?? t(field.labelKey ?? '');
@@ -77,6 +101,8 @@ export function FieldRenderer({ field, displayOnly = false, autocompleteFieldNam
     // `adornment` are configured.
     const controllingValue = useWatch({ control, name: field.visibleWhen?.field ?? field.name });
     const isVisible = !field.visibleWhen || matchesVisibility(field.visibleWhen, controllingValue);
+    const itemClass = reserveMessageSpace ? FIELD_ITEM : undefined;
+    const messageClass = reserveMessageSpace ? FIELD_MESSAGE : undefined;
 
     const adornmentSource = field.adornment?.watchField;
     const watchedAdornmentValue = useWatch({ control, name: adornmentSource ?? field.name });
@@ -139,7 +165,7 @@ export function FieldRenderer({ field, displayOnly = false, autocompleteFieldNam
                         <FormControl>{input}</FormControl>
                     );
                     return (
-                        <FormItem>
+                        <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} bold={isAutocompleteTrigger} />
                             {adornmentText ? (
                                 <div className="flex items-center gap-1.5">
@@ -149,14 +175,14 @@ export function FieldRenderer({ field, displayOnly = false, autocompleteFieldNam
                             ) : (
                                 control
                             )}
-                            <FormMessage />
+                            <FormMessage className={messageClass} />
                         </FormItem>
                     );
                 }
 
                 if (field.kind === 'radio') {
                     return (
-                        <FormItem>
+                        <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} />
                             <FormControl>
                                 <RadioGroup value={rhf.value ?? ''} onValueChange={rhf.onChange}>
@@ -185,14 +211,14 @@ export function FieldRenderer({ field, displayOnly = false, autocompleteFieldNam
                                     ))}
                                 </RadioGroup>
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className={messageClass} />
                         </FormItem>
                     );
                 }
 
                 if (field.kind === 'toggle') {
                     return (
-                        <FormItem>
+                        <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} />
                             <FormControl>
                                 <SegmentedToggle
@@ -202,14 +228,14 @@ export function FieldRenderer({ field, displayOnly = false, autocompleteFieldNam
                                     aria-label={label}
                                 />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className={messageClass} />
                         </FormItem>
                     );
                 }
 
                 if (field.kind === 'select') {
                     return (
-                        <FormItem>
+                        <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} />
                             <FormControl>
                                 <Select value={rhf.value ?? ''} onValueChange={rhf.onChange}>
@@ -225,7 +251,7 @@ export function FieldRenderer({ field, displayOnly = false, autocompleteFieldNam
                                     </SelectContent>
                                 </Select>
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className={messageClass} />
                         </FormItem>
                     );
                 }
@@ -238,7 +264,7 @@ export function FieldRenderer({ field, displayOnly = false, autocompleteFieldNam
                         );
                     };
                     return (
-                        <FormItem>
+                        <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} />
                             <FormControl>
                                 <div className="flex flex-row flex-wrap gap-x-4 gap-y-1.5">
@@ -253,18 +279,18 @@ export function FieldRenderer({ field, displayOnly = false, autocompleteFieldNam
                                     ))}
                                 </div>
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className={messageClass} />
                         </FormItem>
                     );
                 }
 
                 return (
-                    <FormItem className="flex flex-row items-center gap-2">
+                    <FormItem className={cn(itemClass, 'flex flex-row items-center gap-2')}>
                         <FormControl>
                             <Checkbox checked={!!rhf.value} onCheckedChange={rhf.onChange} />
                         </FormControl>
                         <FieldLabelRow label={label} required={field.required} />
-                        <FormMessage />
+                        <FormMessage className={messageClass} />
                     </FormItem>
                 );
             }}

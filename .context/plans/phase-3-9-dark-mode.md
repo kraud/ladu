@@ -83,7 +83,10 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 5 — landing page | Language selector + theme switch under the language list (left side); ES/DE/EE texts; `[data-theme]` palette; links add `?lng=&theme=`; `<html lang>`; Dockerfile. | ✅ done 2026-09-25 — checked in a browser; Docker image builds. **EE texts need the user's review** |
 | 6 — phase gate | `phase-3-9-theme.spec.ts`; both themes checked on every screen; docs; full green run. | ✅ done 2026-09-25 — backend **244/244**, frontend **680/680**, e2e **32/32** (default and `--workers=1`), `tsc -b` + eslint + build green |
 | 7 — small fixes, part 1 | A page-only theme switch on the 404; `<html lang>` follows the interface language. | ✅ done 2026-09-25 — frontend **688/688**, e2e **34/34** |
-| 8+ — small fixes, part 2 | Added later by the user. | waiting for the user's list |
+| 8 — small fixes, part 2 | Word forms: bottom-align the cells of a field row (`items-end`). | ✅ done 2026-09-25 — frontend **689/689** |
+| 9 — small fixes, part 3 | Word forms: reserve room under every field; validation messages out of the layout flow. | ✅ done 2026-09-25 — frontend **691/691** |
+| 10 — small fixes, part 4 | Word forms: the reserved message room only on rows that have a mandatory field. | ✅ done 2026-09-26 — frontend **696/696** |
+| 11+ — small fixes, part 5 | Added later by the user. | waiting for the user's list |
 
 ## Gate
 
@@ -450,3 +453,84 @@ values are refused. A normal path (`/login`) still works. The root link now has 
 Not changed: the picker still adds its check icon with `insertAdjacentHTML` from a constant string.
 It takes no outside text, so it is not flagged. It could be replaced with `createElementNS` if the
 scanner ever objects.
+
+## Slice 8 outcome (2026-09-25) — small fixes, part 2
+
+**Word forms: the fields next to an autocomplete field are now bottom-aligned.**
+
+- **Cause:** the autocomplete trigger has a bold label and a 2px border (`border-2`), so its cell is
+  taller than its neighbours'. In a row (a noun's singular/plural pair, a Spanish adjective's gender
+  grid, a verb's tense columns) the inputs' bottom edges drifted apart. Measured in a browser on a
+  Spanish noun: the Singular input ended at 376.9 px and the Plural input at 369.9 px (7 px apart).
+- **Fix:** `items-end` on the row container in `TranslationCard.tsx` (the `grid gap-x-4 gap-y-3` block
+  with `gridTemplateColumns`). Measured after: both inputs end at 376.9 px.
+- **Side effect, accepted:** the cells align at the bottom, so a shorter cell's *label* now sits a few
+  pixels lower than the taller cell's label (for example "I" next to the bold "I *" in the verb
+  grid). The input bottoms, which the fix is about, line up.
+- **Checked visually:** English verb (tense grid), German noun (four-case grid), Spanish noun.
+- **Not covered:** a validation message under one cell (`FormMessage`) makes that cell taller, so its
+  neighbour's input moves down to the message's bottom edge. That comes with bottom alignment; the
+  form shows messages only after a field has been touched.
+- **Test:** `TranslationCard.test.tsx` checks that the row container has `items-end` and holds both
+  fields (jsdom cannot measure layout, so the pixel check was done in the browser).
+- Frontend **689/689**, `tsc -b`, eslint and `vite build` clean. e2e (the form-related specs: Phase 2,
+  Phase 3, Phase 3.5 and Phase 3.9) **11/11**. The full suite was not re-run (the OAuth specs need
+  port 5001 free).
+
+## Slice 9 outcome (2026-09-25) — small fixes, part 3
+
+**Word forms: validation messages no longer disturb the layout.**
+
+- **What it does:** every editable field in the word forms reserves a 16px strip under its control
+  (`pb-4` on the field's wrapper). Its validation message is `position: absolute` inside that strip
+  (`absolute inset-x-0 bottom-0 leading-4`), so it is out of the normal flow and adds no height. A
+  message appearing or disappearing moves nothing, and the bottom-aligned rows from Slice 8 stay aligned.
+- **Where:** `FieldRenderer.tsx` only (constants `FIELD_ITEM` and `FIELD_MESSAGE`), on all six editable
+  field kinds: text, radio, toggle, select, multi-select and checkbox. `displayOnly` fields have no
+  messages and reserve nothing. The shared `FormItem` / `FormMessage` are not restyled, so the auth
+  and Account forms are unchanged.
+- **One-line messages:** a message is cut with an ellipsis if it is too long for its cell. `FormMessage`
+  now puts the full text in `title` (hover). This is the only change to `components/ui/form.tsx`, and
+  it also adds the tooltip on the other forms, which is harmless. All current messages fit
+  (the longest, German "Darf keine Zahlen enthalten", is about 150px in a cell of 200px or more).
+- **Measured in a browser** (German noun, four-case grid; English verb, tense grid): the card height,
+  every field's top and height, and every input bottom are identical before and after two messages
+  appear. Checked in light and dark mode.
+- **Cost, accepted (asked for):** forms are taller. The space between an input and the next label went
+  from 12px to 28px (16px reserved + the existing 12px row gap). The row gaps were not reduced. If the
+  forms feel too airy, lower `gap-y-3` in `TranslationCard.tsx` (for example to `gap-y-2`) and the
+  stack's `gap-3`.
+- **Tests:** `TranslationCard.test.tsx` (an editable field has `relative pb-4`; after typing `abc1` and
+  leaving the field, the message is inside the field, `absolute`, `bottom-0`, `truncate`, with a
+  `title`; a `displayOnly` field reserves nothing). Frontend **691/691** (+2), `tsc -b`, eslint and
+  `vite build` clean. e2e Phase 1, 2, 3, 3.5 and 3.9 specs **15/15**. The full suite was not re-run
+  (the OAuth specs need port 5001 free).
+
+## Slice 10 outcome (2026-09-26) — small fixes, part 4
+
+**Word forms: the reserved room under a field is now only added on rows that have a mandatory field.**
+This narrows Slice 9. Every other row is back to how it was before Slice 9.
+
+- **Rule:** a "row" is one layout row: a single field on its own, or one row of a grid block (a
+  noun's singular/plural pair, a verb's tense grid, a Spanish adjective's gender grid). If any field in
+  the row is mandatory (`field.required`, the same flag that draws the red `*`), **every** field in that
+  row reserves the 16px strip and shows its message out of the flow. Otherwise the row reserves
+  nothing, and a message, if one appears, takes its own line, as before.
+- **Code:** `FieldRenderer` got a `reserveMessageSpace` prop (default `false`; ignored in `displayOnly`).
+  `TranslationCard` decides it per row: `item.field.required` for a single field, and
+  `rowFields.some((field) => field?.required)` for each row of a grid.
+- **Measured** (German noun): the mandatory row is 78px high (reserved), the three optional rows are
+  55px each again (12px row gap, as before Slice 9). The card is 545px high, down from 609px in Slice
+  9. A message in the mandatory row moves nothing. A message in an optional row flows: the rows below
+  shift down by the message's height (23px), the two inputs of that row stay level.
+- **Adjustment to Slice 8 (needed by this rule):** the grid keeps `items-end`, but the cells of an
+  optional row are now `self-start` (cells of a mandatory row are `self-end`). Reason: every
+  autocomplete trigger is a mandatory field (checked for all 8 language/part-of-speech pairs), so the
+  bold label and 2px border that Slice 8 aligns for only ever occur in mandatory rows. In an optional
+  row with a message in the flow, `items-end` would have dropped the neighbour's input to the message's
+  bottom edge; `self-start` keeps it level, as it was before Slice 8.
+- **Tests (+5):** a mandatory field reserves room and shows an `absolute` message; per-row rule (a
+  mandatory field's optional row partner also reserves; an all-optional row reserves nothing and its
+  message is in the flow; a lone optional field reserves nothing and a lone mandatory one does); the
+  `self-end` / `self-start` split; the `reserveMessageSpace` prop on `FieldRenderer`. Frontend
+  **696/696**, `tsc -b`, eslint and `vite build` clean. e2e Phase 1, 2, 3, 3.5 and 3.9 specs **15/15**.

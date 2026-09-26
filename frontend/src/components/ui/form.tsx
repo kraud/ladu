@@ -154,6 +154,8 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
       data-slot="form-message"
       id={formMessageId}
       className={cn("err show", className)}
+      // Full text on hover — for a caller that clips the message to one line.
+      title={typeof body === "string" ? body : undefined}
       {...props}
     >
       {body}
