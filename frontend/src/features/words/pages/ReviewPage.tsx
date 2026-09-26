@@ -222,6 +222,8 @@ export function ReviewPage() {
                     wordId={cellTarget.wordId}
                     langKey={cellTarget.langKey}
                     onClose={closeCellDialog}
+                    nativeLanguage={user?.nativeLanguage}
+                    userLanguages={userLanguages}
                 />
             )}
         </div>

@@ -348,6 +348,67 @@ describe('ReviewPage — Slice 8: cell dialog', () => {
         expect(await screen.findByRole('dialog')).toBeInTheDocument();
         expect(await screen.findByLabelText('Singular nominative')).toHaveValue('');
     });
+    it("an empty cell's dialog is titled with the word in the user's native language", async () => {
+        const word: SeedWord = {
+            id: 'w-native',
+            user: SESSION.id,
+            partOfSpeech: PartOfSpeech.noun,
+            translations: [
+                { language: Lang.EN, cases: [{ caseName: 'singularEN', word: 'house' }] },
+                {
+                    language: Lang.ES,
+                    cases: [
+                        { caseName: 'genderES', word: 'el' },
+                        { caseName: 'singularES', word: 'casa' },
+                    ],
+                },
+            ],
+        };
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [word] }).handlers);
+
+        const user = userEvent.setup();
+        await renderApp({
+            initialEntry: '/review',
+            session: { ...SESSION, languages: ['English', 'Spanish', 'German'], nativeLanguage: 'Spanish' },
+        });
+        await screen.findByText('house');
+        await user.click(screen.getByRole('button', { name: 'Add Deutsch translation' }));
+
+        const dialog = await screen.findByRole('dialog');
+        await screen.findByLabelText('Singular nominative');
+        expect(dialog.querySelector('[data-slot="dialog-title"]')).toHaveTextContent(/^casa$/); // native (Spanish), not the first translation
+    });
+
+    it("without a native language the empty cell's dialog uses the first account language the word has", async () => {
+        const word: SeedWord = {
+            id: 'w-first',
+            user: SESSION.id,
+            partOfSpeech: PartOfSpeech.noun,
+            translations: [
+                { language: Lang.EN, cases: [{ caseName: 'singularEN', word: 'house' }] },
+                {
+                    language: Lang.ES,
+                    cases: [
+                        { caseName: 'genderES', word: 'el' },
+                        { caseName: 'singularES', word: 'casa' },
+                    ],
+                },
+            ],
+        };
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [word] }).handlers);
+
+        const user = userEvent.setup();
+        await renderApp({
+            initialEntry: '/review',
+            session: { ...SESSION, languages: ['Spanish', 'English', 'German'], nativeLanguage: null },
+        });
+        await screen.findByText('house');
+        await user.click(screen.getByRole('button', { name: 'Add Deutsch translation' }));
+
+        const dialog = await screen.findByRole('dialog');
+        await screen.findByLabelText('Singular nominative');
+        expect(dialog.querySelector('[data-slot="dialog-title"]')).toHaveTextContent(/^casa$/); // Spanish is first in the account
+    });
 });
 
 describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, frontend-invariant #5)', () => {

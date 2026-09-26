@@ -71,7 +71,6 @@
     "loadMore": "Laadi rohkem"
   },
   "cellDialog": {
-    "title": "{{word}} — {{language}}",
     "deleteTranslation": "Kustuta tõlge",
     "confirmDeleteTitle": "Kustutada {{language}} tõlge?",
     "confirmDeleteDescription": "See eemaldab jäädavalt selle tõlke vormid ja sinu harjutamisajaloo selle kohta.",

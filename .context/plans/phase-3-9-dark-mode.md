@@ -856,3 +856,36 @@ with unique users all succeed (201). Most likely cause: every spec builds its te
 workers that load a spec in the same millisecond create the same user. The backend response was not
 captured, so this is not proven. A fix would add a random part to `run` in the 10 specs (or one shared
 helper). It is unrelated to Phase 3.9 and was left alone.
+
+## Follow-up (2026-09-26): the Review cell dialog title
+
+**The title is now the word alone, in the right language, and it never shows the language name.** The
+flag beside it names the language (and keeps its accessible name, so a screen reader still says it).
+
+| Dialog | Title (the main case of…) |
+|---|---|
+| View or edit an existing translation | **that translation** (the dialog's own language). Before, it was always the word's first translation. |
+| Create a new translation (an empty cell) | the user's **native language**, if the word already has a translation in it |
+| — native language not set, or not on the word yet | the **first of the user's selected languages** (account order) that the word has |
+| — none of those | any translation the word has |
+
+- A translation with no main case yet (incomplete) is skipped, so the title is not blank while another
+  translation could fill it. If nothing gives a word, the title is the generic "Word".
+- **Code:** new `review/cellTitle.ts` (`cellDialogHeadword`, pure and store-free). `CellDialog` takes two
+  optional props, `nativeLanguage` and `userLanguages`, and `ReviewPage` passes them from the session
+  (`user.nativeLanguage`, `user.languages`). `CellDialog` stays free of stores, as its header says. The
+  unused text `review:cellDialog.title` ("{{word}} — {{language}}") was removed from the 4 locale files.
+- **Native language:** it is read from the existing `users.native_language` column (already in the
+  session as `nativeLanguage`). Nothing in the UI sets it yet, so today every create falls to the
+  account-language rule. When that feature ships, the title follows it with no further change.
+- **Tests (+19, frontend 777/777):** `cellTitle` unit tests (existing translation ignores native and
+  account languages; native wins; account order; native missing or equal to the language being added;
+  incomplete translation skipped; nothing to show); `CellDialog` (view and edit show the language's own
+  word; the native language does not change an existing translation; create with native, without native,
+  with a native language the word does not have; no language name in the title, flag still announced);
+  `ReviewPage` (the session's native language, and the account order without one, reach the dialog).
+  Existing dialog tests now look for the word twice (title + read-only value). Mutation checks: with
+  `nativeLanguage` not passed by `ReviewPage`, the page test fails; with the old "first translation"
+  title, 5 dialog tests fail. `tsc -b`, eslint and `vite build` clean. e2e Review and 3.9 specs pass.
+- **Checked in the real app** (native language set through the API): add cell with no native language →
+  "house"; with native Spanish → "casa"; view Spanish → "casa"; view English → "house".

@@ -71,7 +71,6 @@
     "loadMore": "Cargar más"
   },
   "cellDialog": {
-    "title": "{{word}} — {{language}}",
     "deleteTranslation": "Eliminar traducción",
     "confirmDeleteTitle": "¿Eliminar la traducción en {{language}}?",
     "confirmDeleteDescription": "Esto elimina permanentemente los casos de esta traducción y tu historial de práctica en ella.",
