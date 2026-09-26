@@ -1,4 +1,5 @@
-import { screen, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { CaretDownIcon, CaretLeftIcon, CaretRightIcon, CaretUpIcon } from '@phosphor-icons/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
@@ -205,5 +206,47 @@ describe('activeFilterCount', () => {
     it('counts each gender and part-of-speech value, plus the search text', () => {
         expect(activeFilterCount([], [], false)).toBe(0);
         expect(activeFilterCount(['der', 'die'], [PartOfSpeech.noun], true)).toBe(4);
+    });
+});
+
+describe('FilterBar — collapse arrow direction', () => {
+    /** The rendered `<svg>` markup of an icon at the size the toggle uses, to compare against the button's. */
+    function iconMarkup(Icon: typeof CaretUpIcon) {
+        const { container, unmount } = render(<Icon size={16} />);
+        const markup = container.innerHTML;
+        unmount();
+        return markup;
+    }
+
+    function toggleIcon(name: string) {
+        return screen.getByRole('button', { name }).innerHTML;
+    }
+
+    it('points up (collapse) and down (expand) while the bar is above the table', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} />);
+
+        expect(toggleIcon('Collapse filters')).toBe(iconMarkup(CaretUpIcon));
+        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
+        expect(toggleIcon('Show filters')).toBe(iconMarkup(CaretDownIcon));
+    });
+
+    it('points left (collapse) and right (expand) once the bar is a sidebar', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} />);
+        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
+
+        expect(toggleIcon('Collapse filters')).toBe(iconMarkup(CaretLeftIcon));
+        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
+        expect(toggleIcon('Show filters')).toBe(iconMarkup(CaretRightIcon));
+    });
+
+    it('goes back to up/down when the bar moves back above the table', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} />);
+        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
+        await user.click(screen.getByRole('button', { name: 'Move filters to top' }));
+
+        expect(toggleIcon('Collapse filters')).toBe(iconMarkup(CaretUpIcon));
     });
 });

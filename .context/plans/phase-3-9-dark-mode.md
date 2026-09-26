@@ -91,7 +91,7 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 13 — small fixes, part 7 | "Use autocomplete values" in the brand colour. | ✅ done 2026-09-26 — frontend **707/707** |
 | 14 — small fixes, part 8 | Confirm before removing a translation that has data. | ✅ done 2026-09-26 — frontend **719/719** |
 | 15 — small fixes, part 9 | Review, phone: filters and display switches in a side menu. | ✅ done 2026-09-26 — frontend **733/733** |
-| 16 — small fixes, part 10 | Review, desktop sidebar: collapse button points left/right. | not started |
+| 16 — small fixes, part 10 | Review, desktop sidebar: collapse button points left/right. | ✅ done 2026-09-26 — frontend **736/736** |
 | 17 — small fixes, part 11 | Review, desktop sidebar: "Language order" title and hint in a column. | not started |
 | 18 — small fixes, part 12 | Cell dialog: translation form without its own header and frame. | not started |
 
@@ -725,3 +725,22 @@ when enabled, drawer with the actions).
 **For Slice 17:** in the phone menu the "Language order" title and hint sit in one row and wrap
 awkwardly (the menu is about 280px wide). Slice 17 stacks them for the desktop sidebar; the phone
 menu would look better with the same stacking. Say if you want it there too.
+
+## Slice 16 outcome (2026-09-26) — small fixes, part 10
+
+**Review filters on desktop: the collapse button now points the way the bar moves.**
+
+- **Sidebar position:** left arrow when expanded (press to collapse), right arrow when collapsed
+  (press to expand) — the same as the word editor's sidebar.
+- **Above the table:** unchanged, up when expanded and down when collapsed.
+- The arrow follows the bar's position at once when the position toggle is used. The button names
+  ("Collapse filters" / "Show filters") did not change.
+- **Code:** one expression in `review/FilterBar.tsx` (`isSidebar` × `collapsed` picks the icon), and
+  the file's header comment. The phone menu (Slice 15) has no collapse button, so it is not affected.
+- **Tests (+3, frontend 736/736):** the button's icon markup is compared with the expected Phosphor
+  caret for above/collapsed, above/expanded, sidebar/expanded, sidebar/collapsed, and after moving
+  back above the table. Mutation check: with the old up/down arrow in the sidebar branch, the
+  sidebar test fails; restored, it passes. `tsc -b`, eslint and `vite build` clean. e2e Review spec
+  passes.
+- **Checked visually** (Playwright, desktop): above the table (up), sidebar open (left), sidebar
+  collapsed (right).

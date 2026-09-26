@@ -9,13 +9,17 @@
  * `wordSidebarCollapsed`, so they survive this component's own remounts
  * (e.g. filter changes elsewhere on the page) without being persisted.
  *
+ * The show/hide toggle's arrow points the way the bar moves: up/down above
+ * the table, left/right as a sidebar (collapse points left, expand points
+ * right — the same as the word editor's sidebar).
+ *
  * The show/hide toggle lives in one persistent header row, rendered in BOTH
  * states, always as the first/leftmost element — a deliberate deviation from
  * `MOCKUPS/review.html` (a real usability fix, flagged for the user): the
  * mockup puts the expand button first in a collapsed-only strip but the
  * collapse button LAST in the expanded body (after a `grow` spacer inside a
  * `flex-wrap` row, so at narrower widths it isn't even reliably anchored to a
- * corner). Only the icon (caret down/up) and the collapsed-only summary text
+ * corner). Only the icon (caret) and the collapsed-only summary text
  * change between states; the button itself never moves. The position toggle
  * sits immediately after it.
  *
@@ -32,7 +36,14 @@
  * and the active-filter count.
  */
 import { useTranslation } from 'react-i18next';
-import { CaretDownIcon, CaretUpIcon, RowsIcon, SidebarSimpleIcon } from '@phosphor-icons/react';
+import {
+    CaretDownIcon,
+    CaretLeftIcon,
+    CaretRightIcon,
+    CaretUpIcon,
+    RowsIcon,
+    SidebarSimpleIcon,
+} from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { GenderDE, GenderES, PartOfSpeech } from '@/ts/enums';
 import { partOfSpeechLabelKey } from '@/lib/words';
@@ -204,7 +215,14 @@ export function FilterBar({
                     title={t(collapsed ? 'review:filters.show' : 'review:filters.collapse')}
                     onClick={() => setCollapsed(!collapsed)}
                 >
-                    {collapsed ? <CaretDownIcon size={16} /> : <CaretUpIcon size={16} />}
+                    {/* The arrow points where the bar goes: left/right for the sidebar, up/down above the table. */}
+                    {isSidebar ? (
+                        collapsed ? <CaretRightIcon size={16} /> : <CaretLeftIcon size={16} />
+                    ) : collapsed ? (
+                        <CaretDownIcon size={16} />
+                    ) : (
+                        <CaretUpIcon size={16} />
+                    )}
                 </button>
                 <button
                     type="button"
