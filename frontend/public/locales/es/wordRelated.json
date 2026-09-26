@@ -129,6 +129,10 @@
       "title": "¿Cambiar el tipo de palabra?",
       "description": "Las traducciones que has introducido se descartarán."
     },
+    "confirmRemoveTranslation": {
+      "title": "¿Eliminar esta traducción?",
+      "description": "La traducción ({{language}}) y todo lo que has introducido en ella se eliminarán."
+    },
     "noun": {
       "errors": {
         "formEN": {

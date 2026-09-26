@@ -129,6 +129,10 @@
       "title": "Wortart ändern?",
       "description": "Die bereits eingegebenen Übersetzungen werden verworfen."
     },
+    "confirmRemoveTranslation": {
+      "title": "Diese Übersetzung entfernen?",
+      "description": "Die Übersetzung ({{language}}) und alles, was du darin eingegeben hast, wird entfernt."
+    },
     "noun": {
       "errors": {
         "formEN": {

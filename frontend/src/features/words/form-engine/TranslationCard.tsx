@@ -49,6 +49,29 @@ export interface TranslationCardChange {
     cases: WordItem[];
     completionState: boolean;
     isDirty: boolean;
+    /**
+     * Any field holds a value, saved or not — `WordForm` confirms before removing
+     * such a card. The card always sets it; optional only so a hand-built change
+     * (tests) can leave it out, which `translationHasData` treats as "use the cases".
+     */
+    hasData?: boolean;
+}
+
+/** A field value that counts as data: non-blank text, or at least one ticked option. */
+function isFilled(value: unknown): boolean {
+    if (typeof value === 'string') return value.trim() !== '';
+    if (Array.isArray(value)) return value.length > 0;
+    return false;
+}
+
+/**
+ * Whether anything is entered in the card, over every field it has — so a
+ * value that is never persisted as a case (a Spanish adjective's gender
+ * radio) still counts. Checkboxes are ignored: they are form-only options
+ * (Estonian "search in English"), not data the user would miss.
+ */
+export function fieldsHaveData(fields: FieldConfig[], values: Record<string, unknown>): boolean {
+    return fields.some((field) => field.kind !== 'checkbox' && isFilled(values[field.name]));
 }
 
 /**
@@ -250,15 +273,17 @@ export function TranslationCard({
         }
     }, [schema, watched]);
 
+    const hasData = useMemo(() => (config ? fieldsHaveData(config.fields, watched) : false), [config, watched]);
+
     useEffect(() => {
         if (displayOnly) return;
-        onChange?.({ cases, completionState, isDirty });
+        onChange?.({ cases, completionState, isDirty, hasData });
         // `onChange` intentionally excluded: the parent always passes an
         // equivalent closure (bound to this card's stable index), so
         // including it would re-fire this effect — and re-set the identical
         // parent state — on every parent render, without changing behaviour.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [cases, completionState, isDirty, displayOnly]);
+    }, [cases, completionState, isDirty, hasData, displayOnly]);
 
     if (!config) {
         return (

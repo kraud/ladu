@@ -6,7 +6,13 @@ import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 import type { FieldConfig } from './configs/types';
-import { casesToFieldValues, fieldsToCases, groupHeadingsToPrint, TranslationCard } from './TranslationCard';
+import {
+    casesToFieldValues,
+    fieldsHaveData,
+    fieldsToCases,
+    groupHeadingsToPrint,
+    TranslationCard,
+} from './TranslationCard';
 
 const CASE_NAME = NounCases.singularEN; // arbitrary — these helpers never inspect it.
 
@@ -215,6 +221,7 @@ describe('TranslationCard', () => {
                     cases: [{ caseName: NounCases.singularEN, word: 'house' }],
                     completionState: true,
                     isDirty: true,
+                    hasData: true,
                 }),
             );
         });
@@ -224,7 +231,7 @@ describe('TranslationCard', () => {
         const onChange = vi.fn();
         renderWithProviders(<TranslationCard lang={Lang.EN} onChange={onChange} />);
 
-        expect(onChange).toHaveBeenCalledWith({ cases: [], completionState: false, isDirty: false });
+        expect(onChange).toHaveBeenCalledWith({ cases: [], completionState: false, isDirty: false, hasData: false });
     });
 
     it('pushes up lowercased cases and flips complete/dirty once the required field is filled', async () => {
@@ -239,6 +246,7 @@ describe('TranslationCard', () => {
                 cases: [{ caseName: NounCases.singularEN, word: 'house' }],
                 completionState: true,
                 isDirty: true,
+                hasData: true,
             }),
         );
     });
@@ -259,7 +267,7 @@ describe('TranslationCard', () => {
 
         await waitFor(() => expect(screen.getByLabelText('Singular')).toHaveValue(''));
         await waitFor(() =>
-            expect(onChange).toHaveBeenLastCalledWith({ cases: [], completionState: false, isDirty: false }),
+            expect(onChange).toHaveBeenLastCalledWith({ cases: [], completionState: false, isDirty: false, hasData: false }),
         );
 
         // The card still works normally afterward.
@@ -660,5 +668,41 @@ describe('groupHeadingsToPrint', () => {
 
     it('prints the full multi-level stack the first time it appears', () => {
         expect(groupHeadingsToPrint([indicativePresent], 0)).toEqual(indicativePresent.group);
+    });
+});
+
+describe('fieldsHaveData', () => {
+    const base = { caseName: CASE_NAME, labelKey: 'x', required: false };
+    const text: FieldConfig = { ...base, kind: 'text', name: 'singular', lowercase: false };
+    const radio: FieldConfig = {
+        ...base,
+        kind: 'radio',
+        name: 'gender',
+        persisted: false,
+        options: [{ value: 'Neutral', label: 'Neutral' }],
+    };
+    const checkbox: FieldConfig = { ...base, kind: 'checkbox', name: 'searchInEnglish', persisted: false };
+    const multi: FieldConfig = {
+        ...base,
+        kind: 'multi-select',
+        name: 'verbCases',
+        options: [{ value: 'dativeDE', label: 'Dative' }],
+        encode: () => '',
+        decode: () => [],
+    };
+
+    it('is false for blank, whitespace-only and default values', () => {
+        expect(fieldsHaveData([text, radio, multi], { singular: '', gender: '', verbCases: [] })).toBe(false);
+        expect(fieldsHaveData([text], { singular: '   ' })).toBe(false);
+    });
+
+    it('counts typed text, a chosen radio (even one that is never persisted) and a ticked option', () => {
+        expect(fieldsHaveData([text], { singular: 'house' })).toBe(true);
+        expect(fieldsHaveData([radio], { gender: 'Neutral' })).toBe(true);
+        expect(fieldsHaveData([multi], { verbCases: ['dativeDE'] })).toBe(true);
+    });
+
+    it('ignores a form-only checkbox — a ticked "search in English" alone is not data', () => {
+        expect(fieldsHaveData([checkbox], { searchInEnglish: true })).toBe(false);
     });
 });

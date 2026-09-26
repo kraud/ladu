@@ -88,8 +88,8 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 10 — small fixes, part 4 | Word forms: the reserved message room only on rows that have a mandatory field. | ✅ done 2026-09-26 — frontend **696/696** |
 | 11 — small fixes, part 5 | Word forms: the "+ Add translation" tile lists the free languages as chips (no dialog). | ✅ done 2026-09-26 — frontend **696/696** |
 | 12 — small fixes, part 6 | Word forms: sticky bottom bar (Save word, Change word type, hints); sidebar for clue + tags only; icon rail with clue/tags buttons. | ✅ done 2026-09-26 — frontend **706/706** (see the review round in the Slice 12 outcome) |
-| 13 — small fixes, part 7 | "Use autocomplete values" in the brand colour. | not started |
-| 14 — small fixes, part 8 | Confirm before removing a translation that has data. | not started |
+| 13 — small fixes, part 7 | "Use autocomplete values" in the brand colour. | ✅ done 2026-09-26 — frontend **707/707** |
+| 14 — small fixes, part 8 | Confirm before removing a translation that has data. | ✅ done 2026-09-26 — frontend **719/719** |
 | 15 — small fixes, part 9 | Review, phone: filters and display switches in a side menu. | not started |
 | 16 — small fixes, part 10 | Review, desktop sidebar: collapse button points left/right. | not started |
 | 17 — small fixes, part 11 | Review, desktop sidebar: "Language order" title and hint in a column. | not started |
@@ -638,3 +638,54 @@ when enabled, drawer with the actions).
 3. Seen while checking, not changed: a toast (bottom-centre) can cover the middle of the bar for a
    few seconds; on a phone it covers the Save button. After a save the form has already reset, so
    nothing is lost. Tell me if the toast should move above the bar.
+
+## Slice 13 outcome (2026-09-26) — small fixes, part 7
+
+**The ready-to-click "Use autocomplete values" button is in the brand colour.**
+
+- **Look:** a soft accent fill (`--accent-soft`), an accent border (`--accent`), and semibold text in
+  `--accent-strong` (the small-text tone that passes AA on both themes). Hover deepens the fill
+  (`--accent-soft2`). It is deliberately not the solid `default` variant: that stays the page's one
+  primary action (*Save word*). If you want it louder, change the class constant to
+  `variant="default"`.
+- **Code:** `APPLY_BUTTON_CLASS` in `form-engine/AutocompleteRow.tsx`, on the same outline button as
+  before. The `dark:` twins are needed because the outline variant sets its own `dark:` fill and
+  border, which would win in the dark theme (same cause as the bulk bar in Slice 6).
+- **Unchanged:** the states before a lookup (magnifier and status text) and after values match (green
+  check, "Autocomplete values applied").
+- **Test (+1, frontend 707/707):** the button carries the accent fill, border and text classes and
+  their `dark:` twins. `tsc -b`, eslint and `vite build` clean. e2e Review, Phase 2 and Phase 3.5
+  specs pass (the Review spec clicks this button on a German noun).
+- **Checked visually** (Playwright, real offline autocomplete on "Baum"): light, dark, and hover in
+  both.
+
+## Slice 14 outcome (2026-09-26) — small fixes, part 8
+
+**Removing a translation that holds data now asks first.** An empty card is still removed at once.
+
+- **Rule:** the card reports a new `hasData` value (`TranslationCardChange`, also on `TranslationItem`).
+  It is true when any field holds a value — non-blank text, a chosen radio/select, or a ticked option —
+  saved or not. It looks at **every** field, so a value that is never stored as a case (the Spanish
+  adjective's gender radio) counts too. Checkboxes are ignored: they are form-only options (Estonian
+  "search in English"), not data the user would miss. Code: `fieldsHaveData` in `TranslationCard.tsx`.
+- **Why not `isDirty` or `cases`:** `cases` misses the non-stored radio. The parent's `isDirty` stays
+  `true` after *Clear* on an empty card (Clear sets it on purpose so a saved word can be saved), which
+  would ask about an empty card. `hasData` comes from the card's own current values, so it is right
+  after typing, deleting, *Clear* and on a saved word that was not touched.
+- **Flow:** `WordForm.handleRemove` uses `translationHasData(translation)`
+  (`useWordFormState.ts`; falls back to the cases when a slot has not reported yet). With data it opens
+  the existing `ConfirmDialog` (destructive style, *Remove* / *Cancel*). The pending card is tracked by
+  language, not by index. Confirm removes it and its language chip returns to the "Add translation" tile.
+- **Text** (`wordForm.confirmRemoveTranslation`, 4 languages, **EE needs your check**): "Remove this
+  translation?" / "The {{language}} translation and everything entered in it will be removed." The
+  language shows as its native name, like everywhere else in the app.
+- **Edit mode:** a saved translation always asks, even when nothing was changed (it holds data). The
+  removal still only reaches the database when the word is saved.
+- **Tests (+11, frontend 719/719):** `fieldsHaveData` (blank, whitespace, text, radio, multi-select,
+  checkbox ignored); `translationHasData` (trusts the card, falls back to cases, add/clear leave no data);
+  `WordForm` (empty card goes at once; typed data asks, Cancel keeps; Confirm removes and frees the
+  language; typed-then-deleted and *Clear*ed cards go without asking; edit mode asks). Existing
+  exact-shape assertions got `hasData`. `tsc -b`, eslint and `vite build` clean. e2e Phase 2 and 3 specs
+  pass (no spec clicks Remove).
+- **Checked visually** (Playwright, real backend): empty card removed directly; card with data shows
+  the dialog; Cancel keeps the value; Confirm removes. Light and dark.

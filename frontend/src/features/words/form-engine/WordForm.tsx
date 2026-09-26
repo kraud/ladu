@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { FlagIcon } from '@/components/common/FlagIcon';
+import { languageByLabel } from '@/lib/language';
 import { PartOfSpeechSelector } from '@/components/common/PartOfSpeechSelector';
 import { ArrowsClockwiseIcon, FloppyDiskIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
@@ -23,7 +24,7 @@ import { SidebarFields } from '../layout/SidebarFields';
 import type { EditorAction } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
 import { TranslationCard, translationGridClass } from './TranslationCard';
-import { useWordFormState } from './useWordFormState';
+import { translationHasData, useWordFormState } from './useWordFormState';
 import type { CreateWordBody, UpdateWordBody, WordBE } from '../types';
 
 export interface WordFormProps {
@@ -70,6 +71,8 @@ export function WordForm({
     const { t } = useTranslation();
     const state = useWordFormState({ initialWord, defaultPartOfSpeech });
     const [confirmChangeTypeOpen, setConfirmChangeTypeOpen] = useState(false);
+    // The language whose Remove is waiting for a confirmation (by language, not index, so it stays right if the list changes).
+    const [removeCandidate, setRemoveCandidate] = useState<Lang | null>(null);
 
     function pickPartOfSpeech(pos: PartOfSpeech) {
         state.setPartOfSpeech(pos);
@@ -91,6 +94,20 @@ export function WordForm({
         } else {
             onChangePartOfSpeech?.();
         }
+    }
+
+    // An empty card goes at once; one holding anything (saved or not) asks first.
+    function handleRemove(index: number) {
+        const translation = state.translations[index];
+        if (!translation) return;
+        if (translationHasData(translation)) setRemoveCandidate(translation.language);
+        else state.removeTranslation(index);
+    }
+
+    function confirmRemove() {
+        const index = state.translations.findIndex((translation) => translation.language === removeCandidate);
+        if (index !== -1) state.removeTranslation(index);
+        setRemoveCandidate(null);
     }
 
     function handleSave() {
@@ -151,7 +168,7 @@ export function WordForm({
                             pos={partOfSpeech}
                             initialCases={translation.cases}
                             onChange={(next) => state.updateTranslation(index, next)}
-                            onRemove={() => state.removeTranslation(index)}
+                            onRemove={() => handleRemove(index)}
                             onClear={() => state.clearTranslation(index)}
                             resetKey={state.resetTokens[translation.language] ?? 0}
                             // Never disabled — Remove is always available; the < 2 translations
@@ -185,6 +202,19 @@ export function WordForm({
                         </div>
                     )}
                 </div>
+
+                <ConfirmDialog
+                    open={removeCandidate !== null}
+                    onOpenChange={(open) => {
+                        if (!open) setRemoveCandidate(null);
+                    }}
+                    title={t('wordRelated:wordForm.confirmRemoveTranslation.title')}
+                    description={t('wordRelated:wordForm.confirmRemoveTranslation.description', {
+                        language: languageByLabel(removeCandidate)?.native ?? removeCandidate ?? '',
+                    })}
+                    confirmLabel={t('common:buttons.remove')}
+                    onConfirm={confirmRemove}
+                />
 
                 <ConfirmDialog
                     open={confirmChangeTypeOpen}

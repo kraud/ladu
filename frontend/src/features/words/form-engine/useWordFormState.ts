@@ -18,6 +18,15 @@ import type { WordBE } from '../types';
 /** Why the Save button is disabled (`null` when it is enabled). */
 export type SaveBlockReason = 'minTranslations' | 'incomplete' | 'noChanges';
 
+/**
+ * Whether Remove would throw something away. The card reports `hasData` from
+ * its own field values; a slot that has not reported yet (a hydrated word
+ * before its cards mount) falls back to its cases.
+ */
+export function translationHasData(translation: TranslationItem): boolean {
+    return translation.hasData ?? translation.cases.length > 0;
+}
+
 const MAX_TRANSLATIONS = 4;
 const MIN_TRANSLATIONS = 2;
 
@@ -62,7 +71,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     }, [translations, userLanguages]);
 
     const addTranslation = useCallback((language: Lang) => {
-        setTranslations((prev) => [...prev, { language, cases: [], completionState: false, isDirty: true }]);
+        setTranslations((prev) => [...prev, { language, cases: [], completionState: false, isDirty: true, hasData: false }]);
     }, []);
 
     const removeTranslation = useCallback((index: number) => {
@@ -79,7 +88,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     const clearTranslation = (index: number) => {
         const language = translations[index]?.language;
         setTranslations((prev) =>
-            prev.map((t, i) => (i === index ? { ...t, cases: [], completionState: false, isDirty: true } : t)),
+            prev.map((t, i) => (i === index ? { ...t, cases: [], completionState: false, isDirty: true, hasData: false } : t)),
         );
         if (language) {
             setResetTokens((prev) => ({ ...prev, [language]: (prev[language] ?? 0) + 1 }));

@@ -129,6 +129,10 @@
       "title": "Muuta sõnaliiki?",
       "description": "Sisestatud tõlked lähevad kaotsi."
     },
+    "confirmRemoveTranslation": {
+      "title": "Eemalda see tõlge?",
+      "description": "Tõlge ({{language}}) ja kõik selles sisestatu eemaldatakse."
+    },
     "noun": {
       "errors": {
         "formEN": {

@@ -129,6 +129,10 @@
       "title": "Change word type?",
       "description": "The translations you have entered will be discarded."
     },
+    "confirmRemoveTranslation": {
+      "title": "Remove this translation?",
+      "description": "The {{language}} translation and everything entered in it will be removed."
+    },
     "noun": {
       "errors": {
         "formEN": {

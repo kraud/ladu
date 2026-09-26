@@ -56,6 +56,17 @@ export interface AutocompleteRowProps {
 }
 
 const DEBOUNCE_MS = 500;
+/**
+ * The ready-to-click "Use autocomplete values" button, in the brand colour so
+ * it stands out from the neutral Clear/Remove beside it: a soft accent fill,
+ * accent border and strong-accent text (the small-text tone, AA on both
+ * themes). The `dark:` twins are needed because the outline variant sets its
+ * own `dark:` fill and border, which would otherwise win in the dark theme.
+ * Deliberately not the solid `default` variant — that stays the page's
+ * one primary action (Save word).
+ */
+const APPLY_BUTTON_CLASS =
+    'gap-1.5 border-(--accent) bg-(--accent-soft) font-semibold text-(--accent-strong) hover:bg-(--accent-soft2) hover:text-(--accent-strong) dark:border-(--accent) dark:bg-(--accent-soft) dark:hover:bg-(--accent-soft2)';
 /** Neither field name is ever a real RHF field; `useWatch` on an unregistered name is a harmless no-op (same precedent as `FieldRenderer`'s own dummy-watch fallback). */
 const NO_FIELD = '__autocomplete_none__';
 
@@ -177,7 +188,7 @@ export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
             );
         }
         return (
-            <Button type="button" variant="outline" size="sm" onClick={handleApply} className="gap-1.5">
+            <Button type="button" variant="outline" size="sm" onClick={handleApply} className={APPLY_BUTTON_CLASS}>
                 <PencilSimpleLineIcon size={14} />
                 {t('wordRelated:wordForm.autocompleteTranslationButton.autocompleteButton')}
             </Button>

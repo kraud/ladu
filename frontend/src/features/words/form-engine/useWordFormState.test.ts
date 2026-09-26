@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { useAuthStore } from '@/stores/authStore';
 import { Lang, NounCases, PartOfSpeech } from '@/ts/enums';
 import type { WordBE } from '../types';
-import { useWordFormState } from './useWordFormState';
+import { translationHasData, useWordFormState } from './useWordFormState';
 
 function seedSession(languages: string[]) {
     useAuthStore.getState().setSession({
@@ -51,7 +51,7 @@ describe('useWordFormState — create mode', () => {
         act(() => result.current.addTranslation(Lang.EN));
 
         expect(result.current.translations).toEqual([
-            { language: Lang.EN, cases: [], completionState: false, isDirty: true },
+            { language: Lang.EN, cases: [], completionState: false, isDirty: true, hasData: false },
         ]);
         expect(result.current.availableLanguages.map((l) => l.label)).toEqual(['Spanish']);
     });
@@ -84,6 +84,7 @@ describe('useWordFormState — create mode', () => {
             cases: [{ caseName: NounCases.singularEN, word: 'house' }],
             completionState: true,
             isDirty: true,
+            hasData: false, // untouched by this hand-built change: the slot's own value stays
         });
     });
 
@@ -106,6 +107,7 @@ describe('useWordFormState — create mode', () => {
             cases: [],
             completionState: false,
             isDirty: true,
+            hasData: false,
         });
     });
 
@@ -327,5 +329,30 @@ describe('useWordFormState — saveBlockReason', () => {
 
         act(() => result.current.setClue('a small building'));
         expect(result.current.saveBlockReason).toBeNull();
+    });
+});
+
+describe('translationHasData', () => {
+    it('trusts the card\'s own hasData when it has reported one', () => {
+        expect(translationHasData({ language: Lang.EN, cases: [], hasData: true })).toBe(true);
+        expect(translationHasData({ language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'a' }], hasData: false })).toBe(false);
+    });
+
+    it('falls back to the cases before the card has reported', () => {
+        expect(translationHasData({ language: Lang.EN, cases: [] })).toBe(false);
+        expect(translationHasData({ language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'a' }] })).toBe(true);
+    });
+
+    it('addTranslation and clearTranslation both leave a slot without data', () => {
+        seedSession(['English', 'Spanish']);
+        const { result } = renderHook(() => useWordFormState());
+        act(() => result.current.addTranslation(Lang.EN));
+        expect(translationHasData(result.current.translations[0]!)).toBe(false);
+
+        act(() => result.current.updateTranslation(0, { cases: [], completionState: false, isDirty: true, hasData: true }));
+        expect(translationHasData(result.current.translations[0]!)).toBe(true);
+
+        act(() => result.current.clearTranslation(0));
+        expect(translationHasData(result.current.translations[0]!)).toBe(false);
     });
 });
