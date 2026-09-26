@@ -250,3 +250,38 @@ describe('FilterBar — collapse arrow direction', () => {
         expect(toggleIcon('Collapse filters')).toBe(iconMarkup(CaretUpIcon));
     });
 });
+
+describe('FilterBar — Language order heading layout', () => {
+    const head = () => screen.getByText('Language order').parentElement!;
+
+    it('is a row above the table', () => {
+        renderWithProviders(<FilterBar {...baseProps} />);
+        expect(head()).not.toHaveClass('flex-col');
+    });
+
+    it('is a column (title above hint) once the filters are a sidebar, and a row again above the table', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} />);
+
+        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
+        expect(head()).toHaveClass('flex-col', 'items-start');
+
+        await user.click(screen.getByRole('button', { name: 'Move filters to top' }));
+        expect(head()).not.toHaveClass('flex-col');
+    });
+
+    it('the other groups keep their own heading rows in the sidebar', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} gender={['der']} />);
+        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
+
+        // Gender's heading row holds the title and its Clear link side by side.
+        expect(screen.getByText('Gender').parentElement).not.toHaveClass('flex-col');
+    });
+
+    it('is a column in the phone menu too, whatever the stored desktop position', () => {
+        useUiStore.setState({ reviewFilterPosition: 'top' });
+        renderWithProviders(<FilterBar {...baseProps} layout="menu" />);
+        expect(head()).toHaveClass('flex-col', 'items-start');
+    });
+});

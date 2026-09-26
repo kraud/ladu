@@ -17,6 +17,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
 import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { languageByKey } from '@/lib/language';
@@ -31,12 +32,18 @@ export interface LanguageOrderControlProps {
     /** Every account language, in account order. */
     allLanguages: LangKey[];
     onChange: (next: LangKey[]) => void;
+    /**
+     * Title above the hint (a column) instead of side by side (a row). For the
+     * narrow sidebar, where the row wraps badly; the bar above the table keeps
+     * the row.
+     */
+    stacked?: boolean;
 }
 
 const ARROW_BUTTON_CLASS =
     'inline-grid size-5 place-items-center rounded text-muted-foreground hover:bg-[var(--fg-soft)] hover:text-foreground disabled:opacity-35 disabled:pointer-events-none';
 
-export function LanguageOrderControl({ active, allLanguages, onChange }: LanguageOrderControlProps) {
+export function LanguageOrderControl({ active, allLanguages, onChange, stacked = false }: LanguageOrderControlProps) {
     const { t } = useTranslation();
     const [order, setOrder] = useState(() => initialOrder(active, allLanguages));
     const registerChip = useFlipAnimation<LangKey>(order);
@@ -70,7 +77,7 @@ export function LanguageOrderControl({ active, allLanguages, onChange }: Languag
 
     return (
         <div className="fb-group">
-            <div className="fhead">
+            <div className={cn('fhead', stacked && 'flex-col items-start gap-0.5')}>
                 <span className="label">{t('review:filters.languageOrder')}</span>
                 <span className="hint">{t('review:filters.languageOrderHint')}</span>
             </div>

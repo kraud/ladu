@@ -171,3 +171,21 @@ describe('LanguageOrderControl — hiding preserves position (round trip)', () =
         expect(chipOrder(container)).toEqual(['DE', 'EN', 'ES']);
     });
 });
+
+describe('LanguageOrderControl — title and hint layout', () => {
+    const props = { active: ['EN', 'DE'] as LangKey[], allLanguages: ['EN', 'DE', 'ES'] as LangKey[], onChange: vi.fn() };
+    const head = () => screen.getByText('Language order').parentElement!;
+
+    it('keeps the title and the hint side by side by default (the bar above the table)', () => {
+        renderWithProviders(<LanguageOrderControl {...props} />);
+        expect(head()).toHaveClass('fhead');
+        expect(head()).not.toHaveClass('flex-col');
+        expect(head()).toContainElement(screen.getByText(/Use the arrows to reorder/));
+    });
+
+    it('stacked: puts the title above the hint, left-aligned', () => {
+        renderWithProviders(<LanguageOrderControl {...props} stacked />);
+        expect(head()).toHaveClass('fhead', 'flex-col', 'items-start');
+        expect(head()).toContainElement(screen.getByText(/Use the arrows to reorder/));
+    });
+});

@@ -188,6 +188,7 @@ export function FilterBar({
                 active={activeLanguages}
                 allLanguages={allLanguages}
                 onChange={onLanguagesChange}
+                stacked={layout === 'menu' || isSidebar}
             />
         </>
     );

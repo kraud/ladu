@@ -92,7 +92,7 @@ Each slice ends with something runnable. The user reviews and commits between sl
 | 14 — small fixes, part 8 | Confirm before removing a translation that has data. | ✅ done 2026-09-26 — frontend **719/719** |
 | 15 — small fixes, part 9 | Review, phone: filters and display switches in a side menu. | ✅ done 2026-09-26 — frontend **733/733** |
 | 16 — small fixes, part 10 | Review, desktop sidebar: collapse button points left/right. | ✅ done 2026-09-26 — frontend **736/736** |
-| 17 — small fixes, part 11 | Review, desktop sidebar: "Language order" title and hint in a column. | not started |
+| 17 — small fixes, part 11 | Review, desktop sidebar: "Language order" title and hint in a column. | ✅ done 2026-09-26 — frontend **742/742** |
 | 18 — small fixes, part 12 | Cell dialog: translation form without its own header and frame. | not started |
 
 ## Gate
@@ -744,3 +744,25 @@ menu would look better with the same stacking. Say if you want it there too.
   passes.
 - **Checked visually** (Playwright, desktop): above the table (up), sidebar open (left), sidebar
   collapsed (right).
+
+## Slice 17 outcome (2026-09-26) — small fixes, part 11
+
+**Review filters on desktop: in the sidebar, the "Language order" title is above its hint.**
+
+- **Sidebar position:** the title ("Language order") and the hint ("Use the arrows to reorder · min 2
+  shown") are in a column, left-aligned. **Above the table:** unchanged, side by side in a row.
+- **Code:** `LanguageOrderControl` got a `stacked` prop (adds `flex-col items-start gap-0.5` to its
+  `.fhead` row; default off). `FilterBar` passes `stacked={layout === 'bar' && isSidebar}`. The Gender
+  and Part of speech headings keep their own rows (Gender needs its title and *Clear* link side by
+  side).
+- **The phone menu (Slice 15) has the column too** (you asked for it after the first review). The
+  condition in `FilterBar.tsx` is `stacked={layout === 'menu' || isSidebar}`: the menu always stacks,
+  the bar only in the sidebar position.
+- **Tests (+6, frontend 742/742):** `LanguageOrderControl` (row by default; `stacked` gives a
+  left-aligned column); `FilterBar` (row above the table; column in the sidebar and a row again after
+  moving back; Gender's heading unchanged; column in the phone menu whatever the stored position). `tsc -b`, eslint and `vite
+  build` clean. e2e Review spec passes.
+- **Checked in a browser** (Playwright, desktop): computed `flex-direction` is `row` above the table,
+  `column` in the sidebar, `row` again after moving back (the utility classes do win over the
+  `.fb-group .fhead` rule); `column` in the 390px phone menu. Screenshots of the sidebar and the
+  phone menu look right in light.
