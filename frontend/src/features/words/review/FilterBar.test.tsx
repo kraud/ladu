@@ -285,3 +285,23 @@ describe('FilterBar — Language order heading layout', () => {
         expect(head()).toHaveClass('flex-col', 'items-start');
     });
 });
+
+describe('FilterBar — no reflow while the sidebar expands', () => {
+    // jsdom cannot measure layout, so this pins the classes that prevent the flash: the aside
+    // animates its width from the 56px rail, and groups that follow it reflow into a very tall
+    // narrow column for the first frames. Measured in a browser: the height was 636px on the first
+    // frame and 382px at rest; now it is 382px throughout.
+    it('in the sidebar, the groups have the final expanded width and the aside clips while it grows', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} />);
+        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
+
+        expect(screen.getByText('Gender').closest('.fb-body')).toHaveClass('w-[calc(16rem-2px-2rem)]');
+        expect(screen.getByText('Gender').closest('aside')).toHaveClass('overflow-x-hidden', 'transition-[width]');
+    });
+
+    it('above the table the groups keep their natural, wrapping width', () => {
+        renderWithProviders(<FilterBar {...baseProps} />);
+        expect(screen.getByText('Gender').closest('.fb-body')).not.toHaveClass('w-[calc(16rem-2px-2rem)]');
+    });
+});

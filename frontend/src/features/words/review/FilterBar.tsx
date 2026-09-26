@@ -53,6 +53,16 @@ import type { LangKey } from '@/features/words/types';
 import { posAbbrKey } from './columns';
 import { LanguageOrderControl } from './LanguageOrderControl';
 
+/**
+ * The filter groups' width in the expanded sidebar: the aside's `w-64` (16rem)
+ * minus its 1px borders and 16px side padding (`.card`, `.filterbar`). Fixed on
+ * purpose: the aside animates its width from the 56px rail, and groups that
+ * follow that width reflow into a very narrow, very tall column for the first
+ * frames of the expand. With the final width from frame one they never reflow;
+ * the aside clips (`overflow-x-hidden`) while it grows into them.
+ */
+const SIDEBAR_BODY_WIDTH = 'w-[calc(16rem-2px-2rem)]';
+
 /** The four shipped parts of speech, matching `PartOfSpeechSelector`'s `SHIPPED_POS`. */
 const SHIPPED_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.noun,
@@ -202,7 +212,7 @@ export function FilterBar({
             className={cn(
                 'card filterbar',
                 isSidebar && [
-                    'sticky top-[68px] flex max-h-[calc(100dvh-84px)] flex-col overflow-y-auto transition-[width] duration-150',
+                    'sticky top-[68px] flex max-h-[calc(100dvh-84px)] flex-col overflow-y-auto overflow-x-hidden transition-[width] duration-150',
                     collapsed ? 'w-14' : 'w-64',
                     'max-[920px]:static max-[920px]:!w-full max-[920px]:max-h-none',
                 ],
@@ -257,7 +267,7 @@ export function FilterBar({
             </div>
 
             {!collapsed && (
-                <div className={cn('fb-body', isSidebar && 'fb-body--sidebar')}>
+                <div className={cn('fb-body', isSidebar && ['fb-body--sidebar', SIDEBAR_BODY_WIDTH])}>
                     {groups}
                 </div>
             )}

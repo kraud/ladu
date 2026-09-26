@@ -798,3 +798,29 @@ Slices 11–18 cover every item of the list. Frontend **751/751**, `tsc -b`, esl
 clean; e2e Phase 1, 2, 3, 3.5, 3.9 and Review specs pass as of each slice. The full e2e suite
 (including the OAuth specs, which need port 5001 free) was not re-run at the end of the list. Texts to
 check by the user: the ES/DE/EE drafts added in Slices 12, 14 and 15.
+
+## Follow-up (2026-09-26): the filter sidebar looked stretched for an instant when it expanded
+
+**Symptom (found by the user):** on Review, with the filters to the left of the table, expanding the
+collapsed filters showed the card very tall for a moment, then it settled. Not seen with the filters
+above the table.
+
+**Cause (measured in a browser, height sampled on every frame after the click):** the sidebar animates
+its width from the 56px rail to 256px (`transition-[width]`), but the filter groups appeared at once and
+followed the animated width. At 56px the chips and hint text wrapped into a very narrow column: the card
+was **636px tall on the first frame**, falling to **382px** as the width caught up (about 125ms). Above
+the table the width does not animate, so nothing reflows.
+
+**Fix (`review/FilterBar.tsx`):** in the sidebar position the groups get the final expanded width from
+the first frame (`SIDEBAR_BODY_WIDTH` = `w-[calc(16rem-2px-2rem)]`: the aside's `w-64` minus the borders
+and side padding), and the aside adds `overflow-x-hidden`, so it clips them while it grows instead of
+reflowing them. After the fix the height is **382px on every frame**. Collapsing is unchanged (the
+groups are removed at once). The top position and the phone menu do not use the fixed width.
+
+**Test (+2, frontend 753/753):** jsdom cannot measure layout, so the test pins the classes (fixed width
+and clipping in the sidebar; natural width above the table) and the file records the measured numbers.
+`tsc -b`, eslint and `vite build` clean; e2e Review spec passes. Checked with the animation slowed to
+2s: mid-expand the groups keep their final layout and are cut off on the right, with no vertical stretch.
+
+**If the fixed width drifts:** it is tied to the aside's `w-64` and the card/filterbar padding. If either
+changes, change `SIDEBAR_BODY_WIDTH` with it (the comment above the constant says so).
