@@ -4,6 +4,7 @@ exports[`Data Snapshots - Migration Baseline records the shape of a Tag with wor
 Object {
   "description": "Common adjectives",
   "label": "Adjectives Pack",
+  "sourceTagId": null,
   "visibility": "Private",
   "words": Array [
     Object {},
@@ -18,7 +19,6 @@ Object {
   "partOfSpeech": "Verb",
   "tags": Array [
     Object {
-      "description": null,
       "label": "Core Verbs",
       "visibility": "Private",
     },

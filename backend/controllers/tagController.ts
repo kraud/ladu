@@ -77,17 +77,45 @@ const getFollowedTagIdsByUserId = async (userId: string) => {
   return rows.map((row) => row.tagId);
 };
 
+/**
+ * Word ids reachable through a tag `userId` follows AND can currently view —
+ * `canViewTag`-equivalent visibility, evaluated fresh on every call rather
+ * than trusting the `user_following_tags` row alone. This is what makes D9
+ * (phase-4-tags.md) work: the moment an owner flips a followed tag to
+ * Private, its words stop matching here immediately, with no separate
+ * "unfollow" step — the follow row itself is untouched.
+ *
+ * (`userId` never needs the "or I'm the author" branch `canViewTag` has —
+ * a user's own words already come from the separate "own words" condition
+ * everywhere this is called, e.g. `getWordsSimplified`.)
+ */
 const getWordsIdFromFollowedTagsByUserId = async (userId: string) => {
-  const followedTagIds = await getFollowedTagIdsByUserId(userId);
-  if (followedTagIds.length === 0) return [];
-
-  // Resolve all word ids that belong to the followed tags.
   const rows = await db
     .select({ wordId: tagWords.wordId })
-    .from(tagWords)
-    .where(inArray(tagWords.tagId, followedTagIds));
+    .from(userFollowingTags)
+    .innerJoin(tags, eq(userFollowingTags.tagId, tags.id))
+    .innerJoin(tagWords, eq(tagWords.tagId, tags.id))
+    .leftJoin(
+      friendships,
+      and(
+        eq(friendships.status, "accepted"),
+        or(
+          and(eq(friendships.requesterId, userId), eq(friendships.addresseeId, tags.authorId)),
+          and(eq(friendships.requesterId, tags.authorId), eq(friendships.addresseeId, userId)),
+        ),
+      ),
+    )
+    .where(
+      and(
+        eq(userFollowingTags.followerUserId, userId),
+        or(
+          eq(tags.visibility, "Public"),
+          and(eq(tags.visibility, "Friends-Only"), sql`${friendships.id} IS NOT NULL`),
+        ),
+      ),
+    );
 
-  return rows.map((row) => row.wordId);
+  return [...new Set(rows.map((row) => row.wordId))];
 };
 
 const getTagsIdFromFollowedTagsByUserId = getFollowedTagIdsByUserId;
@@ -104,7 +132,7 @@ const getTagWordsByTagIds = async (tagIds: string[]) => {
     .where(inArray(tagWords.tagId, tagIds));
 };
 
-const getTagsByIdsWithWords = async (tagIds: string[]) => {
+const getTagsByIdsWithWords = async (tagIds: string[], viewerId: string) => {
   if (tagIds.length === 0) return [];
 
   const tagRows = await db.select().from(tags).where(inArray(tags.id, tagIds));
@@ -112,7 +140,7 @@ const getTagsByIdsWithWords = async (tagIds: string[]) => {
   const wordIds = [...new Set(tagWordRows.map((row) => row.wordId))];
   // fetchWordsWithRelations includes translations + cases + tags
   // (the full legacy Word shape that the front-end expects).
-  const wordRows = await fetchWordsWithRelations(wordIds);
+  const wordRows = await fetchWordsWithRelations(wordIds, viewerId);
   const wordMap = new Map(wordRows.map((word) => [word.id, word]));
 
   return tagRows.map((tagRow) => ({
@@ -124,7 +152,7 @@ const getTagsByIdsWithWords = async (tagIds: string[]) => {
   }));
 };
 
-const getTagDataByRequest = async (req: any, tagForceRequest?: any) => {
+const getTagDataByRequest = async (req: any, tagForceRequest: any, viewerId: string) => {
   // Preserve the legacy helper shape: either a direct forced filter or query-derived filter.
   const query = req?.query || {};
   const filters: any[] = tagForceRequest || [];
@@ -159,7 +187,7 @@ const getTagDataByRequest = async (req: any, tagForceRequest?: any) => {
   // fetchWordsWithRelations returns WordResponse objects (includes
   // translations + cases), replacing the old getWordsByIds which only
   // returned bare word rows without those nested fields.
-  const wordRows = await fetchWordsWithRelations(wordIds);
+  const wordRows = await fetchWordsWithRelations(wordIds, viewerId);
   const wordMap = new Map(wordRows.map((word) => [word.id, word]));
 
   return tagRows.map((tagRow) => ({
@@ -238,7 +266,7 @@ const searchTags = asyncHandler(async (req: any, res: any) => {
     allowedTagIds = allowedRows.map((row) => row.id);
   }
 
-  const tagRows = await getTagsByIdsWithWords(allowedTagIds);
+  const tagRows = await getTagsByIdsWithWords(allowedTagIds, req.user.id);
   const searchResultTags = tagRows
     .filter(
       (tagRow) =>
@@ -259,9 +287,11 @@ const searchTags = asyncHandler(async (req: any, res: any) => {
 });
 
 const getUserTags = asyncHandler(async (req: any, res: any) => {
-  const tagsData = await getTagDataByRequest({
-    query: { author: req.user.id },
-  });
+  const tagsData = await getTagDataByRequest(
+    { query: { author: req.user.id } },
+    undefined,
+    req.user.id,
+  );
   res.status(200).json(tagsData);
 });
 
@@ -274,7 +304,7 @@ const getTagsFollowedByUser = asyncHandler(async (req: any, res: any) => {
   const matchingTagsId = await getTagsIdFromFollowedTagsByUserId(
     req.query.userId,
   );
-  const matchingTagsFullData = await getTagsByIdsWithWords(matchingTagsId);
+  const matchingTagsFullData = await getTagsByIdsWithWords(matchingTagsId, req.user.id);
   res.status(200).json(matchingTagsFullData);
 });
 
@@ -310,7 +340,7 @@ const getOtherUserTags = asyncHandler(async (req: any, res: any) => {
 });
 
 const getTagById = asyncHandler(async (req: any, res: any) => {
-  const tagData = await getTagDataByRequest({ query: { id: req.params.id } });
+  const tagData = await getTagDataByRequest({ query: { id: req.params.id } }, undefined, req.user.id);
   const tag = tagData[0];
   if (!tag) {
     res.status(400);
@@ -417,7 +447,12 @@ const cloneTagForUser = async (
     .where(eq(tagWords.tagId, sourceTag.id));
   const wordIds = wordIdRows.map((row) => row.wordId);
 
-  const sourceWords = await fetchWordsWithRelations(wordIds);
+  // Only `.translations`/`.cases` off each source word are read below — the
+  // viewer id just has to be someone who can see the source tag's own tags
+  // on these words, so the tag's own author is the natural, always-correct
+  // choice regardless of who triggered the clone (D5-adjacent — cloning
+  // itself is not gated on viewing the words' *other* tags).
+  const sourceWords = await fetchWordsWithRelations(wordIds, sourceTag.authorId);
 
   return db.transaction(async (tx) => {
     const [clonedTag] = await tx

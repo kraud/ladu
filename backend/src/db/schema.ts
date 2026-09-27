@@ -14,6 +14,11 @@ const {
     index,
 }: typeof import('drizzle-orm/pg-core') = require('drizzle-orm/pg-core');
 const { relations, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
+// Type-only import (erased at compile time) — needed to break the circular
+// type inference a self-referencing FK's `.references(() => table.column)`
+// callback would otherwise hit (`words.sourceWordId` -> `words.id`,
+// `tags.sourceTagId` -> `tags.id`; phase-4-tags.md D11).
+import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 
 // ---------------------------------------------------------------------------
 // Enums (typed domain values that were previously free-form varchar)
@@ -85,6 +90,13 @@ export const words = pgTable(
         isCloned:          boolean('is_cloned').notNull().default(false),
         // If this word was cloned from another user's word, store the original creator
         originalCreatorId: uuid('original_creator_id').references(() => users.id, { onDelete: 'set null' }),
+        // The specific word row this one was cloned from (tag clone —
+        // phase-4-tags.md D11), for display/auditing. Distinct from
+        // `originalCreatorId`, which names a *user*, not a word: a word can
+        // be re-cloned (clone-of-a-clone), so this always points one hop
+        // back, not to some ultimate origin. `set null` rather than cascade
+        // — deleting the source word must not delete every clone of it.
+        sourceWordId:      uuid('source_word_id').references((): AnyPgColumn => words.id, { onDelete: 'set null' }),
         ...timestamps,
     },
     // Backs the keyset-pagination ORDER BY (created_at DESC, id DESC) used by
@@ -120,15 +132,33 @@ export const translationCases = pgTable('translation_cases', {
 // TAGS
 // Mapped from: backend/models/tagModel.js
 // ---------------------------------------------------------------------------
-export const tags = pgTable('tags', {
-    id:          uuid('id').primaryKey().defaultRandom(),
-    authorId:    uuid('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    label:       varchar('label', { length: 255 }).notNull(),
-    description: text('description'),
-    // 'Public' | 'Private' | 'Friends-Only' — typed enum (study §8.3).
-    visibility:  tagVisibilityEnum('visibility').notNull(),
-    ...timestamps,
-});
+export const tags = pgTable(
+    'tags',
+    {
+        id:          uuid('id').primaryKey().defaultRandom(),
+        authorId:    uuid('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        label:       varchar('label', { length: 255 }).notNull(),
+        description: text('description'),
+        // 'Public' | 'Private' | 'Friends-Only' — typed enum (study §8.3).
+        visibility:  tagVisibilityEnum('visibility').notNull(),
+        // The tag this one was cloned from (phase-4-tags.md D11), for
+        // display ("Cloned from X by Y") and auditing. `set null` — deleting
+        // the source tag must not delete every clone of it.
+        sourceTagId: uuid('source_tag_id').references((): AnyPgColumn => tags.id, { onDelete: 'set null' }),
+        ...timestamps,
+    },
+    (table) => [
+        // Backs `GET /api/tags`'s `scope=owned` filter and the ownership
+        // checks throughout tagController (phase-4-tags.md — missing before).
+        index('tags_author_id_idx').on(table.authorId),
+        // A user's tag labels are unique, case-insensitively (D13). Create/
+        // rename maps this constraint's 23505 to a 409 with a clear message
+        // (Slice 2); a clone whose label collides gets a numeric suffix
+        // before insert (Slice 3), so this should never actually fire for a
+        // clone in normal operation, only for a racing double-submit.
+        uniqueIndex('tags_author_label_unique').on(table.authorId, sql`lower(${table.label})`),
+    ],
+);
 
 // ---------------------------------------------------------------------------
 // TAG_WORDS  (junction table: many-to-many between tags and words)
@@ -141,8 +171,14 @@ export const tagWords = pgTable(
         wordId:    uuid('word_id').notNull().references(() => words.id, { onDelete: 'cascade' }),
         createdAt: timestamp('created_at').defaultNow().notNull(),
     },
-    // Composite primary key enforces uniqueness (replaces the Mongoose unique index)
-    (table) => [primaryKey({ columns: [table.tagId, table.wordId] })],
+    (table) => [
+        // Composite primary key enforces uniqueness (replaces the Mongoose unique index)
+        primaryKey({ columns: [table.tagId, table.wordId] }),
+        // The PK above only serves lookups by `tag_id` first. `removeTagsFromWords`
+        // and the per-word tags list both look up by `word_id` alone
+        // (phase-4-tags.md — missing before).
+        index('tag_words_word_id_idx').on(table.wordId),
+    ],
 );
 
 // ---------------------------------------------------------------------------
@@ -156,8 +192,14 @@ export const userFollowingTags = pgTable(
         followerUserId: uuid('follower_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
         createdAt:      timestamp('created_at').defaultNow().notNull(),
     },
-    // Composite primary key enforces uniqueness (replaces the Mongoose unique index)
-    (table) => [primaryKey({ columns: [table.tagId, table.followerUserId] })],
+    (table) => [
+        // Composite primary key enforces uniqueness (replaces the Mongoose unique index)
+        primaryKey({ columns: [table.tagId, table.followerUserId] }),
+        // The PK above only serves lookups by `tag_id` first. Resolving "which
+        // tags does this user follow" (every followed-word/followed-tag query)
+        // looks up by `follower_user_id` alone (phase-4-tags.md — missing before).
+        index('user_following_tags_follower_user_id_idx').on(table.followerUserId),
+    ],
 );
 
 // ---------------------------------------------------------------------------
@@ -357,6 +399,8 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const wordsRelations = relations(words, ({ one, many }) => ({
     user:        one(users, { fields: [words.userId], references: [users.id] }),
     originalCreator: one(users, { fields: [words.originalCreatorId], references: [users.id] }),
+    sourceWord:  one(words, { fields: [words.sourceWordId], references: [words.id], relationName: 'wordClone' }),
+    clones:      many(words, { relationName: 'wordClone' }),
     translations: many(translations),
     tagWords:    many(tagWords),
     exercisePerformances: many(exercisePerformances),
@@ -374,6 +418,8 @@ export const translationCasesRelations = relations(translationCases, ({ one }) =
 
 export const tagsRelations = relations(tags, ({ one, many }) => ({
     author:            one(users, { fields: [tags.authorId], references: [users.id] }),
+    sourceTag:         one(tags, { fields: [tags.sourceTagId], references: [tags.id], relationName: 'tagClone' }),
+    clones:            many(tags, { relationName: 'tagClone' }),
     tagWords:          many(tagWords),
     userFollowingTags: many(userFollowingTags),
     tagShares:         many(tagShares),

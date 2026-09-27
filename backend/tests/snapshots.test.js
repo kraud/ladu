@@ -118,7 +118,7 @@ describe('Data Snapshots - Migration Baseline', () => {
                     },
                 ],
                 clue: 'move quickly on foot',
-                tags: [{ _id: tagId }],
+                tagIds: [tagId],
             });
 
         expect(res.statusCode).toBe(200);

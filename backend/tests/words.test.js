@@ -26,7 +26,7 @@ const { eq, inArray, sql } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
-const { tags, tagWords, words } = require('../src/db/schema');
+const { tags, tagWords, userFollowingTags, words } = require('../src/db/schema');
 
 beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());
@@ -55,7 +55,7 @@ const wordPayload = (overrides = {}) => ({
     partOfSpeech: 'Verb',
     translations: [t('English', 'run', 'simplePresent1sEN'), t('Estonian', 'jooksma', 'infinitiveMaEE')],
     clue: 'fast movement',
-    tags: [],
+    tagIds: [],
     ...overrides,
 });
 
@@ -73,7 +73,7 @@ describe('POST /api/words - Create Word', () => {
     it('creates a word and returns it', async () => {
         const res = await request(app)
             .post('/api/words').set('Authorization', `Bearer ${token}`)
-            .send(wordPayload({ tags: [] }));
+            .send(wordPayload({ tagIds: [] }));
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('partOfSpeech', 'Verb');
@@ -88,7 +88,7 @@ describe('POST /api/words - Create Word', () => {
         expect(res.body.translations[0]).not.toHaveProperty('_id');
     });
 
-    it('creates TagWord associations when tags provided', async () => {
+    it('creates TagWord associations when tagIds provided', async () => {
         // Register a dedicated user so the tag has a valid author FK.
         const userData = await registerAndLogin('TagUser', 'taguser@test.com', 'taguser', 'pass123');
         token = userData.token;
@@ -102,9 +102,10 @@ describe('POST /api/words - Create Word', () => {
 
         const res = await request(app)
             .post('/api/words').set('Authorization', `Bearer ${token}`)
-            .send(wordPayload({ tags: [{ _id: tag.id }] }));
+            .send(wordPayload({ tagIds: [tag.id] }));
 
         expect(res.statusCode).toBe(200);
+        expect(res.body.tags.map((tg) => tg.id)).toEqual([tag.id]);
 
         // Verify the junction table was populated.
         const tagWordRows = await db
@@ -112,6 +113,27 @@ describe('POST /api/words - Create Word', () => {
             .from(tagWords)
             .where(eq(tagWords.wordId, res.body.id));
         expect(tagWordRows).toHaveLength(1);
+    });
+
+    // Ownership check (phase-4-tags.md — missing before this phase): a user
+    // may only attach tags they own to a word they're creating.
+    it('fails with 403 when tagIds includes a tag owned by another user, and creates nothing', async () => {
+        const otherData = await registerAndLogin('TagOwner', 'tagowner@test.com', 'tagowner', 'pass123');
+        const [otherTag] = await db.insert(tags).values({
+            authorId: otherData.id,
+            label: 'Not yours',
+            visibility: 'Private',
+        }).returning();
+
+        const res = await request(app)
+            .post('/api/words').set('Authorization', `Bearer ${token}`)
+            .send(wordPayload({ tagIds: [otherTag.id] }));
+
+        expect(res.statusCode).toBe(403);
+
+        // The whole request is refused up front — no orphaned word row.
+        const allWords = await db.select().from(words);
+        expect(allWords).toHaveLength(0);
     });
 
     it('fails with 400 when partOfSpeech missing', async () => {
@@ -124,7 +146,7 @@ describe('POST /api/words - Create Word', () => {
     it('fails with 400 when fewer than 2 translations', async () => {
         const res = await request(app)
             .post('/api/words').set('Authorization', `Bearer ${token}`)
-            .send({ partOfSpeech: 'Noun', translations: [{ language: 'EN', cases: [] }], tags: [] });
+            .send({ partOfSpeech: 'Noun', translations: [{ language: 'EN', cases: [] }] });
         expect(res.statusCode).toBe(400);
     });
 
@@ -166,11 +188,12 @@ describe('GET /api/words - Get Words', () => {
 // GET /api/words/:id - Get Word By ID
 // ===========================================================================
 describe('GET /api/words/:id - Get Word By ID', () => {
-    let token, wordId;
+    let token, userId, wordId;
 
     beforeEach(async () => {
         const data = await registerAndLogin();
         token = data.token;
+        userId = data.id;
         const r = await request(app).post('/api/words').set('Authorization', `Bearer ${token}`).send(wordPayload());
         wordId = r.body.id;
     });
@@ -197,6 +220,54 @@ describe('GET /api/words/:id - Get Word By ID', () => {
             .set('Authorization', `Bearer ${otherData.token}`);
         expect(res.statusCode).toBe(403);
     });
+
+    // Phase 4: a non-owner may read a word reached through a tag they
+    // follow and can currently view — read-only (overview.md §3.2), which
+    // the frontend derives from `user` not matching its own session id.
+    it('returns the word when reached through a followed Public tag', async () => {
+        const [tag] = await db.insert(tags).values({
+            authorId: userId,
+            label: 'Shared',
+            visibility: 'Public',
+        }).returning();
+        await db.insert(tagWords).values({ tagId: tag.id, wordId });
+
+        const followerData = await registerAndLogin('Follower', 'follower@test.com', 'follower', 'pass123');
+        await request(app)
+            .post('/api/tags/followTag')
+            .set('Authorization', `Bearer ${followerData.token}`)
+            .send({ tagId: tag.id });
+
+        const res = await request(app)
+            .get(`/api/words/${wordId}`)
+            .set('Authorization', `Bearer ${followerData.token}`);
+
+        expect(res.statusCode).toBe(200);
+        // Still the true owner's id, not the viewer's — that's what lets the
+        // frontend tell this apart as read-only.
+        expect(res.body.user).toBe(userId);
+    });
+
+    it('still fails with 403 once the followed tag turns Private (D9)', async () => {
+        const [tag] = await db.insert(tags).values({
+            authorId: userId,
+            label: 'Hidden',
+            visibility: 'Private',
+        }).returning();
+        await db.insert(tagWords).values({ tagId: tag.id, wordId });
+
+        // A Private tag can't be followed via the API (canViewTag refuses
+        // it), so simulate a tag that turned Private *after* being followed
+        // by inserting the follow row directly.
+        const followerData = await registerAndLogin('Follower2', 'follower2@test.com', 'follower2', 'pass123');
+        await db.insert(userFollowingTags).values({ tagId: tag.id, followerUserId: followerData.id });
+
+        const res = await request(app)
+            .get(`/api/words/${wordId}`)
+            .set('Authorization', `Bearer ${followerData.token}`);
+
+        expect(res.statusCode).toBe(403);
+    });
 });
 
 // ===========================================================================
@@ -218,14 +289,19 @@ describe('PUT /api/words/:id - Update Word', () => {
         tagId = tag.id;
 
         const r = await request(app).post('/api/words').set('Authorization', `Bearer ${token}`)
-            .send(wordPayload({ tags: [{ _id: tagId }] }));
+            .send(wordPayload({ tagIds: [tagId] }));
         wordId = r.body.id;
     });
 
-    // A `tags`-less PUT is exactly the shape `UpdateWordBody` sends (it has no
-    // `tags` field) — before the fix, `req.body.tags || []` diffed against an
-    // empty array and deleted every association on any such update.
-    it('preserves existing tag associations when `tags` is omitted from the body', async () => {
+    // `PUT /api/words/:id` never touches tag associations (phase-4-tags.md,
+    // agent call under D5) — that's the dedicated link/unlink endpoints' job
+    // (Phase 4 Slice 2). These two guard against reintroducing the exact
+    // class of bug Phase 3.9 fixed once already: a `tags`-less PUT (every
+    // PUT `UpdateWordBody` sends — it has no `tags` field) silently wiping
+    // every association via `req.body.tags || []`. The fix this time is
+    // removing the code path outright, not tightening its guard again — so
+    // an explicit `tags: []` must be just as inert as omitting it entirely.
+    it('leaves tag associations untouched when `tags` is omitted from the body', async () => {
         const res = await request(app)
             .put(`/api/words/${wordId}`).set('Authorization', `Bearer ${token}`)
             .send({ partOfSpeech: 'Verb', translations: [t('English', 'walk', 'simplePresent1sEN'), t('Estonian', 'kõndima', 'infinitiveMaEE')] });
@@ -237,7 +313,7 @@ describe('PUT /api/words/:id - Update Word', () => {
         expect(tagWordRows[0].tagId).toBe(tagId);
     });
 
-    it('removes tag associations when `tags` is explicitly sent empty', async () => {
+    it('leaves tag associations untouched even when `tags` is explicitly sent empty', async () => {
         const res = await request(app)
             .put(`/api/words/${wordId}`).set('Authorization', `Bearer ${token}`)
             .send({ tags: [] });
@@ -245,7 +321,8 @@ describe('PUT /api/words/:id - Update Word', () => {
         expect(res.statusCode).toBe(200);
 
         const tagWordRows = await db.select().from(tagWords).where(eq(tagWords.wordId, wordId));
-        expect(tagWordRows).toHaveLength(0);
+        expect(tagWordRows).toHaveLength(1);
+        expect(tagWordRows[0].tagId).toBe(tagId);
     });
 });
 
@@ -268,7 +345,7 @@ describe('DELETE /api/words/:id - Delete Word', () => {
         }).returning();
 
         const r = await request(app).post('/api/words').set('Authorization', `Bearer ${token}`)
-            .send(wordPayload({ tags: [{ _id: tag.id }] }));
+            .send(wordPayload({ tagIds: [tag.id] }));
         wordId = r.body.id;
     });
 

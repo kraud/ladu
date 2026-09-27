@@ -23,6 +23,7 @@ const app = require('../app');
 const testDb = require('./db');
 const { pool, db } = require('../src/db');
 const { tags, userFollowingTags } = require('../src/db/schema');
+const { eq } = require('drizzle-orm');
 
 beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());
@@ -43,7 +44,7 @@ const wordPayload = (overrides = {}) => ({
     partOfSpeech: 'Verb',
     translations: [t('English', 'run', 'simplePresent1sEN'), t('Estonian', 'jooksma', 'infinitiveMaEE')],
     clue: null,
-    tags: [],
+    tagIds: [],
     ...overrides,
 });
 
@@ -239,7 +240,7 @@ describe('GET /api/words/simple - filters', () => {
     it('tag filter includes a word the requester owns and tagged', async () => {
         const owner = await registerAndLogin('Owner', 'owner@test.com', 'owner', 'pass123');
         const [tag] = await db.insert(tags).values({ authorId: owner.id, label: 'Kitchen', visibility: 'Private' }).returning();
-        const tagged = await create(owner.token, wordPayload({ tags: [{ _id: tag.id }] }));
+        const tagged = await create(owner.token, wordPayload({ tagIds: [tag.id] }));
 
         const res = await request(app).get(`/api/words/simple?tag=${tag.id}`).set('Authorization', `Bearer ${owner.token}`);
         const ids = res.body.items.map((w) => w.id);
@@ -250,12 +251,42 @@ describe('GET /api/words/simple - filters', () => {
         const owner = await registerAndLogin('Owner2', 'owner2@test.com', 'owner2', 'pass123');
         const stranger = await registerAndLogin('Stranger', 'stranger@test.com', 'stranger', 'pass123');
         const [tag] = await db.insert(tags).values({ authorId: owner.id, label: 'Private', visibility: 'Private' }).returning();
-        await create(owner.token, wordPayload({ tags: [{ _id: tag.id }] }));
+        await create(owner.token, wordPayload({ tagIds: [tag.id] }));
 
         const res = await request(app)
             .get(`/api/words/simple?tag=${tag.id}`)
             .set('Authorization', `Bearer ${stranger.token}`);
         expect(res.body.items).toEqual([]);
+    });
+
+    // D15 (phase-4-tags.md, corrected 2026-09-28): selecting several tags is
+    // additive (OR/union) — a word matching ANY of them qualifies. Regression
+    // guard against "fixing" this `inArray` into an AND/`count(distinct
+    // tag_id)` form, which the UI deliberately does not want (see D15).
+    it('tag filter is additive across multiple tags (OR, not AND)', async () => {
+        const owner = await registerAndLogin('Owner6', 'owner6@test.com', 'owner6', 'pass123');
+        const [tagA] = await db.insert(tags).values({ authorId: owner.id, label: 'A', visibility: 'Private' }).returning();
+        const [tagB] = await db.insert(tags).values({ authorId: owner.id, label: 'B', visibility: 'Private' }).returning();
+        const onlyA = await create(owner.token, wordPayload({
+            tagIds: [tagA.id],
+            translations: [t('English', 'onlyA', 'simplePresent1sEN'), t('Estonian', 'ainultA', 'infinitiveMaEE')],
+        }));
+        const onlyB = await create(owner.token, wordPayload({
+            tagIds: [tagB.id],
+            translations: [t('English', 'onlyB', 'simplePresent1sEN'), t('Estonian', 'ainultB', 'infinitiveMaEE')],
+        }));
+        const neither = await create(owner.token, wordPayload({
+            translations: [t('English', 'neither', 'simplePresent1sEN'), t('Estonian', 'kumbki', 'infinitiveMaEE')],
+        }));
+
+        const res = await request(app)
+            .get(`/api/words/simple?tag=${tagA.id}&tag=${tagB.id}`)
+            .set('Authorization', `Bearer ${owner.token}`);
+        const ids = res.body.items.map((w) => w.id);
+
+        expect(ids).toContain(onlyA.body.id);
+        expect(ids).toContain(onlyB.body.id);
+        expect(ids).not.toContain(neither.body.id);
     });
 });
 
@@ -318,7 +349,7 @@ describe('GET /api/words/simple - followed-tag access', () => {
         const follower = await registerAndLogin('Follower', 'follower@test.com', 'follower', 'pass123');
         const [tag] = await db.insert(tags).values({ authorId: owner.id, label: 'Shared', visibility: 'Public' }).returning();
 
-        const taggedWord = await create(owner.token, wordPayload({ tags: [{ _id: tag.id }] }));
+        const taggedWord = await create(owner.token, wordPayload({ tagIds: [tag.id] }));
         const untaggedWord = await create(owner.token, {
             translations: [t('English', 'other', 'simplePresent1sEN'), t('Estonian', 'teine', 'infinitiveMaEE')],
         });
@@ -329,5 +360,50 @@ describe('GET /api/words/simple - followed-tag access', () => {
         const ids = res.body.items.map((w) => w.id);
         expect(ids).toContain(taggedWord.body.id);
         expect(ids).not.toContain(untaggedWord.body.id);
+    });
+
+    // D9 (phase-4-tags.md): a follower loses access the moment the owner
+    // turns the tag Private, without needing to unfollow — and regains it
+    // automatically if the owner flips it back, since the follow row itself
+    // was never touched.
+    it('excludes a followed tag\'s words once the owner makes it Private, and re-includes them if made Public again', async () => {
+        const owner = await registerAndLogin('Owner4', 'owner4@test.com', 'owner4', 'pass123');
+        const follower = await registerAndLogin('Follower2', 'follower2@test.com', 'follower2', 'pass123');
+        const [tag] = await db.insert(tags).values({ authorId: owner.id, label: 'Shared', visibility: 'Public' }).returning();
+        const taggedWord = await create(owner.token, wordPayload({ tagIds: [tag.id] }));
+        await db.insert(userFollowingTags).values({ tagId: tag.id, followerUserId: follower.id });
+
+        const before = await request(app).get('/api/words/simple').set('Authorization', `Bearer ${follower.token}`);
+        expect(before.body.items.map((w) => w.id)).toContain(taggedWord.body.id);
+
+        await db.update(tags).set({ visibility: 'Private' }).where(eq(tags.id, tag.id));
+
+        const during = await request(app).get('/api/words/simple').set('Authorization', `Bearer ${follower.token}`);
+        expect(during.body.items.map((w) => w.id)).not.toContain(taggedWord.body.id);
+
+        // The follow relationship itself is untouched by the visibility flip.
+        const stillFollowing = await db.select().from(userFollowingTags).where(eq(userFollowingTags.tagId, tag.id));
+        expect(stillFollowing).toHaveLength(1);
+
+        await db.update(tags).set({ visibility: 'Public' }).where(eq(tags.id, tag.id));
+
+        const after = await request(app).get('/api/words/simple').set('Authorization', `Bearer ${follower.token}`);
+        expect(after.body.items.map((w) => w.id)).toContain(taggedWord.body.id);
+    });
+
+    // A follower must never see the owner's OTHER, unrelated Private tags
+    // just because a shared word happens to carry one too (phase-4-tags.md,
+    // "Why the backend is being rebuilt").
+    it("shows a follower only the owner's Public tags on a shared word, not their unrelated Private ones", async () => {
+        const owner = await registerAndLogin('Owner5', 'owner5@test.com', 'owner5', 'pass123');
+        const follower = await registerAndLogin('Follower3', 'follower3@test.com', 'follower3', 'pass123');
+        const [publicTag] = await db.insert(tags).values({ authorId: owner.id, label: 'Shared', visibility: 'Public' }).returning();
+        const [privateTag] = await db.insert(tags).values({ authorId: owner.id, label: 'Secret', visibility: 'Private' }).returning();
+        const sharedWord = await create(owner.token, wordPayload({ tagIds: [publicTag.id, privateTag.id] }));
+        await db.insert(userFollowingTags).values({ tagId: publicTag.id, followerUserId: follower.id });
+
+        const res = await request(app).get('/api/words/simple').set('Authorization', `Bearer ${follower.token}`);
+        const row = res.body.items.find((w) => w.id === sharedWord.body.id);
+        expect(row.tags.map((tg) => tg.id)).toEqual([publicTag.id]);
     });
 });

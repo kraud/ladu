@@ -491,7 +491,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | Slice | Scope |
 |---|---|
 | 0 | Persist this plan (done — this document) |
-| 1 | Backend: migration 0006; word-side fixes (`createWord` transaction + ownership-checked `tagIds`, `PUT /api/words/:id` drops `tags`, `word.tags` viewer-filtered, followed-word SQL subquery with visibility, follower read access on `getWordById`); the existing/planned `?tag=` union query is already additive/OR (D15) — no change needed there; extend `words.test.js`/`words-simple.test.js` |
+| 1 | ✅ done 2026-09-28 — Backend: migration 0006; word-side fixes (`createWord` transaction + ownership-checked `tagIds`, `PUT /api/words/:id` drops `tags`, `word.tags` viewer-filtered, followed-word SQL subquery with visibility, follower read access on `getWordById`); the existing/planned `?tag=` union query is already additive/OR (D15) — no change needed there; extend `words.test.js`/`words-simple.test.js` |
 | 2 | Backend: new tag API (list/get/create/patch/delete/follow/unfollow/links/links-remove, `sort` per D16); delete every superseded legacy route + controller export; rewrite `tags.test.js` (sharing block kept, adapted to the surrounding changes) |
 | 3 | Backend: clone rebuild (batch inserts, provenance columns, visibility param, label-suffix, auto-unfollow) + `acceptTagShare`'s transaction fix; tests |
 | 4 | `features/tags/` data layer (`types`/`api`/`keys`/`hooks`/`errors`) + MSW handlers |
@@ -516,6 +516,22 @@ does for the owner dot). `getWordsSimplified`'s `?tag=` handling stays a
 plain `inArray(words.id, tagWordIds)` union across the selected tag ids
 (D15 — additive/OR is correct as already planned; do not rewrite this into
 an AND/`count(distinct tag_id)` form).
+
+**Shipped 2026-09-28.** Built essentially as planned, with two small,
+reversible implementation choices: (1) `getWordById`'s followed-read-access
+check reuses `getWordsIdFromFollowedTagsByUserId` and tests membership,
+rather than a separate single-word `OR EXISTS` query — same correctness,
+one fewer near-duplicate query to maintain, at the cost of a wider read for
+a single-word lookup (acceptable at today's scale; revisit if it shows up
+in profiling). (2) `word.tags`' new slim shape got a name,
+`WordTagSummary` (`{id, label, visibility, authorId}`), exported from
+`wordService.ts` — the frontend's `WordTagRef` type (still declaring the
+full old shape) is deliberately left alone until Slice 4, per that type's
+own "Phase 2 never renders these" comment; nothing reads it yet. Backend
+suite: 244 → 250 (6 new tests: create-time tag-ownership 403, two
+`getWordById` followed-tag-access cases, D9's visibility-flip round-trip,
+the shared-word Public/Private tag-filtering case, and an explicit OR/
+additive regression guard on the `?tag=` filter). `tsc --noEmit` clean.
 
 **Slice 2 — new tag API.** Fresh `tagController.ts` functions per the table
 above; `tagRoutes.js` rewritten to the new path set; every deleted route's

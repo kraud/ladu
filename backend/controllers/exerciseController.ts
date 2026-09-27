@@ -90,8 +90,9 @@ function shuffleArray<T>(array: T[]): void {
  */
 const fetchWordsWithData = async (
     wordIds: string[],
+    viewerId: string,
 ): Promise<WordWithData[]> => {
-    const wordResponses = await fetchWordsWithRelations(wordIds);
+    const wordResponses = await fetchWordsWithRelations(wordIds, viewerId);
     // wordService now emits `id` only; this controller keeps its own legacy
     // `_id` shape internally, so remap here rather than rippling the change
     // through the exercise-generation helpers.
@@ -718,7 +719,7 @@ const getExercises = asyncHandler(async (req: any, res: any) => {
     }
 
     // Fetch words
-    const allWordRows = await fetchWordsWithData(targetWordIds);
+    const allWordRows = await fetchWordsWithData(targetWordIds, userId);
 
     // Filter by partOfSpeech
     const matchingWordData = allWordRows.filter((w) =>
