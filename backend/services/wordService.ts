@@ -287,6 +287,52 @@ const getWordsByIds = async (wordIds: string[]): Promise<WordRow[]> => {
     return db.select().from(words).where(inArray(words.id, wordIds));
 };
 
+// ---------------------------------------------------------------------------
+// Generic list-pagination helpers
+// ---------------------------------------------------------------------------
+// Shared by `getWordsSimplified` (wordController.ts) and the tag list
+// (tagController.ts's `listTags`, phase-4-tags.md Slice 2) — homed here,
+// rather than on either controller, for the same reason this whole file
+// exists: a controller->controller import (tagController needing something
+// from wordController, which itself already imports from tagController)
+// would be circular. Both controllers already depend on this service, never
+// on each other for this.
+
+const DEFAULT_PAGE_LIMIT = 50;
+const MAX_PAGE_LIMIT = 100;
+
+/** A repeatable query param (`?pos=Noun&pos=Verb`) arrives as an array only
+ * when given more than once; normalise the single-value case too. */
+const parseArrayParam = (value: any): string[] => {
+    if (value === undefined) return [];
+    return Array.isArray(value) ? value : [value];
+};
+
+const parseLimitParam = (value: any): number => {
+    const parsed = value !== undefined ? parseInt(value, 10) : DEFAULT_PAGE_LIMIT;
+    if (!Number.isFinite(parsed)) return DEFAULT_PAGE_LIMIT;
+    return Math.min(Math.max(parsed, 1), MAX_PAGE_LIMIT);
+};
+
+// Generic keyset-cursor pair: an opaque sort value (the word list encodes
+// `createdAt.toISOString()`; the tag list encodes either that or a plain
+// label string) plus the tiebreaker id — one cursor implementation shared
+// by both lists rather than each growing its own base64(`value|id`) helper.
+const encodeCursor = (sortValue: string, id: string): string =>
+    Buffer.from(`${sortValue}|${id}`, 'utf-8').toString('base64');
+
+const decodeCursor = (cursor: string): { sortValue: string; id: string } | null => {
+    try {
+        const [sortValue, id] = Buffer.from(cursor, 'base64')
+            .toString('utf-8')
+            .split('|');
+        if (!id || sortValue === undefined) return null;
+        return { sortValue, id };
+    } catch {
+        return null;
+    }
+};
+
 export {
     fetchTranslationsMap,
     fetchTagsMap,
@@ -294,6 +340,10 @@ export {
     fetchWordsWithRelations,
     fetchWordWithRelations,
     getWordsByIds,
+    parseArrayParam,
+    parseLimitParam,
+    encodeCursor,
+    decodeCursor,
 };
 
 // TypeScript module marker — required so that `import type { WordResponse }`

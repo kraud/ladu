@@ -3,12 +3,14 @@
 exports[`Data Snapshots - Migration Baseline records the shape of a Tag with word associations 1`] = `
 Object {
   "description": "Common adjectives",
+  "followerCount": 0,
+  "isAvailable": true,
+  "isFollowing": false,
+  "isOwner": true,
   "label": "Adjectives Pack",
-  "sourceTagId": null,
+  "sourceTag": null,
   "visibility": "Private",
-  "words": Array [
-    Object {},
-  ],
+  "wordCount": 1,
 }
 `;
 

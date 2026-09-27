@@ -51,6 +51,10 @@ const {
     assembleWord,
     fetchWordsWithRelations,
     fetchWordWithRelations,
+    parseArrayParam,
+    parseLimitParam,
+    encodeCursor,
+    decodeCursor,
 }: typeof import('../services/wordService') = require('../services/wordService');
 import type { WordResponse, AssembledTranslation } from '../services/wordService';
 
@@ -321,41 +325,8 @@ const getWordsByFollowedTag = asyncHandler(async (req: any, res: any) => {
   res.status(200).json(matchingWordsId);
 });
 
-// ---------------------------------------------------------------------------
-// HELPERS: query-param parsing & keyset cursor (for getWordsSimplified)
-// ---------------------------------------------------------------------------
-
-const DEFAULT_PAGE_LIMIT = 50;
-const MAX_PAGE_LIMIT = 100;
-
-/** A repeatable query param (`?pos=Noun&pos=Verb`) arrives as an array only
- * when given more than once; normalise the single-value case too. */
-const parseArrayParam = (value: any): string[] => {
-  if (value === undefined) return [];
-  return Array.isArray(value) ? value : [value];
-};
-
-const parseLimitParam = (value: any): number => {
-  const parsed = value !== undefined ? parseInt(value, 10) : DEFAULT_PAGE_LIMIT;
-  if (!Number.isFinite(parsed)) return DEFAULT_PAGE_LIMIT;
-  return Math.min(Math.max(parsed, 1), MAX_PAGE_LIMIT);
-};
-
-const encodeCursor = (createdAt: Date, id: string): string =>
-  Buffer.from(`${createdAt.toISOString()}|${id}`, "utf-8").toString("base64");
-
-const decodeCursor = (cursor: string): { createdAt: Date; id: string } | null => {
-  try {
-    const [createdAtStr, id] = Buffer.from(cursor, "base64")
-      .toString("utf-8")
-      .split("|");
-    const createdAt = new Date(createdAtStr);
-    if (!id || Number.isNaN(createdAt.getTime())) return null;
-    return { createdAt, id };
-  } catch {
-    return null;
-  }
-};
+// (parseArrayParam, parseLimitParam, encodeCursor, and decodeCursor are now
+//  in backend/services/wordService.ts, shared with the tag list)
 
 // @desc    Get words with simplified data (table view with filters + keyset pagination)
 // @route   GET /api/words/simple
@@ -432,7 +403,8 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
 
   if (req.query.cursor !== undefined) {
     const cursor = decodeCursor(req.query.cursor);
-    if (!cursor) {
+    const cursorCreatedAt = cursor ? new Date(cursor.sortValue) : null;
+    if (!cursor || !cursorCreatedAt || Number.isNaN(cursorCreatedAt.getTime())) {
       res.status(400);
       throw new Error("Invalid cursor");
     }
@@ -443,8 +415,8 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     // parameters here, so it silently failed to filter.)
     conditions.push(
       or(
-        lt(words.createdAt, cursor.createdAt),
-        and(eq(words.createdAt, cursor.createdAt), lt(words.id, cursor.id)),
+        lt(words.createdAt, cursorCreatedAt),
+        and(eq(words.createdAt, cursorCreatedAt), lt(words.id, cursor.id)),
       ),
     );
   }
@@ -461,7 +433,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   const hasMore = pageRows.length > limit;
   const rows = hasMore ? pageRows.slice(0, limit) : pageRows;
   const nextCursor = hasMore
-    ? encodeCursor(rows[rows.length - 1].createdAt, rows[rows.length - 1].id)
+    ? encodeCursor(rows[rows.length - 1].createdAt.toISOString(), rows[rows.length - 1].id)
     : null;
 
   // Fetch full relations, then re-order to match the cursor-ordered rows —

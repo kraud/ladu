@@ -492,7 +492,7 @@ Each ends runnable; the user commits and re-confirms between them.
 |---|---|
 | 0 | Persist this plan (done — this document) |
 | 1 | ✅ done 2026-09-28 — Backend: migration 0006; word-side fixes (`createWord` transaction + ownership-checked `tagIds`, `PUT /api/words/:id` drops `tags`, `word.tags` viewer-filtered, followed-word SQL subquery with visibility, follower read access on `getWordById`); the existing/planned `?tag=` union query is already additive/OR (D15) — no change needed there; extend `words.test.js`/`words-simple.test.js` |
-| 2 | Backend: new tag API (list/get/create/patch/delete/follow/unfollow/links/links-remove, `sort` per D16); delete every superseded legacy route + controller export; rewrite `tags.test.js` (sharing block kept, adapted to the surrounding changes) |
+| 2 | ✅ done 2026-09-28 — Backend: new tag API (list/get/create/patch/delete/follow/unfollow/links/links-remove, `sort` per D16); delete every superseded legacy route + controller export; rewrite `tags.test.js` (sharing block kept, adapted to the surrounding changes) |
 | 3 | Backend: clone rebuild (batch inserts, provenance columns, visibility param, label-suffix, auto-unfollow) + `acceptTagShare`'s transaction fix; tests |
 | 4 | `features/tags/` data layer (`types`/`api`/`keys`/`hooks`/`errors`) + MSW handlers |
 | 5 | `/tags` page: search + scope chips + sort, `TagBadge`/`TagCard` grid, `TagFormDialog` create/edit/delete, follow/unfollow from the card, nav entry (feature-flagged on `featureFlags.tags`) — per `MOCKUPS/tags.html` |
@@ -544,6 +544,48 @@ existing assertions are kept and adjusted only for whatever shape changes
 ripple in (e.g. `normalizeTag`'s `_id` removal, if that alias still exists
 — confirm during Slice 2 and strip it if so, per `CLAUDE.md` §4's standing
 `_id` rule).
+
+**Shipped 2026-09-28.** Built as planned, with a few implementation
+decisions worth recording:
+- **`GET /api/tags/:id`'s 404-hides-existence rule is scoped precisely.** A
+  tag 404s for a caller with *no standing at all* (not owner, not
+  follower, not currently viewable). A followed tag the owner turned
+  Private still returns 200 with `isAvailable: false` — otherwise D9's
+  "unavailable" card could never render, since the detail page would 404
+  instead. Implemented as `isFollowing || isAvailable` on the already-built
+  `TagSummary`, not a second authorization check.
+- **Clone (`POST /api/tags/addExternalTag`, `cloneTagForUser`) is untouched
+  in this slice**, including its route — the endpoint-table above lists
+  `/:id/clone` as part of "the new tag API," but that rename-and-rebuild is
+  entirely Slice 3's job; doing the route half here and the behavior half
+  next slice would leave an in-between state with no clean test story.
+- **`encodeCursor`/`decodeCursor`/`parseLimitParam`/`parseArrayParam` moved
+  to `wordService.ts`, not reused from `wordController.ts` as originally
+  planned.** `wordController.ts` already requires `tagController.ts` (for
+  `getWordsIdFromFollowedTagsByUserId`); requiring back would be a circular
+  `require` that hands `tagController.ts` `wordController`'s still-empty
+  `module.exports` at that point in the load order. `wordService.ts` has no
+  dependency on either controller, which is the exact reason that file
+  exists in the first place (its own header comment says so) — the generic
+  pagination helpers belong there for the same reason the word-assembly
+  helpers do.
+- **`tagController.ts` rejoins the `tsc` typecheck gate.** It was excluded
+  in `tsconfig.json` on a note that friendships/notifications/tags were all
+  deferred; this plan's own "Why" section already established that never
+  actually held for tags. Since this slice touches nearly every line of the
+  file anyway, this was the moment to stop deferring its type-safety too —
+  found and fixed a handful of pre-existing implicit-`any`s (an untyped
+  `db`/schema `require`) and one real narrowing gap (`isUuid` becomes a
+  `value is string` type guard, since `shareTag`'s `recipientId: unknown`
+  relies on it to narrow before use).
+- **`normalizeTag` keeps `words` but drops only `_id`/`author`** — it's
+  still the response shape for `addExternalTag`/`acceptTagShare` (Slice 3
+  territory), just no longer MongoDB-flavored. It is not `TagSummary`, and
+  is not used by anything this slice touches.
+- Backend suite: 250 → 283 (49 tests in the rewritten `tags.test.js`, plus
+  small updates to `words.test.js`/`snapshots.test.js` for the
+  follow-route rename and the new `TagSummary` create-tag response shape).
+  `tsc --noEmit` clean.
 
 **Slice 3 — clone rebuild.** `cloneTagForUser` takes a `visibility` param,
 inserts words/translations/cases via `db.insert(...).values([...])` arrays

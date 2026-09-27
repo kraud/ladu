@@ -234,9 +234,8 @@ describe('GET /api/words/:id - Get Word By ID', () => {
 
         const followerData = await registerAndLogin('Follower', 'follower@test.com', 'follower', 'pass123');
         await request(app)
-            .post('/api/tags/followTag')
-            .set('Authorization', `Bearer ${followerData.token}`)
-            .send({ tagId: tag.id });
+            .post(`/api/tags/${tag.id}/follow`)
+            .set('Authorization', `Bearer ${followerData.token}`);
 
         const res = await request(app)
             .get(`/api/words/${wordId}`)

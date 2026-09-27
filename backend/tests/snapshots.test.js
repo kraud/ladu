@@ -84,7 +84,7 @@ describe('Data Snapshots - Migration Baseline', () => {
                 label: 'Core Verbs',
                 visibility: 'Private',
             });
-        const tagId = tagRes.body._id;
+        const tagId = tagRes.body.id;
 
         const res = await request(app)
             .post('/api/words')
@@ -170,7 +170,6 @@ describe('Data Snapshots - Migration Baseline', () => {
                     { language: 'EN', cases: [{ word: 'big', caseName: 'positive' }] },
                     { language: 'DE', cases: [{ word: 'groß', caseName: 'positive' }] },
                 ],
-                tags: [],
             });
         const wordId = wordRes.body.id;
 
@@ -178,11 +177,10 @@ describe('Data Snapshots - Migration Baseline', () => {
             .post('/api/tags')
             .set('Authorization', `Bearer ${token}`)
             .send({
-                author: userId,
                 label: 'Adjectives Pack',
                 visibility: 'Private',
                 description: 'Common adjectives',
-                words: [{ _id: wordId }],
+                wordIds: [wordId],
             });
 
         expect(res.statusCode).toBe(200);

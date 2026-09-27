@@ -1,30 +1,27 @@
 const express = require('express')
 const router = express.Router()
 const {
-    searchTags, getUserTags, getTagById,
-    createTag, deleteTag, updateTag,
-    getAmountByTag, getOtherUserTags, getTagDataByRequest,
-    addExternalTag, checkIfTagLabelAvailable,
-    addTagsInBulkToWords, followTag, getTagsFollowedByUser,
-    deleteUserFollowingTag, shareTag
+    listTags, getTagById,
+    createTag, updateTag, deleteTag,
+    followTag, unfollowTag,
+    linkTagsToWords, unlinkTagsFromWords,
+    addExternalTag, shareTag,
 } = require('../controllers/tagController.ts')
 const {protect} = require('../middleware/authMiddleware.ts')
 
-router.get('/getTags', protect, getUserTags)
-router.get('/getOtherUserTags', protect, getOtherUserTags)
-router.get('/getFollowedTagsIdByUserId', protect, getTagsFollowedByUser)
-router.get('/searchTags', protect, searchTags)
-router.get('/filterTags', protect, getTagDataByRequest) // consumed by tagService.filterTags
-router.get('/:id', protect, getTagById)
-router.post('/addExternalTag', protect, addExternalTag )//Clones a tag and it's words
-router.post('/followTag', protect, followTag)
-router.post('/addTagInBulkToWords', protect, addTagsInBulkToWords)
-router.post('/checkIfTagLabelAvailable', protect, checkIfTagLabelAvailable)
-router.get('/getAmountByTag/:id', protect, getAmountByTag)
+// Literal-segment routes before the `/:id` family, so `/links` etc. can
+// never be swallowed by a param route.
+router.get('/', protect, listTags)
 router.post('/', protect, createTag)
-router.post('/:id/share', protect, shareTag)
-router.delete('/unfollowTag/:id', protect, deleteUserFollowingTag)
+router.post('/links', protect, linkTagsToWords)
+router.post('/links/remove', protect, unlinkTagsFromWords)
+router.post('/addExternalTag', protect, addExternalTag) // Clones a tag and its words — Slice 3 rebuilds this (phase-4-tags.md)
+
+router.get('/:id', protect, getTagById)
+router.patch('/:id', protect, updateTag)
 router.delete('/:id', protect, deleteTag)
-router.put('/:id', protect, updateTag)
+router.post('/:id/follow', protect, followTag)
+router.delete('/:id/follow', protect, unfollowTag)
+router.post('/:id/share', protect, shareTag)
 
 module.exports = router
