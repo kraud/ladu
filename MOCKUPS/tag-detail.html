@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tag · Ladu</title>
+<link rel="stylesheet" href="assets/app.css" />
+<style>
+  main { padding-block: 18px 48px; }
+
+  /* tag head card — repeats the /tags card info */
+  .tagen { margin-bottom: 14px; }
+  .tagen-top { display: flex; align-items: flex-start; gap: var(--gap-lg); flex-wrap: wrap; padding: 18px 20px; }
+  .tagen .t-badge-row { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+  .t-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    height: 20px; padding: 0 8px; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  }
+  .b-owned   { background: var(--accent-soft); color: var(--accent-text); }
+  .b-followed{ background: var(--success-soft); color: var(--success); }
+  .b-mine    { background: var(--fg-soft); color: var(--muted); }
+  .b-unavail { background: var(--warning-soft); color: var(--warning); }
+  .tagen h1 { font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+  .tagen .t-desc { font-size: 13.5px; color: var(--muted); line-height: 1.5; margin-top: 4px; max-width: 62ch; }
+  .tagen .t-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+  .tagen .t-stats b.num { color: var(--fg); font-weight: 700; }
+  .tagen .dotsep { color: var(--fg-soft2); }
+  .tagen-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .tagen-foot {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 20px; border-top: 1px solid var(--border); background: var(--bg);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+  .tagen-foot .btn { height: 30px; }
+  .tagen .t-by { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); }
+  .tagen .t-by .avatar { width: 20px; height: 20px; font-size: 9px; }
+  .tagen .t-created { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+  .tagen-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .t-cloned {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 9px;
+    font-size: 12px; color: var(--muted); background: var(--fg-soft);
+    border-radius: 7px; padding: 4px 9px;
+  }
+  .t-cloned .cl { color: var(--fg); font-weight: 600; }
+  .t-note {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--warning); background: var(--warning-soft);
+    border-radius: var(--radius); padding: 7px 11px; margin-top: 10px; max-width: 62ch;
+  }
+
+  /* table toolbar */
+  .tw-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tw-toolbar .searchbox { flex: 1 1 240px; max-width: 360px; min-width: 200px; }
+  .tw-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+
+  /* add-words picker */
+  .pick-list { border: 1px solid var(--border); border-radius: var(--radius); max-height: 260px; overflow-y: auto; margin-top: 8px; }
+  .pick-row {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 7px 11px; border-bottom: 1px solid var(--border);
+    font-size: 13px; cursor: pointer; background: var(--surface); text-align: left;
+  }
+  .pick-row:last-child { border-bottom: 0; }
+  .pick-row:hover { background: var(--hover); }
+  .pick-row .pw { font-weight: 500; }
+  .pick-row[aria-pressed="true"] { background: var(--accent-soft); }
+  .pick-row[aria-pressed="true"] .pw { color: var(--accent-text); font-weight: 600; }
+  .pick-count { font-family: var(--font-mono); font-size: 11.5px; color: var(--accent-text); font-weight: 700; }
+  .remove-btn { color: var(--muted); }
+  .remove-btn:hover { color: var(--danger); background: var(--danger-soft); }
+
+</style>
+</head>
+<body>
+
+<header class="app-header" data-od-id="app-header">
+  <div class="container-wide app-header-inner">
+    <a class="logo" href="dashboard.html" aria-label="Ladu — dashboard"><img src="assets/ladu-title-with-icon.svg" alt="Ladu" style="height: 24px; width: auto;"></a>
+    <nav class="app-nav">
+      <a href="word-editor.html">Add Word</a>
+      <a href="tags.html" class="active">Tags</a>
+      <a href="#" title="Spec 05 pending">Practice</a>
+      <a href="review.html">Review</a>
+    </nav>
+    <div class="grow"></div>
+    <div class="searchbox">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input placeholder="Search words or tags…" aria-label="Global search" />
+      <span class="mode-switch" role="group" aria-label="Search mode">
+        <button aria-pressed="true">Word</button><button aria-pressed="false">Tag</button>
+      </span>
+    </div>
+    <div class="row" style="gap: 8px;">
+      <span class="select" style="width: auto; height: 32px; display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 0 26px 0 10px;">
+        <svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>
+        EN
+      </span>
+      <button class="icon-btn" aria-label="Notifications, 3 unread">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <button class="avatar has-badge" data-count="3" aria-label="Account menu — Kai Rebane, 3 unread">KR</button>
+    </div>
+  </div>
+</header>
+
+<main class="container-wide page" id="detail-root">
+  <!-- rendered by script -->
+</main>
+
+<!-- ─── edit tag dialog ─── -->
+<dialog id="tag-form-dialog" class="wide">
+  <div class="dlg-head">
+    <h2 class="h3">Edit tag</h2>
+    <button class="icon-btn" data-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dlg-body stack-md">
+    <div class="field">
+      <label class="label" for="tf-label">Label <span class="req">*</span></label>
+      <input class="input" id="tf-label" placeholder="e.g. Chapter 1" autocomplete="off" />
+      <span class="err" id="tf-err"></span>
+    </div>
+    <div class="field">
+      <label class="label" for="tf-desc">Description</label>
+      <textarea class="textarea" id="tf-desc" rows="2" placeholder="What these words have in common…"></textarea>
+    </div>
+    <div class="field">
+      <span class="label">Visibility <span class="req">*</span></span>
+      <div class="stack-sm" style="gap: 6px;">
+        <label class="pick-row" style="gap: 10px; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; white-space: normal;">
+          <input type="radio" name="tf-vis" value="public" style="width: 15px; height: 15px; accent-color: var(--accent); flex: none; margin: 0;" />
+          <span class="stack-sm" style="gap: 2px; flex: 1;">
+            <b style="font-size: 13.5px;">Public</b>
+            <span class="hint">Anyone can find it in Discover and follow it — followers see your words as read-only and get them automatically.</span>
+          </span>
+        </label>
+        <label class="pick-row" style="gap: 10px; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 11px; cursor: pointer; white-space: normal;">
+          <input type="radio" name="tf-vis" value="private" style="width: 15px; height: 15px; accent-color: var(--accent); flex: none; margin: 0;" />
+          <span class="stack-sm" style="gap: 2px; flex: 1;">
+            <b style="font-size: 13.5px;">Private</b>
+            <span class="hint">Only you can see it. Existing followers keep the tag but its words leave their Review until you make it Public again.</span>
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn btn-ghost btn-sm" data-close>Cancel</button>
+    <button class="btn btn-primary btn-sm" id="tf-save">Save changes</button>
+  </div>
+</dialog>
+
+<!-- ─── delete confirm ─── -->
+<dialog id="del-dialog" style="width: min(400px, calc(100vw - 32px));">
+  <div class="dlg-body" style="padding-bottom: 4px;">
+    <h2 class="h3" style="color: var(--danger);">Delete tag?</h2>
+    <p class="muted" style="font-size: 13.5px; margin-top: 6px;" id="del-text"></p>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn btn-sm btn-secondary" data-close>Keep it</button>
+    <button class="btn btn-sm btn-danger-solid" id="del-yes">Delete tag</button>
+  </div>
+</dialog>
+
+<!-- ─── unfollow confirm ─── -->
+<dialog id="unfollow-dialog" style="width: min(400px, calc(100vw - 32px));">
+  <div class="dlg-body" style="padding-bottom: 4px;">
+    <h2 class="h3">Unfollow tag?</h2>
+    <p class="muted" style="font-size: 13.5px; margin-top: 6px;" id="unfollow-text"></p>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn btn-sm btn-secondary" data-close>Keep following</button>
+    <button class="btn btn-sm btn-danger-solid" id="unfollow-yes">Unfollow</button>
+  </div>
+</dialog>
+
+<!-- ─── clone dialog ─── -->
+<dialog id="clone-dialog" style="width: min(440px, calc(100vw - 32px));">
+  <div class="dlg-head">
+    <h2 class="h3">Clone this tag</h2>
+    <button class="icon-btn" data-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dlg-body stack-md">
+    <div class="row-between" style="gap: 10px; padding: 10px 12px; background: var(--fg-soft); border-radius: var(--radius);">
+      <span class="stack-sm" style="gap: 1px;">
+        <b style="font-size: 14px; font-family: var(--font-display);" id="clone-src-label"></b>
+        <span class="hint">by <span id="clone-src-author"></span></span>
+      </span>
+      <span class="hint" style="white-space: nowrap;" id="clone-src-count"></span>
+    </div>
+    <div class="field">
+      <span class="label">Visibility of your copy</span>
+      <div class="radio-row">
+        <label class="radio"><input type="radio" name="clone-vis" value="private" checked />Private</label>
+        <label class="radio"><input type="radio" name="clone-vis" value="public" />Public</label>
+      </div>
+      <span class="hint" style="margin-top: 4px;">A copy of someone else’s tag starts Private.</span>
+    </div>
+    <div class="banner" style="background: var(--success-soft); color: var(--success); font-size: 13px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+      The copy is fully independent — its words (with all translations) become yours. Later changes to the original won’t affect it.
+    </div>
+    <div class="banner warning" id="clone-end-follow" style="display:none; font-size: 13px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+      Because you’ll own a copy, your follow of the original ends.
+    </div>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn btn-ghost btn-sm" data-close>Cancel</button>
+    <button class="btn btn-primary btn-sm" id="clone-yes">Create copy</button>
+  </div>
+</dialog>
+
+<!-- ─── add words dialog (owned tags) ─── -->
+<dialog id="addwords-dialog">
+  <div class="dlg-head">
+    <h2 class="h3">Add words to “<span id="aw-tag-label"></span>”</h2>
+    <button class="icon-btn" data-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dlg-body">
+    <div class="label-row" style="margin-bottom: 6px;">
+      <label class="label" for="aw-search">Your words</label>
+      <span class="pick-count" id="aw-count">0 selected</span>
+    </div>
+    <div class="searchbox">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input id="aw-search" placeholder="Search your words…" aria-label="Search your words" />
+    </div>
+    <div class="pick-list" id="aw-list"></div>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn btn-ghost btn-sm" data-close>Cancel</button>
+    <button class="btn btn-primary btn-sm" id="aw-save">Add selected</button>
+  </div>
+</dialog>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+/* ─────────────── demo data — same seed shape as tags.html ─────────────── */
+const ME = 'Kai Rebane';
+const langOrder = ['de', 'ee', 'en', 'es'];
+const LANG_NAME = { en: 'English', de: 'Deutsch', es: 'Español', ee: 'Eesti' };
+const FLAGS = {
+  en: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#1e3a7a"/><path d="M0 0 60 40M60 0 0 40" stroke="#fff" stroke-width="8"/><path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="12"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7"/></svg>`,
+  de: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#1d1b17"/><rect y="13.3" width="60" height="13.4" fill="#c8102e"/><rect y="26.6" width="60" height="13.4" fill="#f0b429"/></svg>`,
+  es: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="40" fill="#c60b1e"/><rect y="10" width="60" height="20" fill="#ffc400"/></svg>`,
+  ee: `<svg class="flag" viewBox="0 0 60 40"><rect width="60" height="13.3" fill="#0072ce"/><rect y="13.3" width="60" height="13.4" fill="#101010"/><rect y="26.6" width="60" height="13.4" fill="#fff"/></svg>`
+};
+const POS_LABEL = { n: 'n.', v: 'v.', adj: 'adj.', adv: 'adv.' };
+
+/* my words (tag pages' demo share) */
+const WORDS = [
+  { id: 'w1',  pos: 'n',   tags: ['t1'], t: { de: { sg: 'der Baum', pl: 'die Bäume', gender: 'm', pct: 100 }, ee: { sg: 'puu', pct: 81 }, en: { sg: 'tree', pl: 'trees', pct: 100 }, es: { sg: 'el árbol', gender: 'm', pct: 64 } } },
+  { id: 'w2',  pos: 'v',   tags: ['t1'], t: { de: { sg: 'lesen', pl: 'las gelesen', pct: 92 }, ee: { sg: 'lugema', pct: 70 }, en: { sg: 'to read', pct: 88 }, es: { sg: 'leer', pct: 76 } } },
+  { id: 'w3',  pos: 'n',   tags: ['t1'], t: { de: { sg: 'das Haus', pl: 'die Häuser', gender: 'n', pct: 100 }, ee: { sg: 'maja', pct: 63 }, en: { sg: 'house', pl: 'houses', pct: 90 }, es: { sg: 'la casa', gender: 'f', pct: 55 } } },
+  { id: 'w4',  pos: 'adj', tags: ['t1'], t: { de: { sg: 'schön', pct: 85 }, ee: { sg: 'ilus', pct: 72 }, en: { sg: 'beautiful', pct: 95 }, es: { sg: 'bonito', gender: 'm', pct: 60 } } },
+  { id: 'w5',  pos: 'n',   tags: ['t1'], t: { de: { sg: 'der Freund', pl: 'die Freunde', gender: 'm', pct: 96 }, ee: { sg: 'sõber', pct: 66 }, en: { sg: 'friend', pl: 'friends', pct: 100 }, es: { sg: 'el amigo', gender: 'm', pct: 70 } } },
+  { id: 'w6',  pos: 'n',   tags: ['t2'], t: { de: { sg: 'das Fenster', pl: 'die Fenster', gender: 'n', pct: 88 }, ee: { pct: 0 }, en: { sg: 'window', pl: 'windows', pct: 100 }, es: { sg: 'la ventana', gender: 'f', pct: 58 } } },
+  { id: 'w7',  pos: 'adv', tags: ['t3'], t: { de: { sg: 'schnell', pct: 80 }, ee: { sg: 'kiiresti', pct: 74 }, en: { sg: 'quickly', pct: 90 }, es: { pct: 0 } } },
+  { id: 'w8',  pos: 'v',   tags: ['t3'], t: { de: { sg: 'fragen', pl: 'fragte, gefragt', pct: 84 }, ee: { sg: 'küsima', pct: 69 }, en: { sg: 'to ask', pct: 86 }, es: { sg: 'preguntar', pct: 77 } } },
+  { id: 'w9',  pos: 'n',   tags: ['t2'], t: { de: { sg: 'das Brot', pl: 'die Brote', gender: 'n', pct: 100 }, ee: { sg: 'leib', pct: 78 }, en: { sg: 'bread', pl: 'breads', pct: 92 }, es: { sg: 'el pan', gender: 'm', pct: 65 } } },
+  { id: 'w10', pos: 'adj', tags: ['t3'], t: { de: { sg: 'neu', pct: 82 }, ee: { sg: 'uus', pct: 71 }, en: { sg: 'new', pct: 94 }, es: { pct: 0 } } },
+  { id: 'w11', pos: 'n',   tags: ['t5'], t: { de: { sg: 'die Tür', pl: 'die Türen', gender: 'f', pct: 97 }, ee: { sg: 'uks', pct: 75 }, en: { sg: 'door', pl: 'doors', pct: 100 }, es: { sg: 'la puerta', gender: 'f', pct: 60 } } },
+  { id: 'w12', pos: 'v',   tags: ['t3'], t: { de: { sg: 'schreiben', pl: 'schrieb, geschrieben', pct: 89 }, ee: { sg: 'kirjutama', pct: 68 }, en: { sg: 'to write', pct: 91 }, es: { sg: 'escribir', pct: 73 } } },
+  { id: 'w13', pos: 'n',   tags: ['t5'], t: { de: { sg: 'der Garten', pl: 'die Gärten', gender: 'm', pct: 94 }, ee: { sg: 'aed', pct: 62 }, en: { sg: 'garden', pl: 'gardens', pct: 88 }, es: { sg: 'el jardín', gender: 'm', pct: 52 } } },
+  { id: 'w14', pos: 'adj', tags: ['t3'], t: { de: { sg: 'alt', pct: 80 }, ee: { sg: 'vana', pct: 70 }, en: { sg: 'old', pct: 90 }, es: { sg: 'viejo', gender: 'm', pct: 55 } } },
+  { id: 'w15', pos: 'n',   tags: ['t5'], t: { de: { sg: 'die Straße', pl: 'die Straßen', gender: 'f', pct: 96 }, ee: { sg: 'tänav', pct: 64 }, en: { sg: 'street', pl: 'streets', pct: 100 }, es: { sg: 'la calle', gender: 'f', pct: 59 } } },
+  { id: 'w16', pos: 'n',   tags: ['t2'], t: { de: { sg: 'der Wasserkessel', pl: 'die Wasserkessel', gender: 'm', pct: 74 }, ee: { sg: 'teekann', pct: 58 }, en: { sg: 'kettle', pl: 'kettles', pct: 82 }, es: { sg: 'la tetera', gender: 'f', pct: 40 } } },
+  { id: 'w17', pos: 'n',   tags: ['t2'], t: { de: { sg: 'der Löffel', pl: 'die Löffel', gender: 'm', pct: 68 }, ee: { sg: 'lusikas', pct: 61 }, en: { sg: 'spoon', pl: 'spoons', pct: 88 }, es: { sg: 'la cuchara', gender: 'f', pct: 45 } } },
+  { id: 'w18', pos: 'n',   tags: ['t2'], t: { de: { sg: 'der Teller', pl: 'die Teller', gender: 'm', pct: 62 }, ee: { sg: 'taldrik', pct: 55 }, en: { sg: 'plate', pl: 'plates', pct: 84 }, es: { sg: 'el plato', gender: 'm', pct: 42 } } },
+  { id: 'w19', pos: 'n',   tags: ['t2'], t: { de: { sg: 'die Gabel', pl: 'die Gabeln', gender: 'f', pct: 57 }, ee: { sg: 'kahvel', pct: 58 }, en: { sg: 'fork', pl: 'forks', pct: 86 }, es: { sg: 'el tenedor', gender: 'm', pct: 44 } } },
+  { id: 'w20', pos: 'v',   tags: ['t2'], t: { de: { sg: 'kochen', pl: 'kochte, gekocht', pct: 66 }, ee: { sg: 'kokama', pct: 54 }, en: { sg: 'to cook', pct: 78 }, es: { sg: 'cocinar', pct: 38 } } },
+  { id: 'w21', pos: 'n',   tags: ['t4'], t: { de: { sg: 'das Fieber', pct: 30 }, ee: { sg: 'palavik', pct: 24 }, en: { sg: 'fever', pl: 'fevers', pct: 52 }, es: { sg: 'la fiebre', gender: 'f', pct: 22 } } },
+  { id: 'w22', pos: 'n',   tags: ['t4'], t: { de: { sg: 'das Medikament', pl: 'die Medikamente', gender: 'n', pct: 28 }, ee: { sg: 'ravim', pct: 24 }, en: { sg: 'medicine', pl: 'medicines', pct: 52 }, es: { sg: 'el medicamento', gender: 'm', pct: 20 } } }
+];
+WORDS.forEach(w => w.owner = ME);
+
+/* foreign-owned words (shown read-only on followed/discover tags) */
+const FOREIGN = [
+  { id: 'f1', pos: 'n',   tags: ['t8'], owner: 'Mari Maasikas', t: { de: { sg: 'das Gewächshaus', pl: 'die Gewächshäuser', gender: 'n', pct: 100 }, ee: { sg: 'kasvuhoone', pct: 88 }, en: { sg: 'greenhouse', pl: 'greenhouses', pct: 95 }, es: { sg: 'el invernadero', gender: 'm', pct: 74 } } },
+  { id: 'f2', pos: 'v',   tags: ['t8'], owner: 'Mari Maasikas', t: { de: { sg: 'spazieren', pl: 'spazierte, spaziert', pct: 92 }, ee: { sg: 'jalutama', pct: 85 }, en: { sg: 'to walk', pct: 90 }, es: { sg: 'caminar', pct: 80 } } },
+  { id: 'f3', pos: 'n',   tags: ['t6'], owner: 'Karl Tamm', t: { de: { sg: 'der Pass', pl: 'die Pässe', gender: 'm', pct: 100 }, ee: { sg: 'pass', pct: 90 }, en: { sg: 'passport', pl: 'passports', pct: 100 }, es: { sg: 'el pasaporte', gender: 'm', pct: 85 } } },
+  { id: 'f4', pos: 'n',   tags: ['t6'], owner: 'Karl Tamm', t: { de: { sg: 'das Gepäck', pct: 96 }, ee: { sg: 'pagas', pct: 82 }, en: { sg: 'luggage', pct: 100 }, es: { sg: 'el equipaje', gender: 'm', pct: 88 } } },
+  { id: 'f5', pos: 'n',   tags: ['t10'], owner: 'Mari Maasikas', t: { de: { pct: 0 }, ee: { pct: 0 }, en: { sg: 'pad thai', pct: 100 }, es: { pct: 0 } } },
+  { id: 'f6', pos: 'n',   tags: ['t10'], owner: 'Mari Maasikas', t: { de: { sg: 'die Kokosmilch', gender: 'f', pct: 70 }, ee: { sg: 'kookospiim', pct: 60 }, en: { sg: 'coconut milk', pct: 95 }, es: { sg: 'la leche de coco', gender: 'f', pct: 70 } } },
+  { id: 'f7', pos: 'adv', tags: ['t9'], owner: 'Karl Tamm', t: { de: { sg: 'allerdings', pct: 88 }, ee: { sg: 'siiski', pct: 76 }, en: { sg: 'however', pct: 100 }, es: { sg: 'no obstante', pct: 65 } } },
+  { id: 'f8', pos: 'adv', tags: ['t9'], owner: 'Karl Tamm', t: { de: { sg: 'außerdem', pct: 84 }, ee: { sg: 'lisaks', pct: 72 }, en: { sg: 'moreover', pct: 100 }, es: { sg: 'además', pct: 68 } } }
+];
+
+/* tag seeds — same catalogue as tags.html */
+const SEED_TAGS = [
+  { id: 't1', label: 'Chapter 1', desc: 'Words and phrases from the first chapter of the course book.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w1','w2','w3','w4','w5'], followers: 3, created: '2026-09-08', clonedFrom: { label: 'Chapter 1', author: 'Mari Maasikas' } },
+  { id: 't2', label: 'Kitchen', desc: 'Pots, pans and everyday kitchen vocabulary.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w6','w9','w16','w17','w18','w19','w20'], followers: 2, created: '2026-05-19' },
+  { id: 't3', label: 'Exam prep', desc: 'High-frequency items that keep appearing in B1 sample tests.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w7','w8','w10','w12','w14'], followers: 7, created: '2025-11-02' },
+  { id: 't4', label: 'Medical terms', desc: 'Doctor-visit vocabulary gathered for Marta’s course.', vis: 'private', relation: 'owned', author: ME, wordIds: ['w21','w22'], followers: 0, created: '2026-08-14' },
+  { id: 't5', label: 'Home & surroundings', desc: 'Rooms, streets and everything around the house.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w11','w13','w15'], followers: 4, created: '2026-07-12' },
+  { id: 't6', label: 'Travel · Dining', desc: 'Airport, menu and paying-the-bill vocabulary — Karl keeps it current.', vis: 'public', relation: 'followed', author: 'Karl Tamm', wordIds: ['f3','f4'], followers: 14, created: '2026-04-30' },
+  { id: 't7', label: 'Office small talk', desc: 'Phrases for elevators and coffee corners.', vis: 'private', relation: 'unavailable', author: 'Karl Tamm', wordIds: [], followers: 41, created: '2026-03-05' },
+  { id: 't8', label: 'Spring garden', desc: 'Seasonal planting and green-fingered vocabulary.', vis: 'public', relation: 'discover', author: 'Mari Maasikas', wordIds: ['f1','f2'], followers: 27, created: '2026-06-10' },
+  { id: 't9', label: 'B1 connectors', desc: 'Linking words and transitions to lift essay writing one band.', vis: 'public', relation: 'discover', author: 'Karl Tamm', wordIds: ['f7','f8'], followers: 5, created: '2026-01-22' },
+  { id: 't10', label: 'Thai takeaway', desc: 'Menu decoding, spice levels and ordering without pointing.', vis: 'public', relation: 'discover', author: 'Mari Maasikas', wordIds: ['f5','f6'], followers: 8, created: '2026-02-14' }
+];
+
+/* ─────────────── cross-page relation overlay (prototype continuity) ─────────────── */
+function loadOverlay() {
+  try {
+    const o = JSON.parse(sessionStorage.getItem('ladu-tags-v1') || '{}');
+    return { rels: o.rels || {}, deleted: o.deleted || [], clones: o.clones || [] };
+  } catch { return { rels: {}, deleted: [], clones: [] }; }
+}
+function saveOverlay(o) { try { sessionStorage.setItem('ladu-tags-v1', JSON.stringify(o)); } catch {} }
+function applyOverlay() {
+  const o = loadOverlay();
+  let list = SEED_TAGS.filter(t => !o.deleted.includes(t.id)).map(t => ({ ...t }));
+  list.forEach(t => {
+    const r = o.rels[t.id];
+    if (r) { t.relation = r.relation; if (r.followers != null) t.followers = r.followers; }
+  });
+  (o.clones || []).forEach(c => list.unshift({ ...c, wordIds: c.wordIds.slice() }));
+  return list;
+}
+function recordRel(id, relation, followers) {
+  const o = loadOverlay();
+  o.rels[id] = { ...o.rels[id], relation, followers };
+  saveOverlay(o);
+}
+function recordDelete(id) {
+  const o = loadOverlay();
+  if (!o.deleted.includes(id)) o.deleted.push(id);
+  saveOverlay(o);
+}
+function recordClone(copy) {
+  const o = loadOverlay();
+  o.clones.unshift({ ...copy, wordIds: copy.wordIds.slice() });
+  saveOverlay(o);
+}
+
+/* ─────────────── state ─────────────── */
+let TAGS = applyOverlay();
+let ALL_WORDS = [...WORDS, ...FOREIGN];
+const state = {
+  id: new URLSearchParams(location.search).get('id'),
+  q: '',
+  shown: 8,
+  perPage: 8,
+  picked: new Set()
+};
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+const LOCK_SVG = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
+const USERS_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
+const initials = n => n.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+
+/* ─────────────── relation visibility ─────────────── */
+function canSeeWords(t) { return t.relation === 'owned' || t.relation === 'followed' || t.relation === 'discover'; }
+
+function wordsOf(t) {
+  if (!canSeeWords(t)) return [];
+  return t.wordIds.map(id => ALL_WORDS.find(w => w.id === id)).filter(Boolean);
+}
+
+/* ─────────────── page render ─────────────── */
+const countWords = t => t.relation === 'unavailable' ? 0 : t.wordIds.length;
+
+function render() {
+  const t = TAGS.find(x => x.id === state.id);
+  const main = $('#detail-root');
+  if (!t) { renderNotFound(main); return; }
+  main.innerHTML = `
+    <div class="row" style="gap: 10px; margin-bottom: 12px;">
+      <button class="icon-btn" aria-label="Back to /tags" onclick="location.assign('tags.html')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
+      </button>
+      <span class="hint">Back to /tags</span>
+    </div>
+    ${headHTML(t)}
+    ${wordsSectionHTML(t)}`;
+
+  /* wire */
+  $$('#head-actions [data-act]').forEach(b => b.addEventListener('click', () => headAction(b.dataset.act, t)));
+  $('#tw-search')?.addEventListener('input', e => { state.q = e.target.value.trim(); state.shown = state.perPage; renderBodyOnly(t); });
+  $('#tw-load')?.addEventListener('click', () => { state.shown += state.perPage; renderBodyOnly(t); });
+  $$('[data-rm]').forEach(b => b.addEventListener('click', () => removeFromTag(t, b.dataset.rm)));
+}
+
+function headHTML(t) {
+  const relBadge = { owned: ['b-owned','Owned'], followed: ['b-followed','Followed'], unavailable: ['b-unavail','Unavailable'], discover: ['b-mine','Discover'] }[t.relation];
+  const actions = {
+    owned: `<button class="btn btn-sm btn-primary" data-act="addwords">Add words</button>
+            <button class="btn btn-sm btn-secondary" data-act="edit">Edit</button>
+            <button class="btn btn-sm btn-danger" data-act="del">Delete</button>`,
+    followed: `<button class="btn btn-sm btn-ghost" data-act="unfollow">Unfollow</button>
+               <button class="btn btn-sm btn-secondary" data-act="clone">Clone</button>`,
+    discover: `<button class="btn btn-sm btn-primary" data-act="follow">Follow</button>
+               <button class="btn btn-sm btn-secondary" data-act="clone">Clone</button>`,
+    unavailable: `<button class="btn btn-sm btn-secondary" data-act="unfollow">Unfollow</button>`
+  }[t.relation];
+  return `
+  <section class="card tagen" data-od-id="tag-head">
+    <div class="tagen-top">
+      <div class="grow" style="min-width: 0;">
+        <div class="t-badge-row">
+          <span class="t-badge ${relBadge[0]}">${relBadge[1]}</span>
+          <span class="t-badge ${t.vis === 'private' ? 'b-unavail' : 'b-mine'}">${t.vis === 'private' ? LOCK_SVG + ' Private' : 'Public'}</span>
+        </div>
+        <h1 class="h1">${t.label}</h1>
+        ${t.desc ? `<p class="t-desc">${t.desc}</p>` : ''}
+        ${t.relation !== 'owned' ? `<div style="display: inline-flex; align-items: center; gap: 7px; margin-top: 10px; font-size: 12.5px; color: var(--muted);"><span class="avatar" style="width: 20px; height: 20px; font-size: 9px; box-shadow: none;">${initials(t.author)}</span> by ${t.author}</div>` : ''}
+        <div class="t-by">${t.clonedFrom ? `<span class="t-cloned"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Cloned from <span class="cl">${t.clonedFrom.label}</span> by ${t.clonedFrom.author}</span>` : ''}</div>
+      </div>
+      <aside class="tagen-side">
+        <div class="stack-sm" style="gap: 1px; align-items: flex-end;">
+          <b class="num" style="font-family: var(--font-display); font-size: 34px; font-weight: 600; line-height: 1.1;">${countWords(t)}</b>
+          <span class="s-label" style="font-size: 13px; color: var(--muted); margin-top: 0;">word${countWords(t) === 1 ? '' : 's'}</span>
+          <span class="s-sub" style="margin-top: 8px; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 11.5px; color: var(--muted);">${USERS_SVG} ${t.followers} follower${t.followers === 1 ? '' : 's'}</span>
+        </div>
+      </aside>
+    </div>
+    <div class="tagen-foot" id="head-actions">
+      <span class="hint grow">${t.relation === 'owned' ? (t.followers ? `Your tag — ${t.followers} follower${t.followers === 1 ? '' : 's'}` : 'Your tag') : `by ${t.author}`}</span>
+      ${actions}
+    </div>
+  </section>`;
+}
+
+function wordsSectionHTML(t) {
+  if (t.relation === 'unavailable') {
+    return `
+    <section class="card empty" data-od-id="tag-unavailable">
+      <div class="e-icon" style="color: var(--warning); background: var(--warning-soft);">${LOCK_SVG}</div>
+      <p style="color: var(--fg); font-weight: 600;">Words are hidden right now</p>
+      <p style="color: var(--muted); font-size: 13px;">The owner made this tag Private. You’re still following it — its words return to your Review when it becomes Public again.</p>
+      <a class="btn btn-secondary btn-sm" href="tags.html">Back to /tags</a>
+    </section>`;
+  }
+  return `
+  <section data-od-id="tag-words">
+    <div class="tw-toolbar">
+      <div class="searchbox">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+        <input id="tw-search" placeholder="Search in this tag’s words…" aria-label="Search words in tag" />
+      </div>
+      <span class="meta" id="tw-count"></span>
+    </div>
+    <div class="tablewrap" data-od-id="tag-words-table">
+      <table class="dtable">
+        <thead><tr>
+          <th style="width: 52px; text-align: center;">Type</th>
+          ${langOrder.map(l => `<th class="lang-col"><span class="sort">${FLAGS[l]} ${l.toUpperCase()}</span></th>`).join('')}
+          ${t.relation === 'owned' ? '<th style="width: 128px;"></th>' : ''}
+        </tr></thead>
+        <tbody id="tw-body"></tbody>
+      </table>
+      <div class="empty" id="tw-empty" hidden>
+        <div class="e-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg></div>
+        <p id="tw-empty-text">No words here yet</p>
+        ${t.relation === 'owned' ? '<button class="btn btn-primary btn-sm" id="tw-add-cta">Add words</button>' : ''}
+      </div>
+    </div>
+    <div class="tw-footer" id="tw-footer" hidden>
+      <span class="meta" id="tw-note"></span>
+      <button class="btn btn-secondary btn-sm" id="tw-load">Load more</button>
+    </div>
+    ${t.relation === 'owned' ? `<p class="hint" style="margin-top: 10px;">Removing a word from the tag doesn’t delete it — it stays on your shelf.</p>` : ''}
+  </section>`;
+}
+
+function renderBodyOnly(t) {
+  const q = (state.q || '').toLowerCase();
+  const rows = wordsOf(t).filter(w => !q || langOrder.some(l => (w.t[l]?.sg || '').toLowerCase().includes(q) || (w.t[l]?.pl || '').toLowerCase().includes(q)));
+  const page = rows.slice(0, state.shown);
+  const body = $('#tw-body');
+  body.innerHTML = page.map(w => rowHTML(t, w)).join('');
+  $('#tw-empty').hidden = rows.length > 0;
+  $('#tw-count').textContent = state.q ? `${rows.length} of ${countWords(t)} words` : `${countWords(t)} word${countWords(t) === 1 ? '' : 's'}`;
+  const footer = $('#tw-footer');
+  if (!footer) return;
+  footer.hidden = rows.length <= state.shown;
+  if (rows.length > state.shown) {
+    $('#tw-note').textContent = `Showing ${page.length} of ${rows.length}`;
+    $('#tw-load').style.display = '';
+  }
+  $('#tw-empty-text').textContent = q ? 'Nothing in this tag matches your search' : (t.relation === 'owned' ? 'Add your first words to this tag' : 'No words here yet');
+  $('#tw-add-cta')?.addEventListener('click', () => openAddWords(t));
+  $$('[data-rm]').forEach(b => b.addEventListener('click', () => removeFromTag(t, b.dataset.rm)));
+}
+
+
+function rowHTML(t, w) {
+  return `
+    <tr data-id="${w.id}">
+      <td><span class="pos-abbr">${POS_LABEL[w.pos] || w.pos}</span></td>
+      ${langOrder.map(l => `<td class="word-cell">${cellHTML(w, l)}</td>`).join('')}
+      ${t.relation === 'owned' ? `
+      <td style="text-align: right;">
+        <button class="btn btn-sm btn-ghost remove-btn" data-rm="${w.id}" aria-label="Remove ${w.t.en?.sg || ''} from tag">
+          Remove from tag
+        </button>
+      </td>` : ''}
+    </tr>`;
+}
+
+function cellHTML(w, l) {
+  const tr = w.t[l];
+  if (!tr || !tr.sg) {
+    return `<span class="cell-block" title="No translation here (yet)">—</span>`;
+  }
+  const g = w.pos === 'n' && tr.gender
+    ? `<span class="gender-chip gender-${tr.gender}">${{ m: 'der · el', f: 'die · la', n: 'das' }[tr.gender]}</span>` : '';
+  if (!w.owner || w.owner === ME) {
+    return `<span class="ring-wrap" style="width: 100%;">
+      <span class="truncate" style="display: inline-block; max-width: 170px; vertical-align: bottom;">${tr.sg}${g}</span>
+      <span class="ring" style="--pct: ${tr.pct};"><span class="ring-detail meta" style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 2px 7px; position: absolute; top: 24px; left: 0; z-index: 5; white-space: nowrap;">${tr.pct}% of cases</span></span>
+    </span>`;
+  }
+  /* foreign — read-only presentation */
+  return `<span class="row" style="gap: 7px;">
+    <span class="owner-dot owner-group" title="Word by ${w.owner}">${initials(w.owner)[0]}</span>
+    <span class="truncate" style="max-width: 150px;">${tr.sg}${g}</span>
+  </span>`;
+}
+
+function removeFromTag(t, id) {
+  const w = ALL_WORDS.find(x => x.id === id);
+  t.wordIds = t.wordIds.filter(x => x !== id);
+  w.tags = (w.tags || []).filter(x => x !== t.id);
+  render();
+  toast('success', `“${w.t.en?.sg || w.t.de?.sg || 'Word'}” removed from “${t.label}” — it stays on your shelf`);
+}
+
+/* ─────────────── head actions ─────────────── */
+function findTag(id) { return TAGS.find(x => x.id === id); }
+function headAction(act, t) {
+  if (act === 'follow') {
+    t.relation = 'followed'; t.followers++;
+    recordRel(t.id, 'followed', t.followers);
+    render();
+    toast('success', `Following “${t.label}” — its words joined your Review pool`, { label: 'Open Review', href: 'review.html' });
+    return;
+  }
+  if (act === 'edit')   return openEdit(t);
+  if (act === 'del') {
+    $('#del-text').innerHTML = `<b>“${t.label}”</b> holds <span class="num">${countWords(t)}</span> word${countWords(t) === 1 ? '' : 's'}. The words themselves are not deleted — they just lose this tag.`;
+    pending.del = t;
+    $('#del-dialog').showModal();
+    return;
+  }
+  if (act === 'unfollow') {
+    $('#unfollow-text').innerHTML = `You’ll stop following <b>“${t.label}”</b> by ${t.author}. Its word${countWords(t) === 1 ? '' : 's'} will drop out of your Review list and practice pool.`;
+    pending.unfollow = t;
+    $('#unfollow-dialog').showModal();
+    return;
+  }
+  if (act === 'clone')  return openClone(t);
+  if (act === 'addwords') return openAddWords(t);
+}
+
+/* ─────────────── not-found error state ─────────────── */
+function renderNotFound(main) {
+  main.innerHTML = `
+  <section class="card empty" data-od-id="tag-notfound">
+    <div class="e-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><circle cx="12" cy="16" r="1"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <p style="color: var(--fg); font-weight: 600;">You can’t see this tag</p>
+    <p style="color: var(--muted); font-size: 13px;">It may be Private now, deleted, or the link is wrong.</p>
+    <a class="btn btn-primary btn-sm" href="tags.html">Back to /tags</a>
+  </section>`;
+}
+
+let pending = { del: null, unfollow: null };
+
+$('#del-yes').addEventListener('click', () => {
+  const t = pending.del;
+  if (!t) return;
+  recordDelete(t.id);
+  pending.del = null;
+  $('#del-dialog').close();
+  TAGS = applyOverlay();
+  toast('success', `Tag “${t.label}” deleted — the ${t.wordIds.length} word${t.wordIds.length === 1 ? '' : 's'} stay on your shelf`, { label: 'Back to /tags', href: 'tags.html' });
+  renderNotFound($('#detail-root'));
+});
+
+$('#unfollow-yes').addEventListener('click', () => {
+  const t = pending.unfollow;
+  if (!t) return;
+  recordRel(t.id, 'discover', Math.max(0, t.followers - 1));
+  pending.unfollow = null;
+  $('#unfollow-dialog').close();
+  TAGS = applyOverlay();
+  const still = TAGS.find(x => x.id === state.id);
+  if (still) { state.id = still.id; render(); toast('info', `Unfollowed “${still.label}” — its words left your Review. A Public tag can be re-followed in Discover.`); }
+  else { toast('success', `Unfollowed`); renderNotFound($('#detail-root')); }
+});
+
+/* ─────────────── add words (owned) ─────────────── */
+let awTarget = null;
+const OWN_POOL = () => WORDS.filter(w => !(TAGS.find(t => t.id === awTarget.id)?.wordIds || []).includes(w.id));
+function openAddWords(t) {
+  awTarget = t;
+  state.shown = state.perPage;
+  state.picked = new Set();
+  $('#aw-search').value = '';
+  $('#aw-count').textContent = '0 selected';
+  renderAwList('');
+  $('#addwords-dialog').showModal();
+}
+function renderAwList(q) {
+  const hay = q.toLowerCase();
+  const pool = OWN_POOL().filter(w => !hay || langOrder.some(l => [w.t[l]?.sg, w.t[l]?.pl].some(v => (v || '').toLowerCase().includes(hay))));
+  const box = $('#aw-list');
+  box.innerHTML = pool.length ? pool.map(w => `
+    <button class="pick-row" data-w="${w.id}" aria-pressed="false">
+      <input type="checkbox" tabindex="-1" class="cb" aria-hidden="true" />
+      <span class="pw truncate">${w.t.en?.sg || w.t.de?.sg}</span>
+      <span class="hint grow" style="text-align: right; white-space: nowrap;">${langOrder.map(l => w.t[l]?.sg).filter(Boolean).slice(0, 2).join(' · ')}</span>
+    </button>`).join('')
+    : '<p class="hint" style="padding: 12px 14px;">No words left — every one of your words is already in this tag.</p>';
+  box.querySelectorAll('[data-w]').forEach(r => r.addEventListener('click', e => {
+    e.preventDefault();
+    const on = r.getAttribute('aria-pressed') === 'true';
+    r.setAttribute('aria-pressed', on ? 'false' : 'true');
+    r.querySelector('input').checked = !on;
+    state.picked[on ? 'delete' : 'add'](r.dataset.w);
+    $('#aw-count').textContent = `${state.picked.size} selected`;
+  }));
+}
+$('#aw-search').addEventListener('input', e => renderAwList(e.target.value.trim()));
+$('#aw-save').addEventListener('click', () => {
+  if (!awTarget) return;
+  const t = findTag(awTarget.id);
+  state.picked.forEach(id => {
+    if (!t.wordIds.includes(id)) t.wordIds.push(id);
+    const w = ALL_WORDS.find(x => x.id === id);
+    w.tags = w.tags || [];
+    if (!w.tags.includes(t.id)) w.tags.push(t.id);
+  });
+  const n = state.picked.size;
+  $('#addwords-dialog').close();
+  toast('success', `${n} word${n === 1 ? '' : 's'} added to “${t.label}”`);
+  render();
+});
+
+/* tag form (edit) */
+function openEdit(t) {
+  $('#tf-label').value = t.label;
+  $('#tf-desc').value = t.desc || '';
+  $('#tf-err').classList.remove('show');
+  $('#tf-label').removeAttribute('aria-invalid');
+  $(`input[name="tf-vis"][value="${t.vis}"]`).checked = true;
+  $('#tag-form-dialog').showModal();
+}
+
+function labelTaken(label, excludeId) {
+  const l = label.trim().toLowerCase();
+  return TAGS.some(t => t.label.toLowerCase() === l && t.id !== excludeId);
+}
+$('#tf-label').addEventListener('blur', validateLabel);
+$('#tf-label').addEventListener('input', () => {
+  const err = $('#tf-err');
+  if (err.classList.contains('show')) { err.classList.remove('show'); $('#tf-label').removeAttribute('aria-invalid'); }
+});
+function validateLabel() {
+  const label = $('#tf-label').value.trim();
+  const err = $('#tf-err');
+  if (!label) {
+    err.textContent = 'Label is required.';
+    err.classList.add('show');
+    $('#tf-label').setAttribute('aria-invalid', 'true');
+    return false;
+  }
+  if (labelTaken(label, state.id)) {
+    err.textContent = 'You already have a tag with this label.';
+    err.classList.add('show');
+    $('#tf-label').setAttribute('aria-invalid', 'true');
+    return false;
+  }
+  return true;
+}
+$('#tf-save').addEventListener('click', () => {
+  if (!validateLabel()) return;
+  const t = TAGS.find(x => x.id === state.id);
+  t.label = $('#tf-label').value.trim();
+  t.desc = $('#tf-desc').value.trim();
+  t.vis = document.querySelector('input[name="tf-vis"]:checked').value;
+  $('#tag-form-dialog').close();
+  toast('success', `“${t.label}” updated` + (t.vis === 'private' ? ' — Public followers now see it as Unavailable' : ''));
+  render();
+});
+
+/* clone dialog */
+let cloneSrc = null;
+function openClone(t) {
+  cloneSrc = t;
+  $('#clone-src-label').textContent = t.label;
+  $('#clone-src-author').textContent = t.author;
+  $('#clone-src-count').textContent = `${t.wordIds.length} word${t.wordIds.length === 1 ? '' : 's'} · ${t.followers} follower${t.followers === 1 ? '' : 's'}`;
+  $('#clone-end-follow').style.display = (t.relation === 'followed' || t.relation === 'unavailable') ? '' : 'none';
+  $('#clone-dialog').showModal();
+}
+$('#clone-yes').addEventListener('click', () => {
+  const vis = document.querySelector('input[name="clone-vis"]:checked').value;
+  const copy = {
+    id: 'c' + Date.now(),
+    label: cloneSrc.label,
+    desc: cloneSrc.desc || '',
+    vis,
+    relation: 'owned',
+    author: ME,
+    wordIds: cloneSrc.wordIds.slice(),
+    followers: 0,
+    created: new Date().toISOString().slice(0, 10),
+    clonedFrom: { label: cloneSrc.label, author: cloneSrc.author }
+  };
+  if (cloneSrc.relation === 'followed' || cloneSrc.relation === 'unavailable') {
+    recordRel(cloneSrc.id, 'discover', Math.max(0, cloneSrc.followers - 1));
+  }
+  recordClone(copy);
+  $('#clone-dialog').close();
+  TAGS = applyOverlay();
+  toast('success', `Copy of “${copy.label}” created with ${copy.wordIds.length} word${copy.wordIds.length === 1 ? '' : 's'} — fully yours now`, { label: 'Open it', href: `tag-detail.html?id=${copy.id}` });
+  location.assign(`tag-detail.html?id=${copy.id}`);
+});
+
+/* ─────────────── boot ─────────────── */
+TAGS = applyOverlay();
+render();
+
+/* ─────────────── toast ─────────────── */
+function toast(kind, msg, action) {
+  const icons = { success: 'M20 6 9 17l-5-5', error: 'M18 6 6 18M6 6l12 12', warning: 'M12 8v5m0 4h.01', info: 'M12 16v-5m0-4h.01' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = `<svg class="t-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="${icons[kind]}"/></svg><span>${msg}</span>` + (action ? `<a href="${action.href}">${action.label}</a>` : '');
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 5200);
+}
+</script>
+</body>
+</html>

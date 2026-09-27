@@ -167,7 +167,8 @@
         <span class="grow" style="font-size: 13px;">selected</span>
         <button class="btn" id="b-exercise" disabled>Create exercises</button>
         <button class="btn" id="b-view" disabled>View</button>
-        <button class="btn" id="b-tag">Assign tag</button>
+        <button class="btn" id="b-addtag">Add tags</button>
+        <button class="btn" id="b-removetag">Remove tags</button>
         <button class="btn danger" id="b-delete">Delete</button>
       </div>
 
@@ -211,12 +212,32 @@
 <!-- ─── tag picker dialog ─── -->
 <dialog id="tag-dialog">
   <div class="dlg-head">
-    <h2 class="h3" id="td-title">Assign tags</h2>
+    <h2 class="h3" id="td-title">Edit tags</h2>
     <button class="icon-btn" data-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="dlg-body">
+    <div class="searchbox" style="width: 100%; margin-bottom: 10px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input id="td-search" placeholder="Search tags…" aria-label="Search tags" />
+    </div>
     <div class="tag-pick" id="td-options"></div>
-    <p class="hint" style="margin-top: 10px;">All selected tags must already be on the word (match-all semantics).</p>
+    <p class="hint" id="td-hint" style="margin-top: 10px;"></p>
+    <div id="td-newtag" hidden style="margin-top: 12px; padding: 12px; border: 1px dashed var(--border-strong, color-mix(in oklch, var(--fg) 22%, transparent)); border-radius: var(--radius);">
+      <div class="field">
+        <label class="label" for="td-newlabel">New tag label <span class="req">*</span></label>
+        <input class="input" id="td-newlabel" placeholder="e.g. Chapter 2" autocomplete="off" />
+        <span class="err" id="td-newerr"></span>
+        <span class="hint" style="margin-top: 2px;">Private by default — you can make it Public later on /tags.</span>
+      </div>
+      <div class="row" style="gap: 8px; margin-top: 10px;">
+        <button class="btn btn-sm btn-primary" id="td-newsave">Create tag</button>
+        <button class="btn btn-sm btn-ghost" id="td-newcancel">Cancel</button>
+      </div>
+    </div>
+    <button class="btn btn-sm btn-secondary" id="td-create" style="margin-top: 12px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Create new tag
+    </button>
   </div>
   <div class="dlg-foot">
     <button class="btn btn-sm btn-ghost" data-close>Cancel</button>
@@ -249,22 +270,90 @@ const FLAGS = {
 const LANG_NAME = { en: 'English', de: 'Deutsch', es: 'Español', ee: 'Eesti' };
 const POS_LABEL = { n: 'n.', v: 'v.', adj: 'adj.', adv: 'adv.' };
 
+/* ─────────────── Tags concept (shared catalogue with /tags pages) ─────────────── */
+const ME = 'Kai Rebane';
+const LOCK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+
+const SEED_TAGS = [
+  { id: 't1', label: 'Chapter 1', desc: 'Words and phrases from the first chapter of the course book.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w1','w2','w3','w4','w5'], followers: 3, created: '2026-09-08', clonedFrom: { label: 'Chapter 1', author: 'Mari Maasikas' } },
+  { id: 't2', label: 'Kitchen', desc: 'Pots, pans and everyday kitchen vocabulary.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w6','w9','w16','w17','w18','w19','w20'], followers: 2, created: '2026-05-19' },
+  { id: 't3', label: 'Exam prep', desc: 'High-frequency items that keep appearing in B1 sample tests.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w7','w8','w10','w12','w14'], followers: 7, created: '2025-11-02' },
+  { id: 't4', label: 'Medical terms', desc: 'Doctor-visit vocabulary gathered for Marta’s course.', vis: 'private', relation: 'owned', author: ME, wordIds: ['w21','w22'], followers: 0, created: '2026-08-14' },
+  { id: 't5', label: 'Home & surroundings', desc: 'Rooms, streets and everything around the house.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w11','w13','w15'], followers: 4, created: '2026-07-12' },
+  { id: 't6', label: 'Travel · Dining', desc: 'Airport, menu and paying-the-bill vocabulary — Karl keeps it current.', vis: 'public', relation: 'followed', author: 'Karl Tamm', wordIds: ['f3','f4'], followers: 14, created: '2026-04-30' },
+  { id: 't7', label: 'Office small talk', desc: 'Phrases for elevators and coffee corners.', vis: 'private', relation: 'unavailable', author: 'Karl Tamm', wordIds: [], followers: 41, created: '2026-03-05' },
+  { id: 't8', label: 'Spring garden', desc: 'Seasonal planting and green-fingered vocabulary.', vis: 'public', relation: 'discover', author: 'Mari Maasikas', wordIds: ['f1','f2'], followers: 27, created: '2026-06-10' },
+  { id: 't9', label: 'B1 connectors', desc: 'Linking words and transitions to lift essay writing one band.', vis: 'public', relation: 'discover', author: 'Karl Tamm', wordIds: ['f7','f8'], followers: 5, created: '2026-01-22' },
+  { id: 't10', label: 'Thai takeaway', desc: 'Menu decoding, spice levels and ordering without pointing.', vis: 'public', relation: 'discover', author: 'Mari Maasikas', wordIds: ['f5','f6'], followers: 8, created: '2026-02-14' }
+];
+
+/* cross-page relation overlay — reflects follow/unfollow/clone/delete made on /tags */
+function loadOverlay() {
+  try {
+    const o = JSON.parse(sessionStorage.getItem('ladu-tags-v1') || '{}');
+    return { rels: o.rels || {}, deleted: o.deleted || [], clones: o.clones || [] };
+  } catch { return { rels: {}, deleted: [], clones: [] }; }
+}
+function saveOverlay(o) { try { sessionStorage.setItem('ladu-tags-v1', JSON.stringify(o)); } catch {} }
+function applyOverlay() {
+  const o = loadOverlay();
+  let list = SEED_TAGS.filter(t => !o.deleted.includes(t.id)).map(t => ({ ...t }));
+  list.forEach(t => {
+    const r = o.rels[t.id];
+    if (r) { t.relation = r.relation; if (r.followers != null) t.followers = r.followers; }
+  });
+  (o.clones || []).forEach(c => list.unshift({ ...c, wordIds: c.wordIds.slice() }));
+  return list;
+}
+let TAG_DB = applyOverlay();
+const tagById = id => TAG_DB.find(t => t.id === id);
+const tagLabel = id => tagById(id)?.label || id;
+
+/* sidebar Tags filter group — the user's owned + followed tags */
+function renderTagFilterChips() {
+  TAG_DB = applyOverlay();
+  const mine = TAG_DB.filter(t => t.relation === 'owned' || t.relation === 'followed' || t.relation === 'unavailable');
+  $('#tag-chips').innerHTML = mine.map(t => {
+    const un = t.relation === 'unavailable';
+    return `<button class="chip" data-tag="${t.id}" ${un ? 'disabled title="Unavailable — owner made it Private"' : `title="${t.relation === 'owned' ? 'Owned' : 'Followed'} tag — ${t.vis === 'private' ? 'Private' : 'Public'}"`}>${t.vis === 'private' || un ? LOCK + ' ' : ''}${t.label}</button>`;
+  }).join('');
+  /* rebind + restore pressed state from URL */
+  $$('#tag-chips .chip').forEach(c => c.addEventListener('click', () => {
+    const v = c.dataset.tag;
+    filters.tags.has(v) ? filters.tags.delete(v) : filters.tags.add(v);
+    c.setAttribute('aria-pressed', filters.tags.has(v));
+    shown = 10;
+    renderAll();
+  }));
+  $$('#tag-chips .chip').forEach(c => c.setAttribute('aria-pressed', filters.tags.has(c.dataset.tag)));
+  updateActiveCount();
+}
+
 let words = [
-  { id: 'w1', pos: 'n', owner: 'me', tags: ['nature', 'A1'], t: { de: { sg: 'der Baum', pl: 'die Bäume', gender: 'm', pct: 100 }, ee: { sg: 'puu', pct: 81 }, en: { sg: 'tree', pl: 'trees', pct: 100 }, es: { sg: 'el árbol', gender: 'm', pct: 64 } } },
-  { id: 'w2', pos: 'v', owner: 'me', tags: ['A1'], t: { de: { sg: 'lesen', pl: 'las gelesen', pct: 92 }, ee: { sg: 'lugema', pct: 70 }, en: { sg: 'to read', pct: 88 }, es: { sg: 'leer', pct: 76 } } },
-  { id: 'w3', pos: 'n', owner: 'group', tags: ['home'], t: { de: { sg: 'das Haus', pl: 'die Häuser', gender: 'n', pct: 100 }, ee: { sg: 'maja', pct: 63 }, en: { sg: 'house', pl: 'houses', pct: 90 }, es: { sg: 'la casa', gender: 'f', pct: 55 } } },
-  { id: 'w4', pos: 'adj', owner: 'me', tags: ['A2'], t: { de: { sg: 'schön', pct: 85 }, ee: { sg: 'ilus', pct: 72 }, en: { sg: 'beautiful', pct: 95 }, es: { sg: 'bonito', gender: 'm', pct: 60 } } },
-  { id: 'w5', pos: 'n', owner: 'me', tags: ['people'], t: { de: { sg: 'der Freund', pl: 'die Freunde', gender: 'm', pct: 96 }, ee: { sg: 'sõber', pct: 66 }, en: { sg: 'friend', pl: 'friends', pct: 100 }, es: { sg: 'el amigo', gender: 'm', pct: 70 } } },
-  { id: 'w6', pos: 'n', owner: 'me', tags: ['home'], t: { de: { sg: 'das Fenster', pl: 'die Fenster', gender: 'n', pct: 88 }, ee: { pct: 0 }, en: { sg: 'window', pl: 'windows', pct: 100 }, es: { sg: 'la ventana', gender: 'f', pct: 58 } } },
-  { id: 'w7', pos: 'adv', owner: 'me', tags: ['A1'], t: { de: { sg: 'schnell', pct: 80 }, ee: { sg: 'kiiresti', pct: 74 }, en: { sg: 'quickly', pct: 90 }, es: { pct: 0 } } },
-  { id: 'w8', pos: 'v', owner: 'group', tags: ['people'], t: { de: { sg: 'fragen', pl: 'fragte, gefragt', pct: 84 }, ee: { sg: 'küsima', pct: 69 }, en: { sg: 'to ask', pct: 86 }, es: { sg: 'preguntar', pct: 77 } } },
-  { id: 'w9', pos: 'n', owner: 'me', tags: ['food', 'kitchen'], t: { de: { sg: 'das Brot', pl: 'die Brote', gender: 'n', pct: 100 }, ee: { sg: 'leib', pct: 78 }, en: { sg: 'bread', pl: 'breads', pct: 92 }, es: { sg: 'el pan', gender: 'm', pct: 65 } } },
-  { id: 'w10', pos: 'adj', owner: 'me', tags: ['A1'], t: { de: { sg: 'neu', pct: 82 }, ee: { sg: 'uus', pct: 71 }, en: { sg: 'new', pct: 94 }, es: { pct: 0 } } },
-  { id: 'w11', pos: 'n', owner: 'me', tags: ['home'], t: { de: { sg: 'die Tür', pl: 'die Türen', gender: 'f', pct: 97 }, ee: { sg: 'uks', pct: 75 }, en: { sg: 'door', pl: 'doors', pct: 100 }, es: { sg: 'la puerta', gender: 'f', pct: 60 } } },
-  { id: 'w12', pos: 'v', owner: 'me', tags: ['A2'], t: { de: { sg: 'schreiben', pl: 'schrieb, geschrieben', pct: 89 }, ee: { sg: 'kirjutama', pct: 68 }, en: { sg: 'to write', pct: 91 }, es: { sg: 'escribir', pct: 73 } } },
-  { id: 'w13', pos: 'n', owner: 'group', tags: ['nature'], t: { de: { sg: 'der Garten', pl: 'die Gärten', gender: 'm', pct: 94 }, ee: { sg: 'aed', pct: 62 }, en: { sg: 'garden', pl: 'gardens', pct: 88 }, es: { sg: 'el jardín', gender: 'm', pct: 52 } } },
-  { id: 'w14', pos: 'adj', owner: 'me', tags: ['A2'], t: { de: { sg: 'alt', pct: 80 }, ee: { sg: 'vana', pct: 70 }, en: { sg: 'old', pct: 90 }, es: { sg: 'viejo', gender: 'm', pct: 55 } } },
-  { id: 'w15', pos: 'n', owner: 'me', tags: ['home'], t: { de: { sg: 'die Straße', pl: 'die Straßen', gender: 'f', pct: 96 }, ee: { sg: 'tänav', pct: 64 }, en: { sg: 'street', pl: 'streets', pct: 100 }, es: { sg: 'la calle', gender: 'f', pct: 59 } } }
+  { id: 'w1',  pos: 'n',   owner: 'me', tags: ['t1'], t: { de: { sg: 'der Baum', pl: 'die Bäume', gender: 'm', pct: 100 }, ee: { sg: 'puu', pct: 81 }, en: { sg: 'tree', pl: 'trees', pct: 100 }, es: { sg: 'el árbol', gender: 'm', pct: 64 } } },
+  { id: 'w2',  pos: 'v',   owner: 'me', tags: ['t1'], t: { de: { sg: 'lesen', pl: 'las gelesen', pct: 92 }, ee: { sg: 'lugema', pct: 70 }, en: { sg: 'to read', pct: 88 }, es: { sg: 'leer', pct: 76 } } },
+  { id: 'w3',  pos: 'n',   owner: 'me', tags: ['t1'], t: { de: { sg: 'das Haus', pl: 'die Häuser', gender: 'n', pct: 100 }, ee: { sg: 'maja', pct: 63 }, en: { sg: 'house', pl: 'houses', pct: 90 }, es: { sg: 'la casa', gender: 'f', pct: 55 } } },
+  { id: 'w4',  pos: 'adj', owner: 'me', tags: ['t1'], t: { de: { sg: 'schön', pct: 85 }, ee: { sg: 'ilus', pct: 72 }, en: { sg: 'beautiful', pct: 95 }, es: { sg: 'bonito', gender: 'm', pct: 60 } } },
+  { id: 'w5',  pos: 'n',   owner: 'me', tags: ['t1'], t: { de: { sg: 'der Freund', pl: 'die Freunde', gender: 'm', pct: 96 }, ee: { sg: 'sõber', pct: 66 }, en: { sg: 'friend', pl: 'friends', pct: 100 }, es: { sg: 'el amigo', gender: 'm', pct: 70 } } },
+  { id: 'w6',  pos: 'n',   owner: 'me', tags: ['t2'], t: { de: { sg: 'das Fenster', pl: 'die Fenster', gender: 'n', pct: 88 }, ee: { pct: 0 }, en: { sg: 'window', pl: 'windows', pct: 100 }, es: { sg: 'la ventana', gender: 'f', pct: 58 } } },
+  { id: 'w7',  pos: 'adv', owner: 'me', tags: ['t3'], t: { de: { sg: 'schnell', pct: 80 }, ee: { sg: 'kiiresti', pct: 74 }, en: { sg: 'quickly', pct: 90 }, es: { pct: 0 } } },
+  { id: 'w8',  pos: 'v',   owner: 'me', tags: ['t3'], t: { de: { sg: 'fragen', pl: 'fragte, gefragt', pct: 84 }, ee: { sg: 'küsima', pct: 69 }, en: { sg: 'to ask', pct: 86 }, es: { sg: 'preguntar', pct: 77 } } },
+  { id: 'w9',  pos: 'n',   owner: 'me', tags: ['t2'], t: { de: { sg: 'das Brot', pl: 'die Brote', gender: 'n', pct: 100 }, ee: { sg: 'leib', pct: 78 }, en: { sg: 'bread', pl: 'breads', pct: 92 }, es: { sg: 'el pan', gender: 'm', pct: 65 } } },
+  { id: 'w10', pos: 'adj', owner: 'me', tags: ['t3'], t: { de: { sg: 'neu', pct: 82 }, ee: { sg: 'uus', pct: 71 }, en: { sg: 'new', pct: 94 }, es: { pct: 0 } } },
+  { id: 'w11', pos: 'n',   owner: 'me', tags: ['t5'], t: { de: { sg: 'die Tür', pl: 'die Türen', gender: 'f', pct: 97 }, ee: { sg: 'uks', pct: 75 }, en: { sg: 'door', pl: 'doors', pct: 100 }, es: { sg: 'la puerta', gender: 'f', pct: 60 } } },
+  { id: 'w12', pos: 'v',   owner: 'me', tags: ['t3'], t: { de: { sg: 'schreiben', pl: 'schrieb, geschrieben', pct: 89 }, ee: { sg: 'kirjutama', pct: 68 }, en: { sg: 'to write', pct: 91 }, es: { sg: 'escribir', pct: 73 } } },
+  { id: 'w13', pos: 'n',   owner: 'me', tags: ['t5'], t: { de: { sg: 'der Garten', pl: 'die Gärten', gender: 'm', pct: 94 }, ee: { sg: 'aed', pct: 62 }, en: { sg: 'garden', pl: 'gardens', pct: 88 }, es: { sg: 'el jardín', gender: 'm', pct: 52 } } },
+  { id: 'w14', pos: 'adj', owner: 'me', tags: ['t3'], t: { de: { sg: 'alt', pct: 80 }, ee: { sg: 'vana', pct: 70 }, en: { sg: 'old', pct: 90 }, es: { sg: 'viejo', gender: 'm', pct: 55 } } },
+  { id: 'w15', pos: 'n',   owner: 'me', tags: ['t5'], t: { de: { sg: 'die Straße', pl: 'die Straßen', gender: 'f', pct: 96 }, ee: { sg: 'tänav', pct: 64 }, en: { sg: 'street', pl: 'streets', pct: 100 }, es: { sg: 'la calle', gender: 'f', pct: 59 } } },
+  { id: 'w16', pos: 'n',   owner: 'me', tags: ['t2'], t: { de: { sg: 'der Wasserkessel', pl: 'die Wasserkessel', gender: 'm', pct: 74 }, ee: { sg: 'teekann', pct: 58 }, en: { sg: 'kettle', pl: 'kettles', pct: 82 }, es: { sg: 'la tetera', gender: 'f', pct: 40 } } },
+  { id: 'w17', pos: 'n',   owner: 'me', tags: ['t2'], t: { de: { sg: 'der Löffel', pl: 'die Löffel', gender: 'm', pct: 68 }, ee: { sg: 'lusikas', pct: 61 }, en: { sg: 'spoon', pl: 'spoons', pct: 88 }, es: { sg: 'la cuchara', gender: 'f', pct: 45 } } },
+  { id: 'w18', pos: 'n',   owner: 'me', tags: ['t2'], t: { de: { sg: 'der Teller', pl: 'die Teller', gender: 'm', pct: 62 }, ee: { sg: 'taldrik', pct: 55 }, en: { sg: 'plate', pl: 'plates', pct: 84 }, es: { sg: 'el plato', gender: 'm', pct: 42 } } },
+  { id: 'w19', pos: 'n',   owner: 'me', tags: ['t2'], t: { de: { sg: 'die Gabel', pl: 'die Gabeln', gender: 'f', pct: 57 }, ee: { sg: 'kahvel', pct: 58 }, en: { sg: 'fork', pl: 'forks', pct: 86 }, es: { sg: 'el tenedor', gender: 'm', pct: 44 } } },
+  { id: 'w20', pos: 'v',   owner: 'me', tags: ['t2'], t: { de: { sg: 'kochen', pl: 'kochte, gekocht', pct: 66 }, ee: { sg: 'kokama', pct: 54 }, en: { sg: 'to cook', pct: 78 }, es: { sg: 'cocinar', pct: 38 } } },
+  { id: 'w21', pos: 'n',   owner: 'me', tags: ['t4'], t: { de: { sg: 'das Fieber', pct: 30 }, ee: { sg: 'palavik', pct: 24 }, en: { sg: 'fever', pl: 'fevers', pct: 52 }, es: { sg: 'la fiebre', gender: 'f', pct: 22 } } },
+  { id: 'w22', pos: 'n',   owner: 'me', tags: ['t4'], t: { de: { sg: 'das Medikament', pl: 'die Medikamente', gender: 'n', pct: 28 }, ee: { sg: 'ravim', pct: 24 }, en: { sg: 'medicine', pl: 'medicines', pct: 52 }, es: { sg: 'el medicamento', gender: 'm', pct: 20 } } },
+  { id: 'f3',  pos: 'n',   owner: 'Karl Tamm', tags: ['t6'], t: { de: { sg: 'der Pass', pl: 'die Pässe', gender: 'm', pct: 100 }, ee: { sg: 'pass', pct: 90 }, en: { sg: 'passport', pl: 'passports', pct: 100 }, es: { sg: 'el pasaporte', gender: 'm', pct: 85 } } },
+  { id: 'f4',  pos: 'n',   owner: 'Karl Tamm', tags: ['t6'], t: { de: { sg: 'das Gepäck', pct: 96 }, ee: { sg: 'pagas', pct: 82 }, en: { sg: 'luggage', pct: 100 }, es: { sg: 'el equipaje', gender: 'm', pct: 88 } } }
 ];
 
 let langOrder = ['de', 'ee', 'en', 'es'];
@@ -308,7 +397,7 @@ function visible() {
       if (!w.pos.startsWith('n') || !gs.some(g => filters.genders.has(g))) return false;
     }
     if (filters.q) {
-      const hay = [w.tags.join(' '), ...langOrder.map(l => w.t[l]?.sg || ''), ...langOrder.map(l => w.t[l]?.pl || '')].join(' ').toLowerCase();
+      const hay = [w.tags.map(tagLabel).join(' '), ...langOrder.map(l => w.t[l]?.sg || ''), ...langOrder.map(l => w.t[l]?.pl || '')].join(' ').toLowerCase();
       if (!hay.includes(filters.q.toLowerCase())) return false;
     }
     return true;
@@ -365,6 +454,17 @@ function wordCellHTML(w, l) {
     </span>`;
 }
 
+function tagCellHTML(w) {
+  const list = (w.tags || []).map(tagById).filter(Boolean);
+  const shown = list.slice(0, 2);
+  const rest = list.length - shown.length;
+  const chips = shown.map(t => `
+    <button class="tagchip" data-tagfilter="${t.id}" title="${t.label} — click to filter by it">${t.vis === 'private' ? LOCK + ' ' : ''}${t.label}</button>`).join('');
+  const more = rest > 0 ? `<button class="tagchip" data-more="${w.id}" title="Show all ${list.length} tags" style="border-style: dashed;">+${rest}</button>` : '';
+  if (!list.length) return '<span class="hint">—</span>';
+  return chips + more;
+}
+
 function renderBody() {
   const rows = visible();
   const page = rows.slice(0, shown);
@@ -374,15 +474,15 @@ function renderBody() {
       <td>
         <span class="row" style="gap: 8px;">
           <input type="checkbox" class="cb row-cb" ${selection.has(w.id) ? 'checked' : ''} aria-label="Select ${w.t.en?.sg || w.id}" />
-          <span class="owner-dot ${w.owner === 'me' ? 'owner-me' : 'owner-group'}" title="${w.owner === 'me' ? 'Your word' : 'From a followed tag'}">${w.owner === 'me' ? 'K' : 'G'}</span>
+          <span class="owner-dot ${w.owner === 'me' ? 'owner-me' : 'owner-group'}" title="${w.owner === 'me' ? 'Your word' : 'Word by ' + w.owner + ' — from a followed tag'}">${w.owner === 'me' ? 'KR' : w.owner.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()}</span>
         </span>
       </td>
       <td><span class="pos-abbr">${POS_LABEL[w.pos]}</span></td>
       ${langOrder.map(l => `<td class="word-cell">${wordCellHTML(w, l)}</td>`).join('')}
       <td>
-        <button class="row" style="gap: 4px; flex-wrap: nowrap;" data-tags="${w.id}" title="Edit tags">
-          ${w.tags.map(t => `<span class="tagchip">${t}</span>`).join('')}
-        </button>
+        <span class="row" style="gap: 4px; flex-wrap: nowrap;">
+          ${tagCellHTML(w)}
+        </span>
       </td>
     </tr>`).join('');
 
@@ -400,7 +500,14 @@ function renderBody() {
     renderBody();
   }));
   tbody.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openCellDialog(...b.dataset.open.split('|'))));
-  tbody.querySelectorAll('[data-tags]').forEach(b => b.addEventListener('click', () => openTagDialog(b.dataset.tags)));
+  tbody.querySelectorAll('[data-tagfilter]').forEach(b => b.addEventListener('click', () => {
+    const v = b.dataset.tagfilter;
+    filters.tags.has(v) ? filters.tags.delete(v) : filters.tags.add(v);
+    $$('#tag-chips .chip').forEach(c => c.setAttribute('aria-pressed', filters.tags.has(c.dataset.tag)));
+    shown = 10;
+    renderAll();
+  }));
+  tbody.querySelectorAll('[data-more]').forEach(b => b.addEventListener('click', () => openTagDialog(b.dataset.more)));
   updateBulk();
 }
 
@@ -473,7 +580,6 @@ function chipWire(sel, set, clearBtn) {
 }
 chipWire('#gender-chips', filters.genders, $('#clear-gender'));
 chipWire('#pos-chips', filters.poss);
-chipWire('#tag-chips', filters.tags);
 $('#clear-gender').addEventListener('click', () => {
   filters.genders.clear();
   $$('#gender-chips .chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
@@ -566,33 +672,147 @@ $('#cd-delete').addEventListener('click', () => {
   toast('success', `${LANG_NAME[cd.lang]} translation removed`);
 });
 
-/* ─────────────── tag picker dialog ─────────────── */
-const ALL_TAGS = ['A1', 'A2', 'B1', 'nature', 'home', 'food', 'kitchen', 'people', 'travel'];
-function openTagDialog(target) {
+/* ─────────────── tag picker dialog (add / remove, with inline create) ─────────────── */
+let tdMode = 'add'; // 'add' | 'remove'
+function openTagDialog(target, mode) {
   tagDialogTarget = target;
+  tdMode = mode || 'add';
   const ids = target === 'bulk' ? [...selection] : [target];
-  const picked = new Set(ids.flatMap(id => words.find(w => w.id === id).tags));
-  $('#td-title').textContent = target === 'bulk' ? `Assign tags to ${ids.length} words` : 'Edit tags';
-  $('#td-options').innerHTML = ALL_TAGS.map(t => `
-    <button class="chip" data-t="${t}" aria-pressed="${picked.has(t)}">${t}</button>`).join('');
-  $('#td-options').querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+  const targetWords = ids.map(id => words.find(w => w.id === id)).filter(Boolean);
+  const foreign = targetWords.some(w => w.owner !== 'me');
+  $('#td-newtag').hidden = true;
+  $('#td-create').hidden = tdMode === 'remove';
+  $('#td-newlabel').value = '';
+  $('#td-newerr').classList.remove('show');
+
+  if (foreign && targetWords.every(w => w.owner !== 'me') && tdMode !== 'remove') {
+    /* read-only view: word reached through a followed tag */
+    $('#td-title').textContent = 'Tags on this word';
+    $('#td-hint').textContent = 'Read-only — this word comes from a followed tag. Its tags are managed by the tag’s owner.';
+    $('#td-save').style.display = 'none';
+    $('#td-create').hidden = true;
+  } else if (tdMode === 'add') {
+    $('#td-title').textContent = target === 'bulk' ? `Add tags to ${ids.length} words` : 'Edit tags';
+    $('#td-hint').textContent = 'Pick owned tags to put these words in. Followed tags hold the owner’s words — yours can’t join them.';
+    $('#td-save').style.display = '';
+  } else {
+    $('#td-title').textContent = target === 'bulk' ? `Remove tags from ${ids.length} words` : 'Remove tags';
+    $('#td-hint').textContent = 'Only owned tags can be removed here. Words in a followed tag stay until you unfollow it on /tags.';
+    $('#td-save').style.display = '';
+  }
+
+  /* option universe */
+  let options;
+  if (tdMode === 'remove') {
+    const present = new Set(targetWords.flatMap(w => w.tags));
+    options = TAG_DB.filter(t => t.relation === 'owned' && present.has(t.id));
+  } else {
+    options = TAG_DB.filter(t => t.relation === 'owned' || t.relation === 'followed' || t.relation === 'unavailable');
+  }
+
+  const checked = new Set();
+  if (tdMode === 'add' && !(foreign && targetWords.every(w => w.owner !== 'me'))) {
+    targetWords.forEach(w => (w.tags || []).forEach(t => checked.add(t)));
+  }
+  $('#td-save').disabled = false;
+  renderTagOptions(options, checked, foreign);
+  $('#tag-dialog').showModal();
+  $('#td-search').value = '';
+}
+
+function renderTagOptions(options, checked, foreign) {
+  const q = ($('#td-search').value || '').trim().toLowerCase();
+  $('#td-options').innerHTML = options.length ? options
+    .filter(t => !q || t.label.toLowerCase().includes(q))
+    .map(t => {
+      const owned = t.relation === 'owned';
+      const un = t.relation === 'unavailable';
+      const dis = un || (tdMode === 'add' && !owned) || (foreign && !owned);
+      return `<button class="chip" data-t="${t.id}" aria-pressed="${checked.has(t.id)}" ${dis ? `disabled title="${un ? 'Unavailable — the owner made it Private' : 'Followed tag — read-only, owned by ' + t.author}"` : ''}>${t.vis === 'private' || un ? LOCK + ' ' : ''}${t.label}</button>`;
+    }).join('')
+    : '<span class="hint">No tags match</span>';
+  $('#td-options').querySelectorAll('.chip:not([disabled])').forEach(c => c.addEventListener('click', () => {
     c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
   }));
-  $('#tag-dialog').showModal();
 }
+
+$('#td-search').addEventListener('input', () => {
+  const checked = new Set($$('#td-options .chip[aria-pressed="true"]').map(c => c.dataset.t));
+  const ids = tagDialogTarget === 'bulk' ? [...selection] : [tagDialogTarget];
+  const foreign = ids.map(id => words.find(w => w.id === id)).every(w => w && w.owner !== 'me');
+  const options = tdMode === 'remove'
+    ? TAG_DB.filter(t => t.relation === 'owned')
+    : TAG_DB.filter(t => t.relation === 'owned' || t.relation === 'followed' || t.relation === 'unavailable');
+  renderTagOptions(options, checked, foreign);
+});
+
+$('#td-create').addEventListener('click', () => {
+  $('#td-newtag').hidden = false;
+  $('#td-create').hidden = true;
+  $('#td-newlabel').focus();
+});
+$('#td-newcancel').addEventListener('click', () => {
+  $('#td-newtag').hidden = true;
+  $('#td-create').hidden = false;
+});
+$('#td-newsave').addEventListener('click', () => {
+  const label = $('#td-newlabel').value.trim();
+  const err = $('#td-newerr');
+  if (!label) {
+    err.textContent = 'Label is required.';
+    err.classList.add('show');
+    return;
+  }
+  if (TAG_DB.some(t => t.label.toLowerCase() === label.toLowerCase())) {
+    err.textContent = 'You already have a tag with this label.';
+    err.classList.add('show');
+    return;
+  }
+  err.classList.remove('show');
+  const t = {
+    id: 'c' + Date.now(),
+    label,
+    desc: '',
+    vis: 'private',
+    relation: 'owned',
+    author: ME,
+    wordIds: [],
+    followers: 0,
+    created: new Date().toISOString().slice(0, 10)
+  };
+  TAG_DB.unshift(t);
+  renderTagFilterChips();
+  /* check the new tag in the picker */
+  $('#td-newtag').hidden = true;
+  $('#td-create').hidden = false;
+  const checked = new Set($$('#td-options .chip[aria-pressed="true"]').map(c => c.dataset.t));
+  checked.add(t.id);
+  const options = tdMode === 'remove' ? TAG_DB.filter(x => x.relation === 'owned') : TAG_DB.filter(x => x.relation === 'owned' || x.relation === 'followed' || x.relation === 'unavailable');
+  renderTagOptions(options, checked, false);
+  $('#td-search').value = '';
+  toast('success', `Tag “${label}” created — Private, visible on /tags`);
+});
+
 $('#td-save').addEventListener('click', () => {
   const picked = $$('#td-options .chip[aria-pressed="true"]').map(c => c.dataset.t);
   const ids = tagDialogTarget === 'bulk' ? [...selection] : [tagDialogTarget];
   ids.forEach(id => {
     const w = words.find(x => x.id === id);
-    w.tags = [...new Set(w.tags.filter(t => picked.includes(t)).concat(picked.filter(t => w.tags.includes(t) || true)))];
-    w.tags = picked.slice(); /* match-all: selection replaces */
+    if (!w || w.owner !== 'me') return; /* foreign words are read-only */
+    if (tdMode === 'add') {
+      w.tags = [...new Set([...(w.tags || []), ...picked])];
+    } else {
+      w.tags = (w.tags || []).filter(t => !picked.includes(t));
+    }
   });
   $('#tag-dialog').close();
   renderAll();
-  toast('success', `Tags applied to ${ids.length} word${ids.length > 1 ? 's' : ''}`);
+  toast('success', tdMode === 'add'
+    ? `Tags added to ${ids.length} word${ids.length > 1 ? 's' : ''}`
+    : `Tags removed from ${ids.length} word${ids.length > 1 ? 's' : ''}`);
 });
-$('#b-tag').addEventListener('click', () => openTagDialog('bulk'));
+$('#b-addtag').addEventListener('click', () => openTagDialog('bulk', 'add'));
+$('#b-removetag').addEventListener('click', () => openTagDialog('bulk', 'remove'));
 
 /* ─────────────── dialog close buttons + toast ─────────────── */
 $$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
@@ -607,6 +827,7 @@ function toast(kind, msg, action) {
 }
 
 /* ─────────────── boot ─────────────── */
+renderTagFilterChips();
 readURL();
 renderLangOrder();
 renderAll();

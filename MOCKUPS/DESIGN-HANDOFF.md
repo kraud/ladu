@@ -11,7 +11,7 @@ This archive is the source of truth for turning the design into production code.
 
 ## Source map
 - Primary entry: `emails/index.html`
-- HTML screens detected: 13
+- HTML screens detected: 15
 - Stylesheets detected: 1
 - Script/component files detected: 0
 - Supporting assets detected: 11
@@ -75,6 +75,8 @@ For responsive web exports, treat these as a modern breakpoint system for one ad
 - `index.html`
 - `profile.html`
 - `review.html`
+- `tag-detail.html`
+- `tags.html`
 - `word-editor.html`
 
 ## Styles

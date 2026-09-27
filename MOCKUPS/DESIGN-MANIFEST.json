@@ -28,6 +28,8 @@
       "Ladu_title_with_icon.svg",
       "profile.html",
       "review.html",
+      "tag-detail.html",
+      "tags.html",
       "word-editor.html"
     ],
     "html": [
@@ -43,6 +45,8 @@
       "index.html",
       "profile.html",
       "review.html",
+      "tag-detail.html",
+      "tags.html",
       "word-editor.html"
     ],
     "css": [
@@ -121,6 +125,16 @@
     },
     {
       "file": "review.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "tag-detail.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "tags.html",
       "role": "screen",
       "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
     },

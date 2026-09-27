@@ -33,6 +33,9 @@
   .save-hint { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
   .save-hint .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warning); flex: none; }
   .save-hint.ready .dot { background: var(--success); }
+  .tag-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag-pick .chip[aria-pressed="true"] { background: var(--accent-soft); }
+  .tag-pick .chip[disabled] { opacity: .55; cursor: not-allowed; }
   @media (max-width: 920px) { .tcards, .cases-grid { grid-template-columns: 1fr; } .duo { grid-template-columns: 1fr !important; } }
 </style>
 </head>
@@ -43,6 +46,7 @@
     <a class="logo" href="dashboard.html" aria-label="Ladu — dashboard"><img src="assets/ladu-title-with-icon.svg" alt="Ladu" style="height: 24px; width: auto;"></a>
     <nav class="app-nav">
       <a href="word-editor.html" class="active">Add Word</a>
+      <a href="tags.html">Tags</a>
       <a href="#" title="Spec 05 pending">Practice</a>
       <a href="review.html">Review</a>
     </nav>
@@ -74,9 +78,9 @@
       <button class="icon-btn" aria-label="Back" onclick="history.back()">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
       </button>
-      <h1 class="h1">Add word</h1>
+      <h1 class="h1" id="page-title-text">Add word</h1>
     </div>
-    <span class="meta">Minimum 2 languages to save</span>
+    <span class="meta" id="page-title-hint">Minimum 2 languages to save</span>
   </div>
 
   <!-- Step 1 — part of speech -->
@@ -118,15 +122,18 @@
         <textarea class="textarea" id="clue" rows="3" placeholder="A sentence, mnemonic or association… e.g. “the tree by the barn — puu ladu ees”"></textarea>
       </div>
       <div class="field">
-        <label class="label" for="tag-input">Tags</label>
-        <div class="card" style="padding: 8px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; min-height: var(--control-h);" id="tag-box">
-          <input id="tag-input" class="input" style="border: 0; box-shadow: none; height: 26px; padding: 0 4px; flex: 1; min-width: 90px; font-size: 13px;" placeholder="Add tag…" aria-label="Add tag" />
+        <span class="label" id="tags-label">Tags</span>
+        <div class="card" style="padding: 8px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; min-height: var(--control-h);" id="tag-box" role="group" aria-labelledby="tags-label">
+          <button class="btn btn-sm btn-secondary" id="add-tag-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add tag
+          </button>
         </div>
-        <span class="hint">Enter to add · matches any existing tag first</span>
+        <span class="hint" id="tags-hint">From your owned tags — words from followed tags keep the owner’s tags, read-only</span>
       </div>
     </div>
 
-    <div class="savebar" data-od-id="save-bar">
+    <div class="savebar" data-od-id="save-bar" id="savebar">
       <span class="save-hint" id="save-hint"><span class="dot"></span><span id="save-hint-text">Fill both required fields to enable saving</span></span>
       <button class="btn btn-primary" id="save" disabled>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
@@ -136,6 +143,42 @@
   </section>
 
 </main>
+
+<!-- shared tag picker dialog -->
+<dialog id="tag-picker">
+  <div class="dlg-head">
+    <h2 class="h3" id="tp-title">Add tags</h2>
+    <button class="icon-btn" data-close aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dlg-body">
+    <div class="searchbox" style="width: 100%; margin-bottom: 10px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input id="tp-search" placeholder="Search tags…" aria-label="Search tags" />
+    </div>
+    <div class="tag-pick" id="tp-options"></div>
+    <p class="hint" id="tp-hint" style="margin-top: 10px;">Your owned tags. Followed tags hold the owner’s words, so your word can’t join them.</p>
+    <div id="tp-newtag" hidden style="margin-top: 12px; padding: 12px; border: 1px dashed var(--border-strong, color-mix(in oklch, var(--fg) 22%, transparent)); border-radius: var(--radius);">
+      <div class="field">
+        <label class="label" for="tp-newlabel">New tag label <span class="req">*</span></label>
+        <input class="input" id="tp-newlabel" placeholder="e.g. Chapter 2" autocomplete="off" />
+        <span class="err" id="tp-newerr"></span>
+        <span class="hint" style="margin-top: 2px;">Private by default — change it on /tags.</span>
+      </div>
+      <div class="row" style="gap: 8px; margin-top: 10px;">
+        <button class="btn btn-sm btn-primary" id="tp-newsave" type="button">Create tag</button>
+        <button class="btn btn-sm btn-ghost" id="tp-newcancel" type="button">Cancel</button>
+      </div>
+    </div>
+    <button class="btn btn-sm btn-secondary" id="tp-create" type="button" style="margin-top: 12px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Create new tag
+    </button>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn btn-sm btn-ghost" data-close>Cancel</button>
+    <button class="btn btn-sm btn-primary" id="tp-save" type="button">Add tags</button>
+  </div>
+</dialog>
 
 <!-- language picker dialog -->
 <dialog id="lang-dialog">
@@ -177,7 +220,7 @@ let state = {
     { lang: 'de', values: { gender: 'der', sg: 'der Baum', pl: 'die Bäume' } },
     { lang: 'ee', values: { n: 'puu', g: 'puu', p: 'puud' } }
   ],
-  tags: ['nature', 'A1'],
+  tags: ['t2', 't1'],
   dirty: false,
   saving: false
 };
@@ -373,30 +416,107 @@ function openLangDialog(remaining) {
 }
 document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
 
-/* ─────────────── tags ─────────────── */
-const TAG_SUGGESTIONS = ['kitchen', 'travel', 'animals', 'food', 'work', 'A1', 'A2', 'B1', 'nature', 'home'];
+/* ─────────────── tags — shared picker over owned tags ─────────────── */
+const ME = 'Kai Rebane';
+const LOCK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+
+const SEED_TAGS = [
+  { id: 't1', label: 'Chapter 1', desc: 'Words and phrases from the first chapter of the course book.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w1','w2','w3','w4','w5'], followers: 3, created: '2026-09-08', clonedFrom: { label: 'Chapter 1', author: 'Mari Maasikas' } },
+  { id: 't2', label: 'Kitchen', desc: 'Pots, pans and everyday kitchen vocabulary.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w6','w9','w16','w17','w18','w19','w20'], followers: 2, created: '2026-05-19' },
+  { id: 't3', label: 'Exam prep', desc: 'High-frequency items that keep appearing in B1 sample tests.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w7','w8','w10','w12','w14'], followers: 7, created: '2025-11-02' },
+  { id: 't4', label: 'Medical terms', desc: 'Doctor-visit vocabulary gathered for Marta’s course.', vis: 'private', relation: 'owned', author: ME, wordIds: ['w21','w22'], followers: 0, created: '2026-08-14' },
+  { id: 't5', label: 'Home & surroundings', desc: 'Rooms, streets and everything around the house.', vis: 'public', relation: 'owned', author: ME, wordIds: ['w11','w13','w15'], followers: 4, created: '2026-07-12' },
+  { id: 't6', label: 'Travel · Dining', desc: 'Airport, menu and paying-the-bill vocabulary — Karl keeps it current.', vis: 'public', relation: 'followed', author: 'Karl Tamm', wordIds: ['f3','f4'], followers: 14, created: '2026-04-30' },
+  { id: 't7', label: 'Office small talk', desc: 'Phrases for elevators and coffee corners.', vis: 'private', relation: 'unavailable', author: 'Karl Tamm', wordIds: [], followers: 41, created: '2026-03-05' },
+  { id: 't8', label: 'Spring garden', desc: 'Seasonal planting and green-fingered vocabulary.', vis: 'public', relation: 'discover', author: 'Mari Maasikas', wordIds: ['f1','f2'], followers: 27, created: '2026-06-10' },
+  { id: 't9', label: 'B1 connectors', desc: 'Linking words and transitions to lift essay writing one band.', vis: 'public', relation: 'discover', author: 'Karl Tamm', wordIds: ['f7','f8'], followers: 5, created: '2026-01-22' },
+  { id: 't10', label: 'Thai takeaway', desc: 'Menu decoding, spice levels and ordering without pointing.', vis: 'public', relation: 'discover', author: 'Mari Maasikas', wordIds: ['f5','f6'], followers: 8, created: '2026-02-14' }
+];
+let TAG_DB = SEED_TAGS.map(t => ({ ...t }));
+const tagById = id => TAG_DB.find(t => t.id === id);
+
+let readOnly = false;      // viewing a word reached through a followed tag
+let roForeign = false;
+
 function renderTags() {
-  const box = $('#tag-box'), input = $('#tag-input');
+  const box = $('#tag-box'), addBtn = $('#add-tag-btn');
   box.querySelectorAll('.tagchip').forEach(ch => ch.remove());
-  state.tags.forEach((t, i) => {
+  state.tags.forEach((id, i) => {
+    const t = tagById(id);
+    if (!t) return;
     const ch = document.createElement('span');
     ch.className = 'tagchip';
-    ch.innerHTML = `${t} <button class="x" aria-label="Remove ${t}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
-    ch.querySelector('.x').addEventListener('click', () => { state.tags.splice(i, 1); state.dirty = true; renderTags(); });
-    box.insertBefore(ch, input);
+    ch.innerHTML = `${t.vis === 'private' ? LOCK + ' ' : ''}${t.label}` + (readOnly ? '' : ` <button class="x" type="button" aria-label="Remove ${t.label}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`);
+    if (!readOnly) {
+      ch.querySelector('.x').addEventListener('click', () => { state.tags.splice(i, 1); state.dirty = true; renderTags(); updateCompletion(); });
+    }
+    box.insertBefore(ch, addBtn);
   });
+  addBtn.style.display = readOnly ? 'none' : '';
 }
-$('#tag-input').addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  e.preventDefault();
-  const v = e.target.value.trim().toLowerCase();
-  if (!v || state.tags.includes(v)) return;
-  state.tags.push(v);
-  e.target.value = '';
+
+/* picker dialog */
+function openTagPicker() {
+  $('#tp-newtag').hidden = true;
+  $('#tp-create').hidden = false;
+  $('#tp-newlabel').value = '';
+  $('#tp-newerr').classList.remove('show');
+  $('#tp-search').value = '';
+  renderTagOptions('');
+  $('#tag-picker').showModal();
+}
+
+function renderTagOptions(q) {
+  const owned = TAG_DB.filter(t => t.relation === 'owned');
+  const box = $('#tp-options');
+  box.innerHTML = owned.length ? owned
+    .filter(t => !q || t.label.toLowerCase().includes(q))
+    .map(t => `<button class="chip" type="button" data-t="${t.id}" aria-pressed="${state.tags.includes(t.id)}">${t.vis === 'private' ? LOCK + ' ' : ''}${t.label}</button>`).join('')
+    : '<span class="hint">No owned tags yet — create one below</span>';
+  box.querySelectorAll('[data-t]').forEach(c => c.addEventListener('click', () => {
+    c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+  }));
+}
+
+$('#add-tag-btn').addEventListener('click', openTagPicker);
+$('#tp-search').addEventListener('input', e => renderTagOptions(e.target.value.trim()));
+$('#tp-create').addEventListener('click', () => {
+  $('#tp-newtag').hidden = false;
+  $('#tp-create').hidden = true;
+  $('#tp-newlabel').focus();
+});
+$('#tp-newcancel').addEventListener('click', () => {
+  $('#tp-newtag').hidden = true;
+  $('#tp-create').hidden = false;
+});
+$('#tp-newsave').addEventListener('click', () => {
+  const label = $('#tp-newlabel').value.trim();
+  const err = $('#tp-newerr');
+  if (!label) { err.textContent = 'Label is required.'; err.classList.add('show'); return; }
+  if (TAG_DB.some(t => t.label.toLowerCase() === label.toLowerCase())) {
+    err.textContent = 'You already have a tag with this label.';
+    err.classList.add('show');
+    return;
+  }
+  err.classList.remove('show');
+  const t = { id: 'c' + Date.now(), label, desc: '', vis: 'private', relation: 'owned', author: ME, wordIds: [], followers: 0, created: new Date().toISOString().slice(0, 10) };
+  TAG_DB.unshift(t);
+  $('#tp-newtag').hidden = true;
+  $('#tp-create').hidden = false;
+  renderTagOptions('');
+  toast('success', `Tag “${label}” created — Private, visible on /tags`);
+});
+$('#tp-save').addEventListener('click', () => {
+  const picked = [...document.querySelectorAll('#tp-options .chip[aria-pressed="true"]')].map(c => c.dataset.t);
+  const added = picked.filter(id => !state.tags.includes(id));
+  state.tags = picked;
   state.dirty = true;
+  $('#tag-picker').close();
   renderTags();
   updateCompletion();
+  if (added.length) toast('success', `${added.length} tag${added.length === 1 ? '' : 's'} added — they’re saved together with the word`);
 });
+
 $('#clue').addEventListener('input', () => { state.dirty = true; updateCompletion(); });
 
 /* ─────────────── save ─────────────── */
@@ -408,7 +528,7 @@ $('#save').addEventListener('click', () => {
   setTimeout(() => {
     state.saving = false;
     btn.innerHTML = 'Save word';
-    toast('success', '“tree” saved to your shelf', { label: 'See details', href: '#' });
+    toast('success', `“${state.cards[0]?.values.sg || 'word'}” saved to your shelf${state.tags.length ? ` with ${state.tags.length} tag${state.tags.length === 1 ? '' : 's'}` : ''}`, { label: 'See details', href: '#' });
     /* create-mode reset: back to step 1, clean form */
     state = { pos: state.pos, cards: [], tags: [], dirty: false, saving: false };
     $('#clue').value = '';
@@ -431,12 +551,87 @@ function toast(kind, msg, action) {
   setTimeout(() => el.remove(), 5200);
 }
 
-/* ─────────────── boot (demo: Noun pre-selected; /addWord/:pos shortcut honored) ─────────────── */
-renderTags();
-const posParam = new URLSearchParams(location.search).get('pos');
-const bootPos = POS_NAMES[posParam] ? posParam : 'noun';
-document.querySelectorAll('.pos-card').forEach(b => b.setAttribute('aria-pressed', b.dataset.pos === bootPos ? 'true' : 'false'));
-choosePos(bootPos);
+/* ─────────────── word store (shared demo catalogue) + read-only view ─────────────── */
+const WORDS_DB = [
+  { id: 'w1',  pos: 'n',   owner: ME, tags: ['t1'], t: { de: { sg: 'der Baum', pl: 'die Bäume', gender: 'm', pct: 100 }, ee: { sg: 'puu', pct: 81 }, en: { sg: 'tree', pl: 'trees', pct: 100 }, es: { sg: 'el árbol', gender: 'm', pct: 64 } } },
+  { id: 'w2',  pos: 'v',   owner: ME, tags: ['t1'], t: { de: { sg: 'lesen', pl: 'las gelesen', pct: 92 }, ee: { sg: 'lugema', pct: 70 }, en: { sg: 'to read', pct: 88 }, es: { sg: 'leer', pct: 76 } } },
+  { id: 'w3',  pos: 'n',   owner: ME, tags: ['t1'], t: { de: { sg: 'das Haus', pl: 'die Häuser', gender: 'n', pct: 100 }, ee: { sg: 'maja', pct: 63 }, en: { sg: 'house', pl: 'houses', pct: 90 }, es: { sg: 'la casa', gender: 'f', pct: 55 } } },
+  { id: 'w4',  pos: 'adj', owner: ME, tags: ['t1'], t: { de: { sg: 'schön', pct: 85 }, ee: { sg: 'ilus', pct: 72 }, en: { sg: 'beautiful', pct: 95 }, es: { sg: 'bonito', gender: 'm', pct: 60 } } },
+  { id: 'w5',  pos: 'n',   owner: ME, tags: ['t1'], t: { de: { sg: 'der Freund', pl: 'die Freunde', gender: 'm', pct: 96 }, ee: { sg: 'sõber', pct: 66 }, en: { sg: 'friend', pl: 'friends', pct: 100 }, es: { sg: 'el amigo', gender: 'm', pct: 70 } } },
+  { id: 'w6',  pos: 'n',   owner: ME, tags: ['t2'], t: { de: { sg: 'das Fenster', pl: 'die Fenster', gender: 'n', pct: 88 }, ee: { pct: 0 }, en: { sg: 'window', pl: 'windows', pct: 100 }, es: { sg: 'la ventana', gender: 'f', pct: 58 } } },
+  { id: 'w7',  pos: 'adv', owner: ME, tags: ['t3'], t: { de: { sg: 'schnell', pct: 80 }, ee: { sg: 'kiiresti', pct: 74 }, en: { sg: 'quickly', pct: 90 }, es: { pct: 0 } } },
+  { id: 'w8',  pos: 'v',   owner: ME, tags: ['t3'], t: { de: { sg: 'fragen', pl: 'fragte, gefragt', pct: 84 }, ee: { sg: 'küsima', pct: 69 }, en: { sg: 'to ask', pct: 86 }, es: { sg: 'preguntar', pct: 77 } } },
+  { id: 'w9',  pos: 'n',   owner: ME, tags: ['t2'], t: { de: { sg: 'das Brot', pl: 'die Brote', gender: 'n', pct: 100 }, ee: { sg: 'leib', pct: 78 }, en: { sg: 'bread', pl: 'breads', pct: 92 }, es: { sg: 'el pan', gender: 'm', pct: 65 } } },
+  { id: 'w10', pos: 'adj', owner: ME, tags: ['t3'], t: { de: { sg: 'neu', pct: 82 }, ee: { sg: 'uus', pct: 71 }, en: { sg: 'new', pct: 94 }, es: { pct: 0 } } },
+  { id: 'w11', pos: 'n',   owner: ME, tags: ['t5'], t: { de: { sg: 'die Tür', pl: 'die Türen', gender: 'f', pct: 97 }, ee: { sg: 'uks', pct: 75 }, en: { sg: 'door', pl: 'doors', pct: 100 }, es: { sg: 'la puerta', gender: 'f', pct: 60 } } },
+  { id: 'w12', pos: 'v',   owner: ME, tags: ['t3'], t: { de: { sg: 'schreiben', pl: 'schrieb, geschrieben', pct: 89 }, ee: { sg: 'kirjutama', pct: 68 }, en: { sg: 'to write', pct: 91 }, es: { sg: 'escribir', pct: 73 } } },
+  { id: 'w13', pos: 'n',   owner: ME, tags: ['t5'], t: { de: { sg: 'der Garten', pl: 'die Gärten', gender: 'm', pct: 94 }, ee: { sg: 'aed', pct: 62 }, en: { sg: 'garden', pl: 'gardens', pct: 88 }, es: { sg: 'el jardín', gender: 'm', pct: 52 } } },
+  { id: 'w14', pos: 'adj', owner: ME, tags: ['t3'], t: { de: { sg: 'alt', pct: 80 }, ee: { sg: 'vana', pct: 70 }, en: { sg: 'old', pct: 90 }, es: { sg: 'viejo', gender: 'm', pct: 55 } } },
+  { id: 'w15', pos: 'n',   owner: ME, tags: ['t5'], t: { de: { sg: 'die Straße', pl: 'die Straßen', gender: 'f', pct: 96 }, ee: { sg: 'tänav', pct: 64 }, en: { sg: 'street', pl: 'streets', pct: 100 }, es: { sg: 'la calle', gender: 'f', pct: 59 } } },
+  { id: 'w16', pos: 'n',   owner: ME, tags: ['t2'], t: { de: { sg: 'der Wasserkessel', pl: 'die Wasserkessel', gender: 'm', pct: 74 }, ee: { sg: 'teekann', pct: 58 }, en: { sg: 'kettle', pl: 'kettles', pct: 82 }, es: { sg: 'la tetera', gender: 'f', pct: 40 } } },
+  { id: 'w17', pos: 'n',   owner: ME, tags: ['t2'], t: { de: { sg: 'der Löffel', pl: 'die Löffel', gender: 'm', pct: 68 }, ee: { sg: 'lusikas', pct: 61 }, en: { sg: 'spoon', pl: 'spoons', pct: 88 }, es: { sg: 'la cuchara', gender: 'f', pct: 45 } } },
+  { id: 'w18', pos: 'n',   owner: ME, tags: ['t2'], t: { de: { sg: 'der Teller', pl: 'die Teller', gender: 'm', pct: 62 }, ee: { sg: 'taldrik', pct: 55 }, en: { sg: 'plate', pl: 'plates', pct: 84 }, es: { sg: 'el plato', gender: 'm', pct: 42 } } },
+  { id: 'w19', pos: 'n',   owner: ME, tags: ['t2'], t: { de: { sg: 'die Gabel', pl: 'die Gabeln', gender: 'f', pct: 57 }, ee: { sg: 'kahvel', pct: 58 }, en: { sg: 'fork', pl: 'forks', pct: 86 }, es: { sg: 'el tenedor', gender: 'm', pct: 44 } } },
+  { id: 'w20', pos: 'v',   owner: ME, tags: ['t2'], t: { de: { sg: 'kochen', pl: 'kochte, gekocht', pct: 66 }, ee: { sg: 'kokama', pct: 54 }, en: { sg: 'to cook', pct: 78 }, es: { sg: 'cocinar', pct: 38 } } },
+  { id: 'w21', pos: 'n',   owner: ME, tags: ['t4'], t: { de: { sg: 'das Fieber', pct: 30 }, ee: { sg: 'palavik', pct: 24 }, en: { sg: 'fever', pl: 'fevers', pct: 52 }, es: { sg: 'la fiebre', gender: 'f', pct: 22 } } },
+  { id: 'w22', pos: 'n',   owner: ME, tags: ['t4'], t: { de: { sg: 'das Medikament', pl: 'die Medikamente', gender: 'n', pct: 28 }, ee: { sg: 'ravim', pct: 24 }, en: { sg: 'medicine', pl: 'medicines', pct: 52 }, es: { sg: 'el medicamento', gender: 'm', pct: 20 } } },
+  { id: 'f3',  pos: 'n',   owner: 'Karl Tamm', tags: ['t6'], t: { de: { sg: 'der Pass', pl: 'die Pässe', gender: 'm', pct: 100 }, ee: { sg: 'pass', pct: 90 }, en: { sg: 'passport', pl: 'passports', pct: 100 }, es: { sg: 'el pasaporte', gender: 'm', pct: 85 } } },
+  { id: 'f4',  pos: 'n',   owner: 'Karl Tamm', tags: ['t6'], t: { de: { sg: 'das Gepäck', pct: 96 }, ee: { sg: 'pagas', pct: 82 }, en: { sg: 'luggage', pct: 100 }, es: { sg: 'el equipaje', gender: 'm', pct: 88 } } }
+];
+const POS_MAP = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb' };
+
+function bootReadOnly(id) {
+  const w = WORDS_DB.find(x => x.id === id);
+  if (!w) return false;
+  readOnly = true;
+  roForeign = w.owner !== ME;
+  const pos = POS_MAP[w.pos] || 'noun';
+  document.title = `${w.t.en?.sg || 'Word'} · Ladu`;
+  $('#page-title-text').textContent = `${w.t.en?.sg || 'Word'} — read-only`;
+  $('#page-title-hint').textContent = roForeign ? `From followed tag “${tagById(w.tags[0])?.label || 'followed'}” by ${w.owner}` : 'Your word — edit it from the Review table';
+  state.pos = pos;
+  state.tags = (w.tags || []).filter(id2 => tagById(id2));
+  state.dirty = false;
+  state.cards = Object.keys(w.t)
+    .filter(l => w.t[l].sg)
+    .map(l => ({
+      lang: l,
+      values: l === 'ee'
+        ? { n: w.t[l].sg }
+        : { sg: w.t[l].sg, pl: w.t[l].pl, gender: w.t[l].gender, reg: undefined }
+    }));
+  document.querySelectorAll('.pos-card').forEach(b => b.setAttribute('aria-pressed', b.dataset.pos === pos ? 'true' : 'false'));
+  choosePos(pos);
+  /* lock the form */
+  document.querySelectorAll('.js-field').forEach(inp => { inp.disabled = true; });
+  $('#change-pos').style.display = 'none';
+  $('#savebar').style.display = 'none';
+  $('#add-lang').style.display = 'none';
+  document.querySelectorAll('[data-clear], [data-remove], [data-ac]').forEach(b => { b.style.display = 'none'; });
+  $('#clue').setAttribute('readonly', '');
+  $('#clue').value = 'A sentence, mnemonic or association would appear here — stored with the word.';
+  renderTags();
+  if (roForeign) {
+    const note = document.createElement('div');
+    note.className = 'banner warning';
+    note.style.marginBottom = '12px';
+    note.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg> Read-only — this word comes from a followed tag. Its tags are managed by the tag’s owner.';
+    $('#stepbar').insertAdjacentElement('afterend', note);
+  }
+  return true;
+}
+
+/* ─────────────── boot (create by default; /addWord/:pos shortcut; ?id= read-only view) ─────────────── */
+const params = new URLSearchParams(location.search);
+const viewId = params.get('id');
+const roOk = viewId ? bootReadOnly(viewId) : false;
+if (!roOk) {
+  renderTags();
+  const posParam = params.get('pos');
+  const bootPos = POS_NAMES[posParam] ? posParam : 'noun';
+  document.querySelectorAll('.pos-card').forEach(b => b.setAttribute('aria-pressed', b.dataset.pos === bootPos ? 'true' : 'false'));
+  choosePos(bootPos);
+}
 </script>
 </body>
 </html>
