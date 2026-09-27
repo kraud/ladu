@@ -26,7 +26,16 @@
  *   Phase 3 (review) — add: `wordKeys.list(filters)` cursor pages
  *   Phase 3.5 (dash) — ACTIVE: `useUserMetrics` (`metricsKeys.all`, staleTime
  *                      5min) — the Phase 2 edge above now has a real consumer.
- *   Phase 4 (tags)   — add: bulk-add-tags ⇒ ['tags', id, 'wordCount'] + ['words']
+ *   Phase 4 (tags)   — ACTIVE (Slice 4): every tag mutation (create/update/
+ *                      delete/follow/unfollow/clone/link/unlink) ⇒
+ *                      invalidate `tagKeys.all` (['tags']) AND `wordKeys.all`
+ *                      (['words']) — broad on purpose, same "invalidate this
+ *                      feature's keys + the cross-feature ones affected"
+ *                      shape as the Phase 2 edge above, not a narrower
+ *                      per-tag `wordCount` leaf as first sketched here.
+ *                      update/follow/unfollow/clone also `setQueryData` on
+ *                      the tag's detail key. Keys: `features/tags/keys.ts`
+ *                      (`tagKeys`).
  *   Phase 5 (exers)  — add: save/master/forget performance ⇒ setQueryData on ['exercises']
  *                       (getUserMetrics aggregates words/translations only — a practice
  *                        session does not change it; no `metricsKeys.all` edge here)

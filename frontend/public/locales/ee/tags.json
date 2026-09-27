@@ -1,4 +1,19 @@
 {
+  "apiErrors": {
+    "tagNotFound": "Seda tagi ei leitud.",
+    "notAuthorized": "Sul pole juurdepääsu sellele tagile.",
+    "notAuthorizedToDelete": "Saad kustutada ainult endale kuuluvaid tage.",
+    "notAuthorizedToFollow": "Sul pole luba seda tagi jälgida.",
+    "notAuthorizedToClone": "Nii saab kloonida ainult avalikke tage.",
+    "notAuthorizedTags": "Saad kasutada ainult endale kuuluvaid tage.",
+    "notAuthorizedWords": "Saad kasutada ainult endale kuuluvaid sõnu.",
+    "notAuthorizedToAddWords": "Saad lisada ainult endale kuuluvaid sõnu.",
+    "alreadyOwnTag": "See tag kuulub sulle juba.",
+    "labelRequired": "Palun sisesta tagi nimi.",
+    "labelAlreadyInUse": "Sul on juba samanimeline tag.",
+    "invalidVisibility": "Palun vali sobiv nähtavus.",
+    "invalidCursor": "See lehelink on aegunud — laadi loend uuesti."
+  },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag kustutati!",
     "tagUpdated": "Tag uuendati edukalt!",

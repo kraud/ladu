@@ -1,4 +1,19 @@
 {
+  "apiErrors": {
+    "tagNotFound": "Dieser Tag konnte nicht gefunden werden.",
+    "notAuthorized": "Du hast keinen Zugriff auf diesen Tag.",
+    "notAuthorizedToDelete": "Du kannst nur Tags löschen, die dir gehören.",
+    "notAuthorizedToFollow": "Du darfst diesem Tag nicht folgen.",
+    "notAuthorizedToClone": "Nur öffentliche Tags können so geklont werden.",
+    "notAuthorizedTags": "Du kannst nur eigene Tags verwenden.",
+    "notAuthorizedWords": "Du kannst nur eigene Wörter verwenden.",
+    "notAuthorizedToAddWords": "Du kannst nur eigene Wörter hinzufügen.",
+    "alreadyOwnTag": "Dieser Tag gehört dir bereits.",
+    "labelRequired": "Bitte gib ein Label für den Tag ein.",
+    "labelAlreadyInUse": "Du hast bereits einen Tag mit diesem Label.",
+    "invalidVisibility": "Bitte wähle eine gültige Sichtbarkeit.",
+    "invalidCursor": "Dieser Seitenlink ist abgelaufen — lade die Liste neu."
+  },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} Tag wurde gelöscht!",
     "tagUpdated": "Tag wurde erfolgreich aktualisiert!",

@@ -1,4 +1,19 @@
 {
+  "apiErrors": {
+    "tagNotFound": "No se pudo encontrar esta etiqueta.",
+    "notAuthorized": "No tienes acceso a esta etiqueta.",
+    "notAuthorizedToDelete": "Solo puedes eliminar etiquetas que te pertenecen.",
+    "notAuthorizedToFollow": "No tienes permiso para seguir esta etiqueta.",
+    "notAuthorizedToClone": "Solo las etiquetas públicas se pueden clonar de esta forma.",
+    "notAuthorizedTags": "Solo puedes usar etiquetas que te pertenecen.",
+    "notAuthorizedWords": "Solo puedes usar palabras que te pertenecen.",
+    "notAuthorizedToAddWords": "Solo puedes añadir palabras que te pertenecen.",
+    "alreadyOwnTag": "Ya eres dueño de esta etiqueta.",
+    "labelRequired": "Introduce un nombre para la etiqueta.",
+    "labelAlreadyInUse": "Ya tienes una etiqueta con ese nombre.",
+    "invalidVisibility": "Elige una visibilidad válida.",
+    "invalidCursor": "Ese enlace de página ha caducado — vuelve a cargar la lista."
+  },
   "toastMessages": {
     "tagDeleted": "¡La etiqueta {{tagLabel}} fue eliminada!",
     "tagUpdated": "¡La etiqueta fue actualizada con éxito!",

@@ -494,7 +494,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 1 | ✅ done 2026-09-28 — Backend: migration 0006; word-side fixes (`createWord` transaction + ownership-checked `tagIds`, `PUT /api/words/:id` drops `tags`, `word.tags` viewer-filtered, followed-word SQL subquery with visibility, follower read access on `getWordById`); the existing/planned `?tag=` union query is already additive/OR (D15) — no change needed there; extend `words.test.js`/`words-simple.test.js` |
 | 2 | ✅ done 2026-09-28 — Backend: new tag API (list/get/create/patch/delete/follow/unfollow/links/links-remove, `sort` per D16); delete every superseded legacy route + controller export; rewrite `tags.test.js` (sharing block kept, adapted to the surrounding changes) |
 | 3 | ✅ done 2026-09-28 — Backend: clone rebuild (batch inserts, provenance columns, visibility param, label-suffix, auto-unfollow) + `acceptTagShare`'s transaction fix; tests |
-| 4 | `features/tags/` data layer (`types`/`api`/`keys`/`hooks`/`errors`) + MSW handlers |
+| 4 | ✅ done 2026-09-28 — `features/tags/` data layer (`types`/`api`/`keys`/`hooks`/`errors`) + MSW handlers |
 | 5 | `/tags` page: search + scope chips + sort, `TagBadge`/`TagCard` grid, `TagFormDialog` create/edit/delete, follow/unfollow from the card, nav entry (feature-flagged on `featureFlags.tags`) — per `MOCKUPS/tags.html` |
 | 6 | `/tag/$tagId` page: header (label/description/badges/author/counts/"Cloned from"), word list via `GET /api/words/simple?tag=`, "Add words" (`WordPickerDialog`) + per-row remove for owned tags, follow/unfollow, `CloneTagDialog`, unavailable/not-found states; replaces the router `Placeholder` — per `MOCKUPS/tag-detail.html` |
 | 7 | Review: tags column (`columns.tsx`, D14), tags filter group (`FilterBar`/`MobileFilters`/`search.ts`, D15), bulk "Add tags"/"Remove tags" (`BulkActionBar` + `TagPickerDialog`, D17) |
@@ -638,6 +638,35 @@ own Slice 2 "Shipped" note deferred here:
 **Slice 4 — data layer.** `types.ts` mirrors `TagSummary` etc.; `api.ts`/
 `keys.ts`/`hooks.ts`/`errors.ts` follow the `features/words/` header style.
 `test/msw/tagHandlers.ts` follows the factory pattern (`makeTagHandlers()`).
+
+**Shipped 2026-09-28.** Built as planned, plus two small pieces of upkeep
+the plan flagged for "whenever Slice 4 happens":
+- **`WordTagRef` (`features/words/types.ts`) is now slimmed** to
+  `{id, label, visibility, authorId}`, matching the backend's
+  `WordTagSummary` exactly (Slice 1 deliberately left this stale, per its
+  own "Shipped" note, since nothing rendered it yet). Confirmed no test
+  seeded a tag object with the now-removed fields before making the change.
+- **`app/query-client.ts`'s Phase 4 comment is corrected** from the
+  original sketch (`bulk-add-tags ⇒ ['tags', id, 'wordCount'] + ['words']`)
+  to what actually shipped: every tag mutation invalidates `tagKeys.all` +
+  `wordKeys.all`, no separate per-tag `wordCount` leaf — simpler, and
+  consistent with `wordKeys`'s own "invalidate broadly" precedent
+  (`useCreateWord` already invalidates both `wordKeys.all` and
+  `metricsKeys.all` on every mutation).
+- **`makeTagHandlers`'s fake is intentionally simpler than the real
+  backend** in one place: `isAvailable` only checks owner-or-Public, with no
+  Friends-Only/friend-graph modeling — mirrors `wordHandlers.ts`'s own
+  stated precedent ("this fake models only ownership — followed-tag access
+  is covered by the backend's own integration tests"), since nothing in the
+  frontend exercises Friends-Only before Phase 6 anyway.
+- New: `frontend/public/locales/{en,es,de,ee}/tags.json` gained an
+  `apiErrors` section (13 keys, one per distinct backend message the tags
+  feature's `api.ts` can surface) — `errors.ts` needed real i18n keys to
+  point at, matching `wordRelated.json`'s existing `apiErrors` shape.
+- Frontend suite: 777 → 808 (31 new: 15 `errors.test.ts`, 16
+  `hooks.test.tsx` covering every hook once for its happy path plus the
+  ownership/conflict/not-found error cases the components in Slices 5–8
+  will need to surface). `tsc -b` and `npm run build` both clean.
 
 **Slice 5 — `/tags` page.** New route (`tagsRoute`, path `/tags`, under
 `protectedLayoutRoute`), built to `MOCKUPS/tags.html`. Search box + four

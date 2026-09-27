@@ -26,18 +26,20 @@ export interface TranslationBE {
 }
 
 /**
- * A tag as it rides on a word response — a raw `tags` table row (Drizzle
- * `$inferSelect`), NOT the form-model `TagData` in `ts/interfaces.ts`. Phase 2
- * never renders these; the shape is pinned only so Phase 4 widens it on purpose.
+ * A tag as it rides on a word response — slimmed server-side to exactly
+ * this shape (`WordTagSummary` in `backend/services/wordService.ts`,
+ * phase-4-tags.md Slice 1): enough to render a chip and tell
+ * ownership/visibility apart, not a full tag row. The richer shape
+ * (`wordCount`, `followerCount`, timestamps, …) is `TagSummary` in
+ * `features/tags/types.ts`, used by the tags feature's own endpoints, never
+ * embedded in a word response. Also NOT the form-model `TagData` in
+ * `ts/interfaces.ts`.
  */
 export interface WordTagRef {
     id: string;
-    authorId: string;
     label: string;
-    description: string | null;
     visibility: string;
-    createdAt: string;
-    updatedAt: string;
+    authorId: string;
 }
 
 /**

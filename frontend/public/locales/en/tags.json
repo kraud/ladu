@@ -1,4 +1,19 @@
 {
+  "apiErrors": {
+    "tagNotFound": "This tag could not be found.",
+    "notAuthorized": "You don't have access to this tag.",
+    "notAuthorizedToDelete": "You can only delete tags you own.",
+    "notAuthorizedToFollow": "You don't have access to follow this tag.",
+    "notAuthorizedToClone": "Only Public tags can be cloned this way.",
+    "notAuthorizedTags": "You can only use tags you own.",
+    "notAuthorizedWords": "You can only use words you own.",
+    "notAuthorizedToAddWords": "You can only add words you own.",
+    "alreadyOwnTag": "You already own this tag.",
+    "labelRequired": "Please enter a label for the tag.",
+    "labelAlreadyInUse": "You already have a tag with this label.",
+    "invalidVisibility": "Please choose a valid visibility.",
+    "invalidCursor": "That page link has expired — reload the list."
+  },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag was deleted!",
     "tagUpdated": "Tag was updated successfully!",
