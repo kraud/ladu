@@ -15,10 +15,14 @@
  *   - New endpoints use 404 for "doesn't exist" and 403 for "not allowed",
  *     not the legacy mix of 400/401.
  *
- * The tag-*sharing* lifecycle (share/accept/decline) and `addExternalTag`
- * (clone) are UNCHANGED in this slice (Slice 3 rebuilds clone's internals)
- * — those tests are carried over, adjusted only for the `wordIds`/`id`
- * shape changes that ripple in from the word/tag response rewrites.
+ * Slice 3 rebuild: `POST /api/tags/addExternalTag` is retired in favor of
+ * `POST /api/tags/:id/clone` (`{visibility}`, caller-chosen rather than
+ * copying the source's) — batch inserts, `sourceTagId`/`sourceWordId`
+ * provenance, a numeric label suffix on collision, and removing an existing
+ * follow of the cloned tag. `acceptTagShare` now passes its own `tx` into
+ * the shared `cloneTagForUser` instead of that function opening a second,
+ * nested transaction; its own response shape is otherwise unchanged (no
+ * visibility choice in that flow, still `normalizeTag`).
  */
 
 // Must run before `require('../app')` below — see auth.test.js's comment on
@@ -656,12 +660,17 @@ describe('Tag sharing lifecycle', () => {
 
         expect(res.statusCode).toBe(200);
 
-        // The cloned tag must exist with the recipient as author.
+        // The cloned tag must exist with the recipient as author, and
+        // (phase-4-tags.md D11) record where it was cloned from.
         const clonedTag = res.body.clonedTag;
         expect(clonedTag.authorId).toBe(recipient.id);
         expect(clonedTag.label).toBe('Shared');
+        expect(clonedTag.sourceTagId).toBe(tag.id);
+        // Accept doesn't ask for a visibility choice — it copies the source's.
+        expect(clonedTag.visibility).toBe(tag.visibility);
 
-        // The cloned word must carry its translations + cases (the §8.3 fix).
+        // The cloned word must carry its translations + cases (the §8.3 fix)
+        // and its own provenance (D11).
         const [clonedWord] = await db
             .select()
             .from(words)
@@ -669,6 +678,7 @@ describe('Tag sharing lifecycle', () => {
             .limit(1);
         expect(clonedWord.isCloned).toBe(true);
         expect(clonedWord.originalCreatorId).toBe(owner.id);
+        expect(clonedWord.sourceWordId).not.toBeNull();
 
         const transRows = await db
             .select()
@@ -721,11 +731,12 @@ describe('Tag sharing lifecycle', () => {
 });
 
 // ===========================================================================
-// Tag clone authorization — addExternalTag is UNCHANGED in this slice
-// (Slice 3 rebuilds it); only wordIds/id shape and getTagById's new 404
-// posture ripple in here.
+// POST /api/tags/:id/clone — Slice 3 rebuild: caller-chosen visibility,
+// source_tag_id/source_word_id provenance, a numeric suffix on label
+// collision, batch inserts (word/translation/case correctness must survive
+// the switch from a per-word loop), and auto-unfollow.
 // ===========================================================================
-describe('Tag clone authorization', () => {
+describe('POST /api/tags/:id/clone - Clone a Public tag', () => {
     let owner, stranger;
 
     beforeEach(async () => {
@@ -733,32 +744,116 @@ describe('Tag clone authorization', () => {
         stranger = await registerAndLogin('Stranger', 'stranger@test.com', 'stranger');
     });
 
-    it('POST /api/tags/addExternalTag - clones a Public tag', async () => {
+    const cloneTag = (token, tagId, visibility = 'Private') =>
+        request(app)
+            .post(`/api/tags/${tagId}/clone`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ visibility });
+
+    it('clones a Public tag with the caller\'s chosen visibility, not the source\'s', async () => {
         const word = await createWord(owner.token, 'Noun', 'singularNominative', 'book');
         const tag = await createTag(owner.token, { label: 'PublicTag', visibility: 'Public', wordIds: [word.id] });
 
-        const res = await request(app)
-            .post('/api/tags/addExternalTag')
-            .set('Authorization', `Bearer ${stranger.token}`)
-            .send({ tagId: tag.body.id });
+        const res = await cloneTag(stranger.token, tag.body.id, 'Private');
 
         expect(res.statusCode).toBe(200);
-        expect(res.body.authorId).toBe(stranger.id);
+        expect(res.body.isOwner).toBe(true);
+        expect(res.body.author.id).toBe(stranger.id);
+        expect(res.body.visibility).toBe('Private');
+        expect(res.body.wordCount).toBe(1);
+        expect(res.body.sourceTag).toEqual({ id: tag.body.id, label: 'PublicTag' });
     });
 
-    it('POST /api/tags/addExternalTag - rejects cloning a Private tag', async () => {
-        const word = await createWord(owner.token, 'Noun', 'singularNominative', 'book');
-        const tag = await createTag(owner.token, { label: 'PrivateTag', visibility: 'Private', wordIds: [word.id] });
-
-        const res = await request(app)
-            .post('/api/tags/addExternalTag')
-            .set('Authorization', `Bearer ${stranger.token}`)
-            .send({ tagId: tag.body.id });
-
-        expect(res.statusCode).toBe(401);
+    it('rejects cloning a Private tag with 403', async () => {
+        const tag = await createTag(owner.token, { label: 'PrivateTag', visibility: 'Private' });
+        const res = await cloneTag(stranger.token, tag.body.id);
+        expect(res.statusCode).toBe(403);
     });
 
-    it('GET /api/tags/:id - a non-author gets 404 for a Private tag (hides existence)', async () => {
+    it('rejects cloning your own tag with 400', async () => {
+        const tag = await createTag(owner.token, { label: 'MineAlready', visibility: 'Public' });
+        const res = await cloneTag(owner.token, tag.body.id);
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('fails with 404 for a nonexistent tag', async () => {
+        const res = await cloneTag(stranger.token, '00000000-0000-4000-8000-000000000000');
+        expect(res.statusCode).toBe(404);
+    });
+
+    it('fails with 400 for an invalid visibility value', async () => {
+        const tag = await createTag(owner.token, { label: 'PublicTag2', visibility: 'Public' });
+        const res = await cloneTag(stranger.token, tag.body.id, 'Invalid');
+        expect(res.statusCode).toBe(400);
+    });
+
+    // Regression guard for the per-word-loop -> batch-insert rewrite: two
+    // words, each with its own translations, must not cross-contaminate.
+    it('clones multiple words with each word\'s own translations intact', async () => {
+        const cat = await createWord(owner.token, 'Noun', 'singularNominative', 'cat');
+        const dog = await createWord(owner.token, 'Noun', 'singularNominative', 'dog');
+        const tag = await createTag(owner.token, { label: 'Animals', visibility: 'Public', wordIds: [cat.id, dog.id] });
+
+        const res = await cloneTag(stranger.token, tag.body.id);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.wordCount).toBe(2);
+
+        const clonedWords = await db.select().from(words).where(eq(words.userId, stranger.id));
+        expect(clonedWords).toHaveLength(2);
+
+        for (const clonedWord of clonedWords) {
+            expect(clonedWord.isCloned).toBe(true);
+            expect(clonedWord.originalCreatorId).toBe(owner.id);
+            expect([cat.id, dog.id]).toContain(clonedWord.sourceWordId);
+
+            const sourceWord = clonedWord.sourceWordId === cat.id ? cat : dog;
+            const expectedWord = sourceWord === cat ? 'cat' : 'dog';
+
+            const [translation] = await db
+                .select()
+                .from(translations)
+                .where(eq(translations.wordId, clonedWord.id))
+                .limit(1);
+            const [caseRow] = await db
+                .select()
+                .from(translationCases)
+                .where(eq(translationCases.translationId, translation.id))
+                .limit(1);
+            // Each cloned word's case value must match ITS OWN source word,
+            // never the other one's (what a misaligned batch-insert zip
+            // would produce).
+            expect(caseRow.word).toBe(expectedWord);
+        }
+    });
+
+    it('appends a numeric suffix when the label collides with one the recipient already has', async () => {
+        await createTag(stranger.token, { label: 'Kitchen' });
+        const tag = await createTag(owner.token, { label: 'Kitchen', visibility: 'Public' });
+
+        const res = await cloneTag(stranger.token, tag.body.id);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.label).toBe('Kitchen (2)');
+    });
+
+    it('removes the follow when cloning a tag the caller already follows (D11)', async () => {
+        const tag = await createTag(owner.token, { label: 'Followed then cloned', visibility: 'Public' });
+        await request(app).post(`/api/tags/${tag.body.id}/follow`).set('Authorization', `Bearer ${stranger.token}`);
+
+        const res = await cloneTag(stranger.token, tag.body.id);
+        expect(res.statusCode).toBe(200);
+
+        const followRows = await db
+            .select()
+            .from(userFollowingTags)
+            .where(eq(userFollowingTags.tagId, tag.body.id));
+        expect(followRows).toHaveLength(0);
+    });
+});
+
+describe('GET /api/tags/:id - Private tag hides existence from a non-author', () => {
+    it('returns 404 (not 401) for a non-author viewing a Private tag', async () => {
+        const owner = await registerAndLogin('Owner2', 'owner2clone@test.com', 'owner2clone');
+        const stranger = await registerAndLogin('Stranger2', 'stranger2clone@test.com', 'stranger2clone');
         const word = await createWord(owner.token, 'Noun', 'singularNominative', 'book');
         const tag = await createTag(owner.token, { label: 'Hidden3', visibility: 'Private', wordIds: [word.id] });
 

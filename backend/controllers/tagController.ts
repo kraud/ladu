@@ -60,12 +60,12 @@ interface TagSummary {
 }
 
 /**
- * The legacy-minus-`_id` shape still used by the tag-*sharing* endpoints
- * (`addExternalTag`/`acceptTagShare`), which stay dormant until Phase 7
- * builds their frontend and are out of this rewrite's scope. Not
- * `TagSummary` — those two endpoints return the raw tag row (plus its
- * `words`, still resolved via `fetchWordsWithRelations`), not the new
- * count-based summary.
+ * The legacy-minus-`_id` shape still used by `acceptTagShare`'s response
+ * (accept-a-share stays dormant until Phase 7 builds its frontend, and
+ * doesn't ask the recipient to choose anything the way `cloneTag`'s
+ * Discover-driven clone does, so its response shape wasn't worth touching
+ * in this slice). Not `TagSummary` — just the raw tag row plus its `words`
+ * (still resolved via `fetchWordsWithRelations`).
  */
 const normalizeTag = (tag: TagRow & { words?: WordResponse[] }) => ({
   ...tag,
@@ -533,12 +533,43 @@ const unfollowTag = asyncHandler(async (req: any, res: any) => {
 });
 
 /**
- * Clone a tag and its words (with translations + cases) for a recipient.
- * Runs as a transaction so a partial clone is impossible.
+ * Append a numeric suffix until `label` is unique for `authorId`
+ * (phase-4-tags.md D13/D11 — a clone whose label collides with one the
+ * recipient already has gets "Label (2)", "Label (3)", ...).
+ */
+const resolveUniqueLabel = async (label: string, authorId: string): Promise<string> => {
+  if (!(await labelAlreadyUsedByAuthor(label, authorId))) return label;
+  let suffix = 2;
+  // eslint-disable-next-line no-await-in-loop -- each check depends on the last suffix tried
+  while (await labelAlreadyUsedByAuthor(`${label} (${suffix})`, authorId)) {
+    suffix += 1;
+  }
+  return `${label} (${suffix})`;
+};
+
+/**
+ * Clone a tag and its words (with translations + cases) for a recipient,
+ * inside the caller's own transaction (`tx`) — the caller opens and commits
+ * it, so a share-accept and a direct clone can each wrap this in their own
+ * single transaction instead of this function nesting a second one
+ * (phase-4-tags.md's "Why" section — the old nested-transaction bug this
+ * fixes).
+ *
+ * Batch-inserts words/translations/cases (three `INSERT ... RETURNING`
+ * calls total, not one per word) rather than the old per-word loop —
+ * `RETURNING` preserves the input array's order, the same guarantee
+ * `setWord` already relies on for its own translation batch insert.
+ *
+ * Sets `sourceTagId`/`sourceWordId` (D11) for display/auditing, resolves a
+ * unique label for the recipient, and — if the recipient already follows
+ * the source tag — removes that follow (D11: otherwise the same words would
+ * appear twice, original and clone, in their Review).
  */
 const cloneTagForUser = async (
+  tx: any,
   sourceTag: TagRow,
   recipientId: string,
+  visibility: string,
 ): Promise<TagRow> => {
   const wordIdRows = await db
     .select({ wordId: tagWords.wordId })
@@ -552,87 +583,110 @@ const cloneTagForUser = async (
   // choice regardless of who triggered the clone (D5-adjacent — cloning
   // itself is not gated on viewing the words' *other* tags).
   const sourceWords = await fetchWordsWithRelations(wordIds, sourceTag.authorId);
+  const label = await resolveUniqueLabel(sourceTag.label, recipientId);
 
-  return db.transaction(async (tx) => {
-    const [clonedTag] = await tx
-      .insert(tags)
-      .values({
-        authorId: recipientId,
-        label: sourceTag.label,
-        description: sourceTag.description,
-        visibility: sourceTag.visibility,
-      })
-      .returning();
+  const [clonedTag] = await tx
+    .insert(tags)
+    .values({
+      authorId: recipientId,
+      label,
+      description: sourceTag.description,
+      visibility,
+      sourceTagId: sourceTag.id,
+    })
+    .returning();
 
-    for (const sourceWord of sourceWords) {
-      const [clonedWord] = await tx
-        .insert(words)
-        .values({
-          userId: recipientId,
-          partOfSpeech: sourceWord.partOfSpeech,
-          clue: sourceWord.clue,
-          isCloned: true,
-          originalCreatorId: sourceWord.user,
-        })
-        .returning();
-
-      for (const translation of sourceWord.translations) {
-        const [clonedTranslation] = await tx
-          .insert(translations)
-          .values({
-            wordId: clonedWord.id,
-            language: translation.language,
-          })
-          .returning();
-
-        if (translation.cases.length > 0) {
-          await tx.insert(translationCases).values(
-            translation.cases.map((c) => ({
-              translationId: clonedTranslation.id,
-              caseName: c.caseName,
-              word: c.word,
+  const clonedWordRows =
+    sourceWords.length > 0
+      ? await tx
+          .insert(words)
+          .values(
+            sourceWords.map((sourceWord) => ({
+              userId: recipientId,
+              partOfSpeech: sourceWord.partOfSpeech,
+              clue: sourceWord.clue,
+              isCloned: true,
+              originalCreatorId: sourceWord.user,
+              sourceWordId: sourceWord.id,
             })),
-          );
-        }
-      }
+          )
+          .returning()
+      : [];
 
-      await tx.insert(tagWords).values({
-        tagId: clonedTag.id,
-        wordId: clonedWord.id,
-      });
-    }
+  // Flattened one-row-per-translation inserts, tagged with the cloned word
+  // (by index — `sourceWords[i]` <-> `clonedWordRows[i]`) they belong to.
+  const translationInserts = sourceWords.flatMap((sourceWord, i) =>
+    sourceWord.translations.map((translation) => ({
+      wordId: clonedWordRows[i].id,
+      language: translation.language,
+    })),
+  );
+  const clonedTranslationRows =
+    translationInserts.length > 0
+      ? await tx.insert(translations).values(translationInserts).returning()
+      : [];
 
-    return clonedTag;
-  });
-};
-
-// @desc    Clone a Public tag (and its words) for the current user.
-// @route   POST /api/tags/addExternalTag
-// @access  Private
-const addExternalTag = asyncHandler(async (req: any, res: any) => {
-  const tagId = req.body.tagId;
-  const [tagData] = await db
-    .select()
-    .from(tags)
-    .where(eq(tags.id, tagId))
-    .limit(1);
-  if (!tagData) {
-    res.status(400);
-    throw new Error("Tag not found");
+  // Same flattening for cases, one level deeper: rebuild the parallel
+  // flattened *source* translation list so `flattenedSourceTranslations[j]`
+  // <-> `clonedTranslationRows[j]` for every source translation regardless
+  // of which word it came from.
+  const flattenedSourceTranslations = sourceWords.flatMap((sourceWord) => sourceWord.translations);
+  const caseInserts = flattenedSourceTranslations.flatMap((translation, j) =>
+    translation.cases.map((c) => ({
+      translationId: clonedTranslationRows[j].id,
+      caseName: c.caseName,
+      word: c.word,
+    })),
+  );
+  if (caseInserts.length > 0) {
+    await tx.insert(translationCases).values(caseInserts);
   }
 
-  // Direct cloning is only allowed for Public tags (and not one's own tag).
-  if (tagData.authorId === req.user.id) {
+  if (clonedWordRows.length > 0) {
+    await tx
+      .insert(tagWords)
+      .values(clonedWordRows.map((clonedWord: { id: string }) => ({ tagId: clonedTag.id, wordId: clonedWord.id })));
+  }
+
+  // D11: cloning a tag you follow removes the follow, so the words don't
+  // appear twice (the original, read-only, and now the independent clone).
+  await tx
+    .delete(userFollowingTags)
+    .where(and(eq(userFollowingTags.tagId, sourceTag.id), eq(userFollowingTags.followerUserId, recipientId)));
+
+  return clonedTag;
+};
+
+// @desc    Clone a Public tag (and its words) for the current user, with a
+//          visibility the caller chooses (phase-4-tags.md D11).
+// @route   POST /api/tags/:id/clone
+// @access  Private
+const cloneTag = asyncHandler(async (req: any, res: any) => {
+  const [sourceTag] = await db.select().from(tags).where(eq(tags.id, req.params.id)).limit(1);
+  if (!sourceTag) {
+    res.status(404);
+    throw new Error("Tag not found");
+  }
+  if (sourceTag.authorId === req.user.id) {
     res.status(400);
     throw new Error("You already own this tag");
   }
-  if (tagData.visibility !== "Public") {
-    res.status(401);
+  // Direct (self-service, Discover) cloning is only allowed for Public
+  // tags — a Friends-Only tag reaches a non-friend only via an explicit
+  // share (shareTag/acceptTagShare), never this endpoint.
+  if (sourceTag.visibility !== "Public") {
+    res.status(403);
     throw new Error("User not authorized to clone this tag");
   }
+  if (!["Public", "Private", "Friends-Only"].includes(req.body.visibility)) {
+    res.status(400);
+    throw new Error("Invalid visibility status");
+  }
 
-  const clonedTag = await cloneTagForUser(tagData, req.user.id);
-  res.status(200).json(normalizeTag(clonedTag));
+  const clonedTag = await db.transaction((tx: any) =>
+    cloneTagForUser(tx, sourceTag, req.user.id, req.body.visibility),
+  );
+  res.status(200).json(await buildTagSummary(clonedTag, req.user.id));
 });
 
 // @desc    Share a tag with another user (creates the notification in-transaction)
@@ -749,8 +803,11 @@ const acceptTagShare = asyncHandler(async (req: any, res: any) => {
     throw new Error("Tag not found");
   }
 
-  const result = await db.transaction(async (tx) => {
-    const clonedTag = await cloneTagForUser(tag, req.user.id);
+  const result = await db.transaction(async (tx: any) => {
+    // Accept-share doesn't ask the recipient to choose a visibility (that
+    // choice is Slice 7's clone-dialog UI, not accept) — keep the existing
+    // behavior of copying the source tag's own visibility.
+    const clonedTag = await cloneTagForUser(tx, tag, req.user.id, tag.visibility);
 
     const [updated] = await tx
       .update(tagShares)
@@ -989,7 +1046,7 @@ module.exports = {
   unfollowTag,
   linkTagsToWords,
   unlinkTagsFromWords,
-  addExternalTag,
+  cloneTag,
   shareTag,
   acceptTagShare,
   declineTagShare,

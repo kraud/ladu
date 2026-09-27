@@ -493,7 +493,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 0 | Persist this plan (done — this document) |
 | 1 | ✅ done 2026-09-28 — Backend: migration 0006; word-side fixes (`createWord` transaction + ownership-checked `tagIds`, `PUT /api/words/:id` drops `tags`, `word.tags` viewer-filtered, followed-word SQL subquery with visibility, follower read access on `getWordById`); the existing/planned `?tag=` union query is already additive/OR (D15) — no change needed there; extend `words.test.js`/`words-simple.test.js` |
 | 2 | ✅ done 2026-09-28 — Backend: new tag API (list/get/create/patch/delete/follow/unfollow/links/links-remove, `sort` per D16); delete every superseded legacy route + controller export; rewrite `tags.test.js` (sharing block kept, adapted to the surrounding changes) |
-| 3 | Backend: clone rebuild (batch inserts, provenance columns, visibility param, label-suffix, auto-unfollow) + `acceptTagShare`'s transaction fix; tests |
+| 3 | ✅ done 2026-09-28 — Backend: clone rebuild (batch inserts, provenance columns, visibility param, label-suffix, auto-unfollow) + `acceptTagShare`'s transaction fix; tests |
 | 4 | `features/tags/` data layer (`types`/`api`/`keys`/`hooks`/`errors`) + MSW handlers |
 | 5 | `/tags` page: search + scope chips + sort, `TagBadge`/`TagCard` grid, `TagFormDialog` create/edit/delete, follow/unfollow from the card, nav entry (feature-flagged on `featureFlags.tags`) — per `MOCKUPS/tags.html` |
 | 6 | `/tag/$tagId` page: header (label/description/badges/author/counts/"Cloned from"), word list via `GET /api/words/simple?tag=`, "Add words" (`WordPickerDialog`) + per-row remove for owned tags, follow/unfollow, `CloneTagDialog`, unavailable/not-found states; replaces the router `Placeholder` — per `MOCKUPS/tag-detail.html` |
@@ -595,6 +595,45 @@ Slice 2 added to `createTag`), and — when the recipient already follows
 the source tag — deletes that follow row in the same transaction.
 `acceptTagShare` is updated to pass its own `tx` into `cloneTagForUser`
 instead of that function opening a second transaction.
+
+**Shipped 2026-09-28.** Built as planned, plus the route half the plan's
+own Slice 2 "Shipped" note deferred here:
+- **`POST /api/tags/addExternalTag` is retired; `POST /api/tags/:id/clone`
+  takes its place**, body `{visibility}`. Uses Slice 2's 404/403/400
+  convention throughout (404 unknown tag, 400 cloning your own, 403 a
+  non-Public source, 400 an invalid `visibility`) rather than the legacy
+  400/401 mix, and returns a `TagSummary` (via `buildTagSummary`) instead of
+  the old `normalizeTag` echo — consistent with every other rebuilt
+  endpoint.
+- **`acceptTagShare`'s response shape is untouched.** It still copies the
+  source tag's visibility (accept has no visibility-choice UI to ask
+  through) and still returns `normalizeTag(clonedTag)` — `cloneTagForUser`
+  itself doesn't care which caller it's serving, so this was a one-line
+  change (pass `tx` and `tag.visibility` in) rather than a second rebuild.
+- **Label-suffix resolution (`resolveUniqueLabel`) reuses Slice 2's
+  `labelAlreadyUsedByAuthor`** in a plain pre-check loop (append " (2)",
+  " (3)", … until free), run before the insert rather than inside a
+  retry-on-conflict loop — simpler, and consistent with `createTag`'s own
+  pre-check-plus-DB-backstop pattern for the same constraint.
+- **Batch-insert correctness** (words → translations → cases, each one
+  `INSERT ... RETURNING` instead of a per-item loop) leans on the same
+  "RETURNING preserves input order" guarantee `setWord` already relies on;
+  tested directly with a two-word, two-translation clone that would surface
+  a misaligned zip as swapped translation values.
+- Backend suite: 283 → 289 (`tags.test.js`'s clone block rewritten and
+  expanded: caller-chosen visibility, 404/400/403 cases, the multi-word
+  batch-integrity check, label-suffix, and auto-unfollow; the accept-share
+  test gained provenance assertions). `tsc --noEmit` clean.
+- **Pre-existing test-suite flakiness, not caused by this slice**: an
+  isolated, unrelated test file (`words-simple.test.js`, then on another run
+  `metrics.test.js` — neither touched by any Phase 4 slice) intermittently
+  fails only under the full `npm test` run and passes cleanly every time in
+  isolation. Observed across all three slices of this phase so far, always
+  in a different, unrelated file each time — consistent with a DB
+  connection/timing issue in the shared-database test harness itself
+  (`jest.config.js`'s own comment already flags this class of risk), not a
+  code regression. Worth a dedicated look if it gets worse, but out of this
+  phase's scope.
 
 **Slice 4 — data layer.** `types.ts` mirrors `TagSummary` etc.; `api.ts`/
 `keys.ts`/`hooks.ts`/`errors.ts` follow the `features/words/` header style.
