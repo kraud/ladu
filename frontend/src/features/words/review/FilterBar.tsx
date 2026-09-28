@@ -1,6 +1,8 @@
 /**
- * The collapsible filter bar (D5). Gender + Part of speech chips, then the
- * language order control. No Tags group (D1). Can sit above the table (a
+ * The collapsible filter bar (D5). Gender + Part of speech chips, a Tags
+ * group (`TagCombobox`, mode="filter", D15/D17 — additive/OR, applies
+ * instantly like the other groups, no Save step), then the language order
+ * control. Can sit above the table (a
  * horizontal bar) or, via the position toggle next to the collapse arrow, as
  * a left sidebar — mirroring `WordEditorLayout`'s collapsible action sidebar
  * (icon-rail width when collapsed, full width otherwise). Both the collapse
@@ -49,6 +51,8 @@ import { GenderDE, GenderES, PartOfSpeech } from '@/ts/enums';
 import { partOfSpeechLabelKey } from '@/lib/words';
 import { cn } from '@/lib/utils';
 import { useUiStore } from '@/stores/uiStore';
+import { TagCombobox } from '@/features/tags/components/TagCombobox';
+import type { TagSummary } from '@/features/tags/types';
 import type { LangKey } from '@/features/words/types';
 import { posAbbrKey } from './columns';
 import { LanguageOrderControl } from './LanguageOrderControl';
@@ -89,28 +93,38 @@ export interface FilterBarProps {
     pos: PartOfSpeech[];
     /** Whether the toolbar search box currently has a value — counted in the active-filter summary. */
     hasQuery: boolean;
+    /** Resolved `TagSummary`s for `ReviewSearch.tag`'s ids (`useTagsByIds`) — `TagCombobox`'s pills need the label/visibility, not just the id. */
+    selectedTags: TagSummary[];
     activeLanguages: LangKey[];
     allLanguages: LangKey[];
     onGenderChange: (next: string[] | undefined) => void;
     onPosChange: (next: PartOfSpeech[] | undefined) => void;
+    onSelectedTagsChange: (next: TagSummary[]) => void;
     onLanguagesChange: (next: LangKey[]) => void;
     /** `'menu'`: just the groups, in a column, for the phone's side menu. Defaults to the collapsible bar/sidebar. */
     layout?: 'bar' | 'menu';
 }
 
-/** The number in the "N filters" pill: each gender and part-of-speech value, plus the search box when it has text. */
-export function activeFilterCount(gender: string[], pos: PartOfSpeech[], hasQuery: boolean): number {
-    return gender.length + pos.length + (hasQuery ? 1 : 0);
+/** The number in the "N filters" pill: each gender, part-of-speech, and tag pick, plus the search box when it has text. */
+export function activeFilterCount(
+    gender: string[],
+    pos: PartOfSpeech[],
+    hasQuery: boolean,
+    tagCount = 0,
+): number {
+    return gender.length + pos.length + tagCount + (hasQuery ? 1 : 0);
 }
 
 export function FilterBar({
     gender,
     pos,
     hasQuery,
+    selectedTags,
     activeLanguages,
     allLanguages,
     onGenderChange,
     onPosChange,
+    onSelectedTagsChange,
     onLanguagesChange,
     layout = 'bar',
 }: FilterBarProps) {
@@ -132,7 +146,7 @@ export function FilterBar({
         onPosChange(next.length > 0 ? next : undefined);
     }
 
-    const activeCount = activeFilterCount(gender, pos, hasQuery);
+    const activeCount = activeFilterCount(gender, pos, hasQuery, selectedTags.length);
     const Container = isSidebar ? 'aside' : 'div';
 
     const groups = (
@@ -192,6 +206,29 @@ export function FilterBar({
                         </button>
                     ))}
                 </div>
+            </div>
+
+            <div className="fb-group">
+                <div className="fhead">
+                    <span className="label">{t('review:filters.tags')}</span>
+                    {selectedTags.length > 0 && (
+                        <button
+                            type="button"
+                            className="hint underline"
+                            onClick={() => onSelectedTagsChange([])}
+                        >
+                            {t('review:filters.clear')}
+                        </button>
+                    )}
+                </div>
+                <TagCombobox
+                    mode="filter"
+                    selected={selectedTags}
+                    // `TagCombobox` only needs id/label/visibility off a picked item (see its
+                    // own header comment); in filter mode every item is still a full
+                    // `TagSummary`, from `selectedTags` or from its own search results.
+                    onSelectedChange={(next) => onSelectedTagsChange(next as TagSummary[])}
+                />
             </div>
 
             <LanguageOrderControl

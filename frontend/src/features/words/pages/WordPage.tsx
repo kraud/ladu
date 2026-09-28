@@ -15,8 +15,19 @@
  * while the edit state's bar is `WordForm`'s own, with Cancel injected via
  * `extraActions` — so toggling Edit never reshuffles the page.
  *
- * No non-owner branch: `GET /api/words/:id` already 403s a non-owner fetch
- * (decision D3), so a successful load here is always the caller's own word.
+ * `GET /api/words/:id` 403s a caller with no standing at all, but (since
+ * phase-4-tags.md Slice 1) succeeds read-only for a word reached via a tag
+ * the caller follows and can currently view — `word.user !== session user`
+ * marks that case, same convention Review's `isOwn` already uses. Nothing in
+ * the app currently links to such a word (a follower only ever sees it
+ * inline via `TagWordsTable`/`CellDialog`), so this is reachable only by a
+ * direct URL today.
+ *
+ * Tags are always read-only here (a 2026-09-28 reversal — they used to mutate
+ * instantly from this view state, independent of Edit): `isOwn` only changes
+ * *why* — the tag owner manages a followed word's tags, while the caller's
+ * own word just needs Edit to change its tags — not whether editing is
+ * possible, since neither ever is on this page anymore.
  */
 import { useEffect, useState } from 'react';
 import { getRouteApi, useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router';
@@ -25,6 +36,7 @@ import { toast } from 'react-toastify';
 import { ArrowLeftIcon, PencilSimpleIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
+import { useAuthStore } from '@/stores/authStore';
 import { SidebarFields } from '../layout/SidebarFields';
 import type { EditorAction } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
@@ -49,6 +61,7 @@ export function WordPage() {
     const updateWord = useUpdateWord();
     const deleteWord = useDeleteWord();
     const canGoBack = useCanGoBack();
+    const userId = useAuthStore((s) => s.user?.id) ?? '';
 
     const [editing, setEditing] = useState(false);
     const [editKey, setEditKey] = useState(0);
@@ -96,6 +109,12 @@ export function WordPage() {
 
     const word = wordQuery.data;
     const headline = word.translations[0] ? primaryCaseWord(word.partOfSpeech, word.translations[0]) : '';
+    // D10: a followed-tag word only ever carries the tag owner's tags — the
+    // viewer never gets add/remove controls for those, just the read-only note.
+    const isOwn = word.user === userId;
+    const tagsHint = t(
+        isOwn ? 'wordRelated:wordForm.sidebar.tagsEditToChange' : 'wordRelated:wordForm.sidebar.tagsManagedByOwner',
+    );
 
     function startEdit() {
         setEditKey((key) => key + 1);
@@ -157,18 +176,16 @@ export function WordPage() {
                     onSubmit={handleUpdate}
                     onDelete={() => setConfirmingDelete(true)}
                     submitting={updateWord.isPending}
-                    extraActions={[
-                        {
-                            key: 'cancel',
-                            label: t('common:buttons.cancel'),
-                            icon: <XIcon size={18} />,
-                            onClick: () => setEditing(false),
-                        },
-                    ]}
+                    cancelAction={{
+                        key: 'cancel',
+                        label: t('common:buttons.cancel'),
+                        icon: <XIcon size={18} />,
+                        onClick: () => setEditing(false),
+                    }}
                 />
             ) : (
                 <WordEditorLayout
-                    sidebar={<SidebarFields clue={word.clue ?? ''} />}
+                    sidebar={<SidebarFields clue={word.clue ?? ''} tags={word.tags} tagsHint={tagsHint} />}
                     actions={viewActions}
                     primary={{ label: t('common:buttons.edit'), icon: <PencilSimpleIcon size={18} />, onClick: startEdit }}
                 >

@@ -1,0 +1,251 @@
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it } from 'vitest';
+import { renderApp } from '@/test/render';
+import { server } from '@/test/msw/server';
+import { makeTagHandlers, type SeedTag } from '@/test/msw/tagHandlers';
+import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
+import { futureToken } from '@/test/tokens';
+import { PartOfSpeech, Lang } from '@/ts/enums';
+
+const ME = 'user-me';
+const OTHER = 'user-other';
+
+const SESSION = {
+    id: ME,
+    name: 'Kai Rebane',
+    email: 'kai@example.com',
+    username: 'kai',
+    languages: ['English'],
+    uiLanguage: 'English',
+    nativeLanguage: null,
+    verified: true,
+    token: futureToken(),
+};
+
+function verbSeed(label: string, id: string, tagId?: string): SeedWord {
+    return {
+        id,
+        user: ME,
+        partOfSpeech: PartOfSpeech.verb,
+        translations: [{ language: Lang.EN, cases: [{ caseName: 'simplePresent1sEN', word: label }] }],
+        tags: tagId ? [{ id: tagId, label: 'Kitchen', visibility: 'Private', authorId: ME }] : [],
+    };
+}
+
+function setUp(seedTags: SeedTag[] = [], seedWords: SeedWord[] = []) {
+    const tagFake = makeTagHandlers({ callerId: ME, usernames: { [OTHER]: 'mari' }, seedTags });
+    const wordFake = makeWordHandlers({ callerId: ME, seed: seedWords });
+    server.use(...tagFake.handlers, ...wordFake.handlers);
+    return { tagFake, wordFake };
+}
+
+describe('TagViewPage — not found', () => {
+    it('shows the not-found state for an unknown tag id, with a link back to /tags', async () => {
+        setUp([]);
+        await renderApp({ initialEntry: '/tag/does-not-exist', session: SESSION });
+
+        expect(await screen.findByText("You can't see this tag")).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Back to /tags' })).toHaveAttribute('href', '/tags');
+    });
+});
+
+describe('TagViewPage — owned tag', () => {
+    it('shows the header, word count, and the tag\'s own words', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', description: 'Pots and pans', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        expect(await screen.findByText('Kitchen')).toBeInTheDocument();
+        expect(screen.getByText('Pots and pans')).toBeInTheDocument();
+        expect(screen.getByText('Owned')).toBeInTheDocument();
+        expect(await screen.findByText('simmer')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Add words' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+        // Delete only appears once edit mode is entered.
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('entering edit mode reveals Delete and the per-row remove button; Done hides them again', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+        expect(screen.queryByRole('button', { name: 'Remove from tag' })).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Remove from tag' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Edit details' })).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Done' }));
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove from tag' })).not.toBeInTheDocument();
+    });
+
+    it('shows a "Cloned from" line when the tag has provenance', async () => {
+        setUp([
+            {
+                id: 'tag-1',
+                authorId: ME,
+                label: 'Kitchen',
+                visibility: 'Public',
+                sourceTag: { id: 'src-1', label: 'Original Kitchen' },
+            },
+        ]);
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        expect(await screen.findByText('Original Kitchen')).toBeInTheDocument();
+    });
+
+    it('editing the tag updates the header and shows a toast', async () => {
+        setUp([{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public' }]);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('Kitchen');
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+        await user.click(screen.getByRole('button', { name: 'Edit details' }));
+        const labelInput = screen.getByLabelText(/Label/);
+        await user.clear(labelInput);
+        await user.type(labelInput, 'Cooking');
+        await user.click(screen.getByRole('button', { name: 'Save changes' }));
+
+        expect(await screen.findByText('"Cooking" updated')).toBeInTheDocument();
+        expect(screen.getByText('Cooking')).toBeInTheDocument();
+    });
+
+    it('deleting the tag navigates back to /tags', async () => {
+        setUp([{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public' }]);
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('Kitchen');
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+        await user.click(screen.getByRole('button', { name: 'Delete' }));
+        expect(screen.getByText('Delete tag?')).toBeInTheDocument();
+        await user.click(screen.getAllByRole('button', { name: 'Delete' }).at(-1)!);
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/tags'));
+    });
+
+    // The tag fake (`makeTagHandlers`) and the word fake (`makeWordHandlers`)
+    // are two independent stores with no cross-wiring — a `linkTagsToWords`/
+    // `unlinkTagsFromWords` call updates the TAG's own `wordIds` set, not the
+    // WORD's `tags` array the word fake filters `?tag=` by. So these two
+    // tests assert on the request that actually reached the tag endpoint
+    // (the real persistence round trip is the backend's own integration
+    // tests' job), not on the table re-rendering afterward.
+    it('adding words opens the picker, and saving sends the right link request', async () => {
+        const { tagFake } = setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public' }],
+            [verbSeed('simmer', 'w1')],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('Kitchen');
+        expect(screen.getByText('Add your first words to this tag')).toBeInTheDocument();
+
+        // Two "Add words" buttons exist here on purpose (mockup parity): the
+        // header action and the empty-state's own CTA, both wired to the same
+        // handler — either is fine to click.
+        await user.click(screen.getAllByRole('button', { name: 'Add words' })[0]);
+        const row = (await screen.findByText('simmer')).closest('tr') as HTMLElement;
+        await user.click(row);
+        await user.click(screen.getByRole('button', { name: 'Add selected' }));
+
+        expect(await screen.findByText('1 word added to "Kitchen"')).toBeInTheDocument();
+        expect(tagFake.store.get('tag-1')?.wordIds.has('w1')).toBe(true);
+    });
+
+    it('removing a word from the tag shows a toast and unlinks it on the backend', async () => {
+        const { tagFake } = setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+        await user.click(screen.getByRole('button', { name: 'Remove from tag' }));
+
+        expect(await screen.findByText('"simmer" removed from "Kitchen" — it stays on your shelf')).toBeInTheDocument();
+        expect(tagFake.store.get('tag-1')?.wordIds.has('w1')).toBe(false);
+    });
+});
+
+describe('TagViewPage — followed tag', () => {
+    it('shows Unfollow/Clone and the author row, and no owned actions', async () => {
+        setUp([{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public', followerIds: [ME] }]);
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        expect(await screen.findByText('Followed')).toBeInTheDocument();
+        // "by mari" appears twice on purpose (mockup parity): once in the
+        // header body, once in the footer's hint line.
+        expect(screen.getAllByText('by mari').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getByRole('button', { name: 'Unfollow' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Clone' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+    });
+
+    it('unfollowing asks for confirmation, then updates the relation to Discover', async () => {
+        setUp([{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public', followerIds: [ME] }]);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('Followed');
+
+        await user.click(screen.getByRole('button', { name: 'Unfollow' }));
+        expect(screen.getByText('Unfollow tag?')).toBeInTheDocument();
+        await user.click(screen.getAllByRole('button', { name: 'Unfollow' }).at(-1)!);
+
+        expect(await screen.findByText('Unfollowed "Travel"')).toBeInTheDocument();
+        await waitFor(() => expect(screen.getByText('Discover')).toBeInTheDocument());
+    });
+});
+
+describe('TagViewPage — discover tag', () => {
+    it('shows Follow/Clone; following it shows a toast and updates the relation', async () => {
+        setUp([{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public' }]);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        expect(await screen.findByText('Discover')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Follow' }));
+
+        expect(await screen.findByText('You\'re now following "Travel"')).toBeInTheDocument();
+        await waitFor(() => expect(screen.getByText('Followed')).toBeInTheDocument());
+    });
+
+    it('cloning opens the clone dialog and confirms', async () => {
+        setUp([{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public' }]);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('Discover');
+
+        await user.click(screen.getByRole('button', { name: 'Clone' }));
+        expect(screen.getByText('Clone this tag')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Create copy' }));
+
+        expect(await screen.findByText('Copy of "Travel" created — it\'s all yours now')).toBeInTheDocument();
+    });
+});
+
+describe('TagViewPage — unavailable tag (D9)', () => {
+    it('shows the words-hidden state instead of the table, and only Unfollow', async () => {
+        setUp([
+            { id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Private', followerIds: [ME] },
+        ]);
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        expect(await screen.findByText('Unavailable')).toBeInTheDocument();
+        expect(screen.getByText('Words are hidden right now')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Unfollow' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Clone' })).not.toBeInTheDocument();
+    });
+});

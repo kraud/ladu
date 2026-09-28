@@ -51,6 +51,10 @@ const {
     assembleWord,
     fetchWordsWithRelations,
     fetchWordWithRelations,
+    parseArrayParam,
+    parseLimitParam,
+    encodeCursor,
+    decodeCursor,
 }: typeof import('../services/wordService') = require('../services/wordService');
 import type { WordResponse, AssembledTranslation } from '../services/wordService';
 
@@ -237,35 +241,6 @@ const simplifyWord = (word: WordResponse): Record<string, any> => {
   return { ...simplified, storedLanguages: Array.from(storedLanguages) };
 };
 
-// ---------------------------------------------------------------------------
-// HELPERS: Tag-word diffing (for updateWord)
-// ---------------------------------------------------------------------------
-
-/**
- * Compare the incoming tag list with the currently stored tags for a word
- * and return `{ toRemove, toAdd }` arrays of tag UUIDs.
- */
-const diffTagWords = async (
-  wordId: string,
-  incomingTags: Array<{ _id?: string; id?: string }>,
-): Promise<{ toRemove: string[]; toAdd: string[] }> => {
-  const incomingIds = incomingTags
-    .map((t) => t._id ?? t.id)
-    .filter((id): id is string => typeof id === 'string' && id.length > 0);
-
-  const stored = await db
-    .select({ tagId: tagWords.tagId })
-    .from(tagWords)
-    .where(eq(tagWords.wordId, wordId));
-
-  const storedIds = stored.map((s) => s.tagId);
-
-  return {
-    toRemove: storedIds.filter((id) => !incomingIds.includes(id)),
-    toAdd: incomingIds.filter((id) => !storedIds.includes(id)),
-  };
-};
-
 /**
  * Compare incoming translations (from request body) with currently stored
  * translations for a word, matching by language.  Returns a diff describing
@@ -337,7 +312,7 @@ const getWords = asyncHandler(async (req: any, res: any) => {
 
   const wordIds = wordRows.map((w) => w.id);
   // fetchWordsWithRelations handles the empty-array case internally.
-  const result = await fetchWordsWithRelations(wordIds);
+  const result = await fetchWordsWithRelations(wordIds, req.user.id);
   res.status(200).json(result);
 });
 
@@ -350,41 +325,8 @@ const getWordsByFollowedTag = asyncHandler(async (req: any, res: any) => {
   res.status(200).json(matchingWordsId);
 });
 
-// ---------------------------------------------------------------------------
-// HELPERS: query-param parsing & keyset cursor (for getWordsSimplified)
-// ---------------------------------------------------------------------------
-
-const DEFAULT_PAGE_LIMIT = 50;
-const MAX_PAGE_LIMIT = 100;
-
-/** A repeatable query param (`?pos=Noun&pos=Verb`) arrives as an array only
- * when given more than once; normalise the single-value case too. */
-const parseArrayParam = (value: any): string[] => {
-  if (value === undefined) return [];
-  return Array.isArray(value) ? value : [value];
-};
-
-const parseLimitParam = (value: any): number => {
-  const parsed = value !== undefined ? parseInt(value, 10) : DEFAULT_PAGE_LIMIT;
-  if (!Number.isFinite(parsed)) return DEFAULT_PAGE_LIMIT;
-  return Math.min(Math.max(parsed, 1), MAX_PAGE_LIMIT);
-};
-
-const encodeCursor = (createdAt: Date, id: string): string =>
-  Buffer.from(`${createdAt.toISOString()}|${id}`, "utf-8").toString("base64");
-
-const decodeCursor = (cursor: string): { createdAt: Date; id: string } | null => {
-  try {
-    const [createdAtStr, id] = Buffer.from(cursor, "base64")
-      .toString("utf-8")
-      .split("|");
-    const createdAt = new Date(createdAtStr);
-    if (!id || Number.isNaN(createdAt.getTime())) return null;
-    return { createdAt, id };
-  } catch {
-    return null;
-  }
-};
+// (parseArrayParam, parseLimitParam, encodeCursor, and decodeCursor are now
+//  in backend/services/wordService.ts, shared with the tag list)
 
 // @desc    Get words with simplified data (table view with filters + keyset pagination)
 // @route   GET /api/words/simple
@@ -395,11 +337,32 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     req.user.id,
   );
 
-  // Base access condition: own words OR words from followed tags
+  const tagIds = parseArrayParam(req.query.tag);
+
+  // `?tag=` previewing a specific Public tag's words even before the caller
+  // follows it (`/tag/:id`'s Discover relation, phase-4-tags.md Slice 6) is
+  // not a new exposure: a Public tag's word count is already shown to a
+  // non-follower on `/tags`, so its words resolving to real rows here is
+  // completing that same "Public means anyone can see it" contract, not
+  // widening it. A Private (or now-Private) tag is untouched by this branch.
+  const discoverableTagWordIds =
+    tagIds.length > 0
+      ? db
+          .select({ id: tagWords.wordId })
+          .from(tagWords)
+          .innerJoin(tags, eq(tagWords.tagId, tags.id))
+          .where(and(inArray(tagWords.tagId, tagIds), eq(tags.visibility, "Public")))
+      : null;
+
+  // Base access condition: own words, words from followed tags, or words
+  // reachable through one of the requested tags currently being Public.
   const accessCondition = or(
     eq(words.userId, req.user.id),
     followedTagWordIds.length > 0
       ? inArray(words.id, followedTagWordIds)
+      : sql`false`,
+    discoverableTagWordIds
+      ? inArray(words.id, discoverableTagWordIds)
       : sql`false`,
   );
 
@@ -443,7 +406,6 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     conditions.push(inArray(words.id, matchingWordIds));
   }
 
-  const tagIds = parseArrayParam(req.query.tag);
   if (tagIds.length > 0) {
     const tagWordIds = db
       .select({ id: tagWords.wordId })
@@ -461,7 +423,8 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
 
   if (req.query.cursor !== undefined) {
     const cursor = decodeCursor(req.query.cursor);
-    if (!cursor) {
+    const cursorCreatedAt = cursor ? new Date(cursor.sortValue) : null;
+    if (!cursor || !cursorCreatedAt || Number.isNaN(cursorCreatedAt.getTime())) {
       res.status(400);
       throw new Error("Invalid cursor");
     }
@@ -472,8 +435,8 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     // parameters here, so it silently failed to filter.)
     conditions.push(
       or(
-        lt(words.createdAt, cursor.createdAt),
-        and(eq(words.createdAt, cursor.createdAt), lt(words.id, cursor.id)),
+        lt(words.createdAt, cursorCreatedAt),
+        and(eq(words.createdAt, cursorCreatedAt), lt(words.id, cursor.id)),
       ),
     );
   }
@@ -490,7 +453,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   const hasMore = pageRows.length > limit;
   const rows = hasMore ? pageRows.slice(0, limit) : pageRows;
   const nextCursor = hasMore
-    ? encodeCursor(rows[rows.length - 1].createdAt, rows[rows.length - 1].id)
+    ? encodeCursor(rows[rows.length - 1].createdAt.toISOString(), rows[rows.length - 1].id)
     : null;
 
   // Fetch full relations, then re-order to match the cursor-ordered rows —
@@ -498,7 +461,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   // preserve input order.
   const orderedIds = rows.map((r) => r.id);
   const fullWordsById = new Map(
-    (await fetchWordsWithRelations(orderedIds)).map((w) => [w.id, w]),
+    (await fetchWordsWithRelations(orderedIds, req.user.id)).map((w) => [w.id, w]),
   );
   const items = orderedIds
     .map((id) => fullWordsById.get(id))
@@ -512,18 +475,24 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
 // @route   GET /api/words/:id
 // @access  Private
 const getWordById = asyncHandler(async (req: any, res: any) => {
-  const wordData = await fetchWordWithRelations(req.params.id);
+  const wordData = await fetchWordWithRelations(req.params.id, req.user.id);
 
   if (!wordData) {
     res.status(400);
     throw new Error("Word not found");
   }
 
-  // Ownership check (§8.4). Until Phase 4 adds followed-tag read access, only
-  // the author may fetch a word by id.
+  // Ownership check (§8.4), widened in Phase 4: a non-owner may also read a
+  // word reached through a tag they follow and can currently view (matches
+  // `GET /api/words/simple`'s own access condition) — read-only either way,
+  // which the frontend already derives from `wordData.user !== session user
+  // id` (the same comparison Review's owner-dot uses), not a separate flag.
   if (wordData.user !== req.user.id) {
-    res.status(403);
-    throw new Error("User not authorized");
+    const followedWordIds = await getWordsIdFromFollowedTagsByUserId(req.user.id);
+    if (!followedWordIds.includes(req.params.id)) {
+      res.status(403);
+      throw new Error("User not authorized");
+    }
   }
 
   res.status(200).json(wordData);
@@ -542,63 +511,80 @@ const setWord = asyncHandler(async (req: any, res: any) => {
     throw new Error("Please add 2 or more translations");
   }
 
-  // 1. Insert the word row
-  const [newWord] = await db
-    .insert(words)
-    .values({
-      userId: req.user.id,
-      partOfSpeech: req.body.partOfSpeech,
-      clue: req.body.clue ?? null,
-    })
-    .returning();
-
-  // 2. Insert translation rows and collect their generated IDs
-  const translationInserts = req.body.translations.map((t: any) => ({
-    wordId: newWord.id,
-    language: t.language,
-  }));
-  const newTranslations = await db
-    .insert(translations)
-    .values(translationInserts)
-    .returning();
-
-  // 3. Insert case rows for each translation
-  const caseInserts: Array<{
-    translationId: string;
-    caseName: string;
-    word: string;
-  }> = [];
-  for (let i = 0; i < newTranslations.length; i++) {
-    const tCases = req.body.translations[i].cases || [];
-    for (const c of tCases) {
-      caseInserts.push({
-        translationId: newTranslations[i].id,
-        caseName: c.caseName,
-        word: c.word,
-      });
+  // Tags are assigned by id at create time (phase-4-tags.md D4) — the
+  // caller must own every tag it asks to attach, checked up front so a bad
+  // id 403s the whole request rather than creating the word regardless.
+  // Deduplicated so a repeated id can't both inflate this count check and
+  // later collide on tag_words' composite primary key.
+  const rawTagIds: string[] = Array.isArray(req.body.tagIds) ? req.body.tagIds : [];
+  const tagIds: string[] = [...new Set(rawTagIds)];
+  if (tagIds.length > 0) {
+    const ownedTags = await db
+      .select({ id: tags.id })
+      .from(tags)
+      .where(and(eq(tags.authorId, req.user.id), inArray(tags.id, tagIds)));
+    if (ownedTags.length !== tagIds.length) {
+      res.status(403);
+      throw new Error("User not authorized to apply one or more of these tags");
     }
   }
-  if (caseInserts.length > 0) {
-    await db.insert(translationCases).values(caseInserts);
-  }
 
-  // 4. Create tag-word associations if provided
-  const incomingTags: Array<{ _id?: string; id?: string }> = req.body.tags || [];
-  if (incomingTags.length > 0) {
-    await db
-      .insert(tagWords)
-      .values(
-        incomingTags
-          .map((tag) => ({ tagId: tag._id ?? tag.id, wordId: newWord.id }))
-          .filter(
-            (item): item is { tagId: string; wordId: string } =>
-              typeof item.tagId === 'string' && item.tagId.length > 0,
-          ),
-      );
-  }
+  // Word + translations + cases + tag links all succeed or fail together —
+  // previously a crash partway through could leave an orphaned word row
+  // with no translations.
+  const newWordId: string = await db.transaction(async (tx: any) => {
+    // 1. Insert the word row
+    const [newWord] = await tx
+      .insert(words)
+      .values({
+        userId: req.user.id,
+        partOfSpeech: req.body.partOfSpeech,
+        clue: req.body.clue ?? null,
+      })
+      .returning();
+
+    // 2. Insert translation rows and collect their generated IDs
+    const translationInserts = req.body.translations.map((t: any) => ({
+      wordId: newWord.id,
+      language: t.language,
+    }));
+    const newTranslations = await tx
+      .insert(translations)
+      .values(translationInserts)
+      .returning();
+
+    // 3. Insert case rows for each translation
+    const caseInserts: Array<{
+      translationId: string;
+      caseName: string;
+      word: string;
+    }> = [];
+    for (let i = 0; i < newTranslations.length; i++) {
+      const tCases = req.body.translations[i].cases || [];
+      for (const c of tCases) {
+        caseInserts.push({
+          translationId: newTranslations[i].id,
+          caseName: c.caseName,
+          word: c.word,
+        });
+      }
+    }
+    if (caseInserts.length > 0) {
+      await tx.insert(translationCases).values(caseInserts);
+    }
+
+    // 4. Link the already ownership-checked tags
+    if (tagIds.length > 0) {
+      await tx
+        .insert(tagWords)
+        .values(tagIds.map((tagId) => ({ tagId, wordId: newWord.id })));
+    }
+
+    return newWord.id;
+  });
 
   // 5. Return the fully assembled word
-  const assembled = await fetchWordWithRelations(newWord.id);
+  const assembled = await fetchWordWithRelations(newWordId, req.user.id);
   res.status(200).json(assembled);
 });
 
@@ -773,33 +759,16 @@ const updateWord = asyncHandler(async (req: any, res: any) => {
     }
   }
 
-  // Diff tag associations and apply changes — but ONLY when the caller
-  // actually sent a `tags` field. `req.body.tags || []` used to treat an
-  // absent key the same as an explicit empty array, so any partial update
-  // (e.g. a translations-only PUT, which is every PUT this frontend sends —
-  // `UpdateWordBody` has no `tags` field) silently deleted every tag
-  // association on the word. Mirrors the `translations !== undefined` guard
-  // above.
-  if (req.body.tags !== undefined) {
-    const incomingTags: Array<{ _id?: string; id?: string }> = req.body.tags;
-    const { toRemove, toAdd } = await diffTagWords(req.params.id, incomingTags);
-
-    if (toRemove.length > 0) {
-      await db
-        .delete(tagWords)
-        .where(
-          and(
-            eq(tagWords.wordId, req.params.id),
-            inArray(tagWords.tagId, toRemove),
-          ),
-        );
-    }
-    if (toAdd.length > 0) {
-      await db
-        .insert(tagWords)
-        .values(toAdd.map((tagId) => ({ tagId, wordId: req.params.id })));
-    }
-  }
+  // `PUT /api/words/:id` never touches tag associations, even if the caller
+  // sends a `tags` field — that field is ignored entirely (phase-4-tags.md,
+  // agent call under D5). A previous version of this endpoint diffed
+  // `req.body.tags` against the stored associations, which is exactly the
+  // kind of second code path that let a translations-only PUT (the only
+  // shape this frontend ever sends — `UpdateWordBody` has no `tags` field)
+  // silently wipe every tag on the word when that field defaulted to `[]`.
+  // Tag membership now changes only through the dedicated link/unlink
+  // endpoints (Slice 2), so there is exactly one path, not two to keep in
+  // sync.
 
   // Update word fields — only set fields that are explicitly provided
   const wordUpdateFields: Record<string, any> = {};
@@ -816,7 +785,7 @@ const updateWord = asyncHandler(async (req: any, res: any) => {
         .returning({ id: words.id }))[0].id
     : req.params.id;
 
-  const assembled = await fetchWordWithRelations(updatedWordId);
+  const assembled = await fetchWordWithRelations(updatedWordId, req.user.id);
   res.status(200).json(assembled);
 });
 
@@ -948,7 +917,7 @@ const filterWordByAnyTranslation = asyncHandler(async (req: any, res: any) => {
   // Group results by word+language to produce one entry per language
   const wordIds = [...new Set(matchingCaseRows.map((r) => r.wordId))];
   const wordMap = new Map(
-    (await fetchWordsWithRelations(wordIds)).map((w) => [w.id, w]),
+    (await fetchWordsWithRelations(wordIds, req.user.id)).map((w) => [w.id, w]),
   );
 
   const simpleResults: Array<{

@@ -18,15 +18,15 @@ import { buildWordColumns } from './columns';
 const SKELETON_ROWS = 8;
 const SKELETON_MORE_ROWS = 3;
 
-/** select/owner and `partOfSpeech` shrink to their own content's width (`.shrink-col`, CSS `width: 1%` trick); language columns get the wider `.lang-col`/`.word-cell` treatment. */
+/** select/owner, `partOfSpeech`, and `tags` (at most 2 compact chips + "+N", D14) shrink to their own content's width (`.shrink-col`, CSS `width: 1%` trick); language columns get the wider `.lang-col`/`.word-cell` treatment. */
 function headerClassName(columnId: string): string | undefined {
-    if (columnId === 'select' || columnId === 'partOfSpeech') return 'shrink-col';
+    if (columnId === 'select' || columnId === 'partOfSpeech' || columnId === 'tags') return 'shrink-col';
     if (columnId.startsWith('lang_')) return 'lang-col';
     return undefined;
 }
 
 function cellClassName(columnId: string): string | undefined {
-    if (columnId === 'select' || columnId === 'partOfSpeech') return 'shrink-col';
+    if (columnId === 'select' || columnId === 'partOfSpeech' || columnId === 'tags') return 'shrink-col';
     if (columnId.startsWith('lang_')) return 'word-cell';
     return undefined;
 }

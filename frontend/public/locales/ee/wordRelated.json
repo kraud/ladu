@@ -123,7 +123,10 @@
       "expand": "Laienda külgriba",
       "openMenu": "Ava menüü",
       "closeMenu": "Sulge menüü",
-      "tagsComingSoon": "Tulekul"
+      "tagsEditToChange": "Siltide lisamiseks või eemaldamiseks muuda sõna.",
+      "tagsManagedByOwner": "Ainult vaatamiseks — see sõna pärineb jälgitud sildilt. Selle silte haldab sildi omanik.",
+      "tagsStagedToast_one": "{{count}} silt lisatud — see salvestatakse koos sõnaga",
+      "tagsStagedToast_other": "{{count}} silti lisatud — need salvestatakse koos sõnaga"
     },
     "confirmChangeType": {
       "title": "Muuta sõnaliiki?",

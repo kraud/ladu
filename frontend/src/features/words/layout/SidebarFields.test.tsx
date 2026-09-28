@@ -2,27 +2,60 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
+import { server } from '@/test/msw/server';
+import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { useUiStore } from '@/stores/uiStore';
 import { SidebarFields } from './SidebarFields';
+import type { WordTagRef } from '../types';
+
+const ME = 'user-me';
+const TAG_A: WordTagRef = { id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: ME };
+const TAG_B: WordTagRef = { id: 'tag-2', label: 'Travel', visibility: 'Public', authorId: ME };
+
+// The embedded `TagCombobox` (mode="add") always fires a real `useTags` search
+// on mount (D15/D17) — every editable-mode test needs a tag fake registered.
+function setUpTags() {
+    server.use(...makeTagHandlers({ callerId: ME }).handlers);
+}
 
 afterEach(() => {
     useUiStore.setState({ wordSidebarCollapsed: false });
 });
 
 describe('SidebarFields — editable (create/edit)', () => {
-    it('renders a labeled clue textarea and the disabled tags placeholder', () => {
-        renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
+    it('renders a labeled clue textarea and the inline tag combobox', () => {
+        setUpTags();
+        renderWithProviders(
+            <SidebarFields clue="" onClueChange={vi.fn()} tagPicker={{ selected: [], onSelectedChange: vi.fn() }} />,
+        );
         expect(screen.getByLabelText('Clue')).toBeInTheDocument();
         expect(screen.getByText('Tags')).toBeInTheDocument();
-        expect(screen.getByText('Coming soon')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('Search tags to add…')).toBeInTheDocument();
     });
 
     it('calls onClueChange as the user types', async () => {
+        setUpTags();
         const user = userEvent.setup();
         const onClueChange = vi.fn();
-        renderWithProviders(<SidebarFields clue="" onClueChange={onClueChange} />);
+        renderWithProviders(
+            <SidebarFields clue="" onClueChange={onClueChange} tagPicker={{ selected: [], onSelectedChange: vi.fn() }} />,
+        );
         await user.type(screen.getByLabelText('Clue'), 'a');
         expect(onClueChange).toHaveBeenCalledWith('a');
+    });
+
+    it('renders each selected tag as a chip inside the combobox, with a lock icon on a Private tag, and removing one calls onSelectedChange', async () => {
+        setUpTags();
+        const user = userEvent.setup();
+        const onSelectedChange = vi.fn();
+        renderWithProviders(
+            <SidebarFields clue="" onClueChange={vi.fn()} tagPicker={{ selected: [TAG_A, TAG_B], onSelectedChange }} />,
+        );
+        expect(screen.getByText('Kitchen')).toBeInTheDocument();
+        expect(screen.getByText('Travel')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Remove Kitchen' }));
+        expect(onSelectedChange.mock.calls[0][0]).toEqual([expect.objectContaining({ id: 'tag-2' })]);
     });
 });
 
@@ -33,7 +66,7 @@ describe('SidebarFields — read-only (view)', () => {
         expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
 
-    it('omits the clue slot entirely when unset, but still shows the tags placeholder', () => {
+    it('omits the clue slot entirely when unset, but still shows the tags section', () => {
         renderWithProviders(<SidebarFields clue="" />);
         expect(screen.queryByText('Clue')).not.toBeInTheDocument();
         expect(screen.getByText('Tags')).toBeInTheDocument();
@@ -44,6 +77,13 @@ describe('SidebarFields — read-only (view)', () => {
         renderWithProviders(<SidebarFields clue="" />);
         expect(screen.queryByRole('button', { name: 'Clue' })).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Tags' })).toBeInTheDocument();
+    });
+
+    it('renders every chip without a remove control (no tagPicker at all), and shows the given hint', () => {
+        renderWithProviders(<SidebarFields clue="" tags={[TAG_A]} tagsHint="Edit the word to change tags." />);
+        expect(screen.getByText('Kitchen')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove Kitchen' })).not.toBeInTheDocument();
+        expect(screen.getByText('Edit the word to change tags.')).toBeInTheDocument();
     });
 });
 
@@ -76,15 +116,23 @@ describe('SidebarFields — collapsed rail', () => {
         expect(filled).not.toBe(empty);
     });
 
-    it('swaps the Tags icon to duotone and shows a count once there are tags', () => {
+    it('swaps the Tags icon to duotone and shows a count once there are read-only tags', () => {
         useUiStore.setState({ wordSidebarCollapsed: true });
         const { rerender } = renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
         const plain = iconClass(screen.getByRole('button', { name: 'Tags' }));
         expect(screen.queryByTestId('tag-count')).not.toBeInTheDocument();
 
-        rerender(<SidebarFields clue="" onClueChange={vi.fn()} tagCount={3} />);
+        rerender(<SidebarFields clue="" onClueChange={vi.fn()} tags={[TAG_A, TAG_B, { ...TAG_A, id: 'tag-3' }]} />);
         expect(screen.getByTestId('tag-count')).toHaveTextContent('3');
         expect(iconClass(screen.getByRole('button', { name: 'Tags' }))).not.toBe(plain);
+    });
+
+    it('the count reflects an editable tagPicker selection just the same', () => {
+        useUiStore.setState({ wordSidebarCollapsed: true });
+        renderWithProviders(
+            <SidebarFields clue="" onClueChange={vi.fn()} tagPicker={{ selected: [TAG_A, TAG_B], onSelectedChange: vi.fn() }} />,
+        );
+        expect(screen.getByTestId('tag-count')).toHaveTextContent('2');
     });
 
     it('the Clue button expands the sidebar and focuses the clue field', async () => {

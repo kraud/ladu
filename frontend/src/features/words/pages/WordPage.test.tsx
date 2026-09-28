@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
+import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
 import { Lang, NounCases, PartOfSpeech } from '@/ts/enums';
@@ -100,7 +101,8 @@ describe('WordPage — view', () => {
 describe('WordPage — edit', () => {
     it('edits a case, saves, and drops back to the (now updated) read-only view', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [SEED] });
-        server.use(...fake.handlers);
+        // `WordForm`'s sidebar always mounts the live `TagCombobox` now (D4a).
+        server.use(...fake.handlers, ...makeTagHandlers({ callerId: SESSION.id }).handlers);
         const user = userEvent.setup();
         await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
 
@@ -139,7 +141,7 @@ describe('WordPage — edit', () => {
 
     it('Cancel discards the in-progress edit and returns to the unchanged view', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [SEED] });
-        server.use(...fake.handlers);
+        server.use(...fake.handlers, ...makeTagHandlers({ callerId: SESSION.id }).handlers);
         const user = userEvent.setup();
         await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
 
@@ -185,5 +187,100 @@ describe('WordPage — delete', () => {
         expect(await screen.findByText('Word deleted successfully')).toBeInTheDocument();
         expect(fake.store.has(SEED.id)).toBe(false);
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    });
+});
+
+describe('WordPage — tags (view state is read-only; 2026-09-28 reversal)', () => {
+    it("shows the word's existing tags as plain, non-removable chips, with a hint to edit the word", async () => {
+        server.use(
+            ...makeWordHandlers({
+                callerId: SESSION.id,
+                seed: [{ ...SEED, tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: SESSION.id }] }],
+            }).handlers,
+        );
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        expect(await screen.findByText('Kitchen')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove Kitchen' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Add tag' })).not.toBeInTheDocument();
+        expect(screen.queryByPlaceholderText('Search tags to add…')).not.toBeInTheDocument();
+        expect(screen.getByText('Edit the word to add or remove tags.')).toBeInTheDocument();
+    });
+
+    it('changing tags is only possible after entering Edit — the combobox appears there, but nothing is sent until Save is pressed', async () => {
+        const wordsFake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [{ ...SEED, tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: SESSION.id }] }],
+        });
+        const tagsFake = makeTagHandlers({
+            callerId: SESSION.id,
+            seedTags: [{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private', wordIds: [SEED.id] }],
+            wordOwners: { [SEED.id]: SESSION.id },
+        });
+        server.use(...wordsFake.handlers, ...tagsFake.handlers);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        expect(await screen.findByText('Kitchen')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove Kitchen' })).not.toBeInTheDocument();
+
+        await user.click(await screen.findByRole('button', { name: 'Edit' }));
+        await user.click(await screen.findByRole('button', { name: 'Remove Kitchen' }));
+
+        // Staged only — removing the chip alone must not call the API yet.
+        expect(tagsFake.requests).toHaveLength(0);
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
+
+        await user.click(screen.getByRole('button', { name: 'Save word' }));
+        await waitFor(() =>
+            expect(tagsFake.requests).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ path: '/tags/links/remove', body: { tagIds: ['tag-1'], wordIds: [SEED.id] } }),
+                ]),
+            ),
+        );
+        expect(wordsFake.requests).toHaveLength(1);
+    });
+
+    it('Cancel after removing a tag in Edit discards the change — the view still shows it', async () => {
+        server.use(
+            ...makeWordHandlers({
+                callerId: SESSION.id,
+                seed: [{ ...SEED, tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: SESSION.id }] }],
+            }).handlers,
+            ...makeTagHandlers({
+                callerId: SESSION.id,
+                seedTags: [{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private', wordIds: [SEED.id] }],
+                wordOwners: { [SEED.id]: SESSION.id },
+            }).handlers,
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: 'Edit' }));
+        await user.click(await screen.findByRole('button', { name: 'Remove Kitchen' }));
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+        // Back to the read-only view — the discarded removal never went out.
+        expect(await screen.findByText('Kitchen')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove Kitchen' })).not.toBeInTheDocument();
+    });
+
+    it('on desktop, Cancel renders immediately next to (left of) Save word, not grouped with Delete', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [SEED] }).handlers);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: 'Edit' }));
+        const bar = screen.getByTestId('word-editor-bar');
+        const buttons = within(bar).getAllByRole('button');
+        const names = buttons.map((button) => button.textContent);
+        const cancelIndex = names.findIndex((name) => name?.includes('Cancel'));
+        const saveIndex = names.findIndex((name) => name?.includes('Save word'));
+        const deleteIndex = names.findIndex((name) => name?.includes('Delete'));
+
+        expect(cancelIndex).toBeGreaterThan(-1);
+        expect(saveIndex).toBe(cancelIndex + 1);
+        expect(deleteIndex).toBeLessThan(cancelIndex);
     });
 });

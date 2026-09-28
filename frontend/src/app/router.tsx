@@ -40,6 +40,11 @@ import { AddWordPage } from '@/features/words/pages/AddWordPage';
 import { WordPage } from '@/features/words/pages/WordPage';
 import { ReviewPage } from '@/features/words/pages/ReviewPage';
 import { validateReviewSearch } from '@/features/words/review/search';
+import { TagsPage } from '@/features/tags/pages/TagsPage';
+import { TagViewPage } from '@/features/tags/pages/TagViewPage';
+import type { TagScope } from '@/features/tags/types';
+
+const SCOPE_VALUES = new Set<string>(['all', 'owned', 'followed', 'discover'] satisfies TagScope[]);
 
 /** `staticData.wide` opts a leaf route into `AppShell`'s wider `max-w-7xl` container — the word
  * compose/edit/detail pages need it for the verb tense-column grid. Read by `ProtectedLayout`. */
@@ -159,10 +164,25 @@ const notificationsRoute = createRoute({
     component: () => <Placeholder title="Notifications" note="Inbox lands in Phase 6." />,
 });
 
+const tagsRoute = createRoute({
+    getParentRoute: () => protectedLayoutRoute,
+    path: '/tags',
+    // Only `scope` is URL-persisted (D2) — `q`/`sort` stay local page state,
+    // matching MOCKUPS/tags.html's own persistence exactly. Kept inline
+    // (no separate search.ts) since it's one scalar field, unlike Review's
+    // multi-field, array-valued contract.
+    validateSearch: (search: Record<string, unknown>): { scope?: TagScope } => {
+        const raw = typeof search.scope === 'string' ? search.scope : undefined;
+        const scope = raw && SCOPE_VALUES.has(raw) ? (raw as TagScope) : undefined;
+        return { scope };
+    },
+    component: TagsPage,
+});
+
 const tagRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/tag/$tagId',
-    component: () => <Placeholder title="Tag" note="Tag view lands in Phase 4." />,
+    component: TagViewPage,
 });
 
 const routeTree = rootRoute.addChildren([
@@ -181,6 +201,7 @@ const routeTree = rootRoute.addChildren([
         practiceRoute,
         accountRoute,
         notificationsRoute,
+        tagsRoute,
         tagRoute,
     ]),
 ]);

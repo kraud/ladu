@@ -1,4 +1,195 @@
 {
+  "apiErrors": {
+    "tagNotFound": "No se pudo encontrar esta etiqueta.",
+    "notAuthorized": "No tienes acceso a esta etiqueta.",
+    "notAuthorizedToDelete": "Solo puedes eliminar etiquetas que te pertenecen.",
+    "notAuthorizedToFollow": "No tienes permiso para seguir esta etiqueta.",
+    "notAuthorizedToClone": "Solo las etiquetas públicas se pueden clonar de esta forma.",
+    "notAuthorizedTags": "Solo puedes usar etiquetas que te pertenecen.",
+    "notAuthorizedWords": "Solo puedes usar palabras que te pertenecen.",
+    "notAuthorizedToAddWords": "Solo puedes añadir palabras que te pertenecen.",
+    "alreadyOwnTag": "Ya eres dueño de esta etiqueta.",
+    "labelRequired": "Introduce un nombre para la etiqueta.",
+    "labelAlreadyInUse": "Ya tienes una etiqueta con ese nombre.",
+    "invalidVisibility": "Elige una visibilidad válida.",
+    "invalidCursor": "Ese enlace de página ha caducado — vuelve a cargar la lista."
+  },
+  "relation": {
+    "owned": "Propias",
+    "followed": "Seguidas",
+    "unavailable": "No disponible",
+    "discover": "Descubrir"
+  },
+  "visibility": {
+    "public": "Pública",
+    "private": "Privada"
+  },
+  "combobox": {
+    "filterPlaceholder": "Filtrar por etiqueta…",
+    "addPlaceholder": "Buscar etiquetas para añadir…",
+    "removePlaceholder": "Buscar etiquetas para quitar…",
+    "noMatches": "Ninguna etiqueta coincide",
+    "noTags": "Todavía no tienes etiquetas",
+    "unavailableTooltip": "No disponible — el propietario la hizo Privada",
+    "followedReadOnlyTooltip": "Etiqueta seguida — solo lectura, de {{author}}",
+    "createTag": "Crear etiqueta nueva \"{{label}}\"",
+    "removeSelected": "Quitar {{label}}"
+  },
+  "card": {
+    "openAriaLabel": "Abrir {{label}}",
+    "noDescription": "Sin descripción",
+    "wordCount_one": "palabra",
+    "wordCount_other": "palabras",
+    "clonedFromPrefix": "Clonada de",
+    "byAuthor": "por {{username}}",
+    "unavailableNote": "Oculta — el propietario hizo esta etiqueta Privada. Sigues siguiéndola, pero sus palabras están fuera de tu Revisión hasta que vuelva a compartirla.",
+    "viewWords": "Ver palabras",
+    "unfollow": "Dejar de seguir",
+    "clone": "Clonar",
+    "follow": "Seguir",
+    "addWords": "Añadir palabras"
+  },
+  "form": {
+    "createTitle": "Nueva etiqueta",
+    "editTitle": "Editar etiqueta",
+    "labelField": "Nombre",
+    "labelPlaceholder": "p. ej. Capítulo 1",
+    "labelRequiredError": "El nombre es obligatorio.",
+    "descriptionField": "Descripción",
+    "descriptionPlaceholder": "Qué tienen en común estas palabras…",
+    "visibilityField": "Visibilidad",
+    "visibilityPublic": "Pública",
+    "visibilityPublicHint": "Cualquiera puede encontrarla en Descubrir y seguirla — los seguidores ven tus palabras de solo lectura y las reciben automáticamente.",
+    "visibilityPrivate": "Privada",
+    "visibilityPrivateHint": "Solo tú puedes verla. Los seguidores actuales conservan la etiqueta, pero sus palabras salen de su Revisión hasta que la vuelvas a hacer Pública.",
+    "createSubmit": "Crear etiqueta",
+    "editSubmit": "Guardar cambios"
+  },
+  "clone": {
+    "title": "Clonar esta etiqueta",
+    "byAuthor": "por {{username}}",
+    "wordAndFollowerCount": "{{words}} palabras · {{followers}} seguidores",
+    "visibilityLabel": "Visibilidad de tu copia",
+    "visibilityHint": "Una copia de la etiqueta de otra persona empieza como Privada.",
+    "independentNote": "La copia es totalmente independiente — sus palabras (con todas sus traducciones) pasan a ser tuyas. Los cambios posteriores en la original no la afectarán.",
+    "endsFollowNote": "Como serás dueño de una copia, dejas de seguir la original.",
+    "confirm": "Crear copia"
+  },
+  "wordPicker": {
+    "label": "Añadir palabras ahora",
+    "selectedCount": "{{count}} seleccionadas",
+    "searchPlaceholder": "Busca tus palabras…",
+    "searchLabel": "Buscar tus palabras para añadir ahora",
+    "noMatches": "Ninguna palabra coincide",
+    "noWords": "Todavía no tienes palabras",
+    "removeSelected": "Quitar {{word}}",
+    "clearSearch": "Borrar búsqueda",
+    "goToReview": "Ir a Revisión para ver más",
+    "loadMoreCount": "Cargar más ({{count}})",
+    "allLoaded": "Todas las palabras cargadas"
+  },
+  "page": {
+    "title": "Etiquetas",
+    "newTag": "Nueva etiqueta",
+    "searchPlaceholder": "Buscar por nombre o descripción…",
+    "searchLabel": "Buscar etiquetas",
+    "scopeGroupLabel": "Ámbito de etiquetas",
+    "scope": {
+      "all": "Todas"
+    },
+    "sortLabel": "Ordenar",
+    "sort": {
+      "recent": "Recientes",
+      "label": "Nombre A–Z"
+    },
+    "resultCount": "{{shown}} de {{total}} etiquetas",
+    "noResults": "Sin etiquetas",
+    "loaded": "Mostrando {{loaded}} de {{total}} etiquetas",
+    "loadMore": "Cargar más",
+    "emptySearch": {
+      "title": "Ninguna etiqueta coincide con \"{{query}}\"",
+      "description": "Prueba otra ortografía — la búsqueda coincide con nombres y descripciones.",
+      "action": "Borrar búsqueda"
+    },
+    "emptyFollowed": {
+      "title": "Todavía no sigues ninguna etiqueta",
+      "description": "Las etiquetas que sigues mantienen sus palabras sincronizadas en tu Revisión, de solo lectura.",
+      "action": "Buscar etiquetas en Descubrir"
+    },
+    "emptyDiscover": {
+      "title": "Nada nuevo que descubrir",
+      "description": "Aquí aparecerán las etiquetas públicas de otros usuarios.",
+      "action": "Ámbito Propias"
+    },
+    "emptyOwned": {
+      "title": "Todavía no hay etiquetas",
+      "description": "Las etiquetas organizan palabras según un tema — como \"Capítulo 1\" o un tema que repasas a menudo.",
+      "action": "Crea tu primera etiqueta"
+    },
+    "deleteConfirmTitle": "¿Eliminar etiqueta?",
+    "deleteConfirmDescription_one": "\"{{label}}\" contiene 1 palabra. Las palabras en sí no se eliminan — solo pierden esta etiqueta.",
+    "deleteConfirmDescription_other": "\"{{label}}\" contiene {{count}} palabras. Las palabras en sí no se eliminan — solo pierden esta etiqueta.",
+    "unfollowConfirmTitle": "¿Dejar de seguir esta etiqueta?",
+    "unfollowConfirmDescription": "Dejarás de seguir \"{{label}}\" de {{author}}. Sus palabras saldrán de tu lista de Revisión y de tu grupo de práctica.",
+    "toastCreated": "Etiqueta \"{{label}}\" creada",
+    "toastUpdated": "\"{{label}}\" actualizada",
+    "toastDeleted": "Etiqueta \"{{label}}\" eliminada — sus palabras se quedan en tu colección",
+    "toastFollowed": "Ahora sigues \"{{label}}\"",
+    "toastUnfollowed": "Dejaste de seguir \"{{label}}\"",
+    "toastCloned": "Copia de \"{{label}}\" creada — ya es toda tuya"
+  },
+  "words": {
+    "searchPlaceholder": "Buscar en las palabras de esta etiqueta…",
+    "searchLabel": "Buscar palabras en la etiqueta",
+    "resultCount": "{{shown}} de {{total}} palabras",
+    "loaded": "Mostrando {{loaded}} de {{total}} palabras",
+    "removeFromTag": "Quitar de la etiqueta",
+    "removedToast": "\"{{word}}\" se quitó de \"{{label}}\" — se queda en tu colección",
+    "emptySearch": {
+      "title": "Nada coincide con \"{{query}}\"",
+      "description": "Prueba otra ortografía — la búsqueda solo coincide con las palabras de esta etiqueta.",
+      "action": "Borrar búsqueda"
+    },
+    "emptyOwned": {
+      "title": "Añade tus primeras palabras a esta etiqueta"
+    },
+    "emptyOther": {
+      "title": "Todavía no hay palabras aquí"
+    }
+  },
+  "addWords": {
+    "title": "Añadir palabras a \"{{label}}\"",
+    "save": "Añadir seleccionadas",
+    "addedToast_one": "{{count}} palabra añadida a \"{{label}}\"",
+    "addedToast_other": "{{count}} palabras añadidas a \"{{label}}\""
+  },
+  "notFound": {
+    "title": "No puedes ver esta etiqueta",
+    "description": "Puede que ahora sea Privada, haya sido eliminada, o el enlace esté equivocado.",
+    "action": "Volver a /tags"
+  },
+  "view": {
+    "backAriaLabel": "Volver a /tags",
+    "backLabel": "Volver a /tags",
+    "ownedHint": "Tu etiqueta",
+    "ownedHintWithFollowers_one": "Tu etiqueta — {{count}} seguidor",
+    "ownedHintWithFollowers_other": "Tu etiqueta — {{count}} seguidores",
+    "followerCount_one": "{{count}} seguidor",
+    "followerCount_other": "{{count}} seguidores",
+    "unavailableTitle": "Las palabras están ocultas por ahora",
+    "unavailableDescription": "El propietario hizo esta etiqueta Privada. Sigues siguiéndola — sus palabras volverán a tu Revisión cuando vuelva a ser Pública.",
+    "removeHint": "Quitar una palabra de la etiqueta no la elimina — se queda en tu colección.",
+    "openCopy": "Abrirla",
+    "editDetails": "Editar detalles",
+    "doneEditing": "Listo"
+  },
+  "picker": {
+    "addTitle_one": "Añadir etiquetas a {{count}} palabra",
+    "addTitle_other": "Añadir etiquetas a {{count}} palabras",
+    "removeTitle_one": "Quitar etiquetas de {{count}} palabra",
+    "removeTitle_other": "Quitar etiquetas de {{count}} palabras",
+    "apply": "Aplicar"
+  },
   "toastMessages": {
     "tagDeleted": "¡La etiqueta {{tagLabel}} fue eliminada!",
     "tagUpdated": "¡La etiqueta fue actualizada con éxito!",

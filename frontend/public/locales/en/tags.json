@@ -1,4 +1,195 @@
 {
+  "apiErrors": {
+    "tagNotFound": "This tag could not be found.",
+    "notAuthorized": "You don't have access to this tag.",
+    "notAuthorizedToDelete": "You can only delete tags you own.",
+    "notAuthorizedToFollow": "You don't have access to follow this tag.",
+    "notAuthorizedToClone": "Only Public tags can be cloned this way.",
+    "notAuthorizedTags": "You can only use tags you own.",
+    "notAuthorizedWords": "You can only use words you own.",
+    "notAuthorizedToAddWords": "You can only add words you own.",
+    "alreadyOwnTag": "You already own this tag.",
+    "labelRequired": "Please enter a label for the tag.",
+    "labelAlreadyInUse": "You already have a tag with this label.",
+    "invalidVisibility": "Please choose a valid visibility.",
+    "invalidCursor": "That page link has expired — reload the list."
+  },
+  "relation": {
+    "owned": "Owned",
+    "followed": "Followed",
+    "unavailable": "Unavailable",
+    "discover": "Discover"
+  },
+  "visibility": {
+    "public": "Public",
+    "private": "Private"
+  },
+  "combobox": {
+    "filterPlaceholder": "Filter by tag…",
+    "addPlaceholder": "Search tags to add…",
+    "removePlaceholder": "Search tags to remove…",
+    "noMatches": "No tags match",
+    "noTags": "You don't have any tags yet",
+    "unavailableTooltip": "Unavailable — the owner made it Private",
+    "followedReadOnlyTooltip": "Followed tag — read-only, owned by {{author}}",
+    "createTag": "Create new tag \"{{label}}\"",
+    "removeSelected": "Remove {{label}}"
+  },
+  "card": {
+    "openAriaLabel": "Open {{label}}",
+    "noDescription": "No description",
+    "wordCount_one": "word",
+    "wordCount_other": "words",
+    "clonedFromPrefix": "Cloned from",
+    "byAuthor": "by {{username}}",
+    "unavailableNote": "Hidden — the owner made this tag Private. Your follow stays, but its words are out of your Review until they share it again.",
+    "viewWords": "View words",
+    "unfollow": "Unfollow",
+    "clone": "Clone",
+    "follow": "Follow",
+    "addWords": "Add words"
+  },
+  "form": {
+    "createTitle": "New tag",
+    "editTitle": "Edit tag",
+    "labelField": "Label",
+    "labelPlaceholder": "e.g. Chapter 1",
+    "labelRequiredError": "Label is required.",
+    "descriptionField": "Description",
+    "descriptionPlaceholder": "What these words have in common…",
+    "visibilityField": "Visibility",
+    "visibilityPublic": "Public",
+    "visibilityPublicHint": "Anyone can find it in Discover and follow it — followers see your words as read-only and get them automatically.",
+    "visibilityPrivate": "Private",
+    "visibilityPrivateHint": "Only you can see it. Existing followers keep the tag, but its words leave their Review until you make it Public again.",
+    "createSubmit": "Create tag",
+    "editSubmit": "Save changes"
+  },
+  "clone": {
+    "title": "Clone this tag",
+    "byAuthor": "by {{username}}",
+    "wordAndFollowerCount": "{{words}} words · {{followers}} followers",
+    "visibilityLabel": "Visibility of your copy",
+    "visibilityHint": "A copy of someone else's tag starts Private.",
+    "independentNote": "The copy is fully independent — its words (with all translations) become yours. Later changes to the original won't affect it.",
+    "endsFollowNote": "Because you'll own a copy, your follow of the original ends.",
+    "confirm": "Create copy"
+  },
+  "wordPicker": {
+    "label": "Add words now",
+    "selectedCount": "{{count}} selected",
+    "searchPlaceholder": "Search your words…",
+    "searchLabel": "Search your words to add now",
+    "noMatches": "No words match",
+    "noWords": "You don't have any words yet",
+    "removeSelected": "Remove {{word}}",
+    "clearSearch": "Clear search",
+    "goToReview": "Go to Review for more",
+    "loadMoreCount": "Load more ({{count}})",
+    "allLoaded": "All words loaded"
+  },
+  "page": {
+    "title": "Tags",
+    "newTag": "New tag",
+    "searchPlaceholder": "Search by label or description…",
+    "searchLabel": "Search tags",
+    "scopeGroupLabel": "Tag scope",
+    "scope": {
+      "all": "All"
+    },
+    "sortLabel": "Sort",
+    "sort": {
+      "recent": "Recent",
+      "label": "Label A–Z"
+    },
+    "resultCount": "{{shown}} of {{total}} tags",
+    "noResults": "No tags",
+    "loaded": "Showing {{loaded}} of {{total}} tags",
+    "loadMore": "Load more",
+    "emptySearch": {
+      "title": "No tags match \"{{query}}\"",
+      "description": "Try a different spelling — search matches labels and descriptions.",
+      "action": "Clear search"
+    },
+    "emptyFollowed": {
+      "title": "You're not following any tags yet",
+      "description": "Tags you follow keep their words in sync into your Review, read-only.",
+      "action": "Find tags in Discover"
+    },
+    "emptyDiscover": {
+      "title": "Nothing new to discover",
+      "description": "Public tags from other users will appear here.",
+      "action": "Owned scope"
+    },
+    "emptyOwned": {
+      "title": "No tags yet",
+      "description": "Tags organize words around a theme — like \"Chapter 1\" or a topic you keep revisiting.",
+      "action": "Make your first tag"
+    },
+    "deleteConfirmTitle": "Delete tag?",
+    "deleteConfirmDescription_one": "\"{{label}}\" holds 1 word. The words themselves are not deleted — they just lose this tag.",
+    "deleteConfirmDescription_other": "\"{{label}}\" holds {{count}} words. The words themselves are not deleted — they just lose this tag.",
+    "unfollowConfirmTitle": "Unfollow tag?",
+    "unfollowConfirmDescription": "You'll stop following \"{{label}}\" by {{author}}. Its words will drop out of your Review list and practice pool.",
+    "toastCreated": "Tag \"{{label}}\" created",
+    "toastUpdated": "\"{{label}}\" updated",
+    "toastDeleted": "Tag \"{{label}}\" deleted — its words stay on your shelf",
+    "toastFollowed": "You're now following \"{{label}}\"",
+    "toastUnfollowed": "Unfollowed \"{{label}}\"",
+    "toastCloned": "Copy of \"{{label}}\" created — it's all yours now"
+  },
+  "words": {
+    "searchPlaceholder": "Search in this tag's words…",
+    "searchLabel": "Search words in tag",
+    "resultCount": "{{shown}} of {{total}} words",
+    "loaded": "Showing {{loaded}} of {{total}} words",
+    "removeFromTag": "Remove from tag",
+    "removedToast": "\"{{word}}\" removed from \"{{label}}\" — it stays on your shelf",
+    "emptySearch": {
+      "title": "Nothing matches \"{{query}}\"",
+      "description": "Try a different spelling — search matches this tag's words only.",
+      "action": "Clear search"
+    },
+    "emptyOwned": {
+      "title": "Add your first words to this tag"
+    },
+    "emptyOther": {
+      "title": "No words here yet"
+    }
+  },
+  "addWords": {
+    "title": "Add words to \"{{label}}\"",
+    "save": "Add selected",
+    "addedToast_one": "{{count}} word added to \"{{label}}\"",
+    "addedToast_other": "{{count}} words added to \"{{label}}\""
+  },
+  "notFound": {
+    "title": "You can't see this tag",
+    "description": "It may be Private now, deleted, or the link is wrong.",
+    "action": "Back to /tags"
+  },
+  "view": {
+    "backAriaLabel": "Back to /tags",
+    "backLabel": "Back to /tags",
+    "ownedHint": "Your tag",
+    "ownedHintWithFollowers_one": "Your tag — {{count}} follower",
+    "ownedHintWithFollowers_other": "Your tag — {{count}} followers",
+    "followerCount_one": "{{count}} follower",
+    "followerCount_other": "{{count}} followers",
+    "unavailableTitle": "Words are hidden right now",
+    "unavailableDescription": "The owner made this tag Private. You're still following it — its words return to your Review when it becomes Public again.",
+    "removeHint": "Removing a word from the tag doesn't delete it — it stays on your shelf.",
+    "openCopy": "Open it",
+    "editDetails": "Edit details",
+    "doneEditing": "Done"
+  },
+  "picker": {
+    "addTitle_one": "Add tags to {{count}} word",
+    "addTitle_other": "Add tags to {{count}} words",
+    "removeTitle_one": "Remove tags from {{count}} word",
+    "removeTitle_other": "Remove tags from {{count}} words",
+    "apply": "Apply"
+  },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag was deleted!",
     "tagUpdated": "Tag was updated successfully!",

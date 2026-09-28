@@ -26,7 +26,7 @@ const {
     translations,
     words,
 }: typeof import('../src/db/schema') = require('../src/db/schema');
-const { inArray } = require('drizzle-orm');
+const { and, eq, inArray, or } = require('drizzle-orm');
 
 // ---------------------------------------------------------------------------
 // Types
@@ -35,7 +35,19 @@ const { inArray } = require('drizzle-orm');
 type WordRow = typeof words.$inferSelect;
 type TranslationRow = typeof translations.$inferSelect;
 type CaseRow = typeof translationCases.$inferSelect;
-type TagRow = typeof tags.$inferSelect;
+
+/**
+ * The slim shape a tag rides on a word response in — enough to render a
+ * chip and tell ownership/visibility apart, not the full tag row (word
+ * count, follower count, timestamps, …), which belongs to the tag API
+ * itself (phase-4-tags.md Slice 2's `TagSummary`).
+ */
+export interface WordTagSummary {
+    id: string;
+    label: string;
+    visibility: string;
+    authorId: string;
+}
 
 /**
  * A single translation with its grammatical cases,
@@ -67,7 +79,7 @@ export interface WordResponse {
     clue: string | null;
     isCloned: boolean;
     originalCreator: string | null;
-    tags: TagRow[];
+    tags: WordTagSummary[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -134,12 +146,20 @@ const fetchTranslationsMap = async (
 // ---------------------------------------------------------------------------
 
 /**
- * Fetch all tags linked to a set of word UUIDs.
- * Returns a Map<wordId, TagRow[]>.
+ * Fetch all tags linked to a set of word UUIDs, filtered to what `viewerId`
+ * may see: the viewer's own tags, or another author's Public tags — a
+ * follower must never see the word owner's unrelated Private tag labels
+ * just because that word also happens to carry one (phase-4-tags.md, "Why
+ * the backend is being rebuilt"). Friends-Only is deferred (excluded here
+ * unless the viewer is the author) until Phase 6 wires real friendships
+ * into this filter too.
+ *
+ * Returns a Map<wordId, WordTagSummary[]>.
  */
 const fetchTagsMap = async (
     wordIds: string[],
-): Promise<Map<string, TagRow[]>> => {
+    viewerId: string,
+): Promise<Map<string, WordTagSummary[]>> => {
     if (wordIds.length === 0) return new Map();
 
     const junctionRows = await db
@@ -151,15 +171,25 @@ const fetchTagsMap = async (
 
     const tagIdSet = [...new Set(junctionRows.map((j) => j.tagId))];
     const tagRows = await db
-        .select()
+        .select({
+            id: tags.id,
+            label: tags.label,
+            visibility: tags.visibility,
+            authorId: tags.authorId,
+        })
         .from(tags)
-        .where(inArray(tags.id, tagIdSet));
+        .where(
+            and(
+                inArray(tags.id, tagIdSet),
+                or(eq(tags.authorId, viewerId), eq(tags.visibility, 'Public')),
+            ),
+        );
     const tagById = new Map(tagRows.map((t) => [t.id, t]));
 
-    const map = new Map<string, TagRow[]>();
+    const map = new Map<string, WordTagSummary[]>();
     for (const j of junctionRows) {
         const tag = tagById.get(j.tagId);
-        if (!tag) continue;
+        if (!tag) continue; // filtered out by visibility above, or a race with a delete
         const bucket = map.get(j.wordId);
         if (bucket) bucket.push(tag);
         else map.set(j.wordId, [tag]);
@@ -180,7 +210,7 @@ const fetchTagsMap = async (
 const assembleWord = (
     word: WordRow,
     translationsMap: Map<string, AssembledTranslation[]>,
-    tagsMap: Map<string, TagRow[]>,
+    tagsMap: Map<string, WordTagSummary[]>,
 ): WordResponse => ({
     id: word.id,
     user: word.userId,
@@ -207,11 +237,18 @@ const assembleWord = (
  *   - The old MongoDB aggregation $lookup pipeline
  *   - The incomplete getWordsByIds that only returned bare word rows
  *
+ * `viewerId` decides which of each word's tags are visible (see
+ * `fetchTagsMap`) — always pass the requesting user's id, never the word's
+ * own author id, so a follower reading a followed word gets that word's
+ * Public tags, not the owner's Private ones.
+ *
  * @param wordIds - Array of word UUIDs
+ * @param viewerId - The user viewing these words, for tag-visibility filtering
  * @returns Array of WordResponse objects (empty array if none found)
  */
 const fetchWordsWithRelations = async (
     wordIds: string[],
+    viewerId: string,
 ): Promise<WordResponse[]> => {
     if (wordIds.length === 0) return [];
 
@@ -222,7 +259,7 @@ const fetchWordsWithRelations = async (
     if (wordRows.length === 0) return [];
 
     const tMap = await fetchTranslationsMap(wordIds);
-    const tagsMap = await fetchTagsMap(wordIds);
+    const tagsMap = await fetchTagsMap(wordIds, viewerId);
 
     return wordRows.map((w) => assembleWord(w, tMap, tagsMap));
 };
@@ -232,8 +269,9 @@ const fetchWordsWithRelations = async (
  */
 const fetchWordWithRelations = async (
     wordId: string,
+    viewerId: string,
 ): Promise<WordResponse | null> => {
-    const results = await fetchWordsWithRelations([wordId]);
+    const results = await fetchWordsWithRelations([wordId], viewerId);
     return results[0] || null;
 };
 
@@ -249,6 +287,52 @@ const getWordsByIds = async (wordIds: string[]): Promise<WordRow[]> => {
     return db.select().from(words).where(inArray(words.id, wordIds));
 };
 
+// ---------------------------------------------------------------------------
+// Generic list-pagination helpers
+// ---------------------------------------------------------------------------
+// Shared by `getWordsSimplified` (wordController.ts) and the tag list
+// (tagController.ts's `listTags`, phase-4-tags.md Slice 2) — homed here,
+// rather than on either controller, for the same reason this whole file
+// exists: a controller->controller import (tagController needing something
+// from wordController, which itself already imports from tagController)
+// would be circular. Both controllers already depend on this service, never
+// on each other for this.
+
+const DEFAULT_PAGE_LIMIT = 50;
+const MAX_PAGE_LIMIT = 100;
+
+/** A repeatable query param (`?pos=Noun&pos=Verb`) arrives as an array only
+ * when given more than once; normalise the single-value case too. */
+const parseArrayParam = (value: any): string[] => {
+    if (value === undefined) return [];
+    return Array.isArray(value) ? value : [value];
+};
+
+const parseLimitParam = (value: any): number => {
+    const parsed = value !== undefined ? parseInt(value, 10) : DEFAULT_PAGE_LIMIT;
+    if (!Number.isFinite(parsed)) return DEFAULT_PAGE_LIMIT;
+    return Math.min(Math.max(parsed, 1), MAX_PAGE_LIMIT);
+};
+
+// Generic keyset-cursor pair: an opaque sort value (the word list encodes
+// `createdAt.toISOString()`; the tag list encodes either that or a plain
+// label string) plus the tiebreaker id — one cursor implementation shared
+// by both lists rather than each growing its own base64(`value|id`) helper.
+const encodeCursor = (sortValue: string, id: string): string =>
+    Buffer.from(`${sortValue}|${id}`, 'utf-8').toString('base64');
+
+const decodeCursor = (cursor: string): { sortValue: string; id: string } | null => {
+    try {
+        const [sortValue, id] = Buffer.from(cursor, 'base64')
+            .toString('utf-8')
+            .split('|');
+        if (!id || sortValue === undefined) return null;
+        return { sortValue, id };
+    } catch {
+        return null;
+    }
+};
+
 export {
     fetchTranslationsMap,
     fetchTagsMap,
@@ -256,6 +340,10 @@ export {
     fetchWordsWithRelations,
     fetchWordWithRelations,
     getWordsByIds,
+    parseArrayParam,
+    parseLimitParam,
+    encodeCursor,
+    decodeCursor,
 };
 
 // TypeScript module marker — required so that `import type { WordResponse }`

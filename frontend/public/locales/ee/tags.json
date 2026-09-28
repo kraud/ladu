@@ -1,4 +1,195 @@
 {
+  "apiErrors": {
+    "tagNotFound": "Seda tagi ei leitud.",
+    "notAuthorized": "Sul pole juurdepääsu sellele tagile.",
+    "notAuthorizedToDelete": "Saad kustutada ainult endale kuuluvaid tage.",
+    "notAuthorizedToFollow": "Sul pole luba seda tagi jälgida.",
+    "notAuthorizedToClone": "Nii saab kloonida ainult avalikke tage.",
+    "notAuthorizedTags": "Saad kasutada ainult endale kuuluvaid tage.",
+    "notAuthorizedWords": "Saad kasutada ainult endale kuuluvaid sõnu.",
+    "notAuthorizedToAddWords": "Saad lisada ainult endale kuuluvaid sõnu.",
+    "alreadyOwnTag": "See tag kuulub sulle juba.",
+    "labelRequired": "Palun sisesta tagi nimi.",
+    "labelAlreadyInUse": "Sul on juba samanimeline tag.",
+    "invalidVisibility": "Palun vali sobiv nähtavus.",
+    "invalidCursor": "See lehelink on aegunud — laadi loend uuesti."
+  },
+  "relation": {
+    "owned": "Minu omad",
+    "followed": "Jälgitud",
+    "unavailable": "Pole saadaval",
+    "discover": "Avasta"
+  },
+  "visibility": {
+    "public": "Avalik",
+    "private": "Privaatne"
+  },
+  "combobox": {
+    "filterPlaceholder": "Filtreeri tagi järgi…",
+    "addPlaceholder": "Otsi lisatavaid tage…",
+    "removePlaceholder": "Otsi eemaldatavaid tage…",
+    "noMatches": "Ühtegi tagi ei leitud",
+    "noTags": "Sul pole veel ühtegi tagi",
+    "unavailableTooltip": "Pole saadaval — omanik muutis selle privaatseks",
+    "followedReadOnlyTooltip": "Jälgitud tag — ainult lugemiseks, autor {{author}}",
+    "createTag": "Loo uus tag \"{{label}}\"",
+    "removeSelected": "Eemalda {{label}}"
+  },
+  "card": {
+    "openAriaLabel": "Ava {{label}}",
+    "noDescription": "Kirjeldus puudub",
+    "wordCount_one": "sõna",
+    "wordCount_other": "sõna",
+    "clonedFromPrefix": "Kloonitud allikast",
+    "byAuthor": "kasutajalt {{username}}",
+    "unavailableNote": "Peidetud — omanik muutis selle tagi privaatseks. Sa jätkad jälgimist, kuid selle sõnad puuduvad su ülevaatest, kuni ta selle uuesti jagab.",
+    "viewWords": "Vaata sõnu",
+    "unfollow": "Lõpeta jälgimine",
+    "clone": "Kloon",
+    "follow": "Jälgi",
+    "addWords": "Lisa sõnu"
+  },
+  "form": {
+    "createTitle": "Uus tag",
+    "editTitle": "Muuda tagi",
+    "labelField": "Nimi",
+    "labelPlaceholder": "nt Peatükk 1",
+    "labelRequiredError": "Nimi on kohustuslik.",
+    "descriptionField": "Kirjeldus",
+    "descriptionPlaceholder": "Mis neil sõnadel ühist on…",
+    "visibilityField": "Nähtavus",
+    "visibilityPublic": "Avalik",
+    "visibilityPublicHint": "Igaüks leiab selle jaotisest Avasta ja saab seda jälgida — jälgijad näevad sinu sõnu ainult vaatamiseks ning saavad need automaatselt.",
+    "visibilityPrivate": "Privaatne",
+    "visibilityPrivateHint": "Ainult sina näed seda. Olemasolevad jälgijad säilitavad tagi, kuid selle sõnad kaovad nende ülevaatest, kuni muudad selle taas avalikuks.",
+    "createSubmit": "Loo tag",
+    "editSubmit": "Salvesta muudatused"
+  },
+  "clone": {
+    "title": "Klooni see tag",
+    "byAuthor": "kasutajalt {{username}}",
+    "wordAndFollowerCount": "{{words}} sõna · {{followers}} jälgijat",
+    "visibilityLabel": "Sinu koopia nähtavus",
+    "visibilityHint": "Teise kasutaja tagi koopia algab privaatsena.",
+    "independentNote": "Koopia on täiesti iseseisev — selle sõnad (koos kõigi tõlgetega) muutuvad sinu omaks. Hilisemad muudatused originaalis seda ei mõjuta.",
+    "endsFollowNote": "Kuna omad nüüd koopiat, lõpeb originaali jälgimine.",
+    "confirm": "Loo koopia"
+  },
+  "wordPicker": {
+    "label": "Lisa sõnu kohe",
+    "selectedCount": "{{count}} valitud",
+    "searchPlaceholder": "Otsi oma sõnu…",
+    "searchLabel": "Otsi oma sõnu, et neid kohe lisada",
+    "noMatches": "Ühtegi sõna ei leitud",
+    "noWords": "Sul pole veel ühtegi sõna",
+    "removeSelected": "Eemalda {{word}}",
+    "clearSearch": "Tühjenda otsing",
+    "goToReview": "Vaata rohkem ülevaates",
+    "loadMoreCount": "Laadi rohkem ({{count}})",
+    "allLoaded": "Kõik sõnad on laaditud"
+  },
+  "page": {
+    "title": "Tagid",
+    "newTag": "Uus tag",
+    "searchPlaceholder": "Otsi nime või kirjelduse järgi…",
+    "searchLabel": "Otsi tage",
+    "scopeGroupLabel": "Tagi ulatus",
+    "scope": {
+      "all": "Kõik"
+    },
+    "sortLabel": "Sortimine",
+    "sort": {
+      "recent": "Uusimad",
+      "label": "Nimi A–Z"
+    },
+    "resultCount": "{{shown}} / {{total}} tagi",
+    "noResults": "Tagid puuduvad",
+    "loaded": "Kuvatud {{loaded}} / {{total}} tagi",
+    "loadMore": "Laadi rohkem",
+    "emptySearch": {
+      "title": "Ükski tag ei vasta otsingule \"{{query}}\"",
+      "description": "Proovi teistsugust kirjapilti — otsing vaatab nime ja kirjeldust.",
+      "action": "Tühjenda otsing"
+    },
+    "emptyFollowed": {
+      "title": "Sa ei jälgi veel ühtegi tagi",
+      "description": "Jälgitavate tagide sõnad hoitakse sinu ülevaates ainult vaatamiseks ajakohasena.",
+      "action": "Leia tage jaotisest Avasta"
+    },
+    "emptyDiscover": {
+      "title": "Midagi uut avastada pole",
+      "description": "Siia ilmuvad teiste kasutajate avalikud tagid.",
+      "action": "Minu tagide vaade"
+    },
+    "emptyOwned": {
+      "title": "Tage pole veel",
+      "description": "Tagid koondavad sõnu teema järgi — näiteks \"Peatükk 1\" või mõni teema, mida sageli kordad.",
+      "action": "Loo oma esimene tag"
+    },
+    "deleteConfirmTitle": "Kustuta tag?",
+    "deleteConfirmDescription_one": "\"{{label}}\" sisaldab 1 sõna. Sõnu ennast ei kustutata — need lihtsalt kaotavad selle tagi.",
+    "deleteConfirmDescription_other": "\"{{label}}\" sisaldab {{count}} sõna. Sõnu ennast ei kustutata — need lihtsalt kaotavad selle tagi.",
+    "unfollowConfirmTitle": "Lõpeta tagi jälgimine?",
+    "unfollowConfirmDescription": "Lõpetad tagi \"{{label}}\" (autor {{author}}) jälgimise. Selle sõnad kaovad su ülevaatest ja harjutuste hulgast.",
+    "toastCreated": "Tag \"{{label}}\" loodud",
+    "toastUpdated": "\"{{label}}\" uuendatud",
+    "toastDeleted": "Tag \"{{label}}\" kustutatud — sõnad jäävad sinu kogusse alles",
+    "toastFollowed": "Jälgid nüüd tagi \"{{label}}\"",
+    "toastUnfollowed": "Lõpetasid tagi \"{{label}}\" jälgimise",
+    "toastCloned": "Tagi \"{{label}}\" koopia loodud — see on nüüd täielikult sinu oma"
+  },
+  "words": {
+    "searchPlaceholder": "Otsi selle tagi sõnade seast…",
+    "searchLabel": "Otsi sõnu tagi seest",
+    "resultCount": "{{shown}} / {{total}} sõna",
+    "loaded": "Kuvatud {{loaded}} / {{total}} sõna",
+    "removeFromTag": "Eemalda tagilt",
+    "removedToast": "\"{{word}}\" eemaldati tagilt \"{{label}}\" — see jääb sinu kogusse alles",
+    "emptySearch": {
+      "title": "Miski ei vasta otsingule \"{{query}}\"",
+      "description": "Proovi teistsugust kirjapilti — otsing vaatab ainult selle tagi sõnu.",
+      "action": "Tühjenda otsing"
+    },
+    "emptyOwned": {
+      "title": "Lisa sellele tagile oma esimesed sõnad"
+    },
+    "emptyOther": {
+      "title": "Siin pole veel sõnu"
+    }
+  },
+  "addWords": {
+    "title": "Lisa sõnu tagile \"{{label}}\"",
+    "save": "Lisa valitud",
+    "addedToast_one": "{{count}} sõna lisati tagile \"{{label}}\"",
+    "addedToast_other": "{{count}} sõna lisati tagile \"{{label}}\""
+  },
+  "notFound": {
+    "title": "Sa ei saa seda tagi näha",
+    "description": "See võib nüüd olla privaatne, kustutatud, või link on vale.",
+    "action": "Tagasi /tags juurde"
+  },
+  "view": {
+    "backAriaLabel": "Tagasi /tags juurde",
+    "backLabel": "Tagasi /tags juurde",
+    "ownedHint": "Sinu tag",
+    "ownedHintWithFollowers_one": "Sinu tag — {{count}} jälgija",
+    "ownedHintWithFollowers_other": "Sinu tag — {{count}} jälgijat",
+    "followerCount_one": "{{count}} jälgija",
+    "followerCount_other": "{{count}} jälgijat",
+    "unavailableTitle": "Sõnad on praegu peidetud",
+    "unavailableDescription": "Omanik muutis selle tagi privaatseks. Sa jätkad jälgimist — selle sõnad naasevad su ülevaatesse, kui see taas avalikuks muutub.",
+    "removeHint": "Sõna eemaldamine tagilt ei kustuta seda — see jääb sinu kogusse alles.",
+    "openCopy": "Ava see",
+    "editDetails": "Muuda üksikasju",
+    "doneEditing": "Valmis"
+  },
+  "picker": {
+    "addTitle_one": "Lisa tagid {{count}} sõnale",
+    "addTitle_other": "Lisa tagid {{count}} sõnale",
+    "removeTitle_one": "Eemalda tagid {{count}} sõnalt",
+    "removeTitle_other": "Eemalda tagid {{count}} sõnalt",
+    "apply": "Rakenda"
+  },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag kustutati!",
     "tagUpdated": "Tag uuendati edukalt!",

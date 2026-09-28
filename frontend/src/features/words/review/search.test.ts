@@ -39,12 +39,21 @@ describe('validateReviewSearch', () => {
         expect(validateReviewSearch({ lang: 'EN,XX,DE' })).toMatchObject({ lang: ['EN', 'DE'] });
     });
 
-    it('omits pos/gender/lang entirely when empty or absent', () => {
+    it('omits pos/gender/lang/tag entirely when empty or absent', () => {
         const result = validateReviewSearch({});
         expect(result.pos).toBeUndefined();
         expect(result.gender).toBeUndefined();
         expect(result.lang).toBeUndefined();
+        expect(result.tag).toBeUndefined();
         expect(result.q).toBeUndefined();
+    });
+
+    it('accepts tag ids with no vocabulary check (opaque UUIDs, not a fixed enum) and de-duplicates', () => {
+        expect(validateReviewSearch({ tag: 'tag-1,tag-2,tag-1' })).toMatchObject({ tag: ['tag-1', 'tag-2'] });
+    });
+
+    it('accepts a repeated tag key too', () => {
+        expect(validateReviewSearch({ tag: ['tag-1', 'tag-2'] })).toMatchObject({ tag: ['tag-1', 'tag-2'] });
     });
 
     it('un-coerces a numeric-looking q back to a string (the router\'s qss.toValue trap)', () => {
@@ -76,20 +85,26 @@ describe('reviewSearchToFilters', () => {
             q: 'cat',
             pos: [PartOfSpeech.noun],
             gender: undefined,
+            tag: undefined,
         });
+    });
+
+    it('carries tag straight through (D15 — the union query is already additive)', () => {
+        expect(reviewSearchToFilters({ tag: ['tag-1', 'tag-2'] })).toMatchObject({ tag: ['tag-1', 'tag-2'] });
     });
 });
 
 describe('hasActiveFilters', () => {
-    it('is false with no q/pos/gender', () => {
+    it('is false with no q/pos/gender/tag', () => {
         expect(hasActiveFilters({ lang: ['EN'] })).toBe(false);
         expect(hasActiveFilters({})).toBe(false);
     });
 
-    it('is true when any of q/pos/gender is set', () => {
+    it('is true when any of q/pos/gender/tag is set', () => {
         expect(hasActiveFilters({ q: 'cat' })).toBe(true);
         expect(hasActiveFilters({ pos: [PartOfSpeech.noun] })).toBe(true);
         expect(hasActiveFilters({ gender: ['der'] })).toBe(true);
+        expect(hasActiveFilters({ tag: ['tag-1'] })).toBe(true);
     });
 });
 

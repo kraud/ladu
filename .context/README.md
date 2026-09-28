@@ -94,7 +94,7 @@ Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playw
 
 **`id` only — `_id` is a MongoDB artifact (standing rule; `new-repo-build-plan.md` §4).** The Drizzle/Postgres schema has no `_id` column; every `_id` in a response is a hand-written alias kept for the *old* frontend, which runs against its own separate backend — nothing here needs it. New FE code and types use `id` exclusively (no `_id`, no `raw.id ?? raw._id` fallback). Backend `_id` aliases are stripped **per-slice, by whatever slice touches that controller/serializer** (responses + test assertions), not in one refactor; the affected docs are corrected in the same slice.
 
-**TODO routes:** keep `GET /api/tags/filterTags`; **delete** `GET /api/words/getAllWordDataByWord` (no consumer).
+**TODO routes:** **delete** `GET /api/words/getAllWordDataByWord` (no consumer). (`GET /api/tags/filterTags` — along with the rest of the legacy tag route surface — was itself deleted in Phase 4's tag-API rebuild; see `phase-4-tags.md`.)
 
 **§8 redesigns land in the phase that consumes them, one at a time — not all up front:**
 
@@ -131,7 +131,7 @@ Word (partOfSpeech: Noun | Verb | Adjective | Adverb; tags; clue; isCloned/origi
 | 2 | Noun create/view with ≥3 translations · form engine v1 (nouns) · `AddWord` / `DisplayWord` / `WordForm` re-modelled as mutations | 1 |
 | 3 | Form engine → verbs/adjectives/adverbs · autocomplete (`useAutocompleteTranslation`, EE sanitizers as query transforms, per-instance debounce) · Review table (URL filters, stable-id selection, `useInfiniteQuery`) | 2 |
 | 3.5 | Dashboard + user metrics — `getUserMetrics` query · `UserInfoPanel` stat cards · both word-derived charts (pie: words per PoS; bar: translations per language/month) | 3 |
-| 4 | Tags (CRUD, follow/unfollow as two distinct mutations, bulk-add) | 3 |
+| 4 | ✅ Tags — rebuilt backend API (ownership checks, pagination, `TagSummary`) + `/tags`/`/tag/:id` pages, Review integration (column/filter/bulk-assign), word-editor assignment, follow/unfollow, clone. Sharing UI stays Phase 7. | 3 |
 | 5 | Exercises + performance | 3 |
 | 6 | Social: friendships + notifications + users (redesigned models §8.1/§8.2) | 1 |
 | 7 | Tag shares/clone (§8.3) + Account + polish | 4, 6 |

@@ -28,13 +28,23 @@ export interface WordCellProps {
     showGender: boolean;
     /** Toolbar "Display progress" switch — the completion ring renders only while this is on. */
     showProgress: boolean;
-    /** Unset in Slice 6 — the cell renders inert buttons until Slice 8 wires the editor dialog. */
+    /**
+     * Gates only the empty-cell Add affordance — `/tag/:id`'s word table
+     * (phase-4-tags.md, post-Slice-6 fixes) renders every own word read-only
+     * outside its own edit mode: an empty own cell shows a plain grayed dash
+     * instead of "+" while `editable` is `false`. Defaults to `true`, so
+     * Review (which has no such toggle) is unaffected. A *filled* cell's own
+     * clickability is untouched by this flag — D41 already opens it
+     * read-only first regardless.
+     */
+    editable?: boolean;
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
 }
 
 /**
  * One language cell in the Review table, in one of three states:
- *   1. no translation stored at all -> Add (own word) or Block (followed-tag word);
+ *   1. no translation stored at all -> Add (own word, `editable`) or a plain
+ *      dash (own word, not `editable`) or Block (followed-tag word);
  *   2. a translation IS stored but has no headline case (`headlineWord` is
  *      `undefined` even though `hasTranslation` is true — see `WordSimpleBE`'s
  *      doc comment) -> the button renders with a dash rather than being
@@ -42,7 +52,7 @@ export interface WordCellProps {
  *   3. a translation with a headline word -> the word, an optional gender
  *      chip, and the completion ring.
  */
-export function WordCell({ row, langKey, isOwn, showGender, showProgress, onOpenCell }: WordCellProps) {
+export function WordCell({ row, langKey, isOwn, showGender, showProgress, editable = true, onOpenCell }: WordCellProps) {
     const { t } = useTranslation();
     // Language names are shown in their OWN native form, matching
     // `LanguagePicker`'s convention (design commandment: never treat one
@@ -50,7 +60,7 @@ export function WordCell({ row, langKey, isOwn, showGender, showProgress, onOpen
     const languageLabel = languageByKey(langKey)?.native ?? langKey;
 
     if (!hasTranslation(row, langKey)) {
-        if (isOwn) {
+        if (isOwn && editable) {
             return (
                 <button
                     type="button"
@@ -60,6 +70,13 @@ export function WordCell({ row, langKey, isOwn, showGender, showProgress, onOpen
                 >
                     <PlusIcon size={14} weight="bold" />
                 </button>
+            );
+        }
+        if (isOwn) {
+            return (
+                <span className="cell-block" aria-hidden="true">
+                    —
+                </span>
             );
         }
         return (

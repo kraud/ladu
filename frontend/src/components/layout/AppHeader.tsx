@@ -14,6 +14,9 @@ import { useAuthStore } from '@/stores/authStore';
 /** Nav targets. `requiresLanguages` = the old "≥2 languages" gate on Add Word / Review. */
 const NAV_ITEMS = [
     { to: '/addWord/{-$partOfSpeech}', labelKey: 'common:header.addWord', requiresLanguages: true },
+    // Phase 4 (D1) — feature-flagged, not language-gated: tags are useful
+    // regardless of how many languages an account has configured.
+    { to: '/tags', labelKey: 'common:header.tags', requiresLanguages: false, flag: 'tags' },
     { to: '/practice', labelKey: 'common:header.practice', requiresLanguages: false },
     { to: '/review', labelKey: 'common:header.review', requiresLanguages: true },
 ] as const;
@@ -52,10 +55,11 @@ function useLanguageGate() {
 function NavLinks({ onNavigate, className }: { onNavigate?: () => void; className?: string }) {
     const { t } = useTranslation();
     const gate = useLanguageGate();
+    const visibleItems = NAV_ITEMS.filter((item) => !('flag' in item) || featureFlags[item.flag]);
 
     return (
         <nav className={className}>
-            {NAV_ITEMS.map((item) => (
+            {visibleItems.map((item) => (
                 <Link
                     key={item.to}
                     to={item.to}

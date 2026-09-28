@@ -19,6 +19,8 @@ import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
 import { PartOfSpeech } from '@/ts/enums';
+import { useTagsByIds } from '@/features/tags/hooks';
+import type { TagSummary } from '@/features/tags/types';
 import { useBulkDeleteWords, useWordsInfinite } from '../hooks';
 import { wordErrorKey } from '../errors';
 import type { LangKey } from '../types';
@@ -104,6 +106,22 @@ export function ReviewPage() {
         [rowSelection],
     );
 
+    // Ids-only in the URL (`ReviewSearch.tag`) resolved to full `TagSummary`s
+    // for `TagCombobox`'s pill row — see `useTagsByIds`'s own doc comment.
+    const selectedTagsQuery = useTagsByIds(search.tag ?? []);
+
+    // "Remove tags"' candidate pool (D17) — tags common to every currently
+    // selected row, computed from data already loaded for the table, no
+    // extra request. D10 guarantees every tag on an own word is one the
+    // caller owns, so nothing here needs an availability check.
+    const commonTagIds = useMemo(() => {
+        const selectedRows = rows.filter((row) => selectedIds.includes(row.id));
+        if (selectedRows.length === 0) return new Set<string>();
+        return selectedRows
+            .map((row) => new Set(row.tags.map((tag) => tag.id)))
+            .reduce((common, tagIds) => new Set([...common].filter((id) => tagIds.has(id))));
+    }, [rows, selectedIds]);
+
     function handleView() {
         const [id] = selectedIds;
         if (id) void navigate({ to: '/word/$wordId', params: { wordId: id } });
@@ -124,15 +142,33 @@ export function ReviewPage() {
         });
     }
 
+    // `TagPickerDialog` (inside `BulkActionBar`) already ran the mutation by
+    // the time this fires — just the toast + clearing the selection, same as
+    // `handleBulkDelete` does after its own mutation succeeds. The toast
+    // reports how many *words* were affected (`selectedIds`, captured before
+    // the clear below), not how many tags were picked.
+    function handleTagsApplied(mode: 'add' | 'remove') {
+        resolveLoadingToastSuccess(
+            startLoadingToast(t('common:status.saving')),
+            t(mode === 'add' ? 'review:bulk.tagsAddedToast' : 'review:bulk.tagsRemovedToast', {
+                count: selectedIds.length,
+            }),
+        );
+        setRowSelection({});
+    }
+
     // Shared by the inline `FilterBar` (desktop) and `MobileFilters` (phone).
     const filterBarProps = {
         gender: search.gender ?? [],
         pos: search.pos ?? [],
         hasQuery: search.q !== undefined,
+        selectedTags: selectedTagsQuery.data,
         activeLanguages: languages,
         allLanguages,
         onGenderChange: (next: string[] | undefined) => updateSearch({ gender: next }),
         onPosChange: (next: PartOfSpeech[] | undefined) => updateSearch({ pos: next }),
+        onSelectedTagsChange: (next: TagSummary[]) =>
+            updateSearch({ tag: next.length > 0 ? next.map((tag) => tag.id) : undefined }),
         onLanguagesChange: (next: LangKey[]) => updateSearch({ lang: next }),
     };
 
@@ -188,8 +224,11 @@ export function ReviewPage() {
                     />
                     <BulkActionBar
                         selectedCount={selectedIds.length}
+                        selectedWordIds={selectedIds}
+                        commonTagIds={commonTagIds}
                         onView={handleView}
                         onDelete={handleBulkDelete}
+                        onTagsApplied={(mode) => handleTagsApplied(mode)}
                     />
                     <ReviewTable
                         rows={rows}

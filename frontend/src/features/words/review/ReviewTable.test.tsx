@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { RowSelectionState } from '@tanstack/react-table';
@@ -106,9 +106,9 @@ describe('ReviewTable — selection', () => {
 describe('ReviewTable — loading state', () => {
     it('renders skeleton rows matching the column count while pending', () => {
         renderWithProviders(<ReviewTable {...baseProps} isPending rows={[]} languages={['EN', 'DE']} />);
-        // 8 skeleton rows x 4 columns (select, type, EN, DE) = 32 skeleton cells.
+        // 8 skeleton rows x 5 columns (select, type, EN, DE, Tags) = 40 skeleton cells.
         expect(document.querySelectorAll('tbody tr').length).toBe(8);
-        expect(document.querySelectorAll('tbody tr:first-child td').length).toBe(4);
+        expect(document.querySelectorAll('tbody tr:first-child td').length).toBe(5);
     });
 });
 
@@ -138,6 +138,70 @@ describe('ReviewTable — empty states', () => {
 
         await user.click(screen.getByRole('button', { name: 'Try again' }));
         expect(onRetry).toHaveBeenCalled();
+    });
+});
+
+describe('ReviewTable — Tags column (D1/D7/D14)', () => {
+    const tag = (id: string, label: string, visibility: 'Public' | 'Private' = 'Public') => ({
+        id,
+        label,
+        visibility,
+        authorId: 'me',
+    });
+
+    it('is the last column, marked shrink-col', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} languages={['EN']} />);
+        const headers = screen.getAllByRole('columnheader');
+        expect(headers.at(-1)).toHaveTextContent('Tags');
+        expect(headers.at(-1)).toHaveClass('shrink-col');
+    });
+
+    it('renders nothing for a word with no tags', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow({ tags: [] })]} />);
+        const tagsCell = document.querySelector('tbody tr td:last-child') as HTMLElement;
+        expect(tagsCell).toBeEmptyDOMElement();
+    });
+
+    it('shows every tag as a chip when there are 2 or fewer', () => {
+        renderWithProviders(
+            <ReviewTable {...baseProps} rows={[makeRow({ tags: [tag('t1', 'Kitchen'), tag('t2', 'Exam prep')] })]} />,
+        );
+        expect(screen.getByText('Kitchen')).toBeInTheDocument();
+        expect(screen.getByText('Exam prep')).toBeInTheDocument();
+        expect(screen.queryByText(/^\+/)).not.toBeInTheDocument();
+    });
+
+    it('shows only the first 2 chips plus a "+N" hint past the cap', () => {
+        renderWithProviders(
+            <ReviewTable
+                {...baseProps}
+                rows={[
+                    makeRow({
+                        tags: [tag('t1', 'Kitchen'), tag('t2', 'Exam prep'), tag('t3', 'Chapter 1')],
+                    }),
+                ]}
+            />,
+        );
+        expect(screen.getByText('Kitchen')).toBeInTheDocument();
+        expect(screen.getByText('Exam prep')).toBeInTheDocument();
+        expect(screen.queryByText('Chapter 1')).not.toBeInTheDocument();
+        expect(screen.getByText('+1')).toBeInTheDocument();
+    });
+
+    it('shows a lock icon on a Private tag chip', () => {
+        renderWithProviders(
+            <ReviewTable {...baseProps} rows={[makeRow({ tags: [tag('t1', 'Medical', 'Private')] })]} />,
+        );
+        const chip = screen.getByText('Medical').closest('.tagchip') as HTMLElement;
+        expect(chip.querySelector('svg')).toBeInTheDocument();
+    });
+
+    it('has no click target anywhere in the cell (D14)', () => {
+        renderWithProviders(
+            <ReviewTable {...baseProps} rows={[makeRow({ tags: [tag('t1', 'Kitchen')] })]} />,
+        );
+        const tagsCell = document.querySelector('tbody tr td:last-child') as HTMLElement;
+        expect(within(tagsCell).queryByRole('button')).not.toBeInTheDocument();
     });
 });
 

@@ -123,7 +123,10 @@
       "expand": "Expandir la barra lateral",
       "openMenu": "Abrir menú",
       "closeMenu": "Cerrar menú",
-      "tagsComingSoon": "Próximamente"
+      "tagsEditToChange": "Edita la palabra para añadir o quitar etiquetas.",
+      "tagsManagedByOwner": "Solo lectura — esta palabra proviene de una etiqueta seguida. Sus etiquetas las gestiona el propietario de la etiqueta.",
+      "tagsStagedToast_one": "{{count}} etiqueta añadida — se guardará junto con la palabra",
+      "tagsStagedToast_other": "{{count}} etiquetas añadidas — se guardarán junto con la palabra"
     },
     "confirmChangeType": {
       "title": "¿Cambiar el tipo de palabra?",

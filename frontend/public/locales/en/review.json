@@ -20,6 +20,7 @@
     "gender": "Gender",
     "clear": "Clear",
     "partOfSpeech": "Part of speech",
+    "tags": "Tags",
     "languageOrder": "Language order",
     "languageOrderHint": "Use the arrows to reorder · min 2 shown",
     "moveEarlier": "Move {{language}} earlier",
@@ -44,7 +45,13 @@
     "confirmTitle_other": "Delete {{count}} words?",
     "confirmDescription": "This permanently removes {{count}} word(s) for everyone they're shared with.",
     "deletedToast_one": "{{count}} word deleted",
-    "deletedToast_other": "{{count}} words deleted"
+    "deletedToast_other": "{{count}} words deleted",
+    "addTags": "Add tags",
+    "removeTags": "Remove tags",
+    "tagsAddedToast_one": "Tag added to {{count}} word",
+    "tagsAddedToast_other": "Tags added to {{count}} words",
+    "tagsRemovedToast_one": "Tag removed from {{count}} word",
+    "tagsRemovedToast_other": "Tags removed from {{count}} words"
   },
   "table": {
     "posAbbr": {
@@ -68,7 +75,8 @@
     "blockedTranslation": "Not translated — read-only word from a followed tag",
     "loaded": "Showing {{loaded}} of {{total}}",
     "allLoaded": "All {{total}} loaded",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "tags": "Tags"
   },
   "cellDialog": {
     "deleteTranslation": "Delete translation",

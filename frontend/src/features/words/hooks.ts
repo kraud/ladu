@@ -108,15 +108,21 @@ export function normalizeWordFilters(filters: WordListFilters): WordListFilters 
  * `GET /api/words/simple`. `getNextPageParam` returning the backend's own
  * `nextCursor` (`null` at the end) is exactly what TanStack Query's
  * `hasNextPage` needs, with no translation.
+ *
+ * `pageSize` defaults to Review's own page size but is overridable — `
+ * WordPicker` (phase-4-tags.md) uses a much smaller one for its compact
+ * embedded list. It's folded into the query key (not just the request) so a
+ * Review-sized and a picker-sized call over the same filters never collide
+ * on one cache entry and fight over each other's page size.
  */
-export function useWordsInfinite(filters: WordListFilters = {}) {
+export function useWordsInfinite(filters: WordListFilters = {}, pageSize: number = LIST_PAGE_SIZE) {
     const normalized = normalizeWordFilters(filters);
 
     return useInfiniteQuery({
-        queryKey: wordKeys.list(normalized),
+        queryKey: wordKeys.list({ ...normalized, limit: pageSize }),
         queryFn: ({ pageParam, signal }) =>
             wordApi.getWordsSimplified(
-                { ...normalized, cursor: pageParam ?? undefined, limit: LIST_PAGE_SIZE },
+                { ...normalized, cursor: pageParam ?? undefined, limit: pageSize },
                 signal,
             ),
         initialPageParam: null as string | null,

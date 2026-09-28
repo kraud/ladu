@@ -20,6 +20,7 @@
     "gender": "Genus",
     "clear": "Löschen",
     "partOfSpeech": "Wortart",
+    "tags": "Tags",
     "languageOrder": "Sprachreihenfolge",
     "languageOrderHint": "Mit den Pfeilen sortieren · min. 2 sichtbar",
     "moveEarlier": "{{language}} nach vorne verschieben",
@@ -44,7 +45,13 @@
     "confirmTitle_other": "{{count}} Wörter löschen?",
     "confirmDescription": "Dadurch werden {{count}} Wort/Wörter für alle endgültig entfernt, mit denen sie geteilt wurden.",
     "deletedToast_one": "{{count}} Wort gelöscht",
-    "deletedToast_other": "{{count}} Wörter gelöscht"
+    "deletedToast_other": "{{count}} Wörter gelöscht",
+    "addTags": "Tags hinzufügen",
+    "removeTags": "Tags entfernen",
+    "tagsAddedToast_one": "Tag zu {{count}} Wort hinzugefügt",
+    "tagsAddedToast_other": "Tags zu {{count}} Wörtern hinzugefügt",
+    "tagsRemovedToast_one": "Tag von {{count}} Wort entfernt",
+    "tagsRemovedToast_other": "Tags von {{count}} Wörtern entfernt"
   },
   "table": {
     "posAbbr": {
@@ -68,7 +75,8 @@
     "blockedTranslation": "Nicht übersetzt — schreibgeschütztes Wort aus einem gefolgten Tag",
     "loaded": "{{loaded}} von {{total}} angezeigt",
     "allLoaded": "Alle {{total}} geladen",
-    "loadMore": "Mehr laden"
+    "loadMore": "Mehr laden",
+    "tags": "Tags"
   },
   "cellDialog": {
     "deleteTranslation": "Übersetzung löschen",

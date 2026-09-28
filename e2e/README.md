@@ -14,7 +14,7 @@ proves the real backend + real Postgres + real browser actually work together.
 
 One spec file per phase: `tests/phase-1-auth.spec.ts`, `tests/phase-2-noun-crud.spec.ts`,
 `tests/phase-3-review.spec.ts`, `tests/phase-3-5-dashboard.spec.ts`,
-`tests/phase-3-9-theme.spec.ts`, …
+`tests/phase-3-9-theme.spec.ts`, `tests/phase-4-tags.spec.ts`, …
 `tests/smoke.spec.ts` is the Phase 0 harness check.
 
 ## Prerequisites
