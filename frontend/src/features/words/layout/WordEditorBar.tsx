@@ -7,14 +7,18 @@
  * `py-8`. A spacer of the bar's own height (measured, since the phone layout
  * grows when the reason wraps) keeps the last content from hiding behind it.
  *
- * Desktop: the secondary actions (Change word type, Cancel, Delete, Return)
- * on the left, then — in create/edit — the "* required" note; on the right
- * the reason Save is disabled (`statusText`, absent when Save is enabled) and
- * the primary button (Save word / Edit).
+ * Desktop: the secondary actions (Change word type, Delete, Return) on the
+ * left, then — in create/edit — the "* required" note; on the right the
+ * reason Save is disabled (`statusText`, absent when Save is enabled), then
+ * Cancel (edit mode only, immediately left of Save — the user should be able
+ * to back out of a change with one click right next to the button that would
+ * commit it, not hunt for it in the left-hand group), then the primary
+ * button (Save word / Edit).
  *
  * Phone: only the reason and the primary button (full width). The secondary
- * actions are rendered in the drawer instead (`WordEditorLayout`) — the bar
- * does not render them at all, so each action keeps one accessible name.
+ * actions — including Cancel — are rendered in the drawer instead
+ * (`WordEditorLayout`) — the bar does not render them at all, so each action
+ * keeps one accessible name.
  */
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +42,8 @@ export interface EditorPrimary {
 export interface WordEditorBarProps {
     /** Secondary actions — shown here on desktop only. */
     actions?: EditorAction[];
+    /** Edit mode's Cancel — desktop only, rendered immediately left of `primary`. */
+    cancelAction?: EditorAction;
     primary?: EditorPrimary;
     /** Why the primary button is disabled; leave out when it is enabled. */
     statusText?: string;
@@ -46,7 +52,14 @@ export interface WordEditorBarProps {
     isMobile: boolean;
 }
 
-export function WordEditorBar({ actions = [], primary, statusText, showRequiredHint, isMobile }: WordEditorBarProps) {
+export function WordEditorBar({
+    actions = [],
+    cancelAction,
+    primary,
+    statusText,
+    showRequiredHint,
+    isMobile,
+}: WordEditorBarProps) {
     const { t } = useTranslation();
     const showActions = !isMobile && actions.length > 0;
     const barRef = useRef<HTMLDivElement>(null);
@@ -98,11 +111,25 @@ export function WordEditorBar({ actions = [], primary, statusText, showRequiredH
                             {statusText}
                         </p>
                     )}
-                    {primary && (
-                        <Button type="button" disabled={primary.disabled} onClick={primary.onClick}>
-                            {primary.icon}
-                            {primary.label}
-                        </Button>
+                    {(cancelAction ?? primary) && (
+                        <div className="flex items-center gap-2">
+                            {!isMobile && cancelAction && (
+                                <Button
+                                    type="button"
+                                    variant={cancelAction.variant ?? 'outline'}
+                                    onClick={cancelAction.onClick}
+                                >
+                                    {cancelAction.icon}
+                                    {cancelAction.label}
+                                </Button>
+                            )}
+                            {primary && (
+                                <Button type="button" disabled={primary.disabled} onClick={primary.onClick}>
+                                    {primary.icon}
+                                    {primary.label}
+                                </Button>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

@@ -1,18 +1,21 @@
 /**
- * The whole content of the word editor's sidebar: Clue, plus a real Tags
- * section (phase-4-tags.md Slice 8) — chips for the word's current tags and
- * an "Add tag" button. The actions (Save word, Change word type, …) live in
- * the bottom bar, not here.
+ * The whole content of the word editor's sidebar: Clue, plus the Tags
+ * section. Tags have exactly one editable state now: the shared
+ * `TagCombobox` (D15/D17), embedded inline, and it only ever appears when the
+ * caller passes `tagPicker` — i.e. `WordForm`'s create/edit forms. Everywhere
+ * else (`WordPage`'s view state) tags are read-only chips, because tag
+ * editing is no longer possible outside the create/edit form (a 2026-09-28
+ * reversal of the original "mutations apply instantly, independent of the
+ * word's own Save" design — see `phase-4-tags.md`'s Risks). The actions
+ * (Save word, Change word type, …) live in the bottom bar, not here.
  *
  * `onClueChange` absent means read-only (`WordPage`'s view state) — clue
- * renders as plain text and only when non-empty. Tags are a *separate*
- * read-only switch: `onAddTag` absent means the tags section itself renders
- * disabled with a "managed by the tag's owner" note, regardless of the clue's
- * own state — a word reached via a followed tag has its tags controlled by
- * the tag's owner even though the page showing it may otherwise be in an
- * editable state, and conversely `WordPage`'s own read-only view state still
- * lets the caller add/remove tags immediately (phase-4-tags.md Risks: tag
- * mutations apply right away, independent of the word's own Save).
+ * renders as plain text and only when non-empty. `tagPicker` absent means the
+ * tags section is read-only too, for either of two different reasons the
+ * caller distinguishes via `tagsHint`: a word reached via a followed tag
+ * (tags are the tag owner's to manage) or the caller's own word just being
+ * viewed, not edited (tags are still that caller's own, but changing them
+ * now requires entering edit mode first).
  *
  * Collapsed (desktop icon rail, `useWordSidebar`) this shows two icon
  * buttons instead: Clue and Tags. The icon says whether there is something
@@ -24,31 +27,32 @@
  */
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PencilSimpleIcon, PencilSimpleLineIcon, PlusIcon, TagIcon } from '@phosphor-icons/react';
+import { PencilSimpleIcon, PencilSimpleLineIcon, TagIcon } from '@phosphor-icons/react';
 import { Textarea } from '@/components/ui/textarea';
 import { TagChip } from '@/components/common/TagChip';
+import { TagCombobox, type TagComboboxItem } from '@/features/tags/components/TagCombobox';
 import { useWordSidebar } from './useWordSidebar';
 import type { WordTagRef } from '../types';
 
 export interface SidebarFieldsProps {
     clue: string;
     onClueChange?: (value: string) => void;
-    /** The word's current tags. Empty by default (a brand-new word). */
+    /** The word's current tags, read-only display. Ignored when `tagPicker` is set. */
     tags?: WordTagRef[];
-    /**
-     * Both absent means the tags section is read-only (a word reached via a
-     * followed tag) — chips render with no `×`, "Add tag" is hidden, and an
-     * inline note explains why.
-     */
-    onRemoveTag?: (tagId: string) => void;
-    onAddTag?: () => void;
+    /** Shown under the read-only chip list, explaining why tags can't be changed here. */
+    tagsHint?: string;
+    /** Create/edit mode only — renders the tag combobox inline instead of a static list. */
+    tagPicker?: {
+        selected: TagComboboxItem[];
+        onSelectedChange: (next: TagComboboxItem[]) => void;
+    };
 }
 
-export function SidebarFields({ clue, onClueChange, tags = [], onRemoveTag, onAddTag }: SidebarFieldsProps) {
+export function SidebarFields({ clue, onClueChange, tags = [], tagsHint, tagPicker }: SidebarFieldsProps) {
     const { t } = useTranslation();
     const { collapsed, setCollapsed } = useWordSidebar();
     const readOnly = !onClueChange;
-    const tagsReadOnly = !onAddTag;
+    const tagCount = tagPicker ? tagPicker.selected.length : tags.length;
     const clueRef = useRef<HTMLTextAreaElement>(null);
     const focusClueOnExpand = useRef(false);
 
@@ -89,16 +93,16 @@ export function SidebarFields({ clue, onClueChange, tags = [], onRemoveTag, onAd
                     className="icon-btn relative"
                     aria-label={tagsLabel}
                     title={tagsLabel}
-                    data-filled={tags.length > 0 || undefined}
+                    data-filled={tagCount > 0 || undefined}
                     onClick={() => setCollapsed(false)}
                 >
-                    <TagIcon size={18} weight={tags.length > 0 ? 'duotone' : 'regular'} />
-                    {tags.length > 0 && (
+                    <TagIcon size={18} weight={tagCount > 0 ? 'duotone' : 'regular'} />
+                    {tagCount > 0 && (
                         <span
                             data-testid="tag-count"
                             className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-(--accent) px-1 text-[10px] font-semibold leading-4 text-(--accent-ink)"
                         >
-                            {tags.length}
+                            {tagCount}
                         </span>
                     )}
                 </button>
@@ -136,33 +140,22 @@ export function SidebarFields({ clue, onClueChange, tags = [], onRemoveTag, onAd
                     <TagIcon size={14} />
                     {tagsLabel}
                 </span>
-                <div
-                    className="card flex min-h-9 flex-wrap items-center gap-1.5 p-2"
-                    role="group"
-                    aria-labelledby="sidebar-tags-label"
-                >
-                    {tags.map((tag) => (
-                        <TagChip
-                            key={tag.id}
-                            label={tag.label}
-                            locked={tag.visibility === 'Private'}
-                            removable={!tagsReadOnly}
-                            onRemove={() => onRemoveTag?.(tag.id)}
-                            removeAriaLabel={t('tags:combobox.removeSelected', { label: tag.label })}
-                        />
-                    ))}
-                    {!tagsReadOnly && (
-                        <button type="button" className="btn btn-sm btn-secondary" onClick={onAddTag}>
-                            <PlusIcon size={12} />
-                            {t('wordRelated:wordForm.sidebar.addTag')}
-                        </button>
-                    )}
-                </div>
-                <p className="hint">
-                    {tagsReadOnly
-                        ? t('wordRelated:wordForm.sidebar.tagsManagedByOwner')
-                        : t('wordRelated:wordForm.sidebar.tagsHint')}
-                </p>
+                {tagPicker ? (
+                    <TagCombobox mode="add" selected={tagPicker.selected} onSelectedChange={tagPicker.onSelectedChange} />
+                ) : (
+                    <>
+                        <div
+                            className="card flex min-h-9 flex-wrap items-center gap-1.5 p-2"
+                            role="group"
+                            aria-labelledby="sidebar-tags-label"
+                        >
+                            {tags.map((tag) => (
+                                <TagChip key={tag.id} label={tag.label} locked={tag.visibility === 'Private'} />
+                            ))}
+                        </div>
+                        {tagsHint && <p className="hint">{tagsHint}</p>}
+                    </>
+                )}
             </div>
         </div>
     );

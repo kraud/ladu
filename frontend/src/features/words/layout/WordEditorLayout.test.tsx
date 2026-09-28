@@ -181,6 +181,55 @@ describe('WordEditorLayout', () => {
             expect(screen.getByRole('button', { name: 'Open menu' })).toHaveAttribute('aria-expanded', 'false');
         });
 
+        it('desktop: cancelAction renders immediately next to (left of) the primary button, not in the left-hand actions group', async () => {
+            const user = userEvent.setup();
+            const onCancel = vi.fn();
+            renderWithProviders(
+                <WordEditorLayout
+                    sidebar={<div>Sidebar content</div>}
+                    actions={ACTIONS}
+                    cancelAction={{ key: 'cancel', label: 'Cancel', icon: null, onClick: onCancel }}
+                    primary={{ label: 'Save word', icon: null, onClick: vi.fn() }}
+                >
+                    <div>Translation cards</div>
+                </WordEditorLayout>,
+            );
+
+            const bar = screen.getByTestId('word-editor-bar');
+            const names = within(bar)
+                .getAllByRole('button')
+                .map((button) => button.textContent);
+            expect(names.indexOf('Save word')).toBe(names.indexOf('Cancel') + 1);
+            expect(names.indexOf('Delete')).toBeLessThan(names.indexOf('Cancel'));
+
+            await user.click(within(bar).getByRole('button', { name: 'Cancel' }));
+            expect(onCancel).toHaveBeenCalledTimes(1);
+        });
+
+        it('phone: cancelAction moves into the drawer alongside the other actions, not the bar', async () => {
+            mockMobileViewport();
+            const user = userEvent.setup();
+            const onCancel = vi.fn();
+            renderWithProviders(
+                <WordEditorLayout
+                    sidebar={<div>Sidebar content</div>}
+                    actions={ACTIONS}
+                    cancelAction={{ key: 'cancel', label: 'Cancel', icon: null, onClick: onCancel }}
+                    primary={{ label: 'Save word', icon: null, onClick: vi.fn() }}
+                >
+                    <div>Translation cards</div>
+                </WordEditorLayout>,
+            );
+
+            const bar = screen.getByTestId('word-editor-bar');
+            expect(within(bar).queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+
+            await user.click(screen.getByRole('button', { name: 'Open menu' }));
+            const drawer = screen.getByText('Sidebar content').closest('aside')!;
+            await user.click(within(drawer).getByRole('button', { name: 'Cancel' }));
+            expect(onCancel).toHaveBeenCalledTimes(1);
+        });
+
         it('phone: ignores the stored rail preference — the drawer always shows the full sidebar', () => {
             mockMobileViewport();
             useUiStore.setState({ wordSidebarCollapsed: true });

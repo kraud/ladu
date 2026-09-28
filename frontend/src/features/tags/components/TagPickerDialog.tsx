@@ -87,7 +87,16 @@ export function TagPickerDialog({ open, onOpenChange, mode, wordIds, restrictToI
                     </DialogTitle>
                 </DialogHeader>
 
-                <TagCombobox mode={mode} selected={selected} onSelectedChange={setSelected} restrictToIds={restrictToIds} />
+                <TagCombobox
+                    mode={mode}
+                    selected={selected}
+                    // `TagCombobox` only needs id/label/visibility off a picked item, so its
+                    // prop type is looser than `TagSummary` (see its own header comment) —
+                    // every item it actually hands back here still is a full `TagSummary`,
+                    // since `selected`/the search results (`useTags`) always are in this mode.
+                    onSelectedChange={(next) => setSelected(next as TagSummary[])}
+                    restrictToIds={restrictToIds}
+                />
 
                 {mutation.isError && <p className="text-sm text-(--danger)">{t(tagErrorKey(mutation.error))}</p>}
 

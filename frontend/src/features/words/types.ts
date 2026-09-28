@@ -10,6 +10,7 @@
  * file is only the shapes that cross the network.
  */
 import type { UiLanguage } from '@/lib/language';
+import type { TagVisibility } from '@/features/tags/types';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
 
 /** One `caseName → word` slot. `caseName` is a verbatim enum string from `ts/enums.ts`. */
@@ -38,7 +39,7 @@ export interface TranslationBE {
 export interface WordTagRef {
     id: string;
     label: string;
-    visibility: string;
+    visibility: TagVisibility;
     authorId: string;
 }
 

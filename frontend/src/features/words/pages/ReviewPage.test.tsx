@@ -354,8 +354,8 @@ describe('ReviewPage — Slice 7: Tags filter (D15 — combobox, additive/OR)', 
 
         const filterBar = document.querySelector('.filterbar') as HTMLElement;
         const tagsGroup = within(filterBar).getByText('Tags').closest('.fb-group') as HTMLElement;
-        const row = (await within(tagsGroup).findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
+        await user.click(within(tagsGroup).getByPlaceholderText('Filter by tag…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
 
         await waitFor(() => expect(fake.simpleQueries.at(-1)).toContain('tag=tag-1'));
         expect(router.state.location.search).toEqual({ tag: ['tag-1'] });
@@ -381,8 +381,8 @@ describe('ReviewPage — Slice 7: Tags filter (D15 — combobox, additive/OR)', 
 
         const filterBar = document.querySelector('.filterbar') as HTMLElement;
         const tagsGroup = within(filterBar).getByText('Tags').closest('.fb-group') as HTMLElement;
-        const row = (await within(tagsGroup).findByText('Exam prep')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
+        await user.click(within(tagsGroup).getByPlaceholderText('Filter by tag…'));
+        await user.click(await screen.findByRole('option', { name: /Exam prep/ }));
 
         await waitFor(() => {
             const last = fake.simpleQueries.at(-1) ?? '';
@@ -431,8 +431,9 @@ describe('ReviewPage — Slice 7: bulk Add tags / Remove tags', () => {
         await user.click(screen.getByRole('button', { name: 'Add tags' }));
         const dialog = screen.getByRole('dialog');
         expect(within(dialog).getByText('Add tags to 2 words')).toBeInTheDocument();
-        const pickRow = (await within(dialog).findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(pickRow);
+        await user.click(within(dialog).getByPlaceholderText('Search tags to add…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
+        await user.keyboard('{Escape}');
         await user.click(within(dialog).getByRole('button', { name: 'Apply' }));
 
         expect(await screen.findByText(/Tags? added to 2 words/)).toBeInTheDocument();
@@ -476,8 +477,9 @@ describe('ReviewPage — Slice 7: bulk Add tags / Remove tags', () => {
         await user.click(jumpCheckbox); // back to just run
         await user.click(screen.getByRole('button', { name: 'Remove tags' }));
         const dialog = screen.getByRole('dialog');
-        const pickRow = (await within(dialog).findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(pickRow);
+        await user.click(within(dialog).getByPlaceholderText('Search tags to remove…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
+        await user.keyboard('{Escape}');
         await user.click(within(dialog).getByRole('button', { name: 'Apply' }));
 
         expect(await screen.findByText(/Tags? removed from 1 word/)).toBeInTheDocument();

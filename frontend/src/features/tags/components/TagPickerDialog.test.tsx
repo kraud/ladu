@@ -24,8 +24,11 @@ describe('TagPickerDialog — add mode', () => {
         );
 
         expect(screen.getByText('Add tags to 2 words')).toBeInTheDocument();
-        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
+        await user.click(screen.getByPlaceholderText('Search tags to add…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
+        // Picking leaves the popover open (multi-select) — close it first, or its
+        // still-open popup keeps the rest of the dialog (incl. Apply) inert.
+        await user.keyboard('{Escape}');
         await user.click(screen.getByRole('button', { name: 'Apply' }));
 
         await waitFor(() => expect(onApplied).toHaveBeenCalledWith([expect.objectContaining({ id: 'tag-1' })]));
@@ -63,8 +66,9 @@ describe('TagPickerDialog — add mode', () => {
         renderWithProviders(<TagPickerDialog open onOpenChange={onOpenChange} mode="add" onApplied={onApplied} />);
 
         expect(screen.getByText('Add tags to 1 word')).toBeInTheDocument();
-        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
+        await user.click(screen.getByPlaceholderText('Search tags to add…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
+        await user.keyboard('{Escape}');
         await user.click(screen.getByRole('button', { name: 'Apply' }));
 
         expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -78,15 +82,16 @@ describe('TagPickerDialog — add mode', () => {
         const { rerender } = renderWithProviders(
             <TagPickerDialog open onOpenChange={vi.fn()} mode="add" wordIds={['w1']} />,
         );
-        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
-        expect(screen.getByText('1 selected', { exact: false })).toBeInTheDocument();
+        await user.click(screen.getByPlaceholderText('Search tags to add…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
+        expect(screen.getByRole('button', { name: 'Remove Kitchen' })).toBeInTheDocument();
 
         rerender(<TagPickerDialog open={false} onOpenChange={vi.fn()} mode="add" wordIds={['w1']} />);
         rerender(<TagPickerDialog open onOpenChange={vi.fn()} mode="add" wordIds={['w1']} />);
 
-        await screen.findByText('Kitchen');
-        expect(screen.queryByText('1 selected', { exact: false })).not.toBeInTheDocument();
+        await user.click(screen.getByPlaceholderText('Search tags to add…'));
+        await screen.findByRole('option', { name: /Kitchen/ });
+        expect(screen.queryByRole('button', { name: 'Remove Kitchen' })).not.toBeInTheDocument();
     });
 });
 
@@ -110,11 +115,12 @@ describe('TagPickerDialog — remove mode', () => {
         );
 
         expect(screen.getByText('Remove tags from 1 word')).toBeInTheDocument();
-        expect(await screen.findByText('Kitchen')).toBeInTheDocument();
-        expect(screen.queryByText('Garage')).not.toBeInTheDocument();
+        await user.click(screen.getByPlaceholderText('Search tags to remove…'));
+        expect(await screen.findByRole('option', { name: /Kitchen/ })).toBeInTheDocument();
+        expect(screen.queryByRole('option', { name: /Garage/ })).not.toBeInTheDocument();
 
-        const row = screen.getByText('Kitchen').closest('.pick-row') as HTMLElement;
-        await user.click(row);
+        await user.click(screen.getByRole('option', { name: /Kitchen/ }));
+        await user.keyboard('{Escape}');
         await user.click(screen.getByRole('button', { name: 'Apply' }));
 
         await waitFor(() => expect(onApplied).toHaveBeenCalled());

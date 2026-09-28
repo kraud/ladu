@@ -123,12 +123,8 @@
       "expand": "Laienda külgriba",
       "openMenu": "Ava menüü",
       "closeMenu": "Sulge menüü",
-      "addTag": "Lisa silt",
-      "tagsHint": "Sinu enda siltidest — jälgitud siltide sõnad säilitavad omaniku sildid, ainult vaatamiseks.",
+      "tagsEditToChange": "Siltide lisamiseks või eemaldamiseks muuda sõna.",
       "tagsManagedByOwner": "Ainult vaatamiseks — see sõna pärineb jälgitud sildilt. Selle silte haldab sildi omanik.",
-      "tagAddedToast_one": "{{count}} silt lisatud",
-      "tagAddedToast_other": "{{count}} silti lisatud",
-      "tagRemovedToast": "Silt eemaldatud",
       "tagsStagedToast_one": "{{count}} silt lisatud — see salvestatakse koos sõnaga",
       "tagsStagedToast_other": "{{count}} silti lisatud — need salvestatakse koos sõnaga"
     },

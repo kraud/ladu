@@ -106,8 +106,9 @@ describe('BulkActionBar', () => {
         await user.click(screen.getByRole('button', { name: 'Add tags' }));
         expect(screen.getByText('Add tags to 2 words')).toBeInTheDocument();
 
-        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
+        await user.click(screen.getByPlaceholderText('Search tags to add…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
+        await user.keyboard('{Escape}');
         await user.click(screen.getByRole('button', { name: 'Apply' }));
 
         await waitFor(() => expect(onTagsApplied).toHaveBeenCalledWith('add', [expect.objectContaining({ id: 'tag-1' })]));
@@ -132,7 +133,8 @@ describe('BulkActionBar', () => {
 
         await user.click(screen.getByRole('button', { name: 'Remove tags' }));
         expect(screen.getByText('Remove tags from 2 words')).toBeInTheDocument();
-        expect(await screen.findByText('Kitchen')).toBeInTheDocument();
-        expect(screen.queryByText('Garage')).not.toBeInTheDocument();
+        await user.click(screen.getByPlaceholderText('Search tags to remove…'));
+        expect(await screen.findByRole('option', { name: /Kitchen/ })).toBeInTheDocument();
+        expect(screen.queryByRole('option', { name: /Garage/ })).not.toBeInTheDocument();
     });
 });

@@ -21,9 +21,13 @@
  * marks that case, same convention Review's `isOwn` already uses. Nothing in
  * the app currently links to such a word (a follower only ever sees it
  * inline via `TagWordsTable`/`CellDialog`), so this is reachable only by a
- * direct URL today; the tags section below still renders correctly for it
- * (disabled, "managed by the tag's owner") rather than assuming every
- * successful load is the caller's own word.
+ * direct URL today.
+ *
+ * Tags are always read-only here (a 2026-09-28 reversal — they used to mutate
+ * instantly from this view state, independent of Edit): `isOwn` only changes
+ * *why* — the tag owner manages a followed word's tags, while the caller's
+ * own word just needs Edit to change its tags — not whether editing is
+ * possible, since neither ever is on this page anymore.
  */
 import { useEffect, useState } from 'react';
 import { getRouteApi, useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router';
@@ -33,10 +37,6 @@ import { ArrowLeftIcon, PencilSimpleIcon, TrashIcon, XIcon } from '@phosphor-ico
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useAuthStore } from '@/stores/authStore';
-import { TagPickerDialog } from '@/features/tags/components/TagPickerDialog';
-import { useUnlinkTagsFromWords } from '@/features/tags/hooks';
-import { tagErrorKey } from '@/features/tags/errors';
-import type { TagSummary } from '@/features/tags/types';
 import { SidebarFields } from '../layout/SidebarFields';
 import type { EditorAction } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
@@ -60,14 +60,12 @@ export function WordPage() {
     const wordQuery = useWord(wordId);
     const updateWord = useUpdateWord();
     const deleteWord = useDeleteWord();
-    const unlinkTagsFromWords = useUnlinkTagsFromWords();
     const canGoBack = useCanGoBack();
     const userId = useAuthStore((s) => s.user?.id) ?? '';
 
     const [editing, setEditing] = useState(false);
     const [editKey, setEditKey] = useState(0);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
-    const [tagPickerOpen, setTagPickerOpen] = useState(false);
 
     // A plain `router.history.back()` when there's no client-side history to
     // pop into (a bookmarked/shared `/word/:id` link, or any other direct
@@ -114,24 +112,9 @@ export function WordPage() {
     // D10: a followed-tag word only ever carries the tag owner's tags — the
     // viewer never gets add/remove controls for those, just the read-only note.
     const isOwn = word.user === userId;
-
-    function handleRemoveTag(tagId: string) {
-        const toastId = startLoadingToast(t('common:status.saving'));
-        unlinkTagsFromWords.mutate(
-            { tagIds: [tagId], wordIds: [word.id] },
-            {
-                onSuccess: () => resolveLoadingToastSuccess(toastId, t('wordRelated:wordForm.sidebar.tagRemovedToast')),
-                onError: (error) => resolveLoadingToastError(toastId, t(tagErrorKey(error))),
-            },
-        );
-    }
-
-    function handleTagsApplied(applied: TagSummary[]) {
-        resolveLoadingToastSuccess(
-            startLoadingToast(t('common:status.saving')),
-            t('wordRelated:wordForm.sidebar.tagAddedToast', { count: applied.length }),
-        );
-    }
+    const tagsHint = t(
+        isOwn ? 'wordRelated:wordForm.sidebar.tagsEditToChange' : 'wordRelated:wordForm.sidebar.tagsManagedByOwner',
+    );
 
     function startEdit() {
         setEditKey((key) => key + 1);
@@ -193,25 +176,16 @@ export function WordPage() {
                     onSubmit={handleUpdate}
                     onDelete={() => setConfirmingDelete(true)}
                     submitting={updateWord.isPending}
-                    extraActions={[
-                        {
-                            key: 'cancel',
-                            label: t('common:buttons.cancel'),
-                            icon: <XIcon size={18} />,
-                            onClick: () => setEditing(false),
-                        },
-                    ]}
+                    cancelAction={{
+                        key: 'cancel',
+                        label: t('common:buttons.cancel'),
+                        icon: <XIcon size={18} />,
+                        onClick: () => setEditing(false),
+                    }}
                 />
             ) : (
                 <WordEditorLayout
-                    sidebar={
-                        <SidebarFields
-                            clue={word.clue ?? ''}
-                            tags={word.tags}
-                            onRemoveTag={isOwn ? handleRemoveTag : undefined}
-                            onAddTag={isOwn ? () => setTagPickerOpen(true) : undefined}
-                        />
-                    }
+                    sidebar={<SidebarFields clue={word.clue ?? ''} tags={word.tags} tagsHint={tagsHint} />}
                     actions={viewActions}
                     primary={{ label: t('common:buttons.edit'), icon: <PencilSimpleIcon size={18} />, onClick: startEdit }}
                 >
@@ -230,16 +204,6 @@ export function WordPage() {
                         ))}
                     </div>
                 </WordEditorLayout>
-            )}
-
-            {isOwn && (
-                <TagPickerDialog
-                    open={tagPickerOpen}
-                    onOpenChange={setTagPickerOpen}
-                    mode="add"
-                    wordIds={[word.id]}
-                    onApplied={handleTagsApplied}
-                />
             )}
 
             <ConfirmDialog

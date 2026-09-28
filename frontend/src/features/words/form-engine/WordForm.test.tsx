@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
 import { futureToken } from '@/test/tokens';
 import { server } from '@/test/msw/server';
@@ -25,6 +25,13 @@ const SESSION = {
 async function addLanguage(user: ReturnType<typeof userEvent.setup>, native: string) {
     await user.click(screen.getByRole('button', { name: native }));
 }
+
+// The sidebar's Tags section is now always the live `TagCombobox` (D4/D4a) —
+// every test renders it, so every test needs a tag fake registered, even the
+// ones that never touch tags themselves (mirrors `FilterBar.test.tsx`).
+beforeEach(() => {
+    server.use(...makeTagHandlers({ callerId: SESSION.id }).handlers);
+});
 
 describe('WordForm — create mode', () => {
     // D37: the gate's own heading moved to `AddWordPage` — `WordForm` renders
@@ -491,10 +498,11 @@ describe('WordForm — tags (create mode)', () => {
             session: SESSION,
         });
 
-        await user.click(screen.getByRole('button', { name: 'Add tag' }));
-        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
-        await user.click(screen.getByRole('button', { name: 'Apply' }));
+        await user.click(screen.getByPlaceholderText('Search tags to add…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
+        // Picking leaves the popover open (multi-select) — close it, or its still-open
+        // popup keeps the rest of the form (incl. the language chips below) inert.
+        await user.keyboard('{Escape}');
 
         // Staged locally as a chip; no link request went out — the word doesn't exist yet.
         expect(await screen.findByText('Kitchen')).toBeInTheDocument();
@@ -524,14 +532,15 @@ describe('WordForm — tags (create mode)', () => {
             session: SESSION,
         });
 
-        await user.click(screen.getByRole('button', { name: 'Add tag' }));
-        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
-        await user.click(screen.getByRole('button', { name: 'Apply' }));
+        await user.click(screen.getByPlaceholderText('Search tags to add…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
         await screen.findByText('Kitchen');
 
         await user.click(screen.getByRole('button', { name: 'Remove Kitchen' }));
-        expect(screen.queryByText('Kitchen')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove Kitchen' })).not.toBeInTheDocument();
+        // Removing puts it back in the (still-open) results list — close the popover
+        // before continuing, same as the picking step above.
+        await user.keyboard('{Escape}');
 
         await addLanguage(user, 'English');
         await addLanguage(user, 'Español');
@@ -553,7 +562,14 @@ describe('WordForm — tags (edit mode)', () => {
         partOfSpeech: PartOfSpeech.noun,
         translations: [
             { id: 'tr-1', language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'house' }] },
-            { id: 'tr-2', language: Lang.ES, cases: [{ caseName: NounCases.singularES, word: 'casa' }] },
+            {
+                id: 'tr-2',
+                language: Lang.ES,
+                cases: [
+                    { caseName: NounCases.genderES, word: 'el' },
+                    { caseName: NounCases.singularES, word: 'casa' },
+                ],
+            },
         ],
         clue: null,
         isCloned: false,
@@ -563,7 +579,7 @@ describe('WordForm — tags (edit mode)', () => {
         updatedAt: '2026-01-01T00:00:00.000Z',
     };
 
-    it("shows the word's existing tags and removing one calls unlink immediately, independent of Save", async () => {
+    it("shows the word's existing tags; removing one stages the change, enables Save, and only calls unlink once Save is pressed", async () => {
         const fake = makeTagHandlers({
             callerId: SESSION.id,
             seedTags: [{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private', wordIds: ['word-1'] }],
@@ -571,11 +587,17 @@ describe('WordForm — tags (edit mode)', () => {
         });
         server.use(...fake.handlers);
         const user = userEvent.setup();
-        renderWithProviders(<WordForm mode="edit" initialWord={initialWord} onSubmit={vi.fn()} />, { session: SESSION });
+        const onSubmit = vi.fn();
+        renderWithProviders(<WordForm mode="edit" initialWord={initialWord} onSubmit={onSubmit} />, { session: SESSION });
 
         expect(screen.getByText('Kitchen')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Remove Kitchen' }));
+        expect(screen.getByRole('button', { name: 'Save word' })).toBeDisabled();
 
+        await user.click(screen.getByRole('button', { name: 'Remove Kitchen' }));
+        expect(fake.requests.filter((r) => r.path === '/tags/links/remove')).toHaveLength(0);
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
+
+        await user.click(screen.getByRole('button', { name: 'Save word' }));
         await waitFor(() =>
             expect(fake.requests).toEqual(
                 expect.arrayContaining([
@@ -583,9 +605,10 @@ describe('WordForm — tags (edit mode)', () => {
                 ]),
             ),
         );
+        expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ id: 'word-1' }));
     });
 
-    it('adding a tag via the picker calls link immediately', async () => {
+    it('adding a tag via the picker stages it, enables Save, and only calls link once Save is pressed', async () => {
         const fake = makeTagHandlers({
             callerId: SESSION.id,
             seedTags: [{ id: 'tag-2', authorId: SESSION.id, label: 'Travel', visibility: 'Private' }],
@@ -595,11 +618,13 @@ describe('WordForm — tags (edit mode)', () => {
         const user = userEvent.setup();
         renderWithProviders(<WordForm mode="edit" initialWord={initialWord} onSubmit={vi.fn()} />, { session: SESSION });
 
-        await user.click(screen.getByRole('button', { name: 'Add tag' }));
-        const row = (await screen.findByText('Travel')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
-        await user.click(screen.getByRole('button', { name: 'Apply' }));
+        await user.click(screen.getByPlaceholderText('Search tags to add…'));
+        await user.click(await screen.findByRole('option', { name: /Travel/ }));
+        await user.keyboard('{Escape}');
+        expect(fake.requests.filter((r) => r.path === '/tags/links')).toHaveLength(0);
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
 
+        await user.click(screen.getByRole('button', { name: 'Save word' }));
         await waitFor(() =>
             expect(fake.requests).toEqual(
                 expect.arrayContaining([
@@ -607,5 +632,26 @@ describe('WordForm — tags (edit mode)', () => {
                 ]),
             ),
         );
+    });
+
+    it('Cancel (unmounting the form) discards a staged tag change without ever calling the API', async () => {
+        const fake = makeTagHandlers({
+            callerId: SESSION.id,
+            seedTags: [{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private', wordIds: ['word-1'] }],
+            wordOwners: { 'word-1': SESSION.id },
+        });
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        const { unmount } = renderWithProviders(
+            <WordForm mode="edit" initialWord={initialWord} onSubmit={vi.fn()} />,
+            { session: SESSION },
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Remove Kitchen' }));
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
+
+        // `WordPage`'s Cancel just unmounts `WordForm` — nothing to restore.
+        unmount();
+        expect(fake.requests).toHaveLength(0);
     });
 });

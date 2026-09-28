@@ -123,12 +123,8 @@
       "expand": "Expand sidebar",
       "openMenu": "Open menu",
       "closeMenu": "Close menu",
-      "addTag": "Add tag",
-      "tagsHint": "From your owned tags — words from followed tags keep the owner's tags, read-only.",
+      "tagsEditToChange": "Edit the word to add or remove tags.",
       "tagsManagedByOwner": "Read-only — this word comes from a followed tag. Its tags are managed by the tag's owner.",
-      "tagAddedToast_one": "{{count}} tag added",
-      "tagAddedToast_other": "{{count}} tags added",
-      "tagRemovedToast": "Tag removed",
       "tagsStagedToast_one": "{{count}} tag added — it'll save together with the word",
       "tagsStagedToast_other": "{{count}} tags added — they'll save together with the word"
     },

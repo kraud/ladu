@@ -34,6 +34,12 @@ export interface WordEditorLayoutProps {
     sidebar: ReactNode;
     /** Secondary actions: the bar's left side on desktop, the drawer's top on a phone. */
     actions?: EditorAction[];
+    /**
+     * Edit mode's Cancel: desktop renders it in the bar, immediately left of
+     * `primary` (not grouped with `actions`); a phone still gets it in the
+     * drawer, alongside `actions` — one accessible "Cancel" either way.
+     */
+    cancelAction?: EditorAction;
     primary?: EditorPrimary;
     /** Why `primary` is disabled — shown in the bar; leave out when it is enabled. */
     statusText?: string;
@@ -45,11 +51,13 @@ export interface WordEditorLayoutProps {
 export function WordEditorLayout({
     sidebar,
     actions = [],
+    cancelAction,
     primary,
     statusText,
     showRequiredHint,
     children,
 }: WordEditorLayoutProps) {
+    const drawerActions = cancelAction ? [...actions, cancelAction] : actions;
     const { t } = useTranslation();
     const { collapsed, setCollapsed, isMobile } = useWordSidebar();
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -139,9 +147,9 @@ export function WordEditorLayout({
                         </button>
                     </div>
 
-                    {isMobile && actions.length > 0 && (
+                    {isMobile && drawerActions.length > 0 && (
                         <div className="flex flex-col gap-2 border-b border-border pb-3">
-                            {actions.map((action) => (
+                            {drawerActions.map((action) => (
                                 <Button
                                     key={action.key}
                                     type="button"
@@ -166,6 +174,7 @@ export function WordEditorLayout({
             </div>
             <WordEditorBar
                 actions={actions}
+                cancelAction={cancelAction}
                 primary={primary}
                 statusText={statusText}
                 showRequiredHint={showRequiredHint}

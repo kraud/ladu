@@ -1014,6 +1014,84 @@ reversible implementation choices:
   `npm test -w frontend` (960/960), and `npm run build -w frontend` all
   clean. No backend changes.
 
+**UI polish, 2026-09-28 (post-ship) — two user-requested revisions:**
+1. **`TagCombobox` rebuilt on base-ui's real `Combobox`** (`@base-ui/react/combobox`,
+   new `components/ui/combobox.tsx` wrapper, mirroring `select.tsx`'s own
+   convention), replacing the "always-visible list + separate pill row" build
+   above. Matches now open in a floating popover instead of an always-visible
+   list — the Review filter bar's Tags group grew unpredictably tall
+   otherwise — and picked tags render as removable chips *inside* the search
+   box (the docs' own multiple-select pattern), rather than a pill row
+   underneath. `TagComboboxProps.selected`/`onSelectedChange` were loosened
+   from `TagSummary[]` to a new minimal `TagComboboxItem` shape
+   (id/label/visibility — everything the component actually reads off a
+   picked item), so the word editor's embedded combobox (point 2) can be
+   driven directly from a word's own `WordTagRef[]`, no fake `TagSummary`
+   padding needed. `FilterBar`/`TagPickerDialog`'s own callback props stay
+   `TagSummary[]`-typed; each casts right at the `TagCombobox` boundary,
+   justified inline, since every item flowing through those two call sites
+   genuinely still is a full `TagSummary`. `WordTagRef.visibility` tightened
+   from `string` to `TagVisibility` to satisfy this without a cast on the
+   `selected` side. Every consumer's tests updated for the new markup
+   (`getByRole('option'/'combobox')` instead of `.pick-row`/`.searchbox`);
+   behavior (server-side search, disabled/tooltip rows, inline quick-create)
+   unchanged.
+2. **Word-editor tags: the combobox is now embedded directly in
+   `SidebarFields`, and — reversing this slice's own Risks entry below —
+   tag editing is no longer possible from `WordPage`'s view state at all.**
+   `SidebarFields` drops `onAddTag`/`onRemoveTag` entirely for a single
+   `tagPicker?: { selected, onSelectedChange }` prop: present (`WordForm`
+   create/edit only) renders the live combobox inline; absent (`WordPage`'s
+   view state, now unconditionally) renders the same read-only chip list as
+   before, with the caller supplying `tagsHint` for *why* — "managed by the
+   tag's owner" for a followed word, or a new "edit the word to add or remove
+   tags" for the caller's own word just being viewed. `TagPickerDialog` (the
+   old "Add tag" button + dialog) is no longer used by the word editor at
+   all — it survives only for Review's bulk "Add tags"/"Remove tags", its
+   original use case. (What happens on a pick/removal in `WordForm` itself —
+   instant apply vs staged-until-Save — changed again the same day; see point
+   3 below, which supersedes it.) `SidebarFields`/`WordForm`/`WordPage` tests
+   rewritten for the new prop shape and the removed view-state capability;
+   frontend suite still green (960/960), `tsc -b` and `vite build` clean. No
+   backend changes; `wordForm.sidebar.addTag`/`tagsHint` i18n keys (now
+   unused) removed from all four locales, `tagsEditToChange` added.
+3. **Same day, second reversal: `WordForm`'s edit-mode tag picks stop
+   applying instantly too — now staged until Save, exactly like create mode
+   already was.** The user's own instruction, overriding point 2's "picks and
+   chip-removes applying immediately in edit mode (unchanged)": adding or
+   removing a tag no longer calls `linkTagsToWords`/`unlinkTagsFromWords`
+   on the spot. Both modes now share one `selectedTags: TagComboboxItem[]`
+   local state (seeded from `initialWord.tags` in edit mode, empty in
+   create), and picking/removing alone is enough to enable Save
+   (`tagsChanged`, computed alongside `useWordFormState`'s own `hasChanges` —
+   its `minTranslations`/`incomplete` gates still take priority, so a tag
+   pick can't make an otherwise-invalid word saveable). Save diffs
+   `selectedTags` against `initialWord.tags` by id into one
+   `linkTagsToWords`/one `unlinkTagsFromWords` call (covering everything
+   picked/removed since the form opened, not one call per pick), fired
+   alongside the word's own PUT — a tag-mutation failure gets its own error
+   toast rather than blocking the word save, since tag membership has always
+   been a separate concern from the word's own fields. Cancel (`WordPage`
+   unmounting `WordForm`) now genuinely discards a staged tag change for
+   free, same as an abandoned translation edit — no special-case code needed.
+   **Also moved, same request: the Cancel button.** `WordEditorBar`/
+   `WordEditorLayout` gained a `cancelAction` prop, distinct from `actions` —
+   desktop renders it immediately left of the primary Save button (previously
+   grouped with Delete on the far left, via `WordForm`'s now-removed
+   `extraActions` prop); a phone still gets it in the drawer alongside the
+   other actions, unchanged. `WordPage` passes `cancelAction` instead of
+   folding Cancel into `extraActions`. Tests added/updated across
+   `WordForm.test.tsx`, `WordPage.test.tsx`, and `WordEditorLayout.test.tsx`;
+   `tagAddedToast`/`tagRemovedToast` i18n keys (now unused — Save-time tag
+   mutations stay silent on success, matching create mode's own silence, and
+   toast only on failure) removed from all four locales. Frontend suite
+   green (965/965), `tsc -b` and `vite build` clean, verified in a real
+   browser against the dev stack (remove tag → Save disabled shows a warm
+   "make a change" reason → enabled once removed → DB still has the link
+   until Save is actually clicked → Cancel discards it and the view still
+   shows the tag → re-entering Edit and clicking Save this time does unlink
+   it).
+
 **Slice 9 — gate.** `e2e/tests/phase-4-tags.spec.ts`: user A creates a tag
 with two words attached at creation time (D4), bulk-adds it to a third word
 from Review, user B discovers and follows it (words show up read-only,
@@ -1255,10 +1333,16 @@ seeded with duplicate tag labels (proves the dedupe step in migration 0006).
 
 ## Risks
 
-- **Word-editor tag mutations mid-edit — resolved.** The 2026-09-27 mockup
-  confirms immediate writes (not batched with the word's own Save): the
-  picker's Save calls apply right away and toast independently of the word
-  form. No longer an open risk, kept here as the record of that check.
+- **Word-editor tag mutations mid-edit — resolved 2026-09-27, then fully
+  reversed 2026-09-28.** The original mockup called for immediate writes
+  (not batched with the word's own Save): picks apply right away and toast
+  independently of the word form. Both halves of that are now gone: first
+  `WordPage`'s *view* state lost tag mutation entirely (tags only change from
+  inside create/edit), then `WordForm` itself stopped applying picks
+  instantly too — tags are staged like every other field and only committed
+  (via a diffed link/unlink call) when Save is pressed, discardable with
+  Cancel like anything else in the form. See the UI-polish notes above
+  Slice 9's gate (points 2 and 3) for the full history.
 - **Link/unlink ownership check shape.** A partial-ownership request to
   `POST /api/tags/links` or `/links/remove` must 403 the whole call, not
   silently partial-apply. Slice 2's tests pin this explicitly.

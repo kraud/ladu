@@ -162,10 +162,10 @@ describe('FilterBar — Tags group (D15/D17)', () => {
         const user = userEvent.setup();
         renderWithProviders(<FilterBar {...baseProps} onSelectedTagsChange={onSelectedTagsChange} />);
 
-        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
-        await user.click(row);
+        await user.click(screen.getByPlaceholderText('Filter by tag…'));
+        await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
 
-        expect(onSelectedTagsChange).toHaveBeenCalledWith([expect.objectContaining({ label: 'Kitchen' })]);
+        expect(onSelectedTagsChange.mock.calls[0][0]).toEqual([expect.objectContaining({ label: 'Kitchen' })]);
     });
 
     it('shows Clear only once a tag is selected, and Clear empties the selection', async () => {

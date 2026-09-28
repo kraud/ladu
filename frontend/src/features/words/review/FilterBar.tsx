@@ -221,7 +221,14 @@ export function FilterBar({
                         </button>
                     )}
                 </div>
-                <TagCombobox mode="filter" selected={selectedTags} onSelectedChange={onSelectedTagsChange} />
+                <TagCombobox
+                    mode="filter"
+                    selected={selectedTags}
+                    // `TagCombobox` only needs id/label/visibility off a picked item (see its
+                    // own header comment); in filter mode every item is still a full
+                    // `TagSummary`, from `selectedTags` or from its own search results.
+                    onSelectedChange={(next) => onSelectedTagsChange(next as TagSummary[])}
+                />
             </div>
 
             <LanguageOrderControl

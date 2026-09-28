@@ -4,33 +4,44 @@
  * bottom bar with the actions and the reason Save is disabled; the grid ends in the "+ Add translation" tile — one chip per
  * still-free language, so a click adds it with no dialog; the tile is not
  * rendered once nothing more can be added). Shared by `AddWordPage`
- * (create) and `WordPage` (edit); `initialWord`/`onDelete`/`extraActions`
+ * (create) and `WordPage` (edit); `initialWord`/`onDelete`/`cancelAction`
  * exist so each call site can add its own actions (Cancel, Delete) without
  * this component learning about navigation.
  *
  * All state lives in `useWordFormState`; this component only renders it and
  * forwards events. No toasts, no navigation — those are call-site concerns
  * (`AddWordPage`'s `onSubmit`).
+ *
+ * Tags (D4, revised 2026-09-28): picks are always staged locally, in *both*
+ * modes — never applied until Save, and Cancel (unmounting this component)
+ * discards them for free, same as an abandoned translation edit. Create mode
+ * has no word yet, so its picks ride along as `tagIds` on the create request;
+ * edit mode's picks are diffed against `initialWord.tags` at Save time into
+ * one `linkTagsToWords`/`unlinkTagsFromWords` call each (not one call per
+ * pick — the user may add and remove several before ever pressing Save).
+ * Picking or un-picking a tag alone is enough to enable Save, even with
+ * nothing else changed (`tagsChanged` below, alongside `useWordFormState`'s
+ * own `hasChanges`).
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { languageByLabel } from '@/lib/language';
 import { PartOfSpeechSelector } from '@/components/common/PartOfSpeechSelector';
 import { ArrowsClockwiseIcon, FloppyDiskIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
-import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
-import { TagPickerDialog } from '@/features/tags/components/TagPickerDialog';
-import { useUnlinkTagsFromWords } from '@/features/tags/hooks';
+import { resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
+import { useLinkTagsToWords, useUnlinkTagsFromWords } from '@/features/tags/hooks';
 import { tagErrorKey } from '@/features/tags/errors';
-import type { TagSummary } from '@/features/tags/types';
+import type { TagComboboxItem } from '@/features/tags/components/TagCombobox';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
 import { SidebarFields } from '../layout/SidebarFields';
 import type { EditorAction } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
 import { TranslationCard, translationGridClass } from './TranslationCard';
 import { translationHasData, useWordFormState } from './useWordFormState';
-import type { CreateWordBody, UpdateWordBody, WordBE, WordTagRef } from '../types';
+import type { CreateWordBody, UpdateWordBody, WordBE } from '../types';
 
 export interface WordFormProps {
     mode: 'create' | 'edit';
@@ -55,11 +66,11 @@ export interface WordFormProps {
      */
     onPartOfSpeechChange?: (pos: PartOfSpeech) => void;
     /**
-     * Edit mode only: lets `WordPage` inject its own Cancel action into the
-     * bottom bar's action group, without this component learning anything
-     * about navigation.
+     * Edit mode only: lets `WordPage` inject its own Cancel action, rendered
+     * next to (left of) the primary Save button on desktop, without this
+     * component learning anything about navigation.
      */
-    extraActions?: EditorAction[];
+    cancelAction?: EditorAction;
 }
 
 export function WordForm({
@@ -71,7 +82,7 @@ export function WordForm({
     onChangePartOfSpeech,
     onPartOfSpeechChange,
     submitting,
-    extraActions,
+    cancelAction,
 }: WordFormProps) {
     const { t } = useTranslation();
     const state = useWordFormState({ initialWord, defaultPartOfSpeech });
@@ -79,57 +90,33 @@ export function WordForm({
     // The language whose Remove is waiting for a confirmation (by language, not index, so it stays right if the list changes).
     const [removeCandidate, setRemoveCandidate] = useState<Lang | null>(null);
 
-    // Tags (phase-4-tags.md Slice 8, D4 + Risks): create mode has no word yet,
-    // so picks stay local and ride along as `tagIds` on the create request;
-    // edit mode mutates immediately via link/unlink, independent of Save —
-    // `initialWord.tags` (a reactive prop from `WordPage`'s own query) is the
-    // display source there, not this local state.
-    const [pendingTags, setPendingTags] = useState<TagSummary[]>([]);
-    const [tagPickerOpen, setTagPickerOpen] = useState(false);
+    // Tags: staged locally in both modes, never applied until Save (see the
+    // file header comment) — seeded once from `initialWord.tags` in edit
+    // mode, same "hydrate once at mount" convention `useWordFormState` uses
+    // for translations/clue (a remount via `key`, not a live re-hydrate, is
+    // how `WordPage` reflects a save back into a fresh edit session).
+    const [selectedTags, setSelectedTags] = useState<TagComboboxItem[]>(() =>
+        mode === 'edit' && initialWord ? initialWord.tags : [],
+    );
+    const initialTagIds = useState(() => new Set(selectedTags.map((tag) => tag.id)))[0];
+    const linkTagsToWords = useLinkTagsToWords();
     const unlinkTagsFromWords = useUnlinkTagsFromWords();
 
-    const tags: WordTagRef[] =
-        mode === 'edit' && initialWord
-            ? initialWord.tags
-            : pendingTags.map((tag) => ({
-                  id: tag.id,
-                  label: tag.label,
-                  visibility: tag.visibility,
-                  authorId: tag.author.id,
-              }));
+    const tagsChanged =
+        selectedTags.length !== initialTagIds.size || selectedTags.some((tag) => !initialTagIds.has(tag.id));
 
-    function handleRemoveTag(tagId: string) {
-        if (mode === 'edit' && initialWord) {
-            const toastId = startLoadingToast(t('common:status.saving'));
-            unlinkTagsFromWords.mutate(
-                { tagIds: [tagId], wordIds: [initialWord.id] },
-                {
-                    onSuccess: () =>
-                        resolveLoadingToastSuccess(toastId, t('wordRelated:wordForm.sidebar.tagRemovedToast')),
-                    onError: (error) => resolveLoadingToastError(toastId, t(tagErrorKey(error))),
-                },
-            );
-        } else {
-            setPendingTags((prev) => prev.filter((tag) => tag.id !== tagId));
-        }
-    }
-
-    function handleTagsApplied(applied: TagSummary[]) {
-        if (mode === 'edit' && initialWord) {
+    function handleTagsChange(next: TagComboboxItem[]) {
+        const previousIds = new Set(selectedTags.map((tag) => tag.id));
+        const addedCount = next.filter((tag) => !previousIds.has(tag.id)).length;
+        setSelectedTags(next);
+        // Only additions get a toast (matches the old create-mode-only staging
+        // toast) — a removal is visible immediately as the chip disappearing.
+        if (addedCount > 0) {
             resolveLoadingToastSuccess(
                 startLoadingToast(t('common:status.saving')),
-                t('wordRelated:wordForm.sidebar.tagAddedToast', { count: applied.length }),
+                t('wordRelated:wordForm.sidebar.tagsStagedToast', { count: addedCount }),
             );
-            return;
         }
-        setPendingTags((prev) => {
-            const seen = new Set(prev.map((tag) => tag.id));
-            return [...prev, ...applied.filter((tag) => !seen.has(tag.id))];
-        });
-        resolveLoadingToastSuccess(
-            startLoadingToast(t('common:status.saving')),
-            t('wordRelated:wordForm.sidebar.tagsStagedToast', { count: applied.length }),
-        );
     }
 
     function pickPartOfSpeech(pos: PartOfSpeech) {
@@ -171,11 +158,31 @@ export function WordForm({
     function handleSave() {
         const payload = state.buildPayload();
         if (mode === 'edit' && initialWord) {
-            onSubmit({ ...payload, id: initialWord.id });
+            const word = initialWord;
+            const nextIds = new Set(selectedTags.map((tag) => tag.id));
+            const addedIds = selectedTags.filter((tag) => !initialTagIds.has(tag.id)).map((tag) => tag.id);
+            const removedIds = word.tags.filter((tag) => !nextIds.has(tag.id)).map((tag) => tag.id);
+            // Fired alongside the word update below, not gated on its result —
+            // tag membership has always been independent of the word's own PUT
+            // (Slice 8's Risks note); only a failure here gets its own toast,
+            // to avoid piling a success toast on top of the save's own.
+            if (addedIds.length > 0) {
+                linkTagsToWords.mutate(
+                    { tagIds: addedIds, wordIds: [word.id] },
+                    { onError: (error) => toast.error(t(tagErrorKey(error))) },
+                );
+            }
+            if (removedIds.length > 0) {
+                unlinkTagsFromWords.mutate(
+                    { tagIds: removedIds, wordIds: [word.id] },
+                    { onError: (error) => toast.error(t(tagErrorKey(error))) },
+                );
+            }
+            onSubmit({ ...payload, id: word.id });
             return;
         }
         // D4: tags picked before the word exists ride along on the create request.
-        onSubmit(pendingTags.length > 0 ? { ...payload, tagIds: pendingTags.map((tag) => tag.id) } : payload);
+        onSubmit(selectedTags.length > 0 ? { ...payload, tagIds: selectedTags.map((tag) => tag.id) } : payload);
     }
 
     const actions: EditorAction[] = [
@@ -189,7 +196,6 @@ export function WordForm({
                   },
               ]
             : []),
-        ...(mode === 'edit' ? (extraActions ?? []) : []),
         ...(mode === 'edit' && onDelete
             ? [
                   {
@@ -203,11 +209,18 @@ export function WordForm({
             : []),
     ];
 
+    // Picking/removing a tag alone is enough to enable Save (as long as the
+    // word is otherwise valid) — `useWordFormState` only knows about
+    // translations/clue, so its own gates (too few translations, a field
+    // still incomplete) still take priority over `tagsChanged` widening
+    // `hasChanges`.
+    const blockedByContent = state.saveBlockReason === 'minTranslations' || state.saveBlockReason === 'incomplete';
+    const canSave = !blockedByContent && (state.canSave || tagsChanged);
+    const saveBlockReason = canSave ? null : state.saveBlockReason;
+
     // Save's "why not" message; nothing is shown once Save is enabled.
     const statusText =
-        submitting || !state.saveBlockReason
-            ? undefined
-            : t(`wordRelated:wordForm.hints.${state.saveBlockReason}`);
+        submitting || !saveBlockReason ? undefined : t(`wordRelated:wordForm.hints.${saveBlockReason}`);
 
     return (
         <WordEditorLayout
@@ -215,17 +228,16 @@ export function WordForm({
                 <SidebarFields
                     clue={state.clue}
                     onClueChange={state.setClue}
-                    tags={tags}
-                    onRemoveTag={handleRemoveTag}
-                    onAddTag={() => setTagPickerOpen(true)}
+                    tagPicker={{ selected: selectedTags, onSelectedChange: handleTagsChange }}
                 />
             }
             actions={actions}
+            cancelAction={mode === 'edit' ? cancelAction : undefined}
             primary={{
                 label: submitting ? t('common:status.saving') : t('wordRelated:wordForm.buttons.saveWord'),
                 icon: submitting ? <span className="spinner" /> : <FloppyDiskIcon size={18} />,
                 onClick: handleSave,
-                disabled: !state.canSave || submitting,
+                disabled: !canSave || submitting,
             }}
             statusText={statusText}
             showRequiredHint
@@ -297,14 +309,6 @@ export function WordForm({
                         setConfirmChangeTypeOpen(false);
                         onChangePartOfSpeech?.();
                     }}
-                />
-
-                <TagPickerDialog
-                    open={tagPickerOpen}
-                    onOpenChange={setTagPickerOpen}
-                    mode="add"
-                    wordIds={mode === 'edit' && initialWord ? [initialWord.id] : undefined}
-                    onApplied={handleTagsApplied}
                 />
             </div>
         </WordEditorLayout>
