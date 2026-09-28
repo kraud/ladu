@@ -13,8 +13,16 @@
 const { db }: typeof import('../src/db') = require('../src/db');
 const { exercisePerformanceCases, exercisePerformances }: typeof import('../src/db/schema') = require('../src/db/schema');
 
-const { and, eq, inArray, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
+const { and, eq, inArray }: typeof import('drizzle-orm') = require('drizzle-orm');
 const asyncHandler = require('express-async-handler');
+const {
+    applyAnswer,
+    calculateAging,
+    calculateNewPercentageOfKnowledge,
+    modifierForAction,
+    nextReviseState,
+    translationAverage,
+}: typeof import('../services/exercises') = require('../services/exercises');
 
 // ---------------------------------------------------------------------------
 // TYPES
@@ -135,104 +143,7 @@ const upsertCase = async (
     }
 };
 
-// ---------------------------------------------------------------------------
-// PURE FUNCTIONS (no DB) — shared with exerciseController
-// ---------------------------------------------------------------------------
-
-/**
- * Calculate time-decayed knowledge.
- * percentageOfKnowledge is the current percentage, lastDate must be a Date.
- */
-const calculateAging = (percentageOfKnowledge: number, lastDate: Date): number => {
-    const currentDate = new Date();
-    const difOfDays = Math.floor((currentDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-    return percentageOfKnowledge * Math.exp(-0.01 * difOfDays);
-};
-
-/**
- * Calculate new knowledge percentage after answering an exercise.
- */
-const calculateNewPercentageOfKnowledge = (
-    previousPercentageOfKnowledge: number,
-    arrayResults: boolean[],
-): number => {
-    if (arrayResults.length > 0) {
-        const averageOfArray = (arrayResults.filter(Boolean).length / 4) * 100;
-        if (previousPercentageOfKnowledge > 0) {
-            return (0.5 * previousPercentageOfKnowledge + 3.5 * averageOfArray) / 4;
-        }
-        return averageOfArray;
-    }
-    return previousPercentageOfKnowledge;
-};
-
-/**
- * Given a word object (with `.exercises`) and a list of exercise performance
- * records, map each exercise with its matching performance data and knowledge.
- *
- * `word` shape: `{ exercises: Exercise[], ... }`
- * `translationsPerformanceArray` is an array of legacy-shaped performance
- * records (as returned by toPerformanceResponse).
- */
-const findMatches = (
-    word: { exercises: any[]; _id: string },
-    translationsPerformanceArray: PerformanceResponse[],
-): any[] => {
-    return word.exercises
-        .map((exercise: any) => {
-            const itemB = exercise.matchingTranslations.itemB;
-            if (
-                itemB &&
-                itemB.translationId &&
-                translationsPerformanceArray !== undefined &&
-                translationsPerformanceArray.length > 0
-            ) {
-                let isMastered = false;
-                let isRevise = false;
-
-                const stat = translationsPerformanceArray.find(
-                    (translationPerformanceCandidate: PerformanceResponse) => {
-                        if (
-                            translationPerformanceCandidate.translationId?.toString() ===
-                            itemB.translationId.toString()
-                        ) {
-                            if (translationPerformanceCandidate.performanceModifier !== undefined) {
-                                isMastered =
-                                    translationPerformanceCandidate.performanceModifier === 'Mastered';
-                                isRevise =
-                                    translationPerformanceCandidate.performanceModifier === 'Revise';
-                            }
-                            return true;
-                        }
-                        return false;
-                    },
-                );
-
-                if (stat && !isMastered && !isRevise) {
-                    const caseMatchingStats = stat.statsByCase.find(
-                        (statCase) => statCase.caseName === itemB.case,
-                    );
-                    if (caseMatchingStats && caseMatchingStats.lastDate) {
-                        const newKnowledge = calculateAging(
-                            caseMatchingStats.knowledge || 0,
-                            caseMatchingStats.lastDate,
-                        );
-                        return { ...exercise, knowledge: newKnowledge, performance: stat, wordId: word._id };
-                    }
-                    return { ...exercise, knowledge: 0, performance: stat, wordId: word._id };
-                } else if (isMastered || isRevise) {
-                    if (isMastered) {
-                        return { ...exercise, knowledge: 100, performance: stat, wordId: word._id };
-                    } else if (isRevise) {
-                        return { ...exercise, knowledge: 0, performance: stat, wordId: word._id };
-                    }
-                }
-            }
-            return { ...exercise, knowledge: 0, performance: undefined, wordId: word._id };
-        })
-        .filter((result: any) => result !== null)
-        .flat();
-};
+// Pure math lives in ../services/exercises/knowledge.ts (Phase 5, Slice 1).
 
 // ===========================================================================
 // ENDPOINTS
@@ -298,69 +209,32 @@ const saveTranslationPerformance = asyncHandler(async (req: any, res: any) => {
     const allCases = await fetchCasesGrouped([perfRow.id]);
     const cases = allCases.get(perfRow.id) || [];
 
-    let statByCaseName = cases.find((s) => s.caseName === req.body.caseName);
+    const now = new Date();
+    const updatedStat = applyAnswer(
+        cases.find((s) => s.caseName === req.body.caseName),
+        req.body.caseName,
+        req.body.record,
+        now,
+    );
+    const allStats = [...cases.filter((s) => s.caseName !== req.body.caseName), updatedStat];
 
-    if (statByCaseName) {
-        if (statByCaseName.record.length >= 4) {
-            statByCaseName.record.shift(); // remove oldest
-        }
-        statByCaseName.record.push(req.body.record);
-        statByCaseName.knowledge = calculateNewPercentageOfKnowledge(
-            statByCaseName.knowledge || 0,
-            statByCaseName.record,
-        );
-        statByCaseName.lastDate = new Date();
-    } else {
-        statByCaseName = {
-            caseName: req.body.caseName,
-            record: [req.body.record],
-            lastDate: new Date(),
-            knowledge: calculateNewPercentageOfKnowledge(0, [req.body.record]),
-        };
-        cases.push(statByCaseName);
-    }
-
-    // Recalculate average knowledge across all cases
-    let newTranslationAverage = 0;
-    for (const caseStat of cases) {
-        if (caseStat.lastDate) {
-            newTranslationAverage += calculateAging(caseStat.knowledge || 0, caseStat.lastDate);
-        }
-    }
-    newTranslationAverage = newTranslationAverage / cases.length;
-
-    const reviseCounterThreshold = 5;
-
-    // When answering correctly, check if modifier is Revise
-    let reviseCounter = perfRow.reviseCounter || 0;
-    let performanceModifier = perfRow.performanceModifier;
-
-    if (req.body.record && perfRow.performanceModifier === 'Revise') {
-        reviseCounter += 1;
-        if (reviseCounter >= reviseCounterThreshold) {
-            performanceModifier = null;
-            reviseCounter = 0;
-        }
-    }
+    const { performanceModifier, reviseCounter } = nextReviseState(
+        perfRow.performanceModifier,
+        perfRow.reviseCounter,
+        req.body.record,
+    );
 
     await db
         .update(exercisePerformances)
         .set({
-            averageTranslationKnowledge: newTranslationAverage,
-            lastDateModifiedTranslation: new Date(),
+            averageTranslationKnowledge: translationAverage(allStats, now),
+            lastDateModifiedTranslation: now,
             performanceModifier,
             reviseCounter,
         })
         .where(eq(exercisePerformances.id, perfRow.id));
 
-    // Upsert the modified case to DB
-    await upsertCase(
-        perfRow.id,
-        statByCaseName.caseName,
-        statByCaseName.record,
-        statByCaseName.knowledge || 0,
-        statByCaseName.lastDate || new Date(),
-    );
+    await upsertCase(perfRow.id, updatedStat.caseName, updatedStat.record, updatedStat.knowledge || 0, now);
 
     // Re-read performance data to return fresh state
     const [updatedPerf] = await db
@@ -393,14 +267,9 @@ const savePerformanceAction = asyncHandler(async (req: any, res: any) => {
         return res.status(500).json('Performance not found');
     }
 
-    let modifier: string | null = null;
-    if (req.body.action !== undefined) {
-        modifier = req.body.action === 'master' ? 'Mastered' : 'Revise';
-    }
-
     const [updated] = await db
         .update(exercisePerformances)
-        .set({ performanceModifier: modifier, reviseCounter: 0 })
+        .set(modifierForAction(req.body.action))
         .where(eq(exercisePerformances.id, req.body.performanceId))
         .returning();
 
@@ -419,5 +288,4 @@ module.exports = {
     savePerformanceAction,
     calculateAging,
     calculateNewPercentageOfKnowledge,
-    findMatches,
 };
