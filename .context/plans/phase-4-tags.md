@@ -499,7 +499,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 6 | ✅ done 2026-09-28 — `/tag/$tagId` page: header (label/description/badges/author/counts/"Cloned from"), word list via `GET /api/words/simple?tag=`, "Add words" (`WordPickerDialog`) + per-row remove for owned tags, follow/unfollow, `CloneTagDialog`, unavailable/not-found states; replaces the router `Placeholder` — per `MOCKUPS/tag-detail.html` |
 | 7 | ✅ done 2026-09-28 — Review: tags column (`columns.tsx`, D14), tags filter group (`FilterBar`/`MobileFilters`/`search.ts`, D15), bulk "Add tags"/"Remove tags" (`BulkActionBar` + `TagPickerDialog`, D17) |
 | 8 | ✅ done 2026-09-28 — Word editor: real Tags section in `SidebarFields` for both `WordForm` (create, D4) and `WordPage` (view/edit, D4a) using `TagChip` + `TagPickerDialog`; disabled tags section for a word reached via a followed tag |
-| 9 | Phase gate: `phase-4-tags.spec.ts` + docs + full green run |
+| 9 | ✅ done 2026-09-28 — Phase gate: `phase-4-tags.spec.ts` + docs + full green run |
 
 **Slice 1 — backend word-side fixes.** `createWord` becomes one
 `db.transaction`; accepts `req.body.tagIds`, checks the caller owns every
@@ -1025,6 +1025,58 @@ follower badges update throughout). Two browser contexts/users, following
 the `phase-6/7` two-context pattern already used elsewhere in the suite.
 Update `e2e/README.md`, the build plan's §9 status table and §5 Phase 4
 entry, `.context/README.md`'s roadmap row.
+
+**Shipped 2026-09-28.** Built essentially as planned, with two scope
+decisions made while writing the spec:
+- **"Attached at creation time" reads as the tag's creation, not the words'
+  (D18, not literally D4).** The spec has A build "Kitchen Words" through
+  `TagFormDialog`'s create-mode `WordPicker` ("Add words now"), searching
+  and selecting two already-existing words, rather than routing through
+  `SidebarFields`'/`WordForm`'s create-time tag assignment (D4 proper,
+  which quick-creates a *Private* tag via `TagCombobox` and would have
+  needed an extra visibility-flip step before B could discover it). D4's own
+  path is already covered end-to-end by `WordForm.test.tsx`'s Slice 8
+  component tests; the e2e's job is the cross-cutting integration D18
+  exercises (search → table → select → auto-clear-free picker,
+  `WordPicker`'s `pick-row` click target, the dialog's visibility radio),
+  not re-walking a path already proven at the unit level.
+- **The two words this spec needs, plus the second "Spices" tag and its one
+  word, are seeded directly via the API**, not built through `/addWord`'s
+  real form. Word creation (the form engine, required-case validation,
+  autocomplete) is already this suite's own vertical slice
+  (`phase-2-noun-crud.spec.ts`, `phase-3-review.spec.ts`); re-driving it
+  here would only slow the run without adding coverage. Every *tag* action
+  in the narrative (create, bulk-add, follow, visibility flip, clone) goes
+  through the real UI, which is what this gate is actually for.
+- **Two browser contexts held open for the whole test**, `browser.newContext()`
+  per user (the same "separate device" pattern `phase-3-9-theme.spec.ts`
+  already established for its two-device theme sync case) — `phase-6`/`phase-7`
+  don't exist yet as files to imitate directly, so this is the pattern's
+  first reuse for a genuine two-*account* story rather than one account on
+  two devices. One `test()`, `test.step()`-segmented for trace readability,
+  rather than several serial tests — the whole flow is one continuous
+  narrative with state (both sessions, the tag's word/follower counts)
+  threaded through every step.
+- **One real selector bug caught by the run itself**: `getByRole('button',
+  { name: 'Follow' })` without `exact: true` also matches "Unfollow" (a
+  substring), which silently inverted the two "no Follow button here"
+  assertions until fixed — a good reminder that Playwright's default name
+  match is substring, not exact.
+- Backend **291/291**, frontend **960/960** (both unchanged by this slice —
+  no production code touched). e2e: `34` → `35` authored tests (one new,
+  comprehensive test rather than one-per-scenario); the **27** non-OAuth
+  tests are green, including the new one. The repo's 8 `oauth-*.spec.ts`
+  tests could not be verified in this sandbox (no `backend/.env` with
+  Google OAuth credentials configured here) — confirmed pre-existing and
+  unrelated to tags by reproducing one in complete isolation, with no OAuth
+  file touched by any Phase 4 slice. `npx tsc -b`, `npm run build -w
+  frontend` clean.
+- Gate greps: `_id` appears once in `tagController.ts`, in a doc comment
+  describing a shape that deliberately *lacks* `_id` (not a live field);
+  the legacy-route names appear twice, both in comments explaining what
+  each replaced (`tagController.ts`'s own header, `tags.test.js`'s). No
+  live code matches either pattern. `tagsComingSoon` has zero references
+  anywhere in `frontend/`.
 
 ## Design brief — tag system and `/tags`
 
