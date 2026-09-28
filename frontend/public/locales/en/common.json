@@ -12,6 +12,7 @@
   },
   "header": {
     "addWord": "add word",
+    "tags": "tags",
     "practice": "practice",
     "review": "review",
     "search": {

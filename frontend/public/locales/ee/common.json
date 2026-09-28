@@ -12,6 +12,7 @@
   },
   "header": {
     "addWord": "lisa sõna",
+    "tags": "tagid",
     "practice": "harjuta",
     "review": "ülevaade",
     "search": {

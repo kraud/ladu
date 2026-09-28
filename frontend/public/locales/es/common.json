@@ -12,6 +12,7 @@
   },
   "header": {
     "addWord": "agregar palabra",
+    "tags": "etiquetas",
     "practice": "practicar",
     "review": "listado",
     "search": {

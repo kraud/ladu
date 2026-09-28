@@ -30,6 +30,46 @@ export interface BuildColumnsOptions {
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
 }
 
+export interface BuildLanguageColumnsOptions {
+    languages: LangKey[];
+    userId: string;
+    showGender: boolean;
+    showProgress: boolean;
+    onOpenCell?: (wordId: string, langKey: LangKey) => void;
+}
+
+/**
+ * Just the per-language `WordCell` columns — extracted out of
+ * `buildWordColumns` so a second table (`features/tags/components/
+ * WordPicker.tsx`, phase-4-tags.md D18) can reuse the exact same language
+ * rendering without also inheriting Review's own select/owner column, which
+ * is shaped around `RowSelectionState` + a bulk-action bar, not a picker's
+ * own accumulate-then-clear selection model.
+ */
+export function buildLanguageColumns(options: BuildLanguageColumnsOptions): ColumnDef<WordSimpleBE>[] {
+    const { languages, userId, showGender, showProgress, onOpenCell } = options;
+
+    return languages.map((langKey) => ({
+        id: `lang_${langKey}`,
+        accessorFn: (row) => row[`data${langKey}`] ?? '',
+        header: () => (
+            <span className="flex items-center gap-1.5">
+                <FlagIcon lang={langKey} /> {langKey}
+            </span>
+        ),
+        cell: ({ row }) => (
+            <WordCell
+                row={row.original}
+                langKey={langKey}
+                isOwn={row.original.user === userId}
+                showGender={showGender}
+                showProgress={showProgress}
+                onOpenCell={onOpenCell}
+            />
+        ),
+    }));
+}
+
 /**
  * select/owner -> Type -> one column per language, in that order. Phase 4
  * appends a Tags column after the language columns (D1) — nothing above that
@@ -82,25 +122,7 @@ export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSi
         ),
     };
 
-    const languageColumns: ColumnDef<WordSimpleBE>[] = languages.map((langKey) => ({
-        id: `lang_${langKey}`,
-        accessorFn: (row) => row[`data${langKey}`] ?? '',
-        header: () => (
-            <span className="flex items-center gap-1.5">
-                <FlagIcon lang={langKey} /> {langKey}
-            </span>
-        ),
-        cell: ({ row }) => (
-            <WordCell
-                row={row.original}
-                langKey={langKey}
-                isOwn={row.original.user === userId}
-                showGender={showGender}
-                showProgress={showProgress}
-                onOpenCell={onOpenCell}
-            />
-        ),
-    }));
+    const languageColumns = buildLanguageColumns({ languages, userId, showGender, showProgress, onOpenCell });
 
     // Phase 4 (D1): a `tagsColumn(options)` is appended here, after the
     // language columns — nothing above this line needs to change.

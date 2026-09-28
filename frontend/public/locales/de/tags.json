@@ -14,6 +14,114 @@
     "invalidVisibility": "Bitte wähle eine gültige Sichtbarkeit.",
     "invalidCursor": "Dieser Seitenlink ist abgelaufen — lade die Liste neu."
   },
+  "relation": {
+    "owned": "Eigene",
+    "followed": "Gefolgt",
+    "unavailable": "Nicht verfügbar",
+    "discover": "Entdecken"
+  },
+  "visibility": {
+    "public": "Öffentlich",
+    "private": "Privat"
+  },
+  "card": {
+    "openAriaLabel": "{{label}} öffnen",
+    "noDescription": "Keine Beschreibung",
+    "wordCount_one": "Wort",
+    "wordCount_other": "Wörter",
+    "clonedFromPrefix": "Geklont von",
+    "byAuthor": "von {{username}}",
+    "unavailableNote": "Ausgeblendet — der Besitzer hat diesen Tag auf Privat gesetzt. Du folgst ihm weiterhin, aber seine Wörter fehlen in deiner Übersicht, bis er ihn wieder freigibt.",
+    "viewWords": "Wörter ansehen",
+    "unfollow": "Nicht mehr folgen",
+    "clone": "Klonen",
+    "follow": "Folgen"
+  },
+  "form": {
+    "createTitle": "Neuer Tag",
+    "editTitle": "Tag bearbeiten",
+    "labelField": "Label",
+    "labelPlaceholder": "z. B. Kapitel 1",
+    "labelRequiredError": "Label ist erforderlich.",
+    "descriptionField": "Beschreibung",
+    "descriptionPlaceholder": "Was diese Wörter gemeinsam haben…",
+    "visibilityField": "Sichtbarkeit",
+    "visibilityPublic": "Öffentlich",
+    "visibilityPublicHint": "Jeder kann ihn in Entdecken finden und ihm folgen — Follower sehen deine Wörter nur lesbar und erhalten sie automatisch.",
+    "visibilityPrivate": "Privat",
+    "visibilityPrivateHint": "Nur du kannst ihn sehen. Bestehende Follower behalten den Tag, aber seine Wörter verschwinden aus ihrer Übersicht, bis du ihn wieder auf Öffentlich stellst.",
+    "createSubmit": "Tag erstellen",
+    "editSubmit": "Änderungen speichern"
+  },
+  "clone": {
+    "title": "Diesen Tag klonen",
+    "byAuthor": "von {{username}}",
+    "wordAndFollowerCount": "{{words}} Wörter · {{followers}} Follower",
+    "visibilityLabel": "Sichtbarkeit deiner Kopie",
+    "visibilityHint": "Eine Kopie des Tags einer anderen Person beginnt als Privat.",
+    "independentNote": "Die Kopie ist vollständig unabhängig — ihre Wörter (mit allen Übersetzungen) gehören dann dir. Spätere Änderungen am Original wirken sich nicht darauf aus.",
+    "endsFollowNote": "Da du eine eigene Kopie besitzt, endet dein Folgen des Originals.",
+    "confirm": "Kopie erstellen"
+  },
+  "wordPicker": {
+    "label": "Jetzt Wörter hinzufügen",
+    "selectedCount": "{{count}} ausgewählt",
+    "searchPlaceholder": "Deine Wörter durchsuchen…",
+    "searchLabel": "Deine Wörter durchsuchen, um sie jetzt hinzuzufügen",
+    "noMatches": "Keine Wörter gefunden",
+    "noWords": "Du hast noch keine Wörter",
+    "removeSelected": "{{word}} entfernen"
+  },
+  "page": {
+    "title": "Tags",
+    "newTag": "Neuer Tag",
+    "searchPlaceholder": "Nach Label oder Beschreibung suchen…",
+    "searchLabel": "Tags durchsuchen",
+    "scopeGroupLabel": "Tag-Bereich",
+    "scope": {
+      "all": "Alle"
+    },
+    "sortLabel": "Sortieren",
+    "sort": {
+      "recent": "Neueste",
+      "label": "Label A–Z"
+    },
+    "resultCount": "{{shown}} von {{total}} Tags",
+    "noResults": "Keine Tags",
+    "loaded": "{{loaded}} von {{total}} Tags werden angezeigt",
+    "loadMore": "Mehr laden",
+    "emptySearch": {
+      "title": "Keine Tags passen zu \"{{query}}\"",
+      "description": "Versuche eine andere Schreibweise — die Suche durchsucht Labels und Beschreibungen.",
+      "action": "Suche löschen"
+    },
+    "emptyFollowed": {
+      "title": "Du folgst noch keinen Tags",
+      "description": "Tags, denen du folgst, halten ihre Wörter schreibgeschützt in deiner Übersicht auf dem neuesten Stand.",
+      "action": "Tags unter Entdecken finden"
+    },
+    "emptyDiscover": {
+      "title": "Nichts Neues zu entdecken",
+      "description": "Hier erscheinen öffentliche Tags von anderen Nutzern.",
+      "action": "Bereich Eigene"
+    },
+    "emptyOwned": {
+      "title": "Noch keine Tags",
+      "description": "Tags ordnen Wörter nach einem Thema — etwa \"Kapitel 1\" oder ein Thema, das dich immer wieder beschäftigt.",
+      "action": "Erstelle deinen ersten Tag"
+    },
+    "deleteConfirmTitle": "Tag löschen?",
+    "deleteConfirmDescription_one": "\"{{label}}\" enthält 1 Wort. Die Wörter selbst werden nicht gelöscht — sie verlieren nur diesen Tag.",
+    "deleteConfirmDescription_other": "\"{{label}}\" enthält {{count}} Wörter. Die Wörter selbst werden nicht gelöscht — sie verlieren nur diesen Tag.",
+    "unfollowConfirmTitle": "Tag nicht mehr folgen?",
+    "unfollowConfirmDescription": "Du folgst \"{{label}}\" von {{author}} nicht mehr. Seine Wörter verschwinden aus deiner Übersicht und deinem Übungspool.",
+    "toastCreated": "Tag \"{{label}}\" erstellt",
+    "toastUpdated": "\"{{label}}\" aktualisiert",
+    "toastDeleted": "Tag \"{{label}}\" gelöscht — seine Wörter bleiben bei dir erhalten",
+    "toastFollowed": "Du folgst jetzt \"{{label}}\"",
+    "toastUnfollowed": "\"{{label}}\" nicht mehr gefolgt",
+    "toastCloned": "Kopie von \"{{label}}\" erstellt — sie gehört jetzt ganz dir"
+  },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} Tag wurde gelöscht!",
     "tagUpdated": "Tag wurde erfolgreich aktualisiert!",

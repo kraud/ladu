@@ -495,7 +495,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 2 | ✅ done 2026-09-28 — Backend: new tag API (list/get/create/patch/delete/follow/unfollow/links/links-remove, `sort` per D16); delete every superseded legacy route + controller export; rewrite `tags.test.js` (sharing block kept, adapted to the surrounding changes) |
 | 3 | ✅ done 2026-09-28 — Backend: clone rebuild (batch inserts, provenance columns, visibility param, label-suffix, auto-unfollow) + `acceptTagShare`'s transaction fix; tests |
 | 4 | ✅ done 2026-09-28 — `features/tags/` data layer (`types`/`api`/`keys`/`hooks`/`errors`) + MSW handlers |
-| 5 | `/tags` page: search + scope chips + sort, `TagBadge`/`TagCard` grid, `TagFormDialog` create/edit/delete, follow/unfollow from the card, nav entry (feature-flagged on `featureFlags.tags`) — per `MOCKUPS/tags.html` |
+| 5 | ✅ done 2026-09-28 — `/tags` page: search + scope chips + sort, `TagBadge`/`TagCard` grid, `TagFormDialog` create/edit/delete, follow/unfollow from the card, nav entry (feature-flagged on `featureFlags.tags`) — per `MOCKUPS/tags.html` |
 | 6 | `/tag/$tagId` page: header (label/description/badges/author/counts/"Cloned from"), word list via `GET /api/words/simple?tag=`, "Add words" (`WordPickerDialog`) + per-row remove for owned tags, follow/unfollow, `CloneTagDialog`, unavailable/not-found states; replaces the router `Placeholder` — per `MOCKUPS/tag-detail.html` |
 | 7 | Review: tags column (`columns.tsx`, D14), tags filter group (`FilterBar`/`MobileFilters`/`search.ts`, D15), bulk "Add tags"/"Remove tags" (`BulkActionBar` + `TagPickerDialog`, D17) |
 | 8 | Word editor: real Tags section in `SidebarFields` for both `WordForm` (create, D4) and `WordPage` (view/edit, D4a) using `TagChip` + `TagPickerDialog`; disabled tags section for a word reached via a followed tag |
@@ -684,6 +684,74 @@ words; Unavailable: Unfollow only, plus the mockup's inline "hidden" note).
 (no search results / no followed tags yet → CTA into Discover / nothing to
 discover → CTA into Owned / no owned tags yet → CTA opens create) via
 `EmptyState`. `AppHeader`'s nav gains a Tags entry.
+
+**Shipped 2026-09-28.** Built essentially as planned, with a few naming and
+scope refinements made while implementing:
+- **`WordPickerDialog` shipped as `WordPicker`, a plain content component,
+  not a dialog.** The mockup embeds the search→table→selected-list flow
+  inline inside the create-tag dialog; wrapping it in a second, nested
+  `Dialog` there would be redundant chrome. `WordPicker` renders no dialog
+  of its own, so `TagFormDialog`'s create mode hosts it inline (this slice)
+  and `/tag/:id`'s "Add words" action (Slice 6) can still wrap the same
+  component in its own `Dialog` — the rename reflects what it actually is,
+  not a change of plan.
+- **D18's checkbox-vs-row-click question resolved without a flag.** The two
+  interactions turn out not to be in tension: the pick column's checkbox is
+  `pointer-events-none` (purely decorative), so every click in a row — on
+  the checkbox or anywhere else — falls through to the same `<tr onClick>`
+  handler. Both interactions ship simultaneously; there was no need for the
+  local comparison flag the risk note anticipated, and no dead code to
+  remove afterward.
+- **`TagFormDialog` covers create/edit only, not delete, despite D8's
+  "create/edit/delete, mode-driven" wording.** Re-reading the mockup found
+  delete uses its own separate `#del-dialog` — exactly `ConfirmDialog`
+  (already built, already used for word deletion). `TagsPage` reuses
+  `ConfirmDialog` directly for both delete and unfollow confirmation rather
+  than growing a third mode onto the form dialog for one that was never a
+  form to begin with.
+- **`buildLanguageColumns` extracted out of `review/columns.tsx`'s
+  `buildWordColumns`** — just the per-language `WordCell` columns, with no
+  Review-specific select/owner column mixed in — so `WordPicker`'s results
+  table reuses the exact same language rendering instead of a third
+  row-rendering style. Verified with the existing Review column tests
+  (178/178 still green) before building on top of it.
+- **Mockup CSS ported into the shared `globals.css`, not a new file** — every
+  `.tagcard`/`.toolrow`/`.scope-rail`/`.pick-list` class family from
+  `MOCKUPS/tags.html`'s own `<style>` block, inside the existing
+  `@layer components`, mapping the mockup's `--accent-text` token to this
+  codebase's `--accent-strong` and its generic `--radius` to `--radius-md`
+  (this repo's existing token names), per this phase's own "reusable,
+  maintainable components" ask.
+- **Full `tags.json` locale content shipped for all four languages** (en/es/
+  de/ee) — `relation`, `visibility`, `card`, `form`, `clone`, `wordPicker`,
+  `page` sections, including the `_one`/`_other` pluralized keys
+  (`card.wordCount`, `page.deleteConfirmDescription`) — plus
+  `common:header.tags` in all four `common.json` files for the new nav
+  entry. The pre-existing orphaned old-app keys in `tags.json`
+  (`tagDataForm`, `displayTag`, `searchTags`, …) are left untouched for a
+  later cleanup pass, not part of this slice's scope.
+- **`tagsRoute` persists only `scope` in the URL, not `q`/`sort`** — matching
+  `MOCKUPS/tags.html`'s own behavior exactly (neither survives a reload
+  there either) and keeping the route's `validateSearch` a one-field
+  contract rather than a `search.ts`-style multi-field module like Review's,
+  which this page's simpler filter set doesn't need.
+- New components: `TagBadge.tsx` (`tagRelation`, `RelationBadge`,
+  `VisibilityBadge`, `TagBadges`), `WordPicker.tsx`, `TagFormDialog.tsx`,
+  `CloneTagDialog.tsx`, `TagCard.tsx`, and the `TagsPage.tsx` page — each
+  with its own co-located test file (component-level tests via
+  `renderWithProviders` + the Slice 4 MSW fakes; `TagsPage.test.tsx` via
+  `renderApp` against a real route, matching `ReviewPage.test.tsx`'s own
+  pattern for a page whose search state lives in the URL).
+- Frontend suite: 808 → 864 (56 new: 11 `TagBadge`, 9 `TagCard`, 7
+  `CloneTagDialog`, 8 `TagFormDialog`, 6 `WordPicker`, 15 `TagsPage`). Two
+  debounced-search tests (`WordPicker`, `TagsPage`) initially asserted on
+  the DOM immediately after the pre-debounce data was still showing —
+  fixed to wait for the actual debounced request to land first. One
+  `CloneTagDialog` test seeded a tag with id `tag-1`, which collided with
+  the fake handler's own `nextId('tag')` sequence and got silently
+  overwritten by the clone it was asserting on — fixed by seeding a
+  non-colliding id. `npx tsc -b`, `npm test -w frontend` (864/864), and
+  `npm run build -w frontend` all clean.
 
 **Slice 6 — tag viewer.** Replaces the `/tag/$tagId` `Placeholder`, built to
 `MOCKUPS/tag-detail.html`. Header: badges, label, description, "by

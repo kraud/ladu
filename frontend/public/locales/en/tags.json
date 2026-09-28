@@ -14,6 +14,114 @@
     "invalidVisibility": "Please choose a valid visibility.",
     "invalidCursor": "That page link has expired — reload the list."
   },
+  "relation": {
+    "owned": "Owned",
+    "followed": "Followed",
+    "unavailable": "Unavailable",
+    "discover": "Discover"
+  },
+  "visibility": {
+    "public": "Public",
+    "private": "Private"
+  },
+  "card": {
+    "openAriaLabel": "Open {{label}}",
+    "noDescription": "No description",
+    "wordCount_one": "word",
+    "wordCount_other": "words",
+    "clonedFromPrefix": "Cloned from",
+    "byAuthor": "by {{username}}",
+    "unavailableNote": "Hidden — the owner made this tag Private. Your follow stays, but its words are out of your Review until they share it again.",
+    "viewWords": "View words",
+    "unfollow": "Unfollow",
+    "clone": "Clone",
+    "follow": "Follow"
+  },
+  "form": {
+    "createTitle": "New tag",
+    "editTitle": "Edit tag",
+    "labelField": "Label",
+    "labelPlaceholder": "e.g. Chapter 1",
+    "labelRequiredError": "Label is required.",
+    "descriptionField": "Description",
+    "descriptionPlaceholder": "What these words have in common…",
+    "visibilityField": "Visibility",
+    "visibilityPublic": "Public",
+    "visibilityPublicHint": "Anyone can find it in Discover and follow it — followers see your words as read-only and get them automatically.",
+    "visibilityPrivate": "Private",
+    "visibilityPrivateHint": "Only you can see it. Existing followers keep the tag, but its words leave their Review until you make it Public again.",
+    "createSubmit": "Create tag",
+    "editSubmit": "Save changes"
+  },
+  "clone": {
+    "title": "Clone this tag",
+    "byAuthor": "by {{username}}",
+    "wordAndFollowerCount": "{{words}} words · {{followers}} followers",
+    "visibilityLabel": "Visibility of your copy",
+    "visibilityHint": "A copy of someone else's tag starts Private.",
+    "independentNote": "The copy is fully independent — its words (with all translations) become yours. Later changes to the original won't affect it.",
+    "endsFollowNote": "Because you'll own a copy, your follow of the original ends.",
+    "confirm": "Create copy"
+  },
+  "wordPicker": {
+    "label": "Add words now",
+    "selectedCount": "{{count}} selected",
+    "searchPlaceholder": "Search your words…",
+    "searchLabel": "Search your words to add now",
+    "noMatches": "No words match",
+    "noWords": "You don't have any words yet",
+    "removeSelected": "Remove {{word}}"
+  },
+  "page": {
+    "title": "Tags",
+    "newTag": "New tag",
+    "searchPlaceholder": "Search by label or description…",
+    "searchLabel": "Search tags",
+    "scopeGroupLabel": "Tag scope",
+    "scope": {
+      "all": "All"
+    },
+    "sortLabel": "Sort",
+    "sort": {
+      "recent": "Recent",
+      "label": "Label A–Z"
+    },
+    "resultCount": "{{shown}} of {{total}} tags",
+    "noResults": "No tags",
+    "loaded": "Showing {{loaded}} of {{total}} tags",
+    "loadMore": "Load more",
+    "emptySearch": {
+      "title": "No tags match \"{{query}}\"",
+      "description": "Try a different spelling — search matches labels and descriptions.",
+      "action": "Clear search"
+    },
+    "emptyFollowed": {
+      "title": "You're not following any tags yet",
+      "description": "Tags you follow keep their words in sync into your Review, read-only.",
+      "action": "Find tags in Discover"
+    },
+    "emptyDiscover": {
+      "title": "Nothing new to discover",
+      "description": "Public tags from other users will appear here.",
+      "action": "Owned scope"
+    },
+    "emptyOwned": {
+      "title": "No tags yet",
+      "description": "Tags organize words around a theme — like \"Chapter 1\" or a topic you keep revisiting.",
+      "action": "Make your first tag"
+    },
+    "deleteConfirmTitle": "Delete tag?",
+    "deleteConfirmDescription_one": "\"{{label}}\" holds 1 word. The words themselves are not deleted — they just lose this tag.",
+    "deleteConfirmDescription_other": "\"{{label}}\" holds {{count}} words. The words themselves are not deleted — they just lose this tag.",
+    "unfollowConfirmTitle": "Unfollow tag?",
+    "unfollowConfirmDescription": "You'll stop following \"{{label}}\" by {{author}}. Its words will drop out of your Review list and practice pool.",
+    "toastCreated": "Tag \"{{label}}\" created",
+    "toastUpdated": "\"{{label}}\" updated",
+    "toastDeleted": "Tag \"{{label}}\" deleted — its words stay on your shelf",
+    "toastFollowed": "You're now following \"{{label}}\"",
+    "toastUnfollowed": "Unfollowed \"{{label}}\"",
+    "toastCloned": "Copy of \"{{label}}\" created — it's all yours now"
+  },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag was deleted!",
     "tagUpdated": "Tag was updated successfully!",
