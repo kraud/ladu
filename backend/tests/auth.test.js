@@ -659,6 +659,69 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
 
         expect(res.statusCode).toBe(401);
     });
+
+    // nativeLanguage (phase-5-practice.md D6 / defect 11): absent keeps the
+    // stored value, null clears it, an unsupported value is rejected.
+    describe('nativeLanguage', () => {
+        const update = (extra) =>
+            request(app)
+                .put('/api/users/updateUser')
+                .set('Authorization', `Bearer ${token}`)
+                .send({ email: 'test@example.com', name: 'Test User', username: 'testuser', ...extra });
+
+        it('sets a supported native language', async () => {
+            const res = await update({ nativeLanguage: 'Spanish' });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.nativeLanguage).toBe('Spanish');
+        });
+
+        it('keeps the stored native language when the key is omitted', async () => {
+            await update({ nativeLanguage: 'Spanish' });
+
+            const res = await update({ name: 'Renamed' });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.name).toBe('Renamed');
+            expect(res.body.nativeLanguage).toBe('Spanish');
+        });
+
+        it('clears the native language when null is sent', async () => {
+            await update({ nativeLanguage: 'Spanish' });
+
+            const res = await update({ nativeLanguage: null });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.nativeLanguage).toBeNull();
+        });
+
+        it('rejects a supported language that is not one of the user\'s languages', async () => {
+            const res = await update({ nativeLanguage: 'German' });
+
+            expect(res.statusCode).toBe(400);
+            const [row] = await db.select().from(users).where(eq(users.id, userId));
+            expect(row.nativeLanguage).toBeNull();
+        });
+
+        it('clears the stored native language when a new language selection no longer contains it', async () => {
+            await update({ nativeLanguage: 'Spanish' });
+
+            const res = await update({ languages: ['English', 'German'] });
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.nativeLanguage).toBeNull();
+        });
+
+        it.each(['Klingon', '', 42])('rejects the unsupported value %p with 400 and stores nothing', async (value) => {
+            await update({ nativeLanguage: 'English' });
+
+            const res = await update({ nativeLanguage: value });
+
+            expect(res.statusCode).toBe(400);
+            const [row] = await db.select().from(users).where(eq(users.id, userId));
+            expect(row.nativeLanguage).toBe('English');
+        });
+    });
 });
 
 describe('GET /api/users/getUser/:id - Private lookup', () => {

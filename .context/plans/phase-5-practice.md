@@ -428,18 +428,18 @@ test/msw/practiceHandlers.ts
 Each slice ends runnable; the user commits and re-confirms between them. **Slices 5–8 need the mockups from
 Part C first.** Slices 1–4 have no UI and can run while the mockups are made.
 
-| Slice | Scope |
-|---|---|
-| 0 | Persist this plan as `.context/plans/phase-5-practice.md`; link it in `new-repo-build-plan.md` §5/§9 and `.context/README.md`. |
-| 1 | Backend: pure domain module `services/exercises/*` + unit tests pinning A.5–A.9. Old endpoints re-wired onto it, behaviour unchanged. |
-| 2 | Backend: migration 0007 + D5 (`updateWord`) + D7 (clone history) + D6 backend (`nativeLanguage` validation) + tests. |
-| 3 | Backend: new API (B.3) with validation, visibility, full-pool ranking + batching; remove old routes; Jest suite rewritten (IDOR, visibility, ranking order, batching, distractor levels, revise counter, native exclusion, response shape). |
-| 4 | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
-| 5 | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
-| 6 | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
-| 7 | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
-| 8 | Frontend: results screen — score, rows, review a card, restart flows. |
-| 9 | Phase gate: `e2e/tests/phase-5-practice.spec.ts` + docs + full green run. |
+| Slice | Status | Scope |
+|---|---|---|
+| 0 | Done, committed | Persist this plan as `.context/plans/phase-5-practice.md`; link it in `new-repo-build-plan.md` §5/§9 and `.context/README.md`. |
+| 1 | Done, committed | Backend: pure domain module `services/exercises/*` + unit tests pinning A.5–A.9. Old endpoints re-wired onto it, behaviour unchanged. |
+| 2 | Done, awaiting commit | Backend: migration 0007 + D5 (`updateWord`) + D7 (clone history) + D6 backend (`nativeLanguage` validation) + tests. |
+| 3 | Next | Backend: new API (B.3) with validation, visibility, full-pool ranking + batching; remove old routes; Jest suite rewritten (IDOR, visibility, ranking order, batching, distractor levels, revise counter, native exclusion, response shape). |
+| 4 | | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
+| 5 | | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
+| 6 | | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
+| 7 | | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
+| 8 | | Frontend: results screen — score, rows, review a card, restart flows. |
+| 9 | | Phase gate: `e2e/tests/phase-5-practice.spec.ts` + docs + full green run. |
 
 **Slice 1 detail.** Port without behaviour change; `Math.random` replaced by an injected RNG. Tests use fixed
 seeds and hand-built words: catalogue coverage per PoS/language, pair generation, native exclusion, the
@@ -449,6 +449,24 @@ level (incl. verb L3 same-word), drop-when-no-distractor.
 **Slice 2 detail.** Migration tested on a seeded DB with orphans and duplicates. Tests: removing a language
 deletes a follower's rows; removing a case deletes all users' stats for it; clone copies only the cloner's
 rows with remapped ids; `updateUser` validates `nativeLanguage` and keeps it when omitted.
+
+**Slice 2 — as built.**
+- `0007_exercise_performance_integrity.sql`: a cleanup block first (deletes orphans, duplicate performances,
+  duplicate case stats; clears invalid modifiers; logs the counts as NOTICEs), then the constraints:
+  `translation_id` NOT NULL + FK `ON DELETE CASCADE`, unique `ep_user_translation_unique`
+  `(user_id, translation_id)`, unique `epc_performance_case_unique` `(exercise_performance_id, case_name)`,
+  CHECK `ep_modifier_check`. `schema.ts` matches.
+- `updateWord`: the translation changes now run in one transaction. Removing a translation relies on the FK
+  cascade (all users). Removing a case deletes that case's stats for all users and recomputes the stored
+  average of every affected performance (same rule as the save path: aged mean at `now`, date set to `now`).
+- `cloneTagForUser`: copies the recipient's own performance rows and case stats to the new translations
+  (ids remapped). The tag-word read moved onto `tx`. `fetchWordsWithRelations` still reads through `db`
+  (it is a shared service that does not take a `tx`); the source data is read-only there, so this is safe.
+- `updateUser`: `nativeLanguage` must be one of the user's languages (after this update) or `null`, else 400.
+  Omitting the key keeps the stored value, except that a stored value the new language list no longer
+  contains is cleared.
+- Tests: `tests/exercisePerformanceIntegrity.test.js` (migration run inside a rolled-back transaction on
+  seeded bad data; D5; D7) and a `nativeLanguage` block in `tests/auth.test.js`.
 
 **Slice 3 detail.** Add a benchmark script (`backend/scripts/bench-exercises.ts`, not a test) that seeds
 ~5,000 words and times `generate`; record the number in this file.

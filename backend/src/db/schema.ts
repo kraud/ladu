@@ -12,6 +12,7 @@ const {
     primaryKey,
     uniqueIndex,
     index,
+    check,
 }: typeof import('drizzle-orm/pg-core') = require('drizzle-orm/pg-core');
 const { relations, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 // Type-only import (erased at compile time) — needed to break the circular
@@ -346,7 +347,7 @@ export const exercisePerformances = pgTable(
         id:                           uuid('id').primaryKey().defaultRandom(),
         userId:                       uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
         wordId:                       uuid('word_id').notNull().references(() => words.id, { onDelete: 'cascade' }),
-        translationId:                uuid('translation_id').references(() => translations.id, { onDelete: 'set null' }),
+        translationId:                uuid('translation_id').notNull().references(() => translations.id, { onDelete: 'cascade' }),
         // 'Mastered' | 'Revise'
         performanceModifier:          varchar('performance_modifier', { length: 50 }),
         // Counts correct answers since the user last marked as 'Revise'
@@ -357,8 +358,13 @@ export const exercisePerformances = pgTable(
         translationLanguage:          varchar('translation_language', { length: 50 }),
         ...timestamps,
     },
-    // Mirrors the MongoDB compound index on { user, word }
-    (table) => [index('ep_user_word_idx').on(table.userId, table.wordId)],
+    (table) => [
+        // Mirrors the MongoDB compound index on { user, word }
+        index('ep_user_word_idx').on(table.userId, table.wordId),
+        // One performance row per (user, translation) — phase-5-practice.md defect 8.
+        uniqueIndex('ep_user_translation_unique').on(table.userId, table.translationId),
+        check('ep_modifier_check', sql`${table.performanceModifier} IN ('Mastered', 'Revise')`),
+    ],
 );
 
 // ---------------------------------------------------------------------------
@@ -366,15 +372,22 @@ export const exercisePerformances = pgTable(
 // Mapped from: exercisePerformanceModel.js → statsByCase[]
 // Each case (nominative, genitive, etc.) for a given exercise performance entry.
 // ---------------------------------------------------------------------------
-export const exercisePerformanceCases = pgTable('exercise_performance_cases', {
-    id:                   uuid('id').primaryKey().defaultRandom(),
-    exercisePerformanceId: uuid('exercise_performance_id').notNull().references(() => exercisePerformances.id, { onDelete: 'cascade' }),
-    caseName:             varchar('case_name', { length: 100 }).notNull(),
-    // PostgreSQL native boolean[] array — mirrors the Mongoose [Boolean] field
-    record:               boolean('record').array().notNull().default([]),
-    lastDate:             timestamp('last_date'),
-    knowledge:            real('knowledge'),
-});
+export const exercisePerformanceCases = pgTable(
+    'exercise_performance_cases',
+    {
+        id:                   uuid('id').primaryKey().defaultRandom(),
+        exercisePerformanceId: uuid('exercise_performance_id').notNull().references(() => exercisePerformances.id, { onDelete: 'cascade' }),
+        caseName:             varchar('case_name', { length: 100 }).notNull(),
+        // PostgreSQL native boolean[] array — mirrors the Mongoose [Boolean] field
+        record:               boolean('record').array().notNull().default([]),
+        lastDate:             timestamp('last_date'),
+        knowledge:            real('knowledge'),
+    },
+    (table) => [
+        // One case stat per (performance, case) — phase-5-practice.md defect 8.
+        uniqueIndex('epc_performance_case_unique').on(table.exercisePerformanceId, table.caseName),
+    ],
+);
 
 // ===========================================================================
 // RELATIONS

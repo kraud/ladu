@@ -50,6 +50,13 @@
       "when": 1790547362361,
       "tag": "0006_tags_provenance_and_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790638661442,
+      "tag": "0007_exercise_performance_integrity",
+      "breakpoints": true
     }
   ]
 }
