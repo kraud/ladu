@@ -220,7 +220,9 @@ test.describe.serial('Phase 4 — tags', () => {
             const dialog = pageA.getByRole('dialog');
             await expect(dialog.getByRole('heading', { name: 'Add tags to 1 word' })).toBeVisible();
             await dialog.getByLabel('Search tags to add…').fill('Kitchen');
-            await dialog.getByText('Kitchen Words', { exact: true }).click();
+            // The combobox popover is portaled to <body> (base-ui ComboboxContent),
+            // so it is no longer a descendant of the dialog — scope to the page instead.
+            await pageA.getByRole('option', { name: 'Kitchen Words', exact: true }).click();
             await dialog.getByRole('button', { name: 'Apply' }).click();
 
             await expect(pageA.getByText('Tag added to 1 word')).toBeVisible();
