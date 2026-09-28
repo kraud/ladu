@@ -123,7 +123,14 @@
       "expand": "Seitenleiste ausklappen",
       "openMenu": "Menü öffnen",
       "closeMenu": "Menü schließen",
-      "tagsComingSoon": "Demnächst verfügbar"
+      "addTag": "Tag hinzufügen",
+      "tagsHint": "Aus deinen eigenen Tags — Wörter aus abonnierten Tags behalten die Tags des Eigentümers, nur lesbar.",
+      "tagsManagedByOwner": "Nur lesbar — dieses Wort stammt aus einem abonnierten Tag. Seine Tags werden vom Eigentümer des Tags verwaltet.",
+      "tagAddedToast_one": "{{count}} Tag hinzugefügt",
+      "tagAddedToast_other": "{{count}} Tags hinzugefügt",
+      "tagRemovedToast": "Tag entfernt",
+      "tagsStagedToast_one": "{{count}} Tag hinzugefügt — wird zusammen mit dem Wort gespeichert",
+      "tagsStagedToast_other": "{{count}} Tags hinzugefügt — werden zusammen mit dem Wort gespeichert"
     },
     "confirmChangeType": {
       "title": "Wortart ändern?",

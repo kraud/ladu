@@ -123,7 +123,14 @@
       "expand": "Expandir la barra lateral",
       "openMenu": "Abrir menú",
       "closeMenu": "Cerrar menú",
-      "tagsComingSoon": "Próximamente"
+      "addTag": "Añadir etiqueta",
+      "tagsHint": "De tus etiquetas propias — las palabras de etiquetas seguidas mantienen las etiquetas del propietario, de solo lectura.",
+      "tagsManagedByOwner": "Solo lectura — esta palabra proviene de una etiqueta seguida. Sus etiquetas las gestiona el propietario de la etiqueta.",
+      "tagAddedToast_one": "{{count}} etiqueta añadida",
+      "tagAddedToast_other": "{{count}} etiquetas añadidas",
+      "tagRemovedToast": "Etiqueta eliminada",
+      "tagsStagedToast_one": "{{count}} etiqueta añadida — se guardará junto con la palabra",
+      "tagsStagedToast_other": "{{count}} etiquetas añadidas — se guardarán junto con la palabra"
     },
     "confirmChangeType": {
       "title": "¿Cambiar el tipo de palabra?",

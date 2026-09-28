@@ -55,6 +55,23 @@ describe('TagPickerDialog — add mode', () => {
         expect(fake.requests).toHaveLength(0);
     });
 
+    it('with no wordIds (create flow), Apply skips the mutation and hands the picks to onApplied', async () => {
+        const fake = setUp([{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Private' }]);
+        const user = userEvent.setup();
+        const onApplied = vi.fn();
+        const onOpenChange = vi.fn();
+        renderWithProviders(<TagPickerDialog open onOpenChange={onOpenChange} mode="add" onApplied={onApplied} />);
+
+        expect(screen.getByText('Add tags to 1 word')).toBeInTheDocument();
+        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
+        await user.click(row);
+        await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+        expect(onOpenChange).toHaveBeenCalledWith(false);
+        expect(onApplied).toHaveBeenCalledWith([expect.objectContaining({ id: 'tag-1' })]);
+        expect(fake.requests).toHaveLength(0);
+    });
+
     it('resets its selection each time it reopens', async () => {
         setUp([{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Private' }]);
         const user = userEvent.setup();

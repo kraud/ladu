@@ -498,7 +498,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 5 | ✅ done 2026-09-28 — `/tags` page: search + scope chips + sort, `TagBadge`/`TagCard` grid, `TagFormDialog` create/edit/delete, follow/unfollow from the card, nav entry (feature-flagged on `featureFlags.tags`) — per `MOCKUPS/tags.html` |
 | 6 | ✅ done 2026-09-28 — `/tag/$tagId` page: header (label/description/badges/author/counts/"Cloned from"), word list via `GET /api/words/simple?tag=`, "Add words" (`WordPickerDialog`) + per-row remove for owned tags, follow/unfollow, `CloneTagDialog`, unavailable/not-found states; replaces the router `Placeholder` — per `MOCKUPS/tag-detail.html` |
 | 7 | ✅ done 2026-09-28 — Review: tags column (`columns.tsx`, D14), tags filter group (`FilterBar`/`MobileFilters`/`search.ts`, D15), bulk "Add tags"/"Remove tags" (`BulkActionBar` + `TagPickerDialog`, D17) |
-| 8 | Word editor: real Tags section in `SidebarFields` for both `WordForm` (create, D4) and `WordPage` (view/edit, D4a) using `TagChip` + `TagPickerDialog`; disabled tags section for a word reached via a followed tag |
+| 8 | ✅ done 2026-09-28 — Word editor: real Tags section in `SidebarFields` for both `WordForm` (create, D4) and `WordPage` (view/edit, D4a) using `TagChip` + `TagPickerDialog`; disabled tags section for a word reached via a followed tag |
 | 9 | Phase gate: `phase-4-tags.spec.ts` + docs + full green run |
 
 **Slice 1 — backend word-side fixes.** `createWord` becomes one
@@ -962,6 +962,57 @@ tags section renders disabled with the mockup's "managed by the tag's
 owner" inline note rather than being hidden outright.
 `SidebarFields.test.tsx`/`WordForm.test.tsx`/`WordPage.test.tsx` gain
 coverage for the populated and disabled states.
+
+**Shipped 2026-09-28.** Built essentially as planned, with two small,
+reversible implementation choices:
+- **`TagPickerDialog`'s `wordIds` became optional** rather than building a
+  second, near-identical dialog for the create flow. Only `mode="add"` with
+  `wordIds` omitted (the create flow, with no word id to link against yet)
+  takes this path — Save then skips the `useLinkTagsToWords` mutation
+  entirely and hands the picks straight to `onApplied` for `WordForm` to
+  stage locally. Every existing caller (Review's bulk bar, edit-mode "Add
+  tag") always passes `wordIds` and is unaffected.
+- **`SidebarFields` gained its own read-only switch for tags, independent of
+  the clue's.** `onClueChange` absent still means the clue renders as plain
+  text (`WordPage`'s view state); `onAddTag`/`onRemoveTag` absent is a
+  *separate* signal meaning the whole tags section renders disabled with the
+  "managed by the tag's owner" note. This matters because tag mutations
+  apply immediately regardless of the word's own edit state (Risks) — even
+  `WordPage`'s non-editing view lets the caller add/remove tags right away,
+  so tying the tags switch to the clue's `readOnly` would have wrongly
+  disabled tags on every own word's view state.
+- **`WordPage.tsx`'s "no non-owner branch" doc comment is corrected**, not
+  just its behavior — Slice 1 already made `getWordById` succeed read-only
+  for a word reached via a followed tag, so the comment's original claim
+  ("a successful load here is always the caller's own word") had been stale
+  since that slice, not just as of this one. The page now computes
+  `isOwn = word.user === userId` (same convention as Review's `isOwn`) and
+  omits the tag handlers when `false`. This path is exercised by
+  `SidebarFields.test.tsx`'s own disabled-state test (props-driven, no MSW
+  needed) rather than a full `WordPage` integration test: nothing in the
+  app currently links to a foreign word's `/word/:id` (confirmed by
+  checking every place that route is reached), so modeling followed-tag
+  reachability in `wordHandlers.ts`'s fake — which would also require
+  reworking its existing, correct "a truly foreign word 403s" test — was
+  judged out of proportion to a currently-unreachable path. `Edit`/`Delete`
+  are left unguarded for the same reason: unreachable today, and a foreign
+  word's tag mutations already fail cleanly with a 403 toast (ownership is
+  checked on both the tag and the word by the link/unlink endpoints) if
+  this ever changes.
+- `CreateWordBody` gained `tagIds?: string[]` (the backend accepted it since
+  Slice 1; only the frontend type was missing it). `UpdateWordBody` inherits
+  the field structurally but `WordForm` never populates it in edit mode —
+  tag membership on an existing word only ever changes via
+  `linkTagsToWords`/`unlinkTagsFromWords`, never the word's own PUT.
+- New locale keys across all four `wordRelated.json` files
+  (`wordForm.sidebar.addTag`/`tagsHint`/`tagsManagedByOwner`/
+  `tagAddedToast`/`tagRemovedToast`/`tagsStagedToast`); the now-dead
+  `tagsComingSoon` key removed from all four.
+- Frontend suite: 950 → 960 (10 new: 4 `TagPickerDialog`/local-mode +
+  `SidebarFields`'s disabled-state coverage, 4 `WordForm` create/edit tag
+  flows, 2 `WordPage` view-state tag flows). `npx tsc -b`,
+  `npm test -w frontend` (960/960), and `npm run build -w frontend` all
+  clean. No backend changes.
 
 **Slice 9 — gate.** `e2e/tests/phase-4-tags.spec.ts`: user A creates a tag
 with two words attached at creation time (D4), bulk-adds it to a third word

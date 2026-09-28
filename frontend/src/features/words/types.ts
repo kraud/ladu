@@ -69,13 +69,15 @@ export interface TranslationInput {
 
 /**
  * `POST /api/words` body. `partOfSpeech` and >= 2 translations are required
- * (400 otherwise). Phase 2 sends no `tags` — the tags field is deferred to
- * Phase 4 (decision D2).
+ * (400 otherwise). `tagIds` (phase-4-tags.md D4) is optional and
+ * ownership-checked server-side — tags picked before the word has an id yet
+ * ride along in this same request rather than waiting for a second call.
  */
 export interface CreateWordBody {
     partOfSpeech: PartOfSpeech;
     clue?: string;
     translations: TranslationInput[];
+    tagIds?: string[];
 }
 
 /**
@@ -83,7 +85,10 @@ export interface CreateWordBody {
  * service lifted it into the URL; the controller only reads `req.params.id`, so
  * `api.ts` sends the id in the path and echoes it in the body for shape parity.
  * `partOfSpeech` is immutable after creation but still sent (the controller
- * updates it only when present, and it never changes).
+ * updates it only when present, and it never changes). `tagIds` is never sent
+ * here — the update route dropped tag handling entirely (phase-4-tags.md
+ * "Calls made by the agent"); tag membership on an existing word only ever
+ * changes via `linkTagsToWords`/`unlinkTagsFromWords`.
  */
 export interface UpdateWordBody extends CreateWordBody {
     id: string;

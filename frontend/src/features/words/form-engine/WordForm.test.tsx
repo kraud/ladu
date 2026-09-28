@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
 import { futureToken } from '@/test/tokens';
+import { server } from '@/test/msw/server';
+import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { Lang, NounCases, PartOfSpeech } from '@/ts/enums';
 import type { WordBE } from '../types';
 import { WordForm } from './WordForm';
@@ -473,5 +475,137 @@ describe('WordForm — create mode', () => {
             const dialog = await screen.findByRole('alertdialog');
             expect(within(dialog).getByText(/The English translation/)).toBeInTheDocument();
         });
+    });
+});
+
+describe('WordForm — tags (create mode)', () => {
+    it('stages a picked tag locally (no request yet) and sends it as tagIds on Save', async () => {
+        const fake = makeTagHandlers({
+            callerId: SESSION.id,
+            seedTags: [{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private' }],
+        });
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        const onSubmit = vi.fn();
+        renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={onSubmit} />, {
+            session: SESSION,
+        });
+
+        await user.click(screen.getByRole('button', { name: 'Add tag' }));
+        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
+        await user.click(row);
+        await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+        // Staged locally as a chip; no link request went out — the word doesn't exist yet.
+        expect(await screen.findByText('Kitchen')).toBeInTheDocument();
+        expect(fake.requests.filter((r) => r.path === '/tags/links')).toHaveLength(0);
+
+        await addLanguage(user, 'English');
+        await addLanguage(user, 'Español');
+        const [singularEN, singularES] = screen.getAllByLabelText('Singular');
+        await user.type(singularEN!, 'House');
+        await user.type(singularES!, 'Casa');
+        await user.click(screen.getByRole('radio', { name: 'el' }));
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
+        await user.click(screen.getByRole('button', { name: 'Save word' }));
+
+        expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ tagIds: ['tag-1'] }));
+    });
+
+    it('removing a staged tag drops it, with Save then carrying no tagIds', async () => {
+        const fake = makeTagHandlers({
+            callerId: SESSION.id,
+            seedTags: [{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private' }],
+        });
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        const onSubmit = vi.fn();
+        renderWithProviders(<WordForm mode="create" defaultPartOfSpeech={PartOfSpeech.noun} onSubmit={onSubmit} />, {
+            session: SESSION,
+        });
+
+        await user.click(screen.getByRole('button', { name: 'Add tag' }));
+        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
+        await user.click(row);
+        await user.click(screen.getByRole('button', { name: 'Apply' }));
+        await screen.findByText('Kitchen');
+
+        await user.click(screen.getByRole('button', { name: 'Remove Kitchen' }));
+        expect(screen.queryByText('Kitchen')).not.toBeInTheDocument();
+
+        await addLanguage(user, 'English');
+        await addLanguage(user, 'Español');
+        const [singularEN, singularES] = screen.getAllByLabelText('Singular');
+        await user.type(singularEN!, 'House');
+        await user.type(singularES!, 'Casa');
+        await user.click(screen.getByRole('radio', { name: 'el' }));
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
+        await user.click(screen.getByRole('button', { name: 'Save word' }));
+
+        expect(onSubmit).toHaveBeenCalledWith(expect.not.objectContaining({ tagIds: expect.anything() }));
+    });
+});
+
+describe('WordForm — tags (edit mode)', () => {
+    const initialWord: WordBE = {
+        id: 'word-1',
+        user: SESSION.id,
+        partOfSpeech: PartOfSpeech.noun,
+        translations: [
+            { id: 'tr-1', language: Lang.EN, cases: [{ caseName: NounCases.singularEN, word: 'house' }] },
+            { id: 'tr-2', language: Lang.ES, cases: [{ caseName: NounCases.singularES, word: 'casa' }] },
+        ],
+        clue: null,
+        isCloned: false,
+        originalCreator: null,
+        tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: SESSION.id }],
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    it("shows the word's existing tags and removing one calls unlink immediately, independent of Save", async () => {
+        const fake = makeTagHandlers({
+            callerId: SESSION.id,
+            seedTags: [{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private', wordIds: ['word-1'] }],
+            wordOwners: { 'word-1': SESSION.id },
+        });
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        renderWithProviders(<WordForm mode="edit" initialWord={initialWord} onSubmit={vi.fn()} />, { session: SESSION });
+
+        expect(screen.getByText('Kitchen')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Remove Kitchen' }));
+
+        await waitFor(() =>
+            expect(fake.requests).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ path: '/tags/links/remove', body: { tagIds: ['tag-1'], wordIds: ['word-1'] } }),
+                ]),
+            ),
+        );
+    });
+
+    it('adding a tag via the picker calls link immediately', async () => {
+        const fake = makeTagHandlers({
+            callerId: SESSION.id,
+            seedTags: [{ id: 'tag-2', authorId: SESSION.id, label: 'Travel', visibility: 'Private' }],
+            wordOwners: { 'word-1': SESSION.id },
+        });
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        renderWithProviders(<WordForm mode="edit" initialWord={initialWord} onSubmit={vi.fn()} />, { session: SESSION });
+
+        await user.click(screen.getByRole('button', { name: 'Add tag' }));
+        const row = (await screen.findByText('Travel')).closest('.pick-row') as HTMLElement;
+        await user.click(row);
+        await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() =>
+            expect(fake.requests).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ path: '/tags/links', body: { tagIds: ['tag-2'], wordIds: ['word-1'] } }),
+                ]),
+            ),
+        );
     });
 });

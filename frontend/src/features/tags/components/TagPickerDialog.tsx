@@ -3,6 +3,14 @@
  * `TagCombobox` in the matching mode, with its own staged `selected` state
  * (picks apply only once "Apply" is clicked, unlike `FilterBar`'s inline,
  * instant-apply use of the same combobox) and Save/Cancel footer.
+ *
+ * `wordIds` is optional for `mode="add"` only — `WordForm`'s create flow
+ * (phase-4-tags.md Slice 8) has no word id yet to link against, so Apply
+ * there skips the mutation entirely and hands the picks straight to
+ * `onApplied` for the caller to hold locally until the word itself is
+ * created (D4). Every other caller (Review's bulk bar, the word editor's
+ * edit-mode "Add tag") always passes `wordIds` and gets the real
+ * link/unlink mutation, unchanged.
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +31,8 @@ export interface TagPickerDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     mode: 'add' | 'remove';
-    wordIds: string[];
+    /** Omit only for `mode="add"` with no word yet (see the file header comment). */
+    wordIds?: string[];
     /** `mode="remove"` only — the tags currently common to every selected word. */
     restrictToIds?: ReadonlySet<string>;
     onApplied?: (tags: TagSummary[]) => void;
@@ -50,6 +59,12 @@ export function TagPickerDialog({ open, onOpenChange, mode, wordIds, restrictToI
             onOpenChange(false);
             return;
         }
+        if (!wordIds) {
+            // No word to link yet (create flow) — stage the picks locally instead.
+            onOpenChange(false);
+            onApplied?.(selected);
+            return;
+        }
         mutation.mutate(
             { tagIds: selected.map((tag) => tag.id), wordIds },
             {
@@ -67,7 +82,7 @@ export function TagPickerDialog({ open, onOpenChange, mode, wordIds, restrictToI
                 <DialogHeader>
                     <DialogTitle>
                         {t(mode === 'add' ? 'tags:picker.addTitle' : 'tags:picker.removeTitle', {
-                            count: wordIds.length,
+                            count: wordIds?.length ?? 1,
                         })}
                     </DialogTitle>
                 </DialogHeader>

@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
+import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
 import { Lang, NounCases, PartOfSpeech } from '@/ts/enums';
@@ -185,5 +186,63 @@ describe('WordPage — delete', () => {
         expect(await screen.findByText('Word deleted successfully')).toBeInTheDocument();
         expect(fake.store.has(SEED.id)).toBe(false);
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    });
+});
+
+describe('WordPage — tags (view state)', () => {
+    it('shows the word\'s existing tags and removing one calls unlink immediately, independent of Edit', async () => {
+        const wordsFake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [{ ...SEED, tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: SESSION.id }] }],
+        });
+        const tagsFake = makeTagHandlers({
+            callerId: SESSION.id,
+            seedTags: [
+                { id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private', wordIds: [SEED.id] },
+            ],
+            wordOwners: { [SEED.id]: SESSION.id },
+        });
+        server.use(...wordsFake.handlers, ...tagsFake.handlers);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        expect(await screen.findByText('Kitchen')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Remove Kitchen' }));
+
+        await waitFor(() =>
+            expect(tagsFake.requests).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        path: '/tags/links/remove',
+                        body: { tagIds: ['tag-1'], wordIds: [SEED.id] },
+                    }),
+                ]),
+            ),
+        );
+    });
+
+    it('Add tag opens the shared picker and links the picked tag immediately', async () => {
+        const wordsFake = makeWordHandlers({ callerId: SESSION.id, seed: [SEED] });
+        const tagsFake = makeTagHandlers({
+            callerId: SESSION.id,
+            seedTags: [{ id: 'tag-2', authorId: SESSION.id, label: 'Travel', visibility: 'Private' }],
+            wordOwners: { [SEED.id]: SESSION.id },
+        });
+        server.use(...wordsFake.handlers, ...tagsFake.handlers);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: 'Add tag' }));
+        const row = (await screen.findByText('Travel')).closest('.pick-row') as HTMLElement;
+        await user.click(row);
+        await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+        await waitFor(() =>
+            expect(tagsFake.requests).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ path: '/tags/links', body: { tagIds: ['tag-2'], wordIds: [SEED.id] } }),
+                ]),
+            ),
+        );
     });
 });
