@@ -497,7 +497,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 4 | ✅ done 2026-09-28 — `features/tags/` data layer (`types`/`api`/`keys`/`hooks`/`errors`) + MSW handlers |
 | 5 | ✅ done 2026-09-28 — `/tags` page: search + scope chips + sort, `TagBadge`/`TagCard` grid, `TagFormDialog` create/edit/delete, follow/unfollow from the card, nav entry (feature-flagged on `featureFlags.tags`) — per `MOCKUPS/tags.html` |
 | 6 | ✅ done 2026-09-28 — `/tag/$tagId` page: header (label/description/badges/author/counts/"Cloned from"), word list via `GET /api/words/simple?tag=`, "Add words" (`WordPickerDialog`) + per-row remove for owned tags, follow/unfollow, `CloneTagDialog`, unavailable/not-found states; replaces the router `Placeholder` — per `MOCKUPS/tag-detail.html` |
-| 7 | Review: tags column (`columns.tsx`, D14), tags filter group (`FilterBar`/`MobileFilters`/`search.ts`, D15), bulk "Add tags"/"Remove tags" (`BulkActionBar` + `TagPickerDialog`, D17) |
+| 7 | ✅ done 2026-09-28 — Review: tags column (`columns.tsx`, D14), tags filter group (`FilterBar`/`MobileFilters`/`search.ts`, D15), bulk "Add tags"/"Remove tags" (`BulkActionBar` + `TagPickerDialog`, D17) |
 | 8 | Word editor: real Tags section in `SidebarFields` for both `WordForm` (create, D4) and `WordPage` (view/edit, D4a) using `TagChip` + `TagPickerDialog`; disabled tags section for a word reached via a followed tag |
 | 9 | Phase gate: `phase-4-tags.spec.ts` + docs + full green run |
 
@@ -917,6 +917,39 @@ click target anywhere in the cell (D14). `BulkActionBar` gains "Add
 tags"/"Remove tags" opening `TagPickerDialog` (`TagCombobox` in the
 matching mode, including its inline quick-create in add mode, D17),
 invalidating `tagKeys.all` + `wordKeys.all` on success.
+
+**Shipped 2026-09-28.** Built as planned, with a few implementation choices
+worth flagging:
+- **`TagChip` (the read-only label/lock/× pill) lives in `components/common/`,
+  not `features/tags/components/`.** It's fully generic — no dependency on
+  `TagSummary` or anything tags-specific beyond its own props — so putting it
+  under `common/` lets `columns.tsx` import it without creating a
+  `words → tags` *and* `tags → words` cycle. `TagCombobox`/`TagPickerDialog`
+  are genuinely tags-domain UI, so `words → tags` stays one-directional for
+  those.
+- **One `TagCombobox` serves all three call sites** (`FilterBar`'s filter
+  mode, `TagPickerDialog`'s add/remove modes) via a `mode` prop that drives
+  scope (`owned` vs `all`), which rows are disabled and why (D9's
+  unavailable-followed-tag tooltip in filter mode; D10's
+  followed-tag-is-read-only tooltip in add mode; nothing disabled in remove
+  mode, per D10), and whether quick-create is offered — same
+  search-box-plus-always-visible-list shape Slice 6's `WordPicker`
+  established, reused rather than building a floating dropdown.
+- **`BulkActionBar` owns the `TagPickerDialog`'s open/mode state; `ReviewPage`
+  owns the success toast** via the dialog's `onApplied` callback — the same
+  split the existing bulk-delete flow already uses, kept consistent rather
+  than inventing a second pattern.
+- **A new hook, `useTagsByIds`** (`features/tags/hooks.ts`, built on
+  `useQueries` over the existing single-tag `GET /api/tags/:id` and its
+  `tagKeys.detail` cache key), resolves the URL's `?tag=<id>&tag=<id>` down
+  to full `TagSummary` objects for the sidebar's selected-tag pills — no new
+  batch-lookup endpoint needed.
+- Frontend suite: 905 → 950 (45 new, spread across `TagChip`, `TagCombobox`,
+  `TagPickerDialog`, `useTagsByIds`, the Tags column, the Tags filter group,
+  and the bulk add/remove flow). `npx tsc -b`, `npm test -w frontend`, and
+  `npm run build -w frontend` all clean. No backend changes — Review
+  integration is entirely frontend, reusing the already-additive/OR `?tag=`
+  query the backend has served since Slice 1.
 
 **Slice 8 — word editor.** `SidebarFields` gets a real tags section: `TagChip`s
 with per-chip × (calling `useUnlinkTagsFromWords` when `word.id` exists) and

@@ -42,6 +42,15 @@ export interface ReviewSearch {
     gender?: string[];
     /** Column order (D6) — `LangKey` values, not full labels, to keep the URL short. */
     lang?: LangKey[];
+    /**
+     * Tag ids picked in the sidebar's `TagCombobox` (D15) — additive/OR, not
+     * "match all": a word matching *any* selected tag qualifies, the same
+     * union `?tag=` already means to `GET /api/words/simple` (D15's own
+     * note: no backend change needed, that query was already additive). No
+     * vocabulary check like `pos`/`lang` below — a tag id is an opaque UUID,
+     * not a fixed enum, so only dedup applies.
+     */
+    tag?: string[];
 }
 
 const POS_VALUES = new Set<string>(Object.values(PartOfSpeech));
@@ -92,17 +101,23 @@ export function validateReviewSearch(search: Record<string, unknown>): ReviewSea
         lang: orUndefined(
             toStringArray(search.lang).filter((value): value is LangKey => LANG_KEYS.has(value)),
         ),
+        tag: orUndefined(Array.from(new Set(toStringArray(search.tag)))),
     };
 }
 
 /** Search params -> the list-query filters. `lang` is display-only and never reaches the query key. */
 export function reviewSearchToFilters(search: ReviewSearch): WordListFilters {
-    return { q: search.q, pos: search.pos, gender: search.gender };
+    return { q: search.q, pos: search.pos, gender: search.gender, tag: search.tag };
 }
 
 /** Picks between the two empty states: filtered-to-nothing vs. genuinely no words yet. */
 export function hasActiveFilters(search: ReviewSearch): boolean {
-    return search.q !== undefined || search.pos !== undefined || search.gender !== undefined;
+    return (
+        search.q !== undefined ||
+        search.pos !== undefined ||
+        search.gender !== undefined ||
+        search.tag !== undefined
+    );
 }
 
 /** The account's own language order, as `LangKey`s — ignores the URL entirely. */

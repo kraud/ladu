@@ -1,18 +1,28 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
+import { server } from '@/test/msw/server';
+import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { PartOfSpeech } from '@/ts/enums';
 import { MobileFilters, type MobileFiltersProps } from './MobileFilters';
+
+// The menu's `FilterBar layout="menu"` includes the Tags group, whose
+// `TagCombobox` fires a real `useTags` search once mounted (D15/D17).
+beforeEach(() => {
+    server.use(...makeTagHandlers({ callerId: 'u1' }).handlers);
+});
 
 const baseProps: MobileFiltersProps = {
     gender: [],
     pos: [],
     hasQuery: false,
+    selectedTags: [],
     activeLanguages: ['EN', 'DE'],
     allLanguages: ['EN', 'DE', 'ES'],
     onGenderChange: vi.fn(),
     onPosChange: vi.fn(),
+    onSelectedTagsChange: vi.fn(),
     onLanguagesChange: vi.fn(),
     showGenderSwitch: true,
     showGender: true,

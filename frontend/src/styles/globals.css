@@ -1520,6 +1520,51 @@
   .tagen-foot .hint {
     flex: 1;
   }
+
+  /* ─── tags: TagChip (D20, Phase 4 Slice 7, ported from
+     MOCKUPS/assets/app.css) — the small label pill for a tag attached to a
+     word. Distinct from `.chip` (the generic toggle button above). Reused
+     by Review's read-only Tags column and the word editor sidebar. ────── */
+  .tagchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 22px;
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--fg-soft);
+    font-size: 12px;
+    color: var(--fg);
+    white-space: nowrap;
+    max-width: 140px;
+  }
+  .tagchip .x {
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    color: var(--muted);
+  }
+  .tagchip .x:hover {
+    background: var(--fg-soft2);
+    color: var(--fg);
+  }
+
+  /* ─── tags: TagCombobox (D15/D17, Phase 4 Slice 7) — reuses `.searchbox`/
+     `.pick-list`/`.pick-row` (Slice 5) for the same search-box-then-list
+     shape as `WordPicker`, plus the states unique to a tag pick: a disabled
+     row (unavailable/not-owned, shown with a tooltip rather than hidden)
+     and the inline quick-create row (add mode only, D17). ────────────── */
+  .pick-row[aria-disabled='true'] {
+    cursor: default;
+    color: var(--muted);
+  }
+  .pick-row-create {
+    color: var(--accent-strong);
+    font-weight: 600;
+  }
 }
 
 /* ─── tags: responsive (≤720px / ≤640px) ────────────────────────── */

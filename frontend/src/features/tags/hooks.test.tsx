@@ -14,6 +14,7 @@ import {
     useLinkTagsToWords,
     useTag,
     useTags,
+    useTagsByIds,
     useUnfollowTag,
     useUnlinkTagsFromWords,
     useUpdateTag,
@@ -68,6 +69,33 @@ describe('useTag', () => {
 
         expect(result.current.fetchStatus).toBe('idle');
         expect(result.current.data).toBeUndefined();
+    });
+});
+
+describe('useTagsByIds', () => {
+    it('resolves each id to its full TagSummary, in no particular order guarantee, via useQueries', async () => {
+        const { wrapper } = setup([ownedTag('Kitchen'), ownedTag('Garage')]);
+        const { result } = renderHook(() => useTagsByIds(['tag-Kitchen', 'tag-Garage']), { wrapper });
+
+        await waitFor(() => expect(result.current.isPending).toBe(false));
+        expect(result.current.data.map((tag) => tag.label).sort()).toEqual(['Garage', 'Kitchen']);
+    });
+
+    it('returns an empty array for an empty id list, with no request', () => {
+        const { wrapper } = setup();
+        const { result } = renderHook(() => useTagsByIds([]), { wrapper });
+
+        expect(result.current.data).toEqual([]);
+        expect(result.current.isPending).toBe(false);
+    });
+
+    it('drops an id that 404s rather than surfacing an error', async () => {
+        const { wrapper } = setup([ownedTag('Kitchen')]);
+        const { result } = renderHook(() => useTagsByIds(['tag-Kitchen', 'does-not-exist']), { wrapper });
+
+        await waitFor(() => expect(result.current.isPending).toBe(false));
+        expect(result.current.data).toHaveLength(1);
+        expect(result.current.data[0].label).toBe('Kitchen');
     });
 });
 

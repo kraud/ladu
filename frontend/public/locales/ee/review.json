@@ -20,6 +20,7 @@
     "gender": "Sugu",
     "clear": "Tühjenda",
     "partOfSpeech": "Sõnaliik",
+    "tags": "Sildid",
     "languageOrder": "Keelte järjekord",
     "languageOrderHint": "Järjesta nooltega · vähemalt 2 nähtavat",
     "moveEarlier": "Nihuta {{language}} varasemaks",
@@ -44,7 +45,13 @@
     "confirmTitle_other": "Kustutada {{count}} sõna?",
     "confirmDescription": "See eemaldab {{count}} sõna jäädavalt kõigilt, kellega neid on jagatud.",
     "deletedToast_one": "{{count}} sõna kustutatud",
-    "deletedToast_other": "{{count}} sõna kustutatud"
+    "deletedToast_other": "{{count}} sõna kustutatud",
+    "addTags": "Lisa sildid",
+    "removeTags": "Eemalda sildid",
+    "tagsAddedToast_one": "Silt lisati {{count}} sõnale",
+    "tagsAddedToast_other": "Sildid lisati {{count}} sõnale",
+    "tagsRemovedToast_one": "Silt eemaldati {{count}} sõnalt",
+    "tagsRemovedToast_other": "Sildid eemaldati {{count}} sõnalt"
   },
   "table": {
     "posAbbr": {
@@ -68,7 +75,8 @@
     "blockedTranslation": "Tõlkimata — jälgitava sildi kirjutuskaitstud sõna",
     "loaded": "Näidatakse {{loaded}} / {{total}}",
     "allLoaded": "Kõik {{total}} laaditud",
-    "loadMore": "Laadi rohkem"
+    "loadMore": "Laadi rohkem",
+    "tags": "Sildid"
   },
   "cellDialog": {
     "deleteTranslation": "Kustuta tõlge",

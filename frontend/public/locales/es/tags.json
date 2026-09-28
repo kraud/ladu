@@ -24,6 +24,17 @@
     "public": "Pública",
     "private": "Privada"
   },
+  "combobox": {
+    "filterPlaceholder": "Filtrar por etiqueta…",
+    "addPlaceholder": "Buscar etiquetas para añadir…",
+    "removePlaceholder": "Buscar etiquetas para quitar…",
+    "noMatches": "Ninguna etiqueta coincide",
+    "noTags": "Todavía no tienes etiquetas",
+    "unavailableTooltip": "No disponible — el propietario la hizo Privada",
+    "followedReadOnlyTooltip": "Etiqueta seguida — solo lectura, de {{author}}",
+    "createTag": "Crear etiqueta nueva \"{{label}}\"",
+    "removeSelected": "Quitar {{label}}"
+  },
   "card": {
     "openAriaLabel": "Abrir {{label}}",
     "noDescription": "Sin descripción",
@@ -171,6 +182,13 @@
     "openCopy": "Abrirla",
     "editDetails": "Editar detalles",
     "doneEditing": "Listo"
+  },
+  "picker": {
+    "addTitle_one": "Añadir etiquetas a {{count}} palabra",
+    "addTitle_other": "Añadir etiquetas a {{count}} palabras",
+    "removeTitle_one": "Quitar etiquetas de {{count}} palabra",
+    "removeTitle_other": "Quitar etiquetas de {{count}} palabras",
+    "apply": "Aplicar"
   },
   "toastMessages": {
     "tagDeleted": "¡La etiqueta {{tagLabel}} fue eliminada!",

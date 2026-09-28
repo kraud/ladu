@@ -1,9 +1,10 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
+import { makeTagHandlers, type SeedTag } from '@/test/msw/tagHandlers';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
 import { mockMobileViewport } from '@/test/viewport';
@@ -24,6 +25,21 @@ const SESSION = {
 afterEach(() => {
     useAuthStore.getState().clearSession();
 });
+
+// The sidebar's Tags group (`TagCombobox`, D15/D17) fires a real `useTags`
+// search once mounted — every test in this file renders `/review`, so every
+// test needs a tag fake registered, even the ones that never touch tags.
+// Tests that care about specific tags register their own handlers afterward
+// (MSW matches the most recently registered handler first).
+beforeEach(() => {
+    server.use(...makeTagHandlers({ callerId: SESSION.id }).handlers);
+});
+
+function setUpTags(seedTags: SeedTag[] = []) {
+    const fake = makeTagHandlers({ callerId: SESSION.id, seedTags });
+    server.use(...fake.handlers);
+    return fake;
+}
 
 function verbSeed(label: string, id: string): SeedWord {
     return {
@@ -201,11 +217,11 @@ describe('ReviewPage — Slice 7: filter bar writes the URL', () => {
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/review', session: threeLangSession });
         await screen.findByText('run');
-        expect(screen.getAllByRole('columnheader')).toHaveLength(5); // select, type, EN, DE, ES
+        expect(screen.getAllByRole('columnheader')).toHaveLength(6); // select, type, EN, DE, ES, Tags
 
         await user.click(screen.getByRole('button', { name: 'Hide Deutsch' }));
 
-        await waitFor(() => expect(screen.getAllByRole('columnheader')).toHaveLength(4));
+        await waitFor(() => expect(screen.getAllByRole('columnheader')).toHaveLength(5));
         // No new /simple request — the language column is a display concern only.
         expect(fake.simpleQueries).toHaveLength(1);
     });
@@ -296,6 +312,180 @@ describe('ReviewPage — Slice 7: bulk actions', () => {
 
         await user.click(rowCheckboxes[1]);
         expect(screen.getByRole('button', { name: 'View' })).toBeDisabled();
+    });
+});
+
+describe('ReviewPage — Slice 7: Tags column (D1/D7/D14)', () => {
+    it('renders a chip for each of a word\'s tags', async () => {
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [
+                {
+                    ...verbSeed('run', 'w1'),
+                    tags: [{ id: 'tag-1', label: 'Exam prep', visibility: 'Public', authorId: SESSION.id }],
+                },
+            ],
+        });
+        server.use(...fake.handlers);
+
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await screen.findByText('run');
+
+        expect(screen.getByText('Exam prep')).toBeInTheDocument();
+    });
+});
+
+describe('ReviewPage — Slice 7: Tags filter (D15 — combobox, additive/OR)', () => {
+    it('picking a tag in the sidebar narrows the table and writes ?tag= to the URL', async () => {
+        setUpTags([{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private' }]);
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [
+                { ...verbSeed('simmer', 'w1'), tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: SESSION.id }] },
+                verbSeed('run', 'w2'),
+            ],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/review', session: SESSION });
+        await screen.findByText('simmer');
+        await screen.findByText('run');
+
+        const filterBar = document.querySelector('.filterbar') as HTMLElement;
+        const tagsGroup = within(filterBar).getByText('Tags').closest('.fb-group') as HTMLElement;
+        const row = (await within(tagsGroup).findByText('Kitchen')).closest('.pick-row') as HTMLElement;
+        await user.click(row);
+
+        await waitFor(() => expect(fake.simpleQueries.at(-1)).toContain('tag=tag-1'));
+        expect(router.state.location.search).toEqual({ tag: ['tag-1'] });
+        expect(await screen.findByText('simmer')).toBeInTheDocument();
+        await waitFor(() => expect(screen.queryByText('run')).not.toBeInTheDocument());
+    });
+
+    it('picking a second tag is additive — the request carries both ids (D15)', async () => {
+        setUpTags([
+            { id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private' },
+            { id: 'tag-2', authorId: SESSION.id, label: 'Exam prep', visibility: 'Private' },
+        ]);
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [{ ...verbSeed('run', 'w1'), tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: SESSION.id }] }],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review?tag=tag-1', session: SESSION });
+        await screen.findByText('run');
+        await waitFor(() => expect(fake.simpleQueries.at(-1)).toContain('tag=tag-1'));
+
+        const filterBar = document.querySelector('.filterbar') as HTMLElement;
+        const tagsGroup = within(filterBar).getByText('Tags').closest('.fb-group') as HTMLElement;
+        const row = (await within(tagsGroup).findByText('Exam prep')).closest('.pick-row') as HTMLElement;
+        await user.click(row);
+
+        await waitFor(() => {
+            const last = fake.simpleQueries.at(-1) ?? '';
+            expect(last).toContain('tag=tag-1');
+            expect(last).toContain('tag=tag-2');
+        });
+    });
+
+    it('a ?tag= already in the URL resolves to the pill via useTagsByIds, even freshly loaded', async () => {
+        setUpTags([{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private' }]);
+        server.use(
+            ...makeWordHandlers({
+                callerId: SESSION.id,
+                seed: [{ ...verbSeed('run', 'w1'), tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: SESSION.id }] }],
+            }).handlers,
+        );
+
+        await renderApp({ initialEntry: '/review?tag=tag-1', session: SESSION });
+        await screen.findByText('run');
+
+        const filterBar = document.querySelector('.filterbar') as HTMLElement;
+        const tagsGroup = within(filterBar).getByText('Tags').closest('.fb-group') as HTMLElement;
+        expect(within(tagsGroup).getByText('Kitchen')).toBeInTheDocument();
+    });
+});
+
+describe('ReviewPage — Slice 7: bulk Add tags / Remove tags', () => {
+    it('Add tags links the picked tag to every selected word, and toasts', async () => {
+        const tagFake = setUpTags([{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private' }]);
+        server.use(
+            ...makeWordHandlers({
+                callerId: SESSION.id,
+                seed: [verbSeed('run', 'w1'), verbSeed('jump', 'w2')],
+            }).handlers,
+        );
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await screen.findByText('run');
+        await screen.findByText('jump');
+
+        const rowCheckboxes = screen.getAllByRole('checkbox').slice(1);
+        await user.click(rowCheckboxes[0]);
+        await user.click(rowCheckboxes[1]);
+
+        await user.click(screen.getByRole('button', { name: 'Add tags' }));
+        const dialog = screen.getByRole('dialog');
+        expect(within(dialog).getByText('Add tags to 2 words')).toBeInTheDocument();
+        const pickRow = (await within(dialog).findByText('Kitchen')).closest('.pick-row') as HTMLElement;
+        await user.click(pickRow);
+        await user.click(within(dialog).getByRole('button', { name: 'Apply' }));
+
+        expect(await screen.findByText(/Tags? added to 2 words/)).toBeInTheDocument();
+        expect(tagFake.requests).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    path: '/tags/links',
+                    body: { tagIds: ['tag-1'], wordIds: expect.arrayContaining(['w1', 'w2']) },
+                }),
+            ]),
+        );
+        // The bulk bar clears once the action completes.
+        expect(screen.queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+    });
+
+    it('Remove tags is disabled unless every selected word shares a tag, and applies once picked', async () => {
+        const tagFake = setUpTags([{ id: 'tag-1', authorId: SESSION.id, label: 'Kitchen', visibility: 'Private' }]);
+        server.use(
+            ...makeWordHandlers({
+                callerId: SESSION.id,
+                seed: [
+                    { ...verbSeed('run', 'w1'), tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: SESSION.id }] },
+                    verbSeed('jump', 'w2'),
+                ],
+            }).handlers,
+        );
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        const runRow = (await screen.findByText('run')).closest('tr') as HTMLElement;
+        const jumpRow = (await screen.findByText('jump')).closest('tr') as HTMLElement;
+        const runCheckbox = within(runRow).getByRole('checkbox');
+        const jumpCheckbox = within(jumpRow).getByRole('checkbox');
+
+        await user.click(runCheckbox); // run only — has Kitchen
+        expect(screen.getByRole('button', { name: 'Remove tags' })).toBeEnabled();
+
+        await user.click(jumpCheckbox); // + jump — no common tag now
+        expect(screen.getByRole('button', { name: 'Remove tags' })).toBeDisabled();
+
+        await user.click(jumpCheckbox); // back to just run
+        await user.click(screen.getByRole('button', { name: 'Remove tags' }));
+        const dialog = screen.getByRole('dialog');
+        const pickRow = (await within(dialog).findByText('Kitchen')).closest('.pick-row') as HTMLElement;
+        await user.click(pickRow);
+        await user.click(within(dialog).getByRole('button', { name: 'Apply' }));
+
+        expect(await screen.findByText(/Tags? removed from 1 word/)).toBeInTheDocument();
+        expect(tagFake.requests).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ path: '/tags/links/remove', body: { tagIds: ['tag-1'], wordIds: ['w1'] } }),
+            ]),
+        );
     });
 });
 

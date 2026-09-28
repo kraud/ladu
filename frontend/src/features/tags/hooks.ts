@@ -22,12 +22,19 @@
  * as `onSuccess`/`onError` options to `mutate()` by the components in
  * Slices 5–8.
  */
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { QueryClient } from '@tanstack/react-query';
 import * as tagApi from './api';
 import { tagKeys } from './keys';
 import { wordKeys } from '@/features/words/keys';
-import type { CloneTagBody, CreateTagBody, LinkTagsToWordsBody, TagListFilters, UpdateTagBody } from './types';
+import type {
+    CloneTagBody,
+    CreateTagBody,
+    LinkTagsToWordsBody,
+    TagListFilters,
+    TagSummary,
+    UpdateTagBody,
+} from './types';
 
 const LIST_PAGE_SIZE = 24;
 
@@ -60,6 +67,28 @@ export function useTag(id: string) {
         queryFn: () => tagApi.getTagById(id),
         enabled: id !== '',
     });
+}
+
+/**
+ * Resolves a set of tag ids to full `TagSummary`s — one parallel `GET
+ * /api/tags/:id` per id, sharing the same detail-cache key `useTag` does.
+ * Review's Tags filter needs this: `ReviewSearch.tag` is ids-only (URL
+ * state), but `TagCombobox`'s pill row needs each pick's label/visibility to
+ * render, including for a filter loaded straight from a bookmarked URL where
+ * nothing was ever interactively picked this session. A handful of ids at
+ * once is the expected case, so N small requests beats adding a batch
+ * `GET /api/tags?ids=` endpoint for this alone.
+ */
+export function useTagsByIds(ids: readonly string[]) {
+    const results = useQueries({
+        queries: ids.map((id) => ({
+            queryKey: tagKeys.detail(id),
+            queryFn: () => tagApi.getTagById(id),
+        })),
+    });
+    const data = results.map((r) => r.data).filter((tag): tag is TagSummary => tag !== undefined);
+    const isPending = results.some((r) => r.isPending);
+    return { data, isPending };
 }
 
 export function useCreateTag() {

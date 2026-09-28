@@ -24,6 +24,17 @@
     "public": "Avalik",
     "private": "Privaatne"
   },
+  "combobox": {
+    "filterPlaceholder": "Filtreeri tagi järgi…",
+    "addPlaceholder": "Otsi lisatavaid tage…",
+    "removePlaceholder": "Otsi eemaldatavaid tage…",
+    "noMatches": "Ühtegi tagi ei leitud",
+    "noTags": "Sul pole veel ühtegi tagi",
+    "unavailableTooltip": "Pole saadaval — omanik muutis selle privaatseks",
+    "followedReadOnlyTooltip": "Jälgitud tag — ainult lugemiseks, autor {{author}}",
+    "createTag": "Loo uus tag \"{{label}}\"",
+    "removeSelected": "Eemalda {{label}}"
+  },
   "card": {
     "openAriaLabel": "Ava {{label}}",
     "noDescription": "Kirjeldus puudub",
@@ -171,6 +182,13 @@
     "openCopy": "Ava see",
     "editDetails": "Muuda üksikasju",
     "doneEditing": "Valmis"
+  },
+  "picker": {
+    "addTitle_one": "Lisa tagid {{count}} sõnale",
+    "addTitle_other": "Lisa tagid {{count}} sõnale",
+    "removeTitle_one": "Eemalda tagid {{count}} sõnalt",
+    "removeTitle_other": "Eemalda tagid {{count}} sõnalt",
+    "apply": "Rakenda"
   },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag kustutati!",

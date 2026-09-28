@@ -24,6 +24,17 @@
     "public": "Öffentlich",
     "private": "Privat"
   },
+  "combobox": {
+    "filterPlaceholder": "Nach Tag filtern…",
+    "addPlaceholder": "Tags zum Hinzufügen suchen…",
+    "removePlaceholder": "Tags zum Entfernen suchen…",
+    "noMatches": "Keine Tags gefunden",
+    "noTags": "Du hast noch keine Tags",
+    "unavailableTooltip": "Nicht verfügbar — der Besitzer hat ihn auf Privat gesetzt",
+    "followedReadOnlyTooltip": "Gefolgter Tag — nur lesbar, von {{author}}",
+    "createTag": "Neuen Tag erstellen \"{{label}}\"",
+    "removeSelected": "{{label}} entfernen"
+  },
   "card": {
     "openAriaLabel": "{{label}} öffnen",
     "noDescription": "Keine Beschreibung",
@@ -171,6 +182,13 @@
     "openCopy": "Öffnen",
     "editDetails": "Details bearbeiten",
     "doneEditing": "Fertig"
+  },
+  "picker": {
+    "addTitle_one": "Tags zu {{count}} Wort hinzufügen",
+    "addTitle_other": "Tags zu {{count}} Wörtern hinzufügen",
+    "removeTitle_one": "Tags von {{count}} Wort entfernen",
+    "removeTitle_other": "Tags von {{count}} Wörtern entfernen",
+    "apply": "Anwenden"
   },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} Tag wurde gelöscht!",

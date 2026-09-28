@@ -1,8 +1,10 @@
 import { render, screen, within } from '@testing-library/react';
 import { CaretDownIcon, CaretLeftIcon, CaretRightIcon, CaretUpIcon } from '@phosphor-icons/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
+import { server } from '@/test/msw/server';
+import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { useUiStore } from '@/stores/uiStore';
 import { PartOfSpeech } from '@/ts/enums';
 import { activeFilterCount, FilterBar, type FilterBarProps } from './FilterBar';
@@ -11,14 +13,23 @@ afterEach(() => {
     useUiStore.setState({ reviewSidebarCollapsed: false, reviewFilterPosition: 'top' });
 });
 
+// The Tags group's `TagCombobox` always fires a real `useTags` search on
+// mount (D15/D17) — every test in this file renders `FilterBar`, so every
+// test needs a tag fake registered, even the ones that never touch it.
+beforeEach(() => {
+    server.use(...makeTagHandlers({ callerId: 'u1' }).handlers);
+});
+
 const baseProps: FilterBarProps = {
     gender: [],
     pos: [],
     hasQuery: false,
+    selectedTags: [],
     activeLanguages: ['EN', 'DE'],
     allLanguages: ['EN', 'DE', 'ES'],
     onGenderChange: vi.fn(),
     onPosChange: vi.fn(),
+    onSelectedTagsChange: vi.fn(),
     onLanguagesChange: vi.fn(),
 };
 
@@ -138,10 +149,52 @@ describe('FilterBar — part of speech chips', () => {
     });
 });
 
-describe('FilterBar — no Tags group (D1)', () => {
-    it('renders no Tags label', () => {
+describe('FilterBar — Tags group (D15/D17)', () => {
+    it('renders a Tags group with the filter-mode combobox', async () => {
         renderWithProviders(<FilterBar {...baseProps} />);
-        expect(screen.queryByText('Tags')).not.toBeInTheDocument();
+        const tagsGroup = screen.getByText('Tags').closest('.fb-group') as HTMLElement;
+        expect(within(tagsGroup).getByPlaceholderText('Filter by tag…')).toBeInTheDocument();
+    });
+
+    it('picking a tag calls onSelectedTagsChange with the union so far (additive, D15)', async () => {
+        server.use(...makeTagHandlers({ callerId: 'u1', seedTags: [{ authorId: 'u1', label: 'Kitchen', visibility: 'Private' }] }).handlers);
+        const onSelectedTagsChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} onSelectedTagsChange={onSelectedTagsChange} />);
+
+        const row = (await screen.findByText('Kitchen')).closest('.pick-row') as HTMLElement;
+        await user.click(row);
+
+        expect(onSelectedTagsChange).toHaveBeenCalledWith([expect.objectContaining({ label: 'Kitchen' })]);
+    });
+
+    it('shows Clear only once a tag is selected, and Clear empties the selection', async () => {
+        const onSelectedTagsChange = vi.fn();
+        const user = userEvent.setup();
+        const tag = {
+            id: 'tag-1',
+            label: 'Kitchen',
+            description: null,
+            visibility: 'Public' as const,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+            author: { id: 'u1', username: 'kai' },
+            wordCount: 0,
+            followerCount: 0,
+            isOwner: true,
+            isFollowing: false,
+            isAvailable: true,
+            sourceTag: null,
+        };
+        const { rerender } = renderWithProviders(
+            <FilterBar {...baseProps} onSelectedTagsChange={onSelectedTagsChange} />,
+        );
+        const tagsGroup = () => screen.getByText('Tags').closest('.fb-group') as HTMLElement;
+        expect(within(tagsGroup()).queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
+
+        rerender(<FilterBar {...baseProps} selectedTags={[tag]} onSelectedTagsChange={onSelectedTagsChange} />);
+        await user.click(within(tagsGroup()).getByRole('button', { name: 'Clear' }));
+        expect(onSelectedTagsChange).toHaveBeenCalledWith([]);
     });
 });
 
