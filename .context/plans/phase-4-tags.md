@@ -496,7 +496,7 @@ Each ends runnable; the user commits and re-confirms between them.
 | 3 | ✅ done 2026-09-28 — Backend: clone rebuild (batch inserts, provenance columns, visibility param, label-suffix, auto-unfollow) + `acceptTagShare`'s transaction fix; tests |
 | 4 | ✅ done 2026-09-28 — `features/tags/` data layer (`types`/`api`/`keys`/`hooks`/`errors`) + MSW handlers |
 | 5 | ✅ done 2026-09-28 — `/tags` page: search + scope chips + sort, `TagBadge`/`TagCard` grid, `TagFormDialog` create/edit/delete, follow/unfollow from the card, nav entry (feature-flagged on `featureFlags.tags`) — per `MOCKUPS/tags.html` |
-| 6 | `/tag/$tagId` page: header (label/description/badges/author/counts/"Cloned from"), word list via `GET /api/words/simple?tag=`, "Add words" (`WordPickerDialog`) + per-row remove for owned tags, follow/unfollow, `CloneTagDialog`, unavailable/not-found states; replaces the router `Placeholder` — per `MOCKUPS/tag-detail.html` |
+| 6 | ✅ done 2026-09-28 — `/tag/$tagId` page: header (label/description/badges/author/counts/"Cloned from"), word list via `GET /api/words/simple?tag=`, "Add words" (`WordPickerDialog`) + per-row remove for owned tags, follow/unfollow, `CloneTagDialog`, unavailable/not-found states; replaces the router `Placeholder` — per `MOCKUPS/tag-detail.html` |
 | 7 | Review: tags column (`columns.tsx`, D14), tags filter group (`FilterBar`/`MobileFilters`/`search.ts`, D15), bulk "Add tags"/"Remove tags" (`BulkActionBar` + `TagPickerDialog`, D17) |
 | 8 | Word editor: real Tags section in `SidebarFields` for both `WordForm` (create, D4) and `WordPage` (view/edit, D4a) using `TagChip` + `TagPickerDialog`; disabled tags section for a word reached via a followed tag |
 | 9 | Phase gate: `phase-4-tags.spec.ts` + docs + full green run |
@@ -771,6 +771,66 @@ are hidden right now" copy, link back to `/tags`) when the tag turned
 Private under a follower, and a **not-found/no-access** state ("You can't
 see this tag… Private now, deleted, or the link is wrong") when the id
 404s.
+
+**Shipped 2026-09-28.** Built essentially as planned, with one real backend
+gap found and fixed along the way, plus a few frontend structuring choices:
+- **Backend fix: `GET /api/words/simple?tag=` now lets a Public tag's words
+  be previewed before the caller follows it.** The endpoint's access
+  condition was "own words OR words from a tag you already follow" — correct
+  for Review, but wrong for `/tag/:id`'s Discover relation, which the mockup
+  explicitly supports (`canSeeWords` includes `'discover'`) and which
+  `/tags` already implies is fine by showing a Discover card's word *count*
+  to a non-follower. Without the fix, opening a Discover tag showed its real
+  header stats above an always-empty table — a bug, not a design choice.
+  Added a third access branch: a word is visible if it's tagged with one of
+  the requested `tag=` ids AND that tag is currently Public — gated
+  specifically to the requested tag ids, so it doesn't loosen access for
+  anything the caller didn't ask to view, and it doesn't touch Friends-Only
+  (still deferred). Two new backend tests in `words-simple.test.js`
+  (a stranger can preview a Public tag's words; still cannot preview a
+  Private one). Backend suite: 289 → 291. `tsc --noEmit` clean.
+- **`buildPartOfSpeechColumn` extracted from `buildWordColumns`**, alongside
+  the existing `buildLanguageColumns` — `WordPicker` (Slice 5) and the new
+  `TagWordsTable` both needed the exact same Type-abbreviation column, so it
+  moved out to `review/columns.tsx` rather than staying duplicated a second
+  time.
+- **`TagWordsTable` is router-, store- and query-free, mirroring
+  `ReviewTable`'s own convention exactly** — `TagViewPage` owns the single
+  `useWordsInfinite({tag:[tagId], q})` call (and the debounced search state)
+  and passes rows/paging/search down as props. This wasn't just style
+  parity: it lets the page reuse the SAME loaded rows to compute
+  `AddWordsDialog`'s `excludeIds` (words already on the tag) without a
+  second, redundant query.
+- **`AddWordsDialog` is the dialog chrome `WordPicker` deliberately doesn't
+  own itself** (Slice 5's own note) — new this slice, wrapping `WordPicker`
+  with a Save/Cancel footer and calling `useLinkTagsToWords` on save, per
+  `MOCKUPS/tag-detail.html`'s `#addwords-dialog`.
+- **`excludeIds` added to `WordPicker` as a small, optional, backward-
+  compatible prop** — keeps words already on the tag out of the Add-words
+  pool, distinct from `selected` (this session's own picks). Best-effort:
+  since `TagViewPage` computes it from the word table's own *currently
+  loaded* page(s) rather than a separate full-list query, a word on a later
+  unloaded page could theoretically still appear in the picker — harmless in
+  practice, since `linkTagsToWords` treats re-adding an existing link as a
+  no-op (D5) rather than an error.
+- **The "unavailable" relation's word/follower counts intentionally still
+  show the tag's real numbers**, matching `TagCard`'s own already-shipped
+  behavior (Slice 5) rather than the mockup's own `countWords → 0` override
+  for that state — kept the two pages consistent with each other over
+  matching the mockup exactly on this one point, since `TagSummary.wordCount`
+  is computed independently of visibility either way.
+- Two real bugs caught only by writing the page-level tests (not unit tests
+  in isolation): the edit dialog had no `onSaved` wired at all (no toast, a
+  silent success), and the remove-word error path mapped errors through
+  `wordErrorKey` instead of `tagErrorKey` (the link/unlink endpoints are tag
+  endpoints) — both fixed before this slice was called done.
+- New: `frontend/src/features/tags/pages/TagViewPage.tsx`,
+  `components/{TagWordsTable,AddWordsDialog}.tsx`, each with a co-located
+  test file; full `tags.json` locale content for all four languages
+  (`words`, `addWords`, `notFound`, `view` sections, plus `card.addWords`).
+- Frontend suite: 864 → 890 (26 new: 10 `TagWordsTable`, 4 `AddWordsDialog`,
+  12 `TagViewPage`). `npx tsc -b`, `npm test -w frontend`, and
+  `npm run build -w frontend` all clean.
 
 **Slice 7 — Review integration.** `search.ts` gains `tag?: string[]` in
 `ReviewSearch` (additive/OR semantics, D15 — the existing `inArray` filter

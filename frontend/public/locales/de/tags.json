@@ -35,7 +35,8 @@
     "viewWords": "Wörter ansehen",
     "unfollow": "Nicht mehr folgen",
     "clone": "Klonen",
-    "follow": "Folgen"
+    "follow": "Folgen",
+    "addWords": "Wörter hinzufügen"
   },
   "form": {
     "createTitle": "Neuer Tag",
@@ -121,6 +122,49 @@
     "toastFollowed": "Du folgst jetzt \"{{label}}\"",
     "toastUnfollowed": "\"{{label}}\" nicht mehr gefolgt",
     "toastCloned": "Kopie von \"{{label}}\" erstellt — sie gehört jetzt ganz dir"
+  },
+  "words": {
+    "searchPlaceholder": "In den Wörtern dieses Tags suchen…",
+    "searchLabel": "Wörter im Tag durchsuchen",
+    "resultCount": "{{shown}} von {{total}} Wörtern",
+    "loaded": "{{loaded}} von {{total}} Wörtern werden angezeigt",
+    "removeFromTag": "Aus Tag entfernen",
+    "removedToast": "\"{{word}}\" wurde aus \"{{label}}\" entfernt — es bleibt bei dir erhalten",
+    "emptySearch": {
+      "title": "Nichts passt zu \"{{query}}\"",
+      "description": "Versuche eine andere Schreibweise — die Suche durchsucht nur die Wörter dieses Tags.",
+      "action": "Suche löschen"
+    },
+    "emptyOwned": {
+      "title": "Füge diesem Tag deine ersten Wörter hinzu"
+    },
+    "emptyOther": {
+      "title": "Noch keine Wörter hier"
+    }
+  },
+  "addWords": {
+    "title": "Wörter zu \"{{label}}\" hinzufügen",
+    "save": "Ausgewählte hinzufügen",
+    "addedToast_one": "{{count}} Wort zu \"{{label}}\" hinzugefügt",
+    "addedToast_other": "{{count}} Wörter zu \"{{label}}\" hinzugefügt"
+  },
+  "notFound": {
+    "title": "Du kannst diesen Tag nicht sehen",
+    "description": "Er ist vielleicht jetzt Privat, wurde gelöscht, oder der Link ist falsch.",
+    "action": "Zurück zu /tags"
+  },
+  "view": {
+    "backAriaLabel": "Zurück zu /tags",
+    "backLabel": "Zurück zu /tags",
+    "ownedHint": "Dein Tag",
+    "ownedHintWithFollowers_one": "Dein Tag — {{count}} Follower",
+    "ownedHintWithFollowers_other": "Dein Tag — {{count}} Follower",
+    "followerCount_one": "{{count}} Follower",
+    "followerCount_other": "{{count}} Follower",
+    "unavailableTitle": "Wörter sind momentan ausgeblendet",
+    "unavailableDescription": "Der Besitzer hat diesen Tag auf Privat gesetzt. Du folgst ihm weiterhin — seine Wörter kehren in deine Übersicht zurück, sobald er wieder öffentlich wird.",
+    "removeHint": "Ein Wort aus dem Tag zu entfernen löscht es nicht — es bleibt bei dir erhalten.",
+    "openCopy": "Öffnen"
   },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} Tag wurde gelöscht!",

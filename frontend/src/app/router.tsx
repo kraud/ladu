@@ -41,6 +41,7 @@ import { WordPage } from '@/features/words/pages/WordPage';
 import { ReviewPage } from '@/features/words/pages/ReviewPage';
 import { validateReviewSearch } from '@/features/words/review/search';
 import { TagsPage } from '@/features/tags/pages/TagsPage';
+import { TagViewPage } from '@/features/tags/pages/TagViewPage';
 import type { TagScope } from '@/features/tags/types';
 
 const SCOPE_VALUES = new Set<string>(['all', 'owned', 'followed', 'discover'] satisfies TagScope[]);
@@ -181,7 +182,7 @@ const tagsRoute = createRoute({
 const tagRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/tag/$tagId',
-    component: () => <Placeholder title="Tag" note="Tag view lands in Phase 4." />,
+    component: TagViewPage,
 });
 
 const routeTree = rootRoute.addChildren([

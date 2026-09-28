@@ -29,8 +29,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/stores/authStore';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
-import { partOfSpeechLabelKey } from '@/lib/words';
-import { buildLanguageColumns, posAbbrKey } from '@/features/words/review/columns';
+import { buildLanguageColumns, buildPartOfSpeechColumn } from '@/features/words/review/columns';
 import { accountLanguageOrder } from '@/features/words/review/search';
 import { useWordsInfinite } from '@/features/words/hooks';
 import type { WordSimpleBE } from '@/features/words/types';
@@ -47,6 +46,12 @@ export interface PickedWord {
 export interface WordPickerProps {
     selected: PickedWord[];
     onSelectedChange: (next: PickedWord[]) => void;
+    /**
+     * Word ids to hide from the results regardless of `selected` — used by
+     * `/tag/:id`'s "Add words" dialog (Slice 6) to keep words already on the
+     * tag out of the pool, distinct from words picked in *this* session.
+     */
+    excludeIds?: ReadonlySet<string>;
 }
 
 /** The first stored headline word across the account's language order — matches `cellTitle.ts`'s "pick any language" fallback logic, simplified for a label rather than a dialog title. */
@@ -58,7 +63,7 @@ function headlineLabel(row: WordSimpleBE, languages: readonly string[]): string 
     return row.id;
 }
 
-export function WordPicker({ selected, onSelectedChange }: WordPickerProps) {
+export function WordPicker({ selected, onSelectedChange, excludeIds }: WordPickerProps) {
     const { t } = useTranslation();
     const userId = useAuthStore((s) => s.user?.id ?? '');
     const userLanguages = useAuthStore((s) => s.user?.languages ?? []);
@@ -72,9 +77,9 @@ export function WordPicker({ selected, onSelectedChange }: WordPickerProps) {
     const rows = useMemo(
         () =>
             (wordsQuery.data?.pages.flatMap((page) => page.items) ?? []).filter(
-                (row) => row.user === userId && !selectedIds.has(row.id),
+                (row) => row.user === userId && !selectedIds.has(row.id) && !excludeIds?.has(row.id),
             ),
-        [wordsQuery.data, userId, selectedIds],
+        [wordsQuery.data, userId, selectedIds, excludeIds],
     );
 
     function pick(row: WordSimpleBE) {
@@ -97,17 +102,7 @@ export function WordPicker({ selected, onSelectedChange }: WordPickerProps) {
             // what actually picks the row (see the module note above).
             cell: () => <Checkbox checked={false} tabIndex={-1} aria-hidden className="pointer-events-none" />,
         },
-        {
-            id: 'partOfSpeech',
-            accessorKey: 'partOfSpeech',
-            size: 44,
-            header: '',
-            cell: ({ row }) => (
-                <span className="pos-abbr" title={t(partOfSpeechLabelKey(row.original.partOfSpeech))}>
-                    {t(posAbbrKey(row.original.partOfSpeech))}
-                </span>
-            ),
-        },
+        buildPartOfSpeechColumn(t),
         ...languageColumns,
     ];
 

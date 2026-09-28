@@ -35,7 +35,8 @@
     "viewWords": "View words",
     "unfollow": "Unfollow",
     "clone": "Clone",
-    "follow": "Follow"
+    "follow": "Follow",
+    "addWords": "Add words"
   },
   "form": {
     "createTitle": "New tag",
@@ -121,6 +122,49 @@
     "toastFollowed": "You're now following \"{{label}}\"",
     "toastUnfollowed": "Unfollowed \"{{label}}\"",
     "toastCloned": "Copy of \"{{label}}\" created — it's all yours now"
+  },
+  "words": {
+    "searchPlaceholder": "Search in this tag's words…",
+    "searchLabel": "Search words in tag",
+    "resultCount": "{{shown}} of {{total}} words",
+    "loaded": "Showing {{loaded}} of {{total}} words",
+    "removeFromTag": "Remove from tag",
+    "removedToast": "\"{{word}}\" removed from \"{{label}}\" — it stays on your shelf",
+    "emptySearch": {
+      "title": "Nothing matches \"{{query}}\"",
+      "description": "Try a different spelling — search matches this tag's words only.",
+      "action": "Clear search"
+    },
+    "emptyOwned": {
+      "title": "Add your first words to this tag"
+    },
+    "emptyOther": {
+      "title": "No words here yet"
+    }
+  },
+  "addWords": {
+    "title": "Add words to \"{{label}}\"",
+    "save": "Add selected",
+    "addedToast_one": "{{count}} word added to \"{{label}}\"",
+    "addedToast_other": "{{count}} words added to \"{{label}}\""
+  },
+  "notFound": {
+    "title": "You can't see this tag",
+    "description": "It may be Private now, deleted, or the link is wrong.",
+    "action": "Back to /tags"
+  },
+  "view": {
+    "backAriaLabel": "Back to /tags",
+    "backLabel": "Back to /tags",
+    "ownedHint": "Your tag",
+    "ownedHintWithFollowers_one": "Your tag — {{count}} follower",
+    "ownedHintWithFollowers_other": "Your tag — {{count}} followers",
+    "followerCount_one": "{{count}} follower",
+    "followerCount_other": "{{count}} followers",
+    "unavailableTitle": "Words are hidden right now",
+    "unavailableDescription": "The owner made this tag Private. You're still following it — its words return to your Review when it becomes Public again.",
+    "removeHint": "Removing a word from the tag doesn't delete it — it stays on your shelf.",
+    "openCopy": "Open it"
   },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag was deleted!",

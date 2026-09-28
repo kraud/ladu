@@ -35,7 +35,8 @@
     "viewWords": "Vaata sõnu",
     "unfollow": "Lõpeta jälgimine",
     "clone": "Kloon",
-    "follow": "Jälgi"
+    "follow": "Jälgi",
+    "addWords": "Lisa sõnu"
   },
   "form": {
     "createTitle": "Uus tag",
@@ -121,6 +122,49 @@
     "toastFollowed": "Jälgid nüüd tagi \"{{label}}\"",
     "toastUnfollowed": "Lõpetasid tagi \"{{label}}\" jälgimise",
     "toastCloned": "Tagi \"{{label}}\" koopia loodud — see on nüüd täielikult sinu oma"
+  },
+  "words": {
+    "searchPlaceholder": "Otsi selle tagi sõnade seast…",
+    "searchLabel": "Otsi sõnu tagi seest",
+    "resultCount": "{{shown}} / {{total}} sõna",
+    "loaded": "Kuvatud {{loaded}} / {{total}} sõna",
+    "removeFromTag": "Eemalda tagilt",
+    "removedToast": "\"{{word}}\" eemaldati tagilt \"{{label}}\" — see jääb sinu kogusse alles",
+    "emptySearch": {
+      "title": "Miski ei vasta otsingule \"{{query}}\"",
+      "description": "Proovi teistsugust kirjapilti — otsing vaatab ainult selle tagi sõnu.",
+      "action": "Tühjenda otsing"
+    },
+    "emptyOwned": {
+      "title": "Lisa sellele tagile oma esimesed sõnad"
+    },
+    "emptyOther": {
+      "title": "Siin pole veel sõnu"
+    }
+  },
+  "addWords": {
+    "title": "Lisa sõnu tagile \"{{label}}\"",
+    "save": "Lisa valitud",
+    "addedToast_one": "{{count}} sõna lisati tagile \"{{label}}\"",
+    "addedToast_other": "{{count}} sõna lisati tagile \"{{label}}\""
+  },
+  "notFound": {
+    "title": "Sa ei saa seda tagi näha",
+    "description": "See võib nüüd olla privaatne, kustutatud, või link on vale.",
+    "action": "Tagasi /tags juurde"
+  },
+  "view": {
+    "backAriaLabel": "Tagasi /tags juurde",
+    "backLabel": "Tagasi /tags juurde",
+    "ownedHint": "Sinu tag",
+    "ownedHintWithFollowers_one": "Sinu tag — {{count}} jälgija",
+    "ownedHintWithFollowers_other": "Sinu tag — {{count}} jälgijat",
+    "followerCount_one": "{{count}} jälgija",
+    "followerCount_other": "{{count}} jälgijat",
+    "unavailableTitle": "Sõnad on praegu peidetud",
+    "unavailableDescription": "Omanik muutis selle tagi privaatseks. Sa jätkad jälgimist — selle sõnad naasevad su ülevaatesse, kui see taas avalikuks muutub.",
+    "removeHint": "Sõna eemaldamine tagilt ei kustuta seda — see jääb sinu kogusse alles.",
+    "openCopy": "Ava see"
   },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag kustutati!",

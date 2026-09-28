@@ -337,11 +337,32 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     req.user.id,
   );
 
-  // Base access condition: own words OR words from followed tags
+  const tagIds = parseArrayParam(req.query.tag);
+
+  // `?tag=` previewing a specific Public tag's words even before the caller
+  // follows it (`/tag/:id`'s Discover relation, phase-4-tags.md Slice 6) is
+  // not a new exposure: a Public tag's word count is already shown to a
+  // non-follower on `/tags`, so its words resolving to real rows here is
+  // completing that same "Public means anyone can see it" contract, not
+  // widening it. A Private (or now-Private) tag is untouched by this branch.
+  const discoverableTagWordIds =
+    tagIds.length > 0
+      ? db
+          .select({ id: tagWords.wordId })
+          .from(tagWords)
+          .innerJoin(tags, eq(tagWords.tagId, tags.id))
+          .where(and(inArray(tagWords.tagId, tagIds), eq(tags.visibility, "Public")))
+      : null;
+
+  // Base access condition: own words, words from followed tags, or words
+  // reachable through one of the requested tags currently being Public.
   const accessCondition = or(
     eq(words.userId, req.user.id),
     followedTagWordIds.length > 0
       ? inArray(words.id, followedTagWordIds)
+      : sql`false`,
+    discoverableTagWordIds
+      ? inArray(words.id, discoverableTagWordIds)
       : sql`false`,
   );
 
@@ -385,7 +406,6 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     conditions.push(inArray(words.id, matchingWordIds));
   }
 
-  const tagIds = parseArrayParam(req.query.tag);
   if (tagIds.length > 0) {
     const tagWordIds = db
       .select({ id: tagWords.wordId })

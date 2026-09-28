@@ -39,6 +39,28 @@ export interface BuildLanguageColumnsOptions {
 }
 
 /**
+ * The Type/part-of-speech column, alone — extracted out of `buildWordColumns`
+ * for the same reason as `buildLanguageColumns` below: `WordPicker` and
+ * `TagWordsTable` (`features/tags/components/`, phase-4-tags.md D18/Slice 6)
+ * each need this exact abbreviation column without Review's own select/owner
+ * column alongside it. `size` differs slightly per host (a picker's compact
+ * row vs. Review's own column width), so it's the one parameter.
+ */
+export function buildPartOfSpeechColumn(t: TFunction, size = 44): ColumnDef<WordSimpleBE> {
+    return {
+        id: 'partOfSpeech',
+        accessorKey: 'partOfSpeech',
+        size,
+        header: '',
+        cell: ({ row }) => (
+            <span className="pos-abbr" title={t(partOfSpeechLabelKey(row.original.partOfSpeech))}>
+                {t(posAbbrKey(row.original.partOfSpeech))}
+            </span>
+        ),
+    };
+}
+
+/**
  * Just the per-language `WordCell` columns — extracted out of
  * `buildWordColumns` so a second table (`features/tags/components/
  * WordPicker.tsx`, phase-4-tags.md D18) can reuse the exact same language
@@ -110,17 +132,7 @@ export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSi
         },
     };
 
-    const typeColumn: ColumnDef<WordSimpleBE> = {
-        id: 'partOfSpeech',
-        accessorKey: 'partOfSpeech',
-        size: 52,
-        header: '',
-        cell: ({ row }) => (
-            <span className="pos-abbr" title={t(partOfSpeechLabelKey(row.original.partOfSpeech))}>
-                {t(posAbbrKey(row.original.partOfSpeech))}
-            </span>
-        ),
-    };
+    const typeColumn = buildPartOfSpeechColumn(t, 52);
 
     const languageColumns = buildLanguageColumns({ languages, userId, showGender, showProgress, onOpenCell });
 

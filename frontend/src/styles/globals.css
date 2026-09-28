@@ -1468,6 +1468,58 @@
     color: var(--accent-strong);
     font-weight: 700;
   }
+
+  /* ─── tags: /tag/:id header card (Phase 4 Slice 6, ported from
+     MOCKUPS/tag-detail.html) — `.t-badge-row`/`.t-badge`/`.t-desc`/`.t-by`/
+     `.t-cloned`/`.t-note` above are already shared, unscoped classes; only
+     the head-card layout itself is new here. ────────────────────────── */
+  .tagen-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 18px 20px;
+  }
+  .tagen-top h1 {
+    font-family: var(--font-display);
+  }
+  .tagen-side {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .tagen-stat-num {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .tagen-stat-label {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .tagen-stat-sub {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+  .tagen-foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 10px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .tagen-foot .hint {
+    flex: 1;
+  }
 }
 
 /* ─── tags: responsive (≤720px / ≤640px) ────────────────────────── */

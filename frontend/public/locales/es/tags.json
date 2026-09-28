@@ -35,7 +35,8 @@
     "viewWords": "Ver palabras",
     "unfollow": "Dejar de seguir",
     "clone": "Clonar",
-    "follow": "Seguir"
+    "follow": "Seguir",
+    "addWords": "Añadir palabras"
   },
   "form": {
     "createTitle": "Nueva etiqueta",
@@ -121,6 +122,49 @@
     "toastFollowed": "Ahora sigues \"{{label}}\"",
     "toastUnfollowed": "Dejaste de seguir \"{{label}}\"",
     "toastCloned": "Copia de \"{{label}}\" creada — ya es toda tuya"
+  },
+  "words": {
+    "searchPlaceholder": "Buscar en las palabras de esta etiqueta…",
+    "searchLabel": "Buscar palabras en la etiqueta",
+    "resultCount": "{{shown}} de {{total}} palabras",
+    "loaded": "Mostrando {{loaded}} de {{total}} palabras",
+    "removeFromTag": "Quitar de la etiqueta",
+    "removedToast": "\"{{word}}\" se quitó de \"{{label}}\" — se queda en tu colección",
+    "emptySearch": {
+      "title": "Nada coincide con \"{{query}}\"",
+      "description": "Prueba otra ortografía — la búsqueda solo coincide con las palabras de esta etiqueta.",
+      "action": "Borrar búsqueda"
+    },
+    "emptyOwned": {
+      "title": "Añade tus primeras palabras a esta etiqueta"
+    },
+    "emptyOther": {
+      "title": "Todavía no hay palabras aquí"
+    }
+  },
+  "addWords": {
+    "title": "Añadir palabras a \"{{label}}\"",
+    "save": "Añadir seleccionadas",
+    "addedToast_one": "{{count}} palabra añadida a \"{{label}}\"",
+    "addedToast_other": "{{count}} palabras añadidas a \"{{label}}\""
+  },
+  "notFound": {
+    "title": "No puedes ver esta etiqueta",
+    "description": "Puede que ahora sea Privada, haya sido eliminada, o el enlace esté equivocado.",
+    "action": "Volver a /tags"
+  },
+  "view": {
+    "backAriaLabel": "Volver a /tags",
+    "backLabel": "Volver a /tags",
+    "ownedHint": "Tu etiqueta",
+    "ownedHintWithFollowers_one": "Tu etiqueta — {{count}} seguidor",
+    "ownedHintWithFollowers_other": "Tu etiqueta — {{count}} seguidores",
+    "followerCount_one": "{{count}} seguidor",
+    "followerCount_other": "{{count}} seguidores",
+    "unavailableTitle": "Las palabras están ocultas por ahora",
+    "unavailableDescription": "El propietario hizo esta etiqueta Privada. Sigues siguiéndola — sus palabras volverán a tu Revisión cuando vuelva a ser Pública.",
+    "removeHint": "Quitar una palabra de la etiqueta no la elimina — se queda en tu colección.",
+    "openCopy": "Abrirla"
   },
   "toastMessages": {
     "tagDeleted": "¡La etiqueta {{tagLabel}} fue eliminada!",

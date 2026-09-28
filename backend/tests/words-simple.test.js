@@ -259,6 +259,35 @@ describe('GET /api/words/simple - filters', () => {
         expect(res.body.items).toEqual([]);
     });
 
+    // Phase 4 Slice 6: `/tag/:id` previews a Public tag's words before the
+    // viewer follows it (matching the word count `/tags` already shows a
+    // non-follower) — a stranger sees a Public tag's words via `?tag=`, but
+    // a Private one still resolves to nothing.
+    it('a stranger can preview a Public tag\'s words via ?tag= without following it', async () => {
+        const owner = await registerAndLogin('Owner7', 'owner7@test.com', 'owner7', 'pass123');
+        const stranger = await registerAndLogin('Stranger2', 'stranger2@test.com', 'stranger2', 'pass123');
+        const [tag] = await db.insert(tags).values({ authorId: owner.id, label: 'Kitchen', visibility: 'Public' }).returning();
+        const tagged = await create(owner.token, wordPayload({ tagIds: [tag.id] }));
+
+        const res = await request(app)
+            .get(`/api/words/simple?tag=${tag.id}`)
+            .set('Authorization', `Bearer ${stranger.token}`);
+        const ids = res.body.items.map((w) => w.id);
+        expect(ids).toContain(tagged.body.id);
+    });
+
+    it('a stranger cannot preview a Private tag\'s words via ?tag=', async () => {
+        const owner = await registerAndLogin('Owner8', 'owner8@test.com', 'owner8', 'pass123');
+        const stranger = await registerAndLogin('Stranger3', 'stranger3@test.com', 'stranger3', 'pass123');
+        const [tag] = await db.insert(tags).values({ authorId: owner.id, label: 'Secret', visibility: 'Private' }).returning();
+        await create(owner.token, wordPayload({ tagIds: [tag.id] }));
+
+        const res = await request(app)
+            .get(`/api/words/simple?tag=${tag.id}`)
+            .set('Authorization', `Bearer ${stranger.token}`);
+        expect(res.body.items).toEqual([]);
+    });
+
     // D15 (phase-4-tags.md, corrected 2026-09-28): selecting several tags is
     // additive (OR/union) — a word matching ANY of them qualifies. Regression
     // guard against "fixing" this `inArray` into an AND/`count(distinct
