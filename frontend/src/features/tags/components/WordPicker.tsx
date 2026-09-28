@@ -1,41 +1,51 @@
 /**
- * Search -> table -> selected list -> auto-clear (phase-4-tags.md D18).
- * Shared by the create-tag dialog's optional "Add words now" section
- * (Slice 5, embedded inline) and `/tag/:id`'s "Add words" action (Slice 6,
- * wrapped in its own `Dialog`) — this component renders no dialog chrome of
+ * Search -> table -> selected list (phase-4-tags.md D18, revised after
+ * Slice 6 feedback). Shared by the create-tag dialog's optional "Add words
+ * now" section (embedded inline) and `/tag/:id`'s "Add words" action
+ * (wrapped in `AddWordsDialog`) — this component renders no dialog chrome of
  * its own, just the picker itself, so either call site can host it.
  *
- * Reuses `buildLanguageColumns`/`WordCell` (`features/words/review/
- * columns.tsx`) for the results table rather than a third row-rendering
- * style, and `useWordsInfinite` (`features/words/hooks.ts`) for the search
- * itself — filtered client-side to the caller's own words (D10: a user's own
- * tags can only ever hold their own words), same as `wordHandlers.ts`'s own
- * fake models it.
- *
- * D18 asked for checkbox-select AND click-anywhere-on-the-row to each be
- * tried and compared before shipping. They turn out not to be in tension:
- * the checkbox is a visual affordance, but the whole `<tr>` carries the
- * click handler, so clicking the checkbox (which doesn't stop propagation)
- * and clicking anywhere else in the row both pick the same way. No flag
- * needed — both interactions ship, because they were never actually
- * exclusive.
+ * Revisions from the original D18 build:
+ *  - **Default list is "recently added", not the full account, and is
+ *    small.** No query -> a `PICKER_PAGE_SIZE`-at-a-time feed of the
+ *    caller's newest words (the same default order `GET /api/words/simple`
+ *    already returns — newest `createdAt` first — so no new backend sort is
+ *    needed). Past `PICKER_DEFAULT_CAP` loaded, "Load more" is replaced by a
+ *    "Go to Review" action: this picker is for quickly grabbing a handful of
+ *    words while making a tag, not for browsing the whole collection.
+ *  - **Picking no longer clears the search box.** A search that matched
+ *    several words the user wants would otherwise be destroyed by the first
+ *    pick. A dedicated clear (×) button inside the search box does that job
+ *    instead, only shown once there's something to clear.
+ *  - **Rows show a compact, dash-joined list of the languages that DO have a
+ *    translation — no per-language `WordCell`/"+" affordance.** This is a
+ *    picker, not an editor; a missing translation isn't something to fix
+ *    from here.
+ *  - **"Load more" is the list's own last row, not a button floating below
+ *    it** — labelled with exactly how many more will load
+ *    ("Load more (3)"), computed from the backend's own `total` for the
+ *    current filter. Once nothing more can load it turns into a disabled
+ *    "All words loaded" row instead of disappearing, so the list always ends
+ *    in something legible rather than just stopping.
  */
 import { useMemo, useState } from 'react';
-import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { MagnifyingGlassIcon, XIcon } from '@phosphor-icons/react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/stores/authStore';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
-import { buildLanguageColumns, buildPartOfSpeechColumn } from '@/features/words/review/columns';
+import { partOfSpeechLabelKey } from '@/lib/words';
+import { posAbbrKey } from '@/features/words/review/columns';
 import { accountLanguageOrder } from '@/features/words/review/search';
 import { useWordsInfinite } from '@/features/words/hooks';
-import type { WordSimpleBE } from '@/features/words/types';
+import type { LangKey, WordSimpleBE } from '@/features/words/types';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const SKELETON_ROWS = 3;
+const PICKER_PAGE_SIZE = 5;
+/** Past this many loaded in the default (no-query) "recent" feed, "Load more" gives way to a "Go to Review" link. */
+const PICKER_DEFAULT_CAP = 20;
 
 export interface PickedWord {
     id: string;
@@ -52,6 +62,15 @@ export interface WordPickerProps {
      * tag out of the pool, distinct from words picked in *this* session.
      */
     excludeIds?: ReadonlySet<string>;
+    /**
+     * Past `PICKER_DEFAULT_CAP` in the default feed, a "Go to Review" action
+     * replaces "Load more". A callback rather than a `<Link>`, matching
+     * `ReviewTable`'s own "navigation as callbacks, so this stays testable
+     * through `renderWithProviders`" convention — this component is embedded
+     * in dialogs that are themselves tested without a router. The owning
+     * page (which already has `useNavigate`) supplies it.
+     */
+    onGoToReview?: () => void;
 }
 
 /** The first stored headline word across the account's language order — matches `cellTitle.ts`'s "pick any language" fallback logic, simplified for a label rather than a dialog title. */
@@ -63,7 +82,15 @@ function headlineLabel(row: WordSimpleBE, languages: readonly string[]): string 
     return row.id;
 }
 
-export function WordPicker({ selected, onSelectedChange, excludeIds }: WordPickerProps) {
+/** Every language that has a translation, in account order, dash-joined — no placeholder for the ones that don't. */
+function availableTranslationsSummary(row: WordSimpleBE, languages: readonly LangKey[]): string {
+    return languages
+        .map((lang) => row[`data${lang}` as keyof WordSimpleBE])
+        .filter((value): value is string => typeof value === 'string' && value.length > 0)
+        .join(' - ');
+}
+
+export function WordPicker({ selected, onSelectedChange, excludeIds, onGoToReview }: WordPickerProps) {
     const { t } = useTranslation();
     const userId = useAuthStore((s) => s.user?.id ?? '');
     const userLanguages = useAuthStore((s) => s.user?.languages ?? []);
@@ -71,8 +98,9 @@ export function WordPicker({ selected, onSelectedChange, excludeIds }: WordPicke
 
     const [query, setQuery] = useState('');
     const debouncedQuery = useDebouncedCallback(query, SEARCH_DEBOUNCE_MS);
+    const isSearching = debouncedQuery !== '';
 
-    const wordsQuery = useWordsInfinite({ q: debouncedQuery || undefined });
+    const wordsQuery = useWordsInfinite({ q: debouncedQuery || undefined }, PICKER_PAGE_SIZE);
     const selectedIds = useMemo(() => new Set(selected.map((w) => w.id)), [selected]);
     const rows = useMemo(
         () =>
@@ -82,38 +110,26 @@ export function WordPicker({ selected, onSelectedChange, excludeIds }: WordPicke
         [wordsQuery.data, userId, selectedIds, excludeIds],
     );
 
+    const atDefaultCap = !isSearching && rows.length >= PICKER_DEFAULT_CAP;
+    const showLoadMore = wordsQuery.hasNextPage && !atDefaultCap;
+    const showGoToReview = wordsQuery.hasNextPage && atDefaultCap;
+
+    // How many the next "Load more" click will actually fetch — the raw
+    // (pre-client-filter) count already loaded vs. the backend's own `total`
+    // for this filter, capped at one page. An approximation when
+    // `selected`/`excludeIds` have trimmed some already-loaded rows out of
+    // `rows`, but close enough for a hint label.
+    const rawLoadedCount = wordsQuery.data?.pages.reduce((sum, page) => sum + page.items.length, 0) ?? 0;
+    const total = wordsQuery.data?.pages[0]?.total ?? 0;
+    const nextBatchSize = Math.min(PICKER_PAGE_SIZE, Math.max(0, total - rawLoadedCount));
+
     function pick(row: WordSimpleBE) {
         onSelectedChange([...selected, { id: row.id, label: headlineLabel(row, languages) }]);
-        setQuery('');
     }
 
     function unpick(id: string) {
         onSelectedChange(selected.filter((w) => w.id !== id));
     }
-
-    const languageColumns = buildLanguageColumns({ languages, userId, showGender: true, showProgress: false });
-    const columns: ColumnDef<WordSimpleBE>[] = [
-        {
-            id: 'pick',
-            size: 32,
-            header: '',
-            // Purely decorative — `pointer-events-none` lets every click in
-            // this cell fall through to the `<tr>`'s own handler, which is
-            // what actually picks the row (see the module note above).
-            cell: () => <Checkbox checked={false} tabIndex={-1} aria-hidden className="pointer-events-none" />,
-        },
-        buildPartOfSpeechColumn(t),
-        ...languageColumns,
-    ];
-
-    const table = useReactTable({
-        data: rows,
-        columns,
-        getRowId: (row) => row.id,
-        getCoreRowModel: getCoreRowModel(),
-        manualPagination: true,
-        manualFiltering: true,
-    });
 
     return (
         <div>
@@ -129,6 +145,16 @@ export function WordPicker({ selected, onSelectedChange, excludeIds }: WordPicke
                     placeholder={t('tags:wordPicker.searchPlaceholder')}
                     aria-label={t('tags:wordPicker.searchLabel')}
                 />
+                {query !== '' && (
+                    <button
+                        type="button"
+                        onClick={() => setQuery('')}
+                        aria-label={t('tags:wordPicker.clearSearch')}
+                        className="grid size-4 shrink-0 place-items-center rounded-full text-(--muted) hover:bg-(--fg-soft2) hover:text-(--fg)"
+                    >
+                        <XIcon size={11} weight="bold" />
+                    </button>
+                )}
             </div>
             <div className="pick-list">
                 {wordsQuery.isPending ? (
@@ -139,25 +165,58 @@ export function WordPicker({ selected, onSelectedChange, excludeIds }: WordPicke
                     ))
                 ) : rows.length === 0 ? (
                     <p className="hint px-3 py-3 text-sm text-(--muted)">
-                        {debouncedQuery ? t('tags:wordPicker.noMatches') : t('tags:wordPicker.noWords')}
+                        {isSearching ? t('tags:wordPicker.noMatches') : t('tags:wordPicker.noWords')}
                     </p>
                 ) : (
                     <table className="w-full">
                         <tbody>
-                            {table.getRowModel().rows.map((row) => (
-                                <tr
-                                    key={row.id}
-                                    className="pick-row"
-                                    aria-pressed={false}
-                                    onClick={() => pick(row.original)}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <td key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </td>
-                                    ))}
+                            {rows.map((row) => (
+                                <tr key={row.id} className="pick-row" aria-pressed={false} onClick={() => pick(row)}>
+                                    <td>
+                                        {/* Purely decorative — `pointer-events-none` lets every click in
+                                            this cell fall through to the `<tr>`'s own handler, which is
+                                            what actually picks the row. */}
+                                        <Checkbox
+                                            checked={false}
+                                            tabIndex={-1}
+                                            aria-hidden
+                                            className="pointer-events-none"
+                                        />
+                                    </td>
+                                    <td>
+                                        <span className="pos-abbr" title={t(partOfSpeechLabelKey(row.partOfSpeech))}>
+                                            {t(posAbbrKey(row.partOfSpeech))}
+                                        </span>
+                                    </td>
+                                    <td className="truncate text-sm">{availableTranslationsSummary(row, languages)}</td>
                                 </tr>
                             ))}
+                            {showLoadMore && (
+                                <tr
+                                    className={`pick-row justify-center text-center${wordsQuery.isFetchingNextPage ? ' pointer-events-none opacity-60' : ''}`}
+                                    onClick={() => {
+                                        if (!wordsQuery.isFetchingNextPage) void wordsQuery.fetchNextPage();
+                                    }}
+                                >
+                                    <td colSpan={3} className="text-center text-(--accent-strong) font-medium">
+                                        {t('tags:wordPicker.loadMoreCount', { count: nextBatchSize })}
+                                    </td>
+                                </tr>
+                            )}
+                            {showGoToReview && (
+                                <tr className="pick-row justify-center text-center" onClick={onGoToReview}>
+                                    <td colSpan={3} className="text-center text-(--accent-strong) font-medium">
+                                        {t('tags:wordPicker.goToReview')}
+                                    </td>
+                                </tr>
+                            )}
+                            {!wordsQuery.hasNextPage && (
+                                <tr className="pick-row pointer-events-none justify-center text-center opacity-60" aria-disabled="true">
+                                    <td colSpan={3} className="text-center text-(--muted)">
+                                        {t('tags:wordPicker.allLoaded')}
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 )}
@@ -167,32 +226,20 @@ export function WordPicker({ selected, onSelectedChange, excludeIds }: WordPicke
                     {selected.map((word) => (
                         <li
                             key={word.id}
-                            className="inline-flex items-center gap-1 rounded-full bg-(--fg-soft) px-2 py-1 text-xs"
+                            className="inline-flex items-center gap-1 rounded-full bg-(--accent-soft) px-2 py-1 text-xs font-medium text-(--accent-strong)"
                         >
                             <span className="truncate max-w-32">{word.label}</span>
                             <button
                                 type="button"
                                 onClick={() => unpick(word.id)}
                                 aria-label={t('tags:wordPicker.removeSelected', { word: word.label })}
-                                className="grid size-3.5 place-items-center rounded-full text-(--muted) hover:bg-(--fg-soft2) hover:text-(--fg)"
+                                className="grid size-3.5 place-items-center rounded-full text-(--accent-strong) hover:bg-(--accent-soft2)"
                             >
                                 <XIcon size={10} weight="bold" />
                             </button>
                         </li>
                     ))}
                 </ul>
-            )}
-            {wordsQuery.hasNextPage && (
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => void wordsQuery.fetchNextPage()}
-                    disabled={wordsQuery.isFetchingNextPage}
-                >
-                    {t('review:table.loadMore')}
-                </Button>
             )}
         </div>
     );

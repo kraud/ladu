@@ -71,7 +71,11 @@
     "searchLabel": "Search your words to add now",
     "noMatches": "No words match",
     "noWords": "You don't have any words yet",
-    "removeSelected": "Remove {{word}}"
+    "removeSelected": "Remove {{word}}",
+    "clearSearch": "Clear search",
+    "goToReview": "Go to Review for more",
+    "loadMoreCount": "Load more ({{count}})",
+    "allLoaded": "All words loaded"
   },
   "page": {
     "title": "Tags",
@@ -164,7 +168,9 @@
     "unavailableTitle": "Words are hidden right now",
     "unavailableDescription": "The owner made this tag Private. You're still following it — its words return to your Review when it becomes Public again.",
     "removeHint": "Removing a word from the tag doesn't delete it — it stays on your shelf.",
-    "openCopy": "Open it"
+    "openCopy": "Open it",
+    "editDetails": "Edit details",
+    "doneEditing": "Done"
   },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag was deleted!",

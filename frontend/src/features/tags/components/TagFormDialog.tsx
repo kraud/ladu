@@ -44,11 +44,13 @@ export interface TagFormDialogProps {
     tag?: TagSummary;
     /** Fires after a successful create or update, with the resulting tag. */
     onSaved?: (tag: TagSummary) => void;
+    /** Forwarded to the create-mode `WordPicker` — the caller owns `useNavigate`, this dialog doesn't. */
+    onGoToReview?: () => void;
 }
 
 const LABEL_CONFLICT_MESSAGE = 'You already have a tag with this label.';
 
-export function TagFormDialog({ open, onOpenChange, mode, tag, onSaved }: TagFormDialogProps) {
+export function TagFormDialog({ open, onOpenChange, mode, tag, onSaved, onGoToReview }: TagFormDialogProps) {
     const { t } = useTranslation();
     const createTag = useCreateTag();
     const updateTag = useUpdateTag();
@@ -181,7 +183,13 @@ export function TagFormDialog({ open, onOpenChange, mode, tag, onSaved }: TagFor
                         </RadioGroup>
                     </div>
 
-                    {mode === 'create' && <WordPicker selected={pickedWords} onSelectedChange={setPickedWords} />}
+                    {mode === 'create' && (
+                        <WordPicker
+                            selected={pickedWords}
+                            onSelectedChange={setPickedWords}
+                            onGoToReview={onGoToReview}
+                        />
+                    )}
 
                     {errorMessage && !showConflictError && (
                         <p className="text-sm text-(--danger)">{t(tagErrorKey(mutation.error))}</p>

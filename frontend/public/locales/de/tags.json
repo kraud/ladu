@@ -71,7 +71,11 @@
     "searchLabel": "Deine Wörter durchsuchen, um sie jetzt hinzuzufügen",
     "noMatches": "Keine Wörter gefunden",
     "noWords": "Du hast noch keine Wörter",
-    "removeSelected": "{{word}} entfernen"
+    "removeSelected": "{{word}} entfernen",
+    "clearSearch": "Suche löschen",
+    "goToReview": "Weitere in der Übersicht ansehen",
+    "loadMoreCount": "Mehr laden ({{count}})",
+    "allLoaded": "Alle Wörter geladen"
   },
   "page": {
     "title": "Tags",
@@ -164,7 +168,9 @@
     "unavailableTitle": "Wörter sind momentan ausgeblendet",
     "unavailableDescription": "Der Besitzer hat diesen Tag auf Privat gesetzt. Du folgst ihm weiterhin — seine Wörter kehren in deine Übersicht zurück, sobald er wieder öffentlich wird.",
     "removeHint": "Ein Wort aus dem Tag zu entfernen löscht es nicht — es bleibt bei dir erhalten.",
-    "openCopy": "Öffnen"
+    "openCopy": "Öffnen",
+    "editDetails": "Details bearbeiten",
+    "doneEditing": "Fertig"
   },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} Tag wurde gelöscht!",

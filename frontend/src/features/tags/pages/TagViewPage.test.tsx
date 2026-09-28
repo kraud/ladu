@@ -64,7 +64,28 @@ describe('TagViewPage — owned tag', () => {
         expect(await screen.findByText('simmer')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Add words' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+        // Delete only appears once edit mode is entered.
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('entering edit mode reveals Delete and the per-row remove button; Done hides them again', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+        expect(screen.queryByRole('button', { name: 'Remove from tag' })).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
         expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Remove from tag' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Edit details' })).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Done' }));
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove from tag' })).not.toBeInTheDocument();
     });
 
     it('shows a "Cloned from" line when the tag has provenance', async () => {
@@ -89,6 +110,7 @@ describe('TagViewPage — owned tag', () => {
         await screen.findByText('Kitchen');
 
         await user.click(screen.getByRole('button', { name: 'Edit' }));
+        await user.click(screen.getByRole('button', { name: 'Edit details' }));
         const labelInput = screen.getByLabelText(/Label/);
         await user.clear(labelInput);
         await user.type(labelInput, 'Cooking');
@@ -104,6 +126,7 @@ describe('TagViewPage — owned tag', () => {
         const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
         await screen.findByText('Kitchen');
 
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
         await user.click(screen.getByRole('button', { name: 'Delete' }));
         expect(screen.getByText('Delete tag?')).toBeInTheDocument();
         await user.click(screen.getAllByRole('button', { name: 'Delete' }).at(-1)!);
@@ -149,6 +172,7 @@ describe('TagViewPage — owned tag', () => {
         await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
         await screen.findByText('simmer');
 
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
         await user.click(screen.getByRole('button', { name: 'Remove from tag' }));
 
         expect(await screen.findByText('"simmer" removed from "Kitchen" — it stays on your shelf')).toBeInTheDocument();

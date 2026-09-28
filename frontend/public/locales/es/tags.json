@@ -71,7 +71,11 @@
     "searchLabel": "Buscar tus palabras para añadir ahora",
     "noMatches": "Ninguna palabra coincide",
     "noWords": "Todavía no tienes palabras",
-    "removeSelected": "Quitar {{word}}"
+    "removeSelected": "Quitar {{word}}",
+    "clearSearch": "Borrar búsqueda",
+    "goToReview": "Ir a Revisión para ver más",
+    "loadMoreCount": "Cargar más ({{count}})",
+    "allLoaded": "Todas las palabras cargadas"
   },
   "page": {
     "title": "Etiquetas",
@@ -164,7 +168,9 @@
     "unavailableTitle": "Las palabras están ocultas por ahora",
     "unavailableDescription": "El propietario hizo esta etiqueta Privada. Sigues siguiéndola — sus palabras volverán a tu Revisión cuando vuelva a ser Pública.",
     "removeHint": "Quitar una palabra de la etiqueta no la elimina — se queda en tu colección.",
-    "openCopy": "Abrirla"
+    "openCopy": "Abrirla",
+    "editDetails": "Editar detalles",
+    "doneEditing": "Listo"
   },
   "toastMessages": {
     "tagDeleted": "¡La etiqueta {{tagLabel}} fue eliminada!",

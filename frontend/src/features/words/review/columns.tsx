@@ -35,6 +35,8 @@ export interface BuildLanguageColumnsOptions {
     userId: string;
     showGender: boolean;
     showProgress: boolean;
+    /** Threaded straight through to `WordCell` — see its own doc comment. */
+    editable?: boolean;
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
 }
 
@@ -63,13 +65,13 @@ export function buildPartOfSpeechColumn(t: TFunction, size = 44): ColumnDef<Word
 /**
  * Just the per-language `WordCell` columns — extracted out of
  * `buildWordColumns` so a second table (`features/tags/components/
- * WordPicker.tsx`, phase-4-tags.md D18) can reuse the exact same language
- * rendering without also inheriting Review's own select/owner column, which
- * is shaped around `RowSelectionState` + a bulk-action bar, not a picker's
- * own accumulate-then-clear selection model.
+ * TagWordsTable.tsx`, phase-4-tags.md Slice 6) can reuse the exact same
+ * language rendering without also inheriting Review's own select/owner
+ * column, which is shaped around `RowSelectionState` + a bulk-action bar,
+ * not that table's own row shape.
  */
 export function buildLanguageColumns(options: BuildLanguageColumnsOptions): ColumnDef<WordSimpleBE>[] {
-    const { languages, userId, showGender, showProgress, onOpenCell } = options;
+    const { languages, userId, showGender, showProgress, editable, onOpenCell } = options;
 
     return languages.map((langKey) => ({
         id: `lang_${langKey}`,
@@ -86,6 +88,7 @@ export function buildLanguageColumns(options: BuildLanguageColumnsOptions): Colu
                 isOwn={row.original.user === userId}
                 showGender={showGender}
                 showProgress={showProgress}
+                editable={editable}
                 onOpenCell={onOpenCell}
             />
         ),

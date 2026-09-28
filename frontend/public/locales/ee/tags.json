@@ -71,7 +71,11 @@
     "searchLabel": "Otsi oma sõnu, et neid kohe lisada",
     "noMatches": "Ühtegi sõna ei leitud",
     "noWords": "Sul pole veel ühtegi sõna",
-    "removeSelected": "Eemalda {{word}}"
+    "removeSelected": "Eemalda {{word}}",
+    "clearSearch": "Tühjenda otsing",
+    "goToReview": "Vaata rohkem ülevaates",
+    "loadMoreCount": "Laadi rohkem ({{count}})",
+    "allLoaded": "Kõik sõnad on laaditud"
   },
   "page": {
     "title": "Tagid",
@@ -164,7 +168,9 @@
     "unavailableTitle": "Sõnad on praegu peidetud",
     "unavailableDescription": "Omanik muutis selle tagi privaatseks. Sa jätkad jälgimist — selle sõnad naasevad su ülevaatesse, kui see taas avalikuks muutub.",
     "removeHint": "Sõna eemaldamine tagilt ei kustuta seda — see jääb sinu kogusse alles.",
-    "openCopy": "Ava see"
+    "openCopy": "Ava see",
+    "editDetails": "Muuda üksikasju",
+    "doneEditing": "Valmis"
   },
   "toastMessages": {
     "tagDeleted": "{{tagLabel}} tag kustutati!",

@@ -832,6 +832,81 @@ gap found and fixed along the way, plus a few frontend structuring choices:
   12 `TagViewPage`). `npx tsc -b`, `npm test -w frontend`, and
   `npm run build -w frontend` all clean.
 
+**Post-Slice-6 fixes (2026-09-28), from user review of the shipped page.**
+Several real gaps in the first cut, fixed before Slice 7 started:
+- **`/tag/:id`'s word table gained an explicit `editMode` toggle**, mirroring
+  `WordPage.tsx`'s own view/edit split. An owned tag's footer now shows just
+  "Add words" + "Edit" outside edit mode; clicking "Edit" reveals "Edit
+  details" (opens the existing `TagFormDialog`), "Delete", and "Done" — the
+  per-row "Remove from tag" column and a cell's "+" (add translation)
+  affordance only render while `editMode` is on. Everything else (viewing,
+  filled-cell click-through to `CellDialog`, follow/unfollow/clone) stays
+  available outside edit mode; only the tag's own membership/case-editing
+  actions are gated.
+- **`WordCell` gained an `editable` prop** (default `true`, so Review is
+  unaffected) — an empty *own* cell renders a plain grayed dash instead of
+  "+" when `editable` is `false`, instead of being mistaken for a followed-
+  tag word (the existing prohibited-icon path, untouched).
+- **`CellDialog` is now wired into `/tag/:id`** (`TagViewPage` owns the same
+  `cellTarget` state/pattern `ReviewPage` does) — previously `onOpenCell` was
+  never passed here at all, so every cell's "+"/word button was inert; this
+  had shipped silently broken.
+- **Language columns are given an explicit equal-width `%` per column**
+  (`100 / languages.length`, plus `shrink-col` on the Type and Remove
+  columns) — the table previously left a right-side gap on wide viewports
+  since neither of those two columns had a width hint, so the browser's
+  auto-layout gave them a full share of the leftover space instead of
+  shrinking to content.
+- **`TagWordsTable` gained the `Display gender` / `Display progress`
+  switches** (`DisplayOptions`, reused from Review, same D14 "only show
+  gender once a noun is loaded" rule) — these existed in Review but were
+  never surfaced here.
+- **`WordPicker` (shared by `AddWordsDialog` and `TagFormDialog`'s create
+  mode, so this one fix reaches both places at once) got four changes:**
+  1. The unfiltered default list is now "recently added" — `useWordsInfinite`
+     gained an overridable `pageSize` param (still folded into the query key,
+     so it can never collide with Review's own 50-per-page cache entries),
+     and the picker uses 5. Past 20 loaded with no search active, "Load more"
+     is replaced by a "Go to Review" action — a `onGoToReview` **callback**,
+     not a `<Link>`, matching `ReviewTable`'s own documented "navigation as
+     callbacks so this stays testable through `renderWithProviders`"
+     convention (this component is embedded in dialogs tested without a
+     router); `TagsPage`/`TagViewPage` supply it via their own `useNavigate`.
+     A search does not inherit either the cap or the "Go to Review" swap.
+  2. Picking a word **no longer clears the search box** (D18's original
+     "auto-clear" is retired) — a dedicated clear (×) button inside the
+     search input does that job instead, shown only once there's a query.
+  3. Rows dropped the per-language `WordCell` columns entirely in favor of
+     one compact, dash-joined list of just the languages that have a
+     translation — no "+" anywhere in the picker; it was never meant to be
+     an editing surface.
+  4. `AddWordsDialog` and `TagFormDialog` both gained a pass-through
+     `onGoToReview?` prop for (1) above.
+- Frontend suite: 890 → 903 (13 new, spread across `WordPicker`,
+  `TagWordsTable`, and `TagViewPage`'s existing suites). `npx tsc -b`,
+  `npm test -w frontend`, and `npm run build -w frontend` all clean. No
+  backend changes in this round.
+
+**Further `WordPicker` polish (2026-09-28), same session.** Two more fixes
+from user review:
+- **"Load more" (and its "Go to Review"/"all loaded" siblings) is now the
+  list's own last row**, not a button floating below it — labelled with
+  exactly how many more will load ("Load more (3)", capped at one page,
+  computed from the backend's own `total` for the current filter vs. the raw
+  count already loaded). Once nothing more can load it becomes a disabled,
+  grayed-out "All words loaded" row (`pointer-events-none`) instead of just
+  disappearing, so the list always ends in something legible. (When the pool
+  empties out entirely — e.g. the only word got picked — the existing empty-
+  account message takes over instead, same as before; there's no list left
+  for a terminal row to belong to.)
+- **The selected-word pills switched from a neutral gray
+  (`--fg-soft`/`--muted`) to the accent palette** (`--accent-soft` fill,
+  `--accent-strong` text) already used elsewhere for a "picked" state (the
+  mockup's own `.pick-row[aria-pressed='true']`), so a word someone has
+  actually added stands out against the plain list above it.
+- Frontend suite: 903 → 905. `npx tsc -b`, `npm test -w frontend`, and
+  `npm run build -w frontend` all clean.
+
 **Slice 7 — Review integration.** `search.ts` gains `tag?: string[]` in
 `ReviewSearch` (additive/OR semantics, D15 — the existing `inArray` filter
 shape, unchanged); `FilterBar` gets a Tags group built from `TagCombobox`

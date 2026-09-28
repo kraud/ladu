@@ -28,6 +28,8 @@ export interface AddWordsDialogProps {
     /** Word ids already on the tag — excluded from the picker's pool. */
     existingWordIds: ReadonlySet<string>;
     onAdded?: (added: PickedWord[]) => void;
+    /** Forwarded to `WordPicker` — the caller owns `useNavigate`, this dialog doesn't. */
+    onGoToReview?: () => void;
 }
 
 export function AddWordsDialog({
@@ -37,6 +39,7 @@ export function AddWordsDialog({
     tagLabel,
     existingWordIds,
     onAdded,
+    onGoToReview,
 }: AddWordsDialogProps) {
     const { t } = useTranslation();
     const linkTagsToWords = useLinkTagsToWords();
@@ -73,7 +76,12 @@ export function AddWordsDialog({
                     <DialogTitle>{t('tags:addWords.title', { label: tagLabel })}</DialogTitle>
                 </DialogHeader>
 
-                <WordPicker selected={selected} onSelectedChange={setSelected} excludeIds={existingWordIds} />
+                <WordPicker
+                    selected={selected}
+                    onSelectedChange={setSelected}
+                    excludeIds={existingWordIds}
+                    onGoToReview={onGoToReview}
+                />
 
                 {linkTagsToWords.isError && (
                     <p className="text-sm text-(--danger)">{t(tagErrorKey(linkTagsToWords.error))}</p>

@@ -25,7 +25,9 @@ import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import { startLoadingToast, resolveLoadingToastSuccess, resolveLoadingToastError } from '@/lib/toast';
 import { useAuthStore } from '@/stores/authStore';
 import { accountLanguageOrder } from '@/features/words/review/search';
+import { CellDialog } from '@/features/words/review/CellDialog';
 import { useWordsInfinite } from '@/features/words/hooks';
+import type { LangKey } from '@/features/words/types';
 import { useDeleteTag, useFollowTag, useTag, useUnfollowTag, useUnlinkTagsFromWords } from '../hooks';
 import { tagErrorKey } from '../errors';
 import { TagBadges, tagRelation } from '../components/TagBadge';
@@ -42,8 +44,9 @@ export function TagViewPage() {
     const navigate = useNavigate();
     const { tagId } = route.useParams();
 
-    const userId = useAuthStore((s) => s.user?.id ?? '');
-    const userLanguages = useAuthStore((s) => s.user?.languages ?? []);
+    const user = useAuthStore((s) => s.user);
+    const userId = user?.id ?? '';
+    const userLanguages = user?.languages ?? [];
     const languages = useMemo(() => accountLanguageOrder(userLanguages), [userLanguages]);
 
     const tagQuery = useTag(tagId);
@@ -60,10 +63,14 @@ export function TagViewPage() {
     const existingWordIds = useMemo(() => new Set(wordRows.map((row) => row.id)), [wordRows]);
 
     const [editing, setEditing] = useState(false);
+    const [editMode, setEditMode] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
     const [confirmingUnfollow, setConfirmingUnfollow] = useState(false);
     const [cloning, setCloning] = useState(false);
     const [addingWords, setAddingWords] = useState(false);
+    const [showGender, setShowGender] = useState(true);
+    const [showProgress, setShowProgress] = useState(false);
+    const [cellTarget, setCellTarget] = useState<{ wordId: string; langKey: LangKey } | null>(null);
 
     if (tagQuery.isPending) {
         return (
@@ -201,12 +208,23 @@ export function TagViewPage() {
                             <Button size="sm" onClick={() => setAddingWords(true)}>
                                 {t('tags:card.addWords')}
                             </Button>
-                            <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
-                                {t('common:buttons.edit')}
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => setConfirmingDelete(true)}>
-                                {t('common:buttons.delete')}
-                            </Button>
+                            {editMode ? (
+                                <>
+                                    <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
+                                        {t('tags:view.editDetails')}
+                                    </Button>
+                                    <Button size="sm" variant="destructive" onClick={() => setConfirmingDelete(true)}>
+                                        {t('common:buttons.delete')}
+                                    </Button>
+                                    <Button size="sm" variant="ghost" onClick={() => setEditMode(false)}>
+                                        {t('tags:view.doneEditing')}
+                                    </Button>
+                                </>
+                            ) : (
+                                <Button size="sm" variant="secondary" onClick={() => setEditMode(true)}>
+                                    {t('common:buttons.edit')}
+                                </Button>
+                            )}
                         </>
                     )}
                     {relation === 'followed' && (
@@ -266,8 +284,14 @@ export function TagViewPage() {
                         debouncedQuery={debouncedQuery}
                         onQueryChange={setQuery}
                         canRemove={relation === 'owned'}
+                        editMode={editMode}
                         onRemove={handleRemoveWord}
                         onAddWords={() => setAddingWords(true)}
+                        onOpenCell={(wordId, langKey) => setCellTarget({ wordId, langKey })}
+                        showGender={showGender}
+                        onShowGenderChange={setShowGender}
+                        showProgress={showProgress}
+                        onShowProgressChange={setShowProgress}
                     />
                     {relation === 'owned' && <p className="hint">{t('tags:view.removeHint')}</p>}
                 </>
@@ -311,6 +335,7 @@ export function TagViewPage() {
                         t('tags:addWords.addedToast', { count: added.length, label: tag.label }),
                     )
                 }
+                onGoToReview={() => void navigate({ to: '/review' })}
             />
 
             <ConfirmDialog
@@ -330,6 +355,17 @@ export function TagViewPage() {
                 confirmLabel={t('tags:card.unfollow')}
                 onConfirm={handleUnfollowConfirmed}
             />
+
+            {cellTarget && (
+                <CellDialog
+                    key={`${cellTarget.wordId}:${cellTarget.langKey}`}
+                    wordId={cellTarget.wordId}
+                    langKey={cellTarget.langKey}
+                    onClose={() => setCellTarget(null)}
+                    nativeLanguage={user?.nativeLanguage}
+                    userLanguages={userLanguages}
+                />
+            )}
         </div>
     );
 }
