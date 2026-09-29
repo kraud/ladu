@@ -8,6 +8,7 @@
  */
 import { useCallback } from 'react';
 import { useSaveAnswer } from './hooks';
+import { unsavedIndexes } from './session';
 import { usePracticeSessionStore } from './sessionStore';
 import type { AnswerResult } from './types';
 
@@ -81,5 +82,11 @@ export function useSessionActions() {
         [send],
     );
 
-    return { answer, retry };
+    /** Retry every answer whose save failed (results screen). */
+    const retryAll = useCallback(() => {
+        const { session } = usePracticeSessionStore.getState();
+        if (session) unsavedIndexes(session).forEach(retry);
+    }, [retry]);
+
+    return { answer, retry, retryAll };
 }

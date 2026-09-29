@@ -11,6 +11,7 @@
  *    exercise of the same translation, so every card shows the same status.
  *  - Results are reachable only when every exercise is answered.
  */
+import type { PreselectedWord } from './preselection';
 import type { AnswerResult, CaseStat, Exercise, PerformanceSummary, PracticeParams } from './types';
 
 export type SaveStatus = 'saving' | 'saved' | 'unsaved';
@@ -27,6 +28,8 @@ export interface Session {
     params: PracticeParams;
     /** The pre-selected words the session was made from, if any. */
     wordIds: string[] | null;
+    /** The same words with their labels, for the results screen; `null` when none were pre-selected. */
+    preselected: PreselectedWord[] | null;
     /** The amount asked for; `exercises.length` can be lower (never silent, B.7). */
     requested: number;
     exercises: Exercise[];
@@ -53,12 +56,14 @@ export function createSession(input: {
     userId: string;
     params: PracticeParams;
     wordIds: readonly string[] | null;
+    preselected?: PreselectedWord[] | null;
     exercises: Exercise[];
 }): Session {
     return {
         userId: input.userId,
         params: input.params,
         wordIds: input.wordIds && input.wordIds.length > 0 ? [...input.wordIds] : null,
+        preselected: input.preselected && input.preselected.length > 0 ? input.preselected : null,
         requested: input.params.amount,
         exercises: input.exercises,
         answers: input.exercises.map(() => null),

@@ -50,36 +50,44 @@ export function SessionView({ session }: { session: Session }) {
                 onRetry={() => actions.retry(index)}
             />
 
-            <nav className="flex flex-wrap items-center justify-between gap-2" aria-label={t('practice:page.title')}>
-                <Button
-                    type="button"
-                    variant="outline"
-                    disabled={index === 0}
-                    onClick={() => dispatch({ type: 'goTo', index: index - 1 })}
-                >
-                    {t('practice:session.previous')}
-                </Button>
-                {last ? (
-                    <Button
-                        ref={nextRef}
-                        type="button"
-                        disabled={!canFinish}
-                        onClick={() => dispatch({ type: 'finish' })}
-                    >
-                        {t('practice:session.seeResults')}
+            {session.returnToResults ? (
+                <div>
+                    <Button type="button" onClick={() => dispatch({ type: 'backToResults' })}>
+                        {t('practice:results.backToResults')}
                     </Button>
-                ) : (
+                </div>
+            ) : (
+                <nav className="flex flex-wrap items-center justify-between gap-2" aria-label={t('practice:page.title')}>
                     <Button
-                        ref={nextRef}
                         type="button"
-                        variant={answer ? 'default' : 'outline'}
-                        onClick={() => dispatch({ type: 'goTo', index: index + 1 })}
+                        variant="outline"
+                        disabled={index === 0}
+                        onClick={() => dispatch({ type: 'goTo', index: index - 1 })}
                     >
-                        {t('practice:session.next')}
+                        {t('practice:session.previous')}
                     </Button>
-                )}
-            </nav>
-            {last && !canFinish && <p className="hint text-right">{t('practice:session.answerAll')}</p>}
+                    {last ? (
+                        <Button
+                            ref={nextRef}
+                            type="button"
+                            disabled={!canFinish}
+                            onClick={() => dispatch({ type: 'finish' })}
+                        >
+                            {t('practice:session.seeResults')}
+                        </Button>
+                    ) : (
+                        <Button
+                            ref={nextRef}
+                            type="button"
+                            variant={answer ? 'default' : 'outline'}
+                            onClick={() => dispatch({ type: 'goTo', index: index + 1 })}
+                        >
+                            {t('practice:session.next')}
+                        </Button>
+                    )}
+                </nav>
+            )}
+            {!session.returnToResults && last && !canFinish && <p className="hint text-right">{t('practice:session.answerAll')}</p>}
         </div>
     );
 }

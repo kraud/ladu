@@ -105,7 +105,7 @@ export function ParametersForm({
                     return;
                 }
                 rememberParams(settings);
-                startSession({ userId: user.id, params: settings, wordIds, exercises });
+                startSession({ userId: user.id, params: settings, wordIds, preselected, exercises });
                 onStarted();
             },
         });

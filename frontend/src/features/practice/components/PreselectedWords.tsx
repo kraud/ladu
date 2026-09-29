@@ -29,21 +29,29 @@ export function PreselectedWords({
                 </Button>
             </div>
             {open && (
-                <ul className="flex flex-col gap-1">
-                    {words.map((word) => (
-                        <li key={word.id} className="flex min-w-0 items-center gap-2 text-sm">
-                            <span className="flex shrink-0 gap-1">
-                                {word.languages.map((key) => (
-                                    <FlagIcon key={key} lang={key} />
-                                ))}
-                            </span>
-                            <span className="min-w-0 break-words font-medium">{word.label}</span>
-                            <span className="meta shrink-0">{t(partOfSpeechLabelKey(word.partOfSpeech))}</span>
-                        </li>
-                    ))}
-                </ul>
+                <PreselectedWordList words={words} />
             )}
             <p className="hint">{t('practice:setup.preselected.limitedTypes')}</p>
         </section>
+    );
+}
+
+/** The words with flags, main form and word type — shared by the set-up panel and the results summary. */
+export function PreselectedWordList({ words }: { words: PreselectedWord[] }) {
+    const { t } = useTranslation();
+    return (
+        <ul className="flex flex-col gap-1">
+            {words.map((word) => (
+                <li key={word.id} className="flex min-w-0 items-center gap-2 text-sm">
+                    <span className="flex shrink-0 gap-1">
+                        {word.languages.map((key) => (
+                            <FlagIcon key={key} lang={key} />
+                        ))}
+                    </span>
+                    <span className="min-w-0 break-words font-medium">{word.label}</span>
+                    <span className="meta shrink-0">{t(partOfSpeechLabelKey(word.partOfSpeech))}</span>
+                </li>
+            ))}
+        </ul>
     );
 }

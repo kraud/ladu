@@ -2,26 +2,25 @@ import { useEffect, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/common/EmptyState';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { useWordsInfinite } from '@/features/words/hooks';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { ParametersForm } from '../components/ParametersForm';
 import { PreselectedWords } from '../components/PreselectedWords';
+import { ResultsView } from '../components/ResultsView';
 import { SessionView } from '../components/SessionView';
 import { narrowPartsOfSpeech } from '../params';
 import { availablePartsOfSpeech, type PreselectedWord } from '../preselection';
-import { loadRememberedParams } from '../remembered';
+import { loadRememberedParams, rememberParams } from '../remembered';
 import { paramsToSearch, searchToParams } from '../search';
-import { sessionScore, type Session } from '../session';
 import { usePracticeSessionStore, useSessionFor } from '../sessionStore';
 import type { PracticeParams } from '../types';
 
 const route = getRouteApi('/_protected/practice');
 
 /**
- * `/practice`. Stage 1 (set-up) and Stage 2 (the exercise cards) are complete;
- * Stage 3 lands in Slice 8, so the results view is a short placeholder for now.
+ * `/practice`: Stage 1 (set-up), Stage 2 (the exercise cards), Stage 3 (results).
  *
  * Entry from Review: the words wait in `uiStore`. They are read once at mount
  * and cleared, so a later visit to `/practice` starts clean. They win over a
@@ -32,6 +31,7 @@ export function PracticePage() {
     const session = useSessionFor(user?.id);
     const clearSession = usePracticeSessionStore((s) => s.clear);
 
+    const navigate = route.useNavigate();
     const [preselected, setPreselected] = useState(() => useUiStore.getState().practicePreselection);
     useEffect(() => {
         if (useUiStore.getState().practicePreselection) {
@@ -42,9 +42,18 @@ export function PracticePage() {
 
     if (!user) return null;
 
+    /** Back to Stage 1 with the settings and the words of the finished session. */
+    function changeSettings(finished: NonNullable<typeof session>) {
+        // The set-up reads the URL at mount, and the navigation settles later: the remembered copy is the sync carrier.
+        rememberParams(finished.params);
+        void navigate({ search: paramsToSearch(finished.params), replace: true });
+        setPreselected(finished.preselected);
+        clearSession();
+    }
+
     if (session && !preselected) {
         return session.view === 'results' ? (
-            <ResultsPlaceholder session={session} onClose={clearSession} />
+            <ResultsView session={session} onChangeSettings={() => changeSettings(session)} />
         ) : (
             <SessionView session={session} />
         );
@@ -103,23 +112,6 @@ function SetUp({
                     void navigate({ search: paramsToSearch(params), replace: true })
                 }
             />
-        </div>
-    );
-}
-
-/** Temporary Stage 3 (Slice 8 replaces it): the score and a way back to the set-up. */
-function ResultsPlaceholder({ session, onClose }: { session: Session; onClose: () => void }) {
-    const { t } = useTranslation();
-    const score = sessionScore(session);
-    return (
-        <div className="flex flex-col gap-4">
-            <h1 className="h1">{t('practice:results.title')}</h1>
-            <p>{t('practice:results.score', { correct: score.correct, total: score.total })}</p>
-            <div>
-                <Button type="button" variant="outline" onClick={onClose}>
-                    {t('practice:results.change')}
-                </Button>
-            </div>
         </div>
     );
 }

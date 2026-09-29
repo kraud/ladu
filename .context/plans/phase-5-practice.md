@@ -437,8 +437,8 @@ Part C first.** Slices 1–4 have no UI and can run while the mockups are made.
 | 4 | Done, committed | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
 | 5 | Done, committed | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
 | 6 | Done, committed | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
-| 7 | Done, awaiting commit | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
-| 8 | | Frontend: results screen — score, rows, review a card, restart flows. |
+| 7 | Done, committed | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
+| 8 | Done, awaiting commit | Frontend: results screen — score, rows, review a card, restart flows. |
 | 9 | | Phase gate: `e2e/tests/phase-5-practice.spec.ts` + docs + full green run. |
 
 **Slice 1 detail.** Port without behaviour change; `Math.random` replaced by an injected RNG. Tests use fixed
@@ -593,6 +593,28 @@ rows with remapped ids; `updateUser` validates `nativeLanguage` and keeps it whe
   the same translation shows the new status.
 - No new locale keys (all were in the Slice 4 rewrite). Mastered copy says "show less often", not "hidden" (A.8).
 - Gate: frontend suite 1164 tests green, `tsc -b` + `vite build` green, ESLint 0 errors.
+
+**Slice 8 — as built.**
+- New in `features/practice/components/`: `ResultsView.tsx`, `ResultRow.tsx`, `ParametersSummary.tsx`. The
+  temporary placeholder in `PracticePage` is deleted. `PreselectedWords.tsx` now also exports
+  `PreselectedWordList` (shared by the set-up panel and the summary).
+- Results: score ("n of m correct", percent, "almost correct" count only when > 0), an unsaved warning with
+  "Retry all" (`useSessionActions().retryAll`), one row per exercise (status as icon + text, typed/chosen,
+  word type, prompt, expected answer, the user's answer only when it differs, per-row retry, "Open exercise").
+- Open a row: the reducer's `openFromResults` shows the normal card (read-only, with indicator and
+  Master/Revise). While `returnToResults` is set, Previous/Next are replaced by "Back to results".
+- Session change: `Session.preselected` (labelled words) is stored next to `wordIds`, so the summary can list
+  them and "Change settings" can restore them. A session stored before this slice has no such field; that
+  only affects the word list.
+- "Practice again": one `generate` call with the same settings and word ids; on success the new session
+  replaces the old one. Failure shows the error on the results; an empty result shows "No exercises found".
+- "Change settings": the settings go to the remembered copy (sync) and the URL, the pre-selected words go back
+  to the page, and the session is cleared. The set-up reads the URL at mount, but the navigation settles later,
+  so the remembered copy is what carries the values (found by a test: the amount came back as 10).
+- Settings summary: collapsed; leaves out settings that did nothing (choice difficulty, typing strictness,
+  native language follow `relevantSettings`).
+- No new locale keys (all were in the Slice 4 rewrite).
+- Gate: frontend suite 1173 tests green, `tsc -b` + `vite build` green, ESLint 0 errors (3 old warnings).
 
 **Slice 5 detail.** The native-language option shows only when `nativeLanguage` is set. PoS options narrowed
 to the pre-selected words' PoS. Adjective/Adverb are selectable but show a note that they have no exercises
