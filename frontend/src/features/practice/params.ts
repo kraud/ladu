@@ -94,6 +94,15 @@ export function onlyPartsWithoutExercises(partsOfSpeech: readonly PartOfSpeech[]
     );
 }
 
+/** Keep the chosen word types that are available; if none is left, select all available ones. */
+export function narrowPartsOfSpeech(
+    selected: readonly PartOfSpeech[],
+    available: readonly PartOfSpeech[],
+): PartOfSpeech[] {
+    const kept = selected.filter((pos) => available.includes(pos));
+    return kept.length > 0 ? kept : [...available];
+}
+
 /** `strictnessTI` stays on the client; `wordIds` only when the user pre-selected words. */
 export function toGenerateBody(params: PracticeParams, wordIds?: readonly string[]): GenerateBody {
     const body: GenerateBody = {

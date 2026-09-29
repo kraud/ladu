@@ -8,7 +8,8 @@
  * only owns which mode is open and bubbles the result up via `onTagsApplied`
  * so `ReviewPage` can toast and clear the selection — the same split
  * Delete already uses (this bar owns the confirm step, `ReviewPage` owns the
- * mutation + toast). Create-exercises is absent, not disabled (Phase 5).
+ * mutation + toast). "Practice" (Phase 5, C4) is available from one selected
+ * word up; `ReviewPage` owns the hand-off to `/practice`.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +24,7 @@ export interface BulkActionBarProps {
     /** Tags common to every selected word — "Remove tags"' candidate pool. */
     commonTagIds: ReadonlySet<string>;
     onView: () => void;
+    onPractice: () => void;
     /** Called once the user has confirmed the delete — this component owns the confirm step. */
     onDelete: () => void;
     onTagsApplied: (mode: 'add' | 'remove', tags: TagSummary[]) => void;
@@ -33,6 +35,7 @@ export function BulkActionBar({
     selectedWordIds,
     commonTagIds,
     onView,
+    onPractice,
     onDelete,
     onTagsApplied,
 }: BulkActionBarProps) {
@@ -57,6 +60,9 @@ export function BulkActionBar({
                     onClick={onView}
                 >
                     {t('review:bulk.view')}
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={onPractice}>
+                    {t('review:bulk.practice')}
                 </Button>
                 <Button type="button" variant="outline" size="sm" onClick={() => setTagPickerMode('add')}>
                     {t('review:bulk.addTags')}

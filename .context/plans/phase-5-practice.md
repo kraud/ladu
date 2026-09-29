@@ -434,8 +434,8 @@ Part C first.** Slices 1–4 have no UI and can run while the mockups are made.
 | 1 | Done, committed | Backend: pure domain module `services/exercises/*` + unit tests pinning A.5–A.9. Old endpoints re-wired onto it, behaviour unchanged. |
 | 2 | Done, committed | Backend: migration 0007 + D5 (`updateWord`) + D7 (clone history) + D6 backend (`nativeLanguage` validation) + tests. |
 | 3 | Done, committed | Backend: new API (B.3) with validation, visibility, full-pool ranking + batching; remove old routes; Jest suite rewritten (IDOR, visibility, ranking order, batching, distractor levels, revise counter, native exclusion, response shape). |
-| 4 | Done, awaiting commit | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
-| 5 | | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
+| 4 | Done, committed | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
+| 5 | Done, awaiting commit | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
 | 6 | | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
 | 7 | | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
 | 8 | | Frontend: results screen — score, rows, review a card, restart flows. |
@@ -527,6 +527,29 @@ rows with remapped ids; `updateUser` validates `nativeLanguage` and keeps it whe
 - Known limit: a Master/Revise response and an older save response for the same card carry the same date, so
   the reducer cannot tell them apart. Slice 7 must disable the two buttons while that card's save is running.
 - Gate: frontend suite 1102 tests green, `tsc -b` + `vite build` green, ESLint 0 errors.
+
+**Slice 5 — as built.**
+- `features/practice/pages/PracticePage.tsx` (route `/practice`, `validateSearch` = `validatePracticeSearch`),
+  `components/{ParametersForm,PreselectedWords,ChipGroup}.tsx`, `preselection.ts`, `narrowPartsOfSpeech` in `params.ts`.
+- Settings order of precedence: URL, then the remembered settings, then the defaults. They are read once at
+  mount; every change is written back to the URL (`replace`). The amount is kept as text in the form, so an
+  invalid value shows its error and never reaches the URL. Start remembers the settings.
+- Start results: exercises -> `sessionStore.start`; none -> the "no exercises" explanation stays on the screen
+  (it names the only-adjectives/adverbs reason when that is the case); error -> message + retry; Start is
+  disabled while the request runs. Users with no words see the "no words" state (one-row `useWordsInfinite`).
+- **Hand-off changed from the plan:** `uiStore.practicePreselection` carries `PreselectedWord[]` (id, word type,
+  main form, languages), not only ids — the screen needs them to list the words and limit the word types.
+  The page reads the slot once at mount and clears it. A pre-selection wins over a running session: that
+  session is dropped (its answers are already saved).
+- Review: "Practice" bulk action from one selected word up (C4); it is enabled with any selection.
+- Account: optional native-language select (options = the selected languages + "None"). The form sends
+  `null` when the stored value is no longer one of the selected languages (the backend rejects it otherwise).
+  The read-only profile shows the native language too.
+- **Temporary:** while a session runs, `/practice` shows "Exercise N of M", the shortfall note and "Change
+  settings". Slice 6 replaces it with the card view.
+- New keys (4 languages): `review:bulk.practice`, `account:fields.{nativeLanguage,nativeLanguageNone,nativeLanguageHint}`.
+  EE is not reviewed by the user yet.
+- Gate: frontend suite 1137 tests green, `tsc -b` + `vite build` green, ESLint 0 errors.
 
 **Slice 5 detail.** The native-language option shows only when `nativeLanguage` is set. PoS options narrowed
 to the pre-selected words' PoS. Adjective/Adverb are selectable but show a note that they have no exercises

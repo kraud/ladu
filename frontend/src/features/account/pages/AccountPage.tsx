@@ -87,6 +87,14 @@ function ProfileView({
                         value={`@${user.username}`}
                     />
                     <InfoRow label={t('loginRegister:formLabels.email')} value={user.email} />
+                    <InfoRow
+                        label={t('account:fields.nativeLanguage')}
+                        value={
+                            user.nativeLanguage
+                                ? (languageByLabel(user.nativeLanguage)?.native ?? user.nativeLanguage)
+                                : t('account:fields.nativeLanguageNone')
+                        }
+                    />
                     {identities.data && (
                         <div className="grid grid-cols-[96px_1fr] items-baseline gap-3 py-1">
                             <dt className="meta">{t('account:signInMethods.title')}</dt>

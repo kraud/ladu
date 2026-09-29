@@ -40,6 +40,7 @@
   "bulk": {
     "selected": "selected",
     "view": "View",
+    "practice": "Practice",
     "delete": "Delete",
     "confirmTitle_one": "Delete {{count}} word?",
     "confirmTitle_other": "Delete {{count}} words?",

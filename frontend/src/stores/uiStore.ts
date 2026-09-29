@@ -9,6 +9,7 @@
  * file instead of reaching for a fourth store or a Context.
  */
 import { create } from 'zustand';
+import type { PreselectedWord } from '@/features/practice/preselection';
 import type { PartOfSpeech } from '@/ts/enums';
 
 type SearchMode = 'words' | 'tags';
@@ -42,12 +43,12 @@ interface UiState {
     setWordSidebarCollapsed: (collapsed: boolean) => void;
 
     /**
-     * Word ids handed from Review's "Practice" bulk action to the practice
+     * Words handed from Review's "Practice" bulk action to the practice
      * parameters screen (Phase 5, C4). Not in the URL — a long id list does not
      * belong there. The parameters screen reads it and clears it (`null`).
      */
-    practicePreselectedWordIds: string[] | null;
-    setPracticePreselectedWordIds: (ids: string[] | null) => void;
+    practicePreselection: PreselectedWord[] | null;
+    setPracticePreselection: (words: PreselectedWord[] | null) => void;
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -66,6 +67,6 @@ export const useUiStore = create<UiState>()((set) => ({
     wordSidebarCollapsed: true,
     setWordSidebarCollapsed: (wordSidebarCollapsed) => set({ wordSidebarCollapsed }),
 
-    practicePreselectedWordIds: null,
-    setPracticePreselectedWordIds: (practicePreselectedWordIds) => set({ practicePreselectedWordIds }),
+    practicePreselection: null,
+    setPracticePreselection: (practicePreselection) => set({ practicePreselection }),
 }));

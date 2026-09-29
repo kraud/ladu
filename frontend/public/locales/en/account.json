@@ -7,7 +7,10 @@
     "edit": "Edit profile"
   },
   "fields": {
-    "emailHint": "Email is managed separately and can't be changed here"
+    "emailHint": "Email is managed separately and can't be changed here",
+    "nativeLanguage": "Native language",
+    "nativeLanguageNone": "None",
+    "nativeLanguageHint": "Optional. Practice can skip same-language exercises in your native language."
   },
   "languages": {
     "count": "{{count}} of {{total}} selected",

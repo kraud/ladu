@@ -3,6 +3,7 @@ import { Lang, PartOfSpeech } from '@/ts/enums';
 import {
     defaultParams,
     knownLanguages,
+    narrowPartsOfSpeech,
     onlyPartsWithoutExercises,
     relevantSettings,
     toGenerateBody,
@@ -116,5 +117,17 @@ describe('toGenerateBody', () => {
             wordSelection: 'Random',
             excludeNative: true,
         });
+    });
+});
+
+describe('narrowPartsOfSpeech', () => {
+    const { noun, verb, adjective } = PartOfSpeech;
+
+    it('keeps the chosen types that are available', () => {
+        expect(narrowPartsOfSpeech([noun, verb], [verb, adjective])).toEqual([verb]);
+    });
+
+    it('selects every available type when none of the chosen ones is left', () => {
+        expect(narrowPartsOfSpeech([noun], [verb, adjective])).toEqual([verb, adjective]);
     });
 });

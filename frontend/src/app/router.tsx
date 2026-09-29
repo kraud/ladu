@@ -38,6 +38,8 @@ import { DashboardPage } from '@/features/metrics/pages/DashboardPage';
 import { AccountPage } from '@/features/account/pages/AccountPage';
 import { AddWordPage } from '@/features/words/pages/AddWordPage';
 import { WordPage } from '@/features/words/pages/WordPage';
+import { PracticePage } from '@/features/practice/pages/PracticePage';
+import { validatePracticeSearch } from '@/features/practice/search';
 import { ReviewPage } from '@/features/words/pages/ReviewPage';
 import { validateReviewSearch } from '@/features/words/review/search';
 import { TagsPage } from '@/features/tags/pages/TagsPage';
@@ -149,7 +151,8 @@ const reviewRoute = createRoute({
 const practiceRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/practice',
-    component: () => <Placeholder title="Practice" note="Exercise flow lands in Phase 5." />,
+    validateSearch: validatePracticeSearch,
+    component: PracticePage,
 });
 
 const accountRoute = createRoute({

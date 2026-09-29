@@ -40,6 +40,7 @@
   "bulk": {
     "selected": "valitud",
     "view": "Vaata",
+    "practice": "Harjuta",
     "delete": "Kustuta",
     "confirmTitle_one": "Kustutada {{count}} sõna?",
     "confirmTitle_other": "Kustutada {{count}} sõna?",

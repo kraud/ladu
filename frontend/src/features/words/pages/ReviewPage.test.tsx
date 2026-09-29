@@ -6,6 +6,7 @@ import { server } from '@/test/msw/server';
 import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
 import { makeTagHandlers, type SeedTag } from '@/test/msw/tagHandlers';
 import { useAuthStore } from '@/stores/authStore';
+import { useUiStore } from '@/stores/uiStore';
 import { futureToken } from '@/test/tokens';
 import { mockMobileViewport } from '@/test/viewport';
 import { PartOfSpeech, Lang } from '@/ts/enums';
@@ -312,6 +313,32 @@ describe('ReviewPage — Slice 7: bulk actions', () => {
 
         await user.click(rowCheckboxes[1]);
         expect(screen.getByRole('button', { name: 'View' })).toBeDisabled();
+    });
+
+    it('Practice hands the selected words to the practice screen and opens it', async () => {
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [verbSeed('run', 'w1'), nounSeed('cat', 'w2'), verbSeed('jump', 'w3')],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/review', session: SESSION });
+        await screen.findByText('run');
+
+        const rowCheckboxes = screen.getAllByRole('checkbox').slice(1);
+        await user.click(rowCheckboxes[0]);
+        await user.click(rowCheckboxes[2]);
+        await user.click(screen.getByRole('button', { name: 'Practice' }));
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/practice'));
+        // The practice screen already read and cleared the hand-off; the words it shows prove it arrived.
+        expect(await screen.findByText('Practice with 2 selected words')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Show words' }));
+        expect(screen.getByText('run')).toBeInTheDocument();
+        expect(screen.getByText('jump')).toBeInTheDocument();
+        expect(screen.queryByText('cat')).not.toBeInTheDocument();
+        expect(useUiStore.getState().practicePreselection).toBeNull();
     });
 });
 

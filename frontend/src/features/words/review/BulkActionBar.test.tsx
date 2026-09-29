@@ -25,6 +25,7 @@ const baseProps: BulkActionBarProps = {
     selectedWordIds: [],
     commonTagIds: new Set(),
     onView: vi.fn(),
+    onPractice: vi.fn(),
     onDelete: vi.fn(),
     onTagsApplied: vi.fn(),
 };
@@ -45,6 +46,15 @@ describe('BulkActionBar', () => {
         renderWithProviders(<BulkActionBar {...baseProps} selectedCount={3} />);
         expect(screen.getByText('3')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'View' })).toBeDisabled();
+    });
+
+    it('Practice is available from one selected word and calls back', async () => {
+        const onPractice = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={1} onPractice={onPractice} />);
+
+        await user.click(screen.getByRole('button', { name: 'Practice' }));
+        expect(onPractice).toHaveBeenCalled();
     });
 
     it('enables View at exactly one selection, and it calls back', async () => {
