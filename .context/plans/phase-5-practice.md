@@ -435,8 +435,8 @@ Part C first.** Slices 1–4 have no UI and can run while the mockups are made.
 | 2 | Done, committed | Backend: migration 0007 + D5 (`updateWord`) + D7 (clone history) + D6 backend (`nativeLanguage` validation) + tests. |
 | 3 | Done, committed | Backend: new API (B.3) with validation, visibility, full-pool ranking + batching; remove old routes; Jest suite rewritten (IDOR, visibility, ranking order, batching, distractor levels, revise counter, native exclusion, response shape). |
 | 4 | Done, committed | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
-| 5 | Done, awaiting commit | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
-| 6 | | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
+| 5 | Done, committed | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
+| 6 | Done, awaiting commit | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
 | 7 | | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
 | 8 | | Frontend: results screen — score, rows, review a card, restart flows. |
 | 9 | | Phase gate: `e2e/tests/phase-5-practice.spec.ts` + docs + full green run. |
@@ -550,6 +550,31 @@ rows with remapped ids; `updateUser` validates `nativeLanguage` and keeps it whe
 - New keys (4 languages): `review:bulk.practice`, `account:fields.{nativeLanguage,nativeLanguageNone,nativeLanguageHint}`.
   EE is not reviewed by the user yet.
 - Gate: frontend suite 1137 tests green, `tsc -b` + `vite build` green, ESLint 0 errors.
+
+**Slice 6 — as built.**
+- New files in `features/practice/`: `useSessionActions.ts` (answer, save, retry — the only network code of a
+  session), `components/{SessionView,ExerciseCard,TextInputAnswer,ChoiceAnswer,AnswerFeedback,ProgressHeader}.tsx`.
+  `PracticePage` shows `SessionView` for a running session. The results view is still a **temporary
+  placeholder** (score + "Change settings"); Slice 8 replaces it.
+- Saving: the answer is stored at once (`saving`), the request runs in the background. A failed save becomes
+  `unsaved` with a Retry button on the card; navigation is never blocked. A save response is applied only if
+  the exercise at that index is still the same (by key).
+- One try: a second answer for the same card is ignored before any request is made.
+- Reload: the session comes back at the same card from sessionStorage. A save that the reload cut off is shown
+  as `unsaved` (`recoverInterruptedSaves`). **Known limit:** if that request had reached the server, Retry
+  records the answer a second time.
+- Keyboard: the answer field has focus on a new open card; after an answer the focus moves to "Next" (Enter
+  goes on); keys 1–3 pick a choice (ignored while typing in a field or with a modifier key).
+- Feedback: result by icon + text (not by colour alone), in a polite live region. A wrong or partial answer
+  shows the expected form; a wrong typed answer also shows what was typed. A choice card marks the chosen
+  and the correct option.
+- Card labels: prompt line = flag, language, word type, readable case label; verb pronoun before the prompt
+  and next to the input. Same-language drills show a question ("What is the gender of this word?"), other
+  cards "Same form in {language}" + the case label.
+- Navigation: Previous / Next are free. On the last card "See results" is enabled only when every card is
+  answered, with the hint `session.answerAll` (new key, 4 languages; EE not reviewed).
+- Not in this slice (Slice 7): knowledge indicator, Master/Revise.
+- Gate: frontend suite 1155 tests green, `tsc -b` + `vite build` green, ESLint 0 errors.
 
 **Slice 5 detail.** The native-language option shows only when `nativeLanguage` is set. PoS options narrowed
 to the pre-selected words' PoS. Adjective/Adverb are selectable but show a note that they have no exercises

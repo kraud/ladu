@@ -350,7 +350,7 @@ describe('PracticePage — pre-selected words', () => {
 });
 
 describe('PracticePage — running session', () => {
-    it('shows the session instead of the set-up, and "Change settings" returns to it', async () => {
+    it('shows the session instead of the set-up, and leaving returns to it', async () => {
         setUp();
         usePracticeSessionStore.getState().start({
             userId: 'u1',
@@ -372,7 +372,8 @@ describe('PracticePage — running session', () => {
         await renderApp({ initialEntry: '/practice', session: SESSION });
 
         expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Change settings' }));
+        await user.click(screen.getByRole('button', { name: 'Leave practice' }));
+        await user.click(await screen.findByRole('button', { name: 'Leave' }));
         expect(await screen.findByRole('heading', { name: 'Set up your practice' })).toBeInTheDocument();
     });
 });
