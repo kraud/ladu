@@ -433,8 +433,8 @@ Part C first.** Slices 1–4 have no UI and can run while the mockups are made.
 | 0 | Done, committed | Persist this plan as `.context/plans/phase-5-practice.md`; link it in `new-repo-build-plan.md` §5/§9 and `.context/README.md`. |
 | 1 | Done, committed | Backend: pure domain module `services/exercises/*` + unit tests pinning A.5–A.9. Old endpoints re-wired onto it, behaviour unchanged. |
 | 2 | Done, committed | Backend: migration 0007 + D5 (`updateWord`) + D7 (clone history) + D6 backend (`nativeLanguage` validation) + tests. |
-| 3 | Done, awaiting commit | Backend: new API (B.3) with validation, visibility, full-pool ranking + batching; remove old routes; Jest suite rewritten (IDOR, visibility, ranking order, batching, distractor levels, revise counter, native exclusion, response shape). |
-| 4 | | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
+| 3 | Done, committed | Backend: new API (B.3) with validation, visibility, full-pool ranking + batching; remove old routes; Jest suite rewritten (IDOR, visibility, ranking order, batching, distractor levels, revise counter, native exclusion, response shape). |
+| 4 | Done, awaiting commit | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
 | 5 | | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
 | 6 | | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
 | 7 | | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
@@ -499,6 +499,34 @@ rows with remapped ids; `updateUser` validates `nativeLanguage` and keeps it whe
   `ExercisePerformance` snapshot in `snapshots.test.js` now records the new `PerformanceSummary` shape.
 - Known flake: `tags.test.js › removes the follow when cloning a tag the caller already follows` failed once
   with "socket hang up" in a full run; it passes alone and on the previous commit.
+
+**Slice 4 — as built.**
+- `features/practice/`: `types.ts`, `api.ts` (3 calls), `hooks.ts` (3 mutations, no queries, no cache edges —
+  tested), `errors.ts` (maps the API's stable `code`, not the English text), `evaluate.ts` (A.7), `params.ts`
+  (defaults, `validateParams`, `relevantSettings`, `toGenerateBody`), `search.ts` (URL contract with short codes:
+  `?lang=&pos=&n=&card=&mode=&mc=&ti=&order=&native=`), `remembered.ts` (last settings, localStorage, always
+  wrapped), `session.ts` (pure reducer + selectors), `sessionStore.ts` (Zustand persist to sessionStorage).
+- Session rules in the reducer: one try per card; a failed save is kept as `unsaved` and never blocks
+  navigation; a performance is copied to every card of the same translation; a slower, older save response
+  never rolls a card back; results open only when all cards are answered; a card opened from the results
+  returns there.
+- The store ties a session to its account (`useSessionFor(userId)`) and clears it on logout. A broken or
+  planted sessionStorage blob is discarded, not trusted. This is the third and last store; the Review hand-off
+  slot is `uiStore.practicePreselectedWordIds`.
+- `lib/cases.ts`: `caseLabel(t, pos, caseName)`, `describeCase`, `pronounFor`. It does **not** reuse the form
+  configs' labels (those are native grammar terms, not UI-language). It reads `WordCasesData` and the
+  `practice:cases.*` keys instead. Tenses show their shared meaning (Present / Past / Future) so a
+  cross-language pair reads the same on both sides. `pronounLabel` is exported from `configs/verbs.ts`.
+- `practice.json` is rewritten in EN, ES, DE, EE (old keys were unused). It already holds every string the
+  design brief needs for Slices 5–8; later slices may add keys. **EE is not reviewed by the user yet.** A parity
+  test (`locales.test.ts`) checks that all four files have the same keys and placeholders.
+- `test/msw/practiceHandlers.ts`: in-memory fake with the real last-4 record, knowledge formula and revise
+  counter; options to fail the next saves or `generate`. `makeExercise()` builds a valid exercise.
+- Bug found by a test: the URL parser first accepted every `PartOfSpeech` enum value (e.g. `Pronoun`); it now
+  accepts only the four types the screen offers.
+- Known limit: a Master/Revise response and an older save response for the same card carry the same date, so
+  the reducer cannot tell them apart. Slice 7 must disable the two buttons while that card's save is running.
+- Gate: frontend suite 1102 tests green, `tsc -b` + `vite build` green, ESLint 0 errors.
 
 **Slice 5 detail.** The native-language option shows only when `nativeLanguage` is set. PoS options narrowed
 to the pre-selected words' PoS. Adjective/Adverb are selectable but show a note that they have no exercises

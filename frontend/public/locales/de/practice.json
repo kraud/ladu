@@ -1,86 +1,256 @@
 {
-  "titles": {
-    "wordSelection": "Parameter gelten für Übungen, die aus diesen {{amountWordsSelectedForExercises}} Wörtern erstellt werden:",
-    "exerciseResultsScore": "Ergebnisse: {{scoreCorrect}}/{{total}} ✅",
-    "exerciseResultsProcess": "Übungen {{index}}/{{total}}",
-    "noExercisesMatch": "Keine Übereinstimmung",
-    "tryDifferentSettings": "Bitte versuche es erneut mit anderen Einstellungen.",
-    "parametersTitle": "Übungsparameter:",
-    "difficultyMC": "Multiple-Choice-Schwierigkeit:",
-    "difficultyTI": "Text-Eingabe-Schwierigkeit:"
+  "page": {
+    "title": "Üben"
   },
-  "tooltips": {
-    "needMorePractice": "Ich weiß das nicht, zeig es mir noch einmal!",
-    "noMorePractice": "Diese Übersetzung nicht erneut anzeigen!",
-    "checkAnswer": "Antwort zuerst überprüfen",
-    "performanceExplain": "Deine Leistung bei diesem Wort. Letztes Mal geübt: {{lastDate}}",
-    "typeExerciseExplain": "Dies bestimmt den Kartentyp, der angezeigt wird",
-    "typeCardExplain": "Dies bestimmt, wie viele Sprachen in den Übungen auf einer Karte angezeigt werden",
-    "requireMultipleChoice": "Der Übungstyp muss 'Multiple-Choice' oder 'Zufällig' sein, um diesen Wert zu ändern",
-    "requireTextInput": "Der Übungstyp muss 'Text-Eingabe' oder 'Zufällig' sein, um diesen Wert zu ändern",
-    "sortingAndSelectionExplain": "Dies bestimmt, wie wir die angezeigten Übungen auswählen. Mit 'Übungsleistung' priorisieren wir Wörter und Übersetzungen, die du noch nicht geübt hast.",
-    "nativeLanguageParameterExplain": "Dies bestimmt, ob wir Übungen in Bezug auf deine Muttersprache im Fall von einsprachigen Übungen einbeziehen.",
-    "goToExercise": "Zur Übung gehen",
-    "registeredCases": "Registrierte Fälle ({{language}}): {{amount}}",
-    "alreadySetMastered": "Diese Einstellung ist bereits aktiv.",
-    "alreadySetRevise": "Diese Einstellung ist bereits aktiv. Sie haben {{count}} Mal richtig geantwortet. Wenn Sie 5 erreichen, wird diese Konfiguration automatisch entfernt."
+  "setup": {
+    "title": "Übung einrichten",
+    "start": "Starten",
+    "starting": "Übungen werden erstellt…",
+    "labels": {
+      "languages": "Sprachen",
+      "partsOfSpeech": "Wortarten",
+      "amount": "Anzahl der Übungen",
+      "answerStyle": "Antwortart",
+      "languagesPerExercise": "Sprachen pro Übung",
+      "mcDifficulty": "Schwierigkeit der Auswahl",
+      "tiStrictness": "Genauigkeit beim Tippen",
+      "wordOrder": "Reihenfolge der Wörter",
+      "nativeLanguage": "Muttersprache"
+    },
+    "advanced": {
+      "show": "Erweiterte Einstellungen anzeigen",
+      "hide": "Erweiterte Einstellungen ausblenden"
+    },
+    "options": {
+      "type": {
+        "Text-Input": "Antwort tippen",
+        "Multiple-Choice": "Antwort auswählen",
+        "Random": "Gemischt"
+      },
+      "mode": {
+        "Multi-Language": "Verschiedene Sprachen",
+        "Single-Language": "Gleiche Sprache",
+        "Random": "Gemischt"
+      },
+      "order": {
+        "Exercise-Performance": "Schwächste zuerst",
+        "Random": "Zufällig"
+      },
+      "native": {
+        "include": "Einbeziehen",
+        "exclude": "Ausschließen"
+      }
+    },
+    "levels": {
+      "mc": {
+        "0": "Falsche Optionen kommen aus jeder Sprache.",
+        "1": "Falsche Optionen kommen aus derselben Sprache.",
+        "2": "Falsche Optionen kommen aus derselben Sprache und Wortart.",
+        "3": "Falsche Optionen sind andere Formen desselben Wortes."
+      },
+      "ti": {
+        "1": "Ignoriert Akzente und Groß- und Kleinschreibung.",
+        "2": "Ignoriert nur die Groß- und Kleinschreibung.",
+        "3": "Die Antwort muss genau stimmen."
+      }
+    },
+    "hints": {
+      "modeDifferent": "Sie sehen ein Wort in einer Sprache. Sie antworten in einer anderen Sprache.",
+      "modeSame": "Eine Grammatikübung in einer Sprache, zum Beispiel das Geschlecht eines Wortes.",
+      "wordOrder": "\"Schwächste zuerst\" zeigt die Formen, die Sie am wenigsten kennen.",
+      "nativeLanguage": "\"Ausschließen\" entfernt Übungen in einer Sprache für Ihre Muttersprache.",
+      "mcNeedsChoices": "Wird nur verwendet, wenn die Antwortart Optionen zeigt.",
+      "mcNeedsDifferent": "Wird nur für Übungen in verschiedenen Sprachen verwendet.",
+      "tiNeedsTyping": "Wird nur verwendet, wenn Sie die Antwort tippen.",
+      "noExercisesYet": "Für Adjektive und Adverbien gibt es noch keine Übungen.",
+      "singleLanguageAccount": "Ihr Konto hat eine Sprache. \"Verschiedene Sprachen\" ist nicht möglich."
+    },
+    "preselected": {
+      "title_one": "Mit {{count}} ausgewähltem Wort üben",
+      "title_other": "Mit {{count}} ausgewählten Wörtern üben",
+      "show": "Wörter anzeigen",
+      "hide": "Wörter ausblenden",
+      "clear": "Alle meine Wörter verwenden",
+      "limitedTypes": "Nur die Wortarten Ihrer ausgewählten Wörter sind verfügbar."
+    },
+    "validation": {
+      "languagesRequired": "Wählen Sie mindestens eine Sprache.",
+      "languagesMinTwo": "Wählen Sie mindestens zwei Sprachen oder wählen Sie \"Gleiche Sprache\".",
+      "partsOfSpeechRequired": "Wählen Sie mindestens eine Wortart.",
+      "amountRequired": "Geben Sie eine Zahl ein.",
+      "amountInteger": "Verwenden Sie eine ganze Zahl.",
+      "amountPositive": "Verwenden Sie eine Zahl ab 1.",
+      "amountTooLarge": "Verwenden Sie eine Zahl bis 100."
+    },
+    "noWords": {
+      "title": "Sie haben noch keine Wörter",
+      "body": "Fügen Sie zuerst Wörter hinzu. Danach können Sie sie üben.",
+      "cta": "Wort hinzufügen"
+    },
+    "noMatch": {
+      "title": "Keine Übungen gefunden",
+      "body": "Das sind die möglichen Gründe:",
+      "reasonFewWords": "Es gibt nicht genug Wörter mit diesen Wortarten oder Sprachen.",
+      "reasonMissingForms": "Den Wörtern fehlen die Formen, die diese Übungen brauchen.",
+      "reasonOnlyUnsupported": "Es sind nur Adjektive oder Adverbien ausgewählt.",
+      "hint": "Ändern Sie die Einstellungen und versuchen Sie es noch einmal."
+    },
+    "error": {
+      "title": "Die Übungen konnten nicht erstellt werden",
+      "retry": "Noch einmal versuchen"
+    },
+    "shortfall": "{{created}} von {{requested}} Übungen konnten erstellt werden."
+  },
+  "session": {
+    "progress": "Übung {{current}} von {{total}}",
+    "answered": "{{count}} beantwortet",
+    "correct": "{{count}} richtig",
+    "leave": "Übung verlassen",
+    "leaveDialog": {
+      "title": "Diese Übung verlassen?",
+      "body": "Ihre Antworten sind gespeichert.",
+      "confirm": "Verlassen",
+      "cancel": "Bleiben"
+    },
+    "previous": "Zurück",
+    "next": "Weiter",
+    "seeResults": "Ergebnisse ansehen",
+    "check": "Prüfen"
+  },
+  "card": {
+    "sameFormIn": "Gleiche Form auf {{language}}",
+    "answerLabel": "Ihre Antwort",
+    "answerPlaceholder": "Antwort eingeben",
+    "chooseAnswer": "Wählen Sie die Antwort",
+    "task": {
+      "Gender": "Welches Geschlecht hat dieses Wort?",
+      "Short-Form": "Was ist die Kurzform dieses Wortes?",
+      "Regularity": "Ist dieses Verb regelmäßig oder unregelmäßig?",
+      "Gerund": "Was ist das Gerundium dieses Verbs?",
+      "Participle": "Was ist das Partizip dieses Verbs?",
+      "Auxiliary-Verb": "Welches Hilfsverb verwendet dieses Verb?"
+    }
+  },
+  "feedback": {
+    "correct": "Richtig",
+    "partial": "Fast richtig",
+    "wrong": "Falsch",
+    "partialHint": "Nur Akzente oder Großbuchstaben sind anders. Es zählt als richtig.",
+    "expected": "Richtige Antwort: {{answer}}",
+    "yourAnswer": "Ihre Antwort: {{answer}}"
+  },
+  "save": {
+    "saving": "Wird gespeichert…",
+    "saved": "Gespeichert",
+    "notSaved": "Nicht gespeichert",
+    "retry": "Noch einmal versuchen"
+  },
+  "indicator": {
+    "new": "Neu",
+    "attempts": "Letzte Versuche",
+    "attemptRight": "Richtig",
+    "attemptWrong": "Falsch",
+    "attemptEmpty": "Noch kein Versuch",
+    "knowledge": "{{percent}} %",
+    "lastPracticed": "Zuletzt geübt: {{date}}"
+  },
+  "status": {
+    "Mastered": "Beherrscht",
+    "Revise": "Wiederholen",
+    "reviseProgress": "{{count}} von 5 richtigen Antworten"
+  },
+  "actions": {
+    "master": "Beherrscht",
+    "masterHint": "Das kenne ich. Zeige es seltener.",
+    "revise": "Wiederholen",
+    "reviseHint": "Das fällt mir schwer. Zeige es öfter.",
+    "answerFirst": "Zuerst antworten",
+    "wholeTranslation": "Das gilt für alle Formen dieses Wortes auf {{language}}."
   },
   "dialogs": {
-    "titles": {
-      "masterTranslation": "Oh, hast du diese Übersetzung schon gemeistert?",
-      "forgetTranslation": "Hast du Schwierigkeiten mit diesem Wort?"
+    "master": {
+      "title": "Als beherrscht markieren?",
+      "body": "Wir zeigen diese Übersetzung seltener. Sie bleibt in Ihrer Übung.",
+      "confirm": "Als beherrscht markieren"
     },
-    "messages": {
-      "masterTranslation": "Bist du sicher, dass du das Wissen dieser Übersetzung auf 100 % setzen möchtest? Das bedeutet, dass du in Zukunft keine Übungen zu dieser Übersetzung sehen wirst.",
-      "forgetTranslation": "Wir werden dir diese Übersetzung häufiger zeigen. Nach fünf richtigen Antworten wird diese Einstellung automatisch entfernt. Bist du sicher, dass du fortfahren möchtest?",
-      "revertStatus": "Möchten Sie diese Einstellung rückgängig machen?"
+    "revise": {
+      "title": "Das öfter üben?",
+      "body": "Wir zeigen diese Übersetzung öfter. Nach 5 richtigen Antworten endet diese Einstellung.",
+      "confirm": "Öfter üben"
+    },
+    "remove": {
+      "title": "Diesen Status entfernen?",
+      "body": "Die Übersetzung wird wieder normal behandelt.",
+      "confirm": "Entfernen"
+    },
+    "cancel": "Abbrechen",
+    "failed": "Der Status hat sich nicht geändert. Versuchen Sie es noch einmal."
+  },
+  "results": {
+    "title": "Ergebnisse",
+    "score": "{{correct}} von {{total}} richtig",
+    "percent": "{{percent}} %",
+    "almost": "{{count}} fast richtig",
+    "unsaved_one": "{{count}} Antwort ist nicht gespeichert.",
+    "unsaved_other": "{{count}} Antworten sind nicht gespeichert.",
+    "retryAll": "Alle noch einmal versuchen",
+    "typed": "Getippt",
+    "chosen": "Ausgewählt",
+    "yourAnswer": "Ihre Antwort",
+    "expectedAnswer": "Erwartete Antwort",
+    "open": "Übung öffnen",
+    "backToResults": "Zurück zu den Ergebnissen",
+    "settings": "Einstellungen",
+    "showSettings": "Einstellungen anzeigen",
+    "hideSettings": "Einstellungen ausblenden",
+    "words": "Wörter",
+    "again": "Noch einmal üben",
+    "change": "Einstellungen ändern",
+    "toReview": "Zur Übersicht"
+  },
+  "cases": {
+    "plurality": {
+      "Singular": "Singular",
+      "Plural": "Plural"
+    },
+    "declension": {
+      "Nominative": "Nominativ",
+      "Accusative": "Akkusativ",
+      "Genitive": "Genitiv",
+      "Dative": "Dativ",
+      "Partitive": "Partitiv"
+    },
+    "tense": {
+      "present": "Präsens",
+      "past": "Vergangenheit",
+      "future": "Futur"
+    },
+    "person": {
+      "1S": "1. Person Singular",
+      "2S": "2. Person Singular",
+      "3S": "3. Person Singular",
+      "1P": "1. Person Plural",
+      "2P": "2. Person Plural",
+      "3P": "3. Person Plural"
+    },
+    "property": {
+      "Gender": "Geschlecht",
+      "Short-Form": "Kurzform",
+      "Regularity": "Regelmäßigkeit",
+      "Infinitive": "Infinitiv",
+      "Gerund": "Gerundium",
+      "Participle": "Partizip",
+      "Auxiliary-Verb": "Hilfsverb",
+      "Case-Type": "Kasustyp",
+      "Prefix": "Präfix"
     }
   },
-  "buttons": {
-    "check": "Überprüfen",
-    "goParams": "Zurück zu den Parametern",
-    "goResults": "Zu den Ergebnissen gehen",
-    "hideParams": "Parameter ausblenden",
-    "showParams": "Parameter anzeigen",
-    "hideWords": "Wörter ausblenden",
-    "showWords": "Wörter anzeigen",
-    "hideAdvSettings": "Erweiterte Einstellungen ausblenden",
-    "showAdvSettings": "Erweiterte Einstellungen anzeigen",
-    "createExercises": "Übungen erstellen"
-  },
-  "categories": {
-    "multipleChoice": "Multiple-Choice",
-    "textInput": "Texteingabe",
-    "multiLanguage": "Mehrsprachig",
-    "singleLanguage": "Einsprachig"
-  },
-  "parameterSelector": {
-    "validation": {
-      "minAmountSelection": "Du musst mindestens ein Element auswählen",
-      "amountRequired": "Menge ist ein erforderlicher Wert",
-      "validNumber": "Bitte gib eine gültige Zahl ein",
-      "integerRequired": "Nur ganze Zahlen sind gültig",
-      "numberRequired": "Nur Zahlen sind erlaubt",
-      "positiveRequired": "Bitte gib eine positive Zahl ein"
-    },
-    "labels": {
-      "partsOfSpeech": "Wortarten",
-      "amountExercises": "Anzahl der Übungen",
-      "typeExercise": "Übungstyp",
-      "languagesPerCard": "Sprachen pro Karte"
-    },
-    "sliderOptionDescriptions": {
-      "difficultyMC": {
-        "textLevel0": "Jede Wortart - jede Sprache",
-        "textLevel1": "Jede Wortart - gleiche Sprache",
-        "textLevel2": "Gleiche Wortart - gleiche Sprache",
-        "textLevel3": "Gleiches Wort - gleiche Sprache - verschiedene Fälle"
-      },
-      "difficultyTI": {
-        "textLevel1": "Ignoriert Großschreibung und Sonderzeichen.",
-        "textLevel2": "Ignoriert nur Großschreibung.",
-        "textLevel3": "Nulltoleranz - Eingabe muss exakt übereinstimmen."
-      }
-    }
+  "apiErrors": {
+    "invalidLanguages": "Wählen Sie mindestens eine Sprache. \"Verschiedene Sprachen\" braucht zwei.",
+    "invalidPartsOfSpeech": "Wählen Sie mindestens eine Wortart.",
+    "invalidAmount": "Verwenden Sie eine ganze Zahl von 1 bis 100.",
+    "invalidSettings": "Eine der Einstellungen ist nicht gültig.",
+    "invalidWordIds": "Die ausgewählten Wörter sind nicht gültig.",
+    "notFound": "Dieses Wort oder diese Form wurde nicht gefunden."
   }
 }

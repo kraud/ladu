@@ -131,7 +131,8 @@ const PRONOUN_LABELS: Record<Lang, Partial<Record<PronounSlot, string>>> = {
     [Lang.EE]: { '1S': 'Mina', '2S': 'Sina', '3S': 'Tema', '1P': 'Meie', '2P': 'Teie', '3P': 'Nad' },
 };
 
-function pronounLabel(lang: Lang, row: VerbTenseData): string {
+/** Exported for practice cards (`lib/cases.ts`), which show the same pronoun next to a verb form. */
+export function pronounLabel(lang: Lang, row: VerbTenseData): string {
     return PRONOUN_LABELS[lang][slotOf(row)] ?? '';
 }
 
