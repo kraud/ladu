@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { recoverInterruptedSaves, useSessionActions } from '../useSessionActions';
-import { allAnswered, isLastExercise, type Session } from '../session';
+import { allAnswered, isLastExercise, shortfall, type Session } from '../session';
 import { usePracticeSessionStore } from '../sessionStore';
 import { ExerciseCard } from './ExerciseCard';
 import { ProgressHeader } from './ProgressHeader';
@@ -38,8 +39,13 @@ export function SessionView({ session }: { session: Session }) {
     }, [index, answer]);
 
     return (
-        <div className="flex max-w-2xl flex-col gap-4">
+        <div className="mx-auto flex w-full max-w-180 flex-col gap-3.5">
             <ProgressHeader session={session} onLeave={clear} />
+            {shortfall(session) > 0 && (
+                <div className="banner warning" role="status">
+                    {t('practice:setup.shortfall', { created: session.exercises.length, requested: session.requested })}
+                </div>
+            )}
 
             <ExerciseCard
                 key={exercise.key}
@@ -64,7 +70,8 @@ export function SessionView({ session }: { session: Session }) {
                         disabled={index === 0}
                         onClick={() => dispatch({ type: 'goTo', index: index - 1 })}
                     >
-                        {t('practice:session.previous')}
+                        <ArrowLeftIcon aria-hidden size={15} />
+                    {t('practice:session.previous')}
                     </Button>
                     {last ? (
                         <Button

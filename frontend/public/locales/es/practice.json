@@ -123,14 +123,14 @@
   },
   "session": {
     "progress": "Ejercicio {{current}} de {{total}}",
-    "answered": "{{count}} respondidos",
-    "correct": "{{count}} correctos",
-    "leave": "Salir de la práctica",
+    "answered": "<b>{{count}}</b> respondidos",
+    "correct": "<b>{{count}}</b> correctos",
+    "leave": "Salir de la sesión",
     "leaveDialog": {
-      "title": "¿Salir de esta práctica?",
-      "body": "Las respuestas que diste están guardadas.",
+      "title": "¿Salir de esta sesión?",
+      "body": "Tus respuestas hasta ahora quedan guardadas: las puntuaciones de conocimiento ya las contaron. Puedes empezar una sesión nueva cuando quieras.",
       "confirm": "Salir",
-      "cancel": "Quedarme"
+      "cancel": "Seguir practicando"
     },
     "previous": "Anterior",
     "next": "Siguiente",
@@ -139,9 +139,8 @@
     "check": "Comprobar"
   },
   "card": {
-    "sameFormIn": "Misma forma en {{language}}",
     "answerLabel": "Tu respuesta",
-    "answerPlaceholder": "Escribe tu respuesta",
+    "answerPlaceholder": "Tu respuesta…",
     "chooseAnswer": "Elige la respuesta",
     "task": {
       "Gender": "¿Cuál es el género de esta palabra?",
@@ -150,6 +149,12 @@
       "Gerund": "¿Cuál es el gerundio de este verbo?",
       "Participle": "¿Cuál es el participio de este verbo?",
       "Auxiliary-Verb": "¿Qué verbo auxiliar usa este verbo?"
+    },
+    "answerPlaceholderPronoun": "…",
+    "placeholder": {
+      "Participle": "Escribe el participio…",
+      "Gerund": "Escribe el gerundio…",
+      "Short-Form": "Escribe la forma corta…"
     }
   },
   "feedback": {
@@ -157,8 +162,7 @@
     "partial": "Casi correcto",
     "wrong": "Incorrecto",
     "partialHint": "Solo son distintos los acentos o las mayúsculas. Cuenta como correcto.",
-    "expected": "Respuesta correcta: {{answer}}",
-    "yourAnswer": "Tu respuesta: {{answer}}"
+    "expected": "Respuesta correcta: {{answer}}"
   },
   "save": {
     "saving": "Guardando…",
@@ -173,39 +177,50 @@
     "attemptWrong": "Fallo",
     "attemptEmpty": "Aún sin intento",
     "knowledge": "{{percent}} %",
-    "lastPracticed": "Última práctica: {{date}}"
+    "lastPracticed": "Última práctica: {{date}}",
+    "title": "Conocimiento — esta forma exacta"
   },
   "status": {
     "Mastered": "Dominada",
     "Revise": "Repasar",
-    "reviseProgress": "{{count}} de 5 respuestas correctas"
+    "reviseProgress": "{{count}} de 5 respuestas correctas",
+    "reviseShort": "{{count}} de 5",
+    "remove": "Quitar estado"
   },
   "actions": {
     "master": "Dominada",
-    "masterHint": "Esto lo sé. Muéstramelo menos.",
     "revise": "Repasar",
-    "reviseHint": "Esto me cuesta. Muéstramelo más.",
-    "answerFirst": "Responde primero",
-    "wholeTranslation": "Esto se aplica a todas las formas de esta palabra en {{language}}."
+    "masterTip": "Esto lo sé. Muéstramelo menos. Se aplica a todas las formas de esta palabra en {{language}}.",
+    "reviseTip": "Esto me cuesta. Muéstramelo más. Se aplica a todas las formas de esta palabra en {{language}}.",
+    "toast": {
+      "mastered": "Marcada como dominada: esta traducción se mostrará menos.",
+      "revise": "Añadida a Repasar: se mostrará más hasta 5 respuestas correctas.",
+      "removed": "Estado quitado."
+    }
   },
   "dialogs": {
     "master": {
-      "title": "¿Marcar como dominada?",
-      "body": "Mostraremos esta traducción con menos frecuencia. Sigue en tu práctica.",
-      "confirm": "Marcar como dominada"
+      "title": "¿Marcar la traducción en {{language}} como dominada?",
+      "body": "Todas las formas de esta palabra en {{language}}, no solo esta forma, se mostrarán con menos frecuencia. Puedes quitarlo cuando quieras.",
+      "confirm": "Dominada"
     },
     "revise": {
-      "title": "¿Practicar esto más?",
-      "body": "Mostraremos esta traducción con más frecuencia. Después de 5 respuestas correctas, este ajuste termina.",
-      "confirm": "Practicar más"
-    },
-    "remove": {
-      "title": "¿Quitar este estado?",
-      "body": "La traducción vuelve a la normalidad.",
-      "confirm": "Quitar"
+      "title": "¿Añadir la traducción en {{language}} a Repasar?",
+      "body": "Todas las formas de esta palabra en {{language}}, no solo esta forma, se mostrarán con más frecuencia. Se quita solo después de 5 respuestas correctas.",
+      "confirm": "Repasar"
     },
     "cancel": "Cancelar",
-    "failed": "El estado no cambió. Inténtalo otra vez."
+    "failed": "El estado no cambió. Inténtalo otra vez.",
+    "removeMastered": {
+      "title": "¿Quitar \"Dominada\"?",
+      "body": "Todas las formas de esta palabra en {{language}} volverán a mostrarse con su frecuencia normal.",
+      "confirm": "Quitar estado"
+    },
+    "removeRevise": {
+      "title": "¿Dejar de repasar?",
+      "body": "Todas las formas de esta palabra en {{language}} vuelven a su ritmo normal.",
+      "confirm": "Dejar de repasar"
+    }
   },
   "results": {
     "title": "Resultados",

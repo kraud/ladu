@@ -123,14 +123,14 @@
   },
   "session": {
     "progress": "Übung {{current}} von {{total}}",
-    "answered": "{{count}} beantwortet",
-    "correct": "{{count}} richtig",
-    "leave": "Übung verlassen",
+    "answered": "<b>{{count}}</b> beantwortet",
+    "correct": "<b>{{count}}</b> richtig",
+    "leave": "Sitzung verlassen",
     "leaveDialog": {
-      "title": "Diese Übung verlassen?",
-      "body": "Ihre Antworten sind gespeichert.",
+      "title": "Diese Sitzung verlassen?",
+      "body": "Ihre bisherigen Antworten bleiben gespeichert – die Wissenswerte haben sie schon berücksichtigt. Sie können jederzeit eine neue Sitzung starten.",
       "confirm": "Verlassen",
-      "cancel": "Bleiben"
+      "cancel": "Weiter üben"
     },
     "previous": "Zurück",
     "next": "Weiter",
@@ -139,9 +139,8 @@
     "check": "Prüfen"
   },
   "card": {
-    "sameFormIn": "Gleiche Form auf {{language}}",
     "answerLabel": "Ihre Antwort",
-    "answerPlaceholder": "Antwort eingeben",
+    "answerPlaceholder": "Ihre Antwort…",
     "chooseAnswer": "Wählen Sie die Antwort",
     "task": {
       "Gender": "Welches Geschlecht hat dieses Wort?",
@@ -150,6 +149,12 @@
       "Gerund": "Was ist das Gerundium dieses Verbs?",
       "Participle": "Was ist das Partizip dieses Verbs?",
       "Auxiliary-Verb": "Welches Hilfsverb verwendet dieses Verb?"
+    },
+    "answerPlaceholderPronoun": "…",
+    "placeholder": {
+      "Participle": "Partizip eingeben…",
+      "Gerund": "Gerundium eingeben…",
+      "Short-Form": "Kurzform eingeben…"
     }
   },
   "feedback": {
@@ -157,8 +162,7 @@
     "partial": "Fast richtig",
     "wrong": "Falsch",
     "partialHint": "Nur Akzente oder Großbuchstaben sind anders. Es zählt als richtig.",
-    "expected": "Richtige Antwort: {{answer}}",
-    "yourAnswer": "Ihre Antwort: {{answer}}"
+    "expected": "Richtige Antwort: {{answer}}"
   },
   "save": {
     "saving": "Wird gespeichert…",
@@ -173,39 +177,50 @@
     "attemptWrong": "Falsch",
     "attemptEmpty": "Noch kein Versuch",
     "knowledge": "{{percent}} %",
-    "lastPracticed": "Zuletzt geübt: {{date}}"
+    "lastPracticed": "Zuletzt geübt: {{date}}",
+    "title": "Wissen – genau diese Form"
   },
   "status": {
     "Mastered": "Beherrscht",
     "Revise": "Wiederholen",
-    "reviseProgress": "{{count}} von 5 richtigen Antworten"
+    "reviseProgress": "{{count}} von 5 richtigen Antworten",
+    "reviseShort": "{{count}} von 5",
+    "remove": "Status entfernen"
   },
   "actions": {
     "master": "Beherrscht",
-    "masterHint": "Das kenne ich. Zeige es seltener.",
     "revise": "Wiederholen",
-    "reviseHint": "Das fällt mir schwer. Zeige es öfter.",
-    "answerFirst": "Zuerst antworten",
-    "wholeTranslation": "Das gilt für alle Formen dieses Wortes auf {{language}}."
+    "masterTip": "Das kenne ich. Zeige es seltener. Das gilt für alle Formen dieses Wortes auf {{language}}.",
+    "reviseTip": "Das fällt mir schwer. Zeige es öfter. Das gilt für alle Formen dieses Wortes auf {{language}}.",
+    "toast": {
+      "mastered": "Als beherrscht markiert – diese Übersetzung wird seltener gezeigt.",
+      "revise": "Zu „Wiederholen“ hinzugefügt – sie wird öfter gezeigt, bis 5 Antworten richtig sind.",
+      "removed": "Status entfernt."
+    }
   },
   "dialogs": {
     "master": {
-      "title": "Als beherrscht markieren?",
-      "body": "Wir zeigen diese Übersetzung seltener. Sie bleibt in Ihrer Übung.",
-      "confirm": "Als beherrscht markieren"
+      "title": "Die Übersetzung auf {{language}} als beherrscht markieren?",
+      "body": "Alle Formen dieses Wortes auf {{language}} – nicht nur diese Form – werden seltener gezeigt. Sie können das jederzeit entfernen.",
+      "confirm": "Beherrscht"
     },
     "revise": {
-      "title": "Das öfter üben?",
-      "body": "Wir zeigen diese Übersetzung öfter. Nach 5 richtigen Antworten endet diese Einstellung.",
-      "confirm": "Öfter üben"
-    },
-    "remove": {
-      "title": "Diesen Status entfernen?",
-      "body": "Die Übersetzung wird wieder normal behandelt.",
-      "confirm": "Entfernen"
+      "title": "Die Übersetzung auf {{language}} zu „Wiederholen“ hinzufügen?",
+      "body": "Alle Formen dieses Wortes auf {{language}} – nicht nur diese Form – werden öfter gezeigt. Es endet automatisch nach 5 richtigen Antworten.",
+      "confirm": "Wiederholen"
     },
     "cancel": "Abbrechen",
-    "failed": "Der Status hat sich nicht geändert. Versuchen Sie es noch einmal."
+    "failed": "Der Status hat sich nicht geändert. Versuchen Sie es noch einmal.",
+    "removeMastered": {
+      "title": "„Beherrscht“ entfernen?",
+      "body": "Alle Formen dieses Wortes auf {{language}} erscheinen wieder in der normalen Häufigkeit.",
+      "confirm": "Status entfernen"
+    },
+    "removeRevise": {
+      "title": "Nicht mehr wiederholen?",
+      "body": "Alle Formen dieses Wortes auf {{language}} kehren zum normalen Rhythmus zurück.",
+      "confirm": "Nicht mehr wiederholen"
+    }
   },
   "results": {
     "title": "Ergebnisse",

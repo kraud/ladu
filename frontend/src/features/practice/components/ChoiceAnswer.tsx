@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { ResultIcon } from './ResultIcon';
 
 /** True for an element the user types into: number keys must not pick an option there. */
 function isEditable(target: EventTarget | null): boolean {
@@ -71,13 +72,13 @@ export function ChoiceAnswer({
                         <span className="grow">{option}</span>
                         {state === 'right' && (
                             <>
-                                <span aria-hidden>✓</span>
+                                <ResultIcon result="correct" size={18} />
                                 <span className="sr-only">{t('practice:feedback.correct')}</span>
                             </>
                         )}
                         {state === 'wrong' && (
                             <>
-                                <span aria-hidden>✕</span>
+                                <ResultIcon result="wrong" size={18} />
                                 <span className="sr-only">{t('practice:feedback.wrong')}</span>
                             </>
                         )}

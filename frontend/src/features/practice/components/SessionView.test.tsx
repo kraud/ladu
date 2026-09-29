@@ -62,7 +62,9 @@ describe('SessionView — typed answers', () => {
 
         expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
         expect(screen.getByTestId('prompt')).toHaveTextContent('house');
-        expect(screen.getByText('Same form in Español')).toBeInTheDocument();
+        // The task row matches the prompt row: flag, language, word type, form.
+        expect(screen.getByRole('article', { name: 'Noun' })).toHaveTextContent(/Español·Noun·Singular/);
+        expect(screen.queryByText(/Same form in/)).not.toBeInTheDocument();
         expect(screen.getByLabelText('Your answer')).toHaveFocus();
     });
 
@@ -120,7 +122,9 @@ describe('SessionView — typed answers', () => {
 
         expect(await screen.findByText('Wrong', { selector: 'b' })).toBeInTheDocument();
         expect(screen.getByText('Correct answer: casa')).toBeInTheDocument();
-        expect(screen.getByText('Your answer: perro')).toBeInTheDocument();
+        // What the user typed stays in the locked field; the tile does not repeat it.
+        expect(screen.getByLabelText('Your answer')).toHaveValue('perro');
+        expect(screen.queryByText(/Your answer: /)).not.toBeInTheDocument();
     });
 
     it('shows the pronoun of a verb form next to the field', async () => {
@@ -132,7 +136,11 @@ describe('SessionView — typed answers', () => {
             }),
         ]);
 
-        expect(await screen.findByTestId('answer-pronoun')).toHaveTextContent('Yo');
+        const pronoun = await screen.findByTestId('answer-pronoun');
+        expect(pronoun).toHaveTextContent('Yo');
+        // A prefix inside the field's frame, not part of the typed value.
+        expect(pronoun.parentElement).toContainElement(screen.getByLabelText('Your answer'));
+        expect(screen.getByLabelText('Your answer')).toHaveAttribute('placeholder', '…');
         expect(screen.getAllByText('Present · 1st person singular', { exact: false }).length).toBeGreaterThan(0);
     });
 
@@ -148,6 +156,31 @@ describe('SessionView — typed answers', () => {
         ]);
 
         expect(await screen.findByText('What is the gender of this word?')).toBeInTheDocument();
+    });
+});
+
+describe('SessionView — drills and choices', () => {
+    it('tells a drill what to type', async () => {
+        await open([
+            makeExercise({
+                multiLang: false,
+                partOfSpeech: PartOfSpeech.verb,
+                prompt: { language: Lang.ES, caseName: 'infinitiveNonFiniteSimpleES', value: 'bailar' },
+                answer: { language: Lang.ES, caseName: 'participleNonFiniteSimpleES', value: 'bailado' },
+            }),
+        ]);
+
+        expect(await screen.findByLabelText('Your answer')).toHaveAttribute('placeholder', 'Type the participle…');
+    });
+
+    it('shows no result tile on a choice card, but still announces the result', async () => {
+        await open([choice()]);
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByRole('button', { name: /perro/ }));
+
+        expect(screen.queryByText(/Correct answer:/)).not.toBeInTheDocument();
+        await waitFor(() => expect(screen.getAllByRole('status').some((el) => el.textContent === 'Wrong')).toBe(true));
     });
 });
 
@@ -255,8 +288,9 @@ describe('SessionView — navigation', () => {
 
         await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
 
-        expect(await screen.findByText(/1 answered/)).toBeInTheDocument();
-        expect(screen.getByText(/1 correct/)).toBeInTheDocument();
+        expect(await screen.findByText(/answered/)).toHaveTextContent('1 answered');
+        expect(screen.getByText(/correct/, { selector: '.meta' })).toHaveTextContent('1 correct');
+        expect(screen.getByTestId('meter').firstElementChild).toHaveStyle({ width: '50%' });
     });
 
     it('says how many exercises could be created when there are fewer', async () => {
@@ -270,12 +304,12 @@ describe('SessionView — navigation', () => {
         await open([makeExercise()]);
         const user = userEvent.setup();
 
-        await user.click(await screen.findByRole('button', { name: 'Leave practice' }));
-        expect(await screen.findByText('Leave this practice?')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Stay' }));
+        await user.click(await screen.findByRole('button', { name: 'Leave session' }));
+        expect(await screen.findByText('Leave this session?')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Keep practicing' }));
         expect(usePracticeSessionStore.getState().session).not.toBeNull();
 
-        await user.click(screen.getByRole('button', { name: 'Leave practice' }));
+        await user.click(screen.getByRole('button', { name: 'Leave session' }));
         await user.click(await screen.findByRole('button', { name: 'Leave' }));
 
         expect(await screen.findByText('No words to practice yet')).toBeInTheDocument();
@@ -340,48 +374,67 @@ describe('SessionView — knowledge indicator and status', () => {
     it('shows the Revise status with its progress', async () => {
         await open([makeExercise({ performance: performance({ modifier: 'Revise', reviseCounter: 2 }) })]);
 
-        expect(await screen.findByTestId('status')).toHaveTextContent('Revise · 2 of 5 correct answers');
+        expect(await screen.findByTestId('status')).toHaveTextContent('Revise · 2 of 5');
     });
 
-    it('keeps both actions off until the answer is saved', async () => {
+    /** The icon buttons work once the answer is saved (they use `aria-disabled` so the tooltip stays reachable). */
+    const ready = (name: string) =>
+        waitFor(() => expect(screen.getByRole('button', { name })).not.toHaveAttribute('aria-disabled'));
+
+    it('shows no status buttons before the answer, and keeps them off until the answer is saved', async () => {
         const fake = await open([makeExercise()]);
         const user = userEvent.setup();
 
-        expect(await screen.findByRole('button', { name: 'Mastered' })).toBeDisabled();
-        expect(screen.getByRole('button', { name: 'Revise' })).toBeDisabled();
-        expect(screen.getByText(/Answer first/)).toBeInTheDocument();
-        expect(screen.getByText(/all forms of this word in Español/)).toBeInTheDocument();
+        await screen.findByLabelText('Your answer');
+        expect(screen.queryByRole('button', { name: 'Mastered' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Revise' })).not.toBeInTheDocument();
 
         fake.state.failNextAnswers = 1;
         await user.type(screen.getByLabelText('Your answer'), 'casa{Enter}');
         await screen.findByText('Not saved');
-        expect(screen.getByRole('button', { name: 'Mastered' })).toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Mastered' })).toHaveAttribute('aria-disabled', 'true');
+        await user.click(screen.getByRole('button', { name: 'Mastered' }));
+        expect(screen.queryByText(/as mastered\?/)).not.toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: 'Retry' }));
-        await waitFor(() => expect(screen.getByRole('button', { name: 'Mastered' })).toBeEnabled());
+        await ready('Mastered');
+        await ready('Revise');
     });
 
-    it('marks as mastered after a confirmation, and can switch to Revise and remove it', async () => {
+    it('explains each action in a tooltip, with the scope', async () => {
+        await open([makeExercise()]);
+        const user = userEvent.setup();
+        await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
+        await ready('Mastered');
+
+        await user.hover(screen.getByRole('button', { name: 'Mastered' }));
+        expect(await screen.findByText(/I know this\. Show it less\..*all forms of this word in Español/)).toBeInTheDocument();
+    });
+
+    it('marks as mastered after a confirmation, then switches to Revise and removes it from the pill', async () => {
         const fake = await open([makeExercise()]);
         const user = userEvent.setup();
         await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
-        await waitFor(() => expect(screen.getByRole('button', { name: 'Mastered' })).toBeEnabled());
+        await ready('Mastered');
 
         await user.click(screen.getByRole('button', { name: 'Mastered' }));
-        expect(await screen.findByText('Mark as mastered?')).toBeInTheDocument();
+        expect(await screen.findByText('Mark the Español translation as mastered?')).toBeInTheDocument();
+        expect(screen.getByText(/not just this form/)).toBeInTheDocument();
         expect(fake.state.modifiers).toHaveLength(0);
-        await user.click(screen.getByRole('button', { name: 'Mark as mastered' }));
+        await user.click(screen.getByRole('button', { name: 'Mastered' }));
 
         expect(await screen.findByTestId('status')).toHaveTextContent('Mastered');
         expect(fake.state.modifiers).toEqual([{ translationId: 'tr-es-1', modifier: 'Mastered' }]);
+        // The active status has its pill; only the other button is left.
+        expect(screen.queryByRole('button', { name: 'Mastered' })).not.toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: 'Revise' }));
-        await user.click(await screen.findByRole('button', { name: 'Practice more' }));
+        await user.click(await screen.findByRole('button', { name: 'Revise' }));
         await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('Revise'));
 
-        await user.click(screen.getByRole('button', { name: 'Revise' }));
-        expect(await screen.findByText('Remove this status?')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Remove' }));
+        await user.click(screen.getByRole('button', { name: 'Remove status' }));
+        expect(await screen.findByText('Stop revising?')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Stop revising' }));
         await waitFor(() => expect(screen.queryByTestId('status')).not.toBeInTheDocument());
         expect(fake.state.modifiers.map((m) => m.modifier)).toEqual(['Mastered', 'Revise', null]);
     });
@@ -390,7 +443,7 @@ describe('SessionView — knowledge indicator and status', () => {
         const fake = await open([makeExercise()]);
         const user = userEvent.setup();
         await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
-        await waitFor(() => expect(screen.getByRole('button', { name: 'Mastered' })).toBeEnabled());
+        await ready('Mastered');
 
         await user.click(screen.getByRole('button', { name: 'Mastered' }));
         await user.click(await screen.findByRole('button', { name: 'Cancel' }));
@@ -403,11 +456,11 @@ describe('SessionView — knowledge indicator and status', () => {
         const fake = await open([makeExercise()]);
         const user = userEvent.setup();
         await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
-        await waitFor(() => expect(screen.getByRole('button', { name: 'Mastered' })).toBeEnabled());
+        await ready('Mastered');
         server.use(http.put('*/api/exercises/performances/:id/modifier', () => HttpResponse.json({}, { status: 500 })));
 
         await user.click(screen.getByRole('button', { name: 'Mastered' }));
-        await user.click(await screen.findByRole('button', { name: 'Mark as mastered' }));
+        await user.click(await screen.findByRole('button', { name: 'Mastered' }));
 
         expect(await screen.findByText('The status did not change. Try again.')).toBeInTheDocument();
         expect(screen.queryByTestId('status')).not.toBeInTheDocument();
@@ -418,9 +471,9 @@ describe('SessionView — knowledge indicator and status', () => {
         await open([makeExercise(), makeExercise({ key: 'k2' })]);
         const user = userEvent.setup();
         await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
-        await waitFor(() => expect(screen.getByRole('button', { name: 'Revise' })).toBeEnabled());
+        await ready('Revise');
         await user.click(screen.getByRole('button', { name: 'Revise' }));
-        await user.click(await screen.findByRole('button', { name: 'Practice more' }));
+        await user.click(await screen.findByRole('button', { name: 'Revise' }));
         await screen.findByTestId('status');
 
         await user.click(screen.getByRole('button', { name: 'Next' }));

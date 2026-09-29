@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { caseLabel, describeCase, pronounFor } from '@/lib/cases';
@@ -8,11 +9,15 @@ import type { GivenAnswer } from '../session';
 import type { AnswerResult, Exercise, StrictnessTI } from '../types';
 import { AnswerFeedback } from './AnswerFeedback';
 import { ChoiceAnswer } from './ChoiceAnswer';
-import { ModifierActions } from './ModifierActions';
 import { PerformanceIndicator } from './PerformanceIndicator';
 import { TextInputAnswer } from './TextInputAnswer';
 
 const languageName = (label: string) => languageByLabel(label)?.native ?? label;
+
+/** What a same-language drill asks the user to type ("Type the participle…"); the default text when it has none. */
+function placeholderFor(t: TFunction, category: string): string | undefined {
+    return t(`practice:card.placeholder.${category}`, { defaultValue: '' }) || undefined;
+}
 
 /**
  * One exercise (Part C §C.4): the prompt, the task, the answer control and the
@@ -63,17 +68,18 @@ export function ExerciseCard({
             </section>
 
             <section className="flex flex-col gap-3">
-                <span className="flex flex-wrap items-center gap-2 text-sm font-medium">
-                    {question ?? (
-                        <>
-                            {t('practice:card.sameFormIn', { language: languageName(expected.language) })}
-                            <FlagIcon lang={expected.language} />
-                            <span className="text-muted-foreground">
-                                {caseLabel(t, partOfSpeech, expected.caseName)}
-                            </span>
-                        </>
-                    )}
-                </span>
+                {question ? (
+                    <span className="text-sm font-medium">{question}</span>
+                ) : (
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <FlagIcon lang={expected.language} />
+                        {languageName(expected.language)}
+                        <span aria-hidden>·</span>
+                        {t(partOfSpeechLabelKey(partOfSpeech))}
+                        <span aria-hidden>·</span>
+                        {caseLabel(t, partOfSpeech, expected.caseName)}
+                    </span>
+                )}
 
                 {exercise.type === 'Multiple-Choice' && exercise.options ? (
                     <ChoiceAnswer
@@ -85,22 +91,17 @@ export function ExerciseCard({
                 ) : (
                     <TextInputAnswer
                         pronoun={answerPronoun}
+                        placeholder={target?.kind === 'property' ? placeholderFor(t, target.category) : undefined}
                         given={answer?.given}
                         onSubmit={(typed) => onAnswer(evaluateTextInput(typed, expected.value, strictness), typed)}
                     />
                 )}
             </section>
 
-            <AnswerFeedback
-                answer={answer}
-                expected={expected.value}
-                showGiven={exercise.type === 'Text-Input'}
-                onRetry={onRetry}
-            />
+            <AnswerFeedback answer={answer} expected={expected.value} isTyped={exercise.type === 'Text-Input'} />
 
-            <section className="flex flex-col gap-3 border-t border-border pt-4">
-                <PerformanceIndicator exercise={exercise} />
-                <ModifierActions exercise={exercise} answer={answer} />
+            <section className="border-t border-dashed border-border pt-3">
+                <PerformanceIndicator exercise={exercise} answer={answer} onRetry={onRetry} />
             </section>
         </article>
     );

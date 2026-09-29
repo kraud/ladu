@@ -123,14 +123,14 @@
   },
   "session": {
     "progress": "Exercise {{current}} of {{total}}",
-    "answered": "{{count}} answered",
-    "correct": "{{count}} correct",
-    "leave": "Leave practice",
+    "answered": "<b>{{count}}</b> answered",
+    "correct": "<b>{{count}}</b> correct",
+    "leave": "Leave session",
     "leaveDialog": {
-      "title": "Leave this practice?",
-      "body": "The answers you gave are saved.",
+      "title": "Leave this session?",
+      "body": "Your answers so far stay saved — knowledge scores already counted them. You can start a new session any time.",
       "confirm": "Leave",
-      "cancel": "Stay"
+      "cancel": "Keep practicing"
     },
     "previous": "Previous",
     "next": "Next",
@@ -139,9 +139,8 @@
     "check": "Check"
   },
   "card": {
-    "sameFormIn": "Same form in {{language}}",
     "answerLabel": "Your answer",
-    "answerPlaceholder": "Type your answer",
+    "answerPlaceholder": "Your answer…",
     "chooseAnswer": "Choose the answer",
     "task": {
       "Gender": "What is the gender of this word?",
@@ -150,6 +149,12 @@
       "Gerund": "What is the gerund of this verb?",
       "Participle": "What is the participle of this verb?",
       "Auxiliary-Verb": "Which auxiliary verb does this verb use?"
+    },
+    "answerPlaceholderPronoun": "…",
+    "placeholder": {
+      "Participle": "Type the participle…",
+      "Gerund": "Type the gerund…",
+      "Short-Form": "Type the short form…"
     }
   },
   "feedback": {
@@ -157,8 +162,7 @@
     "partial": "Almost correct",
     "wrong": "Wrong",
     "partialHint": "Only accents or capital letters are different. It counts as correct.",
-    "expected": "Correct answer: {{answer}}",
-    "yourAnswer": "Your answer: {{answer}}"
+    "expected": "Correct answer: {{answer}}"
   },
   "save": {
     "saving": "Saving…",
@@ -173,39 +177,50 @@
     "attemptWrong": "Wrong",
     "attemptEmpty": "No attempt yet",
     "knowledge": "{{percent}} %",
-    "lastPracticed": "Last practiced: {{date}}"
+    "lastPracticed": "Last practiced: {{date}}",
+    "title": "Knowledge — this exact form"
   },
   "status": {
     "Mastered": "Mastered",
     "Revise": "Revise",
-    "reviseProgress": "{{count}} of 5 correct answers"
+    "reviseProgress": "{{count}} of 5 correct answers",
+    "reviseShort": "{{count}} of 5",
+    "remove": "Remove status"
   },
   "actions": {
     "master": "Mastered",
-    "masterHint": "I know this. Show it less.",
     "revise": "Revise",
-    "reviseHint": "I find this difficult. Show it more.",
-    "answerFirst": "Answer first",
-    "wholeTranslation": "This applies to all forms of this word in {{language}}."
+    "masterTip": "I know this. Show it less. This applies to all forms of this word in {{language}}.",
+    "reviseTip": "I find this difficult. Show it more. This applies to all forms of this word in {{language}}.",
+    "toast": {
+      "mastered": "Marked as mastered — this translation will show up less.",
+      "revise": "Added to Revise — it shows up more until 5 correct answers.",
+      "removed": "Status removed."
+    }
   },
   "dialogs": {
     "master": {
-      "title": "Mark as mastered?",
-      "body": "We will show this translation less often. It stays in your practice.",
-      "confirm": "Mark as mastered"
+      "title": "Mark the {{language}} translation as mastered?",
+      "body": "All forms of this word in {{language}} — not just this form — will be shown less often. You can remove this any time.",
+      "confirm": "Mastered"
     },
     "revise": {
-      "title": "Practice this more?",
-      "body": "We will show this translation more often. After 5 correct answers, this setting ends.",
-      "confirm": "Practice more"
-    },
-    "remove": {
-      "title": "Remove this status?",
-      "body": "The translation goes back to normal.",
-      "confirm": "Remove"
+      "title": "Add the {{language}} translation to Revise?",
+      "body": "All forms of this word in {{language}} — not just this form — will be shown more often. It clears automatically after 5 correct answers.",
+      "confirm": "Revise"
     },
     "cancel": "Cancel",
-    "failed": "The status did not change. Try again."
+    "failed": "The status did not change. Try again.",
+    "removeMastered": {
+      "title": "Remove “Mastered”?",
+      "body": "All forms of this word in {{language}} will show up at their normal rate again.",
+      "confirm": "Remove status"
+    },
+    "removeRevise": {
+      "title": "Stop revising?",
+      "body": "All forms of this word in {{language}} return to their normal schedule.",
+      "confirm": "Stop revising"
+    }
   },
   "results": {
     "title": "Results",

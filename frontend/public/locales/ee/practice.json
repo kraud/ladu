@@ -123,14 +123,14 @@
   },
   "session": {
     "progress": "Harjutus {{current}} / {{total}}",
-    "answered": "{{count}} vastatud",
-    "correct": "{{count}} õiget",
-    "leave": "Lahku harjutusest",
+    "answered": "<b>{{count}}</b> vastatud",
+    "correct": "<b>{{count}}</b> õiget",
+    "leave": "Lahku sessioonist",
     "leaveDialog": {
-      "title": "Kas lahkud sellest harjutusest?",
-      "body": "Sinu antud vastused on salvestatud.",
+      "title": "Kas lahkud sellest sessioonist?",
+      "body": "Seni antud vastused jäävad salvestatud – teadmiste hinded on need juba arvesse võtnud. Uue sessiooni saad alustada millal tahes.",
       "confirm": "Lahku",
-      "cancel": "Jää"
+      "cancel": "Jätka harjutamist"
     },
     "previous": "Eelmine",
     "next": "Järgmine",
@@ -139,9 +139,8 @@
     "check": "Kontrolli"
   },
   "card": {
-    "sameFormIn": "Sama vorm keeles: {{language}}",
     "answerLabel": "Sinu vastus",
-    "answerPlaceholder": "Kirjuta vastus",
+    "answerPlaceholder": "Sinu vastus…",
     "chooseAnswer": "Vali vastus",
     "task": {
       "Gender": "Mis sugu on see sõna?",
@@ -150,6 +149,12 @@
       "Gerund": "Mis on selle verbi gerundium?",
       "Participle": "Mis on selle verbi kesksõna?",
       "Auxiliary-Verb": "Millist abiverbi see verb kasutab?"
+    },
+    "answerPlaceholderPronoun": "…",
+    "placeholder": {
+      "Participle": "Kirjuta kesksõna…",
+      "Gerund": "Kirjuta gerundium…",
+      "Short-Form": "Kirjuta lühivorm…"
     }
   },
   "feedback": {
@@ -157,8 +162,7 @@
     "partial": "Peaaegu õige",
     "wrong": "Vale",
     "partialHint": "Erinevad on ainult rõhumärgid või suurtähed. See loetakse õigeks.",
-    "expected": "Õige vastus: {{answer}}",
-    "yourAnswer": "Sinu vastus: {{answer}}"
+    "expected": "Õige vastus: {{answer}}"
   },
   "save": {
     "saving": "Salvestan…",
@@ -173,39 +177,50 @@
     "attemptWrong": "Vale",
     "attemptEmpty": "Katset veel ei ole",
     "knowledge": "{{percent}} %",
-    "lastPracticed": "Viimati harjutatud: {{date}}"
+    "lastPracticed": "Viimati harjutatud: {{date}}",
+    "title": "Teadmised – just see vorm"
   },
   "status": {
     "Mastered": "Selge",
     "Revise": "Kordamiseks",
-    "reviseProgress": "{{count}} / 5 õiget vastust"
+    "reviseProgress": "{{count}} / 5 õiget vastust",
+    "reviseShort": "{{count}} / 5",
+    "remove": "Eemalda olek"
   },
   "actions": {
     "master": "Selge",
-    "masterHint": "Ma tean seda. Näita seda harvemini.",
     "revise": "Kordamiseks",
-    "reviseHint": "See on mulle raske. Näita seda sagedamini.",
-    "answerFirst": "Vasta kõigepealt",
-    "wholeTranslation": "See kehtib selle sõna kõigile vormidele keeles: {{language}}."
+    "masterTip": "Ma tean seda. Näita seda harvemini. See kehtib selle sõna kõigile vormidele keeles: {{language}}.",
+    "reviseTip": "See on mulle raske. Näita seda sagedamini. See kehtib selle sõna kõigile vormidele keeles: {{language}}.",
+    "toast": {
+      "mastered": "Märgitud selgeks – seda tõlget näidatakse harvemini.",
+      "revise": "Lisatud kordamiseks – seda näidatakse sagedamini, kuni 5 vastust on õiged.",
+      "removed": "Olek eemaldatud."
+    }
   },
   "dialogs": {
     "master": {
-      "title": "Kas märgid selle selgeks?",
-      "body": "Näitame seda tõlget harvemini. See jääb sinu harjutusse.",
-      "confirm": "Märgi selgeks"
+      "title": "Kas märgid tõlke keeles {{language}} selgeks?",
+      "body": "Selle sõna kõiki vorme keeles {{language}} – mitte ainult seda vormi – näidatakse harvemini. Selle saad igal ajal eemaldada.",
+      "confirm": "Selge"
     },
     "revise": {
-      "title": "Kas harjutad seda rohkem?",
-      "body": "Näitame seda tõlget sagedamini. Pärast 5 õiget vastust see seade lõpeb.",
-      "confirm": "Harjuta rohkem"
-    },
-    "remove": {
-      "title": "Kas eemaldad selle oleku?",
-      "body": "Tõlge muutub taas tavaliseks.",
-      "confirm": "Eemalda"
+      "title": "Kas lisad tõlke keeles {{language}} kordamiseks?",
+      "body": "Selle sõna kõiki vorme keeles {{language}} – mitte ainult seda vormi – näidatakse sagedamini. See lõpeb ise pärast 5 õiget vastust.",
+      "confirm": "Kordamiseks"
     },
     "cancel": "Tühista",
-    "failed": "Olek ei muutunud. Proovi uuesti."
+    "failed": "Olek ei muutunud. Proovi uuesti.",
+    "removeMastered": {
+      "title": "Kas eemaldad oleku „Selge“?",
+      "body": "Selle sõna kõiki vorme keeles {{language}} näidatakse taas tavalise sagedusega.",
+      "confirm": "Eemalda olek"
+    },
+    "removeRevise": {
+      "title": "Kas lõpetad kordamise?",
+      "body": "Selle sõna kõik vormid keeles {{language}} lähevad tagasi tavalisele graafikule.",
+      "confirm": "Lõpeta kordamine"
+    }
   },
   "results": {
     "title": "Tulemused",

@@ -6,8 +6,7 @@ import { languageByLabel } from '@/lib/language';
 import { partOfSpeechLabelKey } from '@/lib/words';
 import type { GivenAnswer } from '../session';
 import type { Exercise, ExerciseSide } from '../types';
-
-const ICON = { correct: '✓', partial: '≈', wrong: '✕' } as const;
+import { ResultIcon } from './ResultIcon';
 
 const languageName = (label: string) => languageByLabel(label)?.native ?? label;
 
@@ -30,8 +29,8 @@ export function ResultRow({
     return (
         <li className="card card-pad flex flex-col gap-2" data-testid="result-row">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                <b>
-                    <span aria-hidden>{ICON[answer.result]} </span>
+                <b className="inline-flex items-center gap-1.5">
+                    <ResultIcon result={answer.result} />
                     {t(`practice:feedback.${answer.result}`)}
                 </b>
                 <span className="meta">

@@ -478,7 +478,7 @@ describe('PracticePage — running session', () => {
         await renderApp({ initialEntry: '/practice', session: SESSION });
 
         expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Leave practice' }));
+        await user.click(screen.getByRole('button', { name: 'Leave session' }));
         await user.click(await screen.findByRole('button', { name: 'Leave' }));
         expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
     });
