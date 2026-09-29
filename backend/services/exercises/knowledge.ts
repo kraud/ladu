@@ -3,7 +3,7 @@
  * By design (decision D2a) the /4 window and the double aging stay exactly as in the old app.
  */
 
-import type { CaseStat, Modifier, RawExercise, TranslationPerformance } from './types';
+import type { CaseStat, RawExercise, TranslationPerformance } from './types';
 
 export const RECORD_LENGTH = 4;
 export const REVISE_COUNTER_THRESHOLD = 5;
@@ -68,15 +68,6 @@ export function nextReviseState(
         }
     }
     return { performanceModifier, reviseCounter: counter };
-}
-
-/** `savePerformanceAction`: no action clears the modifier. The counter always resets. */
-export function modifierForAction(action: 'master' | 'forget' | undefined): {
-    performanceModifier: Modifier | null;
-    reviseCounter: number;
-} {
-    if (action === undefined) return { performanceModifier: null, reviseCounter: 0 };
-    return { performanceModifier: action === 'master' ? 'Mastered' : 'Revise', reviseCounter: 0 };
 }
 
 function agedTranslationKnowledge(perf: TranslationPerformance, now: Date): number {

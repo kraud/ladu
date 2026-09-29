@@ -145,14 +145,12 @@ describe('Data Snapshots - Migration Baseline', () => {
         );
 
         const res = await request(app)
-            .post('/api/exercises/saveTranslationPerformance')
+            .post('/api/exercises/answers')
             .set('Authorization', `Bearer ${token}`)
             .send({
                 translationId: estonianTrans.id,
-                translationLanguage: 'Estonian',
-                word: wordId,
                 caseName: 'singularNimetavEE',
-                record: true,
+                result: 'correct',
             });
 
         expect(res.statusCode).toBe(200);

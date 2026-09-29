@@ -1,4 +1,4 @@
-const { calculateAging, calculateNewPercentageOfKnowledge } = require('../../controllers/exercisePerformanceController');
+const { calculateAging, calculateNewPercentageOfKnowledge } = require('../../services/exercises');
 
 describe('calculateAging', () => {
     it('returns 100% when lastDate is now (0 days ago)', () => {

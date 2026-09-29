@@ -87,14 +87,6 @@ describe('nextReviseState (A.8 modifiers)', () => {
     });
 });
 
-describe('modifierForAction', () => {
-    it('maps the actions and resets the counter', () => {
-        expect(K.modifierForAction('master')).toEqual({ performanceModifier: 'Mastered', reviseCounter: 0 });
-        expect(K.modifierForAction('forget')).toEqual({ performanceModifier: 'Revise', reviseCounter: 0 });
-        expect(K.modifierForAction(undefined)).toEqual({ performanceModifier: null, reviseCounter: 0 });
-    });
-});
-
 describe('wordScore (A.9 step 2)', () => {
     const langs = ['English', 'Spanish'];
 

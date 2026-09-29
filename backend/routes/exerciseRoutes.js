@@ -1,11 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const {getExercises} = require('../controllers/exerciseController.ts')
-const {saveTranslationPerformance, savePerformanceAction} = require ('../controllers/exercisePerformanceController.ts')
+const {generate, saveAnswer, setModifier} = require('../controllers/exerciseController.ts')
 const {protect} = require('../middleware/authMiddleware.ts')
 
-router.get('/getUserExercises', protect, getExercises)
-router.post('/saveTranslationPerformance', protect, saveTranslationPerformance)
-router.post('/savePerformanceAction', protect, savePerformanceAction)
+router.post('/generate', protect, generate)
+router.post('/answers', protect, saveAnswer)
+router.put('/performances/:translationId/modifier', protect, setModifier)
 
 module.exports = router

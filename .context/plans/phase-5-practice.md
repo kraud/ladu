@@ -338,7 +338,7 @@ type Exercise = {
   translationId: string            // answer translation
   prompt: { language: Lang; caseName: string; value: string }
   answer: { language: Lang; caseName: string; value: string }
-  options?: string[]               // MC only: shuffled, answer included, no duplicates
+  options?: string[]               // MC only: answer included, no duplicates. Multi-language: shuffled. Single-language: catalogue order.
   performance: PerformanceSummary | null
 }
 type PerformanceSummary = {
@@ -432,8 +432,8 @@ Part C first.** Slices 1–4 have no UI and can run while the mockups are made.
 |---|---|---|
 | 0 | Done, committed | Persist this plan as `.context/plans/phase-5-practice.md`; link it in `new-repo-build-plan.md` §5/§9 and `.context/README.md`. |
 | 1 | Done, committed | Backend: pure domain module `services/exercises/*` + unit tests pinning A.5–A.9. Old endpoints re-wired onto it, behaviour unchanged. |
-| 2 | Done, awaiting commit | Backend: migration 0007 + D5 (`updateWord`) + D7 (clone history) + D6 backend (`nativeLanguage` validation) + tests. |
-| 3 | Next | Backend: new API (B.3) with validation, visibility, full-pool ranking + batching; remove old routes; Jest suite rewritten (IDOR, visibility, ranking order, batching, distractor levels, revise counter, native exclusion, response shape). |
+| 2 | Done, committed | Backend: migration 0007 + D5 (`updateWord`) + D7 (clone history) + D6 backend (`nativeLanguage` validation) + tests. |
+| 3 | Done, awaiting commit | Backend: new API (B.3) with validation, visibility, full-pool ranking + batching; remove old routes; Jest suite rewritten (IDOR, visibility, ranking order, batching, distractor levels, revise counter, native exclusion, response shape). |
 | 4 | | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
 | 5 | | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
 | 6 | | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
@@ -470,6 +470,35 @@ rows with remapped ids; `updateUser` validates `nativeLanguage` and keeps it whe
 
 **Slice 3 detail.** Add a benchmark script (`backend/scripts/bench-exercises.ts`, not a test) that seeds
 ~5,000 words and times `generate`; record the number in this file.
+
+**Slice 3 — as built.**
+- New files: `services/exerciseService.ts` (DB side: ranking, batching, save, modifier),
+  `services/exercises/validate.ts` (pure request validation, stable error `code`s) and
+  `services/exercises/present.ts` (response shapes, option building). Controller `exerciseController.ts` is thin.
+  `exercisePerformanceController.ts` and the three old routes are deleted. `modifierForAction` is removed
+  (the new API sets the modifier directly).
+- Errors: 400 `{ message, code }` (`invalid_languages`, `invalid_amount`, …); 404 `{ message, code: 'not_found' }`.
+  `answers` returns 404 for an unknown translation, a translation the user cannot see, or an unknown case — one
+  answer for all three, so a private word never leaks.
+- `modifier` is set directly (`Mastered` / `Revise` / `null`); the client decides the toggle. Setting resets the
+  revise counter.
+- Ranking: one SQL query (`rankCandidateWords`) — own words ∪ visible followed words, PoS filter, at least 2
+  (Multi-Language) or 1 selected language present, word score in SQL, `ORDER BY score, random()`. "Now" is passed
+  from JS (epoch seconds), not read from the DB clock. A test pins SQL against `wordScore`.
+- Batching: 50 words per round trip, stops once `amount` words gave exercises. If the pool ends first,
+  `pickExercises` repeats rounds over the words found.
+- Distractor pool: random sample of ≤50 candidate words **plus the picked words** (level 3 for verbs needs the
+  answer's own word).
+- Saving: insert-if-missing + `SELECT … FOR UPDATE` + upsert of the case stat, in one transaction. Two parallel
+  answers make one row and keep both answers (tested).
+- Single-language choices keep the catalogue order (der/die/das); multi-language choices are shuffled.
+- Benchmark (`npx tsx scripts/bench-exercises.ts`, test DB, 5,000 words × 4 languages, 60 % practised): median
+  43–56 ms for 10 or 100 exercises, all card types and modes.
+- Gate note: the `_id` grep must be `grep -rnw "_id"` — plain `_id` also matches `translation_id`.
+- Tests: `tests/exercises.test.js` rewritten (57 tests), `tests/unit/exercisesApi.test.js` (new). The
+  `ExercisePerformance` snapshot in `snapshots.test.js` now records the new `PerformanceSummary` shape.
+- Known flake: `tags.test.js › removes the follow when cloning a tag the caller already follows` failed once
+  with "socket hang up" in a full run; it passes alone and on the previous commit.
 
 **Slice 5 detail.** The native-language option shows only when `nativeLanguage` is set. PoS options narrowed
 to the pre-selected words' PoS. Adjective/Adverb are selectable but show a note that they have no exercises
@@ -515,7 +544,7 @@ Manual (Playwright MCP, both themes, desktop + phone width): a full session per 
 mode; reload mid-session; save failure (stop the backend) → unsaved + retry; Master/Revise toggle.
 
 **Gate:** backend + frontend suites green; build green; e2e green incl. `phase-5-practice.spec.ts`;
-`grep -rn "_id" backend/controllers/exercise*` = 0; `grep -rn "getUserExercises\|saveTranslationPerformance"
+`grep -rnw "_id" backend/controllers/exercise*` = 0; `grep -rn "getUserExercises\|saveTranslationPerformance"
 frontend/src backend/routes` = 0.
 
 ## B.7 Risks
