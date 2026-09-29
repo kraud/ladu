@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 import userEvent from '@testing-library/user-event';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
@@ -295,5 +296,135 @@ describe('SessionView — navigation', () => {
 
         expect(usePracticeSessionStore.getState().session?.current).toBe(1);
         expect(screen.getByTestId('prompt')).toHaveTextContent('dog');
+    });
+});
+
+describe('SessionView — knowledge indicator and status', () => {
+    const performance = (over = {}) => ({
+        translationId: 'tr-es-1',
+        modifier: null,
+        reviseCounter: 0,
+        cases: [{ caseName: 'singularES', record: [true, false], knowledge: 46.9, lastDate: '2026-09-01T10:00:00.000Z' }],
+        ...over,
+    });
+
+    it('says "New" for a form that was never practised', async () => {
+        await open([makeExercise()]);
+
+        expect(await screen.findByText('New')).toBeInTheDocument();
+        expect(screen.queryByText(/Last practiced/)).not.toBeInTheDocument();
+        expect(within(screen.getByTestId('indicator')).getAllByText('No attempt yet')).toHaveLength(4);
+    });
+
+    it('shows the last attempts, the knowledge and the date of a practised form', async () => {
+        await open([makeExercise({ performance: performance() })]);
+
+        const indicator = await screen.findByTestId('indicator');
+        expect(within(indicator).getAllByText('Right')).toHaveLength(1);
+        expect(within(indicator).getAllByText('Wrong')).toHaveLength(1);
+        expect(within(indicator).getAllByText('No attempt yet')).toHaveLength(2);
+        expect(within(indicator).getByText('47 %')).toBeInTheDocument();
+        expect(within(indicator).getByText(/Last practiced: /)).toBeInTheDocument();
+    });
+
+    it('updates the indicator when the answer is saved', async () => {
+        await open([makeExercise()]);
+        const user = userEvent.setup();
+
+        await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
+
+        expect(await within(screen.getByTestId('indicator')).findByText('25 %')).toBeInTheDocument();
+        expect(within(screen.getByTestId('indicator')).getAllByText('Right')).toHaveLength(1);
+    });
+
+    it('shows the Revise status with its progress', async () => {
+        await open([makeExercise({ performance: performance({ modifier: 'Revise', reviseCounter: 2 }) })]);
+
+        expect(await screen.findByTestId('status')).toHaveTextContent('Revise · 2 of 5 correct answers');
+    });
+
+    it('keeps both actions off until the answer is saved', async () => {
+        const fake = await open([makeExercise()]);
+        const user = userEvent.setup();
+
+        expect(await screen.findByRole('button', { name: 'Mastered' })).toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Revise' })).toBeDisabled();
+        expect(screen.getByText(/Answer first/)).toBeInTheDocument();
+        expect(screen.getByText(/all forms of this word in Español/)).toBeInTheDocument();
+
+        fake.state.failNextAnswers = 1;
+        await user.type(screen.getByLabelText('Your answer'), 'casa{Enter}');
+        await screen.findByText('Not saved');
+        expect(screen.getByRole('button', { name: 'Mastered' })).toBeDisabled();
+
+        await user.click(screen.getByRole('button', { name: 'Retry' }));
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Mastered' })).toBeEnabled());
+    });
+
+    it('marks as mastered after a confirmation, and can switch to Revise and remove it', async () => {
+        const fake = await open([makeExercise()]);
+        const user = userEvent.setup();
+        await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Mastered' })).toBeEnabled());
+
+        await user.click(screen.getByRole('button', { name: 'Mastered' }));
+        expect(await screen.findByText('Mark as mastered?')).toBeInTheDocument();
+        expect(fake.state.modifiers).toHaveLength(0);
+        await user.click(screen.getByRole('button', { name: 'Mark as mastered' }));
+
+        expect(await screen.findByTestId('status')).toHaveTextContent('Mastered');
+        expect(fake.state.modifiers).toEqual([{ translationId: 'tr-es-1', modifier: 'Mastered' }]);
+
+        await user.click(screen.getByRole('button', { name: 'Revise' }));
+        await user.click(await screen.findByRole('button', { name: 'Practice more' }));
+        await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('Revise'));
+
+        await user.click(screen.getByRole('button', { name: 'Revise' }));
+        expect(await screen.findByText('Remove this status?')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+        await waitFor(() => expect(screen.queryByTestId('status')).not.toBeInTheDocument());
+        expect(fake.state.modifiers.map((m) => m.modifier)).toEqual(['Mastered', 'Revise', null]);
+    });
+
+    it('changes nothing when the confirmation is cancelled', async () => {
+        const fake = await open([makeExercise()]);
+        const user = userEvent.setup();
+        await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Mastered' })).toBeEnabled());
+
+        await user.click(screen.getByRole('button', { name: 'Mastered' }));
+        await user.click(await screen.findByRole('button', { name: 'Cancel' }));
+
+        expect(fake.state.modifiers).toHaveLength(0);
+        expect(screen.queryByTestId('status')).not.toBeInTheDocument();
+    });
+
+    it('shows an error and keeps the status when the change fails', async () => {
+        const fake = await open([makeExercise()]);
+        const user = userEvent.setup();
+        await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Mastered' })).toBeEnabled());
+        server.use(http.put('*/api/exercises/performances/:id/modifier', () => HttpResponse.json({}, { status: 500 })));
+
+        await user.click(screen.getByRole('button', { name: 'Mastered' }));
+        await user.click(await screen.findByRole('button', { name: 'Mark as mastered' }));
+
+        expect(await screen.findByText('The status did not change. Try again.')).toBeInTheDocument();
+        expect(screen.queryByTestId('status')).not.toBeInTheDocument();
+        expect(fake.state.modifiers).toHaveLength(0);
+    });
+
+    it('shows the new status on every card of the same translation', async () => {
+        await open([makeExercise(), makeExercise({ key: 'k2' })]);
+        const user = userEvent.setup();
+        await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Revise' })).toBeEnabled());
+        await user.click(screen.getByRole('button', { name: 'Revise' }));
+        await user.click(await screen.findByRole('button', { name: 'Practice more' }));
+        await screen.findByTestId('status');
+
+        await user.click(screen.getByRole('button', { name: 'Next' }));
+
+        expect(await screen.findByTestId('status')).toHaveTextContent('Revise');
     });
 });

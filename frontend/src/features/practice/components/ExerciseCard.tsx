@@ -8,6 +8,8 @@ import type { GivenAnswer } from '../session';
 import type { AnswerResult, Exercise, StrictnessTI } from '../types';
 import { AnswerFeedback } from './AnswerFeedback';
 import { ChoiceAnswer } from './ChoiceAnswer';
+import { ModifierActions } from './ModifierActions';
+import { PerformanceIndicator } from './PerformanceIndicator';
 import { TextInputAnswer } from './TextInputAnswer';
 
 const languageName = (label: string) => languageByLabel(label)?.native ?? label;
@@ -95,6 +97,11 @@ export function ExerciseCard({
                 showGiven={exercise.type === 'Text-Input'}
                 onRetry={onRetry}
             />
+
+            <section className="flex flex-col gap-3 border-t border-border pt-4">
+                <PerformanceIndicator exercise={exercise} />
+                <ModifierActions exercise={exercise} answer={answer} />
+            </section>
         </article>
     );
 }

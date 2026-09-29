@@ -436,8 +436,8 @@ Part C first.** Slices 1–4 have no UI and can run while the mockups are made.
 | 3 | Done, committed | Backend: new API (B.3) with validation, visibility, full-pool ranking + batching; remove old routes; Jest suite rewritten (IDOR, visibility, ranking order, batching, distractor levels, revise counter, native exclusion, response shape). |
 | 4 | Done, committed | Frontend data layer: types, api, hooks, MSW handlers, `evaluate.ts`, `session.ts` + store, `search.ts`, `lib/cases.ts`; `practice.json` rewrite (4 languages). Unit tests. |
 | 5 | Done, committed | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
-| 6 | Done, awaiting commit | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
-| 7 | | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
+| 6 | Done, committed | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
+| 7 | Done, awaiting commit | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
 | 8 | | Frontend: results screen — score, rows, review a card, restart flows. |
 | 9 | | Phase gate: `e2e/tests/phase-5-practice.spec.ts` + docs + full green run. |
 
@@ -575,6 +575,24 @@ rows with remapped ids; `updateUser` validates `nativeLanguage` and keeps it whe
   answered, with the hint `session.answerAll` (new key, 4 languages; EE not reviewed).
 - Not in this slice (Slice 7): knowledge indicator, Master/Revise.
 - Gate: frontend suite 1155 tests green, `tsc -b` + `vite build` green, ESLint 0 errors.
+
+**Slice 7 — as built.**
+- New: `components/PerformanceIndicator.tsx`, `components/ModifierActions.tsx`; both sit in `ExerciseCard`
+  (below the answer), so Slice 8 gets them on a card opened from the results for free.
+- Indicator: 4 attempt slots of the answer case (oldest first, empty slots; icon + hidden text, not colour
+  alone), the stored knowledge rounded (`47 %`), the last-practice date in the UI language, or **"New"** when
+  the form has no stat (no "0 %", no invalid date). Mastered / Revise status chip; Revise adds "n of 5 correct
+  answers". It updates when the save response arrives.
+- Actions: Mastered / Revise buttons, enabled **only when this card's answer is `saved`** (this closes the
+  Slice 4 known limit: a Master/Revise response can no longer meet a slower save response of the same card;
+  it also means the performance row exists). Pressing the active status opens the "remove" dialog; pressing
+  the other one switches. Each change asks first; Cancel changes nothing. The copy says the action covers all
+  forms of the word in that language.
+- A failed change shows `dialogs.failed` and keeps the old status. The response goes through the session
+  store (`performanceChanged`), so leaving the card while the request runs cannot lose it, and every card of
+  the same translation shows the new status.
+- No new locale keys (all were in the Slice 4 rewrite). Mastered copy says "show less often", not "hidden" (A.8).
+- Gate: frontend suite 1164 tests green, `tsc -b` + `vite build` green, ESLint 0 errors.
 
 **Slice 5 detail.** The native-language option shows only when `nativeLanguage` is set. PoS options narrowed
 to the pre-selected words' PoS. Adjective/Adverb are selectable but show a note that they have no exercises
