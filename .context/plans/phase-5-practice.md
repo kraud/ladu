@@ -616,6 +616,29 @@ rows with remapped ids; `updateUser` validates `nativeLanguage` and keeps it whe
 - No new locale keys (all were in the Slice 4 rewrite).
 - Gate: frontend suite 1173 tests green, `tsc -b` + `vite build` green, ESLint 0 errors (3 old warnings).
 
+**Mockup alignment — Exercise settings (between Slice 8 and 9).** Screen-by-screen pass against
+`mockups/practice.html`; this is the first of three (settings, card, results). Decisions taken with the user:
+- Header as on Add word: `h1` "Practice" + subtitle beside it. The form has no max width (options will change later).
+- One card of rows separated by lines, an inline hint beside each label ("All your languages" / "2 of 4 languages",
+  "1–100", word-type hint always visible). Advanced is the last row (a bordered disclosure). Start row below the card:
+  play icon, "Start session", "Fix the highlighted fields to start." while invalid.
+- **Adjective and Adverb chips are disabled** (tooltip on the chip's wrapper). The single source of truth is
+  `PARTS_OF_SPEECH_WITH_EXERCISES` — extending the catalogue enables the chips. The page drops them from URL and
+  remembered settings. A pre-selection with no Noun/Verb shows an explanation and blocks Start.
+- Amount is `type="number"`; the text state stays so an empty or fractional value still shows its error.
+- New `OptionRow`: desktop = radio list with every description; phone (`useIsMobile`, 920 px) = chips, labelled
+  "Level 0…3" (not L0…). Used for choice difficulty, typing strictness, word order, native language (named).
+  Irrelevant rows stay **disabled with a reason** (implementation kept over the mockup).
+- Pre-selected panel: source-neutral title, list open at first and collapsible, ghost "Remove pre-selection" with
+  a confirm dialog, and a note that the list will change later.
+- "No exercises found": warning icon, a third reason about the mode, and an "Adjust settings" button (opens Advanced,
+  scrolls to languages). Generate errors stay an inline alert with retry (not a toast).
+- New/changed locale keys in 4 languages (EE not reviewed by the user): `setup.{title,subtitle,start,fixToStart}`,
+  `setup.advanced.title`, `setup.levels.label`, `setup.hints.*`, `setup.options.nativeDesc.*`,
+  `setup.preselected.{clear,note,confirm.*}`, `setup.noMatch.{reasonMode,adjust}`, `setup.noWords.*`.
+  Removed: `advanced.show/hide`, `hints.nativeLanguage`, `preselected.limitedTypes`, `noMatch.reasonOnlyUnsupported`.
+- Not checked in a browser yet (light/dark, phone width): do it in the manual pass.
+
 **Slice 5 detail.** The native-language option shows only when `nativeLanguage` is set. PoS options narrowed
 to the pre-selected words' PoS. Adjective/Adverb are selectable but show a note that they have no exercises
 yet (commandment 7: status must be legible).

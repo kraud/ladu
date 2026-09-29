@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
+import { BookOpenIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/common/EmptyState';
 import { buttonVariants } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import { ParametersForm } from '../components/ParametersForm';
 import { PreselectedWords } from '../components/PreselectedWords';
 import { ResultsView } from '../components/ResultsView';
 import { SessionView } from '../components/SessionView';
-import { narrowPartsOfSpeech } from '../params';
+import { narrowPartsOfSpeech, PARTS_OF_SPEECH_WITH_EXERCISES, SELECTABLE_PARTS_OF_SPEECH } from '../params';
 import { availablePartsOfSpeech, type PreselectedWord } from '../preselection';
 import { loadRememberedParams, rememberParams } from '../remembered';
 import { paramsToSearch, searchToParams } from '../search';
@@ -77,41 +78,51 @@ function SetUp({
     // The URL wins over the remembered settings, which win over the defaults (C5). Read once.
     const [initialParams] = useState<PracticeParams>(() => {
         const merged = searchToParams(search, loadRememberedParams(user.languages), user.languages);
-        const available = availablePartsOfSpeech(preselected);
-        return available ? { ...merged, partsOfSpeech: narrowPartsOfSpeech(merged.partsOfSpeech, available) } : merged;
+        // Only word types with exercises can be picked, so a URL or a remembered setting cannot bring in the others.
+        const pickable = (availablePartsOfSpeech(preselected) ?? SELECTABLE_PARTS_OF_SPEECH).filter((pos) =>
+            PARTS_OF_SPEECH_WITH_EXERCISES.includes(pos),
+        );
+        return { ...merged, partsOfSpeech: narrowPartsOfSpeech(merged.partsOfSpeech, pickable) };
     });
 
     // Only used to tell "no words at all" from "no exercises": one row is enough.
     const words = useWordsInfinite({}, 1);
     const hasNoWords = !preselected && words.isSuccess && (words.data.pages[0]?.total ?? 0) === 0;
 
-    if (hasNoWords) {
-        return (
-            <EmptyState
-                title={t('practice:setup.noWords.title')}
-                description={t('practice:setup.noWords.body')}
-                action={
-                    <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants()}>
-                        {t('practice:setup.noWords.cta')}
-                    </Link>
-                }
-            />
-        );
-    }
-
     return (
-        <div className="flex max-w-2xl flex-col gap-4">
-            <h1 className="h1">{t('practice:setup.title')}</h1>
-            {preselected && <PreselectedWords words={preselected} onClear={onClearPreselected} />}
-            <ParametersForm
-                user={user}
-                initialParams={initialParams}
-                preselected={preselected}
-                onStarted={onClearPreselected}
-                onParamsChange={(params) =>
-                    void navigate({ search: paramsToSearch(params), replace: true })
-                }
-            />
+        <div className="flex flex-col gap-4">
+            {/* Stacked on mobile; side-by-side with the subtitle bottom-aligned from `sm` up (as on Add word). */}
+            <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
+                <h1 className="h1">{t('practice:setup.title')}</h1>
+                <p className="meta sm:content-end">{t('practice:setup.subtitle')}</p>
+            </div>
+            {hasNoWords ? (
+                <div className="card">
+                    <EmptyState
+                        icon={<BookOpenIcon aria-hidden size={20} />}
+                        title={t('practice:setup.noWords.title')}
+                        description={t('practice:setup.noWords.body')}
+                        action={
+                            <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants({ size: 'sm' })}>
+                                {t('practice:setup.noWords.cta')}
+                            </Link>
+                        }
+                    />
+                </div>
+            ) : (
+                <>
+                    {preselected && <PreselectedWords words={preselected} onClear={onClearPreselected} />}
+                    <ParametersForm
+                        user={user}
+                        initialParams={initialParams}
+                        preselected={preselected}
+                        onStarted={onClearPreselected}
+                        onParamsChange={(params) =>
+                            void navigate({ search: paramsToSearch(params), replace: true })
+                        }
+                    />
+                </>
+            )}
         </div>
     );
 }

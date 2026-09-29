@@ -3,8 +3,8 @@
     "title": "Práctica"
   },
   "setup": {
-    "title": "Configura tu práctica",
-    "start": "Empezar",
+    "title": "Práctica",
+    "start": "Empezar sesión",
     "starting": "Creando ejercicios…",
     "labels": {
       "languages": "Idiomas",
@@ -18,8 +18,7 @@
       "nativeLanguage": "Idioma nativo"
     },
     "advanced": {
-      "show": "Mostrar ajustes avanzados",
-      "hide": "Ocultar ajustes avanzados"
+      "title": "Avanzado"
     },
     "options": {
       "type": {
@@ -39,6 +38,10 @@
       "native": {
         "include": "Incluir",
         "exclude": "Excluir"
+      },
+      "nativeDesc": {
+        "include": "Pueden aparecer ejercicios del mismo idioma en {{language}}.",
+        "exclude": "Sin ejercicios del mismo idioma en {{language}}."
       }
     },
     "levels": {
@@ -52,26 +55,40 @@
         "1": "Ignora los acentos y las mayúsculas.",
         "2": "Ignora solo las mayúsculas.",
         "3": "La respuesta debe ser exacta."
-      }
+      },
+      "label": "Nivel {{level}}"
     },
     "hints": {
       "modeDifferent": "Ves una palabra en un idioma. Respondes en otro idioma.",
       "modeSame": "Un ejercicio de gramática dentro de un idioma, por ejemplo el género de una palabra.",
       "wordOrder": "\"Primero las más débiles\" muestra las formas que menos conoces.",
-      "nativeLanguage": "\"Excluir\" quita los ejercicios del mismo idioma en tu idioma nativo.",
       "mcNeedsChoices": "Solo se usa cuando el estilo de respuesta muestra opciones.",
       "mcNeedsDifferent": "Solo se usa en ejercicios de idiomas distintos.",
       "tiNeedsTyping": "Solo se usa cuando escribes la respuesta.",
       "noExercisesYet": "Los adjetivos y los adverbios aún no tienen ejercicios.",
-      "singleLanguageAccount": "Tu cuenta tiene un idioma. \"Idiomas distintos\" no es posible."
+      "singleLanguageAccount": "Tu cuenta tiene un idioma. \"Idiomas distintos\" no es posible.",
+      "languagesAll": "Todos tus idiomas",
+      "languagesCount": "{{count}} de {{total}} idiomas",
+      "amountRange": "1–100",
+      "modeMixed": "\"Mixto\" muestra traducciones entre idiomas y ejercicios de gramática.",
+      "posPreselected": "Con palabras seleccionadas, solo se pueden elegir sus tipos de palabra. Los adjetivos y los adverbios aún no tienen ejercicios.",
+      "notInPreselection": "No está en las palabras seleccionadas",
+      "preselectedNoExercises": "Ninguna de las palabras seleccionadas tiene un tipo de palabra con ejercicios. Quita la preselección para practicar tus otras palabras.",
+      "nativeLanguageNamed": "{{language}} · afecta a los ejercicios del mismo idioma"
     },
     "preselected": {
       "title_one": "Practicar con {{count}} palabra seleccionada",
       "title_other": "Practicar con {{count}} palabras seleccionadas",
       "show": "Mostrar palabras",
       "hide": "Ocultar palabras",
-      "clear": "Usar todas mis palabras",
-      "limitedTypes": "Solo están disponibles los tipos de palabra de tus palabras seleccionadas."
+      "clear": "Quitar preselección",
+      "note": "Cambiaremos esta lista de palabras en una actualización posterior.",
+      "confirm": {
+        "title": "¿Quitar la preselección?",
+        "body": "La práctica usará todas tus palabras, no solo las seleccionadas.",
+        "confirm": "Quitar",
+        "cancel": "Mantener"
+      }
     },
     "validation": {
       "languagesRequired": "Selecciona al menos un idioma.",
@@ -83,8 +100,8 @@
       "amountTooLarge": "Usa un número de 100 o menos."
     },
     "noWords": {
-      "title": "Aún no tienes palabras",
-      "body": "Primero añade palabras. Después puedes practicarlas.",
+      "title": "Aún no hay palabras para practicar",
+      "body": "Añade una palabra con al menos dos idiomas y aquí aparecerán los ejercicios.",
       "cta": "Añadir palabra"
     },
     "noMatch": {
@@ -92,14 +109,17 @@
       "body": "Estas son las razones posibles:",
       "reasonFewWords": "No hay suficientes palabras con estos tipos de palabra o idiomas.",
       "reasonMissingForms": "Las palabras no tienen las formas que necesitan estos ejercicios.",
-      "reasonOnlyUnsupported": "Solo se seleccionaron adjetivos o adverbios.",
-      "hint": "Cambia los ajustes e inténtalo otra vez."
+      "hint": "Cambia los ajustes e inténtalo otra vez.",
+      "reasonMode": "El modo no deja nada que preguntar, por ejemplo \"Mismo idioma\" con un solo idioma seleccionado.",
+      "adjust": "Ajustar configuración"
     },
     "error": {
       "title": "No se pudieron crear los ejercicios",
       "retry": "Intentar otra vez"
     },
-    "shortfall": "Se pudieron crear {{created}} de {{requested}} ejercicios."
+    "shortfall": "Se pudieron crear {{created}} de {{requested}} ejercicios.",
+    "subtitle": "Sesiones cortas con tus palabras: primero las formas más débiles",
+    "fixToStart": "Corrige los campos marcados para empezar."
   },
   "session": {
     "progress": "Ejercicio {{current}} de {{total}}",

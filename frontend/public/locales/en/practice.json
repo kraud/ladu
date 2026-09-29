@@ -3,8 +3,8 @@
     "title": "Practice"
   },
   "setup": {
-    "title": "Set up your practice",
-    "start": "Start",
+    "title": "Practice",
+    "start": "Start session",
     "starting": "Creating exercises…",
     "labels": {
       "languages": "Languages",
@@ -18,8 +18,7 @@
       "nativeLanguage": "Native language"
     },
     "advanced": {
-      "show": "Show advanced settings",
-      "hide": "Hide advanced settings"
+      "title": "Advanced"
     },
     "options": {
       "type": {
@@ -39,6 +38,10 @@
       "native": {
         "include": "Include",
         "exclude": "Exclude"
+      },
+      "nativeDesc": {
+        "include": "Same-language exercises in {{language}} can appear.",
+        "exclude": "No same-language exercises in {{language}}."
       }
     },
     "levels": {
@@ -52,26 +55,40 @@
         "1": "Ignores accents and capital letters.",
         "2": "Ignores capital letters only.",
         "3": "The answer must match exactly."
-      }
+      },
+      "label": "Level {{level}}"
     },
     "hints": {
       "modeDifferent": "You see a word in one language. You answer in another language.",
       "modeSame": "A grammar exercise inside one language, for example the gender of a word.",
       "wordOrder": "\"Weakest first\" shows the forms you know least.",
-      "nativeLanguage": "\"Exclude\" removes same-language exercises in your native language.",
       "mcNeedsChoices": "Only used when the answer style shows choices.",
       "mcNeedsDifferent": "Only used for exercises in different languages.",
       "tiNeedsTyping": "Only used when you type the answer.",
       "noExercisesYet": "Adjectives and adverbs have no exercises yet.",
-      "singleLanguageAccount": "Your account has one language. \"Different languages\" is not possible."
+      "singleLanguageAccount": "Your account has one language. \"Different languages\" is not possible.",
+      "languagesAll": "All your languages",
+      "languagesCount": "{{count}} of {{total}} languages",
+      "amountRange": "1–100",
+      "modeMixed": "Mixed shows translations between languages and grammar exercises.",
+      "posPreselected": "With selected words, only their word types can be chosen. Adjectives and adverbs have no exercises yet.",
+      "notInPreselection": "Not in the selected words",
+      "preselectedNoExercises": "None of the selected words has a word type with exercises yet. Remove the pre-selection to practice your other words.",
+      "nativeLanguageNamed": "{{language}} · affects same-language exercises"
     },
     "preselected": {
       "title_one": "Practice with {{count}} selected word",
       "title_other": "Practice with {{count}} selected words",
       "show": "Show words",
       "hide": "Hide words",
-      "clear": "Use all my words",
-      "limitedTypes": "Only the word types of your selected words are available."
+      "clear": "Remove pre-selection",
+      "note": "We will change this word list in a later update.",
+      "confirm": {
+        "title": "Remove the pre-selection?",
+        "body": "Practice will use all your words, not only the selected ones.",
+        "confirm": "Remove",
+        "cancel": "Keep"
+      }
     },
     "validation": {
       "languagesRequired": "Select at least one language.",
@@ -83,8 +100,8 @@
       "amountTooLarge": "Use a number of 100 or less."
     },
     "noWords": {
-      "title": "You have no words yet",
-      "body": "Add words first. Then you can practice them.",
+      "title": "No words to practice yet",
+      "body": "Add a word with at least two languages and exercises appear here.",
       "cta": "Add word"
     },
     "noMatch": {
@@ -92,14 +109,17 @@
       "body": "These are the possible reasons:",
       "reasonFewWords": "There are not enough words with these word types or languages.",
       "reasonMissingForms": "The words do not have the forms that these exercises need.",
-      "reasonOnlyUnsupported": "Only adjectives or adverbs are selected.",
-      "hint": "Change the settings and try again."
+      "hint": "Change the settings and try again.",
+      "reasonMode": "The mode leaves nothing to ask, for example \"Same language\" with only one language selected.",
+      "adjust": "Adjust settings"
     },
     "error": {
       "title": "The exercises could not be created",
       "retry": "Try again"
     },
-    "shortfall": "{{created}} of {{requested}} exercises could be created."
+    "shortfall": "{{created}} of {{requested}} exercises could be created.",
+    "subtitle": "Short sessions from your words — weakest forms first",
+    "fixToStart": "Fix the highlighted fields to start."
   },
   "session": {
     "progress": "Exercise {{current}} of {{total}}",

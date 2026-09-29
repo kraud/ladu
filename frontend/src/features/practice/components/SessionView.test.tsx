@@ -278,7 +278,7 @@ describe('SessionView — navigation', () => {
         await user.click(screen.getByRole('button', { name: 'Leave practice' }));
         await user.click(await screen.findByRole('button', { name: 'Leave' }));
 
-        expect(await screen.findByText('You have no words yet')).toBeInTheDocument();
+        expect(await screen.findByText('No words to practice yet')).toBeInTheDocument();
         expect(usePracticeSessionStore.getState().session).toBeNull();
     });
 

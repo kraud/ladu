@@ -186,8 +186,8 @@ describe('ResultsView', () => {
 
         await user.click(await screen.findByRole('button', { name: 'Change settings' }));
 
-        expect(await screen.findByRole('heading', { name: 'Set up your practice' })).toBeInTheDocument();
-        expect(screen.getByLabelText('Number of exercises')).toHaveValue('7');
+        expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+        expect(screen.getByLabelText('Number of exercises')).toHaveValue(7);
         expect(screen.getByText('Practice with 1 selected word')).toBeInTheDocument();
         expect(usePracticeSessionStore.getState().session).toBeNull();
     });

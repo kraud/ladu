@@ -3,8 +3,8 @@
     "title": "Üben"
   },
   "setup": {
-    "title": "Übung einrichten",
-    "start": "Starten",
+    "title": "Üben",
+    "start": "Übung starten",
     "starting": "Übungen werden erstellt…",
     "labels": {
       "languages": "Sprachen",
@@ -18,8 +18,7 @@
       "nativeLanguage": "Muttersprache"
     },
     "advanced": {
-      "show": "Erweiterte Einstellungen anzeigen",
-      "hide": "Erweiterte Einstellungen ausblenden"
+      "title": "Erweitert"
     },
     "options": {
       "type": {
@@ -39,6 +38,10 @@
       "native": {
         "include": "Einbeziehen",
         "exclude": "Ausschließen"
+      },
+      "nativeDesc": {
+        "include": "Übungen in einer Sprache können auf {{language}} erscheinen.",
+        "exclude": "Keine Übungen in einer Sprache auf {{language}}."
       }
     },
     "levels": {
@@ -52,26 +55,40 @@
         "1": "Ignoriert Akzente und Groß- und Kleinschreibung.",
         "2": "Ignoriert nur die Groß- und Kleinschreibung.",
         "3": "Die Antwort muss genau stimmen."
-      }
+      },
+      "label": "Stufe {{level}}"
     },
     "hints": {
       "modeDifferent": "Sie sehen ein Wort in einer Sprache. Sie antworten in einer anderen Sprache.",
       "modeSame": "Eine Grammatikübung in einer Sprache, zum Beispiel das Geschlecht eines Wortes.",
       "wordOrder": "\"Schwächste zuerst\" zeigt die Formen, die Sie am wenigsten kennen.",
-      "nativeLanguage": "\"Ausschließen\" entfernt Übungen in einer Sprache für Ihre Muttersprache.",
       "mcNeedsChoices": "Wird nur verwendet, wenn die Antwortart Optionen zeigt.",
       "mcNeedsDifferent": "Wird nur für Übungen in verschiedenen Sprachen verwendet.",
       "tiNeedsTyping": "Wird nur verwendet, wenn Sie die Antwort tippen.",
       "noExercisesYet": "Für Adjektive und Adverbien gibt es noch keine Übungen.",
-      "singleLanguageAccount": "Ihr Konto hat eine Sprache. \"Verschiedene Sprachen\" ist nicht möglich."
+      "singleLanguageAccount": "Ihr Konto hat eine Sprache. \"Verschiedene Sprachen\" ist nicht möglich.",
+      "languagesAll": "Alle Ihre Sprachen",
+      "languagesCount": "{{count}} von {{total}} Sprachen",
+      "amountRange": "1–100",
+      "modeMixed": "„Gemischt“ zeigt Übersetzungen zwischen Sprachen und Grammatikübungen.",
+      "posPreselected": "Bei ausgewählten Wörtern sind nur deren Wortarten wählbar. Für Adjektive und Adverbien gibt es noch keine Übungen.",
+      "notInPreselection": "Nicht in den ausgewählten Wörtern",
+      "preselectedNoExercises": "Keines der ausgewählten Wörter hat eine Wortart mit Übungen. Entfernen Sie die Vorauswahl, um Ihre anderen Wörter zu üben.",
+      "nativeLanguageNamed": "{{language}} · betrifft Übungen in einer Sprache"
     },
     "preselected": {
       "title_one": "Mit {{count}} ausgewähltem Wort üben",
       "title_other": "Mit {{count}} ausgewählten Wörtern üben",
       "show": "Wörter anzeigen",
       "hide": "Wörter ausblenden",
-      "clear": "Alle meine Wörter verwenden",
-      "limitedTypes": "Nur die Wortarten Ihrer ausgewählten Wörter sind verfügbar."
+      "clear": "Vorauswahl entfernen",
+      "note": "Wir ändern diese Wortliste in einem späteren Update.",
+      "confirm": {
+        "title": "Vorauswahl entfernen?",
+        "body": "Die Übung verwendet alle Ihre Wörter, nicht nur die ausgewählten.",
+        "confirm": "Entfernen",
+        "cancel": "Behalten"
+      }
     },
     "validation": {
       "languagesRequired": "Wählen Sie mindestens eine Sprache.",
@@ -83,8 +100,8 @@
       "amountTooLarge": "Verwenden Sie eine Zahl bis 100."
     },
     "noWords": {
-      "title": "Sie haben noch keine Wörter",
-      "body": "Fügen Sie zuerst Wörter hinzu. Danach können Sie sie üben.",
+      "title": "Noch keine Wörter zum Üben",
+      "body": "Fügen Sie ein Wort mit mindestens zwei Sprachen hinzu, dann erscheinen hier Übungen.",
       "cta": "Wort hinzufügen"
     },
     "noMatch": {
@@ -92,14 +109,17 @@
       "body": "Das sind die möglichen Gründe:",
       "reasonFewWords": "Es gibt nicht genug Wörter mit diesen Wortarten oder Sprachen.",
       "reasonMissingForms": "Den Wörtern fehlen die Formen, die diese Übungen brauchen.",
-      "reasonOnlyUnsupported": "Es sind nur Adjektive oder Adverbien ausgewählt.",
-      "hint": "Ändern Sie die Einstellungen und versuchen Sie es noch einmal."
+      "hint": "Ändern Sie die Einstellungen und versuchen Sie es noch einmal.",
+      "reasonMode": "Der Modus lässt nichts zum Abfragen übrig, zum Beispiel „Gleiche Sprache“ mit nur einer ausgewählten Sprache.",
+      "adjust": "Einstellungen anpassen"
     },
     "error": {
       "title": "Die Übungen konnten nicht erstellt werden",
       "retry": "Noch einmal versuchen"
     },
-    "shortfall": "{{created}} von {{requested}} Übungen konnten erstellt werden."
+    "shortfall": "{{created}} von {{requested}} Übungen konnten erstellt werden.",
+    "subtitle": "Kurze Übungen mit Ihren Wörtern – die schwächsten Formen zuerst",
+    "fixToStart": "Korrigieren Sie die markierten Felder, um zu starten."
   },
   "session": {
     "progress": "Übung {{current}} von {{total}}",

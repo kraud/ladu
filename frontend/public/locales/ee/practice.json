@@ -3,8 +3,8 @@
     "title": "Harjutamine"
   },
   "setup": {
-    "title": "Seadista harjutus",
-    "start": "Alusta",
+    "title": "Harjutus",
+    "start": "Alusta harjutust",
     "starting": "Harjutusi luuakse…",
     "labels": {
       "languages": "Keeled",
@@ -18,8 +18,7 @@
       "nativeLanguage": "Emakeel"
     },
     "advanced": {
-      "show": "Näita lisaseadeid",
-      "hide": "Peida lisaseaded"
+      "title": "Lisaseaded"
     },
     "options": {
       "type": {
@@ -39,6 +38,10 @@
       "native": {
         "include": "Kaasa",
         "exclude": "Jäta välja"
+      },
+      "nativeDesc": {
+        "include": "Ühe keele harjutusi keeles {{language}} võib tulla.",
+        "exclude": "Ühe keele harjutusi keeles {{language}} ei tule."
       }
     },
     "levels": {
@@ -52,26 +55,40 @@
         "1": "Ignoreerib rõhumärke ja suur- ning väiketähti.",
         "2": "Ignoreerib ainult suur- ja väiketähti.",
         "3": "Vastus peab olema täpselt sama."
-      }
+      },
+      "label": "Tase {{level}}"
     },
     "hints": {
       "modeDifferent": "Näed sõna ühes keeles. Vastad teises keeles.",
       "modeSame": "Grammatikaharjutus ühe keele sees, näiteks sõna sugu.",
       "wordOrder": "\"Nõrgemad enne\" näitab vorme, mida tead kõige vähem.",
-      "nativeLanguage": "\"Jäta välja\" eemaldab sama keele harjutused sinu emakeeles.",
       "mcNeedsChoices": "Kasutatakse ainult siis, kui vastamise viis näitab valikuid.",
       "mcNeedsDifferent": "Kasutatakse ainult eri keeltes harjutuste jaoks.",
       "tiNeedsTyping": "Kasutatakse ainult siis, kui kirjutad vastuse.",
       "noExercisesYet": "Omadussõnade ja määrsõnade jaoks ei ole veel harjutusi.",
-      "singleLanguageAccount": "Sinu kontol on üks keel. \"Eri keeled\" ei ole võimalik."
+      "singleLanguageAccount": "Sinu kontol on üks keel. \"Eri keeled\" ei ole võimalik.",
+      "languagesAll": "Kõik sinu keeled",
+      "languagesCount": "{{count}} keelt {{total}}-st",
+      "amountRange": "1–100",
+      "modeMixed": "\"Segatud\" näitab tõlkeid keelte vahel ja grammatikaharjutusi.",
+      "posPreselected": "Valitud sõnade puhul saab valida ainult nende sõnaliike. Omadussõnade ja määrsõnade jaoks ei ole veel harjutusi.",
+      "notInPreselection": "Ei ole valitud sõnade seas",
+      "preselectedNoExercises": "Ühelgi valitud sõnal ei ole sõnaliiki, mille jaoks on harjutusi. Eemalda eelvalik, et harjutada teisi sõnu.",
+      "nativeLanguageNamed": "{{language}} · mõjutab ühe keele harjutusi"
     },
     "preselected": {
       "title_one": "Harjuta {{count}} valitud sõnaga",
       "title_other": "Harjuta {{count}} valitud sõnaga",
       "show": "Näita sõnu",
       "hide": "Peida sõnad",
-      "clear": "Kasuta kõiki minu sõnu",
-      "limitedTypes": "Saadaval on ainult sinu valitud sõnade sõnaliigid."
+      "clear": "Eemalda eelvalik",
+      "note": "Muudame seda sõnaloendit hilisemas uuenduses.",
+      "confirm": {
+        "title": "Kas eemaldada eelvalik?",
+        "body": "Harjutus kasutab kõiki sinu sõnu, mitte ainult valituid.",
+        "confirm": "Eemalda",
+        "cancel": "Jäta"
+      }
     },
     "validation": {
       "languagesRequired": "Vali vähemalt üks keel.",
@@ -83,8 +100,8 @@
       "amountTooLarge": "Kasuta arvu kuni 100."
     },
     "noWords": {
-      "title": "Sul ei ole veel sõnu",
-      "body": "Lisa kõigepealt sõnu. Siis saad neid harjutada.",
+      "title": "Harjutamiseks ei ole veel sõnu",
+      "body": "Lisa sõna vähemalt kahes keeles ja siin ilmuvad harjutused.",
       "cta": "Lisa sõna"
     },
     "noMatch": {
@@ -92,14 +109,17 @@
       "body": "Võimalikud põhjused on need:",
       "reasonFewWords": "Nende sõnaliikide või keeltega sõnu ei ole piisavalt.",
       "reasonMissingForms": "Sõnadel ei ole vorme, mida need harjutused vajavad.",
-      "reasonOnlyUnsupported": "Valitud on ainult omadussõnad või määrsõnad.",
-      "hint": "Muuda seadeid ja proovi uuesti."
+      "hint": "Muuda seadeid ja proovi uuesti.",
+      "reasonMode": "Režiim ei jäta midagi küsida, näiteks \"Sama keel\" ainult ühe valitud keelega.",
+      "adjust": "Kohanda seadeid"
     },
     "error": {
       "title": "Harjutusi ei saanud luua",
       "retry": "Proovi uuesti"
     },
-    "shortfall": "Luua sai {{created}} harjutust {{requested}}-st."
+    "shortfall": "Luua sai {{created}} harjutust {{requested}}-st.",
+    "subtitle": "Lühikesed harjutused sinu sõnadega – nõrgemad vormid enne",
+    "fixToStart": "Paranda märgitud väljad, et alustada."
   },
   "session": {
     "progress": "Harjutus {{current}} / {{total}}",

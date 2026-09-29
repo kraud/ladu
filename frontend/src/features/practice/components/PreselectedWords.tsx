@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { partOfSpeechLabelKey } from '@/lib/words';
 import type { PreselectedWord } from '../preselection';
 
-/** The words a Review selection brought along: count, a collapsible list, and a way to drop them. */
+/**
+ * The words a hand-off (today: Review's "Practice" action; later: a tag's word
+ * list) brought along. The title is source-neutral on purpose. The list is open
+ * at first and can be collapsed. Removing the pre-selection asks first, because
+ * the words cannot be brought back without going to the source again.
+ */
 export function PreselectedWords({
     words,
     onClear,
@@ -14,7 +20,8 @@ export function PreselectedWords({
     onClear: () => void;
 }) {
     const { t } = useTranslation();
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(true);
+    const [confirming, setConfirming] = useState(false);
     const title = t('practice:setup.preselected.title', { count: words.length });
 
     return (
@@ -24,14 +31,22 @@ export function PreselectedWords({
                 <Button type="button" variant="outline" size="sm" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
                     {open ? t('practice:setup.preselected.hide') : t('practice:setup.preselected.show')}
                 </Button>
-                <Button type="button" variant="outline" size="sm" onClick={onClear}>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(true)}>
                     {t('practice:setup.preselected.clear')}
                 </Button>
             </div>
-            {open && (
-                <PreselectedWordList words={words} />
-            )}
-            <p className="hint">{t('practice:setup.preselected.limitedTypes')}</p>
+            <p className="hint">{t('practice:setup.preselected.note')}</p>
+            {open && <PreselectedWordList words={words} />}
+            <ConfirmDialog
+                open={confirming}
+                onOpenChange={setConfirming}
+                title={t('practice:setup.preselected.confirm.title')}
+                description={t('practice:setup.preselected.confirm.body')}
+                confirmLabel={t('practice:setup.preselected.confirm.confirm')}
+                cancelLabel={t('practice:setup.preselected.confirm.cancel')}
+                destructive={false}
+                onConfirm={onClear}
+            />
         </section>
     );
 }
@@ -40,9 +55,12 @@ export function PreselectedWords({
 export function PreselectedWordList({ words }: { words: PreselectedWord[] }) {
     const { t } = useTranslation();
     return (
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col">
             {words.map((word) => (
-                <li key={word.id} className="flex min-w-0 items-center gap-2 text-sm">
+                <li
+                    key={word.id}
+                    className="flex min-w-0 items-center gap-2.5 border-b border-border py-1.5 text-sm last:border-b-0"
+                >
                     <span className="flex shrink-0 gap-1">
                         {word.languages.map((key) => (
                             <FlagIcon key={key} lang={key} />

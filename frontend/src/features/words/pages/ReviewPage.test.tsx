@@ -334,7 +334,7 @@ describe('ReviewPage — Slice 7: bulk actions', () => {
         await waitFor(() => expect(router.state.location.pathname).toBe('/practice'));
         // The practice screen already read and cleared the hand-off; the words it shows prove it arrived.
         expect(await screen.findByText('Practice with 2 selected words')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Show words' }));
+        // The word list is open at first.
         expect(screen.getByText('run')).toBeInTheDocument();
         expect(screen.getByText('jump')).toBeInTheDocument();
         expect(screen.queryByText('cat')).not.toBeInTheDocument();
