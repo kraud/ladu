@@ -1,6 +1,6 @@
 # Phase 5.5 — Saved practice configurations and sessions
 
-*2026-09-30. Slices 1–4 done (see §11). Slice 5 not started.*
+*2026-09-30. **All slices 1–5 done (see §11).***
 
 Phase 5 ([`phase-5-practice.md`](./phase-5-practice.md)) is done to Slice 8 (results screen) and its UI polish.
 This phase adds a feature that Phase 5 did not plan: the user can **save practice configurations** and
@@ -199,3 +199,21 @@ Each slice starts with a plain-language overview, ends with something runnable, 
     Rows have no name; their accessible names carry the counts (`Resume session with 1 of 2 answered`).
 - Tests: `savedSessions.test.ts` (7), 4 in `sessionStore.test.ts`, `PracticePage.sessions.test.tsx` (23); `makePracticeHandlers` now also fakes the five
   session endpoints (`makeSavedSession`); two older tests use the new button label. Frontend total: 113 files, 1286 tests, all pass. `tsc -b` and `eslint` clean.
+
+**Slice 5 — close-out (done 2026-09-30).**
+- `e2e/tests/phase-5-5-saved-practice.spec.ts` (5 tests, serial, one account with six nouns) with the shared helpers in `e2e/fixtures/practice.ts`
+  and a new DB helper `expirePracticeSessions(email)` in `e2e/fixtures/db.ts`.
+- What the spec covers: (1) configurations — save the settings on screen with name and description, a duplicate name in another letter case is
+  refused, a fresh visit starts from the defaults and one tap on the row fills the form (URL follows), edit renames and keeps the settings,
+  delete asks first; (2) a configuration with words — from Review select Apple and Banana, save, delete Banana through the API, loading shows
+  "Some words are missing" on the row and the banner, "Practice with 1 selected word", and the session has exactly 1 exercise, from Apple;
+  (3) sessions — answer a card, "Save session and leave", the list shows "1 of 3 answered" and the server has the summary; resume opens the same
+  card with the answer kept; leaving again updates the SAME saved row (same id, 1 row, `answered: 2`); finishing the resumed session removes the
+  row; "Leave session and delete" saves nothing; (4) limits — 11 sessions saved through the API leave 10 and the first one is gone, the list
+  shows 10, a delete from the list gives 9, and after the expiry is moved to the past in the database the API list is empty and the UI says so;
+  (5) privacy — a second account sees no configurations or sessions and gets `404` for read, update and delete of the owner's session and for
+  the words and delete of the owner's configuration; the owner's rows are still there.
+- Finding (not changed): after "Save session and leave" the "Session saved…" toast (bottom centre, 5 s) covers the next click target, so
+  Playwright waits for it to close. The session test therefore takes about 15 s and is marked `test.slow()`. A real user meets the same overlay for up to 5 s.
+- Gate results: backend 25 suites / 517 tests, frontend 113 files / 1286 tests, e2e: the 5 Phase 5.5 tests pass. See the Phase 5 close-out note for the
+  8 failing `oauth-*` specs in the full e2e run.

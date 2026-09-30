@@ -1,7 +1,7 @@
 # Phase 5 — Practice (exercises + performance tracking)
 
-*2026-09-29. Planning only — no code changed. After approval, this file is saved as
-`.context/plans/phase-5-practice.md` (that is Slice 0). Implementation starts only when the user says so.*
+*2026-09-29 (plan). **Status 2026-09-30: all slices 0–9 done and gated** — see "Slice 9 — as built" in B.4. Saved configurations and
+sessions, which this plan did not cover, are in [`phase-5-5-saved-practice.md`](./phase-5-5-saved-practice.md).*
 
 This file has four parts:
 
@@ -440,8 +440,8 @@ Part C first.** Slices 1–4 have no UI and can run while the mockups are made.
 | 5 | Done, committed | Frontend: parameters screen (URL state, validation, pre-selected words, empty-pool states) + Review "Practice" bulk action + Account native-language select. |
 | 6 | Done, committed | Frontend: session — card (TI + MC), feedback, progress, navigation, answer saving with retry, reload restore. |
 | 7 | Done, committed | Frontend: performance indicator + Master/Revise actions (confirm dialogs, revise counter). |
-| 8 | Done, awaiting commit | Frontend: results screen — score, rows, review a card, restart flows. |
-| 9 | | Phase gate: `e2e/tests/phase-5-practice.spec.ts` + docs + full green run. |
+| 8 | Done, committed | Frontend: results screen — score, rows, review a card, restart flows. |
+| 9 | Done | Phase gate: `e2e/tests/phase-5-practice.spec.ts` + docs + full green run. |
 
 **Slice 1 detail.** Port without behaviour change; `Math.random` replaced by an injected RNG. Tests use fixed
 seeds and hand-built words: catalogue coverage per PoS/language, pair generation, native exclusion, the
@@ -675,12 +675,29 @@ mid-session → same card; results show the right score; Master one translation;
 last-4 indicator shows the saved attempts; Review → select words → Practice → only those words appear; a
 second user cannot save performance for the first user's private word (API-level assertion).
 
+**Slice 9 — as built (2026-09-30).**
+- `e2e/tests/phase-5-practice.spec.ts` (5 tests, serial, one account with six English/German nouns) and the shared helpers in
+  `e2e/fixtures/practice.ts` (also used by the Phase 5.5 spec).
+- What the spec covers: (1) a typed session of 3 — right, "almost" (capitals only), wrong — with a reload on card 2 that keeps the same card, then
+  the results (`2 of 3`, the almost note); (2) sessions of 6, repeated (at most 5 times) until an earlier form comes back: every card is checked
+  against the history — a known form is not "New", shows "Last practiced" and exactly the stored last attempts (Right/Wrong counts, last 4);
+  a form never asked is "New"; **Mastered** on one translation sets the pill, and it shows again when that form returns; (3) a multiple-choice session
+  (right option, then wrong option: marked right and wrong); (4) Review → select Apple and Banana → Practice → "Practice with 2 selected words" →
+  every prompt is one of the 4 words; (5) API: a second account gets `404` for `POST /exercises/answers` on the first account's translation, and an
+  empty exercise list when it generates from the first account's word id.
+- **Design fact the spec depends on** (worth knowing): a word gives one exercise per session for each language pair, and the direction is random
+  (`generateExercisesForWord` shuffles the languages). With 3 words, `amount: 6` gives "3 of 6 exercises could be created". So the spec reads the
+  prompt from the screen and looks the answer up; it never assumes which card or direction comes, and it seeds six words.
+- Gate results: backend 25 suites / 517 tests, frontend 113 files / 1286 tests, `npm run build -w frontend` green, both greps of B.6 = 0,
+  e2e: the 5 practice tests pass. The full e2e run was 37 passed / 8 failed; the 8 are `oauth-2` … `oauth-5` (Google sign-in through the stub) —
+  see the note in `new-repo-build-plan.md` (5 row).
+
 ## B.5 Files
 
 **New:** `backend/services/exercises/{catalogue,knowledge,generate,select,distractors}.ts`,
 `backend/src/db/migrations/0007_*.sql`, `backend/tests/unit/exercises*.test.js`,
 `backend/scripts/bench-exercises.ts`, `frontend/src/features/practice/**`, `frontend/src/lib/cases.ts`,
-`frontend/src/test/msw/practiceHandlers.ts`, `e2e/tests/phase-5-practice.spec.ts`.
+`frontend/src/test/msw/practiceHandlers.ts`, `e2e/tests/phase-5-practice.spec.ts`, `e2e/fixtures/practice.ts`.
 
 **Modified:** `backend/controllers/exerciseController.ts`, `exercisePerformanceController.ts` (rewritten
 thin), `backend/routes/exerciseRoutes.js`, `backend/src/db/schema.ts`, `wordController.ts` (updateWord),

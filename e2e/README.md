@@ -14,8 +14,10 @@ proves the real backend + real Postgres + real browser actually work together.
 
 One spec file per phase: `tests/phase-1-auth.spec.ts`, `tests/phase-2-noun-crud.spec.ts`,
 `tests/phase-3-review.spec.ts`, `tests/phase-3-5-dashboard.spec.ts`,
-`tests/phase-3-9-theme.spec.ts`, `tests/phase-4-tags.spec.ts`, …
-`tests/smoke.spec.ts` is the Phase 0 harness check.
+`tests/phase-3-9-theme.spec.ts`, `tests/phase-4-tags.spec.ts`,
+`tests/phase-5-practice.spec.ts`, `tests/phase-5-5-saved-practice.spec.ts`, …
+`tests/smoke.spec.ts` is the Phase 0 harness check. The two practice specs share helpers in `fixtures/practice.ts`
+(register + verify through the API, seed nouns, sign in, answer cards).
 
 ## Prerequisites
 
