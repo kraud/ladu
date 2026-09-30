@@ -195,7 +195,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         await expect(dialog.getByText('This configuration includes 2 selected words.')).toBeVisible();
         await dialog.getByLabel(/Name/).fill('Two fruits');
         await dialog.getByRole('button', { name: 'Save', exact: true }).click();
-        await expect(configRow(page, 'Two fruits')).toContainText('2 words');
+        await expect(configRow(page, 'Two fruits')).toContainText('2 selected words');
 
         const list = await request.get(`${API}/api/practice/configs`, { headers: authHeader(ownerToken) });
         configId = ((await list.json()) as Array<{ id: string }>)[0]!.id;
