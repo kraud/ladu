@@ -74,10 +74,7 @@ Object {
 
 exports[`Data Snapshots - Migration Baseline records the shape of an ExercisePerformance document 1`] = `
 Object {
-  "averageTranslationKnowledge": 25,
-  "performanceModifier": null,
-  "reviseCounter": null,
-  "statsByCase": Array [
+  "cases": Array [
     Object {
       "caseName": "singularNimetavEE",
       "knowledge": 25,
@@ -86,6 +83,7 @@ Object {
       ],
     },
   ],
-  "translationLanguage": "Estonian",
+  "modifier": null,
+  "reviseCounter": 0,
 }
 `;

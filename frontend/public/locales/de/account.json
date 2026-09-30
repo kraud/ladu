@@ -7,7 +7,10 @@
     "edit": "Profil bearbeiten"
   },
   "fields": {
-    "emailHint": "Die E-Mail-Adresse wird separat verwaltet und kann hier nicht geändert werden"
+    "emailHint": "Die E-Mail-Adresse wird separat verwaltet und kann hier nicht geändert werden",
+    "nativeLanguage": "Muttersprache",
+    "nativeLanguageNone": "Keine",
+    "nativeLanguageHint": "Optional. Beim Üben können Übungen in einer Sprache in deiner Muttersprache entfallen."
   },
   "languages": {
     "count": "{{count}} von {{total}} ausgewählt",

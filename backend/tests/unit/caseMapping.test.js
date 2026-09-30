@@ -12,7 +12,7 @@
  *     Leaf values are objects mapping language → caseName (a string key used to look up drill content).
  *
  *   Single-language dictionaries (nounGroupedCategoriesSingleLanguage, verbGroupedCategoriesSingleLanguage)
- *     Tree structure: language → drill-type → grammatical-concept → { correctValue, ... }
+ *     Tree structure: language → drill-type → list of drills { questionWord, correctValue, ... }
  *     Leaves describe drill properties (e.g. the correct answer key for a multiple-choice question).
  *
  * Together they drive drill generation: the multi-lang dicts define which grammatical slots exist and
@@ -22,10 +22,13 @@
 // ────────────────────────────────────────────────────────────────────────────
 // Imports – the four dictionaries under test
 // ────────────────────────────────────────────────────────────────────────────
-const { nounGroupedCategoriesMultiLanguage } = require('../../utils/equivalentTranslations/multiLang/nouns');
-const { verbGroupedCategoriesMultiLanguage } = require('../../utils/equivalentTranslations/multiLang/verbs');
-const { nounGroupedCategoriesSingleLanguage } = require('../../utils/equivalentTranslations/singleLang/nouns');
-const { verbGroupedCategoriesSingleLanguage } = require('../../utils/equivalentTranslations/singleLang/verbs');
+// The dictionaries now live in one typed catalogue (Phase 5, Slice 1).
+const { MULTI_LANGUAGE, SINGLE_LANGUAGE } = require('../../services/exercises/catalogue');
+const nounGroupedCategoriesMultiLanguage = MULTI_LANGUAGE.Noun;
+const verbGroupedCategoriesMultiLanguage = MULTI_LANGUAGE.Verb;
+// Single-language: language → card type → list of drills { questionWord, correctValue, otherValues? }
+const nounGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Noun;
+const verbGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Verb;
 
 // The four languages currently supported by the app.
 const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
@@ -229,19 +232,27 @@ describe('Single-Language Case Mapping (Drills)', () => {
 
     it('Spanish verb drills include regularity MC, participle TI, and gerund TI', () => {
         const es = verbGroupedCategoriesSingleLanguage.Spanish;
-        expect(es['Multiple-Choice']).toHaveProperty('regularity');
-        expect(es['Text-Input']).toHaveProperty('participle');
-        expect(es['Text-Input']).toHaveProperty('gerund');
+        expect(es['Multiple-Choice'].map(d => d.correctValue)).toEqual(['regularityES']);
+        expect(es['Text-Input'].map(d => d.correctValue)).toEqual(['participleNonFiniteSimpleES', 'gerundNonFiniteSimpleES']);
     });
 
     it('English verb drill has regularity MC', () => {
         const en = verbGroupedCategoriesSingleLanguage.English;
-        expect(en['Multiple-Choice'].regularity.correctValue).toBe('regularityEN');
+        expect(en['Multiple-Choice'][0].correctValue).toBe('regularityEN');
     });
 
     it('German verb drill has auxVerb MC', () => {
         const de = verbGroupedCategoriesSingleLanguage.German;
-        expect(de['Multiple-Choice'].auxVerb.correctValue).toBe('auxVerbDE');
+        expect(de['Multiple-Choice'][0].correctValue).toBe('auxVerbDE');
+        expect(de['Multiple-Choice'][0].otherValues).toEqual(['haben', 'sein']);
+    });
+
+    it('every multiple-choice drill has a fixed option list', () => {
+        [nounGroupedCategoriesSingleLanguage, verbGroupedCategoriesSingleLanguage].forEach(dict => {
+            Object.values(dict).forEach(byType => {
+                byType['Multiple-Choice'].forEach(d => expect(d.otherValues.length).toBeGreaterThanOrEqual(2));
+            });
+        });
     });
 });
 

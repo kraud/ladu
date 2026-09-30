@@ -275,6 +275,10 @@
     background: var(--warning-soft);
     color: var(--warning);
   }
+  .banner.info {
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+  }
   .banner.warning a {
     font-weight: 600;
     text-decoration: underline;

@@ -1,86 +1,418 @@
 {
-  "titles": {
-    "wordSelection": "Parameters will apply to exercises created from these {{amountWordsSelectedForExercises}} words:",
-    "exerciseResultsScore": "Results: {{scoreCorrect}}/{{total}} ✅",
-    "exerciseResultsProcess": "Exercises {{index}}/{{total}}",
-    "noExercisesMatch": "No match",
-    "tryDifferentSettings": "Please try again with different settings.",
-    "parametersTitle": "Exercise parameters:",
-    "difficultyMC": "Multiple-Choice difficulty:",
-    "difficultyTI": "Text-Input difficulty:"
+  "page": {
+    "title": "Practice"
   },
-  "tooltips": {
-    "needMorePractice": "I don't know this, show me again!",
-    "noMorePractice": "Don't show this translation again!",
-    "checkAnswer": "Check answer first",
-    "performanceExplain": "Your performance on this word. Last time you practiced this: {{lastDate}}",
-    "typeExerciseExplain": "This will determine the type of card to be displayed",
-    "typeCardExplain": "This will determine the amount of languages that will be part of the exercises displayed in an exercise card",
-    "requireMultipleChoice": "Exercise type must be 'Multiple-Choice' or 'Random' to change this value",
-    "requireTextInput": "Exercise type must be 'Text-Input' or 'Random' to change this value",
-    "sortingAndSelectionExplain": "This determines how we select the exercises to display. With 'Exercise-Performance' we prioritize words and translations you haven't practiced yet.",
-    "nativeLanguageParameterExplain": "This determines if we include exercises related to your native language in the case of single-language exercises.",
-    "goToExercise": "Go to exercise",
-    "registeredCases": "Registered cases ({{language}}): {{amount}}",
-    "alreadySetMastered": "This setting is already active.",
-    "alreadySetRevise": "This setting is already active. You've answered right {{count}} times. When your reach 5, this configuration will be removed automatically."
+  "setup": {
+    "title": "Practice",
+    "start": "Start session",
+    "starting": "Creating exercises…",
+    "labels": {
+      "languages": "Languages",
+      "partsOfSpeech": "Word types",
+      "amount": "Number of exercises",
+      "answerStyle": "Answer style",
+      "languagesPerExercise": "Languages per exercise",
+      "mcDifficulty": "Choice difficulty",
+      "tiStrictness": "Typing strictness",
+      "wordOrder": "Word order",
+      "nativeLanguage": "Native language"
+    },
+    "advanced": {
+      "title": "Advanced"
+    },
+    "options": {
+      "type": {
+        "Text-Input": "Type the answer",
+        "Multiple-Choice": "Choose the answer",
+        "Random": "Mixed"
+      },
+      "mode": {
+        "Multi-Language": "Different languages",
+        "Single-Language": "Same language",
+        "Random": "Mixed"
+      },
+      "order": {
+        "Exercise-Performance": "Weakest first",
+        "Random": "Random"
+      },
+      "native": {
+        "include": "Include",
+        "exclude": "Exclude"
+      },
+      "nativeDesc": {
+        "include": "Same-language exercises in {{language}} can appear.",
+        "exclude": "No same-language exercises in {{language}}."
+      }
+    },
+    "levels": {
+      "mc": {
+        "0": "Wrong options come from any language.",
+        "1": "Wrong options come from the same language.",
+        "2": "Wrong options come from the same language and word type.",
+        "3": "Wrong options are other forms of the same word."
+      },
+      "ti": {
+        "1": "Ignores accents and capital letters.",
+        "2": "Ignores capital letters only.",
+        "3": "The answer must match exactly."
+      },
+      "label": "Level {{level}}"
+    },
+    "hints": {
+      "modeDifferent": "You see a word in one language. You answer in another language.",
+      "modeSame": "A grammar exercise inside one language, for example the gender of a word.",
+      "wordOrder": "\"Weakest first\" shows the forms you know least.",
+      "mcNeedsChoices": "Only used when the answer style shows choices.",
+      "mcNeedsDifferent": "Only used for exercises in different languages.",
+      "tiNeedsTyping": "Only used when you type the answer.",
+      "noExercisesYet": "Adjectives and adverbs have no exercises yet.",
+      "singleLanguageAccount": "Your account has one language. \"Different languages\" is not possible.",
+      "languagesAll": "All your languages",
+      "languagesCount": "{{count}} of {{total}} languages",
+      "amountRange": "1–100",
+      "modeMixed": "Mixed shows translations between languages and grammar exercises.",
+      "posPreselected": "With selected words, only their word types can be chosen. Adjectives and adverbs have no exercises yet.",
+      "notInPreselection": "Not in the selected words",
+      "preselectedNoExercises": "None of the selected words has a word type with exercises yet. Remove the pre-selection to practice your other words.",
+      "nativeLanguageNamed": "{{language}} · affects same-language exercises"
+    },
+    "preselected": {
+      "title_one": "Practice with {{count}} selected word",
+      "title_other": "Practice with {{count}} selected words",
+      "show": "Show words",
+      "hide": "Hide words",
+      "clear": "Remove pre-selection",
+      "note": "We will change this word list in a later update.",
+      "confirm": {
+        "title": "Remove the pre-selection?",
+        "body": "Practice will use all your words, not only the selected ones.",
+        "confirm": "Remove",
+        "cancel": "Keep"
+      }
+    },
+    "validation": {
+      "languagesRequired": "Select at least one language.",
+      "languagesMinTwo": "Select at least two languages, or choose \"Same language\".",
+      "partsOfSpeechRequired": "Select at least one word type.",
+      "amountRequired": "Enter a number.",
+      "amountInteger": "Use a whole number.",
+      "amountPositive": "Use a number of 1 or more.",
+      "amountTooLarge": "Use a number of 100 or less."
+    },
+    "noWords": {
+      "title": "No words to practice yet",
+      "body": "Add a word with at least two languages and exercises appear here.",
+      "cta": "Add word"
+    },
+    "noMatch": {
+      "title": "No exercises found",
+      "body": "These are the possible reasons:",
+      "reasonFewWords": "There are not enough words with these word types or languages.",
+      "reasonMissingForms": "The words do not have the forms that these exercises need.",
+      "hint": "Change the settings and try again.",
+      "reasonMode": "The mode leaves nothing to ask, for example \"Same language\" with only one language selected.",
+      "adjust": "Adjust settings"
+    },
+    "error": {
+      "title": "The exercises could not be created",
+      "retry": "Try again"
+    },
+    "shortfall": "{{created}} of {{requested}} exercises could be created.",
+    "subtitle": "Short sessions from your words",
+    "fixToStart": "Fix the highlighted fields to start.",
+    "resume": {
+      "title": "You have an unfinished session",
+      "resume": "Resume",
+      "dismiss": "Dismiss",
+      "answeredLabel": "exercises",
+      "correctHint": "{{count}} correct so far"
+    }
+  },
+  "session": {
+    "progress": "Exercise {{current}} of {{total}}",
+    "correct": "<b>{{count}}</b> correct",
+    "leave": "Leave session",
+    "leaveDialog": {
+      "title": "Leave this session?",
+      "body": "Your answers so far stay saved. Save the session to continue it later, or delete it.",
+      "limitNote": "You can keep up to {{max}} saved sessions for {{days}} days. A new session replaces the oldest one.",
+      "saveAndLeave": "Save session and leave",
+      "deleteAndLeave": "Leave session and delete",
+      "cancel": "Keep practicing",
+      "saving": "Saving…",
+      "savedToast": "Session saved. You can resume it from the set-up screen."
+    },
+    "previous": "Previous",
+    "next": "Next",
+    "seeResults": "See results",
+    "answerAll": "Answer all exercises to see the results.",
+    "check": "Check"
+  },
+  "card": {
+    "answerLabel": "Your answer",
+    "answerPlaceholder": "Your answer…",
+    "chooseAnswer": "Choose the answer",
+    "task": {
+      "Gender": "What is the gender of this word?",
+      "Short-Form": "What is the short form of this word?",
+      "Regularity": "Is this verb regular or irregular?",
+      "Gerund": "What is the gerund of this verb?",
+      "Participle": "What is the participle of this verb?",
+      "Auxiliary-Verb": "Which auxiliary verb does this verb use?"
+    },
+    "answerPlaceholderPronoun": "…",
+    "placeholder": {
+      "Participle": "Type the participle…",
+      "Gerund": "Type the gerund…",
+      "Short-Form": "Type the short form…"
+    }
+  },
+  "feedback": {
+    "correct": "Correct",
+    "partial": "Almost correct",
+    "wrong": "Wrong",
+    "partialHint": "Only accents or capital letters are different. It counts as correct.",
+    "expected": "Correct answer: {{answer}}"
+  },
+  "save": {
+    "saving": "Saving…",
+    "saved": "Saved",
+    "notSaved": "Not saved",
+    "retry": "Retry"
+  },
+  "indicator": {
+    "new": "New",
+    "attempts": "Last attempts",
+    "attemptRight": "Right",
+    "attemptWrong": "Wrong",
+    "attemptEmpty": "No attempt yet",
+    "knowledge": "{{percent}} %",
+    "lastPracticed": "Last practiced: {{date}}",
+    "title": "Knowledge — this exact form"
+  },
+  "status": {
+    "Mastered": "Mastered",
+    "Revise": "Revise",
+    "reviseProgress": "{{count}} of 5 correct answers",
+    "reviseShort": "{{count}} of 5",
+    "remove": "Remove status"
+  },
+  "actions": {
+    "master": "Mastered",
+    "revise": "Revise",
+    "masterTip": "I know this. Show it less. This applies to all forms of this word in {{language}}.",
+    "reviseTip": "I find this difficult. Show it more. This applies to all forms of this word in {{language}}.",
+    "toast": {
+      "mastered": "Marked as mastered — this translation will show up less.",
+      "revise": "Added to Revise — it shows up more until 5 correct answers.",
+      "removed": "Status removed."
+    }
   },
   "dialogs": {
-    "titles": {
-      "masterTranslation": "Oh you've already mastered this translation?",
-      "forgetTranslation": "Are you struggling with this word?"
+    "master": {
+      "title": "Mark the {{language}} translation as mastered?",
+      "body": "All forms of this word in {{language}} — not just this form — will be shown less often. You can remove this any time.",
+      "confirm": "Mastered"
     },
-    "messages": {
-      "masterTranslation": "Are you sure you want to set the knowledge of this translation to 100%? This means you will not see exercises about this translation in the future.",
-      "forgetTranslation": "We are going to show you this translation more often. After 5 correct answers this setting willbe removed automatically. Are you sure you want to continue?",
-      "revertStatus": "Do you wish to undo this setting?"
+    "revise": {
+      "title": "Add the {{language}} translation to Revise?",
+      "body": "All forms of this word in {{language}} — not just this form — will be shown more often. It clears automatically after 5 correct answers.",
+      "confirm": "Revise"
+    },
+    "cancel": "Cancel",
+    "failed": "The status did not change. Try again.",
+    "removeMastered": {
+      "title": "Remove “Mastered”?",
+      "body": "All forms of this word in {{language}} will show up at their normal rate again.",
+      "confirm": "Remove status"
+    },
+    "removeRevise": {
+      "title": "Stop revising?",
+      "body": "All forms of this word in {{language}} return to their normal schedule.",
+      "confirm": "Stop revising"
     }
   },
-  "buttons": {
-    "check": "Check",
-    "goParams": "Go back to parameters",
-    "goResults": "Go to results",
-    "hideParams": "Hide parameters",
-    "showParams": "Display parameters",
-    "hideWords": "Hide words",
-    "showWords": "Display words",
-    "hideAdvSettings": "Hide advanced settings",
-    "showAdvSettings": "Display advanced settings",
-    "createExercises": "Create exercises"
+  "results": {
+    "title": "Session results",
+    "unsaved_one": "{{count}} answer is not saved.",
+    "unsaved_other": "{{count}} answers are not saved.",
+    "retryAll": "Retry all",
+    "typed": "Typed",
+    "chosen": "Chosen",
+    "expectedAnswer": "Expected answer",
+    "open": "Open exercise",
+    "backToResults": "Back to results",
+    "settings": "Settings used",
+    "words": "Words",
+    "again": "Practice again",
+    "change": "Change settings",
+    "toReview": "Go to Review table",
+    "scoreCount": "{{correct}} of {{total}}",
+    "correctAnswers": "correct answers",
+    "almostHint": "includes {{count}} almost correct — accents or capitals only",
+    "statusPartial": "Almost",
+    "backToSetup": "Back to set-up",
+    "amountShort": "{{created}} (of {{requested}} asked)",
+    "languagesLabel_one": "language",
+    "languagesLabel_other": "languages",
+    "typesLabel_one": "type of words",
+    "typesLabel_other": "types of words"
   },
-  "categories": {
-    "multipleChoice": "Multiple-Choice",
-    "textInput": "Text-Input",
-    "multiLanguage": "Multi-Language",
-    "singleLanguage": "Single-Language"
-  },
-  "parameterSelector": {
-    "validation": {
-      "minAmountSelection": "You must select at least one item",
-      "amountRequired": "Amount is a required value",
-      "validNumber": "Please enter a valid number",
-      "integerRequired": "Only whole numbers are valid",
-      "numberRequired": "Only numbers are allowed",
-      "positiveRequired": "Please enter a positive number"
+  "cases": {
+    "plurality": {
+      "Singular": "Singular",
+      "Plural": "Plural"
     },
-    "labels": {
-      "partsOfSpeech": "Parts of speech",
-      "amountExercises": "Amount of exercises",
-      "typeExercise": "Exercise type",
-      "languagesPerCard": "Languages per card"
+    "declension": {
+      "Nominative": "Nominative",
+      "Accusative": "Accusative",
+      "Genitive": "Genitive",
+      "Dative": "Dative",
+      "Partitive": "Partitive"
     },
-    "sliderOptionDescriptions": {
-      "difficultyMC": {
-        "textLevel0": "Any word-type - any language",
-        "textLevel1": "Any word-type - same language",
-        "textLevel2": "Same word-type - same language",
-        "textLevel3": "Same word - same language - different cases"
+    "tense": {
+      "present": "Present",
+      "past": "Past",
+      "future": "Future"
+    },
+    "person": {
+      "1S": "1st person singular",
+      "2S": "2nd person singular",
+      "3S": "3rd person singular",
+      "1P": "1st person plural",
+      "2P": "2nd person plural",
+      "3P": "3rd person plural"
+    },
+    "property": {
+      "Gender": "Gender",
+      "Short-Form": "Short form",
+      "Regularity": "Regularity",
+      "Infinitive": "Infinitive",
+      "Gerund": "Gerund",
+      "Participle": "Participle",
+      "Auxiliary-Verb": "Auxiliary verb",
+      "Case-Type": "Case type",
+      "Prefix": "Prefix"
+    },
+    "abbr": {
+      "plurality": {
+        "Singular": "sg.",
+        "Plural": "pl."
       },
-      "difficultyTI": {
-        "textLevel1": "Ignores capitalization, and special characters.",
-        "textLevel2": "Only ignores capitalization.",
-        "textLevel3": "Zero tolerance - input must match exactly."
+      "declension": {
+        "Nominative": "nom.",
+        "Accusative": "acc.",
+        "Genitive": "gen.",
+        "Dative": "dat.",
+        "Partitive": "part."
+      },
+      "tense": {
+        "present": "pres.",
+        "past": "past",
+        "future": "fut."
+      },
+      "person": {
+        "1S": "1st p. sg.",
+        "2S": "2nd p. sg.",
+        "3S": "3rd p. sg.",
+        "1P": "1st p. pl.",
+        "2P": "2nd p. pl.",
+        "3P": "3rd p. pl."
+      },
+      "property": {
+        "Gender": "gend.",
+        "Short-Form": "short f.",
+        "Regularity": "reg.",
+        "Infinitive": "inf.",
+        "Gerund": "ger.",
+        "Participle": "ptcp.",
+        "Auxiliary-Verb": "aux.",
+        "Case-Type": "case t.",
+        "Prefix": "pref."
       }
     }
+  },
+  "configs": {
+    "save": "Save configuration",
+    "title": "Saved configurations",
+    "loading": "Loading…",
+    "empty": "You have no saved configurations. Set the options above, then select \"Save configuration\".",
+    "listError": "The saved configurations could not be loaded.",
+    "use": "Use configuration {{name}}",
+    "edit": "Edit configuration {{name}}",
+    "delete": "Delete configuration {{name}}",
+    "missingWords": "Some words of this configuration are not available now.",
+    "summary": {
+      "amount_one": "{{count}} exercise",
+      "amount_other": "{{count}} exercises",
+      "words_one": "{{count}} word",
+      "words_other": "{{count}} words",
+      "someMissing": "Some words are missing"
+    },
+    "dialog": {
+      "createTitle": "Save configuration",
+      "editTitle": "Edit configuration",
+      "name": "Name",
+      "namePlaceholder": "For example: Morning verbs",
+      "nameRequired": "Enter a name.",
+      "nameTaken": "You already have a configuration with this name.",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "What is this configuration for?",
+      "withWords_one": "This configuration includes {{count}} selected word.",
+      "withWords_other": "This configuration includes {{count}} selected words.",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "deleteDialog": {
+      "title": "Delete \"{{name}}\"?",
+      "body": "This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "saved": "Configuration saved.",
+      "updated": "Configuration updated.",
+      "deleted": "Configuration deleted.",
+      "loaded": "Configuration \"{{name}}\" is loaded."
+    }
+  },
+  "sessions": {
+    "title": "Saved sessions",
+    "note": "You can keep up to {{max}} sessions for {{days}} days. A new session replaces the oldest one.",
+    "loading": "Loading…",
+    "empty": "You have no saved sessions. Leave a session and select \"Save session and leave\" to keep it.",
+    "listError": "The saved sessions could not be loaded.",
+    "resumeAria": "Resume session with {{answered}} of {{total}} answered",
+    "deleteAria": "Delete session with {{answered}} of {{total}} answered",
+    "progress": "{{answered}} of {{total}} answered",
+    "correct": "{{count}} correct",
+    "expires": "Expires on {{date}}",
+    "gone": "This session is not available now. It may have expired.",
+    "replaceDialog": {
+      "title": "Replace your unfinished session?",
+      "body": "You have an unfinished session in this tab. If you resume the saved session, the unfinished session is lost.",
+      "confirm": "Resume saved session",
+      "cancel": "Keep"
+    },
+    "deleteDialog": {
+      "title": "Delete this saved session?",
+      "body": "This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "deleted": "Session deleted."
+    }
+  },
+  "apiErrors": {
+    "invalidLanguages": "Select at least one language. \"Different languages\" needs two.",
+    "invalidPartsOfSpeech": "Select at least one word type.",
+    "invalidAmount": "Use a whole number from 1 to 100.",
+    "invalidSettings": "One of the settings is not valid.",
+    "invalidWordIds": "The selected words are not valid.",
+    "notFound": "This word or form was not found.",
+    "invalidName": "The name must have 1 to 60 characters.",
+    "invalidDescription": "The description can have at most 200 characters.",
+    "nameTaken": "You already have a configuration with this name.",
+    "invalidSession": "The session is not valid and cannot be saved.",
+    "sessionTooLarge": "The session is too large to save."
   }
 }

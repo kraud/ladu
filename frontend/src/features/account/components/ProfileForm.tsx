@@ -7,17 +7,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { LanguagePicker } from '@/components/common/LanguagePicker';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUpdateProfile } from '@/features/auth/hooks';
-import { UI_LANGUAGES } from '@/lib/language';
+import { languageByLabel, UI_LANGUAGES } from '@/lib/language';
 import type { SessionUser } from '@/stores/authStore';
-import { buildProfileSchema, type ProfileValues } from '../schemas';
+import { buildProfileSchema, NO_NATIVE_LANGUAGE, type ProfileValues } from '../schemas';
 import { SignInMethodsField } from './SignInMethodsField';
 
 /**
- * The Account profile-edit form: name, username, languages. Email is shown
- * disabled (managed separately); `nativeLanguage` and `uiLanguage` ride along in
- * the payload unchanged — `updateUser` clears `nativeLanguage` when the key is
- * absent, so it must always be sent (`features/auth/types.ts`).
+ * The Account profile-edit form: name, username, languages, native language.
+ * Email is shown disabled (managed separately); `uiLanguage` rides along in the
+ * payload unchanged. `nativeLanguage` is always sent (`updateUser` clears it when
+ * the key is absent, `features/auth/types.ts`) — and only when it is still one of
+ * the selected languages, because the backend rejects any other value.
  *
  * Save stays disabled until the form is valid — in particular until >= 2
  * languages are selected (the same gate the backend now enforces).
@@ -33,6 +35,10 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
             name: user.name,
             username: user.username,
             languages: user.languages,
+            nativeLanguage:
+                user.nativeLanguage && user.languages.includes(user.nativeLanguage)
+                    ? user.nativeLanguage
+                    : NO_NATIVE_LANGUAGE,
         },
         mode: 'onChange',
     });
@@ -49,7 +55,7 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
         <Form {...form}>
             <form
                 noValidate
-                onSubmit={form.handleSubmit(({ name, username, languages }) => {
+                onSubmit={form.handleSubmit(({ name, username, languages, nativeLanguage }) => {
                     updateProfile.mutate(
                         {
                             email: user.email,
@@ -57,7 +63,7 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
                             username: username.trim().replace(/^@/, ''),
                             languages,
                             uiLanguage: user.uiLanguage,
-                            nativeLanguage: user.nativeLanguage,
+                            nativeLanguage: languages.includes(nativeLanguage) ? nativeLanguage : null,
                         },
                         {
                             onSuccess: () => {
@@ -145,6 +151,38 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
                                 <FormMessage />
                             </FormItem>
                         )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="nativeLanguage"
+                        render={({ field }) => {
+                            // A language that was just unselected can no longer be the native one.
+                            const selected = form.watch('languages');
+                            const value = selected.includes(field.value) ? field.value : NO_NATIVE_LANGUAGE;
+                            const labelOf = (v: string) =>
+                                v === NO_NATIVE_LANGUAGE
+                                    ? t('account:fields.nativeLanguageNone')
+                                    : (languageByLabel(v)?.native ?? v);
+                            return (
+                                <FormItem className="sm:col-span-2">
+                                    <FormLabel>{t('account:fields.nativeLanguage')}</FormLabel>
+                                    <Select value={value} onValueChange={(next) => field.onChange(next)}>
+                                        <SelectTrigger aria-label={t('account:fields.nativeLanguage')}>
+                                            <SelectValue>{(v: string) => labelOf(v)}</SelectValue>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={NO_NATIVE_LANGUAGE}>{labelOf(NO_NATIVE_LANGUAGE)}</SelectItem>
+                                            {selected.map((label) => (
+                                                <SelectItem key={label} value={label}>
+                                                    {labelOf(label)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <p className="hint">{t('account:fields.nativeLanguageHint')}</p>
+                                </FormItem>
+                            );
+                        }}
                     />
                 </div>
 

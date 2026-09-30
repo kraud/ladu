@@ -1,13 +1,15 @@
 /**
  * Ephemeral client UI state — the second of the *three* stores the rewrite
- * allows (`authStore`, `uiStore`, and later practice's pre-selected-words
- * hand-off). Nothing here is server state and nothing here persists.
+ * allows (`authStore`, `uiStore`, and the practice session store in
+ * `features/practice/sessionStore.ts`). Nothing here is server state and
+ * nothing here persists.
  *
  * Every field is unused in Phase 1; the store exists now so the "only three
  * stores" rule is visible from the first slice and later phases extend this
  * file instead of reaching for a fourth store or a Context.
  */
 import { create } from 'zustand';
+import type { PreselectedWord } from '@/features/practice/preselection';
 import type { PartOfSpeech } from '@/ts/enums';
 
 type SearchMode = 'words' | 'tags';
@@ -39,6 +41,14 @@ interface UiState {
      */
     wordSidebarCollapsed: boolean;
     setWordSidebarCollapsed: (collapsed: boolean) => void;
+
+    /**
+     * Words handed from Review's "Practice" bulk action to the practice
+     * parameters screen (Phase 5, C4). Not in the URL — a long id list does not
+     * belong there. The parameters screen reads it and clears it (`null`).
+     */
+    practicePreselection: PreselectedWord[] | null;
+    setPracticePreselection: (words: PreselectedWord[] | null) => void;
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -56,4 +66,7 @@ export const useUiStore = create<UiState>()((set) => ({
 
     wordSidebarCollapsed: true,
     setWordSidebarCollapsed: (wordSidebarCollapsed) => set({ wordSidebarCollapsed }),
+
+    practicePreselection: null,
+    setPracticePreselection: (practicePreselection) => set({ practicePreselection }),
 }));

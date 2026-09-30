@@ -1,5 +1,7 @@
 # UI Spec 05 — Practice (`/practice`)
 
+> **Superseded (2026-09-29):** the process and requirements for `/practice` are now in [`plans/phase-5-practice.md`](../../../plans/phase-5-practice.md) (Part C = design brief). Where this file disagrees (for example "4 options" in multiple choice), the plan wins.
+
 *Grounded in `snapshot/exercise-flow.md` (full parameter/card/performance spec) + `pages-review-practice.md` + `pages-word-flow.md` (WordSimpleList). One state machine: parameters → cards → results.*
 
 ---

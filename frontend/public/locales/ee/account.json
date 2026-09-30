@@ -7,7 +7,10 @@
     "edit": "Muuda profiili"
   },
   "fields": {
-    "emailHint": "E-posti aadressi hallatakse eraldi ja seda ei saa siin muuta"
+    "emailHint": "E-posti aadressi hallatakse eraldi ja seda ei saa siin muuta",
+    "nativeLanguage": "Emakeel",
+    "nativeLanguageNone": "Puudub",
+    "nativeLanguageHint": "Valikuline. Harjutamisel saab ühe keele harjutused emakeeles vahele jätta."
   },
   "languages": {
     "count": "{{count}} / {{total}} valitud",

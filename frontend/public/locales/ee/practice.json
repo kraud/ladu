@@ -1,86 +1,418 @@
 {
-  "titles": {
-    "wordSelection": "Parameetrid kehtivad nende {{amountWordsSelectedForExercises}} sõnade alusel loodud harjutustele:",
-    "exerciseResultsScore": "Tulemused: {{scoreCorrect}}/{{total}} ✅",
-    "exerciseResultsProcess": "Harjutused {{index}}/{{total}}",
-    "noExercisesMatch": "Ei sobi",
-    "tryDifferentSettings": "Proovi uuesti teiste seadistustega.",
-    "parametersTitle": "Harjutuse parameetrid:",
-    "difficultyMC": "Valikvastuste raskusaste:",
-    "difficultyTI": "Tekstisisestuse raskusaste:"
+  "page": {
+    "title": "Harjutamine"
   },
-  "tooltips": {
-    "needMorePractice": "Ma ei tea seda, näita mulle uuesti!",
-    "noMorePractice": "Ära näita seda tõlget uuesti!",
-    "checkAnswer": "Kontrolli esmalt vastust",
-    "performanceExplain": "Sinu sooritus sellel sõnal. Viimati harjutatud: {{lastDate}}",
-    "typeExerciseExplain": "See määrab, millist kaarti kuvatakse",
-    "typeCardExplain": "See määrab, kui palju keeli kuvatakse harjutuskaardil",
-    "requireMultipleChoice": "Harjutuse tüüp peab olema 'Valikvastused' või 'Juhuslik', et seda väärtust muuta",
-    "requireTextInput": "Harjutuse tüüp peab olema 'Tekstisisestus' või 'Juhuslik', et seda väärtust muuta",
-    "sortingAndSelectionExplain": "See määrab, kuidas me valime kuvatavad harjutused. 'Harjutuse sooritus' korral eelistame sõnu ja tõlkeid, mida sa pole veel harjutanud.",
-    "nativeLanguageParameterExplain": "See määrab, kas me lisame harjutusi, mis on seotud sinu emakeelega ühe keele harjutuste puhul.",
-    "goToExercise": "Mine harjutuse juurde",
-    "registeredCases": "Registreeritud juhtumid ({{language}}): {{amount}}",
-    "alreadySetMastered": "See seade on juba aktiivne.",
-    "alreadySetRevise": "See seade on juba aktiivne. Olete õigesti vastanud {{count}} korda. Kui jõuate 5-ni, eemaldatakse see konfiguratsioon automaatselt."
+  "setup": {
+    "title": "Harjutus",
+    "start": "Alusta harjutust",
+    "starting": "Harjutusi luuakse…",
+    "labels": {
+      "languages": "Keeled",
+      "partsOfSpeech": "Sõnaliigid",
+      "amount": "Harjutuste arv",
+      "answerStyle": "Vastamise viis",
+      "languagesPerExercise": "Keeli harjutuse kohta",
+      "mcDifficulty": "Valikute raskus",
+      "tiStrictness": "Kirjutamise täpsus",
+      "wordOrder": "Sõnade järjekord",
+      "nativeLanguage": "Emakeel"
+    },
+    "advanced": {
+      "title": "Lisaseaded"
+    },
+    "options": {
+      "type": {
+        "Text-Input": "Kirjuta vastus",
+        "Multiple-Choice": "Vali vastus",
+        "Random": "Segatud"
+      },
+      "mode": {
+        "Multi-Language": "Eri keeled",
+        "Single-Language": "Sama keel",
+        "Random": "Segatud"
+      },
+      "order": {
+        "Exercise-Performance": "Nõrgemad enne",
+        "Random": "Juhuslik"
+      },
+      "native": {
+        "include": "Kaasa",
+        "exclude": "Jäta välja"
+      },
+      "nativeDesc": {
+        "include": "Ühe keele harjutusi keeles {{language}} võib tulla.",
+        "exclude": "Ühe keele harjutusi keeles {{language}} ei tule."
+      }
+    },
+    "levels": {
+      "mc": {
+        "0": "Valed valikud tulevad mis tahes keelest.",
+        "1": "Valed valikud tulevad samast keelest.",
+        "2": "Valed valikud tulevad samast keelest ja samast sõnaliigist.",
+        "3": "Valed valikud on sama sõna teised vormid."
+      },
+      "ti": {
+        "1": "Ignoreerib rõhumärke ja suur- ning väiketähti.",
+        "2": "Ignoreerib ainult suur- ja väiketähti.",
+        "3": "Vastus peab olema täpselt sama."
+      },
+      "label": "Tase {{level}}"
+    },
+    "hints": {
+      "modeDifferent": "Näed sõna ühes keeles. Vastad teises keeles.",
+      "modeSame": "Grammatikaharjutus ühe keele sees, näiteks sõna sugu.",
+      "wordOrder": "\"Nõrgemad enne\" näitab vorme, mida tead kõige vähem.",
+      "mcNeedsChoices": "Kasutatakse ainult siis, kui vastamise viis näitab valikuid.",
+      "mcNeedsDifferent": "Kasutatakse ainult eri keeltes harjutuste jaoks.",
+      "tiNeedsTyping": "Kasutatakse ainult siis, kui kirjutad vastuse.",
+      "noExercisesYet": "Omadussõnade ja määrsõnade jaoks ei ole veel harjutusi.",
+      "singleLanguageAccount": "Sinu kontol on üks keel. \"Eri keeled\" ei ole võimalik.",
+      "languagesAll": "Kõik sinu keeled",
+      "languagesCount": "{{count}} keelt {{total}}-st",
+      "amountRange": "1–100",
+      "modeMixed": "\"Segatud\" näitab tõlkeid keelte vahel ja grammatikaharjutusi.",
+      "posPreselected": "Valitud sõnade puhul saab valida ainult nende sõnaliike. Omadussõnade ja määrsõnade jaoks ei ole veel harjutusi.",
+      "notInPreselection": "Ei ole valitud sõnade seas",
+      "preselectedNoExercises": "Ühelgi valitud sõnal ei ole sõnaliiki, mille jaoks on harjutusi. Eemalda eelvalik, et harjutada teisi sõnu.",
+      "nativeLanguageNamed": "{{language}} · mõjutab ühe keele harjutusi"
+    },
+    "preselected": {
+      "title_one": "Harjuta {{count}} valitud sõnaga",
+      "title_other": "Harjuta {{count}} valitud sõnaga",
+      "show": "Näita sõnu",
+      "hide": "Peida sõnad",
+      "clear": "Eemalda eelvalik",
+      "note": "Muudame seda sõnaloendit hilisemas uuenduses.",
+      "confirm": {
+        "title": "Kas eemaldada eelvalik?",
+        "body": "Harjutus kasutab kõiki sinu sõnu, mitte ainult valituid.",
+        "confirm": "Eemalda",
+        "cancel": "Jäta"
+      }
+    },
+    "validation": {
+      "languagesRequired": "Vali vähemalt üks keel.",
+      "languagesMinTwo": "Vali vähemalt kaks keelt või vali \"Sama keel\".",
+      "partsOfSpeechRequired": "Vali vähemalt üks sõnaliik.",
+      "amountRequired": "Sisesta arv.",
+      "amountInteger": "Kasuta täisarvu.",
+      "amountPositive": "Kasuta arvu alates 1.",
+      "amountTooLarge": "Kasuta arvu kuni 100."
+    },
+    "noWords": {
+      "title": "Harjutamiseks ei ole veel sõnu",
+      "body": "Lisa sõna vähemalt kahes keeles ja siin ilmuvad harjutused.",
+      "cta": "Lisa sõna"
+    },
+    "noMatch": {
+      "title": "Harjutusi ei leitud",
+      "body": "Võimalikud põhjused on need:",
+      "reasonFewWords": "Nende sõnaliikide või keeltega sõnu ei ole piisavalt.",
+      "reasonMissingForms": "Sõnadel ei ole vorme, mida need harjutused vajavad.",
+      "hint": "Muuda seadeid ja proovi uuesti.",
+      "reasonMode": "Režiim ei jäta midagi küsida, näiteks \"Sama keel\" ainult ühe valitud keelega.",
+      "adjust": "Kohanda seadeid"
+    },
+    "error": {
+      "title": "Harjutusi ei saanud luua",
+      "retry": "Proovi uuesti"
+    },
+    "shortfall": "Luua sai {{created}} harjutust {{requested}}-st.",
+    "subtitle": "Lühikesed harjutused sinu sõnadega",
+    "fixToStart": "Paranda märgitud väljad, et alustada.",
+    "resume": {
+      "title": "Sul on pooleli seanss",
+      "resume": "Jätka",
+      "dismiss": "Loobu",
+      "answeredLabel": "harjutust",
+      "correctHint": "siiani {{count}} õiget"
+    }
+  },
+  "session": {
+    "progress": "Harjutus {{current}} / {{total}}",
+    "correct": "<b>{{count}}</b> õiget",
+    "leave": "Lahku sessioonist",
+    "leaveDialog": {
+      "title": "Kas lahkuda sellest sessioonist?",
+      "body": "Sinu seniste vastused jäävad salvestatuks. Salvesta sessioon, et seda hiljem jätkata, või kustuta see.",
+      "limitNote": "Saad hoida kuni {{max}} salvestatud sessiooni {{days}} päeva. Uus sessioon asendab vanima.",
+      "saveAndLeave": "Salvesta sessioon ja lahku",
+      "deleteAndLeave": "Lahku ja kustuta sessioon",
+      "cancel": "Harjuta edasi",
+      "saving": "Salvestamine…",
+      "savedToast": "Sessioon salvestatud. Saad seda jätkata seadistusvaatest."
+    },
+    "previous": "Eelmine",
+    "next": "Järgmine",
+    "seeResults": "Vaata tulemusi",
+    "answerAll": "Vasta kõigile harjutustele, et näha tulemusi.",
+    "check": "Kontrolli"
+  },
+  "card": {
+    "answerLabel": "Sinu vastus",
+    "answerPlaceholder": "Sinu vastus…",
+    "chooseAnswer": "Vali vastus",
+    "task": {
+      "Gender": "Mis sugu on see sõna?",
+      "Short-Form": "Mis on selle sõna lühivorm?",
+      "Regularity": "Kas see verb on regulaarne või ebaregulaarne?",
+      "Gerund": "Mis on selle verbi gerundium?",
+      "Participle": "Mis on selle verbi kesksõna?",
+      "Auxiliary-Verb": "Millist abiverbi see verb kasutab?"
+    },
+    "answerPlaceholderPronoun": "…",
+    "placeholder": {
+      "Participle": "Kirjuta kesksõna…",
+      "Gerund": "Kirjuta gerundium…",
+      "Short-Form": "Kirjuta lühivorm…"
+    }
+  },
+  "feedback": {
+    "correct": "Õige",
+    "partial": "Peaaegu õige",
+    "wrong": "Vale",
+    "partialHint": "Erinevad on ainult rõhumärgid või suurtähed. See loetakse õigeks.",
+    "expected": "Õige vastus: {{answer}}"
+  },
+  "save": {
+    "saving": "Salvestan…",
+    "saved": "Salvestatud",
+    "notSaved": "Ei salvestatud",
+    "retry": "Proovi uuesti"
+  },
+  "indicator": {
+    "new": "Uus",
+    "attempts": "Viimased katsed",
+    "attemptRight": "Õige",
+    "attemptWrong": "Vale",
+    "attemptEmpty": "Katset veel ei ole",
+    "knowledge": "{{percent}} %",
+    "lastPracticed": "Viimati harjutatud: {{date}}",
+    "title": "Teadmised – just see vorm"
+  },
+  "status": {
+    "Mastered": "Selge",
+    "Revise": "Kordamiseks",
+    "reviseProgress": "{{count}} / 5 õiget vastust",
+    "reviseShort": "{{count}} / 5",
+    "remove": "Eemalda olek"
+  },
+  "actions": {
+    "master": "Selge",
+    "revise": "Kordamiseks",
+    "masterTip": "Ma tean seda. Näita seda harvemini. See kehtib selle sõna kõigile vormidele keeles: {{language}}.",
+    "reviseTip": "See on mulle raske. Näita seda sagedamini. See kehtib selle sõna kõigile vormidele keeles: {{language}}.",
+    "toast": {
+      "mastered": "Märgitud selgeks – seda tõlget näidatakse harvemini.",
+      "revise": "Lisatud kordamiseks – seda näidatakse sagedamini, kuni 5 vastust on õiged.",
+      "removed": "Olek eemaldatud."
+    }
   },
   "dialogs": {
-    "titles": {
-      "masterTranslation": "Oh, kas sa oled selle tõlke juba selgeks saanud?",
-      "forgetTranslation": "Kas sul on selle sõnaga raskusi?"
+    "master": {
+      "title": "Kas märgid tõlke keeles {{language}} selgeks?",
+      "body": "Selle sõna kõiki vorme keeles {{language}} – mitte ainult seda vormi – näidatakse harvemini. Selle saad igal ajal eemaldada.",
+      "confirm": "Selge"
     },
-    "messages": {
-      "masterTranslation": "Kas oled kindel, et soovid määrata selle tõlke teadmised 100%-le? See tähendab, et tulevikus ei näe sa selle tõlke harjutusi.",
-      "forgetTranslation": "Me hakkame seda tõlget sagedamini näitama. Pärast viit õiget vastust eemaldatakse see seadistus automaatselt. Kas oled kindel, et soovid jätkata?",
-      "revertStatus": "Kas soovite selle seadistuse tagasi võtta?"
+    "revise": {
+      "title": "Kas lisad tõlke keeles {{language}} kordamiseks?",
+      "body": "Selle sõna kõiki vorme keeles {{language}} – mitte ainult seda vormi – näidatakse sagedamini. See lõpeb ise pärast 5 õiget vastust.",
+      "confirm": "Kordamiseks"
+    },
+    "cancel": "Tühista",
+    "failed": "Olek ei muutunud. Proovi uuesti.",
+    "removeMastered": {
+      "title": "Kas eemaldad oleku „Selge“?",
+      "body": "Selle sõna kõiki vorme keeles {{language}} näidatakse taas tavalise sagedusega.",
+      "confirm": "Eemalda olek"
+    },
+    "removeRevise": {
+      "title": "Kas lõpetad kordamise?",
+      "body": "Selle sõna kõik vormid keeles {{language}} lähevad tagasi tavalisele graafikule.",
+      "confirm": "Lõpeta kordamine"
     }
   },
-  "buttons": {
-    "check": "Kontrolli",
-    "goParams": "Mine tagasi parameetrite juurde",
-    "goResults": "Mine tulemustesse",
-    "hideParams": "Peida parameetrid",
-    "showParams": "Kuva parameetrid",
-    "hideWords": "Peida sõnad",
-    "showWords": "Kuva sõnad",
-    "hideAdvSettings": "Peida täpsemad seaded",
-    "showAdvSettings": "Kuva täpsemad seaded",
-    "createExercises": "Loo harjutused"
+  "results": {
+    "title": "Sessiooni tulemused",
+    "unsaved_one": "{{count}} vastus ei ole salvestatud.",
+    "unsaved_other": "{{count}} vastust ei ole salvestatud.",
+    "retryAll": "Proovi kõiki uuesti",
+    "typed": "Kirjutatud",
+    "chosen": "Valitud",
+    "expectedAnswer": "Oodatud vastus",
+    "open": "Ava harjutus",
+    "backToResults": "Tagasi tulemuste juurde",
+    "settings": "Kasutatud seaded",
+    "words": "Sõnad",
+    "again": "Harjuta uuesti",
+    "change": "Muuda seadeid",
+    "toReview": "Mine ülevaate tabelisse",
+    "scoreCount": "{{correct}} / {{total}}",
+    "correctAnswers": "õiget vastust",
+    "almostHint": "sisaldab {{count}} peaaegu õiget – erinevad ainult rõhumärgid või suurtähed",
+    "statusPartial": "Peaaegu",
+    "backToSetup": "Tagasi seadete juurde",
+    "amountShort": "{{created}} ({{requested}}-st soovitud)",
+    "languagesLabel_one": "keel",
+    "languagesLabel_other": "keelt",
+    "typesLabel_one": "sõnaliik",
+    "typesLabel_other": "sõnaliiki"
   },
-  "categories": {
-    "multipleChoice": "Valikvastused",
-    "textInput": "Tekstisisestus",
-    "multiLanguage": "Mitmekeelne",
-    "singleLanguage": "Ühekeelne"
-  },
-  "parameterSelector": {
-    "validation": {
-      "minAmountSelection": "Sa pead valima vähemalt ühe elemendi",
-      "amountRequired": "Kogus on nõutud väärtus",
-      "validNumber": "Sisesta kehtiv number",
-      "integerRequired": "Ainult täisarvud on lubatud",
-      "numberRequired": "Lubatud on ainult numbrid",
-      "positiveRequired": "Sisesta positiivne number"
+  "cases": {
+    "plurality": {
+      "Singular": "Ainsus",
+      "Plural": "Mitmus"
     },
-    "labels": {
-      "partsOfSpeech": "Sõnaliigid",
-      "amountExercises": "Harjutuste arv",
-      "typeExercise": "Harjutuse tüüp",
-      "languagesPerCard": "Keeled kaardi kohta"
+    "declension": {
+      "Nominative": "Nimetav",
+      "Accusative": "Akusatiiv",
+      "Genitive": "Omastav",
+      "Dative": "Datiiv",
+      "Partitive": "Osastav"
     },
-    "sliderOptionDescriptions": {
-      "difficultyMC": {
-        "textLevel0": "Mis tahes sõnaliik - mis tahes keel",
-        "textLevel1": "Mis tahes sõnaliik - sama keel",
-        "textLevel2": "Sama sõnaliik - sama keel",
-        "textLevel3": "Sama sõna - sama keel - erinevad käänded"
+    "tense": {
+      "present": "Olevik",
+      "past": "Minevik",
+      "future": "Tulevik"
+    },
+    "person": {
+      "1S": "1. isik, ainsus",
+      "2S": "2. isik, ainsus",
+      "3S": "3. isik, ainsus",
+      "1P": "1. isik, mitmus",
+      "2P": "2. isik, mitmus",
+      "3P": "3. isik, mitmus"
+    },
+    "property": {
+      "Gender": "Sugu",
+      "Short-Form": "Lühivorm",
+      "Regularity": "Regulaarsus",
+      "Infinitive": "Infinitiiv",
+      "Gerund": "Gerundium",
+      "Participle": "Kesksõna",
+      "Auxiliary-Verb": "Abiverb",
+      "Case-Type": "Käände tüüp",
+      "Prefix": "Eesliide"
+    },
+    "abbr": {
+      "plurality": {
+        "Singular": "ains.",
+        "Plural": "mitm."
       },
-      "difficultyTI": {
-        "textLevel1": "Ignoreerib suurtähti ja erimärke.",
-        "textLevel2": "Ignoreerib ainult suurtähti.",
-        "textLevel3": "Nulltolerants - sisend peab täpselt kattuma."
+      "declension": {
+        "Nominative": "nimet.",
+        "Accusative": "akus.",
+        "Genitive": "omast.",
+        "Dative": "dat.",
+        "Partitive": "osast."
+      },
+      "tense": {
+        "present": "ol.",
+        "past": "min.",
+        "future": "tul."
+      },
+      "person": {
+        "1S": "1. is. ains.",
+        "2S": "2. is. ains.",
+        "3S": "3. is. ains.",
+        "1P": "1. is. mitm.",
+        "2P": "2. is. mitm.",
+        "3P": "3. is. mitm."
+      },
+      "property": {
+        "Gender": "sugu",
+        "Short-Form": "lühiv.",
+        "Regularity": "reg.",
+        "Infinitive": "inf.",
+        "Gerund": "ger.",
+        "Participle": "kesks.",
+        "Auxiliary-Verb": "abiv.",
+        "Case-Type": "käände t.",
+        "Prefix": "eesl."
       }
     }
+  },
+  "configs": {
+    "save": "Salvesta seadistus",
+    "title": "Salvestatud seadistused",
+    "loading": "Laadimine…",
+    "empty": "Sul pole salvestatud seadistusi. Vali ülal valikud ja vajuta „Salvesta seadistus“.",
+    "listError": "Salvestatud seadistusi ei saanud laadida.",
+    "use": "Kasuta seadistust {{name}}",
+    "edit": "Muuda seadistust {{name}}",
+    "delete": "Kustuta seadistus {{name}}",
+    "missingWords": "Mõned selle seadistuse sõnad ei ole enam saadaval.",
+    "summary": {
+      "amount_one": "{{count}} harjutus",
+      "amount_other": "{{count}} harjutust",
+      "words_one": "{{count}} sõna",
+      "words_other": "{{count}} sõna",
+      "someMissing": "Mõned sõnad puuduvad"
+    },
+    "dialog": {
+      "createTitle": "Salvesta seadistus",
+      "editTitle": "Muuda seadistust",
+      "name": "Nimi",
+      "namePlaceholder": "Näiteks: Hommikused verbid",
+      "nameRequired": "Sisesta nimi.",
+      "nameTaken": "Sul on juba selle nimega seadistus.",
+      "description": "Kirjeldus (valikuline)",
+      "descriptionPlaceholder": "Milleks see seadistus on?",
+      "withWords_one": "See seadistus sisaldab {{count}} valitud sõna.",
+      "withWords_other": "See seadistus sisaldab {{count}} valitud sõna.",
+      "save": "Salvesta",
+      "saving": "Salvestamine…"
+    },
+    "deleteDialog": {
+      "title": "Kas kustutada „{{name}}“?",
+      "body": "Seda toimingut ei saa tagasi võtta.",
+      "confirm": "Kustuta"
+    },
+    "toast": {
+      "saved": "Seadistus salvestatud.",
+      "updated": "Seadistus uuendatud.",
+      "deleted": "Seadistus kustutatud.",
+      "loaded": "Seadistus „{{name}}“ laaditud."
+    }
+  },
+  "sessions": {
+    "title": "Salvestatud sessioonid",
+    "note": "Saad hoida kuni {{max}} sessiooni {{days}} päeva. Uus sessioon asendab vanima.",
+    "loading": "Laadimine…",
+    "empty": "Sul pole salvestatud sessioone. Lahku sessioonist ja vali „Salvesta sessioon ja lahku“, et see alles jätta.",
+    "listError": "Salvestatud sessioone ei saanud laadida.",
+    "resumeAria": "Jätka sessiooni, kus on vastatud {{answered}} / {{total}}",
+    "deleteAria": "Kustuta sessioon, kus on vastatud {{answered}} / {{total}}",
+    "progress": "Vastatud {{answered}} / {{total}}",
+    "correct": "{{count}} õiget",
+    "expires": "Aegub {{date}}",
+    "gone": "See sessioon ei ole enam saadaval. See võib olla aegunud.",
+    "replaceDialog": {
+      "title": "Kas asendada pooleli olev sessioon?",
+      "body": "Sul on selles vahekaardis pooleli sessioon. Kui jätkad salvestatud sessiooni, läheb pooleli olev sessioon kaduma.",
+      "confirm": "Jätka salvestatud sessiooni",
+      "cancel": "Jäta alles"
+    },
+    "deleteDialog": {
+      "title": "Kas kustutada see salvestatud sessioon?",
+      "body": "Seda toimingut ei saa tagasi võtta.",
+      "confirm": "Kustuta"
+    },
+    "toast": {
+      "deleted": "Sessioon kustutatud."
+    }
+  },
+  "apiErrors": {
+    "invalidLanguages": "Vali vähemalt üks keel. \"Eri keeled\" vajab kahte.",
+    "invalidPartsOfSpeech": "Vali vähemalt üks sõnaliik.",
+    "invalidAmount": "Kasuta täisarvu vahemikus 1 kuni 100.",
+    "invalidSettings": "Üks seadetest ei kehti.",
+    "invalidWordIds": "Valitud sõnad ei kehti.",
+    "notFound": "Seda sõna või vormi ei leitud.",
+    "invalidName": "Nimi peab olema 1 kuni 60 tähemärki.",
+    "invalidDescription": "Kirjeldus võib olla kuni 200 tähemärki.",
+    "nameTaken": "Sul on juba selle nimega seadistus.",
+    "invalidSession": "Sessioon ei ole kehtiv ja seda ei saa salvestada.",
+    "sessionTooLarge": "Sessioon on salvestamiseks liiga suur."
   }
 }

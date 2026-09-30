@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { buildProfileSchema } from './schemas';
+import { buildProfileSchema, NO_NATIVE_LANGUAGE } from './schemas';
 
 // Identity `t` — assert on the message keys, like the auth schema tests.
 const t = (key: string) => key;
 const schema = buildProfileSchema(t);
 
-const valid = { name: 'Kai', username: 'kai', languages: ['English', 'Spanish'] };
+const valid = {
+    name: 'Kai',
+    username: 'kai',
+    languages: ['English', 'Spanish'],
+    nativeLanguage: NO_NATIVE_LANGUAGE,
+};
 
 describe('buildProfileSchema', () => {
     it('accepts a complete profile', async () => {

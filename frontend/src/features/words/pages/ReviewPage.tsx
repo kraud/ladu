@@ -19,6 +19,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
 import { PartOfSpeech } from '@/ts/enums';
+import { toPreselectedWord } from '@/features/practice/preselection';
 import { useTagsByIds } from '@/features/tags/hooks';
 import type { TagSummary } from '@/features/tags/types';
 import { useBulkDeleteWords, useWordsInfinite } from '../hooks';
@@ -127,6 +128,16 @@ export function ReviewPage() {
         if (id) void navigate({ to: '/word/$wordId', params: { wordId: id } });
     }
 
+    // Selected rows -> the practice parameters screen (Phase 5, C4). Ids only are not enough: the
+    // screen shows the words and limits the word types, so the rows' own data goes along.
+    function handlePractice() {
+        const chosen = new Set(selectedIds);
+        const words = rows.filter((row) => chosen.has(row.id)).map((row) => toPreselectedWord(row, languages));
+        if (words.length === 0) return;
+        useUiStore.getState().setPracticePreselection(words);
+        void navigate({ to: '/practice' });
+    }
+
     function handleBulkDelete() {
         const ids = selectedIds;
         if (ids.length === 0) return;
@@ -227,6 +238,7 @@ export function ReviewPage() {
                         selectedWordIds={selectedIds}
                         commonTagIds={commonTagIds}
                         onView={handleView}
+                        onPractice={handlePractice}
                         onDelete={handleBulkDelete}
                         onTagsApplied={(mode) => handleTagsApplied(mode)}
                     />

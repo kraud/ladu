@@ -2,6 +2,8 @@ const { and, asc, count, desc, eq, gt, ilike, inArray, lt, ne, not, or, sql }: t
   require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
 const {
+  exercisePerformanceCases,
+  exercisePerformances,
   friendships,
   notifications,
   tagShares,
@@ -13,6 +15,9 @@ const {
   userFollowingTags,
   words,
 }: typeof import("../src/db/schema") = require("../src/db/schema");
+
+type PerformanceRow = typeof exercisePerformances.$inferSelect;
+type PerformanceCaseRow = typeof exercisePerformanceCases.$inferSelect;
 
 const asyncHandler = require("express-async-handler");
 
@@ -571,11 +576,11 @@ const cloneTagForUser = async (
   recipientId: string,
   visibility: string,
 ): Promise<TagRow> => {
-  const wordIdRows = await db
+  const wordIdRows = await tx
     .select({ wordId: tagWords.wordId })
     .from(tagWords)
     .where(eq(tagWords.tagId, sourceTag.id));
-  const wordIds = wordIdRows.map((row) => row.wordId);
+  const wordIds = wordIdRows.map((row: { wordId: string }) => row.wordId);
 
   // Only `.translations`/`.cases` off each source word are read below — the
   // viewer id just has to be someone who can see the source tag's own tags
@@ -640,6 +645,64 @@ const cloneTagForUser = async (
   );
   if (caseInserts.length > 0) {
     await tx.insert(translationCases).values(caseInserts);
+  }
+
+  // D7 (phase-5-practice.md): copy the *recipient's own* practice history from
+  // the source translations to the new copies, so cloning a followed tag does
+  // not reset what they already know. Only their rows are read — never the
+  // author's or anyone else's.
+  const sourceToClone = new Map<string, { id: string; wordId: string }>(
+    flattenedSourceTranslations.map((sourceTranslation, j) => [sourceTranslation.id, clonedTranslationRows[j]]),
+  );
+  if (sourceToClone.size > 0) {
+    const sourcePerformances: PerformanceRow[] = await tx
+      .select()
+      .from(exercisePerformances)
+      .where(
+        and(
+          eq(exercisePerformances.userId, recipientId),
+          inArray(exercisePerformances.translationId, [...sourceToClone.keys()]),
+        ),
+      );
+    if (sourcePerformances.length > 0) {
+      const clonedPerformances: PerformanceRow[] = await tx
+        .insert(exercisePerformances)
+        .values(
+          sourcePerformances.map((perf) => {
+            const target = sourceToClone.get(perf.translationId)!;
+            return {
+              userId: recipientId,
+              wordId: target.wordId,
+              translationId: target.id,
+              performanceModifier: perf.performanceModifier,
+              reviseCounter: perf.reviseCounter,
+              averageTranslationKnowledge: perf.averageTranslationKnowledge,
+              lastDateModifiedTranslation: perf.lastDateModifiedTranslation,
+              translationLanguage: perf.translationLanguage,
+            };
+          }),
+        )
+        .returning();
+      // `RETURNING` keeps the input order, so `clonedPerformances[i]` is the copy of `sourcePerformances[i]`.
+      const newPerformanceIdBySourceId = new Map<string, string>(
+        sourcePerformances.map((perf, i) => [perf.id, clonedPerformances[i].id]),
+      );
+      const sourceCaseStats: PerformanceCaseRow[] = await tx
+        .select()
+        .from(exercisePerformanceCases)
+        .where(inArray(exercisePerformanceCases.exercisePerformanceId, [...newPerformanceIdBySourceId.keys()]));
+      if (sourceCaseStats.length > 0) {
+        await tx.insert(exercisePerformanceCases).values(
+          sourceCaseStats.map((stat) => ({
+            exercisePerformanceId: newPerformanceIdBySourceId.get(stat.exercisePerformanceId)!,
+            caseName: stat.caseName,
+            record: stat.record,
+            lastDate: stat.lastDate,
+            knowledge: stat.knowledge,
+          })),
+        );
+      }
+    }
   }
 
   if (clonedWordRows.length > 0) {

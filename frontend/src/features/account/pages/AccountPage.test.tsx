@@ -117,4 +117,56 @@ describe('AccountPage', () => {
         expect(await screen.findByRole('button', { name: /edit profile/i })).toBeInTheDocument();
         expect(useAuthStore.getState().token).toBe(SESSION.token);
     });
+
+    it('shows the native language, or "None"', () => {
+        const { unmount } = renderWithProviders(<AccountPage />, { session: SESSION });
+        expect(screen.getByText('Native language')).toBeInTheDocument();
+        expect(screen.getByText('None')).toBeInTheDocument();
+        unmount();
+
+        renderWithProviders(<AccountPage />, { session: { ...SESSION, nativeLanguage: 'German' } });
+        expect(screen.queryByText('None')).not.toBeInTheDocument();
+        expect(screen.getAllByText('Deutsch').length).toBeGreaterThan(1);
+    });
+
+    it('saves a native language chosen from the selected languages', async () => {
+        let body: Record<string, unknown> | undefined;
+        server.use(
+            http.put('*/api/users/updateUser', async ({ request }) => {
+                body = (await request.json()) as Record<string, unknown>;
+                return HttpResponse.json({ ...SESSION, token: undefined, nativeLanguage: body.nativeLanguage });
+            }),
+        );
+        const user = userEvent.setup();
+        renderWithProviders(<AccountPage />, { session: SESSION });
+
+        await user.click(screen.getByRole('button', { name: /edit profile/i }));
+        await user.click(screen.getByRole('combobox', { name: 'Native language' }));
+        await user.click(await screen.findByRole('option', { name: 'Deutsch' }));
+        await user.click(screen.getByRole('button', { name: 'Save' }));
+
+        await waitFor(() => expect(body).toBeDefined());
+        expect(body).toMatchObject({ nativeLanguage: 'German', languages: ['English', 'German'] });
+        await waitFor(() => expect(useAuthStore.getState().user?.nativeLanguage).toBe('German'));
+    });
+
+    it('sends null when the native language is no longer a selected language', async () => {
+        let body: Record<string, unknown> | undefined;
+        server.use(
+            http.put('*/api/users/updateUser', async ({ request }) => {
+                body = (await request.json()) as Record<string, unknown>;
+                return HttpResponse.json({ ...SESSION, token: undefined, nativeLanguage: body.nativeLanguage });
+            }),
+        );
+        const user = userEvent.setup();
+        renderWithProviders(<AccountPage />, { session: { ...SESSION, nativeLanguage: 'German' } });
+
+        await user.click(screen.getByRole('button', { name: /edit profile/i }));
+        await user.click(screen.getByRole('button', { name: 'Deutsch', pressed: true }));
+        await user.click(screen.getByRole('button', { name: 'Español', pressed: false }));
+        await user.click(screen.getByRole('button', { name: 'Save' }));
+
+        await waitFor(() => expect(body).toBeDefined());
+        expect(body).toMatchObject({ nativeLanguage: null, languages: ['English', 'Spanish'] });
+    });
 });

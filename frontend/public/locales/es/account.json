@@ -7,7 +7,10 @@
     "edit": "Editar perfil"
   },
   "fields": {
-    "emailHint": "El correo electrónico se gestiona por separado y no se puede cambiar aquí"
+    "emailHint": "El correo electrónico se gestiona por separado y no se puede cambiar aquí",
+    "nativeLanguage": "Lengua materna",
+    "nativeLanguageNone": "Ninguna",
+    "nativeLanguageHint": "Opcional. La práctica puede omitir los ejercicios del mismo idioma en tu lengua materna."
   },
   "languages": {
     "count": "{{count}} de {{total}} seleccionados",

@@ -1,86 +1,418 @@
 {
-  "titles": {
-    "wordSelection": "Parameter gelten für Übungen, die aus diesen {{amountWordsSelectedForExercises}} Wörtern erstellt werden:",
-    "exerciseResultsScore": "Ergebnisse: {{scoreCorrect}}/{{total}} ✅",
-    "exerciseResultsProcess": "Übungen {{index}}/{{total}}",
-    "noExercisesMatch": "Keine Übereinstimmung",
-    "tryDifferentSettings": "Bitte versuche es erneut mit anderen Einstellungen.",
-    "parametersTitle": "Übungsparameter:",
-    "difficultyMC": "Multiple-Choice-Schwierigkeit:",
-    "difficultyTI": "Text-Eingabe-Schwierigkeit:"
+  "page": {
+    "title": "Üben"
   },
-  "tooltips": {
-    "needMorePractice": "Ich weiß das nicht, zeig es mir noch einmal!",
-    "noMorePractice": "Diese Übersetzung nicht erneut anzeigen!",
-    "checkAnswer": "Antwort zuerst überprüfen",
-    "performanceExplain": "Deine Leistung bei diesem Wort. Letztes Mal geübt: {{lastDate}}",
-    "typeExerciseExplain": "Dies bestimmt den Kartentyp, der angezeigt wird",
-    "typeCardExplain": "Dies bestimmt, wie viele Sprachen in den Übungen auf einer Karte angezeigt werden",
-    "requireMultipleChoice": "Der Übungstyp muss 'Multiple-Choice' oder 'Zufällig' sein, um diesen Wert zu ändern",
-    "requireTextInput": "Der Übungstyp muss 'Text-Eingabe' oder 'Zufällig' sein, um diesen Wert zu ändern",
-    "sortingAndSelectionExplain": "Dies bestimmt, wie wir die angezeigten Übungen auswählen. Mit 'Übungsleistung' priorisieren wir Wörter und Übersetzungen, die du noch nicht geübt hast.",
-    "nativeLanguageParameterExplain": "Dies bestimmt, ob wir Übungen in Bezug auf deine Muttersprache im Fall von einsprachigen Übungen einbeziehen.",
-    "goToExercise": "Zur Übung gehen",
-    "registeredCases": "Registrierte Fälle ({{language}}): {{amount}}",
-    "alreadySetMastered": "Diese Einstellung ist bereits aktiv.",
-    "alreadySetRevise": "Diese Einstellung ist bereits aktiv. Sie haben {{count}} Mal richtig geantwortet. Wenn Sie 5 erreichen, wird diese Konfiguration automatisch entfernt."
+  "setup": {
+    "title": "Üben",
+    "start": "Übung starten",
+    "starting": "Übungen werden erstellt…",
+    "labels": {
+      "languages": "Sprachen",
+      "partsOfSpeech": "Wortarten",
+      "amount": "Anzahl der Übungen",
+      "answerStyle": "Antwortart",
+      "languagesPerExercise": "Sprachen pro Übung",
+      "mcDifficulty": "Schwierigkeit der Auswahl",
+      "tiStrictness": "Genauigkeit beim Tippen",
+      "wordOrder": "Reihenfolge der Wörter",
+      "nativeLanguage": "Muttersprache"
+    },
+    "advanced": {
+      "title": "Erweitert"
+    },
+    "options": {
+      "type": {
+        "Text-Input": "Antwort tippen",
+        "Multiple-Choice": "Antwort auswählen",
+        "Random": "Gemischt"
+      },
+      "mode": {
+        "Multi-Language": "Verschiedene Sprachen",
+        "Single-Language": "Gleiche Sprache",
+        "Random": "Gemischt"
+      },
+      "order": {
+        "Exercise-Performance": "Schwächste zuerst",
+        "Random": "Zufällig"
+      },
+      "native": {
+        "include": "Einbeziehen",
+        "exclude": "Ausschließen"
+      },
+      "nativeDesc": {
+        "include": "Übungen in einer Sprache können auf {{language}} erscheinen.",
+        "exclude": "Keine Übungen in einer Sprache auf {{language}}."
+      }
+    },
+    "levels": {
+      "mc": {
+        "0": "Falsche Optionen kommen aus jeder Sprache.",
+        "1": "Falsche Optionen kommen aus derselben Sprache.",
+        "2": "Falsche Optionen kommen aus derselben Sprache und Wortart.",
+        "3": "Falsche Optionen sind andere Formen desselben Wortes."
+      },
+      "ti": {
+        "1": "Ignoriert Akzente und Groß- und Kleinschreibung.",
+        "2": "Ignoriert nur die Groß- und Kleinschreibung.",
+        "3": "Die Antwort muss genau stimmen."
+      },
+      "label": "Stufe {{level}}"
+    },
+    "hints": {
+      "modeDifferent": "Sie sehen ein Wort in einer Sprache. Sie antworten in einer anderen Sprache.",
+      "modeSame": "Eine Grammatikübung in einer Sprache, zum Beispiel das Geschlecht eines Wortes.",
+      "wordOrder": "\"Schwächste zuerst\" zeigt die Formen, die Sie am wenigsten kennen.",
+      "mcNeedsChoices": "Wird nur verwendet, wenn die Antwortart Optionen zeigt.",
+      "mcNeedsDifferent": "Wird nur für Übungen in verschiedenen Sprachen verwendet.",
+      "tiNeedsTyping": "Wird nur verwendet, wenn Sie die Antwort tippen.",
+      "noExercisesYet": "Für Adjektive und Adverbien gibt es noch keine Übungen.",
+      "singleLanguageAccount": "Ihr Konto hat eine Sprache. \"Verschiedene Sprachen\" ist nicht möglich.",
+      "languagesAll": "Alle Ihre Sprachen",
+      "languagesCount": "{{count}} von {{total}} Sprachen",
+      "amountRange": "1–100",
+      "modeMixed": "„Gemischt“ zeigt Übersetzungen zwischen Sprachen und Grammatikübungen.",
+      "posPreselected": "Bei ausgewählten Wörtern sind nur deren Wortarten wählbar. Für Adjektive und Adverbien gibt es noch keine Übungen.",
+      "notInPreselection": "Nicht in den ausgewählten Wörtern",
+      "preselectedNoExercises": "Keines der ausgewählten Wörter hat eine Wortart mit Übungen. Entfernen Sie die Vorauswahl, um Ihre anderen Wörter zu üben.",
+      "nativeLanguageNamed": "{{language}} · betrifft Übungen in einer Sprache"
+    },
+    "preselected": {
+      "title_one": "Mit {{count}} ausgewähltem Wort üben",
+      "title_other": "Mit {{count}} ausgewählten Wörtern üben",
+      "show": "Wörter anzeigen",
+      "hide": "Wörter ausblenden",
+      "clear": "Vorauswahl entfernen",
+      "note": "Wir ändern diese Wortliste in einem späteren Update.",
+      "confirm": {
+        "title": "Vorauswahl entfernen?",
+        "body": "Die Übung verwendet alle Ihre Wörter, nicht nur die ausgewählten.",
+        "confirm": "Entfernen",
+        "cancel": "Behalten"
+      }
+    },
+    "validation": {
+      "languagesRequired": "Wählen Sie mindestens eine Sprache.",
+      "languagesMinTwo": "Wählen Sie mindestens zwei Sprachen oder wählen Sie \"Gleiche Sprache\".",
+      "partsOfSpeechRequired": "Wählen Sie mindestens eine Wortart.",
+      "amountRequired": "Geben Sie eine Zahl ein.",
+      "amountInteger": "Verwenden Sie eine ganze Zahl.",
+      "amountPositive": "Verwenden Sie eine Zahl ab 1.",
+      "amountTooLarge": "Verwenden Sie eine Zahl bis 100."
+    },
+    "noWords": {
+      "title": "Noch keine Wörter zum Üben",
+      "body": "Fügen Sie ein Wort mit mindestens zwei Sprachen hinzu, dann erscheinen hier Übungen.",
+      "cta": "Wort hinzufügen"
+    },
+    "noMatch": {
+      "title": "Keine Übungen gefunden",
+      "body": "Das sind die möglichen Gründe:",
+      "reasonFewWords": "Es gibt nicht genug Wörter mit diesen Wortarten oder Sprachen.",
+      "reasonMissingForms": "Den Wörtern fehlen die Formen, die diese Übungen brauchen.",
+      "hint": "Ändern Sie die Einstellungen und versuchen Sie es noch einmal.",
+      "reasonMode": "Der Modus lässt nichts zum Abfragen übrig, zum Beispiel „Gleiche Sprache“ mit nur einer ausgewählten Sprache.",
+      "adjust": "Einstellungen anpassen"
+    },
+    "error": {
+      "title": "Die Übungen konnten nicht erstellt werden",
+      "retry": "Noch einmal versuchen"
+    },
+    "shortfall": "{{created}} von {{requested}} Übungen konnten erstellt werden.",
+    "subtitle": "Kurze Übungen mit Ihren Wörtern",
+    "fixToStart": "Korrigieren Sie die markierten Felder, um zu starten.",
+    "resume": {
+      "title": "Du hast eine unfertige Sitzung",
+      "resume": "Fortsetzen",
+      "dismiss": "Verwerfen",
+      "answeredLabel": "Übungen",
+      "correctHint": "bisher {{count}} richtig"
+    }
+  },
+  "session": {
+    "progress": "Übung {{current}} von {{total}}",
+    "correct": "<b>{{count}}</b> richtig",
+    "leave": "Sitzung verlassen",
+    "leaveDialog": {
+      "title": "Diese Sitzung verlassen?",
+      "body": "Deine bisherigen Antworten bleiben gespeichert. Speichere die Sitzung, um später weiterzumachen, oder lösche sie.",
+      "limitNote": "Du kannst bis zu {{max}} gespeicherte Sitzungen {{days}} Tage lang behalten. Eine neue Sitzung ersetzt die älteste.",
+      "saveAndLeave": "Sitzung speichern und verlassen",
+      "deleteAndLeave": "Sitzung verlassen und löschen",
+      "cancel": "Weiter üben",
+      "saving": "Wird gespeichert…",
+      "savedToast": "Sitzung gespeichert. Du kannst sie auf dem Einstellungsbildschirm fortsetzen."
+    },
+    "previous": "Zurück",
+    "next": "Weiter",
+    "seeResults": "Ergebnisse ansehen",
+    "answerAll": "Beantworten Sie alle Übungen, um die Ergebnisse zu sehen.",
+    "check": "Prüfen"
+  },
+  "card": {
+    "answerLabel": "Ihre Antwort",
+    "answerPlaceholder": "Ihre Antwort…",
+    "chooseAnswer": "Wählen Sie die Antwort",
+    "task": {
+      "Gender": "Welches Geschlecht hat dieses Wort?",
+      "Short-Form": "Was ist die Kurzform dieses Wortes?",
+      "Regularity": "Ist dieses Verb regelmäßig oder unregelmäßig?",
+      "Gerund": "Was ist das Gerundium dieses Verbs?",
+      "Participle": "Was ist das Partizip dieses Verbs?",
+      "Auxiliary-Verb": "Welches Hilfsverb verwendet dieses Verb?"
+    },
+    "answerPlaceholderPronoun": "…",
+    "placeholder": {
+      "Participle": "Partizip eingeben…",
+      "Gerund": "Gerundium eingeben…",
+      "Short-Form": "Kurzform eingeben…"
+    }
+  },
+  "feedback": {
+    "correct": "Richtig",
+    "partial": "Fast richtig",
+    "wrong": "Falsch",
+    "partialHint": "Nur Akzente oder Großbuchstaben sind anders. Es zählt als richtig.",
+    "expected": "Richtige Antwort: {{answer}}"
+  },
+  "save": {
+    "saving": "Wird gespeichert…",
+    "saved": "Gespeichert",
+    "notSaved": "Nicht gespeichert",
+    "retry": "Noch einmal versuchen"
+  },
+  "indicator": {
+    "new": "Neu",
+    "attempts": "Letzte Versuche",
+    "attemptRight": "Richtig",
+    "attemptWrong": "Falsch",
+    "attemptEmpty": "Noch kein Versuch",
+    "knowledge": "{{percent}} %",
+    "lastPracticed": "Zuletzt geübt: {{date}}",
+    "title": "Wissen – genau diese Form"
+  },
+  "status": {
+    "Mastered": "Beherrscht",
+    "Revise": "Wiederholen",
+    "reviseProgress": "{{count}} von 5 richtigen Antworten",
+    "reviseShort": "{{count}} von 5",
+    "remove": "Status entfernen"
+  },
+  "actions": {
+    "master": "Beherrscht",
+    "revise": "Wiederholen",
+    "masterTip": "Das kenne ich. Zeige es seltener. Das gilt für alle Formen dieses Wortes auf {{language}}.",
+    "reviseTip": "Das fällt mir schwer. Zeige es öfter. Das gilt für alle Formen dieses Wortes auf {{language}}.",
+    "toast": {
+      "mastered": "Als beherrscht markiert – diese Übersetzung wird seltener gezeigt.",
+      "revise": "Zu „Wiederholen“ hinzugefügt – sie wird öfter gezeigt, bis 5 Antworten richtig sind.",
+      "removed": "Status entfernt."
+    }
   },
   "dialogs": {
-    "titles": {
-      "masterTranslation": "Oh, hast du diese Übersetzung schon gemeistert?",
-      "forgetTranslation": "Hast du Schwierigkeiten mit diesem Wort?"
+    "master": {
+      "title": "Die Übersetzung auf {{language}} als beherrscht markieren?",
+      "body": "Alle Formen dieses Wortes auf {{language}} – nicht nur diese Form – werden seltener gezeigt. Sie können das jederzeit entfernen.",
+      "confirm": "Beherrscht"
     },
-    "messages": {
-      "masterTranslation": "Bist du sicher, dass du das Wissen dieser Übersetzung auf 100 % setzen möchtest? Das bedeutet, dass du in Zukunft keine Übungen zu dieser Übersetzung sehen wirst.",
-      "forgetTranslation": "Wir werden dir diese Übersetzung häufiger zeigen. Nach fünf richtigen Antworten wird diese Einstellung automatisch entfernt. Bist du sicher, dass du fortfahren möchtest?",
-      "revertStatus": "Möchten Sie diese Einstellung rückgängig machen?"
+    "revise": {
+      "title": "Die Übersetzung auf {{language}} zu „Wiederholen“ hinzufügen?",
+      "body": "Alle Formen dieses Wortes auf {{language}} – nicht nur diese Form – werden öfter gezeigt. Es endet automatisch nach 5 richtigen Antworten.",
+      "confirm": "Wiederholen"
+    },
+    "cancel": "Abbrechen",
+    "failed": "Der Status hat sich nicht geändert. Versuchen Sie es noch einmal.",
+    "removeMastered": {
+      "title": "„Beherrscht“ entfernen?",
+      "body": "Alle Formen dieses Wortes auf {{language}} erscheinen wieder in der normalen Häufigkeit.",
+      "confirm": "Status entfernen"
+    },
+    "removeRevise": {
+      "title": "Nicht mehr wiederholen?",
+      "body": "Alle Formen dieses Wortes auf {{language}} kehren zum normalen Rhythmus zurück.",
+      "confirm": "Nicht mehr wiederholen"
     }
   },
-  "buttons": {
-    "check": "Überprüfen",
-    "goParams": "Zurück zu den Parametern",
-    "goResults": "Zu den Ergebnissen gehen",
-    "hideParams": "Parameter ausblenden",
-    "showParams": "Parameter anzeigen",
-    "hideWords": "Wörter ausblenden",
-    "showWords": "Wörter anzeigen",
-    "hideAdvSettings": "Erweiterte Einstellungen ausblenden",
-    "showAdvSettings": "Erweiterte Einstellungen anzeigen",
-    "createExercises": "Übungen erstellen"
+  "results": {
+    "title": "Ergebnisse der Sitzung",
+    "unsaved_one": "{{count}} Antwort ist nicht gespeichert.",
+    "unsaved_other": "{{count}} Antworten sind nicht gespeichert.",
+    "retryAll": "Alle noch einmal versuchen",
+    "typed": "Getippt",
+    "chosen": "Ausgewählt",
+    "expectedAnswer": "Erwartete Antwort",
+    "open": "Übung öffnen",
+    "backToResults": "Zurück zu den Ergebnissen",
+    "settings": "Verwendete Einstellungen",
+    "words": "Wörter",
+    "again": "Noch einmal üben",
+    "change": "Einstellungen ändern",
+    "toReview": "Zur Übersichtstabelle",
+    "scoreCount": "{{correct}} von {{total}}",
+    "correctAnswers": "richtige Antworten",
+    "almostHint": "enthält {{count}} fast richtige – nur Akzente oder Großbuchstaben",
+    "statusPartial": "Fast",
+    "backToSetup": "Zurück zu den Einstellungen",
+    "amountShort": "{{created}} (von {{requested}} gewünschten)",
+    "languagesLabel_one": "Sprache",
+    "languagesLabel_other": "Sprachen",
+    "typesLabel_one": "Wortart",
+    "typesLabel_other": "Wortarten"
   },
-  "categories": {
-    "multipleChoice": "Multiple-Choice",
-    "textInput": "Texteingabe",
-    "multiLanguage": "Mehrsprachig",
-    "singleLanguage": "Einsprachig"
-  },
-  "parameterSelector": {
-    "validation": {
-      "minAmountSelection": "Du musst mindestens ein Element auswählen",
-      "amountRequired": "Menge ist ein erforderlicher Wert",
-      "validNumber": "Bitte gib eine gültige Zahl ein",
-      "integerRequired": "Nur ganze Zahlen sind gültig",
-      "numberRequired": "Nur Zahlen sind erlaubt",
-      "positiveRequired": "Bitte gib eine positive Zahl ein"
+  "cases": {
+    "plurality": {
+      "Singular": "Singular",
+      "Plural": "Plural"
     },
-    "labels": {
-      "partsOfSpeech": "Wortarten",
-      "amountExercises": "Anzahl der Übungen",
-      "typeExercise": "Übungstyp",
-      "languagesPerCard": "Sprachen pro Karte"
+    "declension": {
+      "Nominative": "Nominativ",
+      "Accusative": "Akkusativ",
+      "Genitive": "Genitiv",
+      "Dative": "Dativ",
+      "Partitive": "Partitiv"
     },
-    "sliderOptionDescriptions": {
-      "difficultyMC": {
-        "textLevel0": "Jede Wortart - jede Sprache",
-        "textLevel1": "Jede Wortart - gleiche Sprache",
-        "textLevel2": "Gleiche Wortart - gleiche Sprache",
-        "textLevel3": "Gleiches Wort - gleiche Sprache - verschiedene Fälle"
+    "tense": {
+      "present": "Präsens",
+      "past": "Vergangenheit",
+      "future": "Futur"
+    },
+    "person": {
+      "1S": "1. Person Singular",
+      "2S": "2. Person Singular",
+      "3S": "3. Person Singular",
+      "1P": "1. Person Plural",
+      "2P": "2. Person Plural",
+      "3P": "3. Person Plural"
+    },
+    "property": {
+      "Gender": "Geschlecht",
+      "Short-Form": "Kurzform",
+      "Regularity": "Regelmäßigkeit",
+      "Infinitive": "Infinitiv",
+      "Gerund": "Gerundium",
+      "Participle": "Partizip",
+      "Auxiliary-Verb": "Hilfsverb",
+      "Case-Type": "Kasustyp",
+      "Prefix": "Präfix"
+    },
+    "abbr": {
+      "plurality": {
+        "Singular": "Sg.",
+        "Plural": "Pl."
       },
-      "difficultyTI": {
-        "textLevel1": "Ignoriert Großschreibung und Sonderzeichen.",
-        "textLevel2": "Ignoriert nur Großschreibung.",
-        "textLevel3": "Nulltoleranz - Eingabe muss exakt übereinstimmen."
+      "declension": {
+        "Nominative": "Nom.",
+        "Accusative": "Akk.",
+        "Genitive": "Gen.",
+        "Dative": "Dat.",
+        "Partitive": "Part."
+      },
+      "tense": {
+        "present": "Präs.",
+        "past": "Verg.",
+        "future": "Fut."
+      },
+      "person": {
+        "1S": "1. P. Sg.",
+        "2S": "2. P. Sg.",
+        "3S": "3. P. Sg.",
+        "1P": "1. P. Pl.",
+        "2P": "2. P. Pl.",
+        "3P": "3. P. Pl."
+      },
+      "property": {
+        "Gender": "Geschl.",
+        "Short-Form": "Kurzf.",
+        "Regularity": "Reg.",
+        "Infinitive": "Inf.",
+        "Gerund": "Ger.",
+        "Participle": "Ptz.",
+        "Auxiliary-Verb": "Hilfsv.",
+        "Case-Type": "Kasust.",
+        "Prefix": "Präf."
       }
     }
+  },
+  "configs": {
+    "save": "Konfiguration speichern",
+    "title": "Gespeicherte Konfigurationen",
+    "loading": "Wird geladen…",
+    "empty": "Du hast keine gespeicherten Konfigurationen. Stelle oben die Optionen ein und wähle „Konfiguration speichern“.",
+    "listError": "Die gespeicherten Konfigurationen konnten nicht geladen werden.",
+    "use": "Konfiguration {{name}} verwenden",
+    "edit": "Konfiguration {{name}} bearbeiten",
+    "delete": "Konfiguration {{name}} löschen",
+    "missingWords": "Einige Wörter dieser Konfiguration sind nicht mehr verfügbar.",
+    "summary": {
+      "amount_one": "{{count}} Übung",
+      "amount_other": "{{count}} Übungen",
+      "words_one": "{{count}} Wort",
+      "words_other": "{{count}} Wörter",
+      "someMissing": "Einige Wörter fehlen"
+    },
+    "dialog": {
+      "createTitle": "Konfiguration speichern",
+      "editTitle": "Konfiguration bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "Zum Beispiel: Verben am Morgen",
+      "nameRequired": "Gib einen Namen ein.",
+      "nameTaken": "Du hast schon eine Konfiguration mit diesem Namen.",
+      "description": "Beschreibung (optional)",
+      "descriptionPlaceholder": "Wofür ist diese Konfiguration?",
+      "withWords_one": "Diese Konfiguration enthält {{count}} ausgewähltes Wort.",
+      "withWords_other": "Diese Konfiguration enthält {{count}} ausgewählte Wörter.",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…"
+    },
+    "deleteDialog": {
+      "title": "„{{name}}“ löschen?",
+      "body": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    },
+    "toast": {
+      "saved": "Konfiguration gespeichert.",
+      "updated": "Konfiguration aktualisiert.",
+      "deleted": "Konfiguration gelöscht.",
+      "loaded": "Konfiguration „{{name}}“ geladen."
+    }
+  },
+  "sessions": {
+    "title": "Gespeicherte Sitzungen",
+    "note": "Du kannst bis zu {{max}} Sitzungen {{days}} Tage lang behalten. Eine neue Sitzung ersetzt die älteste.",
+    "loading": "Wird geladen…",
+    "empty": "Du hast keine gespeicherten Sitzungen. Verlasse eine Sitzung und wähle „Sitzung speichern und verlassen“, um sie zu behalten.",
+    "listError": "Die gespeicherten Sitzungen konnten nicht geladen werden.",
+    "resumeAria": "Sitzung mit {{answered}} von {{total}} beantwortet fortsetzen",
+    "deleteAria": "Sitzung mit {{answered}} von {{total}} beantwortet löschen",
+    "progress": "{{answered}} von {{total}} beantwortet",
+    "correct": "{{count}} richtig",
+    "expires": "Läuft am {{date}} ab",
+    "gone": "Diese Sitzung ist nicht mehr verfügbar. Sie ist vielleicht abgelaufen.",
+    "replaceDialog": {
+      "title": "Deine unfertige Sitzung ersetzen?",
+      "body": "Du hast in diesem Tab eine unfertige Sitzung. Wenn du die gespeicherte Sitzung fortsetzt, geht die unfertige Sitzung verloren.",
+      "confirm": "Gespeicherte Sitzung fortsetzen",
+      "cancel": "Behalten"
+    },
+    "deleteDialog": {
+      "title": "Diese gespeicherte Sitzung löschen?",
+      "body": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    },
+    "toast": {
+      "deleted": "Sitzung gelöscht."
+    }
+  },
+  "apiErrors": {
+    "invalidLanguages": "Wählen Sie mindestens eine Sprache. \"Verschiedene Sprachen\" braucht zwei.",
+    "invalidPartsOfSpeech": "Wählen Sie mindestens eine Wortart.",
+    "invalidAmount": "Verwenden Sie eine ganze Zahl von 1 bis 100.",
+    "invalidSettings": "Eine der Einstellungen ist nicht gültig.",
+    "invalidWordIds": "Die ausgewählten Wörter sind nicht gültig.",
+    "notFound": "Dieses Wort oder diese Form wurde nicht gefunden.",
+    "invalidName": "Der Name muss 1 bis 60 Zeichen haben.",
+    "invalidDescription": "Die Beschreibung darf höchstens 200 Zeichen haben.",
+    "nameTaken": "Du hast schon eine Konfiguration mit diesem Namen.",
+    "invalidSession": "Die Sitzung ist nicht gültig und kann nicht gespeichert werden.",
+    "sessionTooLarge": "Die Sitzung ist zu groß zum Speichern."
   }
 }

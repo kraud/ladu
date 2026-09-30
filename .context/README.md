@@ -54,6 +54,8 @@ backend Jest suite) plus `e2e:install` once. Details: [`e2e/README.md`](../e2e/R
 | `.context/overview.md` | Product/domain spec, feature requirements, workflows | **Authoritative** |
 | `.context/plans/new-repo-build-plan.md` | **THE plan we follow** — phased roadmap, architecture decisions, invariants | **Authoritative** |
 | `.context/plans/phase-*.md` | Per-phase slice plans, one file per phase — goals, decisions taken with the user, shipped-vs-planned record. Diff the finished work against them at each phase gate. | **Working record** |
+| `.context/plans/phase-5-practice.md` | **Practice knowledge base** (Part A: parameters, exercise catalogue, answer checking, knowledge math, known defects), the Phase 5 implementation plan (Part B), the design brief (Part C) and deferred scope (Part D). Replaces `snapshot/exercise-flow.md` and `ui/05-practice.md` for practice. | **Authoritative for practice** |
+| `.context/plans/phase-5-5-saved-practice.md` | Phase 5.5 plan (2026-09-30): saved practice configurations and saved sessions — data model, API, session rules, UI, slices, and the record of what was built. Done 2026-09-30. | **Working record** |
 | `.context/plans/autocomplete-data-source-strategy.md` | Research record (2026-09-25): the 8 autocomplete sources, the Wiktextract/kaikki candidate with verified coverage numbers, the Ekilex API how-to, licences, and proposed slices. No code written yet. | **Working record** |
 | `.context/.frontend/snapshot/*.md` (14 files) | Frozen 2026-09-05: behaviour inventory of every old page/component + full data model, case registry, per-form yup schemas, Review-table + exercise-flow specs, autocomplete transforms | **Primary working spec** — read the relevant file before building a feature |
 | `.context/.frontend/snapshot/ui/00-global.md … 06-social.md` (7 files) | **UI-blueprint**: what each screen must *do* — shell, navigation, screen-by-screen layout + interaction spec + the §8 intentional deltas. Built from the old frontend. Feed `00`→`06` in order. | **Authoritative for feature behaviour/UX** — this is the vision we implement |
@@ -118,7 +120,7 @@ Word (partOfSpeech: Noun | Verb | Adjective | Adverb; tags; clue; isCloned/origi
 - **Word rules:** ≥2 language translations always; `partOfSpeech` is immutable after creation; users edit/delete only words they authored; words from *followed* tags are read-only.
 - **Tags:** `label` + `description` + `visibility` (`Private` / `Friends-Only` / `Public`). **Follow** = words appear read-only in your list/practice. **Clone** = independent editable copies.
 - **Exercises:** two entry modes (pre-selected words from the table, or random/automated). Card types: Text Input, Multiple Choice, Mixed. Multi-language (prompt in A → answer in B) or single-language (grammatical prompt → answer in same language). Options: target languages, PoS filter, exclude native language, adaptive (forgetting-curve) vs random ordering, MC distractor levels 0–3, text-input strictness levels. Per-answer feedback + last-4-attempts indicator; manual `master` / `revise` overrides. Performance stored per translation-case.
-- Full details: `snapshot/data-model.md`, `snapshot/word-cases-data.md`, `snapshot/exercise-flow.md`, `snapshot/review-table.md`, `snapshot/autocomplete.md`.
+- Full details: `snapshot/data-model.md`, `snapshot/word-cases-data.md`, `plans/phase-5-practice.md` Part A (replaces `snapshot/exercise-flow.md`), `snapshot/review-table.md`, `snapshot/autocomplete.md`.
 
 ---
 

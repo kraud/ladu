@@ -402,6 +402,25 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
     throw new Error("Invalid theme selection");
   }
 
+  // Native language: absent -> keep the stored value; null -> clear it;
+  // present but unsupported, or not one of the user's languages -> reject.
+  // (It used to be cleared whenever the key was omitted — phase-5-practice.md
+  // defect 11.) A stored value that the new language selection no longer
+  // contains is cleared, so the two never disagree.
+  let resolvedNativeLanguage: string | null = userData.nativeLanguage;
+  if (nativeLanguage !== undefined) {
+    if (
+      nativeLanguage !== null &&
+      (!isSupportedLanguage(nativeLanguage) || !resolvedLanguages.includes(nativeLanguage))
+    ) {
+      res.status(400);
+      throw new Error("Native language must be one of your languages");
+    }
+    resolvedNativeLanguage = nativeLanguage;
+  } else if (resolvedNativeLanguage !== null && !resolvedLanguages.includes(resolvedNativeLanguage)) {
+    resolvedNativeLanguage = null;
+  }
+
   // Only update profile fields owned by this endpoint; email and password stay unchanged.
   const [updatedUser] = await db
     .update(users)
@@ -411,7 +430,7 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
       languages: resolvedLanguages,
       uiLanguage: uiLanguage ?? userData.uiLanguage,
       theme: themeResult.theme ?? userData.theme,
-      nativeLanguage: nativeLanguage === undefined ? null : nativeLanguage,
+      nativeLanguage: resolvedNativeLanguage,
       updatedAt: new Date(),
     })
     .where(eq(users.id, userData.id))

@@ -28,6 +28,7 @@ const {
 
 // Re-exported helper from the migrated tag controller.
 const { getWordsIdFromFollowedTagsByUserId } = require("./tagController.ts");
+const { translationAverage }: typeof import("../services/exercises/knowledge") = require("../services/exercises/knowledge");
 
 const {
   and,
@@ -611,153 +612,168 @@ const updateWord = asyncHandler(async (req: any, res: any) => {
     throw new Error("User not authorized");
   }
 
-  if (req.body.translations !== undefined) {
-    // Fetch stored translations with their cases
-    const storedTranslationRows = await db
-      .select({
-        translationId: translations.id,
-        translationLanguage: translations.language,
-        caseId: translationCases.id,
-        caseName: translationCases.caseName,
-        caseWord: translationCases.word,
-      })
-      .from(translations)
-      .leftJoin(translationCases, eq(translationCases.translationId, translations.id))
-      .where(eq(translations.wordId, req.params.id));
+  await db.transaction(async (tx) => {
+    if (req.body.translations !== undefined) {
+      // Fetch stored translations with their cases
+      const storedTranslationRows = await tx
+        .select({
+          translationId: translations.id,
+          translationLanguage: translations.language,
+          caseId: translationCases.id,
+          caseName: translationCases.caseName,
+          caseWord: translationCases.word,
+        })
+        .from(translations)
+        .leftJoin(translationCases, eq(translationCases.translationId, translations.id))
+        .where(eq(translations.wordId, req.params.id));
 
-    const groupedMap = new Map<string, StoredTranslation>();
-    for (const r of storedTranslationRows) {
-      if (!groupedMap.has(r.translationId)) {
-        groupedMap.set(r.translationId, {
-          id: r.translationId,
-          wordId: req.params.id,
-          language: r.translationLanguage,
-          cases: [],
-        });
+      const groupedMap = new Map<string, StoredTranslation>();
+      for (const r of storedTranslationRows) {
+        if (!groupedMap.has(r.translationId)) {
+          groupedMap.set(r.translationId, {
+            id: r.translationId,
+            wordId: req.params.id,
+            language: r.translationLanguage,
+            cases: [],
+          });
+        }
+        if (r.caseId) {
+          groupedMap.get(r.translationId)!.cases.push({
+            id: r.caseId,
+            translationId: r.translationId,
+            caseName: r.caseName!,
+            word: r.caseWord!,
+          });
+        }
       }
-      if (r.caseId) {
-        groupedMap.get(r.translationId)!.cases.push({
-          id: r.caseId,
-          translationId: r.translationId,
-          caseName: r.caseName!,
-          word: r.caseWord!,
-        });
+      const storedTranslations = Array.from(groupedMap.values());
+
+      // Diff incoming vs stored
+      const diff = diffTranslations(req.body.translations, storedTranslations);
+
+      // --- Handle removed translations ---
+      // The FK on exercise_performances.translation_id is ON DELETE CASCADE, so
+      // every user's performance (and case stats) for these translations goes
+      // with them (phase-5-practice.md D5).
+      if (diff.toRemove.length > 0) {
+        await tx
+          .delete(translations)
+          .where(inArray(translations.id, diff.toRemove.map((t) => t.id)));
       }
-    }
-    const storedTranslations = Array.from(groupedMap.values());
 
-    // Diff incoming vs stored
-    const diff = diffTranslations(req.body.translations, storedTranslations);
-
-    // --- Handle removed translations + their performance data ---
-    if (diff.toRemove.length > 0) {
-      const removedIds = diff.toRemove.map((t) => t.id);
-
-      // Delete performance records owned by this user for these translations
-      await db
-        .delete(exercisePerformances)
-        .where(
-          and(
-            inArray(exercisePerformances.translationId, removedIds),
-            eq(exercisePerformances.userId, req.user.id),
-          ),
-        );
-
-      // Delete the translations themselves (FK set-null handles other users' perf)
-      await db
-        .delete(translations)
-        .where(inArray(translations.id, removedIds));
-    }
-
-    // --- Handle kept translations (case-level diff) ---
-    for (const { stored: s, caseDiff } of diff.same) {
-      if (caseDiff.casesToRemove.length > 0) {
-        // Remove orphaned exercise performance cases
-        const [perf] = await db
-          .select()
-          .from(exercisePerformances)
-          .where(
-            and(
-              eq(exercisePerformances.translationId, s.id),
-              eq(exercisePerformances.userId, req.user.id),
-            ),
-          )
-          .limit(1);
-        if (perf) {
-          await db
+      // --- Handle kept translations (case-level diff) ---
+      for (const { stored: s, caseDiff } of diff.same) {
+        if (caseDiff.casesToRemove.length > 0) {
+          // Remove the case stats of the removed cases for ALL users (D5).
+          await tx
             .delete(exercisePerformanceCases)
             .where(
               and(
-                eq(exercisePerformanceCases.exercisePerformanceId, perf.id),
+                inArray(
+                  exercisePerformanceCases.exercisePerformanceId,
+                  tx
+                    .select({ id: exercisePerformances.id })
+                    .from(exercisePerformances)
+                    .where(eq(exercisePerformances.translationId, s.id)),
+                ),
                 inArray(
                   exercisePerformanceCases.caseName,
                   caseDiff.casesToRemove.map((c) => c.caseName),
                 ),
               ),
             );
+
+          // The stored average covers all case stats, so recompute it for
+          // every user's performance on this translation. Same rule as the
+          // answer-save path: aged mean at `now`, date reset to `now`.
+          const affected = await tx
+            .select({ id: exercisePerformances.id })
+            .from(exercisePerformances)
+            .where(eq(exercisePerformances.translationId, s.id));
+          if (affected.length > 0) {
+            const remaining = await tx
+              .select()
+              .from(exercisePerformanceCases)
+              .where(inArray(exercisePerformanceCases.exercisePerformanceId, affected.map((p: { id: string }) => p.id)));
+            const now = new Date();
+            for (const { id } of affected) {
+              const stats = remaining.filter((r: { exercisePerformanceId: string }) => r.exercisePerformanceId === id);
+              await tx
+                .update(exercisePerformances)
+                .set({
+                  averageTranslationKnowledge: translationAverage(
+                    stats,
+                    now,
+                  ),
+                  lastDateModifiedTranslation: now,
+                })
+                .where(eq(exercisePerformances.id, id));
+            }
+          }
+
+          await tx
+            .delete(translationCases)
+            .where(
+              inArray(
+                translationCases.id,
+                caseDiff.casesToRemove.map((c) => c.id),
+              ),
+            );
         }
 
-        await db
-          .delete(translationCases)
-          .where(
-            inArray(
-              translationCases.id,
-              caseDiff.casesToRemove.map((c) => c.id),
-            ),
+        if (caseDiff.casesToUpdate.length > 0) {
+          for (const { stored: sc, incoming: ic } of caseDiff.casesToUpdate) {
+            await tx
+              .update(translationCases)
+              .set({ word: ic.word })
+              .where(eq(translationCases.id, sc.id));
+          }
+        }
+
+        if (caseDiff.casesToAdd.length > 0) {
+          await db.insert(translationCases).values(
+            caseDiff.casesToAdd.map((c) => ({
+              translationId: s.id,
+              caseName: c.caseName,
+              word: c.word,
+            })),
           );
-      }
-
-      if (caseDiff.casesToUpdate.length > 0) {
-        for (const { stored: sc, incoming: ic } of caseDiff.casesToUpdate) {
-          await db
-            .update(translationCases)
-            .set({ word: ic.word })
-            .where(eq(translationCases.id, sc.id));
         }
       }
 
-      if (caseDiff.casesToAdd.length > 0) {
-        await db.insert(translationCases).values(
-          caseDiff.casesToAdd.map((c) => ({
-            translationId: s.id,
-            caseName: c.caseName,
-            word: c.word,
-          })),
-        );
-      }
-    }
+      // --- Handle new translations ---
+      if (diff.toAdd.length > 0) {
+        const newTranslations = await tx
+          .insert(translations)
+          .values(
+            diff.toAdd.map((t) => ({
+              wordId: req.params.id,
+              language: t.language,
+            })),
+          )
+          .returning();
 
-    // --- Handle new translations ---
-    if (diff.toAdd.length > 0) {
-      const newTranslations = await db
-        .insert(translations)
-        .values(
-          diff.toAdd.map((t) => ({
-            wordId: req.params.id,
-            language: t.language,
-          })),
-        )
-        .returning();
-
-      const caseInserts: Array<{
-        translationId: string;
-        caseName: string;
-        word: string;
-      }> = [];
-      for (let i = 0; i < newTranslations.length; i++) {
-        for (const c of diff.toAdd[i].cases) {
-          caseInserts.push({
-            translationId: newTranslations[i].id,
-            caseName: c.caseName,
-            word: c.word,
-          });
+        const caseInserts: Array<{
+          translationId: string;
+          caseName: string;
+          word: string;
+        }> = [];
+        for (let i = 0; i < newTranslations.length; i++) {
+          for (const c of diff.toAdd[i].cases) {
+            caseInserts.push({
+              translationId: newTranslations[i].id,
+              caseName: c.caseName,
+              word: c.word,
+            });
+          }
+        }
+        if (caseInserts.length > 0) {
+          await db.insert(translationCases).values(caseInserts);
         }
       }
-      if (caseInserts.length > 0) {
-        await db.insert(translationCases).values(caseInserts);
-      }
     }
-  }
+
+  });
 
   // `PUT /api/words/:id` never touches tag associations, even if the caller
   // sends a `tags` field — that field is ignored entirely (phase-4-tags.md,
@@ -965,4 +981,5 @@ module.exports = {
   filterWordByAnyTranslation,
   deleteManyWords,
   getWordsByFollowedTag,
+  simplifyWord,
 };

@@ -30,6 +30,9 @@ if (corsOrigins.length > 0) {
     }));
 }
 
+// A saved practice session (up to 100 exercises) can be larger than the 100 KB default. Registered first:
+// body-parser skips a body that is already parsed, so the global parser below leaves it alone.
+app.use('/api/practice/sessions', express.json({ limit: '1mb' }))
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 
@@ -60,6 +63,7 @@ app.use('/api/tags', require('./routes/tagRoutes'))
 app.use('/api/tag-shares', require('./routes/tagShareRoutes'))
 app.use('/api/autocompleteTranslations', require('./routes/autocompleteTranslationRoutes'))
 app.use('/api/exercises', require('./routes/exerciseRoutes'))
+app.use('/api/practice', require('./routes/practiceRoutes'))
 
 // Must come after every route (needs to see thrown errors) and before
 // errorHandler (which formats the response) — reports 5xx-worthy errors to

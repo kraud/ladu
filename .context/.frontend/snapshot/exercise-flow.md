@@ -1,5 +1,7 @@
 # Exercise Flow — full specification (parameter menu → practice → results)
 
+> **Superseded (2026-09-29):** the practice design, the endpoint contract and the known defects now live in [`plans/phase-5-practice.md`](../../plans/phase-5-practice.md) (Part A = behaviour, Part B = the new API). Read this file only as a record of the old app.
+
 *2026-09-05. Consolidated spec for the exercise/practice domain — the parameter-configuration menu (`ExerciseParameterSelector`), the exercise card (`ExerciseCard`), the results screen (`EndScreen`/`ResultRow`), and the two performance endpoints. This is the same "rebuild from this" treatment the Review table received (`review-table.md`). Every claim `file:line`-grounded. Complements `pages-review-practice.md` (page-level flows) and `data-model.md` §2.8 (exercise/performance types).*
 
 ---

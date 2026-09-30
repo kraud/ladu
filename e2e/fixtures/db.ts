@@ -164,3 +164,13 @@ export async function closePool(): Promise<void> {
     pool = undefined;
     await current.end();
 }
+
+/** Makes every saved practice session of an account expired (Phase 5.5) without waiting 7 days. Returns how many rows changed. */
+export async function expirePracticeSessions(email: string): Promise<number> {
+    const { rowCount } = await getPool().query(
+        `UPDATE practice_sessions SET expires_at = now() - interval '1 hour'
+          WHERE user_id = (SELECT id FROM users WHERE lower(email) = lower($1))`,
+        [email],
+    );
+    return rowCount ?? 0;
+}

@@ -40,6 +40,7 @@
   "bulk": {
     "selected": "seleccionadas",
     "view": "Ver",
+    "practice": "Practicar",
     "delete": "Eliminar",
     "confirmTitle_one": "¿Eliminar {{count}} palabra?",
     "confirmTitle_other": "¿Eliminar {{count}} palabras?",
