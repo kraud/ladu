@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from '@tanstack/react-router';
+import { Link, Outlet, useNavigate } from '@tanstack/react-router';
 import { SignOut } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { useLogout, useStaffSession } from '@/features/auth/hooks';
@@ -24,7 +24,12 @@ export function ProtectedLayout() {
         <div className="min-h-screen">
             <header className="border-b bg-card">
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
-                    <span className="font-semibold">Ladu Admin</span>
+                    <nav className="flex items-center gap-5 text-sm">
+                        <span className="font-semibold">Ladu Admin</span>
+                        <Link to="/users" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
+                            Users
+                        </Link>
+                    </nav>
                     <div className="flex items-center gap-3 text-sm">
                         <span>
                             {staff?.name}{' '}

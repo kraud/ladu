@@ -1,6 +1,6 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth) and 3 (admin UI skeleton) are done. Slices 4–9 are not started.
+Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton) and 4 (users list and detail) are done. Slices 5–9 are not started.
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
@@ -21,6 +21,15 @@ Slice 3 notes:
 - Session stored under `ladu-admin.session`. The app calls `GET /api/admin/auth/me` on start. A 401 clears the session and goes to `/login`.
 - `backend/Dockerfile` and `frontend/Dockerfile` now also `COPY admin/package.json`, because `npm ci` needs every workspace's `package.json`.
 - Not done yet: the root `build` script and `deploy.yml` do not build `admin/` (slice 7). No Playwright spec yet (slice 4).
+
+Slice 4 notes:
+- API: `GET /api/admin/users` (search, `verified`, `status`, `method`, sort, page numbers, `pageSize` up to 100) and `GET /api/admin/users/:id`. Both need `users.read`. Code: `backend/controllers/admin/userController.ts`, `backend/routes/admin/userRoutes.js`. Tests: `backend/tests/adminUsers.test.js`.
+- The detail response has `audit: null` for roles without `audit.read`, and `audit: []` when a permitted role has no entries yet. The UI shows the section only when it is not `null`.
+- UI: `admin/src/features/users/`. The list keeps search, filters, sort and page in the URL.
+- e2e: `e2e/tests/admin-4-users.spec.ts`. `playwright.config.ts` now also starts the admin Vite server on `:5174` and gives the backend an `ADMIN_JWT_SECRET`. `e2e/fixtures/db.ts` has the staff and user seed helpers (`e2e` now depends on `bcryptjs`).
+- `.github/workflows/ci.yml`: lint and typecheck include `admin`, and there is a new `admin` job (Vitest + build).
+- Lesson: in a Drizzle SELECT list, `${users.id}` inside a raw `sql` subquery loses its table name. Write `"users"."id"` there (see `hasGoogle`).
+- Known e2e caveat: the OAuth specs need the backend that Playwright starts itself (it sets the stub issuer). They fail when `npm run dev` already runs a backend on `:5001`.
 - Slice 1 leftover: `landing/privacy.html` still needs the line about the login country. Do this before slice 7 (deploy).
 
 ## Context

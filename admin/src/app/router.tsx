@@ -4,7 +4,9 @@
  *   root
  *   ├── /login         public
  *   └── _protected     pathless layout with the header; `beforeLoad` is the auth gate
- *       └── /          overview (placeholder)
+ *       ├── /                 overview (placeholder)
+ *       ├── /users            users list (search, filters, sort and page live in the URL)
+ *       └── /users/$userId    user detail
  */
 import {
     createRootRoute,
@@ -20,6 +22,9 @@ import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { ProtectedLayout } from '@/routes/ProtectedLayout';
 import { OverviewPage } from '@/features/overview/OverviewPage';
 import { NotFoundPage } from '@/routes/NotFoundPage';
+import { UsersPage } from '@/features/users/pages/UsersPage';
+import { UserDetailPage } from '@/features/users/pages/UserDetailPage';
+import { validateUsersSearch } from '@/features/users/search';
 
 const rootRoute = createRootRoute({ notFoundComponent: NotFoundPage });
 
@@ -53,7 +58,23 @@ const overviewRoute = createRoute({
     component: OverviewPage,
 });
 
-const routeTree = rootRoute.addChildren([loginRoute, protectedRoute.addChildren([overviewRoute])]);
+const usersRoute = createRoute({
+    getParentRoute: () => protectedRoute,
+    path: '/users',
+    validateSearch: validateUsersSearch,
+    component: UsersPage,
+});
+
+const userDetailRoute = createRoute({
+    getParentRoute: () => protectedRoute,
+    path: '/users/$userId',
+    component: UserDetailPage,
+});
+
+const routeTree = rootRoute.addChildren([
+    loginRoute,
+    protectedRoute.addChildren([overviewRoute, usersRoute, userDetailRoute]),
+]);
 
 /** Tests pass a memory history; the app uses the browser's. */
 export function createAppRouter(history?: RouterHistory) {

@@ -21,6 +21,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 
 const FRONTEND_URL = process.env.E2E_BASE_URL ?? 'http://localhost:5173';
+// The admin dashboard (admin/) — its own Vite server, its own specs (`admin-*.spec.ts`).
+const ADMIN_URL = process.env.E2E_ADMIN_URL ?? 'http://localhost:5174';
 const BACKEND_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
 // Local stub OIDC issuer standing in for Google in tests —
 // see e2e/fixtures/oidc-stub/server.ts and oauth-login-strategy.md Phase 0.
@@ -79,6 +81,9 @@ export default defineConfig({
                 OAUTH_ISSUER_GOOGLE: OIDC_STUB_URL,
                 GOOGLE_CLIENT_ID: 'e2e-stub-client-id',
                 GOOGLE_CLIENT_SECRET: 'e2e-stub-client-secret',
+                // Signs staff tokens (admin-dashboard.md slice 2). Locally the
+                // repo-root .env wins; CI has none, so it needs a value here.
+                ADMIN_JWT_SECRET: 'e2e-admin-secret',
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.
@@ -92,6 +97,15 @@ export default defineConfig({
             command: 'npm run dev -w frontend -- --port 5173 --strictPort',
             cwd: '..',
             url: FRONTEND_URL,
+            reuseExistingServer: !CI,
+            timeout: 60_000,
+            stdout: 'pipe',
+            stderr: 'pipe',
+        },
+        {
+            command: 'npm run dev -w admin -- --port 5174 --strictPort',
+            cwd: '..',
+            url: ADMIN_URL,
             reuseExistingServer: !CI,
             timeout: 60_000,
             stdout: 'pipe',
