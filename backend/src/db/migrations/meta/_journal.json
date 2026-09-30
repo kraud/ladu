@@ -64,6 +64,13 @@
       "when": 1790765833521,
       "tag": "0008_practice_configs",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790768698947,
+      "tag": "0009_practice_sessions",
+      "breakpoints": true
     }
   ]
 }

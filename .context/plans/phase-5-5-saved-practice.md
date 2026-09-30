@@ -1,6 +1,6 @@
 # Phase 5.5 — Saved practice configurations and sessions
 
-*2026-09-30. Slices 1–2 done (see §11). Slices 3–5 not started.*
+*2026-09-30. Slices 1–3 done (see §11). Slices 4–5 not started.*
 
 Phase 5 ([`phase-5-practice.md`](./phase-5-practice.md)) is done to Slice 8 (results screen) and its UI polish.
 This phase adds a feature that Phase 5 did not plan: the user can **save practice configurations** and
@@ -76,7 +76,7 @@ Mounted at `/api/practice`. Another user's row gives 404, never 403.
 | `DELETE /configs/:id` | Delete. |
 | `GET /sessions` | Summaries of non-expired sessions, newest first. |
 | `GET /sessions/:id` | The full snapshot. 404 if expired or not the user's. |
-| `POST /sessions` | Create. In one transaction: delete expired rows; if 10 remain, delete the oldest; insert. |
+| `POST /sessions` | Create. Body `{ snapshot }`; the summary is built by the server. In one transaction: delete expired rows; if 10 remain, delete the oldest; insert. |
 | `PUT /sessions/:id` | Replace snapshot and summary. Set a new 7-day `expires_at`. Not counted against the limit. 404 if gone. |
 | `DELETE /sessions/:id` | Delete. |
 
@@ -158,3 +158,21 @@ Each slice starts with a plain-language overview, ends with something runnable, 
   - The banner is dropped when the user removes the pre-selection.
 - Tests: `configs.test.ts` (7), `PracticePage.configs.test.tsx` (20); `makePracticeHandlers` now also fakes the four config endpoints
   (`makeConfig`, `makeConfigWord`). Frontend total: 111 files, 1253 tests, all pass. `tsc -b` and `eslint` clean.
+
+**Slice 3 — backend sessions (done 2026-09-30).**
+- Migration `0009_practice_sessions.sql`; table `practiceSessions` in `backend/src/db/schema.ts` (index `(user_id, updated_at)`).
+- `services/exercises/validateSession.ts` (pure: `validateSessionRequest`, `summarizeSnapshot`, constants `MAX_SAVED_SESSIONS = 10`,
+  `SESSION_TTL_DAYS = 7`, `MAX_SNAPSHOT_BYTES = 1_000_000`), `services/practiceSessionService.ts`,
+  `controllers/practiceSessionController.ts`; routes added to `routes/practiceRoutes.js`.
+- Wire notes for slice 4: the body is `{ snapshot }` only. The response has `{ id, summary, snapshot, createdAt, updatedAt, expiresAt }`
+  (`GET /sessions` has no `snapshot`). Create returns `201`, update `200`, delete `204`. A missing, expired, foreign or badly-formed id is `404`,
+  so the frontend falls back from `PUT` to `POST` on `404`. Errors: `400 invalid_snapshot`, `400 snapshot_too_large`.
+  `summary` = `{ answered, correct, total, languages, partsOfSpeech, cardTypes }` (correct counts partial).
+- Decisions taken:
+  - The server validates the parts it depends on (counts, values the summary reads, view, current) and the size. It stores the rest as sent.
+  - "Oldest" means the smallest `updated_at`, so an update makes a session young again (a session in use is never the one deleted).
+  - `create` and `update` run in a transaction behind a per-user advisory lock (`pg_advisory_xact_lock`), so parallel saves cannot pass the limit.
+    Expired rows of the user are deleted at the start of both.
+  - `app.js`: `express.json({ limit: '1mb' })` for `/api/practice/sessions` only, registered before the global parser (default 100 KB).
+  - The saved session has no link to the local session yet: `savedId` is a slice 4 concern (frontend only).
+- Tests: `tests/practiceSessions.test.js` (26) and `tests/unit/exercisesSessionValidate.test.js` (19), including 15 parallel saves and body sizes.

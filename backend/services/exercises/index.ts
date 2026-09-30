@@ -8,3 +8,4 @@ export * from './validate';
 export * from './present';
 export { shuffle, seededRng } from './rng';
 export * from './validateConfig';
+export * from './validateSession';

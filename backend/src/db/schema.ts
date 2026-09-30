@@ -415,6 +415,29 @@ export const practiceConfigs = pgTable(
     ],
 );
 
+// ---------------------------------------------------------------------------
+// PRACTICE_SESSIONS
+// Phase 5.5 (phase-5-5-saved-practice.md §4): an unfinished practice session the
+// user chose to keep. `snapshot` is the client's whole session (resume must show
+// the same exercises); `summary` is built by the server from it, so the list
+// stays light and never trusts a client-written summary. Private to its owner.
+// At most 10 per user and 7 days of life: both enforced in the service.
+// ---------------------------------------------------------------------------
+export const practiceSessions = pgTable(
+    'practice_sessions',
+    {
+        id:        uuid('id').primaryKey().defaultRandom(),
+        userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        snapshot:  jsonb('snapshot').notNull(),
+        summary:   jsonb('summary').notNull(),
+        expiresAt: timestamp('expires_at').notNull(),
+        ...timestamps,
+    },
+    (table) => [
+        index('ps_user_updated_idx').on(table.userId, table.updatedAt),
+    ],
+);
+
 // ===========================================================================
 // RELATIONS
 // Drizzle's relational API — used by the Drizzle query builder (db.query.*)

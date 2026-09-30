@@ -30,6 +30,9 @@ if (corsOrigins.length > 0) {
     }));
 }
 
+// A saved practice session (up to 100 exercises) can be larger than the 100 KB default. Registered first:
+// body-parser skips a body that is already parsed, so the global parser below leaves it alone.
+app.use('/api/practice/sessions', express.json({ limit: '1mb' }))
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 
