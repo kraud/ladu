@@ -25,6 +25,7 @@ const {
   findUserByEmailInsensitive,
   isUuid,
 }: typeof import("./userController") = require("./userController");
+const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
 const { getProvider, listConfiguredProviders }: typeof import("../lib/oauth/providers") = require("../lib/oauth/providers");
 const { generateCodeVerifier, generateCodeChallenge, generateNonce }: typeof import("../lib/oauth/pkce") = require("../lib/oauth/pkce");
 const { issueStateToken, verifyStateToken }: typeof import("../lib/oauth/stateToken") = require("../lib/oauth/stateToken");
@@ -258,7 +259,16 @@ const callback = asyncHandler(async (req: any, res: any) => {
       const [user] = await db.select().from(users).where(eq(users.id, existingIdentity.userId)).limit(1);
       if (!user) throw new Error("Linked identity has no matching user row");
 
-      const token = generateToken(user.id);
+      // Deleted and banned accounts cannot sign in. The frontend only maps
+      // `oauth_failed` and `oauth_already_linked` today, so both cases use the
+      // generic code until the admin UI slices add a dedicated message.
+      if (accountBlock(user)) {
+        fail(OAUTH_ERROR.FAILED);
+        return;
+      }
+
+      await recordLogin(user.id, "google", req);
+      const token = generateToken(user);
       res.redirect(`${frontendBase}/auth/callback#token=${token}`);
       return;
     }
@@ -388,6 +398,8 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
     emailAtLink: payload.email,
   });
 
+  await recordLogin(user.id, "google", req);
+
   res.status(201).json(serializeLoginUser(user));
 });
 
@@ -406,7 +418,7 @@ const link = asyncHandler(async (req: any, res: any) => {
   // targets could in principle have changed since it was issued (an email
   // update in another tab, within the 10-minute window).
   const user = await findUserByEmailInsensitive(payload.email);
-  if (!user || !user.password) {
+  if (!user || !user.password || user.deletedAt) {
     res.status(400);
     throw new Error("Invalid or expired ticket");
   }
@@ -414,6 +426,11 @@ const link = asyncHandler(async (req: any, res: any) => {
   if (!(await bcrypt.compare(password || "", user.password))) {
     res.status(400);
     throw new Error("Invalid credentials");
+  }
+
+  if (accountBlock(user) === "banned") {
+    res.status(403);
+    throw new Error("This account is suspended");
   }
 
   // Race guard, same reasoning as signupComplete's: this exact identity may
@@ -437,6 +454,8 @@ const link = asyncHandler(async (req: any, res: any) => {
     providerUserId: payload.sub,
     emailAtLink: payload.email,
   });
+
+  await recordLogin(user.id, "google", req);
 
   res.json(serializeLoginUser(user));
 });

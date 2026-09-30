@@ -73,8 +73,45 @@ export const users = pgTable('users', {
     theme:          varchar('theme', { length: 10 }),
     nativeLanguage: varchar('native_language', { length: 50 }),
     verified:       boolean('verified').default(false),
+    // --- Admin dashboard, slice 1 (.context/plans/admin-dashboard.md §4) ---
+    // Login capture. Country only (CF-IPCountry header) — IP addresses are
+    // never stored. All NULL for accounts that have not logged in since this
+    // column set was added.
+    lastLoginAt:      timestamp('last_login_at'),
+    lastLoginCountry: varchar('last_login_country', { length: 2 }),
+    // Written by `protect`, at most once per hour per user.
+    lastSeenAt:       timestamp('last_seen_at'),
+    // Ban flag. Set by staff (slice 5); enforced by `protect` and both logins.
+    bannedAt:         timestamp('banned_at'),
+    banReason:        text('ban_reason'),
+    // Soft delete (30-day grace, then a purge). The row stays, so the email
+    // and username stay reserved. `deletedByStaffId` gets its FK to
+    // `staff_accounts` in slice 2.
+    deletedAt:        timestamp('deleted_at'),
+    deletedByStaffId: uuid('deleted_by_staff_id'),
+    // Carried in the JWT as `tv`. Raising it invalidates every older token.
+    tokenVersion:     integer('token_version').notNull().default(0),
     ...timestamps,
 });
+
+// ---------------------------------------------------------------------------
+// LOGIN_EVENTS
+// One row per successful login: the login history shown on the admin user
+// page. Country only, never an IP. Rows older than 90 days are deleted by the
+// nightly purge job (admin-dashboard.md slice 5).
+// ---------------------------------------------------------------------------
+export const loginEvents = pgTable(
+    'login_events',
+    {
+        id:        uuid('id').primaryKey().defaultRandom(),
+        userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        // 'password' | 'google'
+        method:    varchar('method', { length: 16 }).notNull(),
+        country:   varchar('country', { length: 2 }),
+        createdAt: timestamp('created_at').defaultNow().notNull(),
+    },
+    (table) => [index('login_events_user_created_idx').on(table.userId, table.createdAt)],
+);
 
 // ---------------------------------------------------------------------------
 // WORDS

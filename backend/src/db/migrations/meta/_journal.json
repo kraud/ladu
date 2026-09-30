@@ -71,6 +71,13 @@
       "when": 1790768698947,
       "tag": "0009_practice_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790783156091,
+      "tag": "0010_admin_data_capture",
+      "breakpoints": true
     }
   ]
 }
