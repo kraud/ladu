@@ -7,6 +7,10 @@
  * and this one). It is a client-owned snapshot, like a form draft, so it does
  * not belong in TanStack Query. A session belongs to the account that started
  * it: logging out clears it, and `useSessionFor` never hands one to another user.
+ *
+ * A session is **parked** when the user navigates away from `/practice`. The page
+ * then shows the settings with a "resume" banner. A reload does not park it, so a
+ * reload on an exercise card opens the same card again.
  */
 import { create } from 'zustand';
 import { persist, type PersistStorage, type StorageValue } from 'zustand/middleware';
@@ -17,14 +21,20 @@ const STORAGE_KEY = 'ladu.practice.session';
 
 interface SessionStoreState {
     session: Session | null;
+    /** The user left `/practice` with this session unfinished: show the settings, offer to resume. */
+    parked: boolean;
     /** Replace any running session with a new one. */
     start: (input: Parameters<typeof createSession>[0]) => void;
     dispatch: (action: SessionAction) => void;
     /** Drop the session (leave, or "Change settings"). */
     clear: () => void;
+    /** Route left: park an unfinished session, drop a finished one (its answers are saved). */
+    park: () => void;
+    /** Open the parked session again. */
+    resume: () => void;
 }
 
-type PersistedSession = Pick<SessionStoreState, 'session'>;
+type PersistedSession = Pick<SessionStoreState, 'session' | 'parked'>;
 
 /** Enough of the shape to trust a persisted blob; anything else is discarded. */
 function isSession(value: unknown): value is Session {
@@ -76,20 +86,29 @@ export const usePracticeSessionStore = create<SessionStoreState>()(
     persist(
         (set) => ({
             session: null,
-            start: (input) => set({ session: createSession(input) }),
+            parked: false,
+            start: (input) => set({ session: createSession(input), parked: false }),
             dispatch: (action) =>
                 set((state) => {
                     if (!state.session) return state;
                     const next = sessionReducer(state.session, action);
                     return next === state.session ? state : { session: next };
                 }),
-            clear: () => set({ session: null }),
+            clear: () => set({ session: null, parked: false }),
+            park: () =>
+                set((state) => {
+                    if (!state.session) return state;
+                    return state.session.view === 'results'
+                        ? { session: null, parked: false }
+                        : { parked: true };
+                }),
+            resume: () => set({ parked: false }),
         }),
         {
             name: STORAGE_KEY,
             version: 1,
             storage: safeStorage,
-            partialize: (state) => ({ session: state.session }),
+            partialize: (state) => ({ session: state.session, parked: state.parked }),
         },
     ),
 );

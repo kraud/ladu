@@ -118,8 +118,15 @@
       "retry": "Proovi uuesti"
     },
     "shortfall": "Luua sai {{created}} harjutust {{requested}}-st.",
-    "subtitle": "Lühikesed harjutused sinu sõnadega – nõrgemad vormid enne",
-    "fixToStart": "Paranda märgitud väljad, et alustada."
+    "subtitle": "Lühikesed harjutused sinu sõnadega",
+    "fixToStart": "Paranda märgitud väljad, et alustada.",
+    "resume": {
+      "title": "Sul on pooleli seanss",
+      "resume": "Jätka",
+      "dismiss": "Loobu",
+      "answeredLabel": "harjutust",
+      "correctHint": "siiani {{count}} õiget"
+    }
   },
   "session": {
     "progress": "Harjutus {{current}} / {{total}}",

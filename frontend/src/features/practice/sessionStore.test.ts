@@ -99,6 +99,57 @@ describe('practice session store', () => {
     });
 });
 
+describe('parking', () => {
+    it('parks an unfinished session and resumes it', () => {
+        const store = usePracticeSessionStore.getState();
+        store.start(input());
+        store.park();
+        expect(usePracticeSessionStore.getState().parked).toBe(true);
+        expect(usePracticeSessionStore.getState().session).not.toBeNull();
+        store.resume();
+        expect(usePracticeSessionStore.getState().parked).toBe(false);
+    });
+
+    it('drops a finished session instead of parking it', () => {
+        const store = usePracticeSessionStore.getState();
+        store.start(input());
+        store.dispatch({ type: 'answer', index: 0, result: 'correct', given: 'a' });
+        store.dispatch({ type: 'answer', index: 1, result: 'correct', given: 'b' });
+        store.dispatch({ type: 'finish' });
+        expect(usePracticeSessionStore.getState().session?.view).toBe('results');
+        store.park();
+        expect(usePracticeSessionStore.getState().session).toBeNull();
+        expect(usePracticeSessionStore.getState().parked).toBe(false);
+    });
+
+    it('does nothing without a session', () => {
+        usePracticeSessionStore.getState().park();
+        expect(usePracticeSessionStore.getState().parked).toBe(false);
+    });
+
+    it('start and clear reset the parked flag', () => {
+        const store = usePracticeSessionStore.getState();
+        store.start(input());
+        store.park();
+        store.start(input());
+        expect(usePracticeSessionStore.getState().parked).toBe(false);
+        store.park();
+        store.clear();
+        expect(usePracticeSessionStore.getState().parked).toBe(false);
+    });
+
+    it('reads a blob without the flag as not parked (a reload keeps the card open)', async () => {
+        usePracticeSessionStore.getState().start(input());
+        const blob = JSON.parse(sessionStorage.getItem(STORAGE_KEY) as string);
+        delete blob.state.parked;
+        usePracticeSessionStore.setState({ session: null });
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(blob));
+        await usePracticeSessionStore.persist.rehydrate();
+        expect(usePracticeSessionStore.getState().session).not.toBeNull();
+        expect(usePracticeSessionStore.getState().parked).toBe(false);
+    });
+});
+
 describe('useSessionFor', () => {
     it('hands a session only to the account that started it', () => {
         usePracticeSessionStore.getState().start(input());

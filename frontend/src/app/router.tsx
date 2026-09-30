@@ -40,6 +40,7 @@ import { AddWordPage } from '@/features/words/pages/AddWordPage';
 import { WordPage } from '@/features/words/pages/WordPage';
 import { PracticePage } from '@/features/practice/pages/PracticePage';
 import { validatePracticeSearch } from '@/features/practice/search';
+import { usePracticeSessionStore } from '@/features/practice/sessionStore';
 import { ReviewPage } from '@/features/words/pages/ReviewPage';
 import { validateReviewSearch } from '@/features/words/review/search';
 import { TagsPage } from '@/features/tags/pages/TagsPage';
@@ -153,6 +154,8 @@ const practiceRoute = createRoute({
     path: '/practice',
     validateSearch: validatePracticeSearch,
     component: PracticePage,
+    // Only a navigation fires this; a reload does not, so a reload keeps the session open.
+    onLeave: () => usePracticeSessionStore.getState().park(),
 });
 
 const accountRoute = createRoute({

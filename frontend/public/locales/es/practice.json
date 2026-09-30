@@ -118,8 +118,15 @@
       "retry": "Intentar otra vez"
     },
     "shortfall": "Se pudieron crear {{created}} de {{requested}} ejercicios.",
-    "subtitle": "Sesiones cortas con tus palabras: primero las formas más débiles",
-    "fixToStart": "Corrige los campos marcados para empezar."
+    "subtitle": "Sesiones cortas con tus palabras",
+    "fixToStart": "Corrige los campos marcados para empezar.",
+    "resume": {
+      "title": "Tienes una sesión sin terminar",
+      "resume": "Continuar",
+      "dismiss": "Descartar",
+      "answeredLabel": "ejercicios",
+      "correctHint": "{{count}} correctas hasta ahora"
+    }
   },
   "session": {
     "progress": "Ejercicio {{current}} de {{total}}",

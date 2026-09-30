@@ -9,12 +9,14 @@ import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { ParametersForm } from '../components/ParametersForm';
 import { PreselectedWords } from '../components/PreselectedWords';
+import { ResumeSessionBanner } from '../components/ResumeSessionBanner';
 import { ResultsView } from '../components/ResultsView';
 import { SessionView } from '../components/SessionView';
 import { narrowPartsOfSpeech, PARTS_OF_SPEECH_WITH_EXERCISES, SELECTABLE_PARTS_OF_SPEECH } from '../params';
 import { availablePartsOfSpeech, type PreselectedWord } from '../preselection';
 import { loadRememberedParams, rememberParams } from '../remembered';
 import { paramsToSearch, searchToParams } from '../search';
+import type { Session } from '../session';
 import { usePracticeSessionStore, useSessionFor } from '../sessionStore';
 import type { PracticeParams } from '../types';
 
@@ -30,7 +32,9 @@ const route = getRouteApi('/_protected/practice');
 export function PracticePage() {
     const user = useAuthStore((s) => s.user);
     const session = useSessionFor(user?.id);
+    const parked = usePracticeSessionStore((s) => s.parked);
     const clearSession = usePracticeSessionStore((s) => s.clear);
+    const resumeSession = usePracticeSessionStore((s) => s.resume);
 
     const navigate = route.useNavigate();
     const [preselected, setPreselected] = useState(() => useUiStore.getState().practicePreselection);
@@ -52,7 +56,8 @@ export function PracticePage() {
         clearSession();
     }
 
-    if (session && !preselected) {
+    // A parked session (the user navigated away) waits behind the set-up banner; a reload keeps it open.
+    if (session && !parked && !preselected) {
         return session.view === 'results' ? (
             <ResultsView session={session} onChangeSettings={() => changeSettings(session)} />
         ) : (
@@ -60,15 +65,29 @@ export function PracticePage() {
         );
     }
 
-    return <SetUp preselected={preselected} onClearPreselected={() => setPreselected(null)} />;
+    return (
+        <SetUp
+            preselected={preselected}
+            onClearPreselected={() => setPreselected(null)}
+            parkedSession={session && parked && !preselected ? session : null}
+            onResume={resumeSession}
+            onDismiss={clearSession}
+        />
+    );
 }
 
 function SetUp({
     preselected,
     onClearPreselected,
+    parkedSession,
+    onResume,
+    onDismiss,
 }: {
     preselected: PreselectedWord[] | null;
     onClearPreselected: () => void;
+    parkedSession: Session | null;
+    onResume: () => void;
+    onDismiss: () => void;
 }) {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user)!;
@@ -96,6 +115,9 @@ function SetUp({
                 <h1 className="h1">{t('practice:setup.title')}</h1>
                 <p className="meta sm:content-end">{t('practice:setup.subtitle')}</p>
             </div>
+            {parkedSession && (
+                <ResumeSessionBanner session={parkedSession} onResume={onResume} onDismiss={onDismiss} />
+            )}
             {hasNoWords ? (
                 <div className="card">
                     <EmptyState

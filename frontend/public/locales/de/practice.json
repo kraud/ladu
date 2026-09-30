@@ -118,8 +118,15 @@
       "retry": "Noch einmal versuchen"
     },
     "shortfall": "{{created}} von {{requested}} Übungen konnten erstellt werden.",
-    "subtitle": "Kurze Übungen mit Ihren Wörtern – die schwächsten Formen zuerst",
-    "fixToStart": "Korrigieren Sie die markierten Felder, um zu starten."
+    "subtitle": "Kurze Übungen mit Ihren Wörtern",
+    "fixToStart": "Korrigieren Sie die markierten Felder, um zu starten.",
+    "resume": {
+      "title": "Du hast eine unfertige Sitzung",
+      "resume": "Fortsetzen",
+      "dismiss": "Verwerfen",
+      "answeredLabel": "Übungen",
+      "correctHint": "bisher {{count}} richtig"
+    }
   },
   "session": {
     "progress": "Übung {{current}} von {{total}}",

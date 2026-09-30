@@ -160,7 +160,7 @@ describe('PracticePage — set-up', () => {
         await renderApp({ initialEntry: '/practice', session: SESSION });
 
         expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
-        expect(screen.getByText('Short sessions from your words — weakest forms first')).toBeInTheDocument();
+        expect(screen.getByText('Short sessions from your words')).toBeInTheDocument();
         expect(screen.getByText('All your languages')).toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: 'Español' }));
@@ -481,5 +481,72 @@ describe('PracticePage — running session', () => {
         await user.click(screen.getByRole('button', { name: 'Leave session' }));
         await user.click(await screen.findByRole('button', { name: 'Leave' }));
         expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+    });
+
+    async function renderWithSession() {
+        setUp();
+        usePracticeSessionStore.getState().start({
+            userId: 'u1',
+            params: {
+                languages: [Lang.EN],
+                partsOfSpeech: [PartOfSpeech.noun],
+                amount: 1,
+                type: 'Text-Input',
+                multiLang: 'Random',
+                difficultyMC: 1,
+                strictnessTI: 2,
+                wordSelection: 'Exercise-Performance',
+                excludeNative: false,
+            },
+            wordIds: null,
+            exercises: [makeExercise()],
+        });
+        return renderApp({ initialEntry: '/practice', session: SESSION });
+    }
+
+    it('opens the settings with a banner after leaving the page, and "Resume" goes back to the card', async () => {
+        const { router } = await renderWithSession();
+        const user = userEvent.setup();
+        expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
+
+        await router.navigate({ to: '/review' });
+        await router.navigate({ to: '/practice' });
+
+        expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+        expect(screen.getByText('You have an unfinished session')).toBeInTheDocument();
+        expect(screen.getByText('0 of 1')).toBeInTheDocument();
+        expect(screen.getByText('exercises')).toBeInTheDocument();
+        expect(screen.getByTestId('flag-grid')).toBeInTheDocument();
+        expect(screen.getByTestId('card-type-grid')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Resume' }));
+        expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
+    });
+
+    it('"Dismiss" removes the banner and the stored session', async () => {
+        const { router } = await renderWithSession();
+        const user = userEvent.setup();
+        await screen.findByText('Exercise 1 of 1');
+
+        await router.navigate({ to: '/review' });
+        await router.navigate({ to: '/practice' });
+        await user.click(await screen.findByRole('button', { name: 'Dismiss' }));
+
+        expect(screen.queryByText('You have an unfinished session')).not.toBeInTheDocument();
+        expect(usePracticeSessionStore.getState().session).toBeNull();
+    });
+
+    it('drops a finished session when the page is left: no banner on return', async () => {
+        const { router } = await renderWithSession();
+        await screen.findByText('Exercise 1 of 1');
+        usePracticeSessionStore.getState().dispatch({ type: 'answer', index: 0, result: 'correct', given: 'x' });
+        usePracticeSessionStore.getState().dispatch({ type: 'finish' });
+        expect(usePracticeSessionStore.getState().session?.view).toBe('results');
+
+        await router.navigate({ to: '/review' });
+        await router.navigate({ to: '/practice' });
+
+        expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+        expect(screen.queryByText('You have an unfinished session')).not.toBeInTheDocument();
+        expect(usePracticeSessionStore.getState().session).toBeNull();
     });
 });

@@ -284,7 +284,9 @@ behaviour stays the same.
   words by the A.9 word score; random tie-break; the backend loads full word data in batches of ~50, weakest
   first, until it has enough exercises. Random mode uses the same batching with random order. MC distractors
   come from a separate random pool (≤50 words of the candidate set, same PoS filter as before).
-- **D3 — Reload restores the session** (sessionStorage, this tab only).
+- **D3 — Reload restores the session** (sessionStorage, this tab only). Leaving `/practice` by navigation
+  *parks* it: the header link then opens the settings with a banner (Resume / Dismiss). A finished session
+  (results view) is dropped on leave. Only a reload reopens the exercise card directly.
 - **D4 — Mastery/activity statistics: later phase.** Phase 5 = practice flow only.
 - **D5 — Stale data: delete for all users.** Removing a translation deletes every user's performance for it
   (FK cascade). Removing a case deletes every user's case stats for it. A migration cleans existing orphans.

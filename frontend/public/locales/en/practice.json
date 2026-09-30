@@ -118,8 +118,15 @@
       "retry": "Try again"
     },
     "shortfall": "{{created}} of {{requested}} exercises could be created.",
-    "subtitle": "Short sessions from your words — weakest forms first",
-    "fixToStart": "Fix the highlighted fields to start."
+    "subtitle": "Short sessions from your words",
+    "fixToStart": "Fix the highlighted fields to start.",
+    "resume": {
+      "title": "You have an unfinished session",
+      "resume": "Resume",
+      "dismiss": "Dismiss",
+      "answeredLabel": "exercises",
+      "correctHint": "{{count}} correct so far"
+    }
   },
   "session": {
     "progress": "Exercise {{current}} of {{total}}",
