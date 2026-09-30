@@ -168,4 +168,47 @@ describe('logout', () => {
         useAuthStore.getState().clearSession();
         expect(usePracticeSessionStore.getState().session).toBeNull();
     });
+
+});
+
+describe('saved sessions (Phase 5.5)', () => {
+    it('loads a downloaded session, unparks, and links it to its saved copy', () => {
+        const { start, park, load } = usePracticeSessionStore.getState();
+        start(input());
+        park();
+        expect(usePracticeSessionStore.getState().parked).toBe(true);
+
+        load({ ...usePracticeSessionStore.getState().session!, current: 1, savedId: 'ses-1' });
+
+        const state = usePracticeSessionStore.getState();
+        expect(state.parked).toBe(false);
+        expect(state.session).toMatchObject({ current: 1, savedId: 'ses-1' });
+    });
+
+    it('starts a session without a saved copy', () => {
+        usePracticeSessionStore.getState().start(input());
+        expect(usePracticeSessionStore.getState().session?.savedId).toBeNull();
+    });
+
+    it('links and unlinks the saved copy, and ignores it without a session', () => {
+        const { start, setSavedId } = usePracticeSessionStore.getState();
+        setSavedId('ses-1');
+        expect(usePracticeSessionStore.getState().session).toBeNull();
+
+        start(input());
+        setSavedId('ses-1');
+        expect(usePracticeSessionStore.getState().session?.savedId).toBe('ses-1');
+        setSavedId(null);
+        expect(usePracticeSessionStore.getState().session?.savedId).toBeNull();
+    });
+
+    it('reads a session stored before saved sessions existed as never saved', async () => {
+        usePracticeSessionStore.getState().start(input());
+        const stored = JSON.parse(sessionStorage.getItem(STORAGE_KEY)!);
+        delete stored.state.session.savedId;
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+        await usePracticeSessionStore.persist.rehydrate();
+
+        expect(usePracticeSessionStore.getState().session?.savedId).toBeNull();
+    });
 });

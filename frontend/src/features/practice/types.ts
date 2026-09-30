@@ -3,6 +3,7 @@
  * (phase-5-practice.md §B.3). Enum strings are the old app's, on purpose.
  */
 import type { Lang, PartOfSpeech } from '@/ts/enums';
+import type { Session } from './session';
 
 export type CardType = 'Multiple-Choice' | 'Text-Input';
 export type CardTypeParam = CardType | 'Random';
@@ -122,3 +123,33 @@ export interface SaveConfigBody {
     params: PracticeParams;
     wordIds: string[] | null;
 }
+
+/** What the saved-session list shows about one session (built by the server from the snapshot). */
+export interface SavedSessionSummary {
+    /** Exercises with an answer. */
+    answered: number;
+    /** Answered exercises that are correct or partial. */
+    correct: number;
+    total: number;
+    languages: Lang[];
+    partsOfSpeech: PartOfSpeech[];
+    cardTypes: CardType[];
+}
+
+/** A row of `GET /api/practice/sessions`. */
+export interface SavedSessionItem {
+    id: string;
+    summary: SavedSessionSummary;
+    createdAt: string;
+    updatedAt: string;
+    /** ISO date. The server hides and deletes the session after it. */
+    expiresAt: string;
+}
+
+/** `GET /api/practice/sessions/:id`: the row plus the whole session. Never trusted — see `fromSavedSession`. */
+export interface SavedSessionFull extends SavedSessionItem {
+    snapshot: unknown;
+}
+
+/** The session as it is stored: the local link to the saved copy is not part of it. */
+export type SessionSnapshot = Omit<Session, 'savedId'>;

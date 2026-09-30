@@ -134,9 +134,13 @@
     "leave": "Salir de la sesión",
     "leaveDialog": {
       "title": "¿Salir de esta sesión?",
-      "body": "Tus respuestas hasta ahora quedan guardadas: las puntuaciones de conocimiento ya las contaron. Puedes empezar una sesión nueva cuando quieras.",
-      "confirm": "Salir",
-      "cancel": "Seguir practicando"
+      "body": "Tus respuestas hasta ahora quedan guardadas. Guarda la sesión para continuarla más tarde, o elimínala.",
+      "limitNote": "Puedes tener hasta {{max}} sesiones guardadas durante {{days}} días. Una sesión nueva reemplaza a la más antigua.",
+      "saveAndLeave": "Guardar sesión y salir",
+      "deleteAndLeave": "Salir y eliminar sesión",
+      "cancel": "Seguir practicando",
+      "saving": "Guardando…",
+      "savedToast": "Sesión guardada. Puedes reanudarla desde la pantalla de configuración."
     },
     "previous": "Anterior",
     "next": "Siguiente",
@@ -371,6 +375,33 @@
       "loaded": "Configuración «{{name}}» cargada."
     }
   },
+  "sessions": {
+    "title": "Sesiones guardadas",
+    "note": "Puedes tener hasta {{max}} sesiones durante {{days}} días. Una sesión nueva reemplaza a la más antigua.",
+    "loading": "Cargando…",
+    "empty": "No tienes sesiones guardadas. Sal de una sesión y elige «Guardar sesión y salir» para conservarla.",
+    "listError": "No se pudieron cargar las sesiones guardadas.",
+    "resumeAria": "Reanudar la sesión con {{answered}} de {{total}} respondidos",
+    "deleteAria": "Eliminar la sesión con {{answered}} de {{total}} respondidos",
+    "progress": "{{answered}} de {{total}} respondidos",
+    "correct": "{{count}} correctos",
+    "expires": "Caduca el {{date}}",
+    "gone": "Esta sesión ya no está disponible. Puede que haya caducado.",
+    "replaceDialog": {
+      "title": "¿Reemplazar tu sesión sin terminar?",
+      "body": "Tienes una sesión sin terminar en esta pestaña. Si reanudas la sesión guardada, la sesión sin terminar se pierde.",
+      "confirm": "Reanudar sesión guardada",
+      "cancel": "Conservar"
+    },
+    "deleteDialog": {
+      "title": "¿Eliminar esta sesión guardada?",
+      "body": "Esta acción no se puede deshacer.",
+      "confirm": "Eliminar"
+    },
+    "toast": {
+      "deleted": "Sesión eliminada."
+    }
+  },
   "apiErrors": {
     "invalidLanguages": "Selecciona al menos un idioma. \"Idiomas distintos\" necesita dos.",
     "invalidPartsOfSpeech": "Selecciona al menos un tipo de palabra.",
@@ -380,6 +411,8 @@
     "notFound": "No se encontró esta palabra o forma.",
     "invalidName": "El nombre debe tener de 1 a 60 caracteres.",
     "invalidDescription": "La descripción puede tener 200 caracteres como máximo.",
-    "nameTaken": "Ya tienes una configuración con este nombre."
+    "nameTaken": "Ya tienes una configuración con este nombre.",
+    "invalidSession": "La sesión no es válida y no se puede guardar.",
+    "sessionTooLarge": "La sesión es demasiado grande para guardarla."
   }
 }

@@ -11,6 +11,9 @@ import type {
     SaveAnswerBody,
     SaveConfigBody,
     SavedConfig,
+    SavedSessionFull,
+    SavedSessionItem,
+    SessionSnapshot,
     SetModifierBody,
 } from './types';
 
@@ -62,4 +65,33 @@ export async function deleteConfig(id: string): Promise<void> {
 export async function getConfigWords(id: string): Promise<WordSimpleBE[]> {
     const { data } = await apiClient.get<WordSimpleBE[]>(`/practice/configs/${encodeURIComponent(id)}/words`);
     return data;
+}
+
+/** `GET /api/practice/sessions` — summaries of the caller's saved sessions, newest first. */
+export async function listSessions(signal?: AbortSignal): Promise<SavedSessionItem[]> {
+    const { data } = await apiClient.get<SavedSessionItem[]>('/practice/sessions', { signal });
+    return data;
+}
+
+/** `GET /api/practice/sessions/:id` — 404 when it is gone, expired or not the caller's. */
+export async function getSession(id: string): Promise<SavedSessionFull> {
+    const { data } = await apiClient.get<SavedSessionFull>(`/practice/sessions/${encodeURIComponent(id)}`);
+    return data;
+}
+
+/** `POST /api/practice/sessions` — 400 `{ code }`; the server deletes the oldest session over the limit. */
+export async function createSession(snapshot: SessionSnapshot): Promise<SavedSessionItem> {
+    const { data } = await apiClient.post<SavedSessionItem>('/practice/sessions', { snapshot });
+    return data;
+}
+
+/** `PUT /api/practice/sessions/:id` — replaces the session and starts a new expiry period. 404 when gone. */
+export async function updateSession(id: string, snapshot: SessionSnapshot): Promise<SavedSessionItem> {
+    const { data } = await apiClient.put<SavedSessionItem>(`/practice/sessions/${encodeURIComponent(id)}`, { snapshot });
+    return data;
+}
+
+/** `DELETE /api/practice/sessions/:id` — 204; 404 when gone. */
+export async function deleteSession(id: string): Promise<void> {
+    await apiClient.delete(`/practice/sessions/${encodeURIComponent(id)}`);
 }

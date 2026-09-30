@@ -134,9 +134,13 @@
     "leave": "Sitzung verlassen",
     "leaveDialog": {
       "title": "Diese Sitzung verlassen?",
-      "body": "Ihre bisherigen Antworten bleiben gespeichert – die Wissenswerte haben sie schon berücksichtigt. Sie können jederzeit eine neue Sitzung starten.",
-      "confirm": "Verlassen",
-      "cancel": "Weiter üben"
+      "body": "Deine bisherigen Antworten bleiben gespeichert. Speichere die Sitzung, um später weiterzumachen, oder lösche sie.",
+      "limitNote": "Du kannst bis zu {{max}} gespeicherte Sitzungen {{days}} Tage lang behalten. Eine neue Sitzung ersetzt die älteste.",
+      "saveAndLeave": "Sitzung speichern und verlassen",
+      "deleteAndLeave": "Sitzung verlassen und löschen",
+      "cancel": "Weiter üben",
+      "saving": "Wird gespeichert…",
+      "savedToast": "Sitzung gespeichert. Du kannst sie auf dem Einstellungsbildschirm fortsetzen."
     },
     "previous": "Zurück",
     "next": "Weiter",
@@ -371,6 +375,33 @@
       "loaded": "Konfiguration „{{name}}“ geladen."
     }
   },
+  "sessions": {
+    "title": "Gespeicherte Sitzungen",
+    "note": "Du kannst bis zu {{max}} Sitzungen {{days}} Tage lang behalten. Eine neue Sitzung ersetzt die älteste.",
+    "loading": "Wird geladen…",
+    "empty": "Du hast keine gespeicherten Sitzungen. Verlasse eine Sitzung und wähle „Sitzung speichern und verlassen“, um sie zu behalten.",
+    "listError": "Die gespeicherten Sitzungen konnten nicht geladen werden.",
+    "resumeAria": "Sitzung mit {{answered}} von {{total}} beantwortet fortsetzen",
+    "deleteAria": "Sitzung mit {{answered}} von {{total}} beantwortet löschen",
+    "progress": "{{answered}} von {{total}} beantwortet",
+    "correct": "{{count}} richtig",
+    "expires": "Läuft am {{date}} ab",
+    "gone": "Diese Sitzung ist nicht mehr verfügbar. Sie ist vielleicht abgelaufen.",
+    "replaceDialog": {
+      "title": "Deine unfertige Sitzung ersetzen?",
+      "body": "Du hast in diesem Tab eine unfertige Sitzung. Wenn du die gespeicherte Sitzung fortsetzt, geht die unfertige Sitzung verloren.",
+      "confirm": "Gespeicherte Sitzung fortsetzen",
+      "cancel": "Behalten"
+    },
+    "deleteDialog": {
+      "title": "Diese gespeicherte Sitzung löschen?",
+      "body": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    },
+    "toast": {
+      "deleted": "Sitzung gelöscht."
+    }
+  },
   "apiErrors": {
     "invalidLanguages": "Wählen Sie mindestens eine Sprache. \"Verschiedene Sprachen\" braucht zwei.",
     "invalidPartsOfSpeech": "Wählen Sie mindestens eine Wortart.",
@@ -380,6 +411,8 @@
     "notFound": "Dieses Wort oder diese Form wurde nicht gefunden.",
     "invalidName": "Der Name muss 1 bis 60 Zeichen haben.",
     "invalidDescription": "Die Beschreibung darf höchstens 200 Zeichen haben.",
-    "nameTaken": "Du hast schon eine Konfiguration mit diesem Namen."
+    "nameTaken": "Du hast schon eine Konfiguration mit diesem Namen.",
+    "invalidSession": "Die Sitzung ist nicht gültig und kann nicht gespeichert werden.",
+    "sessionTooLarge": "Die Sitzung ist zu groß zum Speichern."
   }
 }

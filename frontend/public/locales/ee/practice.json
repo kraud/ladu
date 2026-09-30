@@ -133,10 +133,14 @@
     "correct": "<b>{{count}}</b> õiget",
     "leave": "Lahku sessioonist",
     "leaveDialog": {
-      "title": "Kas lahkud sellest sessioonist?",
-      "body": "Seni antud vastused jäävad salvestatud – teadmiste hinded on need juba arvesse võtnud. Uue sessiooni saad alustada millal tahes.",
-      "confirm": "Lahku",
-      "cancel": "Jätka harjutamist"
+      "title": "Kas lahkuda sellest sessioonist?",
+      "body": "Sinu seniste vastused jäävad salvestatuks. Salvesta sessioon, et seda hiljem jätkata, või kustuta see.",
+      "limitNote": "Saad hoida kuni {{max}} salvestatud sessiooni {{days}} päeva. Uus sessioon asendab vanima.",
+      "saveAndLeave": "Salvesta sessioon ja lahku",
+      "deleteAndLeave": "Lahku ja kustuta sessioon",
+      "cancel": "Harjuta edasi",
+      "saving": "Salvestamine…",
+      "savedToast": "Sessioon salvestatud. Saad seda jätkata seadistusvaatest."
     },
     "previous": "Eelmine",
     "next": "Järgmine",
@@ -371,6 +375,33 @@
       "loaded": "Seadistus „{{name}}“ laaditud."
     }
   },
+  "sessions": {
+    "title": "Salvestatud sessioonid",
+    "note": "Saad hoida kuni {{max}} sessiooni {{days}} päeva. Uus sessioon asendab vanima.",
+    "loading": "Laadimine…",
+    "empty": "Sul pole salvestatud sessioone. Lahku sessioonist ja vali „Salvesta sessioon ja lahku“, et see alles jätta.",
+    "listError": "Salvestatud sessioone ei saanud laadida.",
+    "resumeAria": "Jätka sessiooni, kus on vastatud {{answered}} / {{total}}",
+    "deleteAria": "Kustuta sessioon, kus on vastatud {{answered}} / {{total}}",
+    "progress": "Vastatud {{answered}} / {{total}}",
+    "correct": "{{count}} õiget",
+    "expires": "Aegub {{date}}",
+    "gone": "See sessioon ei ole enam saadaval. See võib olla aegunud.",
+    "replaceDialog": {
+      "title": "Kas asendada pooleli olev sessioon?",
+      "body": "Sul on selles vahekaardis pooleli sessioon. Kui jätkad salvestatud sessiooni, läheb pooleli olev sessioon kaduma.",
+      "confirm": "Jätka salvestatud sessiooni",
+      "cancel": "Jäta alles"
+    },
+    "deleteDialog": {
+      "title": "Kas kustutada see salvestatud sessioon?",
+      "body": "Seda toimingut ei saa tagasi võtta.",
+      "confirm": "Kustuta"
+    },
+    "toast": {
+      "deleted": "Sessioon kustutatud."
+    }
+  },
   "apiErrors": {
     "invalidLanguages": "Vali vähemalt üks keel. \"Eri keeled\" vajab kahte.",
     "invalidPartsOfSpeech": "Vali vähemalt üks sõnaliik.",
@@ -380,6 +411,8 @@
     "notFound": "Seda sõna või vormi ei leitud.",
     "invalidName": "Nimi peab olema 1 kuni 60 tähemärki.",
     "invalidDescription": "Kirjeldus võib olla kuni 200 tähemärki.",
-    "nameTaken": "Sul on juba selle nimega seadistus."
+    "nameTaken": "Sul on juba selle nimega seadistus.",
+    "invalidSession": "Sessioon ei ole kehtiv ja seda ei saa salvestada.",
+    "sessionTooLarge": "Sessioon on salvestamiseks liiga suur."
   }
 }

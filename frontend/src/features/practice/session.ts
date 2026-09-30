@@ -40,6 +40,11 @@ export interface Session {
     view: 'exercises' | 'results';
     /** A card opened from the results list: "back" returns there. */
     returnToResults: boolean;
+    /**
+     * The id of the saved copy on the server (Phase 5.5), or `null` when the session was never saved.
+     * Saving again updates that copy; leaving with "delete" and finishing remove it.
+     */
+    savedId: string | null;
 }
 
 export type SessionAction =
@@ -59,6 +64,7 @@ export function createSession(input: {
     wordIds: readonly string[] | null;
     preselected?: PreselectedWord[] | null;
     exercises: Exercise[];
+    savedId?: string | null;
 }): Session {
     return {
         userId: input.userId,
@@ -71,7 +77,26 @@ export function createSession(input: {
         current: 0,
         view: 'exercises',
         returnToResults: false,
+        savedId: input.savedId ?? null,
     };
+}
+
+/** Enough of the shape to trust a stored or downloaded session; anything else is discarded. */
+export function isSession(value: unknown): value is Session {
+    if (typeof value !== 'object' || value === null) return false;
+    const s = value as Record<string, unknown>;
+    return (
+        typeof s.userId === 'string' &&
+        Array.isArray(s.exercises) &&
+        Array.isArray(s.answers) &&
+        s.answers.length === s.exercises.length &&
+        typeof s.params === 'object' &&
+        s.params !== null &&
+        typeof s.current === 'number' &&
+        s.current >= 0 &&
+        s.current < Math.max(1, s.exercises.length) &&
+        (s.view === 'exercises' || s.view === 'results')
+    );
 }
 
 const inRange = (session: Session, index: number): boolean =>

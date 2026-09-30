@@ -20,6 +20,8 @@ const CODE_TO_KEY: Record<string, string> = {
     invalid_params: 'practice:apiErrors.invalidSettings',
     invalid_strictness: 'practice:apiErrors.invalidSettings',
     name_taken: 'practice:apiErrors.nameTaken',
+    invalid_snapshot: 'practice:apiErrors.invalidSession',
+    snapshot_too_large: 'practice:apiErrors.sessionTooLarge',
     not_found: 'practice:apiErrors.notFound',
 };
 

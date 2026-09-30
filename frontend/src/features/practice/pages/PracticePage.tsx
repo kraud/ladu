@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { ParametersForm } from '../components/ParametersForm';
 import { SavedConfigurations } from '../components/SavedConfigurations';
+import { SavedSessions } from '../components/SavedSessions';
 import { SaveConfigDialog, type ConfigDraft } from '../components/SaveConfigDialog';
 import { PreselectedWords } from '../components/PreselectedWords';
 import { ResumeSessionBanner } from '../components/ResumeSessionBanner';
@@ -171,6 +172,7 @@ function SetUp({
                         }
                     />
                     <SavedConfigurations onLoad={loadConfig} />
+                    <SavedSessions hasUnfinished={parkedSession !== null} onResumed={clearPreselected} />
                     {configDraft && (
                         <SaveConfigDialog
                             open

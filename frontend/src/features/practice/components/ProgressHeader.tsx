@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { sessionScore, type Session } from '../session';
+import { LeaveSessionDialog } from './LeaveSessionDialog';
 
 /**
  * The session bar (mockup `.sess-bar`): position, answered, correct, a meter
- * and a confirmed way out. It sticks under the app header (52 px). The position
- * is the page's `<h1>`. Answers already given stay saved.
+ * and a way out (`LeaveSessionDialog`: save and leave, or leave and delete). It sticks
+ * under the app header (52 px). The position is the page's `<h1>`. Answers already given
+ * stay saved.
  */
-export function ProgressHeader({ session, onLeave }: { session: Session; onLeave: () => void }) {
+export function ProgressHeader({ session }: { session: Session }) {
     const { t } = useTranslation();
     const [confirming, setConfirming] = useState(false);
     const score = sessionScore(session);
@@ -42,15 +43,7 @@ export function ProgressHeader({ session, onLeave }: { session: Session; onLeave
             <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(true)}>
                 {t('practice:session.leave')}
             </Button>
-            <ConfirmDialog
-                open={confirming}
-                onOpenChange={setConfirming}
-                title={t('practice:session.leaveDialog.title')}
-                description={t('practice:session.leaveDialog.body')}
-                confirmLabel={t('practice:session.leaveDialog.confirm')}
-                cancelLabel={t('practice:session.leaveDialog.cancel')}
-                onConfirm={onLeave}
-            />
+            <LeaveSessionDialog open={confirming} onOpenChange={setConfirming} session={session} />
         </header>
     );
 }

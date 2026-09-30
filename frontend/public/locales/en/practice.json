@@ -134,9 +134,13 @@
     "leave": "Leave session",
     "leaveDialog": {
       "title": "Leave this session?",
-      "body": "Your answers so far stay saved — knowledge scores already counted them. You can start a new session any time.",
-      "confirm": "Leave",
-      "cancel": "Keep practicing"
+      "body": "Your answers so far stay saved. Save the session to continue it later, or delete it.",
+      "limitNote": "You can keep up to {{max}} saved sessions for {{days}} days. A new session replaces the oldest one.",
+      "saveAndLeave": "Save session and leave",
+      "deleteAndLeave": "Leave session and delete",
+      "cancel": "Keep practicing",
+      "saving": "Saving…",
+      "savedToast": "Session saved. You can resume it from the set-up screen."
     },
     "previous": "Previous",
     "next": "Next",
@@ -371,6 +375,33 @@
       "loaded": "Configuration \"{{name}}\" is loaded."
     }
   },
+  "sessions": {
+    "title": "Saved sessions",
+    "note": "You can keep up to {{max}} sessions for {{days}} days. A new session replaces the oldest one.",
+    "loading": "Loading…",
+    "empty": "You have no saved sessions. Leave a session and select \"Save session and leave\" to keep it.",
+    "listError": "The saved sessions could not be loaded.",
+    "resumeAria": "Resume session with {{answered}} of {{total}} answered",
+    "deleteAria": "Delete session with {{answered}} of {{total}} answered",
+    "progress": "{{answered}} of {{total}} answered",
+    "correct": "{{count}} correct",
+    "expires": "Expires on {{date}}",
+    "gone": "This session is not available now. It may have expired.",
+    "replaceDialog": {
+      "title": "Replace your unfinished session?",
+      "body": "You have an unfinished session in this tab. If you resume the saved session, the unfinished session is lost.",
+      "confirm": "Resume saved session",
+      "cancel": "Keep"
+    },
+    "deleteDialog": {
+      "title": "Delete this saved session?",
+      "body": "This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "deleted": "Session deleted."
+    }
+  },
   "apiErrors": {
     "invalidLanguages": "Select at least one language. \"Different languages\" needs two.",
     "invalidPartsOfSpeech": "Select at least one word type.",
@@ -380,6 +411,8 @@
     "notFound": "This word or form was not found.",
     "invalidName": "The name must have 1 to 60 characters.",
     "invalidDescription": "The description can have at most 200 characters.",
-    "nameTaken": "You already have a configuration with this name."
+    "nameTaken": "You already have a configuration with this name.",
+    "invalidSession": "The session is not valid and cannot be saved.",
+    "sessionTooLarge": "The session is too large to save."
   }
 }

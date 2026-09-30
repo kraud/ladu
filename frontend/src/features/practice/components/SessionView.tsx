@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { useDeleteSavedSession } from '../hooks';
 import { recoverInterruptedSaves, useSessionActions } from '../useSessionActions';
 import { allAnswered, isLastExercise, shortfall, type Session } from '../session';
 import { usePracticeSessionStore } from '../sessionStore';
@@ -16,7 +17,8 @@ import { ProgressHeader } from './ProgressHeader';
 export function SessionView({ session }: { session: Session }) {
     const { t } = useTranslation();
     const dispatch = usePracticeSessionStore((s) => s.dispatch);
-    const clear = usePracticeSessionStore((s) => s.clear);
+    const setSavedId = usePracticeSessionStore((s) => s.setSavedId);
+    const deleteSaved = useDeleteSavedSession();
     const actions = useSessionActions();
     const nextRef = useRef<HTMLButtonElement>(null);
 
@@ -25,6 +27,15 @@ export function SessionView({ session }: { session: Session }) {
     const answer = session.answers[index] ?? null;
     const last = isLastExercise(session);
     const canFinish = allAnswered(session);
+
+    /** A finished session has no reason to stay in the saved list. A failed delete is not shown: the copy expires. */
+    function finish() {
+        dispatch({ type: 'finish' });
+        if (session.savedId) {
+            deleteSaved.mutate(session.savedId);
+            setSavedId(null);
+        }
+    }
 
     useEffect(() => {
         recoverInterruptedSaves();
@@ -40,7 +51,7 @@ export function SessionView({ session }: { session: Session }) {
 
     return (
         <div className="mx-auto flex w-full max-w-180 flex-col gap-3.5">
-            <ProgressHeader session={session} onLeave={clear} />
+            <ProgressHeader session={session} />
             {shortfall(session) > 0 && (
                 <div className="banner warning" role="status">
                     {t('practice:setup.shortfall', { created: session.exercises.length, requested: session.requested })}
@@ -78,7 +89,7 @@ export function SessionView({ session }: { session: Session }) {
                             ref={nextRef}
                             type="button"
                             disabled={!canFinish}
-                            onClick={() => dispatch({ type: 'finish' })}
+                            onClick={finish}
                         >
                             {t('practice:session.seeResults')}
                         </Button>

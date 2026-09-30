@@ -4,12 +4,15 @@
  * changes `['words']` or `['metrics']` (invalidation graph,
  * `app/query-client.ts`) — so the exercise hooks below never touch the query
  * cache. The one query here is the list of saved configurations (Phase 5.5);
- * its create / edit / delete mutations invalidate `practiceKeys.configs`.
+ * its create / edit / delete mutations invalidate `practiceKeys.configs`. The list of saved sessions
+ * works the same way (`practiceKeys.sessions`).
  * Toasts and navigation are per call site.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as practiceApi from './api';
 import { practiceKeys } from './keys';
+import { saveOrUpdateSession } from './savedSessions';
+import type { Session } from './session';
 import type { GenerateBody, SaveAnswerBody, SaveConfigBody, SetModifierBody } from './types';
 
 /** Creates the exercises of one session. */
@@ -70,5 +73,38 @@ export function useDeleteConfig() {
 export function useLoadConfigWords() {
     return useMutation({
         mutationFn: (id: string) => practiceApi.getConfigWords(id),
+    });
+}
+
+/** The caller's saved sessions (summaries), newest first. */
+export function useSavedSessions() {
+    return useQuery({
+        queryKey: practiceKeys.sessions,
+        queryFn: ({ signal }) => practiceApi.listSessions(signal),
+    });
+}
+
+/** Saves the running session: updates its saved copy, or creates one (see `saveOrUpdateSession`). */
+export function useSaveSession() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (session: Session) => saveOrUpdateSession(session),
+        onSuccess: () => void queryClient.invalidateQueries({ queryKey: practiceKeys.sessions }),
+    });
+}
+
+export function useDeleteSavedSession() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id: string) => practiceApi.deleteSession(id),
+        // Also after a failure: a 404 means the list is out of date.
+        onSettled: () => void queryClient.invalidateQueries({ queryKey: practiceKeys.sessions }),
+    });
+}
+
+/** Downloads one saved session. A mutation, not a query: it runs once, on a click. */
+export function useLoadSavedSession() {
+    return useMutation({
+        mutationFn: (id: string) => practiceApi.getSession(id),
     });
 }

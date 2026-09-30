@@ -1,6 +1,6 @@
 # Phase 5.5 — Saved practice configurations and sessions
 
-*2026-09-30. Slices 1–3 done (see §11). Slices 4–5 not started.*
+*2026-09-30. Slices 1–4 done (see §11). Slice 5 not started.*
 
 Phase 5 ([`phase-5-practice.md`](./phase-5-practice.md)) is done to Slice 8 (results screen) and its UI polish.
 This phase adds a feature that Phase 5 did not plan: the user can **save practice configurations** and
@@ -176,3 +176,26 @@ Each slice starts with a plain-language overview, ends with something runnable, 
   - `app.js`: `express.json({ limit: '1mb' })` for `/api/practice/sessions` only, registered before the global parser (default 100 KB).
   - The saved session has no link to the local session yet: `savedId` is a slice 4 concern (frontend only).
 - Tests: `tests/practiceSessions.test.js` (26) and `tests/unit/exercisesSessionValidate.test.js` (19), including 15 parallel saves and body sizes.
+
+**Slice 4 — frontend sessions (done 2026-09-30).**
+- No backend change and no migration in this slice.
+- New: `savedSessions.ts` (pure + api: `toSnapshot`, `saveOrUpdateSession` with the `404` → `POST` fallback, `fromSavedSession`,
+  `MAX_SAVED_SESSIONS` / `SESSION_TTL_DAYS` for the hint text), `LeaveSessionDialog.tsx`, `SavedSessions.tsx`.
+  Changed: `session.ts` (`savedId` on `Session`; `isSession` moved here from the store), `sessionStore.ts` (`load`, `setSavedId`,
+  old stored blobs read as `savedId: null`), `api.ts`, `hooks.ts` (`useSavedSessions`, `useSaveSession`, `useDeleteSavedSession`,
+  `useLoadSavedSession`), `keys.ts` (`practiceKeys.sessions`), `errors.ts`, `types.ts`, `ProgressHeader.tsx` (the old confirm dialog is gone),
+  `SessionView.tsx` (finish cleanup), `PracticePage.tsx`; `session.leaveDialog` and new `sessions` blocks in the 4 `practice.json` files.
+- Decisions taken:
+  - Leave dialog buttons: **Save session and leave** (default, blue), **Leave session and delete** (destructive, red), **Keep practicing** (outline).
+    The old `leaveDialog.confirm` key is removed.
+  - A failed save keeps the dialog open with the reason. A failed delete of the saved copy is ignored: the user still leaves.
+  - Finish deletes the saved copy and unlinks the session (`savedId: null`); a failed delete is ignored (the copy expires).
+  - The banner needed no change: "Dismiss" only clears the local copy, so a saved copy stays in the list, and an unsaved one was never on the server.
+  - Resuming from the list while a session is parked in this tab asks first (`replaceDialog`), because the parked session would be lost.
+    Resuming also drops any words that came from Review.
+  - The snapshot sent to the server has no `savedId`. On resume the session takes the current user's id and the row's id. A snapshot that fails
+    `isSession` is treated as "not available". Answers stuck in `saving` are already handled by `recoverInterruptedSaves()` when the view opens.
+  - The list shows progress, correct count, flags, word types and the expiry date (`Intl.DateTimeFormat` with `htmlLangByI18nCode`).
+    Rows have no name; their accessible names carry the counts (`Resume session with 1 of 2 answered`).
+- Tests: `savedSessions.test.ts` (7), 4 in `sessionStore.test.ts`, `PracticePage.sessions.test.tsx` (23); `makePracticeHandlers` now also fakes the five
+  session endpoints (`makeSavedSession`); two older tests use the new button label. Frontend total: 113 files, 1286 tests, all pass. `tsc -b` and `eslint` clean.

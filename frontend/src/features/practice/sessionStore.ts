@@ -15,7 +15,7 @@
 import { create } from 'zustand';
 import { persist, type PersistStorage, type StorageValue } from 'zustand/middleware';
 import { useAuthStore } from '@/stores/authStore';
-import { createSession, sessionReducer, type Session, type SessionAction } from './session';
+import { createSession, isSession, sessionReducer, type Session, type SessionAction } from './session';
 
 const STORAGE_KEY = 'ladu.practice.session';
 
@@ -32,27 +32,13 @@ interface SessionStoreState {
     park: () => void;
     /** Open the parked session again. */
     resume: () => void;
+    /** Replace any running session with one downloaded from the saved list (Phase 5.5). */
+    load: (session: Session) => void;
+    /** Link the running session to its saved copy, or (`null`) unlink it after the copy was deleted. */
+    setSavedId: (savedId: string | null) => void;
 }
 
 type PersistedSession = Pick<SessionStoreState, 'session' | 'parked'>;
-
-/** Enough of the shape to trust a persisted blob; anything else is discarded. */
-function isSession(value: unknown): value is Session {
-    if (typeof value !== 'object' || value === null) return false;
-    const s = value as Record<string, unknown>;
-    return (
-        typeof s.userId === 'string' &&
-        Array.isArray(s.exercises) &&
-        Array.isArray(s.answers) &&
-        s.answers.length === s.exercises.length &&
-        typeof s.params === 'object' &&
-        s.params !== null &&
-        typeof s.current === 'number' &&
-        s.current >= 0 &&
-        s.current < Math.max(1, s.exercises.length) &&
-        (s.view === 'exercises' || s.view === 'results')
-    );
-}
 
 /** sessionStorage adapter that never throws (private windows, blocked storage, planted blobs). */
 const safeStorage: PersistStorage<PersistedSession> = {
@@ -61,7 +47,10 @@ const safeStorage: PersistStorage<PersistedSession> = {
             const raw = sessionStorage.getItem(name);
             if (!raw) return null;
             const parsed = JSON.parse(raw) as StorageValue<PersistedSession>;
-            return isSession(parsed?.state?.session) ? parsed : null;
+            if (!isSession(parsed?.state?.session)) return null;
+            // A session stored before Phase 5.5 has no `savedId`.
+            const session = { ...parsed.state.session, savedId: parsed.state.session.savedId ?? null };
+            return { ...parsed, state: { ...parsed.state, session } };
         } catch {
             return null;
         }
@@ -103,6 +92,9 @@ export const usePracticeSessionStore = create<SessionStoreState>()(
                         : { parked: true };
                 }),
             resume: () => set({ parked: false }),
+            load: (session) => set({ session, parked: false }),
+            setSavedId: (savedId) =>
+                set((state) => (state.session ? { session: { ...state.session, savedId } } : state)),
         }),
         {
             name: STORAGE_KEY,
