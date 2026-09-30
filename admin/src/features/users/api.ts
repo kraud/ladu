@@ -17,3 +17,16 @@ export async function fetchUser(id: string): Promise<UserDetail> {
     const { data } = await apiClient.get<UserDetail>(`/admin/users/${encodeURIComponent(id)}`);
     return data;
 }
+
+export type UserActionName = 'ban' | 'unban' | 'force-logout' | 'delete' | 'restore' | 'purge';
+
+export interface UserActionBody {
+    reason?: string;
+    confirmUsername?: string;
+}
+
+/** Every action except `purge` returns the fresh user detail; `purge` returns `{ purged: true }`. */
+export async function runUserAction(id: string, action: UserActionName, body: UserActionBody): Promise<UserDetail | { purged: true }> {
+    const { data } = await apiClient.post<UserDetail | { purged: true }>(`/admin/users/${encodeURIComponent(id)}/${action}`, body);
+    return data;
+}

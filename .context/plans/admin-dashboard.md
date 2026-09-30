@@ -1,6 +1,6 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton) and 4 (users list and detail) are done. Slices 5–9 are not started.
+Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail) and 5 (actions) are done. Slices 6–9 are not started.
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
@@ -30,6 +30,16 @@ Slice 4 notes:
 - `.github/workflows/ci.yml`: lint and typecheck include `admin`, and there is a new `admin` job (Vitest + build).
 - Lesson: in a Drizzle SELECT list, `${users.id}` inside a raw `sql` subquery loses its table name. Write `"users"."id"` there (see `hasGoogle`).
 - Known e2e caveat: the OAuth specs need the backend that Playwright starts itself (it sets the stub issuer). They fail when `npm run dev` already runs a backend on `:5001`.
+
+Slice 5 notes:
+- Migration `0012_audit_log_system_actor.sql`: `audit_log.staff_id` is now optional. NULL means "System" (the nightly job).
+- New permission `users.purge` (owner only). `POST /api/admin/users/:id/{ban,unban,force-logout,delete,restore,purge}`. Ban, unban and force logout need `users.ban`; delete and restore need `users.delete`. Code: `backend/controllers/admin/userController.ts`, `backend/lib/userPurge.ts`, `backend/scripts/purge.js`. Tests: `adminUserActions.test.js`, `purge.test.js` (runs the real script against the test DB).
+- Decisions made with the user: "Purge now" works only on an account that is already soft-deleted (two steps, two audit rows). A reason is required for ban, delete and purge, and optional for the others.
+- Each action runs in one transaction: lock the row (`FOR UPDATE`), check the state (409 if not allowed), change it, write the audit row. The typed username is checked on the server as well as in the UI. `users.ban_reason` holds the ban reason; unban clears it.
+- Restore does not bump `token_version`, so old sessions work again. A restored account that was also banned stays banned.
+- `GET /auth/me` and the login response now include `permissions`. The UI shows only the buttons a role may use (`useCan`). A session saved before this change is dropped once.
+- `deploy/ansible/roles/purge`: cron at 03:30 UTC for staging and prod (after the 03:00 backup). **Not applied yet:** run the Ansible playbook to install it. The operator guide (`.dev-context/infrastructure-guide/01-architecture-overview.md`) lists it.
+- Not included: "Resend verification email" and "Send password reset" (in the feature list, but not in the slice 5 row). A failed purge job has no alert: the log file is the only trace (a Healthchecks.io ping is a possible later step).
 - Slice 1 leftover: `landing/privacy.html` still needs the line about the login country. Do this before slice 7 (deploy).
 
 ## Context

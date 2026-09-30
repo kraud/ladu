@@ -191,6 +191,7 @@ symptom-specific guidance.
 | `deploy/caddy/` | Caddy's own Dockerfile + `Caddyfile` (routing rules) | Built as part of `platform.yml`. |
 | `deploy/scripts/deploy.sh` | Pulls images, runs migrations, swaps containers, health-checks, rolls back on failure | GitHub Actions, automatically, on every merge to `main`. |
 | `deploy/scripts/backup.sh` / `restore-test.sh` | Nightly backup, weekly restore drill | A cron job on the VPS (installed by Ansible), not GitHub Actions. |
+| `backend/scripts/purge.js` | Nightly purge: deletes accounts soft-deleted more than 30 days ago, and login history older than 90 days | A cron job on the VPS at 03:30 UTC (Ansible role `purge`), run with `docker exec backend-<env> node scripts/purge.js`. Logs: `/opt/ladu/purge/purge-<env>.log`. No Healthchecks.io monitor yet. |
 | `deploy/env/app.env.example` | Documents every env var `app.yml`'s `backend` service needs | Reference only — never contains real values. |
 
 The distinction that matters: **Ansible changes the server itself** (rare,

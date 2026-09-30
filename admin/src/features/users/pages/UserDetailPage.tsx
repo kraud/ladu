@@ -4,6 +4,7 @@ import { Link, useParams } from '@tanstack/react-router';
 import { ArrowLeft } from '@phosphor-icons/react';
 import { errorMessage } from '@/api/client';
 import { Button } from '@/components/ui/button';
+import { UserActions } from '@/features/users/components/UserActions';
 import { StatusBadge } from '@/features/users/components/StatusBadge';
 import { formatDateTime, formatDateTimeWithCountry, NONE } from '@/features/users/format';
 import { useUser } from '@/features/users/hooks';
@@ -92,6 +93,8 @@ export function UserDetailPage() {
                     {user.deletedByStaffName ? ` by ${user.deletedByStaffName}` : ''}.
                 </p>
             )}
+
+            <UserActions user={user} />
 
             <Section title="Profile">
                 <Grid>

@@ -33,6 +33,8 @@
   --color-foreground: var(--fg);
   --color-card: var(--surface);
   --color-card-foreground: var(--fg);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--fg);
   --color-primary: var(--accent);
   --color-primary-foreground: var(--accent-ink);
   --color-secondary: var(--surface);

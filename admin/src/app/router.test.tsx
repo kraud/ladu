@@ -6,7 +6,7 @@ import { server } from '@/test/msw/server';
 import { renderApp } from '@/test/renderApp';
 import { useAuthStore } from '@/stores/authStore';
 import { fakeToken } from '@/test/token';
-import { staffFixture } from '@/test/msw/handlers';
+import { makeStaff, staffFixture } from '@/test/msw/handlers';
 import { safeRedirect } from '@/features/auth/pages/LoginPage';
 
 describe('route guard', () => {
@@ -55,7 +55,7 @@ describe('session check against the server', () => {
     });
 
     it('updates the stored role when the server reports a new one', async () => {
-        server.use(http.get('/api/admin/auth/me', () => HttpResponse.json({ id: 'staff-1', email: 'staff@example.com', name: 'Sam Staff', role: 'viewer' })));
+        server.use(http.get('/api/admin/auth/me', () => HttpResponse.json(makeStaff('viewer'))));
 
         await renderApp({ session: true });
 

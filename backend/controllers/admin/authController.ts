@@ -4,6 +4,7 @@ const { db }: typeof import('../../src/db') = require('../../src/db');
 const { staffAccounts, auditLog }: typeof import('../../src/db/schema') = require('../../src/db/schema');
 const { eq }: typeof import('drizzle-orm') = require('drizzle-orm');
 const { generateStaffToken }: typeof import('../../middleware/staffAuth') = require('../../middleware/staffAuth');
+const { permissionsFor }: typeof import('../../lib/adminPermissions') = require('../../lib/adminPermissions');
 const { countryFromRequest }: typeof import('../../lib/accountAccess') = require('../../lib/accountAccess');
 
 // A valid hash of a random string. An unknown email is compared against it, so
@@ -46,12 +47,23 @@ const login = asyncHandler(async (req: any, res: any) => {
         metadata: { country: countryFromRequest(req) },
     });
 
-    res.json({ id: staff.id, email: staff.email, name: staff.name, role: staff.role, token });
+    res.json({
+        id: staff.id,
+        email: staff.email,
+        name: staff.name,
+        role: staff.role,
+        permissions: permissionsFor(staff.role),
+        token,
+    });
 });
 
-/** `GET /api/admin/auth/me` — used by the admin UI to check a saved session. */
+/**
+ * `GET /api/admin/auth/me` — used by the admin UI to check a saved session.
+ * `permissions` lets the UI show only the buttons a person may use; the server
+ * still checks every request.
+ */
 const me = (req: any, res: any) => {
-    res.json(req.staff);
+    res.json({ ...req.staff, permissions: permissionsFor(req.staff.role) });
 };
 
 export = { login, me };

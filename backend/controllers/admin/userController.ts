@@ -21,6 +21,8 @@ const { and, asc, desc, eq, ilike, isNotNull, isNull, or, sql }: typeof import('
   require('drizzle-orm');
 const { hasPermission }: typeof import('../../lib/adminPermissions') = require('../../lib/adminPermissions');
 const { isUuid }: typeof import('../userController') = require('../userController');
+const { hardDeleteUser }: typeof import('../../lib/userPurge') = require('../../lib/userPurge');
+import type { Tx } from '../../lib/userPurge';
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 100;
@@ -143,22 +145,15 @@ const listUsers = asyncHandler(async (req: any, res: any) => {
 
 const countOf = async (query: Promise<{ n: number }[]>) => (await query)[0].n;
 
-/** `GET /api/admin/users/:id` */
-const getUser = asyncHandler(async (req: any, res: any) => {
-  const { id } = req.params;
-  if (!isUuid(id)) {
-    res.status(404);
-    throw new Error('User not found');
-  }
+/** The user detail, or `undefined` if there is no such user. `role` decides whether the audit history is included. */
+const loadUserDetail = async (id: string, role: string) => {
+  if (!isUuid(id)) return undefined;
 
   const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
-  if (!user) {
-    res.status(404);
-    throw new Error('User not found');
-  }
+  if (!user) return undefined;
 
   const n = sql<number>`count(*)::int`;
-  const canReadAudit = hasPermission(req.staff.role, 'audit.read');
+  const canReadAudit = hasPermission(role, 'audit.read');
 
   const [wordCount, translationCount, tagCount, friendCount, sessionCount, identities, recentLogins, deletedBy, audit] =
     await Promise.all([
@@ -200,14 +195,15 @@ const getUser = asyncHandler(async (req: any, res: any) => {
               staffName: staffAccounts.name,
             })
             .from(auditLog)
-            .innerJoin(staffAccounts, eq(auditLog.staffId, staffAccounts.id))
+            // A row with no staff member was written by the system (the nightly purge).
+            .leftJoin(staffAccounts, eq(auditLog.staffId, staffAccounts.id))
             .where(and(eq(auditLog.targetType, 'user'), eq(auditLog.targetId, id)))
             .orderBy(desc(auditLog.createdAt))
             .limit(AUDIT_ENTRIES)
         : Promise.resolve(null),
     ]);
 
-  res.json({
+  return {
     id: user.id,
     name: user.name,
     email: user.email,
@@ -237,8 +233,182 @@ const getUser = asyncHandler(async (req: any, res: any) => {
       practiceSessions: sessionCount,
     },
     recentLogins,
-    audit,
-  });
+    audit: audit && audit.map((entry) => ({ ...entry, staffName: entry.staffName ?? 'System' })),
+  };
+};
+
+/** `GET /api/admin/users/:id` */
+const getUser = asyncHandler(async (req: any, res: any) => {
+  const detail = await loadUserDetail(req.params.id, req.staff.role);
+  if (!detail) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  res.json(detail);
 });
 
-export = { listUsers, getUser };
+// ---------------------------------------------------------------------------
+// Actions (slice 5). Each one runs in a single transaction: lock the user row,
+// check the state, change it, write the audit row. A failed check rolls back,
+// so there is never an audit row for a change that did not happen.
+// ---------------------------------------------------------------------------
+
+const MAX_REASON_LENGTH = 500;
+
+class HttpError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+type UserRow = typeof users.$inferSelect;
+
+interface ActionContext {
+  staffId: string;
+  reason: string;
+}
+
+interface ActionSpec {
+  /** Audit `action` value. */
+  action: string;
+  reasonRequired: boolean;
+  /** The username must be typed again (delete and purge). */
+  confirmUsername?: boolean;
+  /** A message if the action is not possible in the user's current state, else null. */
+  blockedBy: (user: UserRow) => string | null;
+  apply: (tx: Tx, user: UserRow, ctx: ActionContext) => Promise<void>;
+  /**
+   * The action deletes the user. `apply` then writes the audit row itself (via
+   * `hardDeleteUser`), and the response has no user detail.
+   */
+  removesUser?: boolean;
+}
+
+const ACTIONS = {
+  ban: {
+    action: 'user.ban',
+    reasonRequired: true,
+    blockedBy: (u) => (u.deletedAt ? 'This account is deleted' : u.bannedAt ? 'This account is already banned' : null),
+    apply: async (tx, u, { reason }) => {
+      await tx.update(users).set({ bannedAt: new Date(), banReason: reason, updatedAt: new Date() }).where(eq(users.id, u.id));
+    },
+  },
+  unban: {
+    action: 'user.unban',
+    reasonRequired: false,
+    blockedBy: (u) => (u.deletedAt ? 'Restore this account first' : !u.bannedAt ? 'This account is not banned' : null),
+    apply: async (tx, u) => {
+      await tx.update(users).set({ bannedAt: null, banReason: null, updatedAt: new Date() }).where(eq(users.id, u.id));
+    },
+  },
+  'force-logout': {
+    action: 'user.force_logout',
+    reasonRequired: false,
+    blockedBy: (u) => (u.deletedAt ? 'This account is deleted' : null),
+    apply: async (tx, u) => {
+      await tx.update(users).set({ tokenVersion: sql`${users.tokenVersion} + 1` }).where(eq(users.id, u.id));
+    },
+  },
+  delete: {
+    action: 'user.delete',
+    reasonRequired: true,
+    confirmUsername: true,
+    blockedBy: (u) => (u.deletedAt ? 'This account is already deleted' : null),
+    apply: async (tx, u, { staffId }) => {
+      await tx.update(users).set({ deletedAt: new Date(), deletedByStaffId: staffId, updatedAt: new Date() }).where(eq(users.id, u.id));
+    },
+  },
+  restore: {
+    action: 'user.restore',
+    reasonRequired: false,
+    blockedBy: (u) => (!u.deletedAt ? 'This account is not deleted' : null),
+    apply: async (tx, u) => {
+      await tx.update(users).set({ deletedAt: null, deletedByStaffId: null, updatedAt: new Date() }).where(eq(users.id, u.id));
+    },
+  },
+  // "Purge now" is offered only for an account that is already soft-deleted, so
+  // a purge always follows a delete (two steps, two audit rows).
+  purge: {
+    action: 'user.purge',
+    reasonRequired: true,
+    confirmUsername: true,
+    removesUser: true,
+    blockedBy: (u) => (!u.deletedAt ? 'Delete this account first' : null),
+    apply: async (tx, u, { staffId, reason }) => {
+      await hardDeleteUser(tx, u, { staffId, reason });
+    },
+  },
+} satisfies Record<string, ActionSpec>;
+
+type ActionName = keyof typeof ACTIONS;
+
+const readReason = (body: unknown, required: boolean): string => {
+  const raw = (body as { reason?: unknown } | undefined)?.reason;
+  if (raw !== undefined && typeof raw !== 'string') throw new HttpError(400, 'Reason must be text');
+  const reason = (raw ?? '').trim();
+  if (required && !reason) throw new HttpError(400, 'A reason is required');
+  if (reason.length > MAX_REASON_LENGTH) throw new HttpError(400, `Reason must be at most ${MAX_REASON_LENGTH} characters`);
+  return reason;
+};
+
+/** Builds the handler for one action. The route decides the permission; this does the rest. */
+const userAction = (name: ActionName) => {
+  const spec: ActionSpec = ACTIONS[name];
+
+  return asyncHandler(async (req: any, res: any) => {
+    const { id } = req.params;
+    try {
+      if (!isUuid(id)) throw new HttpError(404, 'User not found');
+      const reason = readReason(req.body, spec.reasonRequired);
+
+      await db.transaction(async (tx) => {
+        // Locks the row, so two staff members acting at once cannot both pass the state check.
+        const [user] = await tx.select().from(users).where(eq(users.id, id)).for('update');
+        if (!user) throw new HttpError(404, 'User not found');
+
+        const blocked = spec.blockedBy(user);
+        if (blocked) throw new HttpError(409, blocked);
+
+        // The UI asks for the same; the server does not trust that.
+        if (spec.confirmUsername && (req.body as { confirmUsername?: unknown })?.confirmUsername !== user.username) {
+          throw new HttpError(400, 'The typed username does not match');
+        }
+
+        await spec.apply(tx, user, { staffId: req.staff.id, reason });
+
+        if (!spec.removesUser) {
+          await tx.insert(auditLog).values({
+            staffId: req.staff.id,
+            action: spec.action,
+            targetType: 'user',
+            targetId: user.id,
+            reason: reason || null,
+            // Enough to identify the account even if it is purged later.
+            metadata: { email: user.email, username: user.username },
+          });
+        }
+      });
+    } catch (error) {
+      if (error instanceof HttpError) res.status(error.status);
+      throw error;
+    }
+
+    if (spec.removesUser) {
+      res.json({ purged: true });
+      return;
+    }
+    res.json(await loadUserDetail(id, req.staff.role));
+  });
+};
+
+const banUser = userAction('ban');
+const unbanUser = userAction('unban');
+const forceLogoutUser = userAction('force-logout');
+const deleteUser = userAction('delete');
+const restoreUser = userAction('restore');
+const purgeUser = userAction('purge');
+
+export = { listUsers, getUser, banUser, unbanUser, forceLogoutUser, deleteUser, restoreUser, purgeUser };

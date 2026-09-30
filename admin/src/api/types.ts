@@ -9,5 +9,6 @@ export interface StaffLoginResponse {
     email: string;
     name: string;
     role: 'owner' | 'admin' | 'support' | 'viewer';
+    permissions: string[];
     token: string;
 }

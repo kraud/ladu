@@ -216,6 +216,8 @@ export interface SeedUserOptions {
     banned?: boolean;
     deleted?: boolean;
     lastLoginCountry?: string;
+    /** A real password, so the account can sign in through the learner API. Without it the hash is a placeholder. */
+    learnerPassword?: string;
 }
 
 /** Inserts a user row directly, with the admin columns set as asked. */
@@ -230,7 +232,7 @@ export async function seedUser(email: string, opts: SeedUserOptions): Promise<{ 
             opts.name,
             email,
             opts.username,
-            opts.hasPassword === false ? null : 'not-a-real-hash',
+            opts.hasPassword === false ? null : opts.learnerPassword ? await bcrypt.hash(opts.learnerPassword, 4) : 'not-a-real-hash',
             opts.verified ?? true,
             opts.banned ? new Date() : null,
             opts.banned ? 'spam' : null,
@@ -275,4 +277,16 @@ export async function seedAuditEntry(staffId: string, userId: string, action: st
         `INSERT INTO audit_log (staff_id, action, target_type, target_id, reason) VALUES ($1, $2, 'user', $3, $4)`,
         [staffId, action, userId, reason],
     );
+}
+
+/** The audit rows written about one user (`target_type = 'user'`), oldest first. Survives the user's purge. */
+export async function getAuditForUser(
+    userId: string,
+): Promise<{ action: string; reason: string | null; staffId: string | null; metadata: Record<string, unknown> | null }[]> {
+    const { rows } = await getPool().query(
+        `SELECT action, reason, staff_id AS "staffId", metadata
+           FROM audit_log WHERE target_type = 'user' AND target_id = $1 ORDER BY created_at, id`,
+        [userId],
+    );
+    return rows;
 }

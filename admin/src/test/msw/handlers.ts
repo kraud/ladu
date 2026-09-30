@@ -1,12 +1,22 @@
 import { http, HttpResponse } from 'msw';
 import { fakeToken } from '@/test/token';
 
-export const staffFixture = {
-    id: 'staff-1',
-    email: 'staff@example.com',
-    name: 'Sam Staff',
-    role: 'support' as const,
+import type { StaffRole, StaffUser } from '@/stores/authStore';
+
+// Mirrors backend/lib/adminPermissions.ts. The UI reads the list from the
+// server, so this is only test data, not a second source of truth.
+const PERMISSIONS_BY_ROLE: Record<StaffRole, string[]> = {
+    owner: ['users.read', 'users.ban', 'users.delete', 'users.purge', 'health.read', 'audit.read', 'staff.manage'],
+    admin: ['users.read', 'users.ban', 'users.delete', 'health.read', 'audit.read'],
+    support: ['users.read', 'users.ban', 'health.read'],
+    viewer: ['users.read', 'health.read'],
 };
+
+export function makeStaff(role: StaffRole): StaffUser {
+    return { id: 'staff-1', email: 'staff@example.com', name: 'Sam Staff', role, permissions: PERMISSIONS_BY_ROLE[role] };
+}
+
+export const staffFixture = makeStaff('support');
 
 /** Default happy-path handlers. A test overrides one with `server.use(...)`. */
 export const handlers = [

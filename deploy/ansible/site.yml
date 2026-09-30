@@ -9,9 +9,12 @@
     - docker
     - platform
     - backup
+    - purge
   # `platform` itself lands in four reviewable steps (see its tasks/main.yml
   # comments): 8a file sync + dirs, 8b Vault secrets, 8c bring the stack up,
   # 8d DOCKER-USER firewall fix + log rotation.
   # `backup` is Phase E: nightly pg_dump of ladu_prod to Backblaze B2, plus
   # a weekly restore test that pings a Healthchecks.io heartbeat monitor
   # (UptimeRobot's heartbeat/cron monitoring is paid-plan only).
+  # `purge` is admin-dashboard slice 5: a nightly cron job that runs
+  # backend/scripts/purge.js inside each backend container.

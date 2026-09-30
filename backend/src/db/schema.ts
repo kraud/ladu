@@ -82,7 +82,8 @@ export const auditLog = pgTable(
     'audit_log',
     {
         id:         uuid('id').primaryKey().defaultRandom(),
-        staffId:    uuid('staff_id').notNull().references(() => staffAccounts.id, { onDelete: 'restrict' }),
+        // NULL = the system (the nightly purge job), which has no staff account.
+        staffId:    uuid('staff_id').references(() => staffAccounts.id, { onDelete: 'restrict' }),
         // e.g. 'staff.login', 'user.ban'
         action:     varchar('action', { length: 64 }).notNull(),
         targetType: varchar('target_type', { length: 32 }),

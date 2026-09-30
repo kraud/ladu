@@ -15,6 +15,8 @@ export interface StaffUser {
     email: string;
     name: string;
     role: StaffRole;
+    /** From the server (`/auth/me`): the UI shows only the buttons these allow. The server still checks every request. */
+    permissions: string[];
 }
 
 interface AuthState {
@@ -32,7 +34,14 @@ const STORAGE_KEY = 'ladu-admin.session';
 function isValidStaff(value: unknown): value is StaffUser {
     if (typeof value !== 'object' || value === null) return false;
     const s = value as Record<string, unknown>;
-    return typeof s.id === 'string' && s.id.length > 0 && typeof s.email === 'string' && typeof s.role === 'string';
+    return (
+        typeof s.id === 'string' &&
+        s.id.length > 0 &&
+        typeof s.email === 'string' &&
+        typeof s.role === 'string' &&
+        // A session saved before permissions existed is dropped: one new login.
+        Array.isArray(s.permissions)
+    );
 }
 
 /** localStorage adapter that never throws: a bad or unavailable store means "no session". */
@@ -82,6 +91,11 @@ export const useAuthStore = create<AuthState>()(
         },
     ),
 );
+
+/** True if the signed-in staff member has `permission`. */
+export function useCan(permission: string): boolean {
+    return useAuthStore((s) => s.staff?.permissions.includes(permission) ?? false);
+}
 
 /** Non-hook access for the axios interceptors, route guards and tests. */
 export const authStore = {

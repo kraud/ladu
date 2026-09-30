@@ -33,6 +33,8 @@ const login = (body = { email: 'staff@example.com', password: PASSWORD }, header
 describe('role map', () => {
     it('gives the roles the permissions in the plan', () => {
         expect(hasPermission('owner', 'staff.manage')).toBe(true);
+        expect(hasPermission('owner', 'users.purge')).toBe(true);
+        expect(hasPermission('admin', 'users.purge')).toBe(false);
         expect(hasPermission('admin', 'users.delete')).toBe(true);
         expect(hasPermission('admin', 'staff.manage')).toBe(false);
         expect(hasPermission('support', 'users.ban')).toBe(true);
@@ -85,6 +87,7 @@ describe('POST /api/admin/auth/login', () => {
 
         expect(res.status).toBe(200);
         expect(res.body).toMatchObject({ id: staff.id, email: 'staff@example.com', role: 'support' });
+        expect(res.body.permissions).toEqual(['users.read', 'users.ban', 'health.read']);
         expect(res.body).not.toHaveProperty('passwordHash');
         const claims = jwt.verify(res.body.token, process.env.ADMIN_JWT_SECRET);
         expect(claims.aud).toBe('admin');
@@ -244,7 +247,13 @@ describe('GET /api/admin/auth/me', () => {
         const res = await request(app).get('/api/admin/auth/me').set('Authorization', `Bearer ${token}`);
 
         expect(res.status).toBe(200);
-        expect(res.body).toEqual({ id: staff.id, email: 'staff@example.com', name: 'Staff', role: 'admin' });
+        expect(res.body).toEqual({
+            id: staff.id,
+            email: 'staff@example.com',
+            name: 'Staff',
+            role: 'admin',
+            permissions: ['users.read', 'users.ban', 'users.delete', 'health.read', 'audit.read'],
+        });
     });
 
     it('rejects a learner token', async () => {
