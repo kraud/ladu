@@ -57,6 +57,13 @@
       "when": 1790638661442,
       "tag": "0007_exercise_performance_integrity",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790765833521,
+      "tag": "0008_practice_configs",
+      "breakpoints": true
     }
   ]
 }

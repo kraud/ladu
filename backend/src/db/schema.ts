@@ -389,6 +389,32 @@ export const exercisePerformanceCases = pgTable(
     ],
 );
 
+// ---------------------------------------------------------------------------
+// PRACTICE_CONFIGS
+// Phase 5.5 (phase-5-5-saved-practice.md §4): a named set of practice settings,
+// with or without pre-selected words. Private to its owner.
+// `word_ids` has no FK on purpose (D8): words can be deleted later, and the
+// list endpoint reports how many saved words are no longer visible.
+// ---------------------------------------------------------------------------
+export const practiceConfigs = pgTable(
+    'practice_configs',
+    {
+        id:          uuid('id').primaryKey().defaultRandom(),
+        userId:      uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        name:        varchar('name', { length: 60 }).notNull(),
+        description: varchar('description', { length: 200 }),
+        // The validated settings, including the client-only `strictnessTI`.
+        params:      jsonb('params').notNull(),
+        // NULL = no pre-selected words.
+        wordIds:     uuid('word_ids').array(),
+        ...timestamps,
+    },
+    (table) => [
+        // Names are unique per user, ignoring letter case (D6).
+        uniqueIndex('pc_user_name_unique').on(table.userId, sql`lower(${table.name})`),
+    ],
+);
+
 // ===========================================================================
 // RELATIONS
 // Drizzle's relational API — used by the Drizzle query builder (db.query.*)

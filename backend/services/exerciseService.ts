@@ -64,7 +64,7 @@ interface Viewer {
 // ---------------------------------------------------------------------------
 
 /** Condition: the word is the user's own, or is reachable through a followed tag the user can still see. */
-const visibleWordCondition = async (userId: string) => {
+export const visibleWordCondition = async (userId: string) => {
     const followedIds: string[] = await getWordsIdFromFollowedTagsByUserId(userId);
     return followedIds.length > 0
         ? or(eq(words.userId, userId), inArray(words.id, followedIds))
