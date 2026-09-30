@@ -73,24 +73,55 @@ function personKey(person: number, plurality: Plurality): string {
     return `${person}${plurality === Plurality.S ? 'S' : 'P'}`;
 }
 
-/** "Plural · Genitive", "Present · 1st person singular", "Gender". Unknown names come back unchanged. */
-export function caseLabel(t: TFunction, pos: PartOfSpeech | string, caseName: string): string {
+/** One piece of a form label: the full word and its abbreviation ("Genitive" / "gen."). */
+export interface CasePart {
+    full: string;
+    abbr: string;
+}
+
+/**
+ * The pieces of a form label, in reading order: noun = plurality + declension,
+ * verb = tense + person (with plurality), property = its category. Each piece has an
+ * abbreviation in the interface language (`practice:cases.abbr.*`); a piece without
+ * one is its own abbreviation. Unknown names come back as one unchanged piece.
+ */
+export function caseParts(t: TFunction, pos: PartOfSpeech | string, caseName: string): CasePart[] {
     const descriptor = describeCase(pos, caseName);
-    if (!descriptor) return caseName;
+    if (!descriptor) return [{ full: caseName, abbr: caseName }];
+
+    const part = (group: string, key: string, full: string): CasePart => ({
+        full,
+        abbr: t(`practice:cases.abbr.${group}.${key}`, { defaultValue: full }),
+    });
+
     switch (descriptor.kind) {
         case 'noun':
             return [
-                t(`practice:cases.plurality.${descriptor.plurality}`, { defaultValue: descriptor.plurality }),
-                t(`practice:cases.declension.${descriptor.declension}`, { defaultValue: descriptor.declension }),
-            ].join(' · ');
-        case 'verb':
+                part('plurality', descriptor.plurality, t(`practice:cases.plurality.${descriptor.plurality}`, { defaultValue: descriptor.plurality })),
+                part('declension', descriptor.declension, t(`practice:cases.declension.${descriptor.declension}`, { defaultValue: descriptor.declension })),
+            ];
+        case 'verb': {
+            const bucket = TENSE_BUCKET[descriptor.tense];
+            const person = personKey(descriptor.person, descriptor.plurality);
             return [
-                tenseLabel(t, descriptor.tense),
-                t(`practice:cases.person.${personKey(descriptor.person, descriptor.plurality)}`),
-            ].join(' · ');
+                bucket
+                    ? part('tense', bucket, tenseLabel(t, descriptor.tense))
+                    : { full: humanize(descriptor.tense), abbr: humanize(descriptor.tense) },
+                part('person', person, t(`practice:cases.person.${person}`)),
+            ];
+        }
         case 'property':
-            return t(`practice:cases.property.${descriptor.category}`, { defaultValue: humanize(descriptor.category) });
+            return [
+                part('property', descriptor.category, t(`practice:cases.property.${descriptor.category}`, { defaultValue: humanize(descriptor.category) })),
+            ];
     }
+}
+
+/** "Plural · Genitive", "Present · 1st person singular", "Gender". Unknown names come back unchanged. */
+export function caseLabel(t: TFunction, pos: PartOfSpeech | string, caseName: string): string {
+    return caseParts(t, pos, caseName)
+        .map((part) => part.full)
+        .join(' · ');
 }
 
 /**

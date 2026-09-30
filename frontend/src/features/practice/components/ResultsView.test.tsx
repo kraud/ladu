@@ -45,9 +45,10 @@ async function openResults(
         params?: Partial<PracticeParams>;
         preselected?: PreselectedWord[] | null;
         unsaved?: number[];
+        almostNone?: boolean;
     } & PracticeFakeOptions = {},
 ) {
-    const { params, preselected = null, unsaved = [], ...fakeOptions } = options;
+    const { params, preselected = null, unsaved = [], almostNone = false, ...fakeOptions } = options;
     const exercises: Exercise[] = [typed(1), typed(2), typed(3), choice];
     server.use(...makeWordHandlers({ callerId: 'u1', seed: [] }).handlers);
     const fake = makePracticeHandlers({ exercises, ...fakeOptions });
@@ -63,7 +64,7 @@ async function openResults(
     });
     const results: [AnswerResult, string][] = [
         ['correct', 'casa'],
-        ['partial', 'Casa'],
+        [almostNone ? 'correct' : 'partial', almostNone ? 'casa' : 'Casa'],
         ['wrong', 'perro'],
         ['wrong', 'perro'],
     ];
@@ -91,29 +92,98 @@ afterEach(() => {
 });
 
 describe('ResultsView', () => {
-    it('shows the score, the almost-correct count and one row per exercise', async () => {
+    it('shows the score, the almost-correct hint and one row per exercise', async () => {
         await openResults();
 
-        expect(await screen.findByTestId('score')).toHaveTextContent('2 of 4 correct');
-        expect(screen.getByText(/50 %/)).toBeInTheDocument();
-        expect(screen.getByText(/1 almost correct/)).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Session results' })).toBeInTheDocument();
+        expect(await screen.findByTestId('score')).toHaveTextContent('2 of 4');
+        expect(screen.getByText('correct answers')).toBeInTheDocument();
+        expect(screen.queryByText(/50 ?%/)).not.toBeInTheDocument();
+        expect(screen.getByText('includes 1 almost correct — accents or capitals only')).toBeInTheDocument();
 
         const rows = screen.getAllByTestId('result-row');
         expect(rows).toHaveLength(4);
         expect(within(rows[0]!).getByText('Correct')).toBeInTheDocument();
-        expect(within(rows[1]!).getByText('Almost correct')).toBeInTheDocument();
+        expect(within(rows[1]!).getByText('Almost')).toBeInTheDocument();
         expect(within(rows[2]!).getByText('Wrong')).toBeInTheDocument();
         expect(within(rows[0]!).getByText('Typed')).toBeInTheDocument();
         expect(within(rows[3]!).getByText('Chosen')).toBeInTheDocument();
     });
 
-    it('shows the user answer only when it differs from the expected one', async () => {
+    it('has the title, the score, the languages and the word types in one header', async () => {
+        await openResults();
+        const heading = await screen.findByRole('heading', { name: 'Session results' });
+        // The title is above the card; the card holds the figures.
+        const header = screen.getByTestId('score').closest('section')!;
+        expect(header).not.toContainElement(heading);
+
+        expect(within(header).getByTestId('score')).toHaveTextContent('2 of 4');
+        // The fake exercises are English -> Spanish nouns.
+        expect(within(header).getByTestId('languages-count')).toHaveTextContent('2');
+        expect(within(header).getByText('languages')).toBeInTheDocument();
+        expect(within(header).getByTestId('flag-grid').children).toHaveLength(2);
+        expect(within(header).getByTestId('types-count')).toHaveTextContent('1');
+        expect(within(header).getByText('type of words')).toBeInTheDocument();
+        // The types show as tags in the same kind of grid: an abbreviation, with the full name for screen readers.
+        const types = within(header).getByTestId('types-grid');
+        expect(types.children).toHaveLength(1);
+        expect(within(types).getByText('n.')).toBeInTheDocument();
+        expect(within(types).getByText('Noun')).toHaveClass('sr-only');
+    });
+
+    it('shows the word type and the form once, short, in their own column', async () => {
+        await openResults();
+        const [row] = await screen.findAllByTestId('result-row');
+
+        // Short text for the eye, the full words for screen readers.
+        for (const abbr of ['n.', 'sg.', 'nom.']) expect(within(row!).getByText(abbr)).toHaveAttribute('aria-hidden', 'true');
+        for (const full of [/^Noun,/, /^Singular,/, 'Nominative']) {
+            expect(within(row!).getByText(full, { selector: '.sr-only' })).toBeInTheDocument();
+        }
+        expect(row).toHaveTextContent(/house/);
+        expect(row).toHaveTextContent(/casa/);
+    });
+
+    it('shows the full word of an abbreviation in a tooltip after a second', async () => {
+        await openResults();
+        const user = userEvent.setup();
+        const [row] = await screen.findAllByTestId('result-row');
+
+        await user.hover(within(row!).getByText('nom.'));
+
+        expect(
+            await screen.findByText('Nominative', { selector: '[data-slot="tooltip-content"]' }, { timeout: 3000 }),
+        ).toBeInTheDocument();
+    });
+
+    it('marks typed and chosen with an icon and a tooltip label', async () => {
+        await openResults();
+        const user = userEvent.setup();
+        const rows = await screen.findAllByTestId('result-row');
+
+        // The visible marker is an icon; the label is for screen readers and the tooltip.
+        expect(within(rows[0]!).getByText('Typed')).toHaveClass('sr-only');
+        expect(within(rows[3]!).getByText('Chosen')).toHaveClass('sr-only');
+
+        await user.hover(within(rows[3]!).getByText('Chosen').parentElement!);
+        expect(
+            await screen.findByText('Chosen', { selector: '[data-slot="tooltip-content"]' }, { timeout: 3000 }),
+        ).toBeInTheDocument();
+    });
+
+    it('says nothing about almost-correct answers when there are none', async () => {
+        await openResults({ almostNone: true });
+        await screen.findByTestId('score');
+
+        expect(screen.queryByText(/almost correct/)).not.toBeInTheDocument();
+    });
+
+    it('does not repeat the user answer in the row, so every row has the same shape', async () => {
         await openResults();
         const rows = await screen.findAllByTestId('result-row');
 
-        expect(within(rows[0]!).queryByTestId('given')).not.toBeInTheDocument();
-        expect(within(rows[1]!).getByTestId('given')).toHaveTextContent('Casa');
-        expect(within(rows[2]!).getByTestId('given')).toHaveTextContent('perro');
+        rows.forEach((row) => expect(within(row).queryByTestId('given')).not.toBeInTheDocument());
+        expect(within(rows[2]!).queryByText(/perro/)).not.toBeInTheDocument();
     });
 
     it('warns about unsaved answers and retries them all', async () => {
@@ -132,12 +202,14 @@ describe('ResultsView', () => {
         const user = userEvent.setup();
 
         const rows = await screen.findAllByTestId('result-row');
-        await user.click(within(rows[1]!).getByRole('button', { name: 'Open exercise' }));
+        // The whole row is the button.
+        await user.click(within(rows[1]!).getByRole('button', { name: /Open exercise/ }));
 
         expect(await screen.findByText('Exercise 2 of 4')).toBeInTheDocument();
         expect(screen.getByLabelText('Your answer')).toHaveAttribute('readonly');
         expect(screen.getByRole('button', { name: 'Mastered' })).toBeEnabled();
         expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Previous' })).not.toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: 'Back to results' }));
         expect(await screen.findByTestId('score')).toBeInTheDocument();
@@ -147,14 +219,15 @@ describe('ResultsView', () => {
         await openResults({ preselected: WORDS });
         const user = userEvent.setup();
 
-        expect(await screen.findByRole('button', { name: 'Show settings' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Settings used', expanded: false })).toBeInTheDocument();
         expect(screen.queryByText('Number of exercises')).not.toBeInTheDocument();
 
-        await user.click(screen.getByRole('button', { name: 'Show settings' }));
+        await user.click(screen.getByRole('button', { name: 'Settings used' }));
         expect(screen.getByText('Number of exercises')).toBeInTheDocument();
-        expect(within(screen.getByRole('region', { name: 'Settings' })).getByText('house')).toBeInTheDocument();
-        // Choice difficulty is relevant only when the session shows choices in different languages.
-        expect(screen.getByText('Typing strictness')).toBeInTheDocument();
+        // Typing only: strictness shows as "Level 2 — …", choice difficulty is left out.
+        expect(screen.getByText(/Level 2 — Ignores capital letters only/)).toBeInTheDocument();
+        expect(screen.queryByText('Choice difficulty')).not.toBeInTheDocument();
+        expect(within(screen.getByRole('region', { name: 'Settings used' })).getByText('house')).toBeInTheDocument();
     });
 
     it('"Practice again" makes new exercises with the same settings and words', async () => {
@@ -180,6 +253,48 @@ describe('ResultsView', () => {
         expect(screen.getByTestId('score')).toBeInTheDocument();
     });
 
+    it('"Practice again" that finds nothing explains why, with a way to the settings', async () => {
+        await openResults({ exercises: [] });
+        // The fake serves `exercises` cut to the amount; an empty pool gives an empty list.
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByRole('button', { name: 'Practice again' }));
+
+        expect(await screen.findByText('No exercises found')).toBeInTheDocument();
+        expect(screen.getByTestId('score')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Adjust settings' }));
+        expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+    });
+
+    it('goes back to the set-up with the arrow next to the title', async () => {
+        await openResults();
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByRole('button', { name: 'Back to set-up' }));
+
+        expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+        expect(usePracticeSessionStore.getState().session).toBeNull();
+    });
+
+    it('marks an unsaved answer in its row', async () => {
+        await openResults({ unsaved: [2] });
+        const rows = await screen.findAllByTestId('result-row');
+
+        expect(within(rows[2]!).getByText('Not saved')).toBeInTheDocument();
+        expect(within(rows[0]!).queryByText('Not saved')).not.toBeInTheDocument();
+        // The retry is on the banner and on the card, not in the row.
+        expect(within(rows[2]!).queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
+    });
+
+    it('shows how many exercises were made when fewer than asked', async () => {
+        await openResults({ params: { amount: 6 } });
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByRole('button', { name: 'Settings used' }));
+
+        expect(screen.getByText('4 (of 6 asked)')).toBeInTheDocument();
+    });
+
     it('"Change settings" returns to the set-up with the same settings and words', async () => {
         await openResults({ preselected: WORDS, params: { amount: 7 } });
         const user = userEvent.setup();
@@ -194,6 +309,6 @@ describe('ResultsView', () => {
 
     it('links to Review', async () => {
         await openResults();
-        expect(await screen.findByRole('link', { name: 'Go to Review' })).toHaveAttribute('href', '/review');
+        expect(await screen.findByRole('link', { name: 'Go to Review table' })).toHaveAttribute('href', '/review');
     });
 });

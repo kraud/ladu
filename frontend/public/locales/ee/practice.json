@@ -123,7 +123,6 @@
   },
   "session": {
     "progress": "Harjutus {{current}} / {{total}}",
-    "answered": "<b>{{count}}</b> vastatud",
     "correct": "<b>{{count}}</b> õiget",
     "leave": "Lahku sessioonist",
     "leaveDialog": {
@@ -223,26 +222,30 @@
     }
   },
   "results": {
-    "title": "Tulemused",
-    "score": "{{correct}} / {{total}} õiget",
-    "percent": "{{percent}} %",
-    "almost": "{{count}} peaaegu õiget",
+    "title": "Sessiooni tulemused",
     "unsaved_one": "{{count}} vastus ei ole salvestatud.",
     "unsaved_other": "{{count}} vastust ei ole salvestatud.",
     "retryAll": "Proovi kõiki uuesti",
     "typed": "Kirjutatud",
     "chosen": "Valitud",
-    "yourAnswer": "Sinu vastus",
     "expectedAnswer": "Oodatud vastus",
     "open": "Ava harjutus",
     "backToResults": "Tagasi tulemuste juurde",
-    "settings": "Seaded",
-    "showSettings": "Näita seadeid",
-    "hideSettings": "Peida seaded",
+    "settings": "Kasutatud seaded",
     "words": "Sõnad",
     "again": "Harjuta uuesti",
     "change": "Muuda seadeid",
-    "toReview": "Mine ülevaatesse"
+    "toReview": "Mine ülevaate tabelisse",
+    "scoreCount": "{{correct}} / {{total}}",
+    "correctAnswers": "õiget vastust",
+    "almostHint": "sisaldab {{count}} peaaegu õiget – erinevad ainult rõhumärgid või suurtähed",
+    "statusPartial": "Peaaegu",
+    "backToSetup": "Tagasi seadete juurde",
+    "amountShort": "{{created}} ({{requested}}-st soovitud)",
+    "languagesLabel_one": "keel",
+    "languagesLabel_other": "keelt",
+    "typesLabel_one": "sõnaliik",
+    "typesLabel_other": "sõnaliiki"
   },
   "cases": {
     "plurality": {
@@ -279,6 +282,43 @@
       "Auxiliary-Verb": "Abiverb",
       "Case-Type": "Käände tüüp",
       "Prefix": "Eesliide"
+    },
+    "abbr": {
+      "plurality": {
+        "Singular": "ains.",
+        "Plural": "mitm."
+      },
+      "declension": {
+        "Nominative": "nimet.",
+        "Accusative": "akus.",
+        "Genitive": "omast.",
+        "Dative": "dat.",
+        "Partitive": "osast."
+      },
+      "tense": {
+        "present": "ol.",
+        "past": "min.",
+        "future": "tul."
+      },
+      "person": {
+        "1S": "1. is. ains.",
+        "2S": "2. is. ains.",
+        "3S": "3. is. ains.",
+        "1P": "1. is. mitm.",
+        "2P": "2. is. mitm.",
+        "3P": "3. is. mitm."
+      },
+      "property": {
+        "Gender": "sugu",
+        "Short-Form": "lühiv.",
+        "Regularity": "reg.",
+        "Infinitive": "inf.",
+        "Gerund": "ger.",
+        "Participle": "kesks.",
+        "Auxiliary-Verb": "abiv.",
+        "Case-Type": "käände t.",
+        "Prefix": "eesl."
+      }
     }
   },
   "apiErrors": {

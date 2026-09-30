@@ -278,8 +278,8 @@ describe('SessionView — navigation', () => {
         await user.type(screen.getByLabelText('Your answer'), '{Enter}');
         await user.click(await screen.findByRole('button', { name: 'See results' }));
 
-        expect(await screen.findByRole('heading', { name: 'Results' })).toBeInTheDocument();
-        expect(screen.getByText('1 of 2 correct')).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Session results' })).toBeInTheDocument();
+        expect(screen.getByTestId('score')).toHaveTextContent('1 of 2');
     });
 
     it('shows the progress counters', async () => {
@@ -288,8 +288,8 @@ describe('SessionView — navigation', () => {
 
         await user.type(await screen.findByLabelText('Your answer'), 'casa{Enter}');
 
-        expect(await screen.findByText(/answered/)).toHaveTextContent('1 answered');
-        expect(screen.getByText(/correct/, { selector: '.meta' })).toHaveTextContent('1 correct');
+        expect(await screen.findByText(/correct/, { selector: '.meta' })).toHaveTextContent('1 correct');
+        expect(screen.queryByText(/answered/)).not.toBeInTheDocument();
         expect(screen.getByTestId('meter').firstElementChild).toHaveStyle({ width: '50%' });
     });
 

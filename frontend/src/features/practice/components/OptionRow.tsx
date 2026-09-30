@@ -1,3 +1,4 @@
+import type { Icon } from '@phosphor-icons/react';
 import type { ReactNode } from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useIsMobile } from '@/lib/useMediaQuery';
@@ -22,6 +23,7 @@ export interface OptionRowOption<T extends string | number> {
  */
 export function OptionRow<T extends string | number>({
     label,
+    icon: RowIcon,
     hint,
     value,
     options,
@@ -29,6 +31,8 @@ export function OptionRow<T extends string | number>({
     disabled,
 }: {
     label: string;
+    /** A small icon before the name (the same icons as the results rows use for typed / chosen). */
+    icon?: Icon;
     hint?: ReactNode;
     value: T;
     options: OptionRowOption<T>[];
@@ -41,7 +45,10 @@ export function OptionRow<T extends string | number>({
         const selected = options.find((option) => option.value === value);
         return (
             <div className="flex flex-col gap-2 border-b border-border py-3 last:border-b-0">
-                <span className="text-[13.5px] font-semibold">{label}</span>
+                <span className="flex items-center gap-2 text-[13.5px] font-semibold">
+                    {RowIcon && <RowIcon aria-hidden weight="bold" size={16} className="shrink-0 text-muted-foreground" />}
+                    {label}
+                </span>
                 <ChipGroup
                     label={label}
                     value={value}
@@ -60,8 +67,12 @@ export function OptionRow<T extends string | number>({
 
     return (
         <div className="flex flex-wrap items-start gap-x-4 gap-y-2 border-b border-border py-3 last:border-b-0">
-            <span className="min-w-44 text-[13.5px] font-semibold">
-                {label}
+            {/* One fixed width for every row, so the radio buttons line up down the block. */}
+            <span className="w-56 shrink-0 text-[13.5px] font-semibold">
+                <span className="flex items-center gap-2">
+                    {RowIcon && <RowIcon aria-hidden weight="bold" size={16} className="shrink-0 text-muted-foreground" />}
+                    {label}
+                </span>
                 {hint && <span className="hint block font-normal">{hint}</span>}
             </span>
             <RadioGroup

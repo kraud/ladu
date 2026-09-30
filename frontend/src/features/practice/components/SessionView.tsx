@@ -57,7 +57,7 @@ export function SessionView({ session }: { session: Session }) {
             />
 
             {session.returnToResults ? (
-                <div>
+                <div className="flex justify-end">
                     <Button type="button" onClick={() => dispatch({ type: 'backToResults' })}>
                         {t('practice:results.backToResults')}
                     </Button>

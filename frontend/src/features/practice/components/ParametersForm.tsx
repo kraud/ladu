@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode, type Ref } from 'react';
-import { CaretDownIcon, PlayIcon, WarningIcon } from '@phosphor-icons/react';
+import { CaretDownIcon, FunnelIcon, ListBulletsIcon, PencilSimpleLineIcon, PlayIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,7 @@ import type {
     WordSelection,
 } from '../types';
 import { ChipGroup } from './ChipGroup';
+import { NoMatchNotice } from './NoMatchNotice';
 import { OptionRow } from './OptionRow';
 
 const CARD_TYPES: CardTypeParam[] = ['Text-Input', 'Multiple-Choice', 'Random'];
@@ -278,6 +279,7 @@ export function ParametersForm({
                             <div className="px-3.5 pb-1.5">
                                 <OptionRow
                                     label={t('practice:setup.labels.mcDifficulty')}
+                                    icon={ListBulletsIcon}
                                     hint={
                                         params.type !== 'Text-Input' && !relevant.mcDifficulty
                                             ? t('practice:setup.hints.mcNeedsDifferent')
@@ -294,6 +296,7 @@ export function ParametersForm({
                                 />
                                 <OptionRow
                                     label={t('practice:setup.labels.tiStrictness')}
+                                    icon={PencilSimpleLineIcon}
                                     hint={t('practice:setup.hints.tiNeedsTyping')}
                                     value={params.strictnessTI}
                                     disabled={!relevant.tiStrictness}
@@ -306,6 +309,7 @@ export function ParametersForm({
                                 />
                                 <OptionRow
                                     label={t('practice:setup.labels.wordOrder')}
+                                    icon={FunnelIcon}
                                     hint={t('practice:setup.hints.wordOrder')}
                                     value={params.wordSelection}
                                     onChange={(wordSelection) => change({ wordSelection })}
@@ -335,7 +339,7 @@ export function ParametersForm({
                 </Row>
             </div>
 
-            {noMatch && <NoMatch onAdjust={adjustSettings} />}
+            {noMatch && <NoMatchNotice onAdjust={adjustSettings} />}
 
             {generate.isError && (
                 <div className="banner warning items-start" role="alert">
@@ -416,30 +420,6 @@ function Row({
                     {t(`practice:setup.validation.${error}`)}
                 </p>
             )}
-        </div>
-    );
-}
-
-function NoMatch({ onAdjust }: { onAdjust: () => void }) {
-    const { t } = useTranslation();
-    return (
-        <div className="banner warning items-start" role="status">
-            <WarningIcon aria-hidden size={16} className="mt-0.5 shrink-0" />
-            <div className="flex flex-col items-start gap-2">
-                <b>{t('practice:setup.noMatch.title')}</b>
-                <div>
-                    {t('practice:setup.noMatch.body')}
-                    <ul className="ml-5 list-disc">
-                        <li>{t('practice:setup.noMatch.reasonFewWords')}</li>
-                        <li>{t('practice:setup.noMatch.reasonMissingForms')}</li>
-                        <li>{t('practice:setup.noMatch.reasonMode')}</li>
-                    </ul>
-                    {t('practice:setup.noMatch.hint')}
-                </div>
-                <Button type="button" variant="outline" size="sm" onClick={onAdjust}>
-                    {t('practice:setup.noMatch.adjust')}
-                </Button>
-            </div>
         </div>
     );
 }

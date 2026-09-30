@@ -123,7 +123,6 @@
   },
   "session": {
     "progress": "Übung {{current}} von {{total}}",
-    "answered": "<b>{{count}}</b> beantwortet",
     "correct": "<b>{{count}}</b> richtig",
     "leave": "Sitzung verlassen",
     "leaveDialog": {
@@ -223,26 +222,30 @@
     }
   },
   "results": {
-    "title": "Ergebnisse",
-    "score": "{{correct}} von {{total}} richtig",
-    "percent": "{{percent}} %",
-    "almost": "{{count}} fast richtig",
+    "title": "Ergebnisse der Sitzung",
     "unsaved_one": "{{count}} Antwort ist nicht gespeichert.",
     "unsaved_other": "{{count}} Antworten sind nicht gespeichert.",
     "retryAll": "Alle noch einmal versuchen",
     "typed": "Getippt",
     "chosen": "Ausgewählt",
-    "yourAnswer": "Ihre Antwort",
     "expectedAnswer": "Erwartete Antwort",
     "open": "Übung öffnen",
     "backToResults": "Zurück zu den Ergebnissen",
-    "settings": "Einstellungen",
-    "showSettings": "Einstellungen anzeigen",
-    "hideSettings": "Einstellungen ausblenden",
+    "settings": "Verwendete Einstellungen",
     "words": "Wörter",
     "again": "Noch einmal üben",
     "change": "Einstellungen ändern",
-    "toReview": "Zur Übersicht"
+    "toReview": "Zur Übersichtstabelle",
+    "scoreCount": "{{correct}} von {{total}}",
+    "correctAnswers": "richtige Antworten",
+    "almostHint": "enthält {{count}} fast richtige – nur Akzente oder Großbuchstaben",
+    "statusPartial": "Fast",
+    "backToSetup": "Zurück zu den Einstellungen",
+    "amountShort": "{{created}} (von {{requested}} gewünschten)",
+    "languagesLabel_one": "Sprache",
+    "languagesLabel_other": "Sprachen",
+    "typesLabel_one": "Wortart",
+    "typesLabel_other": "Wortarten"
   },
   "cases": {
     "plurality": {
@@ -279,6 +282,43 @@
       "Auxiliary-Verb": "Hilfsverb",
       "Case-Type": "Kasustyp",
       "Prefix": "Präfix"
+    },
+    "abbr": {
+      "plurality": {
+        "Singular": "Sg.",
+        "Plural": "Pl."
+      },
+      "declension": {
+        "Nominative": "Nom.",
+        "Accusative": "Akk.",
+        "Genitive": "Gen.",
+        "Dative": "Dat.",
+        "Partitive": "Part."
+      },
+      "tense": {
+        "present": "Präs.",
+        "past": "Verg.",
+        "future": "Fut."
+      },
+      "person": {
+        "1S": "1. P. Sg.",
+        "2S": "2. P. Sg.",
+        "3S": "3. P. Sg.",
+        "1P": "1. P. Pl.",
+        "2P": "2. P. Pl.",
+        "3P": "3. P. Pl."
+      },
+      "property": {
+        "Gender": "Geschl.",
+        "Short-Form": "Kurzf.",
+        "Regularity": "Reg.",
+        "Infinitive": "Inf.",
+        "Gerund": "Ger.",
+        "Participle": "Ptz.",
+        "Auxiliary-Verb": "Hilfsv.",
+        "Case-Type": "Kasust.",
+        "Prefix": "Präf."
+      }
     }
   },
   "apiErrors": {

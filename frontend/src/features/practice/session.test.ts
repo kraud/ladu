@@ -7,6 +7,7 @@ import {
     createSession,
     hasSaveInProgress,
     isLastExercise,
+    sessionCoverage,
     sessionReducer,
     sessionScore,
     shortfall,
@@ -228,5 +229,34 @@ describe('answerCaseStat', () => {
         expect(answerCaseStat(makeExercise({ performance: { translationId: 't', modifier: null, reviseCounter: 0, cases: [stat] } }))).toEqual(stat);
         expect(answerCaseStat(makeExercise({ performance: { translationId: 't', modifier: null, reviseCounter: 0, cases: [{ ...stat, caseName: 'pluralES' }] } }))).toBeNull();
         expect(answerCaseStat(makeExercise())).toBeNull();
+    });
+});
+
+describe('sessionCoverage', () => {
+    it('lists the languages and word types the exercises really used, in the settings order', () => {
+        const session = createSession({
+            userId: 'u1',
+            params: { ...params, languages: ['Spanish', 'English', 'German'] as never },
+            wordIds: null,
+            exercises: [
+                makeExercise({ key: 'a' }), // English -> Spanish noun
+                makeExercise({ key: 'b', partOfSpeech: 'Verb' as never }),
+            ],
+        });
+
+        // German is allowed by the settings but never appears in an exercise.
+        expect(sessionCoverage(session)).toEqual({ languages: ['Spanish', 'English'], partsOfSpeech: ['Noun', 'Verb'] });
+    });
+
+    it('counts a language once, even when it is both prompt and answer (a same-language drill)', () => {
+        const drill = makeExercise({
+            key: 'd',
+            multiLang: false,
+            prompt: { language: 'Spanish' as never, caseName: 'singularES', value: 'casa' },
+            answer: { language: 'Spanish' as never, caseName: 'genderES', value: 'la' },
+        });
+        const session = createSession({ userId: 'u1', params, wordIds: null, exercises: [drill] });
+
+        expect(sessionCoverage(session).languages).toEqual(['Spanish']);
     });
 });

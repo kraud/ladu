@@ -123,7 +123,6 @@
   },
   "session": {
     "progress": "Ejercicio {{current}} de {{total}}",
-    "answered": "<b>{{count}}</b> respondidos",
     "correct": "<b>{{count}}</b> correctos",
     "leave": "Salir de la sesión",
     "leaveDialog": {
@@ -223,26 +222,30 @@
     }
   },
   "results": {
-    "title": "Resultados",
-    "score": "{{correct}} de {{total}} correctos",
-    "percent": "{{percent}} %",
-    "almost": "{{count}} casi correctos",
+    "title": "Resultados de la sesión",
     "unsaved_one": "{{count}} respuesta no está guardada.",
     "unsaved_other": "{{count}} respuestas no están guardadas.",
     "retryAll": "Reintentar todas",
     "typed": "Escrita",
     "chosen": "Elegida",
-    "yourAnswer": "Tu respuesta",
     "expectedAnswer": "Respuesta esperada",
     "open": "Abrir ejercicio",
     "backToResults": "Volver a los resultados",
-    "settings": "Ajustes",
-    "showSettings": "Mostrar ajustes",
-    "hideSettings": "Ocultar ajustes",
+    "settings": "Ajustes usados",
     "words": "Palabras",
     "again": "Practicar otra vez",
     "change": "Cambiar ajustes",
-    "toReview": "Ir a Revisar"
+    "toReview": "Ir a la tabla de revisión",
+    "scoreCount": "{{correct}} de {{total}}",
+    "correctAnswers": "respuestas correctas",
+    "almostHint": "incluye {{count}} casi correctas: solo cambian acentos o mayúsculas",
+    "statusPartial": "Casi",
+    "backToSetup": "Volver a la configuración",
+    "amountShort": "{{created}} (de {{requested}} pedidos)",
+    "languagesLabel_one": "idioma",
+    "languagesLabel_other": "idiomas",
+    "typesLabel_one": "tipo de palabra",
+    "typesLabel_other": "tipos de palabra"
   },
   "cases": {
     "plurality": {
@@ -279,6 +282,43 @@
       "Auxiliary-Verb": "Verbo auxiliar",
       "Case-Type": "Tipo de caso",
       "Prefix": "Prefijo"
+    },
+    "abbr": {
+      "plurality": {
+        "Singular": "sing.",
+        "Plural": "pl."
+      },
+      "declension": {
+        "Nominative": "nom.",
+        "Accusative": "acus.",
+        "Genitive": "gen.",
+        "Dative": "dat.",
+        "Partitive": "part."
+      },
+      "tense": {
+        "present": "pres.",
+        "past": "pas.",
+        "future": "fut."
+      },
+      "person": {
+        "1S": "1.ª p. sing.",
+        "2S": "2.ª p. sing.",
+        "3S": "3.ª p. sing.",
+        "1P": "1.ª p. pl.",
+        "2P": "2.ª p. pl.",
+        "3P": "3.ª p. pl."
+      },
+      "property": {
+        "Gender": "gén.",
+        "Short-Form": "forma c.",
+        "Regularity": "reg.",
+        "Infinitive": "inf.",
+        "Gerund": "ger.",
+        "Participle": "partic.",
+        "Auxiliary-Verb": "aux.",
+        "Case-Type": "tipo c.",
+        "Prefix": "pref."
+      }
     }
   },
   "apiErrors": {

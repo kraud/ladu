@@ -27,12 +27,6 @@ export function ProgressHeader({ session, onLeave }: { session: Session; onLeave
                 ·
             </span>
             <span className="meta [&_b]:font-bold [&_b]:text-foreground">
-                <Trans i18nKey="practice:session.answered" count={score.answered} components={{ b: <b /> }} />
-            </span>
-            <span aria-hidden className="text-(--fg-soft2)">
-                ·
-            </span>
-            <span className="meta [&_b]:font-bold [&_b]:text-foreground">
                 <Trans i18nKey="practice:session.correct" count={score.correct} components={{ b: <b /> }} />
             </span>
             <span

@@ -11,6 +11,7 @@
  *    exercise of the same translation, so every card shows the same status.
  *  - Results are reachable only when every exercise is answered.
  */
+import type { PartOfSpeech } from '@/ts/enums';
 import type { PreselectedWord } from './preselection';
 import type { AnswerResult, CaseStat, Exercise, PerformanceSummary, PracticeParams } from './types';
 
@@ -183,6 +184,21 @@ export function sessionScore(session: Session): Score {
         partial,
         wrong,
         percent: total === 0 ? 0 : Math.round((correct / total) * 100),
+    };
+}
+
+/**
+ * What the session really covered: the languages that appear in its exercises (the
+ * account's order first) and the word types it asked about. The settings may allow
+ * more; the results describe what was practised.
+ */
+export function sessionCoverage(session: Session): { languages: string[]; partsOfSpeech: PartOfSpeech[] } {
+    const used = new Set(session.exercises.flatMap((e) => [e.prompt.language, e.answer.language] as string[]));
+    const ordered = session.params.languages.filter((language) => used.has(language));
+    const extra = [...used].filter((language) => !ordered.includes(language as never));
+    return {
+        languages: [...ordered, ...extra],
+        partsOfSpeech: [...new Set(session.exercises.map((e) => e.partOfSpeech))],
     };
 }
 

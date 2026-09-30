@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createTestI18n } from '@/test/render';
 import { PartOfSpeech } from '@/ts/enums';
-import { caseLabel, describeCase, pronounFor } from './cases';
+import { caseLabel, caseParts, describeCase, pronounFor } from './cases';
 
 const i18n = createTestI18n();
 const t = i18n.t.bind(i18n);
@@ -57,6 +57,31 @@ describe('caseLabel (UI language: English)', () => {
 
     it('returns an unknown name unchanged, so a card never shows an empty label', () => {
         expect(caseLabel(t, 'Noun', 'mysteryForm')).toBe('mysteryForm');
+    });
+});
+
+describe('caseParts (UI language: English)', () => {
+    it('gives every piece of a noun form its full word and abbreviation', () => {
+        expect(caseParts(t, 'Noun', 'pluralGenitivDE')).toEqual([
+            { full: 'Plural', abbr: 'pl.' },
+            { full: 'Genitive', abbr: 'gen.' },
+        ]);
+    });
+
+    it('keeps the person and the plurality of a verb form in one piece', () => {
+        expect(caseParts(t, 'Verb', 'indicativeSimpleFuture3plDE')).toEqual([
+            { full: 'Future', abbr: 'fut.' },
+            { full: '3rd person plural', abbr: '3rd p. pl.' },
+        ]);
+    });
+
+    it('abbreviates a property, and its full labels join to the case label', () => {
+        expect(caseParts(t, 'Verb', 'participleNonFiniteSimpleES')).toEqual([{ full: 'Participle', abbr: 'ptcp.' }]);
+        expect(caseParts(t, 'Noun', 'singularNimetavEE').map((p) => p.full).join(' · ')).toBe(caseLabel(t, 'Noun', 'singularNimetavEE'));
+    });
+
+    it('is its own abbreviation for an unknown name', () => {
+        expect(caseParts(t, 'Noun', 'mysteryForm')).toEqual([{ full: 'mysteryForm', abbr: 'mysteryForm' }]);
     });
 });
 
