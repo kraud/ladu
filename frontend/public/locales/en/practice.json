@@ -345,8 +345,11 @@
     "summary": {
       "amount_one": "{{count}} exercise",
       "amount_other": "{{count}} exercises",
-      "words_one": "{{count}} word",
-      "words_other": "{{count}} words",
+      "allWords": "All words",
+      "selectedWords_one": "{{count}} selected word",
+      "selectedWords_other": "{{count}} selected words",
+      "randomOrder": "Random order",
+      "weakerFirst": "Weaker first",
       "someMissing": "Some words are missing"
     },
     "dialog": {

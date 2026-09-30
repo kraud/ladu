@@ -345,8 +345,11 @@
     "summary": {
       "amount_one": "{{count}} ejercicio",
       "amount_other": "{{count}} ejercicios",
-      "words_one": "{{count}} palabra",
-      "words_other": "{{count}} palabras",
+      "allWords": "Todas las palabras",
+      "selectedWords_one": "{{count}} palabra seleccionada",
+      "selectedWords_other": "{{count}} palabras seleccionadas",
+      "randomOrder": "Orden aleatorio",
+      "weakerFirst": "Primero las más débiles",
       "someMissing": "Faltan algunas palabras"
     },
     "dialog": {
