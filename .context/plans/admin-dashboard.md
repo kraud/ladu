@@ -1,13 +1,20 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slice 1 (data capture) is done. Slices 2–9 are not started.
+Status: approved on 2026-09-30. Slices 1 (data capture) and 2 (staff auth) are done. Slices 3–9 are not started.
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
 - A banned user gets 403 at password login and 401 from `protect`. A deleted user gets "Invalid credentials" at login and 401 from `protect`.
 - Banned or deleted Google logins redirect with the generic `oauth_failed` code. A dedicated message needs a frontend change (a later slice).
 - `deleted_by_staff_id` has no foreign key yet. Slice 2 adds it with `staff_accounts`.
-- `landing/privacy.html` still needs the line about the login country. Do this before slice 7 (deploy).
+
+Slice 2 notes:
+- Migration `0011_staff_accounts_and_audit_log.sql`. Code: `lib/adminPermissions.ts`, `lib/staffAccounts.ts`, `middleware/staffAuth.ts`, `controllers/admin/authController.ts`, `routes/admin/`, `scripts/create-staff.js`. Tests: `backend/tests/adminAuth.test.js`.
+- `create-staff` is a `.js` file that loads `tsx/cjs`, because the production image has no build step.
+- Added `GET /api/admin/auth/me` (not in the original plan) so the admin UI can check a saved session.
+- `ADMIN_JWT_SECRET` is read lazily. Without it the server starts and admin login returns 503. Slice 7 must add it to the staging and production env files and to `deploy.yml`.
+- There is no rate limit on staff login. Cloudflare Access (slice 7) is the second lock.
+- Slice 1 leftover: `landing/privacy.html` still needs the line about the login country. Do this before slice 7 (deploy).
 
 ## Context
 

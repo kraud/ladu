@@ -52,6 +52,53 @@ const timestamps = {
 };
 
 // ===========================================================================
+// STAFF_ACCOUNTS
+// Admin-dashboard staff logins (.context/plans/admin-dashboard.md §2). A
+// separate table from `users` on purpose: a learner token can never open an
+// admin route, and a staff account needs no vocabulary data. Staff are
+// disabled (`disabledAt`), never deleted, so `audit_log` rows keep a valid FK.
+// ===========================================================================
+export const staffAccounts = pgTable('staff_accounts', {
+    id:           uuid('id').primaryKey().defaultRandom(),
+    // Stored lowercased; the unique constraint is therefore case-insensitive.
+    email:        varchar('email', { length: 255 }).notNull().unique(),
+    name:         varchar('name', { length: 255 }).notNull(),
+    passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+    // 'owner' | 'admin' | 'support' | 'viewer' — the role -> permission map
+    // lives in lib/adminPermissions.ts, so a new role needs no migration.
+    role:         varchar('role', { length: 32 }).notNull(),
+    disabledAt:   timestamp('disabled_at'),
+    lastLoginAt:  timestamp('last_login_at'),
+    ...timestamps,
+});
+
+// ---------------------------------------------------------------------------
+// AUDIT_LOG
+// One row per admin action: who did what, to what, and why. `targetId` is
+// plain text with no FK, because the target can be a user that a purge later
+// deletes; `metadata` keeps what would otherwise be lost (email, username).
+// ---------------------------------------------------------------------------
+export const auditLog = pgTable(
+    'audit_log',
+    {
+        id:         uuid('id').primaryKey().defaultRandom(),
+        staffId:    uuid('staff_id').notNull().references(() => staffAccounts.id, { onDelete: 'restrict' }),
+        // e.g. 'staff.login', 'user.ban'
+        action:     varchar('action', { length: 64 }).notNull(),
+        targetType: varchar('target_type', { length: 32 }),
+        targetId:   varchar('target_id', { length: 64 }),
+        reason:     text('reason'),
+        metadata:   jsonb('metadata'),
+        createdAt:  timestamp('created_at').defaultNow().notNull(),
+    },
+    (table) => [
+        index('audit_log_created_idx').on(table.createdAt),
+        index('audit_log_target_idx').on(table.targetType, table.targetId),
+        index('audit_log_staff_idx').on(table.staffId, table.createdAt),
+    ],
+);
+
+// ===========================================================================
 // USERS
 // Mapped from: backend/models/userModel.js
 // ===========================================================================
@@ -85,10 +132,9 @@ export const users = pgTable('users', {
     bannedAt:         timestamp('banned_at'),
     banReason:        text('ban_reason'),
     // Soft delete (30-day grace, then a purge). The row stays, so the email
-    // and username stay reserved. `deletedByStaffId` gets its FK to
-    // `staff_accounts` in slice 2.
+    // and username stay reserved.
     deletedAt:        timestamp('deleted_at'),
-    deletedByStaffId: uuid('deleted_by_staff_id'),
+    deletedByStaffId: uuid('deleted_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
     // Carried in the JWT as `tv`. Raising it invalidates every older token.
     tokenVersion:     integer('token_version').notNull().default(0),
     ...timestamps,

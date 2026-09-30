@@ -7,6 +7,7 @@ if (!buffer.SlowBuffer) {
 const jwt = require('jsonwebtoken');
 
 process.env.JWT_SECRET = 'test_secret';
+process.env.ADMIN_JWT_SECRET = 'test_admin_secret';
 process.env.NODE_ENV = 'test';
 
 global.signin = (id) => {

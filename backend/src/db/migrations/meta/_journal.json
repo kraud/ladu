@@ -78,6 +78,13 @@
       "when": 1790783156091,
       "tag": "0010_admin_data_capture",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790783557320,
+      "tag": "0011_staff_accounts_and_audit_log",
+      "breakpoints": true
     }
   ]
 }
