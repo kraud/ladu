@@ -56,7 +56,8 @@ export function validateConfigRequest(body: unknown): Validation<ConfigRequest> 
     // Word ids are a separate field, so a copy inside `params` is not accepted.
     if ('wordIds' in generateParams) return fail('invalid_params', 'params cannot contain wordIds.');
 
-    const settings = validateGenerateRequest({ ...generateParams, wordIds: body.wordIds });
+    // `null` (what the client sends for "no words") and a missing field both mean no pre-selection.
+    const settings = validateGenerateRequest({ ...generateParams, wordIds: body.wordIds ?? undefined });
     if (!settings.ok) return settings;
     const { wordIds, ...params } = settings.value;
 

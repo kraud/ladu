@@ -328,12 +328,58 @@
       }
     }
   },
+  "configs": {
+    "save": "Guardar configuración",
+    "title": "Configuraciones guardadas",
+    "loading": "Cargando…",
+    "empty": "No tienes configuraciones guardadas. Elige las opciones de arriba y pulsa «Guardar configuración».",
+    "listError": "No se pudieron cargar las configuraciones guardadas.",
+    "use": "Usar la configuración {{name}}",
+    "edit": "Editar la configuración {{name}}",
+    "delete": "Eliminar la configuración {{name}}",
+    "missingWords": "Algunas palabras de esta configuración ya no están disponibles.",
+    "summary": {
+      "amount_one": "{{count}} ejercicio",
+      "amount_other": "{{count}} ejercicios",
+      "words_one": "{{count}} palabra",
+      "words_other": "{{count}} palabras",
+      "someMissing": "Faltan algunas palabras"
+    },
+    "dialog": {
+      "createTitle": "Guardar configuración",
+      "editTitle": "Editar configuración",
+      "name": "Nombre",
+      "namePlaceholder": "Por ejemplo: Verbos de la mañana",
+      "nameRequired": "Escribe un nombre.",
+      "nameTaken": "Ya tienes una configuración con este nombre.",
+      "description": "Descripción (opcional)",
+      "descriptionPlaceholder": "¿Para qué sirve esta configuración?",
+      "withWords_one": "Esta configuración incluye {{count}} palabra seleccionada.",
+      "withWords_other": "Esta configuración incluye {{count}} palabras seleccionadas.",
+      "save": "Guardar",
+      "saving": "Guardando…"
+    },
+    "deleteDialog": {
+      "title": "¿Eliminar «{{name}}»?",
+      "body": "Esta acción no se puede deshacer.",
+      "confirm": "Eliminar"
+    },
+    "toast": {
+      "saved": "Configuración guardada.",
+      "updated": "Configuración actualizada.",
+      "deleted": "Configuración eliminada.",
+      "loaded": "Configuración «{{name}}» cargada."
+    }
+  },
   "apiErrors": {
     "invalidLanguages": "Selecciona al menos un idioma. \"Idiomas distintos\" necesita dos.",
     "invalidPartsOfSpeech": "Selecciona al menos un tipo de palabra.",
     "invalidAmount": "Usa un número entero del 1 al 100.",
     "invalidSettings": "Uno de los ajustes no es válido.",
     "invalidWordIds": "Las palabras seleccionadas no son válidas.",
-    "notFound": "No se encontró esta palabra o forma."
+    "notFound": "No se encontró esta palabra o forma.",
+    "invalidName": "El nombre debe tener de 1 a 60 caracteres.",
+    "invalidDescription": "La descripción puede tener 200 caracteres como máximo.",
+    "nameTaken": "Ya tienes una configuración con este nombre."
   }
 }

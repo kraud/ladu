@@ -328,12 +328,58 @@
       }
     }
   },
+  "configs": {
+    "save": "Salvesta seadistus",
+    "title": "Salvestatud seadistused",
+    "loading": "Laadimine…",
+    "empty": "Sul pole salvestatud seadistusi. Vali ülal valikud ja vajuta „Salvesta seadistus“.",
+    "listError": "Salvestatud seadistusi ei saanud laadida.",
+    "use": "Kasuta seadistust {{name}}",
+    "edit": "Muuda seadistust {{name}}",
+    "delete": "Kustuta seadistus {{name}}",
+    "missingWords": "Mõned selle seadistuse sõnad ei ole enam saadaval.",
+    "summary": {
+      "amount_one": "{{count}} harjutus",
+      "amount_other": "{{count}} harjutust",
+      "words_one": "{{count}} sõna",
+      "words_other": "{{count}} sõna",
+      "someMissing": "Mõned sõnad puuduvad"
+    },
+    "dialog": {
+      "createTitle": "Salvesta seadistus",
+      "editTitle": "Muuda seadistust",
+      "name": "Nimi",
+      "namePlaceholder": "Näiteks: Hommikused verbid",
+      "nameRequired": "Sisesta nimi.",
+      "nameTaken": "Sul on juba selle nimega seadistus.",
+      "description": "Kirjeldus (valikuline)",
+      "descriptionPlaceholder": "Milleks see seadistus on?",
+      "withWords_one": "See seadistus sisaldab {{count}} valitud sõna.",
+      "withWords_other": "See seadistus sisaldab {{count}} valitud sõna.",
+      "save": "Salvesta",
+      "saving": "Salvestamine…"
+    },
+    "deleteDialog": {
+      "title": "Kas kustutada „{{name}}“?",
+      "body": "Seda toimingut ei saa tagasi võtta.",
+      "confirm": "Kustuta"
+    },
+    "toast": {
+      "saved": "Seadistus salvestatud.",
+      "updated": "Seadistus uuendatud.",
+      "deleted": "Seadistus kustutatud.",
+      "loaded": "Seadistus „{{name}}“ laaditud."
+    }
+  },
   "apiErrors": {
     "invalidLanguages": "Vali vähemalt üks keel. \"Eri keeled\" vajab kahte.",
     "invalidPartsOfSpeech": "Vali vähemalt üks sõnaliik.",
     "invalidAmount": "Kasuta täisarvu vahemikus 1 kuni 100.",
     "invalidSettings": "Üks seadetest ei kehti.",
     "invalidWordIds": "Valitud sõnad ei kehti.",
-    "notFound": "Seda sõna või vormi ei leitud."
+    "notFound": "Seda sõna või vormi ei leitud.",
+    "invalidName": "Nimi peab olema 1 kuni 60 tähemärki.",
+    "invalidDescription": "Kirjeldus võib olla kuni 200 tähemärki.",
+    "nameTaken": "Sul on juba selle nimega seadistus."
   }
 }

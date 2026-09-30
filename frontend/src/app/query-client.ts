@@ -39,6 +39,10 @@
  *   Phase 5 (exers)  — add: save/master/forget performance ⇒ setQueryData on ['exercises']
  *                       (getUserMetrics aggregates words/translations only — a practice
  *                        session does not change it; no `metricsKeys.all` edge here)
+ *   Phase 5.5 (saved) — ACTIVE (Slice 2): create/update/delete a saved practice configuration
+ *                       ⇒ invalidate `practiceKeys.configs` (['practice', 'configs']). No word or metrics edge:
+ *                       a config only holds word ids, and its `missingCount` is re-read when the set-up mounts.
+ *                       Keys: `features/practice/keys.ts`.
  *   Phase 6 (social) — add: friend actions ⇒ ['friendships'], ['notifications']
  */
 import { QueryClient } from '@tanstack/react-query';

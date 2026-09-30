@@ -70,6 +70,7 @@ const create = (user, over) => request(app).post('/api/practice/configs').set(au
 describe('practice configs — auth', () => {
     it.each([
         ['get', '/api/practice/configs'],
+        ['get', '/api/practice/configs/11111111-1111-4111-8111-111111111111/words'],
         ['post', '/api/practice/configs'],
         ['put', '/api/practice/configs/11111111-1111-4111-8111-111111111111'],
         ['delete', '/api/practice/configs/11111111-1111-4111-8111-111111111111'],
@@ -92,6 +93,13 @@ describe('POST /api/practice/configs', () => {
             params: params(),
         });
         expect(res.body.id).toEqual(expect.any(String));
+    });
+
+    it('accepts wordIds: null and description: null, as the frontend sends them', async () => {
+        const user = await register('Ann', 'ann@test.com', 'ann');
+        const res = await create(user, { wordIds: null, description: null });
+        expect(res.statusCode).toBe(201);
+        expect(res.body).toMatchObject({ wordIds: null, description: null, missingCount: 0 });
     });
 
     it('creates a configuration with words', async () => {
@@ -166,6 +174,51 @@ describe('GET /api/practice/configs', () => {
 
         const res = await request(app).get('/api/practice/configs').set(auth(ann));
         expect(res.body[0].missingCount).toBe(1);
+    });
+});
+
+describe('GET /api/practice/configs/:id/words', () => {
+    it('returns the visible saved words in the saved order, in the Review row shape', async () => {
+        const user = await register('Ann', 'ann@test.com', 'ann');
+        const a = await postNoun(user, 'house', 'casa');
+        const b = await postNoun(user, 'dog', 'perro');
+        const gone = await postNoun(user, 'cat', 'gato');
+        const { body: created } = await create(user, { wordIds: [b.id, gone.id, a.id] });
+        await request(app).delete(`/api/words/${gone.id}`).set(auth(user)).expect(200);
+
+        const res = await request(app).get(`/api/practice/configs/${created.id}/words`).set(auth(user));
+        expect(res.statusCode).toBe(200);
+        expect(res.body.map((w) => w.id)).toEqual([b.id, a.id]);
+        expect(res.body[0]).toMatchObject({ partOfSpeech: 'Noun', storedLanguages: expect.arrayContaining(['English', 'Spanish']) });
+    });
+
+    it('returns an empty list for a configuration without words', async () => {
+        const user = await register('Ann', 'ann@test.com', 'ann');
+        const { body: created } = await create(user);
+        const res = await request(app).get(`/api/practice/configs/${created.id}/words`).set(auth(user));
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual([]);
+    });
+
+    it('does not return words the user cannot see', async () => {
+        const ann = await register('Ann', 'ann@test.com', 'ann');
+        const bob = await register('Bob', 'bob@test.com', 'bob');
+        const bobsWord = await postNoun(bob, 'cat', 'gato');
+        const { body: created } = await create(ann, { wordIds: [bobsWord.id] });
+        const res = await request(app).get(`/api/practice/configs/${created.id}/words`).set(auth(ann));
+        expect(res.body).toEqual([]);
+    });
+
+    it('returns 404 for another user’s row, a missing row and a bad id', async () => {
+        const ann = await register('Ann', 'ann@test.com', 'ann');
+        const bob = await register('Bob', 'bob@test.com', 'bob');
+        const { body: created } = await create(ann);
+        expect((await request(app).get(`/api/practice/configs/${created.id}/words`).set(auth(bob))).statusCode).toBe(404);
+        expect(
+            (await request(app).get('/api/practice/configs/11111111-1111-4111-8111-111111111111/words').set(auth(ann)))
+                .statusCode,
+        ).toBe(404);
+        expect((await request(app).get('/api/practice/configs/x/words').set(auth(ann))).statusCode).toBe(404);
     });
 });
 

@@ -328,12 +328,58 @@
       }
     }
   },
+  "configs": {
+    "save": "Save configuration",
+    "title": "Saved configurations",
+    "loading": "Loading…",
+    "empty": "You have no saved configurations. Set the options above, then select \"Save configuration\".",
+    "listError": "The saved configurations could not be loaded.",
+    "use": "Use configuration {{name}}",
+    "edit": "Edit configuration {{name}}",
+    "delete": "Delete configuration {{name}}",
+    "missingWords": "Some words of this configuration are not available now.",
+    "summary": {
+      "amount_one": "{{count}} exercise",
+      "amount_other": "{{count}} exercises",
+      "words_one": "{{count}} word",
+      "words_other": "{{count}} words",
+      "someMissing": "Some words are missing"
+    },
+    "dialog": {
+      "createTitle": "Save configuration",
+      "editTitle": "Edit configuration",
+      "name": "Name",
+      "namePlaceholder": "For example: Morning verbs",
+      "nameRequired": "Enter a name.",
+      "nameTaken": "You already have a configuration with this name.",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "What is this configuration for?",
+      "withWords_one": "This configuration includes {{count}} selected word.",
+      "withWords_other": "This configuration includes {{count}} selected words.",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "deleteDialog": {
+      "title": "Delete \"{{name}}\"?",
+      "body": "This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "saved": "Configuration saved.",
+      "updated": "Configuration updated.",
+      "deleted": "Configuration deleted.",
+      "loaded": "Configuration \"{{name}}\" is loaded."
+    }
+  },
   "apiErrors": {
     "invalidLanguages": "Select at least one language. \"Different languages\" needs two.",
     "invalidPartsOfSpeech": "Select at least one word type.",
     "invalidAmount": "Use a whole number from 1 to 100.",
     "invalidSettings": "One of the settings is not valid.",
     "invalidWordIds": "The selected words are not valid.",
-    "notFound": "This word or form was not found."
+    "notFound": "This word or form was not found.",
+    "invalidName": "The name must have 1 to 60 characters.",
+    "invalidDescription": "The description can have at most 200 characters.",
+    "nameTaken": "You already have a configuration with this name."
   }
 }

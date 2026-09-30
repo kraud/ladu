@@ -10,8 +10,10 @@ const { db }: typeof import('../src/db') = require('../src/db');
 const { practiceConfigs, words }: typeof import('../src/db/schema') = require('../src/db/schema');
 const { and, desc, eq, inArray, sql } = require('drizzle-orm');
 const { visibleWordCondition }: typeof import('./exerciseService') = require('./exerciseService');
+const { fetchWordsWithRelations }: typeof import('./wordService') = require('./wordService');
 
 import type { ConfigRequest } from './exercises';
+import type { WordResponse } from './wordService';
 
 export interface PracticeConfigDto {
     id: string;
@@ -120,4 +122,31 @@ export async function deleteConfig(userId: string, id: string): Promise<boolean>
         .where(and(eq(practiceConfigs.id, id), eq(practiceConfigs.userId, userId)))
         .returning({ id: practiceConfigs.id });
     return deleted.length > 0;
+}
+
+/**
+ * The saved words the user can still see, in the saved order — or `null` when the
+ * configuration does not exist (or is not the user's).
+ */
+export async function getConfigWords(userId: string, id: string): Promise<WordResponse[] | null> {
+    const [row]: ConfigRow[] = await db
+        .select()
+        .from(practiceConfigs)
+        .where(and(eq(practiceConfigs.id, id), eq(practiceConfigs.userId, userId)))
+        .limit(1);
+    if (!row) return null;
+
+    const savedIds = row.wordIds ?? [];
+    if (savedIds.length === 0) return [];
+
+    const visible = await db
+        .select({ id: words.id })
+        .from(words)
+        .where(and(inArray(words.id, savedIds), await visibleWordCondition(userId)));
+    const visibleIds = new Set<string>(visible.map((r: { id: string }) => r.id));
+    const orderedIds = savedIds.filter((wordId) => visibleIds.has(wordId));
+
+    // `fetchWordsWithRelations` does not keep the input order.
+    const byId = new Map((await fetchWordsWithRelations(orderedIds, userId)).map((word) => [word.id, word]));
+    return orderedIds.flatMap((wordId) => byId.get(wordId) ?? []);
 }

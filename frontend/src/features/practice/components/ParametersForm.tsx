@@ -1,5 +1,12 @@
 import { useRef, useState, type ReactNode, type Ref } from 'react';
-import { CaretDownIcon, FunnelIcon, ListBulletsIcon, PencilSimpleLineIcon, PlayIcon } from '@phosphor-icons/react';
+import {
+    BookmarkSimpleIcon,
+    CaretDownIcon,
+    FunnelIcon,
+    ListBulletsIcon,
+    PencilSimpleLineIcon,
+    PlayIcon,
+} from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +28,7 @@ import {
 import { rememberParams } from '../remembered';
 import { usePracticeSessionStore } from '../sessionStore';
 import type { PreselectedWord } from '../preselection';
+import type { ConfigDraft } from './SaveConfigDialog';
 import type {
     CardTypeParam,
     DifficultyMC,
@@ -58,6 +66,7 @@ export function ParametersForm({
     preselected,
     onParamsChange,
     onStarted,
+    onSaveConfig,
 }: {
     user: SessionUser;
     initialParams: PracticeParams;
@@ -65,6 +74,8 @@ export function ParametersForm({
     onParamsChange: (params: PracticeParams) => void;
     /** After the session was stored: the page stops showing the set-up. */
     onStarted: () => void;
+    /** "Save configuration": the page opens the save dialog (outside this form) for these settings and words. */
+    onSaveConfig: (draft: ConfigDraft) => void;
 }) {
     const { t } = useTranslation();
     const generate = useGenerateExercises();
@@ -367,6 +378,17 @@ export function ParametersForm({
                             {t('practice:setup.start')}
                         </>
                     )}
+                </Button>
+                <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!valid}
+                    onClick={() =>
+                        onSaveConfig({ params: { ...params, amount }, wordIds: preselected?.map((word) => word.id) ?? null })
+                    }
+                >
+                    <BookmarkSimpleIcon aria-hidden size={14} />
+                    {t('practice:configs.save')}
                 </Button>
                 {!valid && <span className="hint">{t('practice:setup.fixToStart')}</span>}
             </div>

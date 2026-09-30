@@ -81,6 +81,8 @@ describe('validateConfigRequest', () => {
     it('takes word ids from the top level: de-duplicated, empty list = none', () => {
         expect(validateConfigRequest(body({ wordIds: [UUID, UUID] })).value.wordIds).toEqual([UUID]);
         expect(validateConfigRequest(body({ wordIds: [] })).value.wordIds).toBeNull();
+        // The client sends null for "no words".
+        expect(validateConfigRequest(body({ wordIds: null })).value.wordIds).toBeNull();
         expect(validateConfigRequest(body({ wordIds: ['nope'] }))).toMatchObject({
             ok: false,
             code: 'invalid_word_ids',

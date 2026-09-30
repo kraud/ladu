@@ -1,6 +1,7 @@
 /**
  * An in-memory fake of the three `exerciseController` endpoints (phase-5-practice.md
- * §B.3), for the practice data-layer tests (Slice 4) and the practice screens
+ * §B.3) and, since Phase 5.5, of the saved-configuration endpoints
+ * (`practiceConfigController`; the list is empty unless a test seeds it), for the practice data-layer tests (Slice 4) and the practice screens
  * (Slices 5–8). Each `makePracticeHandlers()` call gets its own isolated state.
  *
  * Deliberately simple where the backend's own integration tests
@@ -13,18 +14,25 @@
  * The bearer token is not verified.
  */
 import { http, HttpResponse } from 'msw';
+import type { WordSimpleBE } from '@/features/words/types';
 import type {
     Exercise,
     GenerateBody,
     Modifier,
     PerformanceSummary,
     SaveAnswerBody,
+    SaveConfigBody,
+    SavedConfig,
 } from '@/features/practice/types';
 
 export interface PracticeFakeOptions {
     exercises?: Exercise[];
     /** Existing performances (by translation id), e.g. to start with a Mastered word. */
     performances?: PerformanceSummary[];
+    /** Saved configurations to start with. */
+    configs?: SavedConfig[];
+    /** The words the user can still see; a saved configuration's words are looked up here. */
+    configWords?: WordSimpleBE[];
 }
 
 export interface PracticeFakeState {
@@ -36,6 +44,13 @@ export interface PracticeFakeState {
     /** Make `generate` answer this status once (e.g. 400 with a code). */
     generateFailure: { status: number; body: Record<string, unknown> } | null;
     performances: Map<string, PerformanceSummary>;
+    /** Saved configurations, newest first. */
+    configs: SavedConfig[];
+    /** Bodies of every create / edit call, in order. */
+    configBodies: { method: 'POST' | 'PUT'; id?: string; body: SaveConfigBody }[];
+    deletedConfigIds: string[];
+    /** Make the next `getConfigWords` call fail with a 500. */
+    failNextConfigWords: boolean;
 }
 
 /** Same rule as the backend (`calculateNewPercentageOfKnowledge`): the window always counts /4. */
@@ -52,7 +67,19 @@ export function makePracticeHandlers(options: PracticeFakeOptions = {}) {
         failNextAnswers: 0,
         generateFailure: null,
         performances: new Map((options.performances ?? []).map((p) => [p.translationId, p])),
+        configs: [...(options.configs ?? [])],
+        configBodies: [],
+        deletedConfigIds: [],
+        failNextConfigWords: false,
     };
+    const visibleWords = options.configWords ?? [];
+    let configCounter = 0;
+    const nameTaken = (name: string, exceptId?: string) =>
+        state.configs.some((c) => c.id !== exceptId && c.name.toLowerCase() === name.trim().toLowerCase());
+    const taken = () =>
+        HttpResponse.json({ message: 'A configuration with this name already exists.', code: 'name_taken' }, { status: 409 });
+    const missingOf = (wordIds: string[] | null) =>
+        (wordIds ?? []).filter((id) => !visibleWords.some((w) => w.id === id)).length;
 
     const handlers = [
         http.post('*/api/exercises/generate', async ({ request }) => {
@@ -123,6 +150,65 @@ export function makePracticeHandlers(options: PracticeFakeOptions = {}) {
             state.performances.set(translationId, next);
             return HttpResponse.json(next);
         }),
+
+        http.get('*/api/practice/configs', () => HttpResponse.json(state.configs)),
+
+        http.post('*/api/practice/configs', async ({ request }) => {
+            const body = (await request.json()) as SaveConfigBody;
+            state.configBodies.push({ method: 'POST', body });
+            if (nameTaken(body.name)) return taken();
+            const now = new Date().toISOString();
+            const config: SavedConfig = {
+                id: `cfg-${++configCounter}`,
+                name: body.name,
+                description: body.description,
+                params: body.params,
+                wordIds: body.wordIds,
+                missingCount: missingOf(body.wordIds),
+                createdAt: now,
+                updatedAt: now,
+            };
+            state.configs = [config, ...state.configs];
+            return HttpResponse.json(config, { status: 201 });
+        }),
+
+        http.get('*/api/practice/configs/:id/words', ({ params }) => {
+            if (state.failNextConfigWords) {
+                state.failNextConfigWords = false;
+                return HttpResponse.json({ message: 'Server error' }, { status: 500 });
+            }
+            const config = state.configs.find((c) => c.id === params.id);
+            if (!config) return HttpResponse.json({ message: 'Not found', code: 'not_found' }, { status: 404 });
+            const rows = (config.wordIds ?? []).flatMap((id) => visibleWords.find((w) => w.id === id) ?? []);
+            return HttpResponse.json(rows);
+        }),
+
+        http.put('*/api/practice/configs/:id', async ({ params, request }) => {
+            const body = (await request.json()) as SaveConfigBody;
+            const id = String(params.id);
+            state.configBodies.push({ method: 'PUT', id, body });
+            const index = state.configs.findIndex((c) => c.id === id);
+            if (index < 0) return HttpResponse.json({ message: 'Not found', code: 'not_found' }, { status: 404 });
+            if (nameTaken(body.name, id)) return taken();
+            const next: SavedConfig = {
+                ...state.configs[index],
+                ...body,
+                missingCount: missingOf(body.wordIds),
+                updatedAt: new Date().toISOString(),
+            };
+            state.configs = state.configs.map((c, i) => (i === index ? next : c));
+            return HttpResponse.json(next);
+        }),
+
+        http.delete('*/api/practice/configs/:id', ({ params }) => {
+            const id = String(params.id);
+            if (!state.configs.some((c) => c.id === id)) {
+                return HttpResponse.json({ message: 'Not found', code: 'not_found' }, { status: 404 });
+            }
+            state.deletedConfigIds.push(id);
+            state.configs = state.configs.filter((c) => c.id !== id);
+            return new HttpResponse(null, { status: 204 });
+        }),
     ];
 
     return { handlers, state };
@@ -140,6 +226,46 @@ export function makeExercise(overrides: Partial<Exercise> = {}): Exercise {
         prompt: { language: 'English' as Exercise['prompt']['language'], caseName: 'singularEN', value: 'house' },
         answer: { language: 'Spanish' as Exercise['answer']['language'], caseName: 'singularES', value: 'casa' },
         performance: null,
+        ...overrides,
+    };
+}
+
+/** A saved configuration for tests. Override any field. */
+export function makeConfig(overrides: Partial<SavedConfig> = {}): SavedConfig {
+    return {
+        id: 'cfg-seed',
+        name: 'Morning drill',
+        description: null,
+        params: {
+            languages: ['English', 'Spanish'] as SavedConfig['params']['languages'],
+            partsOfSpeech: ['Noun', 'Verb'] as SavedConfig['params']['partsOfSpeech'],
+            amount: 12,
+            type: 'Multiple-Choice',
+            multiLang: 'Multi-Language',
+            difficultyMC: 2,
+            strictnessTI: 3,
+            wordSelection: 'Random',
+            excludeNative: false,
+        },
+        wordIds: null,
+        missingCount: 0,
+        createdAt: '2026-09-30T08:00:00.000Z',
+        updatedAt: '2026-09-30T08:00:00.000Z',
+        ...overrides,
+    };
+}
+
+/** A Review-shaped word row (what `GET /practice/configs/:id/words` returns) for tests. */
+export function makeConfigWord(id: string, label: string, overrides: Partial<WordSimpleBE> = {}): WordSimpleBE {
+    return {
+        id,
+        user: 'u1',
+        partOfSpeech: 'Noun' as WordSimpleBE['partOfSpeech'],
+        tags: [],
+        createdAt: '2026-09-30T08:00:00.000Z',
+        updatedAt: '2026-09-30T08:00:00.000Z',
+        storedLanguages: ['English', 'Spanish'],
+        dataEN: label,
         ...overrides,
     };
 }

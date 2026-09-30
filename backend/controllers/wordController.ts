@@ -981,4 +981,5 @@ module.exports = {
   filterWordByAnyTranslation,
   deleteManyWords,
   getWordsByFollowedTag,
+  simplifyWord,
 };

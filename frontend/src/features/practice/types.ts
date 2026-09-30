@@ -99,3 +99,26 @@ export interface SaveAnswerBody {
 export interface SetModifierBody {
     modifier: Modifier | null;
 }
+
+/** A saved configuration as `GET /api/practice/configs` sends it (phase-5-5-saved-practice.md §5). */
+export interface SavedConfig {
+    id: string;
+    name: string;
+    description: string | null;
+    /** Stored settings. They are checked again on load (`configToParams`), never trusted. */
+    params: PracticeParams;
+    /** The pre-selected words, or `null` when the configuration has none. */
+    wordIds: string[] | null;
+    /** Saved words the user can no longer see. */
+    missingCount: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+/** Body of `POST` / `PUT /api/practice/configs`. `PUT` replaces every field. */
+export interface SaveConfigBody {
+    name: string;
+    description: string | null;
+    params: PracticeParams;
+    wordIds: string[] | null;
+}

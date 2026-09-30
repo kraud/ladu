@@ -15,6 +15,11 @@ const CODE_TO_KEY: Record<string, string> = {
     invalid_word_selection: 'practice:apiErrors.invalidSettings',
     invalid_exclude_native: 'practice:apiErrors.invalidSettings',
     invalid_word_ids: 'practice:apiErrors.invalidWordIds',
+    invalid_name: 'practice:apiErrors.invalidName',
+    invalid_description: 'practice:apiErrors.invalidDescription',
+    invalid_params: 'practice:apiErrors.invalidSettings',
+    invalid_strictness: 'practice:apiErrors.invalidSettings',
+    name_taken: 'practice:apiErrors.nameTaken',
     not_found: 'practice:apiErrors.notFound',
 };
 

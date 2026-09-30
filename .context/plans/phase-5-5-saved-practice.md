@@ -1,6 +1,6 @@
 # Phase 5.5 — Saved practice configurations and sessions
 
-*2026-09-30. Slice 1 done (see §11). Slices 2–5 not started.*
+*2026-09-30. Slices 1–2 done (see §11). Slices 3–5 not started.*
 
 Phase 5 ([`phase-5-practice.md`](./phase-5-practice.md)) is done to Slice 8 (results screen) and its UI polish.
 This phase adds a feature that Phase 5 did not plan: the user can **save practice configurations** and
@@ -72,6 +72,7 @@ Mounted at `/api/practice`. Another user's row gives 404, never 403.
 | `GET /configs` | List, newest first. Each row has `missingCount`. |
 | `POST /configs` | Create. 400 bad settings, 409 `name_taken`. |
 | `PUT /configs/:id` | Edit name, description, and settings/words. 409 `name_taken` (the row's own name is allowed). |
+| `GET /configs/:id/words` | The saved words the user can still see, in the saved order, in the Review row shape (`WordSimpleBE`). Added in Slice 2: the set-up screen needs labels and flags, and a long ID list does not fit in a URL. |
 | `DELETE /configs/:id` | Delete. |
 | `GET /sessions` | Summaries of non-expired sessions, newest first. |
 | `GET /sessions/:id` | The full snapshot. 404 if expired or not the user's. |
@@ -140,3 +141,20 @@ Each slice starts with a plain-language overview, ends with something runnable, 
 - Wire notes for slice 2: create returns `201`; delete returns `204`; a bad or unknown id returns `404`; `params` holds `strictnessTI` (default 2).
 - Tests: `tests/practiceConfigs.test.js` (22) and `tests/unit/exercisesConfigValidate.test.js` (12).
   Backend total: 23 suites, 466 tests, all pass. `tsc` and `eslint` clean.
+
+**Slice 2 — frontend configurations (done 2026-09-30).**
+- Backend addition: `GET /api/practice/configs/:id/words` (see §5). `simplifyWord` is now exported from `wordController.ts`. 4 more Jest tests.
+- New: `features/practice/configs.ts` (pure: `configToParams`, `narrowToPickable`; stored settings go through the URL validation round trip),
+  `keys.ts`, `SaveConfigDialog.tsx` (create + edit), `SavedConfigurations.tsx` (list, load, edit, delete).
+  Changed: `api.ts`, `hooks.ts` (`useConfigs` + 3 mutations + `useLoadConfigWords`), `errors.ts`, `types.ts`, `ParametersForm.tsx`
+  (Save configuration button, `onSaveConfig` prop), `PracticePage.tsx`; `configs` block in the 4 `practice.json` files.
+- Decisions taken:
+  - The save dialog is rendered by the page, outside the set-up `<form>`, so it can never submit that form.
+  - Edit changes name and description only. To change the settings of a saved configuration, save a new one and delete the old one.
+    A future "update with the current settings" action is possible but not planned.
+  - Load: the form restarts with the new settings (key change) and the URL follows. The words come from the new endpoint.
+    `wordsMissing` is computed at load time (`wordIds.length > words.length`), not from the list's `missingCount`.
+    A configuration whose words are all gone still loads its settings and shows the banner. It never falls back to "all words".
+  - The banner is dropped when the user removes the pre-selection.
+- Tests: `configs.test.ts` (7), `PracticePage.configs.test.tsx` (20); `makePracticeHandlers` now also fakes the four config endpoints
+  (`makeConfig`, `makeConfigWord`). Frontend total: 111 files, 1253 tests, all pass. `tsc -b` and `eslint` clean.
