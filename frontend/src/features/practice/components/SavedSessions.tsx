@@ -1,18 +1,17 @@
 import { useState } from 'react';
-import { TrashIcon } from '@phosphor-icons/react';
+import { BarbellIcon, ClockCounterClockwiseIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { htmlLangByI18nCode } from '@/lib/language';
-import { partOfSpeechLabelKey } from '@/lib/words';
 import { useAuthStore } from '@/stores/authStore';
 import { getApiErrorCode, practiceErrorKey } from '../errors';
 import { useDeleteSavedSession, useLoadSavedSession, useSavedSessions } from '../hooks';
 import { fromSavedSession, MAX_SAVED_SESSIONS, SESSION_TTL_DAYS } from '../savedSessions';
 import { usePracticeSessionStore } from '../sessionStore';
 import type { SavedSessionItem } from '../types';
-import { FlagGrid } from './FlagGrid';
+import { SetupFacts } from './SetupFacts';
 
 /**
  * The user's saved sessions, under the saved configurations. One tap on a row resumes it: the
@@ -76,7 +75,10 @@ export function SavedSessions({
 
     return (
         <section className="card card-pad flex flex-col gap-2" aria-label={title}>
-            <b>{title}</b>
+            <b className="flex items-center gap-2">
+                <BarbellIcon aria-hidden size={16} className="shrink-0" />
+                {title}
+            </b>
             <p className="hint">{t('practice:sessions.note', { max: MAX_SAVED_SESSIONS, days: SESSION_TTL_DAYS })}</p>
 
             {sessions.isPending && <p className="hint">{t('practice:sessions.loading')}</p>}
@@ -109,14 +111,14 @@ export function SavedSessions({
             )}
 
             {sessions.isSuccess && sessions.data.length > 0 && (
-                <ul className="flex flex-col">
+                <ul className="flex flex-col gap-2">
                     {sessions.data.map((item) => {
                         const { summary } = item;
                         return (
-                            <li key={item.id} className="flex items-center gap-2 border-b border-border py-2 last:border-b-0">
+                            <li key={item.id} className="relative">
                                 <button
                                     type="button"
-                                    className="flex min-w-0 grow cursor-pointer flex-col gap-0.5 text-left"
+                                    className="flex w-full cursor-pointer flex-col gap-3 rounded-(--radius) border border-border bg-card px-4 py-3.5 text-left transition-colors hover:border-(--accent) hover:bg-(--accent-soft) focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-(--accent-soft) disabled:cursor-wait disabled:opacity-60"
                                     aria-label={t('practice:sessions.resumeAria', {
                                         answered: summary.answered,
                                         total: summary.total,
@@ -125,29 +127,30 @@ export function SavedSessions({
                                     aria-busy={loadingId === item.id || undefined}
                                     onClick={() => (hasUnfinished ? setReplacing(item) : open(item))}
                                 >
-                                    <span className="font-medium">
-                                        {t('practice:sessions.progress', { answered: summary.answered, total: summary.total })}
-                                        {summary.answered > 0 && (
-                                            <span className="hint">
-                                                {' · '}
-                                                {t('practice:sessions.correct', { count: summary.correct })}
-                                            </span>
-                                        )}
+                                    <span className="meta flex items-center gap-2 pr-9">
+                                        <ClockCounterClockwiseIcon aria-hidden size={15} className="shrink-0" />
+                                        {t('practice:sessions.expires', { date: dateFormat.format(new Date(item.expiresAt)) })}
                                     </span>
-                                    <span className="meta flex flex-wrap items-center gap-x-2 gap-y-1">
-                                        <FlagGrid languages={summary.languages} />
-                                        <span>{summary.partsOfSpeech.map((pos) => t(partOfSpeechLabelKey(pos))).join(', ')}</span>
-                                        <span>
-                                            {t('practice:sessions.expires', {
-                                                date: dateFormat.format(new Date(item.expiresAt)),
-                                            })}
-                                        </span>
-                                    </span>
+                                    <SetupFacts
+                                        figure={t('practice:results.scoreCount', {
+                                            correct: summary.answered,
+                                            total: summary.total,
+                                        })}
+                                        hint={
+                                            summary.answered > 0
+                                                ? t('practice:setup.resume.correctHint', { count: summary.correct })
+                                                : undefined
+                                        }
+                                        cardTypes={summary.cardTypes}
+                                        languages={summary.languages}
+                                        partsOfSpeech={summary.partsOfSpeech}
+                                    />
                                 </button>
                                 <Button
                                     type="button"
                                     variant="ghost"
                                     size="icon-sm"
+                                    className="absolute top-2 right-2"
                                     aria-label={t('practice:sessions.deleteAria', {
                                         answered: summary.answered,
                                         total: summary.total,

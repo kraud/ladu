@@ -54,7 +54,7 @@ export function LeaveSessionDialog({
 
     return (
         <Dialog open={open} onOpenChange={(next) => !save.isPending && onOpenChange(next)}>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>{t('practice:session.leaveDialog.title')}</DialogTitle>
                     <DialogDescription>{t('practice:session.leaveDialog.body')}</DialogDescription>
@@ -70,7 +70,8 @@ export function LeaveSessionDialog({
                     </p>
                 )}
 
-                <DialogFooter>
+                {/* Long labels do not wrap inside a button, so the buttons wrap onto a second row instead of leaving the dialog. */}
+                <DialogFooter className="sm:flex-wrap">
                     <Button type="button" variant="outline" disabled={save.isPending} onClick={() => onOpenChange(false)}>
                         {t('practice:session.leaveDialog.cancel')}
                     </Button>

@@ -127,7 +127,8 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await expect(page.getByText('Configuration saved.')).toBeVisible();
             await expect(configRow(page, 'Morning drill')).toBeVisible();
             await expect(configRow(page, 'Morning drill')).toContainText('Seven quick choices');
-            await expect(configRow(page, 'Morning drill')).toContainText('7 exercises');
+            await expect(configRow(page, 'Morning drill')).toContainText('7');
+            await expect(configRow(page, 'Morning drill')).toContainText('exercises');
             // Saving never starts a session.
             await expect(page.getByRole('heading', { name: 'Practice', level: 1 })).toBeVisible();
         });
@@ -160,7 +161,8 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await dialog.getByLabel(/Name/).fill('Evening drill');
             await dialog.getByRole('button', { name: 'Save', exact: true }).click();
             await expect(page.getByText('Configuration updated.')).toBeVisible();
-            await expect(configRow(page, 'Evening drill')).toContainText('7 exercises');
+            await expect(configRow(page, 'Evening drill')).toContainText('7');
+            await expect(configRow(page, 'Evening drill')).toContainText('exercises');
             await expect(configRow(page, 'Morning drill')).toHaveCount(0);
         });
 
@@ -240,7 +242,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
 
             await expect(page.getByText('Session saved. You can resume it from the set-up screen.')).toBeVisible();
             await expect(sessionRows(page)).toHaveCount(1);
-            await expect(sessionRows(page).first()).toContainText('1 of 3 answered');
+            await expect(sessionRows(page).first()).toContainText('1 of 3');
             await expect(sessionRows(page).first()).toContainText(/Expires on/);
         });
 
@@ -268,7 +270,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await leaveWith(page, 'Save session and leave');
 
             await expect(sessionRows(page)).toHaveCount(1);
-            await expect(sessionRows(page).first()).toContainText('2 of 3 answered');
+            await expect(sessionRows(page).first()).toContainText('2 of 3');
             const saved = await savedSessions(request, ownerToken);
             expect(saved).toHaveLength(1);
             expect(saved[0]!.id).toBe(sessionId);

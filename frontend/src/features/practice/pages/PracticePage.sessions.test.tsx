@@ -247,18 +247,34 @@ describe('Saved sessions list', () => {
         expect(screen.getByText('You can keep up to 10 sessions for 7 days. A new session replaces the oldest one.')).toBeInTheDocument();
     });
 
-    it('lists the sessions with progress, word types and expiry date', async () => {
+    it('shows each session with the same three facts as the resume banner, and the expiry date', async () => {
         const answered = makeSavedSession({ id: 'a' });
         answered.summary = { ...answered.summary, answered: 1, correct: 1 };
         setUp({ sessions: [answered, makeSavedSession({ id: 'b' })] });
         await renderPractice();
 
         const first = await screen.findByRole('button', { name: 'Resume session with 1 of 2 answered' });
-        expect(within(first).getByText('1 of 2 answered')).toBeInTheDocument();
-        expect(within(first).getByText(/1 correct/)).toBeInTheDocument();
-        expect(within(first).getByText('Noun')).toBeInTheDocument();
+        expect(within(first).getByText('1 of 2')).toBeInTheDocument();
+        expect(within(first).getByText('exercises')).toBeInTheDocument();
+        expect(within(first).getByText('1 correct so far')).toBeInTheDocument();
+        expect(within(first).getByTestId('card-type-grid')).toBeInTheDocument();
+        expect(within(first).getByTestId('flag-grid')).toBeInTheDocument();
+        expect(within(first).getByText('languages')).toBeInTheDocument();
+        expect(within(first).getByText('type of words')).toBeInTheDocument();
         expect(within(first).getByText(/^Expires on .*2026/)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Resume session with 0 of 2 answered' })).toBeInTheDocument();
+
+        const second = screen.getByRole('button', { name: 'Resume session with 0 of 2 answered' });
+        expect(within(second).getByText('0 of 2')).toBeInTheDocument();
+        expect(within(second).queryByText(/correct so far/)).not.toBeInTheDocument();
+    });
+
+    it('marks a session row as clickable: pointer cursor and a highlight on hover', async () => {
+        setUp({ sessions: [makeSavedSession()] });
+        await renderPractice();
+
+        const row = await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' });
+        expect(row).toHaveClass('cursor-pointer');
+        expect(row.className).toMatch(/hover:bg-\(--accent-soft\)/);
     });
 
     it('resumes a saved session where it was left, linked to its saved copy', async () => {

@@ -1,18 +1,17 @@
 import { useState } from 'react';
-import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
+import { PencilSimpleIcon, TagIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { accountLanguageOrder } from '@/features/words/review/search';
-import { partOfSpeechLabelKey } from '@/lib/words';
 import { useAuthStore } from '@/stores/authStore';
 import { practiceErrorKey } from '../errors';
 import { useConfigs, useDeleteConfig, useLoadConfigWords } from '../hooks';
 import { toPreselectedWord, type PreselectedWord } from '../preselection';
-import type { SavedConfig } from '../types';
-import { FlagGrid } from './FlagGrid';
+import type { CardType, SavedConfig } from '../types';
 import { SaveConfigDialog } from './SaveConfigDialog';
+import { SetupFacts } from './SetupFacts';
 
 /**
  * The user's saved configurations, under the set-up form. One tap on a row loads it:
@@ -65,7 +64,10 @@ export function SavedConfigurations({
 
     return (
         <section className="card card-pad flex flex-col gap-2" aria-label={title}>
-            <b>{title}</b>
+            <b className="flex items-center gap-2">
+                <TagIcon aria-hidden size={16} className="shrink-0" />
+                {title}
+            </b>
 
             {configs.isPending && <p className="hint">{t('practice:configs.loading')}</p>}
 
@@ -92,42 +94,56 @@ export function SavedConfigurations({
             )}
 
             {configs.isSuccess && configs.data.length > 0 && (
-                <ul className="flex flex-col">
+                <ul className="flex flex-col gap-2">
                     {configs.data.map((config) => (
-                        <li
-                            key={config.id}
-                            className="flex items-center gap-2 border-b border-border py-2 last:border-b-0"
-                        >
+                        <li key={config.id} className="relative">
                             <button
                                 type="button"
-                                className="flex min-w-0 grow cursor-pointer flex-col gap-0.5 text-left"
+                                className="flex w-full cursor-pointer flex-col gap-3 rounded-(--radius) border border-border bg-card px-4 py-3.5 text-left transition-colors hover:border-(--accent) hover:bg-(--accent-soft) focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-(--accent-soft) disabled:cursor-wait disabled:opacity-60"
                                 aria-label={t('practice:configs.use', { name: config.name })}
                                 disabled={loadingId !== null}
                                 aria-busy={loadingId === config.id || undefined}
                                 onClick={() => load(config)}
                             >
-                                <span className="break-words font-medium">{config.name}</span>
-                                {config.description && <span className="hint break-words">{config.description}</span>}
-                                <ConfigSummary config={config} />
+                                <span className="flex min-w-0 flex-col gap-0.5 pr-16">
+                                    <span className="font-semibold break-words">{config.name}</span>
+                                    {config.description && <span className="hint break-words">{config.description}</span>}
+                                </span>
+                                <SetupFacts
+                                    figure={config.params.amount}
+                                    cardTypes={cardTypesOf(config.params.type)}
+                                    languages={config.params.languages}
+                                    partsOfSpeech={config.params.partsOfSpeech}
+                                />
+                                {(config.wordIds?.length ?? 0) > 0 && (
+                                    <span className="meta flex flex-wrap items-center gap-x-2">
+                                        <span>{t('practice:configs.summary.words', { count: config.wordIds?.length ?? 0 })}</span>
+                                        {config.missingCount > 0 && (
+                                            <span className="text-(--danger)">{t('practice:configs.summary.someMissing')}</span>
+                                        )}
+                                    </span>
+                                )}
                             </button>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon-sm"
-                                aria-label={t('practice:configs.edit', { name: config.name })}
-                                onClick={() => setEditing(config)}
-                            >
-                                <PencilSimpleIcon aria-hidden size={16} />
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon-sm"
-                                aria-label={t('practice:configs.delete', { name: config.name })}
-                                onClick={() => setDeleting(config)}
-                            >
-                                <TrashIcon aria-hidden size={16} />
-                            </Button>
+                            <span className="absolute top-2 right-2 flex gap-1">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    aria-label={t('practice:configs.edit', { name: config.name })}
+                                    onClick={() => setEditing(config)}
+                                >
+                                    <PencilSimpleIcon aria-hidden size={16} />
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    aria-label={t('practice:configs.delete', { name: config.name })}
+                                    onClick={() => setDeleting(config)}
+                                >
+                                    <TrashIcon aria-hidden size={16} />
+                                </Button>
+                            </span>
                         </li>
                     ))}
                 </ul>
@@ -153,21 +169,7 @@ export function SavedConfigurations({
     );
 }
 
-/** Flags, amount, answer style, word types and word count of one configuration. */
-function ConfigSummary({ config }: { config: SavedConfig }) {
-    const { t } = useTranslation();
-    const { params } = config;
-    const wordCount = config.wordIds?.length ?? 0;
-    return (
-        <span className="meta flex flex-wrap items-center gap-x-2 gap-y-1">
-            <FlagGrid languages={params.languages} />
-            <span>{t('practice:configs.summary.amount', { count: params.amount })}</span>
-            <span>{t(`practice:setup.options.type.${params.type}`)}</span>
-            <span>{params.partsOfSpeech.map((pos) => t(partOfSpeechLabelKey(pos))).join(', ')}</span>
-            {wordCount > 0 && <span>{t('practice:configs.summary.words', { count: wordCount })}</span>}
-            {config.missingCount > 0 && (
-                <span className="text-(--danger)">{t('practice:configs.summary.someMissing')}</span>
-            )}
-        </span>
-    );
+/** The answer styles a configuration asks for: "Mixed" means both. */
+function cardTypesOf(type: SavedConfig['params']['type']): CardType[] {
+    return type === 'Random' ? ['Text-Input', 'Multiple-Choice'] : [type];
 }

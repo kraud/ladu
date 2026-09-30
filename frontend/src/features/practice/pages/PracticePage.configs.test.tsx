@@ -57,7 +57,7 @@ describe('PracticePage — saved configurations', () => {
         expect(await screen.findByText(/You have no saved configurations/)).toBeInTheDocument();
     });
 
-    it('lists the saved configurations with their description and summary', async () => {
+    it('lists the saved configurations with their description and the same three facts as a session', async () => {
         setUp({
             configs: [
                 makeConfig({ id: 'a', name: 'Morning drill', description: 'Quick nouns', wordIds: ['w1', 'w2'] }),
@@ -68,11 +68,31 @@ describe('PracticePage — saved configurations', () => {
 
         const first = await screen.findByRole('button', { name: 'Use configuration Morning drill' });
         expect(within(first).getByText('Quick nouns')).toBeInTheDocument();
-        expect(within(first).getByText('12 exercises')).toBeInTheDocument();
-        expect(within(first).getByText('Choose the answer')).toBeInTheDocument();
-        expect(within(first).getByText('Noun, Verb')).toBeInTheDocument();
+        expect(within(first).getByText('12')).toBeInTheDocument();
+        expect(within(first).getByText('exercises')).toBeInTheDocument();
+        expect(within(first).getByTestId('card-type-grid')).toBeInTheDocument();
+        expect(within(first).getByTestId('flag-grid')).toBeInTheDocument();
+        expect(within(first).getByText('languages')).toBeInTheDocument();
+        expect(within(first).getByText('types of words')).toBeInTheDocument();
         expect(within(first).getByText('2 words')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Use configuration Evening' })).toBeInTheDocument();
+    });
+
+    it('shows both answer styles for a "Mixed" configuration', async () => {
+        setUp({ configs: [makeConfig({ params: { ...makeConfig().params, type: 'Random' } })] });
+        await renderPractice();
+
+        const row = await screen.findByRole('button', { name: 'Use configuration Morning drill' });
+        expect(row.querySelector('[data-testid="card-type-grid"]')?.children).toHaveLength(2);
+    });
+
+    it('marks a configuration row as clickable: pointer cursor and a highlight on hover', async () => {
+        setUp({ configs: [makeConfig()] });
+        await renderPractice();
+
+        const row = await screen.findByRole('button', { name: 'Use configuration Morning drill' });
+        expect(row).toHaveClass('cursor-pointer');
+        expect(row.className).toMatch(/hover:bg-\(--accent-soft\)/);
     });
 
     it('flags a configuration whose words are gone', async () => {
