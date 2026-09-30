@@ -11,6 +11,8 @@ npm run docker:up            # local Postgres (keelapp_dev + keelapp_test)
 npm run db:migrate           # apply Drizzle migrations to dev DB
 npm run db:migrate:test      # apply to test DB
 npm run dev                  # backend (:5001) + frontend (Vite) concurrently
+npm run dev:admin            # backend (:5001) + admin UI (Vite, :5174) — staff tool, .context/plans/admin-dashboard.md
+npm test -w admin            # admin Vitest
 npm test                     # backend Jest suite (workspace: backend)
 npm test -w frontend         # frontend Vitest
 npm run build                # frontend production build

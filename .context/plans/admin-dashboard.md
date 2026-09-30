@@ -1,6 +1,6 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slices 1 (data capture) and 2 (staff auth) are done. Slices 3–9 are not started.
+Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth) and 3 (admin UI skeleton) are done. Slices 4–9 are not started.
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
@@ -14,6 +14,13 @@ Slice 2 notes:
 - Added `GET /api/admin/auth/me` (not in the original plan) so the admin UI can check a saved session.
 - `ADMIN_JWT_SECRET` is read lazily. Without it the server starts and admin login returns 503. Slice 7 must add it to the staging and production env files and to `deploy.yml`.
 - There is no rate limit on staff login. Cloudflare Access (slice 7) is the second lock.
+
+Slice 3 notes:
+- New workspace `admin/` (Vite, React 18, TanStack Router + Query, Tailwind v4, zustand, axios). Dev port `:5174`, proxy `/api` to `:5001`. Run it with `npm run dev:admin`. Tests: `npm test -w admin` (Vitest + MSW).
+- Own palette (`admin/src/styles.css`) and only three copied UI primitives (Button, Input, Label). No i18n, no Sentry, no toasts.
+- Session stored under `ladu-admin.session`. The app calls `GET /api/admin/auth/me` on start. A 401 clears the session and goes to `/login`.
+- `backend/Dockerfile` and `frontend/Dockerfile` now also `COPY admin/package.json`, because `npm ci` needs every workspace's `package.json`.
+- Not done yet: the root `build` script and `deploy.yml` do not build `admin/` (slice 7). No Playwright spec yet (slice 4).
 - Slice 1 leftover: `landing/privacy.html` still needs the line about the login country. Do this before slice 7 (deploy).
 
 ## Context
