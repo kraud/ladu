@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PencilSimpleIcon, TagIcon, TrashIcon } from '@phosphor-icons/react';
+import { BookmarkSimpleIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -65,7 +65,7 @@ export function SavedConfigurations({
     return (
         <section className="card card-pad flex flex-col gap-2" aria-label={title}>
             <b className="flex items-center gap-2">
-                <TagIcon aria-hidden size={16} className="shrink-0" />
+                <BookmarkSimpleIcon aria-hidden size={16} className="shrink-0" />
                 {title}
             </b>
 
@@ -115,14 +115,22 @@ export function SavedConfigurations({
                                     languages={config.params.languages}
                                     partsOfSpeech={config.params.partsOfSpeech}
                                 />
-                                {(config.wordIds?.length ?? 0) > 0 && (
-                                    <span className="meta flex flex-wrap items-center gap-x-2">
-                                        <span>{t('practice:configs.summary.words', { count: config.wordIds?.length ?? 0 })}</span>
-                                        {config.missingCount > 0 && (
-                                            <span className="text-(--danger)">{t('practice:configs.summary.someMissing')}</span>
-                                        )}
+                                <span className="meta flex flex-wrap items-center gap-x-2">
+                                    <span>
+                                        {(config.wordIds?.length ?? 0) > 0
+                                            ? t('practice:configs.summary.selectedWords', { count: config.wordIds?.length ?? 0 })
+                                            : t('practice:configs.summary.allWords')}
                                     </span>
-                                )}
+                                    <span aria-hidden>·</span>
+                                    <span>
+                                        {config.params.wordSelection === 'Random'
+                                            ? t('practice:configs.summary.randomOrder')
+                                            : t('practice:configs.summary.weakerFirst')}
+                                    </span>
+                                    {config.missingCount > 0 && (
+                                        <span className="text-(--danger)">{t('practice:configs.summary.someMissing')}</span>
+                                    )}
+                                </span>
                             </button>
                             <span className="absolute top-2 right-2 flex gap-1">
                                 <Button

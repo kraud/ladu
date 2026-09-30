@@ -345,8 +345,11 @@
     "summary": {
       "amount_one": "{{count}} harjutus",
       "amount_other": "{{count}} harjutust",
-      "words_one": "{{count}} sõna",
-      "words_other": "{{count}} sõna",
+      "allWords": "Kõik sõnad",
+      "selectedWords_one": "{{count}} valitud sõna",
+      "selectedWords_other": "{{count}} valitud sõna",
+      "randomOrder": "Juhuslik järjekord",
+      "weakerFirst": "Nõrgemad enne",
       "someMissing": "Mõned sõnad puuduvad"
     },
     "dialog": {

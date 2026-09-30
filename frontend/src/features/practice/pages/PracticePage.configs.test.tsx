@@ -74,8 +74,10 @@ describe('PracticePage — saved configurations', () => {
         expect(within(first).getByTestId('flag-grid')).toBeInTheDocument();
         expect(within(first).getByText('languages')).toBeInTheDocument();
         expect(within(first).getByText('types of words')).toBeInTheDocument();
-        expect(within(first).getByText('2 words')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Use configuration Evening' })).toBeInTheDocument();
+        expect(within(first).getByText('2 selected words')).toBeInTheDocument();
+        const second = screen.getByRole('button', { name: 'Use configuration Evening' });
+        expect(within(second).getByText('All words')).toBeInTheDocument();
+        expect(within(second).getByText(/Weaker first|Random order/)).toBeInTheDocument();
     });
 
     it('shows both answer styles for a "Mixed" configuration', async () => {

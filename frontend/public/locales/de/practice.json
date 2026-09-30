@@ -345,8 +345,11 @@
     "summary": {
       "amount_one": "{{count}} Übung",
       "amount_other": "{{count}} Übungen",
-      "words_one": "{{count}} Wort",
-      "words_other": "{{count}} Wörter",
+      "allWords": "Alle Wörter",
+      "selectedWords_one": "{{count}} ausgewähltes Wort",
+      "selectedWords_other": "{{count}} ausgewählte Wörter",
+      "randomOrder": "Zufällige Reihenfolge",
+      "weakerFirst": "Schwächere zuerst",
       "someMissing": "Einige Wörter fehlen"
     },
     "dialog": {
