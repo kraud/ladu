@@ -27,7 +27,7 @@ describe('route guard', () => {
     it('shows the overview and the header to a signed-in member', async () => {
         await renderApp({ session: true });
 
-        expect(await screen.findByRole('heading', { name: /Welcome, Sam Staff/ })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Overview' })).toBeInTheDocument();
         expect(screen.getByText('support')).toBeInTheDocument();
     });
 
@@ -73,7 +73,7 @@ describe('login and sign out', () => {
         await user.type(screen.getByLabelText('Password'), 'correct-password');
         await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
-        expect(await screen.findByRole('heading', { name: /Welcome, Sam Staff/ })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Overview' })).toBeInTheDocument();
         expect(router.state.location.pathname).toBe('/');
         expect(useAuthStore.getState().token).not.toBeNull();
     });

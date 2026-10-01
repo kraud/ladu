@@ -1,6 +1,6 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions), 6 (health page) and 7 (deploy) are done and rolled out. Slice 8 (staff and audit) is written and tested, not deployed yet. Slice 9 is not started.
+Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions), 6 (health page) and 7 (deploy) are done and rolled out. Slice 8 (staff and audit) is done and deployed. Slice 9 (overview statistics) is written and tested, not deployed yet.
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
@@ -81,6 +81,16 @@ Slice 8 notes (staff management and the audit log viewer):
 - `create-staff.js` is for the first owner only and sets no temporary-password flag.
 - Tests: Jest `adminStaff`, `adminPasswordChange`, `adminAudit`; Vitest for the three pages; Playwright `admin-8-staff.spec.ts` (two browser windows).
 - Known small gaps: a staff member's own sessions on other devices end when they change their password (by design), but there is no "sign out everywhere" button. There is no rate limit on the staff login or on the password-change check (Cloudflare Access is the first lock).
+
+Slice 9 notes (overview statistics):
+- **The plan's idea for active users did not work, and was changed (decision made with the user).** `users.last_seen_at` holds one value per user, overwritten each time, so it cannot answer "how many users were active on 12 September?". A new table `user_activity_days` (migration `0015_user_activity_days.sql`) holds one row for each user for each UTC day. `protect` writes the row at the first request of each UTC day (`ON CONFLICT DO NOTHING`), next to the hourly `last_seen_at` update. One threshold serves both: the later of "an hour ago" and "the start of today (UTC)", so a day change inside the hour (23:50, then 00:10) is still recorded. If recording fails, the request still succeeds and `last_seen_at` is left alone, so the next request tries again.
+- History starts on the day this is deployed (no backfill: `last_seen_at` keeps only the last day, so a backfill would invent a decline). The first day is incomplete: users already seen earlier that day have no row. The API marks every window that includes the first day as `partial`, and days before the first row have `count: null`. The UI draws partial values lighter and says why.
+- The nightly purge deletes activity rows older than 400 days (`ACTIVITY_RETENTION_DAYS`). `landing/privacy.html` says so.
+- `GET /api/admin/stats` (`users.read`, every role): totals, signups for each of 30 days and 12 weeks (zero-filled in SQL), active users for each of 30 days with rolling 7-day and 30-day windows, and users for each language. Code: `backend/controllers/admin/statsController.ts`. All days and weeks are UTC; a week starts on Monday. No personal data is in the answer.
+- "Users" means accounts that are not deleted. Signups count every account that still exists, so an account that was purged disappears from the past counts (the page says so). "Practice sessions" in the plan became two honest numbers: saved sessions that have not expired, and practised translations (rows of `exercise_performances`), because the database keeps no record of every session played.
+- Admin app: the home page `/` is now the overview. Three charts (new accounts, active users, languages) in plain HTML and CSS, with no chart library. They follow the data-visualization rules: one series and one color (the admin accent, checked with the palette validator), thin marks, a tooltip on hover and focus, the newest value written on its column, a table view for every chart, and the old numbers stay on the page, dimmed, while it reloads. Month and weekday names are written out, because `Intl` gives "Sept" or "Sep" depending on the browser.
+- Found by looking at the page at phone width: the header overflowed since slice 8 (now it wraps), and two x-axis labels ran together (a label closer than n points to the last one is now dropped).
+- Tests: Jest `adminStats` and `activityDays` (a fixed clock replaces `Date`), `purge`; Vitest for the chart components and the page; Playwright `admin-9-stats.spec.ts`. The e2e spec reads the API before it seeds, and asserts only what its own rows add, because other specs create users at the same time.
 
 ## Context
 

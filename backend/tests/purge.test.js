@@ -4,7 +4,7 @@ const { execFileSync } = require('child_process');
 const { eq } = require('drizzle-orm');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
-const { users, words, loginEvents, auditLog } = require('../src/db/schema');
+const { users, words, loginEvents, auditLog, userActivityDays } = require('../src/db/schema');
 const { runPurge } = require('../lib/userPurge');
 
 beforeAll(() => testDb.connectDB());
@@ -75,16 +75,16 @@ describe('runPurge', () => {
 
         const result = await runPurge();
 
-        expect(result).toMatchObject({ purgedUsers: 0, deletedLoginEvents: 1 });
+        expect(result).toMatchObject({ purgedUsers: 0, deletedLoginEvents: 1, deletedActivityDays: 0 });
         expect(await db.select().from(loginEvents)).toHaveLength(2);
     });
 
     it('does nothing on a second run, and on an empty database', async () => {
-        expect(await runPurge()).toEqual({ purgedUsers: 0, deletedLoginEvents: 0 });
+        expect(await runPurge()).toEqual({ purgedUsers: 0, deletedLoginEvents: 0, deletedActivityDays: 0 });
         await makeUser({ deletedAt: daysAgo(31) });
 
         expect((await runPurge()).purgedUsers).toBe(1);
-        expect(await runPurge()).toEqual({ purgedUsers: 0, deletedLoginEvents: 0 });
+        expect(await runPurge()).toEqual({ purgedUsers: 0, deletedLoginEvents: 0, deletedActivityDays: 0 });
         expect(await db.select().from(auditLog)).toHaveLength(1);
     });
 
@@ -94,6 +94,38 @@ describe('runPurge', () => {
         expect((await runPurge(new Date(Date.now() + 19 * DAY))).purgedUsers).toBe(0);
         expect((await runPurge(new Date(Date.now() + 21 * DAY))).purgedUsers).toBe(1);
         expect(await exists(user.id)).toBe(false);
+    });
+});
+
+describe('activity days', () => {
+    const dayAgo = (n) => new Date(Date.now() - n * DAY).toISOString().slice(0, 10);
+
+    it('deletes days older than 400 and keeps the rest', async () => {
+        const user = await makeUser();
+        await db.insert(userActivityDays).values([
+            { userId: user.id, day: dayAgo(401) },
+            { userId: user.id, day: dayAgo(399) },
+            { userId: user.id, day: dayAgo(0) },
+        ]);
+
+        const result = await runPurge();
+
+        expect(result.deletedActivityDays).toBe(1);
+        const left = (await db.select().from(userActivityDays)).map((r) => r.day).sort();
+        expect(left).toEqual([dayAgo(399), dayAgo(0)].sort());
+    });
+
+    it('goes away with a purged account', async () => {
+        const gone = await makeUser({ deletedAt: daysAgo(31) });
+        const stays = await makeUser();
+        await db.insert(userActivityDays).values([
+            { userId: gone.id, day: dayAgo(1) },
+            { userId: stays.id, day: dayAgo(1) },
+        ]);
+
+        await runPurge();
+
+        expect((await db.select().from(userActivityDays)).map((r) => r.userId)).toEqual([stays.id]);
     });
 });
 
@@ -109,7 +141,7 @@ describe('scripts/purge.js', () => {
             encoding: 'utf8',
         });
 
-        expect(output).toMatch(/purge ok: 1 account\(s\), 0 login event\(s\)/);
+        expect(output).toMatch(/purge ok: 1 account\(s\), 0 login event\(s\), 0 activity day\(s\)/);
         expect(await exists(old.id)).toBe(false);
         expect(await exists(recent.id)).toBe(true);
     });

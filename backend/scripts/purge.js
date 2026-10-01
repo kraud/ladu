@@ -1,6 +1,6 @@
 // Nightly maintenance (admin-dashboard.md §3): hard-deletes accounts that were
 // soft-deleted more than 30 days ago, and deletes login history older than 90
-// days. Each purged account writes one `user.purge` audit row (actor: system).
+// days, and activity days older than 400 days. Each purged account writes one `user.purge` audit row (actor: system).
 //
 // A host cron job runs it, installed by the Ansible `purge` role:
 //   docker exec backend-prod node scripts/purge.js
@@ -25,8 +25,10 @@ const { pool } = require('../src/db');
 const { runPurge } = require('../lib/userPurge');
 
 runPurge()
-    .then(({ purgedUsers, deletedLoginEvents }) => {
-        console.log(`${new Date().toISOString()} purge ok: ${purgedUsers} account(s), ${deletedLoginEvents} login event(s)`);
+    .then(({ purgedUsers, deletedLoginEvents, deletedActivityDays }) => {
+        console.log(
+            `${new Date().toISOString()} purge ok: ${purgedUsers} account(s), ${deletedLoginEvents} login event(s), ${deletedActivityDays} activity day(s)`,
+        );
     })
     .catch((err) => {
         console.error(`${new Date().toISOString()} purge failed:`, err.message || err);

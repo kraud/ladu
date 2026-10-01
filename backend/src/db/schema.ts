@@ -8,6 +8,7 @@ const {
     integer,
     real,
     timestamp,
+    date,
     jsonb,
     primaryKey,
     uniqueIndex,
@@ -649,4 +650,27 @@ export const opsEvents = pgTable(
         createdAt: timestamp('created_at').defaultNow().notNull(),
     },
     (table) => [index('ops_events_kind_created_idx').on(table.kind, table.createdAt)],
+);
+
+// ---------------------------------------------------------------------------
+// USER_ACTIVITY_DAYS
+// One row for each user for each UTC day on which they used the app (admin
+// dashboard, slice 9). `users.last_seen_at` holds only the LAST time, so it
+// cannot answer "how many users were active on 12 September?". This table can.
+// `protect` writes the row at the first request of each day (on conflict, it
+// does nothing). History starts on the day this table was deployed. The nightly
+// purge deletes rows older than 400 days; a purged account's rows cascade away.
+// ---------------------------------------------------------------------------
+export const userActivityDays = pgTable(
+    'user_activity_days',
+    {
+        userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        // A plain 'YYYY-MM-DD' string (UTC), not a JS Date: a day has no time zone to get wrong.
+        day:    date('day', { mode: 'string' }).notNull(),
+    },
+    (table) => [
+        primaryKey({ columns: [table.userId, table.day] }),
+        // Backs "who was active in this range of days".
+        index('user_activity_days_day_idx').on(table.day),
+    ],
 );

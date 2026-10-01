@@ -218,15 +218,19 @@ export interface SeedUserOptions {
     lastLoginCountry?: string;
     /** A real password, so the account can sign in through the learner API. Without it the hash is a placeholder. */
     learnerPassword?: string;
+    /** When the account was created, as an ISO string (UTC). Default: now. */
+    createdAt?: string;
+    /** The languages the user chose. Default: English and Estonian. */
+    languages?: string[];
 }
 
 /** Inserts a user row directly, with the admin columns set as asked. */
 export async function seedUser(email: string, opts: SeedUserOptions): Promise<{ userId: string }> {
     const { rows } = await getPool().query<{ id: string }>(
         `INSERT INTO users (name, email, username, password, languages, ui_language, verified,
-                            banned_at, ban_reason, deleted_at, last_login_at, last_login_country)
-         VALUES ($1, $2, $3, $4, ARRAY['English', 'Estonian'], 'English', $5,
-                 $6, $7, $8, $9, $10)
+                            banned_at, ban_reason, deleted_at, last_login_at, last_login_country, created_at)
+         VALUES ($1, $2, $3, $4, $11::text[], 'English', $5,
+                 $6, $7, $8, $9, $10, COALESCE($12::timestamp, now()))
          RETURNING id`,
         [
             opts.name,
@@ -239,6 +243,8 @@ export async function seedUser(email: string, opts: SeedUserOptions): Promise<{ 
             opts.deleted ? new Date() : null,
             opts.lastLoginCountry ? new Date() : null,
             opts.lastLoginCountry ?? null,
+            opts.languages ?? ['English', 'Estonian'],
+            opts.createdAt ?? null,
         ],
     );
     if (!rows[0]) throw new Error(`failed to seed user ${email}`);
@@ -314,4 +320,18 @@ export async function auditLogContains(text: string): Promise<boolean> {
         [`%${text}%`],
     );
     return Number(rows[0]?.n ?? 0) > 0;
+}
+
+/** One row of `user_activity_days`: the user was active on `day` (a UTC `YYYY-MM-DD`). */
+export async function seedActivityDay(userId: string, day: string): Promise<void> {
+    await getPool().query(`INSERT INTO user_activity_days (user_id, day) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [userId, day]);
+}
+
+/** The rows `protect` wrote for a user: proves a real request recorded today. */
+export async function getActivityDays(userId: string): Promise<string[]> {
+    const { rows } = await getPool().query<{ day: string }>(
+        `SELECT to_char(day, 'YYYY-MM-DD') AS day FROM user_activity_days WHERE user_id = $1 ORDER BY day`,
+        [userId],
+    );
+    return rows.map((r) => r.day);
 }

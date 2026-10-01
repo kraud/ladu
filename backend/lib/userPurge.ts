@@ -10,13 +10,15 @@
  * gone afterwards, and `audit_log.target_id` has no foreign key on purpose.
  */
 const { db }: typeof import('../src/db') = require('../src/db');
-const { users, auditLog, loginEvents }: typeof import('../src/db/schema') = require('../src/db/schema');
+const { users, auditLog, loginEvents, userActivityDays }: typeof import('../src/db/schema') = require('../src/db/schema');
 const { and, eq, isNotNull, lt }: typeof import('drizzle-orm') = require('drizzle-orm');
 
 /** How long a soft-deleted account can still be restored. */
 export const DELETE_GRACE_DAYS = 30;
 /** How long `login_events` rows are kept. */
 export const LOGIN_EVENT_RETENTION_DAYS = 90;
+/** How long `user_activity_days` rows are kept (the admin statistics read 30 days; a year is room to grow). */
+export const ACTIVITY_RETENTION_DAYS = 400;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -49,13 +51,15 @@ export const hardDeleteUser = async (
 
 /**
  * The nightly job: purges accounts soft-deleted more than 30 days ago, and
- * deletes login history older than 90 days. One transaction per account, so
+ * deletes login history older than 90 days and activity days older than 400. One transaction per account, so
  * one failure does not undo the others. The cut-off is checked again inside the
  * transaction: an owner may restore an account between the read and the delete.
  */
 export const runPurge = async (now: Date = new Date()) => {
   const accountCutoff = new Date(now.getTime() - DELETE_GRACE_DAYS * DAY_MS);
   const loginCutoff = new Date(now.getTime() - LOGIN_EVENT_RETENTION_DAYS * DAY_MS);
+  // `day` is a 'YYYY-MM-DD' string, and ISO dates sort as text.
+  const activityCutoff = new Date(now.getTime() - ACTIVITY_RETENTION_DAYS * DAY_MS).toISOString().slice(0, 10);
 
   const expired = await db
     .select({ id: users.id })
@@ -82,5 +86,10 @@ export const runPurge = async (now: Date = new Date()) => {
     .where(lt(loginEvents.createdAt, loginCutoff))
     .returning({ id: loginEvents.id });
 
-  return { purgedUsers, deletedLoginEvents: removed.length };
+  const removedDays = await db
+    .delete(userActivityDays)
+    .where(lt(userActivityDays.day, activityCutoff))
+    .returning({ day: userActivityDays.day });
+
+  return { purgedUsers, deletedLoginEvents: removed.length, deletedActivityDays: removedDays.length };
 };
