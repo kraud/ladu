@@ -92,6 +92,13 @@
       "when": 1790811045023,
       "tag": "0012_audit_log_system_actor",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790812384119,
+      "tag": "0013_ops_events",
+      "breakpoints": true
     }
   ]
 }

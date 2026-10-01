@@ -290,3 +290,19 @@ export async function getAuditForUser(
     );
     return rows;
 }
+
+/** An `ops_events` row as the VPS backup scripts write it, `hoursAgo` hours in the past. */
+export async function seedOpsEvent(kind: 'backup' | 'restore_test', ok: boolean, detail: string, hoursAgo: number): Promise<void> {
+    await getPool().query(
+        `INSERT INTO ops_events (kind, ok, detail, created_at) VALUES ($1, $2, $3, now() - make_interval(hours => $4))`,
+        [kind, ok, detail, hoursAgo],
+    );
+}
+
+export async function deleteOpsEventsByDetail(prefix: string): Promise<void> {
+    try {
+        await getPool().query(`DELETE FROM ops_events WHERE detail LIKE $1`, [`${prefix}%`]);
+    } catch (error) {
+        console.warn('[e2e] ops_events cleanup failed:', (error as Error).message);
+    }
+}

@@ -14,11 +14,21 @@ BACKUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set -a
 source "${BACKUP_DIR}/backup.env"
 set +a
+source "${BACKUP_DIR}/record-event.sh"
+
+# Every failure is recorded for the admin health page, then the script stops.
+# `exit 1` does not fire the ERR trap, so the explicit failures below call
+# `fail`; the trap covers any other command that fails under `set -e`.
+fail() {
+  echo "Restore test failed: $1" >&2
+  record_event restore_test false "$1"
+  exit 1
+}
+trap 'record_event restore_test false "failed at line ${LINENO}"' ERR
 
 LATEST_DUMP="$(rclone lsf "b2:${B2_BUCKET_NAME}" --config "${BACKUP_DIR}/rclone.conf" | sort | tail -n1)"
 if [ -z "${LATEST_DUMP}" ]; then
-  echo "Restore test failed: no dump found in b2:${B2_BUCKET_NAME}" >&2
-  exit 1
+  fail "no dump found in b2:${B2_BUCKET_NAME}"
 fi
 
 LOCAL_DUMP="${BACKUP_DIR}/restore-test-${LATEST_DUMP}"
@@ -50,9 +60,9 @@ docker exec -i "${CONTAINER_NAME}" pg_restore -U postgres -d ladu_prod --no-owne
 
 ROW_COUNT="$(docker exec "${CONTAINER_NAME}" psql -U postgres -d ladu_prod -tAc "SELECT count(*) FROM words")"
 if ! [[ "${ROW_COUNT}" =~ ^[0-9]+$ ]]; then
-  echo "Restore test failed: could not read a row count from 'words' after restore" >&2
-  exit 1
+  fail "could not read a row count from 'words' after restore"
 fi
 
 echo "Restore test passed: ${LATEST_DUMP} restored, ${ROW_COUNT} rows in 'words'"
+record_event restore_test true "${LATEST_DUMP} restored, ${ROW_COUNT} rows in words"
 curl -fsS -m 10 --retry 3 "${HEALTHCHECKS_PING_URL}" >/dev/null

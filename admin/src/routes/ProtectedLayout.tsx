@@ -2,7 +2,7 @@ import { Link, Outlet, useNavigate } from '@tanstack/react-router';
 import { SignOut } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { useLogout, useStaffSession } from '@/features/auth/hooks';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, useCan } from '@/stores/authStore';
 
 /**
  * The shell for every signed-in page. The auth gate itself is the router's
@@ -13,6 +13,7 @@ export function ProtectedLayout() {
     const navigate = useNavigate();
     const staff = useAuthStore((s) => s.staff);
     const logout = useLogout();
+    const canReadHealth = useCan('health.read');
     useStaffSession();
 
     const signOut = () => {
@@ -29,6 +30,11 @@ export function ProtectedLayout() {
                         <Link to="/users" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
                             Users
                         </Link>
+                        {canReadHealth && (
+                            <Link to="/health" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
+                                Health
+                            </Link>
+                        )}
                     </nav>
                     <div className="flex items-center gap-3 text-sm">
                         <span>

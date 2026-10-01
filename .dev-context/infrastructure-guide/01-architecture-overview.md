@@ -190,7 +190,7 @@ symptom-specific guidance.
 | `deploy/compose/app.yml` | The per-environment web + backend stack | Brought up by `deploy.sh`, on every deploy. |
 | `deploy/caddy/` | Caddy's own Dockerfile + `Caddyfile` (routing rules) | Built as part of `platform.yml`. |
 | `deploy/scripts/deploy.sh` | Pulls images, runs migrations, swaps containers, health-checks, rolls back on failure | GitHub Actions, automatically, on every merge to `main`. |
-| `deploy/scripts/backup.sh` / `restore-test.sh` | Nightly backup, weekly restore drill | A cron job on the VPS (installed by Ansible), not GitHub Actions. |
+| `deploy/scripts/backup.sh` / `restore-test.sh` | Nightly backup, weekly restore drill | A cron job on the VPS (installed by Ansible), not GitHub Actions. Each run also writes one row (ok or failed) into the `ops_events` table of `ladu_prod`, through `record-event.sh`; the admin health page reads it. A failed write only prints a warning. |
 | `backend/scripts/purge.js` | Nightly purge: deletes accounts soft-deleted more than 30 days ago, and login history older than 90 days | A cron job on the VPS at 03:30 UTC (Ansible role `purge`), run with `docker exec backend-<env> node scripts/purge.js`. Logs: `/opt/ladu/purge/purge-<env>.log`. No Healthchecks.io monitor yet. |
 | `deploy/env/app.env.example` | Documents every env var `app.yml`'s `backend` service needs | Reference only — never contains real values. |
 

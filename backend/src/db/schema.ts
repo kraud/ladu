@@ -621,3 +621,24 @@ export const exercisePerformanceCasesRelations = relations(exercisePerformanceCa
         references: [exercisePerformances.id],
     }),
 }));
+
+// ---------------------------------------------------------------------------
+// OPS_EVENTS
+// Facts about the deployment that only the VPS scripts know: one row for each
+// nightly backup and each weekly restore test (deploy/scripts/record-event.sh
+// writes them as the DB superuser, after the run). The admin health page reads
+// the newest row of each kind. Only production is backed up, so staging has none.
+// ---------------------------------------------------------------------------
+export const opsEvents = pgTable(
+    'ops_events',
+    {
+        id:        uuid('id').primaryKey().defaultRandom(),
+        // 'backup' | 'restore_test'
+        kind:      varchar('kind', { length: 32 }).notNull(),
+        ok:        boolean('ok').notNull(),
+        // A short human-readable line: the dump file name, or why the run failed.
+        detail:    text('detail'),
+        createdAt: timestamp('created_at').defaultNow().notNull(),
+    },
+    (table) => [index('ops_events_kind_created_idx').on(table.kind, table.createdAt)],
+);

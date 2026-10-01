@@ -1,6 +1,6 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail) and 5 (actions) are done. Slices 6–9 are not started.
+Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions) and 6 (health page) are done. Slices 7–9 are not started.
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
@@ -40,6 +40,14 @@ Slice 5 notes:
 - `GET /auth/me` and the login response now include `permissions`. The UI shows only the buttons a role may use (`useCan`). A session saved before this change is dropped once.
 - `deploy/ansible/roles/purge`: cron at 03:30 UTC for staging and prod (after the 03:00 backup). **Not applied yet:** run the Ansible playbook to install it. The operator guide (`.dev-context/infrastructure-guide/01-architecture-overview.md`) lists it.
 - Not included: "Resend verification email" and "Send password reset" (in the feature list, but not in the slice 5 row). A failed purge job has no alert: the log file is the only trace (a Healthchecks.io ping is a possible later step).
+
+Slice 6 notes:
+- `GET /api/admin/health` (`health.read`, all roles). Code: `backend/controllers/admin/healthController.ts`. Tests: `backend/tests/adminHealth.test.js`. UI: `admin/src/features/health/`. Links to the external tools are in `admin/src/features/health/links.ts` (public front pages; replace them with your direct project addresses).
+- Each environment's admin shows its own backend (`ENVIRONMENT` and `GIT_SHA` from the container). `admin.` shows prod, `admin-staging.` shows staging. The link list has the public `/api/health` address of both.
+- If the database does not answer, the API still returns 200 with `database: "error"`, and the database and backup blocks are null.
+- Decision made with the user: backups are reported through a new `ops_events` table (migration `0013_ops_events.sql`). `deploy/scripts/record-event.sh` is sourced by `backup.sh` and `restore-test.sh`; it writes one row per run, success or failure, as the DB superuser. The backup Ansible role syncs the new file. A failed write only warns. The SQL path was tested against the local Postgres container. The full scripts cannot run here (they need the VPS, B2 and Docker Compose paths).
+- **Not applied yet:** run the Ansible playbook so the VPS gets the new scripts. The health page shows "None recorded" for backups until the first nightly run after that. Staging never shows a backup (only prod is backed up).
+- The page warns ("Overdue") when the last backup is older than 26 hours, or the last restore test older than 8 days.
 - Slice 1 leftover: `landing/privacy.html` still needs the line about the login country. Do this before slice 7 (deploy).
 
 ## Context

@@ -6,7 +6,8 @@
  *   └── _protected     pathless layout with the header; `beforeLoad` is the auth gate
  *       ├── /                 overview (placeholder)
  *       ├── /users            users list (search, filters, sort and page live in the URL)
- *       └── /users/$userId    user detail
+ *       ├── /users/$userId    user detail
+ *       └── /health           deployment health
  */
 import {
     createRootRoute,
@@ -25,6 +26,7 @@ import { NotFoundPage } from '@/routes/NotFoundPage';
 import { UsersPage } from '@/features/users/pages/UsersPage';
 import { UserDetailPage } from '@/features/users/pages/UserDetailPage';
 import { validateUsersSearch } from '@/features/users/search';
+import { HealthPage } from '@/features/health/pages/HealthPage';
 
 const rootRoute = createRootRoute({ notFoundComponent: NotFoundPage });
 
@@ -71,9 +73,15 @@ const userDetailRoute = createRoute({
     component: UserDetailPage,
 });
 
+const healthRoute = createRoute({
+    getParentRoute: () => protectedRoute,
+    path: '/health',
+    component: HealthPage,
+});
+
 const routeTree = rootRoute.addChildren([
     loginRoute,
-    protectedRoute.addChildren([overviewRoute, usersRoute, userDetailRoute]),
+    protectedRoute.addChildren([overviewRoute, usersRoute, userDetailRoute, healthRoute]),
 ]);
 
 /** Tests pass a memory history; the app uses the browser's. */

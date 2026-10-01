@@ -118,7 +118,8 @@ const clearDB = async () => {
             tags,
             users,
             audit_log,
-            staff_accounts
+            staff_accounts,
+            ops_events
         RESTART IDENTITY CASCADE
     `);
 };
