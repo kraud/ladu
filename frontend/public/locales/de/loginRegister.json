@@ -17,7 +17,6 @@
     "usernameInUse": "Dieser Benutzername ist bereits vergeben.",
     "invalidLink": "Dieser Link ist ungültig oder abgelaufen.",
     "invalidToken": "Dieser Link zum Zurücksetzen ist ungültig oder abgelaufen.",
-    "noUserForEmail": "Mit dieser E-Mail ist kein Konto registriert.",
     "notEnoughLanguages": "Bitte wähle mindestens zwei Sprachen aus.",
     "invalidLanguage": "Diese Sprache wird nicht unterstützt.",
     "signInWithGoogle": "Dieses Konto meldet sich mit Google an — verwende stattdessen die Google-Schaltfläche.",
@@ -38,7 +37,7 @@
   },
   "toastMessages": {
     "passwordUpdated": "Passwort erfolgreich aktualisiert!",
-    "emailSent": "E-Mail erfolgreich gesendet!"
+    "resetEmailRequested": "Gehört diese E-Mail zu einem Konto, haben wir einen Link zum Zurücksetzen gesendet."
   },
   "unverifiedWarning": "Du musst dein Konto bestätigen, bevor du dich anmelden kannst.",
   "brand": {

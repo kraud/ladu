@@ -6,6 +6,30 @@ the same root causes are worth checking first if the symptom matches.
 
 ---
 
+### "A user did not get the verification or reset email"
+
+A support person can send the email again from the admin panel. Open the user,
+then press **Resend verification email** (only for an account that is not
+verified) or **Send password reset** (only for an account with a password).
+Each button needs the `users.email` permission (support, admin, owner). The
+same email to the same user is refused for 5 minutes.
+
+A user who asks for a reset on the public page gets the same answer for any
+address, and only one reset email per account every 5 minutes (a link that
+support sent also starts that window). If the user says "I asked and nothing
+came", the account may not exist or the 5 minutes may not be over.
+
+The admin panel cannot know if the email arrived. It only knows that the mail
+service accepted it. To see what happened, open the **Resend dashboard, Logs
+tab** and search for the user's address. If the log is empty, the email never
+left the VPS: use "Emails aren't arriving" below.
+
+Each send writes an audit row (`user.resend_verification` or
+`user.send_password_reset`). The row has the address and the language. It never
+has the token or the link.
+
+---
+
 ### "A `deploy.yml` run failed on the `staging` or `production` job, at the migration step"
 
 **What happened:** `deploy.sh` ran `docker compose run --rm backend node

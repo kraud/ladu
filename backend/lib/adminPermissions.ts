@@ -7,6 +7,8 @@
 export const PERMISSIONS = [
   "users.read",
   "users.ban",
+  // Resend the verification email, send a password reset email.
+  "users.email",
   "users.delete",
   // "Purge now": deletes an account for good, before the 30-day grace ends.
   // Owner only, because nothing can undo it.
@@ -20,8 +22,8 @@ export type Permission = (typeof PERMISSIONS)[number];
 
 export const ROLE_PERMISSIONS = {
   owner: [...PERMISSIONS],
-  admin: ["users.read", "users.ban", "users.delete", "health.read", "audit.read"],
-  support: ["users.read", "users.ban", "health.read"],
+  admin: ["users.read", "users.ban", "users.email", "users.delete", "health.read", "audit.read"],
+  support: ["users.read", "users.ban", "users.email", "health.read"],
   viewer: ["users.read", "health.read"],
 } as const satisfies Record<string, readonly Permission[]>;
 

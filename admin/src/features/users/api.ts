@@ -18,7 +18,7 @@ export async function fetchUser(id: string): Promise<UserDetail> {
     return data;
 }
 
-export type UserActionName = 'ban' | 'unban' | 'force-logout' | 'delete' | 'restore' | 'purge';
+export type UserActionName = 'ban' | 'unban' | 'force-logout' | 'delete' | 'restore' | 'purge' | 'resend-verification' | 'send-password-reset';
 
 export interface UserActionBody {
     reason?: string;

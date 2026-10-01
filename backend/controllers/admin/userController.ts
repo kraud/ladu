@@ -17,12 +17,14 @@ const {
   auditLog,
   staffAccounts,
 }: typeof import('../../src/db/schema') = require('../../src/db/schema');
-const { and, asc, desc, eq, ilike, isNotNull, isNull, or, sql }: typeof import('drizzle-orm') =
+const { and, asc, desc, eq, gt, ilike, isNotNull, isNull, or, sql }: typeof import('drizzle-orm') =
   require('drizzle-orm');
 const { hasPermission }: typeof import('../../lib/adminPermissions') = require('../../lib/adminPermissions');
 const { isUuid }: typeof import('../userController') = require('../userController');
 const { hardDeleteUser }: typeof import('../../lib/userPurge') = require('../../lib/userPurge');
 import type { Tx } from '../../lib/userPurge';
+const { issueVerificationEmail, issuePasswordResetEmail }: typeof import('../../lib/accountEmails') = require('../../lib/accountEmails');
+import type { SendEmail } from '../../lib/accountEmails';
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 100;
@@ -254,6 +256,7 @@ const getUser = asyncHandler(async (req: any, res: any) => {
 // ---------------------------------------------------------------------------
 
 const MAX_REASON_LENGTH = 500;
+const EMAIL_COOLDOWN_MINUTES = 5;
 
 class HttpError extends Error {
   constructor(
@@ -279,7 +282,12 @@ interface ActionSpec {
   confirmUsername?: boolean;
   /** A message if the action is not possible in the user's current state, else null. */
   blockedBy: (user: UserRow) => string | null;
-  apply: (tx: Tx, user: UserRow, ctx: ActionContext) => Promise<void>;
+  /** Returns a function to run after the transaction commits (an email), if there is one. */
+  apply: (tx: Tx, user: UserRow, ctx: ActionContext) => Promise<void | SendEmail>;
+  /** The same action on the same user is refused for this many minutes after it was done (read from the audit log). */
+  cooldownMinutes?: number;
+  /** Extra audit metadata, next to the email and username every row has. */
+  auditMetadata?: (user: UserRow) => Record<string, unknown>;
   /**
    * The action deletes the user. `apply` then writes the audit row itself (via
    * `hardDeleteUser`), and the response has no user detail.
@@ -341,6 +349,26 @@ const ACTIONS = {
       await hardDeleteUser(tx, u, { staffId, reason });
     },
   },
+  // The two email actions. The token row is written in the transaction; the
+  // email itself leaves only after the commit (`afterCommit`). Delivery is not
+  // known, so the response never says "sent", and the audit row holds the
+  // address and language but never the token or the link.
+  'resend-verification': {
+    action: 'user.resend_verification',
+    reasonRequired: false,
+    cooldownMinutes: EMAIL_COOLDOWN_MINUTES,
+    auditMetadata: (u) => ({ language: u.uiLanguage }),
+    blockedBy: (u) => (u.deletedAt ? 'This account is deleted' : u.verified === true ? 'This account is already verified' : null),
+    apply: (tx, u) => issueVerificationEmail(u, tx),
+  },
+  'send-password-reset': {
+    action: 'user.send_password_reset',
+    reasonRequired: false,
+    cooldownMinutes: EMAIL_COOLDOWN_MINUTES,
+    auditMetadata: (u) => ({ language: u.uiLanguage }),
+    blockedBy: (u) => (u.deletedAt ? 'This account is deleted' : u.password === null ? 'This account has no password' : null),
+    apply: (tx, u) => issuePasswordResetEmail(u, tx),
+  },
 } satisfies Record<string, ActionSpec>;
 
 type ActionName = keyof typeof ACTIONS;
@@ -360,6 +388,7 @@ const userAction = (name: ActionName) => {
 
   return asyncHandler(async (req: any, res: any) => {
     const { id } = req.params;
+    let afterCommit: SendEmail | undefined;
     try {
       if (!isUuid(id)) throw new HttpError(404, 'User not found');
       const reason = readReason(req.body, spec.reasonRequired);
@@ -377,7 +406,23 @@ const userAction = (name: ActionName) => {
           throw new HttpError(400, 'The typed username does not match');
         }
 
-        await spec.apply(tx, user, { staffId: req.staff.id, reason });
+        if (spec.cooldownMinutes) {
+          // Runs after the row lock, so two parallel clicks cannot both pass.
+          const since = new Date(Date.now() - spec.cooldownMinutes * 60_000);
+          const [last] = await tx
+            .select({ createdAt: auditLog.createdAt })
+            .from(auditLog)
+            .where(and(eq(auditLog.action, spec.action), eq(auditLog.targetId, user.id), gt(auditLog.createdAt, since)))
+            .orderBy(desc(auditLog.createdAt))
+            .limit(1);
+          if (last) {
+            const retryAt = new Date(last.createdAt.getTime() + spec.cooldownMinutes * 60_000);
+            const minutes = Math.max(1, Math.ceil((retryAt.getTime() - Date.now()) / 60_000));
+            throw new HttpError(429, `This email was sent a moment ago. Try again in ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}.`);
+          }
+        }
+
+        afterCommit = (await spec.apply(tx, user, { staffId: req.staff.id, reason })) as SendEmail | undefined;
 
         if (!spec.removesUser) {
           await tx.insert(auditLog).values({
@@ -387,7 +432,7 @@ const userAction = (name: ActionName) => {
             targetId: user.id,
             reason: reason || null,
             // Enough to identify the account even if it is purged later.
-            metadata: { email: user.email, username: user.username },
+            metadata: { email: user.email, username: user.username, ...spec.auditMetadata?.(user) },
           });
         }
       });
@@ -395,6 +440,9 @@ const userAction = (name: ActionName) => {
       if (error instanceof HttpError) res.status(error.status);
       throw error;
     }
+
+    // Only now: the transaction is committed, so no email leaves for a rolled-back change.
+    if (afterCommit) afterCommit();
 
     if (spec.removesUser) {
       res.json({ purged: true });
@@ -410,5 +458,7 @@ const forceLogoutUser = userAction('force-logout');
 const deleteUser = userAction('delete');
 const restoreUser = userAction('restore');
 const purgeUser = userAction('purge');
+const resendVerification = userAction('resend-verification');
+const sendPasswordReset = userAction('send-password-reset');
 
-export = { listUsers, getUser, banUser, unbanUser, forceLogoutUser, deleteUser, restoreUser, purgeUser };
+export = { listUsers, getUser, banUser, unbanUser, forceLogoutUser, deleteUser, restoreUser, purgeUser, resendVerification, sendPasswordReset };

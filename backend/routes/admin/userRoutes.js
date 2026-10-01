@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const {
     listUsers, getUser, banUser, unbanUser, forceLogoutUser, deleteUser, restoreUser, purgeUser,
+    resendVerification, sendPasswordReset,
 } = require('../../controllers/admin/userController.ts')
 const { requireStaff } = require('../../middleware/staffAuth.ts')
 
@@ -15,5 +16,7 @@ router.post('/:id/force-logout', requireStaff('users.ban'), forceLogoutUser)
 router.post('/:id/delete', requireStaff('users.delete'), deleteUser)
 router.post('/:id/restore', requireStaff('users.delete'), restoreUser)
 router.post('/:id/purge', requireStaff('users.purge'), purgeUser)
+router.post('/:id/resend-verification', requireStaff('users.email'), resendVerification)
+router.post('/:id/send-password-reset', requireStaff('users.email'), sendPasswordReset)
 
 module.exports = router

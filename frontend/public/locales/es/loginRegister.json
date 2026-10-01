@@ -17,7 +17,6 @@
     "usernameInUse": "Ese nombre de usuario ya está en uso.",
     "invalidLink": "Este enlace no es válido o ha caducado.",
     "invalidToken": "Este enlace de restablecimiento no es válido o ha caducado.",
-    "noUserForEmail": "No hay ninguna cuenta registrada con ese correo electrónico.",
     "notEnoughLanguages": "Selecciona al menos dos idiomas.",
     "invalidLanguage": "Ese idioma no es compatible.",
     "signInWithGoogle": "Esta cuenta inicia sesión con Google — usa el botón de Google en su lugar.",
@@ -38,7 +37,7 @@
   },
   "toastMessages": {
     "passwordUpdated": "¡Contraseña actualizada con éxito!",
-    "emailSent": "¡Correo enviado con éxito!"
+    "resetEmailRequested": "Si ese correo pertenece a una cuenta, le enviamos un enlace para restablecer la contraseña."
   },
   "unverifiedWarning": "Debes verificar tu cuenta antes de iniciar sesión.",
   "brand": {

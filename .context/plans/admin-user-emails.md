@@ -1,6 +1,14 @@
 # Plan: Admin user emails ("Resend verification email" and "Send password reset")
 
-Status: planned on 2026-10-01. No code is written yet. Branch: `admin-user-emails`.
+Status: built on 2026-10-01, not deployed yet. Branch: `admin-user-emails`. All decisions in the table below were confirmed as written.
+
+Build notes:
+- Shared code: `backend/lib/accountEmails.ts`. The public handlers (`registerUser`, `requestPasswordReset`) use it too. Behavior is unchanged.
+- The admin runner got two optional `ActionSpec` fields: `cooldownMinutes` and `auditMetadata`. `apply` can now return a function that the runner calls after the commit.
+- Tests: `backend/tests/adminUserEmails.test.js`, `admin/src/features/users/UserActions.test.tsx`, `e2e/tests/admin-10-user-emails.spec.ts`. The cooldown test moves the audit rows into the past instead of using fake timers. The "no email on rollback" test forces a failure after the action ran.
+- Docs: the playbook entry "A user did not get the verification or reset email".
+- Follow-up, same branch: the public `requestPasswordReset` now answers 200 with the same message for an unknown, a throttled and a sent request. It allows one email per account every 5 minutes (the newest `password_reset_tokens.createdAt` of any origin starts the window, under a row lock). The learner app shows a matching toast in all four languages, and the "no user registered" error text is gone from the frontend.
+- Next: `.context/plans/access-gates.md`.
 
 This plan adds the last two actions that `.context/plans/admin-dashboard.md` §3 lists under "Actions" for a user, and that slice 5 left out. It is a small, separate PR. It comes **before** `.context/plans/access-gates.md`.
 

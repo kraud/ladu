@@ -98,7 +98,7 @@ export function useRequestReset() {
     return useMutation({
         mutationFn: (body: RequestResetRequest) => authApi.requestPasswordReset(body),
         onSuccess: () => {
-            toast.success(t('loginRegister:toastMessages.emailSent'));
+            toast.success(t('loginRegister:toastMessages.resetEmailRequested'));
             void navigate({ to: '/login' });
         },
         onError: (error) => toast.error(t(authErrorKey(error))),

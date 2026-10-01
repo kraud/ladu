@@ -27,6 +27,9 @@ interface ActionConfig {
     typeUsername?: boolean;
 }
 
+/** The server cannot know if the mail service delivered the email, so the notice never says "sent". */
+const EMAIL_DONE = 'The email was handed to the mail service. We cannot tell if it arrived.';
+
 const CONFIG: Record<UserActionName, ActionConfig> = {
     ban: {
         permission: 'users.ban',
@@ -91,12 +94,41 @@ const CONFIG: Record<UserActionName, ActionConfig> = {
         reason: 'required',
         typeUsername: true,
     },
+    'resend-verification': {
+        permission: 'users.email',
+        buttonLabel: 'Resend verification email',
+        title: 'Resend the verification email?',
+        description:
+            'The user gets the same verification link again, in the language of the app. You can send this email once every 5 minutes.',
+        confirmLabel: 'Send email',
+        done: EMAIL_DONE,
+        destructive: false,
+        reason: 'optional',
+    },
+    'send-password-reset': {
+        permission: 'users.email',
+        buttonLabel: 'Send password reset',
+        title: 'Send a password reset email?',
+        description:
+            'The user gets a new link to choose a password. The link is valid for 30 minutes. You can send this email once every 5 minutes.',
+        confirmLabel: 'Send email',
+        done: EMAIL_DONE,
+        destructive: false,
+        reason: 'optional',
+    },
+};
+
+/** Rules that depend on more than the status. */
+const ELIGIBLE: Partial<Record<UserActionName, (user: UserDetail) => boolean>> = {
+    'resend-verification': (user) => !user.verified,
+    'send-password-reset': (user) => user.hasPassword,
 };
 
 /** Which actions make sense for each status. A button also needs its permission. */
 const BY_STATUS: Record<UserDetail['status'], UserActionName[]> = {
-    active: ['ban', 'force-logout', 'delete'],
-    banned: ['unban', 'force-logout', 'delete'],
+    active: ['ban', 'force-logout', 'resend-verification', 'send-password-reset', 'delete'],
+    // A banned user may still get an email.
+    banned: ['unban', 'force-logout', 'resend-verification', 'send-password-reset', 'delete'],
     deleted: ['restore', 'purge'],
 };
 
@@ -205,11 +237,14 @@ export function UserActions({ user }: { user: UserDetail }) {
     const canBan = useCan('users.ban');
     const canDelete = useCan('users.delete');
     const canPurge = useCan('users.purge');
+    const canEmail = useCan('users.email');
     const [open, setOpen] = useState<UserActionName | null>(null);
     const [notice, setNotice] = useState<string | null>(null);
 
-    const allowed = new Set([canBan && 'users.ban', canDelete && 'users.delete', canPurge && 'users.purge']);
-    const actions = BY_STATUS[user.status].filter((name) => allowed.has(CONFIG[name].permission));
+    const allowed = new Set([canBan && 'users.ban', canDelete && 'users.delete', canPurge && 'users.purge', canEmail && 'users.email']);
+    const actions = BY_STATUS[user.status].filter(
+        (name) => allowed.has(CONFIG[name].permission) && (ELIGIBLE[name]?.(user) ?? true),
+    );
     if (actions.length === 0 && !notice) return null;
 
     return (

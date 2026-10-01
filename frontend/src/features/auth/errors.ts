@@ -29,8 +29,6 @@ const MESSAGE_TO_KEY: Record<string, string> = {
     // verify email
     'Invalid Link (no user match)': 'loginRegister:apiErrors.invalidLink',
     'Invalid Link (no token match)': 'loginRegister:apiErrors.invalidLink',
-    // request password reset
-    'There is no user registered with the email given.': 'loginRegister:apiErrors.noUserForEmail',
     // set new password
     'Invalid format for UserId': 'loginRegister:apiErrors.invalidLink',
     'Invalid Link (no user match).': 'loginRegister:apiErrors.invalidLink',
