@@ -72,7 +72,7 @@ async function staffSignIn(page: Page, role: string, goTo: string) {
     await page.getByRole('button', { name: 'Sign in' }).click();
 }
 
-// The page has a Registration card and a Login card that share labels and button names, so each query is scoped.
+// The page has a Registration tab and a Login tab that share labels and button names, so each query is scoped.
 const registrationCard = (page: Page) => page.getByRole('region', { name: 'Registration' });
 const inviteList = (page: Page) => page.getByRole('region', { name: /Invite list/ });
 
@@ -97,7 +97,7 @@ test('only an owner sees the page', async ({ page }) => {
 
 test('limited: the owner sets it and sees the empty-list warning; the learner page shows the banner and the line', async ({ page }) => {
     await staffSignIn(page, 'owner', '/access');
-    await expect(page.getByRole('heading', { name: 'Registration' })).toBeVisible();
+    await expect(registrationCard(page)).toBeVisible();
     await expect(page.getByRole('link', { name: 'Access' })).toBeVisible();
 
     // Picking "Limited" with no invites warns at once.
@@ -193,7 +193,7 @@ test('closed: nobody can register, even an invited email; the learner page turns
 test('staff are never blocked: the owner still signs in and reopens the gate while it is closed', async ({ page }) => {
     expect((await getRegistrationSettings()).mode).toBe('closed');
     await staffSignIn(page, 'owner', '/access');
-    await expect(page.getByRole('heading', { name: 'Registration' })).toBeVisible();
+    await expect(registrationCard(page)).toBeVisible();
     await setState(page, 'Open', { reason: 'e2e reopen' });
     expect((await getRegistrationSettings()).mode).toBe('open');
 });

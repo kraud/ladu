@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link, useSearch } from '@tanstack/react-router';
 import { errorMessage } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,6 +70,14 @@ const GATE_TEXT: Record<
 export function AccessPage() {
     const { data, error, isPending, isError, refetch } = useAccessState();
     const [notice, setNotice] = useState<string | null>(null);
+    // The tab is a real URL state (`?tab=`), so it is shareable and the back button works.
+    const { tab } = useSearch({ from: '/_protected/access' });
+    const tabClass = (active: boolean) =>
+        `border-b-2 px-3 py-2 text-sm ${
+            active
+                ? 'border-foreground font-semibold text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+        }`;
 
     return (
         <div className="flex flex-col gap-4">
@@ -81,6 +90,26 @@ export function AccessPage() {
                     </p>
                 )}
             </div>
+
+            {/* Each link names the section it opens (`aria-labelledby` below points at it). */}
+            <nav aria-label="Access sections" className="-mb-1 flex border-b">
+                <Link
+                    id="access-registration-tab"
+                    to="/access"
+                    search={{ tab: 'registration' }}
+                    className={tabClass(tab === 'registration')}
+                >
+                    Registration
+                </Link>
+                <Link
+                    id="access-login-tab"
+                    to="/access"
+                    search={{ tab: 'login' }}
+                    className={tabClass(tab === 'login')}
+                >
+                    Login
+                </Link>
+            </nav>
 
             {notice && (
                 <p role="status" className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -99,25 +128,20 @@ export function AccessPage() {
 
             {isPending && <p className="text-sm text-muted-foreground">Loading…</p>}
 
-            {data && (
-                <>
-                    <section aria-labelledby="access-registration-heading" className="flex flex-col gap-4">
-                        <h2 id="access-registration-heading" className="text-lg font-semibold">
-                            Registration
-                        </h2>
-                        {/* The key resets the draft when the saved state changes (after a save). */}
-                        <GateCard key={`registration|${data.registration.mode}|${data.registration.note}`} gate="registration" state={data} onDone={setNotice} />
-                        <InvitesCard state={data} onDone={setNotice} />
-                    </section>
-                    <section aria-labelledby="access-login-heading" className="flex flex-col gap-4">
-                        <h2 id="access-login-heading" className="text-lg font-semibold">
-                            Login
-                        </h2>
-                        <GateCard key={`login|${data.login.mode}|${data.login.note}`} gate="login" state={data} onDone={setNotice} />
-                        <AllowedCard state={data} onDone={setNotice} />
-                        <SignOutCard onDone={setNotice} />
-                    </section>
-                </>
+            {data && tab === 'registration' && (
+                <section aria-labelledby="access-registration-tab" className="flex flex-col gap-4">
+                    {/* The key resets the draft when the saved state changes (after a save). */}
+                    <GateCard key={`registration|${data.registration.mode}|${data.registration.note}`} gate="registration" state={data} onDone={setNotice} />
+                    <InvitesCard state={data} onDone={setNotice} />
+                </section>
+            )}
+
+            {data && tab === 'login' && (
+                <section aria-labelledby="access-login-tab" className="flex flex-col gap-4">
+                    <GateCard key={`login|${data.login.mode}|${data.login.note}`} gate="login" state={data} onDone={setNotice} />
+                    <AllowedCard state={data} onDone={setNotice} />
+                    <SignOutCard onDone={setNotice} />
+                </section>
             )}
         </div>
     );

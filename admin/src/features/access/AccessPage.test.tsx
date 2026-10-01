@@ -10,15 +10,18 @@ import { parseEmails } from '@/features/access/pages/AccessPage';
 import type { AccessState } from '@/features/access/types';
 
 const open = () => renderApp({ initialEntry: '/access', role: 'owner' });
+const openLogin = () => renderApp({ initialEntry: '/access?tab=login', role: 'owner' });
 const setup = (initial: AccessState = makeAccess()) => {
     const state = { current: initial };
     const writes: AccessWrite[] = [];
     server.use(...accessHandlers(state, writes));
     return { state, writes };
 };
-// The page has a Registration card and a Login card that share labels and button names, so each query is scoped.
+// The page has a Registration tab and a Login tab that share labels and button names, so each query is scoped.
 const registration = () => within(screen.getByRole('region', { name: 'Registration' }));
 const login = () => within(screen.getByRole('region', { name: 'Login' }));
+const registrationLoaded = () => screen.findByRole('region', { name: 'Registration' });
+const loginLoaded = () => screen.findByRole('region', { name: 'Login' });
 const modeButton = (name: string) => registration().getByRole('button', { name });
 const saveButton = () => registration().getByRole('button', { name: 'Save' });
 
@@ -54,7 +57,7 @@ describe('loading', () => {
         fail = false;
         await user.click(screen.getByRole('button', { name: 'Try again' }));
 
-        expect(await screen.findByRole('heading', { name: 'Registration' })).toBeInTheDocument();
+        await registrationLoaded();
         expect(screen.queryByText('Boom')).not.toBeInTheDocument();
     });
 });
@@ -64,7 +67,7 @@ describe('registration', () => {
         setup(makeAccess({ registration: { mode: 'closed', note: 'Back at 14:00 UTC' }, updatedAt: '2026-10-01T10:00:00.000Z', updatedBy: 'Sam Staff' }));
         await open();
 
-        await screen.findByRole('heading', { name: 'Registration' });
+        await registrationLoaded();
         expect(modeButton('Closed')).toHaveAttribute('aria-pressed', 'true');
         expect(modeButton('Open')).toHaveAttribute('aria-pressed', 'false');
         expect(registration().getByLabelText(/Extra line/)).toHaveValue('Back at 14:00 UTC');
@@ -79,7 +82,7 @@ describe('registration', () => {
         const user = userEvent.setup();
         await open();
 
-        await screen.findByRole('heading', { name: 'Registration' });
+        await registrationLoaded();
         expect(saveButton()).toBeDisabled();
         await user.click(modeButton('Closed'));
         expect(saveButton()).toBeEnabled();
@@ -92,7 +95,7 @@ describe('registration', () => {
         const user = userEvent.setup();
         await open();
 
-        await screen.findByRole('heading', { name: 'Registration' });
+        await registrationLoaded();
         await user.click(modeButton('Closed'));
         await user.type(registration().getByLabelText(/Extra line/), '  Back at 14:00 UTC ');
         await user.click(saveButton());
@@ -120,7 +123,7 @@ describe('registration', () => {
         const user = userEvent.setup();
         await open();
 
-        await screen.findByRole('heading', { name: 'Registration' });
+        await registrationLoaded();
         await user.click(modeButton('Closed'));
         await user.click(saveButton());
         await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancel' }));
@@ -134,7 +137,7 @@ describe('registration', () => {
         const user = userEvent.setup();
         await open();
 
-        await screen.findByRole('heading', { name: 'Registration' });
+        await registrationLoaded();
         await user.type(registration().getByLabelText(/Extra line/), 'Soon');
         await user.click(saveButton());
         const dialog = await screen.findByRole('dialog');
@@ -150,7 +153,7 @@ describe('registration', () => {
         const user = userEvent.setup();
         await open();
 
-        await screen.findByRole('heading', { name: 'Registration' });
+        await registrationLoaded();
         const note = registration().getByLabelText(/Extra line/);
         await user.click(note);
         await user.paste('x'.repeat(320));
@@ -163,7 +166,7 @@ describe('registration', () => {
         const user = userEvent.setup();
         await open();
 
-        await screen.findByRole('heading', { name: 'Registration' });
+        await registrationLoaded();
         expect(screen.queryByText(/invite list is empty, so nobody can register/)).not.toBeInTheDocument();
         await user.click(modeButton('Limited'));
         expect(screen.getByRole('alert')).toHaveTextContent('Registration is limited and the invite list is empty, so nobody can register.');
@@ -176,7 +179,7 @@ describe('registration', () => {
         const user = userEvent.setup();
         await open();
 
-        await screen.findByRole('heading', { name: 'Registration' });
+        await registrationLoaded();
         await user.click(modeButton('Limited'));
         expect(screen.queryByText(/so nobody can register\./)).not.toBeInTheDocument();
     });
@@ -187,7 +190,7 @@ describe('registration', () => {
         const user = userEvent.setup();
         await open();
 
-        await screen.findByRole('heading', { name: 'Registration' });
+        await registrationLoaded();
         await user.click(modeButton('Closed'));
         await user.click(saveButton());
         const dialog = await screen.findByRole('dialog');
@@ -336,22 +339,25 @@ describe('the invite list', () => {
 describe('login', () => {
     it('shows the saved login state and its own explanations, apart from registration', async () => {
         setup(makeAccess({ login: { mode: 'limited', note: 'Beta week' }, registration: { mode: 'closed', note: '' } }));
-        await open();
+        const user = userEvent.setup();
+        await openLogin();
 
-        await screen.findByRole('heading', { name: 'Login' });
+        await loginLoaded();
         expect(login().getByRole('button', { name: 'Limited' })).toHaveAttribute('aria-pressed', 'true');
-        expect(registration().getByRole('button', { name: 'Closed' })).toHaveAttribute('aria-pressed', 'true');
         expect(login().getByLabelText(/Extra line/)).toHaveValue('Beta week');
         expect(login().getByText('Anybody with an account can sign in.')).toBeInTheDocument();
         expect(login().getByText('Only accounts on the allowed list can sign in.')).toBeInTheDocument();
-        // The registration card does not carry the login texts.
-        expect(registration().queryByText(/can sign in/)).not.toBeInTheDocument();
+        // The registration tab is separate and keeps its own saved state.
+        await user.click(screen.getByRole('link', { name: 'Registration' }));
+        expect(registration().getByRole('button', { name: 'Closed' })).toHaveAttribute('aria-pressed', 'true');
+        // The login texts do not appear on the registration tab.
+        expect(screen.queryByText(/can sign in/)).not.toBeInTheDocument();
     });
 
     it('says that new sign-ins only are stopped, and that staff are never blocked', async () => {
         setup();
-        await open();
-        await screen.findByRole('heading', { name: 'Login' });
+        await openLogin();
+        await loginLoaded();
         const card = within(screen.getByRole('region', { name: 'Login' }));
         expect(card.getByText(/people who are already signed in stay signed in/)).toBeInTheDocument();
         expect(card.getByText(/Staff are never blocked/)).toBeInTheDocument();
@@ -360,9 +366,9 @@ describe('login', () => {
     it('asks to confirm, says what will happen, then sends the login mode, the line and the reason', async () => {
         const { writes } = setup();
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
-        await screen.findByRole('heading', { name: 'Login' });
+        await loginLoaded();
         await user.click(login().getByRole('button', { name: 'Closed' }));
         await user.type(login().getByLabelText(/Extra line/), 'Back at 14:00 UTC');
         await user.click(login().getByRole('button', { name: 'Save' }));
@@ -380,18 +386,17 @@ describe('login', () => {
             { method: 'PUT', path: '/api/admin/access/login', body: { mode: 'closed', note: 'Back at 14:00 UTC', reason: 'incident' } },
         ]);
         expect(await screen.findByRole('status')).toHaveTextContent('Login is now closed.');
-        // Registration was not touched.
+        // Registration was not touched: its tab still shows the saved state.
+        await user.click(screen.getByRole('link', { name: 'Registration' }));
         expect(registration().getByRole('button', { name: 'Open' })).toHaveAttribute('aria-pressed', 'true');
     });
 
-    it('keeps its Save off until something changes, independent of registration', async () => {
+    it('keeps its Save off until something changes', async () => {
         setup();
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
-        await screen.findByRole('heading', { name: 'Login' });
-        expect(login().getByRole('button', { name: 'Save' })).toBeDisabled();
-        await user.click(registration().getByRole('button', { name: 'Closed' }));
+        await loginLoaded();
         expect(login().getByRole('button', { name: 'Save' })).toBeDisabled();
         await user.click(login().getByRole('button', { name: 'Limited' }));
         expect(login().getByRole('button', { name: 'Save' })).toBeEnabled();
@@ -400,9 +405,9 @@ describe('login', () => {
     it('warns when login is limited and the allowed list is empty, in the card and in the confirm', async () => {
         setup();
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
-        await screen.findByRole('heading', { name: 'Login' });
+        await loginLoaded();
         await user.click(login().getByRole('button', { name: 'Limited' }));
         expect(login().getByRole('alert')).toHaveTextContent('Login is limited and the allowed list is empty, so nobody can sign in.');
         await user.click(login().getByRole('button', { name: 'Save' }));
@@ -412,9 +417,9 @@ describe('login', () => {
     it('does not warn when the allowed list has accounts', async () => {
         setup(makeAccess({ loginAllowed: [makeAllowed()] }));
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
-        await screen.findByRole('heading', { name: 'Login' });
+        await loginLoaded();
         await user.click(login().getByRole('button', { name: 'Limited' }));
         expect(login().queryByRole('alert')).not.toBeInTheDocument();
     });
@@ -422,9 +427,9 @@ describe('login', () => {
     it('explains that a new account cannot sign in when registration is open and login is limited', async () => {
         setup();
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
-        await screen.findByRole('heading', { name: 'Login' });
+        await loginLoaded();
         await user.click(login().getByRole('button', { name: 'Limited' }));
         expect(login().getByText(/new accounts are made, but they are not on the allowed list/)).toBeInTheDocument();
     });
@@ -432,9 +437,9 @@ describe('login', () => {
     it('does not say that when registration is not open', async () => {
         setup(makeAccess({ registration: { mode: 'closed', note: '' } }));
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
-        await screen.findByRole('heading', { name: 'Login' });
+        await loginLoaded();
         await user.click(login().getByRole('button', { name: 'Limited' }));
         expect(login().queryByText(/new accounts are made/)).not.toBeInTheDocument();
     });
@@ -443,9 +448,9 @@ describe('login', () => {
         setup();
         server.use(http.put('/api/admin/access/login', () => HttpResponse.json({ message: 'Boom' }, { status: 500 })));
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
-        await screen.findByRole('heading', { name: 'Login' });
+        await loginLoaded();
         await user.click(login().getByRole('button', { name: 'Closed' }));
         await user.click(login().getByRole('button', { name: 'Save' }));
         const dialog = await screen.findByRole('dialog');
@@ -464,7 +469,7 @@ describe('the allowed accounts', () => {
                 loginAllowed: [makeAllowed(), makeAllowed({ userId: 'u2', name: 'Mart Kask', email: 'mart@example.com', status: 'banned', addedBy: null })],
             }),
         );
-        await open();
+        await openLogin();
 
         await screen.findByText('Kaja Tamm');
         expect(screen.getByRole('heading', { name: /Allowed accounts/ })).toHaveTextContent('(2)');
@@ -480,7 +485,7 @@ describe('the allowed accounts', () => {
 
     it('says the list is empty, and that it stays when the state is open', async () => {
         setup();
-        await open();
+        await openLogin();
         const card = within(await screen.findByRole('region', { name: /Allowed accounts/ }));
         expect(card.getByText('The allowed list is empty.')).toBeInTheDocument();
         expect(card.getByText(/The list stays when you switch to another state/)).toBeInTheDocument();
@@ -508,7 +513,7 @@ describe('the allowed accounts', () => {
             ...accessHandlers(state, writes),
         );
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByRole('heading', { name: /Allowed accounts/ });
         expect(allowedCard().getByRole('button', { name: 'Add to the allowed list' })).toBeDisabled();
@@ -532,7 +537,7 @@ describe('the allowed accounts', () => {
     it('refuses more than 500 emails before it sends', async () => {
         const { writes } = setup();
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByRole('heading', { name: /Allowed accounts/ });
         await user.click(allowedCard().getByLabelText('Add accounts by email'));
@@ -546,7 +551,7 @@ describe('the allowed accounts', () => {
         setup();
         server.use(http.post('/api/admin/access/login-allowed', () => HttpResponse.json({ message: 'Boom' }, { status: 500 })));
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByRole('heading', { name: /Allowed accounts/ });
         await user.type(allowedCard().getByLabelText('Add accounts by email'), 'a@example.test');
@@ -559,7 +564,7 @@ describe('the allowed accounts', () => {
     it('removes one account', async () => {
         const { writes } = setup(makeAccess({ loginAllowed: [makeAllowed(), makeAllowed({ userId: 'u2', name: 'Mart Kask', email: 'mart@example.com' })] }));
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByText('Kaja Tamm');
         await user.click(screen.getByRole('button', { name: 'Remove kaja@example.com from the allowed list' }));
@@ -574,7 +579,7 @@ describe('the allowed accounts', () => {
         setup(makeAccess({ loginAllowed: [makeAllowed()] }));
         server.use(http.delete('/api/admin/access/login-allowed/:userId', () => HttpResponse.json({ message: 'This account is not on the allowed list' }, { status: 404 })));
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByText('Kaja Tamm');
         await user.click(screen.getByRole('button', { name: 'Remove kaja@example.com from the allowed list' }));
@@ -589,7 +594,7 @@ describe('sign everyone out', () => {
 
     it('is a separate red section at the bottom, and sends nothing until the dialog is confirmed', async () => {
         const { writes } = setup();
-        await open();
+        await openLogin();
 
         const region = await screen.findByRole('region', { name: 'Sign everyone out' });
         // It is the last section on the page.
@@ -603,7 +608,7 @@ describe('sign everyone out', () => {
     it('needs a reason and the exact phrase before the button works', async () => {
         const { writes } = setup();
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByRole('region', { name: 'Sign everyone out' });
         await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
@@ -629,7 +634,7 @@ describe('sign everyone out', () => {
     it('sends the phrase and the reason, closes the dialog, and shows how many were signed out', async () => {
         const { writes } = setup();
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByRole('region', { name: 'Sign everyone out' });
         await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
@@ -649,7 +654,7 @@ describe('sign everyone out', () => {
         setup();
         server.use(http.post('/api/admin/access/sign-out-everyone', () => HttpResponse.json({ signedOut: 1 })));
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByRole('region', { name: 'Sign everyone out' });
         await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
@@ -664,7 +669,7 @@ describe('sign everyone out', () => {
     it('cancel closes the dialog, sends nothing, and clears what was typed', async () => {
         const { writes } = setup();
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByRole('region', { name: 'Sign everyone out' });
         await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
@@ -684,7 +689,7 @@ describe('sign everyone out', () => {
         setup();
         server.use(http.post('/api/admin/access/sign-out-everyone', () => HttpResponse.json({ message: 'Boom' }, { status: 500 })));
         const user = userEvent.setup();
-        await open();
+        await openLogin();
 
         await screen.findByRole('region', { name: 'Sign everyone out' });
         await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));

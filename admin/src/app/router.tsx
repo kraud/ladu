@@ -10,7 +10,7 @@
  *       ├── /health           deployment health
  *       ├── /staff            staff management (staff.manage)
  *       ├── /audit            audit log (audit.read)
- *       ├── /access           registration gate and invite list (access.manage)
+ *       ├── /access           registration and login gates, two tabs (access.manage)
  *       ├── /account          your own account (every role)
  *       └── /account/password change your own password (also open to a temporary password)
  */
@@ -36,6 +36,7 @@ import { StaffPage } from '@/features/staff/pages/StaffPage';
 import { AuditPage } from '@/features/audit/pages/AuditPage';
 import { validateAuditSearch } from '@/features/audit/search';
 import { AccessPage } from '@/features/access/pages/AccessPage';
+import { validateAccessSearch } from '@/features/access/search';
 import { ChangePasswordPage } from '@/features/auth/pages/ChangePasswordPage';
 import { AccountPage } from '@/features/auth/pages/AccountPage';
 
@@ -123,6 +124,7 @@ const auditRoute = createRoute({
 const accessRoute = createRoute({
     getParentRoute: () => protectedRoute,
     path: '/access',
+    validateSearch: validateAccessSearch,
     beforeLoad: requirePermission('access.manage'),
     component: AccessPage,
 });
