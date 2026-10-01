@@ -19,6 +19,8 @@ export interface StaffUser {
     permissions: string[];
     /** True while the person still has the temporary password an owner gave them. */
     mustChangePassword: boolean;
+    /** The backend's `ENVIRONMENT` ("staging"/"prod", or "local" in dev) — the header marks which environment this is. Not a column of `staff_accounts`. */
+    environment: string;
 }
 
 interface AuthState {

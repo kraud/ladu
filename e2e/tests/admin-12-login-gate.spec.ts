@@ -99,7 +99,7 @@ async function sessionToken(request: APIRequestContext, key: string): Promise<st
 const meStatus = async (request: APIRequestContext, token: string) =>
     (await request.get(`${API}/api/users/me`, { headers: { Authorization: `Bearer ${token}` } })).status();
 
-// The page has a Registration card and a Login card that share labels and button names, so each query is scoped.
+// The page has a Registration tab and a Login tab that share labels and button names, so each query is scoped.
 const loginCard = (page: Page) => page.getByRole('region', { name: 'Login', exact: true });
 const allowedCard = (page: Page) => page.getByRole('region', { name: /Allowed accounts/ });
 const signOutCard = (page: Page) => page.getByRole('region', { name: 'Sign everyone out', exact: true });
@@ -131,7 +131,7 @@ test('closed: every new sign-in is refused, an open session keeps working, staff
     // An open session, taken before the gate closes.
     tokens.allowed = await sessionToken(request, 'allowed');
 
-    await staffSignIn(page, 'owner', '/access');
+    await staffSignIn(page, 'owner', '/access?tab=login');
     await expect(loginCard(page)).toBeVisible();
     await setLoginState(page, 'Closed', { note: 'E2E login note', reason: 'e2e closed' });
     expect(await getLoginSettings()).toEqual({ mode: 'closed', note: 'E2E login note' });
@@ -170,7 +170,7 @@ test('closed: every new sign-in is refused, an open session keeps working, staff
 });
 
 test('limited: the owner sees the empty-list warning and adds an account by paste, and only that account signs in', async ({ page, request }) => {
-    await staffSignIn(page, 'owner', '/access');
+    await staffSignIn(page, 'owner', '/access?tab=login');
     await loginCard(page).getByRole('group', { name: 'Login' }).getByRole('button', { name: 'Limited', exact: true }).click();
     await expect(loginCard(page).getByRole('alert')).toContainText('the allowed list is empty, so nobody can sign in');
     await loginCard(page).getByRole('button', { name: 'Save', exact: true }).click();
@@ -286,7 +286,7 @@ test('the panic button: old sessions end at the next request, staff stay signed 
     expect(await meStatus(request, tokens.other)).toBe(200);
     const before = await getTokenVersion(learnerEmail('allowed'));
 
-    await staffSignIn(page, 'owner', '/access');
+    await staffSignIn(page, 'owner', '/access?tab=login');
     await expect(signOutCard(page)).toBeVisible();
     await signOutCard(page).getByRole('button', { name: 'Sign everyone out…' }).click();
     const dialog = page.getByRole('dialog');
@@ -330,7 +330,7 @@ test('the panic button: old sessions end at the next request, staff stay signed 
 
 test('open: the owner reopens login, everything works again, and the allowed list stays', async ({ page, request }) => {
     expect((await getLoginSettings()).mode).toBe('limited');
-    await staffSignIn(page, 'owner', '/access');
+    await staffSignIn(page, 'owner', '/access?tab=login');
     await setLoginState(page, 'Open', { reason: 'e2e reopen' });
     expect((await getLoginSettings()).mode).toBe('open');
 

@@ -55,6 +55,9 @@ const login = asyncHandler(async (req: any, res: any) => {
         role: staff.role,
         permissions: permissionsFor(staff.role),
         mustChangePassword: staff.mustChangePassword,
+        // "staging"/"prod" from the container, or "local" in development. The admin UI
+        // uses it to mark which environment it is signed in to (the header icon).
+        environment: process.env.ENVIRONMENT ?? 'local',
         token,
     });
 });
@@ -65,7 +68,7 @@ const login = asyncHandler(async (req: any, res: any) => {
  * still checks every request.
  */
 const me = (req: any, res: any) => {
-    res.json({ ...req.staff, permissions: permissionsFor(req.staff.role) });
+    res.json({ ...req.staff, permissions: permissionsFor(req.staff.role), environment: process.env.ENVIRONMENT ?? 'local' });
 };
 
 /**
@@ -134,6 +137,7 @@ const changePassword = asyncHandler(async (req: any, res: any) => {
         role: staff.role,
         permissions: permissionsFor(staff.role),
         mustChangePassword: false,
+        environment: process.env.ENVIRONMENT ?? 'local',
         token: generateStaffToken(staff.id, updated.tokenVersion, res),
     });
 });

@@ -21,6 +21,7 @@ export function makeStaff(role: StaffRole, overrides: Partial<StaffUser> = {}): 
         role,
         permissions: PERMISSIONS_BY_ROLE[role],
         mustChangePassword: false,
+        environment: 'local',
         ...overrides,
     };
 }

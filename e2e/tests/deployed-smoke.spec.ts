@@ -62,12 +62,47 @@ test.describe.serial('Post-deploy smoke', () => {
         expect(body.sha).toBe(EXPECTED_SHA);
     });
 
-    test('logs in, creates a word, and deletes it', async ({ page }) => {
+    // The login gate (`.context/plans/access-gates.md`) can stop the smoke account
+    // before the flow below starts: the account is a learner, and the server refuses a
+    // learner's sign-in while login is `closed` (nobody) or `limited` (only the accounts
+    // on its list). Staff are exempt, so the admin panel keeps working and a closed gate
+    // is easy to forget. Without this check, the next test fails on a missing "Welcome"
+    // heading, which reads like a broken deploy. `GET /api/access` is public.
+    //
+    // Only `closed` can be judged from here: the public answer carries no allowed list,
+    // so a `limited` gate may still let the smoke account in. That case is annotated, and
+    // the login test adds the gate state to its own failure message.
+    test('the login gate is open', async ({ request, baseURL }) => {
+        const res = await request.get(`${baseURL}/api/access`);
+        expect(res.ok()).toBeTruthy();
+        const { login } = (await res.json()) as { login: { mode: string; note: string } };
+        test.info().annotations.push({ type: 'access-gate', description: `login: ${login.mode}` });
+
+        expect(
+            login.mode,
+            `Login is "${login.mode}"${login.note ? ` (note: "${login.note}")` : ''}, so no learner can sign in — the smoke account included. Reopen it in the admin panel (Access, Login) and run the job again.`,
+        ).not.toBe('closed');
+    });
+
+    test('logs in, creates a word, and deletes it', async ({ page, request, baseURL }) => {
         await page.goto('/login');
         await page.getByLabel('Email').fill(SMOKE_EMAIL);
         await page.getByLabel('Password').fill(SMOKE_PASSWORD);
         await page.getByRole('button', { name: 'Sign in' }).click();
-        await expect(page.getByRole('heading', { name: /Welcome, Smoke Test/ })).toBeVisible();
+        try {
+            await expect(page.getByRole('heading', { name: /Welcome, Smoke Test/ })).toBeVisible();
+        } catch (error) {
+            // A learner's sign-in is refused while the gate blocks it, and the login page
+            // does not say which state the environment is in. Read it and put it in the
+            // failure: a "limited" gate reaches here whenever the smoke account is not on
+            // the allowed list, and that is the one case the preflight cannot judge.
+            const { login } = (await (await request.get(`${baseURL}/api/access`)).json()) as {
+                login: { mode: string; note: string };
+            };
+            throw new Error(
+                `${(error as Error).message}\n\nThe login gate of this environment is "${login.mode}"${login.note ? ` (note: "${login.note}")` : ''}. A learner cannot sign in while it is "closed", and only an account on the allowed list can while it is "limited".`,
+            );
+        }
 
         await page.getByRole('link', { name: 'add word' }).click();
         await expect(page).toHaveURL('/addWord');

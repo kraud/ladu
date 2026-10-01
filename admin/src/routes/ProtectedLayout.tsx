@@ -1,6 +1,7 @@
 import { Link, Outlet } from '@tanstack/react-router';
 import { useStaffSession } from '@/features/auth/hooks';
 import { useAuthStore, useCan, useMustChangePassword } from '@/stores/authStore';
+import { EnvironmentMark } from '@/components/EnvironmentMark';
 
 /**
  * The shell for every signed-in page. The auth gate itself is the router's
@@ -21,7 +22,8 @@ export function ProtectedLayout() {
             <header className="border-b bg-card">
                 <div className="mx-auto flex min-h-14 max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2">
                     <nav className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
-                        <Link to="/" className="font-semibold text-foreground">
+                        <Link to="/" className="flex items-center gap-1.5 font-semibold text-foreground">
+                            {staff && <EnvironmentMark environment={staff.environment} />}
                             Ladu Admin
                         </Link>
                         {/* A temporary password opens only the change form, so the other links would lead nowhere. */}
@@ -36,7 +38,9 @@ export function ProtectedLayout() {
                                     </Link>
                                 )}
                                 {canManageAccess && (
-                                    <Link to="/access" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
+                                    // The tabs live in the search (`?tab=`), so the nav link stays
+                                    // active on either one.
+                                    <Link to="/access" search={{ tab: 'registration' }} activeOptions={{ includeSearch: false }} className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
                                         Access
                                     </Link>
                                 )}

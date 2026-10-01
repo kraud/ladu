@@ -90,6 +90,7 @@ describe('POST /api/admin/auth/login', () => {
         expect(res.status).toBe(200);
         expect(res.body).toMatchObject({ id: staff.id, email: 'staff@example.com', role: 'support' });
         expect(res.body.permissions).toEqual(['users.read', 'users.ban', 'users.email', 'health.read']);
+        expect(res.body.environment).toBe('local');
         expect(res.body).not.toHaveProperty('passwordHash');
         const claims = jwt.verify(res.body.token, process.env.ADMIN_JWT_SECRET);
         expect(claims.aud).toBe('admin');
@@ -256,6 +257,7 @@ describe('GET /api/admin/auth/me', () => {
             role: 'admin',
             permissions: ['users.read', 'users.ban', 'users.email', 'users.delete', 'health.read', 'audit.read'],
             mustChangePassword: false,
+            environment: 'local',
         });
     });
 

@@ -13,5 +13,6 @@ export interface StaffLoginResponse {
     role: 'owner' | 'admin' | 'support' | 'viewer';
     permissions: string[];
     mustChangePassword: boolean;
+    environment: string;
     token: string;
 }
