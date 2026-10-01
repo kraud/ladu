@@ -394,3 +394,46 @@ export async function deleteAccessTestData(emails: string[]): Promise<void> {
         console.warn('[e2e] access cleanup failed:', (error as Error).message);
     }
 }
+
+/** The login gate's state (access-gates.md). Like `setAccessSettings`, this is global state: only the `*-gate.spec.ts` specs may change it. */
+export async function setLoginAccess(loginMode: 'open' | 'closed' | 'limited', loginNote = ''): Promise<void> {
+    await getPool().query(`UPDATE access_settings SET login_mode = $1, login_note = $2 WHERE id = 1`, [loginMode, loginNote]);
+}
+
+export async function getLoginSettings(): Promise<{ mode: string; note: string }> {
+    const { rows } = await getPool().query<{ mode: string; note: string }>(
+        `SELECT login_mode AS mode, login_note AS note FROM access_settings WHERE id = 1`,
+    );
+    if (!rows[0]) throw new Error('access_settings has no row');
+    return rows[0];
+}
+
+/** Is this account on the login allowed list? */
+export async function hasLoginAllowed(email: string): Promise<boolean> {
+    const { rows } = await getPool().query(
+        `SELECT 1 FROM login_allowed_users l JOIN users u ON u.id = l.user_id WHERE lower(u.email) = lower($1)`,
+        [email],
+    );
+    return rows.length > 0;
+}
+
+/** `users.token_version`: the "sign everyone out" button adds 1 to it for every account. */
+export async function getTokenVersion(email: string): Promise<number> {
+    const { rows } = await getPool().query<{ v: number }>(`SELECT token_version AS v FROM users WHERE lower(email) = lower($1)`, [email]);
+    if (!rows[0]) throw new Error(`no user found for ${email}`);
+    return rows[0].v;
+}
+
+export async function isVerified(email: string): Promise<boolean> {
+    const { rows } = await getPool().query<{ verified: boolean | null }>(`SELECT verified FROM users WHERE lower(email) = lower($1)`, [email]);
+    return rows[0]?.verified === true;
+}
+
+/** Audit rows of one action with this exact reason (a spec uses a reason that carries its own run id). */
+export async function getAuditByReason(
+    action: string,
+    reason: string,
+): Promise<{ action: string; reason: string | null; metadata: Record<string, unknown> | null }[]> {
+    const { rows } = await getPool().query(`SELECT action, reason, metadata FROM audit_log WHERE action = $1 AND reason = $2`, [action, reason]);
+    return rows;
+}

@@ -228,40 +228,91 @@ The owner types or generates a temporary password and tells the person in
 private. At the first sign-in the person must choose their own password before
 they can use anything else.
 
-### "Nobody can register" (or: I closed registration and want to open it again)
+### "Nobody can register or sign in" (or: I closed a gate and want to open it again)
 
-The owner controls who can register on the **Access** page of the admin panel
-(owners only). Registration has three states:
+The owner controls who can register, and who can sign in, on the **Access** page
+of the admin panel (owners only). Each of the two gates, **Registration** and
+**Login**, has three states:
 
-- **Open:** anybody can register. This is the default.
-- **Closed:** nobody can register. The register page shows a banner and turns
-  the form and the Google button off.
-- **Limited:** only emails on the invite list can register. An email leaves the
-  list when that person registers. Any other email gets one message, so the
-  list does not leak.
+- **Open:** anybody can do it. This is the default.
+- **Closed:** nobody can. The page shows a banner and turns the form and the
+  Google button off.
+- **Limited:** only some can.
+  - Registration: only emails on the **invite list**. An email leaves the list
+    when that person registers. Any other email gets one message, so the list
+    does not leak.
+  - Login: only accounts on the **allowed list**. The list holds accounts, not
+    emails, so it still works after a person changes their email. Add accounts by
+    pasting emails on the Access page, or tick them in the **Users** list (the
+    bar "Allow to sign in" works on many at once).
 
-To open registration again, choose **Open** and press **Save**. The change
-works at once. Staff are never blocked by a gate, so an owner can always sign
-in to do this. Each change writes an audit row (`access.registration_mode`,
-`access.invite_add`, `access.invite_remove`). When an invite is used, the system
+To open a gate again, choose **Open** and press **Save**. The change works at
+once. Staff are never blocked by a gate, so an owner can always sign in to do
+this. Each change writes an audit row: `access.registration_mode`,
+`access.invite_add`, `access.invite_remove`, `access.login_mode`,
+`access.login_allow`, `access.login_disallow`. When an invite is used, the system
 writes `access.invite_used`.
 
-If a person says "I cannot register", look at the state first. In `limited`
-state the email must be on the list (the check ignores upper and lower case). A
-refused sign-up does not use up the invite.
+Things to know about the login gate:
 
-**If the admin panel does not work**, open the gate with one line of SQL in a
+- It stops **new** sign-ins only. A person who is already signed in stays signed
+  in (a session lasts 30 days). To end sessions, use "Emergency: sign everyone
+  out" below.
+- A wrong password still says "Invalid credentials". The gate answers only after
+  a correct password, so it never shows which accounts exist.
+- Registration open and login limited is allowed, but a new account is never on
+  the allowed list. The person can register and verify the email, and then cannot
+  sign in until the owner adds the account. The Access page says this.
+- A person who opens the email link while login is closed or limited gets "Your
+  email is verified" and no session.
+
+If a person says "I cannot sign in", look at the Login state first, then at the
+Allowed accounts table or at the user's own page (section "Sign-in access").
+
+**If the admin panel does not work**, open both gates with one line of SQL in a
 `psql` shell (see `02-environments-and-databases.md`):
 
 ```sql
-UPDATE access_settings SET registration_mode = 'open', registration_note = '';
+UPDATE access_settings
+   SET registration_mode = 'open', registration_note = '',
+       login_mode = 'open', login_note = '';
 ```
 
-The change works at once, with no restart. The table always has exactly one
-row. To read the state: `SELECT registration_mode, registration_note FROM
-access_settings;`.
+The change works at once, with no restart. The table always has exactly one row.
+To read the state: `SELECT registration_mode, login_mode FROM access_settings;`.
 
 ---
+
+### "Emergency: sign everyone out"
+
+Use this when you think accounts are in danger (for example a leaked token or a
+stolen password list). It is on the **Access** page, in the red section at the
+bottom, and it needs the owner role.
+
+1. Press **Sign everyone out…**.
+2. Type a reason (it goes in the audit log).
+3. Type the phrase `SIGN OUT EVERYONE`.
+4. Press the red button. The page says how many users were signed out.
+
+What happens: one statement adds 1 to `users.token_version` for every account.
+The app compares that number with the one in each learner's token on every
+request, so each learner gets a 401 at their next request and goes back to the
+login page. Nothing new runs on each request. Staff are **not** signed out. The
+change cannot be undone, but people can sign in again.
+
+To keep out everyone except some people, set **Login** to **Limited** first (add
+the accounts that must be able to sign back in), then press the button. Only
+allowed accounts can sign back in. To open the door again, set Login to **Open**.
+
+The audit row is `access.sign_out_everyone`, with the reason and the number of
+accounts. If the admin panel does not work, this is the same effect in `psql`:
+
+```sql
+UPDATE users SET token_version = token_version + 1;
+```
+
+---
+
 
 ### "A staff member forgot their password"
 

@@ -1,3 +1,5 @@
+import { readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, devices } from '@playwright/test';
 
 /**
@@ -30,6 +32,19 @@ const OIDC_STUB_URL = process.env.OIDC_STUB_URL ?? 'http://localhost:4400';
 const CI = !!process.env.CI;
 // The specs that change the registration or login gate (access-gates.md): `admin-11-registration-gate.spec.ts`, ...
 const GATE_SPECS = /-gate\.spec\.ts$/;
+// The gates are ONE row of global state, so no two gate specs may run at the same time (`fullyParallel: false`
+// only orders the tests INSIDE one file; two files would still run in two workers). So each gate spec is its own
+// project, and the projects are chained: the first waits for the main project, each next one for the one before.
+const gateSpecs = readdirSync(fileURLToPath(new URL('./tests', import.meta.url)))
+    .filter((file) => GATE_SPECS.test(file))
+    .sort();
+const gateProjectName = (file: string) => file.replace(/\.spec\.ts$/, '');
+const gateProjects = gateSpecs.map((file, i) => ({
+    name: gateProjectName(file),
+    use: { ...devices['Desktop Chrome'] },
+    testMatch: file,
+    dependencies: [i === 0 ? 'chromium' : gateProjectName(gateSpecs[i - 1])],
+}));
 
 export default defineConfig({
     testDir: './tests',
@@ -60,16 +75,9 @@ export default defineConfig({
         // Every spec except the access-gate ones.
         // (A project-level testIgnore replaces the top-level one, so deployed-smoke is excluded again here.)
         { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: [GATE_SPECS, 'deployed-smoke.spec.ts'] },
-        // The access gates are ONE row of global state: a closed gate would break any other spec that
-        // registers or signs in a learner at the same time. So these specs run in their own project,
-        // after every other spec has finished (a failure there skips them), one at a time.
-        {
-            name: 'gates',
-            use: { ...devices['Desktop Chrome'] },
-            testMatch: GATE_SPECS,
-            dependencies: ['chromium'],
-            fullyParallel: false,
-        },
+        // The access-gate specs: one project for each, chained, after every other spec has finished (a failure
+        // before them skips them). A closed gate would break any other spec that registers or signs in a learner.
+        ...gateProjects,
     ],
 
     // Both servers are started from the repo root. `reuseExistingServer` lets you
