@@ -13,6 +13,7 @@ const {
   friendships,
   practiceSessions,
   oauthIdentities,
+  loginAllowedUsers,
   loginEvents,
   auditLog,
   staffAccounts,
@@ -57,6 +58,9 @@ const likePattern = (term: string) => `%${term.replace(/[\\%_]/g, (c) => `\\${c}
 // bare `"id"` would then match `oauth_identities.id`.
 const hasGoogle = sql<boolean>`exists (select 1 from ${oauthIdentities} where ${oauthIdentities.userId} = "users"."id")`;
 
+// Is this account on the login allowed list (access-gates.md)? Written out like `hasGoogle`, for the same reason.
+const isLoginAllowed = sql<boolean>`exists (select 1 from ${loginAllowedUsers} where ${loginAllowedUsers.userId} = "users"."id")`;
+
 const oneOf = <T extends string>(value: unknown, allowed: readonly T[]): T | undefined =>
   typeof value === 'string' && (allowed as readonly string[]).includes(value) ? (value as T) : undefined;
 
@@ -83,15 +87,25 @@ const listUsers = asyncHandler(async (req: any, res: any) => {
   const verified = oneOf(q.verified, ['true', 'false'] as const);
   const status = oneOf(q.status, ['active', 'banned', 'deleted'] as const);
   const method = oneOf(q.method, ['password', 'google'] as const);
+  const loginAllowed = oneOf(q.loginAllowed, ['true', 'false'] as const);
   for (const [name, raw, ok] of [
     ['verified', q.verified, verified],
     ['status', q.status, status],
     ['method', q.method, method],
+    ['loginAllowed', q.loginAllowed, loginAllowed],
   ] as const) {
     if (raw !== undefined && raw !== '' && ok === undefined) {
       res.status(400);
       throw new Error(`Invalid ${name}`);
     }
+  }
+
+  // Who may sign in is access configuration, so only a person with `access.manage` sees it or filters by it.
+  // A filter would reveal it too, so it is refused, not ignored.
+  const canManageAccess = hasPermission(req.staff.role, 'access.manage');
+  if (loginAllowed !== undefined && !canManageAccess) {
+    res.status(403);
+    throw new Error('Forbidden');
   }
 
   const term = single(q.search)?.trim();
@@ -105,6 +119,8 @@ const listUsers = asyncHandler(async (req: any, res: any) => {
     status === 'deleted' ? isNotNull(users.deletedAt) : undefined,
     method === 'password' ? isNotNull(users.password) : undefined,
     method === 'google' ? hasGoogle : undefined,
+    loginAllowed === 'true' ? isLoginAllowed : undefined,
+    loginAllowed === 'false' ? sql`not ${isLoginAllowed}` : undefined,
   ];
   const where = and(...conditions);
 
@@ -130,6 +146,7 @@ const listUsers = asyncHandler(async (req: any, res: any) => {
       deletedAt: users.deletedAt,
       hasPassword: sql<boolean>`${users.password} is not null`,
       hasGoogle,
+      loginAllowed: isLoginAllowed,
     })
     .from(users)
     .where(where)
@@ -138,7 +155,13 @@ const listUsers = asyncHandler(async (req: any, res: any) => {
     .offset((page - 1) * pageSize);
 
   res.json({
-    items: rows.map((row) => ({ ...row, verified: row.verified === true, status: statusOf(row) })),
+    items: rows.map((row) => ({
+      ...row,
+      verified: row.verified === true,
+      status: statusOf(row),
+      // `null` tells the UI this role may not see it.
+      loginAllowed: canManageAccess ? row.loginAllowed : null,
+    })),
     total,
     page,
     pageSize,
@@ -157,7 +180,9 @@ const loadUserDetail = async (id: string, role: string) => {
   const n = sql<number>`count(*)::int`;
   const canReadAudit = hasPermission(role, 'audit.read');
 
-  const [wordCount, translationCount, tagCount, friendCount, sessionCount, identities, recentLogins, deletedBy, audit] =
+  const canManageAccess = hasPermission(role, 'access.manage');
+
+  const [wordCount, translationCount, tagCount, friendCount, sessionCount, identities, recentLogins, deletedBy, audit, allowedRows] =
     await Promise.all([
       countOf(db.select({ n }).from(words).where(eq(words.userId, id))),
       countOf(
@@ -203,6 +228,9 @@ const loadUserDetail = async (id: string, role: string) => {
             .orderBy(desc(auditLog.createdAt))
             .limit(AUDIT_ENTRIES)
         : Promise.resolve(null),
+      canManageAccess
+        ? db.select({ userId: loginAllowedUsers.userId }).from(loginAllowedUsers).where(eq(loginAllowedUsers.userId, id)).limit(1)
+        : Promise.resolve(null),
     ]);
 
   return {
@@ -226,6 +254,8 @@ const loadUserDetail = async (id: string, role: string) => {
     deletedAt: user.deletedAt,
     deletedByStaffName: deletedBy[0]?.name ?? null,
     hasPassword: user.password !== null,
+    // `null` tells the UI this role may not see it.
+    loginAllowed: allowedRows ? allowedRows.length > 0 : null,
     identities,
     counts: {
       words: wordCount,

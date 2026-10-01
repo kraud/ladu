@@ -72,7 +72,7 @@ describe('GET /api/admin/access', () => {
         expect(res.status).toBe(200);
         expect(res.body.registration).toEqual({ mode: 'open', note: '' });
         expect(res.body.login).toEqual({ mode: 'open', note: '' });
-        expect(res.body.counts).toEqual({ invites: 2 });
+        expect(res.body.counts).toEqual({ invites: 2, loginAllowed: 0 });
         expect(res.body.invites.map((i) => i.email).sort()).toEqual(['a@example.com', 'b@example.com']);
         expect(res.body.invites[0]).toMatchObject({ addedBy: 'owner person' });
         expect(res.body.invites[0].createdAt).toBeTruthy();
