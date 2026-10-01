@@ -12,6 +12,7 @@ import type {
     OAuthLinkRequest,
     OAuthProvidersResponse,
     OAuthSignupCompleteRequest,
+    OAuthSignupCompleteResponse,
     OAuthStartLinkResponse,
     RegisterRequest,
     RegisterResponse,
@@ -62,8 +63,8 @@ export async function getOAuthProviders(): Promise<OAuthProvidersResponse> {
     return data;
 }
 
-export async function completeOAuthSignup(body: OAuthSignupCompleteRequest): Promise<AuthUser> {
-    const { data } = await apiClient.post<AuthUser>('/auth/signup/complete', body);
+export async function completeOAuthSignup(body: OAuthSignupCompleteRequest): Promise<OAuthSignupCompleteResponse> {
+    const { data } = await apiClient.post<OAuthSignupCompleteResponse>('/auth/signup/complete', body);
     return data;
 }
 

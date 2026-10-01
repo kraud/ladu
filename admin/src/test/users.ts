@@ -17,6 +17,8 @@ export function makeListItem(overrides: Partial<UserListItem> = {}): UserListIte
         deletedAt: null,
         hasPassword: true,
         hasGoogle: false,
+        // `null`: this staff role may not see it (only a role with access.manage does).
+        loginAllowed: null,
         ...overrides,
     };
 }
@@ -43,6 +45,7 @@ export function makeDetail(overrides: Partial<UserDetail> = {}): UserDetail {
         deletedAt: null,
         deletedByStaffName: null,
         hasPassword: true,
+        loginAllowed: null,
         identities: [{ provider: 'google', emailAtLink: 'kaja@gmail.com', linkedAt: '2026-04-01T10:00:00.000Z' }],
         counts: { words: 12, translations: 30, tags: 2, friends: 1, practiceSessions: 3 },
         recentLogins: [{ id: 'l1', method: 'password', country: 'EE', createdAt: '2026-09-29T08:30:00.000Z' }],

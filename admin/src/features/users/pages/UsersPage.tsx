@@ -5,12 +5,22 @@ import { errorMessage } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FilterSelect } from '@/components/FilterSelect';
+import { useAllowLogin, useDisallowLoginMany } from '@/features/access/hooks';
+import { ALLOW_SKIP_REASONS, type AllowSkipReason } from '@/features/access/types';
 import { StatusBadge } from '@/features/users/components/StatusBadge';
 import { formatDate, formatDateTimeWithCountry, NONE } from '@/features/users/format';
 import { useUsers } from '@/features/users/hooks';
 import { DEFAULT_ORDER, DEFAULT_SORT, type SortKey, type UsersSearch } from '@/features/users/search';
+import { useCan } from '@/stores/authStore';
 
 const SEARCH_DELAY_MS = 300;
+
+/** "2 already on the allowed list, 1 the account is deleted" — what a bulk allow skipped, by reason. */
+function skippedSummary(skipped: { reason: AllowSkipReason }[]): string {
+    const counts = new Map<AllowSkipReason, number>();
+    for (const { reason } of skipped) counts.set(reason, (counts.get(reason) ?? 0) + 1);
+    return [...counts].map(([reason, n]) => `${n} ${ALLOW_SKIP_REASONS[reason]}`).join(', ');
+}
 
 const COLUMNS: { label: string; sort?: SortKey }[] = [
     { label: 'Name', sort: 'name' },
@@ -26,6 +36,16 @@ export function UsersPage() {
     const search = useSearch({ from: '/_protected/users' });
     const navigate = useNavigate({ from: '/users' });
     const { data, error, isError, isPending, isFetching, refetch } = useUsers(search);
+
+    // Who may sign in is access configuration: only a role with `access.manage` sees or changes it.
+    const canManageAccess = useCan('access.manage');
+    const allow = useAllowLogin();
+    const disallow = useDisallowLoginMany();
+    const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+    const [notice, setNotice] = useState<string | null>(null);
+    // A new page, filter or search is a new list: the old ticks would point at rows that are gone.
+    const searchKey = JSON.stringify(search);
+    useEffect(() => setSelected(new Set()), [searchKey]);
 
     // Any change to the filters, the sort or the text starts again at page 1.
     const update = (patch: Partial<UsersSearch>, options: { keepPage?: boolean } = {}) =>
@@ -58,6 +78,46 @@ export function UsersPage() {
     const to = data ? Math.min(page * data.pageSize, data.total) : 0;
     const lastPage = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
     const goToPage = (next: number) => update({ page: next > 1 ? next : undefined }, { keepPage: true });
+
+    const items = data?.items ?? [];
+    const allOnPage = items.length > 0 && items.every((u) => selected.has(u.id));
+    const someOnPage = items.some((u) => selected.has(u.id));
+    const toggleOne = (id: string) =>
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    const togglePage = () => setSelected(allOnPage ? new Set() : new Set(items.map((u) => u.id)));
+    const columnCount = COLUMNS.length + (canManageAccess ? 2 : 0);
+
+    const allowSelected = () =>
+        allow.mutate(
+            { userIds: [...selected] },
+            {
+                onSuccess: (answer) => {
+                    setSelected(new Set());
+                    setNotice(
+                        `Allowed ${answer.added.length} to sign in.` +
+                            (answer.skipped.length > 0 ? ` Skipped ${answer.skipped.length}: ${skippedSummary(answer.skipped)}.` : ''),
+                    );
+                },
+            },
+        );
+    const removeSelected = () =>
+        disallow.mutate(
+            { userIds: [...selected] },
+            {
+                onSuccess: (answer) => {
+                    setSelected(new Set());
+                    setNotice(
+                        `Removed ${answer.removed} from the allowed list.` +
+                            (answer.skipped > 0 ? ` Skipped ${answer.skipped}: not on the list.` : ''),
+                    );
+                },
+            },
+        );
 
     return (
         <div className="flex flex-col gap-4">
@@ -102,7 +162,44 @@ export function UsersPage() {
                     ]}
                     onChange={(method) => update({ method: method as UsersSearch['method'] })}
                 />
+                {canManageAccess && (
+                    <FilterSelect
+                        label="Login allowed"
+                        value={search.loginAllowed}
+                        options={[
+                            { value: 'true', label: 'Yes' },
+                            { value: 'false', label: 'No' },
+                        ]}
+                        onChange={(loginAllowed) => update({ loginAllowed: loginAllowed as UsersSearch['loginAllowed'] })}
+                    />
+                )}
             </div>
+
+            {notice && (
+                <p role="status" className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-900">
+                    {notice}
+                </p>
+            )}
+
+            {canManageAccess && selected.size > 0 && (
+                <div role="toolbar" aria-label="Selected users" className="flex flex-wrap items-center gap-2 rounded-md border bg-card p-3 text-sm">
+                    <span className="font-medium">{selected.size} selected:</span>
+                    <Button size="sm" disabled={allow.isPending || disallow.isPending} onClick={allowSelected}>
+                        Allow to sign in
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={allow.isPending || disallow.isPending} onClick={removeSelected}>
+                        Remove from allowed
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                        Clear selection
+                    </Button>
+                    {(allow.isError || disallow.isError) && (
+                        <span role="alert" className="text-destructive">
+                            {errorMessage(allow.error ?? disallow.error)}
+                        </span>
+                    )}
+                </div>
+            )}
 
             {isError && (
                 <div role="alert" className="flex items-center gap-3 rounded-md border border-destructive/40 bg-card p-3 text-sm">
@@ -117,6 +214,20 @@ export function UsersPage() {
                 <table className="w-full text-left text-sm">
                     <thead className="border-b bg-muted text-xs text-muted-foreground">
                         <tr>
+                            {canManageAccess && (
+                                <th scope="col" className="w-8 px-3 py-2">
+                                    <input
+                                        type="checkbox"
+                                        aria-label="Select all users on this page"
+                                        checked={allOnPage}
+                                        ref={(el) => {
+                                            if (el) el.indeterminate = someOnPage && !allOnPage;
+                                        }}
+                                        disabled={items.length === 0}
+                                        onChange={togglePage}
+                                    />
+                                </th>
+                            )}
                             {COLUMNS.map((column) => (
                                 <th
                                     key={column.label}
@@ -134,25 +245,40 @@ export function UsersPage() {
                                     )}
                                 </th>
                             ))}
+                            {canManageAccess && (
+                                <th scope="col" className="px-3 py-2 font-medium whitespace-nowrap">
+                                    Login allowed
+                                </th>
+                            )}
                         </tr>
                     </thead>
                     <tbody className={isFetching && !isPending ? 'opacity-60' : undefined}>
                         {isPending && (
                             <tr>
-                                <td colSpan={COLUMNS.length} className="px-3 py-6 text-center text-muted-foreground">
+                                <td colSpan={columnCount} className="px-3 py-6 text-center text-muted-foreground">
                                     Loading…
                                 </td>
                             </tr>
                         )}
-                        {data?.items.length === 0 && (
+                        {data && items.length === 0 && (
                             <tr>
-                                <td colSpan={COLUMNS.length} className="px-3 py-6 text-center text-muted-foreground">
+                                <td colSpan={columnCount} className="px-3 py-6 text-center text-muted-foreground">
                                     No users match.
                                 </td>
                             </tr>
                         )}
-                        {data?.items.map((user) => (
+                        {items.map((user) => (
                             <tr key={user.id} className="border-b last:border-0 hover:bg-muted/50">
+                                {canManageAccess && (
+                                    <td className="px-3 py-2">
+                                        <input
+                                            type="checkbox"
+                                            aria-label={`Select ${user.name}`}
+                                            checked={selected.has(user.id)}
+                                            onChange={() => toggleOne(user.id)}
+                                        />
+                                    </td>
+                                )}
                                 <td className="px-3 py-2">
                                     <Link to="/users/$userId" params={{ userId: user.id }} className="font-medium text-(--accent-strong) hover:underline">
                                         {user.name}
@@ -172,6 +298,7 @@ export function UsersPage() {
                                 <td className="px-3 py-2 whitespace-nowrap">{formatDate(user.createdAt)}</td>
                                 <td className="px-3 py-2 whitespace-nowrap">{formatDateTimeWithCountry(user.lastLoginAt, user.lastLoginCountry)}</td>
                                 <td className="px-3 py-2 whitespace-nowrap">{formatDateTimeWithCountry(user.lastSeenAt, null)}</td>
+                                {canManageAccess && <td className="px-3 py-2 whitespace-nowrap">{user.loginAllowed === null ? NONE : user.loginAllowed ? 'Yes' : 'No'}</td>}
                             </tr>
                         ))}
                     </tbody>

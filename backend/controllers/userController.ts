@@ -25,7 +25,7 @@ const {
 const asyncHandler = require("express-async-handler");
 const { issueVerificationEmail, issuePasswordResetEmail }: typeof import("../lib/accountEmails") = require("../lib/accountEmails");
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
-const { assertRegistrationAllowed, consumeInvite }: typeof import("../lib/accessGate") = require("../lib/accessGate");
+const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
 const { calculateBasicUserMetrics } = require("./metricController");
 
@@ -321,6 +321,10 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
     throw new Error("This account is suspended");
   }
 
+  // The login gate (access-gates.md) comes last: after the password and the ban, so a
+  // closed or limited gate never confirms that an account exists.
+  await enforceLoginGate(res, user.id);
+
   // A UI language chosen on the login screen is persisted to the row so the app
   // opens in that language and stays consistent on the next visit.
   if (uiLanguage !== undefined && uiLanguage !== null && uiLanguage !== "") {
@@ -576,6 +580,13 @@ const verifyUser = asyncHandler(async (req: any, res: any) => {
       .set({ verified: true, updatedAt: new Date() })
       .where(eq(users.id, user.id));
     await db.delete(tokens).where(eq(tokens.id, token.id));
+
+    // The email is verified either way. If the login gate would refuse this account, give
+    // no profile and no token: the app tells the person that sign-in is not open to them now.
+    const loginBlocked = await getLoginBlock(user.id);
+    if (loginBlocked) {
+      return res.status(200).send({ message: "Email verified successfully", verified: true, loginBlocked });
+    }
 
     // Return profile data plus a JWT so the client can enter authenticated routes
     // immediately. `serializeUser` is an allowlist, so no `password` strip needed.

@@ -72,11 +72,15 @@ async function staffSignIn(page: Page, role: string, goTo: string) {
     await page.getByRole('button', { name: 'Sign in' }).click();
 }
 
+// The page has a Registration card and a Login card that share labels and button names, so each query is scoped.
+const registrationCard = (page: Page) => page.getByRole('region', { name: 'Registration' });
+const inviteList = (page: Page) => page.getByRole('region', { name: /Invite list/ });
+
 /** Picks a state on the admin page and confirms. The notice names the new state. */
 async function setState(page: Page, label: 'Open' | 'Closed' | 'Limited', opts: { note?: string; reason?: string } = {}) {
-    await page.getByRole('group', { name: 'Registration' }).getByRole('button', { name: label, exact: true }).click();
-    if (opts.note !== undefined) await page.getByLabel(/Extra line/).fill(opts.note);
-    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    await registrationCard(page).getByRole('group', { name: 'Registration' }).getByRole('button', { name: label, exact: true }).click();
+    if (opts.note !== undefined) await registrationCard(page).getByLabel(/Extra line/).fill(opts.note);
+    await registrationCard(page).getByRole('button', { name: 'Save', exact: true }).click();
     const dialog = page.getByRole('dialog');
     if (opts.reason) await dialog.getByLabel(/Reason/).fill(opts.reason);
     await dialog.getByRole('button', { name: 'Confirm', exact: true }).click();
@@ -97,11 +101,11 @@ test('limited: the owner sets it and sees the empty-list warning; the learner pa
     await expect(page.getByRole('link', { name: 'Access' })).toBeVisible();
 
     // Picking "Limited" with no invites warns at once.
-    await page.getByRole('group', { name: 'Registration' }).getByRole('button', { name: 'Limited', exact: true }).click();
-    await expect(page.getByRole('alert')).toContainText('the invite list is empty, so nobody can register');
+    await registrationCard(page).getByRole('group', { name: 'Registration' }).getByRole('button', { name: 'Limited', exact: true }).click();
+    await expect(registrationCard(page).getByRole('alert')).toContainText('the invite list is empty, so nobody can register');
 
-    await page.getByLabel(/Extra line/).fill('E2E invitation week');
-    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    await registrationCard(page).getByLabel(/Extra line/).fill('E2E invitation week');
+    await registrationCard(page).getByRole('button', { name: 'Save', exact: true }).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toContainText('The list is empty, so nobody can register now.');
     await dialog.getByLabel(/Reason/).fill('e2e');
@@ -126,8 +130,8 @@ test('invites: add by paste, see the skipped ones, then only the listed email ca
     await expect(summary).toContainText('Added 1. Skipped 1.');
     await expect(summary).toContainText('not-an-email: not a valid email');
     // Stored in lower case, with the owner's name beside it.
-    await expect(page.getByRole('table').getByText(invited)).toBeVisible();
-    await expect(page.getByRole('table')).toContainText('E2E owner');
+    await expect(inviteList(page).getByRole('table').getByText(invited)).toBeVisible();
+    await expect(inviteList(page).getByRole('table')).toContainText('E2E owner');
     expect(await hasInvite(invited)).toBe(true);
 
     // A real sign-up: the unlisted email is refused with a code, and no account is made.
@@ -152,10 +156,10 @@ test('remove: an invite that is removed cannot be used', async ({ page, request 
     await staffSignIn(page, 'owner', '/access');
     await page.getByLabel('Add emails').fill(second);
     await page.getByRole('button', { name: 'Add to the list' }).click();
-    await expect(page.getByRole('table').getByText(second)).toBeVisible();
+    await expect(inviteList(page).getByRole('table').getByText(second)).toBeVisible();
 
     await page.getByRole('button', { name: `Remove ${second}` }).click();
-    await expect(page.getByRole('table').getByText(second)).toHaveCount(0);
+    await expect(inviteList(page).getByRole('table').getByText(second)).toHaveCount(0);
     expect(await hasInvite(second)).toBe(false);
 
     const refused = await register(request, second);
@@ -167,7 +171,7 @@ test('closed: nobody can register, even an invited email; the learner page turns
     await staffSignIn(page, 'owner', '/access');
     await page.getByLabel('Add emails').fill(second);
     await page.getByRole('button', { name: 'Add to the list' }).click();
-    await expect(page.getByRole('table').getByText(second)).toBeVisible();
+    await expect(inviteList(page).getByRole('table').getByText(second)).toBeVisible();
 
     await setState(page, 'Closed', { note: 'E2E back at 14:00 UTC', reason: 'e2e closed' });
     expect(await getRegistrationSettings()).toEqual({ mode: 'closed', note: 'E2E back at 14:00 UTC' });

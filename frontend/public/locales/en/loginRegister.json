@@ -43,7 +43,12 @@
   "access": {
     "registrationClosed": "Sign-ups are closed for now. Please check back later.",
     "registrationLimited": "Sign-ups are open by invitation only right now.",
-    "registrationNotInvited": "Sign-ups are by invitation only right now. This email is not on the list."
+    "registrationNotInvited": "Sign-ups are by invitation only right now. This email is not on the list.",
+    "loginClosed": "Sign-in is closed for now. Please check back later.",
+    "loginLimited": "Sign-in is limited right now. Only some accounts can sign in.",
+    "loginNotAllowed": "Sign-in is limited right now. This account cannot sign in yet.",
+    "emailVerifiedNoSignIn": "Your email is verified. Sign-in is not open to this account right now. Please check back later.",
+    "accountCreatedNoSignIn": "Your account is created. Sign-in is not open to this account right now. Please check back later."
   },
   "brand": {
     "tagline": "Your words, four languages, one shelf.",

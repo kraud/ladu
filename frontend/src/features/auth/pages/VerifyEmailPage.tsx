@@ -24,8 +24,11 @@ export function VerifyEmailPage() {
     const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN_FROM);
     const enterNow = () => navigate({ to: '/' });
 
+    // The email is verified, but the login gate refuses this account: no session, so no countdown.
+    const blocked = verify.isSuccess && 'loginBlocked' in verify.data;
+
     useEffect(() => {
-        if (!verify.isSuccess) return;
+        if (!verify.isSuccess || blocked) return;
         if (secondsLeft <= 0) {
             enterNow();
             return;
@@ -33,9 +36,9 @@ export function VerifyEmailPage() {
         const id = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
         return () => clearTimeout(id);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [verify.isSuccess, secondsLeft]);
+    }, [verify.isSuccess, blocked, secondsLeft]);
 
-    const status = verify.isSuccess ? 'success' : verify.isError ? 'error' : 'pending';
+    const status = blocked ? 'blocked' : verify.isSuccess ? 'success' : verify.isError ? 'error' : 'pending';
 
     return (
         <VerifyEmailStatus status={status} secondsLeft={secondsLeft} onEnterNow={enterNow} />

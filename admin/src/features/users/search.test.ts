@@ -2,6 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { validateUsersSearch } from '@/features/users/search';
 
 describe('validateUsersSearch', () => {
+    it('keeps the login allowed filter, as text or as the boolean the router reads from a typed link', () => {
+        expect(validateUsersSearch({ loginAllowed: 'true' }).loginAllowed).toBe('true');
+        expect(validateUsersSearch({ loginAllowed: false }).loginAllowed).toBe('false');
+        expect(validateUsersSearch({ verified: true }).verified).toBe('true');
+        expect(validateUsersSearch({ loginAllowed: 'maybe' }).loginAllowed).toBeUndefined();
+        expect(validateUsersSearch({ loginAllowed: 1 }).loginAllowed).toBeUndefined();
+    });
+
     it('keeps valid values', () => {
         expect(validateUsersSearch({ q: ' kaja ', page: '3', sort: 'name', order: 'asc', verified: 'false', status: 'banned', method: 'google' })).toEqual({
             q: 'kaja',

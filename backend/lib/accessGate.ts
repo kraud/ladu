@@ -1,13 +1,15 @@
 /**
  * Access gates (.context/plans/access-gates.md): the owner switches registration
- * and login between 'open', 'closed' and 'limited'. This file holds the registration
- * side: reading the settings row, and the two checks `registerUser` and the Google
- * `signupComplete` share. The server always enforces the gate; the banner in the
- * learner app (`GET /api/access`) is only a courtesy.
+ * and login between 'open', 'closed' and 'limited'. This file reads the settings row and
+ * holds both gates: the two registration checks that `registerUser` and the Google
+ * `signupComplete` share, and the login check that every sign-in path runs after the
+ * password and ban checks. The server always enforces the gate; the banner in the
+ * learner app (`GET /api/access`) is only a courtesy. Staff never pass through a gate:
+ * they sign in through their own routes (`staff_accounts`), so an owner can always reopen it.
  */
 const { eq } = require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
-const { accessSettings, registrationInvites, auditLog } = require("../src/db/schema");
+const { accessSettings, registrationInvites, loginAllowedUsers, auditLog } = require("../src/db/schema");
 const { HttpError }: typeof import("./httpError") = require("./httpError");
 
 export type AccessMode = "open" | "closed" | "limited";
@@ -26,7 +28,11 @@ export type GateExecutor = Pick<typeof db, "select" | "delete" | "insert">;
 export const GATE_CODE = {
   registrationClosed: "registration_closed",
   registrationNotInvited: "registration_not_invited",
+  loginClosed: "login_closed",
+  loginNotAllowed: "login_not_allowed",
 } as const;
+
+export type LoginBlockCode = typeof GATE_CODE.loginClosed | typeof GATE_CODE.loginNotAllowed;
 
 /** A refusal by a gate: 403 with an `apiCode` that the error middleware sends as `code`. */
 export class AccessGateError extends HttpError {
@@ -41,6 +47,11 @@ export class AccessGateError extends HttpError {
 const CLOSED_MESSAGE = "Sign-ups are closed for now";
 // One message for every unlisted email: it must not reveal which emails are on the list.
 const NOT_INVITED_MESSAGE = "Sign-ups are by invitation only right now";
+
+const LOGIN_MESSAGES: Record<LoginBlockCode, string> = {
+  login_closed: "Sign-in is closed for now",
+  login_not_allowed: "Sign-in is limited right now",
+};
 
 /** One primary-key read, no cache: a change made in the admin panel works at once. */
 export const getAccessSettings = async (executor: GateExecutor = db): Promise<AccessSettings> => {
@@ -106,3 +117,36 @@ export const consumeInvite = async (tx: GateExecutor, email: string, mode: Acces
     metadata: { email: normalized },
   });
 };
+
+/**
+ * Why this account may not sign in right now, or `null` if it may. `open`: always allowed.
+ * `closed`: nobody. `limited`: only an account on `login_allowed_users` (by user id). Read
+ * on each call, with no cache, so a change works at once and an account that is added to
+ * the list can sign in on its next try.
+ *
+ * Call it only AFTER the password and ban checks, so a refusal never confirms that an
+ * account exists: a wrong password still says "Invalid credentials".
+ */
+export const getLoginBlock = async (userId: string, executor: GateExecutor = db): Promise<LoginBlockCode | null> => {
+  const { loginMode } = await getAccessSettings(executor);
+  if (loginMode === "open") return null;
+  if (loginMode === "closed") return GATE_CODE.loginClosed;
+
+  const [allowed] = await executor
+    .select({ userId: loginAllowedUsers.userId })
+    .from(loginAllowedUsers)
+    .where(eq(loginAllowedUsers.userId, userId))
+    .limit(1);
+  return allowed ? null : GATE_CODE.loginNotAllowed;
+};
+
+/** `getLoginBlock`, as a refusal: puts 403 on `res` and throws an error that carries the code. */
+export const enforceLoginGate = async (res: any, userId: string): Promise<void> => {
+  const code = await getLoginBlock(userId);
+  if (!code) return;
+  res.status(403);
+  throw new AccessGateError(code, LOGIN_MESSAGES[code]);
+};
+
+/** The message for a block code, for a path that answers it without an error (a verified email, a new account). */
+export const loginBlockMessage = (code: LoginBlockCode): string => LOGIN_MESSAGES[code];

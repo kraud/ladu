@@ -120,6 +120,13 @@
       "when": 1790866246356,
       "tag": "0016_access_gates_registration",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790871259094,
+      "tag": "0017_access_gates_login",
+      "breakpoints": true
     }
   ]
 }

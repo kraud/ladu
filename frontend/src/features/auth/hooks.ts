@@ -12,7 +12,7 @@ import { useNavigate, useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { authStore, useAuthStore } from '@/stores/authStore';
-import { refreshAccessOnGateError } from '@/features/access/hooks';
+import { refreshAccess, refreshAccessOnGateError } from '@/features/access/hooks';
 import * as authApi from './api';
 import { authErrorKey, OAuthCallbackError, oauthErrorKey } from './errors';
 import type {
@@ -53,7 +53,11 @@ export function useLogin(redirectTo = '/') {
             // route — `history.push` is the string-path escape hatch.
             router.history.push(redirectTo);
         },
-        onError: (error) => toast.error(t(authErrorKey(error))),
+        onError: (error) => {
+            toast.error(t(authErrorKey(error)));
+            // The login gate refused: its state changed since the page loaded, so the banner must follow.
+            refreshAccessOnGateError(queryClient, error);
+        },
     });
 }
 
@@ -89,9 +93,12 @@ export function useVerifyEmail() {
 
     return useMutation({
         mutationFn: authApi.verifyEmail,
-        onSuccess: ({ user }) => {
+        onSuccess: (data) => {
+            // The email is verified, but the login gate refuses this account: no session.
+            // The page tells the person (see `VerifyEmailPage`).
+            if ('loginBlocked' in data) return;
             queryClient.clear();
-            setSession(user);
+            setSession(data.user);
         },
         onError: (error) => toast.error(t(authErrorKey(error))),
     });
@@ -230,9 +237,16 @@ export function useOAuthSignupComplete() {
 
     return useMutation({
         mutationFn: (body: OAuthSignupCompleteRequest) => authApi.completeOAuthSignup(body),
-        onSuccess: (user) => {
+        onSuccess: (data) => {
+            // The account exists, but the login gate refuses it, so there is no token: say so, and go to /login.
+            if ('loginBlocked' in data) {
+                toast.info(t('loginRegister:access.accountCreatedNoSignIn'));
+                refreshAccess(queryClient);
+                void navigate({ to: '/login' });
+                return;
+            }
             queryClient.clear();
-            setSession(user);
+            setSession(data);
             void navigate({ to: '/' });
         },
         onError: (error) => {
@@ -263,7 +277,10 @@ export function useOAuthLinkComplete() {
             setSession(user);
             void navigate({ to: '/' });
         },
-        onError: (error) => toast.error(t(authErrorKey(error))),
+        onError: (error) => {
+            toast.error(t(authErrorKey(error)));
+            refreshAccessOnGateError(queryClient, error);
+        },
     });
 }
 

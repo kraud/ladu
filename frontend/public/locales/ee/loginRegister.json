@@ -43,7 +43,12 @@
   "access": {
     "registrationClosed": "Registreerimine on praegu suletud. Proovi hiljem uuesti.",
     "registrationLimited": "Registreerimine on praegu avatud ainult kutsega.",
-    "registrationNotInvited": "Registreerimine on praegu ainult kutsega. See e-post ei ole nimekirjas."
+    "registrationNotInvited": "Registreerimine on praegu ainult kutsega. See e-post ei ole nimekirjas.",
+    "loginClosed": "Sisselogimine on praegu suletud. Proovi hiljem uuesti.",
+    "loginLimited": "Sisselogimine on praegu piiratud. Sisse saavad logida ainult mõned kontod.",
+    "loginNotAllowed": "Sisselogimine on praegu piiratud. See konto ei saa veel sisse logida.",
+    "emailVerifiedNoSignIn": "Sinu e-post on kinnitatud. See konto ei saa praegu sisse logida. Proovi hiljem uuesti.",
+    "accountCreatedNoSignIn": "Sinu konto on loodud. See konto ei saa praegu sisse logida. Proovi hiljem uuesti."
   },
   "brand": {
     "tagline": "Sinu sõnad, neli keelt, üks riiul.",

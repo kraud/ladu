@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addInvites, fetchAccess, removeInvite, saveRegistration } from '@/features/access/api';
-import type { AccessState } from '@/features/access/types';
+import {
+    addInvites,
+    allowLogin,
+    disallowLogin,
+    disallowLoginMany,
+    fetchAccess,
+    removeInvite,
+    saveGate,
+    signOutEveryone,
+} from '@/features/access/api';
+import type { AccessMode, AccessState, GateName } from '@/features/access/types';
 
 export const accessKeys = { state: ['access'] as const };
 
@@ -17,9 +26,25 @@ function useStoreAnswer() {
     };
 }
 
-export function useSaveRegistration() {
+/**
+ * Same, for a change to who may sign in: the users list shows it in a column and a filter, and the user
+ * page shows it with a button, so those go stale too.
+ */
+function useStoreLoginAnswer() {
     const store = useStoreAnswer();
-    return useMutation({ mutationFn: saveRegistration, onSuccess: store });
+    const queryClient = useQueryClient();
+    return (state: AccessState) => {
+        store(state);
+        void queryClient.invalidateQueries({ queryKey: ['users'] });
+    };
+}
+
+export function useSaveGate(gate: GateName) {
+    const store = useStoreAnswer();
+    return useMutation({
+        mutationFn: (body: { mode: AccessMode; note: string; reason?: string }) => saveGate(gate, body),
+        onSuccess: store,
+    });
 }
 
 export function useAddInvites() {
@@ -30,4 +55,28 @@ export function useAddInvites() {
 export function useRemoveInvite() {
     const store = useStoreAnswer();
     return useMutation({ mutationFn: removeInvite, onSuccess: store });
+}
+
+export function useAllowLogin() {
+    const store = useStoreLoginAnswer();
+    return useMutation({ mutationFn: allowLogin, onSuccess: store });
+}
+
+export function useDisallowLoginMany() {
+    const store = useStoreLoginAnswer();
+    return useMutation({ mutationFn: disallowLoginMany, onSuccess: store });
+}
+
+export function useDisallowLogin() {
+    const store = useStoreLoginAnswer();
+    return useMutation({ mutationFn: disallowLogin, onSuccess: store });
+}
+
+/** Ends every learner session. No state comes back, only the number of accounts; the audit pages go stale. */
+export function useSignOutEveryone() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: signOutEveryone,
+        onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['audit'] }),
+    });
 }

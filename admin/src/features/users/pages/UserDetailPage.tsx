@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import axios from 'axios';
 import { Link, useParams } from '@tanstack/react-router';
 import { ArrowLeft } from '@phosphor-icons/react';
@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { UserActions } from '@/features/users/components/UserActions';
 import { StatusBadge } from '@/features/users/components/StatusBadge';
 import { formatDateTime, formatDateTimeWithCountry, NONE } from '@/features/users/format';
+import { useAllowLogin, useDisallowLogin } from '@/features/access/hooks';
+import { ALLOW_SKIP_REASONS } from '@/features/access/types';
 import { useUser } from '@/features/users/hooks';
 import type { UserDetail } from '@/features/users/types';
 
@@ -41,6 +43,63 @@ const COUNT_LABELS: [keyof UserDetail['counts'], string][] = [
 ];
 
 const METHOD_LABELS: Record<string, string> = { password: 'Password', google: 'Google' };
+
+/** Who may sign in while login is limited. Only a role with `access.manage` gets `loginAllowed`; others get `null` and no section. */
+function LoginAccessSection({ user }: { user: UserDetail }) {
+    const allow = useAllowLogin();
+    const disallow = useDisallowLogin();
+    const [notice, setNotice] = useState<string | null>(null);
+    const [problem, setProblem] = useState<string | null>(null);
+    const pending = allow.isPending || disallow.isPending;
+
+    const add = () => {
+        setNotice(null);
+        setProblem(null);
+        allow.mutate(
+            { userIds: [user.id] },
+            {
+                onSuccess: (answer) => {
+                    // The server skips an account it cannot add (for example a deleted one) and says why.
+                    if (answer.added.length === 0) setProblem(`Not added: ${ALLOW_SKIP_REASONS[answer.skipped[0]?.reason ?? 'unknown']}.`);
+                    else setNotice('This account can now sign in while login is limited.');
+                },
+                onError: (error) => setProblem(errorMessage(error)),
+            },
+        );
+    };
+    const remove = () => {
+        setNotice(null);
+        setProblem(null);
+        disallow.mutate(user.id, {
+            onSuccess: () => setNotice('This account was removed from the allowed list.'),
+            onError: (error) => setProblem(errorMessage(error)),
+        });
+    };
+
+    return (
+        <Section title="Sign-in access">
+            <p className="text-sm">
+                On the allowed list: <strong>{user.loginAllowed ? 'Yes' : 'No'}</strong>
+            </p>
+            <p className="text-xs text-muted-foreground">It only matters while login is limited. Open sessions are not affected.</p>
+            {notice && (
+                <p role="status" className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-900">
+                    {notice}
+                </p>
+            )}
+            {problem && (
+                <p role="alert" className="text-sm text-destructive">
+                    {problem}
+                </p>
+            )}
+            <div>
+                <Button size="sm" variant="outline" disabled={pending} onClick={user.loginAllowed ? remove : add}>
+                    {user.loginAllowed ? 'Remove from the allowed list' : 'Allow to sign in'}
+                </Button>
+            </div>
+        </Section>
+    );
+}
 
 export function UserDetailPage() {
     const { userId } = useParams({ from: '/_protected/users/$userId' });
@@ -129,6 +188,8 @@ export function UserDetailPage() {
                     {!user.hasPassword && user.identities.length === 0 && <li className="text-muted-foreground">None</li>}
                 </ul>
             </Section>
+
+            {user.loginAllowed !== null && <LoginAccessSection user={user} />}
 
             <Section title="Content">
                 <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

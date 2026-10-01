@@ -15,6 +15,8 @@ export interface UserListItem {
     deletedAt: string | null;
     hasPassword: boolean;
     hasGoogle: boolean;
+    /** On the login allowed list? `null`: this staff role may not see it. */
+    loginAllowed: boolean | null;
 }
 
 export interface UserListResponse {
@@ -45,6 +47,8 @@ export interface UserDetail {
     deletedAt: string | null;
     deletedByStaffName: string | null;
     hasPassword: boolean;
+    /** On the login allowed list? `null`: this staff role may not see it. */
+    loginAllowed: boolean | null;
     identities: { provider: string; emailAtLink: string; linkedAt: string }[];
     counts: { words: number; translations: number; tags: number; friends: number; practiceSessions: number };
     recentLogins: { id: string; method: string; country: string | null; createdAt: string }[];
