@@ -71,6 +71,34 @@
       "when": 1790768698947,
       "tag": "0009_practice_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790783156091,
+      "tag": "0010_admin_data_capture",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790783557320,
+      "tag": "0011_staff_accounts_and_audit_log",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790811045023,
+      "tag": "0012_audit_log_system_actor",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790812384119,
+      "tag": "0013_ops_events",
+      "breakpoints": true
     }
   ]
 }

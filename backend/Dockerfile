@@ -5,11 +5,12 @@ FROM node:24-alpine AS deps
 WORKDIR /app
 
 # npm workspaces resolve against every workspace's package.json even when
-# installing just one workspace's dependency tree, so all three are needed
+# installing just one workspace's dependency tree, so every workspace is needed
 # here even though only backend/ is installed.
 COPY package.json package-lock.json ./
 COPY backend/package.json backend/package.json
 COPY frontend/package.json frontend/package.json
+COPY admin/package.json admin/package.json
 COPY e2e/package.json e2e/package.json
 
 # tsx is a runtime dependency (backend/api/index.js requires 'tsx/cjs' to run

@@ -17,6 +17,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY backend/package.json backend/package.json
 COPY frontend/package.json frontend/package.json
+COPY admin/package.json admin/package.json
 COPY e2e/package.json e2e/package.json
 
 # The build needs devDependencies (vite, tsc, the Tailwind plugin), unlike

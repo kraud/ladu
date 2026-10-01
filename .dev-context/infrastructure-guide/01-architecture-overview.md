@@ -46,14 +46,35 @@ VPS :443 → Caddy ("edge" container)
   │  reads the Host header
   ├─ app.ladu.com.ar        /api/* → backend-prod:5001   else → web-prod:80
   ├─ staging.ladu.com.ar    /api/* → backend-staging:5001 else → web-staging:80
+  │                         (on both: /api/admin/* → 404, the admin API is not served here)
+  ├─ admin.ladu.com.ar          /api/admin/* → backend-prod:5001    else → admin-prod:80
+  ├─ admin-staging.ladu.com.ar  /api/admin/* → backend-staging:5001 else → admin-staging:80
+  │                         (any other /api/* path → 404; both sit behind Cloudflare Access)
   ├─ ladu.com.ar (apex)     → landing container
   └─ www.ladu.com.ar        → redirects to the apex
   ▼
 web-prod / web-staging (Caddy serving the built frontend, SPA fallback)
+admin-prod / admin-staging (Caddy serving the built admin dashboard, SPA fallback)
 backend-prod / backend-staging (Node/Express API)
   ▼
 postgres (one server, two databases: ladu_prod, ladu_staging)
 ```
+
+### The admin dashboard has two locks
+
+`admin.` and `admin-staging.` are the staff tool (`admin/` in the repo; the
+plan is `.context/plans/admin-dashboard.md`). A request passes two checks:
+
+1. **Cloudflare Access** (`deploy/terraform/access.tf`): Cloudflare shows its own
+   login page first (a one-time code sent to an allowed email address). Only
+   after that does the request continue to the VPS. The allowed addresses are
+   the Terraform variable `admin_access_emails`.
+2. **The staff login** in our own code (`POST /api/admin/auth/login`), with its
+   own accounts and its own secret (`ADMIN_JWT_SECRET`).
+
+Access only protects the hostnames it is set up for. That is why Caddy answers
+404 for `/api/admin/*` on `app.` and `staging.`: otherwise the admin API could
+be called there, with no Access login in front of it.
 
 Everything after Cloudflare lives on **Docker networks that publish no ports
 except Caddy's 80/443** — `web` and `backend` containers are unreachable
@@ -190,7 +211,8 @@ symptom-specific guidance.
 | `deploy/compose/app.yml` | The per-environment web + backend stack | Brought up by `deploy.sh`, on every deploy. |
 | `deploy/caddy/` | Caddy's own Dockerfile + `Caddyfile` (routing rules) | Built as part of `platform.yml`. |
 | `deploy/scripts/deploy.sh` | Pulls images, runs migrations, swaps containers, health-checks, rolls back on failure | GitHub Actions, automatically, on every merge to `main`. |
-| `deploy/scripts/backup.sh` / `restore-test.sh` | Nightly backup, weekly restore drill | A cron job on the VPS (installed by Ansible), not GitHub Actions. |
+| `deploy/scripts/backup.sh` / `restore-test.sh` | Nightly backup, weekly restore drill | A cron job on the VPS (installed by Ansible), not GitHub Actions. Each run also writes one row (ok or failed) into the `ops_events` table of `ladu_prod`, through `record-event.sh`; the admin health page reads it. A failed write only prints a warning. |
+| `backend/scripts/purge.js` | Nightly purge: deletes accounts soft-deleted more than 30 days ago, and login history older than 90 days | A cron job on the VPS at 03:30 UTC (Ansible role `purge`), run with `docker exec backend-<env> node scripts/purge.js`. Logs: `/opt/ladu/purge/purge-<env>.log`. No Healthchecks.io monitor yet. |
 | `deploy/env/app.env.example` | Documents every env var `app.yml`'s `backend` service needs | Reference only — never contains real values. |
 
 The distinction that matters: **Ansible changes the server itself** (rare,

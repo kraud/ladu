@@ -64,6 +64,7 @@ app.use('/api/tag-shares', require('./routes/tagShareRoutes'))
 app.use('/api/autocompleteTranslations', require('./routes/autocompleteTranslationRoutes'))
 app.use('/api/exercises', require('./routes/exerciseRoutes'))
 app.use('/api/practice', require('./routes/practiceRoutes'))
+app.use('/api/admin', require('./routes/admin'))
 
 // Must come after every route (needs to see thrown errors) and before
 // errorHandler (which formats the response) — reports 5xx-worthy errors to

@@ -103,6 +103,13 @@
     cloudflare_ranges: "{{ cf_ipv4_platform.content.split() + cf_ipv6_platform.content.split() }}"
   register: trusted_proxies_file
 
+# `build: always`, because the Caddyfile is copied INTO the edge image when it
+# is built (deploy/caddy/Dockerfile: `COPY Caddyfile`). The module's default
+# (`policy`) builds only an image that does not exist yet, so after the first
+# run a changed Caddyfile (a new hostname, a new route) would never reach the
+# running proxy. With `always`, Docker's layer cache makes an unchanged run
+# fast, and Compose recreates the edge container only when the image changed.
+# Certificates survive that: they live in the `caddy_data` volume.
 - name: Bring up postgres and edge
   community.docker.docker_compose_v2:
     project_src: /opt/ladu/platform/compose
@@ -114,6 +121,7 @@
     services:
       - postgres
       - edge
+    build: always
     state: present
   become: false
 

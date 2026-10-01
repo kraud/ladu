@@ -48,6 +48,12 @@ certificate even though the VPS itself is never directly reachable from the
 internet to prove domain control the more common way (serving a file over
 HTTP).
 
+**Cloudflare Access (Zero Trust)** — a Cloudflare service that shows its own
+login page before a request reaches your server. Here it protects the admin
+dashboard's hostnames: only listed email addresses (one-time code by email)
+get through. It is free for up to 50 users, and works only on hostnames whose
+DNS record is proxied.
+
 **Reverse proxy** — a server that sits in front of other servers and routes
 incoming requests to the right one. Caddy is this project's reverse proxy:
 one process, listening on 80/443, deciding by hostname which container gets

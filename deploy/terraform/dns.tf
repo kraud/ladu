@@ -159,3 +159,49 @@ resource "cloudflare_dns_record" "staging_aaaa" {
   ttl     = 1
   proxied = true
 }
+
+# --- Admin dashboard (admin. / admin-staging.) ---
+# The staff tool (.context/plans/admin-dashboard.md). Same VPS, same edge
+# Caddy; Caddy routes these hostnames to the admin containers. One subdomain
+# level with a hyphen for staging, because Cloudflare's free certificate covers
+# *.ladu.com.ar and nothing deeper.
+#
+# `proxied = true` is REQUIRED, not a preference: Cloudflare Access (access.tf)
+# only works on a hostname whose traffic goes through Cloudflare. An unproxied
+# record would send visitors straight to the VPS with no login in front.
+
+resource "cloudflare_dns_record" "admin_a" {
+  zone_id = var.cloudflare_zone_id
+  name    = "admin.${var.domain}"
+  type    = "A"
+  content = var.vps_ipv4
+  ttl     = 1
+  proxied = true
+}
+
+resource "cloudflare_dns_record" "admin_aaaa" {
+  zone_id = var.cloudflare_zone_id
+  name    = "admin.${var.domain}"
+  type    = "AAAA"
+  content = var.vps_ipv6
+  ttl     = 1
+  proxied = true
+}
+
+resource "cloudflare_dns_record" "admin_staging_a" {
+  zone_id = var.cloudflare_zone_id
+  name    = "admin-staging.${var.domain}"
+  type    = "A"
+  content = var.vps_ipv4
+  ttl     = 1
+  proxied = true
+}
+
+resource "cloudflare_dns_record" "admin_staging_aaaa" {
+  zone_id = var.cloudflare_zone_id
+  name    = "admin-staging.${var.domain}"
+  type    = "AAAA"
+  content = var.vps_ipv6
+  ttl     = 1
+  proxied = true
+}

@@ -52,6 +52,54 @@ const timestamps = {
 };
 
 // ===========================================================================
+// STAFF_ACCOUNTS
+// Admin-dashboard staff logins (.context/plans/admin-dashboard.md §2). A
+// separate table from `users` on purpose: a learner token can never open an
+// admin route, and a staff account needs no vocabulary data. Staff are
+// disabled (`disabledAt`), never deleted, so `audit_log` rows keep a valid FK.
+// ===========================================================================
+export const staffAccounts = pgTable('staff_accounts', {
+    id:           uuid('id').primaryKey().defaultRandom(),
+    // Stored lowercased; the unique constraint is therefore case-insensitive.
+    email:        varchar('email', { length: 255 }).notNull().unique(),
+    name:         varchar('name', { length: 255 }).notNull(),
+    passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+    // 'owner' | 'admin' | 'support' | 'viewer' — the role -> permission map
+    // lives in lib/adminPermissions.ts, so a new role needs no migration.
+    role:         varchar('role', { length: 32 }).notNull(),
+    disabledAt:   timestamp('disabled_at'),
+    lastLoginAt:  timestamp('last_login_at'),
+    ...timestamps,
+});
+
+// ---------------------------------------------------------------------------
+// AUDIT_LOG
+// One row per admin action: who did what, to what, and why. `targetId` is
+// plain text with no FK, because the target can be a user that a purge later
+// deletes; `metadata` keeps what would otherwise be lost (email, username).
+// ---------------------------------------------------------------------------
+export const auditLog = pgTable(
+    'audit_log',
+    {
+        id:         uuid('id').primaryKey().defaultRandom(),
+        // NULL = the system (the nightly purge job), which has no staff account.
+        staffId:    uuid('staff_id').references(() => staffAccounts.id, { onDelete: 'restrict' }),
+        // e.g. 'staff.login', 'user.ban'
+        action:     varchar('action', { length: 64 }).notNull(),
+        targetType: varchar('target_type', { length: 32 }),
+        targetId:   varchar('target_id', { length: 64 }),
+        reason:     text('reason'),
+        metadata:   jsonb('metadata'),
+        createdAt:  timestamp('created_at').defaultNow().notNull(),
+    },
+    (table) => [
+        index('audit_log_created_idx').on(table.createdAt),
+        index('audit_log_target_idx').on(table.targetType, table.targetId),
+        index('audit_log_staff_idx').on(table.staffId, table.createdAt),
+    ],
+);
+
+// ===========================================================================
 // USERS
 // Mapped from: backend/models/userModel.js
 // ===========================================================================
@@ -73,8 +121,44 @@ export const users = pgTable('users', {
     theme:          varchar('theme', { length: 10 }),
     nativeLanguage: varchar('native_language', { length: 50 }),
     verified:       boolean('verified').default(false),
+    // --- Admin dashboard, slice 1 (.context/plans/admin-dashboard.md §4) ---
+    // Login capture. Country only (CF-IPCountry header) — IP addresses are
+    // never stored. All NULL for accounts that have not logged in since this
+    // column set was added.
+    lastLoginAt:      timestamp('last_login_at'),
+    lastLoginCountry: varchar('last_login_country', { length: 2 }),
+    // Written by `protect`, at most once per hour per user.
+    lastSeenAt:       timestamp('last_seen_at'),
+    // Ban flag. Set by staff (slice 5); enforced by `protect` and both logins.
+    bannedAt:         timestamp('banned_at'),
+    banReason:        text('ban_reason'),
+    // Soft delete (30-day grace, then a purge). The row stays, so the email
+    // and username stay reserved.
+    deletedAt:        timestamp('deleted_at'),
+    deletedByStaffId: uuid('deleted_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
+    // Carried in the JWT as `tv`. Raising it invalidates every older token.
+    tokenVersion:     integer('token_version').notNull().default(0),
     ...timestamps,
 });
+
+// ---------------------------------------------------------------------------
+// LOGIN_EVENTS
+// One row per successful login: the login history shown on the admin user
+// page. Country only, never an IP. Rows older than 90 days are deleted by the
+// nightly purge job (admin-dashboard.md slice 5).
+// ---------------------------------------------------------------------------
+export const loginEvents = pgTable(
+    'login_events',
+    {
+        id:        uuid('id').primaryKey().defaultRandom(),
+        userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        // 'password' | 'google'
+        method:    varchar('method', { length: 16 }).notNull(),
+        country:   varchar('country', { length: 2 }),
+        createdAt: timestamp('created_at').defaultNow().notNull(),
+    },
+    (table) => [index('login_events_user_created_idx').on(table.userId, table.createdAt)],
+);
 
 // ---------------------------------------------------------------------------
 // WORDS
@@ -537,3 +621,24 @@ export const exercisePerformanceCasesRelations = relations(exercisePerformanceCa
         references: [exercisePerformances.id],
     }),
 }));
+
+// ---------------------------------------------------------------------------
+// OPS_EVENTS
+// Facts about the deployment that only the VPS scripts know: one row for each
+// nightly backup and each weekly restore test (deploy/scripts/record-event.sh
+// writes them as the DB superuser, after the run). The admin health page reads
+// the newest row of each kind. Only production is backed up, so staging has none.
+// ---------------------------------------------------------------------------
+export const opsEvents = pgTable(
+    'ops_events',
+    {
+        id:        uuid('id').primaryKey().defaultRandom(),
+        // 'backup' | 'restore_test'
+        kind:      varchar('kind', { length: 32 }).notNull(),
+        ok:        boolean('ok').notNull(),
+        // A short human-readable line: the dump file name, or why the run failed.
+        detail:    text('detail'),
+        createdAt: timestamp('created_at').defaultNow().notNull(),
+    },
+    (table) => [index('ops_events_kind_created_idx').on(table.kind, table.createdAt)],
+);

@@ -1,0 +1,61 @@
+---
+# Admin dashboard, slice 5 (.context/plans/admin-dashboard.md §3): every night,
+# hard-delete accounts that were soft-deleted more than 30 days ago, and delete
+# login history older than 90 days. The work is backend/scripts/purge.js; this
+# role only schedules it, the same way the `backup` role schedules backup.sh.
+#
+# A host cron job and not a scheduler inside the backend: nothing extra to keep
+# alive, and no double run if the backend ever has two containers.
+#
+# It runs in both environments (staging and prod), each in its own backend
+# container. The container already has DATABASE_URL, so the script needs no
+# secret of its own.
+
+- name: Install cron
+  ansible.builtin.apt:
+    name: cron
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Ensure cron is enabled and running
+  ansible.builtin.systemd:
+    name: cron
+    enabled: true
+    state: started
+
+- name: Create the purge log directory
+  ansible.builtin.file:
+    path: /opt/ladu/purge
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0750"
+
+# 03:30 UTC, after the 03:00 backup has finished, so a purge never deletes rows
+# out from under a running dump.
+- name: Schedule the nightly purge
+  ansible.builtin.cron:
+    name: "ladu nightly purge ({{ item.name }})"
+    user: "{{ deploy_user }}"
+    job: "docker exec backend-{{ item.name }} node scripts/purge.js >> /opt/ladu/purge/purge-{{ item.name }}.log 2>&1"
+    hour: "3"
+    minute: "30"
+  loop: "{{ environments }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Rotate the purge logs
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/ladu-purge
+    content: |
+      /opt/ladu/purge/*.log {
+        weekly
+        rotate 4
+        compress
+        missingok
+        notifempty
+      }
+    owner: root
+    group: root
+    mode: "0644"

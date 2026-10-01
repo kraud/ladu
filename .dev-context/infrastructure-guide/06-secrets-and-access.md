@@ -67,6 +67,7 @@ variable names, different (environment-appropriate) values:
 |---|---|
 | `DATABASE_URL` | Full connection string for that environment's database |
 | `JWT_SECRET` | Separate, independently-generated value per environment |
+| `ADMIN_JWT_SECRET` | Signs the admin dashboard's staff tokens. A different value from `JWT_SECRET`, and a different value per environment (generate with `openssl rand -hex 32`). If it is missing or empty, the backend still starts, and `POST /api/admin/auth/login` answers 503 |
 | `BASE_URL` | `https://staging.ladu.com.ar` or `https://app.ladu.com.ar` |
 | `URL_EESTI_LANG_API` | The Estonian dictionary API URL (same value both environments) |
 | `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASS` | Resend SMTP config — `EMAIL_PASS` is a Resend API key, currently the *same* key shared across both environments |
@@ -107,12 +108,18 @@ manual setup and was never rotated to something intentional. To rotate it:
 
 ## HCP Terraform
 
-Holds exactly one sensitive value for this project: the Cloudflare API
+Holds one sensitive value for this project: the Cloudflare API
 token Terraform itself uses, stored as a workspace variable (never as a
 local env var, never in a GitHub secret) — this is the one credential in the
 whole system that was created manually in Cloudflare's dashboard rather than
 managed by Terraform, since Terraform obviously can't hand itself its own
-starting credential.
+starting credential. That token needs the permission **Access: Apps and
+Policies: Edit** (on the account) for `access.tf`, besides the DNS permissions.
+
+It also holds one plain (non-sensitive) workspace variable,
+`admin_access_emails`: the list of email addresses that Cloudflare Access lets
+through to the admin dashboard, for example `["you@example.com"]`. It has no
+default on purpose, so the addresses are not in the repository.
 
 ## Sudo on the VPS
 
@@ -130,4 +137,6 @@ adds no new privilege in practice, just convenience.
 | Where deploys reach the VPS (IP, SSH key) | GitHub repository secrets |
 | An app-level env var value (email, JWT secret, API URLs) | The relevant GitHub Environment's secrets |
 | A DNS record, TLS setting, or email-verification record | `deploy/terraform/*.tf`, then `terraform apply` |
+| Who may open the admin dashboard (the Access login) | The `admin_access_emails` variable on the HCP Terraform workspace, then `terraform apply` |
+| Who may use the admin dashboard once inside (staff accounts) | The staff page in the dashboard; the first `owner` is made with `scripts/create-staff.js` (see the troubleshooting playbook) |
 | Server-level config (firewall rules, installed packages, backup schedule) | The relevant Ansible role, then `ansible-playbook site.yml` |

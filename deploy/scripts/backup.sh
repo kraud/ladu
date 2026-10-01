@@ -9,6 +9,11 @@ BACKUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set -a
 source "${BACKUP_DIR}/backup.env"
 set +a
+source "${BACKUP_DIR}/record-event.sh"
+
+# A failed run is recorded too, so the admin health page can show it. (If the
+# database itself is what failed, this write fails as well; it only warns.)
+trap 'record_event backup false "failed at line ${LINENO}"' ERR
 
 TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 DUMP_FILE="${BACKUP_DIR}/ladu_prod_${TIMESTAMP}.dump"
@@ -21,3 +26,4 @@ rclone copy "${DUMP_FILE}" "b2:${B2_BUCKET_NAME}" --config "${BACKUP_DIR}/rclone
 
 rm -f "${DUMP_FILE}"
 echo "Backed up ladu_prod to b2:${B2_BUCKET_NAME}/$(basename "${DUMP_FILE}")"
+record_event backup true "$(basename "${DUMP_FILE}")"

@@ -31,7 +31,7 @@
     group: "{{ deploy_user }}"
     mode: "0750"
 
-- name: Sync the backup and restore-test scripts
+- name: Sync the backup and restore-test scripts (and the helper they share)
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../scripts/{{ item }}"
     dest: "/opt/ladu/backup/{{ item }}"
@@ -41,6 +41,7 @@
   loop:
     - backup.sh
     - restore-test.sh
+    - record-event.sh
 
 - name: Write the backup environment file
   ansible.builtin.template:

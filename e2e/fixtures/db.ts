@@ -11,6 +11,7 @@
  */
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
+import bcrypt from 'bcryptjs';
 import pg from 'pg';
 
 config({ path: resolve(process.cwd(), '../.env') });
@@ -173,4 +174,135 @@ export async function expirePracticeSessions(email: string): Promise<number> {
         [email],
     );
     return rowCount ?? 0;
+}
+
+// ---------------------------------------------------------------------------
+// Admin dashboard (.context/plans/admin-dashboard.md) — rows the admin specs
+// need that no UI creates: a staff account (the first `owner` comes from a
+// server-side script, never the UI) and users with a known history.
+// ---------------------------------------------------------------------------
+
+/** Inserts a staff account; the password is hashed here with the same bcrypt the backend checks against. */
+export async function createStaffAccount(email: string, role: string, password: string): Promise<{ staffId: string }> {
+    const { rows } = await getPool().query<{ id: string }>(
+        `INSERT INTO staff_accounts (email, name, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id`,
+        [email.toLowerCase(), `E2E ${role}`, await bcrypt.hash(password, 4), role],
+    );
+    if (!rows[0]) throw new Error(`failed to seed staff ${email}`);
+    return { staffId: rows[0].id };
+}
+
+/** Removes staff accounts and the audit rows that reference them (`audit_log.staff_id` is `ON DELETE RESTRICT`). */
+export async function deleteStaffByEmail(emails: string[]): Promise<void> {
+    if (emails.length === 0) return;
+    try {
+        const lowered = emails.map((e) => e.toLowerCase());
+        await getPool().query(
+            `DELETE FROM audit_log WHERE staff_id IN (SELECT id FROM staff_accounts WHERE email = ANY($1::text[]))`,
+            [lowered],
+        );
+        await getPool().query(`DELETE FROM staff_accounts WHERE email = ANY($1::text[])`, [lowered]);
+    } catch (error) {
+        console.warn('[e2e] staff cleanup failed:', (error as Error).message);
+    }
+}
+
+export interface SeedUserOptions {
+    name: string;
+    username: string;
+    /** false = a Google-only account (NULL password hash). */
+    hasPassword?: boolean;
+    verified?: boolean;
+    banned?: boolean;
+    deleted?: boolean;
+    lastLoginCountry?: string;
+    /** A real password, so the account can sign in through the learner API. Without it the hash is a placeholder. */
+    learnerPassword?: string;
+}
+
+/** Inserts a user row directly, with the admin columns set as asked. */
+export async function seedUser(email: string, opts: SeedUserOptions): Promise<{ userId: string }> {
+    const { rows } = await getPool().query<{ id: string }>(
+        `INSERT INTO users (name, email, username, password, languages, ui_language, verified,
+                            banned_at, ban_reason, deleted_at, last_login_at, last_login_country)
+         VALUES ($1, $2, $3, $4, ARRAY['English', 'Estonian'], 'English', $5,
+                 $6, $7, $8, $9, $10)
+         RETURNING id`,
+        [
+            opts.name,
+            email,
+            opts.username,
+            opts.hasPassword === false ? null : opts.learnerPassword ? await bcrypt.hash(opts.learnerPassword, 4) : 'not-a-real-hash',
+            opts.verified ?? true,
+            opts.banned ? new Date() : null,
+            opts.banned ? 'spam' : null,
+            opts.deleted ? new Date() : null,
+            opts.lastLoginCountry ? new Date() : null,
+            opts.lastLoginCountry ?? null,
+        ],
+    );
+    if (!rows[0]) throw new Error(`failed to seed user ${email}`);
+    return { userId: rows[0].id };
+}
+
+/** A word with one translation per language — feeds the `words` and `translations` counts. */
+export async function seedWord(userId: string, languages: string[]): Promise<void> {
+    const { rows } = await getPool().query<{ id: string }>(
+        `INSERT INTO words (user_id, part_of_speech) VALUES ($1, 'Noun') RETURNING id`,
+        [userId],
+    );
+    const wordId = rows[0]?.id;
+    for (const language of languages) {
+        await getPool().query(`INSERT INTO translations (word_id, language) VALUES ($1, $2)`, [wordId, language]);
+    }
+}
+
+export async function seedTag(userId: string, label: string): Promise<void> {
+    await getPool().query(`INSERT INTO tags (author_id, label, visibility) VALUES ($1, $2, 'Private')`, [userId, label]);
+}
+
+export async function seedLoginEvent(userId: string, method: 'password' | 'google', country: string | null): Promise<void> {
+    await getPool().query(`INSERT INTO login_events (user_id, method, country) VALUES ($1, $2, $3)`, [userId, method, country]);
+}
+
+export async function seedGoogleIdentity(userId: string, email: string): Promise<void> {
+    await getPool().query(
+        `INSERT INTO oauth_identities (user_id, provider, provider_user_id, email_at_link) VALUES ($1, 'google', $2, $3)`,
+        [userId, `e2e-sub-${userId}`, email],
+    );
+}
+
+export async function seedAuditEntry(staffId: string, userId: string, action: string, reason: string): Promise<void> {
+    await getPool().query(
+        `INSERT INTO audit_log (staff_id, action, target_type, target_id, reason) VALUES ($1, $2, 'user', $3, $4)`,
+        [staffId, action, userId, reason],
+    );
+}
+
+/** The audit rows written about one user (`target_type = 'user'`), oldest first. Survives the user's purge. */
+export async function getAuditForUser(
+    userId: string,
+): Promise<{ action: string; reason: string | null; staffId: string | null; metadata: Record<string, unknown> | null }[]> {
+    const { rows } = await getPool().query(
+        `SELECT action, reason, staff_id AS "staffId", metadata
+           FROM audit_log WHERE target_type = 'user' AND target_id = $1 ORDER BY created_at, id`,
+        [userId],
+    );
+    return rows;
+}
+
+/** An `ops_events` row as the VPS backup scripts write it, `hoursAgo` hours in the past. */
+export async function seedOpsEvent(kind: 'backup' | 'restore_test', ok: boolean, detail: string, hoursAgo: number): Promise<void> {
+    await getPool().query(
+        `INSERT INTO ops_events (kind, ok, detail, created_at) VALUES ($1, $2, $3, now() - make_interval(hours => $4))`,
+        [kind, ok, detail, hoursAgo],
+    );
+}
+
+export async function deleteOpsEventsByDetail(prefix: string): Promise<void> {
+    try {
+        await getPool().query(`DELETE FROM ops_events WHERE detail LIKE $1`, [`${prefix}%`]);
+    } catch (error) {
+        console.warn('[e2e] ops_events cleanup failed:', (error as Error).message);
+    }
 }

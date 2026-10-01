@@ -27,3 +27,18 @@ variable "vps_ipv6" {
   type        = string
   default     = "2a0a:4cc0:c1:20b4:c8fb:e6ff:fe5e:f195"
 }
+
+variable "admin_access_emails" {
+  description = <<-EOT
+    Email addresses allowed through Cloudflare Access to admin. and
+    admin-staging. (access.tf). No default on purpose: set it as a Terraform
+    variable on the HCP Terraform workspace, so the addresses are not in the
+    repository. Example value: ["you@example.com"]
+  EOT
+  type        = list(string)
+
+  validation {
+    condition     = length(var.admin_access_emails) > 0
+    error_message = "Give at least one email address, or nobody can open the admin dashboard."
+  }
+}

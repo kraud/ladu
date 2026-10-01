@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+/* Ladu Admin palette. Deliberately not the learner app's palette (frontend/
+   src/styles/tokens.css): a slate neutral with an indigo accent, so staff can
+   tell the two apps apart at a glance. Light only — a staff tool needs no
+   theme switch. Token names match what the copied shadcn primitives
+   (components/ui) expect. */
+:root {
+  --bg: oklch(0.985 0.002 265);
+  --fg: oklch(0.23 0.02 265);
+  --surface: oklch(1 0 0);
+  --soft: oklch(0.96 0.005 265);
+  --muted: oklch(0.5 0.02 265);
+  --border: oklch(0.9 0.008 265);
+  --accent: oklch(0.45 0.17 272);
+  --accent-ink: oklch(0.985 0 0);
+  --accent-soft: oklch(0.45 0.17 272 / 0.2);
+  --accent-strong: oklch(0.4 0.17 272);
+  --danger: oklch(0.55 0.2 27);
+  --danger-soft: oklch(0.55 0.2 27 / 0.2);
+}
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--fg);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--fg);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-ink);
+  --color-secondary: var(--surface);
+  --color-secondary-foreground: var(--fg);
+  --color-muted: var(--soft);
+  --color-muted-foreground: var(--muted);
+  --color-destructive: var(--danger);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--accent);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+}

@@ -1,0 +1,32 @@
+import path from 'node:path';
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+    plugins: [react(), tailwindcss()],
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './src'),
+        },
+    },
+    server: {
+        // The learner app owns :5173.
+        port: 5174,
+        strictPort: true,
+        // Same idea as frontend/: the browser sees one origin, Vite forwards /api.
+        proxy: {
+            '/api': {
+                target: 'http://localhost:5001',
+                changeOrigin: true,
+            },
+        },
+    },
+    test: {
+        environment: 'jsdom',
+        globals: true,
+        setupFiles: ['./src/test/setup.ts'],
+        css: false,
+    },
+});

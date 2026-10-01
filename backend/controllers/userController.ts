@@ -24,6 +24,7 @@ const {
 }: typeof import("drizzle-orm") = require("drizzle-orm");
 const asyncHandler = require("express-async-handler");
 const sendMail = require("../utils/sendEmail");
+const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
 const { calculateBasicUserMetrics } = require("./metricController");
 
 type UserRow = typeof users.$inferSelect;
@@ -108,9 +109,11 @@ const normalizeLanguageSelection = (
   return { ok: true, languages: deduped };
 };
 
-const generateToken = (id: string) => {
-  // JWTs carry only the stable user id; user profile data is reloaded by auth middleware.
-  return jwt.sign({ id }, process.env.JWT_SECRET as string, {
+const generateToken = (user: { id: string; tokenVersion?: number }) => {
+  // JWTs carry the stable user id plus `tv` (users.token_version): `protect`
+  // rejects a token whose `tv` is older than the row's, which is how staff
+  // force a logout. Profile data is reloaded by auth middleware.
+  return jwt.sign({ id: user.id, tv: user.tokenVersion ?? 0 }, process.env.JWT_SECRET as string, {
     expiresIn: "30d",
   });
 };
@@ -143,7 +146,7 @@ const serializeLoginUser = (user: UserRow) => ({
   theme: user.theme,
   nativeLanguage:
     user.nativeLanguage === null ? undefined : user.nativeLanguage,
-  token: generateToken(user.id),
+  token: generateToken(user),
   verified: user.verified,
 });
 
@@ -290,7 +293,9 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
   const { email, password, uiLanguage, theme } = req.body;
 
   // Look up by email first so password comparison only runs for a real account.
-  const user = email ? await findUserByEmailInsensitive(email) : undefined;
+  const found = email ? await findUserByEmailInsensitive(email) : undefined;
+  // A soft-deleted account (admin-dashboard.md) must look like it is gone.
+  const user = found && !found.deletedAt ? found : undefined;
 
   // A password-less (OAuth-only) account has no hash to compare against —
   // point it at the right button instead of a confusing generic rejection.
@@ -304,6 +309,12 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
   if (!user || !(await bcrypt.compare(password || "", user.password))) {
     res.status(400);
     throw new Error("Invalid credentials");
+  }
+
+  // Checked after the password, so only the real owner learns the ban status.
+  if (accountBlock(user) === "banned") {
+    res.status(403);
+    throw new Error("This account is suspended");
   }
 
   // A UI language chosen on the login screen is persisted to the row so the app
@@ -337,6 +348,8 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
       .where(eq(users.id, user.id));
     user.theme = themeResult.theme;
   }
+
+  await recordLogin(user.id, "password", req);
 
   res.json(serializeLoginUser(user));
 });
@@ -537,7 +550,7 @@ const verifyUser = asyncHandler(async (req: any, res: any) => {
   try {
     // Validate the URL user id before checking the one-time verification token.
     const user = await findUserById(req.params.id);
-    if (!user) {
+    if (!user || user.deletedAt) {
       return res.status(400).send({ message: "Invalid Link (no user match)" });
     }
 
@@ -564,7 +577,7 @@ const verifyUser = asyncHandler(async (req: any, res: any) => {
     // immediately. `serializeUser` is an allowlist, so no `password` strip needed.
     const userWithToken = {
       ...serializeUser({ ...user, verified: true }),
-      token: generateToken(user.id),
+      token: generateToken(user),
     };
 
     res
