@@ -53,7 +53,13 @@ rollback() {
     if [ -f "$DEPLOYED_SHA_FILE" ]; then
         PREVIOUS_SHA="$(cat "$DEPLOYED_SHA_FILE")"
         echo "==> Rolling back to $PREVIOUS_SHA" >&2
-        IMAGE_TAG="$PREVIOUS_SHA" compose up -d
+        # Only the learner app is rolled back as one step. `admin` is a separate,
+        # optional step: a release from before the admin dashboard existed has no
+        # ladu-admin image, and `compose up -d` with a missing image would fail
+        # as a whole and leave the broken release running.
+        IMAGE_TAG="$PREVIOUS_SHA" compose up -d backend web
+        IMAGE_TAG="$PREVIOUS_SHA" compose up -d admin \
+            || echo "No admin image for $PREVIOUS_SHA (older than the admin dashboard) — leaving admin as it is." >&2
     else
         echo "No previous deployed_sha on record — nothing to roll back to." >&2
     fi
@@ -83,6 +89,21 @@ until curl -fsS -o /dev/null "${BASE_URL%/}/"; do
     attempt=$((attempt + 1))
     if [ "$attempt" -ge 30 ]; then
         rollback "Frontend did not become reachable in time."
+    fi
+    sleep 2
+done
+
+# The admin container is not reachable from here: its hostname sits behind
+# Cloudflare Access (deploy/terraform/access.tf), which answers instead. So the
+# check runs inside the container. A staff tool that is slow to start must not
+# roll back the learner app, so a failure here warns and moves on.
+echo "==> Waiting for the admin container to serve (up to 60s)"
+attempt=0
+until docker exec "admin-${ENVIRONMENT}" wget -q -O /dev/null http://localhost/ 2>/dev/null; do
+    attempt=$((attempt + 1))
+    if [ "$attempt" -ge 30 ]; then
+        echo "WARNING: admin-${ENVIRONMENT} did not start serving in time. The learner app is unaffected." >&2
+        break
     fi
     sleep 2
 done

@@ -36,6 +36,10 @@ http://www.{$APEX_DOMAIN} {
 http://app.{$APEX_DOMAIN} {
     import security_headers
 
+    handle /api/admin/* {
+        respond 404
+    }
+
     handle /api/* {
         reverse_proxy backend-prod:5001
     }
@@ -48,11 +52,49 @@ http://app.{$APEX_DOMAIN} {
 http://staging.{$APEX_DOMAIN} {
     import security_headers
 
+    handle /api/admin/* {
+        respond 404
+    }
+
     handle /api/* {
         reverse_proxy backend-staging:5001
     }
 
     handle {
         reverse_proxy web-staging:80
+    }
+}
+
+# Admin hosts (slice 7). Locally there is no Cloudflare Access in front, only
+# the staff login.
+http://admin.{$APEX_DOMAIN} {
+    import security_headers
+
+    handle /api/admin/* {
+        reverse_proxy backend-prod:5001
+    }
+
+    handle /api/* {
+        respond 404
+    }
+
+    handle {
+        reverse_proxy admin-prod:80
+    }
+}
+
+http://admin-staging.{$APEX_DOMAIN} {
+    import security_headers
+
+    handle /api/admin/* {
+        reverse_proxy backend-staging:5001
+    }
+
+    handle /api/* {
+        respond 404
+    }
+
+    handle {
+        reverse_proxy admin-staging:80
     }
 }

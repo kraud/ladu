@@ -8,9 +8,9 @@
 #   ENVIRONMENT=staging IMAGE_TAG=<sha> docker compose -f app.yml \
 #     --env-file /opt/ladu/staging/.env up -d
 #
-# Service keys stay generic (web/backend) so one file serves both
+# Service keys stay generic (web/admin/backend) so one file serves both
 # environments; each gets a network alias/container name suffixed with
-# ENVIRONMENT (web-prod, backend-staging, ...) — those are the literal
+# ENVIRONMENT (web-prod, admin-prod, backend-staging, ...) — those are the literal
 # hostnames deploy/caddy/Caddyfile proxies to.
 
 name: ladu-${ENVIRONMENT}
@@ -25,6 +25,17 @@ services:
         aliases:
           - web-${ENVIRONMENT}
     # No ports published — reached only through edge's reverse_proxy.
+
+  admin:
+    image: ghcr.io/kraud/ladu-admin:${IMAGE_TAG:-latest}
+    container_name: admin-${ENVIRONMENT}
+    restart: unless-stopped
+    networks:
+      edge:
+        aliases:
+          - admin-${ENVIRONMENT}
+    # No ports published -- reached only through edge's reverse_proxy, on
+    # admin. (prod) and admin-staging. (staging), behind Cloudflare Access.
 
   backend:
     image: ghcr.io/kraud/ladu-backend:${IMAGE_TAG:-latest}

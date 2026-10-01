@@ -181,6 +181,45 @@ is, so it only affects *inbound* traffic to the VPS, not container egress.
 
 ---
 
+### "I need to create the first admin owner, or I am locked out of the admin dashboard"
+
+Staff accounts are not in the learner `users` table, and nobody can sign in
+until one exists. Create an `owner` on the VPS, inside the backend container,
+with a terminal (`-it`) so the password prompt is hidden and stays out of the
+shell history:
+
+```bash
+docker exec -it backend-prod node scripts/create-staff.js you@example.com "Your Name"
+# staging:
+docker exec -it backend-staging node scripts/create-staff.js you@example.com "Your Name"
+```
+
+The script asks for a password (at least 12 characters) twice. A second run
+with the same email fails with "already exists". If the only owner forgot the
+password, make another owner this way, then disable the old one from the staff
+page.
+
+### "admin.ladu.com.ar shows 'Cannot reach the server', or loops on the Cloudflare login"
+
+Two different locks can be the cause:
+
+- **The Cloudflare Access page** (a Cloudflare-branded page asking for an
+  email): this is the first lock working. Enter an address from the
+  `admin_access_emails` variable. If the code never arrives, check that
+  address is in the list and that "One-time PIN" is an enabled login method in
+  the Zero Trust dashboard (Settings → Authentication).
+- **"Cannot reach the server" inside the admin app**: the Access session
+  (8 hours) ended while the page was open, so Cloudflare answered an API call
+  with its login page. Reload the page; Access asks for a code again.
+- **A 503 from `/api/admin/auth/login`**: `ADMIN_JWT_SECRET` is missing in that
+  environment's `.env`. Add the GitHub Environment secret and redeploy.
+- **A 404 on the whole host**: Caddy does not know the host yet. Run
+  `ansible-playbook site.yml` from an up-to-date checkout of `main`. The
+  `platform` role copies `deploy/caddy/` to the VPS and rebuilds the `edge`
+  image (the Caddyfile is copied into the image, so a change needs a rebuild,
+  not only a reload). If you must do it by hand on the VPS:
+  `cd /opt/ladu/platform/compose && docker compose -f platform.yml --env-file ../.env up -d --build edge`.
+
 ### "TLS certificate errors, or Caddy won't start"
 
 **Check:** `docker logs <edge container name>` on the VPS for ACME

@@ -1,6 +1,6 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions) and 6 (health page) are done. Slices 7–9 are not started.
+Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions) and 6 (health page) are done. Slice 7 (deploy) is written and tested locally but **not rolled out yet**. Slices 8–9 are not started.
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
@@ -48,7 +48,26 @@ Slice 6 notes:
 - Decision made with the user: backups are reported through a new `ops_events` table (migration `0013_ops_events.sql`). `deploy/scripts/record-event.sh` is sourced by `backup.sh` and `restore-test.sh`; it writes one row per run, success or failure, as the DB superuser. The backup Ansible role syncs the new file. A failed write only warns. The SQL path was tested against the local Postgres container. The full scripts cannot run here (they need the VPS, B2 and Docker Compose paths).
 - **Not applied yet:** run the Ansible playbook so the VPS gets the new scripts. The health page shows "None recorded" for backups until the first nightly run after that. Staging never shows a backup (only prod is backed up).
 - The page warns ("Overdue") when the last backup is older than 26 hours, or the last restore test older than 8 days.
-- Slice 1 leftover: `landing/privacy.html` still needs the line about the login country. Do this before slice 7 (deploy).
+
+Slice 7 notes (deploy):
+- New: `admin/Dockerfile`, `admin/Caddyfile`, `deploy/terraform/access.tf`. Changed: `deploy/compose/app.yml` (service `admin`, container `admin-<env>`), `deploy/caddy/Caddyfile` and its local mirror, `deploy/scripts/deploy.sh`, `deploy/terraform/dns.tf` and `variables.tf`, `.github/workflows/ci.yml` and `deploy.yml`, `landing/privacy.html`, the operator guide.
+- Hosts: `admin.ladu.com.ar` (prod data) and `admin-staging.ladu.com.ar` (staging data). One subdomain level, because the free Cloudflare certificate covers `*.ladu.com.ar` only.
+- Decision made with the user: **split by host**. On `app.` and `staging.`, Caddy answers 404 for `/api/admin/*`. On the admin hosts, Caddy sends only `/api/admin/*` to the backend, and any other `/api/*` path is 404. So the admin API is reachable only behind Cloudflare Access. (The first plan text said `/api/*` on both hosts.)
+- `deploy.sh`: the rollback now restarts only `backend` and `web`, then `admin` as an optional step. A release from before the dashboard has no `ladu-admin` image, and `compose up -d` would fail as a whole and leave the broken release running. A new check runs inside `admin-<env>` (`docker exec ... wget`), because the admin host is behind Access. A failed admin check warns and does not roll back.
+- `access.tf`: one Access policy (emails from the HCP variable `admin_access_emails`) and one application per host, session 8 hours. The DNS records must be proxied (Access works only on proxied hostnames).
+- `privacy.html` now mentions the login country, the 90-day login list, staff access with an action log, and the 30-day deletion grace.
+- Tested locally (full stack with `docker-compose.local.yml`): all four images build (this also proves the `COPY admin/package.json` lines); `create-staff.js` and `purge.js` run inside the production-mode container; the routing of both hosts (see the decision above); cache and security headers; a browser login through Caddy to the health page. The production Caddyfile passes `caddy validate` with the real edge image; `terraform validate` and `fmt` pass. **Not tested:** `terraform plan` or `apply` (needs the HCP workspace), real Cloudflare Access, the GitHub workflows, `deploy.sh` on the VPS.
+- Found while writing the runbook: the Ansible task that starts `edge` did not rebuild its image, and the Caddyfile is copied into that image. After the first run, a changed Caddyfile would never reach the proxy. Fixed with `build: always` in `deploy/ansible/roles/platform/tasks/main.yml`. Without this change, step 5 of the runbook would not make the admin hosts live.
+- Known limit: Access is checked at Cloudflare, not at the VPS. The VPS firewall only allows Cloudflare's addresses, but any Cloudflare customer's traffic comes from those addresses. Someone who sends requests with the host name `admin.ladu.com.ar` through their own Cloudflare account would skip Access. The staff login is then the only lock. A possible later step: check the `Cf-Access-Jwt-Assertion` header in Caddy or in the backend.
+
+Rollout runbook (do these in this order; the first step must come first):
+1. **One-time Cloudflare setup (dashboard):** enable Zero Trust on the account and choose a team name; check that "One-time PIN" is an enabled login method; add the permission **Access: Apps and Policies: Edit** (account level) to the Terraform API token.
+2. **HCP Terraform:** set the workspace variable `admin_access_emails` (for example `["you@example.com"]`). Run `terraform plan`, read it, then `terraform apply`. Expect: 4 DNS records, 1 policy, 2 applications. At this point the hostnames exist and are protected, but nothing answers behind them yet.
+3. **GitHub:** add the Environment secret `ADMIN_JWT_SECRET` to `staging` and to `production`, with a different random value in each (`openssl rand -hex 32`).
+4. **Merge to `main`:** the pipeline builds `ladu-admin`, starts `admin-staging` and `admin-prod`, and writes the secret into each `.env`. The landing image with the new privacy text is pushed as `latest`.
+5. **Ansible:** `ansible-playbook site.yml` (the `platform` role copies the new Caddyfile and reloads Caddy; Caddy gets the two certificates by DNS-01; the landing image is pulled; the `backup` role syncs the new scripts; the `purge` role installs the cron job). From this moment the admin hosts are live, behind Access.
+6. **First owner:** `docker exec -it backend-prod node scripts/create-staff.js you@example.com "Your Name"`, and the same for `backend-staging`.
+7. **Check:** open `https://admin-staging.ladu.com.ar`: you must see the Cloudflare login first, then the staff login. Then check that `https://app.ladu.com.ar/api/admin/auth/me` answers 404, and that `https://admin.ladu.com.ar/api/admin/auth/me` (in a private window, without an Access login) shows the Cloudflare login and not a JSON answer.
 
 ## Context
 

@@ -1,7 +1,7 @@
 # Edge reverse proxy — the only container that publishes ports (see
 # .dev-context/deployment-strategy.md §2). Routes by hostname to the other
 # containers on the `edge` Docker network; service names below (landing,
-# web-prod, backend-prod, web-staging, backend-staging) must match
+# web-prod, admin-prod, backend-prod, web-staging, admin-staging, backend-staging) must match
 # deploy/compose/app.yml and deploy/compose/platform.yml.
 #
 # {$APEX_DOMAIN} and {$CLOUDFLARE_API_TOKEN} are injected at deploy time
@@ -44,6 +44,14 @@ www.{$APEX_DOMAIN} {
 app.{$APEX_DOMAIN} {
 	import security_headers
 
+	# The admin API lives only on the admin. hosts below, behind Cloudflare
+	# Access. Answering 404 here keeps Access from being bypassed by calling
+	# /api/admin/* through the learner hostname. (Listed first for clarity;
+	# Caddy picks the longest matching path anyway.)
+	handle /api/admin/* {
+		respond 404
+	}
+
 	handle /api/* {
 		reverse_proxy backend-prod:5001
 	}
@@ -56,11 +64,56 @@ app.{$APEX_DOMAIN} {
 staging.{$APEX_DOMAIN} {
 	import security_headers
 
+	handle /api/admin/* {
+		respond 404
+	}
+
 	handle /api/* {
 		reverse_proxy backend-staging:5001
 	}
 
 	handle {
 		reverse_proxy web-staging:80
+	}
+}
+
+# --- Admin dashboard (admin-dashboard.md, slice 7) ---
+# One level of subdomain, with a hyphen for staging: Cloudflare's free
+# certificate covers *.{$APEX_DOMAIN}, not admin.staging.{$APEX_DOMAIN}.
+#
+# Both hosts sit behind Cloudflare Access (deploy/terraform/access.tf): a
+# request reaches this proxy only after a person has passed that login. The
+# staff login in the backend is the second lock. Only /api/admin/* is sent to
+# the backend; any other /api/* path is a 404, so nothing else of the learner
+# API is reachable from here.
+admin.{$APEX_DOMAIN} {
+	import security_headers
+
+	handle /api/admin/* {
+		reverse_proxy backend-prod:5001
+	}
+
+	handle /api/* {
+		respond 404
+	}
+
+	handle {
+		reverse_proxy admin-prod:80
+	}
+}
+
+admin-staging.{$APEX_DOMAIN} {
+	import security_headers
+
+	handle /api/admin/* {
+		reverse_proxy backend-staging:5001
+	}
+
+	handle /api/* {
+		respond 404
+	}
+
+	handle {
+		reverse_proxy admin-staging:80
 	}
 }

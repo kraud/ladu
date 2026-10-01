@@ -51,6 +51,12 @@ services:
       dockerfile: frontend/Dockerfile
     image: ladu-web:local
 
+  admin:
+    build:
+      context: ../..
+      dockerfile: admin/Dockerfile
+    image: ladu-admin:local
+
   backend:
     build:
       context: ../..
@@ -68,6 +74,7 @@ services:
     environment:
       DATABASE_URL: postgresql://ladu:ladu_local_pw@postgres:5432/ladu_prod_local
       JWT_SECRET: local_test_secret
+      ADMIN_JWT_SECRET: local_admin_secret
       BASE_URL: http://app.ladu.localhost:${EDGE_HTTP_PORT:-8080}
       URL_EESTI_LANG_API: https://api.sonapi.ee/v2
       EMAIL_HOST: localhost

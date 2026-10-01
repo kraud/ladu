@@ -1,0 +1,26 @@
+# Serves the built admin SPA (admin/dist, copied to /srv by admin/Dockerfile).
+# Same as frontend/Caddyfile: any path without a matching file serves
+# index.html, so client-side routing works on a hard refresh / deep link.
+# Only the static files are served here; /api/admin/* is routed to the backend
+# by the edge proxy (deploy/caddy/Caddyfile), never by this container.
+
+:80 {
+    root * /srv
+    encode gzip
+
+    # Vite hashes filenames under /assets, so they can be cached forever.
+    # index.html must always revalidate: it names the current hashed files.
+    # Two matchers on purpose, so one `header` cannot overwrite the other
+    # (see frontend/Caddyfile for the long explanation).
+    @assets path /assets/*
+    @notAssets not path /assets/*
+
+    header @assets Cache-Control "public, max-age=31536000, immutable"
+    header @notAssets Cache-Control "no-cache"
+
+    # A staff tool has no reason to be in a search index.
+    header X-Robots-Tag "noindex, nofollow"
+
+    try_files {path} /index.html
+    file_server
+}

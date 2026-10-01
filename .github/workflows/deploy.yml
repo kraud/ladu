@@ -43,6 +43,13 @@ jobs:
             dockerfile: frontend/Dockerfile
             context: .
             build-args: GIT_SHA=${{ github.sha }}
+          # The admin dashboard (admin-dashboard.md, slice 7). No build args:
+          # the image holds only static files and is the same for staging and
+          # production, like `web`.
+          - image: admin
+            dockerfile: admin/Dockerfile
+            context: .
+            build-args: ""
           - image: landing
             dockerfile: landing/Dockerfile
             context: landing
@@ -116,6 +123,7 @@ jobs:
             "mkdir -p /opt/ladu/staging && cat > /opt/ladu/staging/.env && chmod 600 /opt/ladu/staging/.env" <<'ENVFILE'
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
+          ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
           BASE_URL=${{ secrets.BASE_URL }}
           URL_EESTI_LANG_API=${{ secrets.URL_EESTI_LANG_API }}
           EMAIL_HOST=${{ secrets.EMAIL_HOST }}
@@ -204,6 +212,7 @@ jobs:
             "mkdir -p /opt/ladu/prod && cat > /opt/ladu/prod/.env && chmod 600 /opt/ladu/prod/.env" <<'ENVFILE'
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
+          ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
           BASE_URL=${{ secrets.BASE_URL }}
           URL_EESTI_LANG_API=${{ secrets.URL_EESTI_LANG_API }}
           EMAIL_HOST=${{ secrets.EMAIL_HOST }}
