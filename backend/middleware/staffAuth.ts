@@ -22,8 +22,10 @@ const staffSecret = (res: any): string => {
     return secret;
 };
 
-const generateStaffToken = (staffId: string, res: any): string =>
-    jwt.sign({ id: staffId }, staffSecret(res), { expiresIn: STAFF_TOKEN_TTL, audience: STAFF_AUDIENCE });
+// `tv` is `staff_accounts.token_version`: requireStaff refuses a token whose
+// version is older than the row's (a password change, a reset or a disable).
+export const generateStaffToken = (staffId: string, tokenVersion: number, res: any): string =>
+    jwt.sign({ id: staffId, tv: tokenVersion }, staffSecret(res), { expiresIn: STAFF_TOKEN_TTL, audience: STAFF_AUDIENCE });
 
 // Columns put on `req.staff`. The password hash is never loaded.
 const staffColumns = {
@@ -32,7 +34,19 @@ const staffColumns = {
     name: staffAccounts.name,
     role: staffAccounts.role,
     disabledAt: staffAccounts.disabledAt,
+    mustChangePassword: staffAccounts.mustChangePassword,
+    tokenVersion: staffAccounts.tokenVersion,
 };
+
+export const PASSWORD_CHANGE_REQUIRED = 'password_change_required';
+
+export interface RequireStaffOptions {
+    /**
+     * Let a person who still has a temporary password through. Only `me` and
+     * `change-password` set this; every other route refuses them (403).
+     */
+    allowMustChangePassword?: boolean;
+}
 
 /**
  * Guards an admin route. Pass a permission to also require it; omit it for a
@@ -42,7 +56,7 @@ const staffColumns = {
  * here twice: wrong secret, wrong `aud`. The staff row is loaded on every
  * request, so disabling an account or changing its role takes effect at once.
  */
-const requireStaff = (permission?: Permission) =>
+export const requireStaff = (permission?: Permission, options: RequireStaffOptions = {}) =>
     asyncHandler(async (req: any, res: any, next: any) => {
         const header = req.headers.authorization;
         if (!header || !header.startsWith('Bearer ')) {
@@ -51,7 +65,7 @@ const requireStaff = (permission?: Permission) =>
         }
 
         const secret = staffSecret(res);
-        let decoded: { id?: string };
+        let decoded: { id?: string; tv?: number };
         try {
             decoded = jwt.verify(header.split(' ')[1], secret, {
                 algorithms: ['HS256'],
@@ -65,9 +79,19 @@ const requireStaff = (permission?: Permission) =>
         const [staff] = decoded.id
             ? await db.select(staffColumns).from(staffAccounts).where(eq(staffAccounts.id, decoded.id)).limit(1)
             : [];
-        if (!staff || staff.disabledAt) {
+        // A token from before `tv` existed counts as version 0.
+        if (!staff || staff.disabledAt || (decoded.tv ?? 0) !== staff.tokenVersion) {
             res.status(401);
             throw new Error('Not authorized');
+        }
+
+        // The temporary-password rule comes before the permission rule, so the UI
+        // always learns about it first, whatever the person tried to open.
+        if (staff.mustChangePassword && !options.allowMustChangePassword) {
+            res.status(403);
+            throw Object.assign(new Error('You must change your temporary password first'), {
+                apiCode: PASSWORD_CHANGE_REQUIRED,
+            });
         }
 
         if (permission && !hasPermission(staff.role, permission)) {
@@ -75,9 +99,8 @@ const requireStaff = (permission?: Permission) =>
             throw new Error('Forbidden');
         }
 
-        const { disabledAt, ...publicStaff } = staff;
+        const { disabledAt, tokenVersion, ...publicStaff } = staff;
         req.staff = publicStaff;
         next();
     });
 
-export = { requireStaff, generateStaffToken };

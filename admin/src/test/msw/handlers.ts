@@ -12,8 +12,16 @@ const PERMISSIONS_BY_ROLE: Record<StaffRole, string[]> = {
     viewer: ['users.read', 'health.read'],
 };
 
-export function makeStaff(role: StaffRole): StaffUser {
-    return { id: 'staff-1', email: 'staff@example.com', name: 'Sam Staff', role, permissions: PERMISSIONS_BY_ROLE[role] };
+export function makeStaff(role: StaffRole, overrides: Partial<StaffUser> = {}): StaffUser {
+    return {
+        id: 'staff-1',
+        email: 'staff@example.com',
+        name: 'Sam Staff',
+        role,
+        permissions: PERMISSIONS_BY_ROLE[role],
+        mustChangePassword: false,
+        ...overrides,
+    };
 }
 
 export const staffFixture = makeStaff('support');

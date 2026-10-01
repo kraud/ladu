@@ -1,6 +1,6 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions) and 6 (health page) are done. Slice 7 (deploy) is written and tested locally but **not rolled out yet**. Slices 8–9 are not started.
+Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions), 6 (health page) and 7 (deploy) are done and rolled out. Slice 8 (staff and audit) is written and tested, not deployed yet. Slice 9 is not started.
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
@@ -69,6 +69,18 @@ Rollout runbook (do these in this order; the first step must come first):
 5. **Ansible:** `ansible-playbook site.yml` (the `platform` role copies the new Caddyfile and reloads Caddy; Caddy gets the two certificates by DNS-01; the landing image is pulled; the `backup` role syncs the new scripts; the `purge` role installs the cron job). From this moment the admin hosts are live, behind Access.
 6. **First owner:** `docker exec -it backend-prod node scripts/create-staff.js you@example.com "Your Name"`, and the same for `backend-staging`.
 7. **Check:** open `https://admin-staging.ladu.com.ar`: you must see the Cloudflare login first, then the staff login. Then check that `https://app.ladu.com.ar/api/admin/auth/me` answers 404, and that `https://admin.ladu.com.ar/api/admin/auth/me` (in a private window, without an Access login) shows the Cloudflare login and not a JSON answer.
+
+Slice 8 notes (staff management and the audit log viewer):
+- Migration `0014_staff_password_change.sql` (adds columns only): `staff_accounts.must_change_password`, `password_changed_at`, `token_version`.
+- Decision made with the user: a new staff member gets a **temporary password** that an owner types (or generates). Until the person sets their own, every admin route except `GET /auth/me` and `POST /auth/change-password` answers 403 with `code: "password_change_required"` (`requireStaff`, option `allowMustChangePassword`). The UI sends the person to `/account/password` and hides the other links.
+- Staff tokens now carry `tv` (`staff_accounts.token_version`). A password change, a reset or a disable raises it, so older tokens stop working at once. Old tokens without `tv` count as 0, so nobody is signed out by the deploy. `change-password` answers with a new token, so the current device stays signed in.
+- Staff API (owner only, `staff.manage`): list, create, `role`, `disable` (reason required), `enable`, `reset-password`. Audit actions: `staff.create`, `staff.role_change`, `staff.disable`, `staff.enable`, `staff.password_reset`, `staff.password_change`. No password, hash or token is ever written to the audit log (an e2e check proves it).
+- Rules: you cannot change your own role, disable yourself, or reset your own password. The **last active owner** cannot be demoted or disabled. Every action that can remove an owner first locks all active owner rows in a fixed order, so two owners acting on each other at the same moment cannot leave zero owners. A deterministic test holds a lock on a third owner and checks that the request waits (a race test alone cannot prove a lock: the window is too short). Passwords: 12 to 72 bytes (bcrypt reads only 72).
+- Audit API (`audit.read`: admin and owner): `GET /api/admin/audit` (filters `staff` (an id or `system`), `action`, `from` (included), `to` (not included), pages) and `GET /api/admin/audit/filters`. The UI converts the picked days to exact times in the person's own time zone.
+- Admin app: `/staff`, `/audit`, `/account/password`, header links by permission. A role without the permission is sent to the overview; the server refuses the API calls too.
+- `create-staff.js` is for the first owner only and sets no temporary-password flag.
+- Tests: Jest `adminStaff`, `adminPasswordChange`, `adminAudit`; Vitest for the three pages; Playwright `admin-8-staff.spec.ts` (two browser windows).
+- Known small gaps: a staff member's own sessions on other devices end when they change their password (by design), but there is no "sign out everywhere" button. There is no rate limit on the staff login or on the password-change check (Cloudflare Access is the first lock).
 
 ## Context
 

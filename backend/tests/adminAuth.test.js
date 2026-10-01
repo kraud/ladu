@@ -253,6 +253,7 @@ describe('GET /api/admin/auth/me', () => {
             name: 'Staff',
             role: 'admin',
             permissions: ['users.read', 'users.ban', 'users.delete', 'health.read', 'audit.read'],
+            mustChangePassword: false,
         });
     });
 

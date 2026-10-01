@@ -4,7 +4,7 @@ import { RouterProvider } from '@tanstack/react-router';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 import { queryClient } from '@/app/query-client';
 import { router } from '@/app/router';
-import { onUnauthorized } from '@/api/client';
+import { onPasswordChangeRequired, onUnauthorized } from '@/api/client';
 
 /** A 401 has cleared the session; send the user to the login page. */
 function UnauthorizedRedirect() {
@@ -12,6 +12,18 @@ function UnauthorizedRedirect() {
         () =>
             onUnauthorized(() => {
                 void router.navigate({ to: '/login' });
+            }),
+        [],
+    );
+    return null;
+}
+
+/** A request was refused because of a temporary password; send the person to the change form. */
+function PasswordChangeRedirect() {
+    useEffect(
+        () =>
+            onPasswordChangeRequired(() => {
+                void router.navigate({ to: '/account/password' });
             }),
         [],
     );
@@ -34,6 +46,7 @@ export function Providers() {
         <ErrorBoundary FallbackComponent={ErrorFallback}>
             <QueryClientProvider client={queryClient}>
                 <UnauthorizedRedirect />
+                <PasswordChangeRedirect />
                 <RouterProvider router={router} />
             </QueryClientProvider>
         </ErrorBoundary>

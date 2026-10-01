@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp } from '@phosphor-icons/react';
 import { errorMessage } from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FilterSelect } from '@/features/users/components/FilterSelect';
+import { FilterSelect } from '@/components/FilterSelect';
 import { StatusBadge } from '@/features/users/components/StatusBadge';
 import { formatDate, formatDateTimeWithCountry, NONE } from '@/features/users/format';
 import { useUsers } from '@/features/users/hooks';

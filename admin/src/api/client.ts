@@ -23,6 +23,20 @@ export function onUnauthorized(handler: UnauthorizedHandler): () => void {
     };
 }
 
+type PasswordChangeHandler = () => void;
+
+const passwordChangeHandlers = new Set<PasswordChangeHandler>();
+
+/** The server says this person must change a temporary password first. Returns an unsubscribe function. */
+export function onPasswordChangeRequired(handler: PasswordChangeHandler): () => void {
+    passwordChangeHandlers.add(handler);
+    return () => {
+        passwordChangeHandlers.delete(handler);
+    };
+}
+
+export const PASSWORD_CHANGE_REQUIRED = 'password_change_required';
+
 export const apiClient: AxiosInstance = axios.create({ baseURL: '/api' });
 
 apiClient.interceptors.request.use((config) => {
@@ -39,6 +53,13 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401) {
             authStore.getState().clearSession();
             for (const handler of unauthorizedHandlers) handler();
+        }
+        // Another device or a reset can set the flag while a session is open. The
+        // store learns about it here, so the route guard sends the person to the form.
+        if (error.response?.status === 403 && error.response.data?.code === PASSWORD_CHANGE_REQUIRED) {
+            const { staff } = authStore.getState();
+            if (staff && !staff.mustChangePassword) authStore.setState({ staff: { ...staff, mustChangePassword: true } });
+            for (const handler of passwordChangeHandlers) handler();
         }
         return Promise.reject(error);
     },

@@ -69,6 +69,14 @@ export const staffAccounts = pgTable('staff_accounts', {
     role:         varchar('role', { length: 32 }).notNull(),
     disabledAt:   timestamp('disabled_at'),
     lastLoginAt:  timestamp('last_login_at'),
+    // Slice 8: an account made or reset by an owner starts with a temporary
+    // password the owner knows. Until the person sets their own, every admin
+    // route except `me` and `change-password` answers 403 (requireStaff).
+    mustChangePassword: boolean('must_change_password').notNull().default(false),
+    passwordChangedAt:  timestamp('password_changed_at'),
+    // Carried in the staff JWT as `tv`. Raised on a password change or reset
+    // and on disable, so older tokens stop working at once.
+    tokenVersion: integer('token_version').notNull().default(0),
     ...timestamps,
 });
 

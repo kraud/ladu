@@ -7,7 +7,10 @@
  *       ├── /                 overview (placeholder)
  *       ├── /users            users list (search, filters, sort and page live in the URL)
  *       ├── /users/$userId    user detail
- *       └── /health           deployment health
+ *       ├── /health           deployment health
+ *       ├── /staff            staff management (staff.manage)
+ *       ├── /audit            audit log (audit.read)
+ *       └── /account/password change your own password (the only page open to a temporary password)
  */
 import {
     createRootRoute,
@@ -27,6 +30,10 @@ import { UsersPage } from '@/features/users/pages/UsersPage';
 import { UserDetailPage } from '@/features/users/pages/UserDetailPage';
 import { validateUsersSearch } from '@/features/users/search';
 import { HealthPage } from '@/features/health/pages/HealthPage';
+import { StaffPage } from '@/features/staff/pages/StaffPage';
+import { AuditPage } from '@/features/audit/pages/AuditPage';
+import { validateAuditSearch } from '@/features/audit/search';
+import { ChangePasswordPage } from '@/features/auth/pages/ChangePasswordPage';
 
 const rootRoute = createRootRoute({ notFoundComponent: NotFoundPage });
 
@@ -47,8 +54,14 @@ const protectedRoute = createRoute({
     getParentRoute: () => rootRoute,
     id: '_protected',
     beforeLoad: ({ location }) => {
-        if (isTokenExpired(authStore.getState().token)) {
+        const { token, staff } = authStore.getState();
+        if (isTokenExpired(token)) {
             throw redirect({ to: '/login', search: { redirect: location.href } });
+        }
+        // A temporary password opens one page only: the form that replaces it. The
+        // server refuses everything else anyway (403); this saves the round trip.
+        if (staff?.mustChangePassword && location.pathname !== '/account/password') {
+            throw redirect({ to: '/account/password' });
         }
     },
     component: ProtectedLayout,
@@ -79,9 +92,46 @@ const healthRoute = createRoute({
     component: HealthPage,
 });
 
+/**
+ * Sends a person without `permission` back to the overview. The server refuses
+ * the API calls too; this only avoids showing a page that would fill with 403s.
+ */
+const requirePermission = (permission: string) => () => {
+    if (!authStore.getState().staff?.permissions.includes(permission)) throw redirect({ to: '/' });
+};
+
+const staffRoute = createRoute({
+    getParentRoute: () => protectedRoute,
+    path: '/staff',
+    beforeLoad: requirePermission('staff.manage'),
+    component: StaffPage,
+});
+
+const auditRoute = createRoute({
+    getParentRoute: () => protectedRoute,
+    path: '/audit',
+    validateSearch: validateAuditSearch,
+    beforeLoad: requirePermission('audit.read'),
+    component: AuditPage,
+});
+
+const changePasswordRoute = createRoute({
+    getParentRoute: () => protectedRoute,
+    path: '/account/password',
+    component: ChangePasswordPage,
+});
+
 const routeTree = rootRoute.addChildren([
     loginRoute,
-    protectedRoute.addChildren([overviewRoute, usersRoute, userDetailRoute, healthRoute]),
+    protectedRoute.addChildren([
+        overviewRoute,
+        usersRoute,
+        userDetailRoute,
+        healthRoute,
+        staffRoute,
+        auditRoute,
+        changePasswordRoute,
+    ]),
 ]);
 
 /** Tests pass a memory history; the app uses the browser's. */

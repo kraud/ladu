@@ -6,5 +6,7 @@ const router = express.Router()
 router.use('/auth', require('./authRoutes'))
 router.use('/users', require('./userRoutes'))
 router.use('/health', require('./healthRoutes'))
+router.use('/staff', require('./staffRoutes'))
+router.use('/audit', require('./auditRoutes'))
 
 module.exports = router

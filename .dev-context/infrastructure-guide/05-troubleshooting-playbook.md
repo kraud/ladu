@@ -196,8 +196,22 @@ docker exec -it backend-staging node scripts/create-staff.js you@example.com "Yo
 
 The script asks for a password (at least 12 characters) twice. A second run
 with the same email fails with "already exists". If the only owner forgot the
-password, make another owner this way, then disable the old one from the staff
+password, make another owner this way, then disable the old one from the Staff
 page.
+
+Everyone after the first owner is added on the **Staff** page (owners only).
+The owner types or generates a temporary password and tells the person in
+private. At the first sign-in the person must choose their own password before
+they can use anything else.
+
+### "A staff member forgot their password"
+
+An owner opens **Staff**, clicks **Reset password** on that person, and gives
+them the new temporary password. Their old password and all their open sessions
+stop at once, and they must choose a new password at the next sign-in. An owner
+cannot reset their own password there. The owner who forgot their own password
+needs another owner to do it; if there is only one owner, use the script above
+to make a second owner.
 
 ### "admin.ladu.com.ar shows 'Cannot reach the server', or loops on the Cloudflare login"
 
