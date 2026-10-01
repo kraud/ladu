@@ -101,12 +101,22 @@ export function AccessPage() {
 
             {data && (
                 <>
-                    {/* The key resets the draft when the saved state changes (after a save). */}
-                    <GateCard key={`registration|${data.registration.mode}|${data.registration.note}`} gate="registration" state={data} onDone={setNotice} />
-                    <InvitesCard state={data} onDone={setNotice} />
-                    <GateCard key={`login|${data.login.mode}|${data.login.note}`} gate="login" state={data} onDone={setNotice} />
-                    <AllowedCard state={data} onDone={setNotice} />
-                    <SignOutCard onDone={setNotice} />
+                    <section aria-labelledby="access-registration-heading" className="flex flex-col gap-4">
+                        <h2 id="access-registration-heading" className="text-lg font-semibold">
+                            Registration
+                        </h2>
+                        {/* The key resets the draft when the saved state changes (after a save). */}
+                        <GateCard key={`registration|${data.registration.mode}|${data.registration.note}`} gate="registration" state={data} onDone={setNotice} />
+                        <InvitesCard state={data} onDone={setNotice} />
+                    </section>
+                    <section aria-labelledby="access-login-heading" className="flex flex-col gap-4">
+                        <h2 id="access-login-heading" className="text-lg font-semibold">
+                            Login
+                        </h2>
+                        <GateCard key={`login|${data.login.mode}|${data.login.note}`} gate="login" state={data} onDone={setNotice} />
+                        <AllowedCard state={data} onDone={setNotice} />
+                        <SignOutCard onDone={setNotice} />
+                    </section>
                 </>
             )}
         </div>
@@ -146,13 +156,8 @@ function GateCard({ gate, state, onDone }: { gate: GateName; state: AccessState;
         );
 
     return (
-        <section aria-labelledby={`${gate}-heading`} className="flex flex-col gap-4 rounded-lg border bg-card p-4">
-            <div>
-                <h2 id={`${gate}-heading`} className="text-lg font-semibold">
-                    {text.title}
-                </h2>
-                <p className="text-sm text-muted-foreground">{text.intro}</p>
-            </div>
+        <div className="flex flex-col gap-4 rounded-lg border bg-card p-4">
+            <p className="text-sm text-muted-foreground">{text.intro}</p>
 
             <div className="flex flex-col gap-2">
                 <SegmentedControl
@@ -228,7 +233,7 @@ function GateCard({ gate, state, onDone }: { gate: GateName; state: AccessState;
                     </div>
                 </FormDialog>
             )}
-        </section>
+        </div>
     );
 }
 
@@ -257,9 +262,9 @@ function InvitesCard({ state, onDone }: { state: AccessState; onDone: (message: 
     return (
         <section aria-labelledby="invites-heading" className="flex flex-col gap-4 rounded-lg border bg-card p-4">
             <div>
-                <h2 id="invites-heading" className="text-lg font-semibold">
+                <h3 id="invites-heading" className="text-lg font-semibold">
                     Invite list <span className="text-sm font-normal text-muted-foreground">({state.counts.invites})</span>
-                </h2>
+                </h3>
                 <p className="text-sm text-muted-foreground">
                     {limited
                         ? 'Only these emails can register now. An email leaves the list when that person registers.'
@@ -389,9 +394,9 @@ function AllowedCard({ state, onDone }: { state: AccessState; onDone: (message: 
     return (
         <section aria-labelledby="allowed-heading" className="flex flex-col gap-4 rounded-lg border bg-card p-4">
             <div>
-                <h2 id="allowed-heading" className="text-lg font-semibold">
+                <h3 id="allowed-heading" className="text-lg font-semibold">
                     Allowed accounts <span className="text-sm font-normal text-muted-foreground">({state.counts.loginAllowed})</span>
-                </h2>
+                </h3>
                 <p className="text-sm text-muted-foreground">
                     {limited
                         ? 'Only these accounts can sign in now.'
@@ -531,9 +536,9 @@ function SignOutCard({ onDone }: { onDone: (message: string) => void }) {
     return (
         <section aria-labelledby="signout-heading" className="flex flex-col gap-3 rounded-lg border border-destructive/50 bg-card p-4">
             <div>
-                <h2 id="signout-heading" className="text-lg font-semibold text-destructive">
+                <h3 id="signout-heading" className="text-lg font-semibold text-destructive">
                     Sign everyone out
-                </h2>
+                </h3>
                 <p className="text-sm text-muted-foreground">
                     Ends the session of every learner at their next request, and they go back to the login page. Staff are not affected. With
                     login limited, only allowed accounts can sign back in. This cannot be undone.

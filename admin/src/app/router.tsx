@@ -11,7 +11,8 @@
  *       ├── /staff            staff management (staff.manage)
  *       ├── /audit            audit log (audit.read)
  *       ├── /access           registration gate and invite list (access.manage)
- *       └── /account/password change your own password (the only page open to a temporary password)
+ *       ├── /account          your own account (every role)
+ *       └── /account/password change your own password (also open to a temporary password)
  */
 import {
     createRootRoute,
@@ -36,6 +37,7 @@ import { AuditPage } from '@/features/audit/pages/AuditPage';
 import { validateAuditSearch } from '@/features/audit/search';
 import { AccessPage } from '@/features/access/pages/AccessPage';
 import { ChangePasswordPage } from '@/features/auth/pages/ChangePasswordPage';
+import { AccountPage } from '@/features/auth/pages/AccountPage';
 
 const rootRoute = createRootRoute({ notFoundComponent: NotFoundPage });
 
@@ -60,9 +62,10 @@ const protectedRoute = createRoute({
         if (isTokenExpired(token)) {
             throw redirect({ to: '/login', search: { redirect: location.href } });
         }
-        // A temporary password opens one page only: the form that replaces it. The
-        // server refuses everything else anyway (403); this saves the round trip.
-        if (staff?.mustChangePassword && location.pathname !== '/account/password') {
+        // A temporary password opens two pages only: your own account (it holds
+        // Sign out) and the form that replaces the password. The server refuses
+        // everything else anyway (403); this saves the round trip.
+        if (staff?.mustChangePassword && location.pathname !== '/account' && location.pathname !== '/account/password') {
             throw redirect({ to: '/account/password' });
         }
     },
@@ -124,6 +127,12 @@ const accessRoute = createRoute({
     component: AccessPage,
 });
 
+const accountRoute = createRoute({
+    getParentRoute: () => protectedRoute,
+    path: '/account',
+    component: AccountPage,
+});
+
 const changePasswordRoute = createRoute({
     getParentRoute: () => protectedRoute,
     path: '/account/password',
@@ -140,6 +149,7 @@ const routeTree = rootRoute.addChildren([
         staffRoute,
         auditRoute,
         accessRoute,
+        accountRoute,
         changePasswordRoute,
     ]),
 ]);

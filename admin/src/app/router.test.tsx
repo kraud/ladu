@@ -117,6 +117,7 @@ describe('login and sign out', () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ session: true });
 
+        await user.click(await screen.findByRole('link', { name: 'Account' }));
         await user.click(await screen.findByRole('button', { name: /Sign out/ }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
@@ -136,6 +137,7 @@ describe('login and sign out', () => {
         const { router } = await renderApp({ session: true });
         await waitFor(() => expect(meCalls).toBe(1));
 
+        await user.click(await screen.findByRole('link', { name: 'Account' }));
         await user.click(screen.getByRole('button', { name: /Sign out/ }));
         await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
 
