@@ -344,3 +344,53 @@ export async function getActivityDays(userId: string): Promise<string[]> {
     );
     return rows.map((r) => r.day);
 }
+
+/**
+ * The access gates (access-gates.md) are ONE row of global state, so the specs that change them
+ * (`*-gate.spec.ts`) run in their own Playwright project, after every other spec.
+ */
+export async function setAccessSettings(registrationMode: 'open' | 'closed' | 'limited', registrationNote = ''): Promise<void> {
+    await getPool().query(`UPDATE access_settings SET registration_mode = $1, registration_note = $2 WHERE id = 1`, [
+        registrationMode,
+        registrationNote,
+    ]);
+}
+
+export async function getRegistrationSettings(): Promise<{ mode: string; note: string }> {
+    const { rows } = await getPool().query<{ mode: string; note: string }>(
+        `SELECT registration_mode AS mode, registration_note AS note FROM access_settings WHERE id = 1`,
+    );
+    if (!rows[0]) throw new Error('access_settings has no row');
+    return rows[0];
+}
+
+export async function hasInvite(email: string): Promise<boolean> {
+    const { rows } = await getPool().query(`SELECT 1 FROM registration_invites WHERE email = lower($1)`, [email]);
+    return rows.length > 0;
+}
+
+export async function userExists(email: string): Promise<boolean> {
+    const { rows } = await getPool().query(`SELECT 1 FROM users WHERE lower(email) = lower($1)`, [email]);
+    return rows.length > 0;
+}
+
+/** Audit rows of one action about one email (`access.invite_used` has no staff member, so a staff cleanup would miss it). */
+export async function countAuditByEmail(action: string, email: string): Promise<number> {
+    const { rows } = await getPool().query<{ n: number }>(
+        `SELECT count(*)::int AS n FROM audit_log WHERE action = $1 AND metadata->>'email' = lower($2)`,
+        [action, email],
+    );
+    return rows[0]?.n ?? 0;
+}
+
+/** Best-effort teardown of what a gate spec made: the invites, and the staff-less `access.invite_used` audit rows. */
+export async function deleteAccessTestData(emails: string[]): Promise<void> {
+    if (emails.length === 0) return;
+    try {
+        const lowered = emails.map((e) => e.toLowerCase());
+        await getPool().query(`DELETE FROM registration_invites WHERE email = ANY($1::text[])`, [lowered]);
+        await getPool().query(`DELETE FROM audit_log WHERE action = 'access.invite_used' AND metadata->>'email' = ANY($1::text[])`, [lowered]);
+    } catch (error) {
+        console.warn('[e2e] access cleanup failed:', (error as Error).message);
+    }
+}

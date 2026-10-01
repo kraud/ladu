@@ -20,6 +20,7 @@ npm run db:studio            # Drizzle Studio
 
 npm run e2e:install          # one-time: download Chromium for Playwright
 npm run test:e2e             # full-stack Playwright e2e suite (boots backend + frontend)
+                             # specs named *-gate.spec.ts change the access gates (global state): they run last, in the `gates` project
 npm run test:e2e:headed      # same, in a visible browser window
 ```
 

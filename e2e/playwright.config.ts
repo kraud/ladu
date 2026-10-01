@@ -28,6 +28,8 @@ const BACKEND_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
 // see e2e/fixtures/oidc-stub/server.ts and oauth-login-strategy.md Phase 0.
 const OIDC_STUB_URL = process.env.OIDC_STUB_URL ?? 'http://localhost:4400';
 const CI = !!process.env.CI;
+// The specs that change the registration or login gate (access-gates.md): `admin-11-registration-gate.spec.ts`, ...
+const GATE_SPECS = /-gate\.spec\.ts$/;
 
 export default defineConfig({
     testDir: './tests',
@@ -55,7 +57,19 @@ export default defineConfig({
     },
 
     projects: [
-        { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+        // Every spec except the access-gate ones.
+        // (A project-level testIgnore replaces the top-level one, so deployed-smoke is excluded again here.)
+        { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: [GATE_SPECS, 'deployed-smoke.spec.ts'] },
+        // The access gates are ONE row of global state: a closed gate would break any other spec that
+        // registers or signs in a learner at the same time. So these specs run in their own project,
+        // after every other spec has finished (a failure there skips them), one at a time.
+        {
+            name: 'gates',
+            use: { ...devices['Desktop Chrome'] },
+            testMatch: GATE_SPECS,
+            dependencies: ['chromium'],
+            fullyParallel: false,
+        },
     ],
 
     // Both servers are started from the repo root. `reuseExistingServer` lets you
