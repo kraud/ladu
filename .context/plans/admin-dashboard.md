@@ -1,6 +1,6 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions), 6 (health page) and 7 (deploy) are done and rolled out. Slice 8 (staff and audit) is done and deployed. Slice 9 (overview statistics) is merged to `main` (PR #61). The user emails (resend verification, send password reset) are merged to `main` (PR #62). Next: `.context/plans/access-gates.md` (PR 1, the registration gate, is merged to `main`; PR 2, the login gate, is next).
+Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions), 6 (health page) and 7 (deploy) are done and rolled out. Slice 8 (staff and audit) is done and deployed. Slice 9 (overview statistics) is merged to `main` (PR #61). The user emails (resend verification, send password reset) are merged to `main` (PR #62). Next: `.context/plans/access-gates.md` (PR 1, the registration gate, is merged to `main`; PR 2, the login gate, is built on branch `admin-login-gate`).
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
