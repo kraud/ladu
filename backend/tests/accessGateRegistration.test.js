@@ -189,7 +189,11 @@ describe('registration: limited', () => {
             register(body(1, 'new1@example.com')),
             register(body(2, 'NEW1@example.com')),
         ]);
-        expect(results.map((r) => r.status).sort()).toEqual([201, 403]);
+        // The loser is 403 when it reaches the invite delete after the winner took the invite,
+        // or 400 ("Email already in use") when the winner had already committed. Never a second account.
+        const statuses = results.map((r) => r.status).sort();
+        expect(statuses[0]).toBe(201);
+        expect([400, 403]).toContain(statuses[1]);
         expect(await userCount()).toBe(1);
         expect(await inviteEmails()).toEqual([]);
     });
