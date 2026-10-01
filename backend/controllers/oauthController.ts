@@ -26,7 +26,7 @@ const {
   isUuid,
 }: typeof import("./userController") = require("./userController");
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
-const { assertRegistrationAllowed, consumeInvite }: typeof import("../lib/accessGate") = require("../lib/accessGate");
+const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock, loginBlockMessage }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
 const { getProvider, listConfiguredProviders }: typeof import("../lib/oauth/providers") = require("../lib/oauth/providers");
 const { generateCodeVerifier, generateCodeChallenge, generateNonce }: typeof import("../lib/oauth/pkce") = require("../lib/oauth/pkce");
@@ -269,6 +269,14 @@ const callback = asyncHandler(async (req: any, res: any) => {
         return;
       }
 
+      // The login gate (access-gates.md), after the ban check. The code goes on the
+      // fragment as it is: `login_closed` or `login_not_allowed`.
+      const loginBlocked = await getLoginBlock(user.id);
+      if (loginBlocked) {
+        fail(loginBlocked);
+        return;
+      }
+
       await recordLogin(user.id, "google", req);
       const token = generateToken(user);
       res.redirect(`${frontendBase}/auth/callback#token=${token}`);
@@ -423,6 +431,14 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
     throw error;
   }
 
+  // The account exists now. If the login gate would refuse it (registration open, login
+  // closed or limited: a new account is never on the allowed list), answer with no token.
+  const loginBlocked = await getLoginBlock(user.id);
+  if (loginBlocked) {
+    res.status(201).json({ loginBlocked, message: `Account created. ${loginBlockMessage(loginBlocked)}` });
+    return;
+  }
+
   await recordLogin(user.id, "google", req);
 
   res.status(201).json(serializeLoginUser(user));
@@ -457,6 +473,9 @@ const link = asyncHandler(async (req: any, res: any) => {
     res.status(403);
     throw new Error("This account is suspended");
   }
+
+  // The login gate, after the password and the ban. Nothing is linked when it refuses.
+  await enforceLoginGate(res, user.id);
 
   // Race guard, same reasoning as signupComplete's: this exact identity may
   // have been linked (to this account or another) since the ticket was
