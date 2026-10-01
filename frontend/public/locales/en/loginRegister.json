@@ -40,6 +40,11 @@
     "resetEmailRequested": "If that email belongs to an account, we sent it a reset link."
   },
   "unverifiedWarning": "You need to verify your account before signing in.",
+  "access": {
+    "registrationClosed": "Sign-ups are closed for now. Please check back later.",
+    "registrationLimited": "Sign-ups are open by invitation only right now.",
+    "registrationNotInvited": "Sign-ups are by invitation only right now. This email is not on the list."
+  },
   "brand": {
     "tagline": "Your words, four languages, one shelf.",
     "supportedLanguages": "Supported in-app languages",

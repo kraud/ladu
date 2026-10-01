@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { GoogleIcon } from '@/components/common/GoogleIcon';
 import { cn } from '@/lib/utils';
@@ -10,9 +10,10 @@ import { useOAuthProviders } from '../hooks';
  * top-level browser navigation to the backend (`GET /api/auth/:provider/start`
  * 302s to the provider), never an XHR. An anchor gets keyboard, middle-click,
  * and "open in new tab" right for free; a JS-driven navigation would have to
- * reimplement all of that.
+ * reimplement all of that. While sign-ups are closed (`disabled`) it is a disabled button instead:
+ * a link that goes nowhere would only confuse.
  */
-export function OAuthButtons() {
+export function OAuthButtons({ disabled = false }: { disabled?: boolean }) {
     const { t } = useTranslation();
     const { data: providers } = useOAuthProviders();
 
@@ -22,7 +23,12 @@ export function OAuthButtons() {
     return (
         <div className="oauth-buttons flex flex-col gap-3">
             {configured.map(([provider]) =>
-                provider === 'google' ? (
+                provider !== 'google' ? null : disabled ? (
+                    <Button key={provider} type="button" variant="outline" className="w-full gap-2" disabled>
+                        <GoogleIcon width={16} height={16} />
+                        {t('loginRegister:oauth.continueWithGoogle')}
+                    </Button>
+                ) : (
                     <a
                         key={provider}
                         href="/api/auth/google/start"
@@ -31,7 +37,7 @@ export function OAuthButtons() {
                         <GoogleIcon width={16} height={16} />
                         {t('loginRegister:oauth.continueWithGoogle')}
                     </a>
-                ) : null,
+                ),
             )}
             <div className="flex items-center gap-3">
                 <Separator className="flex-1" />

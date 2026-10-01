@@ -40,6 +40,11 @@
     "resetEmailRequested": "Kui see e-post kuulub kontole, saatsime sinna parooli lähtestamise lingi."
   },
   "unverifiedWarning": "Enne sisselogimist pead oma konto kinnitama.",
+  "access": {
+    "registrationClosed": "Registreerimine on praegu suletud. Proovi hiljem uuesti.",
+    "registrationLimited": "Registreerimine on praegu avatud ainult kutsega.",
+    "registrationNotInvited": "Registreerimine on praegu ainult kutsega. See e-post ei ole nimekirjas."
+  },
   "brand": {
     "tagline": "Sinu sõnad, neli keelt, üks riiul.",
     "supportedLanguages": "Rakenduses toetatud keeled",

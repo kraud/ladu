@@ -27,6 +27,21 @@ describe('authErrorKey', () => {
         expect(authErrorKey(apiError(message))).toBe(key);
     });
 
+    it('maps a machine-readable code from the access gates, whatever the message says', () => {
+        const coded = (code: string, message = 'whatever') => ({ response: { status: 403, data: { message, code } } });
+        expect(authErrorKey(coded('registration_closed'))).toBe('loginRegister:access.registrationClosed');
+        expect(authErrorKey(coded('registration_not_invited'))).toBe('loginRegister:access.registrationNotInvited');
+        // A code wins over a message that would map to something else.
+        expect(authErrorKey(coded('registration_closed', 'Email already in use'))).toBe(
+            'loginRegister:access.registrationClosed',
+        );
+    });
+
+    it('ignores an unknown code and falls back to the message', () => {
+        const error = { response: { status: 400, data: { message: 'Email already in use', code: 'new_code' } } };
+        expect(authErrorKey(error)).toBe('loginRegister:apiErrors.emailInUse');
+    });
+
     it('falls back to the generic key for an unrecognised message', () => {
         expect(authErrorKey(apiError('some brand new backend message'))).toBe(GENERIC_ERROR_KEY);
     });

@@ -1,18 +1,24 @@
 /**
  * Backend error → i18n key.
  *
- * `backend/middleware/errorMiddleware.js` only ever emits `{ message: string }`
- * — no code, no field. So matching the message string is the only option
- * available. Keeping that string-matching in one file stops it leaking into
- * every hook, and gives one place to update when a controller message changes.
+ * `backend/middleware/errorMiddleware.js` emits `{ message }`, and `{ message, code }` where the
+ * backend wants the client to react to a specific case (the access gates). A `code` is looked at
+ * first; every other error is matched by its message string. Keeping that matching in one file
+ * stops it leaking into every hook, and gives one place to update when a controller message changes.
  *
  * Every message below is a verbatim `throw new Error(...)` from
  * `userController.ts` (login / register / verify / requestPasswordReset /
  * updatePassword). Anything unrecognised falls back to the generic key.
  */
-import { getApiErrorMessage } from '@/api/types';
+import { getApiErrorCode, getApiErrorMessage } from '@/api/types';
 
 export const GENERIC_ERROR_KEY = 'common:errors.somethingWrong';
+
+/** Machine-readable codes (HTTP 403) from the access gates. The server never changes their meaning. */
+const CODE_TO_KEY: Record<string, string> = {
+    registration_closed: 'loginRegister:access.registrationClosed',
+    registration_not_invited: 'loginRegister:access.registrationNotInvited',
+};
 
 const MESSAGE_TO_KEY: Record<string, string> = {
     // login
@@ -45,6 +51,8 @@ const MESSAGE_TO_KEY: Record<string, string> = {
 
 /** The i18n key for whatever the backend threw. Never throws; always returns a key. */
 export function authErrorKey(error: unknown): string {
+    const code = getApiErrorCode(error);
+    if (code && code in CODE_TO_KEY) return CODE_TO_KEY[code];
     const message = getApiErrorMessage(error);
     if (message && message in MESSAGE_TO_KEY) return MESSAGE_TO_KEY[message];
     return GENERIC_ERROR_KEY;
