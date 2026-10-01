@@ -3,12 +3,19 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { createQueryClient } from '@/app/query-client';
 import { createAppRouter } from '@/app/router';
-import { onUnauthorized } from '@/api/client';
+import { onPasswordChangeRequired, onUnauthorized } from '@/api/client';
 import { useAuthStore, type StaffRole, type StaffUser } from '@/stores/authStore';
 import { fakeToken } from '@/test/token';
 import { http, HttpResponse } from 'msw';
 import { makeStaff, staffFixture } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
+
+// Handlers that a test registered on the shared API client. They are removed after
+// each test (test/setup.ts), so a router from an earlier test never reacts to a later one.
+const cleanups: (() => void)[] = [];
+export function cleanupRenderedApps() {
+    for (const cleanup of cleanups.splice(0)) cleanup();
+}
 
 /**
  * Mounts the real route tree on an in-memory history, inside a fresh query
@@ -31,7 +38,13 @@ export async function renderApp(
 
     const queryClient = createQueryClient();
     const router = createAppRouter(createMemoryHistory({ initialEntries: [initialEntry] }));
-    const unsubscribe = onUnauthorized(() => void router.navigate({ to: '/login' }));
+    const unsubscribeUnauthorized = onUnauthorized(() => void router.navigate({ to: '/login' }));
+    const unsubscribePasswordChange = onPasswordChangeRequired(() => void router.navigate({ to: '/account/password' }));
+    const unsubscribe = () => {
+        unsubscribeUnauthorized();
+        unsubscribePasswordChange();
+    };
+    cleanups.push(unsubscribe);
     await router.load();
 
     const utils = render(

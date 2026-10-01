@@ -17,6 +17,8 @@ export interface StaffUser {
     role: StaffRole;
     /** From the server (`/auth/me`): the UI shows only the buttons these allow. The server still checks every request. */
     permissions: string[];
+    /** True while the person still has the temporary password an owner gave them. */
+    mustChangePassword: boolean;
 }
 
 interface AuthState {
@@ -91,6 +93,11 @@ export const useAuthStore = create<AuthState>()(
         },
     ),
 );
+
+/** A session saved before this field existed reads as `false`. */
+export function useMustChangePassword(): boolean {
+    return useAuthStore((s) => s.staff?.mustChangePassword === true);
+}
 
 /** True if the signed-in staff member has `permission`. */
 export function useCan(permission: string): boolean {

@@ -2,6 +2,11 @@
 // This is how the first `owner` is made: nobody can log in to the admin API
 // until one staff account exists.
 //
+// Everyone after the first owner is added on the dashboard's Staff page (an owner
+// gives them a temporary password, and they must change it at the first sign-in).
+// This script sets NO temporary-password flag: the person running it chose the
+// password in the terminal themselves.
+//
 //   node scripts/create-staff.js <email> "<name>" [role]     (role defaults to owner)
 //
 // In production, run it inside the backend container, with a terminal (-it) so

@@ -2,7 +2,7 @@ import { Link, Outlet, useNavigate } from '@tanstack/react-router';
 import { SignOut } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { useLogout, useStaffSession } from '@/features/auth/hooks';
-import { useAuthStore, useCan } from '@/stores/authStore';
+import { useAuthStore, useCan, useMustChangePassword } from '@/stores/authStore';
 
 /**
  * The shell for every signed-in page. The auth gate itself is the router's
@@ -14,6 +14,9 @@ export function ProtectedLayout() {
     const staff = useAuthStore((s) => s.staff);
     const logout = useLogout();
     const canReadHealth = useCan('health.read');
+    const canManageStaff = useCan('staff.manage');
+    const canReadAudit = useCan('audit.read');
+    const mustChange = useMustChangePassword();
     useStaffSession();
 
     const signOut = () => {
@@ -27,16 +30,34 @@ export function ProtectedLayout() {
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
                     <nav className="flex items-center gap-5 text-sm">
                         <span className="font-semibold">Ladu Admin</span>
-                        <Link to="/users" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
-                            Users
-                        </Link>
-                        {canReadHealth && (
+                        {/* A temporary password opens only the change form, so the other links would lead nowhere. */}
+                        {!mustChange && (
+                            <>
+                                <Link to="/users" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
+                                    Users
+                                </Link>
+                                {canManageStaff && (
+                                    <Link to="/staff" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
+                                        Staff
+                                    </Link>
+                                )}
+                                {canReadAudit && (
+                                    <Link to="/audit" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
+                                        Audit
+                                    </Link>
+                                )}
+                            </>
+                        )}
+                        {!mustChange && canReadHealth && (
                             <Link to="/health" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
                                 Health
                             </Link>
                         )}
                     </nav>
                     <div className="flex items-center gap-3 text-sm">
+                        <Link to="/account/password" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
+                            Change password
+                        </Link>
                         <span>
                             {staff?.name}{' '}
                             <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">

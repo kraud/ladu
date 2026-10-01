@@ -183,10 +183,10 @@ export async function expirePracticeSessions(email: string): Promise<number> {
 // ---------------------------------------------------------------------------
 
 /** Inserts a staff account; the password is hashed here with the same bcrypt the backend checks against. */
-export async function createStaffAccount(email: string, role: string, password: string): Promise<{ staffId: string }> {
+export async function createStaffAccount(email: string, role: string, password: string, name = `E2E ${role}`): Promise<{ staffId: string }> {
     const { rows } = await getPool().query<{ id: string }>(
         `INSERT INTO staff_accounts (email, name, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id`,
-        [email.toLowerCase(), `E2E ${role}`, await bcrypt.hash(password, 4), role],
+        [email.toLowerCase(), name, await bcrypt.hash(password, 4), role],
     );
     if (!rows[0]) throw new Error(`failed to seed staff ${email}`);
     return { staffId: rows[0].id };
@@ -305,4 +305,13 @@ export async function deleteOpsEventsByDetail(prefix: string): Promise<void> {
     } catch (error) {
         console.warn('[e2e] ops_events cleanup failed:', (error as Error).message);
     }
+}
+
+/** True if `text` appears anywhere in the audit log (action, reason or metadata). Used to prove that no password is ever written there. */
+export async function auditLogContains(text: string): Promise<boolean> {
+    const { rows } = await getPool().query<{ n: string }>(
+        `SELECT count(*) AS n FROM audit_log WHERE metadata::text LIKE $1 OR reason LIKE $1 OR action LIKE $1 OR target_id LIKE $1`,
+        [`%${text}%`],
+    );
+    return Number(rows[0]?.n ?? 0) > 0;
 }

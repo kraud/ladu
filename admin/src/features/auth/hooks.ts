@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchMe, loginStaff } from '@/features/auth/api';
+import { changePasswordRequest, fetchMe, loginStaff } from '@/features/auth/api';
 import { useAuthStore } from '@/stores/authStore';
 
 export const staffKeys = { me: ['staff', 'me'] as const };
@@ -47,4 +47,23 @@ export function useStaffSession() {
     }, [query.data, setSession]);
 
     return query;
+}
+
+/**
+ * Change the signed-in person's own password. The server ends every other
+ * session and answers with a new token, so this device stays signed in.
+ */
+export function useChangePassword() {
+    const queryClient = useQueryClient();
+    const setSession = useAuthStore((s) => s.setSession);
+
+    return useMutation({
+        mutationFn: (vars: { currentPassword: string; newPassword: string }) =>
+            changePasswordRequest(vars.currentPassword, vars.newPassword),
+        onSuccess: ({ token, ...staff }) => {
+            setSession(staff, token);
+            // Pages that were refused while the password was temporary must load again.
+            void queryClient.invalidateQueries();
+        },
+    });
 }
