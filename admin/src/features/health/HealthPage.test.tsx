@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { HttpResponse } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { server } from '@/test/msw/server';
 import { renderApp } from '@/test/renderApp';
 import { makeStaff } from '@/test/msw/handlers';
 import { healthHandler, hoursAgo, makeHealth } from '@/test/health';
-import { EXTERNAL_LINKS } from '@/features/health/links';
+import { FALLBACK_LINKS } from '@/features/health/links';
 
 const section = (name: string) => within(screen.getByRole('heading', { name }).closest('section') as HTMLElement);
 
@@ -148,6 +148,86 @@ describe('HealthPage', () => {
         await waitFor(() => expect(calls).toBe(2));
     });
 
+    it('shows no links while loading, so the generic ones never flash before the private ones', async () => {
+        server.use(
+            http.get('/api/admin/health', async () => {
+                await delay(150);
+                return HttpResponse.json(makeHealth({ linksStatus: 'configured', links: [{ label: 'Private one', description: '', href: 'https://example.test/p' }] }));
+            }),
+        );
+
+        await renderApp({ initialEntry: '/health', role: 'viewer' });
+
+        expect(await screen.findByText('Loading…')).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'More detail in other tools' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: /Sentry/ })).not.toBeInTheDocument();
+        expect(await screen.findByRole('link', { name: 'Private one' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: /Sentry/ })).not.toBeInTheDocument();
+    });
+
+    it('lists the generic links when the server has no private ones', async () => {
+        server.use(healthHandler());
+
+        await renderApp({ initialEntry: '/health', role: 'viewer' });
+        await screen.findByRole('heading', { name: 'More detail in other tools' });
+
+        const links = section('More detail in other tools').getAllByRole('link');
+        expect(links.map((l) => l.getAttribute('href'))).toEqual(FALLBACK_LINKS.map((l) => l.href));
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it("shows the server's private links instead of the generic ones", async () => {
+        server.use(
+            healthHandler(() =>
+                makeHealth({
+                    linksStatus: 'configured',
+                    links: [
+                        { label: 'Sentry backend', description: 'Errors from the API', href: 'https://example.test/sentry-backend' },
+                        { label: 'Netcup', description: '', href: 'https://example.test/netcup' },
+                    ],
+                }),
+            ),
+        );
+
+        await renderApp({ initialEntry: '/health', role: 'viewer' });
+        await screen.findByRole('heading', { name: 'More detail in other tools' });
+
+        const links = section('More detail in other tools').getAllByRole('link');
+        expect(links).toHaveLength(2);
+        expect(links[0]).toHaveAttribute('href', 'https://example.test/sentry-backend');
+        expect(links[0]).toHaveTextContent('Errors from the API');
+        expect(links[1]).toHaveAttribute('href', 'https://example.test/netcup');
+        for (const link of links) {
+            expect(link).toHaveAttribute('target', '_blank');
+            expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+        }
+        // None of the generic links is mixed in.
+        expect(screen.queryByRole('link', { name: /UptimeRobot/ })).not.toBeInTheDocument();
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it('warns, and shows the generic links, when the server could not read ADMIN_LINKS', async () => {
+        server.use(healthHandler(() => makeHealth({ linksStatus: 'invalid', links: [] })));
+
+        await renderApp({ initialEntry: '/health', role: 'viewer' });
+        await screen.findByRole('heading', { name: 'More detail in other tools' });
+
+        expect(screen.getByRole('status')).toHaveTextContent('ADMIN_LINKS');
+        expect(screen.getByRole('status')).toHaveTextContent('one line of JSON');
+        expect(section('More detail in other tools').getAllByRole('link')).toHaveLength(FALLBACK_LINKS.length);
+    });
+
+    it('does not show a link that has no description with an empty line', async () => {
+        server.use(
+            healthHandler(() => makeHealth({ linksStatus: 'configured', links: [{ label: 'Only a label', description: '', href: 'https://example.test/x' }] })),
+        );
+
+        await renderApp({ initialEntry: '/health', role: 'viewer' });
+
+        const link = await screen.findByRole('link', { name: 'Only a label' });
+        expect(link.querySelectorAll('span.block')).toHaveLength(0);
+    });
+
     it('lists the external tools, each opening safely in a new tab', async () => {
         server.use(healthHandler());
 
@@ -155,7 +235,7 @@ describe('HealthPage', () => {
         await screen.findByRole('heading', { name: 'More detail in other tools' });
 
         const links = section('More detail in other tools').getAllByRole('link');
-        expect(links).toHaveLength(EXTERNAL_LINKS.length);
+        expect(links).toHaveLength(FALLBACK_LINKS.length);
         for (const link of links) {
             expect(link).toHaveAttribute('target', '_blank');
             expect(link).toHaveAttribute('rel', 'noopener noreferrer');

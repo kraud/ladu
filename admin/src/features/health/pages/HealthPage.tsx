@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { formatDateTime } from '@/features/users/format';
 import { useHealth } from '@/features/health/hooks';
 import { formatAgo, formatBytes, formatUptime, TABLE_LABELS } from '@/features/health/format';
-import { EXTERNAL_LINKS } from '@/features/health/links';
+import { FALLBACK_LINKS } from '@/features/health/links';
 import type { BackupEvent, HealthResponse } from '@/features/health/types';
 
 // A nightly backup that is older than this has missed a night (with some slack);
@@ -87,6 +87,10 @@ function ServiceSection({ service }: { service: HealthResponse['service'] }) {
 
 export function HealthPage() {
     const { data, error, isPending, isError, isFetching, refetch, dataUpdatedAt } = useHealth();
+
+    // The server's private links win. Without them (not set, invalid, or the API
+    // is down) the generic ones keep this section useful.
+    const links = data?.linksStatus === 'configured' ? data.links : FALLBACK_LINKS;
 
     return (
         <div className="flex flex-col gap-4">
@@ -169,26 +173,35 @@ export function HealthPage() {
                 </>
             )}
 
-            <Section title="More detail in other tools">
-                <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {EXTERNAL_LINKS.map((link) => (
-                        <li key={link.href}>
-                            <a
-                                href={link.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-start justify-between gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted"
-                            >
-                                <span>
-                                    <span className="font-medium text-(--accent-strong)">{link.label}</span>
-                                    <span className="block text-xs text-muted-foreground">{link.description}</span>
-                                </span>
-                                <ArrowSquareOut size={14} className="mt-1 text-muted-foreground" />
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            </Section>
+            {/* Not while loading: the generic links would flash and then be replaced by the private ones. */}
+            {!isPending && (
+                <Section title="More detail in other tools">
+                    {data?.linksStatus === 'invalid' && (
+                        <p role="status" className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+                            The <code>ADMIN_LINKS</code> setting on the server could not be read, so these are the generic links. It must be
+                            one line of JSON, and every address must start with https://. The server log has the reason.
+                        </p>
+                    )}
+                    <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {links.map((link) => (
+                            <li key={`${link.label}-${link.href}`}>
+                                <a
+                                    href={link.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-start justify-between gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted"
+                                >
+                                    <span>
+                                        <span className="font-medium text-(--accent-strong)">{link.label}</span>
+                                        {link.description && <span className="block text-xs text-muted-foreground">{link.description}</span>}
+                                    </span>
+                                    <ArrowSquareOut size={14} className="mt-1 text-muted-foreground" />
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </Section>
+            )}
         </div>
     );
 }

@@ -68,6 +68,7 @@ variable names, different (environment-appropriate) values:
 | `DATABASE_URL` | Full connection string for that environment's database |
 | `JWT_SECRET` | Separate, independently-generated value per environment |
 | `ADMIN_JWT_SECRET` | Signs the admin dashboard's staff tokens. A different value from `JWT_SECRET`, and a different value per environment (generate with `openssl rand -hex 32`). If it is missing or empty, the backend still starts, and `POST /api/admin/auth/login` answers 503 |
+| `ADMIN_LINKS` | Optional. The private tool links on the admin health page (your Sentry project, Healthchecks project, Netcup page...). The repo is public, so the real addresses live only here. One line of JSON; see "The admin health page links" below. If it is missing, the page shows generic links |
 | `BASE_URL` | `https://staging.ladu.com.ar` or `https://app.ladu.com.ar` |
 | `URL_EESTI_LANG_API` | The Estonian dictionary API URL (same value both environments) |
 | `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASS` | Resend SMTP config — `EMAIL_PASS` is a Resend API key, currently the *same* key shared across both environments |
@@ -81,6 +82,50 @@ variable names, different (environment-appropriate) values:
 |---|---|
 | `SMOKE_TEST_EMAIL` | The persistent smoke-test account's email (`smoke-test@ladu.test`) |
 | `SMOKE_TEST_PASSWORD` | Its password — **currently still the throwaway value set during initial one-off setup, not yet rotated** |
+
+### The admin health page links (`ADMIN_LINKS`) {#admin-links}
+
+The health page of the admin dashboard has a "More detail in other tools"
+section. Its real addresses must not be in the public repository, so they
+are a GitHub Environment secret, `ADMIN_LINKS`. The deploy writes it into each
+environment's `.env`. The backend checks it (`backend/lib/adminLinks.ts`) and
+sends it to the page. If the secret is missing, the page shows generic links
+(the public front pages of each tool).
+
+**To set or change the links:**
+
+1. Write the list in a file **outside the repository**, for example
+   `~/ladu-admin-links.json`. Use this shape (the `description` is optional):
+
+   ```json
+   [
+     { "label": "Sentry (backend)", "description": "Errors from the API", "href": "https://..." },
+     { "label": "Netcup", "description": "CPU, RAM and disk", "href": "https://..." }
+   ]
+   ```
+
+2. Turn it into **one line** (an `.env` file has one line for each value):
+   `jq -c . ~/ladu-admin-links.json | pbcopy`
+   (Without `jq`: `python3 -c 'import json,sys;print(json.dumps(json.load(open(sys.argv[1])),separators=(",",":")))' ~/ladu-admin-links.json | pbcopy`)
+
+3. Save it as the secret in **both** environments. The value can be the same:
+   `jq -c . ~/ladu-admin-links.json | gh secret set ADMIN_LINKS --env staging --repo kraud/ladu`
+   `jq -c . ~/ladu-admin-links.json | gh secret set ADMIN_LINKS --env production --repo kraud/ladu`
+   (Or paste the line in GitHub, Settings, Environments, the environment, Add secret.)
+
+4. Run the **Deploy** workflow again (Actions tab, Deploy, Run workflow, or merge
+   anything to `main`). The secret reaches the server only on a deploy.
+
+**Rules:**
+- Every `href` must start with `https://`. One wrong entry makes the whole value
+  invalid. Then the page shows the generic links and a yellow note, and the
+  backend log has one line, `ADMIN_LINKS is set but not usable: ...` (it never
+  prints the addresses).
+- A `$` in an address is lost: Docker Compose reads it as a variable (tested:
+  `a$b` becomes `a`). Write `%24` instead. `&`, `?`, `=`, `#` and `%` are fine.
+- Up to 30 links. A label has at most 60 characters, a description 120.
+- Never put a Healthchecks **ping** URL (`hc-ping.com/...`) here. Anyone with it
+  can send a fake "OK". The project page (`healthchecks.io/projects/...`) is fine.
 
 ### Google check in the smoke job
 

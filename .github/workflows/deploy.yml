@@ -124,6 +124,7 @@ jobs:
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
+          ADMIN_LINKS=${{ secrets.ADMIN_LINKS }}
           BASE_URL=${{ secrets.BASE_URL }}
           URL_EESTI_LANG_API=${{ secrets.URL_EESTI_LANG_API }}
           EMAIL_HOST=${{ secrets.EMAIL_HOST }}
@@ -213,6 +214,7 @@ jobs:
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
+          ADMIN_LINKS=${{ secrets.ADMIN_LINKS }}
           BASE_URL=${{ secrets.BASE_URL }}
           URL_EESTI_LANG_API=${{ secrets.URL_EESTI_LANG_API }}
           EMAIL_HOST=${{ secrets.EMAIL_HOST }}

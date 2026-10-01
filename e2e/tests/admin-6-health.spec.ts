@@ -89,9 +89,13 @@ test.describe('Admin dashboard — health (slice 6)', () => {
         await expect(backups.getByText('Failed', { exact: true })).toBeVisible();
         await expect(backups.getByText('OK', { exact: true })).toBeVisible();
 
-        // The links open in a new tab and point at the public tools.
+        // The links open in a new tab, and every address is https.
         const links = section(page, 'More detail in other tools').getByRole('link');
-        await expect(links).toHaveCount(8);
+        // The count depends on the backend's ADMIN_LINKS setting (generic list when unset), so only the shape is checked.
+        expect(await links.count()).toBeGreaterThan(0);
+        for (const href of await links.evaluateAll((els) => els.map((el) => el.getAttribute('href')))) {
+            expect(href).toMatch(/^https:\/\//);
+        }
         await expect(section(page, 'More detail in other tools').getByRole('link', { name: /Cloudflare/ })).toHaveAttribute('target', '_blank');
 
         // Refresh asks again, and the page stays filled in.
