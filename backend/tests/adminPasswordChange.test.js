@@ -36,7 +36,7 @@ describe('POST /api/admin/auth/change-password', () => {
 
         expect(res.status).toBe(200);
         expect(res.body).toMatchObject({ id: staff.id, email: staff.email, role: 'support', mustChangePassword: false });
-        expect(res.body.permissions).toEqual(['users.read', 'users.ban', 'health.read']);
+        expect(res.body.permissions).toEqual(['users.read', 'users.ban', 'users.email', 'health.read']);
         expect(jwt.decode(res.body.token).tv).toBe(1);
         // The old token is refused, the new one works.
         expect((await request(app).get('/api/admin/auth/me').set('Authorization', `Bearer ${oldToken}`)).status).toBe(401);

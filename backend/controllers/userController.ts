@@ -23,7 +23,7 @@ const {
   sql,
 }: typeof import("drizzle-orm") = require("drizzle-orm");
 const asyncHandler = require("express-async-handler");
-const sendMail = require("../utils/sendEmail");
+const { issueVerificationEmail, issuePasswordResetEmail }: typeof import("../lib/accountEmails") = require("../lib/accountEmails");
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
 const { calculateBasicUserMetrics } = require("./metricController");
 
@@ -259,32 +259,11 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
     } satisfies NewUserRow)
     .returning();
 
-  // Create a one-time email verification token in the normalized tokens table.
-  const [token] = await db
-    .insert(tokens)
-    .values({
-      userId: user.id,
-      token: crypto.randomBytes(32).toString("hex"),
-    })
-    .returning();
-
-  // Send the verification email after both user and token rows exist. Not
-  // awaited: sendEmail.js already catches its own send errors internally and
-  // never rejects, so awaiting it only ever adds latency, not safety — and
-  // with a slow or unreachable mail provider, that latency used to be
-  // nodemailer's full default timeout (~2 min), blocking a response for a
-  // registration that already succeeded (.dev-context/deployment-strategy.md
-  // D-g). sendEmail.js now caps its own connect/greeting/socket timeouts at
-  // 5s each, so the real worst case is much smaller — this still stays
-  // un-awaited regardless, since the response has no reason to wait on it.
-  const url = `${process.env.BASE_URL}/user/${user.id}/verify/${token.token}`;
-  sendMail({
-    email: user.email,
-    url,
-    name: user.name,
-    type: "verifyEmail",
-    language: resolvedUiLanguage,
-  }).catch((error: unknown) => console.error("Failed to send verification email:", error));
+  // Not awaited: sendEmail.js catches its own send errors and never rejects, so
+  // awaiting it would only add latency (a slow mail provider used to block a
+  // registration that already succeeded, .dev-context/deployment-strategy.md D-g).
+  const sendVerification = await issueVerificationEmail(user, db);
+  sendVerification();
 
   res.status(201).json(publicUserResponse(user));
 });
@@ -593,36 +572,43 @@ const verifyUser = asyncHandler(async (req: any, res: any) => {
 // decision — unlike email verification, which never expires).
 const PASSWORD_RESET_TTL_MINUTES = 30;
 
+// One reset email per account in this window. The answer is the same whether
+// the email is unknown, throttled or sent, so the endpoint tells an outsider
+// nothing about which accounts exist.
+const PASSWORD_RESET_REQUEST_COOLDOWN_MINUTES = 5;
+const PASSWORD_RESET_REQUEST_MESSAGE =
+  "If that email address belongs to a registered account, we have sent it a link to reset the password.";
+
 const requestPasswordReset = asyncHandler(async (req: any, res: any) => {
   const email = req.body.email;
 
   // Password reset starts from email because users may not know their id.
-  const user = email ? await findUserByEmailInsensitive(email) : undefined;
-  if (!user) {
-    res.status(400);
-    throw new Error("There is no user registered with the email given.");
+  const user = typeof email === "string" && email ? await findUserByEmailInsensitive(email) : undefined;
+
+  if (user) {
+    // The row lock makes two parallel requests take turns, so only one passes the check.
+    const sendReset = await db.transaction(async (tx) => {
+      await tx.select({ id: users.id }).from(users).where(eq(users.id, user.id)).for("update");
+
+      // The newest token of any origin counts, so a link a staff member sent also starts the window.
+      const since = new Date(Date.now() - PASSWORD_RESET_REQUEST_COOLDOWN_MINUTES * 60_000);
+      const [recent] = await tx
+        .select({ id: passwordResetTokens.id })
+        .from(passwordResetTokens)
+        .where(and(eq(passwordResetTokens.userId, user.id), gt(passwordResetTokens.createdAt, since)))
+        .limit(1);
+      if (recent) return undefined;
+
+      // A user may have several outstanding requests over time (e.g. one per
+      // device) until one of them is used.
+      return issuePasswordResetEmail(user, tx);
+    });
+
+    // Not awaited and only after the commit — see the register handler's comment.
+    sendReset?.();
   }
 
-  // Insert a new reset-token row; a user may have several outstanding
-  // requests at once (e.g. one per device) until one of them is used.
-  const newPasswordToken = crypto.randomBytes(32).toString("hex");
-  await db.insert(passwordResetTokens).values({
-    userId: user.id,
-    token: newPasswordToken,
-  });
-
-  // Send the reset link only after the token has been persisted. Not
-  // awaited — see the register handler's own comment on why.
-  const url = `${process.env.BASE_URL}/resetPassword/${user.id}/${newPasswordToken}`;
-  sendMail({
-    email: user.email,
-    url,
-    name: user.name,
-    type: "resetPassword",
-    language: user.uiLanguage,
-  }).catch((error: unknown) => console.error("Failed to send password reset email:", error));
-
-  res.status(200).json({});
+  res.status(200).json({ message: PASSWORD_RESET_REQUEST_MESSAGE });
 });
 
 const updatePassword = asyncHandler(async (req: any, res: any) => {

@@ -17,7 +17,6 @@
     "usernameInUse": "See kasutajanimi on juba võetud.",
     "invalidLink": "See link on kehtetu või aegunud.",
     "invalidToken": "See lähtestamise link on kehtetu või aegunud.",
-    "noUserForEmail": "Selle e-postiga pole ühtegi kontot registreeritud.",
     "notEnoughLanguages": "Palun vali vähemalt kaks keelt.",
     "invalidLanguage": "See keel ei ole toetatud.",
     "signInWithGoogle": "See konto logib sisse Google'iga — kasuta selle asemel Google'i nuppu.",
@@ -38,7 +37,7 @@
   },
   "toastMessages": {
     "passwordUpdated": "Parool edukalt uuendatud!",
-    "emailSent": "E-kiri edukalt saadetud!"
+    "resetEmailRequested": "Kui see e-post kuulub kontole, saatsime sinna parooli lähtestamise lingi."
   },
   "unverifiedWarning": "Enne sisselogimist pead oma konto kinnitama.",
   "brand": {

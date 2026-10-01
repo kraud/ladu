@@ -57,6 +57,13 @@ const findPasswordResetTokensByUserId = async (userId) =>
         .where(eq(passwordResetTokens.userId, userId))
         .orderBy(passwordResetTokens.createdAt);
 
+// Moves a user's reset tokens 6 minutes into the past, so the request throttle is over.
+const ageResetTokens = (userId) =>
+    db
+        .update(passwordResetTokens)
+        .set({ createdAt: new Date(Date.now() - 6 * 60_000) })
+        .where(eq(passwordResetTokens.userId, userId));
+
 // Read the verification token row by user id to assert token creation and deletion behavior.
 const findTokenByUserId = async (userId) => {
     const [token] = await db.select().from(tokens).where(eq(tokens.userId, userId)).limit(1);
@@ -799,12 +806,69 @@ describe('Password Reset Flow', () => {
         expect(call[0].language).toBe('Spanish');
     });
 
-    it('fails when email is not registered', async () => {
-        const res = await request(app)
+    it('answers the same for an unknown email as for a known one, and sends nothing', async () => {
+        const known = await request(app)
+            .post('/api/users/requestPasswordReset')
+            .send({ email: 'test@example.com' });
+        sendMail.mockClear();
+
+        const unknown = await request(app)
             .post('/api/users/requestPasswordReset')
             .send({ email: 'unknown@example.com' });
 
-        expect(res.statusCode).toBe(400);
+        expect(unknown.statusCode).toBe(200);
+        expect(unknown.body).toEqual(known.body);
+        expect(unknown.body.message).toMatch(/^If that email address belongs to a registered account/);
+        expect(sendMail).not.toHaveBeenCalled();
+    });
+
+    it('answers 200 with the same message for a missing or malformed email', async () => {
+        for (const body of [{}, { email: '' }, { email: 42 }]) {
+            const res = await request(app).post('/api/users/requestPasswordReset').send(body);
+            expect([JSON.stringify(body), res.statusCode]).toEqual([JSON.stringify(body), 200]);
+        }
+    });
+
+    describe('request throttle (one email per account every 5 minutes)', () => {
+        const ask = () => request(app).post('/api/users/requestPasswordReset').send({ email: 'test@example.com' });
+        const resetCalls = () => sendMail.mock.calls.filter(([d]) => d.type === 'resetPassword');
+
+        it('a second request inside the window gets the same answer, but no email and no new token row', async () => {
+            const first = await ask();
+            const second = await ask();
+
+            expect(second.statusCode).toBe(200);
+            expect(second.body).toEqual(first.body);
+            const user = await findUserByEmail('test@example.com');
+            expect((await findPasswordResetTokensByUserId(user.id)).length).toBe(1);
+            expect(resetCalls()).toHaveLength(1);
+        });
+
+        it('works again after the window', async () => {
+            await ask();
+            const user = await findUserByEmail('test@example.com');
+            await ageResetTokens(user.id);
+            await ask();
+
+            expect((await findPasswordResetTokensByUserId(user.id)).length).toBe(2);
+            expect(resetCalls()).toHaveLength(2);
+        });
+
+        it('is per account', async () => {
+            await registerUser({ email: 'other@example.com', username: 'otheruser' });
+            await ask();
+            await request(app).post('/api/users/requestPasswordReset').send({ email: 'other@example.com' });
+
+            expect(resetCalls()).toHaveLength(2);
+        });
+
+        it('two parallel requests send one email', async () => {
+            await Promise.all([ask(), ask()]);
+
+            const user = await findUserByEmail('test@example.com');
+            expect((await findPasswordResetTokensByUserId(user.id)).length).toBe(1);
+            expect(resetCalls()).toHaveLength(1);
+        });
     });
 
     describe('PUT /api/users/updatePassword', () => {
@@ -838,7 +902,8 @@ describe('Password Reset Flow', () => {
         });
 
         it('marks the used token used and deletes every other outstanding row for the user', async () => {
-            // A second outstanding request from another device/tab.
+            // A second outstanding request from another device/tab, after the throttle window.
+            await ageResetTokens(user.id);
             await request(app)
                 .post('/api/users/requestPasswordReset')
                 .send({ email: 'test@example.com' });

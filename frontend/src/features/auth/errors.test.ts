@@ -17,10 +17,6 @@ describe('authErrorKey', () => {
         ['Invalid Link (no user match).', 'loginRegister:apiErrors.invalidLink'],
         ['Invalid format for UserId', 'loginRegister:apiErrors.invalidLink'],
         ['Invalid token.', 'loginRegister:apiErrors.invalidToken'],
-        [
-            'There is no user registered with the email given.',
-            'loginRegister:apiErrors.noUserForEmail',
-        ],
         ['Invalid or expired ticket', 'loginRegister:apiErrors.oauthInvalidTicket'],
         [
             'This Google account is already linked to an account',

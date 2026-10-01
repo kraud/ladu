@@ -39,7 +39,7 @@ Slice 5 notes:
 - Restore does not bump `token_version`, so old sessions work again. A restored account that was also banned stays banned.
 - `GET /auth/me` and the login response now include `permissions`. The UI shows only the buttons a role may use (`useCan`). A session saved before this change is dropped once.
 - `deploy/ansible/roles/purge`: cron at 03:30 UTC for staging and prod (after the 03:00 backup). **Not applied yet:** run the Ansible playbook to install it. The operator guide (`.dev-context/infrastructure-guide/01-architecture-overview.md`) lists it.
-- Not included: "Resend verification email" and "Send password reset" (in the feature list, but not in the slice 5 row). A failed purge job has no alert: the log file is the only trace (a Healthchecks.io ping is a possible later step).
+- "Resend verification email" and "Send password reset" were not in slice 5. They are in `.context/plans/admin-user-emails.md` (permission `users.email`). A failed purge job has no alert: the log file is the only trace (a Healthchecks.io ping is a possible later step).
 
 Slice 6 notes:
 - `GET /api/admin/health` (`health.read`, all roles). Code: `backend/controllers/admin/healthController.ts`. Tests: `backend/tests/adminHealth.test.js`. UI: `admin/src/features/health/`. Links to the external tools are in `admin/src/features/health/links.ts` (public front pages; replace them with your direct project addresses).

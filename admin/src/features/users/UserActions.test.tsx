@@ -34,11 +34,11 @@ const buttonNames = () =>
 
 describe('which buttons are shown', () => {
     it.each<[StaffRole, UserDetail['status'], string[] | null]>([
-        ['support', 'active', ['Ban', 'Force logout']],
-        ['admin', 'active', ['Ban', 'Force logout', 'Delete']],
-        ['owner', 'active', ['Ban', 'Force logout', 'Delete']],
-        ['admin', 'banned', ['Unban', 'Force logout', 'Delete']],
-        ['support', 'banned', ['Unban', 'Force logout']],
+        ['support', 'active', ['Ban', 'Force logout', 'Send password reset']],
+        ['admin', 'active', ['Ban', 'Force logout', 'Send password reset', 'Delete']],
+        ['owner', 'active', ['Ban', 'Force logout', 'Send password reset', 'Delete']],
+        ['admin', 'banned', ['Unban', 'Force logout', 'Send password reset', 'Delete']],
+        ['support', 'banned', ['Unban', 'Force logout', 'Send password reset']],
         ['admin', 'deleted', ['Restore']],
         ['owner', 'deleted', ['Restore', 'Delete for good']],
         ['support', 'deleted', null],
@@ -51,6 +51,52 @@ describe('which buttons are shown', () => {
 
         if (expected === null) expect(screen.queryByRole('heading', { name: 'Actions' })).not.toBeInTheDocument();
         else expect(buttonNames()).toEqual(expected);
+    });
+});
+
+describe('email actions', () => {
+    it('show only for an account that needs them', async () => {
+        serveUser(makeDetail({ verified: false, hasPassword: false }));
+        await open('support');
+        await screen.findByRole('heading', { name: 'Kaja Tamm' });
+        // Not verified, and no password (a Google-only account): verification only.
+        expect(buttonNames()).toEqual(['Ban', 'Force logout', 'Resend verification email']);
+    });
+
+    it('a viewer sees neither', async () => {
+        serveUser(makeDetail({ verified: false }));
+        await open('viewer');
+        await screen.findByRole('heading', { name: 'Kaja Tamm' });
+        expect(screen.queryByRole('button', { name: /Resend verification|Send password reset/ })).not.toBeInTheDocument();
+    });
+
+    it('sends without a reason and does not say "sent" or "delivered"', async () => {
+        const calls = serveUser(makeDetail({ verified: false }));
+        const user = userEvent.setup();
+        await open('support');
+
+        await user.click(await screen.findByRole('button', { name: 'Resend verification email' }));
+        await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Send email' }));
+
+        await waitFor(() => expect(calls).toEqual([{ action: 'resend-verification', body: {} }]));
+        const notice = await screen.findByRole('status');
+        expect(notice).toHaveTextContent('The email was handed to the mail service. We cannot tell if it arrived.');
+        expect(notice).not.toHaveTextContent(/delivered|was sent/);
+    });
+
+    it('shows the cooldown message of the server inside the dialog', async () => {
+        serveUser(makeDetail(), () =>
+            HttpResponse.json({ message: 'This email was sent a moment ago. Try again in 4 minutes.' }, { status: 429 }),
+        );
+        const user = userEvent.setup();
+        await open('support');
+
+        await user.click(await screen.findByRole('button', { name: 'Send password reset' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.click(within(dialog).getByRole('button', { name: 'Send email' }));
+
+        expect(await within(dialog).findByRole('alert')).toHaveTextContent('Try again in 4 minutes.');
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
 });
 
@@ -74,7 +120,7 @@ describe('ban', () => {
         expect(screen.getByRole('status')).toHaveTextContent('The account is banned.');
         expect(screen.getByText('Banned', { selector: 'span' })).toBeInTheDocument();
         // The buttons follow the new status.
-        expect(buttonNames()).toEqual(['Unban', 'Force logout']);
+        expect(buttonNames()).toEqual(['Unban', 'Force logout', 'Send password reset']);
     });
 
     it('does not accept a reason of only spaces', async () => {

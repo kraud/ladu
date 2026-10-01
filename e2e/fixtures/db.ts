@@ -297,6 +297,15 @@ export async function getAuditForUser(
     return rows;
 }
 
+/** How many password-reset token rows a user has (the admin "Send password reset" action adds one each time). */
+export async function countResetTokens(userId: string): Promise<number> {
+    const { rows } = await getPool().query<{ n: number }>(
+        `SELECT count(*)::int AS n FROM password_reset_tokens WHERE user_id = $1`,
+        [userId],
+    );
+    return rows[0]?.n ?? 0;
+}
+
 /** An `ops_events` row as the VPS backup scripts write it, `hoursAgo` hours in the past. */
 export async function seedOpsEvent(kind: 'backup' | 'restore_test', ok: boolean, detail: string, hoursAgo: number): Promise<void> {
     await getPool().query(

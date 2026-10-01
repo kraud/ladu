@@ -363,15 +363,9 @@ export function makeAuthHandlers(
         http.post('*/api/users/requestPasswordReset', async ({ request }) => {
             const { email } = (await request.json()) as Record<string, string>;
             const u = find(email);
-            if (!u) {
-                return HttpResponse.json(
-                    { message: 'There is no user registered with the email given.' },
-                    { status: 400 },
-                );
-            }
-            const token = `rt-${u.id}-${resetTokens.size}`;
-            resetTokens.set(token, u.id);
-            return HttpResponse.json({});
+            // Same answer for a known and an unknown email, like the real server.
+            if (u) resetTokens.set(`rt-${u.id}-${resetTokens.size}`, u.id);
+            return HttpResponse.json({ message: 'If that email address belongs to a registered account, we have sent it a link to reset the password.' });
         }),
 
         // PUT /api/users/updatePassword
