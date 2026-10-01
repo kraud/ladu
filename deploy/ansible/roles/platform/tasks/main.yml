@@ -79,6 +79,9 @@
     url: https://www.cloudflare.com/ips-v4
     return_content: true
   register: cf_ipv4_platform
+  # A read-only download, so it is safe to run in --check mode. Without this,
+  # a dry run skips it and the next task fails ("no attribute 'content'").
+  check_mode: false
   retries: 3
   delay: 5
   until: cf_ipv4_platform.status == 200
@@ -88,6 +91,9 @@
     url: https://www.cloudflare.com/ips-v6
     return_content: true
   register: cf_ipv6_platform
+  # A read-only download, so it is safe to run in --check mode. Without this,
+  # a dry run skips it and the next task fails ("no attribute 'content'").
+  check_mode: false
   retries: 3
   delay: 5
   until: cf_ipv6_platform.status == 200
@@ -238,6 +244,9 @@
     url: https://www.cloudflare.com/ips-v4
     return_content: true
   register: cf_ipv4_dockeruser
+  # A read-only download, so it is safe to run in --check mode. Without this,
+  # a dry run skips it and the next task fails ("no attribute 'content'").
+  check_mode: false
   retries: 3
   delay: 5
   until: cf_ipv4_dockeruser.status == 200
@@ -247,6 +256,9 @@
     url: https://www.cloudflare.com/ips-v6
     return_content: true
   register: cf_ipv6_dockeruser
+  # A read-only download, so it is safe to run in --check mode. Without this,
+  # a dry run skips it and the next task fails ("no attribute 'content'").
+  check_mode: false
   retries: 3
   delay: 5
   until: cf_ipv6_dockeruser.status == 200
