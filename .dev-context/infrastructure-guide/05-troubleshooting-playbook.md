@@ -228,6 +228,41 @@ The owner types or generates a temporary password and tells the person in
 private. At the first sign-in the person must choose their own password before
 they can use anything else.
 
+### "Nobody can register" (or: I closed registration and want to open it again)
+
+The owner controls who can register on the **Access** page of the admin panel
+(owners only). Registration has three states:
+
+- **Open:** anybody can register. This is the default.
+- **Closed:** nobody can register. The register page shows a banner and turns
+  the form and the Google button off.
+- **Limited:** only emails on the invite list can register. An email leaves the
+  list when that person registers. Any other email gets one message, so the
+  list does not leak.
+
+To open registration again, choose **Open** and press **Save**. The change
+works at once. Staff are never blocked by a gate, so an owner can always sign
+in to do this. Each change writes an audit row (`access.registration_mode`,
+`access.invite_add`, `access.invite_remove`). When an invite is used, the system
+writes `access.invite_used`.
+
+If a person says "I cannot register", look at the state first. In `limited`
+state the email must be on the list (the check ignores upper and lower case). A
+refused sign-up does not use up the invite.
+
+**If the admin panel does not work**, open the gate with one line of SQL in a
+`psql` shell (see `02-environments-and-databases.md`):
+
+```sql
+UPDATE access_settings SET registration_mode = 'open', registration_note = '';
+```
+
+The change works at once, with no restart. The table always has exactly one
+row. To read the state: `SELECT registration_mode, registration_note FROM
+access_settings;`.
+
+---
+
 ### "A staff member forgot their password"
 
 An owner opens **Staff**, clicks **Reset password** on that person, and gives

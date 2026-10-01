@@ -35,6 +35,8 @@ describe('role map', () => {
         expect(hasPermission('owner', 'staff.manage')).toBe(true);
         expect(hasPermission('owner', 'users.purge')).toBe(true);
         expect(hasPermission('admin', 'users.purge')).toBe(false);
+        expect(hasPermission('owner', 'access.manage')).toBe(true);
+        for (const role of ['admin', 'support', 'viewer']) expect(hasPermission(role, 'access.manage')).toBe(false);
         expect(hasPermission('admin', 'users.delete')).toBe(true);
         expect(hasPermission('admin', 'staff.manage')).toBe(false);
         expect(hasPermission('support', 'users.ban')).toBe(true);

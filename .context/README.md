@@ -20,6 +20,7 @@ npm run db:studio            # Drizzle Studio
 
 npm run e2e:install          # one-time: download Chromium for Playwright
 npm run test:e2e             # full-stack Playwright e2e suite (boots backend + frontend)
+                             # specs named *-gate.spec.ts change the access gates (global state): they run last, in the `gates` project
 npm run test:e2e:headed      # same, in a visible browser window
 ```
 
@@ -60,8 +61,8 @@ backend Jest suite) plus `e2e:install` once. Details: [`e2e/README.md`](../e2e/R
 | `.context/plans/phase-5-5-saved-practice.md` | Phase 5.5 plan (2026-09-30): saved practice configurations and saved sessions — data model, API, session rules, UI, slices, and the record of what was built. Done 2026-09-30. | **Working record** |
 | `.context/plans/autocomplete-data-source-strategy.md` | Research record (2026-09-25): the 8 autocomplete sources, the Wiktextract/kaikki candidate with verified coverage numbers, the Ekilex API how-to, licences, and proposed slices. No code written yet. | **Working record** |
 | `.context/plans/admin-dashboard.md` | The admin dashboard ("Ladu Admin"), approved 2026-09-30: staff accounts, user list and actions, health, staff management, audit log, statistics, deploy behind Cloudflare Access. Slices 1–9 are built; the top of the file has the status notes, the decisions and the rollout runbook. | **Working record** |
-| `.context/plans/admin-user-emails.md` | Planned 2026-10-01, not built: the admin actions "Resend verification email" and "Send password reset". Small PR on branch `admin-user-emails`; comes first. | **Plan** |
-| `.context/plans/access-gates.md` | Planned 2026-10-01, not built: closed / open / limited gates for registration and for login, an invite list, an allowed-accounts list, translated banners, and a "sign everyone out" panic button. Two PRs (`admin-registration-gate`, then `admin-login-gate`) after `admin-user-emails`. | **Plan** |
+| `.context/plans/admin-user-emails.md` | Built 2026-10-01 and merged to `main` (PR #62): the admin actions "Resend verification email" and "Send password reset" (permission `users.email`), plus a throttled, non-leaking public password reset request. No migration, no new secret. | **Done** |
+| `.context/plans/access-gates.md` | Planned 2026-10-01, not built: closed / open / limited gates for registration and for login, an invite list, an allowed-accounts list, translated banners, and a "sign everyone out" panic button. Two PRs (`admin-registration-gate`, then `admin-login-gate`). Next to build. | **Plan** |
 | `.context/.frontend/snapshot/*.md` (14 files) | Frozen 2026-09-05: behaviour inventory of every old page/component + full data model, case registry, per-form yup schemas, Review-table + exercise-flow specs, autocomplete transforms | **Primary working spec** — read the relevant file before building a feature |
 | `.context/.frontend/snapshot/ui/00-global.md … 06-social.md` (7 files) | **UI-blueprint**: what each screen must *do* — shell, navigation, screen-by-screen layout + interaction spec + the §8 intentional deltas. Built from the old frontend. Feed `00`→`06` in order. | **Authoritative for feature behaviour/UX** — this is the vision we implement |
 | `MOCKUPS/` | HTML/CSS mockups (`index.html`, `auth/`, `word-editor.html`, `review.html`, `assets/`). The **design language** — how things look (layout, spacing, colour, typography, components). | **Authoritative for visual design** — the lens the UI-blueprint is rendered through |

@@ -25,6 +25,8 @@ const {
 const asyncHandler = require("express-async-handler");
 const { issueVerificationEmail, issuePasswordResetEmail }: typeof import("../lib/accountEmails") = require("../lib/accountEmails");
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
+const { assertRegistrationAllowed, consumeInvite }: typeof import("../lib/accessGate") = require("../lib/accessGate");
+const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
 const { calculateBasicUserMetrics } = require("./metricController");
 
 type UserRow = typeof users.$inferSelect;
@@ -226,6 +228,16 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
     throw new Error("Invalid theme selection");
   }
 
+  // The access gate (access-gates.md) comes BEFORE the "already in use" checks, so a
+  // closed or limited gate never reveals which emails have an account.
+  let gateMode;
+  try {
+    gateMode = await assertRegistrationAllowed(email);
+  } catch (error) {
+    if (error instanceof HttpError) res.status(error.status);
+    throw error;
+  }
+
   // Enforce the app-level case-insensitive uniqueness rules used by the legacy API.
   const emailExists = await findUserByEmailInsensitive(email);
   const usernameExists = await findUserByUsernameInsensitive(username);
@@ -244,25 +256,38 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  const [user] = await db
-    .insert(users)
-    .values({
-      name,
-      email,
-      username,
-      password: hashedPassword,
-      languages: languagesResult.languages,
-      uiLanguage: resolvedUiLanguage,
-      theme: themeResult.theme,
-      nativeLanguage: null,
-      verified: false,
-    } satisfies NewUserRow)
-    .returning();
+  // One transaction: the user, the invite taken by this email, and the verification
+  // token. Two parallel sign-ups with one invite cannot both pass; a rollback keeps the invite.
+  let user: UserRow;
+  let sendVerification;
+  try {
+    ({ user, sendVerification } = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(users)
+        .values({
+          name,
+          email,
+          username,
+          password: hashedPassword,
+          languages: languagesResult.languages,
+          uiLanguage: resolvedUiLanguage,
+          theme: themeResult.theme,
+          nativeLanguage: null,
+          verified: false,
+        } satisfies NewUserRow)
+        .returning();
+      await consumeInvite(tx, email, gateMode);
+      return { user: created, sendVerification: await issueVerificationEmail(created, tx) };
+    }));
+  } catch (error) {
+    if (error instanceof HttpError) res.status(error.status);
+    throw error;
+  }
 
   // Not awaited: sendEmail.js catches its own send errors and never rejects, so
   // awaiting it would only add latency (a slow mail provider used to block a
   // registration that already succeeded, .dev-context/deployment-strategy.md D-g).
-  const sendVerification = await issueVerificationEmail(user, db);
+  // Sent after the commit, so no email leaves for a registration that rolled back.
   sendVerification();
 
   res.status(201).json(publicUserResponse(user));

@@ -16,6 +16,7 @@ export function ProtectedLayout() {
     const canReadHealth = useCan('health.read');
     const canManageStaff = useCan('staff.manage');
     const canReadAudit = useCan('audit.read');
+    const canManageAccess = useCan('access.manage');
     const mustChange = useMustChangePassword();
     useStaffSession();
 
@@ -39,6 +40,11 @@ export function ProtectedLayout() {
                                 {canManageStaff && (
                                     <Link to="/staff" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
                                         Staff
+                                    </Link>
+                                )}
+                                {canManageAccess && (
+                                    <Link to="/access" className="text-muted-foreground hover:text-foreground" activeProps={{ className: 'font-semibold text-foreground' }}>
+                                        Access
                                     </Link>
                                 )}
                                 {canReadAudit && (

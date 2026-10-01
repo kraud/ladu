@@ -26,6 +26,8 @@ const {
   isUuid,
 }: typeof import("./userController") = require("./userController");
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
+const { assertRegistrationAllowed, consumeInvite }: typeof import("../lib/accessGate") = require("../lib/accessGate");
+const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
 const { getProvider, listConfiguredProviders }: typeof import("../lib/oauth/providers") = require("../lib/oauth/providers");
 const { generateCodeVerifier, generateCodeChallenge, generateNonce }: typeof import("../lib/oauth/pkce") = require("../lib/oauth/pkce");
 const { issueStateToken, verifyStateToken }: typeof import("../lib/oauth/stateToken") = require("../lib/oauth/stateToken");
@@ -348,6 +350,18 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
     throw new Error("Invalid theme selection");
   }
 
+  // The access gate (access-gates.md): the callback only issues a ticket, the account
+  // is made here, so this is where registration is gated, with the email Google
+  // confirmed. It runs before the "already in use" checks, so a closed or limited gate
+  // never reveals which emails have an account.
+  let gateMode;
+  try {
+    gateMode = await assertRegistrationAllowed(payload.email);
+  } catch (error) {
+    if (error instanceof HttpError) res.status(error.status);
+    throw error;
+  }
+
   // Race guard: the ticket's identity may have been linked, or its email
   // claimed by a password account, in the 10-minute window since it was
   // issued (a retried request, another tab). Both make completing signup
@@ -374,29 +388,40 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
     throw new Error("Username already in use");
   }
 
-  const [user] = await db
-    .insert(users)
-    .values({
-      name: payload.name,
-      email: payload.email,
-      username,
-      password: null,
-      languages: languagesResult.languages,
-      uiLanguage: resolvedUiLanguage,
-      theme: themeResult.theme,
-      nativeLanguage: null,
-      // Google already verified the address — the standard registration
-      // flow's confirmation email is deliberately skipped (Decisions).
-      verified: true,
-    })
-    .returning();
-
-  await db.insert(oauthIdentities).values({
-    userId: user.id,
-    provider: payload.provider,
-    providerUserId: payload.sub,
-    emailAtLink: payload.email,
-  });
+  // One transaction, as in registerUser: the user, the invite taken by this email,
+  // and the identity row. A rollback keeps the invite.
+  let user;
+  try {
+    user = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(users)
+        .values({
+          name: payload.name,
+          email: payload.email,
+          username,
+          password: null,
+          languages: languagesResult.languages,
+          uiLanguage: resolvedUiLanguage,
+          theme: themeResult.theme,
+          nativeLanguage: null,
+          // Google already verified the address — the standard registration
+          // flow's confirmation email is deliberately skipped (Decisions).
+          verified: true,
+        })
+        .returning();
+      await consumeInvite(tx, payload.email, gateMode);
+      await tx.insert(oauthIdentities).values({
+        userId: created.id,
+        provider: payload.provider,
+        providerUserId: payload.sub,
+        emailAtLink: payload.email,
+      });
+      return created;
+    });
+  } catch (error) {
+    if (error instanceof HttpError) res.status(error.status);
+    throw error;
+  }
 
   await recordLogin(user.id, "google", req);
 

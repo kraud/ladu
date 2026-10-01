@@ -16,6 +16,9 @@ export const PERMISSIONS = [
   "health.read",
   "audit.read",
   "staff.manage",
+  // Registration and login gates, the invite list (access-gates.md). Owner only:
+  // a wrong setting can stop every learner from signing up or in.
+  "access.manage",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];

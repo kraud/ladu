@@ -10,6 +10,7 @@
  *       ├── /health           deployment health
  *       ├── /staff            staff management (staff.manage)
  *       ├── /audit            audit log (audit.read)
+ *       ├── /access           registration gate and invite list (access.manage)
  *       └── /account/password change your own password (the only page open to a temporary password)
  */
 import {
@@ -33,6 +34,7 @@ import { HealthPage } from '@/features/health/pages/HealthPage';
 import { StaffPage } from '@/features/staff/pages/StaffPage';
 import { AuditPage } from '@/features/audit/pages/AuditPage';
 import { validateAuditSearch } from '@/features/audit/search';
+import { AccessPage } from '@/features/access/pages/AccessPage';
 import { ChangePasswordPage } from '@/features/auth/pages/ChangePasswordPage';
 
 const rootRoute = createRootRoute({ notFoundComponent: NotFoundPage });
@@ -115,6 +117,13 @@ const auditRoute = createRoute({
     component: AuditPage,
 });
 
+const accessRoute = createRoute({
+    getParentRoute: () => protectedRoute,
+    path: '/access',
+    beforeLoad: requirePermission('access.manage'),
+    component: AccessPage,
+});
+
 const changePasswordRoute = createRoute({
     getParentRoute: () => protectedRoute,
     path: '/account/password',
@@ -130,6 +139,7 @@ const routeTree = rootRoute.addChildren([
         healthRoute,
         staffRoute,
         auditRoute,
+        accessRoute,
         changePasswordRoute,
     ]),
 ]);

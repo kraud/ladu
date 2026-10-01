@@ -40,6 +40,11 @@
     "resetEmailRequested": "Gehört diese E-Mail zu einem Konto, haben wir einen Link zum Zurücksetzen gesendet."
   },
   "unverifiedWarning": "Du musst dein Konto bestätigen, bevor du dich anmelden kannst.",
+  "access": {
+    "registrationClosed": "Die Registrierung ist vorerst geschlossen. Bitte versuche es später noch einmal.",
+    "registrationLimited": "Die Registrierung ist derzeit nur mit Einladung möglich.",
+    "registrationNotInvited": "Die Registrierung ist derzeit nur mit Einladung möglich. Diese E-Mail steht nicht auf der Liste."
+  },
   "brand": {
     "tagline": "Deine Wörter, vier Sprachen, ein Regal.",
     "supportedLanguages": "In der App verfügbare Sprachen",

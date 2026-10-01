@@ -108,6 +108,40 @@ export const auditLog = pgTable(
     ],
 );
 
+// ---------------------------------------------------------------------------
+// Access gates (.context/plans/access-gates.md): the owner switches registration
+// and login between 'open', 'closed' and 'limited' with no deploy. ONE row
+// (id fixed to 1); the migration inserts it with both modes 'open'. Read on
+// each request that needs it — no cache, so a change works at once.
+// ---------------------------------------------------------------------------
+export const accessSettings = pgTable(
+    'access_settings',
+    {
+        id:                integer('id').primaryKey().default(1),
+        registrationMode:  varchar('registration_mode', { length: 16 }).notNull().default('open'),
+        // Plain text shown under the translated banner; never markup, not translated.
+        registrationNote:  varchar('registration_note', { length: 300 }).notNull().default(''),
+        loginMode:         varchar('login_mode', { length: 16 }).notNull().default('open'),
+        loginNote:         varchar('login_note', { length: 300 }).notNull().default(''),
+        updatedAt:         timestamp('updated_at').defaultNow().notNull(),
+        updatedByStaffId:  uuid('updated_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
+    },
+    () => [
+        check('access_settings_single_row', sql`id = 1`),
+        check('access_settings_registration_mode_check', sql`registration_mode IN ('open', 'closed', 'limited')`),
+        check('access_settings_login_mode_check', sql`login_mode IN ('open', 'closed', 'limited')`),
+    ],
+);
+
+// Emails allowed to register while registration is 'limited'. Stored lowercase
+// (unique = case-insensitive). The row is deleted when that person registers.
+export const registrationInvites = pgTable('registration_invites', {
+    id:               uuid('id').primaryKey().defaultRandom(),
+    email:            varchar('email', { length: 255 }).notNull().unique(),
+    createdAt:        timestamp('created_at').defaultNow().notNull(),
+    createdByStaffId: uuid('created_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
+});
+
 // ===========================================================================
 // USERS
 // Mapped from: backend/models/userModel.js

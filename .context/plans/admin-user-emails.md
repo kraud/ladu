@@ -1,6 +1,6 @@
 # Plan: Admin user emails ("Resend verification email" and "Send password reset")
 
-Status: built on 2026-10-01, not deployed yet. Branch: `admin-user-emails`. All decisions in the table below were confirmed as written.
+Status: built on 2026-10-01 and merged to `main` (PR #62, branch `admin-user-emails`). All decisions in the table below were confirmed as written.
 
 Build notes:
 - Shared code: `backend/lib/accountEmails.ts`. The public handlers (`registerUser`, `requestPasswordReset`) use it too. Behavior is unchanged.

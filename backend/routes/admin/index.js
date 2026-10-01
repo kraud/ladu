@@ -9,5 +9,6 @@ router.use('/health', require('./healthRoutes'))
 router.use('/staff', require('./staffRoutes'))
 router.use('/audit', require('./auditRoutes'))
 router.use('/stats', require('./statsRoutes'))
+router.use('/access', require('./accessRoutes'))
 
 module.exports = router

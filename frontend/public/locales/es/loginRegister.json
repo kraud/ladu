@@ -40,6 +40,11 @@
     "resetEmailRequested": "Si ese correo pertenece a una cuenta, le enviamos un enlace para restablecer la contraseña."
   },
   "unverifiedWarning": "Debes verificar tu cuenta antes de iniciar sesión.",
+  "access": {
+    "registrationClosed": "El registro está cerrado por ahora. Vuelve a intentarlo más tarde.",
+    "registrationLimited": "Por ahora, el registro es solo por invitación.",
+    "registrationNotInvited": "Por ahora, el registro es solo por invitación. Este correo electrónico no está en la lista."
+  },
   "brand": {
     "tagline": "Tus palabras, cuatro idiomas, un solo estante.",
     "supportedLanguages": "Idiomas disponibles en la app",

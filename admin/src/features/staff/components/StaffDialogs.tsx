@@ -13,7 +13,7 @@ import type { StaffRole } from '@/stores/authStore';
 const MAX_REASON_LENGTH = 500;
 
 /** The frame every staff dialog shares: title, a form, an error line, Cancel and a submit button. */
-function FormDialog({
+export function FormDialog({
     title,
     description,
     submitLabel,

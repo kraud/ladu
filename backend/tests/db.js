@@ -120,9 +120,15 @@ const clearDB = async () => {
             audit_log,
             staff_accounts,
             ops_events,
-            user_activity_days
+            user_activity_days,
+            registration_invites,
+            access_settings
         RESTART IDENTITY CASCADE
     `);
+
+    // access_settings always holds exactly one row (the migration inserts it, and
+    // the truncate above cascades from staff_accounts), so put it back, both gates open.
+    await pool.query('INSERT INTO access_settings (id) VALUES (1)');
 };
 
 /**

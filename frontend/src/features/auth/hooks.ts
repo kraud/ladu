@@ -12,6 +12,7 @@ import { useNavigate, useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { authStore, useAuthStore } from '@/stores/authStore';
+import { refreshAccessOnGateError } from '@/features/access/hooks';
 import * as authApi from './api';
 import { authErrorKey, OAuthCallbackError, oauthErrorKey } from './errors';
 import type {
@@ -59,6 +60,7 @@ export function useLogin(redirectTo = '/') {
 export function useRegister() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (body: RegisterRequest) => authApi.register(body),
@@ -68,7 +70,11 @@ export function useRegister() {
             toast.info(t('loginRegister:register.emailSentToast', { email: variables.email }));
             void navigate({ to: '/login' });
         },
-        onError: (error) => toast.error(t(authErrorKey(error))),
+        onError: (error) => {
+            toast.error(t(authErrorKey(error)));
+            // A gate refused: its state changed since the page loaded, so the banner must follow.
+            refreshAccessOnGateError(queryClient, error);
+        },
     });
 }
 
@@ -229,7 +235,10 @@ export function useOAuthSignupComplete() {
             setSession(user);
             void navigate({ to: '/' });
         },
-        onError: (error) => toast.error(t(authErrorKey(error))),
+        onError: (error) => {
+            toast.error(t(authErrorKey(error)));
+            refreshAccessOnGateError(queryClient, error);
+        },
     });
 }
 
