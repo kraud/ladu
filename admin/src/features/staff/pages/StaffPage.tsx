@@ -97,7 +97,7 @@ export function StaffPage() {
                                     <td className="px-3 py-2 whitespace-nowrap">{formatDateTime(member.createdAt)}</td>
                                     <td className="px-3 py-2">
                                         {isMe ? (
-                                            <span className="text-xs text-muted-foreground">Use "Change password" in the header</span>
+                                            <span className="text-xs text-muted-foreground">Use "Change password" on the Account page</span>
                                         ) : (
                                             <div className="flex flex-wrap gap-1.5">
                                                 <Button size="xs" variant="outline" onClick={() => open({ kind: 'role', member })}>

@@ -173,11 +173,12 @@ describe('a normal change (no temporary password)', () => {
         expect(router.state.location.pathname).toBe('/');
     });
 
-    it('is reachable from the header', async () => {
+    it('is reachable from the account page', async () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ role: 'viewer' });
 
-        await user.click(await screen.findByRole('link', { name: 'Change password' }));
+        await user.click(await screen.findByRole('link', { name: 'Account' }));
+        await user.click(await screen.findByRole('button', { name: 'Change password' }));
 
         expect(router.state.location.pathname).toBe('/account/password');
     });

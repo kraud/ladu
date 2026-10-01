@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { changePasswordRequest, fetchMe, loginStaff } from '@/features/auth/api';
 import { useAuthStore } from '@/stores/authStore';
@@ -27,6 +28,20 @@ export function useLogout() {
     return () => {
         clearSession();
         queryClient.clear();
+    };
+}
+
+/**
+ * Sign out and go back to the login form. Used by the account page, the only
+ * place the signed-in person can end their own session.
+ */
+export function useSignOut() {
+    const logout = useLogout();
+    const navigate = useNavigate();
+
+    return () => {
+        logout();
+        void navigate({ to: '/login' });
     };
 }
 

@@ -92,6 +92,12 @@ Slice 9 notes (overview statistics):
 - Found by looking at the page at phone width: the header overflowed since slice 8 (now it wraps), and two x-axis labels ran together (a label closer than n points to the last one is now dropped).
 - Tests: Jest `adminStats` and `activityDays` (a fixed clock replaces `Date`), `purge`; Vitest for the chart components and the page; Playwright `admin-9-stats.spec.ts`. The e2e spec reads the API before it seeds, and asserts only what its own rows add, because other specs create users at the same time.
 
+Account page and header cleanup (cosmetic slice, after slice 9):
+- New page `/account` (`admin/src/features/auth/pages/AccountPage.tsx`): name, email and role from the session, with "Change password" and "Sign out". The header keeps the name and the role badge and gains an "Account" link as its last item; the "Change password" link and the "Sign out" button left the header. `useSignOut` (`features/auth/hooks.ts`) holds the logout + navigate pair both places used to repeat.
+- The "Account" link sits outside the `mustChange` test in the header, and `_protected.beforeLoad` allows `/account` as well as `/account/password`, so a temporary password keeps a way to sign out.
+- The header title "Ladu Admin" is a link to the overview. `/access` is grouped into a "Registration" section (gate + invite list) and a "Login" section (gate + allowed accounts + "Sign everyone out"): the two group headings are `h2` and the card headings are `h3`, so the region names the tests and the e2e specs scope queries with do not change.
+- The learner banner (`frontend/src/features/access/components/AccessBanner.tsx`) carries `mb-4`, so it no longer sits against the "Continue with Google" button on the login and register pages.
+
 ## Context
 
 Today, the only way to see production data is SSH to the VPS, then `psql` as `ladu_admin` on `ladu_prod`. There is no admin role, no ban flag, no last-login record, no audit log, and no account deletion endpoint. The support tool must let us:

@@ -14,7 +14,7 @@ export function AccessBanner({ gate, status }: { gate: 'registration' | 'login';
         status.mode === 'closed' ? t(`loginRegister:access.${gate}Closed`) : t(`loginRegister:access.${gate}Limited`);
 
     return (
-        <div className={`banner ${status.mode === 'closed' ? 'warning' : 'info'} items-start`} role="status">
+        <div className={`banner mb-4 ${status.mode === 'closed' ? 'warning' : 'info'} items-start`} role="status">
             <div>
                 <p>{message}</p>
                 {status.note && <p className="mt-1 whitespace-pre-line font-semibold">{status.note}</p>}

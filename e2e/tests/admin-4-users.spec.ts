@@ -151,9 +151,12 @@ test.describe('Admin dashboard — users (slice 4)', () => {
         await expect(page.getByText('user.note')).toBeVisible();
         await expect(page.getByText('Reason: checked by e2e')).toBeVisible();
 
-        // Back to the list, then sign out.
+        // Back to the list, then sign out from the account page.
         await page.getByRole('link', { name: /All users/ }).click();
         await expect(page).toHaveURL(/\/users/);
+        await page.getByRole('link', { name: 'Account' }).click();
+        await expect(page).toHaveURL(`${ADMIN_URL}/account`);
+        await expect(page.getByText(staffEmail('admin'))).toBeVisible();
         await page.getByRole('button', { name: 'Sign out' }).click();
         await expect(page).toHaveURL(`${ADMIN_URL}/login`);
 
