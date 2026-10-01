@@ -18,6 +18,8 @@ export const GENERIC_ERROR_KEY = 'common:errors.somethingWrong';
 const CODE_TO_KEY: Record<string, string> = {
     registration_closed: 'loginRegister:access.registrationClosed',
     registration_not_invited: 'loginRegister:access.registrationNotInvited',
+    login_closed: 'loginRegister:access.loginClosed',
+    login_not_allowed: 'loginRegister:access.loginNotAllowed',
 };
 
 const MESSAGE_TO_KEY: Record<string, string> = {
@@ -84,6 +86,10 @@ const OAUTH_ERROR_CODE_TO_KEY: Record<string, string> = {
     // account that started the connect attempt. Same user-facing meaning as
     // the ticket-based message above, so it reuses that key.
     oauth_already_linked: 'loginRegister:apiErrors.oauthAlreadyLinked',
+    // The login gate refused an account that is already linked (access-gates.md): the same two codes
+    // as the password login, put on the fragment by the callback.
+    login_closed: 'loginRegister:access.loginClosed',
+    login_not_allowed: 'loginRegister:access.loginNotAllowed',
 };
 
 /** The i18n key for an `OAuthCallbackError` (or any other failure, generically). Never throws. */

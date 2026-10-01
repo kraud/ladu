@@ -37,6 +37,12 @@ describe('authErrorKey', () => {
         );
     });
 
+    it('maps the login gate codes', () => {
+        const coded = (code: string) => ({ response: { status: 403, data: { message: 'x', code } } });
+        expect(authErrorKey(coded('login_closed'))).toBe('loginRegister:access.loginClosed');
+        expect(authErrorKey(coded('login_not_allowed'))).toBe('loginRegister:access.loginNotAllowed');
+    });
+
     it('ignores an unknown code and falls back to the message', () => {
         const error = { response: { status: 400, data: { message: 'Email already in use', code: 'new_code' } } };
         expect(authErrorKey(error)).toBe('loginRegister:apiErrors.emailInUse');
@@ -55,6 +61,11 @@ describe('authErrorKey', () => {
 describe('oauthErrorKey', () => {
     it('maps oauth_failed', () => {
         expect(oauthErrorKey(new OAuthCallbackError('oauth_failed'))).toBe('loginRegister:apiErrors.oauthFailed');
+    });
+
+    it('maps the login gate codes the Google callback puts on the fragment', () => {
+        expect(oauthErrorKey(new OAuthCallbackError('login_closed'))).toBe('loginRegister:access.loginClosed');
+        expect(oauthErrorKey(new OAuthCallbackError('login_not_allowed'))).toBe('loginRegister:access.loginNotAllowed');
     });
 
     it('falls back to the generic key for an unrecognised code', () => {

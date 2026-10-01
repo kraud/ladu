@@ -43,7 +43,12 @@
   "access": {
     "registrationClosed": "Die Registrierung ist vorerst geschlossen. Bitte versuche es später noch einmal.",
     "registrationLimited": "Die Registrierung ist derzeit nur mit Einladung möglich.",
-    "registrationNotInvited": "Die Registrierung ist derzeit nur mit Einladung möglich. Diese E-Mail steht nicht auf der Liste."
+    "registrationNotInvited": "Die Registrierung ist derzeit nur mit Einladung möglich. Diese E-Mail steht nicht auf der Liste.",
+    "loginClosed": "Die Anmeldung ist vorerst geschlossen. Bitte versuche es später noch einmal.",
+    "loginLimited": "Die Anmeldung ist derzeit eingeschränkt. Nur einige Konten können sich anmelden.",
+    "loginNotAllowed": "Die Anmeldung ist derzeit eingeschränkt. Dieses Konto kann sich noch nicht anmelden.",
+    "emailVerifiedNoSignIn": "Deine E-Mail ist bestätigt. Dieses Konto kann sich derzeit nicht anmelden. Bitte versuche es später noch einmal.",
+    "accountCreatedNoSignIn": "Dein Konto ist erstellt. Dieses Konto kann sich derzeit nicht anmelden. Bitte versuche es später noch einmal."
   },
   "brand": {
     "tagline": "Deine Wörter, vier Sprachen, ein Regal.",

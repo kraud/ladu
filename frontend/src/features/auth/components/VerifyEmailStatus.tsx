@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { AuthLayout } from './AuthLayout';
 
-type Status = 'pending' | 'success' | 'error';
+type Status = 'pending' | 'success' | 'blocked' | 'error';
 
 /**
  * The three-state verification card (`MOCKUPS/auth/verify.html`), on the
@@ -12,6 +12,9 @@ type Status = 'pending' | 'success' | 'error';
  * flight, a check + "Entering Ladu in Ns" countdown on success, an × on
  * failure. Presentational only — the page owns the request and the
  * countdown.
+ *
+ * `blocked`: the email is verified, but the login gate refuses this account, so there is no session and no
+ * countdown, only a message and a way back to sign-in.
  *
  * Verification links never expire (no TTL is enforced server-side), so the
  * failure state reads as an invalid link, not an expired one.
@@ -62,6 +65,26 @@ export function VerifyEmailStatus({
                         <Button type="button" className="mt-4" onClick={onEnterNow}>
                             {t('loginRegister:userVerification.enterNow')}
                         </Button>
+                    </>
+                )}
+
+                {status === 'blocked' && (
+                    <>
+                        <span className="mx-auto mb-4 grid size-13 place-items-center rounded-full bg-(--success-soft) text-(--success)">
+                            <Check size={26} weight="bold" />
+                        </span>
+                        <h1 className="h2 text-lg">
+                            {t('loginRegister:userVerification.validatingSuccess')}
+                        </h1>
+                        <p role="status" className="mt-1.5 text-[13.5px] text-muted-foreground">
+                            {t('loginRegister:access.emailVerifiedNoSignIn')}
+                        </p>
+                        <Link
+                            to="/login"
+                            className={buttonVariants({ variant: 'secondary', className: 'mt-4' })}
+                        >
+                            {t('loginRegister:userVerification.backToSignIn')}
+                        </Link>
                     </>
                 )}
 

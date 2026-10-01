@@ -106,11 +106,37 @@ export type LoginResponse = AuthUser;
 /** `POST /api/users` → 201. No `token` (verification email pending). */
 export type RegisterResponse = Omit<AuthUser, 'token'>;
 
-/** `GET /api/users/:userId/verify/:tokenId` → 200. `user` carries `token`. */
-export interface VerifyEmailResponse {
+/** `GET /api/users/:userId/verify/:tokenId` → 200, signed in. `user` carries `token`. */
+export interface VerifyEmailSignedIn {
     user: AuthUser;
     message: string;
 }
+
+/**
+ * The same route while the login gate refuses this account (access-gates.md): the email IS verified
+ * and the link is used up, but there is no profile and no token.
+ */
+export interface VerifyEmailLoginBlocked {
+    message: string;
+    verified: true;
+    loginBlocked: LoginBlockCode;
+}
+
+export type VerifyEmailResponse = VerifyEmailSignedIn | VerifyEmailLoginBlocked;
+
+/** What the login gate answers with when it blocks an account (the code the server also sends as `code`). */
+export type LoginBlockCode = 'login_closed' | 'login_not_allowed';
+
+/**
+ * `POST /api/auth/signup/complete` → 201 while the login gate refuses the new account: it exists,
+ * but there is no token.
+ */
+export interface OAuthSignupLoginBlocked {
+    loginBlocked: LoginBlockCode;
+    message: string;
+}
+
+export type OAuthSignupCompleteResponse = AuthUser | OAuthSignupLoginBlocked;
 
 /**
  * `GET /api/auth/providers` → 200. Which OAuth providers are configured

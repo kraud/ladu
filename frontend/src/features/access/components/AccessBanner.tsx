@@ -6,7 +6,7 @@ import type { GateStatus } from '../types';
  * the owner's extra line is shown under it as TEXT (React escapes it): no markup, no links.
  * The extra line is not translated.
  */
-export function AccessBanner({ gate, status }: { gate: 'registration'; status: GateStatus }) {
+export function AccessBanner({ gate, status }: { gate: 'registration' | 'login'; status: GateStatus }) {
     const { t } = useTranslation();
     if (status.mode === 'open') return null;
 

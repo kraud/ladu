@@ -43,7 +43,12 @@
   "access": {
     "registrationClosed": "El registro está cerrado por ahora. Vuelve a intentarlo más tarde.",
     "registrationLimited": "Por ahora, el registro es solo por invitación.",
-    "registrationNotInvited": "Por ahora, el registro es solo por invitación. Este correo electrónico no está en la lista."
+    "registrationNotInvited": "Por ahora, el registro es solo por invitación. Este correo electrónico no está en la lista.",
+    "loginClosed": "El inicio de sesión está cerrado por ahora. Vuelve a intentarlo más tarde.",
+    "loginLimited": "Por ahora, el inicio de sesión está limitado. Solo algunas cuentas pueden entrar.",
+    "loginNotAllowed": "Por ahora, el inicio de sesión está limitado. Esta cuenta todavía no puede entrar.",
+    "emailVerifiedNoSignIn": "Tu correo electrónico está verificado. Por ahora, esta cuenta no puede iniciar sesión. Vuelve a intentarlo más tarde.",
+    "accountCreatedNoSignIn": "Tu cuenta está creada. Por ahora, esta cuenta no puede iniciar sesión. Vuelve a intentarlo más tarde."
   },
   "brand": {
     "tagline": "Tus palabras, cuatro idiomas, un solo estante.",
