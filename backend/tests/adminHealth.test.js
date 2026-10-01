@@ -145,6 +145,84 @@ describe('backups block', () => {
     });
 });
 
+describe('links block (private addresses from ADMIN_LINKS)', () => {
+    const configured = [
+        { label: 'Sentry backend', description: 'Errors', href: 'https://example.test/sentry-backend' },
+        { label: 'Netcup', description: '', href: 'https://example.test/netcup' },
+    ];
+
+    beforeEach(() => jest.spyOn(console, 'warn').mockImplementation(() => {}));
+
+    it('sends the configured links, and says they are configured', async () => {
+        const restore = setEnv({ ADMIN_LINKS: JSON.stringify(configured) });
+        try {
+            const res = await health(await staffToken());
+
+            expect(res.body.linksStatus).toBe('configured');
+            expect(res.body.links).toEqual(configured);
+        } finally {
+            restore();
+        }
+    });
+
+    it('sends an empty list and "not_set" when the variable is missing or empty', async () => {
+        const token = await staffToken();
+        for (const value of [undefined, '']) {
+            const restore = setEnv({ ADMIN_LINKS: value });
+            try {
+                const res = await health(token);
+                expect([value, res.body.links, res.body.linksStatus]).toEqual([value, [], 'not_set']);
+            } finally {
+                restore();
+            }
+        }
+    });
+
+    it('sends an empty list and "invalid" for a bad value, without leaking it', async () => {
+        const restore = setEnv({ ADMIN_LINKS: '[{"label":"A","href":"http://private.example.test/secret"}]' });
+        try {
+            const res = await health(await staffToken());
+
+            expect(res.status).toBe(200);
+            expect(res.body.linksStatus).toBe('invalid');
+            expect(res.body.links).toEqual([]);
+            expect(JSON.stringify(res.body)).not.toContain('private.example.test');
+        } finally {
+            restore();
+        }
+    });
+
+    it('sends the links to every role that may read the health page', async () => {
+        const restore = setEnv({ ADMIN_LINKS: JSON.stringify(configured) });
+        try {
+            for (const role of ['viewer', 'support', 'admin', 'owner']) {
+                const res = await health(await staffToken(role));
+                expect([role, res.body.links.length]).toEqual([role, 2]);
+            }
+        } finally {
+            restore();
+        }
+    });
+
+    it('sends them also when the database does not answer', async () => {
+        const restore = setEnv({ ADMIN_LINKS: JSON.stringify(configured) });
+        try {
+            const token = await staffToken();
+            const original = pool.query.bind(pool);
+            jest.spyOn(pool, 'query').mockImplementation((text, ...rest) =>
+                text === 'SELECT 1' ? Promise.reject(new Error('connection refused')) : original(text, ...rest),
+            );
+
+            const res = await health(token);
+
+            expect(res.body.service.database).toBe('error');
+            expect(res.body.links).toEqual(configured);
+        } finally {
+            restore();
+        }
+    });
+});
+
 describe('when the database does not answer', () => {
     it('still answers 200, with database "error" and no database or backup data', async () => {
         const token = await staffToken();

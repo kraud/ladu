@@ -22,6 +22,8 @@ export function makeHealth(overrides: Partial<HealthResponse> = {}): HealthRespo
             lastBackup: { ok: true, detail: 'ladu_prod_20261001T030000Z.dump', at: hoursAgo(5) },
             lastRestoreTest: { ok: true, detail: 'restored, 50000 rows in words', at: hoursAgo(72) },
         },
+        links: [],
+        linksStatus: 'not_set',
         ...overrides,
     };
 }

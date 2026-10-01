@@ -3,6 +3,8 @@
  * person would otherwise SSH in to find out. Each environment's admin shows its
  * own backend: the `ENVIRONMENT` and `GIT_SHA` values come from its container.
  *
+ * `links` are the private tool addresses from `ADMIN_LINKS` (lib/adminLinks.ts); they are not in the repository.
+ *
  * A dead database does not make this a 5xx. The page needs to show "database:
  * error", not an error screen, so the service block still answers, and the
  * database and backup blocks are null.
@@ -20,6 +22,7 @@ const {
   opsEvents,
 }: typeof import('../../src/db/schema') = require('../../src/db/schema');
 const { desc, eq, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
+const { loadAdminLinks }: typeof import('../../lib/adminLinks') = require('../../lib/adminLinks');
 // The folder Drizzle applies migrations from: its journal maps each applied
 // migration's timestamp back to a readable name like `0013_ops_events`.
 const journal: { entries: { tag: string; when: number }[] } = require('../../src/db/migrations/meta/_journal.json');
@@ -90,8 +93,11 @@ const getHealth = asyncHandler(async (_req: any, res: any) => {
     checkedAt,
   };
 
+  // The links need no database, so they are sent in both cases below.
+  const { status: linksStatus, links } = loadAdminLinks();
+
   if (!databaseOk) {
-    res.json({ service, database: null, backups: null });
+    res.json({ service, database: null, backups: null, links, linksStatus });
     return;
   }
 
@@ -101,7 +107,7 @@ const getHealth = asyncHandler(async (_req: any, res: any) => {
     latestEvent('restore_test'),
   ]);
 
-  res.json({ service, database, backups: { lastBackup, lastRestoreTest } });
+  res.json({ service, database, backups: { lastBackup, lastRestoreTest }, links, linksStatus });
 });
 
 export = { getHealth };
