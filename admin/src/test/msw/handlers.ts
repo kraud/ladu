@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { fakeToken } from '@/test/token';
+import { makeStats } from '@/test/stats';
 
 import type { StaffRole, StaffUser } from '@/stores/authStore';
 
@@ -36,4 +37,6 @@ export const handlers = [
         return HttpResponse.json({ message: 'Invalid credentials' }, { status: 400 });
     }),
     http.get('/api/admin/auth/me', () => HttpResponse.json(staffFixture)),
+    // The home page loads the statistics; a test that cares about them overrides this.
+    http.get('/api/admin/stats', () => HttpResponse.json(makeStats())),
 ];

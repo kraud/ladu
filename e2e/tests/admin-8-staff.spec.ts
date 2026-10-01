@@ -227,8 +227,8 @@ test.describe('Admin dashboard — staff and audit (slice 8)', () => {
         await expect(page.getByRole('cell', { name: 'staff.password_change', exact: true })).toHaveCount(0);
 
         // A date range with no rows says so.
-        await page.getByLabel('From').fill('2001-01-01');
-        await page.getByLabel('To').fill('2001-01-02');
+        await page.getByLabel('From', { exact: true }).fill('2001-01-01');
+        await page.getByLabel('To', { exact: true }).fill('2001-01-02');
         await expect(page.getByText('No entries match these filters.')).toBeVisible();
         await page.getByRole('button', { name: 'Clear filters' }).click();
         await expect(page.getByText('No entries match these filters.')).toHaveCount(0);

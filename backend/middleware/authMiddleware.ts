@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { db } = require('../src/db');
-const { users } = require('../src/db/schema');
+const { users, userActivityDays } = require('../src/db/schema');
 
 const { and, eq, isNull, lt, or }: typeof import('drizzle-orm') = require('drizzle-orm');
 const { accountBlock }: typeof import('../lib/accountAccess') = require('../lib/accountAccess');
@@ -32,7 +32,8 @@ const userColumnsWithoutPassword = {
 };
 
 // `last_seen_at` is refreshed at most this often per user, so an active user
-// costs one extra write per hour, not one per request.
+// costs one extra write per hour, not one per request. (A new UTC day also
+// forces a refresh: see the threshold in `protect`.)
 const LAST_SEEN_INTERVAL_MS = 60 * 60 * 1000;
 
 const protect = asyncHandler(async (req: any, res: any, next: any) => {
@@ -67,14 +68,38 @@ const protect = asyncHandler(async (req: any, res: any, next: any) => {
 
             const { bannedAt, deletedAt, tokenVersion, lastSeenAt, ...publicUser } = user;
 
-            // The WHERE re-checks staleness, so two parallel requests cannot
-            // both write.
-            const staleBefore = new Date(Date.now() - LAST_SEEN_INTERVAL_MS);
-            if (!lastSeenAt || lastSeenAt < staleBefore) {
+            // Two jobs, both cheap and both at most once in a while per user:
+            //  - `last_seen_at`: refreshed at most once an hour;
+            //  - `user_activity_days`: one row at the first request of each UTC day
+            //    (admin dashboard, slice 9 -- `last_seen_at` alone cannot say how many
+            //    users were active on a past day).
+            // The day can change inside the hour (23:40, then 00:10), so ONE threshold
+            // serves both: the later of "an hour ago" and "the start of today (UTC)".
+            const now = new Date();
+            const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+            const refreshBefore = new Date(Math.max(now.getTime() - LAST_SEEN_INTERVAL_MS, startOfToday.getTime()));
+
+            let dayRecorded = true;
+            if (!lastSeenAt || lastSeenAt < startOfToday) {
+                try {
+                    await db
+                        .insert(userActivityDays)
+                        .values({ userId: user.id, day: now.toISOString().slice(0, 10) })
+                        .onConflictDoNothing();
+                } catch (error: any) {
+                    // Statistics must never log anyone out. `last_seen_at` is left alone
+                    // below, so the next request tries again.
+                    dayRecorded = false;
+                    console.warn(`Could not record the active day: ${error?.message ?? error}`);
+                }
+            }
+
+            // The WHERE re-checks the threshold, so two parallel requests cannot both write.
+            if (dayRecorded && (!lastSeenAt || lastSeenAt < refreshBefore)) {
                 await db
                     .update(users)
-                    .set({ lastSeenAt: new Date() })
-                    .where(and(eq(users.id, user.id), or(isNull(users.lastSeenAt), lt(users.lastSeenAt, staleBefore))));
+                    .set({ lastSeenAt: now })
+                    .where(and(eq(users.id, user.id), or(isNull(users.lastSeenAt), lt(users.lastSeenAt, refreshBefore))));
             }
 
             // Postgres `id` only — the legacy `_id` alias is gone (.context/plans/new-repo-build-plan.md §4).
