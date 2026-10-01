@@ -4,7 +4,8 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { server } from '@/test/msw/server';
 import { renderApp } from '@/test/renderApp';
-import { accessHandlers, makeAccess, makeInvite, type AccessWrite } from '@/test/access';
+import { accessHandlers, makeAccess, makeAllowed, makeInvite, type AccessWrite } from '@/test/access';
+import { SIGN_OUT_PHRASE } from '@/features/access/types';
 import { parseEmails } from '@/features/access/pages/AccessPage';
 import type { AccessState } from '@/features/access/types';
 
@@ -15,7 +16,11 @@ const setup = (initial: AccessState = makeAccess()) => {
     server.use(...accessHandlers(state, writes));
     return { state, writes };
 };
-const modeButton = (name: string) => screen.getByRole('button', { name });
+// The page has a Registration card and a Login card that share labels and button names, so each query is scoped.
+const registration = () => within(screen.getByRole('region', { name: 'Registration' }));
+const login = () => within(screen.getByRole('region', { name: 'Login' }));
+const modeButton = (name: string) => registration().getByRole('button', { name });
+const saveButton = () => registration().getByRole('button', { name: 'Save' });
 
 describe('who may open the page', () => {
     it('sends everyone without access.manage to the overview, and hides the header link', async () => {
@@ -62,7 +67,7 @@ describe('registration', () => {
         await screen.findByRole('heading', { name: 'Registration' });
         expect(modeButton('Closed')).toHaveAttribute('aria-pressed', 'true');
         expect(modeButton('Open')).toHaveAttribute('aria-pressed', 'false');
-        expect(screen.getByLabelText(/Extra line/)).toHaveValue('Back at 14:00 UTC');
+        expect(registration().getByLabelText(/Extra line/)).toHaveValue('Back at 14:00 UTC');
         expect(screen.getByText(/Last changed .* by Sam Staff/)).toBeInTheDocument();
         expect(screen.getByText('Anybody can register.')).toBeInTheDocument();
         expect(screen.getByText(/Nobody can register\. A banner/)).toBeInTheDocument();
@@ -75,11 +80,11 @@ describe('registration', () => {
         await open();
 
         await screen.findByRole('heading', { name: 'Registration' });
-        expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+        expect(saveButton()).toBeDisabled();
         await user.click(modeButton('Closed'));
-        expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+        expect(saveButton()).toBeEnabled();
         await user.click(modeButton('Open'));
-        expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+        expect(saveButton()).toBeDisabled();
     });
 
     it('asks to confirm, says what will happen, then sends the mode, the line and the reason', async () => {
@@ -89,8 +94,8 @@ describe('registration', () => {
 
         await screen.findByRole('heading', { name: 'Registration' });
         await user.click(modeButton('Closed'));
-        await user.type(screen.getByLabelText(/Extra line/), '  Back at 14:00 UTC ');
-        await user.click(screen.getByRole('button', { name: 'Save' }));
+        await user.type(registration().getByLabelText(/Extra line/), '  Back at 14:00 UTC ');
+        await user.click(saveButton());
 
         const dialog = await screen.findByRole('dialog');
         expect(within(dialog).getByText('Set registration to closed?')).toBeInTheDocument();
@@ -107,7 +112,7 @@ describe('registration', () => {
         ]);
         expect(await screen.findByRole('status')).toHaveTextContent('Registration is now closed.');
         expect(modeButton('Closed')).toHaveAttribute('aria-pressed', 'true');
-        expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+        expect(saveButton()).toBeDisabled();
     });
 
     it('leaves the state alone when the owner cancels', async () => {
@@ -117,7 +122,7 @@ describe('registration', () => {
 
         await screen.findByRole('heading', { name: 'Registration' });
         await user.click(modeButton('Closed'));
-        await user.click(screen.getByRole('button', { name: 'Save' }));
+        await user.click(saveButton());
         await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancel' }));
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -130,8 +135,8 @@ describe('registration', () => {
         await open();
 
         await screen.findByRole('heading', { name: 'Registration' });
-        await user.type(screen.getByLabelText(/Extra line/), 'Soon');
-        await user.click(screen.getByRole('button', { name: 'Save' }));
+        await user.type(registration().getByLabelText(/Extra line/), 'Soon');
+        await user.click(saveButton());
         const dialog = await screen.findByRole('dialog');
         expect(within(dialog).getByText('Save the extra line?')).toBeInTheDocument();
         await user.click(within(dialog).getByRole('button', { name: 'Confirm' }));
@@ -146,7 +151,7 @@ describe('registration', () => {
         await open();
 
         await screen.findByRole('heading', { name: 'Registration' });
-        const note = screen.getByLabelText(/Extra line/);
+        const note = registration().getByLabelText(/Extra line/);
         await user.click(note);
         await user.paste('x'.repeat(320));
         expect((note as HTMLTextAreaElement).value).toHaveLength(300);
@@ -162,7 +167,7 @@ describe('registration', () => {
         expect(screen.queryByText(/invite list is empty, so nobody can register/)).not.toBeInTheDocument();
         await user.click(modeButton('Limited'));
         expect(screen.getByRole('alert')).toHaveTextContent('Registration is limited and the invite list is empty, so nobody can register.');
-        await user.click(screen.getByRole('button', { name: 'Save' }));
+        await user.click(saveButton());
         expect(await screen.findByRole('dialog')).toHaveTextContent('The list is empty, so nobody can register now.');
     });
 
@@ -184,7 +189,7 @@ describe('registration', () => {
 
         await screen.findByRole('heading', { name: 'Registration' });
         await user.click(modeButton('Closed'));
-        await user.click(screen.getByRole('button', { name: 'Save' }));
+        await user.click(saveButton());
         const dialog = await screen.findByRole('dialog');
         await user.click(within(dialog).getByRole('button', { name: 'Confirm' }));
 
@@ -212,8 +217,9 @@ describe('the invite list', () => {
     it('says the list is empty, and keeps the list when the state is open', async () => {
         setup();
         await open();
-        expect(await screen.findByText('The invite list is empty.')).toBeInTheDocument();
-        expect(screen.getByText(/The list stays when you switch to another state/)).toBeInTheDocument();
+        const invites = within(await screen.findByRole('region', { name: /Invite list/ }));
+        expect(invites.getByText('The invite list is empty.')).toBeInTheDocument();
+        expect(invites.getByText(/The list stays when you switch to another state/)).toBeInTheDocument();
     });
 
     it('splits pasted text on lines, commas, semicolons and spaces', () => {
@@ -324,5 +330,370 @@ describe('the invite list', () => {
 
         expect(await screen.findByText('Invite not found')).toBeInTheDocument();
         expect(screen.getByText('friend@example.test')).toBeInTheDocument();
+    });
+});
+
+describe('login', () => {
+    it('shows the saved login state and its own explanations, apart from registration', async () => {
+        setup(makeAccess({ login: { mode: 'limited', note: 'Beta week' }, registration: { mode: 'closed', note: '' } }));
+        await open();
+
+        await screen.findByRole('heading', { name: 'Login' });
+        expect(login().getByRole('button', { name: 'Limited' })).toHaveAttribute('aria-pressed', 'true');
+        expect(registration().getByRole('button', { name: 'Closed' })).toHaveAttribute('aria-pressed', 'true');
+        expect(login().getByLabelText(/Extra line/)).toHaveValue('Beta week');
+        expect(login().getByText('Anybody with an account can sign in.')).toBeInTheDocument();
+        expect(login().getByText('Only accounts on the allowed list can sign in.')).toBeInTheDocument();
+        // The registration card does not carry the login texts.
+        expect(registration().queryByText(/can sign in/)).not.toBeInTheDocument();
+    });
+
+    it('says that new sign-ins only are stopped, and that staff are never blocked', async () => {
+        setup();
+        await open();
+        await screen.findByRole('heading', { name: 'Login' });
+        const card = within(screen.getByRole('region', { name: 'Login' }));
+        expect(card.getByText(/people who are already signed in stay signed in/)).toBeInTheDocument();
+        expect(card.getByText(/Staff are never blocked/)).toBeInTheDocument();
+    });
+
+    it('asks to confirm, says what will happen, then sends the login mode, the line and the reason', async () => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: 'Login' });
+        await user.click(login().getByRole('button', { name: 'Closed' }));
+        await user.type(login().getByLabelText(/Extra line/), 'Back at 14:00 UTC');
+        await user.click(login().getByRole('button', { name: 'Save' }));
+
+        const dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getByText('Set login to closed?')).toBeInTheDocument();
+        expect(within(dialog).getByText('Nobody will be able to sign in until you change this. Open sessions keep working.')).toBeInTheDocument();
+        expect(writes).toEqual([]);
+
+        await user.type(within(dialog).getByLabelText(/Reason/), 'incident');
+        await user.click(within(dialog).getByRole('button', { name: 'Confirm' }));
+
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+        expect(writes).toEqual([
+            { method: 'PUT', path: '/api/admin/access/login', body: { mode: 'closed', note: 'Back at 14:00 UTC', reason: 'incident' } },
+        ]);
+        expect(await screen.findByRole('status')).toHaveTextContent('Login is now closed.');
+        // Registration was not touched.
+        expect(registration().getByRole('button', { name: 'Open' })).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('keeps its Save off until something changes, independent of registration', async () => {
+        setup();
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: 'Login' });
+        expect(login().getByRole('button', { name: 'Save' })).toBeDisabled();
+        await user.click(registration().getByRole('button', { name: 'Closed' }));
+        expect(login().getByRole('button', { name: 'Save' })).toBeDisabled();
+        await user.click(login().getByRole('button', { name: 'Limited' }));
+        expect(login().getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    it('warns when login is limited and the allowed list is empty, in the card and in the confirm', async () => {
+        setup();
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: 'Login' });
+        await user.click(login().getByRole('button', { name: 'Limited' }));
+        expect(login().getByRole('alert')).toHaveTextContent('Login is limited and the allowed list is empty, so nobody can sign in.');
+        await user.click(login().getByRole('button', { name: 'Save' }));
+        expect(await screen.findByRole('dialog')).toHaveTextContent('The list is empty, so nobody can sign in now.');
+    });
+
+    it('does not warn when the allowed list has accounts', async () => {
+        setup(makeAccess({ loginAllowed: [makeAllowed()] }));
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: 'Login' });
+        await user.click(login().getByRole('button', { name: 'Limited' }));
+        expect(login().queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('explains that a new account cannot sign in when registration is open and login is limited', async () => {
+        setup();
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: 'Login' });
+        await user.click(login().getByRole('button', { name: 'Limited' }));
+        expect(login().getByText(/new accounts are made, but they are not on the allowed list/)).toBeInTheDocument();
+    });
+
+    it('does not say that when registration is not open', async () => {
+        setup(makeAccess({ registration: { mode: 'closed', note: '' } }));
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: 'Login' });
+        await user.click(login().getByRole('button', { name: 'Limited' }));
+        expect(login().queryByText(/new accounts are made/)).not.toBeInTheDocument();
+    });
+
+    it('shows the server error inside the dialog and keeps it open', async () => {
+        setup();
+        server.use(http.put('/api/admin/access/login', () => HttpResponse.json({ message: 'Boom' }, { status: 500 })));
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: 'Login' });
+        await user.click(login().getByRole('button', { name: 'Closed' }));
+        await user.click(login().getByRole('button', { name: 'Save' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.click(within(dialog).getByRole('button', { name: 'Confirm' }));
+
+        expect(await within(dialog).findByRole('alert')).toHaveTextContent('Boom');
+    });
+});
+
+describe('the allowed accounts', () => {
+    const allowedCard = () => within(screen.getByRole('region', { name: /Allowed accounts/ }));
+
+    it('shows name, email, status, who added each and when, and the count', async () => {
+        setup(
+            makeAccess({
+                loginAllowed: [makeAllowed(), makeAllowed({ userId: 'u2', name: 'Mart Kask', email: 'mart@example.com', status: 'banned', addedBy: null })],
+            }),
+        );
+        await open();
+
+        await screen.findByText('Kaja Tamm');
+        expect(screen.getByRole('heading', { name: /Allowed accounts/ })).toHaveTextContent('(2)');
+        const row = screen.getByText('Kaja Tamm').closest('tr') as HTMLElement;
+        expect(within(row).getByText('kaja@example.com')).toBeInTheDocument();
+        expect(within(row).getByText('Active')).toBeInTheDocument();
+        expect(within(row).getByText('Sam Staff')).toBeInTheDocument();
+        const other = screen.getByText('Mart Kask').closest('tr') as HTMLElement;
+        expect(within(other).getByText('Banned')).toBeInTheDocument();
+        expect(within(other).getByText('—')).toBeInTheDocument();
+        expect(document.body).not.toHaveTextContent(/Invalid Date|undefined|null/);
+    });
+
+    it('says the list is empty, and that it stays when the state is open', async () => {
+        setup();
+        await open();
+        const card = within(await screen.findByRole('region', { name: /Allowed accounts/ }));
+        expect(card.getByText('The allowed list is empty.')).toBeInTheDocument();
+        expect(card.getByText(/The list stays when you switch to another state/)).toBeInTheDocument();
+    });
+
+    it('sends the emails, then shows what was added and skipped, with the reasons', async () => {
+        const writes: AccessWrite[] = [];
+        const state = { current: makeAccess() };
+        server.use(
+            http.post('/api/admin/access/login-allowed', async ({ request }) => {
+                writes.push({ method: 'POST', path: '/api/admin/access/login-allowed', body: (await request.json()) as Record<string, unknown> });
+                state.current = makeAccess({ loginAllowed: [makeAllowed({ email: 'new@example.test', name: 'New Person' })] });
+                return HttpResponse.json({
+                    ...state.current,
+                    added: [{ userId: 'u1', email: 'new@example.test' }],
+                    skipped: [
+                        { value: 'bad', reason: 'invalid' },
+                        { value: 'nobody@example.test', reason: 'unknown' },
+                        { value: 'gone@example.test', reason: 'deleted' },
+                        { value: 'listed@example.test', reason: 'already_allowed' },
+                        { value: 'new@example.test', reason: 'duplicate_in_request' },
+                    ],
+                });
+            }),
+            ...accessHandlers(state, writes),
+        );
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: /Allowed accounts/ });
+        expect(allowedCard().getByRole('button', { name: 'Add to the allowed list' })).toBeDisabled();
+        await user.type(allowedCard().getByLabelText('Add accounts by email'), 'new@example.test, bad\nlisted@example.test');
+        await user.click(allowedCard().getByRole('button', { name: 'Add to the allowed list' }));
+
+        const summary = await screen.findByRole('status', { name: 'Result of the last allow' });
+        expect(summary).toHaveTextContent('Added 1. Skipped 5.');
+        expect(summary).toHaveTextContent('bad: not a valid email or id');
+        expect(summary).toHaveTextContent('nobody@example.test: no account with this email or id');
+        expect(summary).toHaveTextContent('gone@example.test: the account is deleted');
+        expect(summary).toHaveTextContent('listed@example.test: already on the allowed list');
+        expect(summary).toHaveTextContent('new@example.test: repeated in this list');
+        expect(writes).toEqual([
+            { method: 'POST', path: '/api/admin/access/login-allowed', body: { emails: ['new@example.test', 'bad', 'listed@example.test'] } },
+        ]);
+        expect(allowedCard().getByLabelText('Add accounts by email')).toHaveValue('');
+        expect(await screen.findByText('New Person')).toBeInTheDocument();
+    });
+
+    it('refuses more than 500 emails before it sends', async () => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: /Allowed accounts/ });
+        await user.click(allowedCard().getByLabelText('Add accounts by email'));
+        await user.paste(Array.from({ length: 501 }, (_, i) => `u${i}@example.test`).join('\n'));
+        expect(allowedCard().getByText(/At most 500 emails at once\. You have 501\./)).toBeInTheDocument();
+        expect(allowedCard().getByRole('button', { name: 'Add to the allowed list' })).toBeDisabled();
+        expect(writes).toEqual([]);
+    });
+
+    it('shows the server error and keeps what was typed', async () => {
+        setup();
+        server.use(http.post('/api/admin/access/login-allowed', () => HttpResponse.json({ message: 'Boom' }, { status: 500 })));
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('heading', { name: /Allowed accounts/ });
+        await user.type(allowedCard().getByLabelText('Add accounts by email'), 'a@example.test');
+        await user.click(allowedCard().getByRole('button', { name: 'Add to the allowed list' }));
+
+        expect(await screen.findByText('Boom')).toBeInTheDocument();
+        expect(allowedCard().getByLabelText('Add accounts by email')).toHaveValue('a@example.test');
+    });
+
+    it('removes one account', async () => {
+        const { writes } = setup(makeAccess({ loginAllowed: [makeAllowed(), makeAllowed({ userId: 'u2', name: 'Mart Kask', email: 'mart@example.com' })] }));
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByText('Kaja Tamm');
+        await user.click(screen.getByRole('button', { name: 'Remove kaja@example.com from the allowed list' }));
+
+        await waitFor(() => expect(screen.queryByText('Kaja Tamm')).not.toBeInTheDocument());
+        expect(screen.getByText('Mart Kask')).toBeInTheDocument();
+        expect(writes).toEqual([{ method: 'DELETE', path: '/api/admin/access/login-allowed/u1', body: {} }]);
+        expect(await screen.findByText('Removed kaja@example.com from the allowed list.')).toBeInTheDocument();
+    });
+
+    it('shows the server error when a removal fails', async () => {
+        setup(makeAccess({ loginAllowed: [makeAllowed()] }));
+        server.use(http.delete('/api/admin/access/login-allowed/:userId', () => HttpResponse.json({ message: 'This account is not on the allowed list' }, { status: 404 })));
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByText('Kaja Tamm');
+        await user.click(screen.getByRole('button', { name: 'Remove kaja@example.com from the allowed list' }));
+
+        expect(await screen.findByText('This account is not on the allowed list')).toBeInTheDocument();
+        expect(screen.getByText('Kaja Tamm')).toBeInTheDocument();
+    });
+});
+
+describe('sign everyone out', () => {
+    const section = () => within(screen.getByRole('region', { name: 'Sign everyone out' }));
+
+    it('is a separate red section at the bottom, and sends nothing until the dialog is confirmed', async () => {
+        const { writes } = setup();
+        await open();
+
+        const region = await screen.findByRole('region', { name: 'Sign everyone out' });
+        // It is the last section on the page.
+        const regions = screen.getAllByRole('region');
+        expect(regions[regions.length - 1]).toBe(region);
+        expect(region.className).toMatch(/destructive/);
+        expect(section().getByText(/This cannot be undone/)).toBeInTheDocument();
+        expect(writes).toEqual([]);
+    });
+
+    it('needs a reason and the exact phrase before the button works', async () => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('region', { name: 'Sign everyone out' });
+        await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
+        const dialog = await screen.findByRole('dialog');
+        const submit = within(dialog).getByRole('button', { name: 'Sign everyone out' });
+        expect(submit).toBeDisabled();
+
+        // The phrase alone is not enough.
+        await user.type(within(dialog).getByLabelText(/Type/), SIGN_OUT_PHRASE);
+        expect(submit).toBeDisabled();
+        // A reason of spaces is not a reason.
+        await user.type(within(dialog).getByLabelText(/Reason/), '   ');
+        expect(submit).toBeDisabled();
+        await user.type(within(dialog).getByLabelText(/Reason/), 'security incident');
+        expect(submit).toBeEnabled();
+
+        // A wrong phrase turns it off again (the server checks it too).
+        await user.type(within(dialog).getByLabelText(/Type/), 'X');
+        expect(submit).toBeDisabled();
+        expect(writes).toEqual([]);
+    });
+
+    it('sends the phrase and the reason, closes the dialog, and shows how many were signed out', async () => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('region', { name: 'Sign everyone out' });
+        await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.type(within(dialog).getByLabelText(/Reason/), 'security incident');
+        await user.type(within(dialog).getByLabelText(/Type/), SIGN_OUT_PHRASE);
+        await user.click(within(dialog).getByRole('button', { name: 'Sign everyone out' }));
+
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+        expect(writes).toEqual([
+            { method: 'POST', path: '/api/admin/access/sign-out-everyone', body: { confirm: SIGN_OUT_PHRASE, reason: 'security incident' } },
+        ]);
+        expect(await screen.findByText('7 users were signed out.')).toBeInTheDocument();
+    });
+
+    it('says "1 user was signed out" for one', async () => {
+        setup();
+        server.use(http.post('/api/admin/access/sign-out-everyone', () => HttpResponse.json({ signedOut: 1 })));
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('region', { name: 'Sign everyone out' });
+        await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.type(within(dialog).getByLabelText(/Reason/), 'test');
+        await user.type(within(dialog).getByLabelText(/Type/), SIGN_OUT_PHRASE);
+        await user.click(within(dialog).getByRole('button', { name: 'Sign everyone out' }));
+
+        expect(await screen.findByText('1 user was signed out.')).toBeInTheDocument();
+    });
+
+    it('cancel closes the dialog, sends nothing, and clears what was typed', async () => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('region', { name: 'Sign everyone out' });
+        await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
+        let dialog = await screen.findByRole('dialog');
+        await user.type(within(dialog).getByLabelText(/Type/), SIGN_OUT_PHRASE);
+        await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(writes).toEqual([]);
+
+        // Opened again, the phrase is gone: the owner must type it again.
+        await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
+        dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getByLabelText(/Type/)).toHaveValue('');
+    });
+
+    it('shows the server error inside the dialog and keeps it open', async () => {
+        setup();
+        server.use(http.post('/api/admin/access/sign-out-everyone', () => HttpResponse.json({ message: 'Boom' }, { status: 500 })));
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByRole('region', { name: 'Sign everyone out' });
+        await user.click(section().getByRole('button', { name: 'Sign everyone out…' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.type(within(dialog).getByLabelText(/Reason/), 'test');
+        await user.type(within(dialog).getByLabelText(/Type/), SIGN_OUT_PHRASE);
+        await user.click(within(dialog).getByRole('button', { name: 'Sign everyone out' }));
+
+        expect(await within(dialog).findByRole('alert')).toHaveTextContent('Boom');
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 });

@@ -14,13 +14,19 @@ export interface UsersSearch {
     verified?: 'true' | 'false';
     status?: 'active' | 'banned' | 'deleted';
     method?: 'password' | 'google';
+    /** Only for a role with access.manage; the server refuses it for others. */
+    loginAllowed?: 'true' | 'false';
 }
 
 export const DEFAULT_SORT: SortKey = 'createdAt';
 export const DEFAULT_ORDER = 'desc';
 
-const oneOf = <T extends string>(value: unknown, allowed: readonly T[]): T | undefined =>
-    typeof value === 'string' && (allowed as readonly string[]).includes(value) ? (value as T) : undefined;
+// The router reads a typed `?verified=true` as the boolean `true`, not the text "true" (a link the app made
+// keeps the text, in quotes). Both mean the same, so a boolean is read as its text.
+const oneOf = <T extends string>(value: unknown, allowed: readonly T[]): T | undefined => {
+    const text = typeof value === 'boolean' ? String(value) : value;
+    return typeof text === 'string' && (allowed as readonly string[]).includes(text) ? (text as T) : undefined;
+};
 
 /** Anything malformed in the URL is dropped, never an error page. */
 export function validateUsersSearch(search: Record<string, unknown>): UsersSearch {
@@ -34,5 +40,6 @@ export function validateUsersSearch(search: Record<string, unknown>): UsersSearc
         verified: oneOf(search.verified, ['true', 'false'] as const),
         status: oneOf(search.status, ['active', 'banned', 'deleted'] as const),
         method: oneOf(search.method, ['password', 'google'] as const),
+        loginAllowed: oneOf(search.loginAllowed, ['true', 'false'] as const),
     };
 }

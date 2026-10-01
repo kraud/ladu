@@ -5,10 +5,10 @@ import type { UserDetail, UserListResponse } from '@/features/users/types';
 export const PAGE_SIZE = 25;
 
 export async function fetchUsers(search: UsersSearch): Promise<UserListResponse> {
-    const { q, page, sort, order, verified, status, method } = search;
+    const { q, page, sort, order, verified, status, method, loginAllowed } = search;
     const { data } = await apiClient.get<UserListResponse>('/admin/users', {
         // axios drops undefined params.
-        params: { search: q, page, pageSize: PAGE_SIZE, sort, order, verified, status, method },
+        params: { search: q, page, pageSize: PAGE_SIZE, sort, order, verified, status, method, loginAllowed },
     });
     return data;
 }
