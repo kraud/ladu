@@ -203,6 +203,15 @@ export const loginEvents = pgTable(
     (table) => [index('login_events_user_created_idx').on(table.userId, table.createdAt)],
 );
 
+// Accounts allowed to sign in while login is 'limited'. Holds USER ids, not emails, so
+// it survives an email change; the row goes when the account is purged. Adding by
+// email looks the account up first.
+export const loginAllowedUsers = pgTable('login_allowed_users', {
+    userId:           uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+    addedAt:          timestamp('added_at').defaultNow().notNull(),
+    addedByStaffId:   uuid('added_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
+});
+
 // ---------------------------------------------------------------------------
 // WORDS
 // Mapped from: backend/models/wordModel.js
