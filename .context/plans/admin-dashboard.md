@@ -1,6 +1,6 @@
 # Plan: Ladu admin dashboard ("Ladu Admin")
 
-Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions), 6 (health page) and 7 (deploy) are done and rolled out. Slice 8 (staff and audit) is done and deployed. Slice 9 (overview statistics) is written and tested, not deployed yet.
+Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admin UI skeleton), 4 (users list and detail), 5 (actions), 6 (health page) and 7 (deploy) are done and rolled out. Slice 8 (staff and audit) is done and deployed. Slice 9 (overview statistics) is merged to `main` (PR #61). The user emails (resend verification, send password reset) are merged to `main` (PR #62). Next: `.context/plans/access-gates.md`.
 
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
@@ -39,7 +39,7 @@ Slice 5 notes:
 - Restore does not bump `token_version`, so old sessions work again. A restored account that was also banned stays banned.
 - `GET /auth/me` and the login response now include `permissions`. The UI shows only the buttons a role may use (`useCan`). A session saved before this change is dropped once.
 - `deploy/ansible/roles/purge`: cron at 03:30 UTC for staging and prod (after the 03:00 backup). **Not applied yet:** run the Ansible playbook to install it. The operator guide (`.dev-context/infrastructure-guide/01-architecture-overview.md`) lists it.
-- "Resend verification email" and "Send password reset" were not in slice 5. They are in `.context/plans/admin-user-emails.md` (permission `users.email`). A failed purge job has no alert: the log file is the only trace (a Healthchecks.io ping is a possible later step).
+- "Resend verification email" and "Send password reset" were not in slice 5. They are built and merged (PR #62): see `.context/plans/admin-user-emails.md` (permission `users.email`). A failed purge job has no alert: the log file is the only trace (a Healthchecks.io ping is a possible later step).
 
 Slice 6 notes:
 - `GET /api/admin/health` (`health.read`, all roles). Code: `backend/controllers/admin/healthController.ts`. Tests: `backend/tests/adminHealth.test.js`. UI: `admin/src/features/health/`. Links to the external tools are in `admin/src/features/health/links.ts` (public front pages; replace them with your direct project addresses).

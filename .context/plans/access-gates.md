@@ -1,6 +1,6 @@
 # Plan: Access gates (control who can register and who can sign in)
 
-Status: planned on 2026-10-01. No code is written yet. Two PRs, after `.context/plans/admin-user-emails.md`:
+Status: planned on 2026-10-01. PR 1 in progress: step 1 (migration `0016_access_gates_registration.sql`, which also seeds the settings row; `tests/db.js` re-seeds it after each truncate) is done. `.context/plans/admin-user-emails.md` is merged to `main` (PR #62), so this is next. Two PRs:
 
 1. `admin-registration-gate` (the settings, the banner machinery, and the registration gate)
 2. `admin-login-gate` (the login gate, the allowed-accounts list, the bulk selection, and the "sign everyone out" panic button)
@@ -129,6 +129,8 @@ Test every path with each state: `open`, `closed`, `limited` (listed and not lis
 - **Existing sessions.** Not touched by the gates, by decision. Only the panic button ends them.
 
 ## Open details to confirm in the overview of each PR
+
+Confirmed on 2026-10-01 for PR 1: leftover invites stay when registration is `open`; the invites list shows who added each email and when (joined with `staff_accounts` for the name); the owner has the ES, DE and EE banner drafts checked by a native speaker.
 
 - PR 1: should an `open` registration with leftover invites keep them (recommended: yes, silently), and should the invites list show who added each email and when (recommended: yes)?
 - PR 2: the exact wording of the typed phrase for the panic button (recommended `SIGN OUT EVERYONE`), and whether the users list should offer a "Login allowed" filter in the first version (recommended: yes, it is small).
