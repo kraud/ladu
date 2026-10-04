@@ -157,6 +157,8 @@ const practiceRoute = createRoute({
     path: '/practice',
     validateSearch: validatePracticeSearch,
     component: PracticePage,
+    // Stage 1 renders a `SidebarLayout`; stages 2 and 3 wrap themselves in `PageColumn`.
+    staticData: { sidebar: true },
     // Only a navigation fires this; a reload does not, so a reload keeps the session open.
     onLeave: () => usePracticeSessionStore.getState().park(),
 });

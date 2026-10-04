@@ -3,6 +3,8 @@
     "title": "Práctica"
   },
   "setup": {
+    "settingsTitle": "Ajustes de práctica",
+    "newSession": "Nueva sesión",
     "title": "Práctica",
     "start": "Empezar sesión",
     "starting": "Creando ejercicios…",
@@ -336,7 +338,7 @@
     "save": "Guardar configuración",
     "title": "Configuraciones guardadas",
     "loading": "Cargando…",
-    "empty": "No tienes configuraciones guardadas. Elige las opciones de arriba y pulsa «Guardar configuración».",
+    "empty": "No tienes configuraciones guardadas. Elige las opciones en el panel de ajustes y pulsa «Guardar configuración».",
     "listError": "No se pudieron cargar las configuraciones guardadas.",
     "use": "Usar la configuración {{name}}",
     "edit": "Editar la configuración {{name}}",

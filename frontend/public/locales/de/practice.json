@@ -3,6 +3,8 @@
     "title": "Üben"
   },
   "setup": {
+    "settingsTitle": "Übungseinstellungen",
+    "newSession": "Neue Sitzung",
     "title": "Üben",
     "start": "Übung starten",
     "starting": "Übungen werden erstellt…",
@@ -336,7 +338,7 @@
     "save": "Konfiguration speichern",
     "title": "Gespeicherte Konfigurationen",
     "loading": "Wird geladen…",
-    "empty": "Du hast keine gespeicherten Konfigurationen. Stelle oben die Optionen ein und wähle „Konfiguration speichern“.",
+    "empty": "Du hast keine gespeicherten Konfigurationen. Stelle im Einstellungsbereich die Optionen ein und wähle „Konfiguration speichern“.",
     "listError": "Die gespeicherten Konfigurationen konnten nicht geladen werden.",
     "use": "Konfiguration {{name}} verwenden",
     "edit": "Konfiguration {{name}} bearbeiten",

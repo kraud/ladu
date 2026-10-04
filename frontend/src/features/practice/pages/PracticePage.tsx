@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
-import { BookOpenIcon, WarningIcon } from '@phosphor-icons/react';
+import { BookOpenIcon, PlayIcon, SlidersHorizontalIcon, WarningIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/common/EmptyState';
+import { PageColumn } from '@/components/layout/PageColumn';
+import { SidebarLayout, SidebarTrigger, useSidebar } from '@/components/layout/sidebar/SidebarLayout';
 import { buttonVariants } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import { useWordsInfinite } from '@/features/words/hooks';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
@@ -28,6 +32,13 @@ const route = getRouteApi('/_protected/practice');
 
 /**
  * `/practice`: Stage 1 (set-up), Stage 2 (the exercise cards), Stage 3 (results).
+ *
+ * Stage 1 uses the shared `SidebarLayout` (wide): the settings form is the
+ * sidebar's one section (on a phone, the slide-in menu, kept mounted so the
+ * working copy survives a close), and the main area holds the title, the
+ * resume banner and two tabs — saved configurations and saved sessions, one
+ * visible at a time. Stages 2 and 3 and the "no words" message have no sidebar
+ * and sit in the normal centered column (`PageColumn`).
  *
  * Entry from Review: the words wait in `uiStore`. They are read once at mount
  * and cleared, so a later visit to `/practice` starts clean. They win over a
@@ -62,10 +73,14 @@ export function PracticePage() {
 
     // A parked session (the user navigated away) waits behind the set-up banner; a reload keeps it open.
     if (session && !parked && !preselected) {
-        return session.view === 'results' ? (
-            <ResultsView session={session} onChangeSettings={() => changeSettings(session)} />
-        ) : (
-            <SessionView session={session} />
+        return (
+            <PageColumn>
+                {session.view === 'results' ? (
+                    <ResultsView session={session} onChangeSettings={() => changeSettings(session)} />
+                ) : (
+                    <SessionView session={session} />
+                )}
+            </PageColumn>
         );
     }
 
@@ -128,31 +143,49 @@ function SetUp({
     const words = useWordsInfinite({}, 1);
     const hasNoWords = !preselected && words.isSuccess && (words.data.pages[0]?.total ?? 0) === 0;
 
-    return (
-        <div className="flex flex-col gap-4">
-            {/* Stacked on mobile; side-by-side with the subtitle bottom-aligned from `sm` up (as on Add word). */}
-            <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
-                <h1 className="h1">{t('practice:setup.title')}</h1>
-                <p className="meta sm:content-end">{t('practice:setup.subtitle')}</p>
-            </div>
-            {parkedSession && (
-                <ResumeSessionBanner session={parkedSession} onResume={onResume} onDismiss={onDismiss} />
-            )}
-            {hasNoWords ? (
-                <div className="card">
-                    <EmptyState
-                        icon={<BookOpenIcon aria-hidden size={20} />}
-                        title={t('practice:setup.noWords.title')}
-                        description={t('practice:setup.noWords.body')}
-                        action={
-                            <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants({ size: 'sm' })}>
-                                {t('practice:setup.noWords.cta')}
-                            </Link>
-                        }
-                    />
+    // Stacked on mobile; side-by-side with the subtitle bottom-aligned from `sm` up (as on Add word).
+    const header = (
+        <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
+            <h1 className="h1">{t('practice:setup.title')}</h1>
+            <p className="meta sm:content-end">{t('practice:setup.subtitle')}</p>
+        </div>
+    );
+    const resumeBanner = parkedSession && (
+        <ResumeSessionBanner session={parkedSession} onResume={onResume} onDismiss={onDismiss} />
+    );
+
+    if (hasNoWords) {
+        return (
+            <PageColumn>
+                <div className="flex flex-col gap-4">
+                    {header}
+                    {resumeBanner}
+                    <div className="card">
+                        <EmptyState
+                            icon={<BookOpenIcon aria-hidden size={20} />}
+                            title={t('practice:setup.noWords.title')}
+                            description={t('practice:setup.noWords.body')}
+                            action={
+                                <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants({ size: 'sm' })}>
+                                    {t('practice:setup.noWords.cta')}
+                                </Link>
+                            }
+                        />
+                    </div>
                 </div>
-            ) : (
-                <>
+            </PageColumn>
+        );
+    }
+
+    const sections = [
+        {
+            id: 'settings',
+            label: t('practice:setup.settingsTitle'),
+            icon: <SlidersHorizontalIcon size={18} />,
+            // The rail shows how many words came from Review.
+            count: preselected?.length ?? 0,
+            content: (
+                <div className="flex flex-col gap-3">
                     {wordsMissing && (
                         <div className="banner warning items-start" role="status">
                             <WarningIcon aria-hidden size={16} className="mt-0.5 shrink-0" />
@@ -171,18 +204,82 @@ function SetUp({
                             void navigate({ search: paramsToSearch(params), replace: true })
                         }
                     />
-                    <SavedConfigurations onLoad={loadConfig} />
-                    <SavedSessions hasUnfinished={parkedSession !== null} onResumed={clearPreselected} />
-                    {configDraft && (
-                        <SaveConfigDialog
-                            open
-                            onOpenChange={(open) => !open && setConfigDraft(null)}
-                            mode="create"
-                            draft={configDraft}
-                        />
-                    )}
-                </>
+                </div>
+            ),
+        },
+    ];
+
+    return (
+        <SidebarLayout
+            id="practice"
+            width="wide"
+            keepMounted
+            label={t('practice:setup.settingsTitle')}
+            sections={sections}
+            header={header}
+        >
+            <div className="flex flex-col gap-4">
+                {resumeBanner}
+                <SavedLists onLoad={loadConfig} hasUnfinished={parkedSession !== null} onResumed={clearPreselected} />
+            </div>
+            {configDraft && (
+                <SaveConfigDialog
+                    open
+                    onOpenChange={(open) => !open && setConfigDraft(null)}
+                    mode="create"
+                    draft={configDraft}
+                />
             )}
-        </div>
+        </SidebarLayout>
+    );
+}
+
+/**
+ * The two saved lists as tabs (configurations first); only the active one is
+ * mounted. Inside the layout so it can reach the slide-in menu: on a phone a
+ * "New session" button opens it, and loading a configuration opens it too, so
+ * the loaded settings are in view.
+ */
+function SavedLists({
+    onLoad,
+    hasUnfinished,
+    onResumed,
+}: {
+    onLoad: (config: SavedConfig, words: PreselectedWord[] | null) => void;
+    hasUnfinished: boolean;
+    onResumed: () => void;
+}) {
+    const { t } = useTranslation();
+    const { isMobile, setOpen } = useSidebar();
+
+    return (
+        <>
+            {isMobile && (
+                <SidebarTrigger
+                    label={t('practice:setup.newSession')}
+                    className={cn(buttonVariants({ className: 'w-full gap-2' }))}
+                >
+                    <PlayIcon size={16} />
+                    {t('practice:setup.newSession')}
+                </SidebarTrigger>
+            )}
+            <Tabs defaultValue="configs">
+                <TabsList>
+                    <TabsTrigger value="configs">{t('practice:configs.title')}</TabsTrigger>
+                    <TabsTrigger value="sessions">{t('practice:sessions.title')}</TabsTrigger>
+                </TabsList>
+                <TabsContent value="configs">
+                    <SavedConfigurations
+                        onLoad={(config, words) => {
+                            onLoad(config, words);
+                            if (isMobile) setOpen(true);
+                        }}
+                    />
+                </TabsContent>
+                <TabsContent value="sessions">
+                    <SavedSessions hasUnfinished={hasUnfinished} onResumed={onResumed} />
+                </TabsContent>
+            </Tabs>
+        </>
     );
 }

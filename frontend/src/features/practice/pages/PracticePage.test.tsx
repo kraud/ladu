@@ -222,6 +222,8 @@ describe('PracticePage — set-up', () => {
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
 
+        // The settings are in the slide-in menu on a phone.
+        await user.click(await screen.findByRole('button', { name: 'New session' }));
         await user.click(await screen.findByRole('button', { name: 'Advanced' }));
         expect(screen.queryByRole('radio')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Level 0' })).toBeDisabled();

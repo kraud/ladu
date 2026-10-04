@@ -3,6 +3,8 @@
     "title": "Harjutamine"
   },
   "setup": {
+    "settingsTitle": "Harjutuse seaded",
+    "newSession": "Uus sessioon",
     "title": "Harjutus",
     "start": "Alusta harjutust",
     "starting": "Harjutusi luuakse…",
@@ -336,7 +338,7 @@
     "save": "Salvesta seadistus",
     "title": "Salvestatud seadistused",
     "loading": "Laadimine…",
-    "empty": "Sul pole salvestatud seadistusi. Vali ülal valikud ja vajuta „Salvesta seadistus“.",
+    "empty": "Sul pole salvestatud seadistusi. Vali seadete paneelis valikud ja vajuta „Salvesta seadistus“.",
     "listError": "Salvestatud seadistusi ei saanud laadida.",
     "use": "Kasuta seadistust {{name}}",
     "edit": "Muuda seadistust {{name}}",

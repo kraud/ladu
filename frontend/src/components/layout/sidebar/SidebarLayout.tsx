@@ -70,6 +70,11 @@ export interface SidebarLayoutProps {
     footer?: ReactNode;
     /** Page title block: first in the content column, above `children`. */
     header?: ReactNode;
+    /**
+     * Phone: keep the slide-in menu mounted (hidden) while closed. For a section that
+     * holds its own working state (Practice's settings form), which a close would lose.
+     */
+    keepMounted?: boolean;
     /** Content column max width: `max-w-7xl` instead of `max-w-5xl`. */
     wide?: boolean;
     children: ReactNode;
@@ -126,6 +131,7 @@ export function SidebarLayout({
     drawerTop,
     footer,
     header,
+    keepMounted,
     wide,
     children,
 }: SidebarLayoutProps) {
@@ -178,11 +184,13 @@ export function SidebarLayout({
         [isMobile, open, panelId],
     );
 
+    // The phone menu already shows `label` as its title: a lone section with the same name would repeat it.
+    const hideHeading = isMobile && sections.length === 1 && sections[0]?.label === label;
     const body = (
         <div className="flex flex-col gap-4" style={isMobile ? undefined : { width: `calc(${WIDTHS[width].px} - 2rem - 1px)` }}>
             {sections.map((section) => (
                 <section key={section.id} data-section={section.id} className="flex flex-col gap-2">
-                    <h2 className="label flex items-center gap-1.5">
+                    <h2 className={cn('label flex items-center gap-1.5', hideHeading && 'sr-only')}>
                         <span aria-hidden="true" className="[&_svg]:size-3.5">
                             {section.icon}
                         </span>
@@ -281,6 +289,7 @@ export function SidebarLayout({
                     <SheetContent
                         side="left"
                         showCloseButton={false}
+                        keepMounted={keepMounted}
                         id={panelId}
                         className="w-72 max-w-[85vw] overflow-y-auto p-4 sm:max-w-none"
                     >

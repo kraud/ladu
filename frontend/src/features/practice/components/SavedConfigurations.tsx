@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookmarkSimpleIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
+import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -14,7 +14,7 @@ import { SaveConfigDialog } from './SaveConfigDialog';
 import { SetupFacts } from './SetupFacts';
 
 /**
- * The user's saved configurations, under the set-up form. One tap on a row loads it:
+ * The user's saved configurations: the content of the "Saved configurations" tab on the set-up screen. One tap on a row loads it:
  * the page gets the configuration and its words (still visible ones, with labels).
  * `words` is `null` when the configuration has none. Edit changes name and description;
  * delete asks first. A failed load or delete stays as a message here, never a lost click.
@@ -60,15 +60,8 @@ export function SavedConfigurations({
         setDeleting(null);
     }
 
-    const title = t('practice:configs.title');
-
     return (
-        <section className="card card-pad flex flex-col gap-2" aria-label={title}>
-            <b className="flex items-center gap-2">
-                <BookmarkSimpleIcon aria-hidden size={16} className="shrink-0" />
-                {title}
-            </b>
-
+        <div className="flex flex-col gap-2">
             {configs.isPending && <p className="hint">{t('practice:configs.loading')}</p>}
 
             {configs.isError && (
@@ -173,7 +166,7 @@ export function SavedConfigurations({
                 confirmLabel={t('practice:configs.deleteDialog.confirm')}
                 onConfirm={confirmDelete}
             />
-        </section>
+        </div>
     );
 }
 

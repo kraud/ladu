@@ -3,6 +3,8 @@
     "title": "Practice"
   },
   "setup": {
+    "settingsTitle": "Practice settings",
+    "newSession": "New session",
     "title": "Practice",
     "start": "Start session",
     "starting": "Creating exercises…",
@@ -336,7 +338,7 @@
     "save": "Save configuration",
     "title": "Saved configurations",
     "loading": "Loading…",
-    "empty": "You have no saved configurations. Set the options above, then select \"Save configuration\".",
+    "empty": "You have no saved configurations. Set the options in the settings panel, then select \"Save configuration\".",
     "listError": "The saved configurations could not be loaded.",
     "use": "Use configuration {{name}}",
     "edit": "Edit configuration {{name}}",

@@ -365,7 +365,8 @@ export function ParametersForm({
                 </div>
             )}
 
-            <div className="mt-1 flex flex-wrap items-center gap-3">
+            {/* Sticky: the form sits in the scrolling sidebar, and Start must stay in reach. */}
+            <div className="sticky bottom-0 z-10 -mx-3 mt-1 flex flex-wrap items-center gap-3 border-t border-border bg-card px-3 py-3">
                 <Button type="submit" className="min-w-37.5" disabled={!valid || generate.isPending}>
                     {generate.isPending ? (
                         <>

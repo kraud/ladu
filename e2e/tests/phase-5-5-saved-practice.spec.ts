@@ -49,6 +49,8 @@ test.afterAll(async () => {
 });
 
 const configRow = (page: Page, name: string) => page.getByRole('button', { name: `Use configuration ${name}` });
+/** The saved lists are tabs on the set-up screen (configurations first): open the sessions one. */
+const openSessionsTab = (page: Page) => page.getByRole('tab', { name: 'Saved sessions' }).click();
 const sessionRows = (page: Page) => page.getByRole('button', { name: /^Resume session with / });
 
 /** A minimal valid session snapshot for seeding the API (the shape the frontend stores). */
@@ -227,6 +229,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         test.slow();
         await signIn(page, owner);
         await page.goto('/practice');
+        await openSessionsTab(page);
         await expect(page.getByText(/You have no saved sessions/)).toBeVisible();
 
         await test.step('answer one card, go on, save and leave', async () => {
@@ -241,6 +244,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await page.getByRole('dialog').getByRole('button', { name: 'Save session and leave' }).click();
 
             await expect(page.getByText('Session saved. You can resume it from the set-up screen.')).toBeVisible();
+            await openSessionsTab(page);
             await expect(sessionRows(page)).toHaveCount(1);
             await expect(sessionRows(page).first()).toContainText('1 of 3');
             await expect(sessionRows(page).first()).toContainText(/Expires on/);
@@ -269,6 +273,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await goOn(page);
             await leaveWith(page, 'Save session and leave');
 
+            await openSessionsTab(page);
             await expect(sessionRows(page)).toHaveCount(1);
             await expect(sessionRows(page).first()).toContainText('2 of 3');
             const saved = await savedSessions(request, ownerToken);
@@ -300,6 +305,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await leaveWith(page, 'Leave session and delete');
 
             await expect(page.getByRole('heading', { name: 'Practice', level: 1 })).toBeVisible();
+            await openSessionsTab(page);
             await expect(page.getByText(/You have no saved sessions/)).toBeVisible();
             expect(await savedSessions(request, ownerToken)).toHaveLength(0);
         });
@@ -319,6 +325,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
 
         await signIn(page, owner);
         await page.goto('/practice');
+        await openSessionsTab(page);
         await test.step('the list shows the 10', async () => {
             await expect(sessionRows(page)).toHaveCount(10);
         });
@@ -334,6 +341,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             expect(await expirePracticeSessions(owner.email)).toBe(9);
             expect(await savedSessions(request, ownerToken)).toHaveLength(0);
             await page.goto('/practice');
+            await openSessionsTab(page);
             await expect(page.getByText(/You have no saved sessions/)).toBeVisible();
         });
     });
