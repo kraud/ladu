@@ -133,7 +133,6 @@
       "retry": "Try again"
     },
     "shortfall": "{{created}} of {{requested}} exercises could be created.",
-    "subtitle": "Short sessions from your words",
     "fixToStart": "Fix the highlighted fields to start.",
     "resume": {
       "title": "You have an unfinished session",
@@ -141,7 +140,9 @@
       "dismiss": "Dismiss",
       "answeredLabel": "exercises",
       "correctHint": "{{count}} correct so far"
-    }
+    },
+    "startShort": "Start",
+    "startingShort": "Starting…"
   },
   "session": {
     "progress": "Exercise {{current}} of {{total}}",
@@ -400,7 +401,8 @@
       "change": "Change settings first",
       "noMatch": "No exercise matches this configuration now. Change the settings first.",
       "noWords": "The tags of this configuration have no words now. Change the settings first."
-    }
+    },
+    "saveShort": "Save"
   },
   "sessions": {
     "title": "Ongoing sessions",

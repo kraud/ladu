@@ -133,7 +133,6 @@
       "retry": "Proovi uuesti"
     },
     "shortfall": "Luua sai {{created}} harjutust {{requested}}-st.",
-    "subtitle": "Lühikesed harjutused sinu sõnadega",
     "fixToStart": "Paranda märgitud väljad, et alustada.",
     "resume": {
       "title": "Sul on pooleli seanss",
@@ -141,7 +140,9 @@
       "dismiss": "Loobu",
       "answeredLabel": "harjutust",
       "correctHint": "siiani {{count}} õiget"
-    }
+    },
+    "startShort": "Alusta",
+    "startingShort": "Loon…"
   },
   "session": {
     "progress": "Harjutus {{current}} / {{total}}",
@@ -400,7 +401,8 @@
       "change": "Muuda enne seadeid",
       "noMatch": "Sellele seadistusele ei sobi praegu ükski harjutus. Muuda enne seadeid.",
       "noWords": "Selle seadistuse siltidel pole praegu sõnu. Muuda enne seadeid."
-    }
+    },
+    "saveShort": "Salvesta"
   },
   "sessions": {
     "title": "Pooleliolevad sessioonid",

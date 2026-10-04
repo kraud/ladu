@@ -28,6 +28,16 @@ describe('WordEditorLayout', () => {
         expect(screen.getByText('Translation cards')).toBeInTheDocument();
     });
 
+    it('titles the sidebar "Additional information" on desktop and in the phone menu', async () => {
+        renderWithProviders(
+            <WordEditorLayout sections={SECTIONS}>
+                <div>Translation cards</div>
+            </WordEditorLayout>,
+        );
+        const panel = screen.getByRole('complementary', { name: 'Additional information' });
+        expect(within(panel).getByRole('heading', { name: 'Additional information' })).toBeInTheDocument();
+    });
+
     it('starts expanded and toggles the shared uiStore collapse flag', async () => {
         const user = userEvent.setup();
         renderWithProviders(
@@ -86,6 +96,35 @@ describe('WordEditorLayout', () => {
             );
             expect(screen.queryByRole('status')).not.toBeInTheDocument();
             expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled();
+        });
+
+        it('phone: the menu is titled "Additional information"', async () => {
+            mockMobileViewport();
+            const user = userEvent.setup();
+            renderWithProviders(
+                <WordEditorLayout sections={SECTIONS}>
+                    <div>Translation cards</div>
+                </WordEditorLayout>,
+            );
+            await user.click(screen.getByRole('button', { name: 'Open menu' }));
+            expect(within(screen.getByRole('dialog')).getByRole('heading', { name: 'Additional information' })).toBeInTheDocument();
+        });
+
+        it('phone: the reason and the primary button share one row (not a column)', () => {
+            mockMobileViewport();
+            renderWithProviders(
+                <WordEditorLayout
+                    sections={SECTIONS}
+                    primary={{ label: 'Save word', icon: null, onClick: vi.fn(), disabled: true }}
+                    statusText="Add at least 2 translations before you can save."
+                >
+                    <div>Translation cards</div>
+                </WordEditorLayout>,
+            );
+            const row = screen.getByTestId('word-editor-bar').firstElementChild as HTMLElement;
+            expect(row.className).toContain('max-[920px]:flex-nowrap');
+            expect(row.className).not.toContain('max-[920px]:flex-col');
+            expect(screen.getByRole('status').className).toContain('max-[920px]:flex-1');
         });
 
         it('phone: the bar keeps only the reason and the primary button; the actions move into the drawer', async () => {

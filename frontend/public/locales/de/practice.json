@@ -133,7 +133,6 @@
       "retry": "Noch einmal versuchen"
     },
     "shortfall": "{{created}} von {{requested}} Übungen konnten erstellt werden.",
-    "subtitle": "Kurze Übungen mit Ihren Wörtern",
     "fixToStart": "Korrigieren Sie die markierten Felder, um zu starten.",
     "resume": {
       "title": "Du hast eine unfertige Sitzung",
@@ -141,7 +140,9 @@
       "dismiss": "Verwerfen",
       "answeredLabel": "Übungen",
       "correctHint": "bisher {{count}} richtig"
-    }
+    },
+    "startShort": "Start",
+    "startingShort": "Starte…"
   },
   "session": {
     "progress": "Übung {{current}} von {{total}}",
@@ -400,7 +401,8 @@
       "change": "Zuerst Einstellungen ändern",
       "noMatch": "Zu dieser Konfiguration passt jetzt keine Übung. Ändere zuerst die Einstellungen.",
       "noWords": "Die Tags dieser Konfiguration enthalten jetzt keine Wörter. Ändere zuerst die Einstellungen."
-    }
+    },
+    "saveShort": "Speichern"
   },
   "sessions": {
     "title": "Laufende Sitzungen",

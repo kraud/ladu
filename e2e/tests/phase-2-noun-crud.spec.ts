@@ -77,8 +77,8 @@ test.describe.serial('Phase 2 — noun create / view', () => {
 
         await page.getByRole('link', { name: 'add word' }).click();
         await expect(page).toHaveURL('/addWord');
-        // D37: the gate's prompt is the page's subtitle paragraph; the `h1` is "Add a new word".
-        await expect(page.getByText('What kind of word is it?')).toBeVisible();
+        // D37: the gate shows the `h1` "Add a new word" and the word types (no subtitle, like Tags and Review).
+        await expect(page.getByRole('heading', { name: 'Add a new word' })).toBeVisible();
         await page.getByRole('radio', { name: /Noun/ }).click();
 
         // English

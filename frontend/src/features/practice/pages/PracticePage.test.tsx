@@ -163,14 +163,14 @@ describe('PracticePage — set-up', () => {
         expect(screen.getByRole('button', { name: 'Adjective', pressed: false })).toBeInTheDocument();
     });
 
-    it('shows the mockup header with the subtitle, and the live language hint', async () => {
+    it('shows the title only (no subtitle), and the live language hint', async () => {
         setUp();
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
         await openNewConfigurationTab();
 
         expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
-        expect(screen.getByText('Short sessions from your words')).toBeInTheDocument();
+        expect(screen.queryByText('Short sessions from your words')).not.toBeInTheDocument();
         expect(screen.getByText('All your languages')).toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: 'Español' }));

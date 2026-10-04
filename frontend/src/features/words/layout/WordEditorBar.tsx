@@ -12,7 +12,8 @@
  * commit it, not hunt for it in the left-hand group), then the primary
  * button (Save word / Edit).
  *
- * Phone: only the reason and the primary button (full width). The secondary
+ * Phone: only the reason and the primary button, on ONE row (the reason takes the space left, the
+ * button keeps its size), so the bar stays low. The secondary
  * actions — including Cancel — are rendered in the slide-in menu instead
  * (`WordEditorLayout`) — the bar does not render them at all, so each action
  * keeps one accessible name.
@@ -62,7 +63,7 @@ export function WordEditorBar({
     return (
         <div data-testid="word-editor-bar">
             {/* The word routes are the wide ones (`max-w-7xl`, `AppShell`): same column and gutter. */}
-            <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-6 py-2.5 max-[920px]:flex-col max-[920px]:items-stretch max-[920px]:gap-2">
+            <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-6 py-2.5 max-[920px]:flex-nowrap max-[920px]:gap-3">
                 {showActions && (
                     <div className="flex items-center gap-2">
                         {actions.map((action) => (
@@ -83,13 +84,16 @@ export function WordEditorBar({
                 )}
                 <div className="grow max-[920px]:hidden" />
                 {statusText && (
-                    <p role="status" className="flex items-center gap-2 text-[13px] text-muted-foreground">
+                    <p
+                        role="status"
+                        className="flex min-w-0 items-center gap-2 text-[13px] text-muted-foreground max-[920px]:flex-1 max-[920px]:text-xs max-[920px]:leading-snug"
+                    >
                         <span aria-hidden="true" className="size-[7px] shrink-0 rounded-full bg-(--warning)" />
                         {statusText}
                     </p>
                 )}
                 {(cancelAction ?? primary) && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2 max-[920px]:ml-auto">
                         {!isMobile && cancelAction && (
                             <Button
                                 type="button"

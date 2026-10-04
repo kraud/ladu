@@ -131,6 +131,26 @@ describe('PracticePage — the cards of saved configurations', () => {
     });
 });
 
+describe('PracticePage — the bottom bar', () => {
+    it('on desktop: full labels, and the bar starts after the panel so it lines up with the page', async () => {
+        const user = userEvent.setup();
+        setUp();
+        useUiStore.getState().setPracticePreselection(reviewWords);
+        await renderPractice();
+
+        const start = await screen.findByRole('button', { name: 'Start session' });
+        expect(screen.getByRole('button', { name: 'Save configuration' })).toBeInTheDocument();
+        // Fixed to the window (the layout's footer), with a spacer the width of the panel in front of the column.
+        const footer = start.closest('.fixed') as HTMLElement;
+        expect(footer).toHaveClass('bottom-0');
+        const spacer = footer.querySelector('[aria-hidden="true"]') as HTMLElement;
+        expect(spacer).toHaveClass('w-96');
+
+        await user.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
+        expect(spacer).toHaveClass('w-14');
+    });
+});
+
 describe('PracticePage — the words sidebar', () => {
     it('is not on the Ongoing sessions tab, even without pre-selected words', async () => {
         setUp();
@@ -205,7 +225,10 @@ describe('PracticePage — phone', () => {
 
         expect(screen.queryByRole('button', { name: 'New session' })).not.toBeInTheDocument();
         await user.click(await screen.findByRole('tab', { name: 'New configuration' }));
-        expect(await screen.findByRole('button', { name: 'Start session' })).toBeInTheDocument();
+        // Small buttons with short labels, so the bar stays on one row.
+        expect(await screen.findByRole('button', { name: 'Start' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Start session' })).not.toBeInTheDocument();
     });
 
     it('with pre-selected words, a "Selected words (N)" button opens the list in a slide-in', async () => {

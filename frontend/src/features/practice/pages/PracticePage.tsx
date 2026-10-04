@@ -294,13 +294,8 @@ function SetUp({
     const words = useWordsInfinite({}, 1);
     const hasNoWords = !preselected && words.isSuccess && (words.data.pages[0]?.total ?? 0) === 0;
 
-    // Stacked on mobile; side-by-side with the subtitle bottom-aligned from `sm` up (as on Add word).
-    const header = (
-        <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
-            <h1 className="h1">{t('practice:setup.title')}</h1>
-            <p className="meta sm:content-end">{t('practice:setup.subtitle')}</p>
-        </div>
-    );
+    // A title only, like Tags and Review.
+    const header = <h1 className="h1">{t('practice:setup.title')}</h1>;
     const resumeBanner = parkedSession && (
         <ResumeSessionBanner session={parkedSession} onResume={onResume} onDismiss={onDismiss} />
     );
@@ -368,6 +363,7 @@ function SetUp({
             sections={sections}
             header={header}
             footer={tab === 'new' ? <div ref={setActionsHost} /> : undefined}
+            footerAligned
         >
             <div className="flex flex-col gap-4">
                 {resumeBanner}

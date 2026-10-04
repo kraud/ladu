@@ -44,6 +44,26 @@ describe('SidebarLayout — desktop', () => {
         expect(screen.queryByRole('button', { name: 'Open filters' })).not.toBeInTheDocument();
     });
 
+    it('shows the panel title in the header row, beside the collapse button', () => {
+        renderLayout();
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        const title = within(panel).getByRole('heading', { name: 'Filters', level: 2 });
+        expect(title.parentElement).toContainElement(within(panel).getByRole('button', { name: 'Collapse sidebar' }));
+    });
+
+    it('a lone section with the same name as the panel is not repeated under the title', () => {
+        renderWithProviders(
+            <SidebarLayout
+                id="review"
+                label="Selected words"
+                sections={[{ id: 'one', label: 'Selected words', icon: <i />, content: <div>Only content</div> }]}
+            >
+                <div>Page content</div>
+            </SidebarLayout>,
+        );
+        expect(screen.getAllByRole('heading', { name: 'Selected words' })).toHaveLength(1);
+    });
+
     it('the collapse button toggles the stored flag of this sidebar only', async () => {
         const user = userEvent.setup();
         renderLayout();
@@ -101,6 +121,14 @@ describe('SidebarLayout — phone', () => {
 
         await user.click(within(menu).getByRole('button', { name: 'Close menu' }));
         await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    });
+
+    it('the title of the slide-in menu is the panel title', async () => {
+        mockMobileViewport();
+        const user = userEvent.setup();
+        renderLayout();
+        await user.click(screen.getByRole('button', { name: 'Open filters' }));
+        expect(within(screen.getByRole('dialog')).getByRole('heading', { name: 'Filters' })).toBeInTheDocument();
     });
 
     it('Escape closes the menu', async () => {

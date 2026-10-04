@@ -68,6 +68,12 @@ export interface SidebarLayoutProps {
     drawerTop?: ReactNode;
     /** Bar fixed to the bottom of the window, over the full width. */
     footer?: ReactNode;
+    /**
+     * Lay the footer out like the page: it starts after the panel and uses the same centered column, so
+     * its right edge is the right edge of the content (Practice's Start / Save). Without it the footer
+     * is the plain full-width strip of the word editor.
+     */
+    footerAligned?: boolean;
     /** Page title block: first in the content column, above `children`. */
     header?: ReactNode;
     /** Content column max width: `max-w-7xl` instead of `max-w-5xl`. */
@@ -127,6 +133,7 @@ export function SidebarLayout({
     sections,
     drawerTop,
     footer,
+    footerAligned,
     header,
     wide,
     children,
@@ -182,11 +189,13 @@ export function SidebarLayout({
         [isMobile, hasPanel, open, panelId],
     );
 
-    // A lone section: on desktop its title sits in the header row next to the collapse button (not again
-    // above its content); the phone menu already shows `label` as its title, so there it is hidden for the eye.
+    // The panel's title (`label`) sits in the header row next to the collapse button on desktop, and is the
+    // title of the phone menu. A lone section that has the same name would only repeat it: on desktop it is
+    // left out, on the phone it stays for screen readers only.
     const loneSection = sections.length === 1 ? sections[0] : undefined;
-    const titleInHeader = !isMobile && loneSection !== undefined;
-    const hideHeading = isMobile && loneSection !== undefined && loneSection.label === label;
+    const repeatsTitle = loneSection !== undefined && loneSection.label === label;
+    const titleInHeader = !isMobile && repeatsTitle;
+    const hideHeading = isMobile && repeatsTitle;
     const body = (
         <div className="flex flex-col gap-4" style={isMobile ? undefined : { width: `calc(${WIDTHS[width].px} - 2rem - 1px)` }}>
             {sections.map((section) => (
@@ -233,12 +242,14 @@ export function SidebarLayout({
                             >
                                 {collapsed ? <CaretRightIcon size={16} /> : <CaretLeftIcon size={16} />}
                             </button>
-                            {titleInHeader && !collapsed && (
+                            {!collapsed && (
                                 <h2 className="label flex min-w-0 items-center gap-1.5">
-                                    <span aria-hidden="true" className="[&_svg]:size-3.5">
-                                        {loneSection.icon}
-                                    </span>
-                                    <span className="truncate">{loneSection.label}</span>
+                                    {loneSection && repeatsTitle && (
+                                        <span aria-hidden="true" className="[&_svg]:size-3.5">
+                                            {loneSection.icon}
+                                        </span>
+                                    )}
+                                    <span className="truncate">{label}</span>
                                 </h2>
                             )}
                         </div>
@@ -328,7 +339,25 @@ export function SidebarLayout({
                         ref={footerRef}
                         className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] backdrop-blur-md"
                     >
-                        {footer}
+                        {footerAligned ? (
+                            <div className="flex">
+                                {/* Same width as the panel (it animates when collapsed), so the column below lines up with the page. */}
+                                {!isMobile && hasPanel && (
+                                    <div
+                                        aria-hidden="true"
+                                        className={cn(
+                                            'shrink-0 transition-[width] duration-150',
+                                            collapsed ? 'w-14' : WIDTHS[width].cls,
+                                        )}
+                                    />
+                                )}
+                                <div className="min-w-0 flex-1">
+                                    <div className={cn('mx-auto px-6', wide ? 'max-w-7xl' : 'max-w-5xl')}>{footer}</div>
+                                </div>
+                            </div>
+                        ) : (
+                            footer
+                        )}
                     </div>
                 </>
             )}

@@ -58,3 +58,11 @@ The user asked to swap the Practice split: main area = three tabs (Ongoing sessi
 - Selecting a saved configuration opens `StartConfigDialog`: **Start session** (generates the exercises at once; for tags the words are read live via `tagWordsQuery`; if nothing matches, the dialog stays open with the reason) or **Change settings first** (the old flow, New configuration tab).
 - Start / Save no longer use `position: sticky` inside the form. `SetUp` gives the layout a `footer` (the fixed bottom bar, shared with the word editor) on the New configuration tab, and `ParametersForm` puts its buttons into it through a portal (`actionsHost`; the submit button uses `form=`). This removes the extra scroll at the end of the page and works on a phone.
 - Mobile horizontal scroll on Practice: measured 0 px overflow on the set-up tabs, the exercise and the results screens after these changes (the old negative-margin bar is gone). The Review page still overflows on a phone when rows are selected (bulk-action buttons, table) — not part of this change.
+
+### Titles, bars and headers (2026-10-05)
+
+- Every `SidebarLayout` shows its `label` as the panel title in the header row, beside the collapse button (desktop), and as the phone menu's title: "Additional information" (Add word / Word page; was "Word options"), "Filters" (Review), "Selected words" (Practice). A lone section with the same name is not repeated.
+- Practice's bottom bar: `SidebarLayout` prop `footerAligned` lays the footer out like the page (a spacer the width of the panel, then the centered column), so Start / Save end at the right edge of the settings card. On a phone the buttons are small, labelled "Save" / "Start", never wrap; the hint goes on its own line above.
+- Word editor bar on a phone: the reason and the button share one row (the reason takes the space left).
+- Tags page on a phone: `.toolrow .searchbox { flex: none }` — in the column layout its 260px flex-basis had become its height.
+- Add word and Practice have a title only (no subtitle), like Tags and Review. The part-of-speech gate lost its prompt line ("What kind of word is it?").

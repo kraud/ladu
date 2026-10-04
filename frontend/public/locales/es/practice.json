@@ -133,7 +133,6 @@
       "retry": "Intentar otra vez"
     },
     "shortfall": "Se pudieron crear {{created}} de {{requested}} ejercicios.",
-    "subtitle": "Sesiones cortas con tus palabras",
     "fixToStart": "Corrige los campos marcados para empezar.",
     "resume": {
       "title": "Tienes una sesión sin terminar",
@@ -141,7 +140,9 @@
       "dismiss": "Descartar",
       "answeredLabel": "ejercicios",
       "correctHint": "{{count}} correctas hasta ahora"
-    }
+    },
+    "startShort": "Empezar",
+    "startingShort": "Creando…"
   },
   "session": {
     "progress": "Ejercicio {{current}} de {{total}}",
@@ -400,7 +401,8 @@
       "change": "Cambiar los ajustes primero",
       "noMatch": "Ningún ejercicio coincide ahora con esta configuración. Cambia primero los ajustes.",
       "noWords": "Las etiquetas de esta configuración no tienen palabras ahora. Cambia primero los ajustes."
-    }
+    },
+    "saveShort": "Guardar"
   },
   "sessions": {
     "title": "Sesiones en curso",

@@ -2,7 +2,6 @@
   "addWordPage": {
     "title": "Add a new {{currentPoS}}",
     "titleDefault": "Add a new word",
-    "subtitle": "All the required fields must be completed before saving",
     "toastCreateSuccess": "Word was created successfully"
   },
   "apiErrors": {
@@ -23,7 +22,6 @@
     "toastError": "Something went wrong: {{error}}"
   },
   "partOfSpeechSelector": {
-    "title": "What kind of word is it?",
     "subtitle": "Not sure what's what? Hover over the buttons and read the descriptions.",
     "description": {
       "other": "You'll know it when you see it!",
@@ -126,7 +124,7 @@
     "sidebar": {
       "collapse": "Collapse sidebar",
       "expand": "Expand sidebar",
-      "menuTitle": "Word options",
+      "menuTitle": "Additional information",
       "openMenu": "Open menu",
       "closeMenu": "Close menu",
       "tagsEditToChange": "Edit the word to add or remove tags.",

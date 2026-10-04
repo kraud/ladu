@@ -2,7 +2,6 @@
   "addWordPage": {
     "title": "Añadir un nuevo {{currentPoS}}",
     "titleDefault": "Añadir una nueva palabra",
-    "subtitle": "Todos los campos obligatorios deben completarse antes de guardar",
     "toastCreateSuccess": "La palabra se creó correctamente"
   },
   "apiErrors": {
@@ -23,7 +22,6 @@
     "toastError": "Algo salió mal: {{error}}"
   },
   "partOfSpeechSelector": {
-    "title": "¿Qué tipo de palabra es?",
     "subtitle": "¿No estás seguro de qué es qué? Pasa el ratón sobre los botones y lee las descripciones.",
     "description": {
       "other": "¡Lo sabrás cuando lo veas!",
@@ -126,7 +124,7 @@
     "sidebar": {
       "collapse": "Contraer la barra lateral",
       "expand": "Expandir la barra lateral",
-      "menuTitle": "Opciones de la palabra",
+      "menuTitle": "Información adicional",
       "openMenu": "Abrir menú",
       "closeMenu": "Cerrar menú",
       "tagsEditToChange": "Edita la palabra para añadir o quitar etiquetas.",

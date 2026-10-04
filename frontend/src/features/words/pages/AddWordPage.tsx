@@ -31,15 +31,13 @@ export function AddWordPage() {
 
     const createWord = useCreateWord();
 
-    // D37/D38: one heading pair, tracking the picked type rather than only
-    // the route param — before a PoS is picked this doubles as the gate's own
-    // title (`PartOfSpeechSelector` renders no heading of its own).
+    // D37/D38: one heading, tracking the picked type rather than only the
+    // route param — before a PoS is picked this doubles as the gate's own
+    // title (`PartOfSpeechSelector` renders no heading of its own). No
+    // subtitle: the page matches Tags and Review (a title only).
     const title = partOfSpeech
         ? t('wordRelated:addWordPage.title', { currentPoS: t(partOfSpeechLabelKey(partOfSpeech)) })
         : t('wordRelated:addWordPage.titleDefault');
-    const subtitle = partOfSpeech
-        ? t('wordRelated:addWordPage.subtitle')
-        : t('wordRelated:partOfSpeechSelector.title');
 
     function resetToGate() {
         setPartOfSpeech(undefined);
@@ -71,13 +69,7 @@ export function AddWordPage() {
             onChangePartOfSpeech={resetToGate}
             onPartOfSpeechChange={setPartOfSpeech}
             submitting={createWord.isPending}
-            header={
-                // Stacked on mobile; side-by-side with the subtitle bottom-aligned from `sm` up.
-                <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
-                    <h1 className="h1">{title}</h1>
-                    <p className="meta sm:content-end">{subtitle}</p>
-                </div>
-            }
+            header={<h1 className="h1">{title}</h1>}
         />
     );
 }

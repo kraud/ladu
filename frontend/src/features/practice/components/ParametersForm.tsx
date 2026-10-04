@@ -11,6 +11,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { languageByLabel } from '@/lib/language';
 import { partOfSpeechLabelKey } from '@/lib/words';
@@ -96,6 +97,7 @@ export function ParametersForm({
     const startSession = usePracticeSessionStore((s) => s.start);
     const languagesRow = useRef<HTMLDivElement>(null);
     const formId = useId();
+    const isMobile = useIsMobile();
 
     const [chosen, setParams] = useState(initialParams);
     // The word types follow the pre-selected words as they change (tags added or removed): a type
@@ -168,41 +170,48 @@ export function ParametersForm({
 
     // Start and Save. In the page they sit in a bar fixed to the bottom of the window (`actionsHost`, the
     // layout's footer slot), so they are always in reach; the form is the `form=` of the submit button.
+    // On a phone the bar stays one row: small buttons, short labels, the hint above them.
+    const hint = startBlockedReason ?? (!valid ? t('practice:setup.fixToStart') : null);
     const actionButtons = (
         <>
-            {startBlockedReason ? (
-                <span className="hint mr-auto">{startBlockedReason}</span>
-            ) : (
-                !valid && <span className="hint mr-auto">{t('practice:setup.fixToStart')}</span>
-            )}
-            <Button
-                type="button"
-                variant="outline"
-                disabled={!valid || !!startBlockedReason}
-                onClick={() =>
-                    onSaveConfig({
-                        params: { ...params, amount },
-                        wordIds: preselected?.map((word) => word.id) ?? null,
-                        tagIds: tagIds ?? null,
-                    })
-                }
-            >
-                <BookmarkSimpleIcon aria-hidden size={14} />
-                {t('practice:configs.save')}
-            </Button>
-            <Button type="submit" form={formId} className="min-w-37.5" disabled={!valid || generate.isPending || !!startBlockedReason}>
-                {generate.isPending ? (
-                    <>
-                        <span className="spinner" />
-                        {t('practice:setup.starting')}
-                    </>
-                ) : (
-                    <>
-                        <PlayIcon aria-hidden weight="fill" size={14} />
-                        {t('practice:setup.start')}
-                    </>
-                )}
-            </Button>
+            {hint && <span className={isMobile ? 'hint basis-full' : 'hint mr-auto'}>{hint}</span>}
+            <div className="flex flex-nowrap items-center gap-2">
+                <Button
+                    type="button"
+                    variant="outline"
+                    size={isMobile ? 'sm' : 'default'}
+                    disabled={!valid || !!startBlockedReason}
+                    onClick={() =>
+                        onSaveConfig({
+                            params: { ...params, amount },
+                            wordIds: preselected?.map((word) => word.id) ?? null,
+                            tagIds: tagIds ?? null,
+                        })
+                    }
+                >
+                    <BookmarkSimpleIcon aria-hidden size={14} />
+                    {t(isMobile ? 'practice:configs.saveShort' : 'practice:configs.save')}
+                </Button>
+                <Button
+                    type="submit"
+                    form={formId}
+                    size={isMobile ? 'sm' : 'default'}
+                    className={isMobile ? undefined : 'min-w-37.5'}
+                    disabled={!valid || generate.isPending || !!startBlockedReason}
+                >
+                    {generate.isPending ? (
+                        <>
+                            <span className="spinner" />
+                            {t(isMobile ? 'practice:setup.startingShort' : 'practice:setup.starting')}
+                        </>
+                    ) : (
+                        <>
+                            <PlayIcon aria-hidden weight="fill" size={14} />
+                            {t(isMobile ? 'practice:setup.startShort' : 'practice:setup.start')}
+                        </>
+                    )}
+                </Button>
+            </div>
         </>
     );
 
@@ -427,12 +436,12 @@ export function ParametersForm({
             {actionsHost === undefined ? (
                 <div className="mt-1 flex flex-wrap items-center gap-3">{actionButtons}</div>
             ) : (
-                actionsHost && createPortal(
-                        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-end gap-x-3 gap-y-2 px-6 py-3">
-                            {actionButtons}
-                        </div>,
-                        actionsHost,
-                    )
+                actionsHost &&
+                createPortal(
+                    // The layout's footer gives this the page's column, so the right edge is the settings card's.
+                    <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 py-2.5 sm:py-3">{actionButtons}</div>,
+                    actionsHost,
+                )
             )}
         </form>
     );

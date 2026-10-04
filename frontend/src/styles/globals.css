@@ -1542,6 +1542,8 @@
   }
   .toolrow .searchbox {
     max-width: none;
+    /* In a column the 260px flex-basis would be the HEIGHT: keep the box its normal height. */
+    flex: none;
   }
 }
 @media (max-width: 640px) {

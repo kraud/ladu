@@ -685,6 +685,8 @@ describe('ReviewPage — desktop: filters in the docked sidebar', () => {
         await screen.findByText('cat');
 
         const panel = screen.getByRole('complementary', { name: 'Filters' });
+        // The panel has a title, "Filters", in its header row.
+        expect(within(panel).getByRole('heading', { name: 'Filters', level: 2 })).toBeInTheDocument();
         expect(within(panel).getByRole('heading', { name: 'Part of speech' })).toBeInTheDocument();
         // The phone's trigger and the old top-bar controls do not exist on desktop.
         expect(screen.queryByRole('button', { name: 'Filters' })).not.toBeInTheDocument();
