@@ -15,7 +15,7 @@ import { ParametersForm } from '../components/ParametersForm';
 import { SavedConfigurations } from '../components/SavedConfigurations';
 import { SavedSessions } from '../components/SavedSessions';
 import { SaveConfigDialog, type ConfigDraft } from '../components/SaveConfigDialog';
-import { PreselectedWords } from '../components/PreselectedWords';
+import { PreselectedWords, type WordsMode } from '../components/PreselectedWords';
 import { ResumeSessionBanner } from '../components/ResumeSessionBanner';
 import { ResultsView } from '../components/ResultsView';
 import { SessionView } from '../components/SessionView';
@@ -72,13 +72,11 @@ export function PracticePage() {
 
     // A parked session (the user navigated away) waits behind the set-up banner; a reload keeps it open.
     if (session && !parked && !preselected) {
-        return (
+        return session.view === 'results' ? (
+            <ResultsPage session={session} onChangeSettings={() => changeSettings(session)} />
+        ) : (
             <PageColumn>
-                {session.view === 'results' ? (
-                    <ResultsView session={session} onChangeSettings={() => changeSettings(session)} />
-                ) : (
-                    <SessionView session={session} />
-                )}
+                <SessionView session={session} />
             </PageColumn>
         );
     }
@@ -92,6 +90,46 @@ export function PracticePage() {
             onDismiss={clearSession}
             startOnNew={startOnNew}
         />
+    );
+}
+
+/**
+ * Stage 3 inside the sidebar layout: the sidebar lists the words of the finished session, filtered
+ * by the settings it used (fixed: they cannot be changed here). No pre-selected words, no panel.
+ */
+function ResultsPage({ session, onChangeSettings }: { session: Session; onChangeSettings: () => void }) {
+    const { t } = useTranslation();
+    const [wordsMode, setWordsMode] = useState<WordsMode>('visible');
+    const words = session.preselected;
+    const sections: SidebarSection[] = words
+        ? [
+              {
+                  id: 'words',
+                  label: t('practice:setup.selectedWords'),
+                  icon: <ListChecksIcon size={18} />,
+                  count: words.length,
+                  content: (
+                      <PreselectedWords words={words} params={session.params} mode={wordsMode} onModeChange={setWordsMode} />
+                  ),
+              },
+          ]
+        : [];
+
+    return (
+        <SidebarLayout id="practice" width="wide" label={t('practice:setup.selectedWords')} sections={sections}>
+            <div className="flex flex-col gap-3">
+                {words && (
+                    <SidebarTrigger
+                        label={t('practice:setup.selectedWordsButton', { count: words.length })}
+                        className={buttonVariants({ variant: 'outline', className: 'w-full gap-2' })}
+                    >
+                        <ListChecksIcon size={16} />
+                        {t('practice:setup.selectedWordsButton', { count: words.length })}
+                    </SidebarTrigger>
+                )}
+                <ResultsView session={session} onChangeSettings={onChangeSettings} />
+            </div>
+        </SidebarLayout>
     );
 }
 
@@ -123,6 +161,9 @@ function SetUp({
     const [initialParams, setInitialParams] = useState<PracticeParams>(() =>
         narrowToPickable(searchToParams(search, loadRememberedParams(user.languages), user.languages), preselected),
     );
+    // The settings as they are on screen right now: the words list follows them.
+    const [liveParams, setLiveParams] = useState<PracticeParams>(initialParams);
+    const [wordsMode, setWordsMode] = useState<WordsMode>('visible');
     // A loaded configuration replaces the form's working copy, so the form starts over (new key).
     const [formKey, setFormKey] = useState(0);
     // Set when a loaded configuration has words that are gone (no details, on purpose).
@@ -134,6 +175,7 @@ function SetUp({
     function loadConfig(config: SavedConfig, words: PreselectedWord[] | null) {
         const params = configToParams(config.params, user.languages, words);
         setInitialParams(params);
+        setLiveParams(params);
         setFormKey((key) => key + 1);
         onPreselect(words && words.length > 0 ? words : null);
         setWordsMissing((config.wordIds?.length ?? 0) > (words?.length ?? 0));
@@ -195,7 +237,15 @@ function SetUp({
                       label: t('practice:setup.selectedWords'),
                       icon: <ListChecksIcon size={18} />,
                       count: preselected.length,
-                      content: <PreselectedWords words={preselected} onClear={clearPreselected} />,
+                      content: (
+                          <PreselectedWords
+                              words={preselected}
+                              params={liveParams}
+                              mode={wordsMode}
+                              onModeChange={setWordsMode}
+                              onClear={clearPreselected}
+                          />
+                      ),
                   },
               ]
             : [];
@@ -246,9 +296,10 @@ function SetUp({
                             preselected={preselected}
                             onStarted={clearPreselected}
                             onSaveConfig={setConfigDraft}
-                            onParamsChange={(params) =>
-                                void navigate({ search: paramsToSearch(params), replace: true })
-                            }
+                            onParamsChange={(params) => {
+                                setLiveParams(params);
+                                void navigate({ search: paramsToSearch(params), replace: true });
+                            }}
                         />
                     </TabsContent>
                 </Tabs>

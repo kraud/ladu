@@ -83,6 +83,10 @@
       "title_one": "Harjuta {{count}} valitud sõnaga",
       "title_other": "Harjuta {{count}} valitud sõnaga",
       "clear": "Eemalda eelvalik",
+      "hideUnused": "Peida sõnad, mida ei kasutata",
+      "showAll": "Näita kõiki sõnu",
+      "used": "Nende seadetega kasutatakse {{used}} sõna {{total}}-st.",
+      "noneUsed": "Ükski valitud sõna ei sobi nende seadetega.",
       "note": "Muudame seda sõnaloendit hilisemas uuenduses.",
       "confirm": {
         "title": "Kas eemaldada eelvalik?",
@@ -244,7 +248,6 @@
     "open": "Ava harjutus",
     "backToResults": "Tagasi tulemuste juurde",
     "settings": "Kasutatud seaded",
-    "words": "Sõnad",
     "again": "Harjuta uuesti",
     "change": "Muuda seadeid",
     "toReview": "Mine ülevaate tabelisse",

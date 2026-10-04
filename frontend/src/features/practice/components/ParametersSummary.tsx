@@ -6,7 +6,6 @@ import { partOfSpeechLabelKey } from '@/lib/words';
 import { useAuthStore } from '@/stores/authStore';
 import { relevantSettings } from '../params';
 import type { Session } from '../session';
-import { PreselectedWordList } from './PreselectedWords';
 
 /**
  * "Settings used" (Part C §C.5, mockup `details.settings-summary`): a bordered
@@ -18,7 +17,7 @@ export function ParametersSummary({ session }: { session: Session }) {
     const { t } = useTranslation();
     const nativeLanguage = useAuthStore((s) => s.user?.nativeLanguage ?? null);
     const [open, setOpen] = useState(false);
-    const { params, preselected } = session;
+    const { params } = session;
     const relevant = relevantSettings(params, nativeLanguage);
     const created = session.exercises.length;
     const level = (n: number, description: string) => `${t('practice:setup.levels.label', { level: n })} — ${description}`;
@@ -88,14 +87,6 @@ export function ParametersSummary({ session }: { session: Session }) {
                             </div>
                         ))}
                     </dl>
-                    {preselected && (
-                        <div className="flex flex-col gap-2">
-                            <b className="text-sm">
-                                {t('practice:results.words')} ({preselected.length})
-                            </b>
-                            <PreselectedWordList words={preselected} />
-                        </div>
-                    )}
                 </div>
             )}
         </section>

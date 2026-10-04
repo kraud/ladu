@@ -83,6 +83,10 @@
       "title_one": "Practicar con {{count}} palabra seleccionada",
       "title_other": "Practicar con {{count}} palabras seleccionadas",
       "clear": "Quitar preselección",
+      "hideUnused": "Ocultar las palabras que no se usarán",
+      "showAll": "Mostrar todas las palabras",
+      "used": "Se usarán {{used}} de {{total}} palabras con estos ajustes.",
+      "noneUsed": "Ninguna palabra seleccionada coincide con estos ajustes.",
       "note": "Cambiaremos esta lista de palabras en una actualización posterior.",
       "confirm": {
         "title": "¿Quitar la preselección?",
@@ -244,7 +248,6 @@
     "open": "Abrir ejercicio",
     "backToResults": "Volver a los resultados",
     "settings": "Ajustes usados",
-    "words": "Palabras",
     "again": "Practicar otra vez",
     "change": "Cambiar ajustes",
     "toReview": "Ir a la tabla de revisión",

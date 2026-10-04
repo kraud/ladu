@@ -83,6 +83,10 @@
       "title_one": "Mit {{count}} ausgewähltem Wort üben",
       "title_other": "Mit {{count}} ausgewählten Wörtern üben",
       "clear": "Vorauswahl entfernen",
+      "hideUnused": "Nicht verwendete Wörter ausblenden",
+      "showAll": "Alle Wörter anzeigen",
+      "used": "{{used}} von {{total}} Wörtern werden mit diesen Einstellungen verwendet.",
+      "noneUsed": "Kein ausgewähltes Wort passt zu diesen Einstellungen.",
       "note": "Wir ändern diese Wortliste in einem späteren Update.",
       "confirm": {
         "title": "Vorauswahl entfernen?",
@@ -244,7 +248,6 @@
     "open": "Übung öffnen",
     "backToResults": "Zurück zu den Ergebnissen",
     "settings": "Verwendete Einstellungen",
-    "words": "Wörter",
     "again": "Noch einmal üben",
     "change": "Einstellungen ändern",
     "toReview": "Zur Übersichtstabelle",

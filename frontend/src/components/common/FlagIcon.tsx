@@ -12,6 +12,7 @@ export function FlagIcon({
     title,
     width = 16,
     height = 16,
+    muted = false,
 }: {
     lang: string;
     className?: string;
@@ -19,6 +20,8 @@ export function FlagIcon({
     /** Pixel box the flag renders in. Defaults to the 16×16 square every existing caller relies on. */
     width?: number;
     height?: number;
+    /** Gray and faded: the language is not in use (for example, not selected in the practice settings). */
+    muted?: boolean;
 }) {
     const entry: UiLanguage | undefined = languageByKey(lang) ?? languageByLabel(lang);
     if (!entry) return null;
@@ -31,7 +34,7 @@ export function FlagIcon({
             width={width}
             height={height}
             style={{ width, height }}
-            className={cn('inline-block shrink-0 rounded-[3px] object-cover', className)}
+            className={cn('inline-block shrink-0 rounded-[3px] object-cover', muted && 'opacity-60 grayscale', className)}
         />
     );
 }

@@ -150,6 +150,24 @@ describe('PracticePage — the words sidebar', () => {
         expect(screen.getByRole('button', { name: 'Start session' })).toBeInTheDocument();
     });
 
+    it('follows the settings: a language the user unselects marks the word as not used', async () => {
+        const user = userEvent.setup();
+        setUp();
+        useUiStore.getState().setPracticePreselection(reviewWords);
+        await renderPractice();
+
+        const panel = await screen.findByRole('complementary');
+        expect(within(panel).getByText('house').closest('li')).toHaveAttribute('data-used', 'true');
+
+        // The word has an English translation only: without English it is not used.
+        await user.click(screen.getByRole('button', { name: 'English', pressed: true }));
+        expect(within(panel).getByText('house').closest('li')).toHaveAttribute('data-used', 'false');
+        expect(within(panel).getByText('0 of 1 words will be used with these settings.')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'English', pressed: false }));
+        expect(within(panel).getByText('house').closest('li')).toHaveAttribute('data-used', 'true');
+    });
+
     it('is only on the New configuration tab', async () => {
         const user = userEvent.setup();
         setUp();

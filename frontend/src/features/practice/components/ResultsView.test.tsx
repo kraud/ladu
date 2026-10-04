@@ -215,7 +215,7 @@ describe('ResultsView', () => {
         expect(await screen.findByTestId('score')).toBeInTheDocument();
     });
 
-    it('keeps the settings summary closed until asked, and lists pre-selected words', async () => {
+    it('keeps the settings summary closed until asked', async () => {
         await openResults({ preselected: WORDS });
         const user = userEvent.setup();
 
@@ -227,7 +227,36 @@ describe('ResultsView', () => {
         // Typing only: strictness shows as "Level 2 — …", choice difficulty is left out.
         expect(screen.getByText(/Level 2 — Ignores capital letters only/)).toBeInTheDocument();
         expect(screen.queryByText('Choice difficulty')).not.toBeInTheDocument();
-        expect(within(screen.getByRole('region', { name: 'Settings used' })).getByText('house')).toBeInTheDocument();
+        // The pre-selected words are in the sidebar, not in this summary.
+        expect(within(screen.getByRole('region', { name: 'Settings used' })).queryByText('house')).not.toBeInTheDocument();
+    });
+
+    it('lists the pre-selected words in the sidebar, marking those the session settings did not use', async () => {
+        await openResults({
+            preselected: [
+                ...WORDS,
+                { id: 'w2', partOfSpeech: PartOfSpeech.verb, label: 'run', languages: ['EN', 'ES'] },
+            ],
+            params: { partsOfSpeech: [PartOfSpeech.verb] },
+        });
+        const user = userEvent.setup();
+
+        const panel = await screen.findByRole('complementary', { name: 'Selected words' });
+        expect(within(panel).getByText('1 of 2 words will be used with these settings.')).toBeInTheDocument();
+        expect(within(panel).getByText('house').closest('li')).toHaveAttribute('data-used', 'false');
+        expect(within(panel).getByText('run').closest('li')).toHaveAttribute('data-used', 'true');
+        // Fixed here: the settings cannot change on this page, so there is no "Remove pre-selection".
+        expect(within(panel).queryByRole('button', { name: 'Remove pre-selection' })).not.toBeInTheDocument();
+
+        await user.click(within(panel).getByRole('button', { name: 'Hide the words that will not be used' }));
+        expect(within(panel).queryByText('house')).not.toBeInTheDocument();
+        expect(within(panel).getByText('run')).toBeInTheDocument();
+    });
+
+    it('has no sidebar when the session had no pre-selected words', async () => {
+        await openResults();
+        await screen.findByTestId('score');
+        expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
     });
 
     it('"Practice again" makes new exercises with the same settings and words', async () => {

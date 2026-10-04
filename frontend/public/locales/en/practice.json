@@ -83,6 +83,10 @@
       "title_one": "Practice with {{count}} selected word",
       "title_other": "Practice with {{count}} selected words",
       "clear": "Remove pre-selection",
+      "hideUnused": "Hide the words that will not be used",
+      "showAll": "Show all words",
+      "used": "{{used}} of {{total}} words will be used with these settings.",
+      "noneUsed": "No selected word matches these settings.",
       "note": "We will change this word list in a later update.",
       "confirm": {
         "title": "Remove the pre-selection?",
@@ -244,7 +248,6 @@
     "open": "Open exercise",
     "backToResults": "Back to results",
     "settings": "Settings used",
-    "words": "Words",
     "again": "Practice again",
     "change": "Change settings",
     "toReview": "Go to Review table",
