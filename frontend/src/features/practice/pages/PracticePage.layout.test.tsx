@@ -130,7 +130,7 @@ describe('PracticePage — the cards of saved configurations', () => {
 });
 
 describe('PracticePage — the words sidebar', () => {
-    it('is not on the page without pre-selected words', async () => {
+    it('is not on the Ongoing sessions tab, even without pre-selected words', async () => {
         setUp();
         await renderPractice();
         await screen.findByRole('tab', { name: 'New configuration' });

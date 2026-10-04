@@ -7,6 +7,15 @@
     "newConfiguration": "New configuration",
     "selectedWords": "Selected words",
     "selectedWordsButton": "Selected words ({{count}})",
+    "tagsEmpty": "No words selected. All your words are used.",
+    "tagsLabel": "Choose words by tag",
+    "tagRemove": "Remove tag {{name}}",
+    "tagWordsLoading": "Loading words…",
+    "tagsBlocked": {
+      "loading": "Loading the words of the tags…",
+      "empty": "The chosen tags have no words.",
+      "error": "The words of the tags could not be loaded."
+    },
     "start": "Start session",
     "starting": "Creating exercises…",
     "labels": {

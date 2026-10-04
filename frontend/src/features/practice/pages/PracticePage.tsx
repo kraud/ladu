@@ -8,7 +8,9 @@ import { PageColumn } from '@/components/layout/PageColumn';
 import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 import { buttonVariants } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { TagSummary } from '@/features/tags/types';
 import { useWordsInfinite } from '@/features/words/hooks';
+import { accountLanguageOrder } from '@/features/words/review/search';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { ParametersForm } from '../components/ParametersForm';
@@ -16,11 +18,13 @@ import { SavedConfigurations } from '../components/SavedConfigurations';
 import { SavedSessions } from '../components/SavedSessions';
 import { SaveConfigDialog, type ConfigDraft } from '../components/SaveConfigDialog';
 import { PreselectedWords, type WordsMode } from '../components/PreselectedWords';
+import { TagWordsSidebar } from '../components/TagWordsSidebar';
 import { ResumeSessionBanner } from '../components/ResumeSessionBanner';
 import { ResultsView } from '../components/ResultsView';
 import { SessionView } from '../components/SessionView';
 import { configToParams, narrowToPickable } from '../configs';
-import type { PreselectedWord } from '../preselection';
+import { useTagWords } from '../hooks';
+import { unionWords, type PreselectedWord } from '../preselection';
 import { loadRememberedParams, rememberParams } from '../remembered';
 import { paramsToSearch, searchToParams } from '../search';
 import type { Session } from '../session';
@@ -54,6 +58,8 @@ export function PracticePage() {
     useEffect(() => {
         if (useUiStore.getState().practicePreselection) {
             useUiStore.getState().setPracticePreselection(null);
+            // Words came from Review: the sidebar (collapsed while it is empty) opens to show them.
+            useUiStore.getState().setSidebarCollapsed('practice', false);
             clearSession();
         }
     }, [clearSession]);
@@ -66,6 +72,7 @@ export function PracticePage() {
         rememberParams(finished.params);
         void navigate({ search: paramsToSearch(finished.params), replace: true });
         setPreselected(finished.preselected);
+        if (finished.preselected) useUiStore.getState().setSidebarCollapsed('practice', false);
         setStartOnNew(true);
         clearSession();
     }
@@ -116,7 +123,7 @@ function ResultsPage({ session, onChangeSettings }: { session: Session; onChange
         : [];
 
     return (
-        <SidebarLayout id="practice" width="wide" label={t('practice:setup.selectedWords')} sections={sections}>
+        <SidebarLayout id="practiceResults" width="wide" label={t('practice:setup.selectedWords')} sections={sections}>
             <div className="flex flex-col gap-3">
                 {words && (
                     <SidebarTrigger
@@ -164,6 +171,27 @@ function SetUp({
     // The settings as they are on screen right now: the words list follows them.
     const [liveParams, setLiveParams] = useState<PracticeParams>(initialParams);
     const [wordsMode, setWordsMode] = useState<WordsMode>('visible');
+    // Without words from Review the user can choose words by tag; the tags' words are the pre-selection.
+    const [tags, setTags] = useState<TagSummary[]>([]);
+    const tagWords = useTagWords(
+        preselected ? [] : tags.map((tag) => tag.id),
+        accountLanguageOrder(user.languages),
+    );
+    const tagUnion = unionWords(tags.map((tag) => tagWords.byTag[tag.id] ?? []));
+    const usingTags = !preselected && tags.length > 0;
+    // What the exercises will be limited to: Review's words, else the tags' words (once loaded), else all words.
+    const effective: PreselectedWord[] | null = preselected ?? (usingTags && tagUnion.length > 0 ? tagUnion : null);
+    const tagsBlockedReason = !usingTags
+        ? undefined
+        : tagWords.isError
+          ? t('practice:setup.tagsBlocked.error')
+          : tagWords.isPending
+            ? t('practice:setup.tagsBlocked.loading')
+            : tagUnion.length === 0
+              ? t('practice:setup.tagsBlocked.empty')
+              : undefined;
+    // The list follows the settings as they will be used (word types the words do not have fall away).
+    const listParams = narrowToPickable(liveParams, effective);
     // A loaded configuration replaces the form's working copy, so the form starts over (new key).
     const [formKey, setFormKey] = useState(0);
     // Set when a loaded configuration has words that are gone (no details, on purpose).
@@ -178,6 +206,8 @@ function SetUp({
         setLiveParams(params);
         setFormKey((key) => key + 1);
         onPreselect(words && words.length > 0 ? words : null);
+        setTags([]);
+        if (words && words.length > 0) useUiStore.getState().setSidebarCollapsed('practice', false);
         setWordsMissing((config.wordIds?.length ?? 0) > (words?.length ?? 0));
         void navigate({ search: paramsToSearch(params), replace: true });
         // The loaded settings are on the New configuration tab.
@@ -188,6 +218,7 @@ function SetUp({
     function clearPreselected() {
         setWordsMissing(false);
         onPreselect(null);
+        setTags([]);
     }
 
     // Only used to tell "no words at all" from "no exercises": one row is enough.
@@ -228,22 +259,32 @@ function SetUp({
         );
     }
 
-    // Coming from Review with words, or loading a configuration, the user is here to set up a session.
+    // On the New configuration tab the sidebar always exists: Review's words, or the tag picker.
     const sections: SidebarSection[] =
-        tab === 'new' && preselected
+        tab === 'new'
             ? [
                   {
                       id: 'words',
                       label: t('practice:setup.selectedWords'),
                       icon: <ListChecksIcon size={18} />,
-                      count: preselected.length,
-                      content: (
+                      count: effective?.length ?? 0,
+                      content: preselected ? (
                           <PreselectedWords
                               words={preselected}
-                              params={liveParams}
+                              params={listParams}
                               mode={wordsMode}
                               onModeChange={setWordsMode}
                               onClear={clearPreselected}
+                          />
+                      ) : (
+                          <TagWordsSidebar
+                              tags={tags}
+                              onTagsChange={setTags}
+                              byTag={tagWords.byTag}
+                              words={tagUnion}
+                              params={listParams}
+                              mode={wordsMode}
+                              onModeChange={setWordsMode}
                           />
                       ),
                   },
@@ -274,15 +315,13 @@ function SetUp({
                     </TabsContent>
                     {/* Kept mounted while another tab shows: the form holds the working copy of the settings. */}
                     <TabsContent value="new" keepMounted className="flex flex-col gap-3">
-                        {preselected && (
-                            <SidebarTrigger
-                                label={t('practice:setup.selectedWordsButton', { count: preselected.length })}
-                                className={buttonVariants({ variant: 'outline', className: 'w-full gap-2' })}
-                            >
-                                <ListChecksIcon size={16} />
-                                {t('practice:setup.selectedWordsButton', { count: preselected.length })}
-                            </SidebarTrigger>
-                        )}
+                        <SidebarTrigger
+                            label={t('practice:setup.selectedWordsButton', { count: effective?.length ?? 0 })}
+                            className={buttonVariants({ variant: 'outline', className: 'w-full gap-2' })}
+                        >
+                            <ListChecksIcon size={16} />
+                            {t('practice:setup.selectedWordsButton', { count: effective?.length ?? 0 })}
+                        </SidebarTrigger>
                         {wordsMissing && (
                             <div className="banner warning items-start" role="status">
                                 <WarningIcon aria-hidden size={16} className="mt-0.5 shrink-0" />
@@ -293,7 +332,8 @@ function SetUp({
                             key={formKey}
                             user={user}
                             initialParams={initialParams}
-                            preselected={preselected}
+                            preselected={effective}
+                            startBlockedReason={tagsBlockedReason}
                             onStarted={clearPreselected}
                             onSaveConfig={setConfigDraft}
                             onParamsChange={(params) => {

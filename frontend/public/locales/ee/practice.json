@@ -7,6 +7,15 @@
     "newConfiguration": "Uus seadistus",
     "selectedWords": "Valitud sõnad",
     "selectedWordsButton": "Valitud sõnad ({{count}})",
+    "tagsEmpty": "Sõnu pole valitud. Kasutatakse kõiki sinu sõnu.",
+    "tagsLabel": "Vali sõnad sildi järgi",
+    "tagRemove": "Eemalda silt {{name}}",
+    "tagWordsLoading": "Sõnu laaditakse…",
+    "tagsBlocked": {
+      "loading": "Siltide sõnu laaditakse…",
+      "empty": "Valitud siltidel pole sõnu.",
+      "error": "Siltide sõnu ei saanud laadida."
+    },
     "start": "Alusta harjutust",
     "starting": "Harjutusi luuakse…",
     "labels": {

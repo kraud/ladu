@@ -13,7 +13,7 @@ import type { PreselectedWord } from '@/features/practice/preselection';
 import type { PartOfSpeech } from '@/ts/enums';
 
 type SearchMode = 'words' | 'tags';
-export type SidebarId = 'review' | 'word' | 'practice';
+export type SidebarId = 'review' | 'word' | 'practice' | 'practiceResults';
 
 interface UiState {
     /** PoS chosen on the Add Word step, remembered across the form (Phase 2). */
@@ -27,7 +27,9 @@ interface UiState {
     /**
      * Collapsed (icon rail) state of each page's `SidebarLayout`, by page. The word
      * editor starts collapsed: the translation cards are the main content, and the
-     * clue/tags are one click away on the rail. Shared across create/edit/view so the
+     * clue/tags are one click away on the rail. So does Practice's set-up (the words
+     * list is empty until words come from Review or tags are chosen); it opens when
+     * words arrive. The results page has its own entry and starts open. Shared across create/edit/view so the
      * state does not reset when a user toggles Edit on `/word/:id`. Session-scoped, not persisted.
      */
     sidebarCollapsed: Record<SidebarId, boolean>;
@@ -49,7 +51,7 @@ export const useUiStore = create<UiState>()((set) => ({
     searchMode: 'words',
     setSearchMode: (searchMode) => set({ searchMode }),
 
-    sidebarCollapsed: { review: false, word: true, practice: false },
+    sidebarCollapsed: { review: false, word: true, practice: true, practiceResults: false },
     setSidebarCollapsed: (id, collapsed) =>
         set((state) => ({ sidebarCollapsed: { ...state.sidebarCollapsed, [id]: collapsed } })),
 

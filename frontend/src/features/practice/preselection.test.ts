@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { WordSimpleBE } from '@/features/words/types';
 import { Lang, PartOfSpeech } from '@/ts/enums';
-import { availablePartsOfSpeech, toPreselectedWord, type PreselectedWord } from './preselection';
+import { availablePartsOfSpeech, toPreselectedWord, unionWords, type PreselectedWord } from './preselection';
 
 const row = (overrides: Partial<WordSimpleBE> = {}): WordSimpleBE => ({
     id: 'w1',
@@ -55,5 +55,19 @@ describe('availablePartsOfSpeech', () => {
 
     it('has no limit when no word has a type the screen offers', () => {
         expect(availablePartsOfSpeech([word(PartOfSpeech.pronoun)])).toBeNull();
+    });
+});
+
+describe('unionWords', () => {
+    const word = (id: string): PreselectedWord => ({ id, partOfSpeech: PartOfSpeech.noun, label: id, languages: ['EN'] });
+
+    it('joins the lists, each word once, in the order it first appears', () => {
+        const result = unionWords([[word('a'), word('b')], [word('b'), word('c')], [word('a')]]);
+        expect(result.map((w) => w.id)).toEqual(['a', 'b', 'c']);
+    });
+
+    it('gives an empty list for no lists, or for empty lists', () => {
+        expect(unionWords([])).toEqual([]);
+        expect(unionWords([[], []])).toEqual([]);
     });
 });

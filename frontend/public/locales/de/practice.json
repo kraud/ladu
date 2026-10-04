@@ -7,6 +7,15 @@
     "newConfiguration": "Neue Konfiguration",
     "selectedWords": "Ausgewählte Wörter",
     "selectedWordsButton": "Ausgewählte Wörter ({{count}})",
+    "tagsEmpty": "Keine Wörter ausgewählt. Es werden alle deine Wörter verwendet.",
+    "tagsLabel": "Wörter nach Tag auswählen",
+    "tagRemove": "Tag {{name}} entfernen",
+    "tagWordsLoading": "Wörter werden geladen…",
+    "tagsBlocked": {
+      "loading": "Die Wörter der Tags werden geladen…",
+      "empty": "Die gewählten Tags enthalten keine Wörter.",
+      "error": "Die Wörter der Tags konnten nicht geladen werden."
+    },
     "start": "Übung starten",
     "starting": "Übungen werden erstellt…",
     "labels": {

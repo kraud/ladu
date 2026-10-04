@@ -8,10 +8,14 @@
  * works the same way (`practiceKeys.sessions`).
  * Toasts and navigation are per call site.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getWordsSimplified } from '@/features/words/api';
+import { wordKeys } from '@/features/words/keys';
+import type { LangKey } from '@/features/words/types';
 import * as practiceApi from './api';
 import { practiceKeys } from './keys';
 import { saveOrUpdateSession } from './savedSessions';
+import { toPreselectedWord, type PreselectedWord } from './preselection';
 import type { Session } from './session';
 import type { GenerateBody, SaveAnswerBody, SaveConfigBody, SetModifierBody } from './types';
 
@@ -107,4 +111,43 @@ export function useLoadSavedSession() {
     return useMutation({
         mutationFn: (id: string) => practiceApi.getSession(id),
     });
+}
+
+/** The page size of the words endpoint: its largest. */
+const TAG_WORDS_PAGE = 100;
+
+/** All the words of one tag, as pre-selected words: follows the cursor until the last page. */
+async function fetchTagWords(tagId: string, order: readonly LangKey[], signal?: AbortSignal): Promise<PreselectedWord[]> {
+    const words: PreselectedWord[] = [];
+    let cursor: string | undefined;
+    for (;;) {
+        const page = await getWordsSimplified({ tag: [tagId], cursor, limit: TAG_WORDS_PAGE }, signal);
+        words.push(...page.items.map((row) => toPreselectedWord(row, order)));
+        if (!page.nextCursor) return words;
+        cursor = page.nextCursor;
+    }
+}
+
+/**
+ * The words of each chosen tag (Practice's set-up, no words from Review). One query per tag;
+ * the keys sit under `wordKeys.all`, so every word or tag change refreshes them. `order` is the
+ * language order of the account (the flags and the main form follow it, as in Review).
+ * `byTag[id]` is `undefined` until that tag has loaded.
+ */
+export function useTagWords(tagIds: readonly string[], order: readonly LangKey[]) {
+    const results = useQueries({
+        queries: tagIds.map((id) => ({
+            queryKey: [...wordKeys.all, 'practiceTagWords', id, order.join(',')],
+            queryFn: ({ signal }: { signal?: AbortSignal }) => fetchTagWords(id, order, signal),
+        })),
+    });
+    const byTag: Record<string, PreselectedWord[] | undefined> = {};
+    tagIds.forEach((id, index) => {
+        byTag[id] = results[index]?.data;
+    });
+    return {
+        byTag,
+        isPending: results.some((r) => r.isPending),
+        isError: results.some((r) => r.isError),
+    };
 }

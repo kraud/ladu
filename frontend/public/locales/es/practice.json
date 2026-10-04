@@ -7,6 +7,15 @@
     "newConfiguration": "Nueva configuración",
     "selectedWords": "Palabras seleccionadas",
     "selectedWordsButton": "Palabras seleccionadas ({{count}})",
+    "tagsEmpty": "Ninguna palabra seleccionada. Se usan todas tus palabras.",
+    "tagsLabel": "Elegir palabras por etiqueta",
+    "tagRemove": "Quitar la etiqueta {{name}}",
+    "tagWordsLoading": "Cargando palabras…",
+    "tagsBlocked": {
+      "loading": "Cargando las palabras de las etiquetas…",
+      "empty": "Las etiquetas elegidas no tienen palabras.",
+      "error": "No se pudieron cargar las palabras de las etiquetas."
+    },
     "start": "Empezar sesión",
     "starting": "Creando ejercicios…",
     "labels": {

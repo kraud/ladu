@@ -25,6 +25,7 @@ import {
     toGenerateBody,
     validateParams,
 } from '../params';
+import { narrowToPickable } from '../configs';
 import { rememberParams } from '../remembered';
 import { usePracticeSessionStore } from '../sessionStore';
 import type { PreselectedWord } from '../preselection';
@@ -67,6 +68,7 @@ export function ParametersForm({
     onParamsChange,
     onStarted,
     onSaveConfig,
+    startBlockedReason,
 }: {
     user: SessionUser;
     initialParams: PracticeParams;
@@ -76,13 +78,18 @@ export function ParametersForm({
     onStarted: () => void;
     /** "Save configuration": the page opens the save dialog (outside this form) for these settings and words. */
     onSaveConfig: (draft: ConfigDraft) => void;
+    /** Why Start and Save cannot be used now (the words of the chosen tags are loading, or there are none). */
+    startBlockedReason?: string;
 }) {
     const { t } = useTranslation();
     const generate = useGenerateExercises();
     const startSession = usePracticeSessionStore((s) => s.start);
     const languagesRow = useRef<HTMLDivElement>(null);
 
-    const [params, setParams] = useState(initialParams);
+    const [chosen, setParams] = useState(initialParams);
+    // The word types follow the pre-selected words as they change (tags added or removed): a type
+    // none of the words has cannot stay selected. `chosen` keeps the user's own pick for when it fits again.
+    const params = narrowToPickable(chosen, preselected);
     const [amountText, setAmountText] = useState(String(initialParams.amount));
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [noMatch, setNoMatch] = useState(false);
@@ -118,7 +125,7 @@ export function ParametersForm({
     }
 
     function start() {
-        if (!valid || generate.isPending) return;
+        if (!valid || generate.isPending || startBlockedReason) return;
         const settings = { ...params, amount };
         const wordIds = preselected?.map((word) => word.id) ?? null;
         generate.mutate(toGenerateBody(settings, wordIds ?? undefined), {
@@ -367,7 +374,7 @@ export function ParametersForm({
 
             {/* Sticky at the bottom of the window: with a long form (Advanced open) Start stays in reach. */}
             <div className="sticky bottom-0 z-10 -mx-6 mt-1 flex flex-wrap items-center gap-3 border-t border-border bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] px-6 py-3 backdrop-blur-md">
-                <Button type="submit" className="min-w-37.5" disabled={!valid || generate.isPending}>
+                <Button type="submit" className="min-w-37.5" disabled={!valid || generate.isPending || !!startBlockedReason}>
                     {generate.isPending ? (
                         <>
                             <span className="spinner" />
@@ -383,7 +390,7 @@ export function ParametersForm({
                 <Button
                     type="button"
                     variant="outline"
-                    disabled={!valid}
+                    disabled={!valid || !!startBlockedReason}
                     onClick={() =>
                         onSaveConfig({ params: { ...params, amount }, wordIds: preselected?.map((word) => word.id) ?? null })
                     }
@@ -391,7 +398,11 @@ export function ParametersForm({
                     <BookmarkSimpleIcon aria-hidden size={14} />
                     {t('practice:configs.save')}
                 </Button>
-                {!valid && <span className="hint">{t('practice:setup.fixToStart')}</span>}
+                {startBlockedReason ? (
+                    <span className="hint">{startBlockedReason}</span>
+                ) : (
+                    !valid && <span className="hint">{t('practice:setup.fixToStart')}</span>
+                )}
             </div>
         </form>
     );

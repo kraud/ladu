@@ -13,6 +13,23 @@ import { describeWords } from '../wordFilter';
 /** `visible`: every word, the unused ones marked. `hidden`: only what the settings would use. */
 export type WordsMode = 'visible' | 'hidden';
 
+/** The eye button: eye = every word shown (unused ones marked), eye closed = the unused ones left out. */
+export function WordsModeToggle({ mode, onModeChange }: { mode: WordsMode; onModeChange: (next: WordsMode) => void }) {
+    const { t } = useTranslation();
+    const label = t(mode === 'visible' ? 'practice:setup.preselected.hideUnused' : 'practice:setup.preselected.showAll');
+    return (
+        <button
+            type="button"
+            className="icon-btn"
+            aria-label={label}
+            title={label}
+            onClick={() => onModeChange(mode === 'visible' ? 'hidden' : 'visible')}
+        >
+            {mode === 'visible' ? <EyeIcon size={16} /> : <EyeClosedIcon size={16} />}
+        </button>
+    );
+}
+
 /**
  * The words a hand-off (today: Review's "Practice" action; later: a tag's word
  * list) brought along: the content of the practice sidebar, on the set-up and on
@@ -40,21 +57,12 @@ export function PreselectedWords({
     const [confirming, setConfirming] = useState(false);
     const title = t('practice:setup.preselected.title', { count: words.length });
     const used = describeWords(words, params).filter((item) => item.included).length;
-    const toggleLabel = t(mode === 'visible' ? 'practice:setup.preselected.hideUnused' : 'practice:setup.preselected.showAll');
 
     return (
         <div className="flex flex-col gap-2" aria-label={title} role="group">
             <div className="flex flex-wrap items-center gap-2">
                 <b className="grow">{title}</b>
-                <button
-                    type="button"
-                    className="icon-btn"
-                    aria-label={toggleLabel}
-                    title={toggleLabel}
-                    onClick={() => onModeChange(mode === 'visible' ? 'hidden' : 'visible')}
-                >
-                    {mode === 'visible' ? <EyeIcon size={16} /> : <EyeClosedIcon size={16} />}
-                </button>
+                <WordsModeToggle mode={mode} onModeChange={onModeChange} />
                 {onClear && (
                     <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(true)}>
                         {t('practice:setup.preselected.clear')}
