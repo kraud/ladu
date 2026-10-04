@@ -113,6 +113,8 @@ function isSameTag(a: TagComboboxItem, b: TagComboboxItem): boolean {
 export function TagCombobox({ mode, selected, onSelectedChange, restrictToIds, excludeIds }: TagComboboxProps) {
     const { t } = useTranslation();
     const [query, setQuery] = useState('');
+    // Picking a tag closes the list and clears the search: the next pick starts fresh.
+    const [open, setOpen] = useState(false);
     const debouncedQuery = useDebouncedCallback(query, SEARCH_DEBOUNCE_MS);
 
     const scope: TagScope = mode === 'remove' ? 'owned' : 'all';
@@ -156,7 +158,13 @@ export function TagCombobox({ mode, selected, onSelectedChange, restrictToIds, e
                 filter={null}
                 multiple
                 value={selected}
-                onValueChange={onSelectedChange}
+                onValueChange={(next) => {
+                    onSelectedChange(next);
+                    setQuery('');
+                    setOpen(false);
+                }}
+                open={open}
+                onOpenChange={setOpen}
                 isItemEqualToValue={isSameTag}
                 itemToStringLabel={(tag: TagComboboxItem) => tag.label}
                 inputValue={query}

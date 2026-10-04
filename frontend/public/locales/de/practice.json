@@ -5,6 +5,7 @@
   "setup": {
     "title": "Üben",
     "newConfiguration": "Neue Konfiguration",
+    "newNote": "Wähle die Einstellungen für eine Sitzung. Mit „Konfiguration speichern“ kannst du sie später wieder verwenden.",
     "selectedWords": "Ausgewählte Wörter",
     "selectedWordsButton": "Ausgewählte Wörter ({{count}})",
     "tagsEmpty": "Keine Wörter ausgewählt. Es werden alle deine Wörter verwendet.",
@@ -391,6 +392,14 @@
       "updated": "Konfiguration aktualisiert.",
       "deleted": "Konfiguration gelöscht.",
       "loaded": "Konfiguration „{{name}}“ geladen."
+    },
+    "note": "Einstellungen, die du zum erneuten Verwenden gespeichert hast. Wähle eine aus, um sofort zu starten oder sie zuerst zu ändern.",
+    "startDialog": {
+      "question": "Jetzt eine Sitzung mit dieser Konfiguration starten oder zuerst die Einstellungen ändern?",
+      "start": "Sitzung starten",
+      "change": "Zuerst Einstellungen ändern",
+      "noMatch": "Zu dieser Konfiguration passt jetzt keine Übung. Ändere zuerst die Einstellungen.",
+      "noWords": "Die Tags dieser Konfiguration enthalten jetzt keine Wörter. Ändere zuerst die Einstellungen."
     }
   },
   "sessions": {

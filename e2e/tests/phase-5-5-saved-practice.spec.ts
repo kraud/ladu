@@ -33,6 +33,8 @@ import {
  *  2b. Configurations with tags: pick a tag in the sidebar (it is not offered again), save; the
  *     configuration stores the tag; loading it brings the tag back; when the tag is deleted,
  *     loading falls back to the saved words and shows the "some words are missing" banner.
+ *  2c. Selecting a configuration asks "start now or change first"; "Start session" opens the first
+ *     exercise without the settings screen.
  *  3. Sessions: answer a card, leave with "Save session and leave"; the list shows it;
  *     resume opens the same card with the answer kept; leaving again updates the SAME
  *     saved session (still one row); finishing removes it; "Leave session and delete"
@@ -56,6 +58,11 @@ const configRow = (page: Page, name: string) => page.getByRole('button', { name:
 const openSessionsTab = (page: Page) => page.getByRole('tab', { name: 'Ongoing sessions' }).click();
 const openConfigurationsTab = (page: Page) => page.getByRole('tab', { name: 'Saved configurations' }).click();
 const openNewConfigurationTab = (page: Page) => page.getByRole('tab', { name: 'New configuration' }).click();
+/** Selecting a saved configuration asks "start now or change first"; these tests take the second way. */
+const loadConfig = async (page: Page, name: string) => {
+    await configRow(page, name).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Change settings first' }).click();
+};
 const sessionRows = (page: Page) => page.getByRole('button', { name: /^Resume session with / });
 
 /** A minimal valid session snapshot for seeding the API (the shape the frontend stores). */
@@ -160,7 +167,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await expect(page.getByRole('button', { name: 'Type the answer', pressed: true })).toBeVisible();
 
             await openConfigurationsTab(page);
-            await configRow(page, 'Morning drill').click();
+            await loadConfig(page, 'Morning drill');
             // Loading switches to the New configuration tab, where the settings are.
             await expect(page.getByLabel('Number of exercises')).toHaveValue('7');
             await expect(page.getByRole('button', { name: 'Choose the answer', pressed: true })).toBeVisible();
@@ -224,7 +231,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await page.goto('/practice');
             await openConfigurationsTab(page);
             await expect(configRow(page, 'Two fruits')).toContainText('Some words are missing');
-            await configRow(page, 'Two fruits').click();
+            await loadConfig(page, 'Two fruits');
 
             await expect(page.getByText('Some words of this configuration are not available now.')).toBeVisible();
             await expect(page.getByText('Practice with 1 selected word')).toBeVisible();
@@ -282,7 +289,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         await test.step('a fresh visit: loading the configuration brings the tag back', async () => {
             await page.goto('/practice');
             await openConfigurationsTab(page);
-            await configRow(page, 'Snack drill').click();
+            await loadConfig(page, 'Snack drill');
             await expect(page.getByRole('region', { name: 'Snacks' })).toBeVisible();
             await expect(page.getByText('Practice with 2 selected words')).toBeVisible();
             await expect(page.getByText('Some words of this configuration are not available now.')).toHaveCount(0);
@@ -294,10 +301,21 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
 
             await page.goto('/practice');
             await openConfigurationsTab(page);
-            await configRow(page, 'Snack drill').click();
+            await loadConfig(page, 'Snack drill');
             await expect(page.getByText('Some words of this configuration are not available now.')).toBeVisible();
             await expect(page.getByText('Practice with 2 selected words')).toBeVisible();
             await expect(page.getByRole('region', { name: 'Snacks' })).toHaveCount(0);
+        });
+
+        await test.step('"Start session" in the dialog skips the settings and opens the first exercise', async () => {
+            await page.goto('/practice');
+            await openConfigurationsTab(page);
+            await configRow(page, 'Snack drill').click();
+            await page.getByRole('dialog').getByRole('button', { name: 'Start session' }).click();
+
+            // The tag is gone, so the saved words (Apple, Carrot) are used.
+            await expect(page.getByRole('heading', { name: /^Exercise 1 of \d+$/ })).toBeVisible();
+            expect(['Apple', 'Apfel', 'Carrot', 'Karotte']).toContain(await currentPrompt(page));
         });
 
         // Leave nothing behind: later tests count the owner's configurations.

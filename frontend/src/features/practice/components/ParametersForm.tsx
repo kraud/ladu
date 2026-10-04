@@ -1,4 +1,5 @@
-import { useRef, useState, type ReactNode, type Ref } from 'react';
+import { useId, useRef, useState, type ReactNode, type Ref } from 'react';
+import { createPortal } from 'react-dom';
 import {
     BookmarkSimpleIcon,
     CaretDownIcon,
@@ -70,6 +71,7 @@ export function ParametersForm({
     onSaveConfig,
     startBlockedReason,
     tagIds,
+    actionsHost,
 }: {
     user: SessionUser;
     initialParams: PracticeParams;
@@ -83,11 +85,17 @@ export function ParametersForm({
     startBlockedReason?: string;
     /** The tags the pre-selected words were chosen by, saved with a configuration. */
     tagIds?: string[] | null;
+    /**
+     * Where the Start / Save buttons go. Absent: inline under the form. An element: a portal into it
+     * (the page's fixed bottom bar). `null`: nowhere yet (the bar is not on screen).
+     */
+    actionsHost?: HTMLElement | null;
 }) {
     const { t } = useTranslation();
     const generate = useGenerateExercises();
     const startSession = usePracticeSessionStore((s) => s.start);
     const languagesRow = useRef<HTMLDivElement>(null);
+    const formId = useId();
 
     const [chosen, setParams] = useState(initialParams);
     // The word types follow the pre-selected words as they change (tags added or removed): a type
@@ -158,8 +166,49 @@ export function ParametersForm({
             ? t('practice:setup.hints.modeSame')
             : t('practice:setup.hints.modeMixed');
 
+    // Start and Save. In the page they sit in a bar fixed to the bottom of the window (`actionsHost`, the
+    // layout's footer slot), so they are always in reach; the form is the `form=` of the submit button.
+    const actionButtons = (
+        <>
+            {startBlockedReason ? (
+                <span className="hint mr-auto">{startBlockedReason}</span>
+            ) : (
+                !valid && <span className="hint mr-auto">{t('practice:setup.fixToStart')}</span>
+            )}
+            <Button
+                type="button"
+                variant="outline"
+                disabled={!valid || !!startBlockedReason}
+                onClick={() =>
+                    onSaveConfig({
+                        params: { ...params, amount },
+                        wordIds: preselected?.map((word) => word.id) ?? null,
+                        tagIds: tagIds ?? null,
+                    })
+                }
+            >
+                <BookmarkSimpleIcon aria-hidden size={14} />
+                {t('practice:configs.save')}
+            </Button>
+            <Button type="submit" form={formId} className="min-w-37.5" disabled={!valid || generate.isPending || !!startBlockedReason}>
+                {generate.isPending ? (
+                    <>
+                        <span className="spinner" />
+                        {t('practice:setup.starting')}
+                    </>
+                ) : (
+                    <>
+                        <PlayIcon aria-hidden weight="fill" size={14} />
+                        {t('practice:setup.start')}
+                    </>
+                )}
+            </Button>
+        </>
+    );
+
     return (
         <form
+            id={formId}
             noValidate
             className="flex flex-col gap-3"
             onSubmit={(event) => {
@@ -375,42 +424,16 @@ export function ParametersForm({
                 </div>
             )}
 
-            {/* Sticky at the bottom of the window: with a long form (Advanced open) Start stays in reach. */}
-            <div className="sticky bottom-0 z-10 -mx-6 mt-1 flex flex-wrap items-center gap-3 border-t border-border bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] px-6 py-3 backdrop-blur-md">
-                <Button type="submit" className="min-w-37.5" disabled={!valid || generate.isPending || !!startBlockedReason}>
-                    {generate.isPending ? (
-                        <>
-                            <span className="spinner" />
-                            {t('practice:setup.starting')}
-                        </>
-                    ) : (
-                        <>
-                            <PlayIcon aria-hidden weight="fill" size={14} />
-                            {t('practice:setup.start')}
-                        </>
-                    )}
-                </Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    disabled={!valid || !!startBlockedReason}
-                    onClick={() =>
-                        onSaveConfig({
-                            params: { ...params, amount },
-                            wordIds: preselected?.map((word) => word.id) ?? null,
-                            tagIds: tagIds ?? null,
-                        })
-                    }
-                >
-                    <BookmarkSimpleIcon aria-hidden size={14} />
-                    {t('practice:configs.save')}
-                </Button>
-                {startBlockedReason ? (
-                    <span className="hint">{startBlockedReason}</span>
-                ) : (
-                    !valid && <span className="hint">{t('practice:setup.fixToStart')}</span>
-                )}
-            </div>
+            {actionsHost === undefined ? (
+                <div className="mt-1 flex flex-wrap items-center gap-3">{actionButtons}</div>
+            ) : (
+                actionsHost && createPortal(
+                        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-end gap-x-3 gap-y-2 px-6 py-3">
+                            {actionButtons}
+                        </div>,
+                        actionsHost,
+                    )
+            )}
         </form>
     );
 }

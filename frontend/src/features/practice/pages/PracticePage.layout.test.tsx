@@ -7,6 +7,7 @@ import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
 import { makeConfig, makeExercise, makePracticeHandlers, makeSavedSession } from '@/test/msw/practiceHandlers';
 import { mockMobileViewport } from '@/test/viewport';
 import { futureToken } from '@/test/tokens';
+import { chooseChangeSettingsFirst } from '@/test/practiceTabs';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { Lang, PartOfSpeech } from '@/ts/enums';
@@ -102,6 +103,7 @@ describe('PracticePage — tabs', () => {
 
         await user.click(await screen.findByRole('tab', { name: 'Saved configurations' }));
         await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
+        await chooseChangeSettingsFirst();
 
         expect(screen.getByRole('tab', { name: 'New configuration' })).toHaveAttribute('aria-selected', 'true');
         expect(await screen.findByLabelText('Number of exercises')).toHaveValue(5);

@@ -128,6 +128,14 @@ async function fetchTagWords(tagId: string, order: readonly LangKey[], signal?: 
     }
 }
 
+/** The query of one tag's words: shared by `useTagWords` and by a direct start (`queryClient.fetchQuery`). */
+export function tagWordsQuery(tagId: string, order: readonly LangKey[]) {
+    return {
+        queryKey: [...wordKeys.all, 'practiceTagWords', tagId, order.join(',')],
+        queryFn: ({ signal }: { signal?: AbortSignal }) => fetchTagWords(tagId, order, signal),
+    };
+}
+
 /**
  * The words of each chosen tag (Practice's set-up, no words from Review). One query per tag;
  * the keys sit under `wordKeys.all`, so every word or tag change refreshes them. `order` is the
@@ -135,12 +143,7 @@ async function fetchTagWords(tagId: string, order: readonly LangKey[], signal?: 
  * `byTag[id]` is `undefined` until that tag has loaded.
  */
 export function useTagWords(tagIds: readonly string[], order: readonly LangKey[]) {
-    const results = useQueries({
-        queries: tagIds.map((id) => ({
-            queryKey: [...wordKeys.all, 'practiceTagWords', id, order.join(',')],
-            queryFn: ({ signal }: { signal?: AbortSignal }) => fetchTagWords(id, order, signal),
-        })),
-    });
+    const results = useQueries({ queries: tagIds.map((id) => tagWordsQuery(id, order)) });
     const byTag: Record<string, PreselectedWord[] | undefined> = {};
     tagIds.forEach((id, index) => {
         byTag[id] = results[index]?.data;

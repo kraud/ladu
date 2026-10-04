@@ -182,18 +182,23 @@ export function SidebarLayout({
         [isMobile, hasPanel, open, panelId],
     );
 
-    // The phone menu already shows `label` as its title: a lone section with the same name would repeat it.
-    const hideHeading = isMobile && sections.length === 1 && sections[0]?.label === label;
+    // A lone section: on desktop its title sits in the header row next to the collapse button (not again
+    // above its content); the phone menu already shows `label` as its title, so there it is hidden for the eye.
+    const loneSection = sections.length === 1 ? sections[0] : undefined;
+    const titleInHeader = !isMobile && loneSection !== undefined;
+    const hideHeading = isMobile && loneSection !== undefined && loneSection.label === label;
     const body = (
         <div className="flex flex-col gap-4" style={isMobile ? undefined : { width: `calc(${WIDTHS[width].px} - 2rem - 1px)` }}>
             {sections.map((section) => (
                 <section key={section.id} data-section={section.id} className="flex flex-col gap-2">
-                    <h2 className={cn('label flex items-center gap-1.5', hideHeading && 'sr-only')}>
-                        <span aria-hidden="true" className="[&_svg]:size-3.5">
-                            {section.icon}
-                        </span>
-                        {section.label}
-                    </h2>
+                    {!titleInHeader && (
+                        <h2 className={cn('label flex items-center gap-1.5', hideHeading && 'sr-only')}>
+                            <span aria-hidden="true" className="[&_svg]:size-3.5">
+                                {section.icon}
+                            </span>
+                            {section.label}
+                        </h2>
+                    )}
                     {section.content}
                 </section>
             ))}
@@ -217,7 +222,7 @@ export function SidebarLayout({
                             collapsed ? 'w-14' : WIDTHS[width].cls,
                         )}
                     >
-                        <div className="flex items-center border-b border-border pb-2">
+                        <div className="flex items-center gap-2 border-b border-border pb-2">
                             <button
                                 type="button"
                                 className="icon-btn"
@@ -228,6 +233,14 @@ export function SidebarLayout({
                             >
                                 {collapsed ? <CaretRightIcon size={16} /> : <CaretLeftIcon size={16} />}
                             </button>
+                            {titleInHeader && !collapsed && (
+                                <h2 className="label flex min-w-0 items-center gap-1.5">
+                                    <span aria-hidden="true" className="[&_svg]:size-3.5">
+                                        {loneSection.icon}
+                                    </span>
+                                    <span className="truncate">{loneSection.label}</span>
+                                </h2>
+                            )}
                         </div>
                         {collapsed ? (
                             <div className="flex flex-col items-center gap-1">

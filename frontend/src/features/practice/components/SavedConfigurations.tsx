@@ -101,6 +101,7 @@ export function SavedConfigurations({
 
     return (
         <div className="flex flex-col gap-2">
+            <p className="hint">{t('practice:configs.note')}</p>
             {configs.isPending && <p className="hint">{t('practice:configs.loading')}</p>}
 
             {configs.isError && (

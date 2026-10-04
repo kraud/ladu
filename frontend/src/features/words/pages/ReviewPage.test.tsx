@@ -457,7 +457,6 @@ describe('ReviewPage — Slice 7: bulk Add tags / Remove tags', () => {
         expect(within(dialog).getByText('Add tags to 2 words')).toBeInTheDocument();
         await user.click(within(dialog).getByPlaceholderText('Search tags to add…'));
         await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
-        await user.keyboard('{Escape}');
         await user.click(within(dialog).getByRole('button', { name: 'Apply' }));
 
         expect(await screen.findByText(/Tags? added to 2 words/)).toBeInTheDocument();
@@ -503,7 +502,6 @@ describe('ReviewPage — Slice 7: bulk Add tags / Remove tags', () => {
         const dialog = screen.getByRole('dialog');
         await user.click(within(dialog).getByPlaceholderText('Search tags to remove…'));
         await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
-        await user.keyboard('{Escape}');
         await user.click(within(dialog).getByRole('button', { name: 'Apply' }));
 
         expect(await screen.findByText(/Tags? removed from 1 word/)).toBeInTheDocument();

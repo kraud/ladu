@@ -5,6 +5,7 @@
   "setup": {
     "title": "Practice",
     "newConfiguration": "New configuration",
+    "newNote": "Choose the settings for a session. Select \"Save configuration\" to use them again later.",
     "selectedWords": "Selected words",
     "selectedWordsButton": "Selected words ({{count}})",
     "tagsEmpty": "No words selected. All your words are used.",
@@ -391,6 +392,14 @@
       "updated": "Configuration updated.",
       "deleted": "Configuration deleted.",
       "loaded": "Configuration \"{{name}}\" is loaded."
+    },
+    "note": "Settings you saved to use again. Select one to start a session now, or to change it first.",
+    "startDialog": {
+      "question": "Start a session with this configuration now, or change the settings first?",
+      "start": "Start session",
+      "change": "Change settings first",
+      "noMatch": "No exercise matches this configuration now. Change the settings first.",
+      "noWords": "The tags of this configuration have no words now. Change the settings first."
     }
   },
   "sessions": {

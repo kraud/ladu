@@ -5,6 +5,7 @@
   "setup": {
     "title": "Harjutus",
     "newConfiguration": "Uus seadistus",
+    "newNote": "Vali sessiooni seaded. Vali „Salvesta seadistus“, et neid hiljem uuesti kasutada.",
     "selectedWords": "Valitud sõnad",
     "selectedWordsButton": "Valitud sõnad ({{count}})",
     "tagsEmpty": "Sõnu pole valitud. Kasutatakse kõiki sinu sõnu.",
@@ -391,6 +392,14 @@
       "updated": "Seadistus uuendatud.",
       "deleted": "Seadistus kustutatud.",
       "loaded": "Seadistus „{{name}}“ laaditud."
+    },
+    "note": "Seaded, mille salvestasid uuesti kasutamiseks. Vali üks, et alustada kohe või muuta seda enne.",
+    "startDialog": {
+      "question": "Kas alustada selle seadistusega sessiooni kohe või muuta enne seadeid?",
+      "start": "Alusta sessiooni",
+      "change": "Muuda enne seadeid",
+      "noMatch": "Sellele seadistusele ei sobi praegu ükski harjutus. Muuda enne seadeid.",
+      "noWords": "Selle seadistuse siltidel pole praegu sõnu. Muuda enne seadeid."
     }
   },
   "sessions": {

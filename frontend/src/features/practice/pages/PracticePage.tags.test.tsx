@@ -6,7 +6,7 @@ import { server } from '@/test/msw/server';
 import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
 import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { makeConfig, makeConfigWord, makeExercise, makePracticeHandlers } from '@/test/msw/practiceHandlers';
-import { openConfigurationsTab, openNewConfigurationTab } from '@/test/practiceTabs';
+import { openConfigurationsTab, openNewConfigurationTab, chooseChangeSettingsFirst } from '@/test/practiceTabs';
 import { mockMobileViewport } from '@/test/viewport';
 import { futureToken } from '@/test/tokens';
 import { useAuthStore } from '@/stores/authStore';
@@ -100,8 +100,6 @@ async function pickTag(user: ReturnType<typeof userEvent.setup>, label: string) 
     const panel = screen.getByRole('complementary');
     await user.click(within(panel).getByPlaceholderText('Filter by tag…'));
     await user.click(await screen.findByRole('option', { name: new RegExp(label) }));
-    // Close the list of matches: while it is open the rest of the page is hidden from the accessibility tree.
-    await user.keyboard('{Escape}');
 }
 
 describe('PracticePage — choosing words by tag', () => {
@@ -332,11 +330,27 @@ describe('PracticePage — tags in a saved configuration', () => {
 
         await user.click(await screen.findByRole('button', { name: 'Use configuration Kitchen drill' }));
 
+        await chooseChangeSettingsFirst();
+
         expect(await screen.findByRole('region', { name: 'Kitchen' })).toBeInTheDocument();
         // The saved words were only house (w1); the tag has house and run today.
         expect(await screen.findByText('Practice with 2 selected words')).toBeInTheDocument();
         expect(screen.getByRole('tab', { name: 'New configuration' })).toHaveAttribute('aria-selected', 'true');
         expect(screen.queryByText('Some words of this configuration are not available now.')).not.toBeInTheDocument();
+    });
+
+    it('"Start session" in the dialog reads the words from the tags and opens the first exercise', async () => {
+        const user = userEvent.setup();
+        const fake = setUp({ configs: [makeConfig({ name: 'Kitchen drill', tagIds: ['tag-1'], wordIds: ['w1'] })] });
+        await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openConfigurationsTab();
+
+        await user.click(await screen.findByRole('button', { name: 'Use configuration Kitchen drill' }));
+        await user.click(await within(await screen.findByRole('dialog')).findByRole('button', { name: 'Start session' }));
+
+        expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
+        // The tag has house and run today (the saved list had only house): the live words are sent.
+        expect([...(fake.state.generateBodies[0]!.wordIds as string[])].sort()).toEqual(['w1', 'w2']);
     });
 
     it('a tag that is gone is skipped, with the warning; the others come back', async () => {
@@ -348,6 +362,8 @@ describe('PracticePage — tags in a saved configuration', () => {
         await openConfigurationsTab();
 
         await user.click(await screen.findByRole('button', { name: 'Use configuration Mixed' }));
+
+        await chooseChangeSettingsFirst();
 
         expect(await screen.findByRole('region', { name: 'Kitchen' })).toBeInTheDocument();
         expect(screen.getAllByRole('region').filter((r) => r.getAttribute('aria-label') === 'Kitchen')).toHaveLength(1);
@@ -364,6 +380,8 @@ describe('PracticePage — tags in a saved configuration', () => {
         await openConfigurationsTab();
 
         await user.click(await screen.findByRole('button', { name: 'Use configuration Old' }));
+
+        await chooseChangeSettingsFirst();
 
         expect(await screen.findByText('Practice with 1 selected word')).toBeInTheDocument();
         expect(screen.queryByRole('region', { name: 'Kitchen' })).not.toBeInTheDocument();

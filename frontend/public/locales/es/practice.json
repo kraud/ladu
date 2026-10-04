@@ -5,6 +5,7 @@
   "setup": {
     "title": "Práctica",
     "newConfiguration": "Nueva configuración",
+    "newNote": "Elige los ajustes de una sesión. Pulsa «Guardar configuración» para usarlos de nuevo más tarde.",
     "selectedWords": "Palabras seleccionadas",
     "selectedWordsButton": "Palabras seleccionadas ({{count}})",
     "tagsEmpty": "Ninguna palabra seleccionada. Se usan todas tus palabras.",
@@ -391,6 +392,14 @@
       "updated": "Configuración actualizada.",
       "deleted": "Configuración eliminada.",
       "loaded": "Configuración «{{name}}» cargada."
+    },
+    "note": "Ajustes que guardaste para usarlos otra vez. Elige uno para empezar una sesión ahora o para cambiarlo antes.",
+    "startDialog": {
+      "question": "¿Empezar ahora una sesión con esta configuración o cambiar antes los ajustes?",
+      "start": "Empezar sesión",
+      "change": "Cambiar los ajustes primero",
+      "noMatch": "Ningún ejercicio coincide ahora con esta configuración. Cambia primero los ajustes.",
+      "noWords": "Las etiquetas de esta configuración no tienen palabras ahora. Cambia primero los ajustes."
     }
   },
   "sessions": {

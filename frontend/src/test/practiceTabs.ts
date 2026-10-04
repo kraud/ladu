@@ -16,3 +16,8 @@ export async function openConfigurationsTab() {
 export async function openSessionsTab() {
     await userEvent.click(await screen.findByRole('tab', { name: 'Ongoing sessions' }));
 }
+
+/** A selected saved configuration asks "start now or change first": take the second way. */
+export async function chooseChangeSettingsFirst() {
+    await userEvent.click(await screen.findByRole('button', { name: 'Change settings first' }));
+}

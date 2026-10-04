@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { BookOpenIcon, ListChecksIcon, WarningIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
@@ -17,13 +18,16 @@ import { ParametersForm } from '../components/ParametersForm';
 import { SavedConfigurations, type LoadedTags } from '../components/SavedConfigurations';
 import { SavedSessions } from '../components/SavedSessions';
 import { SaveConfigDialog, type ConfigDraft } from '../components/SaveConfigDialog';
+import { StartConfigDialog } from '../components/StartConfigDialog';
 import { PreselectedWords, type WordsMode } from '../components/PreselectedWords';
 import { TagWordsSidebar } from '../components/TagWordsSidebar';
 import { ResumeSessionBanner } from '../components/ResumeSessionBanner';
 import { ResultsView } from '../components/ResultsView';
 import { SessionView } from '../components/SessionView';
 import { configToParams, narrowToPickable } from '../configs';
-import { useTagWords } from '../hooks';
+import { practiceErrorKey } from '../errors';
+import { tagWordsQuery, useGenerateExercises, useTagWords } from '../hooks';
+import { toGenerateBody } from '../params';
 import { unionWords, type PreselectedWord } from '../preselection';
 import { loadRememberedParams, rememberParams } from '../remembered';
 import { paramsToSearch, searchToParams } from '../search';
@@ -197,6 +201,19 @@ function SetUp({
     // Set when a loaded configuration has words that are gone (no details, on purpose).
     const [wordsMissing, setWordsMissing] = useState(false);
     const [configDraft, setConfigDraft] = useState<ConfigDraft | null>(null);
+    // A saved configuration the user selected: start it now, or change it first (the dialog).
+    const [chosen, setChosen] = useState<{
+        config: SavedConfig;
+        words: PreselectedWord[] | null;
+        loadedTags: LoadedTags | null;
+    } | null>(null);
+    const [startError, setStartError] = useState<string | null>(null);
+    const [preparing, setPreparing] = useState(false);
+    const generate = useGenerateExercises();
+    const queryClient = useQueryClient();
+    const startSession = usePracticeSessionStore((s) => s.start);
+    // The fixed bottom bar of the layout; the form puts Start / Save into it while the New configuration tab is open.
+    const [actionsHost, setActionsHost] = useState<HTMLElement | null>(null);
     // From Review (with words) the user is here to set up a session; otherwise the ongoing sessions come first.
     const [tab, setTab] = useState<SetUpTab>(() => (preselected || startOnNew ? 'new' : 'sessions'));
 
@@ -221,6 +238,50 @@ function SetUp({
         // The loaded settings are on the New configuration tab.
         setTab('new');
         toast.success(t('practice:configs.toast.loaded', { name: config.name }));
+    }
+
+    function chooseConfig(config: SavedConfig, words: PreselectedWord[] | null, loadedTags: LoadedTags | null) {
+        setStartError(null);
+        setChosen({ config, words, loadedTags });
+    }
+
+    /** "Start session" in the dialog: the first exercise opens at once, the settings screen is skipped. */
+    async function startChosen() {
+        if (!chosen || preparing || generate.isPending) return;
+        setStartError(null);
+        const { config, words, loadedTags } = chosen;
+        const chosenTags = loadedTags?.tags ?? [];
+        let list: PreselectedWord[] | null = words && words.length > 0 ? words : null;
+        if (chosenTags.length > 0) {
+            // Words chosen by tag come live from the tags.
+            setPreparing(true);
+            try {
+                const order = accountLanguageOrder(user.languages);
+                list = unionWords(await Promise.all(chosenTags.map((tag) => queryClient.fetchQuery(tagWordsQuery(tag.id, order)))));
+            } catch {
+                setStartError(t('practice:setup.tagsBlocked.error'));
+                return;
+            } finally {
+                setPreparing(false);
+            }
+            if (list.length === 0) {
+                setStartError(t('practice:configs.startDialog.noWords'));
+                return;
+            }
+        }
+        const params = configToParams(config.params, user.languages, list);
+        const wordIds = list?.map((word) => word.id) ?? null;
+        generate.mutate(toGenerateBody(params, wordIds ?? undefined), {
+            onSuccess: ({ exercises }) => {
+                if (exercises.length === 0) {
+                    setStartError(t('practice:configs.startDialog.noMatch'));
+                    return;
+                }
+                rememberParams(params);
+                startSession({ userId: user.id, params, wordIds, preselected: list, exercises });
+            },
+            onError: (error) => setStartError(t(practiceErrorKey(error))),
+        });
     }
 
     function clearPreselected() {
@@ -306,6 +367,7 @@ function SetUp({
             label={t('practice:setup.selectedWords')}
             sections={sections}
             header={header}
+            footer={tab === 'new' ? <div ref={setActionsHost} /> : undefined}
         >
             <div className="flex flex-col gap-4">
                 {resumeBanner}
@@ -319,10 +381,11 @@ function SetUp({
                         <SavedSessions hasUnfinished={parkedSession !== null} onResumed={clearPreselected} />
                     </TabsContent>
                     <TabsContent value="configs">
-                        <SavedConfigurations onLoad={loadConfig} />
+                        <SavedConfigurations onLoad={chooseConfig} />
                     </TabsContent>
                     {/* Kept mounted while another tab shows: the form holds the working copy of the settings. */}
                     <TabsContent value="new" keepMounted className="flex flex-col gap-3">
+                        <p className="hint">{t('practice:setup.newNote')}</p>
                         <SidebarTrigger
                             label={t('practice:setup.selectedWordsButton', { count: effective?.length ?? 0 })}
                             className={buttonVariants({ variant: 'outline', className: 'w-full gap-2' })}
@@ -341,6 +404,7 @@ function SetUp({
                             user={user}
                             initialParams={initialParams}
                             preselected={effective}
+                            actionsHost={tab === 'new' ? actionsHost : null}
                             tagIds={usingTags ? tags.map((tag) => tag.id) : null}
                             startBlockedReason={tagsBlockedReason}
                             onStarted={clearPreselected}
@@ -353,6 +417,19 @@ function SetUp({
                     </TabsContent>
                 </Tabs>
             </div>
+            {chosen && (
+                <StartConfigDialog
+                    config={chosen.config}
+                    starting={preparing || generate.isPending}
+                    error={startError}
+                    onStart={() => void startChosen()}
+                    onChange={() => {
+                        loadConfig(chosen.config, chosen.words, chosen.loadedTags);
+                        setChosen(null);
+                    }}
+                    onCancel={() => setChosen(null)}
+                />
+            )}
             {configDraft && (
                 <SaveConfigDialog
                     open
