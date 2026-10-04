@@ -149,6 +149,7 @@ const reviewRoute = createRoute({
     path: '/review',
     validateSearch: validateReviewSearch,
     component: ReviewPage,
+    staticData: { sidebar: true },
 });
 
 const practiceRoute = createRoute({

@@ -379,8 +379,7 @@ describe('ReviewPage — Slice 7: Tags filter (D15 — combobox, additive/OR)', 
         await screen.findByText('simmer');
         await screen.findByText('run');
 
-        const filterBar = document.querySelector('.filterbar') as HTMLElement;
-        const tagsGroup = within(filterBar).getByText('Tags').closest('.fb-group') as HTMLElement;
+        const tagsGroup = screen.getByRole('heading', { name: 'Tags' }).closest('section') as HTMLElement;
         await user.click(within(tagsGroup).getByPlaceholderText('Filter by tag…'));
         await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
 
@@ -406,8 +405,7 @@ describe('ReviewPage — Slice 7: Tags filter (D15 — combobox, additive/OR)', 
         await screen.findByText('run');
         await waitFor(() => expect(fake.simpleQueries.at(-1)).toContain('tag=tag-1'));
 
-        const filterBar = document.querySelector('.filterbar') as HTMLElement;
-        const tagsGroup = within(filterBar).getByText('Tags').closest('.fb-group') as HTMLElement;
+        const tagsGroup = screen.getByRole('heading', { name: 'Tags' }).closest('section') as HTMLElement;
         await user.click(within(tagsGroup).getByPlaceholderText('Filter by tag…'));
         await user.click(await screen.findByRole('option', { name: /Exam prep/ }));
 
@@ -430,8 +428,7 @@ describe('ReviewPage — Slice 7: Tags filter (D15 — combobox, additive/OR)', 
         await renderApp({ initialEntry: '/review?tag=tag-1', session: SESSION });
         await screen.findByText('run');
 
-        const filterBar = document.querySelector('.filterbar') as HTMLElement;
-        const tagsGroup = within(filterBar).getByText('Tags').closest('.fb-group') as HTMLElement;
+        const tagsGroup = screen.getByRole('heading', { name: 'Tags' }).closest('section') as HTMLElement;
         expect(within(tagsGroup).getByText('Kitchen')).toBeInTheDocument();
     });
 });
@@ -681,6 +678,38 @@ describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, fro
     });
 });
 
+describe('ReviewPage — desktop: filters in the docked sidebar', () => {
+    it('always shows the filters as a column beside the table; search, switches and count stay in the toolbar', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [nounSeed('cat', 'w1'), verbSeed('run', 'w2')] });
+        server.use(...fake.handlers);
+
+        await renderApp({ initialEntry: '/review', session: SESSION });
+        await screen.findByText('cat');
+
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        expect(within(panel).getByRole('heading', { name: 'Part of speech' })).toBeInTheDocument();
+        // The phone's trigger and the old top-bar controls do not exist on desktop.
+        expect(screen.queryByRole('button', { name: 'Filters' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /Move filters/ })).not.toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: 'Filter table' })).toBeInTheDocument();
+        expect(screen.getByText('Display progress')).toBeInTheDocument();
+        expect(screen.getByText('2 of 2 words')).toBeInTheDocument();
+    });
+
+    it('collapsed, the rail still shows which group is filtering', async () => {
+        const user = userEvent.setup();
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [nounSeed('cat', 'w1'), verbSeed('run', 'w2')] });
+        server.use(...fake.handlers);
+
+        await renderApp({ initialEntry: '/review?pos=Noun', session: SESSION });
+        await screen.findByText('cat');
+
+        await user.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
+        expect(screen.getByTestId('pos-count')).toHaveTextContent('1');
+        expect(screen.queryByTestId('gender-count')).not.toBeInTheDocument();
+    });
+});
+
 describe('ReviewPage — phone: filters in a side menu', () => {
     it('has no inline filter bar; search and the count stay, the switches move into the menu', async () => {
         mockMobileViewport();
@@ -695,7 +724,7 @@ describe('ReviewPage — phone: filters in a side menu', () => {
         await screen.findByText('cat');
 
         // Outside the menu: search + count + the Filters button only.
-        expect(screen.queryByRole('button', { name: 'Collapse filters' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
         expect(screen.queryByText('Part of speech')).not.toBeInTheDocument();
         expect(screen.queryByText('Display gender')).not.toBeInTheDocument();
         expect(screen.queryByText('Display progress')).not.toBeInTheDocument();
@@ -729,7 +758,7 @@ describe('ReviewPage — phone: filters in a side menu', () => {
         await waitFor(() => expect(fake.simpleQueries.at(-1)).toContain('pos=Noun'));
 
         // Closed, the button still says how many filters are on.
-        await user.click(within(menu).getByRole('button', { name: 'Close' }));
+        await user.click(within(menu).getByRole('button', { name: 'Close menu' }));
         await waitFor(() => expect(screen.getByRole('button', { name: /Filters/ })).toHaveTextContent('1'));
     });
 

@@ -12,11 +12,6 @@
   "filters": {
     "title": "Filters",
     "display": "Display",
-    "show": "Show filters",
-    "collapse": "Collapse filters",
-    "noneActive": "No filters applied",
-    "activeCount_one": "{{count}} filter active",
-    "activeCount_other": "{{count}} filters active",
     "gender": "Gender",
     "clear": "Clear",
     "partOfSpeech": "Part of speech",
@@ -26,9 +21,7 @@
     "moveEarlier": "Move {{language}} earlier",
     "moveLater": "Move {{language}} later",
     "hideLanguage": "Hide {{language}}",
-    "showLanguage": "Show {{language}}",
-    "moveToSidebar": "Move filters to sidebar",
-    "moveToTop": "Move filters to top"
+    "showLanguage": "Show {{language}}"
   },
   "toolbar": {
     "searchPlaceholder": "Search words…",

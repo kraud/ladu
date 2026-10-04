@@ -28,10 +28,10 @@ A state of a sidebar route that has no sidebar (loading skeleton, the part-of-sp
 ## Slices
 
 1. **Done 2026-10-04 — layout + Add word + Word page.** `WordEditorLayout` is a thin wrapper; `SidebarFields.tsx` is now the hook `useWordSidebarSections` (Clue, Tags, Linked words). `WordEditorBar` is the content of the layout's `footer`. Unit tests green (1321); e2e `phase-1-auth`, `phase-2-noun-crud`, `phase-3-review`, `phase-4-tags` green when run one spec at a time (three specs in parallel gave two false failures: login and registration errors, not related to the layout).
-2. Review — not started.
+2. **Done 2026-10-04 — Review.** `FilterBar.tsx` is now the hook `useFilterSections` (Gender, Part of speech, Tags, Language order; each group has its own rail counter). `ReviewPage` renders `SidebarLayout id="review"`; on a phone the display switches join the menu as a last section and the toolbar gets the "Filters" button (`SidebarTrigger`, with the active-filter count). Removed: the top filter bar, the top/sidebar toggle, `MobileFilters`, `uiStore.reviewSidebarCollapsed` / `reviewFilterPosition`, the old `.filterbar` / `.fb-header` / `.layout` CSS and 7 unused `review:filters.*` keys. Unit tests green (1304); e2e `phase-2`, `phase-3-review`, `phase-4-tags`, `phase-5-practice`, `phase-5-5-saved-practice` green, one spec at a time.
 3. Practice (+ `components/ui/tabs.tsx`) — not started.
 
 ## Notes
 
-- `uiStore.reviewSidebarCollapsed` and `reviewFilterPosition` stay until slice 2 removes them.
+- A trigger that uses `buttonVariants` directly must wrap it in `cn(...)`: `Button` does, and without it `border-transparent` beats `border-border` and the button has no border.
 - The "Linked words" section is a placeholder for a future feature (links between synonyms and related words). It stores nothing.

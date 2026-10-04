@@ -13,7 +13,6 @@ import type { PreselectedWord } from '@/features/practice/preselection';
 import type { PartOfSpeech } from '@/ts/enums';
 
 type SearchMode = 'words' | 'tags';
-type ReviewFilterPosition = 'top' | 'sidebar';
 export type SidebarId = 'review' | 'word' | 'practice';
 
 interface UiState {
@@ -24,14 +23,6 @@ interface UiState {
     /** Header global-search word/tag toggle (Phase 3). */
     searchMode: SearchMode;
     setSearchMode: (mode: SearchMode) => void;
-
-    /** Review filter bar collapsed to its header row (top) or an icon rail (sidebar). */
-    reviewSidebarCollapsed: boolean;
-    setReviewSidebarCollapsed: (collapsed: boolean) => void;
-
-    /** Review filter bar's position: a bar above the table, or a collapsible left sidebar. */
-    reviewFilterPosition: ReviewFilterPosition;
-    setReviewFilterPosition: (position: ReviewFilterPosition) => void;
 
     /**
      * Collapsed (icon rail) state of each page's `SidebarLayout`, by page. The word
@@ -57,12 +48,6 @@ export const useUiStore = create<UiState>()((set) => ({
 
     searchMode: 'words',
     setSearchMode: (searchMode) => set({ searchMode }),
-
-    reviewSidebarCollapsed: false,
-    setReviewSidebarCollapsed: (reviewSidebarCollapsed) => set({ reviewSidebarCollapsed }),
-
-    reviewFilterPosition: 'top',
-    setReviewFilterPosition: (reviewFilterPosition) => set({ reviewFilterPosition }),
 
     sidebarCollapsed: { review: false, word: true, practice: false },
     setSidebarCollapsed: (id, collapsed) =>

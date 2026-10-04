@@ -1,5 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
-import { CaretDownIcon, CaretLeftIcon, CaretRightIcon, CaretUpIcon } from '@phosphor-icons/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
@@ -7,13 +6,24 @@ import { server } from '@/test/msw/server';
 import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { useUiStore } from '@/stores/uiStore';
 import { PartOfSpeech } from '@/ts/enums';
-import { activeFilterCount, FilterBar, type FilterBarProps } from './FilterBar';
+import { SidebarLayout } from '@/components/layout/sidebar/SidebarLayout';
+import { activeFilterCount, useFilterSections, type FilterBarProps } from './FilterBar';
 
 afterEach(() => {
-    useUiStore.setState({ reviewSidebarCollapsed: false, reviewFilterPosition: 'top' });
+    useUiStore.getState().setSidebarCollapsed('review', false);
 });
 
-// The Tags group's `TagCombobox` always fires a real `useTags` search on
+/** The hook's sections, inside the real layout (headings, rail and counters come from it). */
+function FilterBar(props: FilterBarProps) {
+    const sections = useFilterSections(props);
+    return (
+        <SidebarLayout id="review" label="Filters" sections={sections}>
+            <div />
+        </SidebarLayout>
+    );
+}
+
+// The Tags section's `TagCombobox` always fires a real `useTags` search on
 // mount (D15/D17) — every test in this file renders `FilterBar`, so every
 // test needs a tag fake registered, even the ones that never touch it.
 beforeEach(() => {
@@ -33,48 +43,59 @@ const baseProps: FilterBarProps = {
     onLanguagesChange: vi.fn(),
 };
 
-describe('FilterBar — collapse', () => {
-    it('starts expanded (mockup default) and can be collapsed', async () => {
-        const user = userEvent.setup();
+describe('FilterBar — sections', () => {
+    it('shows Gender, Part of speech, Tags and Language order as sections, in a column', () => {
         renderWithProviders(<FilterBar {...baseProps} />);
-        expect(screen.getByText('Part of speech')).toBeInTheDocument();
-
-        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
-        expect(screen.queryByText('Part of speech')).not.toBeInTheDocument();
-        expect(screen.getByText('No filters applied')).toBeInTheDocument();
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        for (const name of ['Gender', 'Part of speech', 'Tags', 'Language order']) {
+            expect(within(panel).getByRole('heading', { name })).toBeInTheDocument();
+        }
+        // The layout draws the frame: no collapse-to-top or move-to-top controls any more.
+        expect(screen.queryByRole('button', { name: /Move filters/ })).not.toBeInTheDocument();
     });
 
-    it('shows the active-filter count once collapsed, and re-expands', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} pos={[PartOfSpeech.noun]} hasQuery />);
-        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
+    it('the language-order section shows its heading once, not twice', () => {
+        renderWithProviders(<FilterBar {...baseProps} />);
+        expect(screen.getAllByText('Language order')).toHaveLength(1);
+    });
+});
 
-        expect(screen.getByText('2')).toBeInTheDocument();
-        expect(screen.getByText('2 filters active')).toBeInTheDocument();
-
-        await user.click(screen.getByRole('button', { name: 'Show filters' }));
-        expect(screen.getByText('Part of speech')).toBeInTheDocument();
+describe('FilterBar — collapsed rail', () => {
+    it('shows one button per group, and a counter on each group that is filtering', () => {
+        useUiStore.getState().setSidebarCollapsed('review', true);
+        renderWithProviders(
+            <FilterBar {...baseProps} gender={['der', 'die']} pos={[PartOfSpeech.noun]} hasQuery />,
+        );
+        for (const name of ['Gender', 'Part of speech', 'Tags', 'Language order']) {
+            expect(screen.getByRole('button', { name })).toBeInTheDocument();
+        }
+        expect(screen.getByTestId('gender-count')).toHaveTextContent('2');
+        expect(screen.getByTestId('pos-count')).toHaveTextContent('1');
+        // Idle groups show no counter; the search box is the toolbar's, not a group's.
+        expect(screen.queryByTestId('tags-count')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('language-order-count')).not.toBeInTheDocument();
     });
 
-    it('counts each active gender value individually in the active-filter pill', async () => {
+    it('a rail button expands the panel to the filters', async () => {
         const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} gender={['der', 'die']} />);
-        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
-        expect(screen.getByText('2 filters active')).toBeInTheDocument();
+        useUiStore.getState().setSidebarCollapsed('review', true);
+        renderWithProviders(<FilterBar {...baseProps} />);
+        await user.click(screen.getByRole('button', { name: 'Part of speech' }));
+        expect(screen.getByRole('button', { name: 'n.' })).toBeInTheDocument();
     });
+});
 
-    it('shows the current language order as a hint when collapsed', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} activeLanguages={['DE', 'EN']} />);
-        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
-        expect(screen.getByText('DE → EN', { exact: false })).toBeInTheDocument();
+describe('activeFilterCount', () => {
+    it('adds each gender, part-of-speech and tag pick, plus the search box when it has text', () => {
+        expect(activeFilterCount([], [], false)).toBe(0);
+        expect(activeFilterCount(['der', 'die'], [PartOfSpeech.noun], true, 3)).toBe(7);
     });
 });
 
 describe('FilterBar — gender chips (per-language, revised per user review)', () => {
     it('shows a German group and a Spanish group, each labelled by the 2-letter language code', () => {
         renderWithProviders(<FilterBar {...baseProps} />);
-        const genderGroup = screen.getByText('Gender').closest('.fb-group') as HTMLElement;
+        const genderGroup = screen.getByRole('heading', { name: 'Gender' }).closest('section') as HTMLElement;
         expect(within(genderGroup).getByText('DE')).toBeInTheDocument();
         expect(within(genderGroup).getByText('ES')).toBeInTheDocument();
     });
@@ -152,7 +173,7 @@ describe('FilterBar — part of speech chips', () => {
 describe('FilterBar — Tags group (D15/D17)', () => {
     it('renders a Tags group with the filter-mode combobox', async () => {
         renderWithProviders(<FilterBar {...baseProps} />);
-        const tagsGroup = screen.getByText('Tags').closest('.fb-group') as HTMLElement;
+        const tagsGroup = screen.getByRole('heading', { name: 'Tags' }).closest('section') as HTMLElement;
         expect(within(tagsGroup).getByPlaceholderText('Filter by tag…')).toBeInTheDocument();
     });
 
@@ -189,172 +210,11 @@ describe('FilterBar — Tags group (D15/D17)', () => {
         const { rerender } = renderWithProviders(
             <FilterBar {...baseProps} onSelectedTagsChange={onSelectedTagsChange} />,
         );
-        const tagsGroup = () => screen.getByText('Tags').closest('.fb-group') as HTMLElement;
+        const tagsGroup = () => screen.getByRole('heading', { name: 'Tags' }).closest('section') as HTMLElement;
         expect(within(tagsGroup()).queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
 
         rerender(<FilterBar {...baseProps} selectedTags={[tag]} onSelectedTagsChange={onSelectedTagsChange} />);
         await user.click(within(tagsGroup()).getByRole('button', { name: 'Clear' }));
         expect(onSelectedTagsChange).toHaveBeenCalledWith([]);
-    });
-});
-
-describe('FilterBar — sidebar position', () => {
-    it('moves to a sidebar, stacking filter groups in a column, and back to the top', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} />);
-
-        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
-        expect(useUiStore.getState().reviewFilterPosition).toBe('sidebar');
-        expect(screen.getByText('Part of speech').closest('aside')).toBeInTheDocument();
-        expect(screen.getByText('Gender').closest('.fb-body')).toHaveClass('fb-body--sidebar');
-
-        await user.click(screen.getByRole('button', { name: 'Move filters to top' }));
-        expect(useUiStore.getState().reviewFilterPosition).toBe('top');
-        expect(screen.getByText('Part of speech').closest('aside')).not.toBeInTheDocument();
-    });
-
-    it('collapses to an icon rail once in sidebar position, hiding the title and hint text', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} pos={[PartOfSpeech.noun]} />);
-
-        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
-        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
-
-        expect(screen.queryByText('Filters')).not.toBeInTheDocument();
-        expect(screen.queryByText('Part of speech')).not.toBeInTheDocument();
-        expect(screen.getByText('1')).toBeInTheDocument();
-
-        await user.click(screen.getByRole('button', { name: 'Show filters' }));
-        expect(screen.getByText('Filters')).toBeInTheDocument();
-    });
-});
-
-describe('FilterBar — menu layout (the phone\'s side menu)', () => {
-    it('renders just the groups in a column: no card, header, collapse or position toggle', () => {
-        const { container } = renderWithProviders(<FilterBar {...baseProps} layout="menu" />);
-
-        expect(screen.getByText('Gender')).toBeInTheDocument();
-        expect(screen.getByText('Part of speech')).toBeInTheDocument();
-        expect(screen.getByText('Language order')).toBeInTheDocument();
-        expect(screen.getByText('Gender').closest('.fb-body')).toHaveClass('fb-body--sidebar');
-
-        expect(container.querySelector('.filterbar')).not.toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: /filters/i })).not.toBeInTheDocument();
-        expect(screen.queryByText('Filters')).not.toBeInTheDocument();
-    });
-
-    it('ignores the stored top/sidebar position and still reports changes', async () => {
-        useUiStore.setState({ reviewFilterPosition: 'sidebar', reviewSidebarCollapsed: true });
-        const onPosChange = vi.fn();
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} layout="menu" onPosChange={onPosChange} />);
-
-        expect(screen.getByText('Part of speech')).toBeInTheDocument(); // a collapsed sidebar would hide it
-        await user.click(screen.getByRole('button', { name: 'n.' }));
-        expect(onPosChange).toHaveBeenCalledWith([PartOfSpeech.noun]);
-    });
-});
-
-describe('activeFilterCount', () => {
-    it('counts each gender and part-of-speech value, plus the search text', () => {
-        expect(activeFilterCount([], [], false)).toBe(0);
-        expect(activeFilterCount(['der', 'die'], [PartOfSpeech.noun], true)).toBe(4);
-    });
-});
-
-describe('FilterBar — collapse arrow direction', () => {
-    /** The rendered `<svg>` markup of an icon at the size the toggle uses, to compare against the button's. */
-    function iconMarkup(Icon: typeof CaretUpIcon) {
-        const { container, unmount } = render(<Icon size={16} />);
-        const markup = container.innerHTML;
-        unmount();
-        return markup;
-    }
-
-    function toggleIcon(name: string) {
-        return screen.getByRole('button', { name }).innerHTML;
-    }
-
-    it('points up (collapse) and down (expand) while the bar is above the table', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} />);
-
-        expect(toggleIcon('Collapse filters')).toBe(iconMarkup(CaretUpIcon));
-        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
-        expect(toggleIcon('Show filters')).toBe(iconMarkup(CaretDownIcon));
-    });
-
-    it('points left (collapse) and right (expand) once the bar is a sidebar', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} />);
-        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
-
-        expect(toggleIcon('Collapse filters')).toBe(iconMarkup(CaretLeftIcon));
-        await user.click(screen.getByRole('button', { name: 'Collapse filters' }));
-        expect(toggleIcon('Show filters')).toBe(iconMarkup(CaretRightIcon));
-    });
-
-    it('goes back to up/down when the bar moves back above the table', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} />);
-        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
-        await user.click(screen.getByRole('button', { name: 'Move filters to top' }));
-
-        expect(toggleIcon('Collapse filters')).toBe(iconMarkup(CaretUpIcon));
-    });
-});
-
-describe('FilterBar — Language order heading layout', () => {
-    const head = () => screen.getByText('Language order').parentElement!;
-
-    it('is a row above the table', () => {
-        renderWithProviders(<FilterBar {...baseProps} />);
-        expect(head()).not.toHaveClass('flex-col');
-    });
-
-    it('is a column (title above hint) once the filters are a sidebar, and a row again above the table', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} />);
-
-        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
-        expect(head()).toHaveClass('flex-col', 'items-start');
-
-        await user.click(screen.getByRole('button', { name: 'Move filters to top' }));
-        expect(head()).not.toHaveClass('flex-col');
-    });
-
-    it('the other groups keep their own heading rows in the sidebar', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} gender={['der']} />);
-        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
-
-        // Gender's heading row holds the title and its Clear link side by side.
-        expect(screen.getByText('Gender').parentElement).not.toHaveClass('flex-col');
-    });
-
-    it('is a column in the phone menu too, whatever the stored desktop position', () => {
-        useUiStore.setState({ reviewFilterPosition: 'top' });
-        renderWithProviders(<FilterBar {...baseProps} layout="menu" />);
-        expect(head()).toHaveClass('flex-col', 'items-start');
-    });
-});
-
-describe('FilterBar — no reflow while the sidebar expands', () => {
-    // jsdom cannot measure layout, so this pins the classes that prevent the flash: the aside
-    // animates its width from the 56px rail, and groups that follow it reflow into a very tall
-    // narrow column for the first frames. Measured in a browser: the height was 636px on the first
-    // frame and 382px at rest; now it is 382px throughout.
-    it('in the sidebar, the groups have the final expanded width and the aside clips while it grows', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(<FilterBar {...baseProps} />);
-        await user.click(screen.getByRole('button', { name: 'Move filters to sidebar' }));
-
-        expect(screen.getByText('Gender').closest('.fb-body')).toHaveClass('w-[calc(16rem-2px-2rem)]');
-        expect(screen.getByText('Gender').closest('aside')).toHaveClass('overflow-x-hidden', 'transition-[width]');
-    });
-
-    it('above the table the groups keep their natural, wrapping width', () => {
-        renderWithProviders(<FilterBar {...baseProps} />);
-        expect(screen.getByText('Gender').closest('.fb-body')).not.toHaveClass('w-[calc(16rem-2px-2rem)]');
     });
 });

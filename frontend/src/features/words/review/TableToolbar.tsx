@@ -4,9 +4,11 @@
  * it to; Display progress, which gates the per-cell completion ring and
  * applies to every part of speech), and the loaded/total row count.
  *
- * On a phone the switches live in `MobileFilters`' side menu instead
- * (`hideDisplayOptions`), and that menu's trigger comes in through `leading`,
- * before the search box. Search and the count stay here either way.
+ * On a phone the switches live in the slide-in menu instead
+ * (`hideDisplayOptions`), and the "Filters" button that opens it
+ * (`SidebarTrigger`) comes in through `leading`, before the search box. On
+ * desktop that button renders nothing: the filter panel is always docked.
+ * Search and the count stay here either way.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,9 +30,9 @@ export interface TableToolbarProps {
     onShowProgressChange: (next: boolean) => void;
     loadedCount: number;
     total: number;
-    /** Rendered before the search box (the phone's Filters button). */
+    /** Rendered before the search box (the phone's Filters button; empty on desktop). */
     leading?: ReactNode;
-    /** The switches are somewhere else (the phone's side menu). */
+    /** The switches are somewhere else (the phone's slide-in menu). */
     hideDisplayOptions?: boolean;
 }
 

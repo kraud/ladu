@@ -12,11 +12,6 @@
   "filters": {
     "title": "Filtrid",
     "display": "Kuva",
-    "show": "Näita filtreid",
-    "collapse": "Peida filtrid",
-    "noneActive": "Ühtegi filtrit pole rakendatud",
-    "activeCount_one": "{{count}} filter aktiivne",
-    "activeCount_other": "{{count}} filtrit aktiivne",
     "gender": "Sugu",
     "clear": "Tühjenda",
     "partOfSpeech": "Sõnaliik",
@@ -26,9 +21,7 @@
     "moveEarlier": "Nihuta {{language}} varasemaks",
     "moveLater": "Nihuta {{language}} hilisemaks",
     "hideLanguage": "Peida {{language}}",
-    "showLanguage": "Näita {{language}}",
-    "moveToSidebar": "Vii filtrid külgribale",
-    "moveToTop": "Vii filtrid üles"
+    "showLanguage": "Näita {{language}}"
   },
   "toolbar": {
     "searchPlaceholder": "Otsi sõnu…",
