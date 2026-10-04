@@ -376,6 +376,8 @@
       "descriptionPlaceholder": "Milleks see seadistus on?",
       "withWords_one": "See seadistus sisaldab {{count}} valitud sõna.",
       "withWords_other": "See seadistus sisaldab {{count}} valitud sõna.",
+      "withTags_one": "See seadistus sisaldab {{count}} sildi sõnu. Need loetakse laadimisel uuesti.",
+      "withTags_other": "See seadistus sisaldab {{count}} sildi sõnu. Need loetakse laadimisel uuesti.",
       "save": "Salvesta",
       "saving": "Salvestamine…"
     },

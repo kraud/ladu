@@ -357,10 +357,26 @@ describe('PracticePage — saved configurations', () => {
             expect(fake.state.configBodies[0]).toEqual({
                 method: 'PUT',
                 id: 'cfg-seed',
-                body: { name: 'Renamed', description: null, params: config.params, wordIds: ['w1'] },
+                body: { name: 'Renamed', description: null, params: config.params, wordIds: ['w1'], tagIds: null },
             });
             expect(await screen.findByRole('button', { name: 'Use configuration Renamed' })).toBeInTheDocument();
             expect(screen.getByText('Configuration updated.')).toBeInTheDocument();
+        });
+
+        it('keeps the tags of a configuration when it is renamed', async () => {
+            const config = makeConfig({ wordIds: ['w1'], tagIds: ['tag-1'] });
+            const fake = setUp({ configs: [config] });
+            const user = userEvent.setup();
+            await renderPractice();
+
+            await user.click(await screen.findByRole('button', { name: 'Edit configuration Morning drill' }));
+            const dialog = await screen.findByRole('dialog');
+            await user.clear(within(dialog).getByLabelText(/Name/));
+            await user.type(within(dialog).getByLabelText(/Name/), 'Renamed');
+            await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+            await waitFor(() => expect(fake.state.configBodies).toHaveLength(1));
+            expect(fake.state.configBodies[0]!.body).toMatchObject({ wordIds: ['w1'], tagIds: ['tag-1'] });
         });
 
         it('names the problem when the new name is taken', async () => {

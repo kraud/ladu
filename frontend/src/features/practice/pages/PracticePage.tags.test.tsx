@@ -5,8 +5,8 @@ import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
 import { makeTagHandlers } from '@/test/msw/tagHandlers';
-import { makeExercise, makePracticeHandlers } from '@/test/msw/practiceHandlers';
-import { openNewConfigurationTab } from '@/test/practiceTabs';
+import { makeConfig, makeConfigWord, makeExercise, makePracticeHandlers } from '@/test/msw/practiceHandlers';
+import { openConfigurationsTab, openNewConfigurationTab } from '@/test/practiceTabs';
 import { mockMobileViewport } from '@/test/viewport';
 import { futureToken } from '@/test/tokens';
 import { useAuthStore } from '@/stores/authStore';
@@ -49,7 +49,7 @@ const verb = (id: string, label: string, tags: (typeof kitchen)[] = []): SeedWor
  * house + run in Kitchen; run + cat in Travel (run is in both); house + cat in "Only nouns";
  * dog in none; the tag "Empty" has no words.
  */
-function setUp() {
+function setUp(options: Parameters<typeof makePracticeHandlers>[0] = {}) {
     server.use(
         ...makeTagHandlers({
             callerId: 'u1',
@@ -72,7 +72,7 @@ function setUp() {
             ],
         }).handlers,
     );
-    const fake = makePracticeHandlers({ exercises: [makeExercise()] });
+    const fake = makePracticeHandlers({ exercises: [makeExercise()], ...options });
     server.use(...fake.handlers);
     return fake;
 }
@@ -180,14 +180,16 @@ describe('PracticePage — choosing words by tag', () => {
         expect(await screen.findByText('No words selected. All your words are used.')).toBeInTheDocument();
     });
 
-    it('picking the same tag again adds nothing', async () => {
+    it('a tag that is already chosen is not offered again in the search', async () => {
         const user = userEvent.setup();
         setUp();
         await renderSetUp();
         await pickTag(user, 'Kitchen');
         await screen.findByRole('region', { name: 'Kitchen' });
-        await pickTag(user, 'Kitchen');
-        expect(screen.getAllByRole('region', { name: 'Kitchen' })).toHaveLength(1);
+
+        await user.click(within(screen.getByRole('complementary')).getByPlaceholderText('Filter by tag…'));
+        expect(await screen.findByRole('option', { name: /Travel/ })).toBeInTheDocument();
+        expect(screen.queryByRole('option', { name: /Kitchen/ })).not.toBeInTheDocument();
     });
 
     it('the tags\' words limit the word types, and Start sends exactly their ids', async () => {
@@ -286,5 +288,85 @@ describe('PracticePage — choosing words by tag', () => {
         await user.click(await screen.findByRole('button', { name: 'Selected words (0)' }));
         const menu = await screen.findByRole('dialog');
         expect(within(menu).getByPlaceholderText('Filter by tag…')).toBeInTheDocument();
+    });
+});
+
+describe('PracticePage — tags in a saved configuration', () => {
+    it('saves the tags next to the words, and says so in the dialog', async () => {
+        const user = userEvent.setup();
+        const fake = setUp();
+        await renderSetUp();
+        await pickTag(user, 'Kitchen');
+        await screen.findByText('Practice with 2 selected words');
+
+        await user.click(screen.getByRole('button', { name: 'Save configuration' }));
+        const dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getByText(/includes the words of 1 tag/)).toBeInTheDocument();
+        await user.type(within(dialog).getByLabelText(/Name/), 'Kitchen drill');
+        await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+        await waitFor(() => expect(fake.state.configBodies).toHaveLength(1));
+        expect(fake.state.configBodies[0]!.body).toMatchObject({ tagIds: ['tag-1'] });
+        expect([...(fake.state.configBodies[0]!.body.wordIds ?? [])].sort()).toEqual(['w1', 'w2']);
+    });
+
+    it('saves tagIds as null when the words did not come from tags', async () => {
+        const user = userEvent.setup();
+        const fake = setUp();
+        await renderSetUp();
+
+        await user.click(screen.getByRole('button', { name: 'Save configuration' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.type(within(dialog).getByLabelText(/Name/), 'Everything');
+        await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+        await waitFor(() => expect(fake.state.configBodies).toHaveLength(1));
+        expect(fake.state.configBodies[0]!.body.tagIds).toBeNull();
+    });
+
+    it('loading it brings the tags back as containers and reads the words from them live', async () => {
+        const user = userEvent.setup();
+        setUp({ configs: [makeConfig({ name: 'Kitchen drill', tagIds: ['tag-1'], wordIds: ['w1'] })] });
+        await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openConfigurationsTab();
+
+        await user.click(await screen.findByRole('button', { name: 'Use configuration Kitchen drill' }));
+
+        expect(await screen.findByRole('region', { name: 'Kitchen' })).toBeInTheDocument();
+        // The saved words were only house (w1); the tag has house and run today.
+        expect(await screen.findByText('Practice with 2 selected words')).toBeInTheDocument();
+        expect(screen.getByRole('tab', { name: 'New configuration' })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.queryByText('Some words of this configuration are not available now.')).not.toBeInTheDocument();
+    });
+
+    it('a tag that is gone is skipped, with the warning; the others come back', async () => {
+        const user = userEvent.setup();
+        setUp({
+            configs: [makeConfig({ name: 'Mixed', tagIds: ['tag-1', '00000000-0000-4000-8000-000000000999'], wordIds: ['w1'] })],
+        });
+        await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openConfigurationsTab();
+
+        await user.click(await screen.findByRole('button', { name: 'Use configuration Mixed' }));
+
+        expect(await screen.findByRole('region', { name: 'Kitchen' })).toBeInTheDocument();
+        expect(screen.getAllByRole('region').filter((r) => r.getAttribute('aria-label') === 'Kitchen')).toHaveLength(1);
+        expect(await screen.findByText('Some words of this configuration are not available now.')).toBeInTheDocument();
+    });
+
+    it('when every tag is gone it falls back to the saved words, with the warning', async () => {
+        const user = userEvent.setup();
+        setUp({
+            configs: [makeConfig({ name: 'Old', tagIds: ['00000000-0000-4000-8000-000000000999'], wordIds: ['w1'] })],
+            configWords: [makeConfigWord('w1', 'house')],
+        });
+        await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openConfigurationsTab();
+
+        await user.click(await screen.findByRole('button', { name: 'Use configuration Old' }));
+
+        expect(await screen.findByText('Practice with 1 selected word')).toBeInTheDocument();
+        expect(screen.queryByRole('region', { name: 'Kitchen' })).not.toBeInTheDocument();
+        expect(await screen.findByText('Some words of this configuration are not available now.')).toBeInTheDocument();
     });
 });

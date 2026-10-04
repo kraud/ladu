@@ -69,6 +69,7 @@ export function ParametersForm({
     onStarted,
     onSaveConfig,
     startBlockedReason,
+    tagIds,
 }: {
     user: SessionUser;
     initialParams: PracticeParams;
@@ -80,6 +81,8 @@ export function ParametersForm({
     onSaveConfig: (draft: ConfigDraft) => void;
     /** Why Start and Save cannot be used now (the words of the chosen tags are loading, or there are none). */
     startBlockedReason?: string;
+    /** The tags the pre-selected words were chosen by, saved with a configuration. */
+    tagIds?: string[] | null;
 }) {
     const { t } = useTranslation();
     const generate = useGenerateExercises();
@@ -392,7 +395,11 @@ export function ParametersForm({
                     variant="outline"
                     disabled={!valid || !!startBlockedReason}
                     onClick={() =>
-                        onSaveConfig({ params: { ...params, amount }, wordIds: preselected?.map((word) => word.id) ?? null })
+                        onSaveConfig({
+                            params: { ...params, amount },
+                            wordIds: preselected?.map((word) => word.id) ?? null,
+                            tagIds: tagIds ?? null,
+                        })
                     }
                 >
                     <BookmarkSimpleIcon aria-hidden size={14} />

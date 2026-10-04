@@ -376,6 +376,8 @@
       "descriptionPlaceholder": "¿Para qué sirve esta configuración?",
       "withWords_one": "Esta configuración incluye {{count}} palabra seleccionada.",
       "withWords_other": "Esta configuración incluye {{count}} palabras seleccionadas.",
+      "withTags_one": "Esta configuración incluye las palabras de {{count}} etiqueta. Se leen de nuevo al cargarla.",
+      "withTags_other": "Esta configuración incluye las palabras de {{count}} etiquetas. Se leen de nuevo al cargarla.",
       "save": "Guardar",
       "saving": "Guardando…"
     },

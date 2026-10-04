@@ -376,6 +376,8 @@
       "descriptionPlaceholder": "What is this configuration for?",
       "withWords_one": "This configuration includes {{count}} selected word.",
       "withWords_other": "This configuration includes {{count}} selected words.",
+      "withTags_one": "This configuration includes the words of {{count}} tag. They are read again when you load it.",
+      "withTags_other": "This configuration includes the words of {{count}} tags. They are read again when you load it.",
       "save": "Save",
       "saving": "Saving…"
     },

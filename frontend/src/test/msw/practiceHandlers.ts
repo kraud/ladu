@@ -189,6 +189,7 @@ export function makePracticeHandlers(options: PracticeFakeOptions = {}) {
                 description: body.description,
                 params: body.params,
                 wordIds: body.wordIds,
+                tagIds: body.tagIds ?? null,
                 missingCount: missingOf(body.wordIds),
                 createdAt: now,
                 updatedAt: now,
@@ -218,6 +219,7 @@ export function makePracticeHandlers(options: PracticeFakeOptions = {}) {
             const next: SavedConfig = {
                 ...state.configs[index],
                 ...body,
+                tagIds: body.tagIds ?? null,
                 missingCount: missingOf(body.wordIds),
                 updatedAt: new Date().toISOString(),
             };
@@ -334,6 +336,7 @@ export function makeConfig(overrides: Partial<SavedConfig> = {}): SavedConfig {
             excludeNative: false,
         },
         wordIds: null,
+        tagIds: null,
         missingCount: 0,
         createdAt: '2026-09-30T08:00:00.000Z',
         updatedAt: '2026-09-30T08:00:00.000Z',

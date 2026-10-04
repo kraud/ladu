@@ -1,0 +1,1 @@
+ALTER TABLE "practice_configs" ADD COLUMN "tag_ids" uuid[];

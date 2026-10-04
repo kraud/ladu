@@ -14,7 +14,7 @@ import { accountLanguageOrder } from '@/features/words/review/search';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { ParametersForm } from '../components/ParametersForm';
-import { SavedConfigurations } from '../components/SavedConfigurations';
+import { SavedConfigurations, type LoadedTags } from '../components/SavedConfigurations';
 import { SavedSessions } from '../components/SavedSessions';
 import { SaveConfigDialog, type ConfigDraft } from '../components/SaveConfigDialog';
 import { PreselectedWords, type WordsMode } from '../components/PreselectedWords';
@@ -200,15 +200,23 @@ function SetUp({
     // From Review (with words) the user is here to set up a session; otherwise the ongoing sessions come first.
     const [tab, setTab] = useState<SetUpTab>(() => (preselected || startOnNew ? 'new' : 'sessions'));
 
-    function loadConfig(config: SavedConfig, words: PreselectedWord[] | null) {
+    function loadConfig(config: SavedConfig, words: PreselectedWord[] | null, loadedTags: LoadedTags | null) {
+        // Words chosen by tag come live from the tags, so the settings are not narrowed to words yet:
+        // the form follows the words as they load.
+        const chosenTags = loadedTags?.tags ?? [];
         const params = configToParams(config.params, user.languages, words);
         setInitialParams(params);
         setLiveParams(params);
         setFormKey((key) => key + 1);
         onPreselect(words && words.length > 0 ? words : null);
-        setTags([]);
-        if (words && words.length > 0) useUiStore.getState().setSidebarCollapsed('practice', false);
-        setWordsMissing((config.wordIds?.length ?? 0) > (words?.length ?? 0));
+        setTags(chosenTags);
+        const tagsGone = loadedTags?.missing ?? 0;
+        setWordsMissing(
+            chosenTags.length > 0 ? tagsGone > 0 : tagsGone > 0 || (config.wordIds?.length ?? 0) > (words?.length ?? 0),
+        );
+        if ((words && words.length > 0) || chosenTags.length > 0) {
+            useUiStore.getState().setSidebarCollapsed('practice', false);
+        }
         void navigate({ search: paramsToSearch(params), replace: true });
         // The loaded settings are on the New configuration tab.
         setTab('new');
@@ -333,6 +341,7 @@ function SetUp({
                             user={user}
                             initialParams={initialParams}
                             preselected={effective}
+                            tagIds={usingTags ? tags.map((tag) => tag.id) : null}
                             startBlockedReason={tagsBlockedReason}
                             onStarted={clearPreselected}
                             onSaveConfig={setConfigDraft}

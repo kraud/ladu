@@ -14,7 +14,7 @@ type Params = Pick<PracticeParams, 'languages' | 'partsOfSpeech'>;
  * The practice sidebar when no words came from Review: the user chooses words by tag. Nothing chosen:
  * a note (all words are used) and a separator, then the tag search. The chosen tags are NOT shown inside
  * the search box; each one is a container below it, with its words (folded at first), a remove button,
- * and the number of words in the header. Together the tags' words are the pre-selected words
+ * and the number of words in the header. A tag that is already chosen is not offered again. Together the tags' words are the pre-selected words
  * (`words`, the union the page also uses for Start); the eye button and the used / not used marks are
  * the same as for words from Review.
  */
@@ -57,7 +57,12 @@ export function TagWordsSidebar({
 
             <div className="field">
                 <span className="label">{t('practice:setup.tagsLabel')}</span>
-                <TagCombobox mode="filter" selected={[]} onSelectedChange={add} />
+                <TagCombobox
+                    mode="filter"
+                    selected={[]}
+                    excludeIds={new Set(tags.map((tag) => tag.id))}
+                    onSelectedChange={add}
+                />
             </div>
 
             {tags.length > 0 && (

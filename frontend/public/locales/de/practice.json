@@ -376,6 +376,8 @@
       "descriptionPlaceholder": "Wofür ist diese Konfiguration?",
       "withWords_one": "Diese Konfiguration enthält {{count}} ausgewähltes Wort.",
       "withWords_other": "Diese Konfiguration enthält {{count}} ausgewählte Wörter.",
+      "withTags_one": "Diese Konfiguration enthält die Wörter von {{count}} Tag. Sie werden beim Laden neu gelesen.",
+      "withTags_other": "Diese Konfiguration enthält die Wörter von {{count}} Tags. Sie werden beim Laden neu gelesen.",
       "save": "Speichern",
       "saving": "Wird gespeichert…"
     },

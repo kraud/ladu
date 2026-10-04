@@ -6,10 +6,11 @@
  * always start a session. `strictnessTI` is client-only but is stored with them.
  */
 
-import { validateGenerateRequest, type GenerateRequest, type Validation } from './validate';
+import { isUuid, validateGenerateRequest, type GenerateRequest, type Validation } from './validate';
 
 export const MAX_CONFIG_NAME = 60;
 export const MAX_CONFIG_DESCRIPTION = 200;
+export const MAX_CONFIG_TAGS = 20;
 export const DEFAULT_STRICTNESS_TI = 2;
 
 /** The settings as stored: the generate settings without words, plus the typed-answer strictness. */
@@ -21,6 +22,11 @@ export interface ConfigRequest {
     params: ConfigParams;
     /** `null` = no pre-selected words. */
     wordIds: string[] | null;
+    /**
+     * The tags the words were chosen by (Practice's tag picker), or `null`. The words stay in
+     * `wordIds` (the words at the time of saving); the tags let the client choose them again live.
+     */
+    tagIds: string[] | null;
 }
 
 const fail = (code: string, message: string): { ok: false; code: string; message: string } => ({
@@ -61,8 +67,18 @@ export function validateConfigRequest(body: unknown): Validation<ConfigRequest> 
     if (!settings.ok) return settings;
     const { wordIds, ...params } = settings.value;
 
+    // Same rule as `wordIds`: a missing field, `null` and `[]` all mean none.
+    let tagIds: string[] | null = null;
+    if (body.tagIds !== undefined && body.tagIds !== null) {
+        const ids = body.tagIds;
+        if (!Array.isArray(ids) || ids.length > MAX_CONFIG_TAGS || !ids.every(isUuid)) {
+            return fail('invalid_tag_ids', `tagIds must be a list of at most ${MAX_CONFIG_TAGS} valid ids.`);
+        }
+        if (ids.length > 0) tagIds = [...new Set(ids as string[])];
+    }
+
     return {
         ok: true,
-        value: { name, description, params: { ...params, strictnessTI }, wordIds: wordIds ?? null },
+        value: { name, description, params: { ...params, strictnessTI }, wordIds: wordIds ?? null, tagIds },
     };
 }

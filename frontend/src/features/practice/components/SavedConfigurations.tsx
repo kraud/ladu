@@ -1,9 +1,13 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
+import { getTagById } from '@/features/tags/api';
+import { tagKeys } from '@/features/tags/keys';
+import type { TagSummary } from '@/features/tags/types';
 import { accountLanguageOrder } from '@/features/words/review/search';
 import { useAuthStore } from '@/stores/authStore';
 import { practiceErrorKey } from '../errors';
@@ -16,27 +20,36 @@ import { Pill, SetupFacts } from './SetupFacts';
 /**
  * The user's saved configurations: the content of the "Saved configurations" tab on the set-up screen. One tap on a row loads it:
  * the page gets the configuration and its words (still visible ones, with labels).
- * `words` is `null` when the configuration has none. Edit changes name and description;
+ * `words` is `null` when the configuration has none. A configuration with tags reads the tags again
+ * and gives them to the page (`loadedTags`): the words come live from the tags. If none of its tags can
+ * be read any more, it falls back to the saved words, and says how many tags are gone. Edit changes name and description;
  * delete asks first. A failed load or delete stays as a message here, never a lost click.
  */
+/** The tags of a configuration that could be read again, and how many could not (deleted, or no longer visible). */
+export interface LoadedTags {
+    tags: TagSummary[];
+    missing: number;
+}
+
 export function SavedConfigurations({
     onLoad,
 }: {
-    onLoad: (config: SavedConfig, words: PreselectedWord[] | null) => void;
+    onLoad: (config: SavedConfig, words: PreselectedWord[] | null, loadedTags: LoadedTags | null) => void;
 }) {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user);
     const configs = useConfigs();
     const loadWords = useLoadConfigWords();
+    const queryClient = useQueryClient();
     const deleteConfig = useDeleteConfig();
     const [loadingId, setLoadingId] = useState<string | null>(null);
     const [editing, setEditing] = useState<SavedConfig | null>(null);
     const [deleting, setDeleting] = useState<SavedConfig | null>(null);
 
-    function load(config: SavedConfig) {
-        if (loadingId) return;
+    function loadSavedWords(config: SavedConfig, loadedTags: LoadedTags | null) {
         if (!config.wordIds || config.wordIds.length === 0) {
-            onLoad(config, null);
+            onLoad(config, null, loadedTags);
+            setLoadingId(null);
             return;
         }
         setLoadingId(config.id);
@@ -46,9 +59,35 @@ export function SavedConfigurations({
                 onLoad(
                     config,
                     rows.map((row) => toPreselectedWord(row, order)),
+                    loadedTags,
                 );
             },
             onSettled: () => setLoadingId(null),
+        });
+    }
+
+    function load(config: SavedConfig) {
+        if (loadingId) return;
+        const tagIds = config.tagIds ?? [];
+        if (tagIds.length === 0) {
+            loadSavedWords(config, null);
+            return;
+        }
+        // Words chosen by tag: read the tags again (the page shows them as containers).
+        setLoadingId(config.id);
+        void Promise.allSettled(
+            tagIds.map((id) => queryClient.fetchQuery({ queryKey: tagKeys.detail(id), queryFn: () => getTagById(id) })),
+        ).then((results) => {
+            const tags = results.flatMap((result) =>
+                result.status === 'fulfilled' && result.value.isAvailable ? [result.value] : [],
+            );
+            const loadedTags = { tags, missing: tagIds.length - tags.length };
+            if (tags.length > 0) {
+                onLoad(config, null, loadedTags);
+                setLoadingId(null);
+            } else {
+                loadSavedWords(config, loadedTags);
+            }
         });
     }
 

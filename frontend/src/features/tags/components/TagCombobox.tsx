@@ -86,6 +86,12 @@ export interface TagComboboxProps {
     onSelectedChange: (next: TagComboboxItem[]) => void;
     /** `mode="remove"` only — narrows matches to the tags actually present on the target word(s). */
     restrictToIds?: ReadonlySet<string>;
+    /**
+     * Tags that are already chosen elsewhere and must not be offered again. For a host that keeps
+     * its picks outside the box (`selected` stays empty, as in Practice's tag picker); a tag in
+     * `selected` is never offered anyway.
+     */
+    excludeIds?: ReadonlySet<string>;
 }
 
 function disabledReason(tag: TagSummary, mode: TagComboboxMode, t: TFunction): string | undefined {
@@ -104,7 +110,7 @@ function isSameTag(a: TagComboboxItem, b: TagComboboxItem): boolean {
     return a.id === b.id;
 }
 
-export function TagCombobox({ mode, selected, onSelectedChange, restrictToIds }: TagComboboxProps) {
+export function TagCombobox({ mode, selected, onSelectedChange, restrictToIds, excludeIds }: TagComboboxProps) {
     const { t } = useTranslation();
     const [query, setQuery] = useState('');
     const debouncedQuery = useDebouncedCallback(query, SEARCH_DEBOUNCE_MS);
@@ -116,8 +122,14 @@ export function TagCombobox({ mode, selected, onSelectedChange, restrictToIds }:
     const results = useMemo(() => tagsQuery.data?.pages[0]?.items ?? [], [tagsQuery.data]);
     const selectedIds = useMemo(() => new Set(selected.map((tag) => tag.id)), [selected]);
     const rows = useMemo(
-        () => results.filter((tag) => !selectedIds.has(tag.id) && (!restrictToIds || restrictToIds.has(tag.id))),
-        [results, selectedIds, restrictToIds],
+        () =>
+            results.filter(
+                (tag) =>
+                    !selectedIds.has(tag.id) &&
+                    !excludeIds?.has(tag.id) &&
+                    (!restrictToIds || restrictToIds.has(tag.id)),
+            ),
+        [results, selectedIds, excludeIds, restrictToIds],
     );
 
     const trimmedQuery = query.trim();

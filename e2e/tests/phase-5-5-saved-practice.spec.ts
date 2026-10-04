@@ -30,6 +30,9 @@ import {
  *  2. Configurations with words: from Review select two words, save; delete one word;
  *     loading it shows the small "some words are missing" banner and practices only
  *     the word that is left.
+ *  2b. Configurations with tags: pick a tag in the sidebar (it is not offered again), save; the
+ *     configuration stores the tag; loading it brings the tag back; when the tag is deleted,
+ *     loading falls back to the saved words and shows the "some words are missing" banner.
  *  3. Sessions: answer a card, leave with "Save session and leave"; the list shows it;
  *     resume opens the same card with the answer kept; leaving again updates the SAME
  *     saved session (still one row); finishing removes it; "Leave session and delete"
@@ -233,6 +236,75 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await expect(page.getByRole('heading', { name: 'Exercise 1 of 1' })).toBeVisible();
             expect(['Apple', 'Apfel']).toContain(await currentPrompt(page));
         });
+    });
+
+    test('a configuration with tags: saved with the tag, loaded back; a deleted tag falls back to the saved words', async ({ page, request }) => {
+        // Banana was deleted by the test before; Apple and Carrot are still there.
+        const created = await request.post(`${API}/api/tags`, {
+            headers: authHeader(ownerToken),
+            data: { label: 'Snacks', visibility: 'Private', wordIds: [wordIds.Apple, wordIds.Carrot] },
+        });
+        expect(created.ok()).toBeTruthy();
+        const tagId = ((await created.json()) as { id: string }).id;
+
+        await signIn(page, owner);
+        await page.goto('/practice');
+        await openNewConfigurationTab(page);
+
+        await test.step('pick the tag; it is not offered again', async () => {
+            await page.getByRole('button', { name: 'Expand sidebar' }).click();
+            await page.getByPlaceholder('Filter by tag…').click();
+            await page.getByRole('option', { name: /Snacks/ }).click();
+            await page.keyboard.press('Escape');
+            await expect(page.getByText('Practice with 2 selected words')).toBeVisible();
+
+            await page.getByPlaceholder('Filter by tag…').click();
+            await expect(page.getByRole('option', { name: /Snacks/ })).toHaveCount(0);
+            await page.keyboard.press('Escape');
+        });
+
+        await test.step('save: the dialog says the tag is saved too', async () => {
+            await page.getByRole('button', { name: 'Save configuration' }).click();
+            const dialog = page.getByRole('dialog');
+            await expect(dialog.getByText(/includes the words of 1 tag/)).toBeVisible();
+            await dialog.getByLabel(/Name/).fill('Snack drill');
+            await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+            await expect(page.getByText('Configuration saved.')).toBeVisible();
+
+            const list = await request.get(`${API}/api/practice/configs`, { headers: authHeader(ownerToken) });
+            const saved = ((await list.json()) as Array<{ name: string; tagIds: string[] | null; wordIds: string[] | null }>).find(
+                (config) => config.name === 'Snack drill',
+            );
+            expect(saved?.tagIds).toEqual([tagId]);
+            expect([...(saved?.wordIds ?? [])].sort()).toEqual([wordIds.Apple, wordIds.Carrot].sort());
+        });
+
+        await test.step('a fresh visit: loading the configuration brings the tag back', async () => {
+            await page.goto('/practice');
+            await openConfigurationsTab(page);
+            await configRow(page, 'Snack drill').click();
+            await expect(page.getByRole('region', { name: 'Snacks' })).toBeVisible();
+            await expect(page.getByText('Practice with 2 selected words')).toBeVisible();
+            await expect(page.getByText('Some words of this configuration are not available now.')).toHaveCount(0);
+        });
+
+        await test.step('the tag is deleted: loading falls back to the saved words, with the banner', async () => {
+            const gone = await request.delete(`${API}/api/tags/${tagId}`, { headers: authHeader(ownerToken) });
+            expect(gone.ok()).toBeTruthy();
+
+            await page.goto('/practice');
+            await openConfigurationsTab(page);
+            await configRow(page, 'Snack drill').click();
+            await expect(page.getByText('Some words of this configuration are not available now.')).toBeVisible();
+            await expect(page.getByText('Practice with 2 selected words')).toBeVisible();
+            await expect(page.getByRole('region', { name: 'Snacks' })).toHaveCount(0);
+        });
+
+        // Leave nothing behind: later tests count the owner's configurations.
+        const list = await request.get(`${API}/api/practice/configs`, { headers: authHeader(ownerToken) });
+        const mine = ((await list.json()) as Array<{ id: string; name: string }>).find((config) => config.name === 'Snack drill');
+        expect(mine).toBeDefined();
+        expect((await request.delete(`${API}/api/practice/configs/${mine!.id}`, { headers: authHeader(ownerToken) })).status()).toBe(204);
     });
 
     test('sessions: save and leave, resume, leave again (same row), finish; leave and delete saves nothing', async ({ page, request }) => {

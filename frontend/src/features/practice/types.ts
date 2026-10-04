@@ -110,6 +110,8 @@ export interface SavedConfig {
     params: PracticeParams;
     /** The pre-selected words, or `null` when the configuration has none. */
     wordIds: string[] | null;
+    /** The tags the words were chosen by (Practice's tag picker), or `null`. The words are read from them again on load. */
+    tagIds: string[] | null;
     /** Saved words the user can no longer see. */
     missingCount: number;
     createdAt: string;
@@ -122,6 +124,7 @@ export interface SaveConfigBody {
     description: string | null;
     params: PracticeParams;
     wordIds: string[] | null;
+    tagIds: string[] | null;
 }
 
 /** What the saved-session list shows about one session (built by the server from the snapshot). */
