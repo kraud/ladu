@@ -307,6 +307,23 @@ describe('ResultsView', () => {
         expect(usePracticeSessionStore.getState().session).toBeNull();
     });
 
+    it('"Change settings" opens the New configuration tab, also when the session had no pre-selected words', async () => {
+        await openResults({ params: { amount: 7 } });
+        // The account has words, so the set-up shows its tabs (not the "no words" message).
+        server.use(
+            ...makeWordHandlers({
+                callerId: 'u1',
+                seed: [{ id: 'w1', user: 'u1', partOfSpeech: PartOfSpeech.noun, translations: [] }],
+            }).handlers,
+        );
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByRole('button', { name: 'Change settings' }));
+
+        expect(await screen.findByRole('tab', { name: 'New configuration' })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByLabelText('Number of exercises')).toHaveValue(7);
+    });
+
     it('links to Review', async () => {
         await openResults();
         expect(await screen.findByRole('link', { name: 'Go to Review table' })).toHaveAttribute('href', '/review');

@@ -11,7 +11,7 @@ import { useConfigs, useDeleteConfig, useLoadConfigWords } from '../hooks';
 import { toPreselectedWord, type PreselectedWord } from '../preselection';
 import type { CardType, SavedConfig } from '../types';
 import { SaveConfigDialog } from './SaveConfigDialog';
-import { SetupFacts } from './SetupFacts';
+import { Pill, SetupFacts } from './SetupFacts';
 
 /**
  * The user's saved configurations: the content of the "Saved configurations" tab on the set-up screen. One tap on a row loads it:
@@ -107,23 +107,24 @@ export function SavedConfigurations({
                                     cardTypes={cardTypesOf(config.params.type)}
                                     languages={config.params.languages}
                                     partsOfSpeech={config.params.partsOfSpeech}
+                                    extra={
+                                        <span className="flex flex-col items-start gap-1.5 self-center">
+                                            <Pill>
+                                                {(config.wordIds?.length ?? 0) > 0
+                                                    ? t('practice:configs.summary.selectedWords', { count: config.wordIds?.length ?? 0 })
+                                                    : t('practice:configs.summary.allWords')}
+                                            </Pill>
+                                            <Pill>
+                                                {config.params.wordSelection === 'Random'
+                                                    ? t('practice:configs.summary.randomOrder')
+                                                    : t('practice:configs.summary.weakerFirst')}
+                                            </Pill>
+                                        </span>
+                                    }
                                 />
-                                <span className="meta flex flex-wrap items-center gap-x-2">
-                                    <span>
-                                        {(config.wordIds?.length ?? 0) > 0
-                                            ? t('practice:configs.summary.selectedWords', { count: config.wordIds?.length ?? 0 })
-                                            : t('practice:configs.summary.allWords')}
-                                    </span>
-                                    <span aria-hidden>·</span>
-                                    <span>
-                                        {config.params.wordSelection === 'Random'
-                                            ? t('practice:configs.summary.randomOrder')
-                                            : t('practice:configs.summary.weakerFirst')}
-                                    </span>
-                                    {config.missingCount > 0 && (
-                                        <span className="text-(--danger)">{t('practice:configs.summary.someMissing')}</span>
-                                    )}
-                                </span>
+                                {config.missingCount > 0 && (
+                                    <span className="meta text-(--danger)">{t('practice:configs.summary.someMissing')}</span>
+                                )}
                             </button>
                             <span className="absolute top-2 right-2 flex gap-1">
                                 <Button

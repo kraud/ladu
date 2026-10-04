@@ -3,9 +3,10 @@
     "title": "Practice"
   },
   "setup": {
-    "settingsTitle": "Practice settings",
-    "newSession": "New session",
     "title": "Practice",
+    "newConfiguration": "New configuration",
+    "selectedWords": "Selected words",
+    "selectedWordsButton": "Selected words ({{count}})",
     "start": "Start session",
     "starting": "Creating exercises…",
     "labels": {
@@ -81,8 +82,6 @@
     "preselected": {
       "title_one": "Practice with {{count}} selected word",
       "title_other": "Practice with {{count}} selected words",
-      "show": "Show words",
-      "hide": "Hide words",
       "clear": "Remove pre-selection",
       "note": "We will change this word list in a later update.",
       "confirm": {
@@ -381,7 +380,7 @@
     }
   },
   "sessions": {
-    "title": "Saved sessions",
+    "title": "Ongoing sessions",
     "note": "You can keep up to {{max}} sessions for {{days}} days. A new session replaces the oldest one.",
     "loading": "Loading…",
     "empty": "You have no saved sessions. Leave a session and select \"Save session and leave\" to keep it.",

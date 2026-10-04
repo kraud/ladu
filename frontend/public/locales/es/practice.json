@@ -3,9 +3,10 @@
     "title": "Práctica"
   },
   "setup": {
-    "settingsTitle": "Ajustes de práctica",
-    "newSession": "Nueva sesión",
     "title": "Práctica",
+    "newConfiguration": "Nueva configuración",
+    "selectedWords": "Palabras seleccionadas",
+    "selectedWordsButton": "Palabras seleccionadas ({{count}})",
     "start": "Empezar sesión",
     "starting": "Creando ejercicios…",
     "labels": {
@@ -81,8 +82,6 @@
     "preselected": {
       "title_one": "Practicar con {{count}} palabra seleccionada",
       "title_other": "Practicar con {{count}} palabras seleccionadas",
-      "show": "Mostrar palabras",
-      "hide": "Ocultar palabras",
       "clear": "Quitar preselección",
       "note": "Cambiaremos esta lista de palabras en una actualización posterior.",
       "confirm": {
@@ -381,7 +380,7 @@
     }
   },
   "sessions": {
-    "title": "Sesiones guardadas",
+    "title": "Sesiones en curso",
     "note": "Puedes tener hasta {{max}} sesiones durante {{days}} días. Una sesión nueva reemplaza a la más antigua.",
     "loading": "Cargando…",
     "empty": "No tienes sesiones guardadas. Sal de una sesión y elige «Guardar sesión y salir» para conservarla.",

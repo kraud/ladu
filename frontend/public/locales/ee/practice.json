@@ -3,9 +3,10 @@
     "title": "Harjutamine"
   },
   "setup": {
-    "settingsTitle": "Harjutuse seaded",
-    "newSession": "Uus sessioon",
     "title": "Harjutus",
+    "newConfiguration": "Uus seadistus",
+    "selectedWords": "Valitud sõnad",
+    "selectedWordsButton": "Valitud sõnad ({{count}})",
     "start": "Alusta harjutust",
     "starting": "Harjutusi luuakse…",
     "labels": {
@@ -81,8 +82,6 @@
     "preselected": {
       "title_one": "Harjuta {{count}} valitud sõnaga",
       "title_other": "Harjuta {{count}} valitud sõnaga",
-      "show": "Näita sõnu",
-      "hide": "Peida sõnad",
       "clear": "Eemalda eelvalik",
       "note": "Muudame seda sõnaloendit hilisemas uuenduses.",
       "confirm": {
@@ -381,7 +380,7 @@
     }
   },
   "sessions": {
-    "title": "Salvestatud sessioonid",
+    "title": "Pooleliolevad sessioonid",
     "note": "Saad hoida kuni {{max}} sessiooni {{days}} päeva. Uus sessioon asendab vanima.",
     "loading": "Laadimine…",
     "empty": "Sul pole salvestatud sessioone. Lahku sessioonist ja vali „Salvesta sessioon ja lahku“, et see alles jätta.",

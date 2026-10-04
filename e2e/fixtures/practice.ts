@@ -105,11 +105,13 @@ export async function signIn(page: Page, account: Account): Promise<void> {
     await expect(page.getByRole('heading', { name: new RegExp(`Welcome, ${account.name}`) })).toBeVisible();
 }
 
-/** Settings on the set-up screen. Everything not given stays as it is. */
+/** Settings on the set-up screen's New configuration tab. Everything not given stays as it is. */
 export async function configure(
     page: Page,
     settings: { amount?: number; answer?: 'Type the answer' | 'Choose the answer' | 'Mixed'; languages?: 'Different languages' | 'Same language' | 'Mixed' },
 ): Promise<void> {
+    // The settings are on the New configuration tab (the page opens on Ongoing sessions).
+    await page.getByRole('tab', { name: 'New configuration' }).click();
     if (settings.amount !== undefined) await page.getByLabel('Number of exercises').fill(String(settings.amount));
     if (settings.answer) await page.getByRole('button', { name: settings.answer, exact: true }).click();
     if (settings.languages) await page.getByRole('button', { name: settings.languages, exact: true }).click();

@@ -3,9 +3,10 @@
     "title": "Üben"
   },
   "setup": {
-    "settingsTitle": "Übungseinstellungen",
-    "newSession": "Neue Sitzung",
     "title": "Üben",
+    "newConfiguration": "Neue Konfiguration",
+    "selectedWords": "Ausgewählte Wörter",
+    "selectedWordsButton": "Ausgewählte Wörter ({{count}})",
     "start": "Übung starten",
     "starting": "Übungen werden erstellt…",
     "labels": {
@@ -81,8 +82,6 @@
     "preselected": {
       "title_one": "Mit {{count}} ausgewähltem Wort üben",
       "title_other": "Mit {{count}} ausgewählten Wörtern üben",
-      "show": "Wörter anzeigen",
-      "hide": "Wörter ausblenden",
       "clear": "Vorauswahl entfernen",
       "note": "Wir ändern diese Wortliste in einem späteren Update.",
       "confirm": {
@@ -381,7 +380,7 @@
     }
   },
   "sessions": {
-    "title": "Gespeicherte Sitzungen",
+    "title": "Laufende Sitzungen",
     "note": "Du kannst bis zu {{max}} Sitzungen {{days}} Tage lang behalten. Eine neue Sitzung ersetzt die älteste.",
     "loading": "Wird geladen…",
     "empty": "Du hast keine gespeicherten Sitzungen. Verlasse eine Sitzung und wähle „Sitzung speichern und verlassen“, um sie zu behalten.",

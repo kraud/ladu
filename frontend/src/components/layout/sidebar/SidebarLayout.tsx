@@ -70,11 +70,6 @@ export interface SidebarLayoutProps {
     footer?: ReactNode;
     /** Page title block: first in the content column, above `children`. */
     header?: ReactNode;
-    /**
-     * Phone: keep the slide-in menu mounted (hidden) while closed. For a section that
-     * holds its own working state (Practice's settings form), which a close would lose.
-     */
-    keepMounted?: boolean;
     /** Content column max width: `max-w-7xl` instead of `max-w-5xl`. */
     wide?: boolean;
     children: ReactNode;
@@ -82,6 +77,8 @@ export interface SidebarLayoutProps {
 
 interface SidebarContextValue {
     isMobile: boolean;
+    /** The page gave the layout at least one section. */
+    hasPanel: boolean;
     open: boolean;
     setOpen: (open: boolean) => void;
     panelId: string;
@@ -95,7 +92,7 @@ export function useSidebar(): SidebarContextValue {
     return context;
 }
 
-/** The button that opens the slide-in menu. Renders on a phone only. `label` is its accessible name; `children` is what shows. */
+/** The button that opens the slide-in menu. Renders on a phone only, and only when the page has a panel. `label` is its accessible name; `children` is what shows. */
 export function SidebarTrigger({
     label,
     className,
@@ -105,8 +102,8 @@ export function SidebarTrigger({
     className?: string;
     children?: ReactNode;
 }) {
-    const { isMobile, open, setOpen, panelId } = useSidebar();
-    if (!isMobile) return null;
+    const { isMobile, hasPanel, open, setOpen, panelId } = useSidebar();
+    if (!isMobile || !hasPanel) return null;
     return (
         <button
             type="button"
@@ -131,7 +128,6 @@ export function SidebarLayout({
     drawerTop,
     footer,
     header,
-    keepMounted,
     wide,
     children,
 }: SidebarLayoutProps) {
@@ -179,9 +175,11 @@ export function SidebarLayout({
         if (selector) section?.querySelector<HTMLElement>(selector)?.focus();
     }, [collapsed]);
 
+    // A page can have a state with nothing to put in the panel: then there is no panel at all.
+    const hasPanel = sections.length > 0;
     const context = useMemo<SidebarContextValue>(
-        () => ({ isMobile, open, setOpen, panelId }),
-        [isMobile, open, panelId],
+        () => ({ isMobile, hasPanel, open, setOpen, panelId }),
+        [isMobile, hasPanel, open, panelId],
     );
 
     // The phone menu already shows `label` as its title: a lone section with the same name would repeat it.
@@ -208,7 +206,7 @@ export function SidebarLayout({
                 className="flex items-start"
                 style={{ '--sidebar-footer-h': `${footerHeight}px` } as CSSProperties}
             >
-                {!isMobile && (
+                {!isMobile && hasPanel && (
                     <aside
                         id={panelId}
                         ref={panelRef}
@@ -284,12 +282,11 @@ export function SidebarLayout({
                 </div>
             </div>
 
-            {isMobile && (
+            {isMobile && hasPanel && (
                 <Sheet open={open} onOpenChange={setOpen}>
                     <SheetContent
                         side="left"
                         showCloseButton={false}
-                        keepMounted={keepMounted}
                         id={panelId}
                         className="w-72 max-w-[85vw] overflow-y-auto p-4 sm:max-w-none"
                     >

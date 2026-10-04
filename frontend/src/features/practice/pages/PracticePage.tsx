@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
-import { BookOpenIcon, PlayIcon, SlidersHorizontalIcon, WarningIcon } from '@phosphor-icons/react';
+import { BookOpenIcon, ListChecksIcon, WarningIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
-import { SidebarLayout, SidebarTrigger, useSidebar } from '@/components/layout/sidebar/SidebarLayout';
+import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 import { buttonVariants } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
 import { useWordsInfinite } from '@/features/words/hooks';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
@@ -33,16 +32,13 @@ const route = getRouteApi('/_protected/practice');
 /**
  * `/practice`: Stage 1 (set-up), Stage 2 (the exercise cards), Stage 3 (results).
  *
- * Stage 1 uses the shared `SidebarLayout` (wide): the settings form is the
- * sidebar's one section (on a phone, the slide-in menu, kept mounted so the
- * working copy survives a close), and the main area holds the title, the
- * resume banner and two tabs — saved configurations and saved sessions, one
- * visible at a time. Stages 2 and 3 and the "no words" message have no sidebar
- * and sit in the normal centered column (`PageColumn`).
- *
- * Entry from Review: the words wait in `uiStore`. They are read once at mount
- * and cleared, so a later visit to `/practice` starts clean. They win over a
- * running session — that session is dropped (its answers are already saved).
+ * Stage 1 uses the shared `SidebarLayout`. The main area has the title, the
+ * resume banner and three tabs: Ongoing sessions (the default), Saved
+ * configurations, and New configuration (the settings form, with a sticky
+ * Start / Save bar). The sidebar holds only the pre-selected words and exists
+ * only on the New configuration tab, and only when there are words; elsewhere
+ * the layout renders no panel. Stages 2 and 3 and the "no words" message have
+ * no sidebar and sit in the normal centered column (`PageColumn`).
  */
 export function PracticePage() {
     const user = useAuthStore((s) => s.user);
@@ -53,6 +49,8 @@ export function PracticePage() {
 
     const navigate = route.useNavigate();
     const [preselected, setPreselected] = useState(() => useUiStore.getState().practicePreselection);
+    // Set when the user leaves the results to change the settings: the set-up then opens on New configuration.
+    const [startOnNew, setStartOnNew] = useState(false);
     useEffect(() => {
         if (useUiStore.getState().practicePreselection) {
             useUiStore.getState().setPracticePreselection(null);
@@ -68,6 +66,7 @@ export function PracticePage() {
         rememberParams(finished.params);
         void navigate({ search: paramsToSearch(finished.params), replace: true });
         setPreselected(finished.preselected);
+        setStartOnNew(true);
         clearSession();
     }
 
@@ -91,9 +90,12 @@ export function PracticePage() {
             parkedSession={session && parked && !preselected ? session : null}
             onResume={resumeSession}
             onDismiss={clearSession}
+            startOnNew={startOnNew}
         />
     );
 }
+
+type SetUpTab = 'sessions' | 'configs' | 'new';
 
 function SetUp({
     preselected,
@@ -101,8 +103,11 @@ function SetUp({
     parkedSession,
     onResume,
     onDismiss,
+    startOnNew,
 }: {
     preselected: PreselectedWord[] | null;
+    /** The user came back from the results to change the settings: open on New configuration. */
+    startOnNew: boolean;
     /** Replace the pre-selected words (`null` = none): a saved configuration was loaded, or the words were cleared. */
     onPreselect: (words: PreselectedWord[] | null) => void;
     parkedSession: Session | null;
@@ -123,6 +128,8 @@ function SetUp({
     // Set when a loaded configuration has words that are gone (no details, on purpose).
     const [wordsMissing, setWordsMissing] = useState(false);
     const [configDraft, setConfigDraft] = useState<ConfigDraft | null>(null);
+    // From Review (with words) the user is here to set up a session; otherwise the ongoing sessions come first.
+    const [tab, setTab] = useState<SetUpTab>(() => (preselected || startOnNew ? 'new' : 'sessions'));
 
     function loadConfig(config: SavedConfig, words: PreselectedWord[] | null) {
         const params = configToParams(config.params, user.languages, words);
@@ -131,6 +138,8 @@ function SetUp({
         onPreselect(words && words.length > 0 ? words : null);
         setWordsMissing((config.wordIds?.length ?? 0) > (words?.length ?? 0));
         void navigate({ search: paramsToSearch(params), replace: true });
+        // The loaded settings are on the New configuration tab.
+        setTab('new');
         toast.success(t('practice:configs.toast.loaded', { name: config.name }));
     }
 
@@ -177,50 +186,72 @@ function SetUp({
         );
     }
 
-    const sections = [
-        {
-            id: 'settings',
-            label: t('practice:setup.settingsTitle'),
-            icon: <SlidersHorizontalIcon size={18} />,
-            // The rail shows how many words came from Review.
-            count: preselected?.length ?? 0,
-            content: (
-                <div className="flex flex-col gap-3">
-                    {wordsMissing && (
-                        <div className="banner warning items-start" role="status">
-                            <WarningIcon aria-hidden size={16} className="mt-0.5 shrink-0" />
-                            <span className="grow">{t('practice:configs.missingWords')}</span>
-                        </div>
-                    )}
-                    {preselected && <PreselectedWords words={preselected} onClear={clearPreselected} />}
-                    <ParametersForm
-                        key={formKey}
-                        user={user}
-                        initialParams={initialParams}
-                        preselected={preselected}
-                        onStarted={clearPreselected}
-                        onSaveConfig={setConfigDraft}
-                        onParamsChange={(params) =>
-                            void navigate({ search: paramsToSearch(params), replace: true })
-                        }
-                    />
-                </div>
-            ),
-        },
-    ];
+    // Coming from Review with words, or loading a configuration, the user is here to set up a session.
+    const sections: SidebarSection[] =
+        tab === 'new' && preselected
+            ? [
+                  {
+                      id: 'words',
+                      label: t('practice:setup.selectedWords'),
+                      icon: <ListChecksIcon size={18} />,
+                      count: preselected.length,
+                      content: <PreselectedWords words={preselected} onClear={clearPreselected} />,
+                  },
+              ]
+            : [];
 
     return (
         <SidebarLayout
             id="practice"
             width="wide"
-            keepMounted
-            label={t('practice:setup.settingsTitle')}
+            label={t('practice:setup.selectedWords')}
             sections={sections}
             header={header}
         >
             <div className="flex flex-col gap-4">
                 {resumeBanner}
-                <SavedLists onLoad={loadConfig} hasUnfinished={parkedSession !== null} onResumed={clearPreselected} />
+                <Tabs value={tab} onValueChange={(value) => setTab(value as SetUpTab)}>
+                    <TabsList>
+                        <TabsTrigger value="sessions">{t('practice:sessions.title')}</TabsTrigger>
+                        <TabsTrigger value="configs">{t('practice:configs.title')}</TabsTrigger>
+                        <TabsTrigger value="new">{t('practice:setup.newConfiguration')}</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="sessions">
+                        <SavedSessions hasUnfinished={parkedSession !== null} onResumed={clearPreselected} />
+                    </TabsContent>
+                    <TabsContent value="configs">
+                        <SavedConfigurations onLoad={loadConfig} />
+                    </TabsContent>
+                    {/* Kept mounted while another tab shows: the form holds the working copy of the settings. */}
+                    <TabsContent value="new" keepMounted className="flex flex-col gap-3">
+                        {preselected && (
+                            <SidebarTrigger
+                                label={t('practice:setup.selectedWordsButton', { count: preselected.length })}
+                                className={buttonVariants({ variant: 'outline', className: 'w-full gap-2' })}
+                            >
+                                <ListChecksIcon size={16} />
+                                {t('practice:setup.selectedWordsButton', { count: preselected.length })}
+                            </SidebarTrigger>
+                        )}
+                        {wordsMissing && (
+                            <div className="banner warning items-start" role="status">
+                                <WarningIcon aria-hidden size={16} className="mt-0.5 shrink-0" />
+                                <span className="grow">{t('practice:configs.missingWords')}</span>
+                            </div>
+                        )}
+                        <ParametersForm
+                            key={formKey}
+                            user={user}
+                            initialParams={initialParams}
+                            preselected={preselected}
+                            onStarted={clearPreselected}
+                            onSaveConfig={setConfigDraft}
+                            onParamsChange={(params) =>
+                                void navigate({ search: paramsToSearch(params), replace: true })
+                            }
+                        />
+                    </TabsContent>
+                </Tabs>
             </div>
             {configDraft && (
                 <SaveConfigDialog
@@ -231,55 +262,5 @@ function SetUp({
                 />
             )}
         </SidebarLayout>
-    );
-}
-
-/**
- * The two saved lists as tabs (configurations first); only the active one is
- * mounted. Inside the layout so it can reach the slide-in menu: on a phone a
- * "New session" button opens it, and loading a configuration opens it too, so
- * the loaded settings are in view.
- */
-function SavedLists({
-    onLoad,
-    hasUnfinished,
-    onResumed,
-}: {
-    onLoad: (config: SavedConfig, words: PreselectedWord[] | null) => void;
-    hasUnfinished: boolean;
-    onResumed: () => void;
-}) {
-    const { t } = useTranslation();
-    const { isMobile, setOpen } = useSidebar();
-
-    return (
-        <>
-            {isMobile && (
-                <SidebarTrigger
-                    label={t('practice:setup.newSession')}
-                    className={cn(buttonVariants({ className: 'w-full gap-2' }))}
-                >
-                    <PlayIcon size={16} />
-                    {t('practice:setup.newSession')}
-                </SidebarTrigger>
-            )}
-            <Tabs defaultValue="configs">
-                <TabsList>
-                    <TabsTrigger value="configs">{t('practice:configs.title')}</TabsTrigger>
-                    <TabsTrigger value="sessions">{t('practice:sessions.title')}</TabsTrigger>
-                </TabsList>
-                <TabsContent value="configs">
-                    <SavedConfigurations
-                        onLoad={(config, words) => {
-                            onLoad(config, words);
-                            if (isMobile) setOpen(true);
-                        }}
-                    />
-                </TabsContent>
-                <TabsContent value="sessions">
-                    <SavedSessions hasUnfinished={hasUnfinished} onResumed={onResumed} />
-                </TabsContent>
-            </Tabs>
-        </>
     );
 }

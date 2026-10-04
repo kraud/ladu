@@ -8,9 +8,10 @@ import type { PreselectedWord } from '../preselection';
 
 /**
  * The words a hand-off (today: Review's "Practice" action; later: a tag's word
- * list) brought along. The title is source-neutral on purpose. The list is open
- * at first and can be collapsed. Removing the pre-selection asks first, because
- * the words cannot be brought back without going to the source again.
+ * list) brought along: the content of the practice sidebar. The title is
+ * source-neutral on purpose. The sidebar itself collapses, so the list has no
+ * hide button of its own. Removing the pre-selection asks first, because the
+ * words cannot be brought back without going to the source again.
  */
 export function PreselectedWords({
     words,
@@ -20,23 +21,19 @@ export function PreselectedWords({
     onClear: () => void;
 }) {
     const { t } = useTranslation();
-    const [open, setOpen] = useState(true);
     const [confirming, setConfirming] = useState(false);
     const title = t('practice:setup.preselected.title', { count: words.length });
 
     return (
-        <section className="card card-pad flex flex-col gap-2" aria-label={title}>
+        <div className="flex flex-col gap-2" aria-label={title} role="group">
             <div className="flex flex-wrap items-center gap-2">
                 <b className="grow">{title}</b>
-                <Button type="button" variant="outline" size="sm" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-                    {open ? t('practice:setup.preselected.hide') : t('practice:setup.preselected.show')}
-                </Button>
                 <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(true)}>
                     {t('practice:setup.preselected.clear')}
                 </Button>
             </div>
             <p className="hint">{t('practice:setup.preselected.note')}</p>
-            {open && <PreselectedWordList words={words} />}
+            <PreselectedWordList words={words} />
             <ConfirmDialog
                 open={confirming}
                 onOpenChange={setConfirming}
@@ -47,7 +44,7 @@ export function PreselectedWords({
                 destructive={false}
                 onConfirm={onClear}
             />
-        </section>
+        </div>
     );
 }
 

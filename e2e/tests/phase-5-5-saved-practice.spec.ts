@@ -49,8 +49,10 @@ test.afterAll(async () => {
 });
 
 const configRow = (page: Page, name: string) => page.getByRole('button', { name: `Use configuration ${name}` });
-/** The saved lists are tabs on the set-up screen (configurations first): open the sessions one. */
-const openSessionsTab = (page: Page) => page.getByRole('tab', { name: 'Saved sessions' }).click();
+/** The set-up screen has three tabs: Ongoing sessions (the default), Saved configurations, New configuration. */
+const openSessionsTab = (page: Page) => page.getByRole('tab', { name: 'Ongoing sessions' }).click();
+const openConfigurationsTab = (page: Page) => page.getByRole('tab', { name: 'Saved configurations' }).click();
+const openNewConfigurationTab = (page: Page) => page.getByRole('tab', { name: 'New configuration' }).click();
 const sessionRows = (page: Page) => page.getByRole('button', { name: /^Resume session with / });
 
 /** A minimal valid session snapshot for seeding the API (the shape the frontend stores). */
@@ -116,6 +118,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
     test('configurations: save, refuse a duplicate name, load, edit, delete', async ({ page }) => {
         await signIn(page, owner);
         await page.goto('/practice');
+        await openConfigurationsTab(page);
         await expect(page.getByText(/You have no saved configurations/)).toBeVisible();
 
         await test.step('save the settings on screen', async () => {
@@ -127,6 +130,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await dialog.getByRole('button', { name: 'Save', exact: true }).click();
 
             await expect(page.getByText('Configuration saved.')).toBeVisible();
+            await openConfigurationsTab(page);
             await expect(configRow(page, 'Morning drill')).toBeVisible();
             await expect(configRow(page, 'Morning drill')).toContainText('Seven quick choices');
             await expect(configRow(page, 'Morning drill')).toContainText('7');
@@ -136,6 +140,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         });
 
         await test.step('the same name is refused, in any letter case', async () => {
+            await openNewConfigurationTab(page);
             await page.getByRole('button', { name: 'Save configuration' }).click();
             const dialog = page.getByRole('dialog');
             await dialog.getByLabel(/Name/).fill('MORNING DRILL');
@@ -147,10 +152,13 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         await test.step('a fresh visit starts from the defaults; one tap on the row fills the form', async () => {
             // Nothing was started, so nothing is remembered: this is the default set-up.
             await page.goto('/practice');
+            await openNewConfigurationTab(page);
             await expect(page.getByLabel('Number of exercises')).toHaveValue('10');
             await expect(page.getByRole('button', { name: 'Type the answer', pressed: true })).toBeVisible();
 
+            await openConfigurationsTab(page);
             await configRow(page, 'Morning drill').click();
+            // Loading switches to the New configuration tab, where the settings are.
             await expect(page.getByLabel('Number of exercises')).toHaveValue('7');
             await expect(page.getByRole('button', { name: 'Choose the answer', pressed: true })).toBeVisible();
             await expect(page.getByRole('button', { name: 'Different languages', pressed: true })).toBeVisible();
@@ -158,6 +166,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         });
 
         await test.step('edit renames it and keeps its settings', async () => {
+            await openConfigurationsTab(page);
             await page.getByRole('button', { name: 'Edit configuration Morning drill' }).click();
             const dialog = page.getByRole('dialog');
             await dialog.getByLabel(/Name/).fill('Evening drill');
@@ -197,6 +206,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         await expect(dialog.getByText('This configuration includes 2 selected words.')).toBeVisible();
         await dialog.getByLabel(/Name/).fill('Two fruits');
         await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+        await openConfigurationsTab(page);
         await expect(configRow(page, 'Two fruits')).toContainText('2 selected words');
 
         const list = await request.get(`${API}/api/practice/configs`, { headers: authHeader(ownerToken) });
@@ -209,6 +219,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
 
         await test.step('loading the configuration shows the banner and one word', async () => {
             await page.goto('/practice');
+            await openConfigurationsTab(page);
             await expect(configRow(page, 'Two fruits')).toContainText('Some words are missing');
             await configRow(page, 'Two fruits').click();
 

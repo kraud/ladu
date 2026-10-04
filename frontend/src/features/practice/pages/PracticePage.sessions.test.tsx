@@ -65,11 +65,6 @@ afterEach(() => {
 
 const renderPractice = () => renderApp({ initialEntry: '/practice', session: SESSION });
 
-/** The saved lists are tabs: configurations first, so a test of the sessions opens that tab. */
-async function openSessionsTab() {
-    await userEvent.click(await screen.findByRole('tab', { name: 'Saved sessions' }));
-}
-
 async function openLeaveDialog(user: ReturnType<typeof userEvent.setup>) {
     await user.click(await screen.findByRole('button', { name: 'Leave session' }));
     return screen.findByRole('dialog');
@@ -110,7 +105,6 @@ describe('Leave dialog', () => {
         expect(snapshot.answers[0]).toMatchObject({ result: 'correct', given: 'casa' });
         expect(await screen.findByText('Session saved. You can resume it from the set-up screen.')).toBeInTheDocument();
         // The set-up shows the new row (in the sessions tab).
-        await openSessionsTab();
         expect(await screen.findByRole('button', { name: 'Resume session with 1 of 2 answered' })).toBeInTheDocument();
     });
 
@@ -248,7 +242,6 @@ describe('Saved sessions list', () => {
     it('says so when there are none, and states the limit and the expiry', async () => {
         setUp();
         await renderPractice();
-        await openSessionsTab();
 
         expect(await screen.findByText(/You have no saved sessions/)).toBeInTheDocument();
         expect(screen.getByText('You can keep up to 10 sessions for 7 days. A new session replaces the oldest one.')).toBeInTheDocument();
@@ -259,7 +252,6 @@ describe('Saved sessions list', () => {
         answered.summary = { ...answered.summary, answered: 1, correct: 1 };
         setUp({ sessions: [answered, makeSavedSession({ id: 'b' })] });
         await renderPractice();
-        await openSessionsTab();
 
         const first = await screen.findByRole('button', { name: 'Resume session with 1 of 2 answered' });
         expect(within(first).getByText('1 of 2')).toBeInTheDocument();
@@ -279,7 +271,6 @@ describe('Saved sessions list', () => {
     it('marks a session row as clickable: pointer cursor and a highlight on hover', async () => {
         setUp({ sessions: [makeSavedSession()] });
         await renderPractice();
-        await openSessionsTab();
 
         const row = await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' });
         expect(row).toHaveClass('cursor-pointer');
@@ -292,7 +283,6 @@ describe('Saved sessions list', () => {
         const fake = setUp({ sessions: [saved] });
         const user = userEvent.setup();
         await renderPractice();
-        await openSessionsTab();
 
         await user.click(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' }));
 
@@ -307,7 +297,6 @@ describe('Saved sessions list', () => {
         const fake = setUp({ sessions: [makeSavedSession({ id: 'ses-1' })] });
         const user = userEvent.setup();
         await renderPractice();
-        await openSessionsTab();
         const row = await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' });
         // Expired on the server after the list was loaded.
         fake.state.sessions = [];
@@ -324,7 +313,6 @@ describe('Saved sessions list', () => {
         fake.state.failNextSessionRead = true;
         const user = userEvent.setup();
         await renderPractice();
-        await openSessionsTab();
 
         await user.click(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' }));
 
@@ -336,7 +324,6 @@ describe('Saved sessions list', () => {
         setUp({ sessions: [makeSavedSession({ id: 'ses-1', snapshot: { exercises: 'x' } })] });
         const user = userEvent.setup();
         await renderPractice();
-        await openSessionsTab();
 
         await user.click(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' }));
 
@@ -350,7 +337,6 @@ describe('Saved sessions list', () => {
         usePracticeSessionStore.getState().park();
         const user = userEvent.setup();
         await renderPractice();
-        await openSessionsTab();
 
         await user.click(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' }));
         expect(await screen.findByText('Replace your unfinished session?')).toBeInTheDocument();
@@ -371,8 +357,9 @@ describe('Saved sessions list', () => {
             .setPracticePreselection([{ id: 'w1', partOfSpeech: PartOfSpeech.noun, label: 'house', languages: ['EN'] }]);
         const user = userEvent.setup();
         await renderPractice();
-        await openSessionsTab();
 
+        // With words from Review the page opens on New configuration; the sessions are one tab away.
+        await user.click(await screen.findByRole('tab', { name: 'Ongoing sessions' }));
         await user.click(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' }));
 
         expect(await screen.findByText('Exercise 1 of 2')).toBeInTheDocument();
@@ -382,7 +369,6 @@ describe('Saved sessions list', () => {
         const fake = setUp({ sessions: [makeSavedSession({ id: 'a' }), makeSavedSession({ id: 'b' })] });
         const user = userEvent.setup();
         await renderPractice();
-        await openSessionsTab();
 
         const buttons = await screen.findAllByRole('button', { name: 'Delete session with 0 of 2 answered' });
         await user.click(buttons[0]);
@@ -400,7 +386,6 @@ describe('Saved sessions list', () => {
         const fake = setUp({ sessions: [makeSavedSession()] });
         const user = userEvent.setup();
         await renderPractice();
-        await openSessionsTab();
 
         await user.click(await screen.findByRole('button', { name: 'Delete session with 0 of 2 answered' }));
         await user.click(await screen.findByRole('button', { name: 'Cancel' }));
@@ -421,7 +406,6 @@ describe('the resume banner', () => {
 
         expect(usePracticeSessionStore.getState().session).toBeNull();
         expect(fake.state.deletedSessionIds).toEqual([]);
-        await openSessionsTab();
         expect(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' })).toBeInTheDocument();
     });
 });

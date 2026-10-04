@@ -33,9 +33,19 @@ A state of a sidebar route that has no sidebar (loading skeleton, the part-of-sp
 
 ## Notes
 
-- `SidebarLayout` option `keepMounted` (phone): keep the slide-in menu mounted while closed. Use it for a section that holds its own working state — closing the menu would otherwise unmount it and lose the state (Practice's settings form). A test guards it (`PracticePage.layout.test.tsx`).
+- A sidebar section's content unmounts when the phone menu closes (no `keepMounted` option any more). Keep working state outside the sidebar.
+- A layout with `sections={[]}` renders no panel and no trigger (Practice uses this on the tabs that have no words list).
 - A lone section with the same name as the layout `label` hides its heading in the phone menu (the menu title already says it).
 - Full e2e run 2026-10-04: 55 passed, 8 failed — all 8 are the OAuth specs (`oauth-2` to `oauth-5`) that stall at the Google test stub. `oauth-2` fails the same way on the original code (checked with the changes stashed), so it is not caused by the layout work. Cause not yet found.
 
 - A trigger that uses `buttonVariants` directly must wrap it in `cn(...)`: `Button` does, and without it `border-transparent` beats `border-border` and the button has no border.
 - The "Linked words" section is a placeholder for a future feature (links between synonyms and related words). It stores nothing.
+
+## Practice rework (2026-10-04, in progress)
+
+The user asked to swap the Practice split: main area = three tabs (Ongoing sessions — default, Saved configurations, New configuration), sidebar = only the pre-selected words. Plan in four slices; the order and assumptions are in the session plan.
+
+- **Slice A — done.** Tabs renamed / reordered; the settings form is the New configuration tab (kept mounted, so tab switches keep the working copy); the Start / Save row is a sticky bar at the bottom of the window; saved-configuration cards have a 4th column with two stacked pills (words, order); the sidebar shows the words list only on the New configuration tab and only when words came from Review (`sections=[]` otherwise); on a phone a "Selected words (N)" button opens the list; the page opens on New configuration when words came from Review, when a configuration is loaded, and after "Change settings" on the results page. The words list lost its hide button.
+- **Slice B — next:** live filtering of the list by the settings, eye / eye-closed switch, uniform columns, results-page sidebar.
+- **Slice C:** tag picker in the sidebar when no words came from Review (tag containers; the tags' words become the pre-selected words).
+- **Slice D:** save the tags in a configuration (new `tag_ids` column).

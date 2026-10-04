@@ -77,6 +77,8 @@ test.describe.serial('Phase 5 — practice', () => {
         await expect(page).toHaveURL(/\/practice/);
 
         await test.step('the set-up starts with the documented defaults', async () => {
+            // The page opens on Ongoing sessions; the settings are the New configuration tab.
+            await page.getByRole('tab', { name: 'New configuration' }).click();
             await expect(page.getByLabel('Number of exercises')).toHaveValue('10');
             await expect(page.getByRole('button', { name: 'Type the answer', pressed: true })).toBeVisible();
             await expect(page.getByRole('button', { name: 'Noun', pressed: true })).toBeVisible();

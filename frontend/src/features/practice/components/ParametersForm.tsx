@@ -365,8 +365,8 @@ export function ParametersForm({
                 </div>
             )}
 
-            {/* Sticky: the form sits in the scrolling sidebar, and Start must stay in reach. */}
-            <div className="sticky bottom-0 z-10 -mx-3 mt-1 flex flex-wrap items-center gap-3 border-t border-border bg-card px-3 py-3">
+            {/* Sticky at the bottom of the window: with a long form (Advanced open) Start stays in reach. */}
+            <div className="sticky bottom-0 z-10 -mx-6 mt-1 flex flex-wrap items-center gap-3 border-t border-border bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] px-6 py-3 backdrop-blur-md">
                 <Button type="submit" className="min-w-37.5" disabled={!valid || generate.isPending}>
                     {generate.isPending ? (
                         <>

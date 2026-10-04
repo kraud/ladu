@@ -6,6 +6,7 @@ import { server } from '@/test/msw/server';
 import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
 import { makeExercise, makePracticeHandlers, type PracticeFakeOptions } from '@/test/msw/practiceHandlers';
 import { mockMobileViewport } from '@/test/viewport';
+import { openNewConfigurationTab } from '@/test/practiceTabs';
 import { futureToken } from '@/test/tokens';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
@@ -57,6 +58,7 @@ describe('PracticePage — set-up', () => {
     it('shows the documented defaults', async () => {
         setUp();
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
         expect(pressed('English')).toBeInTheDocument();
@@ -71,6 +73,7 @@ describe('PracticePage — set-up', () => {
     it('reads settings from the URL', async () => {
         setUp();
         await renderApp({ initialEntry: '/practice?lang=EN&pos=Verb&n=5&card=choice&mode=same', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByLabelText('Number of exercises')).toHaveValue(5);
         expect(pressed('Verb')).toBeInTheDocument();
@@ -84,6 +87,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Choose the answer' }));
 
@@ -94,6 +98,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         const amount = await screen.findByLabelText('Number of exercises');
         await user.clear(amount);
@@ -114,6 +119,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice?mode=different', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Español' }));
 
@@ -124,6 +130,7 @@ describe('PracticePage — set-up', () => {
     it('disables "Different languages" on a one-language account', async () => {
         setUp();
         await renderApp({ initialEntry: '/practice', session: { ...SESSION, languages: ['English'] } });
+        await openNewConfigurationTab();
 
         expect(await screen.findByRole('button', { name: 'Different languages' })).toBeDisabled();
         expect(screen.getByText(/Your account has one language/)).toBeInTheDocument();
@@ -133,6 +140,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByText('Adjectives and adverbs have no exercises yet.')).toBeInTheDocument();
         const adjective = screen.getByRole('button', { name: 'Adjective' });
@@ -149,6 +157,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         localStorage.setItem(REMEMBERED_KEY, JSON.stringify({ pos: ['Adverb'] }));
         await renderApp({ initialEntry: '/practice?pos=Adjective&pos=Verb', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByRole('button', { name: 'Verb', pressed: true })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Adjective', pressed: false })).toBeInTheDocument();
@@ -158,6 +167,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
         expect(screen.getByText('Short sessions from your words')).toBeInTheDocument();
@@ -170,6 +180,7 @@ describe('PracticePage — set-up', () => {
     it('explains the "Mixed" language mode and shows the amount range', async () => {
         setUp();
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByText(/Mixed shows translations between languages/)).toBeInTheDocument();
         const amount = screen.getByLabelText('Number of exercises');
@@ -181,6 +192,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(screen.queryByText('Fix the highlighted fields to start.')).not.toBeInTheDocument();
         await user.clear(await screen.findByLabelText('Number of exercises'));
@@ -191,6 +203,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Advanced' }));
         // Typing only: choice difficulty is off, strictness is on. No native language on the account.
@@ -209,6 +222,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Advanced' }));
         await user.click(within(screen.getByRole('radiogroup', { name: 'Typing strictness' })).getByRole('radio', { name: /Level 3/ }));
@@ -221,9 +235,8 @@ describe('PracticePage — set-up', () => {
         setUp();
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
-        // The settings are in the slide-in menu on a phone.
-        await user.click(await screen.findByRole('button', { name: 'New session' }));
         await user.click(await screen.findByRole('button', { name: 'Advanced' }));
         expect(screen.queryByRole('radio')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Level 0' })).toBeDisabled();
@@ -238,6 +251,7 @@ describe('PracticePage — set-up', () => {
             initialEntry: '/practice',
             session: { ...SESSION, nativeLanguage: 'Spanish' },
         });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Advanced' }));
         expect(screen.getByText('Native language')).toBeInTheDocument();
@@ -252,6 +266,7 @@ describe('PracticePage — set-up', () => {
         setUp();
         localStorage.setItem(REMEMBERED_KEY, JSON.stringify({ n: 7, card: 'choice' }));
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByLabelText('Number of exercises')).toHaveValue(7);
         expect(pressed('Choose the answer')).toBeInTheDocument();
@@ -263,6 +278,7 @@ describe('PracticePage — Start', () => {
         const fake = setUp({ exercises: [makeExercise(), makeExercise({ key: 'k2' })] });
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice?n=2&card=choice', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Start session' }));
 
@@ -283,6 +299,7 @@ describe('PracticePage — Start', () => {
         setUp({ exercises: [makeExercise()] });
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice?n=5', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Start session' }));
 
@@ -293,6 +310,7 @@ describe('PracticePage — Start', () => {
         setUp({ exercises: [] });
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Start session' }));
 
@@ -306,6 +324,7 @@ describe('PracticePage — Start', () => {
         setUp({ exercises: [] });
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Start session' }));
         expect(await screen.findByText(/leaves nothing to ask/)).toBeInTheDocument();
@@ -321,6 +340,7 @@ describe('PracticePage — Start', () => {
         fake.state.generateFailure = { status: 400, body: { message: 'x', code: 'invalid_amount' } };
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice?n=1', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Start session' }));
         expect(await screen.findByText('The exercises could not be created')).toBeInTheDocument();
@@ -334,6 +354,7 @@ describe('PracticePage — Start', () => {
         const fake = setUp({ exercises: [makeExercise()] });
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice?n=1', session: SESSION });
+        await openNewConfigurationTab();
 
         const start = await screen.findByRole('button', { name: 'Start session' });
         await user.dblClick(start);
@@ -347,6 +368,7 @@ describe('PracticePage — no words', () => {
     it('explains and links to Add word', async () => {
         setUp({ words: [] });
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByText('No words to practice yet')).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Add word' })).toBeInTheDocument();
@@ -365,20 +387,18 @@ describe('PracticePage — pre-selected words', () => {
         useUiStore.getState().setPracticePreselection(words);
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice?n=1', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByText('Practice with 2 selected words')).toBeInTheDocument();
         expect(pressed('Verb')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Noun' })).toBeDisabled();
         expect(screen.getByRole('button', { name: 'Noun' })).toHaveAttribute('aria-pressed', 'false');
 
-        // The list is open at first, and can be collapsed.
+        // The words are in the sidebar; the sidebar collapses, the list has no hide button.
         expect(screen.getByText('run')).toBeInTheDocument();
         expect(screen.getByText('correr')).toBeInTheDocument();
         expect(screen.getByText('We will change this word list in a later update.')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Hide words' }));
-        expect(screen.queryByText('run')).not.toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Show words' }));
-        expect(screen.getByText('run')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Hide words' })).not.toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: 'Start session' }));
         await screen.findByText('Exercise 1 of 1');
@@ -390,6 +410,7 @@ describe('PracticePage — pre-selected words', () => {
         setUp();
         useUiStore.getState().setPracticePreselection(words);
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         await screen.findByText('Practice with 2 selected words');
         expect(useUiStore.getState().practicePreselection).toBeNull();
@@ -400,6 +421,7 @@ describe('PracticePage — pre-selected words', () => {
         useUiStore.getState().setPracticePreselection(words);
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice?n=1', session: SESSION });
+        await openNewConfigurationTab();
 
         await user.click(await screen.findByRole('button', { name: 'Remove pre-selection' }));
         expect(await screen.findByText('Remove the pre-selection?')).toBeInTheDocument();
@@ -426,6 +448,7 @@ describe('PracticePage — pre-selected words', () => {
             .getState()
             .setPracticePreselection([{ id: 'w9', partOfSpeech: PartOfSpeech.adjective, label: 'big', languages: ['EN'] }]);
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByText(/None of the selected words has a word type with exercises/)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Start session' })).toBeDisabled();
@@ -451,6 +474,7 @@ describe('PracticePage — pre-selected words', () => {
         });
         useUiStore.getState().setPracticePreselection(words);
         await renderApp({ initialEntry: '/practice', session: SESSION });
+        await openNewConfigurationTab();
 
         expect(await screen.findByText('Practice with 2 selected words')).toBeInTheDocument();
         expect(usePracticeSessionStore.getState().session).toBeNull();
