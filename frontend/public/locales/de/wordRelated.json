@@ -102,7 +102,12 @@
   },
   "formComponentLabel": {
     "clue": "Hinweis",
-    "tags": "Tags"
+    "tags": "Tags",
+    "linkedWords": "Verknüpfte Wörter"
+  },
+  "linkedWords": {
+    "description": "Verknüpfe Wörter, die Synonyme sind oder auf andere Weise zusammenhängen.",
+    "comingSoon": "Demnächst verfügbar."
   },
   "wordForm": {
     "hints": {
@@ -121,6 +126,7 @@
     "sidebar": {
       "collapse": "Seitenleiste einklappen",
       "expand": "Seitenleiste ausklappen",
+      "menuTitle": "Wortoptionen",
       "openMenu": "Menü öffnen",
       "closeMenu": "Menü schließen",
       "tagsEditToChange": "Bearbeite das Wort, um Tags hinzuzufügen oder zu entfernen.",

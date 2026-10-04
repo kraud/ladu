@@ -102,7 +102,12 @@
   },
   "formComponentLabel": {
     "clue": "Vihje",
-    "tags": "Sildid"
+    "tags": "Sildid",
+    "linkedWords": "Seotud sõnad"
+  },
+  "linkedWords": {
+    "description": "Seo sõnad, mis on sünonüümid või muul viisil seotud.",
+    "comingSoon": "Tulekul."
   },
   "wordForm": {
     "hints": {
@@ -121,6 +126,7 @@
     "sidebar": {
       "collapse": "Ahenda külgriba",
       "expand": "Laienda külgriba",
+      "menuTitle": "Sõna valikud",
       "openMenu": "Ava menüü",
       "closeMenu": "Sulge menüü",
       "tagsEditToChange": "Siltide lisamiseks või eemaldamiseks muuda sõna.",

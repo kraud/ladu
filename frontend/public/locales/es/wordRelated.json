@@ -102,7 +102,12 @@
   },
   "formComponentLabel": {
     "clue": "Pista",
-    "tags": "Etiquetas"
+    "tags": "Etiquetas",
+    "linkedWords": "Palabras vinculadas"
+  },
+  "linkedWords": {
+    "description": "Vincula palabras que son sinónimos o que están relacionadas de otra forma.",
+    "comingSoon": "Próximamente."
   },
   "wordForm": {
     "hints": {
@@ -121,6 +126,7 @@
     "sidebar": {
       "collapse": "Contraer la barra lateral",
       "expand": "Expandir la barra lateral",
+      "menuTitle": "Opciones de la palabra",
       "openMenu": "Abrir menú",
       "closeMenu": "Cerrar menú",
       "tagsEditToChange": "Edita la palabra para añadir o quitar etiquetas.",

@@ -37,7 +37,7 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 // work with its fields, so they start expanded. `SidebarFields.test.tsx` covers
 // the collapsed default explicitly.
 beforeEach(() => {
-    useUiStore.setState({ wordSidebarCollapsed: false });
+    useUiStore.setState({ sidebarCollapsed: { review: false, word: false, practice: false } });
 });
 
 afterEach(() => {

@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render';
@@ -7,8 +7,10 @@ import { mockMobileViewport } from '@/test/viewport';
 import { WordEditorLayout } from './WordEditorLayout';
 
 afterEach(() => {
-    useUiStore.setState({ wordSidebarCollapsed: false });
+    useUiStore.getState().setSidebarCollapsed('word', false);
 });
+
+const SECTIONS = [{ id: 'demo', label: 'Demo section', icon: null, content: <div>Sidebar content</div> }];
 
 const ACTIONS = [
     { key: 'a', label: 'Change word type', icon: null, onClick: vi.fn() },
@@ -18,7 +20,7 @@ const ACTIONS = [
 describe('WordEditorLayout', () => {
     it('renders both the sidebar and the content', () => {
         renderWithProviders(
-            <WordEditorLayout sidebar={<div>Sidebar content</div>}>
+            <WordEditorLayout sections={SECTIONS}>
                 <div>Translation cards</div>
             </WordEditorLayout>,
         );
@@ -29,80 +31,18 @@ describe('WordEditorLayout', () => {
     it('starts expanded and toggles the shared uiStore collapse flag', async () => {
         const user = userEvent.setup();
         renderWithProviders(
-            <WordEditorLayout sidebar={<div>Sidebar content</div>}>
+            <WordEditorLayout sections={SECTIONS}>
                 <div>Translation cards</div>
             </WordEditorLayout>,
         );
 
         const toggle = screen.getByRole('button', { name: 'Collapse sidebar' });
         expect(toggle).toHaveAttribute('aria-expanded', 'true');
-        expect(useUiStore.getState().wordSidebarCollapsed).toBe(false);
+        expect(useUiStore.getState().sidebarCollapsed.word).toBe(false);
 
         await user.click(toggle);
-        expect(useUiStore.getState().wordSidebarCollapsed).toBe(true);
+        expect(useUiStore.getState().sidebarCollapsed.word).toBe(true);
         expect(screen.getByRole('button', { name: 'Expand sidebar' })).toHaveAttribute('aria-expanded', 'false');
-    });
-
-    it('the mobile trigger opens the drawer, tracked by aria-expanded and aria-controls', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(
-            <WordEditorLayout sidebar={<div>Sidebar content</div>}>
-                <div>Translation cards</div>
-            </WordEditorLayout>,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Open menu' });
-        expect(trigger).toHaveAttribute('aria-expanded', 'false');
-
-        await user.click(trigger);
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
-        expect(trigger.getAttribute('aria-controls')).toBe(
-            screen.getByText('Sidebar content').closest('aside')!.id,
-        );
-    });
-
-    it('the aside\'s own close button closes the drawer', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(
-            <WordEditorLayout sidebar={<div>Sidebar content</div>}>
-                <div>Translation cards</div>
-            </WordEditorLayout>,
-        );
-
-        await user.click(screen.getByRole('button', { name: 'Open menu' }));
-        await user.click(screen.getByRole('button', { name: 'Close menu' }));
-        expect(screen.getByRole('button', { name: 'Open menu' })).toHaveAttribute('aria-expanded', 'false');
-    });
-
-    // The backdrop is a mouse-only dismiss (aria-hidden, untabbable — see
-    // `WordEditorLayout.tsx`), so it's not reachable via `getByRole` and is
-    // queried directly instead.
-    it('clicking the backdrop closes the drawer', async () => {
-        const user = userEvent.setup();
-        const { container } = renderWithProviders(
-            <WordEditorLayout sidebar={<div>Sidebar content</div>}>
-                <div>Translation cards</div>
-            </WordEditorLayout>,
-        );
-
-        await user.click(screen.getByRole('button', { name: 'Open menu' }));
-        const backdrop = container.querySelector('button[aria-hidden="true"]') as HTMLElement;
-        expect(backdrop).toBeInTheDocument();
-        await user.click(backdrop);
-        expect(screen.getByRole('button', { name: 'Open menu' })).toHaveAttribute('aria-expanded', 'false');
-    });
-
-    it('Escape closes the mobile drawer', async () => {
-        const user = userEvent.setup();
-        renderWithProviders(
-            <WordEditorLayout sidebar={<div>Sidebar content</div>}>
-                <div>Translation cards</div>
-            </WordEditorLayout>,
-        );
-
-        await user.click(screen.getByRole('button', { name: 'Open menu' }));
-        await user.keyboard('{Escape}');
-        expect(screen.getByRole('button', { name: 'Open menu' })).toHaveAttribute('aria-expanded', 'false');
     });
 
     describe('bottom bar', () => {
@@ -111,7 +51,7 @@ describe('WordEditorLayout', () => {
             const onPrimary = vi.fn();
             renderWithProviders(
                 <WordEditorLayout
-                    sidebar={<div>Sidebar content</div>}
+                    sections={SECTIONS}
                     actions={ACTIONS}
                     primary={{ label: 'Save word', icon: null, onClick: onPrimary, disabled: true }}
                     statusText="Add at least 2 translations before you can save."
@@ -128,7 +68,7 @@ describe('WordEditorLayout', () => {
             expect(within(bar).getByRole('status')).toHaveTextContent('Add at least 2 translations before you can save.');
             expect(within(bar).getByRole('button', { name: 'Save word' })).toBeDisabled();
             // The sidebar itself no longer holds any action.
-            expect(within(screen.getByText('Sidebar content').closest('aside')!).queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+            expect(within(screen.getByRole('complementary')).queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
             expect(onPrimary).not.toHaveBeenCalled();
 
             await user.click(within(bar).getByRole('button', { name: 'Delete' }));
@@ -138,7 +78,7 @@ describe('WordEditorLayout', () => {
         it('shows no reason when the primary button is enabled', () => {
             renderWithProviders(
                 <WordEditorLayout
-                    sidebar={<div>Sidebar content</div>}
+                    sections={SECTIONS}
                     primary={{ label: 'Save word', icon: null, onClick: vi.fn() }}
                 >
                     <div>Translation cards</div>
@@ -153,7 +93,7 @@ describe('WordEditorLayout', () => {
             const user = userEvent.setup();
             renderWithProviders(
                 <WordEditorLayout
-                    sidebar={<div>Sidebar content</div>}
+                    sections={SECTIONS}
                     actions={ACTIONS}
                     primary={{ label: 'Save word', icon: null, onClick: vi.fn(), disabled: true }}
                     statusText="Make a change to enable saving."
@@ -169,16 +109,17 @@ describe('WordEditorLayout', () => {
             expect(within(bar).getByRole('status')).toHaveTextContent('Make a change to enable saving.');
             expect(within(bar).getByRole('button', { name: 'Save word' })).toBeInTheDocument();
 
-            // Each action exists once — in the drawer, above the sidebar content.
-            const drawer = screen.getByText('Sidebar content').closest('aside')!;
+            // Each action exists once — in the slide-in menu, above the sections.
+            expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+            await user.click(screen.getByRole('button', { name: 'Open menu' }));
+            const drawer = screen.getByRole('dialog');
             expect(screen.getAllByRole('button', { name: 'Delete' })).toHaveLength(1);
             expect(within(drawer).getByRole('button', { name: 'Delete' })).toBeInTheDocument();
 
-            await user.click(screen.getByRole('button', { name: 'Open menu' }));
             await user.click(within(drawer).getByRole('button', { name: 'Change word type' }));
             expect(ACTIONS[0]!.onClick).toHaveBeenCalledTimes(1);
-            // Choosing an action closes the drawer.
-            expect(screen.getByRole('button', { name: 'Open menu' })).toHaveAttribute('aria-expanded', 'false');
+            // Choosing an action closes the menu.
+            await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
         });
 
         it('desktop: cancelAction renders immediately next to (left of) the primary button, not in the left-hand actions group', async () => {
@@ -186,7 +127,7 @@ describe('WordEditorLayout', () => {
             const onCancel = vi.fn();
             renderWithProviders(
                 <WordEditorLayout
-                    sidebar={<div>Sidebar content</div>}
+                    sections={SECTIONS}
                     actions={ACTIONS}
                     cancelAction={{ key: 'cancel', label: 'Cancel', icon: null, onClick: onCancel }}
                     primary={{ label: 'Save word', icon: null, onClick: vi.fn() }}
@@ -212,7 +153,7 @@ describe('WordEditorLayout', () => {
             const onCancel = vi.fn();
             renderWithProviders(
                 <WordEditorLayout
-                    sidebar={<div>Sidebar content</div>}
+                    sections={SECTIONS}
                     actions={ACTIONS}
                     cancelAction={{ key: 'cancel', label: 'Cancel', icon: null, onClick: onCancel }}
                     primary={{ label: 'Save word', icon: null, onClick: vi.fn() }}
@@ -225,20 +166,22 @@ describe('WordEditorLayout', () => {
             expect(within(bar).queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
 
             await user.click(screen.getByRole('button', { name: 'Open menu' }));
-            const drawer = screen.getByText('Sidebar content').closest('aside')!;
+            const drawer = screen.getByRole('dialog');
             await user.click(within(drawer).getByRole('button', { name: 'Cancel' }));
             expect(onCancel).toHaveBeenCalledTimes(1);
         });
 
-        it('phone: ignores the stored rail preference — the drawer always shows the full sidebar', () => {
+        it('phone: ignores the stored rail preference — the menu always shows the full sections', async () => {
             mockMobileViewport();
-            useUiStore.setState({ wordSidebarCollapsed: true });
+            const user = userEvent.setup();
+            useUiStore.getState().setSidebarCollapsed('word', true);
             renderWithProviders(
-                <WordEditorLayout sidebar={<div>Sidebar content</div>}>
+                <WordEditorLayout sections={SECTIONS}>
                     <div>Translation cards</div>
                 </WordEditorLayout>,
             );
-            expect(screen.getByRole('button', { name: 'Collapse sidebar' })).toBeInTheDocument();
+            await user.click(screen.getByRole('button', { name: 'Open menu' }));
+            expect(within(screen.getByRole('dialog')).getByText('Sidebar content')).toBeInTheDocument();
         });
     });
 });

@@ -102,7 +102,12 @@
   },
   "formComponentLabel": {
     "clue": "Clue",
-    "tags": "Tags"
+    "tags": "Tags",
+    "linkedWords": "Linked words"
+  },
+  "linkedWords": {
+    "description": "Link words that are synonyms or are related in another way.",
+    "comingSoon": "Coming soon."
   },
   "wordForm": {
     "hints": {
@@ -121,6 +126,7 @@
     "sidebar": {
       "collapse": "Collapse sidebar",
       "expand": "Expand sidebar",
+      "menuTitle": "Word options",
       "openMenu": "Open menu",
       "closeMenu": "Close menu",
       "tagsEditToChange": "Edit the word to add or remove tags.",

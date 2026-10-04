@@ -63,22 +63,21 @@ export function AddWordPage() {
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            {/* Stacked on mobile; side-by-side with the subtitle bottom-aligned
-                from `sm` up. */}
-            <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
-                <h1 className="h1">{title}</h1>
-                <p className="meta sm:content-end">{subtitle}</p>
-            </div>
-            <WordForm
-                key={formKey}
-                mode="create"
-                defaultPartOfSpeech={partOfSpeech}
-                onSubmit={handleSubmit}
-                onChangePartOfSpeech={resetToGate}
-                onPartOfSpeechChange={setPartOfSpeech}
-                submitting={createWord.isPending}
-            />
-        </div>
+        <WordForm
+            key={formKey}
+            mode="create"
+            defaultPartOfSpeech={partOfSpeech}
+            onSubmit={handleSubmit}
+            onChangePartOfSpeech={resetToGate}
+            onPartOfSpeechChange={setPartOfSpeech}
+            submitting={createWord.isPending}
+            header={
+                // Stacked on mobile; side-by-side with the subtitle bottom-aligned from `sm` up.
+                <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
+                    <h1 className="h1">{title}</h1>
+                    <p className="meta sm:content-end">{subtitle}</p>
+                </div>
+            }
+        />
     );
 }

@@ -70,6 +70,10 @@
   }
 
   /* ─── app header ──────────────────────────────────────────── */
+  /* 52px inner row + 1px border: the docked sidebar (`SidebarLayout`) sits right under it. */
+  :root {
+    --app-header-h: 53px;
+  }
   .app-header {
     position: sticky;
     top: 0;

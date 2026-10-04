@@ -54,6 +54,8 @@ const SCOPE_VALUES = new Set<string>(['all', 'owned', 'followed', 'discover'] sa
 declare module '@tanstack/react-router' {
     interface StaticDataRouteOption {
         wide?: boolean;
+        /** The page renders its own `SidebarLayout`: `AppShell` gives it the full window width. */
+        sidebar?: boolean;
     }
 }
 
@@ -132,14 +134,14 @@ const addWordRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/addWord/{-$partOfSpeech}',
     component: AddWordPage,
-    staticData: { wide: true },
+    staticData: { wide: true, sidebar: true },
 });
 
 const wordRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/word/$wordId',
     component: WordPage,
-    staticData: { wide: true },
+    staticData: { wide: true, sidebar: true },
 });
 
 const reviewRoute = createRoute({

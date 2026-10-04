@@ -1,5 +1,10 @@
 {
   "appTitle": "Ladu",
+  "sidebar": {
+    "collapse": "Ahenda külgriba",
+    "expand": "Laienda külgriba",
+    "close": "Sulge menüü"
+  },
   "notFound": {
     "lines": [
       "Nothing to see here…",

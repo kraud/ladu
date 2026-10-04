@@ -29,7 +29,7 @@
  * own word just needs Edit to change its tags — not whether editing is
  * possible, since neither ever is on this page anymore.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { getRouteApi, useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
@@ -37,14 +37,15 @@ import { ArrowLeftIcon, PencilSimpleIcon, TrashIcon, XIcon } from '@phosphor-ico
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useAuthStore } from '@/stores/authStore';
-import { SidebarFields } from '../layout/SidebarFields';
-import type { EditorAction } from '../layout/WordEditorBar';
+import { PageColumn } from '@/components/layout/PageColumn';
+import { useWordSidebarSections } from '../layout/SidebarFields';
+import type { EditorAction, EditorPrimary } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
 import { TranslationCard, translationGridClass } from '../form-engine/TranslationCard';
 import { WordForm } from '../form-engine/WordForm';
 import { useDeleteWord, useUpdateWord, useWord } from '../hooks';
 import { wordErrorKey } from '../errors';
-import type { CreateWordBody, UpdateWordBody } from '../types';
+import type { CreateWordBody, UpdateWordBody, WordBE } from '../types';
 import type { WordItem } from '@/ts/interfaces';
 import { partOfSpeechLabelKey, primaryCaseWord } from '@/lib/words';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
@@ -91,14 +92,16 @@ export function WordPage() {
 
     if (wordQuery.isPending) {
         return (
-            <div className="flex flex-col gap-4">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-8 w-64" />
-                <div className={translationGridClass()}>
-                    <Skeleton className="h-64" />
-                    <Skeleton className="h-64" />
+            <PageColumn wide>
+                <div className="flex flex-col gap-4">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-8 w-64" />
+                    <div className={translationGridClass()}>
+                        <Skeleton className="h-64" />
+                        <Skeleton className="h-64" />
+                    </div>
                 </div>
-            </div>
+            </PageColumn>
         );
     }
 
@@ -160,14 +163,16 @@ export function WordPage() {
         },
     ];
 
-    return (
-        <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-                <p className="meta">{t('wordRelated:displayWord.titlePos', { currentPoS: posLabel })}</p>
-                <h1 className="h1">{headline || t('wordRelated:displayWord.titleSimple')}</h1>
-                <p className="meta">{t('wordRelated:displayWord.subtitle')}</p>
-            </div>
+    const header = (
+        <div className="flex flex-col gap-1">
+            <p className="meta">{t('wordRelated:displayWord.titlePos', { currentPoS: posLabel })}</p>
+            <h1 className="h1">{headline || t('wordRelated:displayWord.titleSimple')}</h1>
+            <p className="meta">{t('wordRelated:displayWord.subtitle')}</p>
+        </div>
+    );
 
+    return (
+        <>
             {editing ? (
                 <WordForm
                     key={editKey}
@@ -176,6 +181,7 @@ export function WordPage() {
                     onSubmit={handleUpdate}
                     onDelete={() => setConfirmingDelete(true)}
                     submitting={updateWord.isPending}
+                    header={header}
                     cancelAction={{
                         key: 'cancel',
                         label: t('common:buttons.cancel'),
@@ -184,26 +190,13 @@ export function WordPage() {
                     }}
                 />
             ) : (
-                <WordEditorLayout
-                    sidebar={<SidebarFields clue={word.clue ?? ''} tags={word.tags} tagsHint={tagsHint} />}
+                <WordViewLayout
+                    word={word}
+                    tagsHint={tagsHint}
+                    header={header}
                     actions={viewActions}
                     primary={{ label: t('common:buttons.edit'), icon: <PencilSimpleIcon size={18} />, onClick: startEdit }}
-                >
-                    <div className={translationGridClass(word.partOfSpeech)}>
-                        {word.translations.map((translation) => (
-                            <TranslationCard
-                                key={translation.language}
-                                lang={translation.language}
-                                pos={word.partOfSpeech}
-                                // `WordCaseBE.caseName` is `string` over the wire; the backend only
-                                // ever persists real case-name strings, so this is a trusted
-                                // narrowing (same as `filterTranslationsByUserLanguages`, `lib/words.ts`).
-                                initialCases={translation.cases as WordItem[]}
-                                displayOnly
-                            />
-                        ))}
-                    </div>
-                </WordEditorLayout>
+                />
             )}
 
             <ConfirmDialog
@@ -216,6 +209,41 @@ export function WordPage() {
                     handleDelete();
                 }}
             />
-        </div>
+        </>
+    );
+}
+
+/** The read-only view. A component of its own so the sidebar hook runs after `WordPage`'s early returns. */
+function WordViewLayout({
+    word,
+    tagsHint,
+    header,
+    actions,
+    primary,
+}: {
+    word: WordBE;
+    tagsHint: string;
+    header: ReactNode;
+    actions: EditorAction[];
+    primary: EditorPrimary;
+}) {
+    const sections = useWordSidebarSections({ clue: word.clue ?? '', tags: word.tags, tagsHint });
+    return (
+        <WordEditorLayout sections={sections} header={header} actions={actions} primary={primary}>
+            <div className={translationGridClass(word.partOfSpeech)}>
+                {word.translations.map((translation) => (
+                    <TranslationCard
+                        key={translation.language}
+                        lang={translation.language}
+                        pos={word.partOfSpeech}
+                        // `WordCaseBE.caseName` is `string` over the wire; the backend only
+                        // ever persists real case-name strings, so this is a trusted
+                        // narrowing (same as `filterTranslationsByUserLanguages`, `lib/words.ts`).
+                        initialCases={translation.cases as WordItem[]}
+                        displayOnly
+                    />
+                ))}
+            </div>
+        </WordEditorLayout>
     );
 }
