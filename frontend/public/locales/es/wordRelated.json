@@ -120,7 +120,8 @@
     },
     "buttons": {
       "changeWordType": "Cambiar tipo de palabra",
-      "saveWord": "Guardar palabra"
+      "saveWord": "Guardar palabra",
+      "saveShort": "Guardar"
     },
     "sidebar": {
       "collapse": "Contraer la barra lateral",

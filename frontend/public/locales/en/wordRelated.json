@@ -120,7 +120,8 @@
     },
     "buttons": {
       "changeWordType": "Change word type",
-      "saveWord": "Save word"
+      "saveWord": "Save word",
+      "saveShort": "Save"
     },
     "sidebar": {
       "collapse": "Collapse sidebar",

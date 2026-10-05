@@ -249,6 +249,7 @@ export function WordForm({
             cancelAction={mode === 'edit' ? cancelAction : undefined}
             primary={{
                 label: submitting ? t('common:status.saving') : t('wordRelated:wordForm.buttons.saveWord'),
+                shortLabel: submitting ? t('common:status.saving') : t('wordRelated:wordForm.buttons.saveShort'),
                 icon: submitting ? <span className="spinner" /> : <FloppyDiskIcon size={18} />,
                 onClick: handleSave,
                 disabled: !canSave || submitting,

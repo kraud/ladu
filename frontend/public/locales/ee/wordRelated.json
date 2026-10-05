@@ -120,7 +120,8 @@
     },
     "buttons": {
       "changeWordType": "Muuda sõnaliiki",
-      "saveWord": "Salvesta sõna"
+      "saveWord": "Salvesta sõna",
+      "saveShort": "Salvesta"
     },
     "sidebar": {
       "collapse": "Ahenda külgriba",

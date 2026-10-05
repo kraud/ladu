@@ -103,13 +103,13 @@ export function AppHeader() {
 
     return (
         <header className="app-header">
-            <div className="app-header-inner mx-auto max-w-5xl px-6">
+            <div className="app-header-inner mx-auto max-w-5xl px-6 max-[920px]:pl-2">
                 <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                     <SheetTrigger
-                        className="icon-btn hidden max-[920px]:grid"
+                        className="icon-btn hidden max-[920px]:grid max-[920px]:size-10"
                         aria-label={t('common:header.menu')}
                     >
-                        <ListIcon />
+                        <ListIcon size={26} />
                     </SheetTrigger>
                     <SheetContent side="left" className="p-4">
                         <SheetHeader className="p-0">

@@ -12,11 +12,10 @@
  * commit it, not hunt for it in the left-hand group), then the primary
  * button (Save word / Edit).
  *
- * Phone: only the reason and the primary button, on ONE row (the reason takes the space left, the
- * button keeps its size), so the bar stays low. The secondary
- * actions — including Cancel — are rendered in the slide-in menu instead
- * (`WordEditorLayout`) — the bar does not render them at all, so each action
- * keeps one accessible name.
+ * Phone: the reason, Cancel and the primary button on ONE row (the reason takes the space left, the
+ * buttons are small and use the primary's `shortLabel`), so the bar stays low. The other
+ * secondary actions are rendered in the slide-in menu instead (`WordEditorLayout`) — the bar
+ * does not render them at all, so each action keeps one accessible name.
  */
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -32,6 +31,8 @@ export interface EditorAction {
 
 export interface EditorPrimary {
     label: string;
+    /** Shown instead of `label` on a phone, where the bar has one row for everything. */
+    shortLabel?: string;
     icon: ReactNode;
     onClick: () => void;
     disabled?: boolean;
@@ -40,7 +41,7 @@ export interface EditorPrimary {
 export interface WordEditorBarProps {
     /** Secondary actions — shown here on desktop only. */
     actions?: EditorAction[];
-    /** Edit mode's Cancel — desktop only, rendered immediately left of `primary`. */
+    /** Edit mode's Cancel — rendered immediately left of `primary` (desktop and phone). */
     cancelAction?: EditorAction;
     primary?: EditorPrimary;
     /** Why the primary button is disabled; leave out when it is enabled. */
@@ -94,9 +95,10 @@ export function WordEditorBar({
                 )}
                 {(cancelAction ?? primary) && (
                     <div className="flex shrink-0 items-center gap-2 max-[920px]:ml-auto">
-                        {!isMobile && cancelAction && (
+                        {cancelAction && (
                             <Button
                                 type="button"
+                                size={isMobile ? 'sm' : 'default'}
                                 variant={cancelAction.variant ?? 'outline'}
                                 onClick={cancelAction.onClick}
                             >
@@ -105,9 +107,14 @@ export function WordEditorBar({
                             </Button>
                         )}
                         {primary && (
-                            <Button type="button" disabled={primary.disabled} onClick={primary.onClick}>
+                            <Button
+                                type="button"
+                                size={isMobile ? 'sm' : 'default'}
+                                disabled={primary.disabled}
+                                onClick={primary.onClick}
+                            >
                                 {primary.icon}
-                                {primary.label}
+                                {isMobile ? (primary.shortLabel ?? primary.label) : primary.label}
                             </Button>
                         )}
                     </div>

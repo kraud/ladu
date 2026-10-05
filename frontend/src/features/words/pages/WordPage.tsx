@@ -38,6 +38,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useAuthStore } from '@/stores/authStore';
 import { PageColumn } from '@/components/layout/PageColumn';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { useWordSidebarSections } from '../layout/SidebarFields';
 import type { EditorAction, EditorPrimary } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
@@ -62,6 +63,7 @@ export function WordPage() {
     const updateWord = useUpdateWord();
     const deleteWord = useDeleteWord();
     const canGoBack = useCanGoBack();
+    const isMobile = useIsMobile();
     const userId = useAuthStore((s) => s.user?.id) ?? '';
 
     const [editing, setEditing] = useState(false);
@@ -163,7 +165,13 @@ export function WordPage() {
         },
     ];
 
-    const header = (
+    // Phone: the word, then the "Detailed view" line under it (the subtitle is left out).
+    const header = isMobile ? (
+        <div className="flex flex-col gap-1">
+            <h1 className="h1">{headline || t('wordRelated:displayWord.titleSimple')}</h1>
+            <p className="meta">{t('wordRelated:displayWord.titlePos', { currentPoS: posLabel })}</p>
+        </div>
+    ) : (
         <div className="flex flex-col gap-1">
             <p className="meta">{t('wordRelated:displayWord.titlePos', { currentPoS: posLabel })}</p>
             <h1 className="h1">{headline || t('wordRelated:displayWord.titleSimple')}</h1>
@@ -229,7 +237,7 @@ function WordViewLayout({
 }) {
     const sections = useWordSidebarSections({ clue: word.clue ?? '', tags: word.tags, tagsHint });
     return (
-        <WordEditorLayout sections={sections} header={header} actions={actions} primary={primary}>
+        <WordEditorLayout sections={sections} header={header} actions={actions} primary={primary} readOnly>
             <div className={translationGridClass(word.partOfSpeech)}>
                 {word.translations.map((translation) => (
                     <TranslationCard

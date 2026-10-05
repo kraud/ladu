@@ -186,7 +186,7 @@ describe('WordEditorLayout', () => {
             expect(onCancel).toHaveBeenCalledTimes(1);
         });
 
-        it('phone: cancelAction moves into the drawer alongside the other actions, not the bar', async () => {
+        it('phone: cancelAction stays in the bar, left of a short-labelled primary, and not in the drawer', async () => {
             mockMobileViewport();
             const user = userEvent.setup();
             const onCancel = vi.fn();
@@ -195,19 +195,117 @@ describe('WordEditorLayout', () => {
                     sections={SECTIONS}
                     actions={ACTIONS}
                     cancelAction={{ key: 'cancel', label: 'Cancel', icon: null, onClick: onCancel }}
-                    primary={{ label: 'Save word', icon: null, onClick: vi.fn() }}
+                    primary={{ label: 'Save word', shortLabel: 'Save', icon: null, onClick: vi.fn() }}
                 >
                     <div>Translation cards</div>
                 </WordEditorLayout>,
             );
 
             const bar = screen.getByTestId('word-editor-bar');
-            expect(within(bar).queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+            const names = within(bar)
+                .getAllByRole('button')
+                .map((button) => button.textContent);
+            expect(names).toEqual(['Cancel', 'Save']);
+            expect(within(bar).queryByRole('button', { name: 'Save word' })).not.toBeInTheDocument();
+
+            await user.click(within(bar).getByRole('button', { name: 'Cancel' }));
+            expect(onCancel).toHaveBeenCalledTimes(1);
+
+            await user.click(screen.getByRole('button', { name: 'Open menu' }));
+            expect(within(screen.getByRole('dialog')).queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+        });
+
+        it('phone: Delete is pinned after the sections at the bottom of the drawer, the other actions above them', async () => {
+            mockMobileViewport();
+            const user = userEvent.setup();
+            renderWithProviders(
+                <WordEditorLayout sections={SECTIONS} actions={ACTIONS} primary={{ label: 'Save word', icon: null, onClick: vi.fn() }}>
+                    <div>Translation cards</div>
+                </WordEditorLayout>,
+            );
 
             await user.click(screen.getByRole('button', { name: 'Open menu' }));
             const drawer = screen.getByRole('dialog');
-            await user.click(within(drawer).getByRole('button', { name: 'Cancel' }));
-            expect(onCancel).toHaveBeenCalledTimes(1);
+            const change = within(drawer).getByRole('button', { name: 'Change word type' });
+            const del = within(drawer).getByRole('button', { name: 'Delete' });
+            const section = drawer.querySelector('[data-section]') as HTMLElement;
+            expect(change.compareDocumentPosition(section) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+            expect(section.compareDocumentPosition(del) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        });
+
+        it('phone: the menu button sits in the title row and shows no label', async () => {
+            mockMobileViewport();
+            renderWithProviders(
+                <WordEditorLayout sections={SECTIONS} header={<h1>New word</h1>} primary={{ label: 'Save word', icon: null, onClick: vi.fn() }}>
+                    <div>Translation cards</div>
+                </WordEditorLayout>,
+            );
+
+            const heading = screen.getByRole('heading', { name: 'New word' });
+            const trigger = screen.getByRole('button', { name: 'Open menu' });
+            expect(heading.parentElement?.parentElement).toBe(trigger.parentElement);
+            expect(trigger.textContent).toBe('');
+        });
+
+        describe('phone: the menu button icons follow the sections', () => {
+            const icon = (name: string) => <svg data-testid={name} />;
+            const sections = (filled: { clue: boolean; tags: number }) => [
+                { id: 'clue', label: 'Clue', icon: icon('clue-plain'), filledIcon: icon('clue-filled'), filled: filled.clue, content: <div /> },
+                { id: 'tags', label: 'Tags', icon: icon('tags-plain'), filledIcon: icon('tags-filled'), filled: filled.tags > 0, count: filled.tags, content: <div /> },
+                { id: 'linked-words', label: 'Linked words', icon: icon('links-plain'), content: <div /> },
+            ];
+            const primary = { label: 'Save word', icon: null, onClick: vi.fn() };
+
+            it('editing: all three icons, the filled variant and the count for sections that hold something', () => {
+                mockMobileViewport();
+                renderWithProviders(
+                    <WordEditorLayout sections={sections({ clue: true, tags: 2 })} primary={primary}>
+                        <div />
+                    </WordEditorLayout>,
+                );
+                const trigger = screen.getByRole('button', { name: 'Open menu' });
+                expect(within(trigger).getByTestId('clue-filled')).toBeInTheDocument();
+                expect(within(trigger).getByTestId('tags-filled')).toBeInTheDocument();
+                expect(within(trigger).getByTestId('links-plain')).toBeInTheDocument();
+                expect(within(trigger).getByText('2')).toBeInTheDocument();
+            });
+
+            it('editing with nothing filled: all three plain icons', () => {
+                mockMobileViewport();
+                renderWithProviders(
+                    <WordEditorLayout sections={sections({ clue: false, tags: 0 })} primary={primary}>
+                        <div />
+                    </WordEditorLayout>,
+                );
+                const trigger = screen.getByRole('button', { name: 'Open menu' });
+                expect(within(trigger).getByTestId('clue-plain')).toBeInTheDocument();
+                expect(within(trigger).getByTestId('tags-plain')).toBeInTheDocument();
+                expect(within(trigger).getByTestId('links-plain')).toBeInTheDocument();
+            });
+
+            it('read-only: only the icons of sections that hold something', () => {
+                mockMobileViewport();
+                renderWithProviders(
+                    <WordEditorLayout readOnly sections={sections({ clue: false, tags: 1 })} primary={primary}>
+                        <div />
+                    </WordEditorLayout>,
+                );
+                const trigger = screen.getByRole('button', { name: 'Open menu' });
+                expect(within(trigger).getByTestId('tags-filled')).toBeInTheDocument();
+                expect(within(trigger).queryByTestId('clue-plain')).not.toBeInTheDocument();
+                expect(within(trigger).queryByTestId('links-plain')).not.toBeInTheDocument();
+            });
+
+            it('read-only with nothing: a plain menu icon stays so the actions are reachable', () => {
+                mockMobileViewport();
+                renderWithProviders(
+                    <WordEditorLayout readOnly sections={sections({ clue: false, tags: 0 })} primary={primary}>
+                        <div />
+                    </WordEditorLayout>,
+                );
+                const trigger = screen.getByRole('button', { name: 'Open menu' });
+                expect(trigger.querySelectorAll('svg')).toHaveLength(1);
+            });
         });
 
         it('phone: ignores the stored rail preference — the menu always shows the full sections', async () => {

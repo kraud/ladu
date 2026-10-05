@@ -13,9 +13,10 @@
  *
  * Below 920px (the app's one existing breakpoint — `AppHeader.tsx`,
  * `globals.css`'s `@media (max-width: 920px)` block) the sidebar becomes a
- * slide-in menu, opened by a trigger on its own row above the grid. The
- * secondary `actions` move into that menu (above the sections), and the bar
- * keeps only the primary button and the reason.
+ * slide-in menu, opened by a trigger on the title's row (it shows the icons of
+ * the three sections instead of a label). The secondary `actions` move into
+ * that menu — Delete pinned at the bottom, the rest above the sections — and
+ * the bar keeps the reason, Cancel and the primary button, all small.
  *
  * `useIsMobile` decides where the secondary actions render, so they exist
  * once — not duplicated in the bar and the menu with one copy hidden by CSS —
@@ -36,12 +37,13 @@ export interface WordEditorLayoutProps {
     /** Secondary actions: the bar's left side on desktop, the menu's top on a phone. */
     actions?: EditorAction[];
     /**
-     * Edit mode's Cancel: desktop renders it in the bar, immediately left of
-     * `primary` (not grouped with `actions`); a phone still gets it in the
-     * menu, alongside `actions` — one accessible "Cancel" either way.
+     * Edit mode's Cancel: always in the bar, immediately left of `primary`
+     * (not grouped with `actions`) — on a phone too, as a small button.
      */
     cancelAction?: EditorAction;
     primary?: EditorPrimary;
+    /** Read-only view: the phone's menu button only shows the icons of sections that hold something. */
+    readOnly?: boolean;
     /** Why `primary` is disabled — shown in the bar; leave out when it is enabled. */
     statusText?: string;
     /** Create/edit: show the "* required" note in the bar (desktop). */
@@ -49,11 +51,11 @@ export interface WordEditorLayoutProps {
     children: ReactNode;
 }
 
-/** Phone only: the secondary actions at the top of the slide-in menu. */
-function MenuActions({ actions }: { actions: EditorAction[] }) {
+/** Phone only: secondary actions in the slide-in menu — `top` above the sections, `bottom` pinned under them. */
+function MenuActions({ actions, position }: { actions: EditorAction[]; position: 'top' | 'bottom' }) {
     const { setOpen } = useSidebar();
     return (
-        <div className="flex flex-col gap-2 border-b border-border pb-3">
+        <div className={position === 'top' ? 'flex flex-col gap-2 border-b border-border pb-3' : 'flex flex-col gap-2'}>
             {actions.map((action) => (
                 <Button
                     key={action.key}
@@ -73,19 +75,71 @@ function MenuActions({ actions }: { actions: EditorAction[] }) {
     );
 }
 
+/**
+ * Phone only: the menu button on the title's row, so the grid below keeps its full width. It shows
+ * the icons of the sections inside (Clue, Tags, Linked words) instead of a label, the same as the
+ * collapsed desktop rail: a section that holds something uses its `filledIcon`, with the count badge.
+ * In a read-only view only the sections that hold something show; with none, a plain menu icon stays
+ * so the actions in the menu remain reachable.
+ */
+function TitleRow({
+    header,
+    label,
+    sections,
+    readOnly,
+}: {
+    header: ReactNode;
+    label: string;
+    sections: SidebarSection[];
+    readOnly?: boolean;
+}) {
+    const holdsSomething = (section: SidebarSection) => section.filled || (section.count ?? 0) > 0;
+    const shown = readOnly ? sections.filter(holdsSomething) : sections;
+    return (
+        <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">{header}</div>
+            <SidebarTrigger label={label} className="icon-btn w-auto shrink-0 grid-flow-col gap-1.5 px-2">
+                {shown.length === 0 && <SlidersHorizontalIcon size={18} />}
+                {shown.map((section) => {
+                    const count = section.count ?? 0;
+                    return (
+                        <span
+                            key={section.id}
+                            data-testid={`trigger-${section.id}`}
+                            data-filled={holdsSomething(section) || undefined}
+                            className="relative grid place-items-center"
+                            aria-hidden="true"
+                        >
+                            {section.filled && section.filledIcon ? section.filledIcon : section.icon}
+                            {count > 0 && (
+                                <span className="absolute -right-1.5 -top-1.5 grid min-w-3.5 place-items-center rounded-full bg-(--accent) px-0.5 text-[9px] font-semibold leading-3.5 text-(--accent-ink)">
+                                    {count}
+                                </span>
+                            )}
+                        </span>
+                    );
+                })}
+            </SidebarTrigger>
+        </div>
+    );
+}
+
 export function WordEditorLayout({
     sections,
     header,
     actions = [],
     cancelAction,
     primary,
+    readOnly,
     statusText,
     showRequiredHint,
     children,
 }: WordEditorLayoutProps) {
     const { t } = useTranslation();
     const isMobile = useIsMobile();
-    const menuActions = cancelAction ? [...actions, cancelAction] : actions;
+    // Delete (the destructive action) sits at the bottom of the menu, away from the easy-to-hit top.
+    const topActions = actions.filter((action) => action.variant !== 'destructive');
+    const bottomActions = actions.filter((action) => action.variant === 'destructive');
 
     return (
         <SidebarLayout
@@ -93,9 +147,21 @@ export function WordEditorLayout({
             wide
             label={t('wordRelated:wordForm.sidebar.menuTitle')}
             sections={sections}
-            header={header}
+            header={
+                isMobile ? (
+                    <TitleRow
+                        header={header}
+                        label={t('wordRelated:wordForm.sidebar.openMenu')}
+                        sections={sections}
+                        readOnly={readOnly}
+                    />
+                ) : (
+                    header
+                )
+            }
             // `MenuActions` reads the open state from the layout's context, so it must render inside it.
-            drawerTop={menuActions.length > 0 ? <MenuActions actions={menuActions} /> : undefined}
+            drawerTop={topActions.length > 0 ? <MenuActions actions={topActions} position="top" /> : undefined}
+            drawerBottom={bottomActions.length > 0 ? <MenuActions actions={bottomActions} position="bottom" /> : undefined}
             footer={
                 <WordEditorBar
                     actions={actions}
@@ -107,17 +173,7 @@ export function WordEditorLayout({
                 />
             }
         >
-            {/* Below 920px the menu trigger gets its own row above the grid: inline it would eat ~48px of the card grid's width. */}
-            <div className="flex flex-col gap-4">
-                {isMobile && (
-                    <div className="flex">
-                        <SidebarTrigger label={t('wordRelated:wordForm.sidebar.openMenu')}>
-                            <SlidersHorizontalIcon size={18} />
-                        </SidebarTrigger>
-                    </div>
-                )}
-                {children}
-            </div>
+            <div className="flex flex-col gap-4">{children}</div>
         </SidebarLayout>
     );
 }

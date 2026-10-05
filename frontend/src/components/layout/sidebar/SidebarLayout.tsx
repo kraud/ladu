@@ -66,6 +66,8 @@ export interface SidebarLayoutProps {
     sections: SidebarSection[];
     /** Phone only: shown above the sections in the slide-in menu. */
     drawerTop?: ReactNode;
+    /** Phone only: pinned to the bottom of the slide-in menu (the word editor's Delete). */
+    drawerBottom?: ReactNode;
     /** Bar fixed to the bottom of the window, over the full width. */
     footer?: ReactNode;
     /**
@@ -138,6 +140,7 @@ export function SidebarLayout({
     label,
     sections,
     drawerTop,
+    drawerBottom,
     footer,
     footerAligned,
     header,
@@ -337,6 +340,7 @@ export function SidebarLayout({
                         <SheetDescription className="sr-only">{label}</SheetDescription>
                         {drawerTop}
                         {body}
+                        {drawerBottom && <div className="mt-auto border-t border-border pt-3">{drawerBottom}</div>}
                     </SheetContent>
                 </Sheet>
             )}
