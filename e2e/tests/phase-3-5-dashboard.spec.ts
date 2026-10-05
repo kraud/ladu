@@ -218,7 +218,7 @@ test.describe.serial('Phase 3.5 — Dashboard + user metrics', () => {
         await expect(refreshedStats.getByText('20% incomplete')).toBeVisible();
     });
 
-    test('a fresh account shows the empty state', async ({ page, request }) => {
+    test('a fresh account shows the empty state over placeholder charts', async ({ page, request }) => {
         const fresh = await registerAndVerify(request, ['English', 'German']);
 
         await page.goto('/login');
@@ -229,7 +229,11 @@ test.describe.serial('Phase 3.5 — Dashboard + user metrics', () => {
 
         await expect(page.getByText('No words yet')).toBeVisible();
         await expect(page.getByRole('link', { name: 'Add your first words' })).toBeVisible();
-        await expect(page.locator('.card.metrics').getByRole('img')).toHaveCount(0); // no chart svgs
+        // The charts are placeholders: a grey pie saying there is no data, and a banner over the empty bar chart.
+        const metrics = page.locator('.card.metrics');
+        await expect(metrics.getByTestId('pie-empty')).toBeVisible();
+        await expect(metrics.getByText('No data yet')).toBeVisible();
+        await expect(metrics.getByText('No words were added in this period yet.')).toBeVisible();
 
         const stats = page.locator('.stat-stack');
         await expect(stats.getByText('0', { exact: true }).first()).toBeVisible();
