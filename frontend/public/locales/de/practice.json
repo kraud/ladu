@@ -144,7 +144,9 @@
       "correctHint": "bisher {{count}} richtig"
     },
     "startShort": "Start",
-    "startingShort": "Starte…"
+    "startingShort": "Starte…",
+    "sortLabel": "Sortieren",
+    "listGroupLabel": "Listen"
   },
   "session": {
     "progress": "Übung {{current}} von {{total}}",
@@ -262,8 +264,6 @@
     "backToResults": "Zurück zu den Ergebnissen",
     "settings": "Verwendete Einstellungen",
     "again": "Noch einmal üben",
-    "change": "Einstellungen ändern",
-    "toReview": "Zur Übersichtstabelle",
     "scoreCount": "{{correct}} von {{total}}",
     "correctAnswers": "richtige Antworten",
     "almostHint": "enthält {{count}} fast richtige – nur Akzente oder Großbuchstaben",
@@ -273,7 +273,8 @@
     "languagesLabel_one": "Sprache",
     "languagesLabel_other": "Sprachen",
     "typesLabel_one": "Wortart",
-    "typesLabel_other": "Wortarten"
+    "typesLabel_other": "Wortarten",
+    "finish": "Beenden"
   },
   "cases": {
     "plurality": {
@@ -396,7 +397,6 @@
       "deleted": "Konfiguration gelöscht.",
       "loaded": "Konfiguration „{{name}}“ geladen."
     },
-    "note": "Einstellungen, die du zum erneuten Verwenden gespeichert hast. Wähle eine aus, um sofort zu starten oder sie zuerst zu ändern.",
     "startDialog": {
       "question": "Jetzt eine Sitzung mit dieser Konfiguration starten oder zuerst die Einstellungen ändern?",
       "start": "Sitzung starten",
@@ -404,11 +404,17 @@
       "noMatch": "Zu dieser Konfiguration passt jetzt keine Übung. Ändere zuerst die Einstellungen.",
       "noWords": "Die Tags dieser Konfiguration enthalten jetzt keine Wörter. Ändere zuerst die Einstellungen."
     },
-    "saveShort": "Speichern"
+    "saveShort": "Speichern",
+    "count_one": "{{count}} Konfiguration",
+    "count_other": "{{count}} Konfigurationen",
+    "sort": {
+      "recent": "Zuletzt",
+      "name": "Name A–Z"
+    },
+    "descriptionAria": "Beschreibung von {{name}} anzeigen"
   },
   "sessions": {
     "title": "Laufende Sitzungen",
-    "note": "Du kannst bis zu {{max}} Sitzungen {{days}} Tage lang behalten. Eine neue Sitzung ersetzt die älteste.",
     "loading": "Wird geladen…",
     "empty": "Du hast keine gespeicherten Sitzungen. Verlasse eine Sitzung und wähle „Sitzung speichern und verlassen“, um sie zu behalten.",
     "listError": "Die gespeicherten Sitzungen konnten nicht geladen werden.",
@@ -431,6 +437,12 @@
     },
     "toast": {
       "deleted": "Sitzung gelöscht."
+    },
+    "count_one": "{{count}} Sitzung (max. {{max}})",
+    "count_other": "{{count}} Sitzungen (max. {{max}})",
+    "sort": {
+      "recent": "Neueste",
+      "oldest": "Älteste"
     }
   },
   "apiErrors": {

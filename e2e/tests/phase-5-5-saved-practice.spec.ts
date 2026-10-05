@@ -414,7 +414,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         });
 
         await test.step('"Leave session and delete" saves nothing', async () => {
-            await page.getByRole('button', { name: 'Change settings' }).first().click();
+            await page.getByRole('button', { name: 'Back to set-up' }).first().click();
             await configure(page, { amount: 2, answer: 'Type the answer', languages: 'Different languages' });
             await startSession(page);
             await answerCard(page, 'right');

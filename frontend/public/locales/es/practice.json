@@ -144,7 +144,9 @@
       "correctHint": "{{count}} correctas hasta ahora"
     },
     "startShort": "Empezar",
-    "startingShort": "Creando…"
+    "startingShort": "Creando…",
+    "sortLabel": "Ordenar",
+    "listGroupLabel": "Listas"
   },
   "session": {
     "progress": "Ejercicio {{current}} de {{total}}",
@@ -262,8 +264,6 @@
     "backToResults": "Volver a los resultados",
     "settings": "Ajustes usados",
     "again": "Practicar otra vez",
-    "change": "Cambiar ajustes",
-    "toReview": "Ir a la tabla de revisión",
     "scoreCount": "{{correct}} de {{total}}",
     "correctAnswers": "respuestas correctas",
     "almostHint": "incluye {{count}} casi correctas: solo cambian acentos o mayúsculas",
@@ -273,7 +273,8 @@
     "languagesLabel_one": "idioma",
     "languagesLabel_other": "idiomas",
     "typesLabel_one": "tipo de palabra",
-    "typesLabel_other": "tipos de palabra"
+    "typesLabel_other": "tipos de palabra",
+    "finish": "Finalizar"
   },
   "cases": {
     "plurality": {
@@ -396,7 +397,6 @@
       "deleted": "Configuración eliminada.",
       "loaded": "Configuración «{{name}}» cargada."
     },
-    "note": "Ajustes que guardaste para usarlos otra vez. Elige uno para empezar una sesión ahora o para cambiarlo antes.",
     "startDialog": {
       "question": "¿Empezar ahora una sesión con esta configuración o cambiar antes los ajustes?",
       "start": "Empezar sesión",
@@ -404,11 +404,17 @@
       "noMatch": "Ningún ejercicio coincide ahora con esta configuración. Cambia primero los ajustes.",
       "noWords": "Las etiquetas de esta configuración no tienen palabras ahora. Cambia primero los ajustes."
     },
-    "saveShort": "Guardar"
+    "saveShort": "Guardar",
+    "count_one": "{{count}} configuración",
+    "count_other": "{{count}} configuraciones",
+    "sort": {
+      "recent": "Recientes",
+      "name": "Nombre A–Z"
+    },
+    "descriptionAria": "Mostrar la descripción de {{name}}"
   },
   "sessions": {
     "title": "Sesiones en curso",
-    "note": "Puedes tener hasta {{max}} sesiones durante {{days}} días. Una sesión nueva reemplaza a la más antigua.",
     "loading": "Cargando…",
     "empty": "No tienes sesiones guardadas. Sal de una sesión y elige «Guardar sesión y salir» para conservarla.",
     "listError": "No se pudieron cargar las sesiones guardadas.",
@@ -431,6 +437,12 @@
     },
     "toast": {
       "deleted": "Sesión eliminada."
+    },
+    "count_one": "{{count}} sesión (máx. {{max}})",
+    "count_other": "{{count}} sesiones (máx. {{max}})",
+    "sort": {
+      "recent": "Más recientes",
+      "oldest": "Más antiguas"
     }
   },
   "apiErrors": {

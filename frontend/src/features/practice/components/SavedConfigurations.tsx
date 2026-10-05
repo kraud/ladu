@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
+import { InfoIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getTagById } from '@/features/tags/api';
 import { tagKeys } from '@/features/tags/keys';
 import type { TagSummary } from '@/features/tags/types';
@@ -15,10 +16,13 @@ import { useConfigs, useDeleteConfig, useLoadConfigWords } from '../hooks';
 import { toPreselectedWord, type PreselectedWord } from '../preselection';
 import type { CardType, SavedConfig } from '../types';
 import { SaveConfigDialog } from './SaveConfigDialog';
+import { ListToolbar } from './ListToolbar';
 import { Pill, SetupFacts } from './SetupFacts';
 
+type ConfigSort = 'recent' | 'name';
+
 /**
- * The user's saved configurations: the content of the "Saved configurations" tab on the set-up screen. One tap on a row loads it:
+ * The user's saved configurations: the "Saved configurations" list on the set-up screen. One tap on a row loads it:
  * the page gets the configuration and its words (still visible ones, with labels).
  * `words` is `null` when the configuration has none. A configuration with tags reads the tags again
  * and gives them to the page (`loadedTags`): the words come live from the tags. If none of its tags can
@@ -33,8 +37,11 @@ export interface LoadedTags {
 
 export function SavedConfigurations({
     onLoad,
+    rail,
 }: {
     onLoad: (config: SavedConfig, words: PreselectedWord[] | null, loadedTags: LoadedTags | null) => void;
+    /** The scope badges of the set-up (they sit in the toolbar of this list). */
+    rail: ReactNode;
 }) {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user);
@@ -45,6 +52,13 @@ export function SavedConfigurations({
     const [loadingId, setLoadingId] = useState<string | null>(null);
     const [editing, setEditing] = useState<SavedConfig | null>(null);
     const [deleting, setDeleting] = useState<SavedConfig | null>(null);
+    const [sort, setSort] = useState<ConfigSort>('recent');
+    const items = useMemo(() => {
+        const list = [...(configs.data ?? [])];
+        return sort === 'recent'
+            ? list.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+            : list.sort((a, b) => a.name.localeCompare(b.name));
+    }, [configs.data, sort]);
 
     function loadSavedWords(config: SavedConfig, loadedTags: LoadedTags | null) {
         if (!config.wordIds || config.wordIds.length === 0) {
@@ -101,7 +115,16 @@ export function SavedConfigurations({
 
     return (
         <div className="flex flex-col gap-2">
-            <p className="hint">{t('practice:configs.note')}</p>
+            <ListToolbar
+                rail={rail}
+                count={configs.isSuccess ? t('practice:configs.count', { count: items.length }) : null}
+                sort={sort}
+                sortOptions={[
+                    { value: 'recent', label: t('practice:configs.sort.recent') },
+                    { value: 'name', label: t('practice:configs.sort.name') },
+                ]}
+                onSortChange={setSort}
+            />
             {configs.isPending && <p className="hint">{t('practice:configs.loading')}</p>}
 
             {configs.isError && (
@@ -128,7 +151,7 @@ export function SavedConfigurations({
 
             {configs.isSuccess && configs.data.length > 0 && (
                 <ul className="flex flex-col gap-2">
-                    {configs.data.map((config) => (
+                    {items.map((config) => (
                         <li key={config.id} className="relative">
                             <button
                                 type="button"
@@ -138,9 +161,9 @@ export function SavedConfigurations({
                                 aria-busy={loadingId === config.id || undefined}
                                 onClick={() => load(config)}
                             >
-                                <span className="flex min-w-0 flex-col gap-0.5 pr-16">
+                                <span className="flex min-w-0 flex-col gap-0.5 pr-24 md:pr-16">
                                     <span className="font-semibold break-words">{config.name}</span>
-                                    {config.description && <span className="hint break-words">{config.description}</span>}
+                                    {config.description && <span className="hint break-words max-md:hidden">{config.description}</span>}
                                 </span>
                                 <SetupFacts
                                     figure={config.params.amount}
@@ -167,6 +190,7 @@ export function SavedConfigurations({
                                 )}
                             </button>
                             <span className="absolute top-2 right-2 flex gap-1">
+                                {config.description && <DescriptionInfo name={config.name} description={config.description} />}
                                 <Button
                                     type="button"
                                     variant="ghost"
@@ -214,4 +238,29 @@ export function SavedConfigurations({
 /** The answer styles a configuration asks for: "Mixed" means both. */
 function cardTypesOf(type: SavedConfig['params']['type']): CardType[] {
     return type === 'Random' ? ['Text-Input', 'Multiple-Choice'] : [type];
+}
+
+/** Phone only: the description of a configuration behind an info icon (hover or tap). */
+function DescriptionInfo({ name, description }: { name: string; description: string }) {
+    const { t } = useTranslation();
+    const [open, setOpen] = useState(false);
+    return (
+        <Tooltip open={open} onOpenChange={setOpen}>
+            <TooltipTrigger
+                render={
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        className="md:hidden"
+                        aria-label={t('practice:configs.descriptionAria', { name })}
+                        onClick={() => setOpen((value) => !value)}
+                    />
+                }
+            >
+                <InfoIcon aria-hidden size={16} />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-64 break-words">{description}</TooltipContent>
+        </Tooltip>
+    );
 }

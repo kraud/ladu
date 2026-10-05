@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ClockCounterClockwiseIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
@@ -8,13 +8,16 @@ import { htmlLangByI18nCode } from '@/lib/language';
 import { useAuthStore } from '@/stores/authStore';
 import { getApiErrorCode, practiceErrorKey } from '../errors';
 import { useDeleteSavedSession, useLoadSavedSession, useSavedSessions } from '../hooks';
-import { fromSavedSession, MAX_SAVED_SESSIONS, SESSION_TTL_DAYS } from '../savedSessions';
+import { fromSavedSession, MAX_SAVED_SESSIONS } from '../savedSessions';
 import { usePracticeSessionStore } from '../sessionStore';
 import type { SavedSessionItem } from '../types';
+import { ListToolbar } from './ListToolbar';
 import { SetupFacts } from './SetupFacts';
 
+type SessionSort = 'recent' | 'oldest';
+
 /**
- * The user's saved sessions: the content of the "Saved sessions" tab on the set-up screen. One tap on a row resumes it: the
+ * The user's saved sessions: the "Ongoing sessions" list on the set-up screen. One tap on a row resumes it: the
  * session opens where it was left, and stays linked to its saved copy (saving again updates it).
  * A session that is running or parked in this tab would be lost by that, so it asks first.
  * Delete asks first too. A saved session that the server no longer has (expired, replaced,
@@ -23,11 +26,14 @@ import { SetupFacts } from './SetupFacts';
 export function SavedSessions({
     hasUnfinished,
     onResumed,
+    rail,
 }: {
     /** A session is parked in this tab: resuming a saved one replaces it. */
     hasUnfinished: boolean;
     /** After the saved session was opened: the page drops what it held for the set-up. */
     onResumed: () => void;
+    /** The scope badges of the set-up (they sit in the toolbar of this list). */
+    rail: ReactNode;
 }) {
     const { t, i18n } = useTranslation();
     const user = useAuthStore((s) => s.user);
@@ -39,6 +45,13 @@ export function SavedSessions({
     const [replacing, setReplacing] = useState<SavedSessionItem | null>(null);
     const [deleting, setDeleting] = useState<SavedSessionItem | null>(null);
     const [gone, setGone] = useState(false);
+    const [sort, setSort] = useState<SessionSort>('recent');
+    const items = useMemo(() => {
+        const list = [...(sessions.data ?? [])];
+        return sort === 'recent'
+            ? list.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+            : list.sort((a, b) => a.updatedAt.localeCompare(b.updatedAt));
+    }, [sessions.data, sort]);
 
     function open(item: SavedSessionItem) {
         if (loadingId || !user) return;
@@ -74,7 +87,16 @@ export function SavedSessions({
 
     return (
         <div className="flex flex-col gap-2">
-            <p className="hint">{t('practice:sessions.note', { max: MAX_SAVED_SESSIONS, days: SESSION_TTL_DAYS })}</p>
+            <ListToolbar
+                rail={rail}
+                count={sessions.isSuccess ? t('practice:sessions.count', { count: items.length, max: MAX_SAVED_SESSIONS }) : null}
+                sort={sort}
+                sortOptions={[
+                    { value: 'recent', label: t('practice:sessions.sort.recent') },
+                    { value: 'oldest', label: t('practice:sessions.sort.oldest') },
+                ]}
+                onSortChange={setSort}
+            />
 
             {sessions.isPending && <p className="hint">{t('practice:sessions.loading')}</p>}
 
@@ -107,7 +129,7 @@ export function SavedSessions({
 
             {sessions.isSuccess && sessions.data.length > 0 && (
                 <ul className="flex flex-col gap-2">
-                    {sessions.data.map((item) => {
+                    {items.map((item) => {
                         const { summary } = item;
                         return (
                             <li key={item.id} className="relative">
