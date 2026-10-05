@@ -7,7 +7,7 @@ import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
 import { makeConfig, makeExercise, makePracticeHandlers, makeSavedSession } from '@/test/msw/practiceHandlers';
 import { mockMobileViewport } from '@/test/viewport';
 import { futureToken } from '@/test/tokens';
-import { chooseChangeSettingsFirst } from '@/test/practiceTabs';
+import { chooseChangeSettingsFirst, leaveNewConfiguration, openNewConfigurationTab } from '@/test/practiceTabs';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { Lang, PartOfSpeech } from '@/ts/enums';
@@ -56,12 +56,14 @@ afterEach(() => {
 const renderPractice = () => renderApp({ initialEntry: '/practice', session: SESSION });
 
 describe('PracticePage — tabs', () => {
-    it('has three tabs in this order, and Ongoing sessions is the one open at first', async () => {
+    it('has two tabs in this order, and Ongoing sessions is the one open at first', async () => {
         setUp({ configs: [makeConfig({ name: 'Morning drill' })], sessions: [makeSavedSession({ id: 'ses-1' })] });
         await renderPractice();
 
         const tabs = await screen.findAllByRole('tab');
-        expect(tabs.map((tab) => tab.textContent)).toEqual(['Ongoing sessions', 'Saved configurations', 'New configuration']);
+        expect(tabs.map((tab) => tab.textContent)).toEqual(['Ongoing sessions', 'Saved configurations']);
+        // New configuration is a button on the title row, not a tab.
+        expect(screen.getByRole('button', { name: 'New configuration' })).toBeInTheDocument();
         expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
         expect(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' })).toBeInTheDocument();
         // One list at a time.
@@ -77,22 +79,31 @@ describe('PracticePage — tabs', () => {
         expect(await screen.findByRole('button', { name: 'Use configuration Morning drill' })).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Resume session with 0 of 2 answered' })).not.toBeInTheDocument();
 
-        await user.click(screen.getByRole('tab', { name: 'New configuration' }));
+        await openNewConfigurationTab();
         expect(await screen.findByRole('button', { name: 'Start session' })).toBeInTheDocument();
+        // The view replaces the tabs and the button, and has its own title and a way back.
+        expect(screen.getByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
+        expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'New configuration' })).not.toBeInTheDocument();
+
+        await leaveNewConfiguration();
+        expect(screen.getByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+        expect(screen.getAllByRole('tab')).toHaveLength(2);
+        expect(screen.queryByRole('button', { name: 'Start session' })).not.toBeInTheDocument();
     });
 
-    it('keeps the settings when the user looks at another tab and comes back', async () => {
+    it('keeps the settings when the user goes back to the tabs and returns', async () => {
         const user = userEvent.setup();
         setUp();
         await renderPractice();
 
-        await user.click(await screen.findByRole('tab', { name: 'New configuration' }));
+        await openNewConfigurationTab();
         const amount = screen.getByLabelText('Number of exercises');
         await user.clear(amount);
         await user.type(amount, '7');
 
-        await user.click(screen.getByRole('tab', { name: 'Ongoing sessions' }));
-        await user.click(screen.getByRole('tab', { name: 'New configuration' }));
+        await leaveNewConfiguration();
+        await openNewConfigurationTab();
         expect(screen.getByLabelText('Number of exercises')).toHaveValue(7);
     });
 
@@ -105,7 +116,7 @@ describe('PracticePage — tabs', () => {
         await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
         await chooseChangeSettingsFirst();
 
-        expect(screen.getByRole('tab', { name: 'New configuration' })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
         expect(await screen.findByLabelText('Number of exercises')).toHaveValue(5);
     });
 });
@@ -152,21 +163,34 @@ describe('PracticePage — the bottom bar', () => {
 });
 
 describe('PracticePage — the words sidebar', () => {
-    it('is not on the Ongoing sessions tab, even without pre-selected words', async () => {
+    it('is not on the tabs, even without pre-selected words', async () => {
         setUp();
         await renderPractice();
-        await screen.findByRole('tab', { name: 'New configuration' });
+        await screen.findByRole('button', { name: 'New configuration' });
         expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
     });
 
-    it('with words from Review: opens on New configuration and shows the words in the sidebar', async () => {
+    it('opens expanded when the user opens New configuration, even if it was collapsed before', async () => {
+        setUp();
+        useUiStore.getState().setSidebarCollapsed('practice', true);
+        await renderPractice();
+
+        await openNewConfigurationTab();
+        const panel = await screen.findByRole('complementary', { name: 'Selected words' });
+        expect(panel).not.toHaveAttribute('data-collapsed');
+        expect(useUiStore.getState().sidebarCollapsed.practice).toBe(false);
+        // The panel title has no icon.
+        expect(panel.querySelector('h2 svg')).toBeNull();
+    });
+
+    it('with words from Review: opens in New configuration and shows the words in the sidebar', async () => {
         setUp();
         useUiStore.getState().setPracticePreselection(reviewWords);
         await renderPractice();
 
         const panel = await screen.findByRole('complementary', { name: 'Selected words' });
         expect(within(panel).getByText('house')).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: 'New configuration' })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
         // The settings are in the main area, not in the sidebar.
         expect(within(panel).queryByRole('button', { name: 'Start session' })).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Start session' })).toBeInTheDocument();
@@ -190,16 +214,15 @@ describe('PracticePage — the words sidebar', () => {
         expect(within(panel).getByText('house').closest('li')).toHaveAttribute('data-used', 'true');
     });
 
-    it('is only on the New configuration tab', async () => {
-        const user = userEvent.setup();
+    it('is only in the New configuration view', async () => {
         setUp();
         useUiStore.getState().setPracticePreselection(reviewWords);
         await renderPractice();
         await screen.findByRole('complementary');
 
-        await user.click(screen.getByRole('tab', { name: 'Ongoing sessions' }));
+        await leaveNewConfiguration();
         expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
-        await user.click(screen.getByRole('tab', { name: 'New configuration' }));
+        await openNewConfigurationTab();
         expect(await screen.findByRole('complementary')).toBeInTheDocument();
     });
 
@@ -217,21 +240,20 @@ describe('PracticePage — the words sidebar', () => {
 });
 
 describe('PracticePage — phone', () => {
-    it('shows no "New session" button; the settings are the New configuration tab', async () => {
+    it('shows no "New session" button; the settings are in the New configuration view', async () => {
         mockMobileViewport();
-        const user = userEvent.setup();
         setUp();
         await renderPractice();
 
         expect(screen.queryByRole('button', { name: 'New session' })).not.toBeInTheDocument();
-        await user.click(await screen.findByRole('tab', { name: 'New configuration' }));
+        await openNewConfigurationTab();
         // Small buttons with short labels, so the bar stays on one row.
         expect(await screen.findByRole('button', { name: 'Start' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Start session' })).not.toBeInTheDocument();
     });
 
-    it('with pre-selected words, a "Selected words (N)" button opens the list in a slide-in', async () => {
+    it('with pre-selected words, the settings card has "All" and "Selected" badges; "Selected" opens the list', async () => {
         mockMobileViewport();
         const user = userEvent.setup();
         setUp();
@@ -239,16 +261,40 @@ describe('PracticePage — phone', () => {
         await renderPractice();
 
         expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
-        await user.click(await screen.findByRole('button', { name: 'Selected words (1)' }));
+        const all = await screen.findByRole('button', { name: 'All', pressed: false });
+        expect(all.closest('.card')).not.toBeNull();
+        const selected = screen.getByRole('button', { name: 'Selected words (1)' });
+        expect(selected).toHaveAttribute('data-active', 'true');
+        expect(selected).toHaveTextContent('1');
+        await user.click(selected);
         const menu = await screen.findByRole('dialog');
         expect(within(menu).getByText('house')).toBeInTheDocument();
     });
 
-    it('without pre-selected words there is no such button', async () => {
+    it('with no words selected, "All" is the active badge and "Selected" still opens the list', async () => {
         mockMobileViewport();
+        const user = userEvent.setup();
         setUp();
         await renderPractice();
-        await screen.findByRole('tab', { name: 'New configuration' });
         expect(screen.queryByRole('button', { name: /Selected words/ })).not.toBeInTheDocument();
+
+        await openNewConfigurationTab();
+        expect(await screen.findByRole('button', { name: 'All', pressed: true })).toBeInTheDocument();
+        const selected = screen.getByRole('button', { name: 'Selected words (0)' });
+        expect(selected).not.toHaveAttribute('data-active');
+        await user.click(selected);
+        expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('"All" clears the words that came from Review', async () => {
+        mockMobileViewport();
+        const user = userEvent.setup();
+        setUp();
+        useUiStore.getState().setPracticePreselection(reviewWords);
+        await renderPractice();
+
+        await user.click(await screen.findByRole('button', { name: 'All' }));
+        expect(await screen.findByRole('button', { name: 'All', pressed: true })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Selected words (0)' })).toBeInTheDocument();
     });
 });

@@ -5,9 +5,11 @@
   "setup": {
     "title": "Práctica",
     "newConfiguration": "Nueva configuración",
-    "newNote": "Elige los ajustes de una sesión. Pulsa «Guardar configuración» para usarlos de nuevo más tarde.",
+    "newConfigurationBack": "Volver a Practicar",
     "selectedWords": "Palabras seleccionadas",
     "selectedWordsButton": "Palabras seleccionadas ({{count}})",
+    "selectedWordsAll": "Todas",
+    "selectedWordsChip": "Seleccionadas",
     "tagsEmpty": "Ninguna palabra seleccionada. Se usan todas tus palabras.",
     "tagsLabel": "Elegir palabras por etiqueta",
     "tagRemove": "Quitar la etiqueta {{name}}",

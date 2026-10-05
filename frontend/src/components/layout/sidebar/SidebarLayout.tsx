@@ -102,10 +102,13 @@ export function useSidebar(): SidebarContextValue {
 export function SidebarTrigger({
     label,
     className,
+    active,
     children,
 }: {
     label: string;
     className?: string;
+    /** Marks the trigger as the current choice of a badge row (`data-active`; styled by `.chip`). */
+    active?: boolean;
     children?: ReactNode;
 }) {
     const { isMobile, hasPanel, open, setOpen, panelId } = useSidebar();
@@ -117,6 +120,7 @@ export function SidebarTrigger({
             aria-label={label}
             aria-expanded={open}
             aria-controls={panelId}
+            data-active={active || undefined}
             onClick={() => setOpen(true)}
         >
             {children}
@@ -243,12 +247,7 @@ export function SidebarLayout({
                                 {collapsed ? <CaretRightIcon size={16} /> : <CaretLeftIcon size={16} />}
                             </button>
                             {!collapsed && (
-                                <h2 className="label flex min-w-0 items-center gap-1.5">
-                                    {loneSection && repeatsTitle && (
-                                        <span aria-hidden="true" className="[&_svg]:size-3.5">
-                                            {loneSection.icon}
-                                        </span>
-                                    )}
+                                <h2 className="label flex min-w-0 items-center text-[15px]">
                                     <span className="truncate">{label}</span>
                                 </h2>
                             )}
@@ -293,7 +292,12 @@ export function SidebarLayout({
                 )}
 
                 <div className="min-w-0 flex-1">
-                    <div className={cn('mx-auto px-6 py-8', wide ? 'max-w-7xl' : 'max-w-5xl')}>
+                    <div
+                        className={cn(
+                            'mx-auto px-6 pt-3 pb-8 max-[920px]:px-3 max-[920px]:pt-2',
+                            wide ? 'max-w-7xl' : 'max-w-5xl',
+                        )}
+                    >
                         {header ? (
                             <div className="flex flex-col gap-4">
                                 {header}

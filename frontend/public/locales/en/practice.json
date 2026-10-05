@@ -5,9 +5,11 @@
   "setup": {
     "title": "Practice",
     "newConfiguration": "New configuration",
-    "newNote": "Choose the settings for a session. Select \"Save configuration\" to use them again later.",
+    "newConfigurationBack": "Back to Practice",
     "selectedWords": "Selected words",
     "selectedWordsButton": "Selected words ({{count}})",
+    "selectedWordsAll": "All",
+    "selectedWordsChip": "Selected",
     "tagsEmpty": "No words selected. All your words are used.",
     "tagsLabel": "Choose words by tag",
     "tagRemove": "Remove tag {{name}}",

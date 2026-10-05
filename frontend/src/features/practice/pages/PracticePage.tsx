@@ -1,17 +1,25 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getRouteApi, Link } from '@tanstack/react-router';
-import { BookOpenIcon, ListChecksIcon, WarningIcon } from '@phosphor-icons/react';
+import {
+    ArrowLeftIcon,
+    BookOpenIcon,
+    ListChecksIcon,
+    MagnifyingGlassPlusIcon,
+    PlusIcon,
+    WarningIcon,
+} from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
 import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { TagSummary } from '@/features/tags/types';
 import { useWordsInfinite } from '@/features/words/hooks';
 import { accountLanguageOrder } from '@/features/words/review/search';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { ParametersForm } from '../components/ParametersForm';
@@ -40,11 +48,12 @@ const route = getRouteApi('/_protected/practice');
 /**
  * `/practice`: Stage 1 (set-up), Stage 2 (the exercise cards), Stage 3 (results).
  *
- * Stage 1 uses the shared `SidebarLayout`. The main area has the title, the
- * resume banner and three tabs: Ongoing sessions (the default), Saved
- * configurations, and New configuration (the settings form, with a sticky
- * Start / Save bar). The sidebar holds only the pre-selected words and exists
- * only on the New configuration tab, and only when there are words; elsewhere
+ * Stage 1 uses the shared `SidebarLayout`. The main area has the title (with a
+ * "New configuration" button on its right), the resume banner and two tabs:
+ * Ongoing sessions (the default) and Saved configurations. The button opens the
+ * New configuration view (the settings form, with a sticky Start / Save bar):
+ * the tabs and the button go away, and a back arrow comes before the title.
+ * The sidebar holds the selected words and exists only in that view; elsewhere
  * the layout renders no panel. Stages 2 and 3 and the "no words" message have
  * no sidebar and sit in the normal centered column (`PageColumn`).
  */
@@ -144,7 +153,7 @@ function ResultsPage({ session, onChangeSettings }: { session: Session; onChange
     );
 }
 
-type SetUpTab = 'sessions' | 'configs' | 'new';
+type SetUpTab = 'sessions' | 'configs';
 
 function SetUp({
     preselected,
@@ -215,7 +224,15 @@ function SetUp({
     // The fixed bottom bar of the layout; the form puts Start / Save into it while the New configuration tab is open.
     const [actionsHost, setActionsHost] = useState<HTMLElement | null>(null);
     // From Review (with words) the user is here to set up a session; otherwise the ongoing sessions come first.
-    const [tab, setTab] = useState<SetUpTab>(() => (preselected || startOnNew ? 'new' : 'sessions'));
+    const [creating, setCreating] = useState(() => !!preselected || startOnNew);
+    const [tab, setTab] = useState<SetUpTab>('sessions');
+    const isMobile = useIsMobile();
+
+    function openNewConfiguration() {
+        // The panel opens expanded here, as it does for words that come from Review.
+        useUiStore.getState().setSidebarCollapsed('practice', false);
+        setCreating(true);
+    }
 
     function loadConfig(config: SavedConfig, words: PreselectedWord[] | null, loadedTags: LoadedTags | null) {
         // Words chosen by tag come live from the tags, so the settings are not narrowed to words yet:
@@ -235,8 +252,8 @@ function SetUp({
             useUiStore.getState().setSidebarCollapsed('practice', false);
         }
         void navigate({ search: paramsToSearch(params), replace: true });
-        // The loaded settings are on the New configuration tab.
-        setTab('new');
+        // The loaded settings are in the New configuration view.
+        setCreating(true);
         toast.success(t('practice:configs.toast.loaded', { name: config.name }));
     }
 
@@ -294,8 +311,30 @@ function SetUp({
     const words = useWordsInfinite({}, 1);
     const hasNoWords = !preselected && words.isSuccess && (words.data.pages[0]?.total ?? 0) === 0;
 
-    // A title only, like Tags and Review.
-    const header = <h1 className="h1">{t('practice:setup.title')}</h1>;
+    // Like Tags: the title with its action on the right. The New configuration view has a back arrow instead.
+    const header = creating ? (
+        <div className="flex items-center gap-2">
+            <button
+                type="button"
+                className="icon-btn"
+                aria-label={t('practice:setup.newConfigurationBack')}
+                title={t('practice:setup.newConfigurationBack')}
+                onClick={() => setCreating(false)}
+            >
+                <ArrowLeftIcon size={18} />
+            </button>
+            <h1 className="h1">{t('practice:setup.newConfiguration')}</h1>
+        </div>
+    ) : (
+        <div className="flex items-center justify-between gap-2">
+            <h1 className="h1">{t('practice:setup.title')}</h1>
+            <Button onClick={openNewConfiguration}>
+                <PlusIcon size={15} weight="bold" />
+                {t('practice:setup.newConfiguration')}
+            </Button>
+        </div>
+    );
+    const plainHeader = <h1 className="h1">{t('practice:setup.title')}</h1>;
     const resumeBanner = parkedSession && (
         <ResumeSessionBanner session={parkedSession} onResume={onResume} onDismiss={onDismiss} />
     );
@@ -304,7 +343,7 @@ function SetUp({
         return (
             <PageColumn>
                 <div className="flex flex-col gap-4">
-                    {header}
+                    {plainHeader}
                     {resumeBanner}
                     <div className="card">
                         <EmptyState
@@ -323,9 +362,9 @@ function SetUp({
         );
     }
 
-    // On the New configuration tab the sidebar always exists: Review's words, or the tag picker.
+    // In the New configuration view the sidebar always exists: Review's words, or the tag picker.
     const sections: SidebarSection[] =
-        tab === 'new'
+        creating
             ? [
                   {
                       id: 'words',
@@ -362,56 +401,54 @@ function SetUp({
             label={t('practice:setup.selectedWords')}
             sections={sections}
             header={header}
-            footer={tab === 'new' ? <div ref={setActionsHost} /> : undefined}
+            footer={creating ? <div ref={setActionsHost} /> : undefined}
             footerAligned
         >
             <div className="flex flex-col gap-4">
                 {resumeBanner}
-                <Tabs value={tab} onValueChange={(value) => setTab(value as SetUpTab)}>
-                    <TabsList>
-                        <TabsTrigger value="sessions">{t('practice:sessions.title')}</TabsTrigger>
-                        <TabsTrigger value="configs">{t('practice:configs.title')}</TabsTrigger>
-                        <TabsTrigger value="new">{t('practice:setup.newConfiguration')}</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="sessions">
-                        <SavedSessions hasUnfinished={parkedSession !== null} onResumed={clearPreselected} />
-                    </TabsContent>
-                    <TabsContent value="configs">
-                        <SavedConfigurations onLoad={chooseConfig} />
-                    </TabsContent>
-                    {/* Kept mounted while another tab shows: the form holds the working copy of the settings. */}
-                    <TabsContent value="new" keepMounted className="flex flex-col gap-3">
-                        <p className="hint">{t('practice:setup.newNote')}</p>
-                        <SidebarTrigger
-                            label={t('practice:setup.selectedWordsButton', { count: effective?.length ?? 0 })}
-                            className={buttonVariants({ variant: 'outline', className: 'w-full gap-2' })}
-                        >
-                            <ListChecksIcon size={16} />
-                            {t('practice:setup.selectedWordsButton', { count: effective?.length ?? 0 })}
-                        </SidebarTrigger>
-                        {wordsMissing && (
-                            <div className="banner warning items-start" role="status">
-                                <WarningIcon aria-hidden size={16} className="mt-0.5 shrink-0" />
-                                <span className="grow">{t('practice:configs.missingWords')}</span>
-                            </div>
-                        )}
-                        <ParametersForm
-                            key={formKey}
-                            user={user}
-                            initialParams={initialParams}
-                            preselected={effective}
-                            actionsHost={tab === 'new' ? actionsHost : null}
-                            tagIds={usingTags ? tags.map((tag) => tag.id) : null}
-                            startBlockedReason={tagsBlockedReason}
-                            onStarted={clearPreselected}
-                            onSaveConfig={setConfigDraft}
-                            onParamsChange={(params) => {
-                                setLiveParams(params);
-                                void navigate({ search: paramsToSearch(params), replace: true });
-                            }}
-                        />
-                    </TabsContent>
-                </Tabs>
+                {!creating && (
+                    <Tabs value={tab} onValueChange={(value) => setTab(value as SetUpTab)}>
+                        <TabsList>
+                            <TabsTrigger value="sessions">{t('practice:sessions.title')}</TabsTrigger>
+                            <TabsTrigger value="configs">{t('practice:configs.title')}</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="sessions">
+                            <SavedSessions hasUnfinished={parkedSession !== null} onResumed={clearPreselected} />
+                        </TabsContent>
+                        <TabsContent value="configs">
+                            <SavedConfigurations onLoad={chooseConfig} />
+                        </TabsContent>
+                    </Tabs>
+                )}
+                {/* Kept mounted while hidden: the form holds the working copy of the settings. */}
+                <div hidden={!creating} className="flex flex-col gap-3">
+                    {wordsMissing && (
+                        <div className="banner warning items-start" role="status">
+                            <WarningIcon aria-hidden size={16} className="mt-0.5 shrink-0" />
+                            <span className="grow">{t('practice:configs.missingWords')}</span>
+                        </div>
+                    )}
+                    <ParametersForm
+                        key={formKey}
+                        user={user}
+                        initialParams={initialParams}
+                        preselected={effective}
+                        actionsHost={creating ? actionsHost : null}
+                        tagIds={usingTags ? tags.map((tag) => tag.id) : null}
+                        startBlockedReason={tagsBlockedReason}
+                        onStarted={clearPreselected}
+                        onSaveConfig={setConfigDraft}
+                        wordsSlot={
+                            isMobile ? (
+                                <WordsBadges count={effective?.length ?? 0} onAll={clearPreselected} />
+                            ) : undefined
+                        }
+                        onParamsChange={(params) => {
+                            setLiveParams(params);
+                            void navigate({ search: paramsToSearch(params), replace: true });
+                        }}
+                    />
+                </div>
             </div>
             {chosen && (
                 <StartConfigDialog
@@ -435,5 +472,34 @@ function SetUp({
                 />
             )}
         </SidebarLayout>
+    );
+}
+
+/**
+ * Phone only: which words the session uses, as two badges (one active). "All" uses every word;
+ * "(X) Selected" opens the words drawer. With nothing selected, "All" is the active one.
+ */
+function WordsBadges({ count, onAll }: { count: number; onAll: () => void }) {
+    const { t } = useTranslation();
+    return (
+        <div className="flex flex-wrap gap-1.5">
+            <button type="button" className="chip" aria-pressed={count === 0} onClick={onAll}>
+                {t('practice:setup.selectedWordsAll')}
+            </button>
+            <SidebarTrigger
+                label={t('practice:setup.selectedWordsButton', { count })}
+                className="chip"
+                active={count > 0}
+            >
+                <span
+                    aria-hidden
+                    className="grid min-w-4.5 place-items-center rounded-full bg-(--accent) px-1 text-[11px] font-semibold leading-4.5 text-(--accent-ink)"
+                >
+                    {count}
+                </span>
+                {t('practice:setup.selectedWordsChip')}
+                <MagnifyingGlassPlusIcon aria-hidden size={14} />
+            </SidebarTrigger>
+        </div>
     );
 }

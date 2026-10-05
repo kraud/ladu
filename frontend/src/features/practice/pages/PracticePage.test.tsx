@@ -60,7 +60,7 @@ describe('PracticePage — set-up', () => {
         await renderApp({ initialEntry: '/practice', session: SESSION });
         await openNewConfigurationTab();
 
-        expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
         expect(pressed('English')).toBeInTheDocument();
         expect(pressed('Español')).toBeInTheDocument();
         expect(pressed('Noun')).toBeInTheDocument();
@@ -169,7 +169,7 @@ describe('PracticePage — set-up', () => {
         await renderApp({ initialEntry: '/practice', session: SESSION });
         await openNewConfigurationTab();
 
-        expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
         expect(screen.queryByText('Short sessions from your words')).not.toBeInTheDocument();
         expect(screen.getByText('All your languages')).toBeInTheDocument();
 

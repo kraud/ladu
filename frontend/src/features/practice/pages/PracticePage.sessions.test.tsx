@@ -359,7 +359,7 @@ describe('Saved sessions list', () => {
         await renderPractice();
 
         // With words from Review the page opens on New configuration; the sessions are one tab away.
-        await user.click(await screen.findByRole('tab', { name: 'Ongoing sessions' }));
+        await user.click(await screen.findByRole('button', { name: 'Back to Practice' }));
         await user.click(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' }));
 
         expect(await screen.findByText('Exercise 1 of 2')).toBeInTheDocument();

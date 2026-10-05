@@ -54,10 +54,26 @@ test.afterAll(async () => {
 });
 
 const configRow = (page: Page, name: string) => page.getByRole('button', { name: `Use configuration ${name}` });
-/** The set-up screen has three tabs: Ongoing sessions (the default), Saved configurations, New configuration. */
-const openSessionsTab = (page: Page) => page.getByRole('tab', { name: 'Ongoing sessions' }).click();
-const openConfigurationsTab = (page: Page) => page.getByRole('tab', { name: 'Saved configurations' }).click();
-const openNewConfigurationTab = (page: Page) => page.getByRole('tab', { name: 'New configuration' }).click();
+/**
+ * The set-up screen has two tabs (Ongoing sessions is the default, then Saved configurations) and a
+ * "New configuration" button that opens the settings view; that view hides the tabs, with an arrow back.
+ */
+const showTabs = async (page: Page) => {
+    const back = page.getByRole('button', { name: 'Back to Practice' });
+    if (await back.isVisible()) await back.click();
+};
+const openSessionsTab = async (page: Page) => {
+    await showTabs(page);
+    await page.getByRole('tab', { name: 'Ongoing sessions' }).click();
+};
+const openConfigurationsTab = async (page: Page) => {
+    await showTabs(page);
+    await page.getByRole('tab', { name: 'Saved configurations' }).click();
+};
+const openNewConfigurationTab = async (page: Page) => {
+    const open = page.getByRole('button', { name: 'New configuration' });
+    if (await open.isVisible()) await open.click();
+};
 /** Selecting a saved configuration asks "start now or change first"; these tests take the second way. */
 const loadConfig = async (page: Page, name: string) => {
     await configRow(page, name).click();
@@ -168,7 +184,7 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
 
             await openConfigurationsTab(page);
             await loadConfig(page, 'Morning drill');
-            // Loading switches to the New configuration tab, where the settings are.
+            // Loading switches to the New configuration view, where the settings are.
             await expect(page.getByLabel('Number of exercises')).toHaveValue('7');
             await expect(page.getByRole('button', { name: 'Choose the answer', pressed: true })).toBeVisible();
             await expect(page.getByRole('button', { name: 'Different languages', pressed: true })).toBeVisible();
@@ -259,7 +275,6 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         await openNewConfigurationTab(page);
 
         await test.step('pick the tag; it is not offered again', async () => {
-            await page.getByRole('button', { name: 'Expand sidebar' }).click();
             await page.getByPlaceholder('Filter by tag…').click();
             await page.getByRole('option', { name: /Snacks/ }).click();
             await page.keyboard.press('Escape');

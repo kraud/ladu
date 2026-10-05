@@ -20,7 +20,14 @@ export function AppShell({ children, wide, sidebar }: { children: ReactNode; wid
     return (
         <div className="min-h-dvh">
             <AppHeader />
-            <main className={cn(!sidebar && ['mx-auto px-6 py-8', wide ? 'max-w-7xl' : 'max-w-5xl'])}>
+            <main
+                className={cn(
+                    !sidebar && [
+                        'mx-auto px-6 pt-3 pb-8 max-[920px]:px-3 max-[920px]:pt-2',
+                        wide ? 'max-w-7xl' : 'max-w-5xl',
+                    ],
+                )}
+            >
                 {children}
             </main>
         </div>

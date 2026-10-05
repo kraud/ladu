@@ -66,3 +66,9 @@ The user asked to swap the Practice split: main area = three tabs (Ongoing sessi
 - Word editor bar on a phone: the reason and the button share one row (the reason takes the space left).
 - Tags page on a phone: `.toolrow .searchbox { flex: none }` — in the column layout its 260px flex-basis had become its height.
 - Add word and Practice have a title only (no subtitle), like Tags and Review. The part-of-speech gate lost its prompt line ("What kind of word is it?").
+
+### New configuration as a view, not a tab (2026-10-05)
+
+- The set-up has two tabs (Ongoing sessions, Saved configurations). "New configuration" is a button on the title row, right-aligned (like "New tag"). It opens the New configuration view: no tabs, no button, a back arrow (`practice:setup.newConfigurationBack`) before the title "New configuration", and no hint. The form stays mounted (hidden) when the user goes back, so the working copy is kept. State: `creating` (view) and `tab` (list tab) in `SetUp`.
+- The view opens with the sidebar expanded (as for words from Review). The panel title is slightly larger (15px) and has no icon (shared `SidebarLayout`, so Review and Add word follow).
+- Phone: the "Selected words" row is the first row of the settings card (`ParametersForm` prop `wordsSlot`; `WordsBadges` in `PracticePage.tsx`). Two badges, one active: "All" (active with no words; a click clears the selection) and "(X) Selected" with a magnifying-glass-plus icon (opens the drawer, also with X = 0). `SidebarTrigger` got an `active` prop (`data-active`, styled like a pressed `.chip`).

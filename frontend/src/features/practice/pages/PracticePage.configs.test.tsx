@@ -521,8 +521,8 @@ describe('PracticePage — selecting a saved configuration asks how to go on', (
     });
 });
 
-describe('PracticePage — a hint on every tab', () => {
-    it('Ongoing sessions, Saved configurations and New configuration each say what they are', async () => {
+describe('PracticePage — a hint on the lists', () => {
+    it('Ongoing sessions and Saved configurations each say what they are', async () => {
         setUp();
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
@@ -530,7 +530,5 @@ describe('PracticePage — a hint on every tab', () => {
         expect(await screen.findByText(/You can keep up to 10 sessions for 7 days/)).toBeInTheDocument();
         await user.click(screen.getByRole('tab', { name: 'Saved configurations' }));
         expect(await screen.findByText(/Settings you saved to use again/)).toBeInTheDocument();
-        await user.click(screen.getByRole('tab', { name: 'New configuration' }));
-        expect(await screen.findByText(/Choose the settings for a session/)).toBeInTheDocument();
     });
 });

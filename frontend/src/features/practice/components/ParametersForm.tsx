@@ -73,6 +73,7 @@ export function ParametersForm({
     startBlockedReason,
     tagIds,
     actionsHost,
+    wordsSlot,
 }: {
     user: SessionUser;
     initialParams: PracticeParams;
@@ -91,6 +92,8 @@ export function ParametersForm({
      * (the page's fixed bottom bar). `null`: nowhere yet (the bar is not on screen).
      */
     actionsHost?: HTMLElement | null;
+    /** The phone's "Selected words" badges: the first row of the card. Absent on desktop (the sidebar shows the words). */
+    wordsSlot?: ReactNode;
 }) {
     const { t } = useTranslation();
     const generate = useGenerateExercises();
@@ -226,6 +229,7 @@ export function ParametersForm({
             }}
         >
             <div className="card flex flex-col px-4.5 py-4">
+                {wordsSlot && <Row label={t('practice:setup.selectedWords')}>{wordsSlot}</Row>}
                 <Row
                     rowRef={languagesRow}
                     label={t('practice:setup.labels.languages')}

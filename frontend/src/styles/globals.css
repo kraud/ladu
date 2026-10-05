@@ -259,7 +259,8 @@
     border-color: var(--fg-soft2);
     color: var(--fg);
   }
-  .chip[aria-pressed='true'] {
+  .chip[aria-pressed='true'],
+  .chip[data-active] {
     background: var(--accent-soft);
     border-color: var(--accent-soft2);
     color: var(--accent-strong);

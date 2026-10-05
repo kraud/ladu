@@ -5,9 +5,11 @@
   "setup": {
     "title": "Üben",
     "newConfiguration": "Neue Konfiguration",
-    "newNote": "Wähle die Einstellungen für eine Sitzung. Mit „Konfiguration speichern“ kannst du sie später wieder verwenden.",
+    "newConfigurationBack": "Zurück zu Üben",
     "selectedWords": "Ausgewählte Wörter",
     "selectedWordsButton": "Ausgewählte Wörter ({{count}})",
+    "selectedWordsAll": "Alle",
+    "selectedWordsChip": "Ausgewählt",
     "tagsEmpty": "Keine Wörter ausgewählt. Es werden alle deine Wörter verwendet.",
     "tagsLabel": "Wörter nach Tag auswählen",
     "tagRemove": "Tag {{name}} entfernen",

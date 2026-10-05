@@ -106,8 +106,9 @@ describe('PracticePage — choosing words by tag', () => {
     it('starts as a collapsed rail; opened, it says all words are used and offers the tag search', async () => {
         const user = userEvent.setup();
         setUp();
-        useUiStore.getState().setSidebarCollapsed('practice', true);
         await renderSetUp();
+        // Opening New configuration expands the panel; the user collapses it.
+        await user.click(await screen.findByRole('button', { name: 'Collapse sidebar' }));
 
         const rail = await screen.findByRole('complementary');
         expect(within(rail).queryByPlaceholderText('Filter by tag…')).not.toBeInTheDocument();
@@ -335,7 +336,7 @@ describe('PracticePage — tags in a saved configuration', () => {
         expect(await screen.findByRole('region', { name: 'Kitchen' })).toBeInTheDocument();
         // The saved words were only house (w1); the tag has house and run today.
         expect(await screen.findByText('Practice with 2 selected words')).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: 'New configuration' })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
         expect(screen.queryByText('Some words of this configuration are not available now.')).not.toBeInTheDocument();
     });
 

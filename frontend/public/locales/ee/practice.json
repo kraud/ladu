@@ -5,9 +5,11 @@
   "setup": {
     "title": "Harjutus",
     "newConfiguration": "Uus seadistus",
-    "newNote": "Vali sessiooni seaded. Vali „Salvesta seadistus“, et neid hiljem uuesti kasutada.",
+    "newConfigurationBack": "Tagasi harjutamise juurde",
     "selectedWords": "Valitud sõnad",
     "selectedWordsButton": "Valitud sõnad ({{count}})",
+    "selectedWordsAll": "Kõik",
+    "selectedWordsChip": "Valitud",
     "tagsEmpty": "Sõnu pole valitud. Kasutatakse kõiki sinu sõnu.",
     "tagsLabel": "Vali sõnad sildi järgi",
     "tagRemove": "Eemalda silt {{name}}",

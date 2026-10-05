@@ -8,5 +8,9 @@ import { cn } from '@/lib/utils';
  * own — so such a state wraps itself here to look like every other page.
  */
 export function PageColumn({ children, wide }: { children: ReactNode; wide?: boolean }) {
-    return <div className={cn('mx-auto px-6 py-8', wide ? 'max-w-7xl' : 'max-w-5xl')}>{children}</div>;
+    return (
+        <div className={cn('mx-auto px-6 pt-3 pb-8 max-[920px]:px-3 max-[920px]:pt-2', wide ? 'max-w-7xl' : 'max-w-5xl')}>
+            {children}
+        </div>
+    );
 }
