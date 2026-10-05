@@ -49,22 +49,19 @@ export function AuthLayout({
                     <p className="auth-tagline">{t('loginRegister:brand.tagline')}</p>
                     <p className="auth-sub">{blurb}</p>
                 </div>
-                {/* Desktop: one wrapped row of key chips. Mobile: a looping marquee of
-                    labelled chips — the copies after the first only exist for the loop. */}
+                {/* Desktop: one static, wrapped row of chips. Mobile: a looping marquee of
+                    chips — the copies after the first only exist for the loop. */}
                 <div className="flag-row" aria-label={t('loginRegister:brand.supportedLanguages')}>
                     <div className="flag-track">
                         {[0, 1, 2, 3].flatMap((copy) =>
                             UI_LANGUAGES.map((lang) => (
                                 <span
                                     key={`${copy}-${lang.key}`}
-                                    className={copy === 0 ? 'flag-chip' : 'flag-chip flag-dup'}
+                                    className={copy === 0 ? 'flag-chip' : 'flag-chip hidden max-[760px]:inline-flex'}
                                     aria-hidden={copy === 0 ? undefined : true}
                                 >
                                     <FlagIcon lang={lang.key} width={24} height={16} />
-                                    <span className="flag-key">{lang.key}</span>
-                                    <span className="flag-label">
-                                        {t(`common:languages.${lang.label.toLowerCase()}`)}
-                                    </span>
+                                    {t(`common:languages.${lang.label.toLowerCase()}`)}
                                 </span>
                             )),
                         )}

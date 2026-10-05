@@ -84,18 +84,18 @@ test.describe('Phase 3.9 — dark mode', () => {
     test('the landing handoff (?lng=&theme=) is applied, saved and removed from the address', async ({ page }) => {
         await page.goto('/login?lng=es&theme=dark');
 
-        await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Inicia sesión en Ladu' })).toBeVisible();
         await expect(html(page)).toHaveAttribute('data-theme', 'dark');
         await expect(page).toHaveURL(/\/login$/); // no query string left
 
         // Saved: a reload without the parameters keeps both.
         await page.reload();
-        await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Inicia sesión en Ladu' })).toBeVisible();
         await expect(html(page)).toHaveAttribute('data-theme', 'dark');
 
         // Other parameters survive; an address value beats the saved choice.
         await page.goto('/login?redirect=%2Freview&lng=de&theme=light');
-        await expect(page.getByRole('heading', { name: 'Anmelden' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Bei Ladu anmelden' })).toBeVisible();
         await expect(html(page)).toHaveAttribute('data-theme', 'light');
         await expect(page).toHaveURL(/\/login\?redirect=%2Freview$/);
 
@@ -103,7 +103,7 @@ test.describe('Phase 3.9 — dark mode', () => {
         // only its own parameter.
         await page.goto('/?lng=ee&theme=dark');
         await expect(page).toHaveURL(/\/login\?redirect=%2F$/);
-        await expect(page.getByRole('heading', { name: 'Logi sisse' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Logi sisse Ladusse' })).toBeVisible();
         await expect(html(page)).toHaveAttribute('data-theme', 'dark');
     });
 
@@ -193,12 +193,12 @@ test.describe('Phase 3.9 — dark mode', () => {
 
     test('<html lang> follows the interface language, with Estonian as "et"', async ({ page }) => {
         await page.goto('/login?lng=ee');
-        await expect(page.getByRole('heading', { name: 'Logi sisse' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Logi sisse Ladusse' })).toBeVisible();
         await expect(html(page)).toHaveAttribute('lang', 'et');
 
         await page.getByRole('button', { name: /Liidese keel/i }).click();
         await page.getByRole('menuitem', { name: 'Español' }).click();
-        await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Inicia sesión en Ladu' })).toBeVisible();
         await expect(html(page)).toHaveAttribute('lang', 'es');
 
         await page.reload();
