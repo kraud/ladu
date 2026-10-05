@@ -129,7 +129,7 @@ describe('login', () => {
         await user.type(screen.getByLabelText('Password'), 'password123');
         await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
-        await waitFor(() => expect(router.state.location.pathname).toBe('/review'));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/words'));
         expect(useAuthStore.getState().user?.email).toBe('v@example.com');
     });
 
@@ -255,7 +255,7 @@ describe('session guards', () => {
         // …then log out the way `useLogout` (wired into the Slice-4 UserMenu)
         // does: clear the session, then a protected route is no longer reachable.
         useAuthStore.getState().clearSession();
-        void router.navigate({ to: '/review' });
+        void router.navigate({ to: '/words' });
         await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
     });
 
@@ -268,10 +268,10 @@ describe('session guards', () => {
     });
 
     it('no session on a protected route redirects to /login with the attempted path', async () => {
-        const { router } = await renderApp({ initialEntry: '/review' });
+        const { router } = await renderApp({ initialEntry: '/words' });
         await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
         expect(router.state.location.search).toMatchObject({
-            redirect: expect.stringContaining('/review'),
+            redirect: expect.stringContaining('/words'),
         });
     });
 });

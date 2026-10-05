@@ -4,6 +4,21 @@
   },
   "setup": {
     "title": "Práctica",
+    "newConfiguration": "Nueva configuración",
+    "newConfigurationBack": "Volver a Practicar",
+    "selectedWords": "Palabras seleccionadas",
+    "selectedWordsButton": "Palabras seleccionadas ({{count}})",
+    "selectedWordsAll": "Todas",
+    "selectedWordsChip": "Seleccionadas",
+    "tagsEmpty": "Ninguna palabra seleccionada. Se usan todas tus palabras.",
+    "tagsLabel": "Elegir palabras por etiqueta",
+    "tagRemove": "Quitar la etiqueta {{name}}",
+    "tagWordsLoading": "Cargando palabras…",
+    "tagsBlocked": {
+      "loading": "Cargando las palabras de las etiquetas…",
+      "empty": "Las etiquetas elegidas no tienen palabras.",
+      "error": "No se pudieron cargar las palabras de las etiquetas."
+    },
     "start": "Empezar sesión",
     "starting": "Creando ejercicios…",
     "labels": {
@@ -79,9 +94,11 @@
     "preselected": {
       "title_one": "Practicar con {{count}} palabra seleccionada",
       "title_other": "Practicar con {{count}} palabras seleccionadas",
-      "show": "Mostrar palabras",
-      "hide": "Ocultar palabras",
       "clear": "Quitar preselección",
+      "hideUnused": "Ocultar las palabras que no se usarán",
+      "showAll": "Mostrar todas las palabras",
+      "used": "Se usarán {{used}} de {{total}} palabras con estos ajustes.",
+      "noneUsed": "Ninguna palabra seleccionada coincide con estos ajustes.",
       "note": "Cambiaremos esta lista de palabras en una actualización posterior.",
       "confirm": {
         "title": "¿Quitar la preselección?",
@@ -118,7 +135,6 @@
       "retry": "Intentar otra vez"
     },
     "shortfall": "Se pudieron crear {{created}} de {{requested}} ejercicios.",
-    "subtitle": "Sesiones cortas con tus palabras",
     "fixToStart": "Corrige los campos marcados para empezar.",
     "resume": {
       "title": "Tienes una sesión sin terminar",
@@ -126,7 +142,9 @@
       "dismiss": "Descartar",
       "answeredLabel": "ejercicios",
       "correctHint": "{{count}} correctas hasta ahora"
-    }
+    },
+    "startShort": "Empezar",
+    "startingShort": "Creando…"
   },
   "session": {
     "progress": "Ejercicio {{current}} de {{total}}",
@@ -243,7 +261,6 @@
     "open": "Abrir ejercicio",
     "backToResults": "Volver a los resultados",
     "settings": "Ajustes usados",
-    "words": "Palabras",
     "again": "Practicar otra vez",
     "change": "Cambiar ajustes",
     "toReview": "Ir a la tabla de revisión",
@@ -336,7 +353,7 @@
     "save": "Guardar configuración",
     "title": "Configuraciones guardadas",
     "loading": "Cargando…",
-    "empty": "No tienes configuraciones guardadas. Elige las opciones de arriba y pulsa «Guardar configuración».",
+    "empty": "No tienes configuraciones guardadas. Elige las opciones en el panel de ajustes y pulsa «Guardar configuración».",
     "listError": "No se pudieron cargar las configuraciones guardadas.",
     "use": "Usar la configuración {{name}}",
     "edit": "Editar la configuración {{name}}",
@@ -363,6 +380,8 @@
       "descriptionPlaceholder": "¿Para qué sirve esta configuración?",
       "withWords_one": "Esta configuración incluye {{count}} palabra seleccionada.",
       "withWords_other": "Esta configuración incluye {{count}} palabras seleccionadas.",
+      "withTags_one": "Esta configuración incluye las palabras de {{count}} etiqueta. Se leen de nuevo al cargarla.",
+      "withTags_other": "Esta configuración incluye las palabras de {{count}} etiquetas. Se leen de nuevo al cargarla.",
       "save": "Guardar",
       "saving": "Guardando…"
     },
@@ -376,10 +395,19 @@
       "updated": "Configuración actualizada.",
       "deleted": "Configuración eliminada.",
       "loaded": "Configuración «{{name}}» cargada."
-    }
+    },
+    "note": "Ajustes que guardaste para usarlos otra vez. Elige uno para empezar una sesión ahora o para cambiarlo antes.",
+    "startDialog": {
+      "question": "¿Empezar ahora una sesión con esta configuración o cambiar antes los ajustes?",
+      "start": "Empezar sesión",
+      "change": "Cambiar los ajustes primero",
+      "noMatch": "Ningún ejercicio coincide ahora con esta configuración. Cambia primero los ajustes.",
+      "noWords": "Las etiquetas de esta configuración no tienen palabras ahora. Cambia primero los ajustes."
+    },
+    "saveShort": "Guardar"
   },
   "sessions": {
-    "title": "Sesiones guardadas",
+    "title": "Sesiones en curso",
     "note": "Puedes tener hasta {{max}} sesiones durante {{days}} días. Una sesión nueva reemplaza a la más antigua.",
     "loading": "Cargando…",
     "empty": "No tienes sesiones guardadas. Sal de una sesión y elige «Guardar sesión y salir» para conservarla.",

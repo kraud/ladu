@@ -42,7 +42,7 @@
     "wordCount_other": "words",
     "clonedFromPrefix": "Cloned from",
     "byAuthor": "by {{username}}",
-    "unavailableNote": "Hidden — the owner made this tag Private. Your follow stays, but its words are out of your Review until they share it again.",
+    "unavailableNote": "Hidden — the owner made this tag Private. Your follow stays, but its words are out of your Words until they share it again.",
     "viewWords": "View words",
     "unfollow": "Unfollow",
     "clone": "Clone",
@@ -61,7 +61,7 @@
     "visibilityPublic": "Public",
     "visibilityPublicHint": "Anyone can find it in Discover and follow it — followers see your words as read-only and get them automatically.",
     "visibilityPrivate": "Private",
-    "visibilityPrivateHint": "Only you can see it. Existing followers keep the tag, but its words leave their Review until you make it Public again.",
+    "visibilityPrivateHint": "Only you can see it. Existing followers keep the tag, but its words leave their Words list until you make it Public again.",
     "createSubmit": "Create tag",
     "editSubmit": "Save changes"
   },
@@ -84,7 +84,7 @@
     "noWords": "You don't have any words yet",
     "removeSelected": "Remove {{word}}",
     "clearSearch": "Clear search",
-    "goToReview": "Go to Review for more",
+    "goToReview": "Go to Words for more",
     "loadMoreCount": "Load more ({{count}})",
     "allLoaded": "All words loaded"
   },
@@ -113,7 +113,7 @@
     },
     "emptyFollowed": {
       "title": "You're not following any tags yet",
-      "description": "Tags you follow keep their words in sync into your Review, read-only.",
+      "description": "Tags you follow keep their words in sync into your Words list, read-only.",
       "action": "Find tags in Discover"
     },
     "emptyDiscover": {
@@ -130,7 +130,7 @@
     "deleteConfirmDescription_one": "\"{{label}}\" holds 1 word. The words themselves are not deleted — they just lose this tag.",
     "deleteConfirmDescription_other": "\"{{label}}\" holds {{count}} words. The words themselves are not deleted — they just lose this tag.",
     "unfollowConfirmTitle": "Unfollow tag?",
-    "unfollowConfirmDescription": "You'll stop following \"{{label}}\" by {{author}}. Its words will drop out of your Review list and practice pool.",
+    "unfollowConfirmDescription": "You'll stop following \"{{label}}\" by {{author}}. Its words will drop out of your Words list and practice pool.",
     "toastCreated": "Tag \"{{label}}\" created",
     "toastUpdated": "\"{{label}}\" updated",
     "toastDeleted": "Tag \"{{label}}\" deleted — its words stay on your shelf",
@@ -177,7 +177,7 @@
     "followerCount_one": "{{count}} follower",
     "followerCount_other": "{{count}} followers",
     "unavailableTitle": "Words are hidden right now",
-    "unavailableDescription": "The owner made this tag Private. You're still following it — its words return to your Review when it becomes Public again.",
+    "unavailableDescription": "The owner made this tag Private. You're still following it — its words return to your Words list when it becomes Public again.",
     "removeHint": "Removing a word from the tag doesn't delete it — it stays on your shelf.",
     "openCopy": "Open it",
     "editDetails": "Edit details",

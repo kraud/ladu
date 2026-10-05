@@ -1,4 +1,5 @@
-import { useRef, useState, type ReactNode, type Ref } from 'react';
+import { useId, useRef, useState, type ReactNode, type Ref } from 'react';
+import { createPortal } from 'react-dom';
 import {
     BookmarkSimpleIcon,
     CaretDownIcon,
@@ -10,6 +11,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { languageByLabel } from '@/lib/language';
 import { partOfSpeechLabelKey } from '@/lib/words';
@@ -25,6 +27,7 @@ import {
     toGenerateBody,
     validateParams,
 } from '../params';
+import { narrowToPickable } from '../configs';
 import { rememberParams } from '../remembered';
 import { usePracticeSessionStore } from '../sessionStore';
 import type { PreselectedWord } from '../preselection';
@@ -67,6 +70,10 @@ export function ParametersForm({
     onParamsChange,
     onStarted,
     onSaveConfig,
+    startBlockedReason,
+    tagIds,
+    actionsHost,
+    wordsSlot,
 }: {
     user: SessionUser;
     initialParams: PracticeParams;
@@ -76,13 +83,29 @@ export function ParametersForm({
     onStarted: () => void;
     /** "Save configuration": the page opens the save dialog (outside this form) for these settings and words. */
     onSaveConfig: (draft: ConfigDraft) => void;
+    /** Why Start and Save cannot be used now (the words of the chosen tags are loading, or there are none). */
+    startBlockedReason?: string;
+    /** The tags the pre-selected words were chosen by, saved with a configuration. */
+    tagIds?: string[] | null;
+    /**
+     * Where the Start / Save buttons go. Absent: inline under the form. An element: a portal into it
+     * (the page's fixed bottom bar). `null`: nowhere yet (the bar is not on screen).
+     */
+    actionsHost?: HTMLElement | null;
+    /** The phone's "Selected words" badges: the first row of the card. Absent on desktop (the sidebar shows the words). */
+    wordsSlot?: ReactNode;
 }) {
     const { t } = useTranslation();
     const generate = useGenerateExercises();
     const startSession = usePracticeSessionStore((s) => s.start);
     const languagesRow = useRef<HTMLDivElement>(null);
+    const formId = useId();
+    const isMobile = useIsMobile();
 
-    const [params, setParams] = useState(initialParams);
+    const [chosen, setParams] = useState(initialParams);
+    // The word types follow the pre-selected words as they change (tags added or removed): a type
+    // none of the words has cannot stay selected. `chosen` keeps the user's own pick for when it fits again.
+    const params = narrowToPickable(chosen, preselected);
     const [amountText, setAmountText] = useState(String(initialParams.amount));
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [noMatch, setNoMatch] = useState(false);
@@ -118,7 +141,7 @@ export function ParametersForm({
     }
 
     function start() {
-        if (!valid || generate.isPending) return;
+        if (!valid || generate.isPending || startBlockedReason) return;
         const settings = { ...params, amount };
         const wordIds = preselected?.map((word) => word.id) ?? null;
         generate.mutate(toGenerateBody(settings, wordIds ?? undefined), {
@@ -148,8 +171,56 @@ export function ParametersForm({
             ? t('practice:setup.hints.modeSame')
             : t('practice:setup.hints.modeMixed');
 
+    // Start and Save. In the page they sit in a bar fixed to the bottom of the window (`actionsHost`, the
+    // layout's footer slot), so they are always in reach; the form is the `form=` of the submit button.
+    // On a phone the bar stays one row: small buttons, short labels, the hint above them.
+    const hint = startBlockedReason ?? (!valid ? t('practice:setup.fixToStart') : null);
+    const actionButtons = (
+        <>
+            {hint && <span className={isMobile ? 'hint basis-full' : 'hint mr-auto'}>{hint}</span>}
+            <div className="flex flex-nowrap items-center gap-2">
+                <Button
+                    type="button"
+                    variant="outline"
+                    size={isMobile ? 'sm' : 'default'}
+                    disabled={!valid || !!startBlockedReason}
+                    onClick={() =>
+                        onSaveConfig({
+                            params: { ...params, amount },
+                            wordIds: preselected?.map((word) => word.id) ?? null,
+                            tagIds: tagIds ?? null,
+                        })
+                    }
+                >
+                    <BookmarkSimpleIcon aria-hidden size={14} />
+                    {t(isMobile ? 'practice:configs.saveShort' : 'practice:configs.save')}
+                </Button>
+                <Button
+                    type="submit"
+                    form={formId}
+                    size={isMobile ? 'sm' : 'default'}
+                    className={isMobile ? undefined : 'min-w-37.5'}
+                    disabled={!valid || generate.isPending || !!startBlockedReason}
+                >
+                    {generate.isPending ? (
+                        <>
+                            <span className="spinner" />
+                            {t(isMobile ? 'practice:setup.startingShort' : 'practice:setup.starting')}
+                        </>
+                    ) : (
+                        <>
+                            <PlayIcon aria-hidden weight="fill" size={14} />
+                            {t(isMobile ? 'practice:setup.startShort' : 'practice:setup.start')}
+                        </>
+                    )}
+                </Button>
+            </div>
+        </>
+    );
+
     return (
         <form
+            id={formId}
             noValidate
             className="flex flex-col gap-3"
             onSubmit={(event) => {
@@ -158,6 +229,7 @@ export function ParametersForm({
             }}
         >
             <div className="card flex flex-col px-4.5 py-4">
+                {wordsSlot && <Row label={t('practice:setup.selectedWords')}>{wordsSlot}</Row>}
                 <Row
                     rowRef={languagesRow}
                     label={t('practice:setup.labels.languages')}
@@ -365,33 +437,16 @@ export function ParametersForm({
                 </div>
             )}
 
-            <div className="mt-1 flex flex-wrap items-center gap-3">
-                <Button type="submit" className="min-w-37.5" disabled={!valid || generate.isPending}>
-                    {generate.isPending ? (
-                        <>
-                            <span className="spinner" />
-                            {t('practice:setup.starting')}
-                        </>
-                    ) : (
-                        <>
-                            <PlayIcon aria-hidden weight="fill" size={14} />
-                            {t('practice:setup.start')}
-                        </>
-                    )}
-                </Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    disabled={!valid}
-                    onClick={() =>
-                        onSaveConfig({ params: { ...params, amount }, wordIds: preselected?.map((word) => word.id) ?? null })
-                    }
-                >
-                    <BookmarkSimpleIcon aria-hidden size={14} />
-                    {t('practice:configs.save')}
-                </Button>
-                {!valid && <span className="hint">{t('practice:setup.fixToStart')}</span>}
-            </div>
+            {actionsHost === undefined ? (
+                <div className="mt-1 flex flex-wrap items-center gap-3">{actionButtons}</div>
+            ) : (
+                actionsHost &&
+                createPortal(
+                    // The layout's footer gives this the page's column, so the right edge is the settings card's.
+                    <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 py-2.5 sm:py-3">{actionButtons}</div>,
+                    actionsHost,
+                )
+            )}
         </form>
     );
 }

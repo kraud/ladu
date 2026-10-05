@@ -5,7 +5,8 @@ import { renderWithProviders } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { useUiStore } from '@/stores/uiStore';
-import { SidebarFields } from './SidebarFields';
+import { SidebarLayout } from '@/components/layout/sidebar/SidebarLayout';
+import { useWordSidebarSections, type SidebarFieldsProps } from './SidebarFields';
 import type { WordTagRef } from '../types';
 
 const ME = 'user-me';
@@ -19,8 +20,18 @@ function setUpTags() {
 }
 
 afterEach(() => {
-    useUiStore.setState({ wordSidebarCollapsed: false });
+    useUiStore.getState().setSidebarCollapsed('word', false);
 });
+
+/** The hook's sections, rendered inside the real layout (the rail and the headings come from it). */
+function SidebarFields(props: SidebarFieldsProps) {
+    const sections = useWordSidebarSections(props);
+    return (
+        <SidebarLayout id="word" label="Word options" sections={sections}>
+            <div />
+        </SidebarLayout>
+    );
+}
 
 describe('SidebarFields — editable (create/edit)', () => {
     it('renders a labeled clue textarea and the inline tag combobox', () => {
@@ -29,7 +40,7 @@ describe('SidebarFields — editable (create/edit)', () => {
             <SidebarFields clue="" onClueChange={vi.fn()} tagPicker={{ selected: [], onSelectedChange: vi.fn() }} />,
         );
         expect(screen.getByLabelText('Clue')).toBeInTheDocument();
-        expect(screen.getByText('Tags')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Tags' })).toBeInTheDocument();
         expect(screen.getByPlaceholderText('Search tags to add…')).toBeInTheDocument();
     });
 
@@ -68,12 +79,12 @@ describe('SidebarFields — read-only (view)', () => {
 
     it('omits the clue slot entirely when unset, but still shows the tags section', () => {
         renderWithProviders(<SidebarFields clue="" />);
-        expect(screen.queryByText('Clue')).not.toBeInTheDocument();
-        expect(screen.getByText('Tags')).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'Clue' })).not.toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Tags' })).toBeInTheDocument();
     });
 
     it('collapsed with no clue: only the Tags button (nothing to open under Clue)', () => {
-        useUiStore.setState({ wordSidebarCollapsed: true });
+        useUiStore.getState().setSidebarCollapsed('word', true);
         renderWithProviders(<SidebarFields clue="" />);
         expect(screen.queryByRole('button', { name: 'Clue' })).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Tags' })).toBeInTheDocument();
@@ -87,9 +98,30 @@ describe('SidebarFields — read-only (view)', () => {
     });
 });
 
+describe('SidebarFields — linked words placeholder', () => {
+    it('shows a Linked words section with a coming-soon note, in edit and in view', () => {
+        setUpTags();
+        const { unmount } = renderWithProviders(
+            <SidebarFields clue="" onClueChange={vi.fn()} tagPicker={{ selected: [], onSelectedChange: vi.fn() }} />,
+        );
+        expect(screen.getByRole('heading', { name: 'Linked words' })).toBeInTheDocument();
+        expect(screen.getByText('Coming soon.')).toBeInTheDocument();
+        unmount();
+
+        renderWithProviders(<SidebarFields clue="" />);
+        expect(screen.getByRole('heading', { name: 'Linked words' })).toBeInTheDocument();
+    });
+
+    it('has a rail button too, with no count and no filled mark', () => {
+        useUiStore.getState().setSidebarCollapsed('word', true);
+        renderWithProviders(<SidebarFields clue="" />);
+        expect(screen.getByRole('button', { name: 'Linked words' })).not.toHaveAttribute('data-filled');
+    });
+});
+
 describe('SidebarFields — collapsed rail', () => {
     it('is the app default: the store starts collapsed', () => {
-        expect(useUiStore.getInitialState().wordSidebarCollapsed).toBe(true);
+        expect(useUiStore.getInitialState().sidebarCollapsed.word).toBe(true);
     });
 
     function iconClass(button: HTMLElement) {
@@ -97,7 +129,7 @@ describe('SidebarFields — collapsed rail', () => {
     }
 
     it('shows a Clue and a Tags button instead of the fields', () => {
-        useUiStore.setState({ wordSidebarCollapsed: true });
+        useUiStore.getState().setSidebarCollapsed('word', true);
         renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
         expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Clue' })).toBeInTheDocument();
@@ -105,7 +137,7 @@ describe('SidebarFields — collapsed rail', () => {
     });
 
     it('swaps the Clue icon once the clue has text (pencil-simple -> pencil-simple-line)', () => {
-        useUiStore.setState({ wordSidebarCollapsed: true });
+        useUiStore.getState().setSidebarCollapsed('word', true);
         const { rerender } = renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
         const empty = iconClass(screen.getByRole('button', { name: 'Clue' }));
         expect(screen.getByRole('button', { name: 'Clue' })).not.toHaveAttribute('data-filled');
@@ -117,41 +149,41 @@ describe('SidebarFields — collapsed rail', () => {
     });
 
     it('swaps the Tags icon to duotone and shows a count once there are read-only tags', () => {
-        useUiStore.setState({ wordSidebarCollapsed: true });
+        useUiStore.getState().setSidebarCollapsed('word', true);
         const { rerender } = renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
         const plain = iconClass(screen.getByRole('button', { name: 'Tags' }));
-        expect(screen.queryByTestId('tag-count')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('tags-count')).not.toBeInTheDocument();
 
         rerender(<SidebarFields clue="" onClueChange={vi.fn()} tags={[TAG_A, TAG_B, { ...TAG_A, id: 'tag-3' }]} />);
-        expect(screen.getByTestId('tag-count')).toHaveTextContent('3');
+        expect(screen.getByTestId('tags-count')).toHaveTextContent('3');
         expect(iconClass(screen.getByRole('button', { name: 'Tags' }))).not.toBe(plain);
     });
 
     it('the count reflects an editable tagPicker selection just the same', () => {
-        useUiStore.setState({ wordSidebarCollapsed: true });
+        useUiStore.getState().setSidebarCollapsed('word', true);
         renderWithProviders(
             <SidebarFields clue="" onClueChange={vi.fn()} tagPicker={{ selected: [TAG_A, TAG_B], onSelectedChange: vi.fn() }} />,
         );
-        expect(screen.getByTestId('tag-count')).toHaveTextContent('2');
+        expect(screen.getByTestId('tags-count')).toHaveTextContent('2');
     });
 
     it('the Clue button expands the sidebar and focuses the clue field', async () => {
         const user = userEvent.setup();
-        useUiStore.setState({ wordSidebarCollapsed: true });
+        useUiStore.getState().setSidebarCollapsed('word', true);
         renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
 
         await user.click(screen.getByRole('button', { name: 'Clue' }));
-        expect(useUiStore.getState().wordSidebarCollapsed).toBe(false);
+        expect(useUiStore.getState().sidebarCollapsed.word).toBe(false);
         expect(screen.getByLabelText('Clue')).toHaveFocus();
     });
 
     it('the Tags button expands the sidebar without moving focus into the clue', async () => {
         const user = userEvent.setup();
-        useUiStore.setState({ wordSidebarCollapsed: true });
+        useUiStore.getState().setSidebarCollapsed('word', true);
         renderWithProviders(<SidebarFields clue="" onClueChange={vi.fn()} />);
 
         await user.click(screen.getByRole('button', { name: 'Tags' }));
-        expect(useUiStore.getState().wordSidebarCollapsed).toBe(false);
+        expect(useUiStore.getState().sidebarCollapsed.word).toBe(false);
         expect(screen.getByLabelText('Clue')).not.toHaveFocus();
     });
 });

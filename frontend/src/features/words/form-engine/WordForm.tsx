@@ -23,7 +23,7 @@
  * nothing else changed (`tagsChanged` below, alongside `useWordFormState`'s
  * own `hasChanges`).
  */
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -36,7 +36,8 @@ import { useLinkTagsToWords, useUnlinkTagsFromWords } from '@/features/tags/hook
 import { tagErrorKey } from '@/features/tags/errors';
 import type { TagComboboxItem } from '@/features/tags/components/TagCombobox';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
-import { SidebarFields } from '../layout/SidebarFields';
+import { PageColumn } from '@/components/layout/PageColumn';
+import { useWordSidebarSections } from '../layout/SidebarFields';
 import type { EditorAction } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
 import { TranslationCard, translationGridClass } from './TranslationCard';
@@ -65,6 +66,8 @@ export interface WordFormProps {
      * receives back.
      */
     onPartOfSpeechChange?: (pos: PartOfSpeech) => void;
+    /** The page title block: first in the content column (or above the PoS gate). */
+    header?: ReactNode;
     /**
      * Edit mode only: lets `WordPage` inject its own Cancel action, rendered
      * next to (left of) the primary Save button on desktop, without this
@@ -81,6 +84,7 @@ export function WordForm({
     onDelete,
     onChangePartOfSpeech,
     onPartOfSpeechChange,
+    header,
     submitting,
     cancelAction,
 }: WordFormProps) {
@@ -124,9 +128,24 @@ export function WordForm({
         onPartOfSpeechChange?.(pos);
     }
 
+    // Called before the gate's early return below: hooks must run on every render.
+    const sidebarSections = useWordSidebarSections({
+        clue: state.clue,
+        onClueChange: state.setClue,
+        tagPicker: { selected: selectedTags, onSelectedChange: handleTagsChange },
+    });
+
     // Create-mode PoS gate: nothing else renders until a part of speech is picked.
+    // No sidebar yet, so the gate brings its own centered column.
     if (mode === 'create' && !state.partOfSpeech) {
-        return <PartOfSpeechSelector value={state.partOfSpeech} onChange={pickPartOfSpeech} />;
+        return (
+            <PageColumn wide>
+                <div className="flex flex-col gap-4">
+                    {header}
+                    <PartOfSpeechSelector value={state.partOfSpeech} onChange={pickPartOfSpeech} />
+                </div>
+            </PageColumn>
+        );
     }
     // Unreachable in practice: create is gated above, edit always hydrates
     // `partOfSpeech` from `initialWord` (a required field on `WordBE`).
@@ -224,17 +243,13 @@ export function WordForm({
 
     return (
         <WordEditorLayout
-            sidebar={
-                <SidebarFields
-                    clue={state.clue}
-                    onClueChange={state.setClue}
-                    tagPicker={{ selected: selectedTags, onSelectedChange: handleTagsChange }}
-                />
-            }
+            sections={sidebarSections}
+            header={header}
             actions={actions}
             cancelAction={mode === 'edit' ? cancelAction : undefined}
             primary={{
                 label: submitting ? t('common:status.saving') : t('wordRelated:wordForm.buttons.saveWord'),
+                shortLabel: submitting ? t('common:status.saving') : t('wordRelated:wordForm.buttons.saveShort'),
                 icon: submitting ? <span className="spinner" /> : <FloppyDiskIcon size={18} />,
                 onClick: handleSave,
                 disabled: !canSave || submitting,

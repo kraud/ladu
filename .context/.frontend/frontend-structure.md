@@ -47,7 +47,7 @@ frontend/src/
 │   ├── dashboard.tsx            # "/"                         → features/metrics
 │   ├── add-word.tsx             # "/addWord/$partOfSpeech?"   → features/words
 │   ├── word.tsx                 # "/word/$wordId"             → features/words
-│   ├── review.tsx               # "/review/$filtersURL?"     (search-param schema lives here)
+│   ├── review.tsx               # "/words" (was /review; search-param schema lives here)
 │   ├── practice.tsx             # "/practice"                 → features/exercises
 │   ├── account.tsx             # "/user"                     → features/social (deferred)
 │   ├── notifications.tsx        # "/user/$userId/notifications" (deferred)

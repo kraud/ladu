@@ -1,8 +1,8 @@
 {
   "addWordPage": {
-    "title": "Lisa uus {{currentPoS}}",
-    "titleDefault": "Lisa uus sõna",
-    "subtitle": "Kõik kohustuslikud väljad tuleb enne salvestamist täita",
+    "title": "Uus {{currentPoS}}",
+    "titleDefault": "Uus sõna",
+    "back": "Tagasi sõnade juurde",
     "toastCreateSuccess": "Sõna on edukalt loodud"
   },
   "apiErrors": {
@@ -23,7 +23,6 @@
     "toastError": "Midagi läks valesti: {{error}}"
   },
   "partOfSpeechSelector": {
-    "title": "Mis tüüpi sõna see on?",
     "subtitle": "Pole kindel, mis mis on? Liigu hiirega nuppude kohal ja loe kirjeldusi.",
     "description": {
       "other": "Saate sellest aru, kui seda näete!",
@@ -102,7 +101,12 @@
   },
   "formComponentLabel": {
     "clue": "Vihje",
-    "tags": "Sildid"
+    "tags": "Sildid",
+    "linkedWords": "Seotud sõnad"
+  },
+  "linkedWords": {
+    "description": "Seo sõnad, mis on sünonüümid või muul viisil seotud.",
+    "comingSoon": "Tulekul."
   },
   "wordForm": {
     "hints": {
@@ -116,11 +120,13 @@
     },
     "buttons": {
       "changeWordType": "Muuda sõnaliiki",
-      "saveWord": "Salvesta sõna"
+      "saveWord": "Salvesta sõna",
+      "saveShort": "Salvesta"
     },
     "sidebar": {
       "collapse": "Ahenda külgriba",
       "expand": "Laienda külgriba",
+      "menuTitle": "Lisateave",
       "openMenu": "Ava menüü",
       "closeMenu": "Sulge menüü",
       "tagsEditToChange": "Siltide lisamiseks või eemaldamiseks muuda sõna.",

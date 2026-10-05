@@ -1,71 +1,28 @@
 /**
- * The collapsible filter bar (D5). Gender + Part of speech chips, a Tags
- * group (`TagCombobox`, mode="filter", D15/D17 — additive/OR, applies
- * instantly like the other groups, no Save step), then the language order
- * control. Can sit above the table (a
- * horizontal bar) or, via the position toggle next to the collapse arrow, as
- * a left sidebar — mirroring `WordEditorLayout`'s collapsible action sidebar
- * (icon-rail width when collapsed, full width otherwise). Both the collapse
- * state and the position live in `uiStore` (`reviewSidebarCollapsed` /
- * `reviewFilterPosition`), session-scoped like `WordEditorLayout`'s own
- * `wordSidebarCollapsed`, so they survive this component's own remounts
- * (e.g. filter changes elsewhere on the page) without being persisted.
+ * The Review filters as `SidebarLayout` sections (`useFilterSections`): Gender,
+ * Part of speech, Tags (`TagCombobox`, mode="filter", D15/D17 — additive/OR,
+ * applies instantly like the other groups, no Save step) and Language order.
+ * The layout draws the frame — the docked panel, the icon rail, the phone's
+ * slide-in menu — so there is no collapse toggle, position toggle or top bar
+ * here any more; the filters are always a column.
  *
- * The show/hide toggle's arrow points the way the bar moves: up/down above
- * the table, left/right as a sidebar (collapse points left, expand points
- * right — the same as the word editor's sidebar).
- *
- * The show/hide toggle lives in one persistent header row, rendered in BOTH
- * states, always as the first/leftmost element — a deliberate deviation from
- * `MOCKUPS/review.html` (a real usability fix, flagged for the user): the
- * mockup puts the expand button first in a collapsed-only strip but the
- * collapse button LAST in the expanded body (after a `grow` spacer inside a
- * `flex-wrap` row, so at narrower widths it isn't even reliably anchored to a
- * corner). Only the icon (caret) and the collapsed-only summary text
- * change between states; the button itself never moves. The position toggle
- * sits immediately after it.
- *
- * On a phone (`layout="menu"`, used by `MobileFilters`) none of the above
- * applies: the groups render alone, in one column, inside the side menu —
- * no card, no header, no collapse or position toggle (the menu itself opens
- * and closes, and the stored top/sidebar preference is a desktop one).
- *
- * In sidebar position, the filter groups (gender, PoS, language order) stack
- * in a column instead of wrapping in a row (`fb-body--sidebar`), and a
- * collapsed sidebar narrows to an icon rail rather than just hiding its body
- * — there's no room left for the eyebrow/hint text at that width, so the
- * header itself stacks vertically and drops everything but the two toggles
- * and the active-filter count.
+ * Each section reports its own `count` (gender picks, part-of-speech picks,
+ * tags), so the collapsed rail shows which groups are filtering. Language
+ * order has none: it changes the columns, it does not filter rows. The search
+ * box lives in the toolbar above the table, not here; `activeFilterCount`
+ * adds it to the total that the phone's "Filters" button shows.
  */
 import { useTranslation } from 'react-i18next';
-import {
-    CaretDownIcon,
-    CaretLeftIcon,
-    CaretRightIcon,
-    CaretUpIcon,
-    RowsIcon,
-    SidebarSimpleIcon,
-} from '@phosphor-icons/react';
+import { GenderIntersexIcon, TagIcon, TextAaIcon, TranslateIcon } from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
+import type { SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 import { GenderDE, GenderES, PartOfSpeech } from '@/ts/enums';
 import { partOfSpeechLabelKey } from '@/lib/words';
-import { cn } from '@/lib/utils';
-import { useUiStore } from '@/stores/uiStore';
 import { TagCombobox } from '@/features/tags/components/TagCombobox';
 import type { TagSummary } from '@/features/tags/types';
 import type { LangKey } from '@/features/words/types';
 import { posAbbrKey } from './columns';
 import { LanguageOrderControl } from './LanguageOrderControl';
-
-/**
- * The filter groups' width in the expanded sidebar: the aside's `w-64` (16rem)
- * minus its 1px borders and 16px side padding (`.card`, `.filterbar`). Fixed on
- * purpose: the aside animates its width from the 56px rail, and groups that
- * follow that width reflow into a very narrow, very tall column for the first
- * frames of the expand. With the final width from frame one they never reflow;
- * the aside clips (`overflow-x-hidden`) while it grows into them.
- */
-const SIDEBAR_BODY_WIDTH = 'w-[calc(16rem-2px-2rem)]';
 
 /** The four shipped parts of speech, matching `PartOfSpeechSelector`'s `SHIPPED_POS`. */
 const SHIPPED_POS: readonly PartOfSpeech[] = [
@@ -101,8 +58,6 @@ export interface FilterBarProps {
     onPosChange: (next: PartOfSpeech[] | undefined) => void;
     onSelectedTagsChange: (next: TagSummary[]) => void;
     onLanguagesChange: (next: LangKey[]) => void;
-    /** `'menu'`: just the groups, in a column, for the phone's side menu. Defaults to the collapsible bar/sidebar. */
-    layout?: 'bar' | 'menu';
 }
 
 /** The number in the "N filters" pill: each gender, part-of-speech, and tag pick, plus the search box when it has text. */
@@ -115,10 +70,9 @@ export function activeFilterCount(
     return gender.length + pos.length + tagCount + (hasQuery ? 1 : 0);
 }
 
-export function FilterBar({
+export function useFilterSections({
     gender,
     pos,
-    hasQuery,
     selectedTags,
     activeLanguages,
     allLanguages,
@@ -126,15 +80,8 @@ export function FilterBar({
     onPosChange,
     onSelectedTagsChange,
     onLanguagesChange,
-    layout = 'bar',
-}: FilterBarProps) {
+}: FilterBarProps): SidebarSection[] {
     const { t } = useTranslation();
-    const collapsed = useUiStore((s) => s.reviewSidebarCollapsed);
-    const setCollapsed = useUiStore((s) => s.setReviewSidebarCollapsed);
-    const position = useUiStore((s) => s.reviewFilterPosition);
-    const setPosition = useUiStore((s) => s.setReviewFilterPosition);
-    const isSidebar = position === 'sidebar';
-    const isRail = isSidebar && collapsed;
 
     function toggleGenderValue(value: string) {
         const next = gender.includes(value) ? gender.filter((v) => v !== value) : [...gender, value];
@@ -146,168 +93,103 @@ export function FilterBar({
         onPosChange(next.length > 0 ? next : undefined);
     }
 
-    const activeCount = activeFilterCount(gender, pos, hasQuery, selectedTags.length);
-    const Container = isSidebar ? 'aside' : 'div';
+    const clear = (onClick: () => void) => (
+        <button type="button" className="hint self-start underline" onClick={onClick}>
+            {t('review:filters.clear')}
+        </button>
+    );
 
-    const groups = (
-        <>
-            <div className="fb-group">
-                <div className="fhead">
-                    <span className="label">{t('review:filters.gender')}</span>
-                    {gender.length > 0 && (
-                        <button
-                            type="button"
-                            className="hint underline"
-                            onClick={() => onGenderChange(undefined)}
-                        >
-                            {t('review:filters.clear')}
-                        </button>
-                    )}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                    {GENDER_BY_LANGUAGE.map((group) => (
-                        <div key={group.key} className="flex flex-wrap items-center gap-2">
-                            <span className="hint flex items-center gap-1">
-                                <FlagIcon lang={group.key} /> {group.key}
-                            </span>
-                            <div className="chips">
-                                {group.values.map((value) => (
-                                    <button
-                                        key={value}
-                                        type="button"
-                                        className="chip"
-                                        aria-pressed={gender.includes(value)}
-                                        onClick={() => toggleGenderValue(value)}
-                                    >
-                                        {value}
-                                    </button>
-                                ))}
+    return [
+        {
+            id: 'gender',
+            label: t('review:filters.gender'),
+            icon: <GenderIntersexIcon size={18} />,
+            count: gender.length,
+            content: (
+                <div className="fb-group">
+                    {gender.length > 0 && clear(() => onGenderChange(undefined))}
+                    <div className="flex flex-col gap-1.5">
+                        {GENDER_BY_LANGUAGE.map((group) => (
+                            <div key={group.key} className="flex flex-wrap items-center gap-2">
+                                <span className="hint flex items-center gap-1">
+                                    <FlagIcon lang={group.key} /> {group.key}
+                                </span>
+                                <div className="chips">
+                                    {group.values.map((value) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            className="chip"
+                                            aria-pressed={gender.includes(value)}
+                                            onClick={() => toggleGenderValue(value)}
+                                        >
+                                            {value}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
-
-            <div className="fb-group">
-                <div className="fhead">
-                    <span className="label">{t('review:filters.partOfSpeech')}</span>
+            ),
+        },
+        {
+            id: 'pos',
+            label: t('review:filters.partOfSpeech'),
+            icon: <TextAaIcon size={18} />,
+            count: pos.length,
+            content: (
+                <div className="fb-group">
+                    {pos.length > 0 && clear(() => onPosChange(undefined))}
+                    <div className="chips">
+                        {SHIPPED_POS.map((value) => (
+                            <button
+                                key={value}
+                                type="button"
+                                className="chip"
+                                aria-pressed={pos.includes(value)}
+                                title={t(partOfSpeechLabelKey(value))}
+                                onClick={() => togglePos(value)}
+                            >
+                                {t(posAbbrKey(value))}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-                <div className="chips">
-                    {SHIPPED_POS.map((value) => (
-                        <button
-                            key={value}
-                            type="button"
-                            className="chip"
-                            aria-pressed={pos.includes(value)}
-                            title={t(partOfSpeechLabelKey(value))}
-                            onClick={() => togglePos(value)}
-                        >
-                            {t(posAbbrKey(value))}
-                        </button>
-                    ))}
+            ),
+        },
+        {
+            id: 'tags',
+            label: t('review:filters.tags'),
+            icon: <TagIcon size={18} />,
+            count: selectedTags.length,
+            content: (
+                <div className="fb-group">
+                    {selectedTags.length > 0 && clear(() => onSelectedTagsChange([]))}
+                    <TagCombobox
+                        mode="filter"
+                        selected={selectedTags}
+                        // `TagCombobox` only needs id/label/visibility off a picked item (see its
+                        // own header comment); in filter mode every item is still a full
+                        // `TagSummary`, from `selectedTags` or from its own search results.
+                        onSelectedChange={(next) => onSelectedTagsChange(next as TagSummary[])}
+                    />
                 </div>
-            </div>
-
-            <div className="fb-group">
-                <div className="fhead">
-                    <span className="label">{t('review:filters.tags')}</span>
-                    {selectedTags.length > 0 && (
-                        <button
-                            type="button"
-                            className="hint underline"
-                            onClick={() => onSelectedTagsChange([])}
-                        >
-                            {t('review:filters.clear')}
-                        </button>
-                    )}
-                </div>
-                <TagCombobox
-                    mode="filter"
-                    selected={selectedTags}
-                    // `TagCombobox` only needs id/label/visibility off a picked item (see its
-                    // own header comment); in filter mode every item is still a full
-                    // `TagSummary`, from `selectedTags` or from its own search results.
-                    onSelectedChange={(next) => onSelectedTagsChange(next as TagSummary[])}
+            ),
+        },
+        {
+            id: 'language-order',
+            label: t('review:filters.languageOrder'),
+            icon: <TranslateIcon size={18} />,
+            content: (
+                <LanguageOrderControl
+                    active={activeLanguages}
+                    allLanguages={allLanguages}
+                    onChange={onLanguagesChange}
+                    stacked
+                    hideLabel
                 />
-            </div>
-
-            <LanguageOrderControl
-                active={activeLanguages}
-                allLanguages={allLanguages}
-                onChange={onLanguagesChange}
-                stacked={layout === 'menu' || isSidebar}
-            />
-        </>
-    );
-
-    if (layout === 'menu') {
-        return <div className="fb-body fb-body--sidebar mt-0 border-t-0 pt-0">{groups}</div>;
-    }
-
-    return (
-        <Container
-            className={cn(
-                'card filterbar',
-                isSidebar && [
-                    'sticky top-[68px] flex max-h-[calc(100dvh-84px)] flex-col overflow-y-auto overflow-x-hidden transition-[width] duration-150',
-                    collapsed ? 'w-14' : 'w-64',
-                    'max-[920px]:static max-[920px]:!w-full max-[920px]:max-h-none',
-                ],
-            )}
-        >
-            <div className={cn('fb-header', isRail && 'fb-header--rail')}>
-                <button
-                    type="button"
-                    className="icon-btn"
-                    aria-label={t(collapsed ? 'review:filters.show' : 'review:filters.collapse')}
-                    title={t(collapsed ? 'review:filters.show' : 'review:filters.collapse')}
-                    onClick={() => setCollapsed(!collapsed)}
-                >
-                    {/* The arrow points where the bar goes: left/right for the sidebar, up/down above the table. */}
-                    {isSidebar ? (
-                        collapsed ? <CaretRightIcon size={16} /> : <CaretLeftIcon size={16} />
-                    ) : collapsed ? (
-                        <CaretDownIcon size={16} />
-                    ) : (
-                        <CaretUpIcon size={16} />
-                    )}
-                </button>
-                <button
-                    type="button"
-                    className="icon-btn"
-                    aria-label={t(isSidebar ? 'review:filters.moveToTop' : 'review:filters.moveToSidebar')}
-                    title={t(isSidebar ? 'review:filters.moveToTop' : 'review:filters.moveToSidebar')}
-                    onClick={() => setPosition(isSidebar ? 'top' : 'sidebar')}
-                >
-                    {isSidebar ? <RowsIcon size={16} /> : <SidebarSimpleIcon size={16} />}
-                </button>
-                {!isRail && (
-                    <>
-                        <span className="eyebrow">{t('review:filters.title')}</span>
-                        {activeCount > 0 && <span className="active-pill">{activeCount}</span>}
-                        {collapsed && (
-                            <span className="hint">
-                                {activeCount === 0
-                                    ? t('review:filters.noneActive')
-                                    : t('review:filters.activeCount', { count: activeCount })}
-                            </span>
-                        )}
-                        <span className="grow" />
-                        {collapsed && !isSidebar && (
-                            <span className="meta">
-                                {t('review:filters.languageOrder')}: {activeLanguages.join(' → ')}
-                            </span>
-                        )}
-                    </>
-                )}
-                {isRail && activeCount > 0 && <span className="active-pill">{activeCount}</span>}
-            </div>
-
-            {!collapsed && (
-                <div className={cn('fb-body', isSidebar && ['fb-body--sidebar', SIDEBAR_BODY_WIDTH])}>
-                    {groups}
-                </div>
-            )}
-        </Container>
-    );
+            ),
+        },
+    ];
 }

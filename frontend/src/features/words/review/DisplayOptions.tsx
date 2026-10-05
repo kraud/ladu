@@ -2,7 +2,7 @@
  * The two Review display switches: Display gender (D14 — only offered once a
  * noun is on screen) and Display progress (always). Rendered as a fragment,
  * so the caller's layout decides the arrangement: inline in `TableToolbar` on
- * desktop, stacked in `MobileFilters`' side menu on a phone.
+ * desktop, stacked in the slide-in menu (a `SidebarLayout` section) on a phone.
  */
 import { useTranslation } from 'react-i18next';
 import { Switch } from '@/components/ui/switch';

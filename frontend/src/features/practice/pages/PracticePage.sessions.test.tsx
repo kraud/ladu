@@ -104,7 +104,7 @@ describe('Leave dialog', () => {
         expect(snapshot.current).toBe(1);
         expect(snapshot.answers[0]).toMatchObject({ result: 'correct', given: 'casa' });
         expect(await screen.findByText('Session saved. You can resume it from the set-up screen.')).toBeInTheDocument();
-        // The set-up shows the new row.
+        // The set-up shows the new row (in the sessions tab).
         expect(await screen.findByRole('button', { name: 'Resume session with 1 of 2 answered' })).toBeInTheDocument();
     });
 
@@ -358,6 +358,8 @@ describe('Saved sessions list', () => {
         const user = userEvent.setup();
         await renderPractice();
 
+        // With words from Review the page opens on New configuration; the sessions are one tab away.
+        await user.click(await screen.findByRole('button', { name: 'Back to Practice' }));
         await user.click(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' }));
 
         expect(await screen.findByText('Exercise 1 of 2')).toBeInTheDocument();

@@ -5,7 +5,7 @@
  *   root
  *   ├── _public     (pathless layout, no header)   → login, register, verify, reset
  *   └── _protected  (pathless layout, AppShell)    → dashboard, addWord, word,
- *                                                     review, practice, account,
+ *                                                     words, practice, account,
  *                                                     notifications, tag
  *
  * `_protected.beforeLoad` is the single centralised auth gate (fixes the old
@@ -54,6 +54,8 @@ const SCOPE_VALUES = new Set<string>(['all', 'owned', 'followed', 'discover'] sa
 declare module '@tanstack/react-router' {
     interface StaticDataRouteOption {
         wide?: boolean;
+        /** The page renders its own `SidebarLayout`: `AppShell` gives it the full window width. */
+        sidebar?: boolean;
     }
 }
 
@@ -132,21 +134,32 @@ const addWordRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/addWord/{-$partOfSpeech}',
     component: AddWordPage,
-    staticData: { wide: true },
+    staticData: { wide: true, sidebar: true },
 });
 
 const wordRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/word/$wordId',
     component: WordPage,
-    staticData: { wide: true },
+    staticData: { wide: true, sidebar: true },
 });
 
 const reviewRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
-    path: '/review',
+    path: '/words',
     validateSearch: validateReviewSearch,
     component: ReviewPage,
+    staticData: { sidebar: true },
+});
+
+// The word list used to live at `/review`: old links and bookmarks keep their filters.
+const legacyReviewRoute = createRoute({
+    getParentRoute: () => protectedLayoutRoute,
+    path: '/review',
+    validateSearch: validateReviewSearch,
+    beforeLoad: ({ search }) => {
+        throw redirect({ to: '/words', search });
+    },
 });
 
 const practiceRoute = createRoute({
@@ -154,6 +167,8 @@ const practiceRoute = createRoute({
     path: '/practice',
     validateSearch: validatePracticeSearch,
     component: PracticePage,
+    // Stage 1 renders a `SidebarLayout`; stages 2 and 3 wrap themselves in `PageColumn`.
+    staticData: { sidebar: true },
     // Only a navigation fires this; a reload does not, so a reload keeps the session open.
     onLeave: () => usePracticeSessionStore.getState().park(),
 });
@@ -204,6 +219,7 @@ const routeTree = rootRoute.addChildren([
         addWordRoute,
         wordRoute,
         reviewRoute,
+        legacyReviewRoute,
         practiceRoute,
         accountRoute,
         notificationsRoute,

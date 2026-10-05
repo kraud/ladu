@@ -12,11 +12,6 @@
   "filters": {
     "title": "Filters",
     "display": "Display",
-    "show": "Show filters",
-    "collapse": "Collapse filters",
-    "noneActive": "No filters applied",
-    "activeCount_one": "{{count}} filter active",
-    "activeCount_other": "{{count}} filters active",
     "gender": "Gender",
     "clear": "Clear",
     "partOfSpeech": "Part of speech",
@@ -26,9 +21,10 @@
     "moveEarlier": "Move {{language}} earlier",
     "moveLater": "Move {{language}} later",
     "hideLanguage": "Hide {{language}}",
-    "showLanguage": "Show {{language}}",
-    "moveToSidebar": "Move filters to sidebar",
-    "moveToTop": "Move filters to top"
+    "showLanguage": "Show {{language}}"
+  },
+  "page": {
+    "newWord": "New word"
   },
   "toolbar": {
     "searchPlaceholder": "Search words…",
@@ -99,8 +95,8 @@
       "action": "Clear filters"
     },
     "noLanguages": {
-      "title": "Add a second language to use Review",
-      "description": "Review needs at least two configured languages.",
+      "title": "Add a second language to use Words",
+      "description": "Words needs at least two configured languages.",
       "action": "Go to Account"
     }
   }

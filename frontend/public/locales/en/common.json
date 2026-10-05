@@ -1,5 +1,10 @@
 {
   "appTitle": "Ladu",
+  "sidebar": {
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "close": "Close menu"
+  },
   "notFound": {
     "lines": [
       "Nothing to see here…",
@@ -11,10 +16,9 @@
     "goToLogin": "Go to login"
   },
   "header": {
-    "addWord": "add word",
     "tags": "tags",
     "practice": "practice",
-    "review": "review",
+    "words": "words",
     "search": {
       "words": "Search words...",
       "tags": "Search tags...",

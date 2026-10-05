@@ -268,7 +268,7 @@ export function TagsPage() {
                             }),
                         )
                     }
-                    onGoToReview={() => void navigate({ to: '/review' })}
+                    onGoToReview={() => void navigate({ to: '/words' })}
                 />
             )}
 

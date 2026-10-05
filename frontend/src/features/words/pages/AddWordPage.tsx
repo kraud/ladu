@@ -6,8 +6,9 @@
  * page for the next word (`pages-word-flow.md` §WordForm, use case 7).
  */
 import { useState } from 'react';
-import { getRouteApi, useNavigate } from '@tanstack/react-router';
+import { getRouteApi, Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { WordForm } from '../form-engine/WordForm';
 import { useCreateWord } from '../hooks';
 import { wordErrorKey } from '../errors';
@@ -31,15 +32,13 @@ export function AddWordPage() {
 
     const createWord = useCreateWord();
 
-    // D37/D38: one heading pair, tracking the picked type rather than only
-    // the route param — before a PoS is picked this doubles as the gate's own
-    // title (`PartOfSpeechSelector` renders no heading of its own).
+    // D37/D38: one heading, tracking the picked type rather than only the
+    // route param — before a PoS is picked this doubles as the gate's own
+    // title (`PartOfSpeechSelector` renders no heading of its own). No
+    // subtitle: the page matches Tags and Review (a title only).
     const title = partOfSpeech
         ? t('wordRelated:addWordPage.title', { currentPoS: t(partOfSpeechLabelKey(partOfSpeech)) })
         : t('wordRelated:addWordPage.titleDefault');
-    const subtitle = partOfSpeech
-        ? t('wordRelated:addWordPage.subtitle')
-        : t('wordRelated:partOfSpeechSelector.title');
 
     function resetToGate() {
         setPartOfSpeech(undefined);
@@ -63,22 +62,27 @@ export function AddWordPage() {
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            {/* Stacked on mobile; side-by-side with the subtitle bottom-aligned
-                from `sm` up. */}
-            <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
-                <h1 className="h1">{title}</h1>
-                <p className="meta sm:content-end">{subtitle}</p>
-            </div>
-            <WordForm
-                key={formKey}
-                mode="create"
-                defaultPartOfSpeech={partOfSpeech}
-                onSubmit={handleSubmit}
-                onChangePartOfSpeech={resetToGate}
-                onPartOfSpeechChange={setPartOfSpeech}
-                submitting={createWord.isPending}
-            />
-        </div>
+        <WordForm
+            key={formKey}
+            mode="create"
+            defaultPartOfSpeech={partOfSpeech}
+            onSubmit={handleSubmit}
+            onChangePartOfSpeech={resetToGate}
+            onPartOfSpeechChange={setPartOfSpeech}
+            submitting={createWord.isPending}
+            header={
+                <div className="flex items-center gap-2">
+                    <Link
+                        to="/words"
+                        className="icon-btn"
+                        aria-label={t('wordRelated:addWordPage.back')}
+                        title={t('wordRelated:addWordPage.back')}
+                    >
+                        <ArrowLeftIcon size={18} />
+                    </Link>
+                    <h1 className="h1">{title}</h1>
+                </div>
+            }
+        />
     );
 }

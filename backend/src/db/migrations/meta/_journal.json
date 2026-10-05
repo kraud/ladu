@@ -127,6 +127,13 @@
       "when": 1790871259094,
       "tag": "0017_access_gates_login",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791150206824,
+      "tag": "0018_practice_config_tags",
+      "breakpoints": true
     }
   ]
 }

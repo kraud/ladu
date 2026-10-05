@@ -9,6 +9,7 @@ import { futureToken } from '@/test/tokens';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { Lang, PartOfSpeech } from '@/ts/enums';
+import { openConfigurationsTab, openNewConfigurationTab, chooseChangeSettingsFirst } from '@/test/practiceTabs';
 import { usePracticeSessionStore } from '../sessionStore';
 
 const SESSION = {
@@ -48,7 +49,18 @@ afterEach(() => {
     useUiStore.getState().setPracticePreselection(null);
 });
 
-const renderPractice = () => renderApp({ initialEntry: '/practice', session: SESSION });
+const renderPractice = async () => {
+    const result = await renderApp({ initialEntry: '/practice', session: SESSION });
+    await openConfigurationsTab();
+    return result;
+};
+
+/** The settings form is on its own tab. */
+const renderPracticeSettings = async () => {
+    const result = await renderApp({ initialEntry: '/practice', session: SESSION });
+    await openNewConfigurationTab();
+    return result;
+};
 
 describe('PracticePage — saved configurations', () => {
     it('says so when there are none', async () => {
@@ -107,7 +119,7 @@ describe('PracticePage — saved configurations', () => {
         it('saves the settings on screen under a name and description, and lists it', async () => {
             const fake = setUp();
             const user = userEvent.setup();
-            await renderPractice();
+            await renderPracticeSettings();
 
             const amount = await screen.findByLabelText('Number of exercises');
             await user.clear(amount);
@@ -129,6 +141,8 @@ describe('PracticePage — saved configurations', () => {
                 wordIds: null,
                 params: { amount: 7, type: 'Multiple-Choice', languages: ['English', 'Spanish'], strictnessTI: 2 },
             });
+            // The new configuration is in the Saved configurations tab.
+            await openConfigurationsTab();
             expect(await screen.findByRole('button', { name: 'Use configuration Short MC' })).toBeInTheDocument();
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
             expect(await screen.findByText('Configuration saved.')).toBeInTheDocument();
@@ -142,7 +156,7 @@ describe('PracticePage — saved configurations', () => {
                 .getState()
                 .setPracticePreselection([{ id: 'w1', partOfSpeech: PartOfSpeech.noun, label: 'house', languages: ['EN'] }]);
             const user = userEvent.setup();
-            await renderPractice();
+            await renderPracticeSettings();
 
             await user.click(await screen.findByRole('button', { name: 'Save configuration' }));
             const dialog = await screen.findByRole('dialog');
@@ -156,7 +170,7 @@ describe('PracticePage — saved configurations', () => {
         it('needs a name', async () => {
             const fake = setUp();
             const user = userEvent.setup();
-            await renderPractice();
+            await renderPracticeSettings();
 
             await user.click(await screen.findByRole('button', { name: 'Save configuration' }));
             const dialog = await screen.findByRole('dialog');
@@ -169,7 +183,7 @@ describe('PracticePage — saved configurations', () => {
         it('keeps the dialog open and names the problem when the name is taken', async () => {
             const fake = setUp({ configs: [makeConfig({ name: 'Morning drill' })] });
             const user = userEvent.setup();
-            await renderPractice();
+            await renderPracticeSettings();
 
             await user.click(await screen.findByRole('button', { name: 'Save configuration' }));
             const dialog = await screen.findByRole('dialog');
@@ -184,7 +198,7 @@ describe('PracticePage — saved configurations', () => {
         it('does not start a session when Enter is pressed in the name field', async () => {
             const fake = setUp();
             const user = userEvent.setup();
-            await renderPractice();
+            await renderPracticeSettings();
 
             await user.click(await screen.findByRole('button', { name: 'Save configuration' }));
             const dialog = await screen.findByRole('dialog');
@@ -197,7 +211,7 @@ describe('PracticePage — saved configurations', () => {
         it('is blocked while the settings are not valid', async () => {
             setUp();
             const user = userEvent.setup();
-            await renderPractice();
+            await renderPracticeSettings();
 
             await user.clear(await screen.findByLabelText('Number of exercises'));
             expect(screen.getByRole('button', { name: 'Save configuration' })).toBeDisabled();
@@ -218,6 +232,8 @@ describe('PracticePage — saved configurations', () => {
 
             await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
 
+            await chooseChangeSettingsFirst();
+
             await waitFor(() => expect(screen.getByLabelText('Number of exercises')).toHaveValue(5));
             expect(screen.getByRole('button', { name: 'Español', pressed: true })).toBeInTheDocument();
             expect(screen.getByRole('button', { name: 'English', pressed: false })).toBeInTheDocument();
@@ -237,6 +253,8 @@ describe('PracticePage — saved configurations', () => {
             await renderPractice();
 
             await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
+
+            await chooseChangeSettingsFirst();
             expect(await screen.findByText('Practice with 1 selected word')).toBeInTheDocument();
             await user.click(screen.getByRole('button', { name: 'Start session' }));
 
@@ -254,6 +272,8 @@ describe('PracticePage — saved configurations', () => {
 
             await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
 
+            await chooseChangeSettingsFirst();
+
             expect(await screen.findByText('Some words of this configuration are not available now.')).toBeInTheDocument();
             expect(screen.getByText('Practice with 1 selected word')).toBeInTheDocument();
         });
@@ -267,6 +287,8 @@ describe('PracticePage — saved configurations', () => {
             await renderPractice();
 
             await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
+
+            await chooseChangeSettingsFirst();
 
             expect(await screen.findByText('Some words of this configuration are not available now.')).toBeInTheDocument();
             expect(screen.getByLabelText('Number of exercises')).toHaveValue(4);
@@ -282,6 +304,8 @@ describe('PracticePage — saved configurations', () => {
             await renderPractice();
 
             await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
+
+            await chooseChangeSettingsFirst();
             await screen.findByText('Some words of this configuration are not available now.');
             await user.click(screen.getByRole('button', { name: 'Remove pre-selection' }));
             await user.click(await screen.findByRole('button', { name: 'Remove' }));
@@ -297,10 +321,13 @@ describe('PracticePage — saved configurations', () => {
                 .getState()
                 .setPracticePreselection([{ id: 'w1', partOfSpeech: PartOfSpeech.noun, label: 'house', languages: ['EN'] }]);
             const user = userEvent.setup();
-            await renderPractice();
+            await renderApp({ initialEntry: '/practice', session: SESSION });
 
+            // From Review the page opens on New configuration, with the words in the sidebar.
             expect(await screen.findByText('Practice with 1 selected word')).toBeInTheDocument();
+            await openConfigurationsTab();
             await user.click(await screen.findByRole('button', { name: 'Use configuration No words' }));
+            await chooseChangeSettingsFirst();
             await waitFor(() => expect(screen.queryByText('Practice with 1 selected word')).not.toBeInTheDocument());
         });
 
@@ -315,7 +342,9 @@ describe('PracticePage — saved configurations', () => {
 
             await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
 
+            // The words could not be loaded: no dialog, only the message.
             expect(await screen.findByRole('alert')).toHaveTextContent('Something went wrong');
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
             expect(screen.getByLabelText('Number of exercises')).toHaveValue(10);
         });
     });
@@ -341,10 +370,26 @@ describe('PracticePage — saved configurations', () => {
             expect(fake.state.configBodies[0]).toEqual({
                 method: 'PUT',
                 id: 'cfg-seed',
-                body: { name: 'Renamed', description: null, params: config.params, wordIds: ['w1'] },
+                body: { name: 'Renamed', description: null, params: config.params, wordIds: ['w1'], tagIds: null },
             });
             expect(await screen.findByRole('button', { name: 'Use configuration Renamed' })).toBeInTheDocument();
             expect(screen.getByText('Configuration updated.')).toBeInTheDocument();
+        });
+
+        it('keeps the tags of a configuration when it is renamed', async () => {
+            const config = makeConfig({ wordIds: ['w1'], tagIds: ['tag-1'] });
+            const fake = setUp({ configs: [config] });
+            const user = userEvent.setup();
+            await renderPractice();
+
+            await user.click(await screen.findByRole('button', { name: 'Edit configuration Morning drill' }));
+            const dialog = await screen.findByRole('dialog');
+            await user.clear(within(dialog).getByLabelText(/Name/));
+            await user.type(within(dialog).getByLabelText(/Name/), 'Renamed');
+            await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+            await waitFor(() => expect(fake.state.configBodies).toHaveLength(1));
+            expect(fake.state.configBodies[0]!.body).toMatchObject({ wordIds: ['w1'], tagIds: ['tag-1'] });
         });
 
         it('names the problem when the new name is taken', async () => {
@@ -392,5 +437,98 @@ describe('PracticePage — saved configurations', () => {
             expect(fake.state.deletedConfigIds).toEqual([]);
             expect(screen.getByRole('button', { name: 'Use configuration Morning drill' })).toBeInTheDocument();
         });
+    });
+});
+
+describe('PracticePage — selecting a saved configuration asks how to go on', () => {
+    it('opens a dialog with two ways: start now, or change the settings first', async () => {
+        setUp({ configs: [makeConfig({ name: 'Morning drill' })] });
+        const user = userEvent.setup();
+        await renderPractice();
+
+        await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
+
+        const dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getByText('Morning drill')).toBeInTheDocument();
+        expect(within(dialog).getByRole('button', { name: 'Start session' })).toBeInTheDocument();
+        expect(within(dialog).getByRole('button', { name: 'Change settings first' })).toBeInTheDocument();
+    });
+
+    it('"Start session" opens the first exercise with the saved settings and words, without the settings screen', async () => {
+        const fake = setUp({
+            configs: [
+                makeConfig({
+                    name: 'Morning drill',
+                    wordIds: ['w1'],
+                    params: { ...makeConfig().params, amount: 3, type: 'Text-Input', multiLang: 'Multi-Language' },
+                }),
+            ],
+            configWords: [makeConfigWord('w1', 'house')],
+        });
+        const user = userEvent.setup();
+        await renderPractice();
+
+        await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
+        await user.click(await within(await screen.findByRole('dialog')).findByRole('button', { name: 'Start session' }));
+
+        expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
+        expect(fake.state.generateBodies).toHaveLength(1);
+        expect(fake.state.generateBodies[0]).toMatchObject({ amount: 3, type: 'Text-Input', wordIds: ['w1'] });
+        expect(usePracticeSessionStore.getState().session?.wordIds).toEqual(['w1']);
+        expect(screen.queryByLabelText('Number of exercises')).not.toBeInTheDocument();
+    });
+
+    it('"Start session" works for a configuration without words too (all words)', async () => {
+        const fake = setUp({ configs: [makeConfig({ name: 'Morning drill' })] });
+        const user = userEvent.setup();
+        await renderPractice();
+
+        await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
+        await user.click(await within(await screen.findByRole('dialog')).findByRole('button', { name: 'Start session' }));
+
+        expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
+        expect(fake.state.generateBodies[0]).not.toHaveProperty('wordIds');
+    });
+
+    it('says so, and stays open, when no exercise matches; the other way still works', async () => {
+        const fake = setUp({ configs: [makeConfig({ name: 'Morning drill' })], exercises: [] });
+        const user = userEvent.setup();
+        await renderPractice();
+
+        await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.click(within(dialog).getByRole('button', { name: 'Start session' }));
+
+        expect(await within(dialog).findByRole('alert')).toHaveTextContent('No exercise matches this configuration now.');
+        expect(fake.state.generateBodies).toHaveLength(1);
+
+        await user.click(within(dialog).getByRole('button', { name: 'Change settings first' }));
+        expect(await screen.findByLabelText('Number of exercises')).toHaveValue(12);
+    });
+
+    it('closing the dialog changes nothing', async () => {
+        setUp({ configs: [makeConfig({ name: 'Morning drill' })] });
+        const user = userEvent.setup();
+        await renderPractice();
+
+        await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
+        await screen.findByRole('dialog');
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+        expect(screen.getByRole('tab', { name: 'Saved configurations' })).toHaveAttribute('aria-selected', 'true');
+        expect(usePracticeSessionStore.getState().session).toBeNull();
+    });
+});
+
+describe('PracticePage — a hint on the lists', () => {
+    it('Ongoing sessions and Saved configurations each say what they are', async () => {
+        setUp();
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/practice', session: SESSION });
+
+        expect(await screen.findByText(/You can keep up to 10 sessions for 7 days/)).toBeInTheDocument();
+        await user.click(screen.getByRole('tab', { name: 'Saved configurations' }));
+        expect(await screen.findByText(/Settings you saved to use again/)).toBeInTheDocument();
     });
 });

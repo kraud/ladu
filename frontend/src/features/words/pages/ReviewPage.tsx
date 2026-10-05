@@ -1,17 +1,24 @@
 /**
  * The word list (`/review`). Slice 6 shipped browse/page/select/both-empty-
- * states; Slice 7 adds the UI that WRITES the URL filters — the collapsible
- * filter bar, the toolbar, and the bulk action bar (`.layout` > filter bar +
- * `.main-col` > toolbar + bulk bar + `<ReviewTable>`, per the phase plan's
- * "Composition" section — `ReviewTable` itself needs no change, since its own
- * early-return empty/error states would otherwise swallow a toolbar nested
- * inside it). Slice 8 adds the cell dialog.
+ * states; Slice 7 adds the UI that WRITES the URL filters — the toolbar and
+ * the bulk action bar (`.main-col` > toolbar + bulk bar + `<ReviewTable>`, per
+ * the phase plan's "Composition" section — `ReviewTable` itself needs no
+ * change, since its own early-return empty/error states would otherwise
+ * swallow a toolbar nested inside it). Slice 8 adds the cell dialog.
+ *
+ * The filters live in the shared `SidebarLayout` (docked column on desktop,
+ * slide-in menu on a phone — `sidebar-layout.md`); `useFilterSections` builds
+ * their sections. On a phone the two display switches join them as a last
+ * section, and the toolbar gets the "Filters" button that opens the menu.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import type { RowSelectionState } from '@tanstack/react-table';
+import { PlusIcon, SlidersHorizontalIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
+import { PageColumn } from '@/components/layout/PageColumn';
+import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/lib/useMediaQuery';
@@ -27,8 +34,8 @@ import { wordErrorKey } from '../errors';
 import type { LangKey } from '../types';
 import { BulkActionBar } from '../review/BulkActionBar';
 import { CellDialog } from '../review/CellDialog';
-import { FilterBar } from '../review/FilterBar';
-import { MobileFilters } from '../review/MobileFilters';
+import { DisplayOptions } from '../review/DisplayOptions';
+import { activeFilterCount, useFilterSections } from '../review/FilterBar';
 import { ReviewTable } from '../review/ReviewTable';
 import { TableToolbar } from '../review/TableToolbar';
 import {
@@ -39,7 +46,7 @@ import {
     type ReviewSearch,
 } from '../review/search';
 
-const route = getRouteApi('/_protected/review');
+const route = getRouteApi('/_protected/words');
 
 export function ReviewPage() {
     const { t } = useTranslation();
@@ -47,9 +54,6 @@ export function ReviewPage() {
     const navigate = route.useNavigate();
 
     const isMobile = useIsMobile();
-    // Top/sidebar is a desktop choice; a phone gets the side menu (`MobileFilters`) instead.
-    const filterPosition = useUiStore((s) => s.reviewFilterPosition);
-    const filtersInSidebar = !isMobile && filterPosition === 'sidebar';
 
     const user = useAuthStore((s) => s.user);
     const userId = user?.id ?? '';
@@ -168,7 +172,6 @@ export function ReviewPage() {
         setRowSelection({});
     }
 
-    // Shared by the inline `FilterBar` (desktop) and `MobileFilters` (phone).
     const filterBarProps = {
         gender: search.gender ?? [],
         pos: search.pos ?? [],
@@ -183,56 +186,90 @@ export function ReviewPage() {
         onLanguagesChange: (next: LangKey[]) => updateSearch({ lang: next }),
     };
 
+    const filterSections = useFilterSections(filterBarProps);
+    // A phone has no room for the switches in the toolbar: they close the menu instead.
+    const sections: SidebarSection[] = isMobile
+        ? [
+              ...filterSections,
+              {
+                  id: 'display',
+                  label: t('review:filters.display'),
+                  icon: <SlidersHorizontalIcon size={18} />,
+                  content: (
+                      <div className="flex flex-col gap-3">
+                          <DisplayOptions
+                              showGenderSwitch={hasNounRows}
+                              showGender={showGender}
+                              onShowGenderChange={setShowGender}
+                              showProgress={showProgress}
+                              onShowProgressChange={setShowProgress}
+                          />
+                      </div>
+                  ),
+              },
+          ]
+        : filterSections;
+    const activeCount = activeFilterCount(filterBarProps.gender, filterBarProps.pos, filterBarProps.hasQuery, filterBarProps.selectedTags.length);
+
     // The header's language gate already blocks navigating here below two
     // languages, but a direct URL bypasses it (`_protected.beforeLoad` only
     // checks the token) — guard the zero-column case rather than rendering
     // an empty table.
     if (languages.length === 0) {
         return (
-            <EmptyState
-                title={t('review:empty.noLanguages.title')}
-                description={t('review:empty.noLanguages.description')}
-                action={
-                    <Link to="/user" className={buttonVariants()}>
-                        {t('review:empty.noLanguages.action')}
-                    </Link>
-                }
-            />
+            <PageColumn>
+                <EmptyState
+                    title={t('review:empty.noLanguages.title')}
+                    description={t('review:empty.noLanguages.description')}
+                    action={
+                        <Link to="/user" className={buttonVariants()}>
+                            {t('review:empty.noLanguages.action')}
+                        </Link>
+                    }
+                />
+            </PageColumn>
         );
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            <h1 className="h1">{t('common:header.review')}</h1>
-            <div
-                className={cn('layout', filtersInSidebar && 'flex items-start gap-4')}
-            >
-                {!isMobile && <FilterBar {...filterBarProps} />}
-                <div className={cn('main-col', filtersInSidebar && 'flex-1')}>
-                    <TableToolbar
-                        initialQuery={search.q ?? ''}
-                        onQueryChange={(next) => updateSearch({ q: next })}
-                        showSwitch={hasNounRows}
-                        showGender={showGender}
-                        onShowGenderChange={setShowGender}
-                        showProgress={showProgress}
-                        onShowProgressChange={setShowProgress}
-                        loadedCount={rows.length}
-                        total={total}
-                        hideDisplayOptions={isMobile}
-                        leading={
-                            isMobile ? (
-                                <MobileFilters
-                                    {...filterBarProps}
-                                    showGenderSwitch={hasNounRows}
-                                    showGender={showGender}
-                                    onShowGenderChange={setShowGender}
-                                    showProgress={showProgress}
-                                    onShowProgressChange={setShowProgress}
-                                />
-                            ) : undefined
-                        }
-                    />
+        <SidebarLayout
+            id="review"
+            label={t('review:filters.title')}
+            sections={sections}
+            fillHeight
+            header={
+                <div className="flex items-center justify-between gap-2">
+                    <h1 className="h1">{t('common:header.words')}</h1>
+                    <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants()}>
+                        <PlusIcon size={15} weight="bold" />
+                        {t('review:page.newWord')}
+                    </Link>
+                </div>
+            }
+        >
+            <div className="main-col min-h-0 flex-1">
+                <TableToolbar
+                    initialQuery={search.q ?? ''}
+                    onQueryChange={(next) => updateSearch({ q: next })}
+                    showSwitch={hasNounRows}
+                    showGender={showGender}
+                    onShowGenderChange={setShowGender}
+                    showProgress={showProgress}
+                    onShowProgressChange={setShowProgress}
+                    loadedCount={rows.length}
+                    total={total}
+                    compact={isMobile}
+                    leading={
+                        <SidebarTrigger
+                            label={t('review:filters.title')}
+                            className={cn(buttonVariants({ variant: 'outline', className: 'gap-2' }))}
+                        >
+                            <SlidersHorizontalIcon size={16} />
+                            {t('review:filters.title')}
+                            {activeCount > 0 && <span className="active-pill">{activeCount}</span>}
+                        </SidebarTrigger>
+                    }
+                />
                     <BulkActionBar
                         selectedCount={selectedIds.length}
                         selectedWordIds={selectedIds}
@@ -263,8 +300,8 @@ export function ReviewPage() {
                         onClearFilters={() => void navigate({ search: (prev) => ({ lang: prev.lang }) })}
                         onAddWord={() => void navigate({ to: '/addWord/{-$partOfSpeech}' })}
                         onOpenCell={handleOpenCell}
+                        compact={isMobile}
                     />
-                </div>
             </div>
 
             {cellTarget && (
@@ -277,6 +314,6 @@ export function ReviewPage() {
                     userLanguages={userLanguages}
                 />
             )}
-        </div>
+        </SidebarLayout>
     );
 }

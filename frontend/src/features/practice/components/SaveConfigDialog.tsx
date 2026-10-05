@@ -17,6 +17,8 @@ export const DESCRIPTION_MAX = 200;
 export interface ConfigDraft {
     params: PracticeParams;
     wordIds: string[] | null;
+    /** Set when the words were chosen by tag: the tags are saved with the words. */
+    tagIds: string[] | null;
 }
 
 type Props = { open: boolean; onOpenChange: (open: boolean) => void } & (
@@ -68,11 +70,14 @@ export function SaveConfigDialog(props: Props) {
             onOpenChange(false);
         };
         if (props.mode === 'create') {
-            create.mutate({ ...fields, params: props.draft.params, wordIds: props.draft.wordIds }, { onSuccess });
+            create.mutate(
+                { ...fields, params: props.draft.params, wordIds: props.draft.wordIds, tagIds: props.draft.tagIds },
+                { onSuccess },
+            );
         } else {
             const { config } = props;
             update.mutate(
-                { id: config.id, body: { ...fields, params: config.params, wordIds: config.wordIds } },
+                { id: config.id, body: { ...fields, params: config.params, wordIds: config.wordIds, tagIds: config.tagIds } },
                 { onSuccess },
             );
         }
@@ -132,7 +137,10 @@ export function SaveConfigDialog(props: Props) {
                         />
                     </div>
 
-                    {mode === 'create' && props.draft.wordIds && (
+                    {mode === 'create' && props.draft.tagIds && (
+                        <p className="hint">{t('practice:configs.dialog.withTags', { count: props.draft.tagIds.length })}</p>
+                    )}
+                    {mode === 'create' && !props.draft.tagIds && props.draft.wordIds && (
                         <p className="hint">
                             {t('practice:configs.dialog.withWords', { count: props.draft.wordIds.length })}
                         </p>

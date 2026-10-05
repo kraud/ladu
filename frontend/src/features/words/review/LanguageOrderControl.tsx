@@ -38,12 +38,14 @@ export interface LanguageOrderControlProps {
      * the row.
      */
     stacked?: boolean;
+    /** Hide the "Language order" label when the host (a `SidebarLayout` section) already shows it as a heading. */
+    hideLabel?: boolean;
 }
 
 const ARROW_BUTTON_CLASS =
     'inline-grid size-5 place-items-center rounded text-muted-foreground hover:bg-[var(--fg-soft)] hover:text-foreground disabled:opacity-35 disabled:pointer-events-none';
 
-export function LanguageOrderControl({ active, allLanguages, onChange, stacked = false }: LanguageOrderControlProps) {
+export function LanguageOrderControl({ active, allLanguages, onChange, stacked = false, hideLabel = false }: LanguageOrderControlProps) {
     const { t } = useTranslation();
     const [order, setOrder] = useState(() => initialOrder(active, allLanguages));
     const registerChip = useFlipAnimation<LangKey>(order);
@@ -78,7 +80,7 @@ export function LanguageOrderControl({ active, allLanguages, onChange, stacked =
     return (
         <div className="fb-group">
             <div className={cn('fhead', stacked && 'flex-col items-start gap-0.5')}>
-                <span className="label">{t('review:filters.languageOrder')}</span>
+                {!hideLabel && <span className="label">{t('review:filters.languageOrder')}</span>}
                 <span className="hint">{t('review:filters.languageOrderHint')}</span>
             </div>
             <div className="chips">

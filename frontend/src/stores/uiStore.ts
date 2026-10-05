@@ -13,7 +13,7 @@ import type { PreselectedWord } from '@/features/practice/preselection';
 import type { PartOfSpeech } from '@/ts/enums';
 
 type SearchMode = 'words' | 'tags';
-type ReviewFilterPosition = 'top' | 'sidebar';
+export type SidebarId = 'review' | 'word' | 'practice' | 'practiceResults';
 
 interface UiState {
     /** PoS chosen on the Add Word step, remembered across the form (Phase 2). */
@@ -24,23 +24,16 @@ interface UiState {
     searchMode: SearchMode;
     setSearchMode: (mode: SearchMode) => void;
 
-    /** Review filter bar collapsed to its header row (top) or an icon rail (sidebar). */
-    reviewSidebarCollapsed: boolean;
-    setReviewSidebarCollapsed: (collapsed: boolean) => void;
-
-    /** Review filter bar's position: a bar above the table, or a collapsible left sidebar. */
-    reviewFilterPosition: ReviewFilterPosition;
-    setReviewFilterPosition: (position: ReviewFilterPosition) => void;
-
     /**
-     * Word editor's left clue/tags sidebar (`WordEditorLayout`) collapsed to
-     * an icon rail. Starts collapsed: the translation cards are the main
-     * content, and the clue/tags are one click away on the rail. Shared across
-     * create/edit/view so the state doesn't reset when a user toggles Edit on
-     * `/word/:id` — session-scoped like `reviewSidebarCollapsed`, not persisted.
+     * Collapsed (icon rail) state of each page's `SidebarLayout`, by page. The word
+     * editor starts collapsed: the translation cards are the main content, and the
+     * clue/tags are one click away on the rail. So does Practice's set-up (the words
+     * list is empty until words come from Review or tags are chosen); it opens when
+     * words arrive. The results page has its own entry and starts open. Shared across create/edit/view so the
+     * state does not reset when a user toggles Edit on `/word/:id`. Session-scoped, not persisted.
      */
-    wordSidebarCollapsed: boolean;
-    setWordSidebarCollapsed: (collapsed: boolean) => void;
+    sidebarCollapsed: Record<SidebarId, boolean>;
+    setSidebarCollapsed: (id: SidebarId, collapsed: boolean) => void;
 
     /**
      * Words handed from Review's "Practice" bulk action to the practice
@@ -58,14 +51,9 @@ export const useUiStore = create<UiState>()((set) => ({
     searchMode: 'words',
     setSearchMode: (searchMode) => set({ searchMode }),
 
-    reviewSidebarCollapsed: false,
-    setReviewSidebarCollapsed: (reviewSidebarCollapsed) => set({ reviewSidebarCollapsed }),
-
-    reviewFilterPosition: 'top',
-    setReviewFilterPosition: (reviewFilterPosition) => set({ reviewFilterPosition }),
-
-    wordSidebarCollapsed: true,
-    setWordSidebarCollapsed: (wordSidebarCollapsed) => set({ wordSidebarCollapsed }),
+    sidebarCollapsed: { review: false, word: true, practice: true, practiceResults: false },
+    setSidebarCollapsed: (id, collapsed) =>
+        set((state) => ({ sidebarCollapsed: { ...state.sidebarCollapsed, [id]: collapsed } })),
 
     practicePreselection: null,
     setPracticePreselection: (practicePreselection) => set({ practicePreselection }),

@@ -26,9 +26,6 @@ describe('TagPickerDialog — add mode', () => {
         expect(screen.getByText('Add tags to 2 words')).toBeInTheDocument();
         await user.click(screen.getByPlaceholderText('Search tags to add…'));
         await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
-        // Picking leaves the popover open (multi-select) — close it first, or its
-        // still-open popup keeps the rest of the dialog (incl. Apply) inert.
-        await user.keyboard('{Escape}');
         await user.click(screen.getByRole('button', { name: 'Apply' }));
 
         await waitFor(() => expect(onApplied).toHaveBeenCalledWith([expect.objectContaining({ id: 'tag-1' })]));
@@ -68,7 +65,6 @@ describe('TagPickerDialog — add mode', () => {
         expect(screen.getByText('Add tags to 1 word')).toBeInTheDocument();
         await user.click(screen.getByPlaceholderText('Search tags to add…'));
         await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
-        await user.keyboard('{Escape}');
         await user.click(screen.getByRole('button', { name: 'Apply' }));
 
         expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -120,7 +116,6 @@ describe('TagPickerDialog — remove mode', () => {
         expect(screen.queryByRole('option', { name: /Garage/ })).not.toBeInTheDocument();
 
         await user.click(screen.getByRole('option', { name: /Kitchen/ }));
-        await user.keyboard('{Escape}');
         await user.click(screen.getByRole('button', { name: 'Apply' }));
 
         await waitFor(() => expect(onApplied).toHaveBeenCalled());

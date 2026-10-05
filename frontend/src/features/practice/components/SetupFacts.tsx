@@ -17,6 +17,7 @@ export function SetupFacts({
     cardTypes,
     languages,
     partsOfSpeech,
+    extra,
 }: {
     /** The big number or text of the first fact ("3 of 10", "12"). */
     figure: ReactNode;
@@ -25,10 +26,12 @@ export function SetupFacts({
     cardTypes: readonly CardType[];
     languages: readonly string[];
     partsOfSpeech: Parameters<typeof WordTypeGrid>[0]['partsOfSpeech'];
+    /** A fourth fact (a saved configuration's words and order); the grid then has four columns. */
+    extra?: ReactNode;
 }) {
     const { t } = useTranslation();
     return (
-        <span className="grid grid-cols-1 gap-y-3 md:grid-cols-3">
+        <span className={`grid grid-cols-1 gap-y-3 ${extra ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
             <Stat>
                 <Figure>{figure}</Figure>
                 <CardTypeGrid types={cardTypes} className="self-end" />
@@ -47,6 +50,16 @@ export function SetupFacts({
                 <Figure>{partsOfSpeech.length}</Figure>
                 <span className="label">{t('practice:results.typesLabel', { count: partsOfSpeech.length })}</span>
             </Stat>
+            {extra && <Stat className="md:border-l">{extra}</Stat>}
+        </span>
+    );
+}
+
+/** A small rounded label; stack two in a column for a fact with two values. */
+export function Pill({ children }: { children: ReactNode }) {
+    return (
+        <span className="inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium whitespace-nowrap">
+            {children}
         </span>
     );
 }

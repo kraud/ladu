@@ -1,8 +1,8 @@
 {
   "addWordPage": {
-    "title": "Füge ein neues {{currentPoS}} hinzu",
-    "titleDefault": "Füge ein neues Wort hinzu",
-    "subtitle": "Alle Pflichtfelder müssen ausgefüllt werden, bevor gespeichert werden kann",
+    "title": "Neues {{currentPoS}}",
+    "titleDefault": "Neues Wort",
+    "back": "Zurück zu Wörter",
     "toastCreateSuccess": "Das Wort wurde erfolgreich erstellt"
   },
   "apiErrors": {
@@ -23,7 +23,6 @@
     "toastError": "Etwas ist schief gelaufen: {{error}}"
   },
   "partOfSpeechSelector": {
-    "title": "Was für ein Wort ist es?",
     "subtitle": "Nicht sicher, was was ist? Bewege den Mauszeiger über die Schaltflächen und lies die Beschreibungen.",
     "description": {
       "other": "Sie werden es erkennen, wenn Sie es sehen!",
@@ -102,7 +101,12 @@
   },
   "formComponentLabel": {
     "clue": "Hinweis",
-    "tags": "Tags"
+    "tags": "Tags",
+    "linkedWords": "Verknüpfte Wörter"
+  },
+  "linkedWords": {
+    "description": "Verknüpfe Wörter, die Synonyme sind oder auf andere Weise zusammenhängen.",
+    "comingSoon": "Demnächst verfügbar."
   },
   "wordForm": {
     "hints": {
@@ -116,11 +120,13 @@
     },
     "buttons": {
       "changeWordType": "Wortart ändern",
-      "saveWord": "Wort speichern"
+      "saveWord": "Wort speichern",
+      "saveShort": "Speichern"
     },
     "sidebar": {
       "collapse": "Seitenleiste einklappen",
       "expand": "Seitenleiste ausklappen",
+      "menuTitle": "Zusätzliche Informationen",
       "openMenu": "Menü öffnen",
       "closeMenu": "Menü schließen",
       "tagsEditToChange": "Bearbeite das Wort, um Tags hinzuzufügen oder zu entfernen.",

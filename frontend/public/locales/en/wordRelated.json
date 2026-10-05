@@ -1,8 +1,8 @@
 {
   "addWordPage": {
-    "title": "Add a new {{currentPoS}}",
-    "titleDefault": "Add a new word",
-    "subtitle": "All the required fields must be completed before saving",
+    "title": "New {{currentPoS}}",
+    "titleDefault": "New word",
+    "back": "Back to Words",
     "toastCreateSuccess": "Word was created successfully"
   },
   "apiErrors": {
@@ -23,7 +23,6 @@
     "toastError": "Something went wrong: {{error}}"
   },
   "partOfSpeechSelector": {
-    "title": "What kind of word is it?",
     "subtitle": "Not sure what's what? Hover over the buttons and read the descriptions.",
     "description": {
       "other": "You'll know it when you see it!",
@@ -102,7 +101,12 @@
   },
   "formComponentLabel": {
     "clue": "Clue",
-    "tags": "Tags"
+    "tags": "Tags",
+    "linkedWords": "Linked words"
+  },
+  "linkedWords": {
+    "description": "Link words that are synonyms or are related in another way.",
+    "comingSoon": "Coming soon."
   },
   "wordForm": {
     "hints": {
@@ -116,11 +120,13 @@
     },
     "buttons": {
       "changeWordType": "Change word type",
-      "saveWord": "Save word"
+      "saveWord": "Save word",
+      "saveShort": "Save"
     },
     "sidebar": {
       "collapse": "Collapse sidebar",
       "expand": "Expand sidebar",
+      "menuTitle": "Additional information",
       "openMenu": "Open menu",
       "closeMenu": "Close menu",
       "tagsEditToChange": "Edit the word to add or remove tags.",

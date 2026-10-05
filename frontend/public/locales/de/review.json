@@ -12,11 +12,6 @@
   "filters": {
     "title": "Filter",
     "display": "Anzeige",
-    "show": "Filter anzeigen",
-    "collapse": "Filter einklappen",
-    "noneActive": "Keine Filter aktiv",
-    "activeCount_one": "{{count}} Filter aktiv",
-    "activeCount_other": "{{count}} Filter aktiv",
     "gender": "Genus",
     "clear": "Löschen",
     "partOfSpeech": "Wortart",
@@ -26,9 +21,10 @@
     "moveEarlier": "{{language}} nach vorne verschieben",
     "moveLater": "{{language}} nach hinten verschieben",
     "hideLanguage": "{{language}} ausblenden",
-    "showLanguage": "{{language}} einblenden",
-    "moveToSidebar": "Filter in die Seitenleiste verschieben",
-    "moveToTop": "Filter nach oben verschieben"
+    "showLanguage": "{{language}} einblenden"
+  },
+  "page": {
+    "newWord": "Neues Wort"
   },
   "toolbar": {
     "searchPlaceholder": "Wörter suchen…",

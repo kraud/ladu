@@ -102,6 +102,32 @@ describe('POST /api/practice/configs', () => {
         expect(res.body).toMatchObject({ wordIds: null, description: null, missingCount: 0 });
     });
 
+    it('keeps the tags the words were chosen by, next to the words', async () => {
+        const user = await register('Ann', 'ann@test.com', 'ann');
+        const word = await postNoun(user, 'house', 'casa');
+        const tagId = '3f0c1f7e-6a0b-4c43-9a4a-0e0a8d1d3b11';
+        const res = await create(user, { wordIds: [word.id], tagIds: [tagId, tagId] });
+        expect(res.statusCode).toBe(201);
+        expect(res.body).toMatchObject({ wordIds: [word.id], tagIds: [tagId] });
+
+        const list = await request(app).get('/api/practice/configs').set(auth(user));
+        expect(list.body[0].tagIds).toEqual([tagId]);
+    });
+
+    it('tagIds is null when the words were not chosen by tag (also for a body without the field)', async () => {
+        const user = await register('Ann', 'ann@test.com', 'ann');
+        const res = await create(user);
+        expect(res.statusCode).toBe(201);
+        expect(res.body.tagIds).toBeNull();
+    });
+
+    it('refuses tag ids that are not valid ids', async () => {
+        const user = await register('Ann', 'ann@test.com', 'ann');
+        const res = await create(user, { tagIds: ['nope'] });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.code).toBe('invalid_tag_ids');
+    });
+
     it('creates a configuration with words', async () => {
         const user = await register('Ann', 'ann@test.com', 'ann');
         const word = await postNoun(user, 'house', 'casa');
@@ -244,6 +270,20 @@ describe('PUT /api/practice/configs/:id', () => {
         const list = await request(app).get('/api/practice/configs').set(auth(user));
         expect(list.body).toHaveLength(1);
         expect(list.body[0].name).toBe('Renamed');
+    });
+
+    it('replaces the tags too, and clears them when the body has none', async () => {
+        const user = await register('Ann', 'ann@test.com', 'ann');
+        const tagId = '3f0c1f7e-6a0b-4c43-9a4a-0e0a8d1d3b11';
+        const { body: created } = await create(user, { tagIds: [tagId] });
+        expect(created.tagIds).toEqual([tagId]);
+
+        const res = await request(app)
+            .put(`/api/practice/configs/${created.id}`)
+            .set(auth(user))
+            .send(configBody({ tagIds: null }));
+        expect(res.statusCode).toBe(200);
+        expect(res.body.tagIds).toBeNull();
     });
 
     it('allows the own current name (also in another letter case)', async () => {

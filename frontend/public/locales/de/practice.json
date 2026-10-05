@@ -4,6 +4,21 @@
   },
   "setup": {
     "title": "Üben",
+    "newConfiguration": "Neue Konfiguration",
+    "newConfigurationBack": "Zurück zu Üben",
+    "selectedWords": "Ausgewählte Wörter",
+    "selectedWordsButton": "Ausgewählte Wörter ({{count}})",
+    "selectedWordsAll": "Alle",
+    "selectedWordsChip": "Ausgewählt",
+    "tagsEmpty": "Keine Wörter ausgewählt. Es werden alle deine Wörter verwendet.",
+    "tagsLabel": "Wörter nach Tag auswählen",
+    "tagRemove": "Tag {{name}} entfernen",
+    "tagWordsLoading": "Wörter werden geladen…",
+    "tagsBlocked": {
+      "loading": "Die Wörter der Tags werden geladen…",
+      "empty": "Die gewählten Tags enthalten keine Wörter.",
+      "error": "Die Wörter der Tags konnten nicht geladen werden."
+    },
     "start": "Übung starten",
     "starting": "Übungen werden erstellt…",
     "labels": {
@@ -79,9 +94,11 @@
     "preselected": {
       "title_one": "Mit {{count}} ausgewähltem Wort üben",
       "title_other": "Mit {{count}} ausgewählten Wörtern üben",
-      "show": "Wörter anzeigen",
-      "hide": "Wörter ausblenden",
       "clear": "Vorauswahl entfernen",
+      "hideUnused": "Nicht verwendete Wörter ausblenden",
+      "showAll": "Alle Wörter anzeigen",
+      "used": "{{used}} von {{total}} Wörtern werden mit diesen Einstellungen verwendet.",
+      "noneUsed": "Kein ausgewähltes Wort passt zu diesen Einstellungen.",
       "note": "Wir ändern diese Wortliste in einem späteren Update.",
       "confirm": {
         "title": "Vorauswahl entfernen?",
@@ -118,7 +135,6 @@
       "retry": "Noch einmal versuchen"
     },
     "shortfall": "{{created}} von {{requested}} Übungen konnten erstellt werden.",
-    "subtitle": "Kurze Übungen mit Ihren Wörtern",
     "fixToStart": "Korrigieren Sie die markierten Felder, um zu starten.",
     "resume": {
       "title": "Du hast eine unfertige Sitzung",
@@ -126,7 +142,9 @@
       "dismiss": "Verwerfen",
       "answeredLabel": "Übungen",
       "correctHint": "bisher {{count}} richtig"
-    }
+    },
+    "startShort": "Start",
+    "startingShort": "Starte…"
   },
   "session": {
     "progress": "Übung {{current}} von {{total}}",
@@ -243,7 +261,6 @@
     "open": "Übung öffnen",
     "backToResults": "Zurück zu den Ergebnissen",
     "settings": "Verwendete Einstellungen",
-    "words": "Wörter",
     "again": "Noch einmal üben",
     "change": "Einstellungen ändern",
     "toReview": "Zur Übersichtstabelle",
@@ -336,7 +353,7 @@
     "save": "Konfiguration speichern",
     "title": "Gespeicherte Konfigurationen",
     "loading": "Wird geladen…",
-    "empty": "Du hast keine gespeicherten Konfigurationen. Stelle oben die Optionen ein und wähle „Konfiguration speichern“.",
+    "empty": "Du hast keine gespeicherten Konfigurationen. Stelle im Einstellungsbereich die Optionen ein und wähle „Konfiguration speichern“.",
     "listError": "Die gespeicherten Konfigurationen konnten nicht geladen werden.",
     "use": "Konfiguration {{name}} verwenden",
     "edit": "Konfiguration {{name}} bearbeiten",
@@ -363,6 +380,8 @@
       "descriptionPlaceholder": "Wofür ist diese Konfiguration?",
       "withWords_one": "Diese Konfiguration enthält {{count}} ausgewähltes Wort.",
       "withWords_other": "Diese Konfiguration enthält {{count}} ausgewählte Wörter.",
+      "withTags_one": "Diese Konfiguration enthält die Wörter von {{count}} Tag. Sie werden beim Laden neu gelesen.",
+      "withTags_other": "Diese Konfiguration enthält die Wörter von {{count}} Tags. Sie werden beim Laden neu gelesen.",
       "save": "Speichern",
       "saving": "Wird gespeichert…"
     },
@@ -376,10 +395,19 @@
       "updated": "Konfiguration aktualisiert.",
       "deleted": "Konfiguration gelöscht.",
       "loaded": "Konfiguration „{{name}}“ geladen."
-    }
+    },
+    "note": "Einstellungen, die du zum erneuten Verwenden gespeichert hast. Wähle eine aus, um sofort zu starten oder sie zuerst zu ändern.",
+    "startDialog": {
+      "question": "Jetzt eine Sitzung mit dieser Konfiguration starten oder zuerst die Einstellungen ändern?",
+      "start": "Sitzung starten",
+      "change": "Zuerst Einstellungen ändern",
+      "noMatch": "Zu dieser Konfiguration passt jetzt keine Übung. Ändere zuerst die Einstellungen.",
+      "noWords": "Die Tags dieser Konfiguration enthalten jetzt keine Wörter. Ändere zuerst die Einstellungen."
+    },
+    "saveShort": "Speichern"
   },
   "sessions": {
-    "title": "Gespeicherte Sitzungen",
+    "title": "Laufende Sitzungen",
     "note": "Du kannst bis zu {{max}} Sitzungen {{days}} Tage lang behalten. Eine neue Sitzung ersetzt die älteste.",
     "loading": "Wird geladen…",
     "empty": "Du hast keine gespeicherten Sitzungen. Verlasse eine Sitzung und wähle „Sitzung speichern und verlassen“, um sie zu behalten.",

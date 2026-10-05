@@ -50,6 +50,7 @@ This phase adds a feature that Phase 5 did not plan: the user can **save practic
 | `description` | varchar(200) NULL | |
 | `params` | jsonb NOT NULL | The settings, including `strictnessTI`. Validated on write. |
 | `word_ids` | uuid[] NULL | Pre-selected words. NULL = none. |
+| `tag_ids` | uuid[] NULL | **Added 2026-10-04 (migration `0018`).** The tags the words were chosen by (Practice's tag picker). NULL = not chosen by tag. No foreign key (a tag can be deleted later). `word_ids` still holds the words at save time. Request: `tagIds` — de-duplicated, at most 20 valid ids, `null` / missing / `[]` = none; error code `invalid_tag_ids`. On load the client reads the tags again and takes the words live from them; if no tag can be read it falls back to `word_ids` and shows the banner. |
 | `created_at`, `updated_at` | timestamptz | |
 
 **`practice_sessions`**

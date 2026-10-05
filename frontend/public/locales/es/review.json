@@ -12,11 +12,6 @@
   "filters": {
     "title": "Filtros",
     "display": "Visualización",
-    "show": "Mostrar filtros",
-    "collapse": "Ocultar filtros",
-    "noneActive": "No hay filtros aplicados",
-    "activeCount_one": "{{count}} filtro activo",
-    "activeCount_other": "{{count}} filtros activos",
     "gender": "Género",
     "clear": "Borrar",
     "partOfSpeech": "Categoría gramatical",
@@ -26,9 +21,10 @@
     "moveEarlier": "Mover {{language}} antes",
     "moveLater": "Mover {{language}} después",
     "hideLanguage": "Ocultar {{language}}",
-    "showLanguage": "Mostrar {{language}}",
-    "moveToSidebar": "Mover filtros a la barra lateral",
-    "moveToTop": "Mover filtros arriba"
+    "showLanguage": "Mostrar {{language}}"
+  },
+  "page": {
+    "newWord": "Nueva palabra"
   },
   "toolbar": {
     "searchPlaceholder": "Buscar palabras…",

@@ -500,9 +500,6 @@ describe('WordForm — tags (create mode)', () => {
 
         await user.click(screen.getByPlaceholderText('Search tags to add…'));
         await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
-        // Picking leaves the popover open (multi-select) — close it, or its still-open
-        // popup keeps the rest of the form (incl. the language chips below) inert.
-        await user.keyboard('{Escape}');
 
         // Staged locally as a chip; no link request went out — the word doesn't exist yet.
         expect(await screen.findByText('Kitchen')).toBeInTheDocument();
@@ -538,9 +535,6 @@ describe('WordForm — tags (create mode)', () => {
 
         await user.click(screen.getByRole('button', { name: 'Remove Kitchen' }));
         expect(screen.queryByRole('button', { name: 'Remove Kitchen' })).not.toBeInTheDocument();
-        // Removing puts it back in the (still-open) results list — close the popover
-        // before continuing, same as the picking step above.
-        await user.keyboard('{Escape}');
 
         await addLanguage(user, 'English');
         await addLanguage(user, 'Español');
@@ -620,7 +614,6 @@ describe('WordForm — tags (edit mode)', () => {
 
         await user.click(screen.getByPlaceholderText('Search tags to add…'));
         await user.click(await screen.findByRole('option', { name: /Travel/ }));
-        await user.keyboard('{Escape}');
         expect(fake.requests.filter((r) => r.path === '/tags/links')).toHaveLength(0);
         await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
 

@@ -215,7 +215,7 @@ describe('ResultsView', () => {
         expect(await screen.findByTestId('score')).toBeInTheDocument();
     });
 
-    it('keeps the settings summary closed until asked, and lists pre-selected words', async () => {
+    it('keeps the settings summary closed until asked', async () => {
         await openResults({ preselected: WORDS });
         const user = userEvent.setup();
 
@@ -227,7 +227,36 @@ describe('ResultsView', () => {
         // Typing only: strictness shows as "Level 2 — …", choice difficulty is left out.
         expect(screen.getByText(/Level 2 — Ignores capital letters only/)).toBeInTheDocument();
         expect(screen.queryByText('Choice difficulty')).not.toBeInTheDocument();
-        expect(within(screen.getByRole('region', { name: 'Settings used' })).getByText('house')).toBeInTheDocument();
+        // The pre-selected words are in the sidebar, not in this summary.
+        expect(within(screen.getByRole('region', { name: 'Settings used' })).queryByText('house')).not.toBeInTheDocument();
+    });
+
+    it('lists the pre-selected words in the sidebar, marking those the session settings did not use', async () => {
+        await openResults({
+            preselected: [
+                ...WORDS,
+                { id: 'w2', partOfSpeech: PartOfSpeech.verb, label: 'run', languages: ['EN', 'ES'] },
+            ],
+            params: { partsOfSpeech: [PartOfSpeech.verb] },
+        });
+        const user = userEvent.setup();
+
+        const panel = await screen.findByRole('complementary', { name: 'Selected words' });
+        expect(within(panel).getByText('1 of 2 words will be used with these settings.')).toBeInTheDocument();
+        expect(within(panel).getByText('house').closest('li')).toHaveAttribute('data-used', 'false');
+        expect(within(panel).getByText('run').closest('li')).toHaveAttribute('data-used', 'true');
+        // Fixed here: the settings cannot change on this page, so there is no "Remove pre-selection".
+        expect(within(panel).queryByRole('button', { name: 'Remove pre-selection' })).not.toBeInTheDocument();
+
+        await user.click(within(panel).getByRole('button', { name: 'Hide the words that will not be used' }));
+        expect(within(panel).queryByText('house')).not.toBeInTheDocument();
+        expect(within(panel).getByText('run')).toBeInTheDocument();
+    });
+
+    it('has no sidebar when the session had no pre-selected words', async () => {
+        await openResults();
+        await screen.findByTestId('score');
+        expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
     });
 
     it('"Practice again" makes new exercises with the same settings and words', async () => {
@@ -301,14 +330,31 @@ describe('ResultsView', () => {
 
         await user.click(await screen.findByRole('button', { name: 'Change settings' }));
 
-        expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
         expect(screen.getByLabelText('Number of exercises')).toHaveValue(7);
         expect(screen.getByText('Practice with 1 selected word')).toBeInTheDocument();
         expect(usePracticeSessionStore.getState().session).toBeNull();
     });
 
+    it('"Change settings" opens the New configuration view, also when the session had no pre-selected words', async () => {
+        await openResults({ params: { amount: 7 } });
+        // The account has words, so the set-up shows its tabs (not the "no words" message).
+        server.use(
+            ...makeWordHandlers({
+                callerId: 'u1',
+                seed: [{ id: 'w1', user: 'u1', partOfSpeech: PartOfSpeech.noun, translations: [] }],
+            }).handlers,
+        );
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByRole('button', { name: 'Change settings' }));
+
+        expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
+        expect(screen.getByLabelText('Number of exercises')).toHaveValue(7);
+    });
+
     it('links to Review', async () => {
         await openResults();
-        expect(await screen.findByRole('link', { name: 'Go to Review table' })).toHaveAttribute('href', '/review');
+        expect(await screen.findByRole('link', { name: 'Go to Words table' })).toHaveAttribute('href', '/words');
     });
 });

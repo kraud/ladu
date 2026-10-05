@@ -89,6 +89,21 @@ describe('validateConfigRequest', () => {
         });
     });
 
+    it('takes tag ids from the top level: de-duplicated; missing, null and empty list = none', () => {
+        expect(validateConfigRequest(body({ tagIds: [UUID, UUID] })).value.tagIds).toEqual([UUID]);
+        expect(validateConfigRequest(body({ tagIds: [] })).value.tagIds).toBeNull();
+        expect(validateConfigRequest(body({ tagIds: null })).value.tagIds).toBeNull();
+        expect(validateConfigRequest(body()).value.tagIds).toBeNull();
+    });
+
+    it('rejects tag ids that are not a list of valid ids, or too many', () => {
+        expect(validateConfigRequest(body({ tagIds: ['nope'] }))).toMatchObject({ ok: false, code: 'invalid_tag_ids' });
+        expect(validateConfigRequest(body({ tagIds: UUID }))).toMatchObject({ ok: false, code: 'invalid_tag_ids' });
+        const many = Array.from({ length: 21 }, (_, i) => `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`);
+        expect(validateConfigRequest(body({ tagIds: many }))).toMatchObject({ ok: false, code: 'invalid_tag_ids' });
+        expect(validateConfigRequest(body({ tagIds: many.slice(0, 20) })).ok).toBe(true);
+    });
+
     it('rejects word ids hidden inside params', () => {
         const b = body();
         b.params.wordIds = [UUID];

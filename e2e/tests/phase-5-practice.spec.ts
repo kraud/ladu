@@ -35,7 +35,8 @@ import {
  *     "Mastered" on a translation sets the pill, and it stays on that form.
  *  3. A multiple-choice session: the right and the wrong option.
  *  4. Review -> select two words -> Practice -> only those words appear.
- *  5. Security (API): a second account cannot save an answer for the first
+ *  5. Practice -> tag picker in the sidebar -> only that tag's words appear.
+ *  6. Security (API): a second account cannot save an answer for the first
  *     account's word, and cannot generate exercises from it.
  *
  * The prompt is read from the screen and the answer looked up in `TRANSLATION`,
@@ -77,6 +78,8 @@ test.describe.serial('Phase 5 — practice', () => {
         await expect(page).toHaveURL(/\/practice/);
 
         await test.step('the set-up starts with the documented defaults', async () => {
+            // The page opens on Ongoing sessions; the settings are in the New configuration view.
+            await page.getByRole('button', { name: 'New configuration' }).click();
             await expect(page.getByLabel('Number of exercises')).toHaveValue('10');
             await expect(page.getByRole('button', { name: 'Type the answer', pressed: true })).toBeVisible();
             await expect(page.getByRole('button', { name: 'Noun', pressed: true })).toBeVisible();
@@ -206,8 +209,8 @@ test.describe.serial('Phase 5 — practice', () => {
 
     test('Review -> select two words -> Practice: only those words appear', async ({ page }) => {
         await signIn(page, owner);
-        await page.getByRole('link', { name: 'review' }).click();
-        await expect(page).toHaveURL('/review');
+        await page.getByRole('link', { name: 'words', exact: true }).click();
+        await expect(page).toHaveURL('/words');
 
         await page.getByRole('row', { name: /Apple/ }).getByRole('checkbox').click();
         await page.getByRole('row', { name: /Banana/ }).getByRole('checkbox').click();
@@ -224,6 +227,39 @@ test.describe.serial('Phase 5 — practice', () => {
         for (const { prompt } of answered) expect(['Apple', 'Apfel', 'Banana', 'Banane']).toContain(prompt);
         // The results list the words of the pre-selection.
         await expect(page.getByTestId('score')).toHaveText(`${answered.length} of ${answered.length}`);
+    });
+
+    test('Practice -> choose a tag in the sidebar: only the words of that tag appear', async ({ page, request }) => {
+        const tag = await request.post(`${API}/api/tags`, {
+            headers: authHeader(ownerToken),
+            data: { label: 'Fruit', visibility: 'Private', wordIds: [wordIds.Apple, wordIds.Banana] },
+        });
+        expect(tag.ok()).toBeTruthy();
+
+        await signIn(page, owner);
+        await page.goto('/practice');
+        await page.getByRole('button', { name: 'New configuration' }).click();
+
+        await test.step('the sidebar starts open and says all words are used', async () => {
+            await expect(page.getByText('No words selected. All your words are used.')).toBeVisible();
+        });
+
+        await test.step('picking the tag gives a folded container with its two words', async () => {
+            await page.getByPlaceholder('Filter by tag…').click();
+            await page.getByRole('option', { name: /Fruit/ }).click();
+            await page.keyboard.press('Escape');
+
+            await expect(page.getByText('Practice with 2 selected words')).toBeVisible();
+            await expect(page.getByRole('region', { name: 'Fruit' })).toContainText('(2)');
+            await expect(page.getByText('No words selected. All your words are used.')).toHaveCount(0);
+        });
+
+        await configure(page, { amount: 4, answer: 'Type the answer', languages: 'Different languages' });
+        await startSession(page);
+        const answered = await finishSession(page, () => 'right');
+
+        expect(answered.length).toBeGreaterThan(0);
+        for (const { prompt } of answered) expect(['Apple', 'Apfel', 'Banana', 'Banane']).toContain(prompt);
     });
 
     test('security: a second account cannot save an answer for, or generate from, the first account\'s word', async ({ request }) => {

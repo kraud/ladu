@@ -40,3 +40,17 @@ export function availablePartsOfSpeech(words: readonly PreselectedWord[] | null)
     const available = SELECTABLE_PARTS_OF_SPEECH.filter((pos) => present.has(pos));
     return available.length > 0 ? available : null;
 }
+
+/** The words of several lists as one list: each word once, in the order it first appears. */
+export function unionWords(lists: readonly (readonly PreselectedWord[])[]): PreselectedWord[] {
+    const seen = new Set<string>();
+    const result: PreselectedWord[] = [];
+    for (const list of lists) {
+        for (const word of list) {
+            if (seen.has(word.id)) continue;
+            seen.add(word.id);
+            result.push(word);
+        }
+    }
+    return result;
+}

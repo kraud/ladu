@@ -131,12 +131,12 @@ describe('TableToolbar — row count', () => {
 });
 
 describe('TableToolbar — phone layout', () => {
-    it('hideDisplayOptions removes both switches but keeps search and the count', () => {
-        renderWithProviders(<TableToolbar {...baseProps} showSwitch hideDisplayOptions />);
+    it('compact removes both switches and the count but keeps search', () => {
+        renderWithProviders(<TableToolbar {...baseProps} showSwitch compact />);
         expect(screen.queryByText('Display gender')).not.toBeInTheDocument();
         expect(screen.queryByText('Display progress')).not.toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Filter table' })).toBeInTheDocument();
-        expect(screen.getByText('3 of 10 words')).toBeInTheDocument();
+        expect(screen.queryByText('3 of 10 words')).not.toBeInTheDocument();
     });
 
     it('renders `leading` before the search box', () => {

@@ -4,6 +4,21 @@
   },
   "setup": {
     "title": "Practice",
+    "newConfiguration": "New configuration",
+    "newConfigurationBack": "Back to Practice",
+    "selectedWords": "Selected words",
+    "selectedWordsButton": "Selected words ({{count}})",
+    "selectedWordsAll": "All",
+    "selectedWordsChip": "Selected",
+    "tagsEmpty": "No words selected. All your words are used.",
+    "tagsLabel": "Choose words by tag",
+    "tagRemove": "Remove tag {{name}}",
+    "tagWordsLoading": "Loading words…",
+    "tagsBlocked": {
+      "loading": "Loading the words of the tags…",
+      "empty": "The chosen tags have no words.",
+      "error": "The words of the tags could not be loaded."
+    },
     "start": "Start session",
     "starting": "Creating exercises…",
     "labels": {
@@ -79,9 +94,11 @@
     "preselected": {
       "title_one": "Practice with {{count}} selected word",
       "title_other": "Practice with {{count}} selected words",
-      "show": "Show words",
-      "hide": "Hide words",
       "clear": "Remove pre-selection",
+      "hideUnused": "Hide the words that will not be used",
+      "showAll": "Show all words",
+      "used": "{{used}} of {{total}} words will be used with these settings.",
+      "noneUsed": "No selected word matches these settings.",
       "note": "We will change this word list in a later update.",
       "confirm": {
         "title": "Remove the pre-selection?",
@@ -118,7 +135,6 @@
       "retry": "Try again"
     },
     "shortfall": "{{created}} of {{requested}} exercises could be created.",
-    "subtitle": "Short sessions from your words",
     "fixToStart": "Fix the highlighted fields to start.",
     "resume": {
       "title": "You have an unfinished session",
@@ -126,7 +142,9 @@
       "dismiss": "Dismiss",
       "answeredLabel": "exercises",
       "correctHint": "{{count}} correct so far"
-    }
+    },
+    "startShort": "Start",
+    "startingShort": "Starting…"
   },
   "session": {
     "progress": "Exercise {{current}} of {{total}}",
@@ -243,10 +261,9 @@
     "open": "Open exercise",
     "backToResults": "Back to results",
     "settings": "Settings used",
-    "words": "Words",
     "again": "Practice again",
     "change": "Change settings",
-    "toReview": "Go to Review table",
+    "toReview": "Go to Words table",
     "scoreCount": "{{correct}} of {{total}}",
     "correctAnswers": "correct answers",
     "almostHint": "includes {{count}} almost correct — accents or capitals only",
@@ -336,7 +353,7 @@
     "save": "Save configuration",
     "title": "Saved configurations",
     "loading": "Loading…",
-    "empty": "You have no saved configurations. Set the options above, then select \"Save configuration\".",
+    "empty": "You have no saved configurations. Set the options in the settings panel, then select \"Save configuration\".",
     "listError": "The saved configurations could not be loaded.",
     "use": "Use configuration {{name}}",
     "edit": "Edit configuration {{name}}",
@@ -363,6 +380,8 @@
       "descriptionPlaceholder": "What is this configuration for?",
       "withWords_one": "This configuration includes {{count}} selected word.",
       "withWords_other": "This configuration includes {{count}} selected words.",
+      "withTags_one": "This configuration includes the words of {{count}} tag. They are read again when you load it.",
+      "withTags_other": "This configuration includes the words of {{count}} tags. They are read again when you load it.",
       "save": "Save",
       "saving": "Saving…"
     },
@@ -376,10 +395,19 @@
       "updated": "Configuration updated.",
       "deleted": "Configuration deleted.",
       "loaded": "Configuration \"{{name}}\" is loaded."
-    }
+    },
+    "note": "Settings you saved to use again. Select one to start a session now, or to change it first.",
+    "startDialog": {
+      "question": "Start a session with this configuration now, or change the settings first?",
+      "start": "Start session",
+      "change": "Change settings first",
+      "noMatch": "No exercise matches this configuration now. Change the settings first.",
+      "noWords": "The tags of this configuration have no words now. Change the settings first."
+    },
+    "saveShort": "Save"
   },
   "sessions": {
-    "title": "Saved sessions",
+    "title": "Ongoing sessions",
     "note": "You can keep up to {{max}} sessions for {{days}} days. A new session replaces the oldest one.",
     "loading": "Loading…",
     "empty": "You have no saved sessions. Leave a session and select \"Save session and leave\" to keep it.",

@@ -7,6 +7,7 @@ import { makeWordHandlers } from '@/test/msw/wordHandlers';
 import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
+import { mockMobileViewport } from '@/test/viewport';
 import { Lang, NounCases, PartOfSpeech } from '@/ts/enums';
 
 const SESSION = {
@@ -62,6 +63,39 @@ describe('WordPage — view', () => {
         expect(within(bar).getByRole('button', { name: 'Delete' })).toBeInTheDocument();
         expect(within(bar).getByRole('button', { name: 'Return' })).toBeInTheDocument();
         expect(within(bar).queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it('phone: the "Detailed view" line goes under the word, the subtitle is gone, and the menu button shares the word\'s row', async () => {
+        mockMobileViewport();
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [SEED] }).handlers);
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        const heading = await screen.findByRole('heading', { level: 1, name: 'house' });
+        const line = screen.getByText('Detailed view: Noun');
+        expect(heading.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        expect(screen.queryByText('All the currently stored translations for this word')).not.toBeInTheDocument();
+
+        const trigger = screen.getByRole('button', { name: 'Open menu' });
+        expect(trigger.parentElement?.contains(heading)).toBe(true);
+    });
+
+    it('phone: view mode shows only the icons of what the word has; Edit shows all three', async () => {
+        mockMobileViewport();
+        const user = userEvent.setup();
+        // A clue, no tags, and links never hold anything yet.
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [SEED] }).handlers);
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        const trigger = await screen.findByRole('button', { name: 'Open menu' });
+        expect(within(trigger).getByTestId('trigger-clue')).toBeInTheDocument();
+        expect(within(trigger).queryByTestId('trigger-tags')).not.toBeInTheDocument();
+        expect(within(trigger).queryByTestId('trigger-linked-words')).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+        const editTrigger = await screen.findByRole('button', { name: 'Open menu' });
+        expect(within(editTrigger).getByTestId('trigger-clue')).toBeInTheDocument();
+        expect(within(editTrigger).getByTestId('trigger-tags')).toBeInTheDocument();
+        expect(within(editTrigger).getByTestId('trigger-linked-words')).toBeInTheDocument();
     });
 
     // `renderApp` always boots a single-entry memory history, so `useCanGoBack()`

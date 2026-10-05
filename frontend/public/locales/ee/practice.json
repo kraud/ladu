@@ -4,6 +4,21 @@
   },
   "setup": {
     "title": "Harjutus",
+    "newConfiguration": "Uus seadistus",
+    "newConfigurationBack": "Tagasi harjutamise juurde",
+    "selectedWords": "Valitud sõnad",
+    "selectedWordsButton": "Valitud sõnad ({{count}})",
+    "selectedWordsAll": "Kõik",
+    "selectedWordsChip": "Valitud",
+    "tagsEmpty": "Sõnu pole valitud. Kasutatakse kõiki sinu sõnu.",
+    "tagsLabel": "Vali sõnad sildi järgi",
+    "tagRemove": "Eemalda silt {{name}}",
+    "tagWordsLoading": "Sõnu laaditakse…",
+    "tagsBlocked": {
+      "loading": "Siltide sõnu laaditakse…",
+      "empty": "Valitud siltidel pole sõnu.",
+      "error": "Siltide sõnu ei saanud laadida."
+    },
     "start": "Alusta harjutust",
     "starting": "Harjutusi luuakse…",
     "labels": {
@@ -79,9 +94,11 @@
     "preselected": {
       "title_one": "Harjuta {{count}} valitud sõnaga",
       "title_other": "Harjuta {{count}} valitud sõnaga",
-      "show": "Näita sõnu",
-      "hide": "Peida sõnad",
       "clear": "Eemalda eelvalik",
+      "hideUnused": "Peida sõnad, mida ei kasutata",
+      "showAll": "Näita kõiki sõnu",
+      "used": "Nende seadetega kasutatakse {{used}} sõna {{total}}-st.",
+      "noneUsed": "Ükski valitud sõna ei sobi nende seadetega.",
       "note": "Muudame seda sõnaloendit hilisemas uuenduses.",
       "confirm": {
         "title": "Kas eemaldada eelvalik?",
@@ -118,7 +135,6 @@
       "retry": "Proovi uuesti"
     },
     "shortfall": "Luua sai {{created}} harjutust {{requested}}-st.",
-    "subtitle": "Lühikesed harjutused sinu sõnadega",
     "fixToStart": "Paranda märgitud väljad, et alustada.",
     "resume": {
       "title": "Sul on pooleli seanss",
@@ -126,7 +142,9 @@
       "dismiss": "Loobu",
       "answeredLabel": "harjutust",
       "correctHint": "siiani {{count}} õiget"
-    }
+    },
+    "startShort": "Alusta",
+    "startingShort": "Loon…"
   },
   "session": {
     "progress": "Harjutus {{current}} / {{total}}",
@@ -243,7 +261,6 @@
     "open": "Ava harjutus",
     "backToResults": "Tagasi tulemuste juurde",
     "settings": "Kasutatud seaded",
-    "words": "Sõnad",
     "again": "Harjuta uuesti",
     "change": "Muuda seadeid",
     "toReview": "Mine ülevaate tabelisse",
@@ -336,7 +353,7 @@
     "save": "Salvesta seadistus",
     "title": "Salvestatud seadistused",
     "loading": "Laadimine…",
-    "empty": "Sul pole salvestatud seadistusi. Vali ülal valikud ja vajuta „Salvesta seadistus“.",
+    "empty": "Sul pole salvestatud seadistusi. Vali seadete paneelis valikud ja vajuta „Salvesta seadistus“.",
     "listError": "Salvestatud seadistusi ei saanud laadida.",
     "use": "Kasuta seadistust {{name}}",
     "edit": "Muuda seadistust {{name}}",
@@ -363,6 +380,8 @@
       "descriptionPlaceholder": "Milleks see seadistus on?",
       "withWords_one": "See seadistus sisaldab {{count}} valitud sõna.",
       "withWords_other": "See seadistus sisaldab {{count}} valitud sõna.",
+      "withTags_one": "See seadistus sisaldab {{count}} sildi sõnu. Need loetakse laadimisel uuesti.",
+      "withTags_other": "See seadistus sisaldab {{count}} sildi sõnu. Need loetakse laadimisel uuesti.",
       "save": "Salvesta",
       "saving": "Salvestamine…"
     },
@@ -376,10 +395,19 @@
       "updated": "Seadistus uuendatud.",
       "deleted": "Seadistus kustutatud.",
       "loaded": "Seadistus „{{name}}“ laaditud."
-    }
+    },
+    "note": "Seaded, mille salvestasid uuesti kasutamiseks. Vali üks, et alustada kohe või muuta seda enne.",
+    "startDialog": {
+      "question": "Kas alustada selle seadistusega sessiooni kohe või muuta enne seadeid?",
+      "start": "Alusta sessiooni",
+      "change": "Muuda enne seadeid",
+      "noMatch": "Sellele seadistusele ei sobi praegu ükski harjutus. Muuda enne seadeid.",
+      "noWords": "Selle seadistuse siltidel pole praegu sõnu. Muuda enne seadeid."
+    },
+    "saveShort": "Salvesta"
   },
   "sessions": {
-    "title": "Salvestatud sessioonid",
+    "title": "Pooleliolevad sessioonid",
     "note": "Saad hoida kuni {{max}} sessiooni {{days}} päeva. Uus sessioon asendab vanima.",
     "loading": "Laadimine…",
     "empty": "Sul pole salvestatud sessioone. Lahku sessioonist ja vali „Salvesta sessioon ja lahku“, et see alles jätta.",

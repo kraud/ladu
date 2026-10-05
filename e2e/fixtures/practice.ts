@@ -10,6 +10,7 @@
  * languages). So the spec always reads the prompt from the screen and looks the
  * answer up in `TRANSLATION`; it never assumes which card, or which direction, comes.
  */
+import { randomUUID } from 'node:crypto';
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
 import { getVerifyToken } from './db';
 
@@ -22,7 +23,9 @@ export interface Account {
     password: string;
 }
 
-const run = Date.now();
+// Random, not `Date.now()`: two spec files run in parallel workers, and two workers starting in the
+// same millisecond would register the same username (a 500 from the unique constraint).
+const run = randomUUID().replace(/-/g, '').slice(0, 10);
 let seq = 0;
 
 /** Emails of every account made through `registerAndVerify`, for `deleteUsersByEmail` in `afterAll`. */
@@ -105,11 +108,27 @@ export async function signIn(page: Page, account: Account): Promise<void> {
     await expect(page.getByRole('heading', { name: new RegExp(`Welcome, ${account.name}`) })).toBeVisible();
 }
 
-/** Settings on the set-up screen. Everything not given stays as it is. */
+/**
+ * Opens the New configuration view unless it is already open. `isVisible()` does not wait, so first
+ * wait for either the button (tabs screen) or the back arrow (view already open). The settings form is
+ * mounted but hidden on the tabs screen, so its fields cannot tell the two apart.
+ */
+export async function openNewConfiguration(page: Page): Promise<void> {
+    const open = page.getByRole('button', { name: 'New configuration' });
+    const back = page.getByRole('button', { name: 'Back to Practice' });
+    await expect(open.or(back)).toBeVisible();
+    if (await open.isVisible()) await open.click();
+    await expect(page.getByLabel('Number of exercises')).toBeVisible();
+}
+
+/** Settings in the set-up screen's New configuration view. Everything not given stays as it is. */
 export async function configure(
     page: Page,
     settings: { amount?: number; answer?: 'Type the answer' | 'Choose the answer' | 'Mixed'; languages?: 'Different languages' | 'Same language' | 'Mixed' },
 ): Promise<void> {
+    // The settings are in the New configuration view (the page opens on Ongoing sessions, with a button to it).
+    // A spec may already have opened it: the button is only on the tabs screen.
+    await openNewConfiguration(page);
     if (settings.amount !== undefined) await page.getByLabel('Number of exercises').fill(String(settings.amount));
     if (settings.answer) await page.getByRole('button', { name: settings.answer, exact: true }).click();
     if (settings.languages) await page.getByRole('button', { name: settings.languages, exact: true }).click();

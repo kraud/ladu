@@ -146,7 +146,7 @@ export function ResultsView({ session, onChangeSettings }: { session: Session; o
                 <Button type="button" variant="outline" onClick={onChangeSettings}>
                     {t('practice:results.change')}
                 </Button>
-                <Link to="/review" className={buttonVariants({ variant: 'ghost' })}>
+                <Link to="/words"className={buttonVariants({ variant: 'ghost' })}>
                     {t('practice:results.toReview')}
                 </Link>
             </div>

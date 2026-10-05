@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BarbellIcon, ClockCounterClockwiseIcon, TrashIcon } from '@phosphor-icons/react';
+import { ClockCounterClockwiseIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -14,7 +14,7 @@ import type { SavedSessionItem } from '../types';
 import { SetupFacts } from './SetupFacts';
 
 /**
- * The user's saved sessions, under the saved configurations. One tap on a row resumes it: the
+ * The user's saved sessions: the content of the "Saved sessions" tab on the set-up screen. One tap on a row resumes it: the
  * session opens where it was left, and stays linked to its saved copy (saving again updates it).
  * A session that is running or parked in this tab would be lost by that, so it asks first.
  * Delete asks first too. A saved session that the server no longer has (expired, replaced,
@@ -70,15 +70,10 @@ export function SavedSessions({
         setDeleting(null);
     }
 
-    const title = t('practice:sessions.title');
     const dateFormat = new Intl.DateTimeFormat(htmlLangByI18nCode(i18n.language), { dateStyle: 'medium' });
 
     return (
-        <section className="card card-pad flex flex-col gap-2" aria-label={title}>
-            <b className="flex items-center gap-2">
-                <BarbellIcon aria-hidden size={16} className="shrink-0" />
-                {title}
-            </b>
+        <div className="flex flex-col gap-2">
             <p className="hint">{t('practice:sessions.note', { max: MAX_SAVED_SESSIONS, days: SESSION_TTL_DAYS })}</p>
 
             {sessions.isPending && <p className="hint">{t('practice:sessions.loading')}</p>}
@@ -186,6 +181,6 @@ export function SavedSessions({
                 confirmLabel={t('practice:sessions.deleteDialog.confirm')}
                 onConfirm={confirmDelete}
             />
-        </section>
+        </div>
     );
 }

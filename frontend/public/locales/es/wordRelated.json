@@ -1,8 +1,8 @@
 {
   "addWordPage": {
-    "title": "Añadir un nuevo {{currentPoS}}",
-    "titleDefault": "Añadir una nueva palabra",
-    "subtitle": "Todos los campos obligatorios deben completarse antes de guardar",
+    "title": "Nuevo {{currentPoS}}",
+    "titleDefault": "Nueva palabra",
+    "back": "Volver a Palabras",
     "toastCreateSuccess": "La palabra se creó correctamente"
   },
   "apiErrors": {
@@ -23,7 +23,6 @@
     "toastError": "Algo salió mal: {{error}}"
   },
   "partOfSpeechSelector": {
-    "title": "¿Qué tipo de palabra es?",
     "subtitle": "¿No estás seguro de qué es qué? Pasa el ratón sobre los botones y lee las descripciones.",
     "description": {
       "other": "¡Lo sabrás cuando lo veas!",
@@ -102,7 +101,12 @@
   },
   "formComponentLabel": {
     "clue": "Pista",
-    "tags": "Etiquetas"
+    "tags": "Etiquetas",
+    "linkedWords": "Palabras vinculadas"
+  },
+  "linkedWords": {
+    "description": "Vincula palabras que son sinónimos o que están relacionadas de otra forma.",
+    "comingSoon": "Próximamente."
   },
   "wordForm": {
     "hints": {
@@ -116,11 +120,13 @@
     },
     "buttons": {
       "changeWordType": "Cambiar tipo de palabra",
-      "saveWord": "Guardar palabra"
+      "saveWord": "Guardar palabra",
+      "saveShort": "Guardar"
     },
     "sidebar": {
       "collapse": "Contraer la barra lateral",
       "expand": "Expandir la barra lateral",
+      "menuTitle": "Información adicional",
       "openMenu": "Abrir menú",
       "closeMenu": "Cerrar menú",
       "tagsEditToChange": "Edita la palabra para añadir o quitar etiquetas.",

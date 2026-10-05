@@ -208,7 +208,7 @@ describe('WordPicker — "Load more" is a row in the list, not a separate button
         // 8 seeded, 5 loaded — 3 remain, all fitting in one more page of 5.
         const loadMoreRow = screen.getByText('Load more (3)');
         expect(screen.queryByText('All words loaded')).not.toBeInTheDocument();
-        expect(screen.queryByText('Go to Review for more')).not.toBeInTheDocument();
+        expect(screen.queryByText('Go to Words for more')).not.toBeInTheDocument();
 
         await user.click(loadMoreRow);
         await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(9)); // 8 words + terminal row
@@ -234,7 +234,7 @@ describe('WordPicker — "Load more" is a row in the list, not a separate button
         expect(allLoadedRow).toHaveClass('pointer-events-none');
     });
 
-    it('swaps the row to "Go to Review for more" once 20 are loaded, and it calls back', async () => {
+    it('swaps the row to "Go to Words for more" once 20 are loaded, and it calls back', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: manySeeds(25) }).handlers);
         const user = userEvent.setup();
         const onGoToReview = vi.fn();
@@ -249,11 +249,11 @@ describe('WordPicker — "Load more" is a row in the list, not a separate button
 
         expect(screen.getAllByRole('row')).toHaveLength(21); // 20 words + terminal row
         expect(screen.queryByText(/Load more/)).not.toBeInTheDocument();
-        await user.click(screen.getByText('Go to Review for more'));
+        await user.click(screen.getByText('Go to Words for more'));
         expect(onGoToReview).toHaveBeenCalled();
     });
 
-    it('a search does not cap at 20 or offer a Go to Review row', async () => {
+    it('a search does not cap at 20 or offer a Go to Words row', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: manySeeds(7) }).handlers);
         const user = userEvent.setup();
 
@@ -266,7 +266,7 @@ describe('WordPicker — "Load more" is a row in the list, not a separate button
         await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(8)); // 7 words + terminal row
 
         expect(screen.queryByText(/Load more/)).not.toBeInTheDocument();
-        expect(screen.queryByText('Go to Review for more')).not.toBeInTheDocument();
+        expect(screen.queryByText('Go to Words for more')).not.toBeInTheDocument();
         expect(screen.getByText('All words loaded')).toBeInTheDocument();
     });
 });

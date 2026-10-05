@@ -88,7 +88,7 @@ function orUndefined<T>(values: T[]): T[] | undefined {
 
 /**
  * `validateSearch` for `/review`. Every field is optional — `AppHeader`'s
- * `<Link to="/review">` passes no `search` at all, and a required key here
+ * `<Link to="/words">` passes no `search` at all, and a required key here
  * would fail that call at `tsc -b`.
  */
 export function validateReviewSearch(search: Record<string, unknown>): ReviewSearch {

@@ -90,6 +90,23 @@ describe('TagCombobox — filter mode', () => {
         expect(screen.queryByRole('option')).not.toBeInTheDocument();
     });
 
+    it('excludeIds keeps tags chosen elsewhere out of the options, with no chip in the box', async () => {
+        const fake = setUp([
+            { id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Private' },
+            { id: 'tag-2', authorId: ME, label: 'Travel', visibility: 'Private' },
+        ]);
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagCombobox mode="filter" selected={[]} excludeIds={new Set(['tag-1'])} onSelectedChange={vi.fn()} />,
+        );
+
+        await openAndSearch(user, 'Filter by tag…');
+        await waitFor(() => expect(fake.listQueries.length).toBeGreaterThan(0));
+        expect(await screen.findByRole('option', { name: /Travel/ })).toBeInTheDocument();
+        expect(screen.queryByRole('option', { name: /Kitchen/ })).not.toBeInTheDocument();
+        expect(screen.queryByText('Kitchen')).not.toBeInTheDocument();
+    });
+
     it('no quick-create row in filter mode, even with a non-matching query', async () => {
         setUp();
         const user = userEvent.setup();

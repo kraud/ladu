@@ -21,6 +21,7 @@ export interface PracticeConfigDto {
     description: string | null;
     params: unknown;
     wordIds: string[] | null;
+    tagIds: string[] | null;
     /** How many saved words the user can no longer see. Always 0 when there are no saved words. */
     missingCount: number;
     createdAt: Date;
@@ -53,6 +54,7 @@ const toDto = (row: ConfigRow, missingCount: number): PracticeConfigDto => ({
     description: row.description,
     params: row.params,
     wordIds: row.wordIds,
+    tagIds: row.tagIds,
     missingCount,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -83,6 +85,7 @@ export async function createConfig(userId: string, input: ConfigRequest): Promis
                 description: input.description,
                 params: input.params,
                 wordIds: input.wordIds,
+                tagIds: input.tagIds,
             })
             .returning();
         const counts = await missingCounts(userId, [row]);
@@ -102,6 +105,7 @@ export async function updateConfig(userId: string, id: string, input: ConfigRequ
                 description: input.description,
                 params: input.params,
                 wordIds: input.wordIds,
+                tagIds: input.tagIds,
                 updatedAt: sql`now()`,
             })
             .where(and(eq(practiceConfigs.id, id), eq(practiceConfigs.userId, userId)))

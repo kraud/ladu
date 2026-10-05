@@ -543,6 +543,9 @@ export const practiceConfigs = pgTable(
         params:      jsonb('params').notNull(),
         // NULL = no pre-selected words.
         wordIds:     uuid('word_ids').array(),
+        // NULL = the words were not chosen by tag. Not foreign keys: a tag can be deleted later,
+        // and the client then drops it (the words stay in `word_ids`).
+        tagIds:      uuid('tag_ids').array(),
         ...timestamps,
     },
     (table) => [
