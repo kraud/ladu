@@ -1680,9 +1680,37 @@
 
 @media (prefers-reduced-motion: reduce) {
   .skeleton,
-  .flag-track {
+  .flag-track,
+  .wave-shake {
     animation: none;
   }
+}
+
+/* The Dashboard's waving hand: a short rotate-shake, replayed with each greeting. */
+@keyframes wave-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  15% {
+    transform: rotate(-7deg);
+  }
+  30% {
+    transform: rotate(6deg);
+  }
+  45% {
+    transform: rotate(-5deg);
+  }
+  60% {
+    transform: rotate(4deg);
+  }
+  80% {
+    transform: rotate(-2deg);
+  }
+}
+.wave-shake {
+  transform-origin: 70% 80%;
+  animation: wave-shake 0.9s ease-in-out;
 }
 
 /* ─── responsive (≤920px) ────────────────────────────────────── */

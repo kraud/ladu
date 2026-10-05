@@ -49,9 +49,36 @@ export interface PieChartProps {
     onWorstClick?: () => void;
     /** `role="img"` label for the whole chart. */
     ariaLabel: string;
+    /**
+     * Placeholder mode: a grey ring with this message in the middle and no legend, for a chart
+     * that has nothing to show yet. Takes over from `segments`/`total`/`worst`.
+     */
+    emptyLabel?: string;
 }
 
-export function PieChart({ segments, total, unitLabel, worst, onWorstClick, ariaLabel }: PieChartProps) {
+export function PieChart({ segments, total, unitLabel, worst, onWorstClick, ariaLabel, emptyLabel }: PieChartProps) {
+    if (emptyLabel !== undefined) {
+        const mid = (OUTER_RADIUS + INNER_RADIUS) / 2;
+        return (
+            <div className="pie-wrap" data-testid="pie-empty">
+                <svg width={220} height={220} viewBox="0 0 220 220" role="img" aria-label={`${ariaLabel}: ${emptyLabel}`}>
+                    <circle
+                        cx={CX}
+                        cy={CY}
+                        r={mid}
+                        fill="none"
+                        stroke="var(--border)"
+                        strokeWidth={OUTER_RADIUS - INNER_RADIUS}
+                        strokeDasharray="4 4"
+                    />
+                    <text x={CX} y={CY + 4} textAnchor="middle" className="pie-unit">
+                        {emptyLabel}
+                    </text>
+                </svg>
+            </div>
+        );
+    }
+
     let angle = 0;
     const wedges = segments.map((segment) => {
         const sweep = total > 0 ? (segment.count / total) * 360 : 0;

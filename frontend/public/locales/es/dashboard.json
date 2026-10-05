@@ -29,7 +29,8 @@
         "newWordByLanguage": "Haz clic aquí para añadir una nueva palabra en {{language}}"
       },
       "worstCategory": "Tu peor categoría es:",
-      "toggleLabel": "Distribución del gráfico circular"
+      "toggleLabel": "Distribución del gráfico circular",
+      "empty": "Aún no hay datos"
     },
     "bar": {
       "title": {
@@ -43,6 +44,10 @@
         "all": "Todo el tiempo",
         "months_one": "Último mes",
         "months_other": "Últimos {{count}} meses"
+      },
+      "empty": {
+        "month": "Todavía no se han añadido palabras en este periodo.",
+        "language": "Aún no hay traducciones. Añade palabras para verlas aquí."
       }
     }
   },

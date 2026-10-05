@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
 import { PartOfSpeech } from '@/ts/enums';
 import type { BasicUserMetricsBE } from '../types';
+import { monthLabel } from '../selectors';
 
 function session(languages: string[]) {
     return {
@@ -42,7 +43,8 @@ const POPULATED: BasicUserMetricsBE = {
         { partOfSpeech: PartOfSpeech.noun, type: 'partOfSpeech', count: 8 },
         { partOfSpeech: PartOfSpeech.verb, type: 'partOfSpeech', count: 4 },
     ],
-    wordsPerMonth: [{ label: '2026-01', partOfSpeech: PartOfSpeech.noun, count: 8 }],
+    // The current month: "by month" is the default view only when words were added this month.
+    wordsPerMonth: [{ label: monthLabel(new Date()), partOfSpeech: PartOfSpeech.noun, count: 8 }],
 };
 
 afterEach(() => {
@@ -64,13 +66,46 @@ describe('DashboardPage — MetricsPanel', () => {
         expect(pieLegend.getByText('Verb')).toBeInTheDocument();
     });
 
-    it('shows the empty state instead of charts for a fresh account', async () => {
+    it('shows the call to action over placeholder charts for a fresh account', async () => {
         server.use(...makeMetricsHandlers(EMPTY_METRICS).handlers);
 
         await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
 
         expect(await screen.findByText('No words yet')).toBeInTheDocument();
-        expect(screen.queryByRole('img')).not.toBeInTheDocument();
+        // Placeholder pie, and an explanatory banner in the middle of the empty bar chart.
+        expect(screen.getByTestId('pie-empty')).toBeInTheDocument();
+        expect(screen.getByText('No data yet')).toBeInTheDocument();
+        expect(screen.getByText('No words were added in this period yet.')).toBeInTheDocument();
+    });
+
+    it('opens the bar chart on "By language" when nothing was added this month, even with older monthly data', async () => {
+        server.use(
+            ...makeMetricsHandlers({
+                ...POPULATED,
+                wordsPerMonth: [{ label: '2020-01', partOfSpeech: PartOfSpeech.noun, count: 8 }],
+            }).handlers,
+        );
+
+        await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+
+        const xToggle = await screen.findByRole('radiogroup', { name: 'Bar chart X axis' });
+        expect(within(xToggle).getByRole('radio', { name: 'Language' })).toBeChecked();
+    });
+
+    it('opens the bar chart on "By language" when only that view has data', async () => {
+        server.use(
+            ...makeMetricsHandlers({ ...POPULATED, wordsPerMonth: [] }).handlers,
+        );
+
+        await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+
+        const xToggle = await screen.findByRole('radiogroup', { name: 'Bar chart X axis' });
+        expect(within(xToggle).getByRole('radio', { name: 'Language' })).toBeChecked();
+        expect(screen.queryByText(/were added in this period/)).not.toBeInTheDocument();
+
+        // The user can still pick "By month" — which then explains why it is empty.
+        await userEvent.click(within(xToggle).getByRole('radio', { name: 'Month' }));
+        expect(await screen.findByText('No words were added in this period yet.')).toBeInTheDocument();
     });
 
     it('switches the pie from word-type to language distribution', async () => {

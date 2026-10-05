@@ -26,6 +26,7 @@ import {
     CREATABLE_POS,
     pieSeries,
     worstSegment,
+    wordsAddedThisMonth,
     type BarMonthRangeOption,
 } from '../selectors';
 import { langColor, posColor } from './charts/chartColors';
@@ -43,7 +44,8 @@ export function MetricsPanel() {
     const { data: metrics, isPending, isError, error, refetch } = useUserMetrics();
 
     const [pieMode, setPieMode] = useState<PieMode>('words');
-    const [barXMode, setBarXMode] = useState<BarXMode>('month');
+    // `null` = the user has not chosen: default to "by month", unless only "by language" has data.
+    const [barXModeChoice, setBarXMode] = useState<BarXMode | null>(null);
     const [barGrouping, setBarGrouping] = useState<BarGrouping>('separate');
     const [barMonthsRange, setBarMonthsRange] = useState<BarMonthsRange>(6);
 
@@ -64,22 +66,8 @@ export function MetricsPanel() {
         );
     }
 
-    if (metrics.totalWords === 0) {
-        return (
-            <div className="card card-pad">
-                <EmptyState
-                    icon={<PlusIcon size={20} />}
-                    title={t('home.emptyTitle')}
-                    description={t('home.emptyDescription')}
-                    action={
-                        <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants()}>
-                            {t('home.addFirstWords')}
-                        </Link>
-                    }
-                />
-            </div>
-        );
-    }
+    // A fresh account still gets the charts — as placeholders — under its call to action.
+    const isFresh = metrics.totalWords === 0;
 
     const pieSegmentsRaw = pieSeries(metrics, pieMode);
     const pieSegments: PieChartSegment[] = pieSegmentsRaw.map((seg) =>
@@ -121,8 +109,16 @@ export function MetricsPanel() {
             ? barMonthsRange
             : availableMonthsRanges[0]!;
 
-    const barGroupsRaw =
-        barXMode === 'month' ? barSeriesByMonth(metrics, effectiveMonthsRange) : barSeriesByLanguage(metrics);
+    const monthGroupsRaw = barSeriesByMonth(metrics, effectiveMonthsRange);
+    const languageGroupsRaw = barSeriesByLanguage(metrics);
+    const hasData = (groups: { series: { count: number }[] }[]) => groups.some((g) => g.series.some((x) => x.count > 0));
+    const monthHasData = hasData(monthGroupsRaw);
+    const languageHasData = hasData(languageGroupsRaw);
+    // The default view: "by month" if words were added this month, else "by language" when that has data.
+    const barXMode: BarXMode =
+        barXModeChoice ?? (wordsAddedThisMonth(metrics) === 0 && languageHasData ? 'language' : 'month');
+
+    const barGroupsRaw = barXMode === 'month' ? monthGroupsRaw : languageGroupsRaw;
     const barChartGroups: BarChartGroup[] = barGroupsRaw.map((group) => ({
         xLabel: barXMode === 'month' ? group.xLabel : (languageByLabel(group.xLabel)?.native ?? group.xLabel),
         values: group.series.map((s) => s.count),
@@ -137,8 +133,22 @@ export function MetricsPanel() {
     // bar-specific unit keys exist, so the pie's (equally generic "words"/"translations") are reused.
     const barUnit = barXMode === 'month' ? t('charts.pie.unit.words') : t('charts.pie.unit.translations');
 
+    const barIsEmpty = barXMode === 'month' ? !monthHasData : !languageHasData;
+
     return (
         <div className="card metrics">
+            {isFresh && (
+                <EmptyState
+                    icon={<PlusIcon size={20} />}
+                    title={t('home.emptyTitle')}
+                    description={t('home.emptyDescription')}
+                    action={
+                        <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants()}>
+                            {t('home.addFirstWords')}
+                        </Link>
+                    }
+                />
+            )}
             <div className="chart-block">
                 <div className="chart-head">
                     <h2>{pieTitle}</h2>
@@ -160,6 +170,7 @@ export function MetricsPanel() {
                     worst={pieWorst}
                     onWorstClick={onPieWorstClick}
                     ariaLabel={pieTitle}
+                    emptyLabel={pieTotal === 0 ? t('charts.pie.empty') : undefined}
                 />
             </div>
 
@@ -229,6 +240,13 @@ export function MetricsPanel() {
                     stacked={barGrouping === 'stacked'}
                     unitLabel={barUnit}
                     ariaLabel={barTitle}
+                    emptyMessage={
+                        barIsEmpty
+                            ? barXMode === 'month'
+                                ? t('charts.bar.empty.month')
+                                : t('charts.bar.empty.language')
+                            : undefined
+                    }
                 />
             </div>
         </div>

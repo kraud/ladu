@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { HandWavingIcon } from '@phosphor-icons/react';
 import { UI_LANGUAGES } from '@/lib/language';
 
-const ROTATE_MS = 5000;
+const ROTATE_MS = 8000;
 
 /**
  * Post-login banner: "Welcome, {name}" + a one-line greeting that rotates
@@ -61,7 +61,8 @@ export function WelcomeBanner({ name }: { name: string }) {
         <header ref={headerRef} className="flex items-center gap-3">
             {/* Phone: as tall (and wide) as the text column beside it. Desktop: a fixed 32px icon. */}
             <span aria-hidden className="shrink-0 text-(--accent) size-8 max-[920px]:size-[var(--welcome-h,2rem)]">
-                <HandWavingIcon className="size-full" />
+                {/* Keyed by the greeting index: it remounts, so the shake replays on every greeting change. */}
+                <HandWavingIcon key={index} className="wave-shake size-full" />
             </span>
             <div ref={textRef} className="flex min-w-0 flex-row gap-3 max-[920px]:flex-col max-[920px]:gap-1">
                 <h1 className="h1">

@@ -29,7 +29,8 @@
         "newWordByLanguage": "Klicken Sie hier, um ein neues Wort in {{language}} hinzuzufügen"
       },
       "worstCategory": "Ihre schlechteste Kategorie ist:",
-      "toggleLabel": "Verteilung des Kreisdiagramms"
+      "toggleLabel": "Verteilung des Kreisdiagramms",
+      "empty": "Noch keine Daten"
     },
     "bar": {
       "title": {
@@ -43,6 +44,10 @@
         "all": "Gesamter Zeitraum",
         "months_one": "Letzter Monat",
         "months_other": "Letzte {{count}} Monate"
+      },
+      "empty": {
+        "month": "In diesem Zeitraum wurden noch keine Wörter hinzugefügt.",
+        "language": "Noch keine Übersetzungen. Füge Wörter hinzu, um sie hier zu sehen."
       }
     }
   },
