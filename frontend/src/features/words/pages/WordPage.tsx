@@ -48,7 +48,7 @@ import { useDeleteWord, useUpdateWord, useWord } from '../hooks';
 import { wordErrorKey } from '../errors';
 import type { CreateWordBody, UpdateWordBody, WordBE } from '../types';
 import type { WordItem } from '@/ts/interfaces';
-import { partOfSpeechLabelKey, primaryCaseWord } from '@/lib/words';
+import { partOfSpeechLabelKey, wordHeadline } from '@/lib/words';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
 
 const route = getRouteApi('/_protected/word/$wordId');
@@ -64,7 +64,8 @@ export function WordPage() {
     const deleteWord = useDeleteWord();
     const canGoBack = useCanGoBack();
     const isMobile = useIsMobile();
-    const userId = useAuthStore((s) => s.user?.id) ?? '';
+    const user = useAuthStore((s) => s.user);
+    const userId = user?.id ?? '';
 
     const [editing, setEditing] = useState(false);
     const [editKey, setEditKey] = useState(0);
@@ -113,7 +114,11 @@ export function WordPage() {
     }
 
     const word = wordQuery.data;
-    const headline = word.translations[0] ? primaryCaseWord(word.partOfSpeech, word.translations[0]) : '';
+    const headline = wordHeadline(word.partOfSpeech, word.translations, {
+        uiLanguage: user?.uiLanguage,
+        nativeLanguage: user?.nativeLanguage,
+        userLanguages: user?.languages,
+    });
     // D10: a followed-tag word only ever carries the tag owner's tags — the
     // viewer never gets add/remove controls for those, just the read-only note.
     const isOwn = word.user === userId;
@@ -165,16 +170,36 @@ export function WordPage() {
         },
     ];
 
+    // The arrow goes back like the browser's Back button. Only in the view state:
+    // while editing, leaving would drop unsaved changes without asking (Cancel exists for that).
+    const backArrow = editing ? null : (
+        <button
+            type="button"
+            className="icon-btn"
+            aria-label={t('wordRelated:displayWord.back')}
+            title={t('wordRelated:displayWord.back')}
+            onClick={goBack}
+        >
+            <ArrowLeftIcon size={18} />
+        </button>
+    );
+    const title = (
+        <div className="flex items-center gap-2">
+            {backArrow}
+            <h1 className="h1">{headline || t('wordRelated:displayWord.titleSimple')}</h1>
+        </div>
+    );
+
     // Phone: the word, then the "Detailed view" line under it (the subtitle is left out).
     const header = isMobile ? (
         <div className="flex flex-col gap-1">
-            <h1 className="h1">{headline || t('wordRelated:displayWord.titleSimple')}</h1>
+            {title}
             <p className="meta">{t('wordRelated:displayWord.titlePos', { currentPoS: posLabel })}</p>
         </div>
     ) : (
         <div className="flex flex-col gap-1">
             <p className="meta">{t('wordRelated:displayWord.titlePos', { currentPoS: posLabel })}</p>
-            <h1 className="h1">{headline || t('wordRelated:displayWord.titleSimple')}</h1>
+            {title}
             <p className="meta">{t('wordRelated:displayWord.subtitle')}</p>
         </div>
     );

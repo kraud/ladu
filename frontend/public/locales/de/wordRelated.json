@@ -3,6 +3,7 @@
     "title": "Neues {{currentPoS}}",
     "titleDefault": "Neues Wort",
     "back": "Zurück zu Wörter",
+    "backToType": "Zurück zur Wortart",
     "toastCreateSuccess": "Das Wort wurde erfolgreich erstellt"
   },
   "apiErrors": {
@@ -16,6 +17,7 @@
     "notAuthorizedToDeleteSome": "Du kannst nur Wörter löschen, die dir gehören."
   },
   "displayWord": {
+    "back": "Zurück",
     "titlePos": "Detailansicht: {{currentPoS}}",
     "titleSimple": "Detailansicht",
     "subtitle": "Alle derzeit gespeicherten Übersetzungen für dieses Wort",

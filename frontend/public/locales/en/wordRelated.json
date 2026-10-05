@@ -3,6 +3,7 @@
     "title": "New {{currentPoS}}",
     "titleDefault": "New word",
     "back": "Back to Words",
+    "backToType": "Back to word type",
     "toastCreateSuccess": "Word was created successfully"
   },
   "apiErrors": {
@@ -16,6 +17,7 @@
     "notAuthorizedToDeleteSome": "You can only delete words you own."
   },
   "displayWord": {
+    "back": "Back",
     "titlePos": "Detailed view: {{currentPoS}}",
     "titleSimple": "Detailed view",
     "subtitle": "All the currently stored translations for this word",

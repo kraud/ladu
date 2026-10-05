@@ -48,7 +48,33 @@ export function primaryCaseWord(
     return translation.cases.find((c) => c.caseName === primaryField.caseName)?.word ?? '';
 }
 
-/** `PartOfSpeech.noun` ("Noun") -> `"common:partOfSpeech.noun"` — the enum's own key names the i18n leaf. */
+/**
+ * The word's page title: its headline in the first language that has one —
+ * the UI language, then the native language, then the account's selected
+ * languages in order, then (so the title is never blank while any translation
+ * could fill it) any other translation the word has. A translation with no
+ * main case yet is skipped. `''` when nothing yields a word.
+ */
+export function wordHeadline(
+    pos: PartOfSpeech,
+    translations: readonly { language: string; cases: readonly { caseName: string; word: string }[] }[],
+    { uiLanguage, nativeLanguage, userLanguages = [] }: {
+        uiLanguage?: string | null;
+        nativeLanguage?: string | null;
+        userLanguages?: readonly string[];
+    },
+): string {
+    const preference = [uiLanguage, nativeLanguage, ...userLanguages, ...translations.map((tr) => tr.language)];
+    for (const language of preference) {
+        const translation = language ? translations.find((tr) => tr.language === language) : undefined;
+        if (!translation) continue;
+        const word = primaryCaseWord(pos, { ...translation, language: translation.language as TranslationItem['language'] });
+        if (word) return word;
+    }
+    return '';
+}
+
+/** `PartOfSpeech.noun` ("Noun") ->`"common:partOfSpeech.noun"` — the enum's own key names the i18n leaf. */
 export function partOfSpeechLabelKey(pos: PartOfSpeech): string {
     const key = (Object.keys(PartOfSpeech) as (keyof typeof PartOfSpeech)[]).find((k) => PartOfSpeech[k] === pos);
     return `common:partOfSpeech.${key ?? 'noun'}`;

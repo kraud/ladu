@@ -3,6 +3,7 @@
     "title": "Uus {{currentPoS}}",
     "titleDefault": "Uus sõna",
     "back": "Tagasi sõnade juurde",
+    "backToType": "Tagasi sõnaliigi juurde",
     "toastCreateSuccess": "Sõna on edukalt loodud"
   },
   "apiErrors": {
@@ -16,6 +17,7 @@
     "notAuthorizedToDeleteSome": "Saad kustutada ainult endale kuuluvaid sõnu."
   },
   "displayWord": {
+    "back": "Tagasi",
     "titlePos": "Üksikasjalik vaatamine: {{currentPoS}}",
     "titleSimple": "Üksikasjalik vaatamine",
     "subtitle": "Kõik praegu salvestatud tõlked sellele sõnale",

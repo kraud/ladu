@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { TranslationBE } from '@/features/words/types';
-import { filterTranslationsByUserLanguages, primaryCaseWord } from './words';
+import { filterTranslationsByUserLanguages, primaryCaseWord, wordHeadline } from './words';
 
 const enTranslation: TranslationBE = {
     id: 't-en',
@@ -58,5 +58,30 @@ describe('primaryCaseWord', () => {
 
     it('returns an empty string for an unshipped part of speech', () => {
         expect(primaryCaseWord(PartOfSpeech.verb, enTranslation)).toBe('');
+    });
+});
+
+describe('wordHeadline', () => {
+    const all = [enTranslation, esTranslation, deTranslation];
+    const noun = PartOfSpeech.noun;
+
+    it('prefers the UI language', () => {
+        expect(wordHeadline(noun, all, { uiLanguage: Lang.DE, nativeLanguage: Lang.ES, userLanguages: [Lang.EN] })).toBe('Haus');
+    });
+
+    it('falls back to the native language when the UI language has no translation', () => {
+        expect(wordHeadline(noun, [enTranslation, esTranslation], { uiLanguage: Lang.DE, nativeLanguage: Lang.ES })).toBe('casa');
+    });
+
+    it('then follows the selected-languages order', () => {
+        expect(
+            wordHeadline(noun, all, { uiLanguage: 'Estonian', nativeLanguage: null, userLanguages: [Lang.DE, Lang.EN] }),
+        ).toBe('Haus');
+    });
+
+    it('skips a translation with no main case yet, and uses any translation as the last resort', () => {
+        const emptyEs: TranslationBE = { ...esTranslation, cases: [] };
+        expect(wordHeadline(noun, [emptyEs, enTranslation], { uiLanguage: Lang.ES })).toBe('house');
+        expect(wordHeadline(noun, [deTranslation], { uiLanguage: Lang.EN, userLanguages: [Lang.EN] })).toBe('Haus');
     });
 });

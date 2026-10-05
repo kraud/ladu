@@ -45,6 +45,20 @@ describe('AddWordPage', () => {
         await waitFor(() => expect(router.state.location.pathname).toBe('/words'));
     });
 
+    it('sends the back arrow to the type gate once a type is picked', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id }).handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/addWord', session: SESSION });
+
+        await user.click(screen.getByRole('radio', { name: /Noun/ }));
+        expect(screen.getByRole('heading', { name: 'New Noun' })).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Back to word type' }));
+        expect(screen.getByRole('heading', { name: 'New word' })).toBeInTheDocument();
+        expect(router.state.location.pathname).toBe('/addWord');
+    });
+
     it('creates a noun, morphs the toast into success, and navigates on "See details"', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id });
         server.use(...fake.handlers);
