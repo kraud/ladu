@@ -316,6 +316,12 @@
   .flag-label {
     display: none;
   }
+  .flag-track {
+    display: contents;
+  }
+  .flag-dup {
+    display: none;
+  }
   .auth-tagline {
     font-family: var(--font-display);
     font-size: 32px;
@@ -446,12 +452,14 @@
   }
   @media (max-width: 760px) {
     .auth-shell {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
+      overflow-x: clip;
       /* Brand row takes only its content height; the form gets the rest. */
       grid-template-rows: auto 1fr;
       position: relative;
     }
     .auth-brand {
+      min-width: 0;
       position: static;
       align-items: center;
       gap: 12px;
@@ -465,8 +473,29 @@
       height: 64px;
       width: auto;
     }
+    /* One full-width row that scrolls left forever. The track holds two
+       identical halves, so moving it by -50% lands exactly on the start. */
     .flag-row {
-      justify-content: center;
+      display: block;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      /* Clips the long track so it can never widen the page. */
+      overflow: hidden;
+      contain: inline-size;
+      mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    }
+    .flag-track {
+      display: flex;
+      width: max-content;
+      animation: flag-marquee 60s linear infinite;
+    }
+    .flag-dup {
+      display: inline-flex;
+    }
+    .flag-chip {
+      flex-shrink: 0;
+      margin-right: 8px;
     }
     .flag-key {
       display: none;
@@ -1658,8 +1687,15 @@
   }
 }
 
+@keyframes flag-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .skeleton {
+  .skeleton,
+  .flag-track {
     animation: none;
   }
 }
