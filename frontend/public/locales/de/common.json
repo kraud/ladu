@@ -32,7 +32,9 @@
       "uiLanguage": "Schnittstellensprache",
       "account": "Konto",
       "dashboard": "Dashboard",
-      "logout": "Abmelden"
+      "logout": "Abmelden",
+      "logoutConfirmTitle": "Abmelden?",
+      "logoutConfirmDescription": "Du musst dich erneut anmelden, um Ladu zu nutzen."
     },
     "notImplemented": "Diese Funktion ist noch nicht bereit, es tut uns leid!",
     "goToAccount": "Zum Konto",

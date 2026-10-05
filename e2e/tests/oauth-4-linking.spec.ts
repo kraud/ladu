@@ -54,8 +54,9 @@ async function registerAndVerify(
     await page.getByRole('button', { name: 'Enter now' }).click();
     await expect(page).toHaveURL('/');
 
-    await page.getByRole('button', { name: 'Open settings' }).click();
-    await page.getByRole('menuitem', { name: 'Logout' }).click();
+    await page.getByRole('link', { name: 'Account' }).click();
+    await page.getByRole('button', { name: 'Logout' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Logout' }).click();
     await expect(page).toHaveURL(/\/login/);
 }
 
@@ -89,8 +90,9 @@ test.describe('OAuth Phase 4 — linking to an existing password account', () =>
         expect(shape?.oauthIdentityCount).toBe(1);
 
         // A later visit: the same identity now signs in with one click, no password.
-        await page.getByRole('button', { name: 'Open settings' }).click();
-        await page.getByRole('menuitem', { name: 'Logout' }).click();
+        await page.getByRole('link', { name: 'Account' }).click();
+        await page.getByRole('button', { name: 'Logout' }).click();
+        await page.getByRole('alertdialog').getByRole('button', { name: 'Logout' }).click();
         await expect(page).toHaveURL(/\/login/);
         await routeGoogleStartTo(page, { email, sub });
         await page.getByRole('link', { name: 'Continue with Google' }).click();

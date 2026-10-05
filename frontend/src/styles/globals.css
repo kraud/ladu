@@ -1687,8 +1687,13 @@
 
 /* ─── responsive (≤920px) ────────────────────────────────────── */
 @media (max-width: 920px) {
+  /* Taller phone header: room for the 36px wordmark (the menu drawer's size) and a 40px avatar. */
+  :root {
+    --app-header-h: 65px;
+  }
   .app-header-inner {
     gap: 12px;
+    height: 64px;
   }
   .app-header .searchbox {
     display: none;

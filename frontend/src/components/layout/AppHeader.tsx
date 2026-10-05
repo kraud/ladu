@@ -115,7 +115,7 @@ export function AppHeader() {
                         <ListIcon size={26} />
                     </SheetTrigger>
                     <SheetContent side="left" className="gap-0 p-4">
-                        <SheetHeader className="p-0 pb-4">
+                        <SheetHeader className="p-0 pb-8">
                             <SheetTitle>
                                 <BrandLogo height={36} title={t('common:appTitle')} />
                             </SheetTitle>
@@ -132,7 +132,7 @@ export function AppHeader() {
                 </Sheet>
 
                 <Link to="/" aria-label={t('common:appTitle')} className="flex items-center">
-                    <BrandLogo height={26} />
+                    <BrandLogo height={26} className="max-[920px]:h-9 max-[920px]:w-auto" />
                 </Link>
 
                 <NavLinks className="app-nav max-[920px]:hidden" />

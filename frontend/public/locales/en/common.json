@@ -32,7 +32,9 @@
       "uiLanguage": "Interface language",
       "account": "Account",
       "dashboard": "Dashboard",
-      "logout": "Logout"
+      "logout": "Logout",
+      "logoutConfirmTitle": "Log out?",
+      "logoutConfirmDescription": "You will need to sign in again to use Ladu."
     },
     "notImplemented": "This function is not ready yet, we're sorry!",
     "goToAccount": "Go to Account",

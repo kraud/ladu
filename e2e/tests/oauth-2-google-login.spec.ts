@@ -67,8 +67,9 @@ test.describe('OAuth Phase 2 — Google sign-in', () => {
         await page.getByRole('button', { name: 'Enter now' }).click();
         await expect(page).toHaveURL('/');
 
-        await page.getByRole('button', { name: 'Open settings' }).click();
-        await page.getByRole('menuitem', { name: 'Logout' }).click();
+        await page.getByRole('link', { name: 'Account' }).click();
+        await page.getByRole('button', { name: 'Logout' }).click();
+        await page.getByRole('alertdialog').getByRole('button', { name: 'Logout' }).click();
         await expect(page).toHaveURL(/\/login/);
 
         await page.getByLabel('Email').fill(email);

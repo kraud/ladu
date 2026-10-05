@@ -252,7 +252,7 @@ describe('session guards', () => {
         await user.click(screen.getByRole('button', { name: 'Sign in' }));
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
 
-        // …then log out the way `useLogout` (wired into the Slice-4 UserMenu)
+        // …then log out the way `useLogout` (wired into the Account page's Logout button)
         // does: clear the session, then a protected route is no longer reachable.
         useAuthStore.getState().clearSession();
         void router.navigate({ to: '/words' });

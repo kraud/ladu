@@ -32,7 +32,9 @@
       "uiLanguage": "Liidese keel",
       "account": "Konto",
       "dashboard": "Armatuurlaud",
-      "logout": "Logi välja"
+      "logout": "Logi välja",
+      "logoutConfirmTitle": "Kas logid välja?",
+      "logoutConfirmDescription": "Ladu kasutamiseks pead uuesti sisse logima."
     },
     "notImplemented": "Vabandust, see funktsioon pole veel valmis!",
     "goToAccount": "Ava konto",
