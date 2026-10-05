@@ -620,6 +620,12 @@
     font-size: 13.5px;
     min-width: 640px;
   }
+  @media (max-width: 920px) {
+    /* Phone: the table is as wide as its content needs (no empty space before the first language). */
+    .dtable {
+      min-width: 0;
+    }
+  }
   .dtable th {
     text-align: left;
     padding: 8px 12px;
@@ -647,6 +653,23 @@
     padding: 8px 12px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+    /* One line per cell, so every row has the same height. */
+    white-space: nowrap;
+  }
+  /* The narrow columns (owner, type, tags) keep tight padding, and so does the first language column after them. */
+  .dtable th.shrink-col,
+  .dtable td.shrink-col {
+    padding-inline: 6px;
+  }
+  .dtable .shrink-col + .lang-col,
+  .dtable .shrink-col + .word-cell {
+    padding-left: 6px;
+  }
+  /* Phone: rows are selected by a long press, so the browser must not select text or open its menu. */
+  .dtable tr.press-select {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
   .dtable td.word-cell {
     max-width: 220px;
@@ -671,7 +694,9 @@
     font-weight: 500;
   }
   .cell-btn {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
     text-align: left;
     padding: 2px 4px;
     margin: -2px -4px;
@@ -679,6 +704,22 @@
   }
   .cell-btn:hover {
     background: var(--fg-soft2);
+  }
+  .cell-tags {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+  .cell-tags:hover {
+    background: var(--fg-soft2);
+  }
+  .cell-tags .tagchip {
+    max-width: 120px;
   }
   .cell-add {
     display: inline-grid;

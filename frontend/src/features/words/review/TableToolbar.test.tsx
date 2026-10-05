@@ -12,6 +12,10 @@ const baseProps: TableToolbarProps = {
     onShowGenderChange: vi.fn(),
     showProgress: true,
     onShowProgressChange: vi.fn(),
+    showOwner: true,
+    onShowOwnerChange: vi.fn(),
+    showPos: true,
+    onShowPosChange: vi.fn(),
     loadedCount: 3,
     total: 10,
 };

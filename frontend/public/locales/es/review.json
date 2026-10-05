@@ -24,14 +24,17 @@
     "showLanguage": "Mostrar {{language}}"
   },
   "page": {
-    "newWord": "Nueva palabra"
+    "newWord": "Nueva palabra",
+    "title": "Palabras"
   },
   "toolbar": {
     "searchPlaceholder": "Buscar palabras…",
     "searchLabel": "Filtrar tabla",
     "displayGender": "Mostrar género",
     "displayProgress": "Mostrar progreso",
-    "rowCount": "{{count}} de {{total}} palabras"
+    "rowCount": "{{count}} de {{total}} palabras",
+    "displayOwner": "Mostrar propietario",
+    "displayType": "Mostrar tipo de palabra"
   },
   "bulk": {
     "selected": "seleccionadas",
@@ -44,11 +47,11 @@
     "deletedToast_one": "{{count}} palabra eliminada",
     "deletedToast_other": "{{count}} palabras eliminadas",
     "addTags": "Añadir etiquetas",
-    "removeTags": "Quitar etiquetas",
     "tagsAddedToast_one": "Etiqueta añadida a {{count}} palabra",
     "tagsAddedToast_other": "Etiquetas añadidas a {{count}} palabras",
     "tagsRemovedToast_one": "Etiqueta quitada de {{count}} palabra",
-    "tagsRemovedToast_other": "Etiquetas quitadas de {{count}} palabras"
+    "tagsRemovedToast_other": "Etiquetas quitadas de {{count}} palabras",
+    "unselect": "Deseleccionar"
   },
   "table": {
     "posAbbr": {
@@ -73,7 +76,9 @@
     "loaded": "Mostrando {{loaded}} de {{total}}",
     "allLoaded": "Las {{total}} cargadas",
     "loadMore": "Cargar más",
-    "tags": "Etiquetas"
+    "tags": "Etiquetas",
+    "tagsOpen": "Ver etiquetas",
+    "tagsOpenAdd": "Añadir etiquetas a esta palabra"
   },
   "cellDialog": {
     "deleteTranslation": "Eliminar traducción",
@@ -99,5 +104,15 @@
       "description": "Revisión necesita al menos dos idiomas configurados.",
       "action": "Ir a mi cuenta"
     }
+  },
+  "tagsDialog": {
+    "title": "Etiquetas",
+    "empty": "Esta palabra no tiene etiquetas.",
+    "add": "Añadir etiquetas",
+    "remove": "Quitar la etiqueta {{label}}",
+    "restore": "Conservar la etiqueta {{label}}",
+    "saved": "Etiquetas actualizadas",
+    "by": "de {{username}}",
+    "words": "{{count}} palabras"
   }
 }

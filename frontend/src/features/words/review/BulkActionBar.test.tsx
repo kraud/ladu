@@ -23,7 +23,6 @@ const SESSION = {
 const baseProps: BulkActionBarProps = {
     selectedCount: 0,
     selectedWordIds: [],
-    commonTagIds: new Set(),
     onView: vi.fn(),
     onPractice: vi.fn(),
     onDelete: vi.fn(),
@@ -42,10 +41,26 @@ describe('BulkActionBar', () => {
         expect(container).toBeEmptyDOMElement();
     });
 
-    it('shows the count and disables View unless exactly one is selected', () => {
+    it('shows the count and leaves View out unless exactly one is selected', () => {
         renderWithProviders(<BulkActionBar {...baseProps} selectedCount={3} />);
         expect(screen.getByText('3')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'View' })).toBeDisabled();
+        expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument();
+    });
+
+    it('has no Remove tags button', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} />);
+        expect(screen.queryByRole('button', { name: 'Remove tags' })).not.toBeInTheDocument();
+    });
+
+    it('shows Unselect only when it can clear (phone), and it calls back', async () => {
+        const onClear = vi.fn();
+        const user = userEvent.setup();
+        const { rerender } = renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} />);
+        expect(screen.queryByRole('button', { name: 'Unselect' })).not.toBeInTheDocument();
+
+        rerender(<BulkActionBar {...baseProps} selectedCount={2} onClear={onClear} />);
+        await user.click(screen.getByRole('button', { name: 'Unselect' }));
+        expect(onClear).toHaveBeenCalled();
     });
 
     it('Practice is available from one selected word and calls back', async () => {
@@ -57,13 +72,12 @@ describe('BulkActionBar', () => {
         expect(onPractice).toHaveBeenCalled();
     });
 
-    it('enables View at exactly one selection, and it calls back', async () => {
+    it('shows View at exactly one selection, and it calls back', async () => {
         const onView = vi.fn();
         const user = userEvent.setup();
         renderWithProviders(<BulkActionBar {...baseProps} selectedCount={1} onView={onView} />);
 
         const viewButton = screen.getByRole('button', { name: 'View' });
-        expect(viewButton).toBeEnabled();
         await user.click(viewButton);
         expect(onView).toHaveBeenCalled();
     });
@@ -96,14 +110,6 @@ describe('BulkActionBar', () => {
         expect(screen.queryByText('Delete 1 word?')).not.toBeInTheDocument();
     });
 
-    it('Remove tags is disabled when no tag is common to every selected word', () => {
-        setUpTags();
-        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} commonTagIds={new Set()} />, {
-            session: SESSION,
-        });
-        expect(screen.getByRole('button', { name: 'Remove tags' })).toBeDisabled();
-    });
-
     it('Add tags opens TagPickerDialog in add mode, and applying it reports back', async () => {
         setUpTags([{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Private' }]);
         const user = userEvent.setup();
@@ -120,30 +126,7 @@ describe('BulkActionBar', () => {
         await user.click(await screen.findByRole('option', { name: /Kitchen/ }));
         await user.click(screen.getByRole('button', { name: 'Apply' }));
 
-        await waitFor(() => expect(onTagsApplied).toHaveBeenCalledWith('add', [expect.objectContaining({ id: 'tag-1' })]));
+        await waitFor(() => expect(onTagsApplied).toHaveBeenCalledWith([expect.objectContaining({ id: 'tag-1' })]));
         expect(screen.queryByText('Add tags to 2 words')).not.toBeInTheDocument();
-    });
-
-    it('Remove tags opens TagPickerDialog in remove mode, scoped to commonTagIds', async () => {
-        setUpTags([
-            { id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Private' },
-            { id: 'tag-2', authorId: ME, label: 'Garage', visibility: 'Private' },
-        ]);
-        const user = userEvent.setup();
-        renderWithProviders(
-            <BulkActionBar
-                {...baseProps}
-                selectedCount={2}
-                selectedWordIds={['w1', 'w2']}
-                commonTagIds={new Set(['tag-1'])}
-            />,
-            { session: SESSION },
-        );
-
-        await user.click(screen.getByRole('button', { name: 'Remove tags' }));
-        expect(screen.getByText('Remove tags from 2 words')).toBeInTheDocument();
-        await user.click(screen.getByPlaceholderText('Search tags to remove…'));
-        expect(await screen.findByRole('option', { name: /Kitchen/ })).toBeInTheDocument();
-        expect(screen.queryByRole('option', { name: /Garage/ })).not.toBeInTheDocument();
     });
 });

@@ -1,15 +1,18 @@
 /**
  * The bulk action bar — visible only once one or more rows are selected.
  * View at exactly one selection, Delete at one or more behind a
- * `ConfirmDialog`. "Add tags"/"Remove tags" (D5/D17, Phase 4 Slice 7) open
- * `TagPickerDialog` in the matching mode — that dialog owns its own mutation
- * (`useLinkTagsToWords`/`useUnlinkTagsFromWords`) and staged selection, the
+ * `ConfirmDialog`. "Add tags" (D5/D17, Phase 4 Slice 7) opens
+ * `TagPickerDialog` — that dialog owns its own mutation
+ * (`useLinkTagsToWords`) and staged selection, the
  * same self-contained shape `AddWordsDialog` already established; this bar
  * only owns which mode is open and bubbles the result up via `onTagsApplied`
  * so `ReviewPage` can toast and clear the selection — the same split
  * Delete already uses (this bar owns the confirm step, `ReviewPage` owns the
  * mutation + toast). "Practice" (Phase 5, C4) is available from one selected
- * word up; `ReviewPage` owns the hand-off to `/practice`.
+ * word up; `ReviewPage` owns the hand-off to `/practice`. Removing tags is done
+ * per word, in the tags dialog of its Tags cell. A button that cannot be used
+ * (View with more than one word) is not shown. On a phone (`onClear`) an
+ * "Unselect" button clears the selection: rows have no checkboxes there.
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,27 +24,27 @@ import type { TagSummary } from '@/features/tags/types';
 export interface BulkActionBarProps {
     selectedCount: number;
     selectedWordIds: string[];
-    /** Tags common to every selected word — "Remove tags"' candidate pool. */
-    commonTagIds: ReadonlySet<string>;
     onView: () => void;
     onPractice: () => void;
     /** Called once the user has confirmed the delete — this component owns the confirm step. */
     onDelete: () => void;
-    onTagsApplied: (mode: 'add' | 'remove', tags: TagSummary[]) => void;
+    onTagsApplied: (tags: TagSummary[]) => void;
+    /** Phone only: clears the selection. */
+    onClear?: () => void;
 }
 
 export function BulkActionBar({
     selectedCount,
     selectedWordIds,
-    commonTagIds,
     onView,
     onPractice,
     onDelete,
     onTagsApplied,
+    onClear,
 }: BulkActionBarProps) {
     const { t } = useTranslation();
     const [confirming, setConfirming] = useState(false);
-    const [tagPickerMode, setTagPickerMode] = useState<'add' | 'remove' | null>(null);
+    const [tagPickerOpen, setTagPickerOpen] = useState(false);
 
     if (selectedCount === 0) return null;
 
@@ -52,29 +55,16 @@ export function BulkActionBar({
                 <span className="grow" style={{ fontSize: 13 }}>
                     {t('review:bulk.selected')}
                 </span>
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={selectedCount !== 1}
-                    onClick={onView}
-                >
-                    {t('review:bulk.view')}
-                </Button>
+                {selectedCount === 1 && (
+                    <Button type="button" variant="outline" size="sm" onClick={onView}>
+                        {t('review:bulk.view')}
+                    </Button>
+                )}
                 <Button type="button" variant="outline" size="sm" onClick={onPractice}>
                     {t('review:bulk.practice')}
                 </Button>
-                <Button type="button" variant="outline" size="sm" onClick={() => setTagPickerMode('add')}>
+                <Button type="button" variant="outline" size="sm" onClick={() => setTagPickerOpen(true)}>
                     {t('review:bulk.addTags')}
-                </Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={commonTagIds.size === 0}
-                    onClick={() => setTagPickerMode('remove')}
-                >
-                    {t('review:bulk.removeTags')}
                 </Button>
                 <Button
                     type="button"
@@ -85,6 +75,11 @@ export function BulkActionBar({
                 >
                     {t('review:bulk.delete')}
                 </Button>
+                {onClear && (
+                    <Button type="button" variant="outline" size="sm" onClick={onClear}>
+                        {t('review:bulk.unselect')}
+                    </Button>
+                )}
             </div>
             <ConfirmDialog
                 open={confirming}
@@ -97,14 +92,13 @@ export function BulkActionBar({
                     onDelete();
                 }}
             />
-            {tagPickerMode && (
+            {tagPickerOpen && (
                 <TagPickerDialog
                     open
-                    onOpenChange={(open) => !open && setTagPickerMode(null)}
-                    mode={tagPickerMode}
+                    onOpenChange={(open) => !open && setTagPickerOpen(false)}
+                    mode="add"
                     wordIds={selectedWordIds}
-                    restrictToIds={tagPickerMode === 'remove' ? commonTagIds : undefined}
-                    onApplied={(tags) => onTagsApplied(tagPickerMode, tags)}
+                    onApplied={onTagsApplied}
                 />
             )}
         </>

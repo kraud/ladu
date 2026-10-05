@@ -36,6 +36,7 @@ import { BulkActionBar } from '../review/BulkActionBar';
 import { CellDialog } from '../review/CellDialog';
 import { DisplayOptions } from '../review/DisplayOptions';
 import { activeFilterCount, useFilterSections } from '../review/FilterBar';
+import { TagsDialog } from '../review/TagsDialog';
 import { ReviewTable } from '../review/ReviewTable';
 import { TableToolbar } from '../review/TableToolbar';
 import {
@@ -92,6 +93,8 @@ export function ReviewPage() {
     // Not persisted in the URL (matches the mockup) — a display concern, not a filter.
     const [showGender, setShowGender] = useState(true);
     const [showProgress, setShowProgress] = useState(false);
+    const [showOwner, setShowOwner] = useState(true);
+    const [showPos, setShowPos] = useState(true);
 
     const bulkDelete = useBulkDeleteWords();
 
@@ -101,6 +104,10 @@ export function ReviewPage() {
     const [cellTarget, setCellTarget] = useState<{ wordId: string; langKey: LangKey } | null>(null);
     const handleOpenCell = useCallback((wordId: string, langKey: LangKey) => setCellTarget({ wordId, langKey }), []);
     const closeCellDialog = useCallback(() => setCellTarget(null), []);
+    const [tagsTarget, setTagsTarget] = useState<string | null>(null);
+    const handleOpenTags = useCallback((wordId: string) => setTagsTarget(wordId), []);
+    const closeTagsDialog = useCallback(() => setTagsTarget(null), []);
+    const tagsRow = tagsTarget ? rows.find((row) => row.id === tagsTarget) : undefined;
 
     function updateSearch(patch: Partial<ReviewSearch>) {
         void navigate({ search: (prev) => ({ ...prev, ...patch }) });
@@ -114,18 +121,6 @@ export function ReviewPage() {
     // Ids-only in the URL (`ReviewSearch.tag`) resolved to full `TagSummary`s
     // for `TagCombobox`'s pill row — see `useTagsByIds`'s own doc comment.
     const selectedTagsQuery = useTagsByIds(search.tag ?? []);
-
-    // "Remove tags"' candidate pool (D17) — tags common to every currently
-    // selected row, computed from data already loaded for the table, no
-    // extra request. D10 guarantees every tag on an own word is one the
-    // caller owns, so nothing here needs an availability check.
-    const commonTagIds = useMemo(() => {
-        const selectedRows = rows.filter((row) => selectedIds.includes(row.id));
-        if (selectedRows.length === 0) return new Set<string>();
-        return selectedRows
-            .map((row) => new Set(row.tags.map((tag) => tag.id)))
-            .reduce((common, tagIds) => new Set([...common].filter((id) => tagIds.has(id))));
-    }, [rows, selectedIds]);
 
     function handleView() {
         const [id] = selectedIds;
@@ -162,12 +157,10 @@ export function ReviewPage() {
     // `handleBulkDelete` does after its own mutation succeeds. The toast
     // reports how many *words* were affected (`selectedIds`, captured before
     // the clear below), not how many tags were picked.
-    function handleTagsApplied(mode: 'add' | 'remove') {
+    function handleTagsApplied() {
         resolveLoadingToastSuccess(
             startLoadingToast(t('common:status.saving')),
-            t(mode === 'add' ? 'review:bulk.tagsAddedToast' : 'review:bulk.tagsRemovedToast', {
-                count: selectedIds.length,
-            }),
+            t('review:bulk.tagsAddedToast', { count: selectedIds.length }),
         );
         setRowSelection({});
     }
@@ -203,6 +196,10 @@ export function ReviewPage() {
                               onShowGenderChange={setShowGender}
                               showProgress={showProgress}
                               onShowProgressChange={setShowProgress}
+                              showOwner={showOwner}
+                              onShowOwnerChange={setShowOwner}
+                              showPos={showPos}
+                              onShowPosChange={setShowPos}
                           />
                       </div>
                   ),
@@ -239,7 +236,7 @@ export function ReviewPage() {
             fillHeight
             header={
                 <div className="flex items-center justify-between gap-2">
-                    <h1 className="h1">{t('common:header.words')}</h1>
+                    <h1 className="h1">{t('review:page.title')}</h1>
                     <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants()}>
                         <PlusIcon size={15} weight="bold" />
                         {t('review:page.newWord')}
@@ -256,6 +253,10 @@ export function ReviewPage() {
                     onShowGenderChange={setShowGender}
                     showProgress={showProgress}
                     onShowProgressChange={setShowProgress}
+                    showOwner={showOwner}
+                    onShowOwnerChange={setShowOwner}
+                    showPos={showPos}
+                    onShowPosChange={setShowPos}
                     loadedCount={rows.length}
                     total={total}
                     compact={isMobile}
@@ -273,11 +274,11 @@ export function ReviewPage() {
                     <BulkActionBar
                         selectedCount={selectedIds.length}
                         selectedWordIds={selectedIds}
-                        commonTagIds={commonTagIds}
                         onView={handleView}
                         onPractice={handlePractice}
                         onDelete={handleBulkDelete}
-                        onTagsApplied={(mode) => handleTagsApplied(mode)}
+                        onTagsApplied={handleTagsApplied}
+                        onClear={isMobile ? () => setRowSelection({}) : undefined}
                     />
                     <ReviewTable
                         rows={rows}
@@ -286,6 +287,8 @@ export function ReviewPage() {
                         userName={userName}
                         showGender={showGender}
                         showProgress={showProgress}
+                        showOwner={showOwner}
+                        showPos={showPos}
                         isPending={wordsQuery.isPending}
                         isFetchingNextPage={wordsQuery.isFetchingNextPage}
                         isError={wordsQuery.isError}
@@ -300,9 +303,20 @@ export function ReviewPage() {
                         onClearFilters={() => void navigate({ search: (prev) => ({ lang: prev.lang }) })}
                         onAddWord={() => void navigate({ to: '/addWord/{-$partOfSpeech}' })}
                         onOpenCell={handleOpenCell}
+                        onOpenTags={handleOpenTags}
                         compact={isMobile}
                     />
             </div>
+
+            {tagsRow && (
+                <TagsDialog
+                    key={tagsRow.id}
+                    wordId={tagsRow.id}
+                    tags={tagsRow.tags}
+                    canEdit={tagsRow.user === userId}
+                    onClose={closeTagsDialog}
+                />
+            )}
 
             {cellTarget && (
                 <CellDialog

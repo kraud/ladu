@@ -33,6 +33,29 @@ backend + frontend + Postgres on your machine — this is by far the fastest
 feedback loop, and where you should do almost all iteration. Write/extend
 tests alongside the feature (per `CLAUDE.md`'s working rules), not after.
 
+**Testing the mobile views on a real phone.** The Vite dev server binds
+loopback only, so a phone on the same Wi-Fi cannot reach `localhost:5173`.
+Start the frontend with `--host`, then open the printed Network URL on the
+phone:
+
+```bash
+ipconfig getifaddr en0            # the Mac's LAN IP, e.g. 192.168.0.239
+npm run dev -w frontend -- --host # second terminal; uses :5174 if :5173 is taken
+# phone → http://192.168.0.239:5173
+```
+
+The flag is the intended way to do this — do not put `host: true` in
+`vite.config.ts`, so the dev server (unauthenticated, serves full source)
+stays off the LAN unless you ask for it. Nothing else needs changing: the app
+calls `/api` on its own origin, the Vite proxy makes the `localhost:5001` hop
+server-side, and the session token travels as a `Bearer` header, so there is
+no CORS or cookie problem. Two things do not work from the phone — Google
+login and the verification/reset links in emails — because both are built
+from `BASE_URL`/`OAUTH_REDIRECT_BASE`, which point at `localhost` on the
+phone. Password login works. If the phone cannot connect at all, check the
+macOS firewall (System Settings → Network → Firewall) and that the Wi-Fi is
+not a guest/AP-isolated network.
+
 ### 3. Open a PR
 
 Pushing the branch and opening a PR triggers `ci.yml` — six independent jobs,

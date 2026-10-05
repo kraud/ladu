@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, type PointerEvent as ReactPointerEvent } from 'react';
 import {
     flexRender,
     getCoreRowModel,
@@ -18,15 +18,21 @@ import { buildWordColumns } from './columns';
 const SKELETON_ROWS = 8;
 const SKELETON_MORE_ROWS = 3;
 
-/** select/owner, `partOfSpeech`, and `tags` (at most 2 compact chips + "+N", D14) shrink to their own content's width (`.shrink-col`, CSS `width: 1%` trick); language columns get the wider `.lang-col`/`.word-cell` treatment. */
+const LONG_PRESS_MS = 450;
+/** A finger that moves farther than this (px) is scrolling, not pressing. */
+const LONG_PRESS_SLOP = 10;
+
+const SHRINK_COLUMNS = new Set(['select', 'owner', 'partOfSpeech', 'tags']);
+
+/** select, owner, `partOfSpeech`, and `tags` (the newest tag + "+N") shrink to their own content's width (`.shrink-col`, CSS `width: 1%` trick); language columns get the wider `.lang-col`/`.word-cell` treatment. */
 function headerClassName(columnId: string): string | undefined {
-    if (columnId === 'select' || columnId === 'partOfSpeech' || columnId === 'tags') return 'shrink-col';
+    if (SHRINK_COLUMNS.has(columnId)) return 'shrink-col';
     if (columnId.startsWith('lang_')) return 'lang-col';
     return undefined;
 }
 
 function cellClassName(columnId: string): string | undefined {
-    if (columnId === 'select' || columnId === 'partOfSpeech' || columnId === 'tags') return 'shrink-col';
+    if (SHRINK_COLUMNS.has(columnId)) return 'shrink-col';
     if (columnId.startsWith('lang_')) return 'word-cell';
     return undefined;
 }
@@ -58,7 +64,16 @@ export interface ReviewTableProps {
     onAddWord: () => void;
     /** Unset in Slice 6 — Slice 8 wires the cell editor dialog. */
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
-    /** Phone layout: no loaded/total text, and the footer only shows when "Load more" is needed. */
+    /** Toolbar "Display owner" switch — gates the owner column. */
+    showOwner: boolean;
+    /** Toolbar "Display word type" switch — gates the word-type column. */
+    showPos: boolean;
+    /** A click on a Tags cell. */
+    onOpenTags?: (wordId: string) => void;
+    /**
+     * Phone layout: no loaded/total text, and the footer only shows when "Load more" is needed. Rows have no
+     * checkbox either: a long press selects the first row, then a tap selects or unselects any row.
+     */
     compact?: boolean;
 }
 
@@ -77,6 +92,8 @@ export function ReviewTable({
     userName,
     showGender,
     showProgress,
+    showOwner,
+    showPos,
     isPending,
     isFetchingNextPage,
     isError,
@@ -91,13 +108,27 @@ export function ReviewTable({
     onClearFilters,
     onAddWord,
     onOpenCell,
+    onOpenTags,
     compact = false,
 }: ReviewTableProps) {
     const { t } = useTranslation();
 
     const columns = useMemo(
-        () => buildWordColumns({ languages, userId, userName, showGender, showProgress, t, onOpenCell }),
-        [languages, userId, userName, showGender, showProgress, t, onOpenCell],
+        () =>
+            buildWordColumns({
+                languages,
+                userId,
+                userName,
+                showGender,
+                showProgress,
+                selectable: !compact,
+                showOwner,
+                showPos,
+                t,
+                onOpenCell,
+                onOpenTags,
+            }),
+        [languages, userId, userName, showGender, showProgress, compact, showOwner, showPos, t, onOpenCell, onOpenTags],
     );
 
     const table = useReactTable({
@@ -115,6 +146,32 @@ export function ReviewTable({
         manualFiltering: true,
         manualSorting: true,
     });
+
+    // Phone: long press selects, and once something is selected a tap toggles (the cells' own buttons stay quiet).
+    const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const pressStart = useRef<{ x: number; y: number } | null>(null);
+    const pressFired = useRef(false);
+    const hasSelection = Object.values(rowSelection).some(Boolean);
+
+    function cancelPress() {
+        if (pressTimer.current) clearTimeout(pressTimer.current);
+        pressTimer.current = null;
+        pressStart.current = null;
+    }
+
+    function startPress(event: ReactPointerEvent, toggle: () => void) {
+        pressStart.current = { x: event.clientX, y: event.clientY };
+        pressTimer.current = setTimeout(() => {
+            pressFired.current = true;
+            pressTimer.current = null;
+            toggle();
+        }, LONG_PRESS_MS);
+    }
+
+    function movePress(event: ReactPointerEvent) {
+        const start = pressStart.current;
+        if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > LONG_PRESS_SLOP) cancelPress();
+    }
 
     if (isError) {
         return (
@@ -175,7 +232,36 @@ export function ReviewTable({
                                   </tr>
                               ))
                             : table.getRowModel().rows.map((row) => (
-                                  <tr key={row.id} className={row.getIsSelected() ? 'selected' : undefined}>
+                                  <tr
+                                      key={row.id}
+                                      className={[row.getIsSelected() && 'selected', compact && 'press-select']
+                                          .filter(Boolean)
+                                          .join(' ') || undefined}
+                                      {...(compact && row.getCanSelect()
+                                          ? {
+                                                onPointerDown: (event: ReactPointerEvent) => {
+                                                    pressFired.current = false;
+                                                    if (!hasSelection) startPress(event, () => row.toggleSelected(true));
+                                                },
+                                                onPointerMove: movePress,
+                                                onPointerUp: cancelPress,
+                                                onPointerCancel: cancelPress,
+                                                onContextMenu: (event: React.MouseEvent) => event.preventDefault(),
+                                                onClickCapture: (event: React.MouseEvent) => {
+                                                    // The click that ends a long press, or a tap while selecting, is for the row only.
+                                                    if (pressFired.current) {
+                                                        pressFired.current = false;
+                                                        event.preventDefault();
+                                                        event.stopPropagation();
+                                                    } else if (hasSelection) {
+                                                        event.preventDefault();
+                                                        event.stopPropagation();
+                                                        row.toggleSelected();
+                                                    }
+                                                },
+                                            }
+                                          : {})}
+                                  >
                                       {row.getVisibleCells().map((cell) => (
                                           <td key={cell.id} className={cellClassName(cell.column.id)}>
                                               {flexRender(cell.column.columnDef.cell, cell.getContext())}

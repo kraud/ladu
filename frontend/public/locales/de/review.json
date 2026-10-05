@@ -24,14 +24,17 @@
     "showLanguage": "{{language}} einblenden"
   },
   "page": {
-    "newWord": "Neues Wort"
+    "newWord": "Neues Wort",
+    "title": "Wörter"
   },
   "toolbar": {
     "searchPlaceholder": "Wörter suchen…",
     "searchLabel": "Tabelle filtern",
     "displayGender": "Genus anzeigen",
     "displayProgress": "Fortschritt anzeigen",
-    "rowCount": "{{count}} von {{total}} Wörtern"
+    "rowCount": "{{count}} von {{total}} Wörtern",
+    "displayOwner": "Besitzer anzeigen",
+    "displayType": "Wortart anzeigen"
   },
   "bulk": {
     "selected": "ausgewählt",
@@ -44,11 +47,11 @@
     "deletedToast_one": "{{count}} Wort gelöscht",
     "deletedToast_other": "{{count}} Wörter gelöscht",
     "addTags": "Tags hinzufügen",
-    "removeTags": "Tags entfernen",
     "tagsAddedToast_one": "Tag zu {{count}} Wort hinzugefügt",
     "tagsAddedToast_other": "Tags zu {{count}} Wörtern hinzugefügt",
     "tagsRemovedToast_one": "Tag von {{count}} Wort entfernt",
-    "tagsRemovedToast_other": "Tags von {{count}} Wörtern entfernt"
+    "tagsRemovedToast_other": "Tags von {{count}} Wörtern entfernt",
+    "unselect": "Auswahl aufheben"
   },
   "table": {
     "posAbbr": {
@@ -73,7 +76,9 @@
     "loaded": "{{loaded}} von {{total}} angezeigt",
     "allLoaded": "Alle {{total}} geladen",
     "loadMore": "Mehr laden",
-    "tags": "Tags"
+    "tags": "Tags",
+    "tagsOpen": "Tags anzeigen",
+    "tagsOpenAdd": "Tags zu diesem Wort hinzufügen"
   },
   "cellDialog": {
     "deleteTranslation": "Übersetzung löschen",
@@ -99,5 +104,15 @@
       "description": "Review braucht mindestens zwei konfigurierte Sprachen.",
       "action": "Zum Konto"
     }
+  },
+  "tagsDialog": {
+    "title": "Tags",
+    "empty": "Dieses Wort hat keine Tags.",
+    "add": "Tags hinzufügen",
+    "remove": "Tag {{label}} entfernen",
+    "restore": "Tag {{label}} behalten",
+    "saved": "Tags aktualisiert",
+    "by": "von {{username}}",
+    "words": "{{count}} Wörter"
   }
 }

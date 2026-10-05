@@ -24,14 +24,17 @@
     "showLanguage": "Show {{language}}"
   },
   "page": {
-    "newWord": "New word"
+    "newWord": "New word",
+    "title": "Words"
   },
   "toolbar": {
     "searchPlaceholder": "Search words…",
     "searchLabel": "Filter table",
     "displayGender": "Display gender",
     "displayProgress": "Display progress",
-    "rowCount": "{{count}} of {{total}} words"
+    "rowCount": "{{count}} of {{total}} words",
+    "displayOwner": "Display owner",
+    "displayType": "Display word type"
   },
   "bulk": {
     "selected": "selected",
@@ -44,11 +47,11 @@
     "deletedToast_one": "{{count}} word deleted",
     "deletedToast_other": "{{count}} words deleted",
     "addTags": "Add tags",
-    "removeTags": "Remove tags",
     "tagsAddedToast_one": "Tag added to {{count}} word",
     "tagsAddedToast_other": "Tags added to {{count}} words",
     "tagsRemovedToast_one": "Tag removed from {{count}} word",
-    "tagsRemovedToast_other": "Tags removed from {{count}} words"
+    "tagsRemovedToast_other": "Tags removed from {{count}} words",
+    "unselect": "Unselect"
   },
   "table": {
     "posAbbr": {
@@ -73,7 +76,9 @@
     "loaded": "Showing {{loaded}} of {{total}}",
     "allLoaded": "All {{total}} loaded",
     "loadMore": "Load more",
-    "tags": "Tags"
+    "tags": "Tags",
+    "tagsOpen": "Show tags",
+    "tagsOpenAdd": "Add tags to this word"
   },
   "cellDialog": {
     "deleteTranslation": "Delete translation",
@@ -99,5 +104,15 @@
       "description": "Words needs at least two configured languages.",
       "action": "Go to Account"
     }
+  },
+  "tagsDialog": {
+    "title": "Tags",
+    "empty": "This word has no tags.",
+    "add": "Add tags",
+    "remove": "Remove tag {{label}}",
+    "restore": "Keep tag {{label}}",
+    "saved": "Tags updated",
+    "by": "by {{username}}",
+    "words": "{{count}} words"
   }
 }
