@@ -82,8 +82,11 @@ function HeaderRight() {
                     <input placeholder="…" disabled />
                 </div>
             )}
-            <LanguageSelector />
-            <ThemeSelector />
+            {/* Below 920px these live at the bottom of the menu drawer; they stay mounted (the language one syncs i18next). */}
+            <div className="flex items-center gap-2 max-[920px]:hidden">
+                <LanguageSelector />
+                <ThemeSelector />
+            </div>
             {featureFlags.notifications && (
                 <button type="button" className="icon-btn" aria-label="Notifications" />
             )}
@@ -111,16 +114,20 @@ export function AppHeader() {
                     >
                         <ListIcon size={26} />
                     </SheetTrigger>
-                    <SheetContent side="left" className="p-4">
-                        <SheetHeader className="p-0">
+                    <SheetContent side="left" className="gap-0 p-4">
+                        <SheetHeader className="p-0 pb-4">
                             <SheetTitle>
-                                <BrandLogo height={24} title={t('common:appTitle')} />
+                                <BrandLogo height={36} title={t('common:appTitle')} />
                             </SheetTitle>
                         </SheetHeader>
                         <NavLinks
-                            className="app-nav mt-2 flex-col [&_a]:h-10 [&_a]:w-full"
+                            className="app-nav flex-col gap-0 border-t border-border [&_a]:h-12 [&_a]:w-full [&_a]:rounded-none [&_a]:border-b [&_a]:border-border [&_a]:px-2 [&_a]:text-lg"
                             onNavigate={() => setSheetOpen(false)}
                         />
+                        <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
+                            <LanguageSelector />
+                            <ThemeSelector />
+                        </div>
                     </SheetContent>
                 </Sheet>
 
