@@ -26,7 +26,7 @@ const {
     translations,
     words,
 }: typeof import('../src/db/schema') = require('../src/db/schema');
-const { and, eq, inArray, or } = require('drizzle-orm');
+const { and, desc, eq, inArray, or } = require('drizzle-orm');
 
 // ---------------------------------------------------------------------------
 // Types
@@ -165,7 +165,9 @@ const fetchTagsMap = async (
     const junctionRows = await db
         .select({ tagId: tagWords.tagId, wordId: tagWords.wordId })
         .from(tagWords)
-        .where(inArray(tagWords.wordId, wordIds));
+        .where(inArray(tagWords.wordId, wordIds))
+        // Newest link first: the Review table's Tags cell shows the first tag of each word.
+        .orderBy(desc(tagWords.createdAt));
 
     if (junctionRows.length === 0) return new Map();
 

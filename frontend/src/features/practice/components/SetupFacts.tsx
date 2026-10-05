@@ -30,9 +30,11 @@ export function SetupFacts({
     extra?: ReactNode;
 }) {
     const { t } = useTranslation();
+    // Phone: two cells per row with a separator between them. The figure and the extra facts share the top row
+    // (the figure takes the whole row without extra facts); languages and word types share the second.
     return (
-        <span className={`grid grid-cols-1 gap-y-3 ${extra ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
-            <Stat>
+        <span className={`grid grid-cols-2 gap-y-2 ${extra ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+            <Stat className={`max-md:order-1 ${extra ? '' : 'max-md:col-span-2'}`}>
                 <Figure>{figure}</Figure>
                 <CardTypeGrid types={cardTypes} className="self-end" />
                 <span className="flex flex-col gap-0.5">
@@ -40,17 +42,17 @@ export function SetupFacts({
                     {hint && <span className="hint">{hint}</span>}
                 </span>
             </Stat>
-            <Stat className="md:border-l">
+            <Stat className="max-md:order-3 max-md:border-t max-md:pt-2 md:border-l">
                 <FlagGrid languages={languages} className="self-center" />
                 <Figure>{languages.length}</Figure>
                 <span className="label">{t('practice:results.languagesLabel', { count: languages.length })}</span>
             </Stat>
-            <Stat className="md:border-l">
+            <Stat className="max-md:order-4 max-md:border-t max-md:border-l max-md:pt-2 md:border-l">
                 <WordTypeGrid partsOfSpeech={partsOfSpeech} className="self-center" />
                 <Figure>{partsOfSpeech.length}</Figure>
                 <span className="label">{t('practice:results.typesLabel', { count: partsOfSpeech.length })}</span>
             </Stat>
-            {extra && <Stat className="md:border-l">{extra}</Stat>}
+            {extra && <Stat className="border-l max-md:order-2">{extra}</Stat>}
         </span>
     );
 }
@@ -89,7 +91,7 @@ export function CardTypeGrid({ types, className }: { types: readonly CardType[];
 function Figure({ children }: { children: ReactNode }) {
     return (
         <span
-            className="text-[42px] leading-none font-semibold tracking-tight tabular-nums"
+            className="text-[28px] leading-none font-semibold tracking-tight tabular-nums md:text-[42px]"
             style={{ fontFamily: 'var(--font-display)' }}
         >
             {children}
@@ -100,7 +102,7 @@ function Figure({ children }: { children: ReactNode }) {
 function Stat({ className, children }: { className?: string; children: ReactNode }) {
     return (
         <span
-            className={`flex items-end justify-center gap-3 border-current/15 max-md:border-t max-md:pt-3 max-md:first:border-t-0 max-md:first:pt-0 ${className ?? ''}`}
+            className={`flex flex-wrap items-end justify-center gap-x-2 gap-y-1 border-current/15 md:gap-x-3 ${className ?? ''}`}
         >
             {children}
         </span>

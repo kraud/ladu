@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import { startLoadingToast, resolveLoadingToastSuccess, resolveLoadingToastError } from '@/lib/toast';
@@ -190,18 +191,20 @@ export function TagsPage() {
                                 : t('tags:page.noResults')}
                         </span>
                     )}
-                    <label className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                         <span className="label-n">{t('tags:page.sortLabel')}</span>
-                        <select
-                            className="select"
-                            value={sort}
-                            onChange={(event) => setSort(event.target.value as TagSort)}
-                            aria-label={t('tags:page.sortLabel')}
-                        >
-                            <option value="recent">{t('tags:page.sort.recent')}</option>
-                            <option value="label">{t('tags:page.sort.label')}</option>
-                        </select>
-                    </label>
+                        <Select value={sort} onValueChange={(value) => setSort(value as TagSort)}>
+                            <SelectTrigger size="sm" aria-label={t('tags:page.sortLabel')}>
+                                <SelectValue>
+                                    {(value: TagSort) => t(`tags:page.sort.${value}`)}
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent align="end" alignItemWithTrigger={false}>
+                                <SelectItem value="recent">{t('tags:page.sort.recent')}</SelectItem>
+                                <SelectItem value="label">{t('tags:page.sort.label')}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
             </div>
 

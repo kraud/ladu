@@ -142,7 +142,7 @@ test.describe.serial('Phase 5 — practice', () => {
         // One session per round: all six words. Stop once a form answered before has come back and was checked.
         for (let round = 1; round <= 5 && checkedKnown === 0; round++) {
             if (round > 1) {
-                await page.getByRole('button', { name: 'Change settings' }).first().click();
+                await page.getByRole('button', { name: 'Back to set-up' }).first().click();
                 await configure(page, { amount: 6, answer: 'Type the answer', languages: 'Different languages' });
             }
             await startSession(page);

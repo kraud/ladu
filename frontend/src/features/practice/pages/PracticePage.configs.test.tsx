@@ -516,19 +516,37 @@ describe('PracticePage — selecting a saved configuration asks how to go on', (
         await user.keyboard('{Escape}');
 
         await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-        expect(screen.getByRole('tab', { name: 'Saved configurations' })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByRole('button', { name: 'Saved configurations' })).toHaveAttribute('aria-pressed', 'true');
         expect(usePracticeSessionStore.getState().session).toBeNull();
     });
 });
 
-describe('PracticePage — a hint on the lists', () => {
-    it('Ongoing sessions and Saved configurations each say what they are', async () => {
-        setUp();
+describe('PracticePage — count and sort on the lists', () => {
+    it('Ongoing sessions and Saved configurations each show their count and a sort selector', async () => {
+        setUp({ configs: [makeConfig({ name: 'Morning drill' })] });
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
 
-        expect(await screen.findByText(/You can keep up to 10 sessions for 7 days/)).toBeInTheDocument();
-        await user.click(screen.getByRole('tab', { name: 'Saved configurations' }));
-        expect(await screen.findByText(/Settings you saved to use again/)).toBeInTheDocument();
+        expect(await screen.findByText('0 sessions (max. 10)')).toBeInTheDocument();
+        expect(screen.getByRole('combobox', { name: 'Sort' })).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Saved configurations' }));
+        expect(await screen.findByText('1 configuration')).toBeInTheDocument();
+        expect(screen.getByRole('combobox', { name: 'Sort' })).toBeInTheDocument();
+    });
+
+    it('Saved configurations sort by name', async () => {
+        setUp({ configs: [makeConfig({ id: 'a', name: 'Zebra' }), makeConfig({ id: 'b', name: 'Apple' })] });
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/practice', session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: 'Saved configurations' }));
+        await user.click(await screen.findByRole('combobox', { name: 'Sort' }));
+        await user.click(await screen.findByRole('option', { name: 'Name A–Z' }));
+
+        const rows = screen.getAllByRole('button', { name: /^Use configuration / });
+        expect(rows.map((row) => row.getAttribute('aria-label'))).toEqual([
+            'Use configuration Apple',
+            'Use configuration Zebra',
+        ]);
     });
 });

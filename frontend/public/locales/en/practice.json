@@ -144,7 +144,9 @@
       "correctHint": "{{count}} correct so far"
     },
     "startShort": "Start",
-    "startingShort": "Starting…"
+    "startingShort": "Starting…",
+    "sortLabel": "Sort",
+    "listGroupLabel": "Lists"
   },
   "session": {
     "progress": "Exercise {{current}} of {{total}}",
@@ -262,8 +264,6 @@
     "backToResults": "Back to results",
     "settings": "Settings used",
     "again": "Practice again",
-    "change": "Change settings",
-    "toReview": "Go to Words table",
     "scoreCount": "{{correct}} of {{total}}",
     "correctAnswers": "correct answers",
     "almostHint": "includes {{count}} almost correct — accents or capitals only",
@@ -273,7 +273,8 @@
     "languagesLabel_one": "language",
     "languagesLabel_other": "languages",
     "typesLabel_one": "type of words",
-    "typesLabel_other": "types of words"
+    "typesLabel_other": "types of words",
+    "finish": "Finish"
   },
   "cases": {
     "plurality": {
@@ -396,7 +397,6 @@
       "deleted": "Configuration deleted.",
       "loaded": "Configuration \"{{name}}\" is loaded."
     },
-    "note": "Settings you saved to use again. Select one to start a session now, or to change it first.",
     "startDialog": {
       "question": "Start a session with this configuration now, or change the settings first?",
       "start": "Start session",
@@ -404,11 +404,17 @@
       "noMatch": "No exercise matches this configuration now. Change the settings first.",
       "noWords": "The tags of this configuration have no words now. Change the settings first."
     },
-    "saveShort": "Save"
+    "saveShort": "Save",
+    "count_one": "{{count}} configuration",
+    "count_other": "{{count}} configurations",
+    "sort": {
+      "recent": "Recent",
+      "name": "Name A–Z"
+    },
+    "descriptionAria": "Show description of {{name}}"
   },
   "sessions": {
     "title": "Ongoing sessions",
-    "note": "You can keep up to {{max}} sessions for {{days}} days. A new session replaces the oldest one.",
     "loading": "Loading…",
     "empty": "You have no saved sessions. Leave a session and select \"Save session and leave\" to keep it.",
     "listError": "The saved sessions could not be loaded.",
@@ -431,6 +437,12 @@
     },
     "toast": {
       "deleted": "Session deleted."
+    },
+    "count_one": "{{count}} session (max. {{max}})",
+    "count_other": "{{count}} sessions (max. {{max}})",
+    "sort": {
+      "recent": "Newest",
+      "oldest": "Oldest"
     }
   },
   "apiErrors": {

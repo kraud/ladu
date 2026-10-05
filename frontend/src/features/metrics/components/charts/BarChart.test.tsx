@@ -17,6 +17,25 @@ describe('BarChart', () => {
         vi.useRealTimers();
     });
 
+    it('shows the message banner over the plot only when emptyMessage is set', () => {
+        const { rerender } = render(
+            <BarChart groups={GROUPS} series={SERIES} stacked={false} unitLabel="words" ariaLabel="Words per month" />,
+        );
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+        rerender(
+            <BarChart
+                groups={GROUPS}
+                series={SERIES}
+                stacked={false}
+                unitLabel="words"
+                ariaLabel="Words per month"
+                emptyMessage="Nothing yet"
+            />,
+        );
+        expect(screen.getByRole('status')).toHaveTextContent('Nothing yet');
+    });
+
     it('renders the svg with an accessible label', () => {
         render(<BarChart groups={GROUPS} series={SERIES} stacked={false} unitLabel="words" ariaLabel="Words per month" />);
         expect(screen.getByRole('img', { name: 'Words per month' })).toBeInTheDocument();

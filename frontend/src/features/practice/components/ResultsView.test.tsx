@@ -324,11 +324,11 @@ describe('ResultsView', () => {
         expect(screen.getByText('4 (of 6 asked)')).toBeInTheDocument();
     });
 
-    it('"Change settings" returns to the set-up with the same settings and words', async () => {
+    it('The back arrow returns to the set-up with the same settings and words', async () => {
         await openResults({ preselected: WORDS, params: { amount: 7 } });
         const user = userEvent.setup();
 
-        await user.click(await screen.findByRole('button', { name: 'Change settings' }));
+        await user.click(await screen.findByRole('button', { name: 'Back to set-up' }));
 
         expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
         expect(screen.getByLabelText('Number of exercises')).toHaveValue(7);
@@ -336,7 +336,7 @@ describe('ResultsView', () => {
         expect(usePracticeSessionStore.getState().session).toBeNull();
     });
 
-    it('"Change settings" opens the New configuration view, also when the session had no pre-selected words', async () => {
+    it('The back arrow opens the New configuration view, also when the session had no pre-selected words', async () => {
         await openResults({ params: { amount: 7 } });
         // The account has words, so the set-up shows its tabs (not the "no words" message).
         server.use(
@@ -347,14 +347,32 @@ describe('ResultsView', () => {
         );
         const user = userEvent.setup();
 
-        await user.click(await screen.findByRole('button', { name: 'Change settings' }));
+        await user.click(await screen.findByRole('button', { name: 'Back to set-up' }));
 
         expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
         expect(screen.getByLabelText('Number of exercises')).toHaveValue(7);
     });
 
-    it('links to Review', async () => {
-        await openResults();
-        expect(await screen.findByRole('link', { name: 'Go to Words table' })).toHaveAttribute('href', '/words');
+    it('shows the word amount and the order in the header', async () => {
+        await openResults({ preselected: WORDS });
+        expect(await screen.findByText('1 selected word')).toBeInTheDocument();
+        expect(screen.getByText(/Random order|Weaker first/)).toBeInTheDocument();
+    });
+
+    it('"Finish" returns to the lists of the set-up, and there is no link to Review', async () => {
+        await openResults({ params: { amount: 7 } });
+        server.use(
+            ...makeWordHandlers({
+                callerId: 'u1',
+                seed: [{ id: 'w1', user: 'u1', partOfSpeech: PartOfSpeech.noun, translations: [] }],
+            }).handlers,
+        );
+        const user = userEvent.setup();
+        expect(screen.queryByRole('link', { name: 'Go to Words table' })).not.toBeInTheDocument();
+
+        await user.click(await screen.findByRole('button', { name: 'Finish' }));
+
+        expect(await screen.findByRole('button', { name: 'Ongoing sessions' })).toHaveAttribute('aria-pressed', 'true');
+        expect(usePracticeSessionStore.getState().session).toBeNull();
     });
 });

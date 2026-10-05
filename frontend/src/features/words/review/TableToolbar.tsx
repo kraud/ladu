@@ -28,6 +28,10 @@ export interface TableToolbarProps {
     onShowGenderChange: (next: boolean) => void;
     showProgress: boolean;
     onShowProgressChange: (next: boolean) => void;
+    showOwner: boolean;
+    onShowOwnerChange: (next: boolean) => void;
+    showPos: boolean;
+    onShowPosChange: (next: boolean) => void;
     loadedCount: number;
     total: number;
     /** Rendered before the search box (the phone's Filters button; empty on desktop). */
@@ -44,6 +48,10 @@ export function TableToolbar({
     onShowGenderChange,
     showProgress,
     onShowProgressChange,
+    showOwner,
+    onShowOwnerChange,
+    showPos,
+    onShowPosChange,
     loadedCount,
     total,
     leading,
@@ -93,6 +101,10 @@ export function TableToolbar({
                     onShowGenderChange={onShowGenderChange}
                     showProgress={showProgress}
                     onShowProgressChange={onShowProgressChange}
+                    showOwner={showOwner}
+                    onShowOwnerChange={onShowOwnerChange}
+                    showPos={showPos}
+                    onShowPosChange={onShowPosChange}
                 />
             )}
             {!compact && (

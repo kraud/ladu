@@ -43,18 +43,29 @@ export function AuthLayout({
     return (
         <div className="auth-shell page">
             <aside className="auth-brand">
-                <BrandLogo variant="outline" height={178} title="Ladu" className="auth-brand-mark" />
+                <BrandLogo variant="outline" height={178} title="Ladu" className="auth-brand-mark max-[760px]:hidden" />
+                <BrandLogo variant="wordmark" height={64} title="Ladu" className="auth-brand-wordmark hidden max-[760px]:inline-block" />
                 <div className="stack-sm flex flex-col gap-2">
                     <p className="auth-tagline">{t('loginRegister:brand.tagline')}</p>
                     <p className="auth-sub">{blurb}</p>
                 </div>
+                {/* Desktop: one static, wrapped row of chips. Mobile: a looping marquee of
+                    chips — the copies after the first only exist for the loop. */}
                 <div className="flag-row" aria-label={t('loginRegister:brand.supportedLanguages')}>
-                    {UI_LANGUAGES.map((lang) => (
-                        <span key={lang.key} className="flag-chip">
-                            <FlagIcon lang={lang.key} width={24} height={16} />
-                            {lang.key}
-                        </span>
-                    ))}
+                    <div className="flag-track">
+                        {[0, 1, 2, 3].flatMap((copy) =>
+                            UI_LANGUAGES.map((lang) => (
+                                <span
+                                    key={`${copy}-${lang.key}`}
+                                    className={copy === 0 ? 'flag-chip' : 'flag-chip hidden max-[760px]:inline-flex'}
+                                    aria-hidden={copy === 0 ? undefined : true}
+                                >
+                                    <FlagIcon lang={lang.key} width={24} height={16} />
+                                    {t(`common:languages.${lang.label.toLowerCase()}`)}
+                                </span>
+                            )),
+                        )}
+                    </div>
                 </div>
                 {(showLanguageSelector || themeToggle) && (
                     <div className="auth-lang flex items-center gap-1">

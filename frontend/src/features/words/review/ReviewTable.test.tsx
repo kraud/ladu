@@ -28,6 +28,8 @@ const baseProps: ReviewTableProps = {
     userName: 'Kai Rebane',
     showGender: true,
     showProgress: true,
+    showOwner: true,
+    showPos: true,
     isPending: false,
     isFetchingNextPage: false,
     isError: false,
@@ -55,20 +57,26 @@ describe('ReviewTable — headers', () => {
             <ReviewTable {...baseProps} rows={[makeRow()]} languages={['DE', 'EN'] as LangKey[]} />,
         );
         const headers = screen.getAllByRole('columnheader').map((h) => h.textContent);
-        // select, type, DE, EN
-        expect(headers[2]).toContain('DE');
-        expect(headers[3]).toContain('EN');
+        // select, owner, type, DE, EN
+        expect(headers[3]).toContain('DE');
+        expect(headers[4]).toContain('EN');
     });
 
-    it('marks the select and Type columns `.shrink-col` so neither takes width the language columns need', () => {
+    it('marks the select, owner and Type columns `.shrink-col` so none takes width the language columns need', () => {
         renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} />);
         const headers = screen.getAllByRole('columnheader');
-        expect(headers[0]).toHaveClass('shrink-col');
-        expect(headers[1]).toHaveClass('shrink-col');
-        const selectCell = document.querySelector('tbody tr td:nth-child(1)');
-        const typeCell = document.querySelector('tbody tr td:nth-child(2)');
-        expect(selectCell).toHaveClass('shrink-col');
-        expect(typeCell).toHaveClass('shrink-col');
+        for (const index of [0, 1, 2]) {
+            expect(headers[index]).toHaveClass('shrink-col');
+            expect(document.querySelector(`tbody tr td:nth-child(${index + 1})`)).toHaveClass('shrink-col');
+        }
+    });
+
+    it('leaves out the owner and Type columns when their switches are off', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} showOwner={false} showPos={false} />);
+        // select, EN, DE, Tags
+        expect(screen.getAllByRole('columnheader')).toHaveLength(4);
+        expect(document.querySelector('.owner-dot')).not.toBeInTheDocument();
+        expect(document.querySelector('.pos-abbr')).not.toBeInTheDocument();
     });
 });
 
@@ -103,12 +111,66 @@ describe('ReviewTable — selection', () => {
     });
 });
 
+describe('ReviewTable — phone selection (compact)', () => {
+    const rows = [makeRow({ id: 'a', dataEN: 'apple', storedLanguages: ['English'] }), makeRow({ id: 'b', dataEN: 'bread', storedLanguages: ['English'] })];
+
+    async function longPress(user: ReturnType<typeof userEvent.setup>, target: Element) {
+        await user.pointer({ keys: '[MouseLeft>]', target });
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        await user.pointer({ keys: '[/MouseLeft]', target });
+    }
+
+    it('has no checkboxes', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={rows} compact />);
+        expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+    });
+
+    it('a long press selects the first row, then a tap selects another and a tap on a selected one unselects it', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<ControlledTable {...baseProps} rows={rows} compact />);
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await longPress(user, first!);
+        expect(first).toHaveClass('selected');
+        expect(second).not.toHaveClass('selected');
+
+        await user.click(second!);
+        expect(second).toHaveClass('selected');
+
+        await user.click(second!);
+        expect(second).not.toHaveClass('selected');
+        expect(first).toHaveClass('selected');
+    });
+
+    it('a short tap with nothing selected does not select', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<ControlledTable {...baseProps} rows={rows} compact />);
+        const [first] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await user.click(first!);
+        expect(first).not.toHaveClass('selected');
+    });
+
+    it('a tap while selecting does not open the cell', async () => {
+        const onOpenCell = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<ControlledTable {...baseProps} rows={rows} compact onOpenCell={onOpenCell} />);
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await longPress(user, first!);
+        await user.click(within(second as HTMLElement).getByRole('button', { name: /bread/ }));
+
+        expect(onOpenCell).not.toHaveBeenCalled();
+        expect(second).toHaveClass('selected');
+    });
+});
+
 describe('ReviewTable — loading state', () => {
     it('renders skeleton rows matching the column count while pending', () => {
         renderWithProviders(<ReviewTable {...baseProps} isPending rows={[]} languages={['EN', 'DE']} />);
-        // 8 skeleton rows x 5 columns (select, type, EN, DE, Tags) = 40 skeleton cells.
+        // 8 skeleton rows x 6 columns (select, owner, type, EN, DE, Tags).
         expect(document.querySelectorAll('tbody tr').length).toBe(8);
-        expect(document.querySelectorAll('tbody tr:first-child td').length).toBe(5);
+        expect(document.querySelectorAll('tbody tr:first-child td').length).toBe(6);
     });
 });
 
@@ -156,36 +218,34 @@ describe('ReviewTable — Tags column (D1/D7/D14)', () => {
         expect(headers.at(-1)).toHaveClass('shrink-col');
     });
 
-    it('renders nothing for a word with no tags', () => {
-        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow({ tags: [] })]} />);
-        const tagsCell = document.querySelector('tbody tr td:last-child') as HTMLElement;
-        expect(tagsCell).toBeEmptyDOMElement();
-    });
-
-    it('shows every tag as a chip when there are 2 or fewer', () => {
-        renderWithProviders(
-            <ReviewTable {...baseProps} rows={[makeRow({ tags: [tag('t1', 'Kitchen'), tag('t2', 'Exam prep')] })]} />,
-        );
-        expect(screen.getByText('Kitchen')).toBeInTheDocument();
-        expect(screen.getByText('Exam prep')).toBeInTheDocument();
-        expect(screen.queryByText(/^\+/)).not.toBeInTheDocument();
-    });
-
-    it('shows only the first 2 chips plus a "+N" hint past the cap', () => {
+    it('shows nothing for a word of someone else without tags, and an add button for an own word', () => {
         renderWithProviders(
             <ReviewTable
                 {...baseProps}
-                rows={[
-                    makeRow({
-                        tags: [tag('t1', 'Kitchen'), tag('t2', 'Exam prep'), tag('t3', 'Chapter 1')],
-                    }),
-                ]}
+                rows={[makeRow({ id: 'a', user: 'me', tags: [] }), makeRow({ id: 'b', user: 'other', tags: [] })]}
+            />,
+        );
+        const cells = document.querySelectorAll<HTMLElement>('tbody tr td:last-child');
+        expect(within(cells[0]!).getByRole('button', { name: 'Add tags to this word' })).toBeInTheDocument();
+        expect(cells[1]).toBeEmptyDOMElement();
+    });
+
+    it('shows only the newest tag (the first) and a "+N" badge in one row', () => {
+        renderWithProviders(
+            <ReviewTable
+                {...baseProps}
+                rows={[makeRow({ tags: [tag('t1', 'Kitchen'), tag('t2', 'Exam prep'), tag('t3', 'Chapter 1')] })]}
             />,
         );
         expect(screen.getByText('Kitchen')).toBeInTheDocument();
-        expect(screen.getByText('Exam prep')).toBeInTheDocument();
+        expect(screen.queryByText('Exam prep')).not.toBeInTheDocument();
         expect(screen.queryByText('Chapter 1')).not.toBeInTheDocument();
-        expect(screen.getByText('+1')).toBeInTheDocument();
+        expect(screen.getByText('+2')).toBeInTheDocument();
+    });
+
+    it('shows no "+N" with a single tag', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow({ tags: [tag('t1', 'Kitchen')] })]} />);
+        expect(screen.queryByText(/^\+/)).not.toBeInTheDocument();
     });
 
     it('shows a lock icon on a Private tag chip', () => {
@@ -196,12 +256,18 @@ describe('ReviewTable — Tags column (D1/D7/D14)', () => {
         expect(chip.querySelector('svg')).toBeInTheDocument();
     });
 
-    it('has no click target anywhere in the cell (D14)', () => {
+    it('a click anywhere on the cell opens the tags dialog of that word', async () => {
+        const onOpenTags = vi.fn();
+        const user = userEvent.setup();
         renderWithProviders(
-            <ReviewTable {...baseProps} rows={[makeRow({ tags: [tag('t1', 'Kitchen')] })]} />,
+            <ReviewTable
+                {...baseProps}
+                rows={[makeRow({ id: 'w9', tags: [tag('t1', 'Kitchen'), tag('t2', 'Garage')] })]}
+                onOpenTags={onOpenTags}
+            />,
         );
-        const tagsCell = document.querySelector('tbody tr td:last-child') as HTMLElement;
-        expect(within(tagsCell).queryByRole('button')).not.toBeInTheDocument();
+        await user.click(screen.getByText('+1'));
+        expect(onOpenTags).toHaveBeenCalledWith('w9');
     });
 });
 

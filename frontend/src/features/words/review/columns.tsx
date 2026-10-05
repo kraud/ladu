@@ -1,4 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
+import { PlusIcon } from '@phosphor-icons/react';
 import type { TFunction } from 'i18next';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FlagIcon } from '@/components/common/FlagIcon';
@@ -8,9 +9,6 @@ import { partOfSpeechLabelKey } from '@/lib/words';
 import { PartOfSpeech } from '@/ts/enums';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 import { WordCell } from './WordCell';
-
-/** Review's Tags column shows at most this many chips before collapsing the rest into a "+N" hint (D14). */
-const MAX_VISIBLE_TAGS = 2;
 
 /** `Noun` -> `"review:table.posAbbr.noun"`, mirroring `lib/words.ts`'s `partOfSpeechLabelKey`. Exported for `FilterBar`'s PoS chips (Slice 7), same abbreviations as the Type column. */
 export function posAbbrKey(pos: PartOfSpeech): string {
@@ -30,8 +28,16 @@ export interface BuildColumnsOptions {
     showGender: boolean;
     /** Toolbar "Display progress" switch — gates the completion ring per cell. */
     showProgress: boolean;
+    /** Desktop: a checkbox column selects rows. Phone: rows are selected by a long press, so no column. */
+    selectable: boolean;
+    /** Toolbar "Display owner" switch — gates the owner column. */
+    showOwner: boolean;
+    /** Toolbar "Display word type" switch — gates the word-type column. */
+    showPos: boolean;
     t: TFunction;
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
+    /** Opens the tags dialog of a word (a click anywhere on its Tags cell). */
+    onOpenTags?: (wordId: string) => void;
 }
 
 export interface BuildLanguageColumnsOptions {
@@ -100,44 +106,58 @@ export function buildLanguageColumns(options: BuildLanguageColumnsOptions): Colu
 }
 
 /**
- * Read-only Tags column (D1/D7/D14) — up to `MAX_VISIBLE_TAGS` plain
- * `TagChip`s plus a "+N" text hint for the rest. No click target anywhere in
- * the cell, on the chips or the "+N": the mockup's own click-to-filter-per-
- * chip and overflow-opens-a-dialog behavior was explicitly dropped (D14) —
- * adding/removing a word's tags only ever happens through the sidebar
- * combobox filter (which doesn't touch what's *on* a word, only what's
- * shown) or the bulk "Add tags"/"Remove tags" actions.
+ * The Tags column: the tag added to the word most recently (the API sends the newest first) and a "+N"
+ * for the rest, always in one row so every row has the same height. A click anywhere on the cell opens
+ * the word's tags dialog (`onOpenTags`). An own word without tags shows an add button instead; a
+ * word without tags that is not the user's own shows nothing.
  */
-export function buildTagsColumn(t: TFunction): ColumnDef<WordSimpleBE> {
+export function buildTagsColumn(
+    t: TFunction,
+    userId: string,
+    onOpenTags?: (wordId: string) => void,
+): ColumnDef<WordSimpleBE> {
     return {
         id: 'tags',
         header: () => t('review:table.tags'),
         cell: ({ row }) => {
             const tags = row.original.tags;
-            if (tags.length === 0) return null;
-            const visible = tags.slice(0, MAX_VISIBLE_TAGS);
-            const overflow = tags.length - visible.length;
+            const [latest] = tags;
+            if (!latest) {
+                if (row.original.user !== userId) return null;
+                return (
+                    <button
+                        type="button"
+                        className="cell-add"
+                        aria-label={t('review:table.tagsOpenAdd')}
+                        onClick={() => onOpenTags?.(row.original.id)}
+                    >
+                        <PlusIcon size={14} weight="bold" />
+                    </button>
+                );
+            }
+            const overflow = tags.length - 1;
             return (
-                <div className="flex flex-wrap items-center gap-1">
-                    {visible.map((tag) => (
-                        <TagChip key={tag.id} label={tag.label} locked={tag.visibility === 'Private'} />
-                    ))}
-                    {overflow > 0 && (
-                        <span className="hint text-xs" title={tags.slice(MAX_VISIBLE_TAGS).map((tag) => tag.label).join(', ')}>
-                            +{overflow}
-                        </span>
-                    )}
-                </div>
+                <button
+                    type="button"
+                    className="cell-tags"
+                    aria-label={t('review:table.tagsOpen')}
+                    onClick={() => onOpenTags?.(row.original.id)}
+                >
+                    <TagChip label={latest.label} locked={latest.visibility === 'Private'} />
+                    {overflow > 0 && <span className="hint text-xs">+{overflow}</span>}
+                </button>
             );
         },
     };
 }
 
 /**
- * select/owner -> Type -> one column per language -> Tags (D1), in that order.
+ * select (desktop) -> owner -> Type -> one column per language -> Tags (D1), in that order. The owner
+ * and Type columns come and go with their display switches.
  */
 export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSimpleBE>[] {
-    const { languages, userId, userName, showGender, showProgress, t, onOpenCell } = options;
+    const { languages, userId, userName, showGender, showProgress, selectable, showOwner, showPos, t, onOpenCell, onOpenTags } =
+        options;
 
     const selectColumn: ColumnDef<WordSimpleBE> = {
         id: 'select',
@@ -150,30 +170,40 @@ export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSi
                 aria-label={t('review:table.selectAll')}
             />
         ),
+        cell: ({ row }) => (
+            <Checkbox
+                checked={row.getIsSelected()}
+                disabled={!row.getCanSelect()}
+                onCheckedChange={(checked) => row.toggleSelected(Boolean(checked))}
+                aria-label={t('review:table.selectRow')}
+            />
+        ),
+    };
+
+    const ownerColumn: ColumnDef<WordSimpleBE> = {
+        id: 'owner',
+        size: 32,
+        header: '',
         cell: ({ row }) => {
             const isOwn = row.original.user === userId;
             return (
-                <div className="flex items-center gap-2">
-                    <Checkbox
-                        checked={row.getIsSelected()}
-                        disabled={!row.getCanSelect()}
-                        onCheckedChange={(checked) => row.toggleSelected(Boolean(checked))}
-                        aria-label={t('review:table.selectRow')}
-                    />
-                    <span
-                        className={`owner-dot ${isOwn ? 'owner-me' : 'owner-group'}`}
-                        title={isOwn ? t('review:table.ownerMe') : t('review:table.ownerGroup')}
-                    >
-                        {isOwn ? avatarInitials(userName) : 'G'}
-                    </span>
-                </div>
+                <span
+                    className={`owner-dot ${isOwn ? 'owner-me' : 'owner-group'}`}
+                    title={isOwn ? t('review:table.ownerMe') : t('review:table.ownerGroup')}
+                >
+                    {isOwn ? avatarInitials(userName) : 'G'}
+                </span>
             );
         },
     };
 
-    const typeColumn = buildPartOfSpeechColumn(t, 52);
-
     const languageColumns = buildLanguageColumns({ languages, userId, showGender, showProgress, onOpenCell });
 
-    return [selectColumn, typeColumn, ...languageColumns, buildTagsColumn(t)];
+    return [
+        ...(selectable ? [selectColumn] : []),
+        ...(showOwner ? [ownerColumn] : []),
+        ...(showPos ? [buildPartOfSpeechColumn(t, 52)] : []),
+        ...languageColumns,
+        buildTagsColumn(t, userId, onOpenTags),
+    ];
 }

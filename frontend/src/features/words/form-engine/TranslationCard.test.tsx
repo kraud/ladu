@@ -311,6 +311,16 @@ describe('TranslationCard', () => {
 });
 
 describe('TranslationCard — Verb', () => {
+    it('keeps a verb grid of more than two tense columns inside its own horizontal scroller', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EN} pos={PartOfSpeech.verb} />);
+        const scroller = screen.getByTestId('horizontal-scroller').firstElementChild;
+        expect(scroller).not.toBeNull();
+        const grid = scroller!.firstElementChild as HTMLElement;
+        const columns = grid.style.gridTemplateColumns;
+        // The edge fades need measured widths (jsdom has none): see HorizontalScroller.test.tsx.
+        expect(Number(/repeat\((\d+)/.exec(columns)?.[1])).toBeGreaterThan(2);
+    });
+
     it('mounts an English verb card with its stacked group heading and hardcoded pronoun labels', () => {
         renderWithProviders(<TranslationCard lang={Lang.EN} pos={PartOfSpeech.verb} />);
         expect(screen.getByText('Simple')).toBeInTheDocument();

@@ -24,14 +24,17 @@
     "showLanguage": "Näita {{language}}"
   },
   "page": {
-    "newWord": "Uus sõna"
+    "newWord": "Uus sõna",
+    "title": "Sõnad"
   },
   "toolbar": {
     "searchPlaceholder": "Otsi sõnu…",
     "searchLabel": "Filtreeri tabelit",
     "displayGender": "Näita sugu",
     "displayProgress": "Näita edenemist",
-    "rowCount": "{{count}} / {{total}} sõnast"
+    "rowCount": "{{count}} / {{total}} sõnast",
+    "displayOwner": "Näita omanikku",
+    "displayType": "Näita sõnaliiki"
   },
   "bulk": {
     "selected": "valitud",
@@ -44,11 +47,11 @@
     "deletedToast_one": "{{count}} sõna kustutatud",
     "deletedToast_other": "{{count}} sõna kustutatud",
     "addTags": "Lisa sildid",
-    "removeTags": "Eemalda sildid",
     "tagsAddedToast_one": "Silt lisati {{count}} sõnale",
     "tagsAddedToast_other": "Sildid lisati {{count}} sõnale",
     "tagsRemovedToast_one": "Silt eemaldati {{count}} sõnalt",
-    "tagsRemovedToast_other": "Sildid eemaldati {{count}} sõnalt"
+    "tagsRemovedToast_other": "Sildid eemaldati {{count}} sõnalt",
+    "unselect": "Tühista valik"
   },
   "table": {
     "posAbbr": {
@@ -73,7 +76,9 @@
     "loaded": "Näidatakse {{loaded}} / {{total}}",
     "allLoaded": "Kõik {{total}} laaditud",
     "loadMore": "Laadi rohkem",
-    "tags": "Sildid"
+    "tags": "Sildid",
+    "tagsOpen": "Näita silte",
+    "tagsOpenAdd": "Lisa sellele sõnale silte"
   },
   "cellDialog": {
     "deleteTranslation": "Kustuta tõlge",
@@ -99,5 +104,15 @@
       "description": "Ülevaade vajab vähemalt kahte seadistatud keelt.",
       "action": "Mine kontole"
     }
+  },
+  "tagsDialog": {
+    "title": "Sildid",
+    "empty": "Sellel sõnal pole silte.",
+    "add": "Lisa silte",
+    "remove": "Eemalda silt {{label}}",
+    "restore": "Jäta silt {{label}}",
+    "saved": "Sildid uuendatud",
+    "by": "autor {{username}}",
+    "words": "{{count}} sõna"
   }
 }

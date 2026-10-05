@@ -307,19 +307,25 @@
     padding: 48px 44px 96px;
   }
   .auth-brand-mark {
-    width: 120px;
+    width: 150px;
     height: auto;
+  }
+  .auth-brand-wordmark {
+    height: auto;
+  }
+  .flag-track {
+    display: contents;
   }
   .auth-tagline {
     font-family: var(--font-display);
-    font-size: 26px;
+    font-size: 32px;
     font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1.22;
     max-width: 20ch;
   }
   .auth-sub {
-    font-size: 13.5px;
+    font-size: 16px;
     color: var(--muted);
     max-width: 34ch;
   }
@@ -401,41 +407,103 @@
     text-decoration: underline;
     text-underline-offset: 2px;
   }
-  @media (max-width: 760px) {
-    .auth-shell {
-      grid-template-columns: 1fr;
-    }
+  /* Larger desktops: scale the brand column up with the screen. */
+  @media (min-width: 1280px) {
     .auth-brand {
-      position: static;
-      flex-direction: row;
-      align-items: center;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      gap: 12px 16px;
-      padding: 20px 24px;
+      gap: 26px;
+      padding: 56px 64px 112px;
     }
     .auth-brand-mark {
-      width: 48px;
+      width: 190px;
     }
     .auth-tagline {
-      font-size: 16px;
-      max-width: none;
+      font-size: 40px;
     }
+    .auth-sub {
+      font-size: 18px;
+    }
+    .auth-lang {
+      left: 64px;
+    }
+  }
+  @media (min-width: 1700px) {
+    .auth-brand {
+      gap: 32px;
+      padding: 64px 88px 128px;
+    }
+    .auth-brand-mark {
+      width: 240px;
+    }
+    .auth-tagline {
+      font-size: 50px;
+    }
+    .auth-sub {
+      font-size: 21px;
+    }
+    .auth-lang {
+      left: 88px;
+    }
+  }
+  @media (max-width: 760px) {
+    .auth-shell {
+      grid-template-columns: minmax(0, 1fr);
+      overflow-x: clip;
+      /* Brand row takes only its content height; the form gets the rest. */
+      grid-template-rows: auto 1fr;
+      position: relative;
+    }
+    .auth-brand {
+      min-width: 0;
+      position: static;
+      align-items: center;
+      gap: 12px;
+      padding: 44px 24px 16px;
+    }
+    .auth-tagline,
     .auth-sub {
       display: none;
     }
+    .auth-brand-wordmark {
+      height: 64px;
+      width: auto;
+    }
+    /* One full-width row that scrolls left forever. The track holds two
+       identical halves, so moving it by -50% lands exactly on the start. */
     .flag-row {
-      order: 3;
+      display: block;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      /* Clips the long track so it can never widen the page. */
+      overflow: hidden;
+      contain: inline-size;
+      mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
     }
+    .flag-track {
+      display: flex;
+      width: max-content;
+      animation: flag-marquee 60s linear infinite;
+    }
+    .flag-chip {
+      flex-shrink: 0;
+      margin-right: 8px;
+    }
+    /* Pinned top-right so it doesn't take a row of its own. */
     .auth-lang {
-      position: static;
-      margin-left: auto;
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      left: auto;
+      bottom: auto;
     }
+    /* No card on mobile: the form sits straight on the page. */
     .auth-panel {
-      margin: 12px;
-      border-radius: var(--radius-lg);
+      margin: 0;
+      border-radius: 0;
       min-height: auto;
-      padding: 28px 20px;
+      place-items: start center;
+      padding: 12px 20px 28px;
+      background: transparent;
     }
   }
 
@@ -620,6 +688,12 @@
     font-size: 13.5px;
     min-width: 640px;
   }
+  @media (max-width: 920px) {
+    /* Phone: the table is as wide as its content needs (no empty space before the first language). */
+    .dtable {
+      min-width: 0;
+    }
+  }
   .dtable th {
     text-align: left;
     padding: 8px 12px;
@@ -647,6 +721,23 @@
     padding: 8px 12px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+    /* One line per cell, so every row has the same height. */
+    white-space: nowrap;
+  }
+  /* The narrow columns (owner, type, tags) keep tight padding, and so does the first language column after them. */
+  .dtable th.shrink-col,
+  .dtable td.shrink-col {
+    padding-inline: 6px;
+  }
+  .dtable .shrink-col + .lang-col,
+  .dtable .shrink-col + .word-cell {
+    padding-left: 6px;
+  }
+  /* Phone: rows are selected by a long press, so the browser must not select text or open its menu. */
+  .dtable tr.press-select {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
   .dtable td.word-cell {
     max-width: 220px;
@@ -671,7 +762,9 @@
     font-weight: 500;
   }
   .cell-btn {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
     text-align: left;
     padding: 2px 4px;
     margin: -2px -4px;
@@ -679,6 +772,22 @@
   }
   .cell-btn:hover {
     background: var(--fg-soft2);
+  }
+  .cell-tags {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+  .cell-tags:hover {
+    background: var(--fg-soft2);
+  }
+  .cell-tags .tagchip {
+    max-width: 120px;
   }
   .cell-add {
     display: inline-grid;
@@ -1563,19 +1672,86 @@
   }
 }
 
+@keyframes flag-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .skeleton {
+  .skeleton,
+  .flag-track,
+  .wave-shake {
     animation: none;
   }
 }
 
+/* The Dashboard's waving hand: a short rotate-shake, replayed with each greeting. */
+@keyframes wave-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  15% {
+    transform: rotate(-7deg);
+  }
+  30% {
+    transform: rotate(6deg);
+  }
+  45% {
+    transform: rotate(-5deg);
+  }
+  60% {
+    transform: rotate(4deg);
+  }
+  80% {
+    transform: rotate(-2deg);
+  }
+}
+.wave-shake {
+  transform-origin: 70% 80%;
+  animation: wave-shake 0.9s ease-in-out;
+}
+
 /* ─── responsive (≤920px) ────────────────────────────────────── */
 @media (max-width: 920px) {
+  /* Taller phone header: room for the 36px wordmark (the menu drawer's size) and a 40px avatar. */
+  :root {
+    --app-header-h: 65px;
+  }
   .app-header-inner {
     gap: 12px;
+    height: 64px;
   }
   .app-header .searchbox {
     display: none;
+  }
+  /* The three stat cards share one row; the numbers and captions shrink to fit. */
+  .stat-stack {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .stat-card {
+    padding: 12px;
+  }
+  .stat-card .s-num {
+    font-size: 26px;
+  }
+  .stat-card .s-label {
+    font-size: 12px;
+  }
+  .stat-card .s-sub {
+    font-size: 10.5px;
+    flex-wrap: wrap;
+  }
+  .sk-num {
+    width: 100%;
+    max-width: 60px;
+    height: 26px;
+  }
+  .sk-label {
+    width: 100%;
   }
   .dash-grid {
     grid-template-columns: 1fr;

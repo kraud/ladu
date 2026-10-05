@@ -67,7 +67,12 @@ export interface WordFormProps {
      */
     onPartOfSpeechChange?: (pos: PartOfSpeech) => void;
     /** The page title block: first in the content column (or above the PoS gate). */
-    header?: ReactNode;
+    /**
+     * The page title. A function receives `requestChangePartOfSpeech` — the same
+     * confirm-if-content "Change word type" action as the bar's (undefined at the
+     * PoS gate, where there is nothing to change back from).
+     */
+    header?: ReactNode | ((api: { requestChangePartOfSpeech?: () => void }) => ReactNode);
     /**
      * Edit mode only: lets `WordPage` inject its own Cancel action, rendered
      * next to (left of) the primary Save button on desktop, without this
@@ -141,7 +146,7 @@ export function WordForm({
         return (
             <PageColumn wide>
                 <div className="flex flex-col gap-4">
-                    {header}
+                    {typeof header === 'function' ? header({}) : header}
                     <PartOfSpeechSelector value={state.partOfSpeech} onChange={pickPartOfSpeech} />
                 </div>
             </PageColumn>
@@ -244,7 +249,7 @@ export function WordForm({
     return (
         <WordEditorLayout
             sections={sidebarSections}
-            header={header}
+            header={typeof header === 'function' ? header({ requestChangePartOfSpeech: onChangePartOfSpeech ? handleChangePartOfSpeechClick : undefined }) : header}
             actions={actions}
             cancelAction={mode === 'edit' ? cancelAction : undefined}
             primary={{

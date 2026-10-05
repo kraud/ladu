@@ -29,7 +29,8 @@
         "newWordByLanguage": "Klõpsa siia, et lisada uus sõna keeles {{language}}"
       },
       "worstCategory": "Sinu halvim kategooria on:",
-      "toggleLabel": "Sektordiagrammi jaotus"
+      "toggleLabel": "Sektordiagrammi jaotus",
+      "empty": "Andmeid veel pole"
     },
     "bar": {
       "title": {
@@ -43,6 +44,10 @@
         "all": "Kogu aeg",
         "months_one": "Viimane kuu",
         "months_other": "Viimased {{count}} kuud"
+      },
+      "empty": {
+        "month": "Sel perioodil pole veel sõnu lisatud.",
+        "language": "Tõlkeid veel pole. Lisa sõnu, et neid siin näha."
       }
     }
   },

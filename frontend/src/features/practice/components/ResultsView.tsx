@@ -1,8 +1,7 @@
-import { Link } from '@tanstack/react-router';
 import { ArrowCounterClockwiseIcon, ArrowLeftIcon, WarningIcon } from '@phosphor-icons/react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { practiceErrorKey } from '../errors';
 import { useGenerateExercises } from '../hooks';
 import { toGenerateBody } from '../params';
@@ -13,16 +12,26 @@ import { FlagGrid } from './FlagGrid';
 import { NoMatchNotice } from './NoMatchNotice';
 import { ParametersSummary } from './ParametersSummary';
 import { ResultRow } from './ResultRow';
+import { Pill } from './SetupFacts';
 import { WordTypeGrid } from './WordTypeGrid';
 
 /**
  * Stage 3 (Part C §C.5, mockup `#stage-results`): score, unsaved warning, one row
  * per exercise, the settings used, and the ways on. "Practice again" makes new
- * exercises with the same settings and words; "Change settings" (and the back
- * arrow) return to Stage 1. If "Practice again" finds nothing, the explanation
+ * exercises with the same settings and words; "Finish" returns to Stage 1 (the
+ * lists of sessions and configurations) and the back arrow returns to it with
+ * the settings of this session. If "Practice again" finds nothing, the explanation
  * shows here, with a way to the settings.
  */
-export function ResultsView({ session, onChangeSettings }: { session: Session; onChangeSettings: () => void }) {
+export function ResultsView({
+    session,
+    onChangeSettings,
+    onFinish,
+}: {
+    session: Session;
+    onChangeSettings: () => void;
+    onFinish: () => void;
+}) {
     const { t } = useTranslation();
     const dispatch = usePracticeSessionStore((s) => s.dispatch);
     const startSession = usePracticeSessionStore((s) => s.start);
@@ -64,10 +73,10 @@ export function ResultsView({ session, onChangeSettings }: { session: Session; o
             </div>
 
             <section
-                className="card grid grid-cols-1 gap-y-4 px-5.5 py-5 md:grid-cols-3"
+                className="card grid grid-cols-2 gap-y-3 px-4 py-4 md:grid-cols-4 md:gap-y-4 md:px-5.5 md:py-5"
                 aria-label={t('practice:results.title')}
             >
-                <HeaderStat>
+                <HeaderStat className="max-md:col-span-2">
                     <BigNumber data-testid="score">
                         {t('practice:results.scoreCount', { correct: score.correct, total: score.total })}
                     </BigNumber>
@@ -79,16 +88,31 @@ export function ResultsView({ session, onChangeSettings }: { session: Session; o
                     </div>
                 </HeaderStat>
 
-                <HeaderStat className="md:border-l">
+                <HeaderStat className="max-md:border-t max-md:pt-3 md:border-l">
                     <FlagGrid languages={languages} className="self-center" />
                     <BigNumber data-testid="languages-count">{languages.length}</BigNumber>
                     <span className="label">{t('practice:results.languagesLabel', { count: languages.length })}</span>
                 </HeaderStat>
 
-                <HeaderStat className="md:border-l">
+                <HeaderStat className="max-md:border-t max-md:border-l max-md:pt-3 md:border-l">
                     <WordTypeGrid partsOfSpeech={partsOfSpeech} className="self-center" />
                     <BigNumber data-testid="types-count">{partsOfSpeech.length}</BigNumber>
                     <span className="label">{t('practice:results.typesLabel', { count: partsOfSpeech.length })}</span>
+                </HeaderStat>
+
+                <HeaderStat className="max-md:col-span-2 max-md:border-t max-md:pt-3 md:border-l">
+                    <span className="flex flex-row flex-wrap justify-center gap-1.5 md:flex-col md:items-start">
+                        <Pill>
+                            {(session.wordIds?.length ?? 0) > 0
+                                ? t('practice:configs.summary.selectedWords', { count: session.wordIds?.length ?? 0 })
+                                : t('practice:configs.summary.allWords')}
+                        </Pill>
+                        <Pill>
+                            {session.params.wordSelection === 'Random'
+                                ? t('practice:configs.summary.randomOrder')
+                                : t('practice:configs.summary.weakerFirst')}
+                        </Pill>
+                    </span>
                 </HeaderStat>
             </section>
 
@@ -143,12 +167,9 @@ export function ResultsView({ session, onChangeSettings }: { session: Session; o
                         </>
                     )}
                 </Button>
-                <Button type="button" variant="outline" onClick={onChangeSettings}>
-                    {t('practice:results.change')}
+                <Button type="button" variant="outline" onClick={onFinish}>
+                    {t('practice:results.finish')}
                 </Button>
-                <Link to="/words"className={buttonVariants({ variant: 'ghost' })}>
-                    {t('practice:results.toReview')}
-                </Link>
             </div>
         </div>
     );
@@ -158,7 +179,7 @@ export function ResultsView({ session, onChangeSettings }: { session: Session; o
 function BigNumber({ children, ...props }: { children: ReactNode; 'data-testid'?: string }) {
     return (
         <span
-            className="text-[42px] leading-none font-semibold tracking-tight tabular-nums"
+            className="text-[28px] leading-none font-semibold tracking-tight tabular-nums md:text-[42px]"
             style={{ fontFamily: 'var(--font-display)' }}
             {...props}
         >
@@ -168,14 +189,14 @@ function BigNumber({ children, ...props }: { children: ReactNode; 'data-testid'?
 }
 
 /**
- * One block of the results header: it fills a third of the card and centres its content, so
+ * One block of the results header: it fills a share of the card and centres its content, so
  * the three blocks are spaced evenly. The figure and its small label sit on the same bottom
  * edge; a flag grid (which can be taller than the figure) stays centred. Dividers on wide screens.
  */
 function HeaderStat({ className, children }: { className?: string; children: ReactNode }) {
     return (
         <div
-            className={`flex items-end justify-center gap-3 border-border max-md:border-t max-md:pt-4 max-md:first:border-t-0 max-md:first:pt-0 ${className ?? ''}`}
+            className={`flex flex-wrap items-end justify-center gap-x-2 gap-y-1 border-border md:gap-x-3 ${className ?? ''}`}
         >
             {children}
         </div>

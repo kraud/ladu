@@ -77,9 +77,10 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
         await expect(page.getByRole('link', { name: 'words', exact: true })).toBeVisible();
         await expect(page.getByRole('link', { name: 'add word' })).toHaveCount(0);
 
-        // Log out via the user menu.
-        await page.getByRole('button', { name: 'Open settings' }).click();
-        await page.getByRole('menuitem', { name: 'Logout' }).click();
+        // Log out from the Account page.
+        await page.getByRole('link', { name: 'Account' }).click();
+        await page.getByRole('button', { name: 'Logout' }).click();
+        await page.getByRole('alertdialog').getByRole('button', { name: 'Logout' }).click();
         await expect(page).toHaveURL(/\/login/);
 
         // Log in again through the real form against the now-verified row.
@@ -89,8 +90,7 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
         await expect(page.getByRole('heading', { name: /Welcome, Kai Rebane/ })).toBeVisible();
 
         // Account page — edit the profile basics and add a third language.
-        await page.getByRole('button', { name: 'Open settings' }).click();
-        await page.getByRole('menuitem', { name: 'Account' }).click();
+        await page.getByRole('link', { name: 'Account' }).click();
         await expect(page).toHaveURL('/user');
         await expect(page.getByRole('heading', { name: 'Account' })).toBeVisible();
         // Registered with English + Español.
@@ -182,10 +182,10 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         await page.getByRole('button', { name: /interface language/i }).click();
         await page.getByRole('menuitem', { name: 'Español' }).click();
-        await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Inicia sesión en Ladu' })).toBeVisible();
 
         await page.reload();
-        await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Inicia sesión en Ladu' })).toBeVisible();
 
         // Sign in — the choice rode along on the login request and is now on the row.
         await page.getByLabel(/correo electrónico/i).fill(primary.email);

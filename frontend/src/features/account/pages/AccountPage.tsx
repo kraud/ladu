@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { WarningCircleIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { GoogleIcon } from '@/components/common/GoogleIcon';
 import { useAuthStore } from '@/stores/authStore';
-import { useOAuthIdentities } from '@/features/auth/hooks';
+import { useLogout, useOAuthIdentities } from '@/features/auth/hooks';
 import { avatarColor, avatarInitials } from '@/lib/avatar';
 import { UI_LANGUAGES, languageByLabel } from '@/lib/language';
 import type { SessionUser } from '@/stores/authStore';
@@ -21,6 +22,8 @@ export function AccountPage() {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user);
     const [editing, setEditing] = useState(false);
+    const [confirmingLogout, setConfirmingLogout] = useState(false);
+    const logout = useLogout();
 
     if (!user) return null;
 
@@ -45,11 +48,16 @@ export function AccountPage() {
                         <div className="meta">@{user.username}</div>
                     </div>
                     <span className="grow" />
-                    {!editing && (
-                        <Button onClick={() => setEditing(true)}>
-                            {t('common:buttons.editProfile')}
+                    <div className="flex shrink-0 flex-col items-stretch gap-2">
+                        {!editing && (
+                            <Button onClick={() => setEditing(true)}>
+                                {t('common:buttons.editProfile')}
+                            </Button>
+                        )}
+                        <Button variant="outline" onClick={() => setConfirmingLogout(true)}>
+                            {t('common:header.settings.logout')}
                         </Button>
-                    )}
+                    </div>
                 </div>
 
                 <div className="p-5">
@@ -60,6 +68,19 @@ export function AccountPage() {
                     )}
                 </div>
             </section>
+
+            <ConfirmDialog
+                open={confirmingLogout}
+                onOpenChange={setConfirmingLogout}
+                title={t('common:header.settings.logoutConfirmTitle')}
+                description={t('common:header.settings.logoutConfirmDescription')}
+                confirmLabel={t('common:header.settings.logout')}
+                destructive={false}
+                onConfirm={() => {
+                    setConfirmingLogout(false);
+                    logout();
+                }}
+            />
         </div>
     );
 }

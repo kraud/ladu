@@ -3,6 +3,7 @@
     "title": "Nuevo {{currentPoS}}",
     "titleDefault": "Nueva palabra",
     "back": "Volver a Palabras",
+    "backToType": "Volver al tipo de palabra",
     "toastCreateSuccess": "La palabra se creó correctamente"
   },
   "apiErrors": {
@@ -16,6 +17,7 @@
     "notAuthorizedToDeleteSome": "Solo puedes eliminar palabras que te pertenecen."
   },
   "displayWord": {
+    "back": "Atrás",
     "titlePos": "Vista detallada: {{currentPoS}}",
     "titleSimple": "Vista detallada",
     "subtitle": "Todas las traducciones almacenadas actualmente para esta palabra",

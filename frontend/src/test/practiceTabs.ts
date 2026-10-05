@@ -1,5 +1,5 @@
 /**
- * Practice's set-up screen has two tabs (Ongoing sessions is the default) and a "New configuration"
+ * Practice's set-up screen has two list badges (Ongoing sessions is the default) and a "New configuration"
  * button that opens the settings view. A test that works with the settings, or the saved
  * configurations, opens that view or tab first.
  */
@@ -18,20 +18,20 @@ export async function leaveNewConfiguration() {
     await userEvent.click(await screen.findByRole('button', { name: 'Back to Practice' }));
 }
 
-/** The tabs are hidden in the New configuration view: go back to them first when it is open. */
-async function showTabs() {
+/** The badges are hidden in the New configuration view: go back to them first when it is open. */
+async function showBadges() {
     const back = screen.queryByRole('button', { name: 'Back to Practice' });
     if (back) await userEvent.click(back);
 }
 
 export async function openConfigurationsTab() {
-    await showTabs();
-    await userEvent.click(await screen.findByRole('tab', { name: 'Saved configurations' }));
+    await showBadges();
+    await userEvent.click(await screen.findByRole('button', { name: 'Saved configurations' }));
 }
 
 export async function openSessionsTab() {
-    await showTabs();
-    await userEvent.click(await screen.findByRole('tab', { name: 'Ongoing sessions' }));
+    await showBadges();
+    await userEvent.click(await screen.findByRole('button', { name: 'Ongoing sessions' }));
 }
 
 /** A selected saved configuration asks "start now or change first": take the second way. */

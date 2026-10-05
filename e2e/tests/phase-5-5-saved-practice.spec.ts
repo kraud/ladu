@@ -56,22 +56,22 @@ test.afterAll(async () => {
 
 const configRow = (page: Page, name: string) => page.getByRole('button', { name: `Use configuration ${name}` });
 /**
- * The set-up screen has two tabs (Ongoing sessions is the default, then Saved configurations) and a
- * "New configuration" button that opens the settings view; that view hides the tabs, with an arrow back.
+ * The set-up screen has two list badges (Ongoing sessions is the default, then Saved configurations) and a
+ * "New configuration" button that opens the settings view; that view hides the badges, with an arrow back.
  */
-const showTabs = async (page: Page) => {
+const showBadges = async (page: Page) => {
     const back = page.getByRole('button', { name: 'Back to Practice' });
     // `isVisible()` does not wait, and a closing dialog still hides the page from role queries.
-    await expect(back.or(page.getByRole('tab', { name: 'Ongoing sessions' }))).toBeVisible();
+    await expect(back.or(page.getByRole('button', { name: 'Ongoing sessions' }))).toBeVisible();
     if (await back.isVisible()) await back.click();
 };
 const openSessionsTab = async (page: Page) => {
-    await showTabs(page);
-    await page.getByRole('tab', { name: 'Ongoing sessions' }).click();
+    await showBadges(page);
+    await page.getByRole('button', { name: 'Ongoing sessions' }).click();
 };
 const openConfigurationsTab = async (page: Page) => {
-    await showTabs(page);
-    await page.getByRole('tab', { name: 'Saved configurations' }).click();
+    await showBadges(page);
+    await page.getByRole('button', { name: 'Saved configurations' }).click();
 };
 const openNewConfigurationTab = openNewConfiguration;
 /** Selecting a saved configuration asks "start now or change first"; these tests take the second way. */
@@ -414,14 +414,14 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
         });
 
         await test.step('"Leave session and delete" saves nothing', async () => {
-            await page.getByRole('button', { name: 'Change settings' }).first().click();
+            await page.getByRole('button', { name: 'Back to set-up' }).first().click();
             await configure(page, { amount: 2, answer: 'Type the answer', languages: 'Different languages' });
             await startSession(page);
             await answerCard(page, 'right');
             await leaveWith(page, 'Leave session and delete');
 
             // Leaving returns to the set-up screen in the New configuration view it came from: back to the tabs.
-            await showTabs(page);
+            await showBadges(page);
             await expect(page.getByRole('heading', { name: 'Practice', level: 1 })).toBeVisible();
             await openSessionsTab(page);
             await expect(page.getByText(/You have no saved sessions/)).toBeVisible();

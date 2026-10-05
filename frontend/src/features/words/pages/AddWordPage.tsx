@@ -70,19 +70,32 @@ export function AddWordPage() {
             onChangePartOfSpeech={resetToGate}
             onPartOfSpeechChange={setPartOfSpeech}
             submitting={createWord.isPending}
-            header={
+            header={({ requestChangePartOfSpeech }) => (
                 <div className="flex items-center gap-2">
-                    <Link
-                        to="/words"
-                        className="icon-btn"
-                        aria-label={t('wordRelated:addWordPage.back')}
-                        title={t('wordRelated:addWordPage.back')}
-                    >
-                        <ArrowLeftIcon size={18} />
-                    </Link>
+                    {/* A picked-but-unsaved word goes back to the type gate; at the gate, back to Words. */}
+                    {requestChangePartOfSpeech ? (
+                        <button
+                            type="button"
+                            className="icon-btn"
+                            aria-label={t('wordRelated:addWordPage.backToType')}
+                            title={t('wordRelated:addWordPage.backToType')}
+                            onClick={requestChangePartOfSpeech}
+                        >
+                            <ArrowLeftIcon size={18} />
+                        </button>
+                    ) : (
+                        <Link
+                            to="/words"
+                            className="icon-btn"
+                            aria-label={t('wordRelated:addWordPage.back')}
+                            title={t('wordRelated:addWordPage.back')}
+                        >
+                            <ArrowLeftIcon size={18} />
+                        </Link>
+                    )}
                     <h1 className="h1">{title}</h1>
                 </div>
-            }
+            )}
         />
     );
 }

@@ -15,7 +15,6 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
 import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { TagSummary } from '@/features/tags/types';
 import { useWordsInfinite } from '@/features/words/hooks';
 import { accountLanguageOrder } from '@/features/words/review/search';
@@ -49,10 +48,10 @@ const route = getRouteApi('/_protected/practice');
  * `/practice`: Stage 1 (set-up), Stage 2 (the exercise cards), Stage 3 (results).
  *
  * Stage 1 uses the shared `SidebarLayout`. The main area has the title (with a
- * "New configuration" button on its right), the resume banner and two tabs:
+ * "New configuration" button on its right), the resume banner and two badges:
  * Ongoing sessions (the default) and Saved configurations. The button opens the
  * New configuration view (the settings form, with a sticky Start / Save bar):
- * the tabs and the button go away, and a back arrow comes before the title.
+ * the badges and the button go away, and a back arrow comes before the title.
  * The sidebar holds the selected words and exists only in that view; elsewhere
  * the layout renders no panel. Stages 2 and 3 and the "no words" message have
  * no sidebar and sit in the normal centered column (`PageColumn`).
@@ -79,6 +78,12 @@ export function PracticePage() {
 
     if (!user) return null;
 
+    /** Back to Stage 1 (the lists), without the settings of the finished session. */
+    function finish() {
+        void navigate({ search: {}, replace: true });
+        clearSession();
+    }
+
     /** Back to Stage 1 with the settings and the words of the finished session. */
     function changeSettings(finished: NonNullable<typeof session>) {
         // The set-up reads the URL at mount, and the navigation settles later: the remembered copy is the sync carrier.
@@ -93,7 +98,7 @@ export function PracticePage() {
     // A parked session (the user navigated away) waits behind the set-up banner; a reload keeps it open.
     if (session && !parked && !preselected) {
         return session.view === 'results' ? (
-            <ResultsPage session={session} onChangeSettings={() => changeSettings(session)} />
+            <ResultsPage session={session} onChangeSettings={() => changeSettings(session)} onFinish={finish} />
         ) : (
             <PageColumn>
                 <SessionView session={session} />
@@ -117,7 +122,15 @@ export function PracticePage() {
  * Stage 3 inside the sidebar layout: the sidebar lists the words of the finished session, filtered
  * by the settings it used (fixed: they cannot be changed here). No pre-selected words, no panel.
  */
-function ResultsPage({ session, onChangeSettings }: { session: Session; onChangeSettings: () => void }) {
+function ResultsPage({
+    session,
+    onChangeSettings,
+    onFinish,
+}: {
+    session: Session;
+    onChangeSettings: () => void;
+    onFinish: () => void;
+}) {
     const { t } = useTranslation();
     const [wordsMode, setWordsMode] = useState<WordsMode>('visible');
     const words = session.preselected;
@@ -147,7 +160,7 @@ function ResultsPage({ session, onChangeSettings }: { session: Session; onChange
                         {t('practice:setup.selectedWordsButton', { count: words.length })}
                     </SidebarTrigger>
                 )}
-                <ResultsView session={session} onChangeSettings={onChangeSettings} />
+                <ResultsView session={session} onChangeSettings={onChangeSettings} onFinish={onFinish} />
             </div>
         </SidebarLayout>
     );
@@ -334,6 +347,22 @@ function SetUp({
             </Button>
         </div>
     );
+    // Like the scope badges of Tags: one badge is active, and it picks the list below.
+    const scopeRail = (
+        <div className="scope-rail" role="group" aria-label={t('practice:setup.listGroupLabel')}>
+            {(['sessions', 'configs'] as const).map((candidate) => (
+                <button
+                    key={candidate}
+                    type="button"
+                    className="chip"
+                    aria-pressed={tab === candidate}
+                    onClick={() => setTab(candidate)}
+                >
+                    {t(candidate === 'sessions' ? 'practice:sessions.title' : 'practice:configs.title')}
+                </button>
+            ))}
+        </div>
+    );
     const plainHeader = <h1 className="h1">{t('practice:setup.title')}</h1>;
     const resumeBanner = parkedSession && (
         <ResumeSessionBanner session={parkedSession} onResume={onResume} onDismiss={onDismiss} />
@@ -406,20 +435,14 @@ function SetUp({
         >
             <div className="flex flex-col gap-4">
                 {resumeBanner}
-                {!creating && (
-                    <Tabs value={tab} onValueChange={(value) => setTab(value as SetUpTab)}>
-                        <TabsList>
-                            <TabsTrigger value="sessions">{t('practice:sessions.title')}</TabsTrigger>
-                            <TabsTrigger value="configs">{t('practice:configs.title')}</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="sessions">
-                            <SavedSessions hasUnfinished={parkedSession !== null} onResumed={clearPreselected} />
-                        </TabsContent>
-                        <TabsContent value="configs">
-                            <SavedConfigurations onLoad={chooseConfig} />
-                        </TabsContent>
-                    </Tabs>
+                {!creating && tab === 'sessions' && (
+                    <SavedSessions
+                        hasUnfinished={parkedSession !== null}
+                        onResumed={clearPreselected}
+                        rail={scopeRail}
+                    />
                 )}
+                {!creating && tab === 'configs' && <SavedConfigurations onLoad={chooseConfig} rail={scopeRail} />}
                 {/* Kept mounted while hidden: the form holds the working copy of the settings. */}
                 <div hidden={!creating} className="flex flex-col gap-3">
                     {wordsMissing && (

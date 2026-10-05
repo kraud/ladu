@@ -215,7 +215,7 @@ test.describe.serial('Phase 4 — tags', () => {
             await expect(pageA).toHaveURL('/words');
 
             await pageA.getByRole('row', { name: /Carrot/ }).getByRole('checkbox').click();
-            await pageA.getByRole('button', { name: 'Add tags' }).click();
+            await pageA.getByRole('button', { name: 'Add tags', exact: true }).click();
 
             const dialog = pageA.getByRole('dialog');
             await expect(dialog.getByRole('heading', { name: 'Add tags to 1 word' })).toBeVisible();

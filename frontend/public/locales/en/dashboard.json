@@ -29,7 +29,8 @@
         "newWordByLanguage": "Click here to add a new word in {{language}}"
       },
       "worstCategory": "Your worst category is:",
-      "toggleLabel": "Pie chart distribution"
+      "toggleLabel": "Pie chart distribution",
+      "empty": "No data yet"
     },
     "bar": {
       "title": {
@@ -43,6 +44,10 @@
         "all": "All time",
         "months_one": "Last month",
         "months_other": "Last {{count}} months"
+      },
+      "empty": {
+        "month": "No words were added in this period yet.",
+        "language": "No translations yet. Add words to see them here."
       }
     }
   },

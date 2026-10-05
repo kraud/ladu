@@ -55,40 +55,41 @@ afterEach(() => {
 
 const renderPractice = () => renderApp({ initialEntry: '/practice', session: SESSION });
 
-describe('PracticePage — tabs', () => {
-    it('has two tabs in this order, and Ongoing sessions is the one open at first', async () => {
+describe('PracticePage — list badges', () => {
+    it('has two badges in this order, and Ongoing sessions is the one open at first', async () => {
         setUp({ configs: [makeConfig({ name: 'Morning drill' })], sessions: [makeSavedSession({ id: 'ses-1' })] });
         await renderPractice();
 
-        const tabs = await screen.findAllByRole('tab');
+        const group = await screen.findByRole('group', { name: 'Lists' });
+        const tabs = within(group).getAllByRole('button');
         expect(tabs.map((tab) => tab.textContent)).toEqual(['Ongoing sessions', 'Saved configurations']);
-        // New configuration is a button on the title row, not a tab.
+        // New configuration is a button on the title row, not a badge.
         expect(screen.getByRole('button', { name: 'New configuration' })).toBeInTheDocument();
-        expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+        expect(tabs[0]).toHaveAttribute('aria-pressed', 'true');
         expect(await screen.findByRole('button', { name: 'Resume session with 0 of 2 answered' })).toBeInTheDocument();
         // One list at a time.
         expect(screen.queryByRole('button', { name: 'Use configuration Morning drill' })).not.toBeInTheDocument();
     });
 
-    it('switching tabs swaps what is shown', async () => {
+    it('switching badges swaps what is shown', async () => {
         const user = userEvent.setup();
         setUp({ configs: [makeConfig({ name: 'Morning drill' })], sessions: [makeSavedSession({ id: 'ses-1' })] });
         await renderPractice();
 
-        await user.click(await screen.findByRole('tab', { name: 'Saved configurations' }));
+        await user.click(await screen.findByRole('button', { name: 'Saved configurations' }));
         expect(await screen.findByRole('button', { name: 'Use configuration Morning drill' })).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Resume session with 0 of 2 answered' })).not.toBeInTheDocument();
 
         await openNewConfigurationTab();
         expect(await screen.findByRole('button', { name: 'Start session' })).toBeInTheDocument();
-        // The view replaces the tabs and the button, and has its own title and a way back.
+        // The view replaces the badges and the button, and has its own title and a way back.
         expect(screen.getByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
-        expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+        expect(screen.queryByRole('group', { name: 'Lists' })).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'New configuration' })).not.toBeInTheDocument();
 
         await leaveNewConfiguration();
         expect(screen.getByRole('heading', { name: 'Practice' })).toBeInTheDocument();
-        expect(screen.getAllByRole('tab')).toHaveLength(2);
+        expect(screen.getByRole('group', { name: 'Lists' })).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Start session' })).not.toBeInTheDocument();
     });
 
@@ -112,7 +113,7 @@ describe('PracticePage — tabs', () => {
         setUp({ configs: [makeConfig({ name: 'Morning drill', params: { ...makeConfig().params, amount: 5 } })] });
         await renderPractice();
 
-        await user.click(await screen.findByRole('tab', { name: 'Saved configurations' }));
+        await user.click(await screen.findByRole('button', { name: 'Saved configurations' }));
         await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
         await chooseChangeSettingsFirst();
 
@@ -131,7 +132,7 @@ describe('PracticePage — the cards of saved configurations', () => {
             ],
         });
         await renderPractice();
-        await user.click(await screen.findByRole('tab', { name: 'Saved configurations' }));
+        await user.click(await screen.findByRole('button', { name: 'Saved configurations' }));
 
         const selected = await screen.findByRole('button', { name: 'Use configuration Selected' });
         expect(within(selected).getByText('2 selected words')).toBeInTheDocument();

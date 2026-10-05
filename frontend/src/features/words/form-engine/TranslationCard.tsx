@@ -30,7 +30,7 @@
  * `(lang, pos)` pair with no lookup endpoint — this card never branches on
  * that beyond gating the footer's own layout.
  */
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
@@ -50,6 +50,7 @@ import { buildYupSchema } from './buildYupSchema';
 import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
 import { FieldRenderer } from './FieldRenderer';
+import { HorizontalScroller } from './HorizontalScroller';
 import { buildLayoutItems, isHiddenInDisplayOnly, isPersistedCaseField } from './fieldLayout';
 
 export interface TranslationCardChange {
@@ -88,6 +89,24 @@ export function fieldsHaveData(fields: FieldConfig[], values: Record<string, unk
  * keeps the compact 2-up layout. `pos` is omitted where it isn't known yet
  * (a loading skeleton) — defaults to the 2-up layout, the common case.
  */
+/**
+ * A grid block shows at most this many columns at once (a verb's tenses);
+ * past that it scrolls sideways inside its own box, so the fields above and
+ * below it keep the card's width and never move.
+ */
+const MAX_VISIBLE_GRID_COLUMNS = 2;
+
+/** Wraps a grid block in `HorizontalScroller` only when it has more columns than fit. */
+function GridScroller({ scrolls, children }: { scrolls: boolean; children: ReactNode }) {
+    return scrolls ? <HorizontalScroller>{children}</HorizontalScroller> : <>{children}</>;
+}
+
+/** Every column is as wide as one of `MAX_VISIBLE_GRID_COLUMNS` fitting the box (`gap-x-4` = 1rem). */
+function gridWidth(columnCount: number): string | undefined {
+    if (columnCount <= MAX_VISIBLE_GRID_COLUMNS) return undefined;
+    return `calc((100% - ${MAX_VISIBLE_GRID_COLUMNS - 1}rem) / ${MAX_VISIBLE_GRID_COLUMNS} * ${columnCount} + ${columnCount - 1}rem)`;
+}
+
 export function translationGridClass(pos?: PartOfSpeech): string {
     return pos === PartOfSpeech.verb
         ? 'grid grid-cols-1 items-start gap-4'
@@ -386,9 +405,13 @@ export function TranslationCard({
                                     // Only rows with a mandatory field use it (every autocomplete trigger is
                                     // mandatory); an optional row's cells are `self-start`, so a message
                                     // that takes its own line there cannot push a neighbour's input down.
+                                    <GridScroller scrolls={item.columns.length > MAX_VISIBLE_GRID_COLUMNS}>
                                     <div
                                         className="grid items-end gap-x-4 gap-y-3"
-                                        style={{ gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, 1fr))` }}
+                                        style={{
+                                            gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, 1fr))`,
+                                            width: gridWidth(item.columns.length),
+                                        }}
                                     >
                                         {item.columnHeadings?.map((heading, columnIndex) => (
                                             <p
@@ -418,6 +441,7 @@ export function TranslationCard({
                                             ));
                                         })}
                                     </div>
+                                    </GridScroller>
                                 )}
                             </Fragment>
                         ))}

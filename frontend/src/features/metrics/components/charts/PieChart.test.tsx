@@ -70,4 +70,13 @@ describe('PieChart', () => {
         expect(screen.getByRole('img', { name: 'chart' })).toBeInTheDocument();
         expect(screen.getByText('0')).toBeInTheDocument();
     });
+
+    it('renders a placeholder ring with a message and no legend when emptyLabel is set', () => {
+        render(
+            <PieChart segments={SEGMENTS} total={0} unitLabel="words" worst={null} ariaLabel="chart" emptyLabel="No data yet" />,
+        );
+        expect(screen.getByText('No data yet')).toBeInTheDocument();
+        expect(screen.queryByText('Nouns')).not.toBeInTheDocument();
+        expect(screen.getByRole('img', { name: 'chart: No data yet' })).toBeInTheDocument();
+    });
 });

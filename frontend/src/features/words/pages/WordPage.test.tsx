@@ -112,6 +112,19 @@ describe('WordPage — view', () => {
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
     });
 
+    it('has a back arrow next to the title that goes back like Return, but only outside edit mode', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [SEED] }).handlers);
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: 'Edit' }));
+        expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+        await user.click(await screen.findByRole('button', { name: 'Back' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    });
+
     it('shows a toast and navigates Home for a not-found word', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id }).handlers);
         const { router } = await renderApp({ initialEntry: '/word/missing-id', session: SESSION });

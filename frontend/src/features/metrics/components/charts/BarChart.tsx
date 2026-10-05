@@ -57,6 +57,8 @@ export interface BarChartProps {
     /** Translated unit noun ("words" / "translations"), used in each bar's tooltip. */
     unitLabel: string;
     ariaLabel: string;
+    /** When set, a small banner with this message sits in the middle of the (empty) plot. */
+    emptyMessage?: string;
     /** Milliseconds to hover a bar before its tooltip opens. */
     tooltipDelay?: number;
     /**
@@ -86,6 +88,7 @@ export function BarChart({
     stacked,
     unitLabel,
     ariaLabel,
+    emptyMessage,
     tooltipDelay = DEFAULT_TOOLTIP_DELAY,
     tooltipTimeout = DEFAULT_TOOLTIP_TIMEOUT,
 }: BarChartProps) {
@@ -193,6 +196,13 @@ export function BarChart({
                         ))}
                     </div>
                 </TooltipProvider>
+                {emptyMessage && (
+                    <div className="pointer-events-none absolute inset-0 grid place-items-center px-10">
+                        <p role="status" className="banner info max-w-xs text-center">
+                            {emptyMessage}
+                        </p>
+                    </div>
+                )}
             </div>
             <div className="bar-legend">
                 {series.map((s) => (

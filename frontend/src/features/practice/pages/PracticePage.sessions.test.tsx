@@ -239,12 +239,12 @@ describe('finishing a resumed session', () => {
 });
 
 describe('Saved sessions list', () => {
-    it('says so when there are none, and states the limit and the expiry', async () => {
+    it('says so when there are none', async () => {
         setUp();
         await renderPractice();
 
         expect(await screen.findByText(/You have no saved sessions/)).toBeInTheDocument();
-        expect(screen.getByText('You can keep up to 10 sessions for 7 days. A new session replaces the oldest one.')).toBeInTheDocument();
+        expect(screen.getByText('0 sessions (max. 10)')).toBeInTheDocument();
     });
 
     it('shows each session with the same three facts as the resume banner, and the expiry date', async () => {

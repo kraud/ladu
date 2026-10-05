@@ -32,7 +32,9 @@
       "uiLanguage": "Idioma de la interfaz",
       "account": "Cuenta",
       "dashboard": "Panel de inicio",
-      "logout": "Cerrar sesión"
+      "logout": "Cerrar sesión",
+      "logoutConfirmTitle": "¿Cerrar sesión?",
+      "logoutConfirmDescription": "Tendrás que iniciar sesión de nuevo para usar Ladu."
     },
     "notImplemented": "Esta funcionalidad aún no está implementada. ¡Perdón!",
     "goToAccount": "Ir a la cuenta",
