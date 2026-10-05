@@ -209,8 +209,8 @@ test.describe.serial('Phase 5 — practice', () => {
 
     test('Review -> select two words -> Practice: only those words appear', async ({ page }) => {
         await signIn(page, owner);
-        await page.getByRole('link', { name: 'review' }).click();
-        await expect(page).toHaveURL('/review');
+        await page.getByRole('link', { name: 'words', exact: true }).click();
+        await expect(page).toHaveURL('/words');
 
         await page.getByRole('row', { name: /Apple/ }).getByRole('checkbox').click();
         await page.getByRole('row', { name: /Banana/ }).getByRole('checkbox').click();

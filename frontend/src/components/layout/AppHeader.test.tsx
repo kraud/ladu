@@ -29,13 +29,13 @@ describe('AppHeader nav gating', () => {
         server.use(...makeMetricsHandlers().handlers);
     });
 
-    it('blocks Add Word with <2 languages and offers a route to Account', async () => {
+    it('blocks Words with <2 languages and offers a route to Account', async () => {
         const user = userEvent.setup();
         const { router } = await renderApp({
             session: { ...baseSession, languages: ['English'] },
         });
 
-        await user.click(screen.getByRole('link', { name: 'add word' }));
+        await user.click(screen.getByRole('link', { name: 'words' }));
 
         expect(router.state.location.pathname).toBe('/');
         expect(
@@ -44,6 +44,17 @@ describe('AppHeader nav gating', () => {
 
         await user.click(screen.getByRole('button', { name: 'Go to Account' }));
         await waitFor(() => expect(router.state.location.pathname).toBe('/user'));
+    });
+
+    it('lists Words, Tags and Practice in that order, with no Add word link', async () => {
+        await renderApp({ session: { ...baseSession, languages: ['English', 'Spanish'] } });
+
+        const names = screen
+            .getAllByRole('link')
+            .map((link) => link.textContent)
+            .filter((text) => ['words', 'tags', 'practice'].includes(text ?? ''));
+        expect(names.slice(0, 3)).toEqual(['words', 'tags', 'practice']);
+        expect(screen.queryByRole('link', { name: 'add word' })).not.toBeInTheDocument();
     });
 
     it('lets Practice through regardless of language count', async () => {
@@ -56,7 +67,7 @@ describe('AppHeader nav gating', () => {
         await waitFor(() => expect(router.state.location.pathname).toBe('/practice'));
     });
 
-    it('lets Review through with ≥2 languages', async () => {
+    it('lets Words through with ≥2 languages', async () => {
         // The real ReviewPage (Slice 6) fires GET /api/words/simple on mount.
         server.use(...makeWordHandlers({ callerId: baseSession.id }).handlers);
 
@@ -65,7 +76,7 @@ describe('AppHeader nav gating', () => {
             session: { ...baseSession, languages: ['English', 'Spanish'] },
         });
 
-        await user.click(screen.getByRole('link', { name: 'review' }));
-        await waitFor(() => expect(router.state.location.pathname).toBe('/review'));
+        await user.click(screen.getByRole('link', { name: 'words' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/words'));
     });
 });

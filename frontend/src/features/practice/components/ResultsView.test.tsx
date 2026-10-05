@@ -355,6 +355,6 @@ describe('ResultsView', () => {
 
     it('links to Review', async () => {
         await openResults();
-        expect(await screen.findByRole('link', { name: 'Go to Review table' })).toHaveAttribute('href', '/review');
+        expect(await screen.findByRole('link', { name: 'Go to Words table' })).toHaveAttribute('href', '/words');
     });
 });

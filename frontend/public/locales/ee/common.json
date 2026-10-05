@@ -16,10 +16,9 @@
     "goToLogin": "Ava sisselogimine"
   },
   "header": {
-    "addWord": "lisa sõna",
     "tags": "tagid",
     "practice": "harjuta",
-    "review": "ülevaade",
+    "words": "sõnad",
     "search": {
       "words": "Otsige sõnu...",
       "tags": "Otsige tagid...",

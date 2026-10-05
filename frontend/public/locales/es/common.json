@@ -16,10 +16,9 @@
     "goToLogin": "Ir a iniciar sesión"
   },
   "header": {
-    "addWord": "agregar palabra",
     "tags": "etiquetas",
     "practice": "practicar",
-    "review": "listado",
+    "words": "palabras",
     "search": {
       "words": "Buscar palabras...",
       "tags": "Buscar tags...",

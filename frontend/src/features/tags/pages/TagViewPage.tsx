@@ -335,7 +335,7 @@ export function TagViewPage() {
                         t('tags:addWords.addedToast', { count: added.length, label: tag.label }),
                     )
                 }
-                onGoToReview={() => void navigate({ to: '/review' })}
+                onGoToReview={() => void navigate({ to: '/words' })}
             />
 
             <ConfirmDialog

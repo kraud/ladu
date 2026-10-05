@@ -35,6 +35,16 @@ async function fillEnEs(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('AddWordPage', () => {
+    it('has a back arrow that returns to Words', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id }).handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/addWord', session: SESSION });
+
+        await user.click(screen.getByRole('link', { name: 'Back to Words' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/words'));
+    });
+
     it('creates a noun, morphs the toast into success, and navigates on "See details"', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id });
         server.use(...fake.handlers);
@@ -43,12 +53,12 @@ describe('AddWordPage', () => {
         const { router } = await renderApp({ initialEntry: '/addWord', session: SESSION });
 
         // D37: one heading pair before a PoS is picked.
-        expect(screen.getByRole('heading', { name: 'Add a new word' })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'New word' })).toBeInTheDocument();
         expect(screen.queryByText('What kind of word is it?')).not.toBeInTheDocument();
         await user.click(screen.getByRole('radio', { name: /Noun/ }));
 
         // D38: the title tracks the picked type. No subtitle, like Tags and Review.
-        expect(await screen.findByRole('heading', { name: 'Add a new Noun' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'New Noun' })).toBeInTheDocument();
         expect(screen.queryByText('All the required fields must be completed before saving')).not.toBeInTheDocument();
 
         await fillEnEs(user);
@@ -74,7 +84,7 @@ describe('AddWordPage', () => {
 
         // The form reset and the PoS gate is back — still on /addWord.
         expect(router.state.location.pathname).toBe('/addWord');
-        expect(await screen.findByRole('heading', { name: 'Add a new word' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'New word' })).toBeInTheDocument();
         expect(screen.queryByText('What kind of word is it?')).not.toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: 'Click here to see the new word' }));
@@ -87,7 +97,7 @@ describe('AddWordPage', () => {
         await renderApp({ initialEntry: '/addWord/noun', session: SESSION });
 
         expect(screen.queryByText('What kind of word is it?')).not.toBeInTheDocument();
-        expect(await screen.findByRole('heading', { name: 'Add a new Noun' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'New Noun' })).toBeInTheDocument();
         expect(screen.queryByText('All the required fields must be completed before saving')).not.toBeInTheDocument();
     });
 
@@ -96,10 +106,10 @@ describe('AddWordPage', () => {
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/addWord/noun', session: SESSION });
 
-        expect(await screen.findByRole('heading', { name: 'Add a new Noun' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'New Noun' })).toBeInTheDocument();
         await user.click(screen.getByRole('button', { name: 'Change word type' }));
 
-        expect(screen.getByRole('heading', { name: 'Add a new word' })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'New word' })).toBeInTheDocument();
         expect(screen.queryByText('What kind of word is it?')).not.toBeInTheDocument();
     });
 

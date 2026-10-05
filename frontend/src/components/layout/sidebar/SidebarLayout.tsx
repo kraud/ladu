@@ -78,6 +78,8 @@ export interface SidebarLayoutProps {
     header?: ReactNode;
     /** Content column max width: `max-w-7xl` instead of `max-w-5xl`. */
     wide?: boolean;
+    /** Phone only: the content column is exactly the window height under the header, and the page's last child fills what is left (Words' table). */
+    fillHeight?: boolean;
     children: ReactNode;
 }
 
@@ -140,6 +142,7 @@ export function SidebarLayout({
     footerAligned,
     header,
     wide,
+    fillHeight,
     children,
 }: SidebarLayoutProps) {
     const { t } = useTranslation();
@@ -200,6 +203,7 @@ export function SidebarLayout({
     const repeatsTitle = loneSection !== undefined && loneSection.label === label;
     const titleInHeader = !isMobile && repeatsTitle;
     const hideHeading = isMobile && repeatsTitle;
+    const fill = fillHeight && isMobile;
     const body = (
         <div className="flex flex-col gap-4" style={isMobile ? undefined : { width: `calc(${WIDTHS[width].px} - 2rem - 1px)` }}>
             {sections.map((section) => (
@@ -291,15 +295,16 @@ export function SidebarLayout({
                     </aside>
                 )}
 
-                <div className="min-w-0 flex-1">
+                <div className={cn('min-w-0 flex-1', fill && 'h-[calc(100dvh-var(--app-header-h))]')}>
                     <div
                         className={cn(
                             'mx-auto px-6 pt-3 pb-8 max-[920px]:px-3 max-[920px]:pt-2',
+                            fill && 'flex h-full flex-col pb-3',
                             wide ? 'max-w-7xl' : 'max-w-5xl',
                         )}
                     >
                         {header ? (
-                            <div className="flex flex-col gap-4">
+                            <div className={cn('flex flex-col gap-4', fill && 'min-h-0 flex-1')}>
                                 {header}
                                 {children}
                             </div>

@@ -58,6 +58,8 @@ export interface ReviewTableProps {
     onAddWord: () => void;
     /** Unset in Slice 6 — Slice 8 wires the cell editor dialog. */
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
+    /** Phone layout: no loaded/total text, and the footer only shows when "Load more" is needed. */
+    compact?: boolean;
 }
 
 /**
@@ -89,6 +91,7 @@ export function ReviewTable({
     onClearFilters,
     onAddWord,
     onOpenCell,
+    compact = false,
 }: ReviewTableProps) {
     const { t } = useTranslation();
 
@@ -144,8 +147,8 @@ export function ReviewTable({
     }
 
     return (
-        <div className="main-col">
-            <div className="tablewrap">
+        <div className="main-col min-h-0 flex-1">
+            <div className="tablewrap min-h-0 flex-1">
                 <table className="dtable">
                     <thead>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -193,23 +196,27 @@ export function ReviewTable({
                     </tbody>
                 </table>
             </div>
-            <div className="footer-row">
-                <span className="meta">
-                    {hasNextPage
-                        ? t('review:table.loaded', { loaded: rows.length, total })
-                        : t('review:table.allLoaded', { total })}
-                </span>
-                {hasNextPage && (
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={onFetchNextPage}
-                        disabled={isFetchingNextPage}
-                    >
-                        {t('review:table.loadMore')}
-                    </Button>
-                )}
-            </div>
+            {(!compact || hasNextPage) && (
+                <div className="footer-row">
+                    {!compact && (
+                        <span className="meta">
+                            {hasNextPage
+                                ? t('review:table.loaded', { loaded: rows.length, total })
+                                : t('review:table.allLoaded', { total })}
+                        </span>
+                    )}
+                    {hasNextPage && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={onFetchNextPage}
+                            disabled={isFetchingNextPage}
+                        >
+                            {t('review:table.loadMore')}
+                        </Button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

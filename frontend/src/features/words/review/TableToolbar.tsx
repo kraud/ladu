@@ -5,10 +5,10 @@
  * applies to every part of speech), and the loaded/total row count.
  *
  * On a phone the switches live in the slide-in menu instead
- * (`hideDisplayOptions`), and the "Filters" button that opens it
+ * (`compact`), and the "Filters" button that opens it
  * (`SidebarTrigger`) comes in through `leading`, before the search box. On
  * desktop that button renders nothing: the filter panel is always docked.
- * Search and the count stay here either way.
+ * Search stays here either way; the count is left out on a phone for now.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -32,8 +32,8 @@ export interface TableToolbarProps {
     total: number;
     /** Rendered before the search box (the phone's Filters button; empty on desktop). */
     leading?: ReactNode;
-    /** The switches are somewhere else (the phone's slide-in menu). */
-    hideDisplayOptions?: boolean;
+    /** Phone layout: the switches are in the slide-in menu, and the row count is not shown. */
+    compact?: boolean;
 }
 
 export function TableToolbar({
@@ -47,7 +47,7 @@ export function TableToolbar({
     loadedCount,
     total,
     leading,
-    hideDisplayOptions = false,
+    compact = false,
 }: TableToolbarProps) {
     const { t } = useTranslation();
     const [value, setValue] = useState(initialQuery);
@@ -86,7 +86,7 @@ export function TableToolbar({
                     aria-label={t('review:toolbar.searchLabel')}
                 />
             </div>
-            {!hideDisplayOptions && (
+            {!compact && (
                 <DisplayOptions
                     showGenderSwitch={showSwitch}
                     showGender={showGender}
@@ -95,9 +95,11 @@ export function TableToolbar({
                     onShowProgressChange={onShowProgressChange}
                 />
             )}
-            <span className="meta" style={{ marginLeft: 'auto' }}>
-                {t('review:toolbar.rowCount', { count: loadedCount, total })}
-            </span>
+            {!compact && (
+                <span className="meta" style={{ marginLeft: 'auto' }}>
+                    {t('review:toolbar.rowCount', { count: loadedCount, total })}
+                </span>
+            )}
         </div>
     );
 }

@@ -104,7 +104,8 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await expect(page.getByRole('heading', { name: /Welcome, Kai Rebane/ })).toBeVisible();
 
         // --- German noun, letting the real (offline) autocomplete fill gender ---
-        await page.getByRole('link', { name: 'add word' }).click();
+        await page.getByRole('link', { name: 'words', exact: true }).click();
+        await page.getByRole('link', { name: 'New word' }).click();
         await expect(page).toHaveURL('/addWord');
         await page.getByRole('radio', { name: /Noun/ }).click();
 
@@ -123,7 +124,8 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await expect(page.getByText('Word was created successfully')).toBeVisible();
 
         // --- Verb, exercising the Slice 9/10 wide-shell tense-grid layout ---
-        await page.getByRole('link', { name: 'add word' }).click();
+        await page.getByRole('link', { name: 'words', exact: true }).click();
+        await page.getByRole('link', { name: 'New word' }).click();
         await expect(page).toHaveURL('/addWord');
         await page.getByRole('radio', { name: /Verb/ }).click();
 
@@ -140,7 +142,7 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await expect(page.getByText('Word was created successfully')).toBeVisible();
 
         // --- Review: filter survives a reload, Load more pages in the rest ---
-        await page.goto('/review');
+        await page.goto('/words');
         await expect(page.getByText('run')).toBeVisible();
 
         await page.getByRole('button', { name: 'v.', exact: true }).click();

@@ -1,7 +1,8 @@
 {
   "addWordPage": {
-    "title": "Añadir un nuevo {{currentPoS}}",
-    "titleDefault": "Añadir una nueva palabra",
+    "title": "Nuevo {{currentPoS}}",
+    "titleDefault": "Nueva palabra",
+    "back": "Volver a Palabras",
     "toastCreateSuccess": "La palabra se creó correctamente"
   },
   "apiErrors": {

@@ -218,8 +218,8 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
 
     test('a configuration with words: a deleted word is reported, and only the word that is left is practised', async ({ page, request }) => {
         await signIn(page, owner);
-        await page.getByRole('link', { name: 'review' }).click();
-        await expect(page).toHaveURL('/review');
+        await page.getByRole('link', { name: 'words', exact: true }).click();
+        await expect(page).toHaveURL('/words');
 
         await page.getByRole('row', { name: /Apple/ }).getByRole('checkbox').click();
         await page.getByRole('row', { name: /Banana/ }).getByRole('checkbox').click();

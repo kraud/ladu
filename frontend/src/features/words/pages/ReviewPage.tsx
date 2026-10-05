@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import type { RowSelectionState } from '@tanstack/react-table';
-import { SlidersHorizontalIcon } from '@phosphor-icons/react';
+import { PlusIcon, SlidersHorizontalIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
 import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
@@ -46,7 +46,7 @@ import {
     type ReviewSearch,
 } from '../review/search';
 
-const route = getRouteApi('/_protected/review');
+const route = getRouteApi('/_protected/words');
 
 export function ReviewPage() {
     const { t } = useTranslation();
@@ -236,9 +236,18 @@ export function ReviewPage() {
             id="review"
             label={t('review:filters.title')}
             sections={sections}
-            header={<h1 className="h1">{t('common:header.review')}</h1>}
+            fillHeight
+            header={
+                <div className="flex items-center justify-between gap-2">
+                    <h1 className="h1">{t('common:header.words')}</h1>
+                    <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants()}>
+                        <PlusIcon size={15} weight="bold" />
+                        {t('review:page.newWord')}
+                    </Link>
+                </div>
+            }
         >
-            <div className="main-col">
+            <div className="main-col min-h-0 flex-1">
                 <TableToolbar
                     initialQuery={search.q ?? ''}
                     onQueryChange={(next) => updateSearch({ q: next })}
@@ -249,7 +258,7 @@ export function ReviewPage() {
                     onShowProgressChange={setShowProgress}
                     loadedCount={rows.length}
                     total={total}
-                    hideDisplayOptions={isMobile}
+                    compact={isMobile}
                     leading={
                         <SidebarTrigger
                             label={t('review:filters.title')}
@@ -291,6 +300,7 @@ export function ReviewPage() {
                         onClearFilters={() => void navigate({ search: (prev) => ({ lang: prev.lang }) })}
                         onAddWord={() => void navigate({ to: '/addWord/{-$partOfSpeech}' })}
                         onOpenCell={handleOpenCell}
+                        compact={isMobile}
                     />
             </div>
 

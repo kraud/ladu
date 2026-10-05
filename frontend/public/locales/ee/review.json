@@ -23,6 +23,9 @@
     "hideLanguage": "Peida {{language}}",
     "showLanguage": "Näita {{language}}"
   },
+  "page": {
+    "newWord": "Uus sõna"
+  },
   "toolbar": {
     "searchPlaceholder": "Otsi sõnu…",
     "searchLabel": "Filtreeri tabelit",

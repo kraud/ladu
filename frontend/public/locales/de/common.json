@@ -16,10 +16,9 @@
     "goToLogin": "Zur Anmeldung"
   },
   "header": {
-    "addWord": "wort hinzufügen",
     "tags": "tags",
     "practice": "üben",
-    "review": "überprüfen",
+    "words": "wörter",
     "search": {
       "words": "Wörter suchen...",
       "tags": "Tags suchen...",

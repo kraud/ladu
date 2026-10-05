@@ -5,7 +5,7 @@
  *   root
  *   ├── _public     (pathless layout, no header)   → login, register, verify, reset
  *   └── _protected  (pathless layout, AppShell)    → dashboard, addWord, word,
- *                                                     review, practice, account,
+ *                                                     words, practice, account,
  *                                                     notifications, tag
  *
  * `_protected.beforeLoad` is the single centralised auth gate (fixes the old
@@ -146,10 +146,20 @@ const wordRoute = createRoute({
 
 const reviewRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
-    path: '/review',
+    path: '/words',
     validateSearch: validateReviewSearch,
     component: ReviewPage,
     staticData: { sidebar: true },
+});
+
+// The word list used to live at `/review`: old links and bookmarks keep their filters.
+const legacyReviewRoute = createRoute({
+    getParentRoute: () => protectedLayoutRoute,
+    path: '/review',
+    validateSearch: validateReviewSearch,
+    beforeLoad: ({ search }) => {
+        throw redirect({ to: '/words', search });
+    },
 });
 
 const practiceRoute = createRoute({
@@ -209,6 +219,7 @@ const routeTree = rootRoute.addChildren([
         addWordRoute,
         wordRoute,
         reviewRoute,
+        legacyReviewRoute,
         practiceRoute,
         accountRoute,
         notificationsRoute,

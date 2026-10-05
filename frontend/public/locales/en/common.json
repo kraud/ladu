@@ -16,10 +16,9 @@
     "goToLogin": "Go to login"
   },
   "header": {
-    "addWord": "add word",
     "tags": "tags",
     "practice": "practice",
-    "review": "review",
+    "words": "words",
     "search": {
       "words": "Search words...",
       "tags": "Search tags...",

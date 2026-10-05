@@ -104,7 +104,9 @@ test.describe.serial('Post-deploy smoke', () => {
             );
         }
 
-        await page.getByRole('link', { name: 'add word' }).click();
+        await page.getByRole('link', { name: 'words', exact: true }).click();
+
+        await page.getByRole('link', { name: 'New word' }).click();
         await expect(page).toHaveURL('/addWord');
         await page.getByRole('radio', { name: /Noun/ }).click();
 

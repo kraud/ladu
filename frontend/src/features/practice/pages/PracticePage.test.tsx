@@ -535,7 +535,7 @@ describe('PracticePage — running session', () => {
         const user = userEvent.setup();
         expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
 
-        await router.navigate({ to: '/review' });
+        await router.navigate({ to: '/words' });
         await router.navigate({ to: '/practice' });
 
         expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
@@ -553,7 +553,7 @@ describe('PracticePage — running session', () => {
         const user = userEvent.setup();
         await screen.findByText('Exercise 1 of 1');
 
-        await router.navigate({ to: '/review' });
+        await router.navigate({ to: '/words' });
         await router.navigate({ to: '/practice' });
         await user.click(await screen.findByRole('button', { name: 'Dismiss' }));
 
@@ -568,7 +568,7 @@ describe('PracticePage — running session', () => {
         usePracticeSessionStore.getState().dispatch({ type: 'finish' });
         expect(usePracticeSessionStore.getState().session?.view).toBe('results');
 
-        await router.navigate({ to: '/review' });
+        await router.navigate({ to: '/words' });
         await router.navigate({ to: '/practice' });
 
         expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();

@@ -211,8 +211,8 @@ test.describe.serial('Phase 4 — tags', () => {
         });
 
         await test.step('A bulk-adds the tag to a third word from Review (D5/D17)', async () => {
-            await pageA.getByRole('link', { name: 'review' }).click();
-            await expect(pageA).toHaveURL('/review');
+            await pageA.getByRole('link', { name: 'words', exact: true }).click();
+            await expect(pageA).toHaveURL('/words');
 
             await pageA.getByRole('row', { name: /Carrot/ }).getByRole('checkbox').click();
             await pageA.getByRole('button', { name: 'Add tags' }).click();
@@ -244,8 +244,8 @@ test.describe.serial('Phase 4 — tags', () => {
         });
 
         await test.step("B sees all three words in Review, read-only (owner dot as group, D10)", async () => {
-            await pageB.getByRole('link', { name: 'review' }).click();
-            await expect(pageB).toHaveURL('/review');
+            await pageB.getByRole('link', { name: 'words', exact: true }).click();
+            await expect(pageB).toHaveURL('/words');
 
             for (const word of ['Apple', 'Banana', 'Carrot']) {
                 const row = pageB.getByRole('row', { name: new RegExp(word) });
@@ -294,7 +294,7 @@ test.describe.serial('Phase 4 — tags', () => {
         });
 
         await test.step("B's access returns automatically — no re-follow needed", async () => {
-            await pageB.getByRole('link', { name: 'review' }).click();
+            await pageB.getByRole('link', { name: 'words', exact: true }).click();
             for (const word of ['Apple', 'Banana', 'Carrot']) {
                 await expect(pageB.getByRole('row', { name: new RegExp(word) })).toBeVisible();
             }

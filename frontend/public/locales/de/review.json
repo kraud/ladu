@@ -23,6 +23,9 @@
     "hideLanguage": "{{language}} ausblenden",
     "showLanguage": "{{language}} einblenden"
   },
+  "page": {
+    "newWord": "Neues Wort"
+  },
   "toolbar": {
     "searchPlaceholder": "Wörter suchen…",
     "searchLabel": "Tabelle filtern",

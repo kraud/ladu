@@ -6,8 +6,9 @@
  * page for the next word (`pages-word-flow.md` §WordForm, use case 7).
  */
 import { useState } from 'react';
-import { getRouteApi, useNavigate } from '@tanstack/react-router';
+import { getRouteApi, Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { WordForm } from '../form-engine/WordForm';
 import { useCreateWord } from '../hooks';
 import { wordErrorKey } from '../errors';
@@ -69,7 +70,19 @@ export function AddWordPage() {
             onChangePartOfSpeech={resetToGate}
             onPartOfSpeechChange={setPartOfSpeech}
             submitting={createWord.isPending}
-            header={<h1 className="h1">{title}</h1>}
+            header={
+                <div className="flex items-center gap-2">
+                    <Link
+                        to="/words"
+                        className="icon-btn"
+                        aria-label={t('wordRelated:addWordPage.back')}
+                        title={t('wordRelated:addWordPage.back')}
+                    >
+                        <ArrowLeftIcon size={18} />
+                    </Link>
+                    <h1 className="h1">{title}</h1>
+                </div>
+            }
         />
     );
 }

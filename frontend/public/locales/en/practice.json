@@ -263,7 +263,7 @@
     "settings": "Settings used",
     "again": "Practice again",
     "change": "Change settings",
-    "toReview": "Go to Review table",
+    "toReview": "Go to Words table",
     "scoreCount": "{{correct}} of {{total}}",
     "correctAnswers": "correct answers",
     "almostHint": "includes {{count}} almost correct — accents or capitals only",

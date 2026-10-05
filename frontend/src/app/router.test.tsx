@@ -27,6 +27,13 @@ describe('_protected.beforeLoad guard', () => {
         expect(router.state.location.search).toMatchObject({ redirect: expect.stringContaining('/review') });
     });
 
+    it('redirects the old /review URL to /words and keeps its filters', async () => {
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com' }, futureToken());
+        const router = await loadAt('/review?pos=Noun');
+        expect(router.state.location.pathname).toBe('/words');
+        expect(router.state.location.search).toMatchObject({ pos: ['Noun'] });
+    });
+
     it('redirects when the persisted token is expired', async () => {
         useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com' }, expiredToken());
         const router = await loadAt('/practice');

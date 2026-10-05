@@ -74,8 +74,8 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         await expect(page).toHaveURL('/');
         await expect(page.getByRole('heading', { name: /Welcome, Kai Rebane/ })).toBeVisible();
-        await expect(page.getByRole('link', { name: 'add word' })).toBeVisible();
-        await expect(page.getByRole('link', { name: 'review' })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'words', exact: true })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'add word' })).toHaveCount(0);
 
         // Log out via the user menu.
         await page.getByRole('button', { name: 'Open settings' }).click();
@@ -145,7 +145,7 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
         await page.goto('/');
         await expect(page).toHaveURL(/\/login/);
 
-        await page.goto('/review');
+        await page.goto('/words');
         await expect(page).toHaveURL(/\/login\?.*redirect=/);
 
         // A persisted but expired session is discarded, then the guard redirects.
