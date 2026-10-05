@@ -9,6 +9,7 @@ import {
     currentPrompt,
     goOn,
     loginForToken,
+    openNewConfiguration,
     position,
     registerAndVerify,
     seedNouns,
@@ -60,6 +61,8 @@ const configRow = (page: Page, name: string) => page.getByRole('button', { name:
  */
 const showTabs = async (page: Page) => {
     const back = page.getByRole('button', { name: 'Back to Practice' });
+    // `isVisible()` does not wait, and a closing dialog still hides the page from role queries.
+    await expect(back.or(page.getByRole('tab', { name: 'Ongoing sessions' }))).toBeVisible();
     if (await back.isVisible()) await back.click();
 };
 const openSessionsTab = async (page: Page) => {
@@ -70,10 +73,7 @@ const openConfigurationsTab = async (page: Page) => {
     await showTabs(page);
     await page.getByRole('tab', { name: 'Saved configurations' }).click();
 };
-const openNewConfigurationTab = async (page: Page) => {
-    const open = page.getByRole('button', { name: 'New configuration' });
-    if (await open.isVisible()) await open.click();
-};
+const openNewConfigurationTab = openNewConfiguration;
 /** Selecting a saved configuration asks "start now or change first"; these tests take the second way. */
 const loadConfig = async (page: Page, name: string) => {
     await configRow(page, name).click();
@@ -420,6 +420,8 @@ test.describe.serial('Phase 5.5 — saved practice', () => {
             await answerCard(page, 'right');
             await leaveWith(page, 'Leave session and delete');
 
+            // Leaving returns to the set-up screen in the New configuration view it came from: back to the tabs.
+            await showTabs(page);
             await expect(page.getByRole('heading', { name: 'Practice', level: 1 })).toBeVisible();
             await openSessionsTab(page);
             await expect(page.getByText(/You have no saved sessions/)).toBeVisible();
