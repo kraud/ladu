@@ -43,7 +43,8 @@ export function AuthLayout({
     return (
         <div className="auth-shell page">
             <aside className="auth-brand">
-                <BrandLogo variant="outline" height={178} title="Ladu" className="auth-brand-mark" />
+                <BrandLogo variant="outline" height={178} title="Ladu" className="auth-brand-mark max-[760px]:hidden" />
+                <BrandLogo variant="wordmark" height={64} title="Ladu" className="auth-brand-wordmark hidden max-[760px]:inline-block" />
                 <div className="stack-sm flex flex-col gap-2">
                     <p className="auth-tagline">{t('loginRegister:brand.tagline')}</p>
                     <p className="auth-sub">{blurb}</p>
@@ -52,7 +53,8 @@ export function AuthLayout({
                     {UI_LANGUAGES.map((lang) => (
                         <span key={lang.key} className="flag-chip">
                             <FlagIcon lang={lang.key} width={24} height={16} />
-                            {lang.key}
+                            <span className="flag-key">{lang.key}</span>
+                            <span className="flag-label">{lang.label}</span>
                         </span>
                     ))}
                 </div>

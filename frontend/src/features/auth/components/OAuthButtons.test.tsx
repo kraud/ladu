@@ -13,7 +13,7 @@ describe('OAuthButtons', () => {
         const link = await screen.findByRole('link', { name: 'Continue with Google' });
         expect(link.tagName).toBe('A');
         expect(link).toHaveAttribute('href', '/api/auth/google/start');
-        expect(screen.getByText('or continue with')).toBeInTheDocument();
+        expect(screen.getByText('or')).toBeInTheDocument();
     });
 
     it('renders nothing once no provider is configured', async () => {
@@ -28,6 +28,6 @@ describe('OAuthButtons', () => {
 
         await waitFor(() => expect(called).toBe(true));
         expect(screen.queryByRole('link', { name: 'Continue with Google' })).not.toBeInTheDocument();
-        expect(screen.queryByText('or continue with')).not.toBeInTheDocument();
+        expect(screen.queryByText('or')).not.toBeInTheDocument();
     });
 });

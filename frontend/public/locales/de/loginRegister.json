@@ -27,7 +27,7 @@
   },
   "oauth": {
     "continueWithGoogle": "Mit Google fortfahren",
-    "orContinueWith": "oder weiter mit",
+    "orContinueWith": "oder",
     "signupTitle": "Noch ein Schritt",
     "signupSubtitle": "Registrierung mit Google abschließen — wähle einen Benutzernamen und deine Lernsprachen.",
     "linkTitle": "Bestätige dein Passwort",
@@ -61,8 +61,7 @@
     "subNotFound": "Diese Seite ist nicht im Regal — aber alles andere schon."
   },
   "login": {
-    "title": "Anmelden",
-    "subtitle": "Und jetzt loslegen!",
+    "title": "Bei Ladu anmelden",
     "submit": "Anmelden",
     "submitting": "Anmeldung läuft…"
   },
@@ -76,10 +75,8 @@
     "languagesHint": "Wähle mindestens zwei. Du kannst später weitere hinzufügen und sie neu anordnen.",
     "step1Pill": "Schritt 1 von 2 · Konto",
     "step1Title": "Konto erstellen",
-    "step1Subtitle": "Wir senden dir eine Bestätigungs-E-Mail, sobald du dabei bist.",
     "step2Pill": "Schritt 2 von 2 · Sprachen",
     "step2Title": "Wähle deine Sprachen",
-    "step2Subtitle": "Wähle mindestens zwei — die unten gezeigten Wortarten sind für jede Sprache verfügbar.",
     "continue": "Weiter",
     "continueHint": "Als Nächstes: deine Lernsprachen wählen",
     "back": "Zurück",

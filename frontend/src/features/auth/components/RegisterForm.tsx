@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
@@ -27,9 +27,11 @@ const STEP1_FIELDS = ['name', 'username', 'email', 'password', 'password2'] as c
  * profile data, then a dedicated language-tiles screen. "Continue" only
  * validates step 1's fields client-side — the account is created by a
  * single `POST /api/users` fired from step 2, carrying both. `password2`
- * is enforced by the schema and never sent.
+ * is enforced by the schema and never sent. `oauthSlot` (the Google button + "or"
+ * divider) shows under the step-1 title only: once someone continues with an
+ * email and password, Google is no longer an option.
  */
-export function RegisterForm() {
+export function RegisterForm({ oauthSlot }: { oauthSlot?: ReactNode }) {
     const { t, i18n } = useTranslation();
     const register = useRegister();
     const schema = useMemo(() => buildRegisterSchema(t), [t]);
@@ -81,8 +83,8 @@ export function RegisterForm() {
                         <span className="step-pill">{t('loginRegister:register.step1Pill')}</span>
                         <div className="form-head">
                             <h1 className="h2">{t('loginRegister:register.step1Title')}</h1>
-                            <p>{t('loginRegister:register.step1Subtitle')}</p>
                         </div>
+                        {oauthSlot}
 
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <FormField
@@ -184,7 +186,6 @@ export function RegisterForm() {
                         <span className="step-pill">{t('loginRegister:register.step2Pill')}</span>
                         <div className="form-head">
                             <h1 className="h2">{t('loginRegister:register.step2Title')}</h1>
-                            <p>{t('loginRegister:register.step2Subtitle')}</p>
                         </div>
 
                         <FormField
@@ -203,9 +204,6 @@ export function RegisterForm() {
                         />
 
                         <div className="step-actions">
-                            <Button type="button" variant="secondary" onClick={() => setStep(1)}>
-                                {t('loginRegister:register.back')}
-                            </Button>
                             <span className="hint grow">
                                 {languages.length === 0
                                     ? t('loginRegister:register.languageCountEmpty')
@@ -213,6 +211,9 @@ export function RegisterForm() {
                                           count: languages.length,
                                       })}
                             </span>
+                            <Button type="button" variant="secondary" onClick={() => setStep(1)}>
+                                {t('loginRegister:register.back')}
+                            </Button>
                             <Button type="submit" disabled={pending || !form.formState.isValid}>
                                 {pending ? (
                                     <>

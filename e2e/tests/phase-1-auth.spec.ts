@@ -182,10 +182,10 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         await page.getByRole('button', { name: /interface language/i }).click();
         await page.getByRole('menuitem', { name: 'Español' }).click();
-        await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Inicia sesión en Ladu' })).toBeVisible();
 
         await page.reload();
-        await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Inicia sesión en Ladu' })).toBeVisible();
 
         // Sign in — the choice rode along on the login request and is now on the row.
         await page.getByLabel(/correo electrónico/i).fill(primary.email);

@@ -13,15 +13,31 @@ import { useOAuthProviders } from '../hooks';
  * reimplement all of that. While sign-ups are closed (`disabled`) it is a disabled button instead:
  * a link that goes nowhere would only confuse.
  */
-export function OAuthButtons({ disabled = false }: { disabled?: boolean }) {
+export function OAuthButtons({
+    disabled = false,
+    separator = 'below',
+}: {
+    disabled?: boolean;
+    /** Where the "or" divider sits relative to the Google button. */
+    separator?: 'above' | 'below';
+}) {
     const { t } = useTranslation();
     const { data: providers } = useOAuthProviders();
 
     const configured = providers ? Object.entries(providers).filter(([, on]) => on) : [];
     if (configured.length === 0) return null;
 
+    const divider = (
+        <div className="flex items-center gap-3">
+            <Separator className="flex-1" />
+            <span className="text-xs text-muted-foreground">{t('loginRegister:oauth.orContinueWith')}</span>
+            <Separator className="flex-1" />
+        </div>
+    );
+
     return (
-        <div className="oauth-buttons flex flex-col gap-3">
+        <div className={cn('oauth-buttons flex flex-col gap-3', separator === 'above' ? 'mt-4' : 'mb-4')}>
+            {separator === 'above' && divider}
             {configured.map(([provider]) =>
                 provider !== 'google' ? null : disabled ? (
                     <Button key={provider} type="button" variant="outline" className="w-full gap-2" disabled>
@@ -39,11 +55,7 @@ export function OAuthButtons({ disabled = false }: { disabled?: boolean }) {
                     </a>
                 ),
             )}
-            <div className="flex items-center gap-3">
-                <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">{t('loginRegister:oauth.orContinueWith')}</span>
-                <Separator className="flex-1" />
-            </div>
+            {separator === 'below' && divider}
         </div>
     );
 }

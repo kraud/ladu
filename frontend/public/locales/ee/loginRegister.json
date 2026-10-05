@@ -27,7 +27,7 @@
   },
   "oauth": {
     "continueWithGoogle": "Jätka Google'iga",
-    "orContinueWith": "või jätka",
+    "orContinueWith": "või",
     "signupTitle": "Veel üks samm",
     "signupSubtitle": "Google'iga registreerimise lõpetamine — vali kasutajanimi ja oma õppekeeled.",
     "linkTitle": "Kinnita oma parool",
@@ -61,8 +61,7 @@
     "subNotFound": "Seda lehte riiulil ei ole — aga kõik muu on."
   },
   "login": {
-    "title": "Logi sisse",
-    "subtitle": "Alusta kohe!",
+    "title": "Logi sisse Ladusse",
     "submit": "Logi sisse",
     "submitting": "Sisselogimine…"
   },
@@ -76,10 +75,8 @@
     "languagesHint": "Vali vähemalt kaks. Saad hiljem juurde lisada ja neid ümber järjestada.",
     "step1Pill": "Samm 1/2 · Konto",
     "step1Title": "Loo konto",
-    "step1Subtitle": "Saadame kinnituskirja niipea, kui oled liitunud.",
     "step2Pill": "Samm 2/2 · Keeled",
     "step2Title": "Vali oma keeled",
-    "step2Subtitle": "Vali vähemalt kaks — allpool toodud sõnaliigid on saadaval igas keeles.",
     "continue": "Jätka",
     "continueHint": "Järgmisena: vali oma õppekeeled",
     "back": "Tagasi",

@@ -21,7 +21,6 @@ export function LoginPage() {
         <AuthLayout
             blurb={t('loginRegister:brand.subLogin')}
             title={t('loginRegister:login.title')}
-            subtitle={t('loginRegister:login.subtitle')}
             links={
                 <>
                     <span>{t('loginRegister:switchSectionButtons.notRegistered')}</span>{' '}
@@ -30,10 +29,10 @@ export function LoginPage() {
             }
         >
             <AccessBanner gate="login" status={login} />
-            <OAuthButtons disabled={closed} />
             <fieldset disabled={closed} className="m-0 min-w-0 border-0 p-0">
                 <LoginForm redirectTo={redirect ?? '/'} />
             </fieldset>
+            <OAuthButtons disabled={closed} separator="above" />
         </AuthLayout>
     );
 }

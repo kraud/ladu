@@ -27,7 +27,7 @@
   },
   "oauth": {
     "continueWithGoogle": "Continuar con Google",
-    "orContinueWith": "o continuar con",
+    "orContinueWith": "o",
     "signupTitle": "Un paso más",
     "signupSubtitle": "Terminando el registro con Google — elige un nombre de usuario y tus idiomas de estudio.",
     "linkTitle": "Confirma tu contraseña",
@@ -61,8 +61,7 @@
     "subNotFound": "Esta página no está en el estante — pero todo lo demás sí."
   },
   "login": {
-    "title": "Iniciar sesión",
-    "subtitle": "¡Y comienza ahora!",
+    "title": "Inicia sesión en Ladu",
     "submit": "Iniciar sesión",
     "submitting": "Iniciando sesión…"
   },
@@ -76,10 +75,8 @@
     "languagesHint": "Elige al menos dos. Podrás añadir más y reordenarlos más tarde.",
     "step1Pill": "Paso 1 de 2 · Cuenta",
     "step1Title": "Crear cuenta",
-    "step1Subtitle": "Te enviaremos un correo de verificación en cuanto te unas.",
     "step2Pill": "Paso 2 de 2 · Idiomas",
     "step2Title": "Elige tus idiomas",
-    "step2Subtitle": "Elige al menos dos — las categorías gramaticales disponibles abajo aplican a cada idioma.",
     "continue": "Continuar",
     "continueHint": "Siguiente: elige tus idiomas de estudio",
     "back": "Atrás",

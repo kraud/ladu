@@ -25,9 +25,8 @@ export function RegisterPage() {
             }
         >
             <AccessBanner gate="registration" status={registration} />
-            <OAuthButtons disabled={closed} />
             <fieldset disabled={closed} className="m-0 min-w-0 border-0 p-0">
-                <RegisterForm />
+                <RegisterForm oauthSlot={<OAuthButtons disabled={closed} separator="below" />} />
             </fieldset>
         </AuthLayout>
     );

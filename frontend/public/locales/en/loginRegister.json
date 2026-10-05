@@ -27,7 +27,7 @@
   },
   "oauth": {
     "continueWithGoogle": "Continue with Google",
-    "orContinueWith": "or continue with",
+    "orContinueWith": "or",
     "signupTitle": "One more step",
     "signupSubtitle": "Finishing sign-up with Google — choose a username and your study languages.",
     "linkTitle": "Confirm your password",
@@ -61,8 +61,7 @@
     "subNotFound": "This page isn't on the shelf — but everything else is."
   },
   "login": {
-    "title": "Login",
-    "subtitle": "And get started!",
+    "title": "Sign in to Ladu",
     "submit": "Sign in",
     "submitting": "Signing in…"
   },
@@ -76,10 +75,8 @@
     "languagesHint": "Pick at least two. You can add more and reorder them later.",
     "step1Pill": "Step 1 of 2 · Account",
     "step1Title": "Create account",
-    "step1Subtitle": "We'll send a verification email once you're in.",
     "step2Pill": "Step 2 of 2 · Languages",
     "step2Title": "Choose your languages",
-    "step2Subtitle": "Pick at least two — the parts of speech below are available for every language.",
     "continue": "Continue",
     "continueHint": "Next: choose your study languages",
     "back": "Back",
