@@ -1698,6 +1698,33 @@
   .app-header .searchbox {
     display: none;
   }
+  /* The three stat cards share one row; the numbers and captions shrink to fit. */
+  .stat-stack {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .stat-card {
+    padding: 12px;
+  }
+  .stat-card .s-num {
+    font-size: 26px;
+  }
+  .stat-card .s-label {
+    font-size: 12px;
+  }
+  .stat-card .s-sub {
+    font-size: 10.5px;
+    flex-wrap: wrap;
+  }
+  .sk-num {
+    width: 100%;
+    max-width: 60px;
+    height: 26px;
+  }
+  .sk-label {
+    width: 100%;
+  }
   .dash-grid {
     grid-template-columns: 1fr;
   }

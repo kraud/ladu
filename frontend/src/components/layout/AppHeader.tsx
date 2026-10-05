@@ -117,7 +117,15 @@ export function AppHeader() {
                     <SheetContent side="left" className="gap-0 p-4">
                         <SheetHeader className="p-0 pb-8">
                             <SheetTitle>
-                                <BrandLogo height={36} title={t('common:appTitle')} />
+                                {/* Same target as the header logo: the Dashboard. */}
+                                <Link
+                                    to="/"
+                                    aria-label={t('common:appTitle')}
+                                    className="inline-flex"
+                                    onClick={() => setSheetOpen(false)}
+                                >
+                                    <BrandLogo height={36} />
+                                </Link>
                             </SheetTitle>
                         </SheetHeader>
                         <NavLinks

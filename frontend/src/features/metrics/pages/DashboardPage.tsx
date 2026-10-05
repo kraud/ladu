@@ -8,7 +8,7 @@ export function DashboardPage() {
     const name = useAuthStore((s) => s.user?.name ?? '');
 
     return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
             <WelcomeBanner name={name} />
             <div className="dash-grid">
                 <UserInfoPanel />

@@ -28,14 +28,26 @@ export function WelcomeBanner({ name }: { name: string }) {
         return () => window.clearInterval(id);
     }, []);
 
+    // Split the translated title after its first comma ("Welcome, Kai" -> "Welcome, " + "Kai"),
+    // so the phone layout can break the line there. The text content stays unchanged.
+    const title = t('welcome.title', { name });
+    const comma = title.indexOf(', ');
+    const lead = comma === -1 ? title : title.slice(0, comma + 2);
+    const rest = comma === -1 ? undefined : title.slice(comma + 2);
+
     const lang = UI_LANGUAGES[index]!;
     const greeting = i18n.getFixedT(lang.i18n, 'dashboard')('welcome.spinning', {
         defaultValue: t('welcome.spinning'),
     });
 
     return (
-        <header className="flex flex-row gap-3">
-            <h1 className="h1">{t('welcome.title', { name })}</h1>
+        <header className="flex flex-row gap-3 max-[920px]:flex-col max-[920px]:gap-1">
+            <h1 className="h1">
+                {lead}
+                {/* Phone: "Welcome," on the first row, the name on the next. */}
+                {rest !== undefined && <br className="hidden max-[920px]:inline" />}
+                {rest}
+            </h1>
             <p
                 key={index}
                 data-lang={lang.i18n}

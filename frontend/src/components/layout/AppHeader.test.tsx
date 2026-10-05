@@ -4,7 +4,7 @@
  * `/` via `renderApp`.
  */
 import { beforeEach, describe, expect, it } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderApp } from '@/test/render';
 import { futureToken } from '@/test/tokens';
@@ -78,5 +78,22 @@ describe('AppHeader nav gating', () => {
 
         await user.click(screen.getByRole('link', { name: 'words' }));
         await waitFor(() => expect(router.state.location.pathname).toBe('/words'));
+    });
+
+    it('makes the logo in the menu drawer a link to the Dashboard, and closes the drawer', async () => {
+        server.use(...makeWordHandlers({ callerId: baseSession.id }).handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({
+            initialEntry: '/words',
+            session: { ...baseSession, languages: ['English', 'Spanish'] },
+        });
+
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
+        const dialog = await screen.findByRole('dialog');
+        await user.click(within(dialog).getByRole('link', { name: 'Ladu' }));
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     });
 });
