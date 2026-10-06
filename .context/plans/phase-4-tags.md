@@ -347,7 +347,7 @@ routes (`POST /:id/share`, `POST /api/tag-shares/:id/accept`,
 
 | Method + path | Purpose |
 |---|---|
-| `GET /api/tags?scope=all\|owned\|followed\|discover&q=&sort=recent\|label&cursor=&limit=` | Paginated list of `TagSummary`. `q` matches label + description via SQL `ILIKE`. `discover` = other users' Public tags not already followed. `sort` (D16, default `recent`) orders by `createdAt desc` or `label asc`. Keyset-paginated the same way `GET /api/words/simple` already is (reuse `encodeCursor`/`decodeCursor`; the label sort's cursor pairs `(label, id)` instead of `(createdAt, id)`). |
+| `GET /api/tags?scope=all\|owned\|followed\|discover&q=&sort=recent\|label&badge=&cursor=&limit=` | Paginated list of `TagSummary`. `badge=official` keeps only tags whose author has that active badge (added later: `verified-badges.md`; 400 for an unknown type). `q` matches label + description via SQL `ILIKE`. `discover` = other users' Public tags not already followed. `sort` (D16, default `recent`) orders by `createdAt desc` or `label asc`. Keyset-paginated the same way `GET /api/words/simple` already is (reuse `encodeCursor`/`decodeCursor`; the label sort's cursor pairs `(label, id)` instead of `(createdAt, id)`). |
 | `GET /api/tags/:id` | One `TagSummary`. `canViewTag` authorization (404 if not viewable, to avoid confirming existence to a non-viewer — matches `getWordById`'s posture). |
 | `POST /api/tags` | `{label, description?, visibility, wordIds?}`. Ownership of every `wordIds` entry checked; 403 if not all owned. One transaction. |
 | `PATCH /api/tags/:id` | `{label?, description?, visibility?}` — metadata only, author-only. |
@@ -362,7 +362,9 @@ routes (`POST /:id/share`, `POST /api/tag-shares/:id/accept`,
 ```
 {
   id, label, description, visibility, createdAt, updatedAt,
-  author: { id, username },
+  author: { id, username, badges },     // badges: string[] — the author's active
+                                        // account badges, e.g. ["official"] (empty by
+                                        // default). Added later: verified-badges.md
   wordCount, followerCount,
   isOwner, isFollowing, isAvailable,   // isAvailable = false for a followed
                                         // tag the owner made Private (D9)

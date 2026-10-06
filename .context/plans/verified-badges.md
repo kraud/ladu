@@ -1,6 +1,6 @@
 # Account badges ("official" and later types)
 
-> Status: **approved 2026-10-06. Slices 0–3 done. Slices 4–8 not started.**
+> Status: **approved 2026-10-06. Slices 0–4 done. Slices 5–8 not started.**
 > Branch: `verified-accounts`.
 
 ## How to start
@@ -331,6 +331,36 @@ that keeps only Tags whose author has that active badge. The filter is a SQL
     two pages; unknown type → 400
 - Docs: update the `TagSummary` block in `phase-4-tags.md` (one line + a
   pointer to this plan).
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **`author.badges`** comes from one more query in the existing batch in
+  `buildTagSummaries` (`activeBadgesByUserIds`). All seven endpoints that
+  return a `TagSummary` get it with no change of their own. A test checks
+  create, patch, follow, unfollow, get and list.
+- **`?badge=`** is read at the top of `listTags`. It must be a known type.
+  Absent means no filter. An empty value, a different case, a repeated
+  parameter and an unknown type all answer 400 (a typo in the client then
+  shows up and does not silently list every tag). The condition goes in
+  before the `total` count, so `total` and the pages follow the filter. It
+  works with all four scopes, `q` and both sorts.
+- **No new index (A7 confirmed).** I read the query plan with `EXPLAIN
+  (ANALYZE)` on synthetic data (20,000 users, 60,000 tags, 12 badged
+  accounts), inside a transaction that was rolled back. The planner starts
+  from the small badge table, looks up each author by primary key, and
+  reaches their tags through the existing `tags_author_label_unique` index.
+  Execution: 0.14 ms for a page, 0.09 ms for the count. It reads the badge
+  table with a plain scan, because the table is tiny. Look again if badges
+  ever reach thousands of rows.
+- **Banned and deleted authors** show no badge and do not match the filter
+  (A3). The filter and the badge shown always agree. Tested, with an unban.
+- **A clone has no badge** (G7): the clone's `author` is the copier. Tested,
+  and the original keeps its badge.
+- One existing assertion changed: `tags.test.js` create-tag expects
+  `author` to be `{ id, username, badges: [] }`.
+- `tags.test.js`: 55 → 75 tests (20 new in "Account badges on tags").
+  `tsc --noEmit` clean.
+- `phase-4-tags.md`: the `TagSummary` block and the list-endpoint row now
+  mention `badges` and `?badge=`.
 
 ### Slice 5 — Frontend: the badge next to the author
 

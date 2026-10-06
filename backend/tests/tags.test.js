@@ -41,9 +41,12 @@ const {
     tagWords,
     translationCases,
     translations,
+    userBadges,
     userFollowingTags,
+    users,
     words,
 } = require('../src/db/schema');
+const { createStaff } = require('../lib/staffAccounts');
 
 beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());
@@ -97,7 +100,7 @@ describe('POST /api/tags - Create Tag', () => {
 
         expect(res.statusCode).toBe(200);
         expect(res.body.wordCount).toBe(0);
-        expect(res.body.author).toEqual({ id: userId, username: 'taguser' });
+        expect(res.body.author).toEqual({ id: userId, username: 'taguser', badges: [] });
         expect(res.body.isOwner).toBe(true);
     });
 
@@ -862,5 +865,233 @@ describe('GET /api/tags/:id - Private tag hides existence from a non-author', ()
             .set('Authorization', `Bearer ${stranger.token}`);
 
         expect(res.statusCode).toBe(404);
+    });
+});
+
+// ===========================================================================
+// Account badges on tags (verified-badges.md, slice 4): `author.badges` on
+// every TagSummary, and `GET /api/tags?badge=` — keep only tags whose author
+// has that active badge. The badge is read from the DB on each request, so a
+// grant or revoke shows at once on the same token. Writes go straight to the
+// table here; the admin API that writes it has its own tests
+// (adminBadges.test.js).
+// ===========================================================================
+describe('Account badges on tags', () => {
+    let author, plain, viewer, staff;
+
+    beforeEach(async () => {
+        author = await registerAndLogin('Author', 'author@test.com', 'author');
+        plain = await registerAndLogin('Plain', 'plain@test.com', 'plain');
+        viewer = await registerAndLogin('Viewer', 'viewer@test.com', 'viewer');
+        staff = await createStaff({ email: 'badge-staff@example.com', name: 'Badge Staff', password: 'correct-horse-battery', role: 'owner' });
+    });
+
+    const grantBadge = async (userId, type = 'official') =>
+        (await db.insert(userBadges).values({ userId, type, grantedBy: staff.id }).returning())[0];
+    const revokeBadge = (badgeId) => db.update(userBadges).set({ revokedAt: new Date() }).where(eq(userBadges.id, badgeId));
+
+    const list = (token, query = '') => request(app).get(`/api/tags${query}`).set('Authorization', `Bearer ${token}`);
+    const getTag = (token, id) => request(app).get(`/api/tags/${id}`).set('Authorization', `Bearer ${token}`);
+    const labelsOf = (res) => res.body.items.map((tag) => tag.label);
+    const authorBadgesOf = (res, label) => res.body.items.find((tag) => tag.label === label).author.badges;
+
+    describe('author.badges', () => {
+        it('is an empty list by default', async () => {
+            const tag = await createTag(author.token, { label: 'Plain tag', visibility: 'Public' });
+
+            expect((await getTag(viewer.token, tag.body.id)).body.author.badges).toEqual([]);
+            expect(authorBadgesOf(await list(viewer.token, '?scope=discover'), 'Plain tag')).toEqual([]);
+        });
+
+        it('lists the active badge types of the author', async () => {
+            const tag = await createTag(author.token, { label: 'Official tag', visibility: 'Public' });
+            await grantBadge(author.id);
+
+            expect((await getTag(viewer.token, tag.body.id)).body.author.badges).toEqual(['official']);
+            expect(authorBadgesOf(await list(viewer.token, '?scope=discover'), 'Official tag')).toEqual(['official']);
+        });
+
+        it('shows a grant and a revoke at once, on the same token (not read from the JWT)', async () => {
+            const tag = await createTag(author.token, { label: 'Moving', visibility: 'Public' });
+            expect((await getTag(viewer.token, tag.body.id)).body.author.badges).toEqual([]);
+
+            const badge = await grantBadge(author.id);
+            expect((await getTag(viewer.token, tag.body.id)).body.author.badges).toEqual(['official']);
+
+            await revokeBadge(badge.id);
+            expect((await getTag(viewer.token, tag.body.id)).body.author.badges).toEqual([]);
+        });
+
+        it('ignores a revoked badge and a badge of another user', async () => {
+            const tag = await createTag(author.token, { label: 'Not mine', visibility: 'Public' });
+            await revokeBadge((await grantBadge(author.id)).id);
+            await grantBadge(plain.id);
+
+            expect((await getTag(viewer.token, tag.body.id)).body.author.badges).toEqual([]);
+        });
+
+        it('is empty for a banned author, and comes back after an unban', async () => {
+            const tag = await createTag(author.token, { label: 'Banned author', visibility: 'Public' });
+            await grantBadge(author.id);
+            await db.update(users).set({ bannedAt: new Date() }).where(eq(users.id, author.id));
+
+            expect((await getTag(viewer.token, tag.body.id)).body.author.badges).toEqual([]);
+
+            await db.update(users).set({ bannedAt: null }).where(eq(users.id, author.id));
+            expect((await getTag(viewer.token, tag.body.id)).body.author.badges).toEqual(['official']);
+        });
+
+        it('is on every endpoint that returns a TagSummary', async () => {
+            await grantBadge(author.id);
+
+            // create + patch: the author's own response
+            const created = await createTag(author.token, { label: 'Created', visibility: 'Public' });
+            expect(created.body.author.badges).toEqual(['official']);
+            const patched = await request(app)
+                .patch(`/api/tags/${created.body.id}`)
+                .set('Authorization', `Bearer ${author.token}`)
+                .send({ description: 'new' });
+            expect(patched.body.author.badges).toEqual(['official']);
+
+            // follow + unfollow: another user's response about the author's tag
+            const followed = await request(app).post(`/api/tags/${created.body.id}/follow`).set('Authorization', `Bearer ${viewer.token}`);
+            expect(followed.body.author.badges).toEqual(['official']);
+            const unfollowed = await request(app).delete(`/api/tags/${created.body.id}/follow`).set('Authorization', `Bearer ${viewer.token}`);
+            expect(unfollowed.body.author.badges).toEqual(['official']);
+        });
+
+        it('is not inherited by a clone: the clone belongs to the copier (decision G7)', async () => {
+            await grantBadge(author.id);
+            const source = await createTag(author.token, { label: 'Original', visibility: 'Public' });
+
+            const clone = await request(app)
+                .post(`/api/tags/${source.body.id}/clone`)
+                .set('Authorization', `Bearer ${viewer.token}`)
+                .send({ visibility: 'Private' });
+
+            expect(clone.statusCode).toBe(200);
+            expect(clone.body.author).toEqual({ id: viewer.id, username: 'viewer', badges: [] });
+            expect(clone.body.sourceTag).toEqual({ id: source.body.id, label: 'Original' });
+            // ...and the original keeps its badge.
+            expect((await getTag(viewer.token, source.body.id)).body.author.badges).toEqual(['official']);
+        });
+    });
+
+    describe('GET /api/tags?badge=', () => {
+        beforeEach(async () => {
+            await grantBadge(author.id);
+            await createTag(author.token, { label: 'Official A', visibility: 'Public' });
+            await createTag(plain.token, { label: 'Plain B', visibility: 'Public' });
+        });
+
+        it('keeps only tags of authors with the badge (scope=discover)', async () => {
+            const everything = await list(viewer.token, '?scope=discover');
+            expect(labelsOf(everything).sort()).toEqual(['Official A', 'Plain B']);
+
+            const filtered = await list(viewer.token, '?scope=discover&badge=official');
+            expect(filtered.statusCode).toBe(200);
+            expect(labelsOf(filtered)).toEqual(['Official A']);
+            expect(filtered.body.total).toBe(1);
+        });
+
+        it('works with scope=followed and scope=all', async () => {
+            for (const label of ['Official A', 'Plain B']) {
+                const id = (await list(viewer.token, '?scope=discover')).body.items.find((tag) => tag.label === label).id;
+                await request(app).post(`/api/tags/${id}/follow`).set('Authorization', `Bearer ${viewer.token}`);
+            }
+            await createTag(viewer.token, { label: 'Viewer own', visibility: 'Private' });
+
+            expect(labelsOf(await list(viewer.token, '?scope=followed&badge=official'))).toEqual(['Official A']);
+            expect(labelsOf(await list(viewer.token, '?scope=all&badge=official'))).toEqual(['Official A']);
+            // Without the filter, `all` holds the two followed tags and the viewer's own.
+            expect((await list(viewer.token, '?scope=all')).body.total).toBe(3);
+        });
+
+        it('works with scope=owned: an author with the badge sees their own tags, a plain author sees none', async () => {
+            const asAuthor = await list(author.token, '?scope=owned&badge=official');
+            expect(labelsOf(asAuthor)).toEqual(['Official A']);
+
+            const asPlain = await list(plain.token, '?scope=owned&badge=official');
+            expect(asPlain.body.items).toEqual([]);
+            expect(asPlain.body.total).toBe(0);
+        });
+
+        it('counts and pages only the filtered tags (both sorts)', async () => {
+            for (const label of ['Official B', 'Official C']) await createTag(author.token, { label, visibility: 'Public' });
+            for (const label of ['Plain D', 'Plain E']) await createTag(plain.token, { label, visibility: 'Public' });
+
+            for (const sort of ['recent', 'label']) {
+                const first = await list(viewer.token, `?scope=discover&badge=official&sort=${sort}&limit=2`);
+                expect(first.body.items).toHaveLength(2);
+                expect(first.body.total).toBe(3);
+                expect(first.body.nextCursor).toEqual(expect.any(String));
+
+                const second = await list(
+                    viewer.token,
+                    `?scope=discover&badge=official&sort=${sort}&limit=2&cursor=${encodeURIComponent(first.body.nextCursor)}`,
+                );
+                expect(second.body.items).toHaveLength(1);
+                expect(second.body.total).toBe(3);
+                expect(second.body.nextCursor).toBeNull();
+
+                const seen = [...first.body.items, ...second.body.items].map((tag) => tag.label).sort();
+                expect([sort, seen]).toEqual([sort, ['Official A', 'Official B', 'Official C']]);
+            }
+        });
+
+        it('combines with the search box (q)', async () => {
+            await createTag(author.token, { label: 'Kitchen words', visibility: 'Public' });
+            await createTag(plain.token, { label: 'Kitchen plain', visibility: 'Public' });
+
+            const res = await list(viewer.token, '?scope=discover&badge=official&q=kitchen');
+
+            expect(labelsOf(res)).toEqual(['Kitchen words']);
+            expect(res.body.total).toBe(1);
+        });
+
+        it('stops matching after a revoke, on the same token', async () => {
+            const [row] = await db.select().from(userBadges).where(eq(userBadges.userId, author.id));
+            expect(labelsOf(await list(viewer.token, '?scope=discover&badge=official'))).toEqual(['Official A']);
+
+            await revokeBadge(row.id);
+
+            const res = await list(viewer.token, '?scope=discover&badge=official');
+            expect(res.body.items).toEqual([]);
+            expect(res.body.total).toBe(0);
+        });
+
+        it('does not match a banned author, and matches again after an unban', async () => {
+            await db.update(users).set({ bannedAt: new Date() }).where(eq(users.id, author.id));
+            expect((await list(viewer.token, '?scope=discover&badge=official')).body.items).toEqual([]);
+
+            await db.update(users).set({ bannedAt: null }).where(eq(users.id, author.id));
+            expect(labelsOf(await list(viewer.token, '?scope=discover&badge=official'))).toEqual(['Official A']);
+        });
+
+        it('does not match a badge of another type', async () => {
+            const teacher = await registerAndLogin('Teacher', 'teacher@test.com', 'teacher');
+            await grantBadge(teacher.id, 'teacher');
+            await createTag(teacher.token, { label: 'Teacher tag', visibility: 'Public' });
+
+            expect(labelsOf(await list(viewer.token, '?scope=discover&badge=official'))).toEqual(['Official A']);
+        });
+
+        it('does not reveal a Private tag of a badged author', async () => {
+            await createTag(author.token, { label: 'Official secret', visibility: 'Private' });
+
+            expect(labelsOf(await list(viewer.token, '?scope=discover&badge=official'))).toEqual(['Official A']);
+        });
+
+        it.each([
+            ['an unknown type', '?badge=teacher'],
+            ['a different case', '?badge=Official'],
+            ['an empty value', '?badge='],
+            ['a repeated parameter', '?badge=official&badge=official'],
+        ])('answers 400 for %s', async (_name, query) => {
+            const res = await list(viewer.token, query);
+
+            expect(res.statusCode).toBe(400);
+            expect(res.body.items).toBeUndefined();
+        });
     });
 });
