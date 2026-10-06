@@ -387,6 +387,24 @@ short-lived window.
 
 ---
 
+### "A deploy failed at 'Pulling images' with `denied` or `unauthorized`"
+
+**Cause:** `ladu-backend` and `ladu-admin` are private GHCR packages. The VPS
+pulls them with the `deploy` user's Docker login, and that login no longer works.
+Most likely the token expired (it has a 1 year expiry), or someone revoked it.
+
+**Check:** on the VPS, as `deploy`:
+
+```bash
+docker pull ghcr.io/kraud/ladu-backend:<a recent sha>
+cat ~/.docker/config.json    # shows a ghcr.io entry if a login exists (the value is the token, do not paste it anywhere)
+```
+
+**Fix:** create a new token and rotate it. Steps are in
+[`06-secrets-and-access.md`](06-secrets-and-access.md), section "GHCR pull token".
+The failed deploy left the previous release running, so there is no outage
+(`deploy.sh` stops before the container swap).
+
 ### "It works locally / in CI, but not on staging or production"
 
 Almost always an environment-variable mismatch. Checklist, in order:

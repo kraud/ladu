@@ -2,6 +2,7 @@
   "name": "keelapp-e2e",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Ladu — full-stack Playwright end-to-end suite (per-phase gate verification)",
   "type": "module",
   "scripts": {
