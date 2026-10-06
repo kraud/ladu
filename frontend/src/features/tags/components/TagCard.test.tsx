@@ -13,7 +13,7 @@ function makeTag(overrides: Partial<TagSummary> = {}): TagSummary {
         visibility: 'Public',
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-01T00:00:00.000Z',
-        author: { id: 'author-1', username: 'kai' },
+        author: { id: 'author-1', username: 'kai', badges: [] },
         wordCount: 4,
         followerCount: 2,
         isOwner: false,
@@ -62,6 +62,27 @@ describe('TagCard — followed', () => {
         expect(screen.getByRole('button', { name: 'Unfollow' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Clone' })).toBeInTheDocument();
         expect(screen.getByText('by kai')).toBeInTheDocument();
+    });
+});
+
+describe('TagCard — author badge', () => {
+    const badged = { id: 'author-1', username: 'kai', badges: ['official'] };
+
+    it('shows the badge after "by <author>" on another user\'s tag', () => {
+        renderWithProviders(<TagCard tag={makeTag({ author: badged })} onView={vi.fn()} />);
+        const by = screen.getByText('by kai').closest('.t-by');
+        expect(by).toContainElement(screen.getByText('Official'));
+    });
+
+    it('shows no badge when the author has none', () => {
+        renderWithProviders(<TagCard tag={makeTag()} onView={vi.fn()} />);
+        expect(screen.getByText('by kai')).toBeInTheDocument();
+        expect(screen.queryByText('Official')).not.toBeInTheDocument();
+    });
+
+    it('shows no badge on the caller\'s own tag, which has no "by" row', () => {
+        renderWithProviders(<TagCard tag={makeTag({ isOwner: true, author: badged })} onView={vi.fn()} />);
+        expect(screen.queryByText('Official')).not.toBeInTheDocument();
     });
 });
 

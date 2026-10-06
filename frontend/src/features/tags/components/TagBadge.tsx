@@ -6,8 +6,8 @@
  * MOCKUPS/tags.html.
  */
 import { useTranslation } from 'react-i18next';
-import { LockIcon } from '@phosphor-icons/react';
-import type { TagSummary } from '../types';
+import { LockIcon, SealCheckIcon } from '@phosphor-icons/react';
+import { isAuthorBadgeType, type AuthorBadgeType, type TagSummary } from '../types';
 
 export type TagRelation = 'owned' | 'followed' | 'unavailable' | 'discover';
 
@@ -63,5 +63,31 @@ export function TagBadges({ tag }: { tag: TagSummary }) {
             <RelationBadge relation={tagRelation(tag)} />
             <VisibilityBadge visibility={tag.visibility} />
         </div>
+    );
+}
+
+const AUTHOR_BADGE_KEY: Record<AuthorBadgeType, { label: string; title: string }> = {
+    official: { label: 'tags:authorBadge.official', title: 'tags:authorBadge.officialTitle' },
+};
+
+/**
+ * The account badges of a tag's author, shown after "by <username>". A seal icon
+ * plus the word, in the accent colour and no pill: easy to see, not loud. The
+ * icon is decoration; the visible word is the accessible name. A type this build
+ * does not know is skipped.
+ */
+export function AuthorBadges({ badges }: { badges: readonly string[] }) {
+    const { t } = useTranslation();
+    const known = badges.filter(isAuthorBadgeType);
+    if (known.length === 0) return null;
+    return (
+        <>
+            {known.map((badge) => (
+                <span key={badge} className="t-author-badge" title={t(AUTHOR_BADGE_KEY[badge].title)}>
+                    <SealCheckIcon size={13} weight="fill" aria-hidden="true" />
+                    {t(AUTHOR_BADGE_KEY[badge].label)}
+                </span>
+            ))}
+        </>
     );
 }

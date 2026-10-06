@@ -30,7 +30,7 @@ import { useWordsInfinite } from '@/features/words/hooks';
 import type { LangKey } from '@/features/words/types';
 import { useDeleteTag, useFollowTag, useTag, useUnfollowTag, useUnlinkTagsFromWords } from '../hooks';
 import { tagErrorKey } from '../errors';
-import { TagBadges, tagRelation } from '../components/TagBadge';
+import { AuthorBadges, TagBadges, tagRelation } from '../components/TagBadge';
 import { TagFormDialog } from '../components/TagFormDialog';
 import { CloneTagDialog } from '../components/CloneTagDialog';
 import { AddWordsDialog } from '../components/AddWordsDialog';
@@ -179,6 +179,7 @@ export function TagViewPage() {
                                     {avatarInitials(tag.author.username)}
                                 </span>
                                 <span>{t('tags:card.byAuthor', { username: tag.author.username })}</span>
+                                <AuthorBadges badges={tag.author.badges} />
                             </div>
                         )}
                         {relation === 'owned' && tag.sourceTag && (

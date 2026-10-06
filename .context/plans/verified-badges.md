@@ -1,6 +1,6 @@
 # Account badges ("official" and later types)
 
-> Status: **approved 2026-10-06. Slices 0–4 done. Slices 5–8 not started.**
+> Status: **approved 2026-10-06. Slices 0–5 done. Slices 6–8 not started.**
 > Branch: `verified-accounts`.
 
 ## How to start
@@ -386,6 +386,39 @@ shows on Tags of other users. That is correct.
 - Tests: `TagBadge.test.tsx` (renders, accessible name, nothing for `[]`),
   `TagCard.test.tsx` and `TagViewPage.test.tsx` (badge shows for a badged
   author, not for others).
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **What users see:** a seal icon and the word "Official" after
+  "by <username>", in the accent colour, with no pill and no animation. A
+  tooltip says "Official Ladu account". It shows on `/tags` cards and in the
+  `/tag/:id` header. The footer hint on `/tag/:id` ("by <author>", plain
+  text) stays as it was. The caller's own Tags have no "by" row, so they
+  show no badge.
+- **`TagAuthor.badges` is `string[]`, not `AuthorBadgeType[]`** (a change
+  from the plan). A newer server may send a type this build does not know.
+  `AuthorBadges` shows only known types (`AUTHOR_BADGE_TYPES`,
+  `isAuthorBadgeType` in `types.ts`) and skips the rest. A test covers it.
+- **The seal icon is decoration** (`aria-hidden`). The visible word is the
+  accessible name. I did not add an `aria-label`, because it would hide the
+  word from screen readers. The `title` gives the longer text.
+- **CSS:** one class, `.t-author-badge`, in `globals.css` next to `.t-by`. It
+  uses `--accent-strong`, which has a dark-mode value, so dark mode needs no
+  extra rule. It is not called `has-badge` (that name is the unread dot).
+- **Locales:** `tags:authorBadge.official` and `.officialTitle` in en, es,
+  de, ee. The es, de and ee words are my translations: please check them.
+- **MSW fake:** `makeTagHandlers({ authorBadges })`. `toSummary` now takes an
+  `authorOf` function (it replaces `usernameOf`) that builds the whole
+  `author` object.
+- **Seven test fixtures** got `badges: []` (the field is required, as the API
+  always sends it).
+- Frontend suite: 1,443 tests (10 new: 4 `AuthorBadges`, 3 `TagCard`, 2
+  `TagViewPage`, 1 `TagsPage`). `tsc -b`, `eslint .` (0 errors; 3 old
+  warnings in files this slice did not change in those lines) and
+  `npm run build -w frontend` pass.
+- **Not looked at in a browser yet.** The look (size, colour, spacing, dark
+  mode) is the main thing to judge. To look: run `npm run dev:admin`, sign
+  in as owner, grant "official" to a user who has a Public Tag, then sign in
+  to the app as another user and open `/tags?scope=discover`.
 
 ### Slice 6 — Frontend: the author filter
 

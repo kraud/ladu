@@ -20,6 +20,10 @@
     "unavailable": "Unavailable",
     "discover": "Discover"
   },
+  "authorBadge": {
+    "official": "Official",
+    "officialTitle": "Official Ladu account"
+  },
   "visibility": {
     "public": "Public",
     "private": "Private"

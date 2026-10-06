@@ -34,8 +34,8 @@ function discoverTag(label: string, id = `tag-${label}`): SeedTag {
     return { id, authorId: OTHER, label, visibility: 'Public' };
 }
 
-function setUp(seedTags: SeedTag[] = []) {
-    const fake = makeTagHandlers({ callerId: ME, usernames: { [OTHER]: 'mari' }, seedTags });
+function setUp(seedTags: SeedTag[] = [], authorBadges: Record<string, string[]> = {}) {
+    const fake = makeTagHandlers({ callerId: ME, usernames: { [OTHER]: 'mari' }, seedTags, authorBadges });
     // The create-tag dialog embeds `WordPicker`, which queries `/api/words/simple`
     // as soon as it mounts — registered for every test so opening "New tag"
     // never hits an unhandled request, even in tests that don't care about words.
@@ -241,5 +241,24 @@ describe('TagsPage — edit', () => {
 
         expect(await screen.findByText('"Cooking" updated')).toBeInTheDocument();
         expect(screen.getByText('Cooking')).toBeInTheDocument();
+    });
+});
+
+describe('TagsPage — author badge', () => {
+    it('shows the badge on a card whose author has one, and not on the others', async () => {
+        setUp(
+            [
+                { id: 'tag-a', authorId: OTHER, label: 'Travel', visibility: 'Public' },
+                { id: 'tag-b', authorId: 'user-plain', label: 'Cooking', visibility: 'Public' },
+            ],
+            { [OTHER]: ['official'] },
+        );
+        await renderApp({ initialEntry: '/tags?scope=discover', session: SESSION });
+
+        expect(await screen.findByText('Cooking')).toBeInTheDocument();
+        // One badge on the page: the card of the badged author.
+        const badges = screen.getAllByText('Official');
+        expect(badges).toHaveLength(1);
+        expect(badges[0].closest('.tagcard')).toHaveTextContent('Travel');
     });
 });

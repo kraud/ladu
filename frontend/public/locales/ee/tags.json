@@ -20,6 +20,10 @@
     "unavailable": "Pole saadaval",
     "discover": "Avasta"
   },
+  "authorBadge": {
+    "official": "Ametlik",
+    "officialTitle": "Ladu ametlik konto"
+  },
   "visibility": {
     "public": "Avalik",
     "private": "Privaatne"

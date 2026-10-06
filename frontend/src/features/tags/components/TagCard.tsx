@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { CopyIcon, UsersIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { avatarColor, avatarInitials } from '@/lib/avatar';
-import { TagBadges, tagRelation } from './TagBadge';
+import { AuthorBadges, TagBadges, tagRelation } from './TagBadge';
 import type { TagSummary } from '../types';
 
 export interface TagCardProps {
@@ -91,6 +91,7 @@ export function TagCard({ tag, onView, onEdit, onDelete, onFollow, onUnfollow, o
                             {avatarInitials(tag.author.username)}
                         </span>
                         <span>{t('tags:card.byAuthor', { username: tag.author.username })}</span>
+                        <AuthorBadges badges={tag.author.badges} />
                     </div>
                 )}
                 {relation === 'unavailable' && <div className="t-note">{t('tags:card.unavailableNote')}</div>}

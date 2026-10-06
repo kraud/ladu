@@ -33,8 +33,8 @@ function verbSeed(label: string, id: string, tagId?: string): SeedWord {
     };
 }
 
-function setUp(seedTags: SeedTag[] = [], seedWords: SeedWord[] = []) {
-    const tagFake = makeTagHandlers({ callerId: ME, usernames: { [OTHER]: 'mari' }, seedTags });
+function setUp(seedTags: SeedTag[] = [], seedWords: SeedWord[] = [], authorBadges: Record<string, string[]> = {}) {
+    const tagFake = makeTagHandlers({ callerId: ME, usernames: { [OTHER]: 'mari' }, seedTags, authorBadges });
     const wordFake = makeWordHandlers({ callerId: ME, seed: seedWords });
     server.use(...tagFake.handlers, ...wordFake.handlers);
     return { tagFake, wordFake };
@@ -247,5 +247,26 @@ describe('TagViewPage — unavailable tag (D9)', () => {
         expect(screen.getByText('Words are hidden right now')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Unfollow' })).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Clone' })).not.toBeInTheDocument();
+    });
+});
+
+describe('TagViewPage — author badge', () => {
+    const theirTag: SeedTag = { id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public' };
+
+    it('shows the badge after "by <author>" for a badged author', async () => {
+        setUp([theirTag], [], { [OTHER]: ['official'] });
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        const badge = await screen.findByText('Official');
+        expect(badge.closest('.t-by')).toHaveTextContent('by mari');
+    });
+
+    it('shows no badge for an author without one', async () => {
+        setUp([theirTag]);
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        expect(await screen.findByText('Travel')).toBeInTheDocument();
+        expect(screen.getByText('by mari', { selector: '.t-by span' })).toBeInTheDocument();
+        expect(screen.queryByText('Official')).not.toBeInTheDocument();
     });
 });
