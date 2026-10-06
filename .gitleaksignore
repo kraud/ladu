@@ -1,0 +1,9 @@
+# Gitleaks false positives, reviewed 2026-10-06 (see .context/licence-study.md, action A6).
+# Format: <commit>:<file>:<rule>:<line>
+
+# Fake passwords in admin unit tests.
+acd364a4db8057fd550a582af69af9aaaaf630c0:admin/src/features/auth/ChangePasswordPage.test.tsx:generic-api-key:83
+acd364a4db8057fd550a582af69af9aaaaf630c0:admin/src/features/staff/StaffPage.test.tsx:generic-api-key:248
+
+# A translation key ('indicativePerfect1s'), not a secret.
+6e31efb8c8ed840357381e7892008e4cba22b958:frontend/src/features/words/form-engine/FieldRenderer.test.tsx:generic-api-key:68
