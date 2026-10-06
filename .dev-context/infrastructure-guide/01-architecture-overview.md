@@ -132,6 +132,11 @@ The landing page does not deploy with the app. To publish a change:
    `platform` role pulls `latest` again and recreates the `landing` container
    if the image changed.
 
+A new **blog post** is a change to the landing page, so it goes live the same
+way. The blog pages are built from the Markdown files in `landing/blog/posts/`
+while the landing image is built (`landing/Dockerfile`, first stage). The steps
+for writing a post are in `landing/README.md`.
+
 ## The toolchain: which tool owns what, and how they hand off
 
 Four tools do the actual work — Terraform, Ansible, Caddy, and Docker

@@ -46,6 +46,7 @@ Risk: **Low** = keep a notice or credit. **Medium** = act before launch.
 | 10 | **Own assets** | Brand SVGs are ours. Fonts are system fonts, so there is no font licence. | None | None. |
 | 11 | **Terraform** | Used in `deploy/terraform` (`>= 1.9.0`). Since version 1.6 it is under BUSL 1.1. Using it for our own infrastructure is allowed. The limit is on products that compete with HashiCorp. | Low | None. OpenTofu (MPL-2.0) is the open alternative. |
 | 12 | **Ansible, Caddy, Postgres, Trivy, Playwright** | GPL-3 (Ansible), Apache-2.0, PostgreSQL licence. Tools and runtimes only. | None | None. |
+| 13 | **`marked`** (landing blog build, added 2026-10-06) | MIT. Used only while the landing image is built, in a Node stage that is not part of the final image. Nothing from it is shipped to visitors, so it needs no notice. It has its own lockfile (`landing/package-lock.json`) and a Dependabot entry. | None | None. |
 
 ## 5. Outside services
 

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ladu.com.ar/sitemap.xml

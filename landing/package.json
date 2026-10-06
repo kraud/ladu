@@ -1,0 +1,18 @@
+{
+  "name": "ladu-landing",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Ladu landing site. Static pages, plus a blog built from Markdown files at image-build time (see README.md). Not an npm workspace: it has its own lockfile and builds from landing/ as its Docker context.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test \"scripts/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "dependencies": {
+    "marked": "^18.1.0"
+  }
+}
