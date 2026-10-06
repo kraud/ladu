@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchUser, fetchUsers, runUserAction, type UserActionBody, type UserActionName } from '@/features/users/api';
+import { fetchUser, fetchUsers, grantBadge, revokeBadge, runUserAction, type UserActionBody, type UserActionName } from '@/features/users/api';
 import type { UserDetail } from '@/features/users/types';
 import type { UsersSearch } from '@/features/users/search';
 
@@ -39,6 +39,26 @@ export function useUserAction(userId: string) {
         onSuccess: (result) => {
             if ('purged' in result) queryClient.removeQueries({ queryKey: userKeys.detail(userId) });
             else queryClient.setQueryData<UserDetail>(userKeys.detail(userId), result);
+            void queryClient.invalidateQueries({ queryKey: ['users', 'list'] });
+        },
+    });
+}
+
+/**
+ * Grants or revokes one badge on one user. Same cache rules as `useUserAction`:
+ * the detail takes the fresh user the server returned, and every cached list is
+ * marked stale.
+ */
+export function useUserBadge(userId: string) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (vars: { kind: 'grant' | 'revoke'; type: string; reason: string }) =>
+            vars.kind === 'grant'
+                ? grantBadge(userId, { type: vars.type, reason: vars.reason })
+                : revokeBadge(userId, vars.type, { reason: vars.reason }),
+        onSuccess: (detail) => {
+            queryClient.setQueryData<UserDetail>(userKeys.detail(userId), detail);
             void queryClient.invalidateQueries({ queryKey: ['users', 'list'] });
         },
     });

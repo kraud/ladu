@@ -4,6 +4,7 @@ import { Link, useParams } from '@tanstack/react-router';
 import { ArrowLeft } from '@phosphor-icons/react';
 import { errorMessage } from '@/api/client';
 import { Button } from '@/components/ui/button';
+import { BadgeSection } from '@/features/users/components/BadgeSection';
 import { UserActions } from '@/features/users/components/UserActions';
 import { StatusBadge } from '@/features/users/components/StatusBadge';
 import { formatDateTime, formatDateTimeWithCountry, NONE } from '@/features/users/format';
@@ -154,6 +155,9 @@ export function UserDetailPage() {
             )}
 
             <UserActions user={user} />
+
+            {/* Its own section, not next to the h1: the e2e locator `h1 + span` reads the status badge. */}
+            <BadgeSection user={user} />
 
             <Section title="Profile">
                 <Grid>

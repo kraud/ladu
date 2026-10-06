@@ -1,6 +1,6 @@
 # Account badges ("official" and later types)
 
-> Status: **approved 2026-10-06. Slices 0–2 done. Slices 3–8 not started.**
+> Status: **approved 2026-10-06. Slices 0–3 done. Slices 4–8 not started.**
 > Branch: `verified-accounts`.
 
 ## How to start
@@ -279,6 +279,34 @@ reason, the same pattern as Ban.
 - Tests: `BadgeSection.test.tsx` — list renders, owner sees the buttons and
   other roles do not, reason required, POST body correct, the list updates
   after success.
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **New files** in `admin/src/features/users/`: `badges.ts` (the type
+  labels), `components/BadgeSection.tsx`, `components/BadgeDialog.tsx`,
+  `BadgeSection.test.tsx`. Changed: `types.ts` (`UserBadge`, `badges` on
+  `UserDetail`), `api.ts` (`grantBadge`, `revokeBadge`), `hooks.ts`
+  (`useUserBadge`), `pages/UserDetailPage.tsx`.
+- **`badges.ts` mirrors `BADGE_TYPES` in the backend.** It holds the label
+  of each type. The server stays the source of truth (it answers 400 for an
+  unknown type). A type the page does not know shows by its raw name. A new
+  badge type is one line there and one line in `backend/lib/badges.ts`.
+- **Every role sees the list; only the owner sees the buttons.** The section
+  shows for all roles (they all get `badges` in the detail). "Grant badge"
+  and "Revoke" need `useCan('badge.manage')`. "Grant badge" is hidden when
+  the account already has every type.
+- **The section is its own block under "Actions"**, not next to the `h1`, so
+  the `admin-5` locator `h1 + span` still reads the status badge.
+- The grant dialog has a native `<select>` for the type (the admin app has
+  no select component). With one type it has one option; it needs no change
+  when a second type exists.
+- `badge.manage` is added to `PERMISSIONS_BY_ROLE` (owner) in
+  `admin/src/test/msw/handlers.ts`; `makeDetail` has `badges: []`.
+- Admin suite: 267 → 280 tests (13 new in `BadgeSection.test.tsx`: list for
+  each role, grant, revoke, server errors, cancel). `tsc -b`, `eslint .`
+  and `npm run build -w admin` all pass.
+- **Not run in a browser.** No manual check in the real admin UI yet. That
+  needs an owner account in the dev DB. The Playwright spec in Slice 8 walks
+  this screen against the real backend.
 
 ### Slice 4 — Tag API: `author.badges` and the filter
 

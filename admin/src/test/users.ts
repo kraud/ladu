@@ -46,6 +46,7 @@ export function makeDetail(overrides: Partial<UserDetail> = {}): UserDetail {
         deletedByStaffName: null,
         hasPassword: true,
         loginAllowed: null,
+        badges: [],
         identities: [{ provider: 'google', emailAtLink: 'kaja@gmail.com', linkedAt: '2026-04-01T10:00:00.000Z' }],
         counts: { words: 12, translations: 30, tags: 2, friends: 1, practiceSessions: 3 },
         recentLogins: [{ id: 'l1', method: 'password', country: 'EE', createdAt: '2026-09-29T08:30:00.000Z' }],

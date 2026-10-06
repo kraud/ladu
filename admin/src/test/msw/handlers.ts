@@ -7,7 +7,7 @@ import type { StaffRole, StaffUser } from '@/stores/authStore';
 // Mirrors backend/lib/adminPermissions.ts. The UI reads the list from the
 // server, so this is only test data, not a second source of truth.
 const PERMISSIONS_BY_ROLE: Record<StaffRole, string[]> = {
-    owner: ['users.read', 'users.ban', 'users.email', 'users.delete', 'users.purge', 'health.read', 'audit.read', 'staff.manage', 'access.manage'],
+    owner: ['users.read', 'users.ban', 'users.email', 'users.delete', 'users.purge', 'health.read', 'audit.read', 'staff.manage', 'access.manage', 'badge.manage'],
     admin: ['users.read', 'users.ban', 'users.email', 'users.delete', 'health.read', 'audit.read'],
     support: ['users.read', 'users.ban', 'users.email', 'health.read'],
     viewer: ['users.read', 'health.read'],
