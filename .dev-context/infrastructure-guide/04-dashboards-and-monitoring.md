@@ -30,8 +30,11 @@ broke — **production was never touched**, which is the point of that gate.
 
 ## GHCR (GitHub Container Registry)
 
-**What it is:** where built Docker images live — four public packages,
+**What it is:** where built Docker images live — four packages,
 `ladu-backend`, `ladu-web`, `ladu-admin`, `ladu-landing`, under the repo's Packages page.
+`ladu-backend` and `ladu-admin` are **private** (the VPS pulls them with a read-only
+token, see [`06-secrets-and-access.md`](06-secrets-and-access.md)). `ladu-web` and
+`ladu-landing` are public.
 
 **Reading it:** each package's tag list is a history of every commit that
 ever reached `build-and-push` — the tag *is* the commit SHA, so you can

@@ -82,7 +82,8 @@
     "back": "Zurück",
     "languageCountEmpty": "Wähle mindestens zwei Sprachen",
     "languageCountSelected_one": "1 Sprache ausgewählt",
-    "languageCountSelected_other": "{{count}} Sprachen ausgewählt"
+    "languageCountSelected_other": "{{count}} Sprachen ausgewählt",
+    "termsNote": "Mit der Erstellung eines Kontos bestätigst du, dass du mindestens 13 Jahre alt bist (unter 16 mit Erlaubnis deiner Eltern) und die <terms>Nutzungsbedingungen</terms> sowie die <privacy>Datenschutzerklärung</privacy> akzeptierst. Beide Dokumente sind auf Englisch."
   },
   "resetPassword": {
     "titleReset": "Neues Passwort festlegen",

@@ -54,8 +54,8 @@ The privacy policy stays the **single source of truth for data facts**. The Term
 9. **Suspension and deletion.** We can suspend an account that breaks these Terms. You can delete yours at any time.
 10. **Limit of liability.** Standard wording. **VERIFY** with a lawyer.
 11. **Changes to the Terms.** The date at the top changes. For a material change, we show a notice in the app.
-12. **Governing law.** Open question Q1.
-13. **Contact.** Same address as the privacy page.
+12. **Governing law.** German law. The mandatory consumer rights of the user's country stay in force. The operator is a private person in Germany (Q1).
+13. **Contact.** info@ladu.com.ar (Q7). Change the address in `privacy.html` too.
 
 Add a "Last updated" date. Use the same value as the **terms version** sent by the app (section 2).
 
@@ -78,38 +78,38 @@ Build the image, open `/terms.html` in light and dark theme, switch language, ch
 
 ## 2. Terms consent in the app registration form
 
-### 2.1 Decision (recommended)
+### 2.1 Decision (2026-10-06)
 
-Use a **required checkbox**, not only a note. A checkbox is stronger proof that the user agreed. Text: "I accept the Terms and the Privacy Policy" with two links. Q2 asks the user to confirm.
+Use a **note only**, no checkbox (Q2). Text under the submit button: "By creating an account you confirm that you are at least 13 years old and accept the Terms and the Privacy Policy." The last two words are links. The age part depends on Q4. A note is weaker proof than a checkbox. The server therefore stamps the time and the terms version when it creates the account, so we still keep a record.
 
 ### 2.2 Where
 
 | Place | Change |
 |---|---|
-| `RegisterForm.tsx` step 2 | Checkbox above the "Create account" button. The button stays disabled until it is checked. |
-| `OAuthSignupForm.tsx` | Same checkbox. Google sign-up creates an account too. |
-| Login screen | Only a short note near the Google button is needed for users who already have an account. No checkbox. |
-| `schemas.ts` | New field `acceptedTerms` (must be `true`) in the register and OAuth-signup schemas. |
+| `RegisterForm.tsx` step 2 | The note, under the "Create account" button. No new field. |
+| `OAuthSignupForm.tsx` | Same note. Google sign-up creates an account too. |
+| Login screen | No change. Existing users are ignored (Q3). |
+| `schemas.ts` | No change (there is no checkbox). |
 | `loginRegister` locale (de, ee, en, es) | New keys: label, link texts, error text. |
 | Links | They point to the landing site (`ladu.com.ar/terms.html`, `/privacy.html`). Read the landing origin from config, not hardcoded. Open in a new tab (`rel="noopener"`). |
 
 ### 2.3 Backend
 
 - Store proof of consent: new columns on `users`: `terms_accepted_at` (timestamp) and `terms_version` (text). Drizzle migration through `npm run db:generate`.
-- `POST /api/users` and the OAuth signup endpoint require `acceptedTerms: true`, and write both columns. Return a clear error if it is missing.
+- `POST /api/users` and the OAuth signup endpoint write both columns when they create the account. There is no new request field.
 - `terms_version` comes from one constant (the date of the Terms). Keep the same value in the landing page and the backend. Add a comment in both places.
-- Existing users: Q3.
+- Existing users are ignored (Q3). The columns are nullable. No backfill.
 
 ### 2.4 Tests (same slice, not later)
 
-- Unit: schema rejects without the checkbox. Form test: button disabled until checked.
-- Backend: register without `acceptedTerms` returns 400. With it, the columns are filled.
-- e2e: `phase-1-auth` and any spec or fixture that registers a user must tick the box. Search `e2e/` for the register helper. **The phase gate is a green Playwright run.** Run specs one at a time (see `sidebar-layout.md` notes).
+- Unit: the form test shows the note with its two links on step 2 (and in the OAuth signup form).
+- Backend: a new account has `terms_accepted_at` and `terms_version` filled.
+- e2e: `phase-1-auth` checks that the note shows. No helper change is needed, because there is no checkbox. **The phase gate is a green Playwright run.** Run specs one at a time (see `sidebar-layout.md` notes).
 - Known: the `oauth-2` to `oauth-5` specs already fail at the Google stub. They are not caused by this work. Do not count them against this slice.
 
-### 2.5 Age note (Q4)
+### 2.5 Age note (Q4 — decided: keep 13, add the "under 16" sentence)
 
-The privacy page says "under 13". In the EU, the age at which a person can consent to data processing is set per country. It is 16 in Germany, 14 in Spain, 13 in Estonia (**VERIFY**). Ladu targets DE, ES and EE users. Ask a lawyer whether "13" is safe, or whether the Terms should say "16" (or "13, or the age set by your country").
+Background. The privacy page says "under 13". In the EU, the age at which a person can consent to data processing is set per country. It is 16 in Germany, 14 in Spain, 13 in Estonia (**VERIFY**). Ladu targets DE, ES and EE users. Ask a lawyer whether "13" is safe, or whether the Terms should say "16" (or "13, or the age set by your country").
 
 ---
 
@@ -261,17 +261,43 @@ Small vertical slices. Each one ends with something runnable and its docs.
 
 | # | Slice | Why this order | Ends with |
 |---|---|---|---|
-| 1 | **Licence study, finish and write up** (section 3.9) | No code. It can change what the Terms and the credits say. | `.context/licence-study.md` |
-| 2 | **Landing: Terms page, credits page, footer, i18n keys, `lang` fix** (1, 3.6) | Static work. Needs the study for the credits. | Image builds. Pages checked in 4 languages and 2 themes. |
-| 3 | **Third-party notices file** in the frontend build (3.5) | Legal duty for the shipped JavaScript. | Build output contains the notices file. |
-| 4 | **App: consent checkbox, schema, backend columns, migration, tests** (2) | Needs the final Terms text and version. | Green unit tests and green `phase-1-auth` e2e (one spec at a time). |
-| 5 | **Landing: Blog** (4) | Independent of the rest. | Image builds. One sample post. Parser test in CI. |
+| 1 | **Licence study, finish and write up** (section 3.9) — **done 2026-10-06** | No code. It can change what the Terms and the credits say. | `.context/licence-study.md` (answer: yes, we can publish; 5 actions before launch, listed there) |
+| 1b | **Private GHCR images + MIT licence file** — **done 2026-10-06** (token in vault, `ansible-playbook` run, backend + admin private, re-run of the last deploy green) | Small, and it removes the GPL word list from public images. | Ansible login task, `LICENSE`, docs. User: token, vault, `ansible-playbook`, switch visibility, check a deploy. |
+| 2 | **Landing: Terms page, credits page, Impressum, footer, i18n keys, `lang` fix, contact address** (1, 3.6, Q9) — **built 2026-10-06.** Address is work in progress: both pages show only "Kevin Raud, 04155 Leipzig, Germany" for now. Before the public launch, add the full postal address (street, or c/o / mail-forwarding) in `impressum.html` and `privacy.html` (search for `TODO(address)`) | Static work. Needs the study for the credits. | Image builds. Pages checked in 4 languages and 2 themes. |
+| 3 | **Third-party notices file** in the frontend build (3.5) — **done 2026-10-06** | Legal duty for the shipped JavaScript. | Build output contains the notices file. Own Vite plugin `frontend/third-party-notices.ts` (copy in `admin/`), no new dependency, 8 unit tests each; frontend 1,420 and admin 267 tests green. The build fails on a copyleft package. Credits page links to `app.ladu.com.ar/THIRD-PARTY-NOTICES.txt`. |
+| 4 | **App: registration note, backend columns, migration, tests** (2) — **done 2026-10-06** | Needs the final Terms text and version. | Note (not a checkbox) under "Create account" in `RegisterForm` step 2 and `OAuthSignupForm` (`TermsNote.tsx`, four languages, links to `ladu.com.ar/terms.html` and `/privacy.html` via `lib/landing.ts`). Migration `0019_terms_acceptance` adds nullable `users.terms_accepted_at` and `terms_version`, written by both signup paths from `backend/lib/terms.ts` (`TERMS_VERSION = 2026-10-06`, a unit test keeps it equal to the date on `landing/terms.html`). Tests: backend 864 (one flake in `adminStaff`, passes alone), frontend 1,433, e2e `phase-1-auth` 4 of 4. The Google signup e2e (`oauth-3`) was not run: the OAuth specs already fail at the stub. |
+| 5 | **Landing: Blog** (4) — **done 2026-10-06** | Independent of the rest. | Build script `landing/scripts/` (library + CLI, 22 `node:test` tests, run by a new CI job), two-stage `landing/Dockerfile`, own `landing/package.json` and lockfile (`marked`, MIT, build-time only), Dependabot entry for `/landing`, footer link on every page, `robots.txt`, `landing/README.md` ("how to publish"). One sample post, **kept as `draft: true`**. Deviations from section 4: the date comes from the file name only (no `date:` key), and the feed is Atom, not RSS. Image built and served locally: `/blog` redirects to `/blog/`, feed and sitemap answer 200, no Node in the final image. |
 
 Slices 2 and 5 can swap. Slice 4 must come after slice 2.
 
 ---
 
-## 6. Open questions for you
+## 6. Decisions and open questions
+
+**Decided 2026-10-06:**
+
+- **Q1.** The operator is one private person in Germany. The VPS is in Germany. Only the domain is Argentine. GDPR applies. The Terms use German law, with the mandatory consumer rights of the user's country kept. **New work (Q9):** an Impressum page (name, postal address, email), and the controller's identity in the privacy policy.
+- **Q2.** Note only, no checkbox (section 2.1).
+- **Q3.** Existing users are ignored.
+- **Q6.** Blog is English only for now.
+- **Q7.** Contact address is info@ladu.com.ar.
+
+**Decided 2026-10-06 (second round):**
+
+- **Q4.** Keep the age limit at **13**. Add the sentence: "If you are under 16, you need your parent's or guardian's permission." The sentence goes in the Terms (section 2) and, in short form, in the registration note (2.1). A lawyer should check it once.
+- **Q9 / Q1 address.** The Impressum and the privacy policy use a **Leipzig 04155** address for now. The full street address is **not yet in this plan: ask for it at the start of slice 2** and do not guess it. The user is getting a mail-forwarding or c/o address. When it is ready, change it in `impressum.html` and `privacy.html`. Keep the address out of the repo's other files. No business registration yet (paid plans are far away). Registration becomes needed before the first paid plan.
+- **Q5.** Option **C** (hybrid): accept CC BY-SA data now. Keep it in a separate table with `source` and `licence` columns. Credit it on the credits page. Do not offer a lexicon download. Re-check before any paid tier.
+
+**Q8 REVISED 2026-10-06 (supersedes the text below):** the repo `kraud/ladu` is **already public**, so "closed today" was not true. The user chose to **keep MIT**. Done: root `LICENSE` file, `"license": "MIT"` in `frontend`, `admin`, `e2e`. The FSL idea and the "before the repo goes public" checklist are dropped, except the history scan for secrets (licence study, action A6, now urgent). The user also chose private GHCR images for `backend` and `admin` (slice 1b below).
+
+**Q8 first decision 2026-10-06 (old, kept for the record):** closed today (`"license": "UNLICENSED"` in every `package.json`, plus a one-line "All rights reserved" note in the repo). When the repo goes public, use a source-available licence (FSL). Do the checklist below first. Add the `license` change to slice 2 (or any small slice before it). Nothing is open now.
+
+Background of Q8 (kept for the record):
+
+- **Q8. Licence of our own code.** Closed (`UNLICENSED`) is the safe default and stays the state for now. The user wants Ladu as a **portfolio showcase**. Closed does not block this (live app, screenshots, access on request). A public repo does it better. Current recommendation: **closed today, then public under a source-available licence (FSL) when ready** (option C of the answer; B is the simpler version). Decide the licence before the repo goes public.
+- **Before the repo goes public (checklist):** scan the git history for secrets (for example `gitleaks`); decide what to do with `.dev-context/` and `deploy/` (they show the server layout); remove real emails, names and test data; check `MOCKUPS/` and copied assets for licences.
+
+The list below is the original one. All questions in it are now answered.
 
 - **Q1. Governing law and company form.** Who is the "operator" in the Terms (you as a person, or a company)? Which country's law applies? The domain is `.com.ar`, and you may live elsewhere.
 - **Q2. Checkbox or note?** I recommend a required checkbox (2.1). A note only ("By continuing you agree...") is simpler but is weaker proof.

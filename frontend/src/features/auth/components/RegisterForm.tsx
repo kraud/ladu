@@ -10,6 +10,7 @@ import { useRegister } from '../hooks';
 import { buildRegisterSchema, type RegisterValues } from '../schemas';
 import { labelByI18nCode } from '@/lib/language';
 import { themeForRequest } from '@/lib/theme';
+import { TermsNote } from './TermsNote';
 
 const DEFAULTS: RegisterValues = {
     name: '',
@@ -225,6 +226,7 @@ export function RegisterForm({ oauthSlot }: { oauthSlot?: ReactNode }) {
                                 )}
                             </Button>
                         </div>
+                        <TermsNote />
                     </section>
                 )}
             </form>

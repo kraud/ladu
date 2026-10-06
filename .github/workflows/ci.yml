@@ -103,6 +103,27 @@ jobs:
       - run: npm run test -w admin
       - run: npm run build -w admin
 
+  landing:
+    name: Landing (blog tests + build)
+    runs-on: ubuntu-latest
+
+    # landing/ is not an npm workspace: it has its own package.json and lockfile
+    # (see landing/README.md), so it installs from its own folder.
+    defaults:
+      run:
+        working-directory: landing
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: landing/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
   e2e:
     name: E2E (Playwright)
     runs-on: ubuntu-latest

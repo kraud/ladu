@@ -27,6 +27,7 @@ const { issueVerificationEmail, issuePasswordResetEmail }: typeof import("../lib
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
+const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
 const { calculateBasicUserMetrics } = require("./metricController");
 
 type UserRow = typeof users.$inferSelect;
@@ -274,6 +275,7 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
           theme: themeResult.theme,
           nativeLanguage: null,
           verified: false,
+          ...termsAcceptance(),
         } satisfies NewUserRow)
         .returning();
       await consumeInvite(tx, email, gateMode);

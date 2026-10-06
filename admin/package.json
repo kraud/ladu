@@ -2,6 +2,7 @@
   "name": "keelapp-admin",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "Ladu Admin — staff support tool (.context/plans/admin-dashboard.md)",
   "scripts": {

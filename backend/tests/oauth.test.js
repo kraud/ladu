@@ -11,6 +11,7 @@ const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
 const { users, oauthIdentities, tokens } = require('../src/db/schema');
+const { TERMS_VERSION } = require('../lib/terms');
 const { generateCodeVerifier, generateCodeChallenge, generateNonce } = require('../lib/oauth/pkce');
 const { issueStateToken, verifyStateToken } = require('../lib/oauth/stateToken');
 const { issueTicket, verifyTicket } = require('../lib/oauth/ticket');
@@ -241,6 +242,19 @@ describe('POST /api/auth/signup/complete', () => {
 
         const [user] = await db.select().from(users).where(eq(users.email, 'newuser@example.com'));
         expect(user.theme).toBe('dark');
+    });
+
+    it('records the Terms version and time on the new account', async () => {
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            username: 'newuser',
+            languages: ['English', 'Spanish'],
+        });
+        expect(res.statusCode).toBe(201);
+
+        const [user] = await db.select().from(users).where(eq(users.email, 'newuser@example.com'));
+        expect(user.termsVersion).toBe(TERMS_VERSION);
+        expect(user.termsAcceptedAt).toBeInstanceOf(Date);
     });
 
     it('creates a password-less, verified account plus exactly one oauth_identities row, and returns a session token', async () => {

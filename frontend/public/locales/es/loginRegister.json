@@ -82,7 +82,8 @@
     "back": "Atrás",
     "languageCountEmpty": "Selecciona al menos dos idiomas",
     "languageCountSelected_one": "1 idioma seleccionado",
-    "languageCountSelected_other": "{{count}} idiomas seleccionados"
+    "languageCountSelected_other": "{{count}} idiomas seleccionados",
+    "termsNote": "Al crear una cuenta, confirmas que tienes al menos 13 años (con permiso de tus padres si eres menor de 16) y aceptas los <terms>Términos</terms> y la <privacy>Política de privacidad</privacy>. Ambos documentos están en inglés."
   },
   "resetPassword": {
     "titleReset": "Establece una nueva contraseña",

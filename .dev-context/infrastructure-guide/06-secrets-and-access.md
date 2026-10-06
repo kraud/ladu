@@ -29,8 +29,8 @@ runtime app secrets, which GitHub Environments own — see below) live
 encrypted in `deploy/ansible/group_vars/all/vault.yml`, prefixed `vault_*` by
 convention. This includes: the Postgres superuser password, each
 environment's database user password, the Cloudflare DNS token Caddy uses
-for its DNS-01 challenge, the Backblaze B2 key pair, and the Healthchecks.io
-ping URL.
+for its DNS-01 challenge, the Backblaze B2 key pair, the Healthchecks.io
+ping URL, and the GHCR pull token (`vault_ghcr_pull_token`, see below).
 
 ```bash
 cd deploy/ansible
@@ -45,6 +45,41 @@ never commit it).
 matching `DATABASE_URL` in the affected GitHub Environment secret (see
 below) — the value is stored in two places on purpose (Ansible needs it to
 *create* the user; the app needs it to *connect*), and they have to match.
+
+## GHCR pull token (private images)
+
+`ladu-backend` and `ladu-admin` are **private** packages on GHCR. (`ladu-web`
+and `ladu-landing` are public.) The VPS can pull a private image only after a
+`docker login`, so Ansible logs in as the `deploy` user. The Docker config of
+that user (`~deploy/.docker/config.json`) then serves `deploy.sh` and rollbacks.
+
+| Item | Detail |
+|---|---|
+| What | A **classic** personal access token (GitHub does not support fine-grained tokens for packages) |
+| Scope | Only `read:packages`. Nothing else. |
+| Name | `ladu-vps-ghcr-pull` |
+| Expiry | 1 year. Write the date in your calendar. When it runs out, deploys fail with "denied". |
+| Stored in | Ansible Vault, as `vault_ghcr_pull_token`. The user name is `ghcr_username` in `group_vars/all/vars.yml`. |
+| Used by | The `platform` role, task "Log in to GHCR so the VPS can pull the private images" |
+
+A token with `read:packages` can read **every** package of your account. Keep it
+in the vault only. Never commit it and never paste it into a chat or a tool call.
+
+**To create or rotate it:**
+
+1. GitHub, Settings, Developer settings, Personal access tokens, **Tokens (classic)**,
+   Generate new token. Name `ladu-vps-ghcr-pull`, expiry 1 year, tick **only** `read:packages`.
+2. Copy the token once. `cd deploy/ansible && ansible-vault edit group_vars/all/vault.yml`
+   and set `vault_ghcr_pull_token: "<token>"`.
+3. Run the playbook from `deploy/ansible/` so the VPS logs in again:
+   `ansible-playbook site.yml`. It is safe to repeat. Add `--check` first for a dry run.
+   Then test on the VPS as `deploy`: `docker pull ghcr.io/kraud/ladu-backend:<a recent sha>`.
+4. Revoke the old token in GitHub.
+
+**First time only (order matters):** do steps 1 to 3 while the packages are still
+public, and test a pull on the VPS. Only then switch `ladu-backend` and `ladu-admin`
+to private (package page, Package settings, Change visibility). If you switch first,
+the next deploy fails.
 
 ## GitHub repository secrets
 

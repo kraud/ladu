@@ -66,6 +66,23 @@
     name: python3-requests
     state: present
 
+# `ladu-backend` and `ladu-admin` are private GHCR packages, so every pull of
+# them needs a login. Two things pull them: `deploy.sh` (run over SSH by CI as
+# `deploy`) and a rollback. Both read the `deploy` user's Docker config, which
+# this task writes (~/.docker/config.json, mode 0600). That is why it runs as
+# `deploy` (become: false) and not as root. `ladu-web` and `ladu-landing` stay
+# public; the login is harmless for them.
+# The token is a read-only classic PAT. It has an expiry: when it runs out,
+# deploys fail with "denied". See 05-troubleshooting-playbook.md.
+- name: Log in to GHCR so the VPS can pull the private images
+  community.docker.docker_login:
+    registry_url: ghcr.io
+    username: "{{ ghcr_username }}"
+    password: "{{ ghcr_pull_token }}"
+    state: present
+  no_log: true
+  become: false
+
 - name: Create the caddy-config directory for the generated trusted-proxies file
   ansible.builtin.file:
     path: /opt/ladu/platform/caddy-config

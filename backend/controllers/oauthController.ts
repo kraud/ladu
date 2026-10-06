@@ -28,6 +28,7 @@ const {
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock, loginBlockMessage }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
+const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
 const { getProvider, listConfiguredProviders }: typeof import("../lib/oauth/providers") = require("../lib/oauth/providers");
 const { generateCodeVerifier, generateCodeChallenge, generateNonce }: typeof import("../lib/oauth/pkce") = require("../lib/oauth/pkce");
 const { issueStateToken, verifyStateToken }: typeof import("../lib/oauth/stateToken") = require("../lib/oauth/stateToken");
@@ -415,6 +416,7 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
           // Google already verified the address — the standard registration
           // flow's confirmation email is deliberately skipped (Decisions).
           verified: true,
+          ...termsAcceptance(),
         })
         .returning();
       await consumeInvite(tx, payload.email, gateMode);

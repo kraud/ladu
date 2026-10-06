@@ -82,7 +82,8 @@
     "back": "Tagasi",
     "languageCountEmpty": "Vali vähemalt kaks keelt",
     "languageCountSelected_one": "1 keel valitud",
-    "languageCountSelected_other": "{{count}} keelt valitud"
+    "languageCountSelected_other": "{{count}} keelt valitud",
+    "termsNote": "Konto loomisega kinnitad, et oled vähemalt 13-aastane (alla 16-aastasena vanema nõusolekul) ja nõustud <terms>kasutustingimustega</terms> ning <privacy>privaatsuspoliitikaga</privacy>. Mõlemad dokumendid on inglise keeles."
   },
   "resetPassword": {
     "titleReset": "Määra uus parool",

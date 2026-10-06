@@ -23,6 +23,12 @@ b2_key_id: "{{ vault_b2_key_id }}"
 b2_application_key: "{{ vault_b2_application_key }}"
 healthchecks_ping_url: "{{ vault_healthchecks_ping_url }}"
 
+# GHCR pull login (platform role). `ladu-backend` and `ladu-admin` are private
+# packages, so the VPS must log in to ghcr.io before it can pull them. The
+# token is a classic personal access token with ONLY the read:packages scope.
+ghcr_username: kraud
+ghcr_pull_token: "{{ vault_ghcr_pull_token }}"
+
 environments:
   - name: staging
     db_name: ladu_staging
