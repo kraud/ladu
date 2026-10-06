@@ -117,6 +117,7 @@ const clearDB = async () => {
             words,
             tags,
             users,
+            user_badges,
             audit_log,
             staff_accounts,
             ops_events,

@@ -1,6 +1,6 @@
 # Account badges ("official" and later types)
 
-> Status: **approved 2026-10-06. Slice 0 done. Slices 1–8 not started.**
+> Status: **approved 2026-10-06. Slices 0 and 1 done. Slices 2–8 not started.**
 > Branch: `verified-accounts`.
 
 ## How to start
@@ -173,6 +173,26 @@ applies only to some rows. Here it applies only to active rows
   - delete the granting staff row → blocked (restrict)
   - `activeBadgesByUserIds` ignores revoked rows, banned users and deleted users (A3)
 - Docs: a comment on the table in `schema.ts` (same style as `staff_accounts.role`).
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **Timestamps have no time zone.** The schema sketch in "Design" used
+  `withTimezone: true`. The real table uses plain `timestamp(...)`, as every
+  other table in `schema.ts` does.
+- **`activeBadgeCondition` uses the same A3 rule** (banned and deleted
+  authors do not count) as `activeBadgesByUserIds`. The filter and the badge
+  shown on a Tag therefore always agree. A test checks this.
+- **`activeBadgesByUserIds` skips a type that is not in `BADGE_TYPES`.** An
+  old row with a removed type shows nothing.
+- Migration `0020_user_badges.sql` only creates a new table (safe expand
+  step). It is applied to the dev and test databases.
+- `backend/tests/userBadges.test.js`: 19 tests (type guard, unique index,
+  revoke and re-grant, cascade, restrict, FK, the two helpers).
+- `e2e/fixtures/db.ts` `deleteStaffByEmail` now deletes `user_badges` rows
+  first. Nothing in e2e grants a badge yet, so it is not run until Slice 8.
+- Backend suite: 864 → 883 tests. `tsc --noEmit` clean. One full run had a
+  `socket hang up` in `words.test.js` (bulk delete). The file passes alone
+  (20/20) and the next full run was green (exit 0). It matches the random
+  failure class noted in `phase-4-tags.md` (Slice 3), not this slice.
 
 ### Slice 2 — Admin API: grant, revoke, detail
 

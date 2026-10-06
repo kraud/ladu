@@ -189,6 +189,35 @@ export const users = pgTable('users', {
 });
 
 // ---------------------------------------------------------------------------
+// USER_BADGES
+// Account badges such as 'official' (.context/plans/verified-badges.md). Only
+// staff grant them (admin API, permission `badge.manage`); no learner route
+// writes this table. A revoke sets `revokedAt` and keeps the row. The partial
+// unique index allows many revoked rows of one type per user, but only one
+// active row. Not to be confused with `users.verified` (email verification).
+// ---------------------------------------------------------------------------
+export const userBadges = pgTable(
+    'user_badges',
+    {
+        id:        uuid('id').primaryKey().defaultRandom(),
+        userId:    uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+        // 'official' for now — the allowed types live in lib/badges.ts, so a
+        // new type needs no migration.
+        type:      varchar('type', { length: 32 }).notNull(),
+        grantedAt: timestamp('granted_at').defaultNow().notNull(),
+        // NULL = the badge is active.
+        revokedAt: timestamp('revoked_at'),
+        // Staff are never deleted, so this FK stays valid.
+        grantedBy: uuid('granted_by').notNull().references(() => staffAccounts.id, { onDelete: 'restrict' }),
+    },
+    (table) => [
+        uniqueIndex('user_badges_active_unique')
+            .on(table.userId, table.type)
+            .where(sql`${table.revokedAt} IS NULL`),
+    ],
+);
+
+// ---------------------------------------------------------------------------
 // LOGIN_EVENTS
 // One row per successful login: the login history shown on the admin user
 // page. Country only, never an IP. Rows older than 90 days are deleted by the

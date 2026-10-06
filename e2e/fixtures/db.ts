@@ -209,11 +209,15 @@ export async function createStaffAccount(email: string, role: string, password: 
     return { staffId: rows[0].id };
 }
 
-/** Removes staff accounts and the audit rows that reference them (`audit_log.staff_id` is `ON DELETE RESTRICT`). */
+/** Removes staff accounts and the rows that reference them (`audit_log.staff_id` and `user_badges.granted_by` are `ON DELETE RESTRICT`). */
 export async function deleteStaffByEmail(emails: string[]): Promise<void> {
     if (emails.length === 0) return;
     try {
         const lowered = emails.map((e) => e.toLowerCase());
+        await getPool().query(
+            `DELETE FROM user_badges WHERE granted_by IN (SELECT id FROM staff_accounts WHERE email = ANY($1::text[]))`,
+            [lowered],
+        );
         await getPool().query(
             `DELETE FROM audit_log WHERE staff_id IN (SELECT id FROM staff_accounts WHERE email = ANY($1::text[]))`,
             [lowered],
