@@ -10,6 +10,7 @@ import { decodeJwtPayload } from '@/lib/jwt';
 import { labelByI18nCode } from '@/lib/language';
 import { themeForRequest } from '@/lib/theme';
 import { AuthLayout } from './AuthLayout';
+import { TermsNote } from './TermsNote';
 import { useOAuthSignupComplete } from '../hooks';
 import { buildOAuthSignupSchema, type OAuthSignupValues } from '../schemas';
 import type { OAuthTicketPreview } from '../types';
@@ -112,6 +113,7 @@ export function OAuthSignupForm({ ticket }: { ticket: string }) {
                                 )}
                             </Button>
                         </div>
+                        <TermsNote />
                     </section>
                 </form>
             </Form>

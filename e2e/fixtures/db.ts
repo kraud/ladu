@@ -144,6 +144,23 @@ export async function getUserTheme(email: string): Promise<string | null> {
     return rows[0].theme;
 }
 
+/**
+ * The Terms record the server wrote when the account was created
+ * (`users.terms_accepted_at` / `terms_version`; both `null` for accounts older
+ * than the Terms page). `acceptedRecently` is worked out in SQL on purpose: the
+ * backend (Drizzle) stores `timestamp` columns as UTC wall-clock time, and a
+ * plain `pg` read would parse that as local time and be off by the UTC offset.
+ */
+export async function getUserTerms(email: string): Promise<{ acceptedRecently: boolean; version: string | null }> {
+    const { rows } = await getPool().query<{ accepted_recently: boolean | null; terms_version: string | null }>(
+        `SELECT terms_accepted_at > (now() AT TIME ZONE 'UTC') - interval '5 minutes' AS accepted_recently, terms_version
+         FROM users WHERE lower(email) = lower($1)`,
+        [email],
+    );
+    if (!rows[0]) throw new Error(`no user found for ${email}`);
+    return { acceptedRecently: rows[0].accepted_recently === true, version: rows[0].terms_version };
+}
+
 /** Best-effort teardown — never throws, so a cleanup failure can't fail a run. */
 export async function deleteUsersByEmail(emails: string[]): Promise<void> {
     if (emails.length === 0) return;

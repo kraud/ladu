@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
+import { closePool, deleteUsersByEmail, getUserTerms, getVerifyToken } from '../fixtures/db';
 
 /**
  * Phase 1 — auth + app shell, vertical slice against the real stack
@@ -57,6 +57,10 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
         // Step 2 — language tiles.
         const submit = page.getByRole('button', { name: 'Create account' });
         await expect(submit).toBeDisabled();
+        // The Terms note sits under the button and links to the landing pages.
+        await expect(page.getByText(/at least 13 years old/)).toBeVisible();
+        await expect(page.getByRole('link', { name: 'Terms' })).toHaveAttribute('href', /\/terms\.html$/);
+        await expect(page.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', /\/privacy\.html$/);
         await page.getByRole('button', { name: 'English' }).click();
         await expect(submit).toBeDisabled(); // one language is not enough
         await page.getByRole('button', { name: 'Español' }).click();
@@ -65,6 +69,11 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         await expect(page).toHaveURL(/\/login/);
         await expect(page.getByText(primary.email)).toBeVisible();
+
+        // The server recorded the acceptance (the request carried no consent field).
+        const terms = await getUserTerms(primary.email);
+        expect(terms.version).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(terms.acceptedRecently).toBe(true);
 
         // Verify via the emailed link — token read straight from `tokens`.
         const { userId, token } = await getVerifyToken(primary.email);

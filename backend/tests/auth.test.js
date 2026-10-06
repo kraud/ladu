@@ -17,6 +17,7 @@ const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
 const { users, tokens, passwordResetTokens } = require('../src/db/schema');
+const { TERMS_VERSION } = require('../lib/terms');
 
 beforeAll(() => testDb.connectDB());
 beforeEach(async () => {
@@ -108,6 +109,18 @@ describe('POST /api/users - Registration', () => {
         expect(res.body).not.toHaveProperty('_id');
         expect(res.body).not.toHaveProperty('password');
         expect(res.body).not.toHaveProperty('token');
+    });
+
+    it('records the Terms version and the time the account was created', async () => {
+        const before = Date.now();
+        const res = await registerUser();
+        expect(res.statusCode).toBe(201);
+
+        // The server stamps this itself: the register request carries no consent field.
+        const user = await findUserByEmail('test@example.com');
+        expect(user.termsVersion).toBe(TERMS_VERSION);
+        expect(user.termsAcceptedAt.getTime()).toBeGreaterThanOrEqual(before - 1000);
+        expect(user.termsAcceptedAt.getTime()).toBeLessThanOrEqual(Date.now() + 1000);
     });
 
     it('creates a Token document for email verification', async () => {

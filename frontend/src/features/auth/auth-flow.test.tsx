@@ -30,8 +30,9 @@ describe('register', () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/register' });
 
-        // Step 1 — profile data.
+        // Step 1 — profile data. The Terms note belongs to the submit step.
         await screen.findByRole('button', { name: 'Continue' });
+        expect(screen.queryByRole('link', { name: 'Terms' })).not.toBeInTheDocument();
         await user.type(screen.getByLabelText(/^Name/), 'Kai Rebane');
         await user.type(screen.getByLabelText(/^Username/), 'kai');
         await user.type(screen.getByLabelText(/^Email/), 'kai@example.com');
@@ -42,6 +43,16 @@ describe('register', () => {
         // Step 2 — languages.
         await screen.findByRole('button', { name: 'Create account' });
         expect(screen.getByRole('button', { name: 'Create account' })).toBeDisabled();
+        // The note names the age rule and links to the two landing pages (new tab).
+        expect(screen.getByText(/at least 13 years old/)).toBeInTheDocument();
+        const terms = screen.getByRole('link', { name: 'Terms' });
+        expect(terms).toHaveAttribute('href', 'https://ladu.com.ar/terms.html');
+        expect(terms).toHaveAttribute('target', '_blank');
+        expect(terms).toHaveAttribute('rel', expect.stringContaining('noopener'));
+        expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute(
+            'href',
+            'https://ladu.com.ar/privacy.html',
+        );
         await user.click(screen.getByRole('button', { name: 'English', pressed: false }));
         // One language is not enough.
         expect(screen.getByRole('button', { name: 'Create account' })).toBeDisabled();
@@ -351,6 +362,18 @@ describe('OAuth signup completion (Phase 3)', () => {
         await renderApp({ initialEntry: '/auth/callback' });
 
         expect(await screen.findByLabelText(/^Username/)).toHaveValue('brandnew');
+    });
+
+    it('shows the Terms note with both links, like the password sign-up', async () => {
+        window.location.hash = `#ticket=${makeSignupTicket()}&mode=signup`;
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        await screen.findByLabelText(/^Username/);
+        expect(screen.getByRole('link', { name: 'Terms' })).toHaveAttribute('href', 'https://ladu.com.ar/terms.html');
+        expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute(
+            'href',
+            'https://ladu.com.ar/privacy.html',
+        );
     });
 
     it('completes signup, signs in verified with no password, and lands on Home', async () => {

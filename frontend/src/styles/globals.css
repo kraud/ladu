@@ -394,6 +394,21 @@
   .auth-foot a:hover {
     color: var(--accent);
   }
+  /* The Terms / Privacy sentence under "Create account" (TermsNote). */
+  .terms-note {
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .terms-note a {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .terms-note a:hover {
+    color: var(--accent);
+  }
   .label-row {
     display: flex;
     align-items: baseline;

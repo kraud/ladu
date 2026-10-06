@@ -181,6 +181,10 @@ export const users = pgTable('users', {
     deletedByStaffId: uuid('deleted_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
     // Carried in the JWT as `tv`. Raising it invalidates every older token.
     tokenVersion:     integer('token_version').notNull().default(0),
+    // Terms acceptance, written by the server when the account is created
+    // (lib/terms.ts). NULL for accounts that existed before the Terms page.
+    termsAcceptedAt:  timestamp('terms_accepted_at'),
+    termsVersion:     varchar('terms_version', { length: 16 }),
     ...timestamps,
 });
 
