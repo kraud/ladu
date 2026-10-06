@@ -182,7 +182,7 @@ These two parts can live in different places, so we look at them one at a time.
 
   | Role | Permissions |
   |---|---|
-  | `owner` | all, including `staff.manage` |
+  | `owner` | all, including `staff.manage`, `access.manage`, `users.purge` and `badge.manage` (grant and revoke account badges: see `verified-badges.md`) |
   | `admin` | `users.read`, `users.ban`, `users.delete`, `health.read`, `audit.read` |
   | `support` | `users.read`, `users.ban`, `health.read` |
   | `viewer` | `users.read`, `health.read` |

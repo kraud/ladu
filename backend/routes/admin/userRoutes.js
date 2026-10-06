@@ -4,6 +4,7 @@ const {
     listUsers, getUser, banUser, unbanUser, forceLogoutUser, deleteUser, restoreUser, purgeUser,
     resendVerification, sendPasswordReset,
 } = require('../../controllers/admin/userController.ts')
+const { grantBadge, revokeBadge } = require('../../controllers/admin/badgeController.ts')
 const { requireStaff } = require('../../middleware/staffAuth.ts')
 
 router.get('/', requireStaff('users.read'), listUsers)
@@ -18,5 +19,9 @@ router.post('/:id/restore', requireStaff('users.delete'), restoreUser)
 router.post('/:id/purge', requireStaff('users.purge'), purgeUser)
 router.post('/:id/resend-verification', requireStaff('users.email'), resendVerification)
 router.post('/:id/send-password-reset', requireStaff('users.email'), sendPasswordReset)
+
+// Account badges (verified-badges.md). Owner only; a reason is required.
+router.post('/:id/badges', requireStaff('badge.manage'), grantBadge)
+router.post('/:id/badges/:type/revoke', requireStaff('badge.manage'), revokeBadge)
 
 module.exports = router

@@ -17,6 +17,7 @@ const {
   loginEvents,
   auditLog,
   staffAccounts,
+  userBadges,
 }: typeof import('../../src/db/schema') = require('../../src/db/schema');
 const { and, asc, desc, eq, gt, ilike, isNotNull, isNull, or, sql }: typeof import('drizzle-orm') =
   require('drizzle-orm');
@@ -182,7 +183,7 @@ const loadUserDetail = async (id: string, role: string) => {
 
   const canManageAccess = hasPermission(role, 'access.manage');
 
-  const [wordCount, translationCount, tagCount, friendCount, sessionCount, identities, recentLogins, deletedBy, audit, allowedRows] =
+  const [wordCount, translationCount, tagCount, friendCount, sessionCount, identities, recentLogins, deletedBy, audit, allowedRows, badgeRows] =
     await Promise.all([
       countOf(db.select({ n }).from(words).where(eq(words.userId, id))),
       countOf(
@@ -231,6 +232,15 @@ const loadUserDetail = async (id: string, role: string) => {
       canManageAccess
         ? db.select({ userId: loginAllowedUsers.userId }).from(loginAllowedUsers).where(eq(loginAllowedUsers.userId, id)).limit(1)
         : Promise.resolve(null),
+      // Active badges only; the history is in the audit log. Read straight from the
+      // table (not `activeBadgesByUserIds`): staff must still see the badge of a
+      // banned account, to revoke it.
+      db
+        .select({ type: userBadges.type, grantedAt: userBadges.grantedAt, staffId: staffAccounts.id, staffName: staffAccounts.name })
+        .from(userBadges)
+        .innerJoin(staffAccounts, eq(staffAccounts.id, userBadges.grantedBy))
+        .where(and(eq(userBadges.userId, id), isNull(userBadges.revokedAt)))
+        .orderBy(asc(userBadges.grantedAt)),
     ]);
 
   return {
@@ -256,6 +266,11 @@ const loadUserDetail = async (id: string, role: string) => {
     hasPassword: user.password !== null,
     // `null` tells the UI this role may not see it.
     loginAllowed: allowedRows ? allowedRows.length > 0 : null,
+    badges: badgeRows.map((row) => ({
+      type: row.type,
+      grantedAt: row.grantedAt,
+      grantedBy: { id: row.staffId, name: row.staffName },
+    })),
     identities,
     counts: {
       words: wordCount,
@@ -491,4 +506,4 @@ const purgeUser = userAction('purge');
 const resendVerification = userAction('resend-verification');
 const sendPasswordReset = userAction('send-password-reset');
 
-export = { listUsers, getUser, banUser, unbanUser, forceLogoutUser, deleteUser, restoreUser, purgeUser, resendVerification, sendPasswordReset };
+export = { listUsers, getUser, loadUserDetail, banUser, unbanUser, forceLogoutUser, deleteUser, restoreUser, purgeUser, resendVerification, sendPasswordReset };

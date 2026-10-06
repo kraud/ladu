@@ -1,6 +1,6 @@
 # Account badges ("official" and later types)
 
-> Status: **approved 2026-10-06. Slices 0 and 1 done. Slices 2–8 not started.**
+> Status: **approved 2026-10-06. Slices 0–2 done. Slices 3–8 not started.**
 > Branch: `verified-accounts`.
 
 ## How to start
@@ -218,6 +218,42 @@ reason. That way we always know who gave which badge, when and why.
   - `GET /api/admin/users/:id` shows only active badges
 - Docs: add `badge.manage` to the permission list in
   `.context/plans/admin-dashboard.md`.
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **Routes** (both `requireStaff('badge.manage')`, both answer 200 with the
+  fresh `UserDetail`, as the other user actions do):
+  - `POST /api/admin/users/:id/badges`, body `{type, reason}`
+  - `POST /api/admin/users/:id/badges/:type/revoke`, body `{reason}`
+- **Code:** new `controllers/admin/badgeController.ts`. One `badgeAction`
+  builder runs both: it locks the user row, checks the state, changes the
+  badge and writes the audit row in one transaction. `userController.ts`
+  now exports `loadUserDetail` so the new controller can reuse it.
+- **Status codes:** 400 unknown type or bad reason, 404 unknown user or an
+  id that is not a UUID, 409 already active (grant) or not active (revoke).
+- **The detail lists active badge rows straight from the table**, not
+  through `activeBadgesByUserIds`. That helper hides a banned account's
+  badge (A3), but staff must still see it to revoke it. A test covers this.
+  Every role with `users.read` sees the badge list. Only the buttons (Slice
+  3) depend on `badge.manage`.
+- **Not added:** no rule against a grant on a deleted account. The badge is
+  hidden for a deleted account anyway (A3), and a restore brings it back.
+  Easy to add if you want it.
+- `backend/tests/adminBadges.test.js`: 24 tests (permission matrix, learner
+  token, reason, type, 404, 409, a parallel double grant, re-grant after a
+  revoke, detail for each role, banned account, audit history). One test
+  checks that the learner API writes no badge; it passes whatever status
+  that route answers, so it only guards against a future write path.
+- `badge.manage` is in the permission table of `admin-dashboard.md`.
+- Backend suite: 883 → 907 tests. `tsc --noEmit` clean.
+- **Flaky full runs.** Three full runs gave: 2 failures in `adminBadges`
+  (a 404 where the handler can only answer 400, and two 401s); 1 failure in
+  `exercises` (`socket hang up`); then green (exit 0). Two extra runs of the
+  two admin files together gave one `socket hang up` in the older
+  `adminUserActions` and then green. `adminBadges` alone passed 3 of 3
+  runs. The `socket hang up` failures hit a different, unrelated file each
+  time and match the random failure class in `phase-4-tags.md` (Slice 3).
+  **The 404 and the 401s are not explained.** They did not come back. Watch
+  `adminBadges` in the next full runs. If it fails again, look at it first.
 
 ### Slice 3 — Admin UI
 
