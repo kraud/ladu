@@ -2,10 +2,17 @@ import path from 'node:path';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { thirdPartyNotices } from './third-party-notices';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [react(), tailwindcss()],
+    plugins: [
+        react(),
+        tailwindcss(),
+        // Writes dist/THIRD-PARTY-NOTICES.txt (same plugin as frontend/). Tailwind
+        // reaches the build through `@import` in src/styles.css, not through JavaScript.
+        thirdPartyNotices({ title: 'Ladu admin', extraPackages: ['tailwindcss'] }),
+    ],
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
