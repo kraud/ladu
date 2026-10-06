@@ -3,7 +3,7 @@
 
 FROM caddy:alpine
 
-COPY index.html privacy.html style.css app.js favicon.svg /srv/
+COPY index.html privacy.html terms.html credits.html impressum.html style.css app.js favicon.svg /srv/
 COPY brand/ /srv/brand/
 COPY flags/ /srv/flags/
 COPY Caddyfile /etc/caddy/Caddyfile
