@@ -25,6 +25,20 @@ export interface UserActionBody {
     confirmUsername?: string;
 }
 
+/** Both badge calls return the fresh user detail. A reason is required. */
+export async function grantBadge(id: string, body: { type: string; reason: string }): Promise<UserDetail> {
+    const { data } = await apiClient.post<UserDetail>(`/admin/users/${encodeURIComponent(id)}/badges`, body);
+    return data;
+}
+
+export async function revokeBadge(id: string, type: string, body: { reason: string }): Promise<UserDetail> {
+    const { data } = await apiClient.post<UserDetail>(
+        `/admin/users/${encodeURIComponent(id)}/badges/${encodeURIComponent(type)}/revoke`,
+        body,
+    );
+    return data;
+}
+
 /** Every action except `purge` returns the fresh user detail; `purge` returns `{ purged: true }`. */
 export async function runUserAction(id: string, action: UserActionName, body: UserActionBody): Promise<UserDetail | { purged: true }> {
     const { data } = await apiClient.post<UserDetail | { purged: true }>(`/admin/users/${encodeURIComponent(id)}/${action}`, body);

@@ -20,6 +20,10 @@
     "unavailable": "Pole saadaval",
     "discover": "Avasta"
   },
+  "authorBadge": {
+    "official": "Ametlik",
+    "officialTitle": "Ladu ametlik konto"
+  },
   "visibility": {
     "public": "Avalik",
     "private": "Privaatne"
@@ -38,12 +42,16 @@
   "card": {
     "openAriaLabel": "Ava {{label}}",
     "noDescription": "Kirjeldus puudub",
+    "more": "rohkem",
+    "less": "vähem",
+    "by": "autor",
     "wordCount_one": "sõna",
     "wordCount_other": "sõna",
     "clonedFromPrefix": "Kloonitud allikast",
+    "cloned": "Kloonitud",
+    "clonedFromTitle": "Kloonitud allikast {{label}}",
     "byAuthor": "kasutajalt {{username}}",
     "unavailableNote": "Peidetud — omanik muutis selle tagi privaatseks. Sa jätkad jälgimist, kuid selle sõnad puuduvad su ülevaatest, kuni ta selle uuesti jagab.",
-    "viewWords": "Vaata sõnu",
     "unfollow": "Lõpeta jälgimine",
     "clone": "Kloon",
     "follow": "Jälgi",
@@ -95,12 +103,19 @@
     "searchLabel": "Otsi tage",
     "scopeGroupLabel": "Tagi ulatus",
     "scope": {
-      "all": "Kõik"
+      "all": "Kõik",
+      "owned": "Minu omad"
     },
     "sortLabel": "Sortimine",
     "sort": {
       "recent": "Uusimad",
       "label": "Nimi A–Z"
+    },
+    "verifiedFilter": "Kinnitatud",
+    "emptyBadge": {
+      "title": "Ükski kinnitatud tag ei sobi",
+      "description": "Proovi teist vaadet või näita kõigi autorite tage.",
+      "action": "Näita kõiki tage"
     },
     "resultCount": "{{shown}} / {{total}} tagi",
     "noResults": "Tagid puuduvad",
@@ -144,6 +159,7 @@
     "resultCount": "{{shown}} / {{total}} sõna",
     "loaded": "Kuvatud {{loaded}} / {{total}} sõna",
     "removeFromTag": "Eemalda tagilt",
+    "removeWords": "Eemalda sõnu",
     "removedToast": "\"{{word}}\" eemaldati tagilt \"{{label}}\" — see jääb sinu kogusse alles",
     "emptySearch": {
       "title": "Miski ei vasta otsingule \"{{query}}\"",
@@ -169,6 +185,7 @@
     "action": "Tagasi /tags juurde"
   },
   "view": {
+    "by": "Autor",
     "backAriaLabel": "Tagasi /tags juurde",
     "backLabel": "Tagasi /tags juurde",
     "ownedHint": "Sinu tag",
@@ -176,12 +193,12 @@
     "ownedHintWithFollowers_other": "Sinu tag — {{count}} jälgijat",
     "followerCount_one": "{{count}} jälgija",
     "followerCount_other": "{{count}} jälgijat",
+    "followerLabel_one": "jälgija",
+    "followerLabel_other": "jälgijat",
     "unavailableTitle": "Sõnad on praegu peidetud",
     "unavailableDescription": "Omanik muutis selle tagi privaatseks. Sa jätkad jälgimist — selle sõnad naasevad su ülevaatesse, kui see taas avalikuks muutub.",
     "removeHint": "Sõna eemaldamine tagilt ei kustuta seda — see jääb sinu kogusse alles.",
-    "openCopy": "Ava see",
-    "editDetails": "Muuda üksikasju",
-    "doneEditing": "Valmis"
+    "openCopy": "Ava see"
   },
   "picker": {
     "addTitle_one": "Lisa tagid {{count}} sõnale",

@@ -26,6 +26,16 @@ export interface UserListResponse {
     pageSize: number;
 }
 
+/**
+ * An active account badge. `type` is a plain string: the server decides which
+ * types exist (backend/lib/badges.ts), so a new type must not break this page.
+ */
+export interface UserBadge {
+    type: string;
+    grantedAt: string;
+    grantedBy: { id: string; name: string };
+}
+
 export interface UserDetail {
     id: string;
     name: string;
@@ -49,6 +59,8 @@ export interface UserDetail {
     hasPassword: boolean;
     /** On the login allowed list? `null`: this staff role may not see it. */
     loginAllowed: boolean | null;
+    /** Active badges only. The history is in the audit log. */
+    badges: UserBadge[];
     identities: { provider: string; emailAtLink: string; linkedAt: string }[];
     counts: { words: number; translations: number; tags: number; friends: number; practiceSessions: number };
     recentLogins: { id: string; method: string; country: string | null; createdAt: string }[];

@@ -23,6 +23,7 @@ import type {
     CloneTagBody,
     CreateTagBody,
     LinkTagsToWordsBody,
+    TagAuthor,
     TagSourceRef,
     TagSummary,
     TagVisibility,
@@ -60,7 +61,7 @@ const nextId = (prefix: string) => `${prefix}-${++counter}`;
 
 const VALID_VISIBILITIES = ['Public', 'Private', 'Friends-Only'];
 
-function toSummary(tag: InternalTag, viewerId: string, usernameOf: (id: string) => string): TagSummary {
+function toSummary(tag: InternalTag, viewerId: string, authorOf: (id: string) => TagAuthor): TagSummary {
     const isOwner = tag.authorId === viewerId;
     const isFollowing = tag.followerIds.has(viewerId);
     // Simplified per the module note above — Public-or-owner only.
@@ -72,7 +73,7 @@ function toSummary(tag: InternalTag, viewerId: string, usernameOf: (id: string) 
         visibility: tag.visibility as TagVisibility,
         createdAt: tag.createdAt,
         updatedAt: tag.updatedAt,
-        author: { id: tag.authorId, username: usernameOf(tag.authorId) },
+        author: authorOf(tag.authorId),
         wordCount: tag.wordIds.size,
         followerCount: tag.followerIds.size,
         isOwner,
@@ -124,9 +125,11 @@ export function makeTagHandlers(opts: {
     seedTags?: SeedTag[];
     /** Word id -> owner id, for `createTag`/`linkTagsToWords`/`unlinkTagsFromWords` ownership checks. A word id absent from this map is treated as the caller's own. */
     wordOwners?: Record<string, string>;
+    /** Active account badges per user id, e.g. `{ 'user-9': ['official'] }`. Absent = none. */
+    authorBadges?: Record<string, string[]>;
 }) {
-    const { callerId, usernames = {}, seedTags = [], wordOwners = {} } = opts;
-    const usernameOf = (id: string) => usernames[id] ?? id;
+    const { callerId, usernames = {}, seedTags = [], wordOwners = {}, authorBadges = {} } = opts;
+    const authorOf = (id: string): TagAuthor => ({ id, username: usernames[id] ?? id, badges: authorBadges[id] ?? [] });
     const ownerOfWord = (id: string) => wordOwners[id] ?? callerId;
 
     const store = new Map<string, InternalTag>();
@@ -185,8 +188,11 @@ export function makeTagHandlers(opts: {
             const scope = url.searchParams.get('scope') ?? 'all';
             const q = url.searchParams.get('q')?.trim().toLowerCase();
             const sort = url.searchParams.get('sort') === 'label' ? 'label' : 'recent';
+            const badge = url.searchParams.get('badge');
 
             let filtered = [...store.values()].filter((t) => matchesScope(t, callerId, scope));
+            // Before `total`, like the real endpoint: the count follows the filter.
+            if (badge) filtered = filtered.filter((t) => (authorBadges[t.authorId] ?? []).includes(badge));
             if (q) {
                 filtered = filtered.filter(
                     (t) =>
@@ -228,7 +234,7 @@ export function makeTagHandlers(opts: {
                 : null;
 
             return HttpResponse.json({
-                items: rows.map((t) => toSummary(t, callerId, usernameOf)),
+                items: rows.map((t) => toSummary(t, callerId, authorOf)),
                 nextCursor,
                 total,
             });
@@ -316,7 +322,7 @@ export function makeTagHandlers(opts: {
                 visibility: body.visibility,
                 wordIds,
             });
-            return HttpResponse.json(toSummary(tag, callerId, usernameOf));
+            return HttpResponse.json(toSummary(tag, callerId, authorOf));
         }),
 
         // GET /api/tags/:id
@@ -324,7 +330,7 @@ export function makeTagHandlers(opts: {
             const tag = store.get(params.id as string);
             if (!tag) return HttpResponse.json({ message: 'Tag not found' }, { status: 404 });
 
-            const summary = toSummary(tag, callerId, usernameOf);
+            const summary = toSummary(tag, callerId, authorOf);
             if (!summary.isFollowing && !summary.isAvailable) {
                 return HttpResponse.json({ message: 'Tag not found' }, { status: 404 });
             }
@@ -363,7 +369,7 @@ export function makeTagHandlers(opts: {
                 tag.visibility = body.visibility;
             }
             tag.updatedAt = nextTimestamp();
-            return HttpResponse.json(toSummary(tag, callerId, usernameOf));
+            return HttpResponse.json(toSummary(tag, callerId, authorOf));
         }),
 
         // DELETE /api/tags/:id/follow — 2 segments, distinct from `DELETE /api/tags/:id` below.
@@ -371,7 +377,7 @@ export function makeTagHandlers(opts: {
             const tag = store.get(params.id as string);
             if (!tag) return HttpResponse.json({ message: 'Tag not found' }, { status: 404 });
             tag.followerIds.delete(callerId);
-            return HttpResponse.json(toSummary(tag, callerId, usernameOf));
+            return HttpResponse.json(toSummary(tag, callerId, authorOf));
         }),
 
         // POST /api/tags/:id/follow
@@ -388,7 +394,7 @@ export function makeTagHandlers(opts: {
                 );
             }
             tag.followerIds.add(callerId);
-            return HttpResponse.json(toSummary(tag, callerId, usernameOf));
+            return HttpResponse.json(toSummary(tag, callerId, authorOf));
         }),
 
         // POST /api/tags/:id/clone
@@ -422,7 +428,7 @@ export function makeTagHandlers(opts: {
                 wordIds: [...source.wordIds],
                 sourceTag: { id: source.id, label: source.label },
             });
-            return HttpResponse.json(toSummary(clone, callerId, usernameOf));
+            return HttpResponse.json(toSummary(clone, callerId, authorOf));
         }),
 
         // DELETE /api/tags/:id

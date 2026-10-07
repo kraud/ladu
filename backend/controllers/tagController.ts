@@ -21,6 +21,11 @@ type PerformanceCaseRow = typeof exercisePerformanceCases.$inferSelect;
 
 const asyncHandler = require("express-async-handler");
 
+// Account badges (verified-badges.md): read from the DB on each request, never
+// from the token, so a revoke takes effect at once.
+const { activeBadgesByUserIds, activeBadgeCondition, isBadgeType }: typeof import("../lib/badges") =
+  require("../lib/badges");
+
 // Generic keyset-pagination helpers live in wordService.ts, not
 // wordController.ts — wordController.ts already requires *this* file (for
 // `getWordsIdFromFollowedTagsByUserId`), so requiring wordController.ts back
@@ -55,7 +60,10 @@ interface TagSummary {
   visibility: string;
   createdAt: Date;
   updatedAt: Date;
-  author: { id: string; username: string };
+  // `badges`: the author's active badge types (verified-badges.md), sorted;
+  // empty when there are none. It belongs to the author's account, so a clone
+  // does not inherit it.
+  author: { id: string; username: string; badges: string[] };
   wordCount: number;
   followerCount: number;
   isOwner: boolean;
@@ -229,7 +237,7 @@ const buildTagSummaries = async (
     ),
   ];
 
-  const [authorRows, sourceTagRows, wordCountRows, followerCountRows, followingRows, friendIds] =
+  const [authorRows, sourceTagRows, wordCountRows, followerCountRows, followingRows, friendIds, badgesByAuthorId] =
     await Promise.all([
       db.select({ id: users.id, username: users.username }).from(users).where(inArray(users.id, authorIds)),
       sourceTagIds.length > 0
@@ -252,6 +260,7 @@ const buildTagSummaries = async (
           and(inArray(userFollowingTags.tagId, tagIds), eq(userFollowingTags.followerUserId, viewerId)),
         ),
       getFriendUserIds(viewerId),
+      activeBadgesByUserIds(authorIds),
     ]);
 
   const authorById = new Map(authorRows.map((user) => [user.id, user]));
@@ -272,7 +281,11 @@ const buildTagSummaries = async (
       updatedAt: tag.updatedAt,
       // Falls back to a blank username rather than throwing — only reachable
       // if the author row vanished between the two queries (deleted account).
-      author: { id: tag.authorId, username: author?.username ?? "" },
+      author: {
+        id: tag.authorId,
+        username: author?.username ?? "",
+        badges: badgesByAuthorId.get(tag.authorId) ?? [],
+      },
       wordCount: wordCountByTagId.get(tag.id) ?? 0,
       followerCount: followerCountByTagId.get(tag.id) ?? 0,
       isOwner: tag.authorId === viewerId,
@@ -294,7 +307,9 @@ const buildTagSummary = async (tagRow: TagRow, viewerId: string): Promise<TagSum
 //          filterTags, all of which either loaded every matching tag's full
 //          word list or leaked another user's followed-tag list with no
 //          authorization check at all).
-// @route   GET /api/tags?scope=all|owned|followed|discover&q=&sort=recent|label&cursor=&limit=
+//          `badge=official` keeps only tags whose author has that active
+//          badge (verified-badges.md). 400 for a type the server does not know.
+// @route   GET /api/tags?scope=all|owned|followed|discover&q=&sort=recent|label&badge=&cursor=&limit=
 // @access  Private
 const listTags = asyncHandler(async (req: any, res: any) => {
   const viewerId = req.user.id;
@@ -303,6 +318,14 @@ const listTags = asyncHandler(async (req: any, res: any) => {
     : "all";
   const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
   const sortBy = req.query.sort === "label" ? "label" : "recent";
+
+  // Absent = no filter. Anything else (empty, repeated, unknown) is an error,
+  // so a typo in the client shows up instead of silently showing every tag.
+  const badge = req.query.badge;
+  if (badge !== undefined && !isBadgeType(badge)) {
+    res.status(400);
+    throw new Error("Unknown badge type");
+  }
 
   const followedTagIds = await getFollowedTagIdsByUserId(viewerId);
 
@@ -341,6 +364,8 @@ const listTags = asyncHandler(async (req: any, res: any) => {
   if (q) {
     conditions.push(or(ilike(tags.label, `%${q}%`), ilike(tags.description, `%${q}%`)));
   }
+  // Before the count below, so `total` and the pages both follow the filter.
+  if (badge !== undefined) conditions.push(activeBadgeCondition(badge));
 
   const [{ value: total }] = await db
     .select({ value: count() })

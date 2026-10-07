@@ -92,6 +92,10 @@ Slice 9 notes (overview statistics):
 - Found by looking at the page at phone width: the header overflowed since slice 8 (now it wraps), and two x-axis labels ran together (a label closer than n points to the last one is now dropped).
 - Tests: Jest `adminStats` and `activityDays` (a fixed clock replaces `Date`), `purge`; Vitest for the chart components and the page; Playwright `admin-9-stats.spec.ts`. The e2e spec reads the API before it seeds, and asserts only what its own rows add, because other specs create users at the same time.
 
+Account badges (added after slice 9; plan: `verified-badges.md`):
+- The user detail page has a "Badges" section. Every role with `users.read` sees the active badges. Only a role with `badge.manage` (the owner) sees "Grant badge" and "Revoke", each with a required reason.
+- API: `POST /api/admin/users/:id/badges` and `POST /api/admin/users/:id/badges/:type/revoke`. Audit actions: `badge.grant` and `badge.revoke`, with `metadata.badge`. Code: `backend/controllers/admin/badgeController.ts`. Tests: `adminBadges.test.js`, `admin/src/features/users/BadgeSection.test.tsx`, `e2e/tests/admin-13-badges.spec.ts`.
+
 Account page and header cleanup (cosmetic slice, after slice 9):
 - New page `/account` (`admin/src/features/auth/pages/AccountPage.tsx`): name, email and role from the session, with "Change password" and "Sign out". The header keeps the name and the role badge and gains an "Account" link as its last item; the "Change password" link and the "Sign out" button left the header. `useSignOut` (`features/auth/hooks.ts`) holds the logout + navigate pair both places used to repeat.
 - The "Account" link sits outside the `mustChange` test in the header, and `_protected.beforeLoad` allows `/account` as well as `/account/password`, so a temporary password keeps a way to sign out.
@@ -182,7 +186,7 @@ These two parts can live in different places, so we look at them one at a time.
 
   | Role | Permissions |
   |---|---|
-  | `owner` | all, including `staff.manage` |
+  | `owner` | all, including `staff.manage`, `access.manage`, `users.purge` and `badge.manage` (grant and revoke account badges: see `verified-badges.md`) |
   | `admin` | `users.read`, `users.ban`, `users.delete`, `health.read`, `audit.read` |
   | `support` | `users.read`, `users.ban`, `health.read` |
   | `viewer` | `users.read`, `health.read` |

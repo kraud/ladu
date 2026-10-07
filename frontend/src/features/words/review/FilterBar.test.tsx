@@ -199,7 +199,7 @@ describe('FilterBar — Tags group (D15/D17)', () => {
             visibility: 'Public' as const,
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
-            author: { id: 'u1', username: 'kai' },
+            author: { id: 'u1', username: 'kai', badges: [] },
             wordCount: 0,
             followerCount: 0,
             isOwner: true,

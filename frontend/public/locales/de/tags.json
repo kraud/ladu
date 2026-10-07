@@ -20,6 +20,10 @@
     "unavailable": "Nicht verfügbar",
     "discover": "Entdecken"
   },
+  "authorBadge": {
+    "official": "Offiziell",
+    "officialTitle": "Offizielles Ladu-Konto"
+  },
   "visibility": {
     "public": "Öffentlich",
     "private": "Privat"
@@ -38,12 +42,16 @@
   "card": {
     "openAriaLabel": "{{label}} öffnen",
     "noDescription": "Keine Beschreibung",
+    "more": "mehr",
+    "less": "weniger",
+    "by": "von",
     "wordCount_one": "Wort",
     "wordCount_other": "Wörter",
     "clonedFromPrefix": "Geklont von",
+    "cloned": "Geklont",
+    "clonedFromTitle": "Geklont von {{label}}",
     "byAuthor": "von {{username}}",
     "unavailableNote": "Ausgeblendet — der Besitzer hat diesen Tag auf Privat gesetzt. Du folgst ihm weiterhin, aber seine Wörter fehlen in deiner Übersicht, bis er ihn wieder freigibt.",
-    "viewWords": "Wörter ansehen",
     "unfollow": "Nicht mehr folgen",
     "clone": "Klonen",
     "follow": "Folgen",
@@ -95,12 +103,19 @@
     "searchLabel": "Tags durchsuchen",
     "scopeGroupLabel": "Tag-Bereich",
     "scope": {
-      "all": "Alle"
+      "all": "Alle",
+      "owned": "Eigene"
     },
     "sortLabel": "Sortieren",
     "sort": {
       "recent": "Neueste",
       "label": "Label A–Z"
+    },
+    "verifiedFilter": "Verifiziert",
+    "emptyBadge": {
+      "title": "Kein verifizierter Tag passt",
+      "description": "Probiere einen anderen Bereich oder zeige die Tags aller Autoren.",
+      "action": "Alle Tags anzeigen"
     },
     "resultCount": "{{shown}} von {{total}} Tags",
     "noResults": "Keine Tags",
@@ -144,6 +159,7 @@
     "resultCount": "{{shown}} von {{total}} Wörtern",
     "loaded": "{{loaded}} von {{total}} Wörtern werden angezeigt",
     "removeFromTag": "Aus Tag entfernen",
+    "removeWords": "Wörter entfernen",
     "removedToast": "\"{{word}}\" wurde aus \"{{label}}\" entfernt — es bleibt bei dir erhalten",
     "emptySearch": {
       "title": "Nichts passt zu \"{{query}}\"",
@@ -169,6 +185,7 @@
     "action": "Zurück zu /tags"
   },
   "view": {
+    "by": "Von",
     "backAriaLabel": "Zurück zu /tags",
     "backLabel": "Zurück zu /tags",
     "ownedHint": "Dein Tag",
@@ -176,12 +193,12 @@
     "ownedHintWithFollowers_other": "Dein Tag — {{count}} Follower",
     "followerCount_one": "{{count}} Follower",
     "followerCount_other": "{{count}} Follower",
+    "followerLabel_one": "Follower",
+    "followerLabel_other": "Follower",
     "unavailableTitle": "Wörter sind momentan ausgeblendet",
     "unavailableDescription": "Der Besitzer hat diesen Tag auf Privat gesetzt. Du folgst ihm weiterhin — seine Wörter kehren in deine Übersicht zurück, sobald er wieder öffentlich wird.",
     "removeHint": "Ein Wort aus dem Tag zu entfernen löscht es nicht — es bleibt bei dir erhalten.",
-    "openCopy": "Öffnen",
-    "editDetails": "Details bearbeiten",
-    "doneEditing": "Fertig"
+    "openCopy": "Öffnen"
   },
   "picker": {
     "addTitle_one": "Tags zu {{count}} Wort hinzufügen",

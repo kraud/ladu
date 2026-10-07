@@ -8,57 +8,92 @@
  * DOM shape, so there's no click-bubbling conflict between "open the card"
  * and "click a footer button" to reason about.
  */
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CopyIcon, UsersIcon } from '@phosphor-icons/react';
+import { Link } from '@tanstack/react-router';
+import { CopyIcon, UserMinusIcon, UserPlusIcon, UsersIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
-import { avatarColor, avatarInitials } from '@/lib/avatar';
-import { TagBadges, tagRelation } from './TagBadge';
+import { ClonedBadge, RelationBadge, VerifiedMark, VisibilityBadge, hasVerifiedBadge, tagRelation } from './TagBadge';
 import type { TagSummary } from '../types';
 
 export interface TagCardProps {
     tag: TagSummary;
-    onView: (tag: TagSummary) => void;
-    onEdit?: (tag: TagSummary) => void;
-    onDelete?: (tag: TagSummary) => void;
+    /** The action footer. Off on the All and Yours tabs, where actions live on the tag page. */
+    showActions?: boolean;
     onFollow?: (tag: TagSummary) => void;
     onUnfollow?: (tag: TagSummary) => void;
     onClone?: (tag: TagSummary) => void;
 }
 
-export function TagCard({ tag, onView, onEdit, onDelete, onFollow, onUnfollow, onClone }: TagCardProps) {
+/** One-line description; a more/less button shows only when the text is cut off. */
+function Description({ text }: { text: string }) {
+    const { t } = useTranslation();
+    const ref = useRef<HTMLParagraphElement>(null);
+    const [expanded, setExpanded] = useState(false);
+    const [truncated, setTruncated] = useState(false);
+
+    useLayoutEffect(() => {
+        const el = ref.current;
+        if (el) setTruncated(el.scrollWidth > el.clientWidth);
+    }, [text, expanded]);
+
+    const toggle = (
+        <button type="button" className="t-more" aria-expanded={expanded} onClick={() => setExpanded((v) => !v)}>
+            {t(expanded ? 'tags:card.less' : 'tags:card.more')}
+        </button>
+    );
+
+    // Open: the button follows the last word. Closed: one line, button at the right edge.
+    if (expanded) {
+        return (
+            <p className="t-desc t-desc-open">
+                {text} {toggle}
+            </p>
+        );
+    }
+    return (
+        <div className="t-desc-row">
+            <p ref={ref} className="t-desc">
+                {text}
+            </p>
+            {truncated && toggle}
+        </div>
+    );
+}
+
+export function TagCard({ tag, showActions = true, onFollow, onUnfollow, onClone }: TagCardProps) {
     const { t } = useTranslation();
     const relation = tagRelation(tag);
     // The mockup hides the follower count specifically for an unavailable
     // tag — its own visibility is exactly what put it out of reach, so a
     // stale follower number there would be more confusing than absent.
     const showFollowerCount = relation !== 'unavailable';
-
-    function open() {
-        onView(tag);
-    }
+    const authorVerified = hasVerifiedBadge(tag.author.badges);
 
     return (
         <article className="card tagcard">
-            <div
-                className="tagcard-main"
-                role="link"
-                tabIndex={0}
-                aria-label={t('tags:card.openAriaLabel', { label: tag.label })}
-                onClick={open}
-                onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        open();
-                    }
-                }}
-            >
-                <TagBadges tag={tag} />
-                <span className="t-label">{tag.label}</span>
+            <div className="tagcard-main">
+                <Link
+                    to="/tag/$tagId"
+                    params={{ tagId: tag.id }}
+                    className="t-link"
+                    aria-label={t('tags:card.openAriaLabel', { label: tag.label })}
+                >
+                    <span className="t-label">
+                        {tag.label}
+                        {authorVerified && tag.visibility === 'Public' && <VerifiedMark />}
+                    </span>
+                </Link>
                 {tag.description ? (
-                    <p className="t-desc">{tag.description}</p>
+                    <Description text={tag.description} />
                 ) : (
                     <p className="t-desc italic">{t('tags:card.noDescription')}</p>
                 )}
+                <div className="t-badge-row t-badge-row-card">
+                    <RelationBadge relation={relation} />
+                    <VisibilityBadge visibility={tag.visibility} />
+                    {tag.sourceTag && <ClonedBadge sourceLabel={tag.sourceTag.label} />}
+                </div>
                 <div className="t-stats">
                     <span>
                         <b className="num">{tag.wordCount}</b> {t('tags:card.wordCount', { count: tag.wordCount })}
@@ -67,81 +102,60 @@ export function TagCard({ tag, onView, onEdit, onDelete, onFollow, onUnfollow, o
                         <>
                             <span className="dotsep">·</span>
                             <span className="flex items-center gap-1">
-                                <UsersIcon size={12} />
                                 <b className="num">{tag.followerCount}</b>
+                                <UsersIcon size={12} />
                             </span>
                         </>
                     )}
+                    {relation !== 'owned' && (
+                        <span className="t-by-inline">
+                            {t('tags:card.by')}{' '}
+                            <span
+                                className={authorVerified ? 't-by-verified' : undefined}
+                                title={authorVerified ? t('tags:authorBadge.officialTitle') : undefined}
+                            >
+                                {tag.author.username}
+                            </span>
+                        </span>
+                    )}
                 </div>
-                {relation === 'owned' && tag.sourceTag && (
-                    <div className="t-cloned">
-                        <CopyIcon size={12} className="mt-0.5 shrink-0" />
-                        <span>
-                            {t('tags:card.clonedFromPrefix')}{' '}
-                            <span className="cl">{tag.sourceTag.label}</span>
-                        </span>
-                    </div>
-                )}
-                {relation !== 'owned' && (
-                    <div className="t-by">
-                        <span
-                            className="avatar"
-                            style={{ background: avatarColor(tag.author.username), color: '#fff' }}
-                        >
-                            {avatarInitials(tag.author.username)}
-                        </span>
-                        <span>{t('tags:card.byAuthor', { username: tag.author.username })}</span>
-                    </div>
-                )}
                 {relation === 'unavailable' && <div className="t-note">{t('tags:card.unavailableNote')}</div>}
             </div>
 
-            <div className="tagcard-foot">
-                {relation === 'owned' && (
-                    <>
-                        <Button size="sm" variant="secondary" onClick={() => onEdit?.(tag)}>
-                            {t('common:buttons.edit')}
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => onDelete?.(tag)}>
-                            {t('common:buttons.delete')}
-                        </Button>
-                        <Button size="sm" variant="ghost" className="ml-auto" onClick={open}>
-                            {t('tags:card.viewWords')}
-                        </Button>
-                    </>
-                )}
-                {relation === 'followed' && (
-                    <>
-                        <Button size="sm" variant="ghost" onClick={() => onUnfollow?.(tag)}>
+            {showActions && (
+                <div className="tagcard-foot">
+                    {relation === 'followed' && (
+                        <>
+                            <Button size="xs" variant="secondary" onClick={() => onUnfollow?.(tag)}>
+                                <UserMinusIcon size={12} aria-hidden="true" />
+                                {t('tags:card.unfollow')}
+                            </Button>
+                            <Button size="xs" variant="secondary" onClick={() => onClone?.(tag)}>
+                                <CopyIcon size={12} aria-hidden="true" />
+                                {t('tags:card.clone')}
+                            </Button>
+                        </>
+                    )}
+                    {relation === 'discover' && (
+                        <>
+                            <Button size="xs" variant="secondary" onClick={() => onFollow?.(tag)}>
+                                <UserPlusIcon size={12} aria-hidden="true" />
+                                {t('tags:card.follow')}
+                            </Button>
+                            <Button size="xs" variant="secondary" onClick={() => onClone?.(tag)}>
+                                <CopyIcon size={12} aria-hidden="true" />
+                                {t('tags:card.clone')}
+                            </Button>
+                        </>
+                    )}
+                    {relation === 'unavailable' && (
+                        <Button size="xs" variant="secondary" onClick={() => onUnfollow?.(tag)}>
+                            <UserMinusIcon size={12} aria-hidden="true" />
                             {t('tags:card.unfollow')}
                         </Button>
-                        <Button size="sm" variant="secondary" onClick={() => onClone?.(tag)}>
-                            {t('tags:card.clone')}
-                        </Button>
-                        <Button size="sm" variant="ghost" className="ml-auto" onClick={open}>
-                            {t('tags:card.viewWords')}
-                        </Button>
-                    </>
-                )}
-                {relation === 'discover' && (
-                    <>
-                        <Button size="sm" variant="secondary" onClick={() => onFollow?.(tag)}>
-                            {t('tags:card.follow')}
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => onClone?.(tag)}>
-                            {t('tags:card.clone')}
-                        </Button>
-                        <Button size="sm" variant="ghost" className="ml-auto" onClick={open}>
-                            {t('tags:card.viewWords')}
-                        </Button>
-                    </>
-                )}
-                {relation === 'unavailable' && (
-                    <Button size="sm" variant="secondary" onClick={() => onUnfollow?.(tag)}>
-                        {t('tags:card.unfollow')}
-                    </Button>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
         </article>
     );
 }

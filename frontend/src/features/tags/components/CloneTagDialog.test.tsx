@@ -18,7 +18,7 @@ function makeTag(overrides: Partial<TagSummary> = {}): TagSummary {
         visibility: 'Public',
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-01T00:00:00.000Z',
-        author: { id: OTHER, username: 'mari' },
+        author: { id: OTHER, username: 'mari', badges: [] },
         wordCount: 5,
         followerCount: 3,
         isOwner: false,
@@ -112,7 +112,7 @@ describe('CloneTagDialog', () => {
 
         // The caller already owns this tag — the fake 400s "You already own this tag".
         renderWithProviders(
-            <CloneTagDialog open onOpenChange={onOpenChange} tag={makeTag({ author: { id: ME, username: 'kai' } })} />,
+            <CloneTagDialog open onOpenChange={onOpenChange} tag={makeTag({ author: { id: ME, username: 'kai', badges: [] } })} />,
         );
 
         await user.click(screen.getByRole('button', { name: 'Create copy' }));

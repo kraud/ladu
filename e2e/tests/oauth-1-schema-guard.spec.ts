@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
 import { closePool, createPasswordlessUser, deleteUsersByEmail } from '../fixtures/db';
 
@@ -18,7 +19,11 @@ import { closePool, createPasswordlessUser, deleteUsersByEmail } from '../fixtur
 
 const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
 
-const run = Date.now();
+// Random, not `Date.now()`: the two tests of this file run in two parallel workers, and two
+// workers that load this module in the same millisecond got the same `run`, so the same email.
+// The two tests then raced on one row (a 500 from the unique constraint), and the failing
+// test's `afterAll` deleted the row the other test was still using.
+const run = randomUUID().replace(/-/g, '').slice(0, 10);
 let seq = 0;
 const uniqueEmail = () => `e2e-oauth1-${run}-${++seq}@ladu.test`;
 const createdEmails: string[] = [];

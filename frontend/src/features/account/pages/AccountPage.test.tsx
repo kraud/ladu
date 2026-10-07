@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { renderWithProviders } from '@/test/render';
+import { renderApp, renderWithProviders } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
@@ -116,6 +116,27 @@ describe('AccountPage', () => {
         // Back in read-only mode with the fresh data.
         expect(await screen.findByRole('button', { name: /edit profile/i })).toBeInTheDocument();
         expect(useAuthStore.getState().token).toBe(SESSION.token);
+    });
+
+    it('shows a reserved-name refusal from the server, stays in edit mode and keeps the session unchanged', async () => {
+        server.use(
+            http.put('*/api/users/updateUser', () =>
+                HttpResponse.json({ message: 'This username is not available', code: 'username_reserved' }, { status: 400 }),
+            ),
+        );
+        const user = userEvent.setup();
+        // `renderApp`, not `renderWithProviders`: only it mounts the toast container.
+        await renderApp({ initialEntry: '/user', session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: /edit profile/i }));
+        await user.clear(screen.getByLabelText(/^Username/));
+        await user.type(screen.getByLabelText(/^Username/), 'Ladu_Official');
+        await user.click(screen.getByRole('button', { name: 'Save' }));
+
+        expect(await screen.findByText('That username is not available. Please choose another.')).toBeInTheDocument();
+        // Still editing, so the person can pick another name; the stored profile did not change.
+        expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+        expect(useAuthStore.getState().user?.username).toBe('kai');
     });
 
     it('shows the native language, or "None"', () => {

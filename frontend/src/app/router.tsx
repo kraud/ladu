@@ -45,7 +45,7 @@ import { ReviewPage } from '@/features/words/pages/ReviewPage';
 import { validateReviewSearch } from '@/features/words/review/search';
 import { TagsPage } from '@/features/tags/pages/TagsPage';
 import { TagViewPage } from '@/features/tags/pages/TagViewPage';
-import type { TagScope } from '@/features/tags/types';
+import { isAuthorBadgeType, type AuthorBadgeType, type TagScope } from '@/features/tags/types';
 
 const SCOPE_VALUES = new Set<string>(['all', 'owned', 'followed', 'discover'] satisfies TagScope[]);
 
@@ -188,14 +188,16 @@ const notificationsRoute = createRoute({
 const tagsRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/tags',
-    // Only `scope` is URL-persisted (D2) — `q`/`sort` stay local page state,
-    // matching MOCKUPS/tags.html's own persistence exactly. Kept inline
-    // (no separate search.ts) since it's one scalar field, unlike Review's
-    // multi-field, array-valued contract.
-    validateSearch: (search: Record<string, unknown>): { scope?: TagScope } => {
+    // `scope` (D2) and `badge` (the author filter, verified-badges.md) are
+    // URL-persisted, so a view like "official tags" can be shared. `q`/`sort`
+    // stay local page state, matching MOCKUPS/tags.html's own persistence.
+    // Kept inline (no separate search.ts): two scalar fields, unlike Review's
+    // multi-field, array-valued contract. A `badge` this build does not know is dropped.
+    validateSearch: (search: Record<string, unknown>): { scope?: TagScope; badge?: AuthorBadgeType } => {
         const raw = typeof search.scope === 'string' ? search.scope : undefined;
         const scope = raw && SCOPE_VALUES.has(raw) ? (raw as TagScope) : undefined;
-        return { scope };
+        const badge = typeof search.badge === 'string' && isAuthorBadgeType(search.badge) ? search.badge : undefined;
+        return { scope, badge };
     },
     component: TagsPage,
 });

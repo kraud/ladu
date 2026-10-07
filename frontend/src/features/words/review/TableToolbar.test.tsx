@@ -90,7 +90,7 @@ describe('TableToolbar — search debounce', () => {
 describe('TableToolbar — Display-gender switch (D14)', () => {
     it('is hidden when showSwitch is false', () => {
         renderWithProviders(<TableToolbar {...baseProps} showSwitch={false} />);
-        expect(screen.queryByText('Display gender')).not.toBeInTheDocument();
+        expect(screen.queryByText('Gender')).not.toBeInTheDocument();
     });
 
     it('is shown, and toggles, when showSwitch is true', async () => {
@@ -100,7 +100,7 @@ describe('TableToolbar — Display-gender switch (D14)', () => {
             <TableToolbar {...baseProps} showSwitch showGender onShowGenderChange={onShowGenderChange} />,
         );
 
-        const toggle = screen.getByText('Display gender').closest('button')!;
+        const toggle = screen.getByText('Gender').closest('button')!;
         expect(toggle).toHaveAttribute('aria-pressed', 'true');
         await user.click(toggle);
         expect(onShowGenderChange).toHaveBeenCalledWith(false);
@@ -120,7 +120,7 @@ describe('TableToolbar — Display-progress switch (always visible, unlike gende
             />,
         );
 
-        const toggle = screen.getByText('Display progress').closest('button')!;
+        const toggle = screen.getByText('Progress').closest('button')!;
         expect(toggle).toHaveAttribute('aria-pressed', 'true');
         await user.click(toggle);
         expect(onShowProgressChange).toHaveBeenCalledWith(false);
@@ -137,8 +137,8 @@ describe('TableToolbar — row count', () => {
 describe('TableToolbar — phone layout', () => {
     it('compact removes both switches and the count but keeps search', () => {
         renderWithProviders(<TableToolbar {...baseProps} showSwitch compact />);
-        expect(screen.queryByText('Display gender')).not.toBeInTheDocument();
-        expect(screen.queryByText('Display progress')).not.toBeInTheDocument();
+        expect(screen.queryByText('Gender')).not.toBeInTheDocument();
+        expect(screen.queryByText('Progress')).not.toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Filter table' })).toBeInTheDocument();
         expect(screen.queryByText('3 of 10 words')).not.toBeInTheDocument();
     });

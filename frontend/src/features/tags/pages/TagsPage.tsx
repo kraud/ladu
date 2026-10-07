@@ -11,47 +11,52 @@
 import { useMemo, useState } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { MagnifyingGlassIcon, PlusIcon, UsersIcon, LightbulbIcon } from '@phosphor-icons/react';
+import { MagnifyingGlassIcon, PlusIcon, SealCheckIcon, UsersIcon, LightbulbIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import { startLoadingToast, resolveLoadingToastSuccess, resolveLoadingToastError } from '@/lib/toast';
-import { useDeleteTag, useFollowTag, useTags, useUnfollowTag } from '../hooks';
+import { useFollowTag, useTags, useUnfollowTag } from '../hooks';
 import { tagErrorKey } from '../errors';
 import { TagCard } from '../components/TagCard';
 import { TagFormDialog } from '../components/TagFormDialog';
 import { CloneTagDialog } from '../components/CloneTagDialog';
-import type { TagScope, TagSort, TagSummary } from '../types';
+import { AUTHOR_BADGE_TYPES, type AuthorBadgeType, type TagScope, type TagSort, type TagSummary } from '../types';
 
 const route = getRouteApi('/_protected/tags');
 const SEARCH_DEBOUNCE_MS = 300;
 const SCOPES: TagScope[] = ['all', 'owned', 'followed', 'discover'];
 const SKELETON_CARDS = 6;
+/**
+ * What the "Verified" checkbox sends as `?badge=`. `official` is the only account badge today, so
+ * "verified" and "official" are the same set; a second type needs a backend "any badge" value.
+ */
+const VERIFIED_BADGE: AuthorBadgeType = AUTHOR_BADGE_TYPES[0];
 
 export function TagsPage() {
     const { t } = useTranslation();
     const search = route.useSearch();
     const navigate = route.useNavigate();
     const scope = search.scope ?? 'all';
+    const badge = search.badge;
 
     const [query, setQuery] = useState('');
     const debouncedQuery = useDebouncedCallback(query, SEARCH_DEBOUNCE_MS);
     const [sort, setSort] = useState<TagSort>('recent');
 
-    const tagsQuery = useTags({ scope, q: debouncedQuery || undefined, sort });
+    const tagsQuery = useTags({ scope, q: debouncedQuery || undefined, sort, badge });
     const rows = useMemo(() => tagsQuery.data?.pages.flatMap((page) => page.items) ?? [], [tagsQuery.data]);
     const total = tagsQuery.data?.pages[0]?.total ?? 0;
 
     const [formDialog, setFormDialog] = useState<{ mode: 'create' | 'edit'; tag?: TagSummary } | null>(null);
-    const [deleteTarget, setDeleteTarget] = useState<TagSummary | null>(null);
     const [unfollowTarget, setUnfollowTarget] = useState<TagSummary | null>(null);
     const [cloneTarget, setCloneTarget] = useState<TagSummary | null>(null);
 
-    const deleteTag = useDeleteTag();
     const followTag = useFollowTag();
     const unfollowTag = useUnfollowTag();
 
@@ -59,8 +64,8 @@ export function TagsPage() {
         void navigate({ search: (prev) => ({ ...prev, scope: next === 'all' ? undefined : next }) });
     }
 
-    function openTag(tag: TagSummary) {
-        void navigate({ to: '/tag/$tagId', params: { tagId: tag.id } });
+    function setBadge(next: AuthorBadgeType | undefined) {
+        void navigate({ search: (prev) => ({ ...prev, badge: next }) });
     }
 
     function handleFollow(tag: TagSummary) {
@@ -82,18 +87,22 @@ export function TagsPage() {
         });
     }
 
-    function handleDeleteConfirmed() {
-        const tag = deleteTarget;
-        if (!tag) return;
-        setDeleteTarget(null);
-        const toastId = startLoadingToast(t('common:status.saving'));
-        deleteTag.mutate(tag.id, {
-            onSuccess: () => resolveLoadingToastSuccess(toastId, t('tags:page.toastDeleted', { label: tag.label })),
-            onError: (error) => resolveLoadingToastError(toastId, t(tagErrorKey(error))),
-        });
-    }
-
     function renderEmptyState() {
+        // The author filter comes first: with it on, "nothing here" is most often its doing.
+        if (badge) {
+            return (
+                <EmptyState
+                    icon={<SealCheckIcon size={20} />}
+                    title={t('tags:page.emptyBadge.title')}
+                    description={t('tags:page.emptyBadge.description')}
+                    action={
+                        <Button size="sm" variant="outline" onClick={() => setBadge(undefined)}>
+                            {t('tags:page.emptyBadge.action')}
+                        </Button>
+                    }
+                />
+            );
+        }
         if (debouncedQuery) {
             return (
                 <EmptyState
@@ -179,7 +188,7 @@ export function TagsPage() {
                             aria-pressed={scope === candidate}
                             onClick={() => setScope(candidate)}
                         >
-                            {t(candidate === 'all' ? 'tags:page.scope.all' : `tags:relation.${candidate}`)}
+                            {t(candidate === 'all' || candidate === 'owned' ? `tags:page.scope.${candidate}` : `tags:relation.${candidate}`)}
                         </button>
                     ))}
                 </div>
@@ -191,6 +200,14 @@ export function TagsPage() {
                                 : t('tags:page.noResults')}
                         </span>
                     )}
+                    <label className="flex cursor-pointer items-center gap-1.5 text-sm">
+                        <Checkbox
+                            checked={badge !== undefined}
+                            onCheckedChange={(checked) => setBadge(checked ? VERIFIED_BADGE : undefined)}
+                        />
+                        {t('tags:page.verifiedFilter')}
+                        <SealCheckIcon size={14} weight="fill" className="text-(--accent-strong)" aria-hidden="true" />
+                    </label>
                     <div className="flex items-center gap-2">
                         <span className="label-n">{t('tags:page.sortLabel')}</span>
                         <Select value={sort} onValueChange={(value) => setSort(value as TagSort)}>
@@ -232,9 +249,7 @@ export function TagsPage() {
                             <TagCard
                                 key={tag.id}
                                 tag={tag}
-                                onView={openTag}
-                                onEdit={(target) => setFormDialog({ mode: 'edit', tag: target })}
-                                onDelete={setDeleteTarget}
+                                showActions={scope !== 'all' && scope !== 'owned'}
                                 onFollow={handleFollow}
                                 onUnfollow={setUnfollowTarget}
                                 onClone={setCloneTarget}
@@ -285,22 +300,6 @@ export function TagsPage() {
                         t('tags:page.toastCloned', { label: clone.label }),
                     )
                 }
-            />
-
-            <ConfirmDialog
-                open={deleteTarget !== null}
-                onOpenChange={(open) => !open && setDeleteTarget(null)}
-                title={t('tags:page.deleteConfirmTitle')}
-                description={
-                    deleteTarget
-                        ? t('tags:page.deleteConfirmDescription', {
-                              label: deleteTarget.label,
-                              count: deleteTarget.wordCount,
-                          })
-                        : undefined
-                }
-                confirmLabel={t('common:buttons.delete')}
-                onConfirm={handleDeleteConfirmed}
             />
 
             <ConfirmDialog

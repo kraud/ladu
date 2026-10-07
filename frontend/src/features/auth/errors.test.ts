@@ -43,6 +43,17 @@ describe('authErrorKey', () => {
         expect(authErrorKey(coded('login_not_allowed'))).toBe('loginRegister:access.loginNotAllowed');
     });
 
+    it('maps the reserved-name codes, whatever the message says', () => {
+        const coded = (code: string, message = 'whatever') => ({ response: { status: 400, data: { message, code } } });
+        expect(authErrorKey(coded('username_reserved'))).toBe('loginRegister:apiErrors.usernameReserved');
+        expect(authErrorKey(coded('name_reserved'))).toBe('loginRegister:apiErrors.nameReserved');
+        expect(authErrorKey(coded('google_name_reserved'))).toBe('loginRegister:apiErrors.googleNameReserved');
+        // A code wins over a message that would map to something else.
+        expect(authErrorKey(coded('username_reserved', 'Username already in use'))).toBe(
+            'loginRegister:apiErrors.usernameReserved',
+        );
+    });
+
     it('ignores an unknown code and falls back to the message', () => {
         const error = { response: { status: 400, data: { message: 'Email already in use', code: 'new_code' } } };
         expect(authErrorKey(error)).toBe('loginRegister:apiErrors.emailInUse');

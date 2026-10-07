@@ -19,10 +19,26 @@ export type TagScope = 'all' | 'owned' | 'followed' | 'discover';
 /** `/tags`' sort control (D16) — `recent` (default) or alphabetical. */
 export type TagSort = 'recent' | 'label';
 
-/** A tag's author — just enough to render "by <username>" (`TagCard`/`TagViewPage`). */
+/**
+ * Account badge types the UI has a label and an icon for. A badge belongs to the
+ * author's account and is granted by staff only (verified-badges.md).
+ */
+export const AUTHOR_BADGE_TYPES = ['official'] as const;
+export type AuthorBadgeType = (typeof AUTHOR_BADGE_TYPES)[number];
+
+export const isAuthorBadgeType = (value: string): value is AuthorBadgeType =>
+    (AUTHOR_BADGE_TYPES as readonly string[]).includes(value);
+
+/** A tag's author — just enough to render "by <username>" and their badges (`TagCard`/`TagViewPage`). */
 export interface TagAuthor {
     id: string;
     username: string;
+    /**
+     * The author's active account badges, sorted; `[]` when none. Plain strings on
+     * purpose: a newer server may send a type this build does not know, and
+     * `AuthorBadges` then skips it.
+     */
+    badges: string[];
 }
 
 /** Set only on a cloned tag (D11) — the tag it was cloned from, for "Cloned from X by Y". */
@@ -116,4 +132,6 @@ export interface TagListFilters {
     scope?: TagScope;
     q?: string;
     sort?: TagSort;
+    /** Keep only tags whose author has this active account badge (verified-badges.md). */
+    badge?: AuthorBadgeType;
 }

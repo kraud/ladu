@@ -1,0 +1,731 @@
+# Account badges ("official" and later types)
+
+> Status: **approved 2026-10-06. All 9 slices (0–8) built. Gate: see the Slice 8 note (only the 8 known `oauth-2..5` specs fail).**
+> Branch: `verified-accounts`.
+
+## How to start
+
+- Read `CLAUDE.md`, `.context/README.md` and this file.
+- Do one slice at a time. Stop after each slice. The user reviews and runs
+  `git commit` themselves. Claude only drafts the commit message.
+- Run tests without `| tail` or `| head`. Check the real exit code.
+
+## Context
+
+The owner of Ladu wants to mark some accounts with a badge, for example
+"official". Users see the badge next to the author of a Tag. Users can
+filter `/tags` by "author has badge X". This helps users find good Tags to
+follow or clone.
+
+Tags are fully built (Phase 4: all slices done, see `phase-4-tags.md`). The
+`CLAUDE.md` note "tags deferred" refers to tag *sharing* only. The tag API
+already builds `TagSummary` in a batch (`buildTagSummaries`,
+`backend/controllers/tagController.ts:216`). Badges add one query to that
+batch and cause no N+1.
+
+**Naming rule.** `users.verified` already means "email verified" (schema,
+serializers, admin filters, stats). This feature never uses the word
+"verified" in code, fields or copy. The term is **badge**. The type is
+**official**.
+
+## Decisions
+
+### Given by the user (do not re-open)
+
+| # | Decision |
+|---|---|
+| G1 | The badge is on the **account**, not on the Tag. Tags are the first content type that shows it. |
+| G2 | Many badge types. First type: `official`. The type is `varchar(32)`, as `staff_accounts.role`. No Postgres enum. A new type needs no migration. |
+| G3 | New table `user_badges`: `id`, `user_id` (FK users, cascade), `type`, `granted_at`, `revoked_at` (nullable), `granted_by` (FK staff_accounts, restrict). Partial unique index `(user_id, type) WHERE revoked_at IS NULL`. A revoke sets `revoked_at`. It never deletes the row. |
+| G4 | Only the owner grants badges, in the admin panel. No public endpoint writes a badge. New permission `badge.manage` in `lib/adminPermissions.ts`. No migration for the permission. |
+| G5 | Reuse `audit_log`: actions `badge.grant` and `badge.revoke`, each with a reason. |
+| G6 | Read the badge from the DB on each request. Not in the JWT. A revoke takes effect at once. |
+| G7 | A clone does not inherit a badge. `tags.source_tag_id` already gives "Cloned from X". |
+| G8 | Block impersonation of reserved names. |
+
+### Taken with the user on 2026-10-06
+
+| # | Decision |
+|---|---|
+| D1 | **Name match rule.** Normalize the name (see Slice 7). Block it if it **contains** `ladu` or `official`. Block it if it **equals** `admin`, `staff`, `support`, `moderator` or `team`. "badminton" stays allowed. |
+| D2 | **Exemption.** An account with an active `official` badge skips the reserved-name check. We check a name only when it changes. Existing names stay. |
+| D3 | **Fix `updateUser` username uniqueness** in the same slice. It must use `lower(username)`, as registration does, and trim the value. |
+| D4 | **Filter control is a select** from the start: "Author: Anyone / Official". It scales to more types with no UI change. |
+
+### Calls made by the agent (each is reversible, tell me if you disagree)
+
+- **A1 — Allowed types live in code.** `backend/lib/badges.ts` exports
+  `BADGE_TYPES = ['official'] as const`. Grant and the `?badge=` filter reject
+  any other value with 400. A new type is a one-line code change.
+- **A2 — `author.badges` is `string[]`** (active types, sorted). For example
+  `["official"]`. It is empty when the author has no badge. Objects are not
+  needed now.
+- **A3 — Banned or deleted authors show no badge.** The badge query joins
+  `users` and ignores rows with `banned_at` or `deleted_at` set. The row
+  stays. Unban brings the badge back.
+- **A4 — The admin user detail shows only active badges**, with
+  `grantedAt` and `grantedBy.name`. The history is in the audit log already.
+- **A5 — Endpoints:**
+  - `POST /api/admin/users/:id/badges`, body `{type, reason}`
+  - `POST /api/admin/users/:id/badges/:type/revoke`, body `{reason}`
+
+  Both use `requireStaff('badge.manage')`. Both return 409 if the badge is
+  already active (grant) or not active (revoke). Both return the fresh
+  `UserDetail`, as the other user actions do.
+- **A6 — Badge filter in the URL.** `?badge=official` goes in
+  `tagsRoute.validateSearch`, next to `scope`. A user can share the link
+  "official tags".
+- **A7 — No extra index for the filter.** The filter is
+  `EXISTS (… user_badges WHERE user_id = tags.author_id AND type = $1 AND revoked_at IS NULL)`.
+  The partial unique index `(user_id, type) WHERE revoked_at IS NULL` serves
+  this lookup. The table stays very small (the owner grants by hand). We
+  check this with `EXPLAIN` in Slice 4.
+
+## Design
+
+### Schema (`backend/src/db/schema.ts`)
+
+```ts
+export const userBadges = pgTable('user_badges', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: varchar('type', { length: 32 }).notNull(), // see lib/badges.ts — no enum, a new type needs no migration
+  grantedAt: timestamp('granted_at', { withTimezone: true }).notNull().defaultNow(),
+  revokedAt: timestamp('revoked_at', { withTimezone: true }),
+  grantedBy: uuid('granted_by').notNull().references(() => staffAccounts.id, { onDelete: 'restrict' }),
+}, (table) => [
+  uniqueIndex('user_badges_active_unique').on(table.userId, table.type).where(sql`${table.revokedAt} IS NULL`),
+]);
+```
+
+Migration `0020_user_badges.sql` comes from `npm run db:generate`. (Match the
+timestamp style of the other columns while building.)
+
+### Backend helper (`backend/lib/badges.ts`)
+
+- `BADGE_TYPES`, `type BadgeType`, `isBadgeType(value)`.
+- `activeBadgesByUserIds(userIds): Promise<Map<string, BadgeType[]>>`. One
+  query. It applies A3. Used by `buildTagSummaries`, the admin detail and the
+  name check.
+- `activeBadgeCondition(type)`: the SQL `EXISTS` for the tag filter.
+
+### TagSummary
+
+`author: { id, username, badges: string[] }`. All 7 endpoints that return a
+`TagSummary` get it through `buildTagSummaries`. No change in each endpoint.
+
+### Admin
+
+- `badge.manage` goes in `PERMISSIONS` only. `owner` gets it automatically
+  (`owner: [...PERMISSIONS]`). Mirror it in
+  `admin/src/test/msw/handlers.ts` `PERMISSIONS_BY_ROLE`.
+- The controller locks the user row `FOR UPDATE`. It uses `readReason(body, true)` from
+  `lib/adminRequest.ts`. It writes the badge row and the audit row in one
+  transaction:
+  `{ staffId, action: 'badge.grant'|'badge.revoke', targetType: 'user', targetId, reason, metadata: { email, username, badge: type } }`.
+  `admin/src/features/audit/describe.ts` then shows the `badge` key with no
+  change.
+- `loadUserDetail` gains `badges: [{ type, grantedAt, grantedBy: { id, name } }]`.
+
+## Slices
+
+| # | Slice | Ends with |
+|---|---|---|
+| 0 | Save this plan | `.context/plans/verified-badges.md` + a row in the `.context/README.md` spec index |
+| 1 | Schema + migration + `lib/badges.ts` | `npm run db:migrate` applies 0020; Jest green |
+| 2 | Admin API: grant + revoke + detail | grant/revoke with curl or Jest; audit rows written |
+| 3 | Admin UI: Badges section + dialogs | owner grants and revokes in the admin panel |
+| 4 | Tag API: `author.badges` + `?badge=` filter | `GET /api/tags?badge=official` returns only badged authors |
+| 5 | Frontend: badge next to author | badge shows on `/tags` cards and `/tag/:id` |
+| 6 | Frontend: author filter select | `/tags?badge=official` works from the UI |
+| 7 | Reserved names (impersonation) | register / OAuth signup / update reject "Ladu_0fficial" |
+| 8 | e2e gate + docs | `npm run test:e2e` green (except the 8 known oauth-2..5 failures) |
+
+### Slice 0 — Save the plan
+
+**What and why.** We copy this plan into the repo, so it stays with the
+code, as the other plans do.
+
+- Copy this file to `.context/plans/verified-badges.md`.
+- Add one row to the "Where the specs live" table in `.context/README.md`.
+
+### Slice 1 — Schema and migration
+
+**What and why.** We add the `user_badges` table. Nothing reads it yet. This
+slice proves that the table, the cascade and the partial unique index work,
+before any endpoint uses them. A *partial unique index* is a unique rule that
+applies only to some rows. Here it applies only to active rows
+(`revoked_at IS NULL`). One user can have many *revoked* `official` rows
+(the history), but only one *active* row.
+
+- `schema.ts`: the `userBadges` table (above).
+- `npm run db:generate` → `0020_user_badges.sql`. Read the SQL before applying.
+- `backend/lib/badges.ts`: `BADGE_TYPES`, `isBadgeType`,
+  `activeBadgesByUserIds`, `activeBadgeCondition`.
+- `backend/tests/db.js`: add `user_badges` to the `TRUNCATE` list.
+- `e2e/fixtures/db.ts`: `deleteStaffByEmail` must delete `user_badges` rows
+  that the staff account granted before it deletes the staff row
+  (`granted_by` is `restrict`, the same reason audit rows are deleted first).
+- Tests: new `backend/tests/userBadges.test.js`:
+  - a second active badge of the same type → unique violation
+  - revoke, then grant again → allowed
+  - delete the user → badge rows go (cascade)
+  - delete the granting staff row → blocked (restrict)
+  - `activeBadgesByUserIds` ignores revoked rows, banned users and deleted users (A3)
+- Docs: a comment on the table in `schema.ts` (same style as `staff_accounts.role`).
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **Timestamps have no time zone.** The schema sketch in "Design" used
+  `withTimezone: true`. The real table uses plain `timestamp(...)`, as every
+  other table in `schema.ts` does.
+- **`activeBadgeCondition` uses the same A3 rule** (banned and deleted
+  authors do not count) as `activeBadgesByUserIds`. The filter and the badge
+  shown on a Tag therefore always agree. A test checks this.
+- **`activeBadgesByUserIds` skips a type that is not in `BADGE_TYPES`.** An
+  old row with a removed type shows nothing.
+- Migration `0020_user_badges.sql` only creates a new table (safe expand
+  step). It is applied to the dev and test databases.
+- `backend/tests/userBadges.test.js`: 19 tests (type guard, unique index,
+  revoke and re-grant, cascade, restrict, FK, the two helpers).
+- `e2e/fixtures/db.ts` `deleteStaffByEmail` now deletes `user_badges` rows
+  first. Nothing in e2e grants a badge yet, so it is not run until Slice 8.
+- Backend suite: 864 → 883 tests. `tsc --noEmit` clean. One full run had a
+  `socket hang up` in `words.test.js` (bulk delete). The file passes alone
+  (20/20) and the next full run was green (exit 0). It matches the random
+  failure class noted in `phase-4-tags.md` (Slice 3), not this slice.
+
+### Slice 2 — Admin API: grant, revoke, detail
+
+**What and why.** The owner needs a safe way to give and remove a badge.
+Only the admin API can write a badge. Every write leaves an audit row with a
+reason. That way we always know who gave which badge, when and why.
+
+- `lib/adminPermissions.ts`: add `badge.manage` to `PERMISSIONS`.
+- `routes/admin/userRoutes.js`: the two routes from A5.
+- `controllers/admin/badgeController.ts` (new; keeps `userController.ts`
+  from growing): validate UUID, `isBadgeType` (400), `readReason` (400),
+  transaction with row lock, 404 unknown user, 409 already active / not
+  active, insert or set `revoked_at = now()`, audit row, respond with
+  `loadUserDetail`.
+- `loadUserDetail`: add `badges` (A4).
+- Tests: `backend/tests/adminBadges.test.js`, modeled on
+  `adminUserActions.test.js`:
+  - role matrix: only owner → 2xx; admin/support/viewer → 403
+  - reason: missing / blank / not text / too long → 400
+  - unknown type → 400; unknown user → 404; double grant → 409; revoke when none → 409
+  - audit row content (action, reason, `metadata.badge`)
+  - revoke keeps the row and sets `revoked_at`; grant again after revoke works
+  - `GET /api/admin/users/:id` shows only active badges
+- Docs: add `badge.manage` to the permission list in
+  `.context/plans/admin-dashboard.md`.
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **Routes** (both `requireStaff('badge.manage')`, both answer 200 with the
+  fresh `UserDetail`, as the other user actions do):
+  - `POST /api/admin/users/:id/badges`, body `{type, reason}`
+  - `POST /api/admin/users/:id/badges/:type/revoke`, body `{reason}`
+- **Code:** new `controllers/admin/badgeController.ts`. One `badgeAction`
+  builder runs both: it locks the user row, checks the state, changes the
+  badge and writes the audit row in one transaction. `userController.ts`
+  now exports `loadUserDetail` so the new controller can reuse it.
+- **Status codes:** 400 unknown type or bad reason, 404 unknown user or an
+  id that is not a UUID, 409 already active (grant) or not active (revoke).
+- **The detail lists active badge rows straight from the table**, not
+  through `activeBadgesByUserIds`. That helper hides a banned account's
+  badge (A3), but staff must still see it to revoke it. A test covers this.
+  Every role with `users.read` sees the badge list. Only the buttons (Slice
+  3) depend on `badge.manage`.
+- **Not added:** no rule against a grant on a deleted account. The badge is
+  hidden for a deleted account anyway (A3), and a restore brings it back.
+  Easy to add if you want it.
+- `backend/tests/adminBadges.test.js`: 24 tests (permission matrix, learner
+  token, reason, type, 404, 409, a parallel double grant, re-grant after a
+  revoke, detail for each role, banned account, audit history). One test
+  checks that the learner API writes no badge; it passes whatever status
+  that route answers, so it only guards against a future write path.
+- `badge.manage` is in the permission table of `admin-dashboard.md`.
+- Backend suite: 883 → 907 tests. `tsc --noEmit` clean.
+- **Flaky full runs.** Three full runs gave: 2 failures in `adminBadges`
+  (a 404 where the handler can only answer 400, and two 401s); 1 failure in
+  `exercises` (`socket hang up`); then green (exit 0). Two extra runs of the
+  two admin files together gave one `socket hang up` in the older
+  `adminUserActions` and then green. `adminBadges` alone passed 3 of 3
+  runs. The `socket hang up` failures hit a different, unrelated file each
+  time and match the random failure class in `phase-4-tags.md` (Slice 3).
+  **The 404 and the 401s are not explained.** They did not come back. Watch
+  `adminBadges` in the next full runs. If it fails again, look at it first.
+
+### Slice 3 — Admin UI
+
+**What and why.** The owner gets a screen to do Slice 2 without curl. We add
+a "Badges" section to the user detail page. It shows the active badges and
+the buttons to grant and revoke. Each button opens a dialog with a required
+reason, the same pattern as Ban.
+
+- `admin/src/features/users/types.ts`: `badges` on `UserDetail`;
+  `admin/src/test/users.ts` `makeDetail` default `badges: []`.
+- `api.ts` / `hooks.ts`: `grantBadge`, `revokeBadge`, `useUserBadge(userId)`.
+  On success: `setQueryData(userKeys.detail(id))` + invalidate the list (same
+  as `useUserAction`).
+- `components/BadgeSection.tsx` + `components/BadgeDialog.tsx`: the dialog is
+  modeled on `ActionDialog` in `UserActions.tsx` (reason textarea, max 500,
+  confirm disabled until the reason is not blank, `role="alert"` on error,
+  `role="status"` on success). Grant mode has a type select (only types not
+  active yet). Buttons render only when `useCan('badge.manage')`.
+- `UserDetailPage.tsx`: render `BadgeSection` as its own section. Do not put
+  a span right after the `h1` (the admin-5 e2e locator is `h1 + span`).
+- `admin/src/test/msw/handlers.ts`: `badge.manage` for owner; handlers for
+  the two routes.
+- Tests: `BadgeSection.test.tsx` — list renders, owner sees the buttons and
+  other roles do not, reason required, POST body correct, the list updates
+  after success.
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **New files** in `admin/src/features/users/`: `badges.ts` (the type
+  labels), `components/BadgeSection.tsx`, `components/BadgeDialog.tsx`,
+  `BadgeSection.test.tsx`. Changed: `types.ts` (`UserBadge`, `badges` on
+  `UserDetail`), `api.ts` (`grantBadge`, `revokeBadge`), `hooks.ts`
+  (`useUserBadge`), `pages/UserDetailPage.tsx`.
+- **`badges.ts` mirrors `BADGE_TYPES` in the backend.** It holds the label
+  of each type. The server stays the source of truth (it answers 400 for an
+  unknown type). A type the page does not know shows by its raw name. A new
+  badge type is one line there and one line in `backend/lib/badges.ts`.
+- **Every role sees the list; only the owner sees the buttons.** The section
+  shows for all roles (they all get `badges` in the detail). "Grant badge"
+  and "Revoke" need `useCan('badge.manage')`. "Grant badge" is hidden when
+  the account already has every type.
+- **The section is its own block under "Actions"**, not next to the `h1`, so
+  the `admin-5` locator `h1 + span` still reads the status badge.
+- The grant dialog has a native `<select>` for the type (the admin app has
+  no select component). With one type it has one option; it needs no change
+  when a second type exists.
+- `badge.manage` is added to `PERMISSIONS_BY_ROLE` (owner) in
+  `admin/src/test/msw/handlers.ts`; `makeDetail` has `badges: []`.
+- Admin suite: 267 → 280 tests (13 new in `BadgeSection.test.tsx`: list for
+  each role, grant, revoke, server errors, cancel). `tsc -b`, `eslint .`
+  and `npm run build -w admin` all pass.
+- **Not run in a browser.** No manual check in the real admin UI yet. That
+  needs an owner account in the dev DB. The Playwright spec in Slice 8 walks
+  this screen against the real backend.
+
+### Slice 4 — Tag API: `author.badges` and the filter
+
+**What and why.** The learner app needs the data. Every `TagSummary` now
+says which badges its author has. `GET /api/tags` gets a `badge=` parameter
+that keeps only Tags whose author has that active badge. The filter is a SQL
+`EXISTS` subquery, so pagination and `total` stay correct.
+
+- `buildTagSummaries`: add `activeBadgesByUserIds(authorIds)` to its
+  `Promise.all`; set `author.badges`. Update the `TagSummary` interface.
+- `listTags`: read `badge`; 400 if not `isBadgeType`; push
+  `activeBadgeCondition(type)` into `conditions` **before** the `total` count.
+  It combines with `scope`, `q`, `sort` and the cursor (AND).
+- Check the plan with `EXPLAIN` on the dev DB (A7). Add an index only if the
+  plan needs one.
+- Tests (`backend/tests/tags.test.js`):
+  - `author.badges` is `[]` by default, `["official"]` after a grant (insert
+    via the DB helper), `[]` after a revoke (no re-login: G6)
+  - banned author → `[]` (A3)
+  - a clone by another user → the clone's author has `[]` (G7)
+  - `?badge=official` with each scope; `total` is correct; pagination over
+    two pages; unknown type → 400
+- Docs: update the `TagSummary` block in `phase-4-tags.md` (one line + a
+  pointer to this plan).
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **`author.badges`** comes from one more query in the existing batch in
+  `buildTagSummaries` (`activeBadgesByUserIds`). All seven endpoints that
+  return a `TagSummary` get it with no change of their own. A test checks
+  create, patch, follow, unfollow, get and list.
+- **`?badge=`** is read at the top of `listTags`. It must be a known type.
+  Absent means no filter. An empty value, a different case, a repeated
+  parameter and an unknown type all answer 400 (a typo in the client then
+  shows up and does not silently list every tag). The condition goes in
+  before the `total` count, so `total` and the pages follow the filter. It
+  works with all four scopes, `q` and both sorts.
+- **No new index (A7 confirmed).** I read the query plan with `EXPLAIN
+  (ANALYZE)` on synthetic data (20,000 users, 60,000 tags, 12 badged
+  accounts), inside a transaction that was rolled back. The planner starts
+  from the small badge table, looks up each author by primary key, and
+  reaches their tags through the existing `tags_author_label_unique` index.
+  Execution: 0.14 ms for a page, 0.09 ms for the count. It reads the badge
+  table with a plain scan, because the table is tiny. Look again if badges
+  ever reach thousands of rows.
+- **Banned and deleted authors** show no badge and do not match the filter
+  (A3). The filter and the badge shown always agree. Tested, with an unban.
+- **A clone has no badge** (G7): the clone's `author` is the copier. Tested,
+  and the original keeps its badge.
+- One existing assertion changed: `tags.test.js` create-tag expects
+  `author` to be `{ id, username, badges: [] }`.
+- `tags.test.js`: 55 → 75 tests (20 new in "Account badges on tags").
+  `tsc --noEmit` clean.
+- `phase-4-tags.md`: the `TagSummary` block and the list-endpoint row now
+  mention `badges` and `?badge=`.
+
+### Slice 5 — Frontend: the badge next to the author
+
+**What and why.** Users see the badge. We show a small seal icon plus a
+short label ("Official") right after "by <username>". The icon makes it easy
+to spot; the text makes it clear (commandment 7: status is always legible).
+It has one accent colour and no animation, so it is not noisy. The owner
+does not see their own badge on their own Tags, because the "by" row only
+shows on Tags of other users. That is correct.
+
+- `features/tags/types.ts`: `TagAuthor.badges: AuthorBadgeType[]`;
+  `AuthorBadgeType = 'official'`.
+- `components/TagBadge.tsx`: new `AuthorBadges({ badges })`. It uses
+  Phosphor `SealCheckIcon` + text, with an `aria-label` and a `title`. One
+  CSS class `.t-author-badge` in `globals.css`, built on accent tokens (dark
+  mode works with no extra rule). Do not reuse the name `has-badge` (that is
+  the unread dot).
+- Render it in `TagCard.tsx` (after the `byAuthor` span) and in
+  `TagViewPage.tsx` (the `.t-by` header block).
+- `test/msw/tagHandlers.ts`: option `authorBadges?: Record<string, string[]>`;
+  `toSummary` sets `author.badges`.
+- Locales: `tags.json` → `authorBadge.official` in en, es, de, ee.
+- Tests: `TagBadge.test.tsx` (renders, accessible name, nothing for `[]`),
+  `TagCard.test.tsx` and `TagViewPage.test.tsx` (badge shows for a badged
+  author, not for others).
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **What users see:** a seal icon and the word "Official" after
+  "by <username>", in the accent colour, with no pill and no animation. A
+  tooltip says "Official Ladu account". It shows on `/tags` cards and in the
+  `/tag/:id` header. The footer hint on `/tag/:id` ("by <author>", plain
+  text) stays as it was. The caller's own Tags have no "by" row, so they
+  show no badge.
+- **`TagAuthor.badges` is `string[]`, not `AuthorBadgeType[]`** (a change
+  from the plan). A newer server may send a type this build does not know.
+  `AuthorBadges` shows only known types (`AUTHOR_BADGE_TYPES`,
+  `isAuthorBadgeType` in `types.ts`) and skips the rest. A test covers it.
+- **The seal icon is decoration** (`aria-hidden`). The visible word is the
+  accessible name. I did not add an `aria-label`, because it would hide the
+  word from screen readers. The `title` gives the longer text.
+- **CSS:** one class, `.t-author-badge`, in `globals.css` next to `.t-by`. It
+  uses `--accent-strong`, which has a dark-mode value, so dark mode needs no
+  extra rule. It is not called `has-badge` (that name is the unread dot).
+- **Locales:** `tags:authorBadge.official` and `.officialTitle` in en, es,
+  de, ee. The es, de and ee words are my translations: please check them.
+- **MSW fake:** `makeTagHandlers({ authorBadges })`. `toSummary` now takes an
+  `authorOf` function (it replaces `usernameOf`) that builds the whole
+  `author` object.
+- **Seven test fixtures** got `badges: []` (the field is required, as the API
+  always sends it).
+- Frontend suite: 1,443 tests (10 new: 4 `AuthorBadges`, 3 `TagCard`, 2
+  `TagViewPage`, 1 `TagsPage`). `tsc -b`, `eslint .` (0 errors; 3 old
+  warnings in files this slice did not change in those lines) and
+  `npm run build -w frontend` pass.
+- **Not looked at in a browser yet.** The look (size, colour, spacing, dark
+  mode) is the main thing to judge. To look: run `npm run dev:admin`, sign
+  in as owner, grant "official" to a user who has a Public Tag, then sign in
+  to the app as another user and open `/tags?scope=discover`.
+
+### Slice 6 — Frontend: the author filter
+
+**What and why.** Users can ask for "only Tags from official authors". The
+control is a select "Author: Anyone / Official" in the tool row, next to
+Sort (D4). Its value lives in the URL (A6), so the view can be shared and
+survives a reload.
+
+- `app/router.tsx`: `tagsRoute.validateSearch` accepts `badge` (only known
+  types; anything else is dropped).
+- `types.ts`: `TagListFilters.badge?`; `api.ts` `buildListQuery` sets it;
+  `keys.ts` needs no change (the filters object is the key).
+- `TagsPage.tsx`: the select; pass `badge` to `useTags`; a new empty state
+  "No tags from official authors match" with an action "Show all authors".
+- MSW: the list handler filters by `badge` before `total`.
+- Locales: `page.authorFilter.{label,any}` and the empty state, 4 languages.
+- Tests: `TagsPage.test.tsx` — select sets the URL and the query string;
+  reload keeps it; empty state; it combines with scope and search.
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **The control:** a select "Author: Anyone / Official" in the tool row,
+  before Sort. The "Official" name comes from the existing
+  `tags:authorBadge.official`. A new badge type adds one option from
+  `AUTHOR_BADGE_TYPES`, with no change to the page.
+- **The URL:** `tagsRoute.validateSearch` now returns `{ scope, badge }`. A
+  `badge` this build does not know is dropped, so `?badge=teacher` shows
+  every tag and sends no filter. Changing the scope keeps the badge, and
+  changing the badge keeps the scope. "Anyone" removes `badge` from the URL
+  (the select's "any" value is never a badge type, so it never reaches the
+  URL or the API).
+- **Data layer:** `TagListFilters.badge`, and `buildListQuery` sends
+  `badge=`. The filters object is the query key, so `keys.ts` needed no
+  change: each badge value has its own cache entry.
+- **Empty state:** when the filter is on and nothing matches, the page shows
+  "No tags match the author filter" with the action "Show all authors". It
+  comes before the search empty state, because with the filter on it is the
+  most likely cause. The copy does not name the badge, so it works for any
+  future type (the badge word would need a different form in each language).
+- **Layout:** `.sort-row` now wraps (`flex-wrap`), because it holds two
+  selects and the result count. Look at the phone width.
+- **MSW fake:** the list handler filters by `badge` before it counts, like
+  the real endpoint.
+- Frontend suite: 1,451 tests (8 new in `TagsPage.test.tsx`: default, pick,
+  reload, back to "Anyone", scope and badge together, search combined, empty
+  state, unknown badge in the URL). `tsc -b`, `eslint .` (0 errors, the same
+  3 old warnings) and `npm run build -w frontend` pass.
+- One of my tests first failed on a timing gap (it waited for the old card
+  to leave, not for the filtered result). Fixed in the test; the file then
+  passed 3 of 3 runs.
+- The es, de and ee words are mine: "Autor/Cualquiera", "Autor/Alle",
+  "Autor/Kõik" and the empty-state copy. Please check them.
+- **Not looked at in a browser yet** (select next to Sort, wrapping on a
+  phone, dark mode).
+
+**Changed after Slices 5 and 6 (2026-10-07): the owner redesigned `/tags` and
+`/tag/:id`.** The two notes above describe what was first built. What is on
+screen now:
+- **The filter is a "Verified" checkbox** (with a seal icon), not the "Author:
+  Anyone / Official" select (decision D4). It sends `?badge=official`. The URL
+  rules did not change: the value is in the URL, a reload keeps it, an unknown
+  value is dropped. In `TagsPage.tsx` the constant `VERIFIED_BADGE` is the first
+  badge type. With one type, "verified" and "official" are the same set. A
+  second type needs a backend value for "any badge" (see "Later").
+- **The seal is an icon only** (`VerifiedMark`, `role="img"`, name "Official Ladu
+  account"). On the tag list it sits after the tag label, and only on a
+  **Public** tag of a badged author. The author's name in the card's stats line
+  is styled and has a tooltip. On the tag page it follows "by <author>". The
+  words "Official" next to the author are gone (`AuthorBadges` is no longer used
+  on the cards).
+- **Copy:** the empty state is "No verified tags match" with the action "Show
+  all tags". The scope chip "Owned" is now "Yours". The UI says "Verified". The
+  code still avoids that word for the badge itself, because `users.verified`
+  means "email verified".
+- Cards on the All and Yours tabs have no action buttons; the actions are on
+  the Followed and Discover tabs and on the tag page.
+- The e2e spec below uses these new locators (the checkbox named "Verified", the
+  image named "Official Ladu account").
+
+### Slice 7 — Reserved names (impersonation)
+
+**What and why.** A badge only helps if nobody can *pretend* to be official.
+Today usernames and display names (`users.name`) have no rules at all. We
+add one small check. First we **normalize** the name: we turn it into a
+plain form so that look-alike tricks give the same text. Then we compare it
+with the reserved words (D1).
+
+Normalize steps (`backend/lib/reservedNames.ts`):
+1. Unicode NFKC (turns full-width and styled letters into plain letters).
+2. Lowercase.
+3. NFD + remove combining marks (removes accents: "Ladú" → "ladu").
+4. Map a small look-alike table: Cyrillic/Greek letters that look Latin
+   (а е о р с х у і к м т н в, ο α ε ι κ ν ρ τ υ χ) and digits/symbols
+   (0→o, 1→l, 3→e, 4→a, 5→s, 7→t, @→a, $→s, !→i, |→l).
+5. Remove every character that is not `a-z` (spaces, dots, `_`, `-`,
+   zero-width characters).
+
+Rule: reject if the result contains `ladu` or `official`, or equals `admin`,
+`staff`, `support`, `moderator` or `team`. Exempt: an account with an active
+`official` badge (D2). We check only a value that changes.
+
+- `isReservedName(value)` + unit tests (`backend/tests/reservedNames.test.js`):
+  "Ladu", "L a d u", "LADÚ", "Ladu_0fficial", "Lаdu" (Cyrillic а),
+  "ＬＡＤＵ" (full-width), "Admin" → blocked; "badminton", "teammate",
+  "Ladislav", "Kevin" → allowed.
+- Apply it to `username` and `name` in: `registerUser`
+  (`controllers/userController.ts:196`), `signupComplete`
+  (`controllers/oauthController.ts:323`) and `updateUser`
+  (`controllers/userController.ts:367`). The response is 400 with a stable
+  error code (for example `NAME_RESERVED`). Do not leak the word list.
+- D3: `updateUser` uniqueness uses `lower(username)` (reuse
+  `findUserByUsernameInsensitive`), excluding the caller; trim the value.
+- Frontend: map the new error code to a message in the register form, the
+  OAuth signup form and the account form (4 languages).
+- Tests: register / OAuth signup / update rejected; a badged account can
+  rename to "Ladu"; an unchanged legacy name passes an update; the D3 case
+  ("Admin" vs "admin") → 400.
+
+**Shipped 2026-10-07.** Built as planned, with these notes:
+- **The check** is `backend/lib/reservedNames.ts`: `normalizeName`,
+  `isReservedName` and `assertNamesAllowed`. The rule is D1: a name that
+  contains `ladu` or `official`, or equals `admin`, `staff`, `support`,
+  `moderator` or `team`, is refused. Each field (username, display name) is
+  checked on its own.
+- **One addition to the plan's normalize steps:** `i`, `l`, `1`, `!` and `|`
+  are folded to one letter, on both sides of the comparison (the name and
+  the reserved words). `1` can stand for `i` ("Off1cial") or for `l`
+  ("1adu"). With the fold, both are caught whichever the writer meant. A few
+  Latin letters that do not split into base + accent (`ł đ ø ı ŧ`) were
+  added to the look-alike table.
+- **Where it runs:** `registerUser` and `signupComplete` (after the access
+  gate, before the "already in use" checks, so a closed gate answers first)
+  and `updateUser`. Answers: 400 with `code` `username_reserved` or
+  `name_reserved`, and a message that does not show the word list. The
+  username is named first when both are reserved.
+- **A third code for Google signup, `google_name_reserved`** (not in the
+  plan). In `signupComplete` the display name comes from the Google profile,
+  and the signup form cannot change it. A plain "choose another name" would
+  leave the person stuck. The message says to change the name in the Google
+  account. If you prefer a silent fallback (use the username as the display
+  name), say so: it is a small change.
+- **`updateUser` (D2, D3):** only a value that changes is checked, so an
+  existing account keeps its name, also when it is reserved. An active
+  `official` badge exempts the account. A revoked badge, or a badge of
+  another type, does not. The username is trimmed. It is unique whatever its
+  case, using the same `findUserByUsernameInsensitive` as registration, and
+  an account may change the case of its own. An empty or non-text username
+  is refused with 400 "Please add all fields" (it used to be saved as is).
+  The credential check (email must be the caller's) now runs **before** the
+  username checks; before, the username check came first. No test depended
+  on the old order.
+- **Frontend:** `authErrorKey` maps the three codes to
+  `loginRegister:apiErrors.usernameReserved`, `.nameReserved` and
+  `.googleNameReserved` (en, es, de, ee). The register form, the Google
+  signup form and the account form all use `authErrorKey`, so all three show
+  the message with no change of their own.
+- **Tests:** backend 927 → 1,035 (71 in `reservedNames.test.js`, 37 in
+  `reservedNamesApi.test.js`). Frontend 1,451 → 1,454 (the code mapping, the
+  account form, the Google signup form). `tsc`, lint (0 errors, the same 3
+  old warnings) and build pass in both.
+- **Known limits (by design, D1):**
+  - The look-alike table is small. It stops the common tricks, not every
+    Unicode confusable.
+  - The exact words are compared whole: `Admin1` becomes `admlnl` and is
+    allowed, `Admin2` becomes `admin` and is refused. Only the exact word is
+    refused, as decided.
+  - `ladu` is also an Estonian word (a warehouse). A real name that contains
+    it is refused. The owner can grant the `official` badge first, or set
+    the name in the DB.
+  - Existing accounts are not scanned. An account that already has a
+    reserved name keeps it until the owner acts. Tell me if you want a
+    one-time report of such accounts.
+- The es, de and ee texts are mine: please check them.
+
+### Slice 8 — e2e gate and docs
+
+**What and why.** We prove the whole flow in a real browser, against the
+real backend and Postgres. This is the required gate for every phase.
+
+`e2e/tests/admin-13-badges.spec.ts` (serial):
+1. Seed: owner staff, learner A ("author") with one Public tag, learner B
+   ("reader"). Add a `seedTag` helper to `e2e/fixtures/db.ts` if none exists.
+2. Owner logs in to the admin UI (:5174), opens A, grants `official` without
+   a reason (confirm disabled), then with a reason → status notice. The
+   audit row exists (`getAuditForUser`).
+3. B logs in to the app (:5173), opens `/tags` → Discover. A's card shows the
+   badge. The tag page shows it too.
+4. B picks "Author: Official" → only A's tag; the URL has `?badge=official`.
+5. Owner revokes with a reason. B reloads → no badge; the filter shows the
+   empty state.
+6. B tries to rename to "Ladu 0fficial" on the account page → error.
+7. `afterAll`: delete users, then staff (fixture order from Slice 1).
+
+Gate: `npm run test:e2e`. The 8 `oauth-2..5` specs fail at the Google stub
+on unchanged code (known). Do not count them as new failures. Report all
+other failures as they are.
+
+Docs:
+- `.context/overview.md`: a short "Account badges" paragraph (what they are,
+  who grants them, where they show).
+- This plan: a "Shipped" note for each slice, as `phase-4-tags.md` does.
+- `admin-dashboard.md`: the new section on the user detail page.
+
+**Shipped 2026-10-07.** The spec is `e2e/tests/admin-13-badges.spec.ts` (8 steps,
+serial, about 11 seconds). The owner redesigned `/tags` and `/tag/:id` before
+this slice, so the spec uses the new screen (see "Changed after Slices 5 and 6"
+above).
+- **What it walks, through both UIs and the real backend and Postgres:**
+  1. an admin sees the badge list but no buttons, and the API answers 403;
+  2. the owner grants "official" with a reason (the confirm button is disabled
+     without one); the audit log and the `user_badges` row record it;
+  3. a reader sees the seal on the author's card on `/tags` and on `/tag/:id`,
+     and none on a plain author's tag;
+  4. the reader ticks "Verified": only the badged author stays, `?badge=official`
+     is in the URL, and a reload keeps it;
+  5. the badged author may take a reserved name ("Ladu <run>") through the API;
+  6. the owner revokes with a reason; the row stays with `revoked_at` set; the
+     audit log shows `badge.grant` then `badge.revoke`;
+  7. the reader's **same session** shows no seal and "No verified tags match";
+     "Show all tags" clears the filter (the badge is read from the DB on each
+     request);
+  8. with no badge, the author is refused a reserved name on the API
+     (`username_reserved`), and the reader is refused "Ladu 0fficial" in the
+     real account form; the stored username is unchanged.
+- **The suite runs against the dev DB**, which holds real tags. So the spec
+  searches for its own uniquely named tags (`e2e-badge-<run> ...`) and never
+  assumes a list holds only them. It removes its users, staff and tags in
+  `afterAll`; I checked that nothing is left behind.
+- **Fixture changes** (`e2e/fixtures/db.ts`): `seedTag` takes a visibility and
+  returns the tag id (the one old caller ignores the result); new
+  `getBadgeRows`. `deleteStaffByEmail` already removed badge rows (slice 1).
+- **Phase 4 spec fixed** (`phase-4-tags.spec.ts`): six locators
+  `getByRole('link', { name: 'tags' })` became `{ name: 'tags', exact: true }`.
+  The redesigned tag page has a second link, "Back to /tags", so the short name
+  matched two links.
+- **Gate result.** `npm run test:e2e`: 65 passed, 8 failed, 14 did not run (87
+  tests).
+  - The **8 failures are exactly the known `oauth-2..5` set** (they fail at the
+    Google stub on unchanged code). No other test failed.
+  - The **14 "did not run" are the chained access-gate projects**. The config
+    skips them after any failure in the main project. I ran them by hand, one at
+    a time, with `npx playwright test --no-deps --project=<name>`:
+    `admin-11-registration-gate` passes (7 of 7), and so does
+    `admin-12-login-gate` (7 of 7, run by the owner after taking their own
+    account off the dev DB's login allowed list; the spec expects that list to be
+    empty). Step 4 of `admin-12` registers an account under a limited login, so it
+    covers the registration code from slice 7.
+  - **The `oauth-1-schema-guard` flake is fixed.** It failed in the first full run
+    and passed in the second, and its spec file was unchanged by this work. With
+    one worker it passed 20 of 20; with four workers 4 of 20 failed. A debug copy
+    of the spec showed the cause: two workers loaded the module in the same
+    millisecond (`Date.now()`), so both tests used the same email. One test
+    raced the other on that row (a 500 from the unique constraint), and the
+    failing test's `afterAll` deleted the row the other test was still using. The
+    spec now uses a random id, as `fixtures/practice.ts` does. After the fix,
+    12 batches of 30 tests with four workers: 0 failures (360 of 360).
+  - **The same pattern is in other specs** (not changed here): `admin-6-health`,
+    `oauth-2` to `oauth-5`, `phase-1-auth`, `phase-2-noun-crud`,
+    `phase-3-5-dashboard` and `phase-3-9-theme` build ids from `Date.now()`, have
+    two or more tests and do not run in serial mode. Whether each can clash
+    depends on how it builds its emails; I did not check them one by one.
+  - **A backend problem found on the way (not fixed here):** the 500 from the
+    race above answered with the full SQL text of the failed insert and its
+    parameters, including the password hash of the account being registered.
+    `errorMiddleware.js` sends `err.message` as it is. Also, registration checks
+    "email in use" and then inserts, so two requests at the same moment get a 500
+    instead of the normal 400 "Email already in use". Both are older than this
+    work.
+- **Docs written in this slice:** `.context/overview.md` (new "Account Badges"
+  paragraph in 3.3), `.context/plans/admin-dashboard.md` (badge note),
+  `.context/README.md` (status), and this plan.
+
+## Later (out of scope, do not block it)
+
+- **Popularity counts** (follows and copies per week, month, year, all
+  time). No new tables are needed. `user_following_tags.created_at` and
+  `tags.source_tag_id` (+ `tags.created_at`) hold the data. Future indexes:
+  `user_following_tags (tag_id, created_at)` and
+  `tags (source_tag_id, created_at)`. *(Your prompt text was garbled here:
+  "The exs` … `usat`". I read it as `user_following_tags`. Please correct me
+  if you meant something else.)*
+- Self-service badge requests.
+- Event or history tables that survive deletions.
+- Badges on other content (words, profiles, practice sets). G1 makes this a
+  frontend-only change later.
+- More badge types (`teacher`, `curator`, `partner`): add to `BADGE_TYPES`,
+  add locale strings, add an icon. No migration. The "Verified" checkbox on
+  `/tags` sends only `badge=official`. With a second type it needs a backend
+  value that means "any badge" (or a select again).
+
+## Risks
+
+- The `admin-5` e2e locator `h1 + span` breaks if a span goes right after
+  the `h1`. Slice 3 keeps badges in their own section.
+- `deleteStaffByEmail` in e2e fails on `granted_by restrict` if Slice 1 does
+  not update it. This also affects any other spec that deletes the owner
+  after a grant.
+- The look-alike table is small on purpose. It blocks the common tricks, not
+  every Unicode confusable. A full confusables list can come later if abuse
+  shows up.
+
+## Verification
+
+Per slice:
+- Backend: `npm test` (exit code 0). `npx tsc --noEmit -p backend`.
+- Admin: `npm test -w admin`, `npx tsc -b` in `admin/`.
+- Frontend: `npm test -w frontend`, `npx tsc -b`, `npm run build -w frontend`.
+- Manual: `npm run dev:admin` (grant / revoke), `npm run dev` (see badge,
+  use filter).
+
+End: `npm run test:e2e` green, except the 8 known `oauth-2..5` failures.

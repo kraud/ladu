@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderWithProviders } from '@/test/render';
-import { RelationBadge, TagBadges, VisibilityBadge, tagRelation } from './TagBadge';
+import { AuthorBadges, RelationBadge, TagBadges, VisibilityBadge, tagRelation } from './TagBadge';
 import type { TagSummary } from '../types';
 
 function makeTag(overrides: Partial<TagSummary> = {}): TagSummary {
@@ -12,7 +12,7 @@ function makeTag(overrides: Partial<TagSummary> = {}): TagSummary {
         visibility: 'Public',
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-01T00:00:00.000Z',
-        author: { id: 'author-1', username: 'kai' },
+        author: { id: 'author-1', username: 'kai', badges: [] },
         wordCount: 0,
         followerCount: 0,
         isOwner: false,
@@ -43,7 +43,7 @@ describe('tagRelation', () => {
 
 describe('RelationBadge', () => {
     it.each([
-        ['owned', 'Owned'],
+        ['owned', 'Yours'],
         ['followed', 'Followed'],
         ['unavailable', 'Unavailable'],
         ['discover', 'Discover'],
@@ -70,7 +70,33 @@ describe('VisibilityBadge', () => {
 describe('TagBadges', () => {
     it('shows both the relation and visibility badges together', () => {
         renderWithProviders(<TagBadges tag={makeTag({ isOwner: true, visibility: 'Private' })} />);
-        expect(screen.getByText('Owned')).toBeInTheDocument();
+        expect(screen.getByText('Yours')).toBeInTheDocument();
         expect(screen.getByText('Private')).toBeInTheDocument();
+    });
+});
+
+describe('AuthorBadges', () => {
+    it('shows the Official badge as a visible word, with a tooltip', () => {
+        renderWithProviders(<AuthorBadges badges={['official']} />);
+        const badge = screen.getByText('Official');
+        expect(badge).toBeInTheDocument();
+        expect(badge.closest('.t-author-badge')).toHaveAttribute('title', 'Official Ladu account');
+    });
+
+    it('hides the seal icon from screen readers (the word is the name)', () => {
+        const { container } = renderWithProviders(<AuthorBadges badges={['official']} />);
+        expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('renders nothing for an author with no badge', () => {
+        const { container } = renderWithProviders(<AuthorBadges badges={[]} />);
+        expect(container.querySelector('.t-author-badge')).not.toBeInTheDocument();
+        expect(screen.queryByText('Official')).not.toBeInTheDocument();
+    });
+
+    it('skips a badge type this build does not know, and still shows the known one', () => {
+        renderWithProviders(<AuthorBadges badges={['curator', 'official']} />);
+        expect(screen.getByText('Official')).toBeInTheDocument();
+        expect(screen.queryByText('curator')).not.toBeInTheDocument();
     });
 });

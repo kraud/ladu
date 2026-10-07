@@ -7,6 +7,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeAuthHandlers } from '@/test/msw/authHandlers';
@@ -421,6 +422,52 @@ describe('OAuth signup completion (Phase 3)', () => {
 
         expect(await screen.findByText('That username is already taken.')).toBeInTheDocument();
         // Still on the signup form, not bounced anywhere — the ticket is reusable within its 10-minute window.
+        expect(screen.getByLabelText(/^Username/)).toBeInTheDocument();
+    });
+});
+
+describe('OAuth signup with a reserved name (verified-badges.md)', () => {
+    afterEach(() => {
+        window.location.hash = '';
+    });
+
+    const makeSignupTicket = (overrides: Record<string, unknown> = {}) =>
+        makeToken({
+            typ: 'oauth_signup',
+            provider: 'google',
+            sub: 'sub-1',
+            email: 'brandnew@example.com',
+            name: 'Brand New',
+            ...overrides,
+        });
+
+    it('tells the person to change the name at Google when the Google profile name is the problem', async () => {
+        server.use(
+            http.post('*/api/auth/signup/complete', () =>
+                HttpResponse.json(
+                    { message: 'The name of this Google account is not available', code: 'google_name_reserved' },
+                    { status: 400 },
+                ),
+            ),
+        );
+        const user = userEvent.setup();
+        window.location.hash = `#ticket=${makeSignupTicket({ email: 'official@example.com' })}&mode=signup`;
+        await renderApp({ initialEntry: '/auth/callback' });
+
+        await screen.findByLabelText(/^Username/);
+        await user.clear(screen.getByLabelText(/^Username/));
+        await user.type(screen.getByLabelText(/^Username/), 'fine_username');
+        await user.click(screen.getByRole('button', { name: 'English', pressed: false }));
+        await user.click(screen.getByRole('button', { name: 'Español', pressed: false }));
+        const submit = screen.getByRole('button', { name: 'Create account' });
+        await waitFor(() => expect(submit).toBeEnabled());
+        await user.click(submit);
+
+        expect(
+            await screen.findByText(
+                'The name of your Google account is not available here. Change it in your Google account, then try again.',
+            ),
+        ).toBeInTheDocument();
         expect(screen.getByLabelText(/^Username/)).toBeInTheDocument();
     });
 });

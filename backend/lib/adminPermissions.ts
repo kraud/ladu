@@ -19,6 +19,9 @@ export const PERMISSIONS = [
   // Registration and login gates, the invite list (access-gates.md). Owner only:
   // a wrong setting can stop every learner from signing up or in.
   "access.manage",
+  // Grant and revoke account badges such as "official" (verified-badges.md).
+  // Owner only: a badge tells every learner that Ladu stands behind the account.
+  "badge.manage",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];

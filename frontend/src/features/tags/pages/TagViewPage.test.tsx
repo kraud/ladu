@@ -33,8 +33,8 @@ function verbSeed(label: string, id: string, tagId?: string): SeedWord {
     };
 }
 
-function setUp(seedTags: SeedTag[] = [], seedWords: SeedWord[] = []) {
-    const tagFake = makeTagHandlers({ callerId: ME, usernames: { [OTHER]: 'mari' }, seedTags });
+function setUp(seedTags: SeedTag[] = [], seedWords: SeedWord[] = [], authorBadges: Record<string, string[]> = {}) {
+    const tagFake = makeTagHandlers({ callerId: ME, usernames: { [OTHER]: 'mari' }, seedTags, authorBadges });
     const wordFake = makeWordHandlers({ callerId: ME, seed: seedWords });
     server.use(...tagFake.handlers, ...wordFake.handlers);
     return { tagFake, wordFake };
@@ -60,15 +60,14 @@ describe('TagViewPage — owned tag', () => {
 
         expect(await screen.findByText('Kitchen')).toBeInTheDocument();
         expect(screen.getByText('Pots and pans')).toBeInTheDocument();
-        expect(screen.getByText('Owned')).toBeInTheDocument();
+        expect(screen.getByText('Yours')).toBeInTheDocument();
         expect(await screen.findByText('simmer')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Add words' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
-        // Delete only appears once edit mode is entered.
-        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
     });
 
-    it('entering edit mode reveals Delete and the per-row remove button; Done hides them again', async () => {
+    it('Remove words shows the trash column and disables Add words; Cancel hides them again', async () => {
         setUp(
             [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
             [verbSeed('simmer', 'w1', 'tag-1')],
@@ -78,17 +77,27 @@ describe('TagViewPage — owned tag', () => {
         await screen.findByText('simmer');
         expect(screen.queryByRole('button', { name: 'Remove from tag' })).not.toBeInTheDocument();
 
-        await user.click(screen.getByRole('button', { name: 'Edit' }));
-        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Remove words' }));
         expect(screen.getByRole('button', { name: 'Remove from tag' })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Edit details' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Add words' })).toBeDisabled();
 
-        await user.click(screen.getByRole('button', { name: 'Done' }));
-        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+        expect(screen.queryByRole('button', { name: 'Remove from tag' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Add words' })).toBeEnabled();
+    });
+
+    it('Edit opens the edit dialog directly and does not turn on remove mode', async () => {
+        setUp([{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }], [verbSeed('simmer', 'w1', 'tag-1')]);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+        expect(screen.getByLabelText(/Label/)).toHaveValue('Kitchen');
         expect(screen.queryByRole('button', { name: 'Remove from tag' })).not.toBeInTheDocument();
     });
 
-    it('shows a "Cloned from" line when the tag has provenance', async () => {
+    it('shows a Cloned badge in the footer when the tag has provenance', async () => {
         setUp([
             {
                 id: 'tag-1',
@@ -100,7 +109,9 @@ describe('TagViewPage — owned tag', () => {
         ]);
         await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
 
-        expect(await screen.findByText('Original Kitchen')).toBeInTheDocument();
+        const badge = await screen.findByText('Cloned');
+        expect(badge).toHaveAttribute('title', 'Cloned from Original Kitchen');
+        expect(badge.closest('.tagen-foot')).not.toBeNull();
     });
 
     it('editing the tag updates the header and shows a toast', async () => {
@@ -110,7 +121,6 @@ describe('TagViewPage — owned tag', () => {
         await screen.findByText('Kitchen');
 
         await user.click(screen.getByRole('button', { name: 'Edit' }));
-        await user.click(screen.getByRole('button', { name: 'Edit details' }));
         const labelInput = screen.getByLabelText(/Label/);
         await user.clear(labelInput);
         await user.type(labelInput, 'Cooking');
@@ -126,7 +136,6 @@ describe('TagViewPage — owned tag', () => {
         const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
         await screen.findByText('Kitchen');
 
-        await user.click(screen.getByRole('button', { name: 'Edit' }));
         await user.click(screen.getByRole('button', { name: 'Delete' }));
         expect(screen.getByText('Delete tag?')).toBeInTheDocument();
         await user.click(screen.getAllByRole('button', { name: 'Delete' }).at(-1)!);
@@ -151,9 +160,8 @@ describe('TagViewPage — owned tag', () => {
         await screen.findByText('Kitchen');
         expect(screen.getByText('Add your first words to this tag')).toBeInTheDocument();
 
-        // Two "Add words" buttons exist here on purpose (mockup parity): the
-        // header action and the empty-state's own CTA, both wired to the same
-        // handler — either is fine to click.
+        // Two "Add words" buttons exist here on purpose: the toolbar one and the
+        // empty-state's own CTA, both wired to the same handler.
         await user.click(screen.getAllByRole('button', { name: 'Add words' })[0]);
         const row = (await screen.findByText('simmer')).closest('tr') as HTMLElement;
         await user.click(row);
@@ -172,7 +180,7 @@ describe('TagViewPage — owned tag', () => {
         await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
         await screen.findByText('simmer');
 
-        await user.click(screen.getByRole('button', { name: 'Edit' }));
+        await user.click(screen.getByRole('button', { name: 'Remove words' }));
         await user.click(screen.getByRole('button', { name: 'Remove from tag' }));
 
         expect(await screen.findByText('"simmer" removed from "Kitchen" — it stays on your shelf')).toBeInTheDocument();
@@ -186,9 +194,7 @@ describe('TagViewPage — followed tag', () => {
         await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
 
         expect(await screen.findByText('Followed')).toBeInTheDocument();
-        // "by mari" appears twice on purpose (mockup parity): once in the
-        // header body, once in the footer's hint line.
-        expect(screen.getAllByText('by mari').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getByText('mari').closest('.t-by')).toHaveTextContent(/^By\s*mari/);
         expect(screen.getByRole('button', { name: 'Unfollow' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Clone' })).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
@@ -247,5 +253,29 @@ describe('TagViewPage — unavailable tag (D9)', () => {
         expect(screen.getByText('Words are hidden right now')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Unfollow' })).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Clone' })).not.toBeInTheDocument();
+    });
+});
+
+describe('TagViewPage — author badge', () => {
+    const theirTag: SeedTag = { id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public' };
+
+    it('shows the name in the accent style with the verified icon for a badged author', async () => {
+        setUp([theirTag], [], { [OTHER]: ['official'] });
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        const name = await screen.findByText('mari');
+        expect(name).toHaveClass('t-by-verified');
+        const icon = screen.getByRole('img', { name: 'Official Ladu account' });
+        expect(name.closest('.t-by')).toContainElement(icon);
+        expect(screen.queryByText('Official')).not.toBeInTheDocument();
+    });
+
+    it('shows a plain name and no icon for an author without a badge', async () => {
+        setUp([theirTag]);
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        expect(await screen.findByText('Travel')).toBeInTheDocument();
+        expect(screen.getByText('mari')).not.toHaveClass('t-by-verified');
+        expect(screen.queryByRole('img', { name: 'Official Ladu account' })).not.toBeInTheDocument();
     });
 });

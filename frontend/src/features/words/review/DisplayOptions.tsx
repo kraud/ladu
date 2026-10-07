@@ -1,6 +1,6 @@
 /**
- * The Review display switches: Display owner, Display word type, Display gender (D14 — only offered once a
- * noun is on screen) and Display progress (always). Rendered as a fragment,
+ * The Review display switches: Owner, Word type, Gender (D14 — only offered once a
+ * noun is on screen) and Progress (always). Rendered as a fragment,
  * so the caller's layout decides the arrangement: inline in `TableToolbar` on
  * desktop, stacked in the slide-in menu (a `SidebarLayout` section) on a phone.
  */

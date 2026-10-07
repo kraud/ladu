@@ -209,11 +209,15 @@ export async function createStaffAccount(email: string, role: string, password: 
     return { staffId: rows[0].id };
 }
 
-/** Removes staff accounts and the audit rows that reference them (`audit_log.staff_id` is `ON DELETE RESTRICT`). */
+/** Removes staff accounts and the rows that reference them (`audit_log.staff_id` and `user_badges.granted_by` are `ON DELETE RESTRICT`). */
 export async function deleteStaffByEmail(emails: string[]): Promise<void> {
     if (emails.length === 0) return;
     try {
         const lowered = emails.map((e) => e.toLowerCase());
+        await getPool().query(
+            `DELETE FROM user_badges WHERE granted_by IN (SELECT id FROM staff_accounts WHERE email = ANY($1::text[]))`,
+            [lowered],
+        );
         await getPool().query(
             `DELETE FROM audit_log WHERE staff_id IN (SELECT id FROM staff_accounts WHERE email = ANY($1::text[]))`,
             [lowered],
@@ -280,8 +284,26 @@ export async function seedWord(userId: string, languages: string[]): Promise<voi
     }
 }
 
-export async function seedTag(userId: string, label: string): Promise<void> {
-    await getPool().query(`INSERT INTO tags (author_id, label, visibility) VALUES ($1, $2, 'Private')`, [userId, label]);
+/** A tag with no words. Private unless asked. Returns its id. */
+export async function seedTag(userId: string, label: string, visibility: 'Private' | 'Public' = 'Private'): Promise<string> {
+    const { rows } = await getPool().query<{ id: string }>(
+        `INSERT INTO tags (author_id, label, visibility) VALUES ($1, $2, $3) RETURNING id`,
+        [userId, label, visibility],
+    );
+    if (!rows[0]) throw new Error(`failed to seed tag ${label}`);
+    return rows[0].id;
+}
+
+/**
+ * The account-badge rows of one user, oldest first (verified-badges.md). `revoked` is true once
+ * `revoked_at` is set: a revoke keeps the row, so history stays.
+ */
+export async function getBadgeRows(userId: string): Promise<{ type: string; revoked: boolean }[]> {
+    const { rows } = await getPool().query<{ type: string; revoked: boolean }>(
+        `SELECT type, revoked_at IS NOT NULL AS revoked FROM user_badges WHERE user_id = $1 ORDER BY granted_at, id`,
+        [userId],
+    );
+    return rows;
 }
 
 export async function seedLoginEvent(userId: string, method: 'password' | 'google', country: string | null): Promise<void> {

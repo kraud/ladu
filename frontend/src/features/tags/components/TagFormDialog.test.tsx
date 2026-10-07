@@ -39,7 +39,7 @@ function makeTag(overrides: Partial<TagSummary> = {}): TagSummary {
         visibility: 'Public',
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-01T00:00:00.000Z',
-        author: { id: SESSION.id, username: SESSION.username },
+        author: { id: SESSION.id, username: SESSION.username, badges: [] },
         wordCount: 0,
         followerCount: 0,
         isOwner: true,
