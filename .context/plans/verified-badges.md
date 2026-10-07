@@ -1,6 +1,6 @@
 # Account badges ("official" and later types)
 
-> Status: **approved 2026-10-06. All 9 slices (0–8) built. Gate: see the Slice 8 note (8 known oauth failures; `admin-12-login-gate` not finished because of dev-DB data).**
+> Status: **approved 2026-10-06. All 9 slices (0–8) built. Gate: see the Slice 8 note (only the 8 known `oauth-2..5` specs fail).**
 > Branch: `verified-accounts`.
 
 ## How to start
@@ -660,23 +660,32 @@ above).
   - The **14 "did not run" are the chained access-gate projects**. The config
     skips them after any failure in the main project. I ran them by hand, one at
     a time, with `npx playwright test --no-deps --project=<name>`:
-    `admin-11-registration-gate` passes (7 of 7).
-    **`admin-12-login-gate` fails at step 3** (2 passed, 1 failed, 4 not run).
-    The step expects the warning "the allowed list is empty", but the dev DB's
-    login allowed list holds one real account, so the warning never shows. This
-    is data, not code, and I did not touch your rows. To finish the run: take
-    your account off the allowed list (admin > Access > Login), run
-    `npx playwright test --no-deps --project=admin-12-login-gate`, then add the
-    account back. **Steps 4 to 7 of that spec have not run**, and step 4 covers
-    registration with a limited login, so it is the one that touches the
-    registration code from slice 7. (`admin-11` and the Jest gate tests do pass
-    through that code.)
-  - **A flake that is not from this work:** `oauth-1-schema-guard` failed twice
-    in the first full run. It builds its emails from `Date.now()` in each
-    worker, and two parallel workers can pick the same millisecond. With one
-    worker it passed 20 of 20; with four workers 4 of 20 failed. It passed in
-    the next full run. The spec file is unchanged. A random id, as
-    `fixtures/practice.ts` already uses, would fix it.
+    `admin-11-registration-gate` passes (7 of 7), and so does
+    `admin-12-login-gate` (7 of 7, run by the owner after taking their own
+    account off the dev DB's login allowed list; the spec expects that list to be
+    empty). Step 4 of `admin-12` registers an account under a limited login, so it
+    covers the registration code from slice 7.
+  - **The `oauth-1-schema-guard` flake is fixed.** It failed in the first full run
+    and passed in the second, and its spec file was unchanged by this work. With
+    one worker it passed 20 of 20; with four workers 4 of 20 failed. A debug copy
+    of the spec showed the cause: two workers loaded the module in the same
+    millisecond (`Date.now()`), so both tests used the same email. One test
+    raced the other on that row (a 500 from the unique constraint), and the
+    failing test's `afterAll` deleted the row the other test was still using. The
+    spec now uses a random id, as `fixtures/practice.ts` does. After the fix,
+    12 batches of 30 tests with four workers: 0 failures (360 of 360).
+  - **The same pattern is in other specs** (not changed here): `admin-6-health`,
+    `oauth-2` to `oauth-5`, `phase-1-auth`, `phase-2-noun-crud`,
+    `phase-3-5-dashboard` and `phase-3-9-theme` build ids from `Date.now()`, have
+    two or more tests and do not run in serial mode. Whether each can clash
+    depends on how it builds its emails; I did not check them one by one.
+  - **A backend problem found on the way (not fixed here):** the 500 from the
+    race above answered with the full SQL text of the failed insert and its
+    parameters, including the password hash of the account being registered.
+    `errorMiddleware.js` sends `err.message` as it is. Also, registration checks
+    "email in use" and then inserts, so two requests at the same moment get a 500
+    instead of the normal 400 "Email already in use". Both are older than this
+    work.
 - **Docs written in this slice:** `.context/overview.md` (new "Account Badges"
   paragraph in 3.3), `.context/plans/admin-dashboard.md` (badge note),
   `.context/README.md` (status), and this plan.
