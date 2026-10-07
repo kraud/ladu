@@ -1,4 +1,4 @@
-import { type MouseEvent, useState } from 'react';
+import { type MouseEvent, useCallback, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
@@ -19,6 +19,8 @@ import { featureFlags } from '@/app/feature-flags';
 import { LeaveSessionDialog } from '@/features/practice/components/LeaveSessionDialog';
 import { useSessionFor } from '@/features/practice/sessionStore';
 import { useQuickPractice } from '@/features/practice/useQuickPractice';
+import { useEdgeSwipeOpen, useSwipeCloseProps } from '@/lib/useSwipe';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { useAuthStore } from '@/stores/authStore';
 
 /** Nav targets. `requiresLanguages` = the old "≥2 languages" gate on Words (Add word hangs off it). */
@@ -157,6 +159,11 @@ function HeaderRight() {
 export function AppHeader() {
     const { t } = useTranslation();
     const [sheetOpen, setSheetOpen] = useState(false);
+    const isMobile = useIsMobile();
+    const openMenu = useCallback(() => setSheetOpen(true), []);
+    // On a phone, a swipe from the left edge opens the menu, and a swipe to the left closes it.
+    useEdgeSwipeOpen(isMobile && !sheetOpen, openMenu);
+    const swipeToClose = useSwipeCloseProps(() => setSheetOpen(false));
     const quickPractice = useQuickPractice();
     const user = useAuthStore((s) => s.user);
     const session = useSessionFor(user?.id);
@@ -184,7 +191,7 @@ export function AppHeader() {
                     >
                         <ListIcon size={26} />
                     </SheetTrigger>
-                    <SheetContent side="left" className="gap-0 p-4">
+                    <SheetContent side="left" className="gap-0 p-4" {...swipeToClose}>
                         <SheetHeader className="p-0 pb-8">
                             <SheetTitle>
                                 {/* Same target as the header logo: the Dashboard. */}

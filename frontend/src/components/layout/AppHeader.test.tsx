@@ -6,7 +6,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { fireEvent } from '@testing-library/react';
 import { renderApp } from '@/test/render';
+import { mockMobileViewport } from '@/test/viewport';
 import { futureToken } from '@/test/tokens';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
@@ -98,6 +100,30 @@ describe('AppHeader nav gating', () => {
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
         await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    });
+
+    describe('phone menu swipes', () => {
+        it('opens with a swipe from the left edge, and closes with a swipe to the left', async () => {
+            mockMobileViewport();
+            await renderApp({ session: { ...baseSession, languages: ['English', 'Spanish'] } });
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+            fireEvent.touchStart(document.body, { touches: [{ clientX: 6, clientY: 300 }] });
+            fireEvent.touchEnd(document.body, { changedTouches: [{ clientX: 180, clientY: 310 }] });
+            const dialog = await screen.findByRole('dialog');
+
+            fireEvent.touchStart(dialog, { touches: [{ clientX: 200, clientY: 300 }] });
+            fireEvent.touchEnd(dialog, { changedTouches: [{ clientX: 60, clientY: 305 }] });
+            await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+        });
+
+        it('does not open on a desktop-width window', async () => {
+            await renderApp({ session: { ...baseSession, languages: ['English', 'Spanish'] } });
+
+            fireEvent.touchStart(document.body, { touches: [{ clientX: 6, clientY: 300 }] });
+            fireEvent.touchEnd(document.body, { changedTouches: [{ clientX: 180, clientY: 300 }] });
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        });
     });
 
     describe('phone menu', () => {
