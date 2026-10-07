@@ -1,6 +1,6 @@
 # Account badges ("official" and later types)
 
-> Status: **approved 2026-10-06. Slices 0–7 done. Slice 8 not started.**
+> Status: **approved 2026-10-06. All 9 slices (0–8) built. Gate: see the Slice 8 note (8 known oauth failures; `admin-12-login-gate` not finished because of dev-DB data).**
 > Branch: `verified-accounts`.
 
 ## How to start
@@ -473,6 +473,30 @@ survives a reload.
 - **Not looked at in a browser yet** (select next to Sort, wrapping on a
   phone, dark mode).
 
+**Changed after Slices 5 and 6 (2026-10-07): the owner redesigned `/tags` and
+`/tag/:id`.** The two notes above describe what was first built. What is on
+screen now:
+- **The filter is a "Verified" checkbox** (with a seal icon), not the "Author:
+  Anyone / Official" select (decision D4). It sends `?badge=official`. The URL
+  rules did not change: the value is in the URL, a reload keeps it, an unknown
+  value is dropped. In `TagsPage.tsx` the constant `VERIFIED_BADGE` is the first
+  badge type. With one type, "verified" and "official" are the same set. A
+  second type needs a backend value for "any badge" (see "Later").
+- **The seal is an icon only** (`VerifiedMark`, `role="img"`, name "Official Ladu
+  account"). On the tag list it sits after the tag label, and only on a
+  **Public** tag of a badged author. The author's name in the card's stats line
+  is styled and has a tooltip. On the tag page it follows "by <author>". The
+  words "Official" next to the author are gone (`AuthorBadges` is no longer used
+  on the cards).
+- **Copy:** the empty state is "No verified tags match" with the action "Show
+  all tags". The scope chip "Owned" is now "Yours". The UI says "Verified". The
+  code still avoids that word for the badge itself, because `users.verified`
+  means "email verified".
+- Cards on the All and Yours tabs have no action buttons; the actions are on
+  the Followed and Discover tabs and on the tag page.
+- The e2e spec below uses these new locators (the checkbox named "Verified", the
+  image named "Official Ladu account").
+
 ### Slice 7 — Reserved names (impersonation)
 
 **What and why.** A badge only helps if nobody can *pretend* to be official.
@@ -597,6 +621,66 @@ Docs:
 - This plan: a "Shipped" note for each slice, as `phase-4-tags.md` does.
 - `admin-dashboard.md`: the new section on the user detail page.
 
+**Shipped 2026-10-07.** The spec is `e2e/tests/admin-13-badges.spec.ts` (8 steps,
+serial, about 11 seconds). The owner redesigned `/tags` and `/tag/:id` before
+this slice, so the spec uses the new screen (see "Changed after Slices 5 and 6"
+above).
+- **What it walks, through both UIs and the real backend and Postgres:**
+  1. an admin sees the badge list but no buttons, and the API answers 403;
+  2. the owner grants "official" with a reason (the confirm button is disabled
+     without one); the audit log and the `user_badges` row record it;
+  3. a reader sees the seal on the author's card on `/tags` and on `/tag/:id`,
+     and none on a plain author's tag;
+  4. the reader ticks "Verified": only the badged author stays, `?badge=official`
+     is in the URL, and a reload keeps it;
+  5. the badged author may take a reserved name ("Ladu <run>") through the API;
+  6. the owner revokes with a reason; the row stays with `revoked_at` set; the
+     audit log shows `badge.grant` then `badge.revoke`;
+  7. the reader's **same session** shows no seal and "No verified tags match";
+     "Show all tags" clears the filter (the badge is read from the DB on each
+     request);
+  8. with no badge, the author is refused a reserved name on the API
+     (`username_reserved`), and the reader is refused "Ladu 0fficial" in the
+     real account form; the stored username is unchanged.
+- **The suite runs against the dev DB**, which holds real tags. So the spec
+  searches for its own uniquely named tags (`e2e-badge-<run> ...`) and never
+  assumes a list holds only them. It removes its users, staff and tags in
+  `afterAll`; I checked that nothing is left behind.
+- **Fixture changes** (`e2e/fixtures/db.ts`): `seedTag` takes a visibility and
+  returns the tag id (the one old caller ignores the result); new
+  `getBadgeRows`. `deleteStaffByEmail` already removed badge rows (slice 1).
+- **Phase 4 spec fixed** (`phase-4-tags.spec.ts`): six locators
+  `getByRole('link', { name: 'tags' })` became `{ name: 'tags', exact: true }`.
+  The redesigned tag page has a second link, "Back to /tags", so the short name
+  matched two links.
+- **Gate result.** `npm run test:e2e`: 65 passed, 8 failed, 14 did not run (87
+  tests).
+  - The **8 failures are exactly the known `oauth-2..5` set** (they fail at the
+    Google stub on unchanged code). No other test failed.
+  - The **14 "did not run" are the chained access-gate projects**. The config
+    skips them after any failure in the main project. I ran them by hand, one at
+    a time, with `npx playwright test --no-deps --project=<name>`:
+    `admin-11-registration-gate` passes (7 of 7).
+    **`admin-12-login-gate` fails at step 3** (2 passed, 1 failed, 4 not run).
+    The step expects the warning "the allowed list is empty", but the dev DB's
+    login allowed list holds one real account, so the warning never shows. This
+    is data, not code, and I did not touch your rows. To finish the run: take
+    your account off the allowed list (admin > Access > Login), run
+    `npx playwright test --no-deps --project=admin-12-login-gate`, then add the
+    account back. **Steps 4 to 7 of that spec have not run**, and step 4 covers
+    registration with a limited login, so it is the one that touches the
+    registration code from slice 7. (`admin-11` and the Jest gate tests do pass
+    through that code.)
+  - **A flake that is not from this work:** `oauth-1-schema-guard` failed twice
+    in the first full run. It builds its emails from `Date.now()` in each
+    worker, and two parallel workers can pick the same millisecond. With one
+    worker it passed 20 of 20; with four workers 4 of 20 failed. It passed in
+    the next full run. The spec file is unchanged. A random id, as
+    `fixtures/practice.ts` already uses, would fix it.
+- **Docs written in this slice:** `.context/overview.md` (new "Account Badges"
+  paragraph in 3.3), `.context/plans/admin-dashboard.md` (badge note),
+  `.context/README.md` (status), and this plan.
+
 ## Later (out of scope, do not block it)
 
 - **Popularity counts** (follows and copies per week, month, year, all
@@ -611,7 +695,9 @@ Docs:
 - Badges on other content (words, profiles, practice sets). G1 makes this a
   frontend-only change later.
 - More badge types (`teacher`, `curator`, `partner`): add to `BADGE_TYPES`,
-  add locale strings, add an icon. No migration.
+  add locale strings, add an icon. No migration. The "Verified" checkbox on
+  `/tags` sends only `badge=official`. With a second type it needs a backend
+  value that means "any badge" (or a select again).
 
 ## Risks
 

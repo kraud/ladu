@@ -284,8 +284,26 @@ export async function seedWord(userId: string, languages: string[]): Promise<voi
     }
 }
 
-export async function seedTag(userId: string, label: string): Promise<void> {
-    await getPool().query(`INSERT INTO tags (author_id, label, visibility) VALUES ($1, $2, 'Private')`, [userId, label]);
+/** A tag with no words. Private unless asked. Returns its id. */
+export async function seedTag(userId: string, label: string, visibility: 'Private' | 'Public' = 'Private'): Promise<string> {
+    const { rows } = await getPool().query<{ id: string }>(
+        `INSERT INTO tags (author_id, label, visibility) VALUES ($1, $2, $3) RETURNING id`,
+        [userId, label, visibility],
+    );
+    if (!rows[0]) throw new Error(`failed to seed tag ${label}`);
+    return rows[0].id;
+}
+
+/**
+ * The account-badge rows of one user, oldest first (verified-badges.md). `revoked` is true once
+ * `revoked_at` is set: a revoke keeps the row, so history stays.
+ */
+export async function getBadgeRows(userId: string): Promise<{ type: string; revoked: boolean }[]> {
+    const { rows } = await getPool().query<{ type: string; revoked: boolean }>(
+        `SELECT type, revoked_at IS NOT NULL AS revoked FROM user_badges WHERE user_id = $1 ORDER BY granted_at, id`,
+        [userId],
+    );
+    return rows;
 }
 
 export async function seedLoginEvent(userId: string, method: 'password' | 'google', country: string | null): Promise<void> {

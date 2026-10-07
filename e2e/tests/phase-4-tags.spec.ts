@@ -182,7 +182,7 @@ test.describe.serial('Phase 4 — tags', () => {
         });
 
         await test.step('A creates "Kitchen Words" with two words attached at creation time (D18)', async () => {
-            await pageA.getByRole('link', { name: 'tags' }).click();
+            await pageA.getByRole('link', { name: 'tags', exact: true }).click();
             await expect(pageA).toHaveURL('/tags');
 
             await pageA.getByRole('button', { name: 'New tag' }).click();
@@ -231,7 +231,7 @@ test.describe.serial('Phase 4 — tags', () => {
 
         await test.step('B signs in and follows "Kitchen Words" from Discover', async () => {
             await signIn(pageB, follower);
-            await pageB.getByRole('link', { name: 'tags' }).click();
+            await pageB.getByRole('link', { name: 'tags', exact: true }).click();
             await expect(pageB).toHaveURL('/tags');
 
             await setScope(pageB, 'Discover');
@@ -255,7 +255,7 @@ test.describe.serial('Phase 4 — tags', () => {
         });
 
         await test.step('A flips the tag to Private (D9) — the follower count already reflects B', async () => {
-            await pageA.getByRole('link', { name: 'tags' }).click();
+            await pageA.getByRole('link', { name: 'tags', exact: true }).click();
             await expect(pageA).toHaveURL('/tags');
 
             const card = tagCard(pageA, 'Kitchen Words');
@@ -276,7 +276,7 @@ test.describe.serial('Phase 4 — tags', () => {
                 await expect(pageB.getByRole('row', { name: new RegExp(word) })).not.toBeVisible();
             }
 
-            await pageB.getByRole('link', { name: 'tags' }).click();
+            await pageB.getByRole('link', { name: 'tags', exact: true }).click();
             await expect(pageB).toHaveURL('/tags');
             await setScope(pageB, 'Followed'); // the All tab has no card footer
             const card = tagCard(pageB, 'Kitchen Words');
@@ -286,7 +286,7 @@ test.describe.serial('Phase 4 — tags', () => {
         });
 
         await test.step('A flips the tag back to Public', async () => {
-            await pageA.getByRole('link', { name: 'tags' }).click();
+            await pageA.getByRole('link', { name: 'tags', exact: true }).click();
             const card = tagCard(pageA, 'Kitchen Words');
             await card.getByRole('link', { name: /^Open / }).click();
             await pageA.getByRole('button', { name: 'Edit', exact: true }).click();
@@ -302,7 +302,7 @@ test.describe.serial('Phase 4 — tags', () => {
                 await expect(pageB.getByRole('row', { name: new RegExp(word) })).toBeVisible();
             }
 
-            await pageB.getByRole('link', { name: 'tags' }).click();
+            await pageB.getByRole('link', { name: 'tags', exact: true }).click();
             const card = tagCard(pageB, 'Kitchen Words');
             await expect(card.getByText('Followed', { exact: true })).toBeVisible();
             await expect(card.getByRole('button', { name: 'Follow', exact: true })).toHaveCount(0);

@@ -100,6 +100,14 @@ This is the core workspace of the application.
 * **Follow Tag:** Enables a user to subscribe to another user's public/friends tag. Words appear in their list and exercise pool in **read-only** mode.
 * **Clone Tag:** Copies all words and translations inside the target tag directly into the user's personal dictionary. Cloned words become independent copies that the user can freely edit or delete.
 
+#### 3. Account Badges ("Verified" accounts)
+* The owner of Ladu can mark an account with a **badge** (the first type is `official`). A badge belongs to the *account*, not to a tag. Tags are the first content that shows it.
+* Only the owner grants and revokes badges, in the admin panel, with a required reason. Every grant and revoke is written to the audit log. No learner route writes a badge.
+* **Where it shows:** a seal icon next to a Public tag's label on the tag list, and next to "by <author>" on the tag page. A copy of a badged author's tag belongs to the copier and has no badge.
+* **Filter:** the "Verified" checkbox on the tag list keeps only tags whose author has the badge. It is kept in the URL (`?badge=official`).
+* **Read on each request:** the badge is read from the database, not from the login token, so a revoke shows at once.
+* **Impersonation:** names that look like "Ladu", "Official", "Admin", "Staff", "Support", "Moderator" or "Team" are refused for usernames and display names. An account with an active `official` badge is exempt. Existing names are kept. Details: `.context/plans/verified-badges.md`.
+
 ---
 
 ### 3.4 Interactive Exercise & Spaced-Repetition System
