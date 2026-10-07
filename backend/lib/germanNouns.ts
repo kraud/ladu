@@ -35,4 +35,4 @@ function capitalizeGermanNouns<T extends TranslationInput>(partOfSpeech: unknown
   });
 }
 
-module.exports = { capitalizeGermanNouns };
+export { capitalizeGermanNouns };

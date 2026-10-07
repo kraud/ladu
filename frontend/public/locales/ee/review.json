@@ -78,7 +78,12 @@
     "loadMore": "Laadi rohkem",
     "tags": "Sildid",
     "tagsOpen": "Näita silte",
-    "tagsOpenAdd": "Lisa sellele sõnale silte"
+    "tagsOpenAdd": "Lisa sellele sõnale silte",
+    "sort": {
+      "off": "Sorteeri {{lang}} A-st Z-ni",
+      "asc": "{{lang}} sorteeritud A-st Z-ni. Sorteeri Z-st A-ni",
+      "desc": "{{lang}} sorteeritud Z-st A-ni. Eemalda sorteerimine"
+    }
   },
   "cellDialog": {
     "deleteTranslation": "Kustuta tõlge",

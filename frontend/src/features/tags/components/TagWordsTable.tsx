@@ -28,6 +28,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { buildLanguageColumns, buildPartOfSpeechColumn } from '@/features/words/review/columns';
 import { DisplayOptions } from '@/features/words/review/DisplayOptions';
+import type { LanguageSort } from '@/features/words/review/useLanguageSort';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import { PartOfSpeech } from '@/ts/enums';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
@@ -62,6 +63,9 @@ export interface TagWordsTableProps {
     onShowGenderChange: (next: boolean) => void;
     showProgress: boolean;
     onShowProgressChange: (next: boolean) => void;
+    /** The active column sort, and the click on a language header. */
+    sort?: LanguageSort | null;
+    onSort?: (lang: LangKey) => void;
 }
 
 function headlineLabel(row: WordSimpleBE, languages: readonly string[]): string {
@@ -97,6 +101,8 @@ export function TagWordsTable({
     onShowGenderChange,
     showProgress,
     onShowProgressChange,
+    sort,
+    onSort,
 }: TagWordsTableProps) {
     const { t } = useTranslation();
     const isMobile = useIsMobile();
@@ -117,6 +123,9 @@ export function TagWordsTable({
         showProgress,
         editable: canRemove,
         onOpenCell,
+        sort,
+        onSort,
+        t,
     });
     const columns: ColumnDef<WordSimpleBE>[] = [
         ...(showRemoveColumn

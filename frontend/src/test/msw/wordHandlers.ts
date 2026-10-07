@@ -269,11 +269,31 @@ export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) 
 
             const filtered = [...store.values()].filter((w) => matchesListFilters(w, callerId, url));
             const total = filtered.length;
-            const sorted = [...filtered].sort(compareNewestFirst);
+            // `?sort=EN&dir=asc|desc`: by the cell text of that language, ignoring case, empty cells last.
+            // The cursor of a sorted list is just the offset (the real one is a key + id; opaque to the client).
+            const sortLang = url.searchParams.get('sort');
+            const descending = url.searchParams.get('dir') === 'desc';
+            const cellText = (w: WordBE): string | null => {
+                const value = (simplifyWord(w) as unknown as Record<string, unknown>)[`data${sortLang}`];
+                return typeof value === 'string' ? value.toLowerCase() : null;
+            };
+            const sorted = [...filtered].sort(
+                sortLang
+                    ? (a, b) => {
+                          const [ka, kb] = [cellText(a), cellText(b)];
+                          if (ka === kb) return a.id < b.id ? -1 : 1;
+                          if (ka === null) return 1;
+                          if (kb === null) return -1;
+                          return (ka < kb ? -1 : 1) * (descending ? -1 : 1);
+                      }
+                    : compareNewestFirst,
+            );
 
             let afterCursor = sorted;
             const cursorParam = url.searchParams.get('cursor');
-            if (cursorParam !== null) {
+            if (cursorParam !== null && sortLang) {
+                afterCursor = sorted.slice(Number(cursorParam));
+            } else if (cursorParam !== null) {
                 const cursor = decodeCursor(cursorParam);
                 if (!cursor) {
                     return HttpResponse.json({ message: 'Invalid cursor' }, { status: 400 });
@@ -291,7 +311,9 @@ export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) 
             const hasMore = pageRows.length > limit;
             const rows = hasMore ? pageRows.slice(0, limit) : pageRows;
             const nextCursor = hasMore
-                ? encodeCursor(rows[rows.length - 1].createdAt, rows[rows.length - 1].id)
+                ? sortLang
+                    ? String(sorted.length - afterCursor.length + limit)
+                    : encodeCursor(rows[rows.length - 1].createdAt, rows[rows.length - 1].id)
                 : null;
 
             return HttpResponse.json({ items: rows.map(simplifyWord), nextCursor, total });

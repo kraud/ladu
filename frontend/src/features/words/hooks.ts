@@ -100,6 +100,8 @@ export function normalizeWordFilters(filters: WordListFilters): WordListFilters 
         pos: sortedOrUndefined(filters.pos),
         gender: sortedOrUndefined(filters.gender),
         tag: sortedOrUndefined(filters.tag),
+        sort: filters.sort,
+        dir: filters.sort ? (filters.dir ?? 'asc') : undefined,
     };
 }
 

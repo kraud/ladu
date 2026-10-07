@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { PlusIcon } from '@phosphor-icons/react';
+import { ArrowDownIcon, ArrowUpIcon, PlusIcon } from '@phosphor-icons/react';
 import type { TFunction } from 'i18next';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FlagIcon } from '@/components/common/FlagIcon';
@@ -9,6 +9,7 @@ import { partOfSpeechLabelKey } from '@/lib/words';
 import { PartOfSpeech } from '@/ts/enums';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 import { WordCell } from './WordCell';
+import type { LanguageSort } from './useLanguageSort';
 
 /** `Noun` -> `"review:table.posAbbr.noun"`, mirroring `lib/words.ts`'s `partOfSpeechLabelKey`. Exported for `FilterBar`'s PoS chips (Slice 7), same abbreviations as the Type column. */
 export function posAbbrKey(pos: PartOfSpeech): string {
@@ -38,6 +39,9 @@ export interface BuildColumnsOptions {
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
     /** Opens the tags dialog of a word (a click anywhere on its Tags cell). */
     onOpenTags?: (wordId: string) => void;
+    /** The active column sort, and the click on a language header. Without `onSort` the headers are plain text. */
+    sort?: LanguageSort | null;
+    onSort?: (lang: LangKey) => void;
 }
 
 export interface BuildLanguageColumnsOptions {
@@ -48,6 +52,40 @@ export interface BuildLanguageColumnsOptions {
     /** Threaded straight through to `WordCell` — see its own doc comment. */
     editable?: boolean;
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
+    /** The active column sort, and the click on a language header. Without `onSort` the headers are plain text. */
+    sort?: LanguageSort | null;
+    onSort?: (lang: LangKey) => void;
+    t?: TFunction;
+}
+
+/** A language header that sorts its column: A to Z, Z to A, then the default order (`useLanguageSort`). */
+function SortHeader({
+    langKey,
+    sort,
+    onSort,
+    t,
+}: {
+    langKey: LangKey;
+    sort: LanguageSort | null | undefined;
+    onSort: (lang: LangKey) => void;
+    t: TFunction;
+}) {
+    const dir = sort?.lang === langKey ? sort.dir : null;
+    const labelKey = dir === 'asc' ? 'review:table.sort.asc' : dir === 'desc' ? 'review:table.sort.desc' : 'review:table.sort.off';
+    return (
+        <button
+            type="button"
+            className="inline-flex cursor-pointer items-center gap-1.5 hover:text-foreground data-[sorted]:text-(--accent-strong)"
+            data-sorted={dir ?? undefined}
+            aria-label={t(labelKey, { lang: langKey })}
+            title={t(labelKey, { lang: langKey })}
+            onClick={() => onSort(langKey)}
+        >
+            <FlagIcon lang={langKey} /> {langKey}
+            {dir === 'asc' && <ArrowUpIcon size={12} weight="bold" aria-hidden="true" />}
+            {dir === 'desc' && <ArrowDownIcon size={12} weight="bold" aria-hidden="true" />}
+        </button>
+    );
 }
 
 /**
@@ -81,16 +119,19 @@ export function buildPartOfSpeechColumn(t: TFunction, size = 44): ColumnDef<Word
  * not that table's own row shape.
  */
 export function buildLanguageColumns(options: BuildLanguageColumnsOptions): ColumnDef<WordSimpleBE>[] {
-    const { languages, userId, showGender, showProgress, editable, onOpenCell } = options;
+    const { languages, userId, showGender, showProgress, editable, onOpenCell, sort, onSort, t } = options;
 
     return languages.map((langKey) => ({
         id: `lang_${langKey}`,
         accessorFn: (row) => row[`data${langKey}`] ?? '',
-        header: () => (
-            <span className="flex items-center gap-1.5">
-                <FlagIcon lang={langKey} /> {langKey}
-            </span>
-        ),
+        header: () =>
+            onSort && t ? (
+                <SortHeader langKey={langKey} sort={sort} onSort={onSort} t={t} />
+            ) : (
+                <span className="flex items-center gap-1.5">
+                    <FlagIcon lang={langKey} /> {langKey}
+                </span>
+            ),
         cell: ({ row }) => (
             <WordCell
                 row={row.original}
@@ -156,7 +197,7 @@ export function buildTagsColumn(
  * and Type columns come and go with their display switches.
  */
 export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSimpleBE>[] {
-    const { languages, userId, userName, showGender, showProgress, selectable, showOwner, showPos, t, onOpenCell, onOpenTags } =
+    const { languages, userId, userName, showGender, showProgress, selectable, showOwner, showPos, t, onOpenCell, onOpenTags, sort, onSort } =
         options;
 
     const selectColumn: ColumnDef<WordSimpleBE> = {
@@ -197,7 +238,7 @@ export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSi
         },
     };
 
-    const languageColumns = buildLanguageColumns({ languages, userId, showGender, showProgress, onOpenCell });
+    const languageColumns = buildLanguageColumns({ languages, userId, showGender, showProgress, onOpenCell, sort, onSort, t });
 
     return [
         ...(selectable ? [selectColumn] : []),

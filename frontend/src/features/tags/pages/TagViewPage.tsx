@@ -26,6 +26,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { accountLanguageOrder } from '@/features/words/review/search';
 import { CellDialog } from '@/features/words/review/CellDialog';
 import { useWordsInfinite } from '@/features/words/hooks';
+import { sortFilters, useLanguageSort } from '@/features/words/review/useLanguageSort';
 import type { LangKey } from '@/features/words/types';
 import { useDeleteTag, useFollowTag, useTag, useUnfollowTag, useUnlinkTagsFromWords } from '../hooks';
 import { tagErrorKey } from '../errors';
@@ -56,7 +57,8 @@ export function TagViewPage() {
 
     const [query, setQuery] = useState('');
     const debouncedQuery = useDebouncedCallback(query, SEARCH_DEBOUNCE_MS);
-    const wordsQuery = useWordsInfinite({ tag: [tagId], q: debouncedQuery || undefined });
+    const { sort, toggleSort } = useLanguageSort();
+    const wordsQuery = useWordsInfinite({ tag: [tagId], q: debouncedQuery || undefined, ...sortFilters(sort) });
     const wordRows = useMemo(() => wordsQuery.data?.pages.flatMap((page) => page.items) ?? [], [wordsQuery.data]);
     const wordTotal = wordsQuery.data?.pages[0]?.total ?? 0;
     const existingWordIds = useMemo(() => new Set(wordRows.map((row) => row.id)), [wordRows]);
@@ -283,6 +285,8 @@ export function TagViewPage() {
                         onShowGenderChange={setShowGender}
                         showProgress={showProgress}
                         onShowProgressChange={setShowProgress}
+                        sort={sort}
+                        onSort={toggleSort}
                     />
                     {relation === 'owned' && removeMode && <p className="hint">{t('tags:view.removeHint')}</p>}
                 </div>

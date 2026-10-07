@@ -74,6 +74,10 @@ function buildListQuery(params: GetWordsSimplifiedParams): URLSearchParams {
     for (const value of params.gender ?? []) search.append('gender', value);
     for (const value of params.tag ?? []) search.append('tag', value);
     if (params.q) search.set('q', params.q);
+    if (params.sort) {
+        search.set('sort', params.sort);
+        search.set('dir', params.dir ?? 'asc');
+    }
     if (params.cursor) search.set('cursor', params.cursor);
     if (params.limit !== undefined) search.set('limit', String(params.limit));
     return search;

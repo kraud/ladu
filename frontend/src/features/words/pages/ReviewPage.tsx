@@ -39,6 +39,7 @@ import { activeFilterCount, useFilterSections } from '../review/FilterBar';
 import { TagsDialog } from '../review/TagsDialog';
 import { ReviewTable } from '../review/ReviewTable';
 import { TableToolbar } from '../review/TableToolbar';
+import { sortFilters, useLanguageSort } from '../review/useLanguageSort';
 import {
     accountLanguageOrder,
     hasActiveFilters,
@@ -70,7 +71,8 @@ export function ReviewPage() {
     const filters = useMemo(() => reviewSearchToFilters(search), [search]);
     const filtersKey = JSON.stringify(filters);
 
-    const wordsQuery = useWordsInfinite(filters);
+    const { sort, toggleSort } = useLanguageSort();
+    const wordsQuery = useWordsInfinite({ ...filters, ...sortFilters(sort) });
     const rows = useMemo(
         () => wordsQuery.data?.pages.flatMap((page) => page.items) ?? [],
         [wordsQuery.data],
@@ -297,6 +299,8 @@ export function ReviewPage() {
                         total={total}
                         onFetchNextPage={() => void wordsQuery.fetchNextPage()}
                         onRetry={() => void wordsQuery.refetch()}
+                        sort={sort}
+                        onSort={toggleSort}
                         rowSelection={rowSelection}
                         onRowSelectionChange={setRowSelection}
                         hasActiveFilters={hasActiveFilters(search)}

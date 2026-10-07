@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 import { buildWordColumns } from './columns';
+import type { LanguageSort } from './useLanguageSort';
 
 const SKELETON_ROWS = 8;
 const SKELETON_MORE_ROWS = 3;
@@ -70,6 +71,9 @@ export interface ReviewTableProps {
     showPos: boolean;
     /** A click on a Tags cell. */
     onOpenTags?: (wordId: string) => void;
+    /** The active column sort, and the click on a language header. */
+    sort?: LanguageSort | null;
+    onSort?: (lang: LangKey) => void;
     /**
      * Phone layout: no loaded/total text, and the footer only shows when "Load more" is needed. Rows have no
      * checkbox either: a long press selects the first row, then a tap selects or unselects any row.
@@ -109,6 +113,8 @@ export function ReviewTable({
     onAddWord,
     onOpenCell,
     onOpenTags,
+    sort,
+    onSort,
     compact = false,
 }: ReviewTableProps) {
     const { t } = useTranslation();
@@ -127,8 +133,10 @@ export function ReviewTable({
                 t,
                 onOpenCell,
                 onOpenTags,
+                sort,
+                onSort,
             }),
-        [languages, userId, userName, showGender, showProgress, compact, showOwner, showPos, t, onOpenCell, onOpenTags],
+        [languages, userId, userName, showGender, showProgress, compact, showOwner, showPos, t, onOpenCell, onOpenTags, sort, onSort],
     );
 
     const table = useReactTable({
