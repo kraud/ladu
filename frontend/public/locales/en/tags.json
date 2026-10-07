@@ -55,7 +55,8 @@
     "unfollow": "Unfollow",
     "clone": "Clone",
     "follow": "Follow",
-    "addWords": "Add words"
+    "addWords": "Add words",
+    "languages": "Languages of the words: {{list}}"
   },
   "form": {
     "createTitle": "New tag",

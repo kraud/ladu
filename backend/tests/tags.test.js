@@ -274,6 +274,45 @@ describe('GET /api/tags - List Tags', () => {
 });
 
 // ===========================================================================
+// Languages of a tag's words (the card flags)
+// ===========================================================================
+describe('Tag summary - languages of the words', () => {
+    let owner;
+
+    beforeEach(async () => {
+        owner = await registerAndLogin();
+    });
+
+    it('lists each language of the tag\'s words once, sorted', async () => {
+        const w1 = await createWord(owner.token, 'Noun', 'singularEN', 'apple');
+        const w2 = await createWord(owner.token, 'Noun', 'singularEN', 'pear');
+        const tag = await createTag(owner.token, { label: 'Fruit', wordIds: [w1.id, w2.id] });
+
+        expect(tag.body.languages).toEqual(['English', 'Estonian']);
+    });
+
+    it('is empty for a tag without words', async () => {
+        const tag = await createTag(owner.token, { label: 'Empty' });
+        expect(tag.body.languages).toEqual([]);
+    });
+
+    it('is empty for a viewer who cannot see the words of the tag', async () => {
+        const word = await createWord(owner.token, 'Noun', 'singularEN', 'apple');
+        const tag = await createTag(owner.token, { label: 'Fruit', visibility: 'Public', wordIds: [word.id] });
+        const stranger = await registerAndLogin('Other', 'other@test.com', 'other');
+        await request(app).post(`/api/tags/${tag.body.id}/follow`).set('Authorization', `Bearer ${stranger.token}`);
+        await request(app)
+            .patch(`/api/tags/${tag.body.id}`).set('Authorization', `Bearer ${owner.token}`)
+            .send({ visibility: 'Private' });
+
+        const seen = await request(app).get('/api/tags?scope=followed').set('Authorization', `Bearer ${stranger.token}`);
+        const row = seen.body.items.find((x) => x.id === tag.body.id);
+        expect(row.isAvailable).toBe(false);
+        expect(row.languages).toEqual([]);
+    });
+});
+
+// ===========================================================================
 // GET /api/tags/:id - Get Tag By ID
 // ===========================================================================
 describe('GET /api/tags/:id - Get Tag By ID', () => {

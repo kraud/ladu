@@ -55,7 +55,8 @@
     "unfollow": "Dejar de seguir",
     "clone": "Clonar",
     "follow": "Seguir",
-    "addWords": "Añadir palabras"
+    "addWords": "Añadir palabras",
+    "languages": "Idiomas de las palabras: {{list}}"
   },
   "form": {
     "createTitle": "Nueva etiqueta",

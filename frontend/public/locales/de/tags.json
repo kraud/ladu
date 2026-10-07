@@ -55,7 +55,8 @@
     "unfollow": "Nicht mehr folgen",
     "clone": "Klonen",
     "follow": "Folgen",
-    "addWords": "Wörter hinzufügen"
+    "addWords": "Wörter hinzufügen",
+    "languages": "Sprachen der Wörter: {{list}}"
   },
   "form": {
     "createTitle": "Neuer Tag",

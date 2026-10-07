@@ -62,6 +62,8 @@ export interface TagSummary {
     updatedAt: string;
     author: TagAuthor;
     wordCount: number;
+    /** The languages the tag's words have (labels such as `"English"`). Empty when the caller cannot see the words. */
+    languages: string[];
     followerCount: number;
     /** The caller authored this tag. */
     isOwner: boolean;

@@ -55,7 +55,8 @@
     "unfollow": "Lõpeta jälgimine",
     "clone": "Kloon",
     "follow": "Jälgi",
-    "addWords": "Lisa sõnu"
+    "addWords": "Lisa sõnu",
+    "languages": "Sõnade keeled: {{list}}"
   },
   "form": {
     "createTitle": "Uus tag",

@@ -65,6 +65,9 @@ interface TagSummary {
   // does not inherit it.
   author: { id: string; username: string; badges: string[] };
   wordCount: number;
+  // The languages the tag's words have (labels, sorted): the cards show the ones the viewer uses.
+  // Empty when the viewer cannot see the tag's words (`isAvailable` false).
+  languages: string[];
   followerCount: number;
   isOwner: boolean;
   isFollowing: boolean;
@@ -237,7 +240,7 @@ const buildTagSummaries = async (
     ),
   ];
 
-  const [authorRows, sourceTagRows, wordCountRows, followerCountRows, followingRows, friendIds, badgesByAuthorId] =
+  const [authorRows, sourceTagRows, wordCountRows, languageRows, followerCountRows, followingRows, friendIds, badgesByAuthorId] =
     await Promise.all([
       db.select({ id: users.id, username: users.username }).from(users).where(inArray(users.id, authorIds)),
       sourceTagIds.length > 0
@@ -248,6 +251,11 @@ const buildTagSummaries = async (
         .from(tagWords)
         .where(inArray(tagWords.tagId, tagIds))
         .groupBy(tagWords.tagId),
+      db
+        .selectDistinct({ tagId: tagWords.tagId, language: translations.language })
+        .from(tagWords)
+        .innerJoin(translations, eq(translations.wordId, tagWords.wordId))
+        .where(inArray(tagWords.tagId, tagIds)),
       db
         .select({ tagId: userFollowingTags.tagId, value: sql<number>`count(*)::int` })
         .from(userFollowingTags)
@@ -266,12 +274,17 @@ const buildTagSummaries = async (
   const authorById = new Map(authorRows.map((user) => [user.id, user]));
   const sourceTagById = new Map(sourceTagRows.map((tag) => [tag.id, tag]));
   const wordCountByTagId = new Map(wordCountRows.map((row) => [row.tagId, row.value]));
+  const languagesByTagId = new Map<string, string[]>();
+  for (const row of languageRows) {
+    languagesByTagId.set(row.tagId, [...(languagesByTagId.get(row.tagId) ?? []), row.language].sort());
+  }
   const followerCountByTagId = new Map(followerCountRows.map((row) => [row.tagId, row.value]));
   const followedTagIdSet = new Set(followingRows.map((row) => row.tagId));
 
   return tagRows.map((tag) => {
     const author = authorById.get(tag.authorId);
     const sourceTag = tag.sourceTagId ? sourceTagById.get(tag.sourceTagId) : undefined;
+    const isAvailable = computeIsAvailable(tag, viewerId, friendIds);
     return {
       id: tag.id,
       label: tag.label,
@@ -287,10 +300,11 @@ const buildTagSummaries = async (
         badges: badgesByAuthorId.get(tag.authorId) ?? [],
       },
       wordCount: wordCountByTagId.get(tag.id) ?? 0,
+      languages: isAvailable ? (languagesByTagId.get(tag.id) ?? []) : [],
       followerCount: followerCountByTagId.get(tag.id) ?? 0,
       isOwner: tag.authorId === viewerId,
       isFollowing: followedTagIdSet.has(tag.id),
-      isAvailable: computeIsAvailable(tag, viewerId, friendIds),
+      isAvailable,
       sourceTag: sourceTag ? { id: sourceTag.id, label: sourceTag.label } : null,
     };
   });

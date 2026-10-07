@@ -202,6 +202,7 @@ describe('FilterBar — Tags group (D15/D17)', () => {
             author: { id: 'u1', username: 'kai', badges: [] },
             wordCount: 0,
             followerCount: 0,
+            languages: [],
             isOwner: true,
             isFollowing: false,
             isAvailable: true,

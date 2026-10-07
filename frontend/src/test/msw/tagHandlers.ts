@@ -41,6 +41,8 @@ export interface SeedTag {
     /** User ids that already follow this tag. */
     followerIds?: string[];
     sourceTag?: TagSourceRef | null;
+    /** Languages (labels) of the tag's words, for the card flags. */
+    languages?: string[];
 }
 
 interface InternalTag {
@@ -52,6 +54,7 @@ interface InternalTag {
     wordIds: Set<string>;
     followerIds: Set<string>;
     sourceTag: TagSourceRef | null;
+    languages: string[];
     createdAt: string;
     updatedAt: string;
 }
@@ -75,6 +78,7 @@ function toSummary(tag: InternalTag, viewerId: string, authorOf: (id: string) =>
         updatedAt: tag.updatedAt,
         author: authorOf(tag.authorId),
         wordCount: tag.wordIds.size,
+        languages: isAvailable ? tag.languages : [],
         followerCount: tag.followerIds.size,
         isOwner,
         isFollowing,
@@ -155,6 +159,7 @@ export function makeTagHandlers(opts: {
             wordIds: new Set(s.wordIds ?? []),
             followerIds: new Set(s.followerIds ?? []),
             sourceTag: s.sourceTag ?? null,
+            languages: s.languages ?? [],
             createdAt: now,
             updatedAt: now,
         };
