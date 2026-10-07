@@ -82,7 +82,11 @@
     "visibilityHint": "A copy of someone else's tag starts Private.",
     "independentNote": "The copy is fully independent — its words (with all translations) become yours. Later changes to the original won't affect it.",
     "endsFollowNote": "Because you'll own a copy, your follow of the original ends.",
-    "confirm": "Create copy"
+    "confirm": "Create copy",
+    "keepTag": "Keep the tag",
+    "keepTagHintOn": "The copy is a tag with all its words.",
+    "keepTagHintOff": "Only the words are copied, with no tag. Only you can see them.",
+    "confirmWords": "Copy words"
   },
   "wordPicker": {
     "label": "Add words now",
@@ -152,7 +156,9 @@
     "toastDeleted": "Tag \"{{label}}\" deleted — its words stay on your shelf",
     "toastFollowed": "You're now following \"{{label}}\"",
     "toastUnfollowed": "Unfollowed \"{{label}}\"",
-    "toastCloned": "Copy of \"{{label}}\" created — it's all yours now"
+    "toastCloned": "Copy of \"{{label}}\" created — it's all yours now",
+    "toastWordsCopied_one": "{{count}} word copied to your account",
+    "toastWordsCopied_other": "{{count}} words copied to your account"
   },
   "words": {
     "searchPlaceholder": "Search in this tag's words…",
@@ -199,7 +205,8 @@
     "unavailableTitle": "Words are hidden right now",
     "unavailableDescription": "The owner made this tag Private. You're still following it — its words return to your Words list when it becomes Public again.",
     "removeHint": "Removing a word from the tag doesn't delete it — it stays on your shelf.",
-    "openCopy": "Open it"
+    "openCopy": "Open it",
+    "openWords": "View words"
   },
   "picker": {
     "addTitle_one": "Add tags to {{count}} word",

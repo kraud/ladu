@@ -12,6 +12,7 @@ import { apiClient } from '@/api/client';
 import type { CursorPage } from '@/api/types';
 import type {
     CloneTagBody,
+    CloneTagResult,
     CreateTagBody,
     LinkTagsToWordsBody,
     LinkTagsToWordsResponse,
@@ -94,10 +95,17 @@ export async function unfollowTag(id: string): Promise<TagSummary> {
     return data;
 }
 
-/** `POST /api/tags/:id/clone` — 400 own tag, 403 source not Public, 400 invalid visibility. */
-export async function cloneTag(id: string, body: CloneTagBody): Promise<TagSummary> {
-    const { data } = await apiClient.post<TagSummary>(`/tags/${encodeURIComponent(id)}/clone`, body);
-    return data;
+/**
+ * `POST /api/tags/:id/clone` — 400 own tag, 403 source not Public, 400 invalid visibility.
+ * The server answers with the new tag's summary, or `{ tag: null, clonedWordCount }` when `keepTag` is false.
+ */
+export async function cloneTag(id: string, body: CloneTagBody): Promise<CloneTagResult> {
+    const { data } = await apiClient.post<TagSummary | { tag: null; clonedWordCount: number }>(
+        `/tags/${encodeURIComponent(id)}/clone`,
+        body,
+    );
+    if ('id' in data) return { tag: data, wordCount: data.wordCount };
+    return { tag: null, wordCount: data.clonedWordCount };
 }
 
 /** `POST /api/tags/links` — 403 for the whole call if any tag or word isn't the caller's own. */

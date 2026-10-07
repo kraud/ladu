@@ -105,9 +105,20 @@ export interface UpdateTagBody {
     visibility?: TagVisibility;
 }
 
-/** `POST /api/tags/:id/clone` body — the caller's chosen visibility for the copy (D11), not the source's. */
+/**
+ * `POST /api/tags/:id/clone` body — the caller's chosen visibility for the copy (D11), not the source's.
+ * `keepTag: false` copies only the words, with no tag: no visibility then (the words are the caller's own).
+ */
 export interface CloneTagBody {
-    visibility: TagVisibility;
+    visibility?: TagVisibility;
+    /** Defaults to `true` on the server. */
+    keepTag?: boolean;
+}
+
+/** What a clone gave the caller: the new tag (`null` when only the words were copied) and how many words. */
+export interface CloneTagResult {
+    tag: TagSummary | null;
+    wordCount: number;
 }
 
 /**

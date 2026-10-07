@@ -235,11 +235,24 @@ describe('useCloneTag', () => {
         result.current.mutate({ id: 'tag-public', body: { visibility: 'Private' } });
         await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-        expect(result.current.data?.isOwner).toBe(true);
-        expect(result.current.data?.visibility).toBe('Private');
+        expect(result.current.data?.tag?.isOwner).toBe(true);
+        expect(result.current.data?.tag?.visibility).toBe('Private');
         expect(result.current.data?.wordCount).toBe(1);
-        expect(result.current.data?.sourceTag).toEqual({ id: 'tag-public', label: 'Public one' });
+        expect(result.current.data?.tag?.sourceTag).toEqual({ id: 'tag-public', label: 'Public one' });
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: tagKeys.all });
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: wordKeys.all });
+    });
+
+    it('copies only the words with keepTag false: no tag in the result, and the words list is refreshed', async () => {
+        const { wrapper, invalidateSpy } = setup([
+            { id: 'tag-public', authorId: OTHER, label: 'Public one', visibility: 'Public', wordIds: ['word-1', 'word-2'] },
+        ]);
+        const { result } = renderHook(() => useCloneTag(), { wrapper });
+
+        result.current.mutate({ id: 'tag-public', body: { keepTag: false } });
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+        expect(result.current.data).toEqual({ tag: null, wordCount: 2 });
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: wordKeys.all });
     });
 });

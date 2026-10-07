@@ -14,27 +14,30 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCloneTag } from '../hooks';
 import { tagErrorKey } from '../errors';
 import { tagRelation } from './TagBadge';
-import type { TagSummary, TagVisibility } from '../types';
+import type { CloneTagResult, TagSummary, TagVisibility } from '../types';
 
 export interface CloneTagDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     tag: TagSummary | null;
-    onCloned?: (clone: TagSummary) => void;
+    onCloned?: (result: CloneTagResult) => void;
 }
 
 export function CloneTagDialog({ open, onOpenChange, tag, onCloned }: CloneTagDialogProps) {
     const { t } = useTranslation();
     const cloneTag = useCloneTag();
     const [visibility, setVisibility] = useState<TagVisibility>('Private');
+    const [keepTag, setKeepTag] = useState(true);
 
     useEffect(() => {
         if (open) {
             setVisibility('Private');
+            setKeepTag(true);
             cloneTag.reset();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,11 +52,12 @@ export function CloneTagDialog({ open, onOpenChange, tag, onCloned }: CloneTagDi
 
     function handleConfirm() {
         cloneTag.mutate(
-            { id: tag!.id, body: { visibility } },
+            // Words only: no visibility, since the words have no tag and are private to the caller.
+            { id: tag!.id, body: keepTag ? { visibility } : { keepTag: false } },
             {
-                onSuccess: (clone) => {
+                onSuccess: (result) => {
                     onOpenChange(false);
-                    onCloned?.(clone);
+                    onCloned?.(result);
                 },
             },
         );
@@ -82,6 +86,17 @@ export function CloneTagDialog({ open, onOpenChange, tag, onCloned }: CloneTagDi
                         </span>
                     </div>
 
+                    <div className="flex flex-col gap-1">
+                        <label className="flex cursor-pointer items-center gap-2 text-sm">
+                            <Checkbox checked={keepTag} onCheckedChange={(checked) => setKeepTag(Boolean(checked))} />
+                            {t('tags:clone.keepTag')}
+                        </label>
+                        <span className="text-xs text-(--muted)">
+                            {t(keepTag ? 'tags:clone.keepTagHintOn' : 'tags:clone.keepTagHintOff')}
+                        </span>
+                    </div>
+
+                    {keepTag && (
                     <div className="flex flex-col gap-1.5">
                         <span className="label">{t('tags:clone.visibilityLabel')}</span>
                         <RadioGroup
@@ -100,6 +115,7 @@ export function CloneTagDialog({ open, onOpenChange, tag, onCloned }: CloneTagDi
                         </RadioGroup>
                         <span className="text-xs text-(--muted)">{t('tags:clone.visibilityHint')}</span>
                     </div>
+                    )}
 
                     <div className="flex items-start gap-2 rounded-md bg-(--success-soft) px-3 py-2 text-sm text-(--success)">
                         <CheckIcon size={14} weight="bold" className="mt-0.5 shrink-0" />
@@ -123,7 +139,7 @@ export function CloneTagDialog({ open, onOpenChange, tag, onCloned }: CloneTagDi
                         {t('common:buttons.cancel')}
                     </Button>
                     <Button type="button" onClick={handleConfirm} disabled={cloneTag.isPending}>
-                        {t('tags:clone.confirm')}
+                        {t(keepTag ? 'tags:clone.confirm' : 'tags:clone.confirmWords')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

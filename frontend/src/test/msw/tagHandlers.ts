@@ -418,18 +418,22 @@ export function makeTagHandlers(opts: {
                     { status: 403 },
                 );
             }
-            if (!VALID_VISIBILITIES.includes(body.visibility)) {
+            const keepTag = body.keepTag !== false;
+            if (keepTag && !VALID_VISIBILITIES.includes(body.visibility ?? '')) {
                 return HttpResponse.json({ message: 'Invalid visibility status' }, { status: 400 });
             }
 
             // D11: cloning a tag you follow removes the follow.
             source.followerIds.delete(callerId);
 
+            // Words only: the fake keeps no word copies; it answers like the server does.
+            if (!keepTag) return HttpResponse.json({ tag: null, clonedWordCount: source.wordIds.size });
+
             const clone = hydrate({
                 authorId: callerId,
                 label: resolveUniqueLabel(source.label, callerId),
                 description: source.description,
-                visibility: body.visibility,
+                visibility: body.visibility as TagVisibility,
                 wordIds: [...source.wordIds],
                 sourceTag: { id: source.id, label: source.label },
             });

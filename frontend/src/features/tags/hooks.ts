@@ -155,8 +155,8 @@ export function useCloneTag() {
 
     return useMutation({
         mutationFn: ({ id, body }: { id: string; body: CloneTagBody }) => tagApi.cloneTag(id, body),
-        onSuccess: (clone) => {
-            queryClient.setQueryData(tagKeys.detail(clone.id), clone);
+        onSuccess: ({ tag }) => {
+            if (tag) queryClient.setQueryData(tagKeys.detail(tag.id), tag);
             invalidateTagsAndWords(queryClient);
         },
     });

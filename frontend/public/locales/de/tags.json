@@ -82,7 +82,11 @@
     "visibilityHint": "Eine Kopie des Tags einer anderen Person beginnt als Privat.",
     "independentNote": "Die Kopie ist vollständig unabhängig — ihre Wörter (mit allen Übersetzungen) gehören dann dir. Spätere Änderungen am Original wirken sich nicht darauf aus.",
     "endsFollowNote": "Da du eine eigene Kopie besitzt, endet dein Folgen des Originals.",
-    "confirm": "Kopie erstellen"
+    "confirm": "Kopie erstellen",
+    "keepTag": "Tag behalten",
+    "keepTagHintOn": "Die Kopie ist ein Tag mit allen seinen Wörtern.",
+    "keepTagHintOff": "Nur die Wörter werden kopiert, ohne Tag. Nur du siehst sie.",
+    "confirmWords": "Wörter kopieren"
   },
   "wordPicker": {
     "label": "Jetzt Wörter hinzufügen",
@@ -152,7 +156,9 @@
     "toastDeleted": "Tag \"{{label}}\" gelöscht — seine Wörter bleiben bei dir erhalten",
     "toastFollowed": "Du folgst jetzt \"{{label}}\"",
     "toastUnfollowed": "\"{{label}}\" nicht mehr gefolgt",
-    "toastCloned": "Kopie von \"{{label}}\" erstellt — sie gehört jetzt ganz dir"
+    "toastCloned": "Kopie von \"{{label}}\" erstellt — sie gehört jetzt ganz dir",
+    "toastWordsCopied_one": "{{count}} Wort in dein Konto kopiert",
+    "toastWordsCopied_other": "{{count}} Wörter in dein Konto kopiert"
   },
   "words": {
     "searchPlaceholder": "In den Wörtern dieses Tags suchen…",
@@ -199,7 +205,8 @@
     "unavailableTitle": "Wörter sind momentan ausgeblendet",
     "unavailableDescription": "Der Besitzer hat diesen Tag auf Privat gesetzt. Du folgst ihm weiterhin — seine Wörter kehren in deine Übersicht zurück, sobald er wieder öffentlich wird.",
     "removeHint": "Ein Wort aus dem Tag zu entfernen löscht es nicht — es bleibt bei dir erhalten.",
-    "openCopy": "Öffnen"
+    "openCopy": "Öffnen",
+    "openWords": "Wörter ansehen"
   },
   "picker": {
     "addTitle_one": "Tags zu {{count}} Wort hinzufügen",

@@ -102,6 +102,52 @@ describe('CloneTagDialog', () => {
         expect(clone?.sourceTag).toEqual({ id: 'seed-kitchen', label: 'Kitchen' });
     });
 
+    describe('keep the tag', () => {
+        function open() {
+            const fake = makeTagHandlers({
+                callerId: ME,
+                seedTags: [{ id: 'seed-kitchen', authorId: OTHER, label: 'Kitchen', visibility: 'Public' }],
+            });
+            server.use(...fake.handlers);
+            const onCloned = vi.fn();
+            renderWithProviders(
+                <CloneTagDialog open onOpenChange={vi.fn()} tag={makeTag({ id: 'seed-kitchen' })} onCloned={onCloned} />,
+            );
+            return { fake, onCloned };
+        }
+
+        it('is checked by default, with the visibility choice shown', () => {
+            open();
+            expect(screen.getByRole('checkbox', { name: 'Keep the tag' })).toBeChecked();
+            expect(screen.getByText('Visibility of your copy')).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: 'Create copy' })).toBeInTheDocument();
+        });
+
+        it('hides the visibility choice when unchecked, and copies only the words', async () => {
+            const { fake, onCloned } = open();
+            const user = userEvent.setup();
+
+            await user.click(screen.getByRole('checkbox', { name: 'Keep the tag' }));
+            expect(screen.queryByText('Visibility of your copy')).not.toBeInTheDocument();
+            expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+
+            await user.click(screen.getByRole('button', { name: 'Copy words' }));
+
+            await waitFor(() => expect(onCloned).toHaveBeenCalledWith({ tag: null, wordCount: 0 }));
+            // The request carries no visibility, and no tag was created.
+            expect(fake.requests.at(-1)?.body).toEqual({ keepTag: false });
+            expect([...fake.store.values()]).toHaveLength(1);
+        });
+
+        it('brings the visibility choice back when checked again', async () => {
+            open();
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('checkbox', { name: 'Keep the tag' }));
+            await user.click(screen.getByRole('checkbox', { name: 'Keep the tag' }));
+            expect(screen.getByText('Visibility of your copy')).toBeInTheDocument();
+        });
+    });
+
     it('shows an inline error and stays open when the clone request fails', async () => {
         const fake = makeTagHandlers({
             callerId: ME,

@@ -309,11 +309,15 @@ export function TagViewPage() {
                 open={cloning}
                 onOpenChange={setCloning}
                 tag={tag}
-                onCloned={(clone) =>
+                onCloned={({ tag: clone, wordCount }) =>
                     resolveLoadingToastSuccess(
                         startLoadingToast(t('common:status.saving')),
-                        t('tags:page.toastCloned', { label: clone.label }),
-                        { label: t('tags:view.openCopy'), onClick: () => void navigate({ to: '/tag/$tagId', params: { tagId: clone.id } }) },
+                        clone
+                            ? t('tags:page.toastCloned', { label: clone.label })
+                            : t('tags:page.toastWordsCopied', { count: wordCount }),
+                        clone
+                            ? { label: t('tags:view.openCopy'), onClick: () => void navigate({ to: '/tag/$tagId', params: { tagId: clone.id } }) }
+                            : { label: t('tags:view.openWords'), onClick: () => void navigate({ to: '/words' }) },
                     )
                 }
             />
