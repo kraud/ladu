@@ -150,6 +150,7 @@
   },
   "session": {
     "progress": "Harjutus {{current}} / {{total}}",
+    "progressShort": "{{current}} / {{total}}",
     "correct": "<b>{{count}}</b> õiget",
     "leave": "Lahku sessioonist",
     "leaveDialog": {

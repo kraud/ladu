@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { sessionScore, type Session } from '../session';
 import { LeaveSessionDialog } from './LeaveSessionDialog';
 
@@ -13,16 +14,17 @@ import { LeaveSessionDialog } from './LeaveSessionDialog';
 export function ProgressHeader({ session }: { session: Session }) {
     const { t } = useTranslation();
     const [confirming, setConfirming] = useState(false);
+    const isMobile = useIsMobile();
     const score = sessionScore(session);
     const percent = score.total === 0 ? 0 : Math.round((score.answered / score.total) * 100);
 
     return (
-        <header className="sticky top-13 z-10 flex flex-wrap items-center gap-x-3.5 gap-y-2 rounded-lg border border-border bg-[color-mix(in_oklch,var(--bg)_92%,transparent)] px-3.5 py-2 backdrop-blur-md">
+        <header className="sticky top-13 z-10 flex flex-wrap items-center gap-x-3.5 gap-y-2 rounded-lg border border-border bg-[color-mix(in_oklch,var(--bg)_92%,transparent)] px-3.5 py-2 max-[920px]:gap-x-2 max-[920px]:px-2.5 backdrop-blur-md">
             <h1
                 className="text-[17px] font-semibold whitespace-nowrap"
                 style={{ fontFamily: 'var(--font-display)' }}
             >
-                {t('practice:session.progress', { current: session.current + 1, total: session.exercises.length })}
+                {t(isMobile ? 'practice:session.progressShort' : 'practice:session.progress', { current: session.current + 1, total: session.exercises.length })}
             </h1>
             <span aria-hidden className="text-(--fg-soft2)">
                 ·
@@ -33,14 +35,14 @@ export function ProgressHeader({ session }: { session: Session }) {
             <span
                 aria-hidden
                 data-testid="meter"
-                className="h-1 min-w-20 flex-[1_1_120px] overflow-hidden rounded-sm bg-(--fg-soft2)"
+                className="h-1 min-w-8 flex-[1_1_120px] max-[920px]:flex-[1_1_40px] overflow-hidden rounded-sm bg-(--fg-soft2)"
             >
                 <span
                     className="block h-full rounded-sm bg-(--accent) transition-[width] duration-200"
                     style={{ width: `${percent}%` }}
                 />
             </span>
-            <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(true)}>
+            <Button type="button" variant="ghost" size="sm" className="max-[920px]:px-1.5" onClick={() => setConfirming(true)}>
                 {t('practice:session.leave')}
             </Button>
             <LeaveSessionDialog open={confirming} onOpenChange={setConfirming} session={session} />

@@ -38,7 +38,11 @@
     },
     "notImplemented": "This function is not ready yet, we're sorry!",
     "goToAccount": "Go to Account",
-    "menu": "Menu"
+    "menu": "Menu",
+    "quick": {
+      "randomPractice": "Random practice",
+      "newWord": "New word"
+    }
   },
   "theme": {
     "switchToDark": "Switch to dark theme",

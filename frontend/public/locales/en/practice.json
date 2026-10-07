@@ -150,6 +150,7 @@
   },
   "session": {
     "progress": "Exercise {{current}} of {{total}}",
+    "progressShort": "{{current}} of {{total}}",
     "correct": "<b>{{count}}</b> correct",
     "leave": "Leave session",
     "leaveDialog": {

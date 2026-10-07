@@ -38,7 +38,11 @@
     },
     "notImplemented": "Esta funcionalidad aún no está implementada. ¡Perdón!",
     "goToAccount": "Ir a la cuenta",
-    "menu": "Menú"
+    "menu": "Menú",
+    "quick": {
+      "randomPractice": "Práctica aleatoria",
+      "newWord": "Nueva palabra"
+    }
   },
   "theme": {
     "switchToDark": "Cambiar al tema oscuro",

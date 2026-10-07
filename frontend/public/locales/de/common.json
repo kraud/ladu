@@ -38,7 +38,11 @@
     },
     "notImplemented": "Diese Funktion ist noch nicht bereit, es tut uns leid!",
     "goToAccount": "Zum Konto",
-    "menu": "Menü"
+    "menu": "Menü",
+    "quick": {
+      "randomPractice": "Zufällig üben",
+      "newWord": "Neues Wort"
+    }
   },
   "theme": {
     "switchToDark": "Zum dunklen Design wechseln",
