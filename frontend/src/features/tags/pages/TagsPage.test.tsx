@@ -59,7 +59,7 @@ describe('TagsPage — listing and scopes', () => {
         const { router } = await renderApp({ initialEntry: '/tags', session: SESSION });
         await screen.findByText('Travel');
 
-        await user.click(screen.getByRole('button', { name: 'Owned' }));
+        await user.click(screen.getByRole('button', { name: 'Yours' }));
 
         await waitFor(() => expect(screen.queryByText('Travel')).not.toBeInTheDocument());
         expect(screen.getByText('Kitchen')).toBeInTheDocument();
@@ -181,34 +181,6 @@ describe('TagsPage — follow / unfollow', () => {
     });
 });
 
-describe('TagsPage — delete', () => {
-    it('Delete asks for confirmation with a pluralized word count, then deletes', async () => {
-        setUp([ownedTag('Kitchen', 'tag-1', { wordIds: ['w1', 'w2', 'w3'] })]);
-        const user = userEvent.setup();
-        await renderApp({ initialEntry: '/tags', session: SESSION });
-        await screen.findByText('Kitchen');
-
-        await user.click(screen.getByRole('button', { name: 'Delete' }));
-        expect(screen.getByText('Delete tag?')).toBeInTheDocument();
-        expect(screen.getByText(/"Kitchen" holds 3 words/)).toBeInTheDocument();
-
-        await user.click(screen.getAllByRole('button', { name: 'Delete' }).at(-1)!);
-
-        expect(await screen.findByText('Tag "Kitchen" deleted — its words stay on your shelf')).toBeInTheDocument();
-        await waitFor(() => expect(screen.queryByText('Kitchen')).not.toBeInTheDocument());
-    });
-
-    it('uses the singular wording for a tag holding exactly one word', async () => {
-        setUp([ownedTag('Kitchen', 'tag-1', { wordIds: ['w1'] })]);
-        const user = userEvent.setup();
-        await renderApp({ initialEntry: '/tags', session: SESSION });
-        await screen.findByText('Kitchen');
-
-        await user.click(screen.getByRole('button', { name: 'Delete' }));
-        expect(screen.getByText(/"Kitchen" holds 1 word\./)).toBeInTheDocument();
-    });
-});
-
 describe('TagsPage — clone', () => {
     it('Clone on a discover card opens the clone dialog and confirms', async () => {
         setUp([discoverTag('Travel')]);
@@ -224,26 +196,6 @@ describe('TagsPage — clone', () => {
     });
 });
 
-describe('TagsPage — edit', () => {
-    it('Edit on an owned card opens the form pre-filled, and saving updates the card', async () => {
-        setUp([ownedTag('Kitchen')]);
-        const user = userEvent.setup();
-        await renderApp({ initialEntry: '/tags', session: SESSION });
-        await screen.findByText('Kitchen');
-
-        await user.click(screen.getByRole('button', { name: 'Edit' }));
-        const labelInput = screen.getByLabelText(/Label/);
-        expect(labelInput).toHaveValue('Kitchen');
-
-        await user.clear(labelInput);
-        await user.type(labelInput, 'Cooking');
-        await user.click(screen.getByRole('button', { name: 'Save changes' }));
-
-        expect(await screen.findByText('"Cooking" updated')).toBeInTheDocument();
-        expect(screen.getByText('Cooking')).toBeInTheDocument();
-    });
-});
-
 describe('TagsPage — author badge', () => {
     it('shows the badge on a card whose author has one, and not on the others', async () => {
         setUp(
@@ -256,10 +208,10 @@ describe('TagsPage — author badge', () => {
         await renderApp({ initialEntry: '/tags?scope=discover', session: SESSION });
 
         expect(await screen.findByText('Cooking')).toBeInTheDocument();
-        // One badge on the page: the card of the badged author.
-        const badges = screen.getAllByText('Official');
+        // One icon on the page (after the title), on the badged author's card.
+        const badges = screen.getAllByRole('img', { name: 'Official Ladu account' });
         expect(badges).toHaveLength(1);
-        expect(badges[0].closest('.tagcard')).toHaveTextContent('Travel');
+        badges.forEach((badge) => expect(badge.closest('.tagcard')).toHaveTextContent('Travel'));
     });
 });
 
@@ -270,33 +222,29 @@ describe('TagsPage — author filter', () => {
         { id: 'tag-official', authorId: OTHER, label: 'Travel', visibility: 'Public' },
         { id: 'tag-plain', authorId: PLAIN, label: 'Cooking', visibility: 'Public' },
     ];
-    const authorSelect = () => screen.getByRole('combobox', { name: 'Author' });
-    const pick = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
-        await user.click(authorSelect());
-        await user.click(await screen.findByRole('option', { name }));
-    };
+    const verifiedBox = () => screen.getByRole('checkbox', { name: 'Verified' });
 
-    it('starts on "Anyone", shows every author and sends no badge parameter', async () => {
+    it('starts unchecked, shows every author and sends no badge parameter', async () => {
         const fake = setUp(seedDiscover(), BADGED);
         await renderApp({ initialEntry: '/tags?scope=discover', session: SESSION });
 
         expect(await screen.findByText('Travel')).toBeInTheDocument();
         expect(screen.getByText('Cooking')).toBeInTheDocument();
-        expect(authorSelect()).toHaveTextContent('Anyone');
+        expect(verifiedBox()).not.toBeChecked();
         expect(fake.listQueries.some((query) => query.includes('badge'))).toBe(false);
     });
 
-    it('picking Official keeps only tags of badged authors and writes ?badge= to the URL', async () => {
+    it('ticking Verified keeps only tags of badged authors and writes ?badge= to the URL', async () => {
         const fake = setUp(seedDiscover(), BADGED);
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/tags?scope=discover', session: SESSION });
         await screen.findByText('Cooking');
 
-        await pick(user, 'Official');
+        await user.click(verifiedBox());
 
         await waitFor(() => expect(screen.queryByText('Cooking')).not.toBeInTheDocument());
         expect(screen.getByText('Travel')).toBeInTheDocument();
-        expect(authorSelect()).toHaveTextContent('Official');
+        expect(verifiedBox()).toBeChecked();
         expect(router.state.location.search).toEqual({ scope: 'discover', badge: 'official' });
         expect(fake.listQueries.some((query) => query.includes('badge=official'))).toBe(true);
         // The count follows the filter.
@@ -309,17 +257,17 @@ describe('TagsPage — author filter', () => {
 
         expect(await screen.findByText('Travel')).toBeInTheDocument();
         expect(screen.queryByText('Cooking')).not.toBeInTheDocument();
-        expect(authorSelect()).toHaveTextContent('Official');
+        expect(verifiedBox()).toBeChecked();
         expect(fake.listQueries.every((query) => query.includes('badge=official'))).toBe(true);
     });
 
-    it('picking "Anyone" removes the filter and the URL parameter', async () => {
+    it('unticking Verified removes the filter and the URL parameter', async () => {
         setUp(seedDiscover(), BADGED);
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/tags?scope=discover&badge=official', session: SESSION });
         await screen.findByText('Travel');
 
-        await pick(user, 'Anyone');
+        await user.click(verifiedBox());
 
         expect(await screen.findByText('Cooking')).toBeInTheDocument();
         expect(router.state.location.search).toEqual({ scope: 'discover' });
@@ -332,7 +280,7 @@ describe('TagsPage — author filter', () => {
         const { router } = await renderApp({ initialEntry: '/tags?scope=discover&badge=official', session: SESSION });
         await screen.findByText('Travel');
 
-        await user.click(screen.getByRole('button', { name: 'Owned' }));
+        await user.click(screen.getByRole('button', { name: 'Yours' }));
 
         expect(await screen.findByText('Mine')).toBeInTheDocument();
         expect(router.state.location.search).toEqual({ scope: 'owned', badge: 'official' });
@@ -363,18 +311,18 @@ describe('TagsPage — author filter', () => {
         expect(fake.listQueries.some((query) => query.includes('q=travel') && query.includes('badge=official'))).toBe(true);
     });
 
-    it('shows its own empty state when no author has the badge, and "Show all authors" clears the filter', async () => {
+    it('shows its own empty state when no author has the badge, and "Show all tags" clears the filter', async () => {
         setUp([{ id: 'tag-plain', authorId: PLAIN, label: 'Cooking', visibility: 'Public' }]);
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/tags?scope=discover&badge=official', session: SESSION });
 
-        expect(await screen.findByText('No tags match the author filter')).toBeInTheDocument();
+        expect(await screen.findByText('No verified tags match')).toBeInTheDocument();
 
-        await user.click(screen.getByRole('button', { name: 'Show all authors' }));
+        await user.click(screen.getByRole('button', { name: 'Show all tags' }));
 
         expect(await screen.findByText('Cooking')).toBeInTheDocument();
         expect(router.state.location.search).toEqual({ scope: 'discover' });
-        expect(authorSelect()).toHaveTextContent('Anyone');
+        expect(verifiedBox()).not.toBeChecked();
     });
 
     it('drops a badge type this build does not know', async () => {

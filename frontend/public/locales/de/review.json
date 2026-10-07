@@ -30,11 +30,11 @@
   "toolbar": {
     "searchPlaceholder": "Wörter suchen…",
     "searchLabel": "Tabelle filtern",
-    "displayGender": "Genus anzeigen",
-    "displayProgress": "Fortschritt anzeigen",
+    "displayGender": "Genus",
+    "displayProgress": "Fortschritt",
     "rowCount": "{{count}} von {{total}} Wörtern",
-    "displayOwner": "Besitzer anzeigen",
-    "displayType": "Wortart anzeigen"
+    "displayOwner": "Besitzer",
+    "displayType": "Wortart"
   },
   "bulk": {
     "selected": "ausgewählt",

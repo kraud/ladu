@@ -240,7 +240,7 @@ describe('ReviewPage — Slice 7: Display-gender switch (D14, fixed after user r
         await renderApp({ initialEntry: '/words', session: SESSION });
         await screen.findByText('cat');
 
-        expect(screen.getByText('Display gender')).toBeInTheDocument();
+        expect(screen.getByRole('switch', { name: 'Gender' })).toBeInTheDocument();
     });
 
     it('is absent when no noun is loaded', async () => {
@@ -250,7 +250,7 @@ describe('ReviewPage — Slice 7: Display-gender switch (D14, fixed after user r
         await renderApp({ initialEntry: '/words', session: SESSION });
         await screen.findByText('run');
 
-        expect(screen.queryByText('Display gender')).not.toBeInTheDocument();
+        expect(screen.queryByRole('switch', { name: 'Gender' })).not.toBeInTheDocument();
     });
 });
 
@@ -264,7 +264,7 @@ describe('ReviewPage — Slice 7: Display-progress switch', () => {
         await screen.findByText('run');
         expect(document.querySelector('.ring')).not.toBeInTheDocument();
 
-        const toggle = screen.getByText('Display progress').closest('button')!;
+        const toggle = screen.getByText('Progress').closest('button')!;
         expect(toggle).toHaveAttribute('aria-pressed', 'false');
         await user.click(toggle);
         expect(document.querySelector('.ring')).toBeInTheDocument();
@@ -716,7 +716,7 @@ describe('ReviewPage — desktop: filters in the docked sidebar', () => {
         expect(screen.queryByRole('button', { name: 'Filters' })).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: /Move filters/ })).not.toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Filter table' })).toBeInTheDocument();
-        expect(screen.getByText('Display progress')).toBeInTheDocument();
+        expect(screen.getByText('Progress')).toBeInTheDocument();
         expect(screen.getByText('2 of 2 words')).toBeInTheDocument();
     });
 
@@ -764,8 +764,8 @@ describe('ReviewPage — phone: filters in a side menu', () => {
         // Outside the menu: search + the Filters button only (the count hints are hidden for now).
         expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
         expect(screen.queryByText('Part of speech')).not.toBeInTheDocument();
-        expect(screen.queryByText('Display gender')).not.toBeInTheDocument();
-        expect(screen.queryByText('Display progress')).not.toBeInTheDocument();
+        expect(screen.queryByRole('switch', { name: 'Gender' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('switch', { name: 'Progress' })).not.toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Filter table' })).toBeInTheDocument();
         expect(screen.queryByText('2 of 2 words')).not.toBeInTheDocument();
         expect(screen.queryByText('All 2 loaded')).not.toBeInTheDocument();
@@ -773,8 +773,8 @@ describe('ReviewPage — phone: filters in a side menu', () => {
         await user.click(screen.getByRole('button', { name: 'Filters' }));
         const menu = await screen.findByRole('dialog');
         expect(within(menu).getByText('Part of speech')).toBeInTheDocument();
-        expect(within(menu).getByText('Display gender')).toBeInTheDocument();
-        expect(within(menu).getByText('Display progress')).toBeInTheDocument();
+        expect(within(menu).getByRole('switch', { name: 'Gender' })).toBeInTheDocument();
+        expect(within(menu).getByRole('switch', { name: 'Progress' })).toBeInTheDocument();
     });
 
     it('a filter chosen in the menu reaches the request, and the button counts it', async () => {
@@ -801,7 +801,7 @@ describe('ReviewPage — phone: filters in a side menu', () => {
         await waitFor(() => expect(screen.getByRole('button', { name: /Filters/ })).toHaveTextContent('1'));
     });
 
-    it('the Display progress switch in the menu turns the completion rings on', async () => {
+    it('the Progress switch in the menu turns the completion rings on', async () => {
         mockMobileViewport();
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [verbSeed('run', 'w1')] });
         server.use(...fake.handlers);
@@ -813,7 +813,7 @@ describe('ReviewPage — phone: filters in a side menu', () => {
 
         await user.click(screen.getByRole('button', { name: 'Filters' }));
         const menu = await screen.findByRole('dialog');
-        await user.click(within(menu).getByText('Display progress').closest('button')!);
+        await user.click(within(menu).getByText('Progress').closest('button')!);
         expect(document.querySelector('.ring')).toBeInTheDocument();
     });
 });

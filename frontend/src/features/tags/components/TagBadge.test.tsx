@@ -43,7 +43,7 @@ describe('tagRelation', () => {
 
 describe('RelationBadge', () => {
     it.each([
-        ['owned', 'Owned'],
+        ['owned', 'Yours'],
         ['followed', 'Followed'],
         ['unavailable', 'Unavailable'],
         ['discover', 'Discover'],
@@ -70,7 +70,7 @@ describe('VisibilityBadge', () => {
 describe('TagBadges', () => {
     it('shows both the relation and visibility badges together', () => {
         renderWithProviders(<TagBadges tag={makeTag({ isOwner: true, visibility: 'Private' })} />);
-        expect(screen.getByText('Owned')).toBeInTheDocument();
+        expect(screen.getByText('Yours')).toBeInTheDocument();
         expect(screen.getByText('Private')).toBeInTheDocument();
     });
 });

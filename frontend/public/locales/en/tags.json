@@ -15,7 +15,7 @@
     "invalidCursor": "That page link has expired — reload the list."
   },
   "relation": {
-    "owned": "Owned",
+    "owned": "Yours",
     "followed": "Followed",
     "unavailable": "Unavailable",
     "discover": "Discover"
@@ -42,12 +42,16 @@
   "card": {
     "openAriaLabel": "Open {{label}}",
     "noDescription": "No description",
+    "more": "more",
+    "less": "less",
+    "by": "by",
     "wordCount_one": "word",
     "wordCount_other": "words",
     "clonedFromPrefix": "Cloned from",
+    "cloned": "Cloned",
+    "clonedFromTitle": "Cloned from {{label}}",
     "byAuthor": "by {{username}}",
     "unavailableNote": "Hidden — the owner made this tag Private. Your follow stays, but its words are out of your Words until they share it again.",
-    "viewWords": "View words",
     "unfollow": "Unfollow",
     "clone": "Clone",
     "follow": "Follow",
@@ -99,21 +103,19 @@
     "searchLabel": "Search tags",
     "scopeGroupLabel": "Tag scope",
     "scope": {
-      "all": "All"
+      "all": "All",
+      "owned": "Yours"
     },
     "sortLabel": "Sort",
     "sort": {
       "recent": "Recent",
       "label": "Label A–Z"
     },
-    "authorFilter": {
-      "label": "Author",
-      "any": "Anyone"
-    },
+    "verifiedFilter": "Verified",
     "emptyBadge": {
-      "title": "No tags match the author filter",
-      "description": "Try another scope, or show tags from all authors.",
-      "action": "Show all authors"
+      "title": "No verified tags match",
+      "description": "Try another tab, or show tags from all authors.",
+      "action": "Show all tags"
     },
     "resultCount": "{{shown}} of {{total}} tags",
     "noResults": "No tags",
@@ -157,6 +159,7 @@
     "resultCount": "{{shown}} of {{total}} words",
     "loaded": "Showing {{loaded}} of {{total}} words",
     "removeFromTag": "Remove from tag",
+    "removeWords": "Remove words",
     "removedToast": "\"{{word}}\" removed from \"{{label}}\" — it stays on your shelf",
     "emptySearch": {
       "title": "Nothing matches \"{{query}}\"",
@@ -182,6 +185,7 @@
     "action": "Back to /tags"
   },
   "view": {
+    "by": "By",
     "backAriaLabel": "Back to /tags",
     "backLabel": "Back to /tags",
     "ownedHint": "Your tag",
@@ -189,12 +193,12 @@
     "ownedHintWithFollowers_other": "Your tag — {{count}} followers",
     "followerCount_one": "{{count}} follower",
     "followerCount_other": "{{count}} followers",
+    "followerLabel_one": "follower",
+    "followerLabel_other": "followers",
     "unavailableTitle": "Words are hidden right now",
     "unavailableDescription": "The owner made this tag Private. You're still following it — its words return to your Words list when it becomes Public again.",
     "removeHint": "Removing a word from the tag doesn't delete it — it stays on your shelf.",
-    "openCopy": "Open it",
-    "editDetails": "Edit details",
-    "doneEditing": "Done"
+    "openCopy": "Open it"
   },
   "picker": {
     "addTitle_one": "Add tags to {{count}} word",

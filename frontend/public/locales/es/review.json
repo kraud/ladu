@@ -30,11 +30,11 @@
   "toolbar": {
     "searchPlaceholder": "Buscar palabras…",
     "searchLabel": "Filtrar tabla",
-    "displayGender": "Mostrar género",
-    "displayProgress": "Mostrar progreso",
+    "displayGender": "Género",
+    "displayProgress": "Progreso",
     "rowCount": "{{count}} de {{total}} palabras",
-    "displayOwner": "Mostrar propietario",
-    "displayType": "Mostrar tipo de palabra"
+    "displayOwner": "Propietario",
+    "displayType": "Tipo de palabra"
   },
   "bulk": {
     "selected": "seleccionadas",

@@ -16,23 +16,27 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import { startLoadingToast, resolveLoadingToastSuccess, resolveLoadingToastError } from '@/lib/toast';
-import { useDeleteTag, useFollowTag, useTags, useUnfollowTag } from '../hooks';
+import { useFollowTag, useTags, useUnfollowTag } from '../hooks';
 import { tagErrorKey } from '../errors';
 import { TagCard } from '../components/TagCard';
 import { TagFormDialog } from '../components/TagFormDialog';
 import { CloneTagDialog } from '../components/CloneTagDialog';
-import { AUTHOR_BADGE_TYPES, isAuthorBadgeType, type AuthorBadgeType, type TagScope, type TagSort, type TagSummary } from '../types';
+import { AUTHOR_BADGE_TYPES, type AuthorBadgeType, type TagScope, type TagSort, type TagSummary } from '../types';
 
 const route = getRouteApi('/_protected/tags');
 const SEARCH_DEBOUNCE_MS = 300;
 const SCOPES: TagScope[] = ['all', 'owned', 'followed', 'discover'];
 const SKELETON_CARDS = 6;
-/** The author select's "no filter" value. Not a badge type, so it never reaches the URL. */
-const ANY_AUTHOR = 'any';
+/**
+ * What the "Verified" checkbox sends as `?badge=`. `official` is the only account badge today, so
+ * "verified" and "official" are the same set; a second type needs a backend "any badge" value.
+ */
+const VERIFIED_BADGE: AuthorBadgeType = AUTHOR_BADGE_TYPES[0];
 
 export function TagsPage() {
     const { t } = useTranslation();
@@ -50,11 +54,9 @@ export function TagsPage() {
     const total = tagsQuery.data?.pages[0]?.total ?? 0;
 
     const [formDialog, setFormDialog] = useState<{ mode: 'create' | 'edit'; tag?: TagSummary } | null>(null);
-    const [deleteTarget, setDeleteTarget] = useState<TagSummary | null>(null);
     const [unfollowTarget, setUnfollowTarget] = useState<TagSummary | null>(null);
     const [cloneTarget, setCloneTarget] = useState<TagSummary | null>(null);
 
-    const deleteTag = useDeleteTag();
     const followTag = useFollowTag();
     const unfollowTag = useUnfollowTag();
 
@@ -64,10 +66,6 @@ export function TagsPage() {
 
     function setBadge(next: AuthorBadgeType | undefined) {
         void navigate({ search: (prev) => ({ ...prev, badge: next }) });
-    }
-
-    function openTag(tag: TagSummary) {
-        void navigate({ to: '/tag/$tagId', params: { tagId: tag.id } });
     }
 
     function handleFollow(tag: TagSummary) {
@@ -85,17 +83,6 @@ export function TagsPage() {
         const toastId = startLoadingToast(t('common:status.saving'));
         unfollowTag.mutate(tag.id, {
             onSuccess: () => resolveLoadingToastSuccess(toastId, t('tags:page.toastUnfollowed', { label: tag.label })),
-            onError: (error) => resolveLoadingToastError(toastId, t(tagErrorKey(error))),
-        });
-    }
-
-    function handleDeleteConfirmed() {
-        const tag = deleteTarget;
-        if (!tag) return;
-        setDeleteTarget(null);
-        const toastId = startLoadingToast(t('common:status.saving'));
-        deleteTag.mutate(tag.id, {
-            onSuccess: () => resolveLoadingToastSuccess(toastId, t('tags:page.toastDeleted', { label: tag.label })),
             onError: (error) => resolveLoadingToastError(toastId, t(tagErrorKey(error))),
         });
     }
@@ -201,7 +188,7 @@ export function TagsPage() {
                             aria-pressed={scope === candidate}
                             onClick={() => setScope(candidate)}
                         >
-                            {t(candidate === 'all' ? 'tags:page.scope.all' : `tags:relation.${candidate}`)}
+                            {t(candidate === 'all' || candidate === 'owned' ? `tags:page.scope.${candidate}` : `tags:relation.${candidate}`)}
                         </button>
                     ))}
                 </div>
@@ -213,31 +200,14 @@ export function TagsPage() {
                                 : t('tags:page.noResults')}
                         </span>
                     )}
-                    <div className="flex items-center gap-2">
-                        <span className="label-n">{t('tags:page.authorFilter.label')}</span>
-                        <Select
-                            value={badge ?? ANY_AUTHOR}
-                            onValueChange={(value) => setBadge(value !== null && isAuthorBadgeType(value) ? value : undefined)}
-                        >
-                            <SelectTrigger size="sm" aria-label={t('tags:page.authorFilter.label')}>
-                                <SelectValue>
-                                    {(value: string) =>
-                                        isAuthorBadgeType(value)
-                                            ? t(`tags:authorBadge.${value}`)
-                                            : t('tags:page.authorFilter.any')
-                                    }
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent align="end" alignItemWithTrigger={false}>
-                                <SelectItem value={ANY_AUTHOR}>{t('tags:page.authorFilter.any')}</SelectItem>
-                                {AUTHOR_BADGE_TYPES.map((type) => (
-                                    <SelectItem key={type} value={type}>
-                                        {t(`tags:authorBadge.${type}`)}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <label className="flex cursor-pointer items-center gap-1.5 text-sm">
+                        <Checkbox
+                            checked={badge !== undefined}
+                            onCheckedChange={(checked) => setBadge(checked ? VERIFIED_BADGE : undefined)}
+                        />
+                        {t('tags:page.verifiedFilter')}
+                        <SealCheckIcon size={14} weight="fill" className="text-(--accent-strong)" aria-hidden="true" />
+                    </label>
                     <div className="flex items-center gap-2">
                         <span className="label-n">{t('tags:page.sortLabel')}</span>
                         <Select value={sort} onValueChange={(value) => setSort(value as TagSort)}>
@@ -279,9 +249,7 @@ export function TagsPage() {
                             <TagCard
                                 key={tag.id}
                                 tag={tag}
-                                onView={openTag}
-                                onEdit={(target) => setFormDialog({ mode: 'edit', tag: target })}
-                                onDelete={setDeleteTarget}
+                                showActions={scope !== 'all' && scope !== 'owned'}
                                 onFollow={handleFollow}
                                 onUnfollow={setUnfollowTarget}
                                 onClone={setCloneTarget}
@@ -332,22 +300,6 @@ export function TagsPage() {
                         t('tags:page.toastCloned', { label: clone.label }),
                     )
                 }
-            />
-
-            <ConfirmDialog
-                open={deleteTarget !== null}
-                onOpenChange={(open) => !open && setDeleteTarget(null)}
-                title={t('tags:page.deleteConfirmTitle')}
-                description={
-                    deleteTarget
-                        ? t('tags:page.deleteConfirmDescription', {
-                              label: deleteTarget.label,
-                              count: deleteTarget.wordCount,
-                          })
-                        : undefined
-                }
-                confirmLabel={t('common:buttons.delete')}
-                onConfirm={handleDeleteConfirmed}
             />
 
             <ConfirmDialog

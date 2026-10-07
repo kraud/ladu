@@ -6,7 +6,7 @@
  * MOCKUPS/tags.html.
  */
 import { useTranslation } from 'react-i18next';
-import { LockIcon, SealCheckIcon } from '@phosphor-icons/react';
+import { CopyIcon, LockIcon, SealCheckIcon } from '@phosphor-icons/react';
 import { isAuthorBadgeType, type AuthorBadgeType, type TagSummary } from '../types';
 
 export type TagRelation = 'owned' | 'followed' | 'unavailable' | 'discover';
@@ -89,5 +89,32 @@ export function AuthorBadges({ badges }: { badges: readonly string[] }) {
                 </span>
             ))}
         </>
+    );
+}
+
+/** True when the author holds the `official` (verified) account badge. */
+export function hasVerifiedBadge(badges: readonly string[]): boolean {
+    return badges.filter(isAuthorBadgeType).includes('official');
+}
+
+/** Icon-only verified seal for the `/tags` card. The title and aria-label carry the meaning. */
+export function VerifiedMark() {
+    const { t } = useTranslation();
+    const label = t('tags:authorBadge.officialTitle');
+    return (
+        <span className="t-verified" title={label} role="img" aria-label={label}>
+            <SealCheckIcon size={14} weight="fill" aria-hidden="true" />
+        </span>
+    );
+}
+
+/** Marks a tag made by cloning another; the title names the source. */
+export function ClonedBadge({ sourceLabel }: { sourceLabel: string }) {
+    const { t } = useTranslation();
+    return (
+        <span className="t-badge b-mine" title={t('tags:card.clonedFromTitle', { label: sourceLabel })}>
+            <CopyIcon size={11} weight="bold" aria-hidden="true" />
+            {t('tags:card.cloned')}
+        </span>
     );
 }

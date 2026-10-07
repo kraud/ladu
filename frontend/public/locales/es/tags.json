@@ -42,12 +42,16 @@
   "card": {
     "openAriaLabel": "Abrir {{label}}",
     "noDescription": "Sin descripción",
+    "more": "más",
+    "less": "menos",
+    "by": "por",
     "wordCount_one": "palabra",
     "wordCount_other": "palabras",
     "clonedFromPrefix": "Clonada de",
+    "cloned": "Clonada",
+    "clonedFromTitle": "Clonada de {{label}}",
     "byAuthor": "por {{username}}",
     "unavailableNote": "Oculta — el propietario hizo esta etiqueta Privada. Sigues siguiéndola, pero sus palabras están fuera de tu Revisión hasta que vuelva a compartirla.",
-    "viewWords": "Ver palabras",
     "unfollow": "Dejar de seguir",
     "clone": "Clonar",
     "follow": "Seguir",
@@ -99,21 +103,19 @@
     "searchLabel": "Buscar etiquetas",
     "scopeGroupLabel": "Ámbito de etiquetas",
     "scope": {
-      "all": "Todas"
+      "all": "Todas",
+      "owned": "Propias"
     },
     "sortLabel": "Ordenar",
     "sort": {
       "recent": "Recientes",
       "label": "Nombre A–Z"
     },
-    "authorFilter": {
-      "label": "Autor",
-      "any": "Cualquiera"
-    },
+    "verifiedFilter": "Verificado",
     "emptyBadge": {
-      "title": "Ninguna etiqueta coincide con el filtro de autor",
+      "title": "Ninguna etiqueta verificada coincide",
       "description": "Prueba con otro ámbito o muestra las etiquetas de todos los autores.",
-      "action": "Mostrar todos los autores"
+      "action": "Mostrar todas las etiquetas"
     },
     "resultCount": "{{shown}} de {{total}} etiquetas",
     "noResults": "Sin etiquetas",
@@ -157,6 +159,7 @@
     "resultCount": "{{shown}} de {{total}} palabras",
     "loaded": "Mostrando {{loaded}} de {{total}} palabras",
     "removeFromTag": "Quitar de la etiqueta",
+    "removeWords": "Quitar palabras",
     "removedToast": "\"{{word}}\" se quitó de \"{{label}}\" — se queda en tu colección",
     "emptySearch": {
       "title": "Nada coincide con \"{{query}}\"",
@@ -182,6 +185,7 @@
     "action": "Volver a /tags"
   },
   "view": {
+    "by": "Por",
     "backAriaLabel": "Volver a /tags",
     "backLabel": "Volver a /tags",
     "ownedHint": "Tu etiqueta",
@@ -189,12 +193,12 @@
     "ownedHintWithFollowers_other": "Tu etiqueta — {{count}} seguidores",
     "followerCount_one": "{{count}} seguidor",
     "followerCount_other": "{{count}} seguidores",
+    "followerLabel_one": "seguidor",
+    "followerLabel_other": "seguidores",
     "unavailableTitle": "Las palabras están ocultas por ahora",
     "unavailableDescription": "El propietario hizo esta etiqueta Privada. Sigues siguiéndola — sus palabras volverán a tu Revisión cuando vuelva a ser Pública.",
     "removeHint": "Quitar una palabra de la etiqueta no la elimina — se queda en tu colección.",
-    "openCopy": "Abrirla",
-    "editDetails": "Editar detalles",
-    "doneEditing": "Listo"
+    "openCopy": "Abrirla"
   },
   "picker": {
     "addTitle_one": "Añadir etiquetas a {{count}} palabra",

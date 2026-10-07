@@ -1,6 +1,7 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { mockMobileViewport } from '@/test/viewport';
 import { renderWithProviders } from '@/test/render';
 import { PartOfSpeech } from '@/ts/enums';
 import type { WordSimpleBE } from '@/features/words/types';
@@ -35,7 +36,8 @@ const baseProps: TagWordsTableProps = {
     debouncedQuery: '',
     onQueryChange: vi.fn(),
     canRemove: false,
-    editMode: false,
+    removeMode: false,
+    onRemoveModeChange: vi.fn(),
     showGender: true,
     onShowGenderChange: vi.fn(),
     showProgress: false,
@@ -71,34 +73,36 @@ describe('TagWordsTable — rendering rows', () => {
     });
 });
 
-describe('TagWordsTable — remove column requires edit mode', () => {
-    it('is absent when canRemove is false, edit mode or not', () => {
-        renderWithProviders(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove={false} editMode />);
+describe('TagWordsTable — remove mode', () => {
+    it('is absent when canRemove is false, remove mode or not', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove={false} removeMode />);
         expect(screen.queryByRole('button', { name: 'Remove from tag' })).not.toBeInTheDocument();
     });
 
-    it('is absent for an owned tag outside edit mode', () => {
+    it('is absent for an owned tag outside remove mode', () => {
         renderWithProviders(
-            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove editMode={false} />,
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove removeMode={false} />,
         );
         expect(screen.queryByRole('button', { name: 'Remove from tag' })).not.toBeInTheDocument();
     });
 
-    it('is an icon-only button once canRemove and editMode are both true, and calls onRemove', async () => {
+    it('is an icon-only button in remove mode, in the first column, and calls onRemove', async () => {
         const onRemove = vi.fn();
         const user = userEvent.setup();
         renderWithProviders(
-            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove editMode onRemove={onRemove} />,
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove removeMode onRemove={onRemove} />,
         );
 
         const removeButton = screen.getByRole('button', { name: 'Remove from tag' });
         expect(removeButton).not.toHaveTextContent('Remove from tag');
+        // First column: always in view, however many language columns follow.
+        expect(removeButton.closest('td')).toBe(removeButton.closest('tr')!.firstElementChild);
         await user.click(removeButton);
         expect(onRemove).toHaveBeenCalledWith('w1', 'run');
     });
 });
 
-describe('TagWordsTable — cell add affordance requires edit mode', () => {
+describe('TagWordsTable — cell add affordance', () => {
     /** No stored translation at all for EN — `hasTranslation` reads `storedLanguages`, not `dataEN`. */
     function ownWordWithNoEnglish(): WordSimpleBE {
         return {
@@ -112,31 +116,74 @@ describe('TagWordsTable — cell add affordance requires edit mode', () => {
         };
     }
 
-    it('shows a dash instead of "+" for an empty own cell outside edit mode', () => {
+    it('shows a dash instead of "+" for an empty own cell on a tag that is not owned', () => {
         renderWithProviders(
-            <TagWordsTable {...baseProps} rows={[ownWordWithNoEnglish()]} total={1} userId="owner-1" editMode={false} />,
+            <TagWordsTable {...baseProps} rows={[ownWordWithNoEnglish()]} total={1} userId="owner-1" canRemove={false} />,
         );
         expect(screen.queryByRole('button', { name: /Add.*translation/i })).not.toBeInTheDocument();
     });
 
-    it('shows the "+" add-translation button once editMode is on', () => {
+    it('shows the "+" add-translation button on an owned tag', () => {
         renderWithProviders(
-            <TagWordsTable {...baseProps} rows={[ownWordWithNoEnglish()]} total={1} userId="owner-1" editMode />,
+            <TagWordsTable {...baseProps} rows={[ownWordWithNoEnglish()]} total={1} userId="owner-1" canRemove />,
         );
         expect(screen.getByRole('button', { name: /Add.*translation/i })).toBeInTheDocument();
     });
 });
 
+describe('TagWordsTable — toolbar buttons', () => {
+    const rows = [makeRow('w1', 'run')];
+
+    it('shows Add words and Remove words next to the search for an owned tag', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={rows} total={1} canRemove onAddWords={vi.fn()} />);
+        expect(screen.getByRole('button', { name: 'Add words' })).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'Remove words' })).toBeEnabled();
+    });
+
+    it('shows neither on a tag that is not owned', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={rows} total={1} canRemove={false} />);
+        expect(screen.queryByRole('button', { name: 'Add words' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove words' })).not.toBeInTheDocument();
+    });
+
+    it('Remove words asks to turn remove mode on', async () => {
+        const onRemoveModeChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={rows} total={1} canRemove onRemoveModeChange={onRemoveModeChange} />,
+        );
+        await user.click(screen.getByRole('button', { name: 'Remove words' }));
+        expect(onRemoveModeChange).toHaveBeenCalledWith(true);
+    });
+
+    it('in remove mode the button reads Cancel and Add words is disabled', async () => {
+        const onRemoveModeChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={rows} total={1} canRemove removeMode onRemoveModeChange={onRemoveModeChange} />,
+        );
+        expect(screen.queryByRole('button', { name: 'Remove words' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Add words' })).toBeDisabled();
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+        expect(onRemoveModeChange).toHaveBeenCalledWith(false);
+    });
+
+    it('disables Remove words when the tag has no words', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={[]} total={0} canRemove onAddWords={vi.fn()} />);
+        expect(screen.getByRole('button', { name: 'Remove words' })).toBeDisabled();
+    });
+});
+
 describe('TagWordsTable — display options', () => {
-    it('shows the Display progress switch, and the gender switch only once a noun row is loaded', () => {
+    it('shows the Progress switch, and the gender switch only once a noun row is loaded', () => {
         const { rerender } = renderWithProviders(
             <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run', 'owner-1', PartOfSpeech.verb)]} total={1} />,
         );
-        expect(screen.getByText('Display progress')).toBeInTheDocument();
-        expect(screen.queryByText('Display gender')).not.toBeInTheDocument();
+        expect(screen.getByText('Progress')).toBeInTheDocument();
+        expect(screen.queryByText('Gender')).not.toBeInTheDocument();
 
         rerender(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'tree', 'owner-1', PartOfSpeech.noun)]} total={1} />);
-        expect(screen.getByText('Display gender')).toBeInTheDocument();
+        expect(screen.getByText('Gender')).toBeInTheDocument();
     });
 
     it('calls the change handlers when a switch is toggled', async () => {
@@ -151,7 +198,7 @@ describe('TagWordsTable — display options', () => {
             />,
         );
 
-        await user.click(screen.getByText('Display gender'));
+        await user.click(screen.getByText('Gender'));
         expect(onShowGenderChange).toHaveBeenCalledWith(false);
     });
 });
@@ -163,7 +210,7 @@ describe('TagWordsTable — empty states', () => {
         renderWithProviders(<TagWordsTable {...baseProps} canRemove onAddWords={onAddWords} />);
 
         expect(screen.getByText('Add your first words to this tag')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Add words' }));
+        await user.click(screen.getAllByRole('button', { name: 'Add words' }).at(-1)!); // toolbar + empty-state CTA
         expect(onAddWords).toHaveBeenCalled();
     });
 
@@ -220,5 +267,23 @@ describe('TagWordsTable — error state', () => {
         expect(screen.getByText('Network down')).toBeInTheDocument();
         await user.click(screen.getByRole('button', { name: 'Try again' }));
         expect(onRetry).toHaveBeenCalled();
+    });
+});
+
+describe('TagWordsTable — phone', () => {
+    it('has a Filters button that opens a menu with the Progress switch, and keeps Add/Remove words on one row', async () => {
+        mockMobileViewport();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove onAddWords={vi.fn()} />,
+        );
+        expect(screen.queryByRole('switch', { name: 'Progress' })).not.toBeInTheDocument();
+        const add = screen.getByRole('button', { name: 'Add words' });
+        const remove = screen.getByRole('button', { name: 'Remove words' });
+        expect(add.parentElement).toBe(remove.parentElement);
+
+        await user.click(screen.getByRole('button', { name: 'Filters' }));
+        const menu = await screen.findByRole('dialog');
+        expect(within(menu).getByRole('switch', { name: 'Progress' })).toBeInTheDocument();
     });
 });

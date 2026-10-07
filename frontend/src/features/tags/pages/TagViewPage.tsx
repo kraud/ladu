@@ -15,12 +15,11 @@
 import { useMemo, useState } from 'react';
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftIcon, CopyIcon, LockIcon, UsersIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, LockIcon, PencilSimpleIcon, TrashIcon, TranslateIcon, UsersIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { avatarColor, avatarInitials } from '@/lib/avatar';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import { startLoadingToast, resolveLoadingToastSuccess, resolveLoadingToastError } from '@/lib/toast';
 import { useAuthStore } from '@/stores/authStore';
@@ -30,7 +29,7 @@ import { useWordsInfinite } from '@/features/words/hooks';
 import type { LangKey } from '@/features/words/types';
 import { useDeleteTag, useFollowTag, useTag, useUnfollowTag, useUnlinkTagsFromWords } from '../hooks';
 import { tagErrorKey } from '../errors';
-import { AuthorBadges, TagBadges, tagRelation } from '../components/TagBadge';
+import { ClonedBadge, RelationBadge, VerifiedMark, VisibilityBadge, hasVerifiedBadge, tagRelation } from '../components/TagBadge';
 import { TagFormDialog } from '../components/TagFormDialog';
 import { CloneTagDialog } from '../components/CloneTagDialog';
 import { AddWordsDialog } from '../components/AddWordsDialog';
@@ -63,7 +62,7 @@ export function TagViewPage() {
     const existingWordIds = useMemo(() => new Set(wordRows.map((row) => row.id)), [wordRows]);
 
     const [editing, setEditing] = useState(false);
-    const [editMode, setEditMode] = useState(false);
+    const [removeMode, setRemoveMode] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
     const [confirmingUnfollow, setConfirmingUnfollow] = useState(false);
     const [cloning, setCloning] = useState(false);
@@ -143,13 +142,6 @@ export function TagViewPage() {
         );
     }
 
-    const footHint =
-        relation === 'owned'
-            ? tag.followerCount > 0
-                ? t('tags:view.ownedHintWithFollowers', { count: tag.followerCount })
-                : t('tags:view.ownedHint')
-            : t('tags:card.byAuthor', { username: tag.author.username });
-
     return (
         <div className="flex flex-col gap-3.5">
             <div className="flex items-center gap-2">
@@ -166,7 +158,6 @@ export function TagViewPage() {
             <section className="card">
                 <div className="tagen-top">
                     <div className="grow min-w-0">
-                        <TagBadges tag={tag} />
                         <h1 className="h1">{tag.label}</h1>
                         {tag.description && (
                             <p className="mt-1 max-w-2xl text-[13.5px] text-(--muted) leading-relaxed">
@@ -175,57 +166,55 @@ export function TagViewPage() {
                         )}
                         {relation !== 'owned' && (
                             <div className="t-by">
-                                <span className="avatar" style={{ background: avatarColor(tag.author.username), color: '#fff' }}>
-                                    {avatarInitials(tag.author.username)}
+                                <span>{t('tags:view.by')}</span>
+                                <span className={hasVerifiedBadge(tag.author.badges) ? 't-by-verified' : undefined}>
+                                    {tag.author.username}
                                 </span>
-                                <span>{t('tags:card.byAuthor', { username: tag.author.username })}</span>
-                                <AuthorBadges badges={tag.author.badges} />
-                            </div>
-                        )}
-                        {relation === 'owned' && tag.sourceTag && (
-                            <div className="t-cloned">
-                                <CopyIcon size={12} className="mt-0.5 shrink-0" />
-                                <span>
-                                    {t('tags:card.clonedFromPrefix')} <span className="cl">{tag.sourceTag.label}</span>
-                                </span>
+                                {hasVerifiedBadge(tag.author.badges) && <VerifiedMark />}
                             </div>
                         )}
                     </div>
                     <aside className="tagen-side">
-                        <span className="tagen-stat-num">{tag.wordCount}</span>
-                        <span className="tagen-stat-label">{t('tags:card.wordCount', { count: tag.wordCount })}</span>
-                        {relation !== 'unavailable' && (
-                            <span className="tagen-stat-sub">
-                                <UsersIcon size={12} />
-                                {t('tags:view.followerCount', { count: tag.followerCount })}
-                            </span>
+                        <div className="card stat-card tagen-stat">
+                            <div className="tagen-stat-body">
+                                <div className="s-num">
+                                    <TranslateIcon size={18} aria-hidden="true" />
+                                    {tag.wordCount}
+                                </div>
+                                <div className="s-label">{t('tags:card.wordCount', { count: tag.wordCount })}</div>
+                            </div>
+                        </div>
+                        {relation !== 'unavailable' && tag.visibility === 'Public' && (
+                            <div className="card stat-card tagen-stat">
+                                <div className="tagen-stat-body">
+                                    <div className="s-num">
+                                        <UsersIcon size={18} aria-hidden="true" />
+                                        {tag.followerCount}
+                                    </div>
+                                    <div className="s-label">
+                                        {t('tags:view.followerLabel', { count: tag.followerCount })}
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </aside>
                 </div>
                 <div className="tagen-foot">
-                    <span className="hint">{footHint}</span>
+                    <div className="t-badge-row t-badge-row-card tagen-foot-badges">
+                        <RelationBadge relation={relation} />
+                        <VisibilityBadge visibility={tag.visibility} />
+                        {tag.sourceTag && <ClonedBadge sourceLabel={tag.sourceTag.label} />}
+                    </div>
                     {relation === 'owned' && (
                         <>
-                            <Button size="sm" onClick={() => setAddingWords(true)}>
-                                {t('tags:card.addWords')}
+                            <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
+                                <PencilSimpleIcon size={14} aria-hidden="true" />
+                                {t('common:buttons.edit')}
                             </Button>
-                            {editMode ? (
-                                <>
-                                    <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
-                                        {t('tags:view.editDetails')}
-                                    </Button>
-                                    <Button size="sm" variant="destructive" onClick={() => setConfirmingDelete(true)}>
-                                        {t('common:buttons.delete')}
-                                    </Button>
-                                    <Button size="sm" variant="ghost" onClick={() => setEditMode(false)}>
-                                        {t('tags:view.doneEditing')}
-                                    </Button>
-                                </>
-                            ) : (
-                                <Button size="sm" variant="secondary" onClick={() => setEditMode(true)}>
-                                    {t('common:buttons.edit')}
-                                </Button>
-                            )}
+                            <Button size="sm" variant="destructive" onClick={() => setConfirmingDelete(true)}>
+                                <TrashIcon size={14} aria-hidden="true" />
+                                {t('common:buttons.delete')}
+                            </Button>
                         </>
                     )}
                     {relation === 'followed' && (
@@ -268,7 +257,7 @@ export function TagViewPage() {
                     }
                 />
             ) : (
-                <>
+                <div className="flex flex-col gap-3.5 min-[921px]:mt-3">
                     <TagWordsTable
                         rows={wordRows}
                         languages={languages}
@@ -285,7 +274,8 @@ export function TagViewPage() {
                         debouncedQuery={debouncedQuery}
                         onQueryChange={setQuery}
                         canRemove={relation === 'owned'}
-                        editMode={editMode}
+                        removeMode={removeMode}
+                        onRemoveModeChange={setRemoveMode}
                         onRemove={handleRemoveWord}
                         onAddWords={() => setAddingWords(true)}
                         onOpenCell={(wordId, langKey) => setCellTarget({ wordId, langKey })}
@@ -294,8 +284,8 @@ export function TagViewPage() {
                         showProgress={showProgress}
                         onShowProgressChange={setShowProgress}
                     />
-                    {relation === 'owned' && <p className="hint">{t('tags:view.removeHint')}</p>}
-                </>
+                    {relation === 'owned' && removeMode && <p className="hint">{t('tags:view.removeHint')}</p>}
+                </div>
             )}
 
             <TagFormDialog
