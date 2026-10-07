@@ -12,6 +12,7 @@
   },
   "apiErrors": {
     "invalidCredentials": "Vale e-post või parool.",
+    "accountSuspended": "See konto on peatatud.",
     "missingFields": "Palun täida kõik väljad.",
     "emailInUse": "See e-post on juba registreeritud.",
     "usernameInUse": "See kasutajanimi on juba võetud.",

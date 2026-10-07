@@ -363,9 +363,16 @@ describe('Google', () => {
             expect((await callback(listed)).headers.location).toContain('#token=');
         });
 
-        it('a banned account still gets the generic failure, not the gate code', async () => {
+        it('a banned account gets the dedicated code, not the gate code', async () => {
             await setLogin('closed');
             const user = await makeUser({ password: null, bannedAt: new Date() });
+            const res = await callback(user);
+            expect(res.headers.location).toContain('#error=oauth_account_banned');
+        });
+
+        it('a deleted account still gets the generic failure, not the gate code', async () => {
+            await setLogin('closed');
+            const user = await makeUser({ password: null, deletedAt: new Date() });
             const res = await callback(user);
             expect(res.headers.location).toContain('#error=oauth_failed');
         });

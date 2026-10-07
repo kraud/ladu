@@ -34,6 +34,7 @@ const MESSAGE_TO_KEY: Record<string, string> = {
     // login
     'Invalid credentials': 'loginRegister:apiErrors.invalidCredentials',
     'Sign in with Google': 'loginRegister:apiErrors.signInWithGoogle',
+    'This account is suspended': 'loginRegister:apiErrors.accountSuspended',
     // register
     'Please add all fields': 'loginRegister:apiErrors.missingFields',
     'Email already in use': 'loginRegister:apiErrors.emailInUse',
@@ -90,6 +91,8 @@ const OAUTH_ERROR_CODE_TO_KEY: Record<string, string> = {
     // (a distinct fragment key from `#error=`, but the same short codes and
     // the same lookup here — see oauthController.ts).
     oauth_failed: 'loginRegister:apiErrors.oauthFailed',
+    // Outcome (a) with a banned account — the same message as the password login.
+    oauth_account_banned: 'loginRegister:apiErrors.accountSuspended',
     // Connect-flow only — this identity is already linked, just not to the
     // account that started the connect attempt. Same user-facing meaning as
     // the ticket-based message above, so it reuses that key.
