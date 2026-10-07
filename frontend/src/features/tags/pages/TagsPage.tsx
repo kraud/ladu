@@ -11,7 +11,7 @@
 import { useMemo, useState } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { MagnifyingGlassIcon, PlusIcon, UsersIcon, LightbulbIcon } from '@phosphor-icons/react';
+import { MagnifyingGlassIcon, PlusIcon, SealCheckIcon, UsersIcon, LightbulbIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -25,24 +25,27 @@ import { tagErrorKey } from '../errors';
 import { TagCard } from '../components/TagCard';
 import { TagFormDialog } from '../components/TagFormDialog';
 import { CloneTagDialog } from '../components/CloneTagDialog';
-import type { TagScope, TagSort, TagSummary } from '../types';
+import { AUTHOR_BADGE_TYPES, isAuthorBadgeType, type AuthorBadgeType, type TagScope, type TagSort, type TagSummary } from '../types';
 
 const route = getRouteApi('/_protected/tags');
 const SEARCH_DEBOUNCE_MS = 300;
 const SCOPES: TagScope[] = ['all', 'owned', 'followed', 'discover'];
 const SKELETON_CARDS = 6;
+/** The author select's "no filter" value. Not a badge type, so it never reaches the URL. */
+const ANY_AUTHOR = 'any';
 
 export function TagsPage() {
     const { t } = useTranslation();
     const search = route.useSearch();
     const navigate = route.useNavigate();
     const scope = search.scope ?? 'all';
+    const badge = search.badge;
 
     const [query, setQuery] = useState('');
     const debouncedQuery = useDebouncedCallback(query, SEARCH_DEBOUNCE_MS);
     const [sort, setSort] = useState<TagSort>('recent');
 
-    const tagsQuery = useTags({ scope, q: debouncedQuery || undefined, sort });
+    const tagsQuery = useTags({ scope, q: debouncedQuery || undefined, sort, badge });
     const rows = useMemo(() => tagsQuery.data?.pages.flatMap((page) => page.items) ?? [], [tagsQuery.data]);
     const total = tagsQuery.data?.pages[0]?.total ?? 0;
 
@@ -57,6 +60,10 @@ export function TagsPage() {
 
     function setScope(next: TagScope) {
         void navigate({ search: (prev) => ({ ...prev, scope: next === 'all' ? undefined : next }) });
+    }
+
+    function setBadge(next: AuthorBadgeType | undefined) {
+        void navigate({ search: (prev) => ({ ...prev, badge: next }) });
     }
 
     function openTag(tag: TagSummary) {
@@ -94,6 +101,21 @@ export function TagsPage() {
     }
 
     function renderEmptyState() {
+        // The author filter comes first: with it on, "nothing here" is most often its doing.
+        if (badge) {
+            return (
+                <EmptyState
+                    icon={<SealCheckIcon size={20} />}
+                    title={t('tags:page.emptyBadge.title')}
+                    description={t('tags:page.emptyBadge.description')}
+                    action={
+                        <Button size="sm" variant="outline" onClick={() => setBadge(undefined)}>
+                            {t('tags:page.emptyBadge.action')}
+                        </Button>
+                    }
+                />
+            );
+        }
         if (debouncedQuery) {
             return (
                 <EmptyState
@@ -191,6 +213,31 @@ export function TagsPage() {
                                 : t('tags:page.noResults')}
                         </span>
                     )}
+                    <div className="flex items-center gap-2">
+                        <span className="label-n">{t('tags:page.authorFilter.label')}</span>
+                        <Select
+                            value={badge ?? ANY_AUTHOR}
+                            onValueChange={(value) => setBadge(value !== null && isAuthorBadgeType(value) ? value : undefined)}
+                        >
+                            <SelectTrigger size="sm" aria-label={t('tags:page.authorFilter.label')}>
+                                <SelectValue>
+                                    {(value: string) =>
+                                        isAuthorBadgeType(value)
+                                            ? t(`tags:authorBadge.${value}`)
+                                            : t('tags:page.authorFilter.any')
+                                    }
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent align="end" alignItemWithTrigger={false}>
+                                <SelectItem value={ANY_AUTHOR}>{t('tags:page.authorFilter.any')}</SelectItem>
+                                {AUTHOR_BADGE_TYPES.map((type) => (
+                                    <SelectItem key={type} value={type}>
+                                        {t(`tags:authorBadge.${type}`)}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <div className="flex items-center gap-2">
                         <span className="label-n">{t('tags:page.sortLabel')}</span>
                         <Select value={sort} onValueChange={(value) => setSort(value as TagSort)}>

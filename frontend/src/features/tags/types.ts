@@ -132,4 +132,6 @@ export interface TagListFilters {
     scope?: TagScope;
     q?: string;
     sort?: TagSort;
+    /** Keep only tags whose author has this active account badge (verified-badges.md). */
+    badge?: AuthorBadgeType;
 }

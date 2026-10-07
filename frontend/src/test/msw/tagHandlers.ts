@@ -188,8 +188,11 @@ export function makeTagHandlers(opts: {
             const scope = url.searchParams.get('scope') ?? 'all';
             const q = url.searchParams.get('q')?.trim().toLowerCase();
             const sort = url.searchParams.get('sort') === 'label' ? 'label' : 'recent';
+            const badge = url.searchParams.get('badge');
 
             let filtered = [...store.values()].filter((t) => matchesScope(t, callerId, scope));
+            // Before `total`, like the real endpoint: the count follows the filter.
+            if (badge) filtered = filtered.filter((t) => (authorBadges[t.authorId] ?? []).includes(badge));
             if (q) {
                 filtered = filtered.filter(
                     (t) =>

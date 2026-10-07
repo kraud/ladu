@@ -106,6 +106,15 @@
       "recent": "Neueste",
       "label": "Label A–Z"
     },
+    "authorFilter": {
+      "label": "Autor",
+      "any": "Alle"
+    },
+    "emptyBadge": {
+      "title": "Kein Tag passt zum Autorenfilter",
+      "description": "Probiere einen anderen Bereich oder zeige die Tags aller Autoren.",
+      "action": "Alle Autoren anzeigen"
+    },
     "resultCount": "{{shown}} von {{total}} Tags",
     "noResults": "Keine Tags",
     "loaded": "{{loaded}} von {{total}} Tags werden angezeigt",

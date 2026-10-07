@@ -106,6 +106,15 @@
       "recent": "Recientes",
       "label": "Nombre A–Z"
     },
+    "authorFilter": {
+      "label": "Autor",
+      "any": "Cualquiera"
+    },
+    "emptyBadge": {
+      "title": "Ninguna etiqueta coincide con el filtro de autor",
+      "description": "Prueba con otro ámbito o muestra las etiquetas de todos los autores.",
+      "action": "Mostrar todos los autores"
+    },
     "resultCount": "{{shown}} de {{total}} etiquetas",
     "noResults": "Sin etiquetas",
     "loaded": "Mostrando {{loaded}} de {{total}} etiquetas",

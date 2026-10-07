@@ -28,7 +28,7 @@ export interface ListTagsParams extends TagListFilters {
 
 /**
  * `GET /api/tags` takes plain single-value query params (`scope`, `q`,
- * `sort`, `cursor`, `limit`) — no repeatable-key encoding to worry about
+ * `sort`, `badge`, `cursor`, `limit`) — no repeatable-key encoding to worry about
  * here, unlike `features/words/api.ts`'s `pos`/`gender`/`tag`.
  */
 function buildListQuery(params: ListTagsParams): URLSearchParams {
@@ -36,6 +36,7 @@ function buildListQuery(params: ListTagsParams): URLSearchParams {
     if (params.scope) search.set('scope', params.scope);
     if (params.q) search.set('q', params.q);
     if (params.sort) search.set('sort', params.sort);
+    if (params.badge) search.set('badge', params.badge);
     if (params.cursor) search.set('cursor', params.cursor);
     if (params.limit !== undefined) search.set('limit', String(params.limit));
     return search;

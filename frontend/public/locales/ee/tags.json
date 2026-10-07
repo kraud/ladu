@@ -106,6 +106,15 @@
       "recent": "Uusimad",
       "label": "Nimi A–Z"
     },
+    "authorFilter": {
+      "label": "Autor",
+      "any": "Kõik"
+    },
+    "emptyBadge": {
+      "title": "Ükski tag ei vasta autorifiltrile",
+      "description": "Proovi teist vaadet või näita kõigi autorite tage.",
+      "action": "Näita kõiki autoreid"
+    },
     "resultCount": "{{shown}} / {{total}} tagi",
     "noResults": "Tagid puuduvad",
     "loaded": "Kuvatud {{loaded}} / {{total}} tagi",

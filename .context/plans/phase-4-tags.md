@@ -732,7 +732,8 @@ scope refinements made while implementing:
   entry. The pre-existing orphaned old-app keys in `tags.json`
   (`tagDataForm`, `displayTag`, `searchTags`, …) are left untouched for a
   later cleanup pass, not part of this slice's scope.
-- **`tagsRoute` persists only `scope` in the URL, not `q`/`sort`** — matching
+- **`tagsRoute` persists only `scope` in the URL, not `q`/`sort`** (since
+  `verified-badges.md` Slice 6 it also persists `badge`, the author filter) — matching
   `MOCKUPS/tags.html`'s own behavior exactly (neither survives a reload
   there either) and keeping the route's `validateSearch` a one-field
   contract rather than a `search.ts`-style multi-field module like Review's,

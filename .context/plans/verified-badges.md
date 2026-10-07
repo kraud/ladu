@@ -1,6 +1,6 @@
 # Account badges ("official" and later types)
 
-> Status: **approved 2026-10-06. Slices 0–5 done. Slices 6–8 not started.**
+> Status: **approved 2026-10-06. Slices 0–6 done. Slices 7–8 not started.**
 > Branch: `verified-accounts`.
 
 ## How to start
@@ -437,6 +437,41 @@ survives a reload.
 - Locales: `page.authorFilter.{label,any}` and the empty state, 4 languages.
 - Tests: `TagsPage.test.tsx` — select sets the URL and the query string;
   reload keeps it; empty state; it combines with scope and search.
+
+**Shipped 2026-10-06.** Built as planned, with these notes:
+- **The control:** a select "Author: Anyone / Official" in the tool row,
+  before Sort. The "Official" name comes from the existing
+  `tags:authorBadge.official`. A new badge type adds one option from
+  `AUTHOR_BADGE_TYPES`, with no change to the page.
+- **The URL:** `tagsRoute.validateSearch` now returns `{ scope, badge }`. A
+  `badge` this build does not know is dropped, so `?badge=teacher` shows
+  every tag and sends no filter. Changing the scope keeps the badge, and
+  changing the badge keeps the scope. "Anyone" removes `badge` from the URL
+  (the select's "any" value is never a badge type, so it never reaches the
+  URL or the API).
+- **Data layer:** `TagListFilters.badge`, and `buildListQuery` sends
+  `badge=`. The filters object is the query key, so `keys.ts` needed no
+  change: each badge value has its own cache entry.
+- **Empty state:** when the filter is on and nothing matches, the page shows
+  "No tags match the author filter" with the action "Show all authors". It
+  comes before the search empty state, because with the filter on it is the
+  most likely cause. The copy does not name the badge, so it works for any
+  future type (the badge word would need a different form in each language).
+- **Layout:** `.sort-row` now wraps (`flex-wrap`), because it holds two
+  selects and the result count. Look at the phone width.
+- **MSW fake:** the list handler filters by `badge` before it counts, like
+  the real endpoint.
+- Frontend suite: 1,451 tests (8 new in `TagsPage.test.tsx`: default, pick,
+  reload, back to "Anyone", scope and badge together, search combined, empty
+  state, unknown badge in the URL). `tsc -b`, `eslint .` (0 errors, the same
+  3 old warnings) and `npm run build -w frontend` pass.
+- One of my tests first failed on a timing gap (it waited for the old card
+  to leave, not for the filtered result). Fixed in the test; the file then
+  passed 3 of 3 runs.
+- The es, de and ee words are mine: "Autor/Cualquiera", "Autor/Alle",
+  "Autor/Kõik" and the empty-state copy. Please check them.
+- **Not looked at in a browser yet** (select next to Sort, wrapping on a
+  phone, dark mode).
 
 ### Slice 7 — Reserved names (impersonation)
 

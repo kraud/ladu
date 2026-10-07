@@ -106,6 +106,15 @@
       "recent": "Recent",
       "label": "Label A–Z"
     },
+    "authorFilter": {
+      "label": "Author",
+      "any": "Anyone"
+    },
+    "emptyBadge": {
+      "title": "No tags match the author filter",
+      "description": "Try another scope, or show tags from all authors.",
+      "action": "Show all authors"
+    },
     "resultCount": "{{shown}} of {{total}} tags",
     "noResults": "No tags",
     "loaded": "Showing {{loaded}} of {{total}} tags",
