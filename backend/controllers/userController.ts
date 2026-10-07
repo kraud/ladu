@@ -28,6 +28,7 @@ const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = req
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
+const { assertNamesAllowed }: typeof import("../lib/reservedNames") = require("../lib/reservedNames");
 const { calculateBasicUserMetrics } = require("./metricController");
 
 type UserRow = typeof users.$inferSelect;
@@ -239,6 +240,15 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
     throw error;
   }
 
+  // Reserved names (verified-badges.md): nobody can pose as "Ladu" or "Official".
+  // After the gate, so a closed gate still answers first. Reveals nothing about accounts.
+  try {
+    await assertNamesAllowed({ username, name });
+  } catch (error) {
+    if (error instanceof HttpError) res.status(error.status);
+    throw error;
+  }
+
   // Enforce the app-level case-insensitive uniqueness rules used by the legacy API.
   const emailExists = await findUserByEmailInsensitive(email);
   const usernameExists = await findUserByUsernameInsensitive(username);
@@ -374,23 +384,47 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
     throw new Error("User not found");
   }
 
-  // Keep username unique across users while allowing the current user to keep their own.
-  const [usernameExists] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.username, username))
-    .limit(1);
-
-  if (usernameExists && usernameExists.id !== req.user.id) {
-    res.status(400);
-    throw new Error("Username already in use!");
-  }
-
   // Preserve the legacy credential check: the submitted email must belong to the logged-in user.
   const userData = await findUserByEmailInsensitive(email);
   if (!userData || userData.id !== req.user.id) {
     res.status(400);
     throw new Error("Invalid credentials");
+  }
+
+  // The username is trimmed, and must be unique whatever its case (registration
+  // checks it the same way) while the current user may keep or re-case their own.
+  // Absent -> keep the stored one.
+  let nextUsername: string | undefined;
+  if (username !== undefined) {
+    nextUsername = typeof username === "string" ? username.trim() : "";
+    if (!nextUsername) {
+      res.status(400);
+      throw new Error("Please add all fields");
+    }
+    const usernameExists = await findUserByUsernameInsensitive(nextUsername);
+    if (usernameExists && usernameExists.id !== req.user.id) {
+      res.status(400);
+      throw new Error("Username already in use!");
+    }
+  }
+
+  // Reserved names (verified-badges.md): only a value that CHANGES is checked, so an
+  // account keeps a name it already has. An active "official" badge exempts the account.
+  const usernameChanged = nextUsername !== undefined && nextUsername !== userData.username;
+  const nameChanged = typeof name === "string" && name !== userData.name;
+  if (usernameChanged || nameChanged) {
+    try {
+      await assertNamesAllowed(
+        {
+          username: usernameChanged ? nextUsername : undefined,
+          name: nameChanged ? name : undefined,
+        },
+        { userId: userData.id },
+      );
+    } catch (error) {
+      if (error instanceof HttpError) res.status(error.status);
+      throw error;
+    }
   }
 
   // A profile edit may change the language selection: validate it exactly as
@@ -449,7 +483,7 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
     .update(users)
     .set({
       name: name ?? userData.name,
-      username: username ?? userData.username,
+      username: nextUsername ?? userData.username,
       languages: resolvedLanguages,
       uiLanguage: uiLanguage ?? userData.uiLanguage,
       theme: themeResult.theme ?? userData.theme,

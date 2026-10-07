@@ -1,6 +1,6 @@
 # Account badges ("official" and later types)
 
-> Status: **approved 2026-10-06. Slices 0–6 done. Slices 7–8 not started.**
+> Status: **approved 2026-10-06. Slices 0–7 done. Slice 8 not started.**
 > Branch: `verified-accounts`.
 
 ## How to start
@@ -511,6 +511,62 @@ Rule: reject if the result contains `ladu` or `official`, or equals `admin`,
 - Tests: register / OAuth signup / update rejected; a badged account can
   rename to "Ladu"; an unchanged legacy name passes an update; the D3 case
   ("Admin" vs "admin") → 400.
+
+**Shipped 2026-10-07.** Built as planned, with these notes:
+- **The check** is `backend/lib/reservedNames.ts`: `normalizeName`,
+  `isReservedName` and `assertNamesAllowed`. The rule is D1: a name that
+  contains `ladu` or `official`, or equals `admin`, `staff`, `support`,
+  `moderator` or `team`, is refused. Each field (username, display name) is
+  checked on its own.
+- **One addition to the plan's normalize steps:** `i`, `l`, `1`, `!` and `|`
+  are folded to one letter, on both sides of the comparison (the name and
+  the reserved words). `1` can stand for `i` ("Off1cial") or for `l`
+  ("1adu"). With the fold, both are caught whichever the writer meant. A few
+  Latin letters that do not split into base + accent (`ł đ ø ı ŧ`) were
+  added to the look-alike table.
+- **Where it runs:** `registerUser` and `signupComplete` (after the access
+  gate, before the "already in use" checks, so a closed gate answers first)
+  and `updateUser`. Answers: 400 with `code` `username_reserved` or
+  `name_reserved`, and a message that does not show the word list. The
+  username is named first when both are reserved.
+- **A third code for Google signup, `google_name_reserved`** (not in the
+  plan). In `signupComplete` the display name comes from the Google profile,
+  and the signup form cannot change it. A plain "choose another name" would
+  leave the person stuck. The message says to change the name in the Google
+  account. If you prefer a silent fallback (use the username as the display
+  name), say so: it is a small change.
+- **`updateUser` (D2, D3):** only a value that changes is checked, so an
+  existing account keeps its name, also when it is reserved. An active
+  `official` badge exempts the account. A revoked badge, or a badge of
+  another type, does not. The username is trimmed. It is unique whatever its
+  case, using the same `findUserByUsernameInsensitive` as registration, and
+  an account may change the case of its own. An empty or non-text username
+  is refused with 400 "Please add all fields" (it used to be saved as is).
+  The credential check (email must be the caller's) now runs **before** the
+  username checks; before, the username check came first. No test depended
+  on the old order.
+- **Frontend:** `authErrorKey` maps the three codes to
+  `loginRegister:apiErrors.usernameReserved`, `.nameReserved` and
+  `.googleNameReserved` (en, es, de, ee). The register form, the Google
+  signup form and the account form all use `authErrorKey`, so all three show
+  the message with no change of their own.
+- **Tests:** backend 927 → 1,035 (71 in `reservedNames.test.js`, 37 in
+  `reservedNamesApi.test.js`). Frontend 1,451 → 1,454 (the code mapping, the
+  account form, the Google signup form). `tsc`, lint (0 errors, the same 3
+  old warnings) and build pass in both.
+- **Known limits (by design, D1):**
+  - The look-alike table is small. It stops the common tricks, not every
+    Unicode confusable.
+  - The exact words are compared whole: `Admin1` becomes `admlnl` and is
+    allowed, `Admin2` becomes `admin` and is refused. Only the exact word is
+    refused, as decided.
+  - `ladu` is also an Estonian word (a warehouse). A real name that contains
+    it is refused. The owner can grant the `official` badge first, or set
+    the name in the DB.
+  - Existing accounts are not scanned. An account that already has a
+    reserved name keeps it until the owner acts. Tell me if you want a
+    one-time report of such accounts.
+- The es, de and ee texts are mine: please check them.
 
 ### Slice 8 — e2e gate and docs
 

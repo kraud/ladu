@@ -29,6 +29,7 @@ const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = req
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock, loginBlockMessage }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
+const { assertNamesAllowed }: typeof import("../lib/reservedNames") = require("../lib/reservedNames");
 const { getProvider, listConfiguredProviders }: typeof import("../lib/oauth/providers") = require("../lib/oauth/providers");
 const { generateCodeVerifier, generateCodeChallenge, generateNonce }: typeof import("../lib/oauth/pkce") = require("../lib/oauth/pkce");
 const { issueStateToken, verifyStateToken }: typeof import("../lib/oauth/stateToken") = require("../lib/oauth/stateToken");
@@ -366,6 +367,16 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
   let gateMode;
   try {
     gateMode = await assertRegistrationAllowed(payload.email);
+  } catch (error) {
+    if (error instanceof HttpError) res.status(error.status);
+    throw error;
+  }
+
+  // Reserved names (verified-badges.md). The display name comes from the Google
+  // profile, not from our form, so a person whose Google name is reserved cannot
+  // finish signup here until they change it at Google. `nameFrom` makes the answer say so.
+  try {
+    await assertNamesAllowed({ username, name: payload.name }, { nameFrom: "google" });
   } catch (error) {
     if (error instanceof HttpError) res.status(error.status);
     throw error;

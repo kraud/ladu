@@ -14,12 +14,20 @@ import { getApiErrorCode, getApiErrorMessage } from '@/api/types';
 
 export const GENERIC_ERROR_KEY = 'common:errors.somethingWrong';
 
-/** Machine-readable codes (HTTP 403) from the access gates. The server never changes their meaning. */
+/**
+ * Machine-readable codes from the server. The server never changes their meaning.
+ * The access gates answer 403; the reserved-name rule (verified-badges.md) answers 400.
+ */
 const CODE_TO_KEY: Record<string, string> = {
     registration_closed: 'loginRegister:access.registrationClosed',
     registration_not_invited: 'loginRegister:access.registrationNotInvited',
     login_closed: 'loginRegister:access.loginClosed',
     login_not_allowed: 'loginRegister:access.loginNotAllowed',
+    // A username or display name that looks like "Ladu", "Official", "Admin"... The
+    // Google one is separate: that name comes from the Google profile, not from our form.
+    username_reserved: 'loginRegister:apiErrors.usernameReserved',
+    name_reserved: 'loginRegister:apiErrors.nameReserved',
+    google_name_reserved: 'loginRegister:apiErrors.googleNameReserved',
 };
 
 const MESSAGE_TO_KEY: Record<string, string> = {
