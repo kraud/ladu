@@ -326,6 +326,70 @@ describe('PUT /api/words/:id - Update Word', () => {
 });
 
 // ===========================================================================
+// German nouns are capitalized on save
+// ===========================================================================
+describe('German noun capitalization', () => {
+    let token;
+
+    beforeEach(async () => {
+        token = (await registerAndLogin()).token;
+    });
+
+    const germanNoun = (word, gender = 'neuter') => ({
+        language: 'German',
+        cases: [
+            { caseName: 'genderDE', word: gender },
+            { caseName: 'singularNominativDE', word },
+            { caseName: 'pluralNominativDE', word: 'häuser' },
+        ],
+    });
+    const englishNoun = (word) => ({ language: 'English', cases: [{ caseName: 'singularEN', word }] });
+    const casesOf = (body, language) => body.translations.find((tr) => tr.language === language).cases;
+    const wordOf = (cases, caseName) => cases.find((c) => c.caseName === caseName).word;
+
+    it('capitalizes the word forms of a German noun, and only the first letter', async () => {
+        const res = await request(app)
+            .post('/api/words').set('Authorization', `Bearer ${token}`)
+            .send({ partOfSpeech: 'Noun', translations: [englishNoun('house'), germanNoun('haus')] });
+
+        expect(res.statusCode).toBe(200);
+        const german = casesOf(res.body, 'German');
+        expect(wordOf(german, 'singularNominativDE')).toBe('Haus');
+        expect(wordOf(german, 'pluralNominativDE')).toBe('Häuser');
+        // Gender is not a word form, and other languages keep their text.
+        expect(wordOf(german, 'genderDE')).toBe('neuter');
+        expect(wordOf(casesOf(res.body, 'English'), 'singularEN')).toBe('house');
+    });
+
+    it('does not change German words that are not nouns', async () => {
+        const res = await request(app)
+            .post('/api/words').set('Authorization', `Bearer ${token}`)
+            .send({
+                partOfSpeech: 'Adverb',
+                translations: [t('English', 'quickly', 'adverbEN'), t('German', 'schnell', 'adverbDE')],
+            });
+
+        expect(res.statusCode).toBe(200);
+        expect(wordOf(casesOf(res.body, 'German'), 'adverbDE')).toBe('schnell');
+    });
+
+    it('capitalizes on update too, also when the part of speech is not in the body', async () => {
+        const created = await request(app)
+            .post('/api/words').set('Authorization', `Bearer ${token}`)
+            .send({ partOfSpeech: 'Noun', translations: [englishNoun('house'), germanNoun('Haus')] });
+
+        const res = await request(app)
+            .put(`/api/words/${created.body.id}`).set('Authorization', `Bearer ${token}`)
+            .send({ translations: [englishNoun('house'), germanNoun('hund')] });
+
+        expect(res.statusCode).toBe(200);
+        const fetched = await request(app)
+            .get(`/api/words/${created.body.id}`).set('Authorization', `Bearer ${token}`);
+        expect(wordOf(casesOf(fetched.body, 'German'), 'singularNominativDE')).toBe('Hund');
+    });
+});
+
+// ===========================================================================
 // DELETE /api/words/:id - Delete Word
 // ===========================================================================
 describe('DELETE /api/words/:id - Delete Word', () => {

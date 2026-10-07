@@ -149,6 +149,19 @@ describe('FieldRenderer', () => {
         expect(screen.getByRole('textbox')).toBeInTheDocument();
     });
 
+    it('capitalizes the first letter while typing in a German noun field, and only there', async () => {
+        const user = userEvent.setup();
+        const deField = getFormConfig(PartOfSpeech.noun, Lang.DE)!.fields.find((f) => f.name === 'singularNominativ')!;
+        const german = renderWithProviders(<Harness field={deField} />);
+        await user.type(screen.getByRole('textbox'), 'haus');
+        expect(screen.getByRole('textbox')).toHaveValue('Haus');
+        german.unmount();
+
+        renderWithProviders(<Harness field={textField} />);
+        await user.type(screen.getByRole('textbox'), 'house');
+        expect(screen.getByRole('textbox')).toHaveValue('house');
+    });
+
     it('marks a required field with a visible red asterisk, without changing its accessible name', () => {
         renderWithProviders(<Harness field={textField} />);
         // `textField` (noun singular) is required — the marker sits next to the

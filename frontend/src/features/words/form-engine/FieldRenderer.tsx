@@ -49,7 +49,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { matchesVisibility, type FieldConfig } from './configs/types';
-import { isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
+import { capitalizeFirst, isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
 import { cn } from '@/lib/utils';
 
 /** The strip reserved under an editable field for its message — one 16px line (`pb-4`, `leading-4` below). */
@@ -145,6 +145,11 @@ export function FieldRenderer({
                         <Input
                             {...rhf}
                             value={rhf.value ?? ''}
+                            onChange={
+                                field.capitalize
+                                    ? (event) => rhf.onChange(capitalizeFirst(event.target.value))
+                                    : rhf.onChange
+                            }
                             placeholder={
                                 isAutocompleteTrigger
                                     ? t('wordRelated:wordForm.autocompleteTranslationButton.inputPlaceholder')

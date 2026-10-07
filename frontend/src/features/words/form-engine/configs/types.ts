@@ -155,6 +155,8 @@ export interface TextFieldConfig extends FieldConfigBase {
     caseName: CaseName;
     /** Lowercase the value before persisting. Noun text cases: all languages except German (which keeps capitalization). */
     lowercase: boolean;
+    /** Capitalize the first letter, as the user types and before persisting. German nouns (a rule of the language). */
+    capitalize?: boolean;
     pattern?: FieldPattern;
 }
 

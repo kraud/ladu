@@ -28,6 +28,7 @@ const {
 
 // Re-exported helper from the migrated tag controller.
 const { getWordsIdFromFollowedTagsByUserId } = require("./tagController.ts");
+const { capitalizeGermanNouns }: typeof import("../lib/germanNouns") = require("../lib/germanNouns");
 const { translationAverage }: typeof import("../services/exercises/knowledge") = require("../services/exercises/knowledge");
 
 const {
@@ -512,6 +513,9 @@ const setWord = asyncHandler(async (req: any, res: any) => {
     throw new Error("Please add 2 or more translations");
   }
 
+  // German noun forms are saved with a capital first letter (a rule of the language).
+  req.body.translations = capitalizeGermanNouns(req.body.partOfSpeech, req.body.translations);
+
   // Tags are assigned by id at create time (phase-4-tags.md D4) — the
   // caller must own every tag it asks to attach, checked up front so a bad
   // id 403s the whole request rather than creating the word regardless.
@@ -610,6 +614,10 @@ const updateWord = asyncHandler(async (req: any, res: any) => {
   if (word.userId !== req.user.id) {
     res.status(401);
     throw new Error("User not authorized");
+  }
+
+  if (Array.isArray(req.body.translations)) {
+    req.body.translations = capitalizeGermanNouns(req.body.partOfSpeech ?? word.partOfSpeech, req.body.translations);
   }
 
   await db.transaction(async (tx) => {
