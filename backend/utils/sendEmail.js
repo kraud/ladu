@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer")
 const resetPassword = require("./resources/resetPassword")
 const verifyEmail = require("./resources/verifyEmail");
+const registrationInvite = require("./resources/registrationInvite");
 const { stringsFor } = require("./resources/emailStrings");
 
 // `emailData.type` selects both the template and its localized subject
@@ -24,6 +25,13 @@ function getEmailContent(emailData) {
                 html: verifyEmail.getHtmlComponent(emailData),
                 text: verifyEmail.getTextComponent(emailData),
                 attachments: verifyEmail.getAttachments()
+            }
+        case "registrationInvite":
+            return {
+                subject: s.subjectInvite,
+                html: registrationInvite.getHtmlComponent(emailData),
+                text: registrationInvite.getTextComponent(emailData),
+                attachments: registrationInvite.getAttachments()
             }
     }
 }

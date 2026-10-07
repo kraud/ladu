@@ -1,23 +1,35 @@
-import { type MouseEvent, useState } from 'react';
+import { type MouseEvent, useCallback, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { ListIcon } from '@phosphor-icons/react';
+import {
+    BrainIcon,
+    ListIcon,
+    ShuffleIcon,
+    TagIcon,
+    TranslateIcon,
+} from '@phosphor-icons/react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
 import { BrandLogo } from '@/components/common/BrandLogo';
 import { LanguageSelector } from '@/components/layout/LanguageSelector';
 import { ThemeSelector } from '@/components/layout/ThemeSelector';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { featureFlags } from '@/app/feature-flags';
+import { LeaveSessionDialog } from '@/features/practice/components/LeaveSessionDialog';
+import { useSessionFor } from '@/features/practice/sessionStore';
+import { useQuickPractice } from '@/features/practice/useQuickPractice';
+import { useEdgeSwipeOpen, useSwipeCloseProps } from '@/lib/useSwipe';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { useAuthStore } from '@/stores/authStore';
 
 /** Nav targets. `requiresLanguages` = the old "≥2 languages" gate on Words (Add word hangs off it). */
 const NAV_ITEMS = [
-    { to: '/words', labelKey: 'common:header.words', requiresLanguages: true },
+    { to: '/words', labelKey: 'common:header.words', requiresLanguages: true, icon: TranslateIcon },
     // Phase 4 (D1) — feature-flagged, not language-gated: tags are useful
     // regardless of how many languages an account has configured.
-    { to: '/tags', labelKey: 'common:header.tags', requiresLanguages: false, flag: 'tags' },
-    { to: '/practice', labelKey: 'common:header.practice', requiresLanguages: false },
+    { to: '/tags', labelKey: 'common:header.tags', requiresLanguages: false, flag: 'tags', icon: TagIcon },
+    { to: '/practice', labelKey: 'common:header.practice', requiresLanguages: false, icon: BrainIcon },
 ] as const;
 
 /**
@@ -51,7 +63,16 @@ function useLanguageGate() {
     };
 }
 
-function NavLinks({ onNavigate, className }: { onNavigate?: () => void; className?: string }) {
+function NavLinks({
+    onNavigate,
+    className,
+    withIcons,
+}: {
+    onNavigate?: () => void;
+    className?: string;
+    /** The phone menu shows an icon on the left of each label. */
+    withIcons?: boolean;
+}) {
     const { t } = useTranslation();
     const gate = useLanguageGate();
     const visibleItems = NAV_ITEMS.filter((item) => !('flag' in item) || featureFlags[item.flag]);
@@ -67,10 +88,45 @@ function NavLinks({ onNavigate, className }: { onNavigate?: () => void; classNam
                         if (gate(item.requiresLanguages)(event)) onNavigate?.();
                     }}
                 >
+                    {withIcons && <item.icon size={22} aria-hidden="true" className="shrink-0" />}
                     {t(item.labelKey)}
                 </Link>
             ))}
         </nav>
+    );
+}
+
+/** Phone menu only: random practice (default settings) and a new word, side by side with equal width. */
+function QuickActions({
+    onDone,
+    onRandom,
+    busy,
+}: {
+    onDone: () => void;
+    onRandom: () => void;
+    busy: boolean;
+}) {
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    return (
+        <div className="mt-auto grid grid-cols-2 gap-2 pb-4">
+            <Button type="button" variant="outline" className="h-11" disabled={busy} onClick={onRandom}>
+                <ShuffleIcon size={20} aria-hidden="true" />
+                {t('common:header.quick.randomPractice')}
+            </Button>
+            <Button
+                type="button"
+                variant="outline"
+                className="h-11"
+                onClick={() => {
+                    onDone();
+                    void navigate({ to: '/addWord/{-$partOfSpeech}' });
+                }}
+            >
+                <TranslateIcon size={20} aria-hidden="true" />
+                {t('common:header.quick.newWord')}
+            </Button>
+        </div>
     );
 }
 
@@ -103,6 +159,27 @@ function HeaderRight() {
 export function AppHeader() {
     const { t } = useTranslation();
     const [sheetOpen, setSheetOpen] = useState(false);
+    const isMobile = useIsMobile();
+    const openMenu = useCallback(() => setSheetOpen(true), []);
+    // On a phone, a swipe from the left edge opens the menu, and a swipe to the left closes it.
+    useEdgeSwipeOpen(isMobile && !sheetOpen, openMenu);
+    const swipeToClose = useSwipeCloseProps(() => setSheetOpen(false));
+    const quickPractice = useQuickPractice();
+    const user = useAuthStore((s) => s.user);
+    const session = useSessionFor(user?.id);
+    // A finished session (results) has all its answers saved: nothing to confirm.
+    const needsConfirm = session !== null && session.view !== 'results';
+    const [confirming, setConfirming] = useState(false);
+
+    function randomPractice() {
+        if (needsConfirm) {
+            // The menu closes first: two modal layers would fight for focus.
+            setSheetOpen(false);
+            setConfirming(true);
+        } else {
+            quickPractice.start(() => setSheetOpen(false));
+        }
+    }
 
     return (
         <header className="app-header">
@@ -114,7 +191,7 @@ export function AppHeader() {
                     >
                         <ListIcon size={26} />
                     </SheetTrigger>
-                    <SheetContent side="left" className="gap-0 p-4">
+                    <SheetContent side="left" className="gap-0 p-4" {...swipeToClose}>
                         <SheetHeader className="p-0 pb-8">
                             <SheetTitle>
                                 {/* Same target as the header logo: the Dashboard. */}
@@ -129,10 +206,16 @@ export function AppHeader() {
                             </SheetTitle>
                         </SheetHeader>
                         <NavLinks
-                            className="app-nav flex-col gap-0 border-t border-border [&_a]:h-12 [&_a]:w-full [&_a]:rounded-none [&_a]:border-b [&_a]:border-border [&_a]:px-2 [&_a]:text-lg"
+                            className="app-nav flex-col gap-0 border-t border-border [&_a]:h-12 [&_a]:w-full [&_a]:rounded-none [&_a]:border-b [&_a]:border-border [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:px-2 [&_a]:text-lg"
+                            withIcons
                             onNavigate={() => setSheetOpen(false)}
                         />
-                        <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
+                        <QuickActions
+                            onDone={() => setSheetOpen(false)}
+                            onRandom={randomPractice}
+                            busy={quickPractice.isPending}
+                        />
+                        <div className="flex items-center justify-between border-t border-border pt-4">
                             <LanguageSelector />
                             <ThemeSelector />
                         </div>
@@ -149,6 +232,17 @@ export function AppHeader() {
 
                 <HeaderRight />
             </div>
+            {session && needsConfirm && (
+                <LeaveSessionDialog
+                    open={confirming}
+                    onOpenChange={setConfirming}
+                    session={session}
+                    onLeave={() => {
+                        setConfirming(false);
+                        quickPractice.start();
+                    }}
+                />
+            )}
         </header>
     );
 }

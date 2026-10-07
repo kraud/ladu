@@ -25,6 +25,7 @@ function makeTag(overrides: Partial<TagSummary> & Pick<TagSummary, 'id' | 'label
         author: { id: ME, username: 'kai', badges: [] },
         wordCount: 0,
         followerCount: 0,
+        languages: [],
         isOwner: true,
         isFollowing: false,
         isAvailable: true,

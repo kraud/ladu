@@ -43,7 +43,7 @@ function nounErrorKey(suffix: string, key: string): string {
     return `wordRelated:wordForm.noun.errors.form${suffix}.${key}`;
 }
 
-function toTextField(row: NounCasesData, suffix: string, lowercase: boolean): TextFieldConfig {
+function toTextField(row: NounCasesData, suffix: string, lowercase: boolean, capitalize: boolean): TextFieldConfig {
     const required = !row.isNounProperty && row.plurality === Plurality.S && row.declination === DeclensionNoun.nominative;
     return {
         kind: 'text',
@@ -53,6 +53,7 @@ function toTextField(row: NounCasesData, suffix: string, lowercase: boolean): Te
         required,
         requiredMessageKey: required ? nounErrorKey(suffix, 'singularFormRequired') : undefined,
         lowercase,
+        capitalize: capitalize || undefined,
         // Pairs a case's singular and plural onto the same row (EE's `shortForm` property
         // row has no plurality/declination of its own and stays full-width, unpaired).
         layout: row.isNounProperty ? undefined : { row: row.declination, column: row.plurality },
@@ -102,7 +103,7 @@ function buildNounConfig(lang: Lang): TranslationFormConfig {
     }
     fields.push(regularityField(lang));
     for (const row of otherRows) {
-        fields.push(toTextField(row, suffix, lowercase));
+        fields.push(toTextField(row, suffix, lowercase, lang === Lang.DE));
     }
 
     return { pos: PartOfSpeech.noun, lang, fields };

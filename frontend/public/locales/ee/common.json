@@ -38,7 +38,11 @@
     },
     "notImplemented": "Vabandust, see funktsioon pole veel valmis!",
     "goToAccount": "Ava konto",
-    "menu": "Menüü"
+    "menu": "Menüü",
+    "quick": {
+      "randomPractice": "Juhuslik harjutus",
+      "newWord": "Uus sõna"
+    }
   },
   "theme": {
     "switchToDark": "Lülita tumedale teemale",

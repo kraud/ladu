@@ -21,10 +21,13 @@ export function LeaveSessionDialog({
     open,
     onOpenChange,
     session,
+    onLeave,
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     session: Session;
+    /** Called after the session is gone (saved or deleted): the caller can start something else. */
+    onLeave?: () => void;
 }) {
     const { t } = useTranslation();
     const clear = usePracticeSessionStore((s) => s.clear);
@@ -42,6 +45,7 @@ export function LeaveSessionDialog({
             onSuccess: () => {
                 toast.success(t('practice:session.leaveDialog.savedToast'));
                 clear();
+                onLeave?.();
             },
         });
     }
@@ -50,6 +54,7 @@ export function LeaveSessionDialog({
         if (save.isPending) return;
         if (session.savedId) deleteSaved.mutate(session.savedId);
         clear();
+        onLeave?.();
     }
 
     return (

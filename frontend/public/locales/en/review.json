@@ -78,7 +78,12 @@
     "loadMore": "Load more",
     "tags": "Tags",
     "tagsOpen": "Show tags",
-    "tagsOpenAdd": "Add tags to this word"
+    "tagsOpenAdd": "Add tags to this word",
+    "sort": {
+      "off": "Sort {{lang}} from A to Z",
+      "asc": "Sorted {{lang}} from A to Z. Sort from Z to A",
+      "desc": "Sorted {{lang}} from Z to A. Remove the sort"
+    }
   },
   "cellDialog": {
     "deleteTranslation": "Delete translation",

@@ -12,6 +12,7 @@ import {
     useAllowLogin,
     useDisallowLogin,
     useRemoveInvite,
+    useSendInvite,
     useSaveGate,
     useSignOutEveryone,
 } from '@/features/access/hooks';
@@ -266,6 +267,9 @@ function InvitesCard({ state, onDone }: { state: AccessState; onDone: (message: 
     const [result, setResult] = useState<AddInvitesResult | null>(null);
     const add = useAddInvites();
     const remove = useRemoveInvite();
+    const send = useSendInvite();
+    // The invites that got an email in this visit (the server keeps no "sent" mark, only the audit log).
+    const [sentIds, setSentIds] = useState<ReadonlySet<string>>(new Set());
 
     const emails = parseEmails(text);
     const tooMany = emails.length > MAX_EMAILS_PER_REQUEST;
@@ -346,6 +350,11 @@ function InvitesCard({ state, onDone }: { state: AccessState; onDone: (message: 
                     {errorMessage(remove.error)}
                 </p>
             )}
+            {send.isError && (
+                <p role="alert" className="text-sm text-destructive">
+                    {errorMessage(send.error, 'Could not send the invite')}
+                </p>
+            )}
 
             <div className="overflow-x-auto rounded-lg border">
                 <table className="w-full text-left text-sm">
@@ -371,7 +380,27 @@ function InvitesCard({ state, onDone }: { state: AccessState; onDone: (message: 
                                 <td className="px-3 py-2 break-all">{invite.email}</td>
                                 <td className="px-3 py-2">{invite.addedBy ?? NONE}</td>
                                 <td className="px-3 py-2 whitespace-nowrap">{formatDateTime(invite.createdAt)}</td>
-                                <td className="px-3 py-2">
+                                <td className="flex gap-2 px-3 py-2">
+                                    <Button
+                                        size="xs"
+                                        variant="outline"
+                                        aria-label={`Send invite to ${invite.email}`}
+                                        disabled={send.isPending}
+                                        onClick={() =>
+                                            send.mutate(invite.id, {
+                                                onSuccess: () => {
+                                                    setSentIds((previous) => new Set(previous).add(invite.id));
+                                                    onDone(`Invite email sent to ${invite.email}.`);
+                                                },
+                                            })
+                                        }
+                                    >
+                                        {send.isPending && send.variables === invite.id
+                                            ? 'Sending…'
+                                            : sentIds.has(invite.id)
+                                              ? 'Send again'
+                                              : 'Send invite'}
+                                    </Button>
                                     <Button
                                         size="xs"
                                         variant="outline"

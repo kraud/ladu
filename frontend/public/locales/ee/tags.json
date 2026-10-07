@@ -55,7 +55,8 @@
     "unfollow": "Lõpeta jälgimine",
     "clone": "Kloon",
     "follow": "Jälgi",
-    "addWords": "Lisa sõnu"
+    "addWords": "Lisa sõnu",
+    "languages": "Sõnade keeled: {{list}}"
   },
   "form": {
     "createTitle": "Uus tag",
@@ -81,7 +82,11 @@
     "visibilityHint": "Teise kasutaja tagi koopia algab privaatsena.",
     "independentNote": "Koopia on täiesti iseseisev — selle sõnad (koos kõigi tõlgetega) muutuvad sinu omaks. Hilisemad muudatused originaalis seda ei mõjuta.",
     "endsFollowNote": "Kuna omad nüüd koopiat, lõpeb originaali jälgimine.",
-    "confirm": "Loo koopia"
+    "confirm": "Loo koopia",
+    "keepTag": "Säilita silt",
+    "keepTagHintOn": "Koopia on silt koos kõigi selle sõnadega.",
+    "keepTagHintOff": "Kopeeritakse ainult sõnad, ilma sildita. Ainult sina näed neid.",
+    "confirmWords": "Kopeeri sõnad"
   },
   "wordPicker": {
     "label": "Lisa sõnu kohe",
@@ -151,7 +156,9 @@
     "toastDeleted": "Tag \"{{label}}\" kustutatud — sõnad jäävad sinu kogusse alles",
     "toastFollowed": "Jälgid nüüd tagi \"{{label}}\"",
     "toastUnfollowed": "Lõpetasid tagi \"{{label}}\" jälgimise",
-    "toastCloned": "Tagi \"{{label}}\" koopia loodud — see on nüüd täielikult sinu oma"
+    "toastCloned": "Tagi \"{{label}}\" koopia loodud — see on nüüd täielikult sinu oma",
+    "toastWordsCopied_one": "{{count}} sõna kopeeriti sinu kontole",
+    "toastWordsCopied_other": "{{count}} sõna kopeeriti sinu kontole"
   },
   "words": {
     "searchPlaceholder": "Otsi selle tagi sõnade seast…",
@@ -198,7 +205,8 @@
     "unavailableTitle": "Sõnad on praegu peidetud",
     "unavailableDescription": "Omanik muutis selle tagi privaatseks. Sa jätkad jälgimist — selle sõnad naasevad su ülevaatesse, kui see taas avalikuks muutub.",
     "removeHint": "Sõna eemaldamine tagilt ei kustuta seda — see jääb sinu kogusse alles.",
-    "openCopy": "Ava see"
+    "openCopy": "Ava see",
+    "openWords": "Vaata sõnu"
   },
   "picker": {
     "addTitle_one": "Lisa tagid {{count}} sõnale",

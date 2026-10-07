@@ -322,6 +322,39 @@ describe('the invite list', () => {
         expect(screen.getByRole('heading', { name: /Invite list/ })).toHaveTextContent('(1)');
     });
 
+    it('sends the invite email, keeps the invite on the list, and offers to send again', async () => {
+        const { writes } = setup(makeAccess({ invites: [makeInvite(), makeInvite({ id: 'invite-2', email: 'other@example.test' })] }));
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByText('friend@example.test');
+        await user.click(screen.getByRole('button', { name: 'Send invite to friend@example.test' }));
+
+        expect(await screen.findByText('Invite email sent to friend@example.test.')).toBeInTheDocument();
+        expect(writes).toEqual([{ method: 'POST', path: '/api/admin/access/invites/invite-1/send', body: {} }]);
+        // Still listed, and only that row says "Send again".
+        expect(screen.getByText('friend@example.test')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Send invite to friend@example.test' })).toHaveTextContent('Send again');
+        expect(screen.getByRole('button', { name: 'Send invite to other@example.test' })).toHaveTextContent('Send invite');
+    });
+
+    it('shows the server error when the send fails, and does not mark the invite as sent', async () => {
+        setup(makeAccess({ invites: [makeInvite()] }));
+        server.use(
+            http.post('/api/admin/access/invites/:id/send', () =>
+                HttpResponse.json({ message: 'This email already has an account, so an invite email is not needed' }, { status: 409 }),
+            ),
+        );
+        const user = userEvent.setup();
+        await open();
+
+        await screen.findByText('friend@example.test');
+        await user.click(screen.getByRole('button', { name: 'Send invite to friend@example.test' }));
+
+        expect(await screen.findByText(/already has an account/)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Send invite to friend@example.test' })).toHaveTextContent('Send invite');
+    });
+
     it('shows the server error when a removal fails', async () => {
         setup(makeAccess({ invites: [makeInvite()] }));
         server.use(http.delete('/api/admin/access/invites/:id', () => HttpResponse.json({ message: 'Invite not found' }, { status: 404 })));

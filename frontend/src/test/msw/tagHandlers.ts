@@ -41,6 +41,8 @@ export interface SeedTag {
     /** User ids that already follow this tag. */
     followerIds?: string[];
     sourceTag?: TagSourceRef | null;
+    /** Languages (labels) of the tag's words, for the card flags. */
+    languages?: string[];
 }
 
 interface InternalTag {
@@ -52,6 +54,7 @@ interface InternalTag {
     wordIds: Set<string>;
     followerIds: Set<string>;
     sourceTag: TagSourceRef | null;
+    languages: string[];
     createdAt: string;
     updatedAt: string;
 }
@@ -75,6 +78,7 @@ function toSummary(tag: InternalTag, viewerId: string, authorOf: (id: string) =>
         updatedAt: tag.updatedAt,
         author: authorOf(tag.authorId),
         wordCount: tag.wordIds.size,
+        languages: isAvailable ? tag.languages : [],
         followerCount: tag.followerIds.size,
         isOwner,
         isFollowing,
@@ -155,6 +159,7 @@ export function makeTagHandlers(opts: {
             wordIds: new Set(s.wordIds ?? []),
             followerIds: new Set(s.followerIds ?? []),
             sourceTag: s.sourceTag ?? null,
+            languages: s.languages ?? [],
             createdAt: now,
             updatedAt: now,
         };
@@ -413,18 +418,22 @@ export function makeTagHandlers(opts: {
                     { status: 403 },
                 );
             }
-            if (!VALID_VISIBILITIES.includes(body.visibility)) {
+            const keepTag = body.keepTag !== false;
+            if (keepTag && !VALID_VISIBILITIES.includes(body.visibility ?? '')) {
                 return HttpResponse.json({ message: 'Invalid visibility status' }, { status: 400 });
             }
 
             // D11: cloning a tag you follow removes the follow.
             source.followerIds.delete(callerId);
 
+            // Words only: the fake keeps no word copies; it answers like the server does.
+            if (!keepTag) return HttpResponse.json({ tag: null, clonedWordCount: source.wordIds.size });
+
             const clone = hydrate({
                 authorId: callerId,
                 label: resolveUniqueLabel(source.label, callerId),
                 description: source.description,
-                visibility: body.visibility,
+                visibility: body.visibility as TagVisibility,
                 wordIds: [...source.wordIds],
                 sourceTag: { id: source.id, label: source.label },
             });

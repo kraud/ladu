@@ -194,6 +194,19 @@ describe('TagsPage — clone', () => {
         await user.click(screen.getByRole('button', { name: 'Create copy' }));
         expect(await screen.findByText('Copy of "Travel" created — it\'s all yours now')).toBeInTheDocument();
     });
+
+    it('with "Keep the tag" unchecked, copies only the words and says how many', async () => {
+        setUp([{ ...discoverTag('Travel'), wordIds: ['w1', 'w2'] }]);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tags?scope=discover', session: SESSION });
+        await screen.findByText('Travel');
+
+        await user.click(screen.getByRole('button', { name: 'Clone' }));
+        await user.click(screen.getByRole('checkbox', { name: 'Keep the tag' }));
+        await user.click(screen.getByRole('button', { name: 'Copy words' }));
+
+        expect(await screen.findByText('2 words copied to your account')).toBeInTheDocument();
+    });
 });
 
 describe('TagsPage — author badge', () => {

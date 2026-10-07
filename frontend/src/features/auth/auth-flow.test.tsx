@@ -323,8 +323,9 @@ describe('OAuth callback (Phase 2)', () => {
     });
 
     it('a #error= fragment toasts the mapped message and returns to /login', async () => {
-        // oauth_failed is the only code the callback still produces as of
-        // Phase 4 — outcomes (b)/(c) both issue tickets now, not errors.
+        // Outcomes (b)/(c) both issue tickets now, not errors, so the
+        // callback's error fragments are oauth_failed, the login-gate codes,
+        // and oauth_account_banned for a banned account.
         window.location.hash = '#error=oauth_failed';
         const { router } = await renderApp({ initialEntry: '/auth/callback' });
 

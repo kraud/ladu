@@ -9,6 +9,7 @@ const testDb = require('./db');
 const { db, pool } = require('../src/db');
 const { users, accessSettings, registrationInvites, auditLog } = require('../src/db/schema');
 const { createStaff } = require('../lib/staffAccounts');
+const sendMail = require('../utils/sendEmail');
 
 beforeAll(() => testDb.connectDB());
 beforeEach(() => testDb.clearDB());
@@ -34,6 +35,7 @@ describe('permission', () => {
         ['put', '/api/admin/access/registration'],
         ['post', '/api/admin/access/invites'],
         ['delete', '/api/admin/access/invites/00000000-0000-4000-8000-000000000000'],
+        ['post', '/api/admin/access/invites/00000000-0000-4000-8000-000000000000/send'],
     ];
 
     it('is for the owner only', async () => {
@@ -202,6 +204,68 @@ describe('POST /api/admin/access/invites', () => {
         });
         expect(res.status).toBe(201);
         expect((await as(token)('get', '/api/admin/access')).body.counts.invites).toBe(0);
+    });
+});
+
+describe('POST /api/admin/access/invites/:id/send', () => {
+    const addOne = async (token, email = 'friend@example.com') => {
+        await as(token)('post', '/api/admin/access/invites').send({ emails: [email] });
+        return (await db.select().from(registrationInvites).where(eq(registrationInvites.email, email)))[0];
+    };
+
+    beforeEach(() => sendMail.mockClear());
+
+    it('emails the invited address with a link to the registration page, and writes an audit entry', async () => {
+        const token = await staffToken('owner');
+        const invite = await addOne(token);
+
+        const res = await as(token)('post', `/api/admin/access/invites/${invite.id}/send`).send({ reason: 'opening day' });
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ sent: true, email: 'friend@example.com' });
+        expect(sendMail).toHaveBeenCalledTimes(1);
+        expect(sendMail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                email: 'friend@example.com',
+                type: 'registrationInvite',
+                url: expect.stringMatching(/\/register$/),
+            }),
+        );
+        const [entry] = await audits('access.invite_send');
+        expect(entry.metadata).toEqual({ email: 'friend@example.com' });
+        expect(entry.reason).toBe('opening day');
+        // Sending does not use up or change the invite.
+        expect(await db.select().from(registrationInvites)).toHaveLength(1);
+    });
+
+    it('can send again to the same address', async () => {
+        const token = await staffToken('owner');
+        const invite = await addOne(token);
+        await as(token)('post', `/api/admin/access/invites/${invite.id}/send`);
+        await as(token)('post', `/api/admin/access/invites/${invite.id}/send`);
+        expect(sendMail).toHaveBeenCalledTimes(2);
+        expect(await audits('access.invite_send')).toHaveLength(2);
+    });
+
+    it('answers 404 for an unknown or malformed id, and sends nothing', async () => {
+        const token = await staffToken('owner');
+        expect((await as(token)('post', '/api/admin/access/invites/00000000-0000-4000-8000-000000000000/send')).status).toBe(404);
+        expect((await as(token)('post', '/api/admin/access/invites/nope/send')).status).toBe(404);
+        expect(sendMail).not.toHaveBeenCalled();
+    });
+
+    it('answers 409 and sends nothing when the address has an account by now', async () => {
+        const token = await staffToken('owner');
+        const invite = await addOne(token, 'late@example.com');
+        await db.insert(users).values({
+            name: 'Late', email: 'Late@Example.com', username: 'late', password: await bcrypt.hash('x-password-1', 4), languages: ['English', 'Spanish'], verified: true,
+        });
+
+        const res = await as(token)('post', `/api/admin/access/invites/${invite.id}/send`);
+
+        expect(res.status).toBe(409);
+        expect(sendMail).not.toHaveBeenCalled();
+        expect(await audits('access.invite_send')).toHaveLength(0);
     });
 });
 

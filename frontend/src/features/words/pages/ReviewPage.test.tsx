@@ -131,6 +131,51 @@ describe('ReviewPage', () => {
         expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
     });
 
+    it('sorts by a language header: A to Z, Z to A, then back to the default order', async () => {
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [verbSeed('banana', 'w1'), verbSeed('apple', 'w2'), verbSeed('Cherry', 'w3')],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+
+        const order = () =>
+            screen
+                .getAllByRole('row')
+                .slice(1)
+                .map((row) => (row.textContent ?? '').match(/apple|banana|Cherry/)?.[0]);
+        await waitFor(() => expect(order()).toHaveLength(3));
+        const defaultOrder = order();
+
+        await user.click(screen.getByRole('button', { name: 'Sort EN from A to Z' }));
+        await waitFor(() => expect(order()).toEqual(['apple', 'banana', 'Cherry']));
+        expect(fake.simpleQueries.at(-1)).toContain('sort=EN&dir=asc');
+
+        await user.click(screen.getByRole('button', { name: 'Sorted EN from A to Z. Sort from Z to A' }));
+        await waitFor(() => expect(order()).toEqual(['Cherry', 'banana', 'apple']));
+        expect(fake.simpleQueries.at(-1)).toContain('sort=EN&dir=desc');
+
+        await user.click(screen.getByRole('button', { name: 'Sorted EN from Z to A. Remove the sort' }));
+        await waitFor(() => expect(order()).toEqual(defaultOrder));
+        expect(fake.simpleQueries.at(-1)).not.toContain('sort=');
+    });
+
+    it('moves the sort to another column when its header is clicked', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [verbSeed('apple', 'w1')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: 'Sort EN from A to Z' }));
+        await user.click(await screen.findByRole('button', { name: 'Sort DE from A to Z' }));
+
+        await waitFor(() => expect(fake.simpleQueries.at(-1)).toContain('sort=DE&dir=asc'));
+        expect(screen.getByRole('button', { name: 'Sort EN from A to Z' })).not.toHaveAttribute('data-sorted');
+    });
+
     it('shows the "no words yet" empty state for an unfiltered empty account', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [] });
         server.use(...fake.handlers);

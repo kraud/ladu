@@ -49,6 +49,7 @@ import { AutocompleteRow } from './AutocompleteRow';
 import { buildYupSchema } from './buildYupSchema';
 import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
+import { capitalizeFirst } from './fieldLayout';
 import { FieldRenderer } from './FieldRenderer';
 import { HorizontalScroller } from './HorizontalScroller';
 import { buildLayoutItems, isHiddenInDisplayOnly, isPersistedCaseField } from './fieldLayout';
@@ -163,6 +164,7 @@ export function fieldsToCases(fields: FieldConfig[], values: Record<string, unkn
         } else {
             word = typeof raw === 'string' ? raw : '';
             if (field.kind === 'text' && field.lowercase) word = word.toLowerCase();
+            if (field.kind === 'text' && field.capitalize) word = capitalizeFirst(word);
         }
         if (word !== '') cases.push({ caseName: field.caseName, word });
     }

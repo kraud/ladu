@@ -67,6 +67,21 @@ describe('TagViewPage — owned tag', () => {
         expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
     });
 
+    it("sorts the tag's words from a language header, through the server", async () => {
+        const { wordFake } = setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1', 'w2'] }],
+            [verbSeed('whisk', 'w1', 'tag-1'), verbSeed('bake', 'w2', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: 'Sort EN from A to Z' }));
+
+        await waitFor(() => expect(wordFake.simpleQueries.at(-1)).toContain('sort=EN&dir=asc'));
+        const order = () => screen.getAllByRole('row').slice(1).map((row) => row.textContent?.match(/whisk|bake/)?.[0]);
+        await waitFor(() => expect(order()).toEqual(['bake', 'whisk']));
+    });
+
     it('Remove words shows the trash column and disables Add words; Cancel hides them again', async () => {
         setUp(
             [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],

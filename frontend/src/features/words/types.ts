@@ -150,8 +150,13 @@ export interface WordSimpleBE extends SimpleHeadlineFields, SimpleCaseCountField
  * declared but never populated in Phase 3 (D1) — Phase 4 fills it in, no
  * shape change needed.
  */
+export type SortDirection = 'asc' | 'desc';
+
 export interface WordListFilters {
     q?: string;
+    /** Sort by this language's column (server side). Without it: newest first. */
+    sort?: LangKey;
+    dir?: SortDirection;
     pos?: PartOfSpeech[];
     gender?: string[];
     tag?: string[];

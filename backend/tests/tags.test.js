@@ -274,6 +274,45 @@ describe('GET /api/tags - List Tags', () => {
 });
 
 // ===========================================================================
+// Languages of a tag's words (the card flags)
+// ===========================================================================
+describe('Tag summary - languages of the words', () => {
+    let owner;
+
+    beforeEach(async () => {
+        owner = await registerAndLogin();
+    });
+
+    it('lists each language of the tag\'s words once, sorted', async () => {
+        const w1 = await createWord(owner.token, 'Noun', 'singularEN', 'apple');
+        const w2 = await createWord(owner.token, 'Noun', 'singularEN', 'pear');
+        const tag = await createTag(owner.token, { label: 'Fruit', wordIds: [w1.id, w2.id] });
+
+        expect(tag.body.languages).toEqual(['English', 'Estonian']);
+    });
+
+    it('is empty for a tag without words', async () => {
+        const tag = await createTag(owner.token, { label: 'Empty' });
+        expect(tag.body.languages).toEqual([]);
+    });
+
+    it('is empty for a viewer who cannot see the words of the tag', async () => {
+        const word = await createWord(owner.token, 'Noun', 'singularEN', 'apple');
+        const tag = await createTag(owner.token, { label: 'Fruit', visibility: 'Public', wordIds: [word.id] });
+        const stranger = await registerAndLogin('Other', 'other@test.com', 'other');
+        await request(app).post(`/api/tags/${tag.body.id}/follow`).set('Authorization', `Bearer ${stranger.token}`);
+        await request(app)
+            .patch(`/api/tags/${tag.body.id}`).set('Authorization', `Bearer ${owner.token}`)
+            .send({ visibility: 'Private' });
+
+        const seen = await request(app).get('/api/tags?scope=followed').set('Authorization', `Bearer ${stranger.token}`);
+        const row = seen.body.items.find((x) => x.id === tag.body.id);
+        expect(row.isAvailable).toBe(false);
+        expect(row.languages).toEqual([]);
+    });
+});
+
+// ===========================================================================
 // GET /api/tags/:id - Get Tag By ID
 // ===========================================================================
 describe('GET /api/tags/:id - Get Tag By ID', () => {
@@ -850,6 +889,64 @@ describe('POST /api/tags/:id/clone - Clone a Public tag', () => {
             .from(userFollowingTags)
             .where(eq(userFollowingTags.tagId, tag.body.id));
         expect(followRows).toHaveLength(0);
+    });
+
+    describe('with keepTag: false (only the words)', () => {
+        const cloneWordsOnly = (token, tagId, body = {}) =>
+            request(app)
+                .post(`/api/tags/${tagId}/clone`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ keepTag: false, ...body });
+
+        it('copies the words with no tag, and answers with the number of words', async () => {
+            const w1 = await createWord(owner.token, 'Noun', 'singularEN', 'book');
+            const w2 = await createWord(owner.token, 'Noun', 'singularEN', 'pen');
+            const tag = await createTag(owner.token, { label: 'Desk', visibility: 'Public', wordIds: [w1.id, w2.id] });
+
+            const res = await cloneWordsOnly(stranger.token, tag.body.id);
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body).toEqual({ tag: null, clonedWordCount: 2 });
+            // The stranger got the words, as their own, and no tag at all.
+            const mine = await request(app).get('/api/words/simple').set('Authorization', `Bearer ${stranger.token}`);
+            expect(mine.body.items).toHaveLength(2);
+            expect(mine.body.items.every((w) => w.user === stranger.id && w.tags.length === 0)).toBe(true);
+            const strangerTags = await request(app).get('/api/tags').set('Authorization', `Bearer ${stranger.token}`);
+            expect(strangerTags.body.items).toHaveLength(0);
+        });
+
+        it('needs no visibility', async () => {
+            const tag = await createTag(owner.token, { label: 'Empty', visibility: 'Public' });
+            const res = await cloneWordsOnly(stranger.token, tag.body.id);
+            expect(res.statusCode).toBe(200);
+            expect(res.body.tag).toBeNull();
+        });
+
+        it('still ends the follow of the original, so the words are not shown twice', async () => {
+            const tag = await createTag(owner.token, { label: 'Followed', visibility: 'Public' });
+            await request(app).post(`/api/tags/${tag.body.id}/follow`).set('Authorization', `Bearer ${stranger.token}`);
+
+            await cloneWordsOnly(stranger.token, tag.body.id);
+
+            const followRows = await db.select().from(userFollowingTags).where(eq(userFollowingTags.tagId, tag.body.id));
+            expect(followRows).toHaveLength(0);
+        });
+
+        it('keeps the other rules: not your own tag, not a Private tag, a boolean value', async () => {
+            const publicTag = await createTag(owner.token, { label: 'Pub', visibility: 'Public' });
+            const privateTag = await createTag(owner.token, { label: 'Priv', visibility: 'Private' });
+            expect((await cloneWordsOnly(owner.token, publicTag.body.id)).statusCode).toBe(400);
+            expect((await cloneWordsOnly(stranger.token, privateTag.body.id)).statusCode).toBe(403);
+            expect((await cloneWordsOnly(stranger.token, publicTag.body.id, { keepTag: 'no' })).statusCode).toBe(400);
+        });
+    });
+
+    it('still requires a valid visibility when the tag is kept', async () => {
+        const tag = await createTag(owner.token, { label: 'Kept', visibility: 'Public' });
+        const res = await request(app)
+            .post(`/api/tags/${tag.body.id}/clone`).set('Authorization', `Bearer ${stranger.token}`)
+            .send({ keepTag: true });
+        expect(res.statusCode).toBe(400);
     });
 });
 

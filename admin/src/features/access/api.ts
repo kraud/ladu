@@ -21,6 +21,12 @@ export async function removeInvite(id: string): Promise<AccessState> {
     return data;
 }
 
+/** Emails the invited address that it can register now. The invite stays on the list. */
+export async function sendInvite(id: string): Promise<{ sent: true; email: string }> {
+    const { data } = await apiClient.post<{ sent: true; email: string }>(`/admin/access/invites/${encodeURIComponent(id)}/send`, {});
+    return data;
+}
+
 export async function allowLogin(body: { userIds?: string[]; emails?: string[]; reason?: string }): Promise<AllowLoginResult> {
     const { data } = await apiClient.post<AllowLoginResult>('/admin/access/login-allowed', body);
     return data;

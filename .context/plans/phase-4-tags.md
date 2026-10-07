@@ -173,6 +173,11 @@ dormant code.
     alongside the existing `isCloned`/`originalCreatorId`.
   - The clone dialog asks the user to pick the new tag's visibility
     (default Private) rather than silently copying the source's visibility.
+  - The dialog has a "Keep the tag" checkbox, checked by default. When the
+    user unchecks it, only the words are copied, with no tag: the visibility
+    choice goes away (the words are private to the user), and the request is
+    `{keepTag: false}`. The response is then `{tag: null, clonedWordCount}`.
+    The follow of the original still ends, for the same reason as above.
   - If the user already follows the tag being cloned, cloning removes the
     follow — otherwise the same words would appear twice (original +
     clone) in Review.
@@ -354,7 +359,7 @@ routes (`POST /:id/share`, `POST /api/tag-shares/:id/accept`,
 | `DELETE /api/tags/:id` | Deletes the tag; `tag_words`/`user_following_tags` cascade via FK. Author-only. |
 | `POST /api/tags/:id/follow` | No body. 400 if it's the caller's own tag. Idempotent (already-following is a no-op 200, not an error). |
 | `DELETE /api/tags/:id/follow` | No body (fixes the legacy route's oddity of a `DELETE` with a body). Idempotent. |
-| `POST /api/tags/:id/clone` | `{visibility}`. Public-only source, not-already-own-tag. One transaction, batch inserts, provenance columns set, label-collision suffix, auto-unfollow if previously followed. |
+| `POST /api/tags/:id/clone` | `{visibility}` or `{keepTag: false}` (words only, answer `{tag: null, clonedWordCount}`). Public-only source, not-already-own-tag. One transaction, batch inserts, provenance columns set, label-collision suffix, auto-unfollow if previously followed. |
 | `POST /api/tags/links` | `{tagIds, wordIds}`. Caller must own every tag *and* every word (403 for the whole call otherwise, matching the legacy `addTagsInBulkToWords` ownership shape). Adding an existing link is a no-op. |
 | `POST /api/tags/links/remove` | Same shape, removes links. Removing a non-existent link is a no-op. |
 

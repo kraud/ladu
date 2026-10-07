@@ -55,7 +55,8 @@
     "unfollow": "Dejar de seguir",
     "clone": "Clonar",
     "follow": "Seguir",
-    "addWords": "Añadir palabras"
+    "addWords": "Añadir palabras",
+    "languages": "Idiomas de las palabras: {{list}}"
   },
   "form": {
     "createTitle": "Nueva etiqueta",
@@ -81,7 +82,11 @@
     "visibilityHint": "Una copia de la etiqueta de otra persona empieza como Privada.",
     "independentNote": "La copia es totalmente independiente — sus palabras (con todas sus traducciones) pasan a ser tuyas. Los cambios posteriores en la original no la afectarán.",
     "endsFollowNote": "Como serás dueño de una copia, dejas de seguir la original.",
-    "confirm": "Crear copia"
+    "confirm": "Crear copia",
+    "keepTag": "Conservar la etiqueta",
+    "keepTagHintOn": "La copia es una etiqueta con todas sus palabras.",
+    "keepTagHintOff": "Solo se copian las palabras, sin etiqueta. Solo tú las ves.",
+    "confirmWords": "Copiar palabras"
   },
   "wordPicker": {
     "label": "Añadir palabras ahora",
@@ -151,7 +156,9 @@
     "toastDeleted": "Etiqueta \"{{label}}\" eliminada — sus palabras se quedan en tu colección",
     "toastFollowed": "Ahora sigues \"{{label}}\"",
     "toastUnfollowed": "Dejaste de seguir \"{{label}}\"",
-    "toastCloned": "Copia de \"{{label}}\" creada — ya es toda tuya"
+    "toastCloned": "Copia de \"{{label}}\" creada — ya es toda tuya",
+    "toastWordsCopied_one": "{{count}} palabra copiada a tu cuenta",
+    "toastWordsCopied_other": "{{count}} palabras copiadas a tu cuenta"
   },
   "words": {
     "searchPlaceholder": "Buscar en las palabras de esta etiqueta…",
@@ -198,7 +205,8 @@
     "unavailableTitle": "Las palabras están ocultas por ahora",
     "unavailableDescription": "El propietario hizo esta etiqueta Privada. Sigues siguiéndola — sus palabras volverán a tu Revisión cuando vuelva a ser Pública.",
     "removeHint": "Quitar una palabra de la etiqueta no la elimina — se queda en tu colección.",
-    "openCopy": "Abrirla"
+    "openCopy": "Abrirla",
+    "openWords": "Ver palabras"
   },
   "picker": {
     "addTitle_one": "Añadir etiquetas a {{count}} palabra",

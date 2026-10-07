@@ -15,6 +15,7 @@ function makeTag(overrides: Partial<TagSummary> = {}): TagSummary {
         author: { id: 'author-1', username: 'kai', badges: [] },
         wordCount: 0,
         followerCount: 0,
+        languages: [],
         isOwner: false,
         isFollowing: false,
         isAvailable: true,

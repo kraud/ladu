@@ -5,7 +5,7 @@ Status: approved on 2026-09-30. Slices 1 (data capture), 2 (staff auth), 3 (admi
 Slice 1 notes:
 - Migration `0010_admin_data_capture.sql`. Helper: `backend/lib/accountAccess.ts`. Tests: `backend/tests/accountAccess.test.js`.
 - A banned user gets 403 at password login and 401 from `protect`. A deleted user gets "Invalid credentials" at login and 401 from `protect`.
-- Banned or deleted Google logins redirect with the generic `oauth_failed` code. A dedicated message needs a frontend change (a later slice).
+- Banned Google logins redirect with the dedicated `oauth_account_banned` code (frontend maps it to the same "account suspended" message as the password path). Deleted Google logins keep the generic `oauth_failed` code so the account looks gone.
 - `deleted_by_staff_id` has no foreign key yet. Slice 2 adds it with `staff_accounts`.
 
 Slice 2 notes:

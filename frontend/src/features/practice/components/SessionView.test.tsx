@@ -8,6 +8,7 @@ import { makeExercise, makePracticeHandlers } from '@/test/msw/practiceHandlers'
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
 import { futureToken } from '@/test/tokens';
 import { useAuthStore } from '@/stores/authStore';
+import { mockMobileViewport } from '@/test/viewport';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import { defaultParams } from '../params';
 import { usePracticeSessionStore } from '../sessionStore';
@@ -297,6 +298,22 @@ describe('SessionView — navigation', () => {
         await open([makeExercise()], { amount: 5 });
 
         expect(await screen.findByText('1 of 5 exercises could be created.')).toBeInTheDocument();
+    });
+
+    it('lets the user dismiss the note about fewer exercises', async () => {
+        const user = userEvent.setup();
+        await open([makeExercise()], { amount: 5 });
+
+        await screen.findByText('1 of 5 exercises could be created.');
+        await user.click(screen.getByRole('button', { name: 'Close' }));
+        expect(screen.queryByText('1 of 5 exercises could be created.')).not.toBeInTheDocument();
+    });
+
+    it('shows the short position label on a phone', async () => {
+        mockMobileViewport();
+        await open([makeExercise(), makeExercise({ key: 'k2' })]);
+
+        expect(await screen.findByText('1 of 2')).toBeInTheDocument();
     });
 
     it('asks before leaving, then goes back to the set-up', async () => {

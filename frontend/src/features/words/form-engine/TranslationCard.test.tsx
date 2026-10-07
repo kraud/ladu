@@ -592,6 +592,20 @@ describe('fieldsToCases', () => {
                 .filter((v): v is string => !!v),
     };
 
+    it('capitalizes the first letter of a capitalize text field, and keeps the rest as typed', () => {
+        const field: FieldConfig = {
+            kind: 'text',
+            name: 'singularNominativ',
+            caseName: CASE_NAME,
+            labelKey: 'x',
+            required: false,
+            lowercase: false,
+            capitalize: true,
+        };
+        expect(fieldsToCases([field], { singularNominativ: 'haus' })).toEqual([{ caseName: CASE_NAME, word: 'Haus' }]);
+        expect(fieldsToCases([field], { singularNominativ: 'eBook' })).toEqual([{ caseName: CASE_NAME, word: 'EBook' }]);
+    });
+
     it('drops a field marked persisted: false, even when it has a value', () => {
         const gender: FieldConfig = {
             kind: 'radio',

@@ -78,7 +78,12 @@
     "loadMore": "Cargar más",
     "tags": "Etiquetas",
     "tagsOpen": "Ver etiquetas",
-    "tagsOpenAdd": "Añadir etiquetas a esta palabra"
+    "tagsOpenAdd": "Añadir etiquetas a esta palabra",
+    "sort": {
+      "off": "Ordenar {{lang}} de la A a la Z",
+      "asc": "{{lang}} ordenado de la A a la Z. Ordenar de la Z a la A",
+      "desc": "{{lang}} ordenado de la Z a la A. Quitar el orden"
+    }
   },
   "cellDialog": {
     "deleteTranslation": "Eliminar traducción",

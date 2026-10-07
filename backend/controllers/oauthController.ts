@@ -49,6 +49,9 @@ const OAUTH_ERROR = {
   // Connect-flow only (Phase 5): this identity is already linked, just not
   // to the account that started this flow.
   ALREADY_LINKED: "oauth_already_linked",
+  // Outcome (a) with a banned account: the frontend maps this to the same
+  // message as the password login's "This account is suspended".
+  ACCOUNT_BANNED: "oauth_account_banned",
 } as const;
 
 /** `GET /api/auth/:provider/callback`'s redirect_uri — registered with the
@@ -263,10 +266,15 @@ const callback = asyncHandler(async (req: any, res: any) => {
       const [user] = await db.select().from(users).where(eq(users.id, existingIdentity.userId)).limit(1);
       if (!user) throw new Error("Linked identity has no matching user row");
 
-      // Deleted and banned accounts cannot sign in. The frontend only maps
-      // `oauth_failed` and `oauth_already_linked` today, so both cases use the
-      // generic code until the admin UI slices add a dedicated message.
-      if (accountBlock(user)) {
+      // Deleted and banned accounts cannot sign in. A deleted account must
+      // still look gone, so it keeps the generic code; a banned account gets
+      // its own code so the frontend can say why (errors.ts).
+      const block = accountBlock(user);
+      if (block === "banned") {
+        fail(OAUTH_ERROR.ACCOUNT_BANNED);
+        return;
+      }
+      if (block) {
         fail(OAUTH_ERROR.FAILED);
         return;
       }

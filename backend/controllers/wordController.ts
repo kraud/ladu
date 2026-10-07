@@ -28,6 +28,15 @@ const {
 
 // Re-exported helper from the migrated tag controller.
 const { getWordsIdFromFollowedTagsByUserId } = require("./tagController.ts");
+const { capitalizeGermanNouns }: typeof import("../lib/germanNouns") = require("../lib/germanNouns");
+const {
+  parseSort,
+  sortKeyExpression,
+  afterCursorCondition,
+  orderByClauses,
+  encodeSortCursor,
+  decodeSortCursor,
+}: typeof import("../lib/wordSort") = require("../lib/wordSort");
 const { translationAverage }: typeof import("../services/exercises/knowledge") = require("../services/exercises/knowledge");
 
 const {
@@ -35,6 +44,7 @@ const {
   count,
   desc,
   eq,
+  getTableColumns,
   ilike,
   inArray,
   lt,
@@ -422,39 +432,61 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     .from(words)
     .where(and(...conditions));
 
+  // `?sort=EN&dir=asc|desc`: sorted by one language column (lib/wordSort.ts). Without it, newest first.
+  let sort: ReturnType<typeof parseSort>;
+  try {
+    sort = parseSort(req.query);
+  } catch (error: any) {
+    res.status(400);
+    throw error;
+  }
+  const sortKey = sort ? sortKeyExpression(sort.langKey) : null;
+
   if (req.query.cursor !== undefined) {
-    const cursor = decodeCursor(req.query.cursor);
-    const cursorCreatedAt = cursor ? new Date(cursor.sortValue) : null;
-    if (!cursor || !cursorCreatedAt || Number.isNaN(cursorCreatedAt.getTime())) {
-      res.status(400);
-      throw new Error("Invalid cursor");
+    if (sort && sortKey) {
+      const cursor = decodeSortCursor(req.query.cursor);
+      if (!cursor) {
+        res.status(400);
+        throw new Error("Invalid cursor");
+      }
+      conditions.push(afterCursorCondition(sort, sortKey, cursor));
+    } else {
+      const cursor = decodeCursor(req.query.cursor);
+      const cursorCreatedAt = cursor ? new Date(cursor.sortValue) : null;
+      if (!cursor || !cursorCreatedAt || Number.isNaN(cursorCreatedAt.getTime())) {
+        res.status(400);
+        throw new Error("Invalid cursor");
+      }
+      // Keyset condition for ORDER BY created_at DESC, id DESC: strictly older
+      // than the cursor row, or tied on created_at and strictly smaller id.
+      // (A raw `(created_at, id) < ($1, $2)` row-value comparison was tried
+      // first but Postgres does not reliably type-infer the composite literal's
+      // parameters here, so it silently failed to filter.)
+      conditions.push(
+        or(
+          lt(words.createdAt, cursorCreatedAt),
+          and(eq(words.createdAt, cursorCreatedAt), lt(words.id, cursor.id)),
+        ),
+      );
     }
-    // Keyset condition for ORDER BY created_at DESC, id DESC: strictly older
-    // than the cursor row, or tied on created_at and strictly smaller id.
-    // (A raw `(created_at, id) < ($1, $2)` row-value comparison was tried
-    // first but Postgres does not reliably type-infer the composite literal's
-    // parameters here, so it silently failed to filter.)
-    conditions.push(
-      or(
-        lt(words.createdAt, cursorCreatedAt),
-        and(eq(words.createdAt, cursorCreatedAt), lt(words.id, cursor.id)),
-      ),
-    );
   }
 
   const limit = parseLimitParam(req.query.limit);
 
   const pageRows = await db
-    .select()
+    .select({ ...getTableColumns(words), sortKey: sortKey ?? sql<null>`NULL` })
     .from(words)
     .where(and(...conditions))
-    .orderBy(desc(words.createdAt), desc(words.id))
+    .orderBy(...(sort && sortKey ? orderByClauses(sort, sortKey) : [desc(words.createdAt), desc(words.id)]))
     .limit(limit + 1);
 
   const hasMore = pageRows.length > limit;
   const rows = hasMore ? pageRows.slice(0, limit) : pageRows;
+  const lastRow = rows[rows.length - 1];
   const nextCursor = hasMore
-    ? encodeCursor(rows[rows.length - 1].createdAt.toISOString(), rows[rows.length - 1].id)
+    ? sort
+      ? encodeSortCursor((lastRow.sortKey as string | null) ?? null, lastRow.id)
+      : encodeCursor(lastRow.createdAt.toISOString(), lastRow.id)
     : null;
 
   // Fetch full relations, then re-order to match the cursor-ordered rows —
@@ -511,6 +543,9 @@ const setWord = asyncHandler(async (req: any, res: any) => {
     res.status(400);
     throw new Error("Please add 2 or more translations");
   }
+
+  // German noun forms are saved with a capital first letter (a rule of the language).
+  req.body.translations = capitalizeGermanNouns(req.body.partOfSpeech, req.body.translations);
 
   // Tags are assigned by id at create time (phase-4-tags.md D4) — the
   // caller must own every tag it asks to attach, checked up front so a bad
@@ -610,6 +645,10 @@ const updateWord = asyncHandler(async (req: any, res: any) => {
   if (word.userId !== req.user.id) {
     res.status(401);
     throw new Error("User not authorized");
+  }
+
+  if (Array.isArray(req.body.translations)) {
+    req.body.translations = capitalizeGermanNouns(req.body.partOfSpeech ?? word.partOfSpeech, req.body.translations);
   }
 
   await db.transaction(async (tx) => {

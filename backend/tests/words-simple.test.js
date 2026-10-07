@@ -436,3 +436,71 @@ describe('GET /api/words/simple - followed-tag access', () => {
         expect(row.tags.map((tg) => tg.id)).toEqual([publicTag.id]);
     });
 });
+
+// ===========================================================================
+// Sorted by a language column: ?sort=EN&dir=asc|desc
+// ===========================================================================
+describe('GET /api/words/simple - sort by language', () => {
+    let token;
+
+    // English verbs with an Estonian partner; "kala" is a noun with no English text at all.
+    const seed = async () => {
+        for (const [en, ee] of [['banana', 'banaan'], ['Cherry', 'kirss'], ['apple', 'õun'], ['date', 'dattel']]) {
+            await create(token, {
+                translations: [t('English', en, 'simplePresent1sEN'), t('Estonian', ee, 'infinitiveMaEE')],
+            });
+        }
+        await create(token, {
+            partOfSpeech: 'Noun',
+            translations: [t('Spanish', 'pez', 'singularES'), t('Estonian', 'kala', 'singularNimetavEE')],
+        });
+    };
+    const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+    const english = (res) => res.body.items.map((w) => w.dataEN ?? null).map((d) => d?.word ?? d);
+
+    beforeEach(async () => {
+        token = (await registerAndLogin()).token;
+        await seed();
+    });
+
+    it('sorts ascending, ignoring case, with the words that have no text in the language last', async () => {
+        const res = await get('sort=EN&dir=asc');
+        expect(res.statusCode).toBe(200);
+        expect(english(res)).toEqual(['apple', 'banana', 'Cherry', 'date', null]);
+    });
+
+    it('sorts descending and still puts the empty cell last', async () => {
+        const res = await get('sort=EN&dir=desc');
+        expect(english(res)).toEqual(['date', 'Cherry', 'banana', 'apple', null]);
+    });
+
+    it('pages through the sorted list with the cursor, with no word twice or missing', async () => {
+        for (const dir of ['asc', 'desc']) {
+            const seen = [];
+            let cursor;
+            for (let page = 0; page < 10; page++) {
+                const res = await get(`sort=EN&dir=${dir}&limit=2${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
+                expect(res.statusCode).toBe(200);
+                seen.push(...english(res));
+                cursor = res.body.nextCursor;
+                if (!cursor) break;
+            }
+            const whole = english(await get(`sort=EN&dir=${dir}`));
+            expect(seen).toEqual(whole);
+            expect(seen).toHaveLength(5);
+        }
+    });
+
+    it('sorts by another language of the same words', async () => {
+        const res = await get('sort=EE&dir=asc');
+        const estonian = res.body.items.map((w) => (w.dataEE?.word ?? w.dataEE));
+        expect(estonian).toEqual(['banaan', 'dattel', 'kala', 'kirss', 'õun']);
+    });
+
+    it('rejects an unknown language, an unknown direction and a cursor of the other kind', async () => {
+        expect((await get('sort=FR')).statusCode).toBe(400);
+        expect((await get('sort=EN&dir=sideways')).statusCode).toBe(400);
+        const firstPage = await get('limit=2');
+        expect((await get(`sort=EN&cursor=${encodeURIComponent(firstPage.body.nextCursor)}`)).statusCode).toBe(400);
+    });
+});

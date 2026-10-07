@@ -8,6 +8,10 @@ Object {
   "isFollowing": false,
   "isOwner": true,
   "label": "Adjectives Pack",
+  "languages": Array [
+    "DE",
+    "EN",
+  ],
   "sourceTag": null,
   "visibility": "Private",
   "wordCount": 1,

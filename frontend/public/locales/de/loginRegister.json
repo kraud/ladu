@@ -12,6 +12,7 @@
   },
   "apiErrors": {
     "invalidCredentials": "E-Mail oder Passwort ist ungültig.",
+    "accountSuspended": "Dieses Konto ist gesperrt.",
     "missingFields": "Bitte fülle alle Felder aus.",
     "emailInUse": "Diese E-Mail ist bereits registriert.",
     "usernameInUse": "Dieser Benutzername ist bereits vergeben.",

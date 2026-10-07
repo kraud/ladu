@@ -12,6 +12,7 @@
   },
   "apiErrors": {
     "invalidCredentials": "Correo electrónico o contraseña incorrectos.",
+    "accountSuspended": "Esta cuenta está suspendida.",
     "missingFields": "Por favor, completa todos los campos.",
     "emailInUse": "Ese correo electrónico ya está registrado.",
     "usernameInUse": "Ese nombre de usuario ya está en uso.",

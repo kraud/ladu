@@ -78,7 +78,12 @@
     "loadMore": "Mehr laden",
     "tags": "Tags",
     "tagsOpen": "Tags anzeigen",
-    "tagsOpenAdd": "Tags zu diesem Wort hinzufügen"
+    "tagsOpenAdd": "Tags zu diesem Wort hinzufügen",
+    "sort": {
+      "off": "{{lang}} von A bis Z sortieren",
+      "asc": "{{lang}} von A bis Z sortiert. Von Z bis A sortieren",
+      "desc": "{{lang}} von Z bis A sortiert. Sortierung entfernen"
+    }
   },
   "cellDialog": {
     "deleteTranslation": "Übersetzung löschen",

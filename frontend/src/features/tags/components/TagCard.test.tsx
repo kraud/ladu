@@ -1,11 +1,13 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Outlet, RouterProvider, createMemoryHistory, createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
 import { I18nextProvider } from 'react-i18next';
 import { render } from '@testing-library/react';
 import { createTestI18n } from '@/test/render';
+import { useAuthStore } from '@/stores/authStore';
+import { futureToken } from '@/test/tokens';
 import { TagCard } from './TagCard';
 import type { TagSummary } from '../types';
 
@@ -20,6 +22,7 @@ function makeTag(overrides: Partial<TagSummary> = {}): TagSummary {
         author: { id: 'author-1', username: 'kai', badges: [] },
         wordCount: 4,
         followerCount: 2,
+        languages: [],
         isOwner: false,
         isFollowing: false,
         isAvailable: true,
@@ -52,6 +55,59 @@ async function renderCard(ui: ReactElement) {
     await screen.findByRole('link', { name: /^Open / });
     return router;
 }
+
+function signIn(languages: string[]) {
+    useAuthStore.getState().setSession({
+        id: 'me',
+        name: 'Me',
+        email: 'me@example.com',
+        username: 'me',
+        languages,
+        uiLanguage: 'English',
+        nativeLanguage: null,
+        verified: true,
+        token: futureToken(),
+    });
+}
+
+describe('TagCard — language flags', () => {
+    afterEach(() => useAuthStore.getState().clearSession());
+
+    it('shows only the languages the user also uses, in the order of the account', async () => {
+        signIn(['German', 'English']);
+        await renderCard(<TagCard tag={makeTag({ languages: ['English', 'Estonian', 'German'] })} />);
+
+        const group = screen.getByLabelText('Languages of the words: German, English');
+        expect(within(group).getAllByRole('img').map((img) => img.getAttribute('alt'))).toEqual(['German', 'English']);
+        expect(within(group).queryByText(/^\+/)).not.toBeInTheDocument();
+    });
+
+    it('shows three flags and a +n badge for the rest', async () => {
+        signIn(['English', 'Spanish', 'German', 'Estonian']);
+        await renderCard(
+            <TagCard tag={makeTag({ languages: ['English', 'Spanish', 'German', 'Estonian'] })} />,
+        );
+
+        expect(screen.getAllByRole('img')).toHaveLength(3);
+        expect(screen.getByText('+1')).toBeInTheDocument();
+    });
+
+    it('shows no flags when no language is shared, or the tag has none', async () => {
+        signIn(['Spanish']);
+        await renderCard(<TagCard tag={makeTag({ languages: ['English'] })} />);
+        expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    });
+
+    it('sits in the badge row with the owner and visibility badges, at the right', async () => {
+        signIn(['English']);
+        await renderCard(<TagCard tag={makeTag({ languages: ['English'] })} />);
+
+        const row = screen.getByText('Public').closest('.t-badge-row');
+        const flags = screen.getByLabelText('Languages of the words: English');
+        expect(row).toContainElement(flags);
+        expect(flags).toHaveClass('ml-auto');
+    });
+});
 
 describe('TagCard — owned', () => {
     it('shows the Yours badge and no footer buttons', async () => {

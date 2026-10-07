@@ -80,6 +80,32 @@ describe('ReviewTable — headers', () => {
     });
 });
 
+describe('ReviewTable — sortable language headers', () => {
+    it('calls onSort with the language of the clicked header, and shows the direction', async () => {
+        const onSort = vi.fn();
+        const user = userEvent.setup();
+        const { rerender } = renderWithProviders(
+            <ReviewTable {...baseProps} rows={[makeRow()]} sort={null} onSort={onSort} />,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Sort DE from A to Z' }));
+        expect(onSort).toHaveBeenCalledWith('DE');
+
+        rerender(<ReviewTable {...baseProps} rows={[makeRow()]} sort={{ lang: 'DE', dir: 'asc' }} onSort={onSort} />);
+        expect(screen.getByRole('button', { name: 'Sorted DE from A to Z. Sort from Z to A' })).toHaveAttribute(
+            'data-sorted',
+            'asc',
+        );
+        // The other column is not marked.
+        expect(screen.getByRole('button', { name: 'Sort EN from A to Z' })).not.toHaveAttribute('data-sorted');
+    });
+
+    it('leaves the headers as plain text when there is no onSort', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} />);
+        expect(screen.queryByRole('button', { name: /Sort/ })).not.toBeInTheDocument();
+    });
+});
+
 describe('ReviewTable — selection', () => {
     it('survives a data replace (stable-id selection via getRowId)', async () => {
         const user = userEvent.setup();

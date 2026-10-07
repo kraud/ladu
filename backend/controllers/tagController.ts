@@ -65,6 +65,9 @@ interface TagSummary {
   // does not inherit it.
   author: { id: string; username: string; badges: string[] };
   wordCount: number;
+  // The languages the tag's words have (labels, sorted): the cards show the ones the viewer uses.
+  // Empty when the viewer cannot see the tag's words (`isAvailable` false).
+  languages: string[];
   followerCount: number;
   isOwner: boolean;
   isFollowing: boolean;
@@ -237,7 +240,7 @@ const buildTagSummaries = async (
     ),
   ];
 
-  const [authorRows, sourceTagRows, wordCountRows, followerCountRows, followingRows, friendIds, badgesByAuthorId] =
+  const [authorRows, sourceTagRows, wordCountRows, languageRows, followerCountRows, followingRows, friendIds, badgesByAuthorId] =
     await Promise.all([
       db.select({ id: users.id, username: users.username }).from(users).where(inArray(users.id, authorIds)),
       sourceTagIds.length > 0
@@ -248,6 +251,11 @@ const buildTagSummaries = async (
         .from(tagWords)
         .where(inArray(tagWords.tagId, tagIds))
         .groupBy(tagWords.tagId),
+      db
+        .selectDistinct({ tagId: tagWords.tagId, language: translations.language })
+        .from(tagWords)
+        .innerJoin(translations, eq(translations.wordId, tagWords.wordId))
+        .where(inArray(tagWords.tagId, tagIds)),
       db
         .select({ tagId: userFollowingTags.tagId, value: sql<number>`count(*)::int` })
         .from(userFollowingTags)
@@ -266,12 +274,17 @@ const buildTagSummaries = async (
   const authorById = new Map(authorRows.map((user) => [user.id, user]));
   const sourceTagById = new Map(sourceTagRows.map((tag) => [tag.id, tag]));
   const wordCountByTagId = new Map(wordCountRows.map((row) => [row.tagId, row.value]));
+  const languagesByTagId = new Map<string, string[]>();
+  for (const row of languageRows) {
+    languagesByTagId.set(row.tagId, [...(languagesByTagId.get(row.tagId) ?? []), row.language].sort());
+  }
   const followerCountByTagId = new Map(followerCountRows.map((row) => [row.tagId, row.value]));
   const followedTagIdSet = new Set(followingRows.map((row) => row.tagId));
 
   return tagRows.map((tag) => {
     const author = authorById.get(tag.authorId);
     const sourceTag = tag.sourceTagId ? sourceTagById.get(tag.sourceTagId) : undefined;
+    const isAvailable = computeIsAvailable(tag, viewerId, friendIds);
     return {
       id: tag.id,
       label: tag.label,
@@ -287,10 +300,11 @@ const buildTagSummaries = async (
         badges: badgesByAuthorId.get(tag.authorId) ?? [],
       },
       wordCount: wordCountByTagId.get(tag.id) ?? 0,
+      languages: isAvailable ? (languagesByTagId.get(tag.id) ?? []) : [],
       followerCount: followerCountByTagId.get(tag.id) ?? 0,
       isOwner: tag.authorId === viewerId,
       isFollowing: followedTagIdSet.has(tag.id),
-      isAvailable: computeIsAvailable(tag, viewerId, friendIds),
+      isAvailable,
       sourceTag: sourceTag ? { id: sourceTag.id, label: sourceTag.label } : null,
     };
   });
@@ -600,7 +614,9 @@ const cloneTagForUser = async (
   sourceTag: TagRow,
   recipientId: string,
   visibility: string,
-): Promise<TagRow> => {
+  // `false`: copy only the words, with no tag (they are the recipient's own and private to them).
+  keepTag = true,
+): Promise<{ clonedTag: TagRow | null; clonedWordCount: number }> => {
   const wordIdRows = await tx
     .select({ wordId: tagWords.wordId })
     .from(tagWords)
@@ -613,18 +629,21 @@ const cloneTagForUser = async (
   // choice regardless of who triggered the clone (D5-adjacent — cloning
   // itself is not gated on viewing the words' *other* tags).
   const sourceWords = await fetchWordsWithRelations(wordIds, sourceTag.authorId);
-  const label = await resolveUniqueLabel(sourceTag.label, recipientId);
 
-  const [clonedTag] = await tx
-    .insert(tags)
-    .values({
-      authorId: recipientId,
-      label,
-      description: sourceTag.description,
-      visibility,
-      sourceTagId: sourceTag.id,
-    })
-    .returning();
+  let clonedTag: TagRow | null = null;
+  if (keepTag) {
+    const label = await resolveUniqueLabel(sourceTag.label, recipientId);
+    [clonedTag] = await tx
+      .insert(tags)
+      .values({
+        authorId: recipientId,
+        label,
+        description: sourceTag.description,
+        visibility,
+        sourceTagId: sourceTag.id,
+      })
+      .returning();
+  }
 
   const clonedWordRows =
     sourceWords.length > 0
@@ -730,10 +749,11 @@ const cloneTagForUser = async (
     }
   }
 
-  if (clonedWordRows.length > 0) {
+  if (clonedTag && clonedWordRows.length > 0) {
+    const cloneId = clonedTag.id;
     await tx
       .insert(tagWords)
-      .values(clonedWordRows.map((clonedWord: { id: string }) => ({ tagId: clonedTag.id, wordId: clonedWord.id })));
+      .values(clonedWordRows.map((clonedWord: { id: string }) => ({ tagId: cloneId, wordId: clonedWord.id })));
   }
 
   // D11: cloning a tag you follow removes the follow, so the words don't
@@ -742,7 +762,7 @@ const cloneTagForUser = async (
     .delete(userFollowingTags)
     .where(and(eq(userFollowingTags.tagId, sourceTag.id), eq(userFollowingTags.followerUserId, recipientId)));
 
-  return clonedTag;
+  return { clonedTag, clonedWordCount: clonedWordRows.length };
 };
 
 // @desc    Clone a Public tag (and its words) for the current user, with a
@@ -766,14 +786,25 @@ const cloneTag = asyncHandler(async (req: any, res: any) => {
     res.status(403);
     throw new Error("User not authorized to clone this tag");
   }
-  if (!["Public", "Private", "Friends-Only"].includes(req.body.visibility)) {
+  // `keepTag: false` copies only the words, with no tag: the visibility of a copy then does not apply.
+  if (req.body.keepTag !== undefined && typeof req.body.keepTag !== "boolean") {
+    res.status(400);
+    throw new Error("Invalid keepTag value");
+  }
+  const keepTag: boolean = req.body.keepTag !== false;
+  if (keepTag && !["Public", "Private", "Friends-Only"].includes(req.body.visibility)) {
     res.status(400);
     throw new Error("Invalid visibility status");
   }
 
-  const clonedTag = await db.transaction((tx: any) =>
-    cloneTagForUser(tx, sourceTag, req.user.id, req.body.visibility),
+  const { clonedTag, clonedWordCount } = await db.transaction((tx: any) =>
+    cloneTagForUser(tx, sourceTag, req.user.id, req.body.visibility, keepTag),
   );
+  // With a tag: the new tag's summary. Without: only the number of words copied.
+  if (!clonedTag) {
+    res.status(200).json({ tag: null, clonedWordCount });
+    return;
+  }
   res.status(200).json(await buildTagSummary(clonedTag, req.user.id));
 });
 
@@ -895,7 +926,8 @@ const acceptTagShare = asyncHandler(async (req: any, res: any) => {
     // Accept-share doesn't ask the recipient to choose a visibility (that
     // choice is Slice 7's clone-dialog UI, not accept) — keep the existing
     // behavior of copying the source tag's own visibility.
-    const clonedTag = await cloneTagForUser(tx, tag, req.user.id, tag.visibility);
+    // A share always keeps the tag, so the clone exists.
+    const clonedTag = (await cloneTagForUser(tx, tag, req.user.id, tag.visibility)).clonedTag!;
 
     const [updated] = await tx
       .update(tagShares)

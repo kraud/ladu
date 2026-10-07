@@ -294,10 +294,12 @@ export function TagsPage() {
                 open={cloneTarget !== null}
                 onOpenChange={(open) => !open && setCloneTarget(null)}
                 tag={cloneTarget}
-                onCloned={(clone) =>
+                onCloned={({ tag, wordCount }) =>
                     resolveLoadingToastSuccess(
                         startLoadingToast(t('common:status.saving')),
-                        t('tags:page.toastCloned', { label: clone.label }),
+                        tag
+                            ? t('tags:page.toastCloned', { label: tag.label })
+                            : t('tags:page.toastWordsCopied', { count: wordCount }),
                     )
                 }
             />

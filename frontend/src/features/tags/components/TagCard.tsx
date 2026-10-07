@@ -12,7 +12,9 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@tanstack/react-router';
 import { CopyIcon, UserMinusIcon, UserPlusIcon, UsersIcon } from '@phosphor-icons/react';
+import { FlagIcon } from '@/components/common/FlagIcon';
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/stores/authStore';
 import { ClonedBadge, RelationBadge, VerifiedMark, VisibilityBadge, hasVerifiedBadge, tagRelation } from './TagBadge';
 import type { TagSummary } from '../types';
 
@@ -23,6 +25,29 @@ export interface TagCardProps {
     onFollow?: (tag: TagSummary) => void;
     onUnfollow?: (tag: TagSummary) => void;
     onClone?: (tag: TagSummary) => void;
+}
+
+const MAX_FLAGS = 3;
+
+/**
+ * The languages of the tag's words that the user also uses (the words can have more: those do not matter
+ * to this user). In the order of the user's account. Up to three flags, then a "+N" like the Tags column
+ * of the words table.
+ */
+function LanguageFlags({ languages }: { languages: string[] }) {
+    const { t } = useTranslation();
+    const userLanguages = useAuthStore((s) => s.user?.languages);
+    const shared = (userLanguages ?? []).filter((language) => languages.includes(language));
+    if (shared.length === 0) return null;
+    const overflow = shared.length - MAX_FLAGS;
+    return (
+        <span className="ml-auto flex items-center gap-1" aria-label={t('tags:card.languages', { list: shared.join(', ') })}>
+            {shared.slice(0, MAX_FLAGS).map((language) => (
+                <FlagIcon key={language} lang={language} title={language} width={16} height={12} />
+            ))}
+            {overflow > 0 && <span className="hint text-xs">+{overflow}</span>}
+        </span>
+    );
 }
 
 /** One-line description; a more/less button shows only when the text is cut off. */
@@ -93,6 +118,7 @@ export function TagCard({ tag, showActions = true, onFollow, onUnfollow, onClone
                     <RelationBadge relation={relation} />
                     <VisibilityBadge visibility={tag.visibility} />
                     {tag.sourceTag && <ClonedBadge sourceLabel={tag.sourceTag.label} />}
+                    <LanguageFlags languages={tag.languages} />
                 </div>
                 <div className="t-stats">
                     <span>

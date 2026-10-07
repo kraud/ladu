@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { ArrowLeftIcon } from '@phosphor-icons/react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeftIcon, XIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useDeleteSavedSession } from '../hooks';
@@ -21,6 +21,7 @@ export function SessionView({ session }: { session: Session }) {
     const deleteSaved = useDeleteSavedSession();
     const actions = useSessionActions();
     const nextRef = useRef<HTMLButtonElement>(null);
+    const [shortfallDismissed, setShortfallDismissed] = useState(false);
 
     const index = session.current;
     const exercise = session.exercises[index]!;
@@ -52,9 +53,17 @@ export function SessionView({ session }: { session: Session }) {
     return (
         <div className="mx-auto flex w-full max-w-180 flex-col gap-3.5">
             <ProgressHeader session={session} />
-            {shortfall(session) > 0 && (
+            {shortfall(session) > 0 && !shortfallDismissed && (
                 <div className="banner warning" role="status">
                     {t('practice:setup.shortfall', { created: session.exercises.length, requested: session.requested })}
+                    <button
+                        type="button"
+                        className="icon-btn ml-auto shrink-0"
+                        aria-label={t('common:buttons.close')}
+                        onClick={() => setShortfallDismissed(true)}
+                    >
+                        <XIcon size={16} />
+                    </button>
                 </div>
             )}
 

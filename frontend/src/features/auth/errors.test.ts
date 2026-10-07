@@ -8,6 +8,7 @@ describe('authErrorKey', () => {
     it.each([
         ['Invalid credentials', 'loginRegister:apiErrors.invalidCredentials'],
         ['Sign in with Google', 'loginRegister:apiErrors.signInWithGoogle'],
+        ['This account is suspended', 'loginRegister:apiErrors.accountSuspended'],
         ['Please add all fields', 'loginRegister:apiErrors.missingFields'],
         ['Email already in use', 'loginRegister:apiErrors.emailInUse'],
         ['Username already in use', 'loginRegister:apiErrors.usernameInUse'],
@@ -72,6 +73,12 @@ describe('authErrorKey', () => {
 describe('oauthErrorKey', () => {
     it('maps oauth_failed', () => {
         expect(oauthErrorKey(new OAuthCallbackError('oauth_failed'))).toBe('loginRegister:apiErrors.oauthFailed');
+    });
+
+    it('maps oauth_account_banned', () => {
+        expect(oauthErrorKey(new OAuthCallbackError('oauth_account_banned'))).toBe(
+            'loginRegister:apiErrors.accountSuspended',
+        );
     });
 
     it('maps the login gate codes the Google callback puts on the fragment', () => {
