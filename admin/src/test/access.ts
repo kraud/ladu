@@ -69,6 +69,12 @@ export function accessHandlers(state: { current: AccessState }, writes: AccessWr
             writes.push({ method: 'POST', path: '/api/admin/access/invites', body });
             return HttpResponse.json({ ...state.current, added: [], skipped: [] });
         }),
+        http.post('/api/admin/access/invites/:id/send', ({ params }) => {
+            writes.push({ method: 'POST', path: `/api/admin/access/invites/${String(params.id)}/send`, body: {} });
+            const invite = state.current.invites.find((i) => i.id === params.id);
+            if (!invite) return HttpResponse.json({ message: 'Invite not found' }, { status: 404 });
+            return HttpResponse.json({ sent: true, email: invite.email });
+        }),
         http.delete('/api/admin/access/invites/:id', ({ params }) => {
             writes.push({ method: 'DELETE', path: `/api/admin/access/invites/${String(params.id)}`, body: {} });
             state.current = withCounts({ ...state.current, invites: state.current.invites.filter((i) => i.id !== params.id) });

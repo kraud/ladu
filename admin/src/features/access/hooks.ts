@@ -7,6 +7,7 @@ import {
     fetchAccess,
     removeInvite,
     saveGate,
+    sendInvite,
     signOutEveryone,
 } from '@/features/access/api';
 import type { AccessMode, AccessState, GateName } from '@/features/access/types';
@@ -55,6 +56,15 @@ export function useAddInvites() {
 export function useRemoveInvite() {
     const store = useStoreAnswer();
     return useMutation({ mutationFn: removeInvite, onSuccess: store });
+}
+
+/** Changes no state on the page; the send writes an audit row, so only the audit list goes stale. */
+export function useSendInvite() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: sendInvite,
+        onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['audit'] }),
+    });
 }
 
 export function useAllowLogin() {

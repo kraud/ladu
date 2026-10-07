@@ -7,6 +7,7 @@ const { stringsFor } = require('../utils/resources/emailStrings');
 const { escapeHtml } = require('../utils/resources/escapeHtml');
 const verifyEmail = require('../utils/resources/verifyEmail');
 const resetPassword = require('../utils/resources/resetPassword');
+const registrationInvite = require('../utils/resources/registrationInvite');
 
 describe('escapeHtml', () => {
     it('escapes the five HTML-significant characters', () => {
@@ -93,5 +94,32 @@ describe('resetPassword template', () => {
         const [attachment] = resetPassword.getAttachments();
         expect(attachment.cid).toBe('logo');
         expect(fs.existsSync(attachment.path)).toBe(true);
+    });
+});
+
+describe('registrationInvite template', () => {
+    const data = { email: '<i>kai</i>@example.com', url: 'https://ladu.app/register', language: 'German' };
+
+    it('renders the localized title and the link, and escapes the address', () => {
+        const html = registrationInvite.getHtmlComponent(data);
+        expect(html).toContain('Du bist zu Ladu eingeladen');
+        expect(html).toContain(data.url);
+        expect(html).not.toContain('<i>kai</i>');
+        expect(html).toContain('&lt;i&gt;kai&lt;/i&gt;@example.com');
+    });
+
+    it('does not call the recipient by a name or say they have an account', () => {
+        const html = registrationInvite.getHtmlComponent({ ...data, language: 'English' });
+        expect(html).toContain('Hi,');
+        expect(html).not.toContain('your Ladu account');
+    });
+
+    it('has the same words in the plain text, and works in every supported language', () => {
+        for (const language of ['English', 'Spanish', 'German', 'Estonian']) {
+            const text = registrationInvite.getTextComponent({ ...data, email: 'kai@example.com', language });
+            expect(text).toContain('kai@example.com');
+            expect(text).toContain(data.url);
+            expect(text).not.toContain('undefined');
+        }
     });
 });

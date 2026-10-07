@@ -14,6 +14,7 @@ const { HttpError }: typeof import('../../lib/httpError') = require('../../lib/h
 const { readReason, withStatus }: typeof import('../../lib/adminRequest') = require('../../lib/adminRequest');
 const { getAccessSettings, normalizeInviteEmail }: typeof import('../../lib/accessGate') = require('../../lib/accessGate');
 const { isUuid }: typeof import('../userController') = require('../userController');
+const sendMail = require('../../utils/sendEmail');
 import type { AccessMode } from '../../lib/accessGate';
 
 const MODES: readonly AccessMode[] = ['open', 'closed', 'limited'];
@@ -230,6 +231,52 @@ const removeInvite = asyncHandler(async (req: any, res: any) => {
   res.json(await loadAccess());
 });
 
+/**
+ * `POST /api/admin/access/invites/:id/send` — emails the invited address that it can register now.
+ * The link goes to the registration page; the invite itself is matched by email at registration.
+ * The mail provider's answer is unknown (`sendEmail` never rejects), so the audit entry records that the
+ * email was handed over, not that it arrived. Refused when the address has an account by now.
+ */
+const sendInvite = asyncHandler(async (req: any, res: any) => {
+  const email = await withStatus(res, async () => {
+    const { id } = req.params;
+    if (!isUuid(id)) throw new HttpError(404, 'Invite not found');
+    const reason = readReason(req.body);
+
+    return db.transaction(async (tx) => {
+      const [invite] = await tx.select().from(registrationInvites).where(eq(registrationInvites.id, id)).limit(1);
+      if (!invite) throw new HttpError(404, 'Invite not found');
+
+      const [account] = await tx
+        .select({ id: users.id })
+        .from(users)
+        .where(sql`lower(${users.email}) = ${invite.email}`)
+        .limit(1);
+      if (account) throw new HttpError(409, 'This email already has an account, so an invite email is not needed');
+
+      await tx.insert(auditLog).values({
+        staffId: req.staff.id,
+        action: 'access.invite_send',
+        targetType: 'access',
+        targetId: 'registration',
+        reason: reason || null,
+        metadata: { email: invite.email },
+      });
+      return invite.email;
+    });
+  });
+
+  // After the commit, like the account emails: nothing is sent for a rollback.
+  await sendMail({
+    email,
+    url: `${process.env.BASE_URL}/register`,
+    type: 'registrationInvite',
+    language: 'English',
+  }).catch((error: unknown) => console.error('Failed to send invite email:', error));
+
+  res.json({ sent: true, email });
+});
+
 type AllowSkipReason = 'invalid' | 'duplicate_in_request' | 'unknown' | 'deleted' | 'already_allowed';
 
 /** A list of text from the body, or `undefined` if the key is absent. Anything else is a 400. */
@@ -429,6 +476,7 @@ export = {
   setLogin,
   addInvites,
   removeInvite,
+  sendInvite,
   allowLogin,
   disallowLoginMany,
   disallowLogin,

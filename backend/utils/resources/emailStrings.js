@@ -34,6 +34,17 @@ const STRINGS = {
     expiryReset: "This link expires in 30 minutes and can be used only once.",
     ignoreReset: "Didn't request a password reset? You can safely ignore this email — your password will stay unchanged.",
 
+    preheaderInvite: "You are invited to register in Ladu",
+    eyebrowInvite: "Ladu · Invitation",
+    subjectInvite: "Invitation to register in Ladu",
+    titleInvite: "You are invited to Ladu",
+    greetingInvite: "Hi,",
+    bodyInvite: (email) =>
+      `You are invited to create a Ladu account. Ladu is a vocabulary manager for people who speak several languages. Register with this email address: ${email}.`,
+    ctaInvite: "Register in Ladu",
+    ignoreInvite: "Did not expect this email? You can safely ignore it — nothing will happen.",
+
+    footerNoteInvite: "You received this email because the Ladu team invited this address to register. Replies to this address are not monitored.",
     footerTagline: "Multilingual vocabulary builder",
     footerNote: "You received this email because of activity on your Ladu account. Replies to this address are not monitored.",
   },
@@ -59,6 +70,17 @@ const STRINGS = {
     expiryReset: "Este enlace expira en 30 minutos y solo puede usarse una vez.",
     ignoreReset: "¿No solicitaste restablecer tu contraseña? Puedes ignorar este correo sin problema — tu contraseña no cambiará.",
 
+    preheaderInvite: "Estás invitado a registrarte en Ladu",
+    eyebrowInvite: "Ladu · Invitación",
+    subjectInvite: "Invitación para registrarte en Ladu",
+    titleInvite: "Estás invitado a Ladu",
+    greetingInvite: "Hola,",
+    bodyInvite: (email) =>
+      `Te invitamos a crear una cuenta en Ladu, un gestor de vocabulario para personas que hablan varios idiomas. Regístrate con este correo electrónico: ${email}.`,
+    ctaInvite: "Registrarme en Ladu",
+    ignoreInvite: "¿No esperabas este correo? Puedes ignorarlo sin problema — no pasará nada.",
+
+    footerNoteInvite: "Recibiste este correo porque el equipo de Ladu invitó a esta dirección a registrarse. Las respuestas a esta dirección no se supervisan.",
     footerTagline: "Constructor de vocabulario multilingüe",
     footerNote: "Recibiste este correo por actividad en tu cuenta de Ladu. Las respuestas a esta dirección no se supervisan.",
   },
@@ -84,6 +106,17 @@ const STRINGS = {
     expiryReset: "Dieser Link ist 30 Minuten gültig und kann nur einmal verwendet werden.",
     ignoreReset: "Kein Zurücksetzen des Passworts angefordert? Du kannst diese E-Mail einfach ignorieren — dein Passwort bleibt unverändert.",
 
+    preheaderInvite: "Du bist eingeladen, dich bei Ladu zu registrieren",
+    eyebrowInvite: "Ladu · Einladung",
+    subjectInvite: "Einladung zur Registrierung bei Ladu",
+    titleInvite: "Du bist zu Ladu eingeladen",
+    greetingInvite: "Hallo,",
+    bodyInvite: (email) =>
+      `Du bist eingeladen, ein Ladu-Konto zu erstellen. Ladu ist ein Vokabelmanager für Menschen, die mehrere Sprachen sprechen. Registriere dich mit dieser E-Mail-Adresse: ${email}.`,
+    ctaInvite: "Bei Ladu registrieren",
+    ignoreInvite: "Diese E-Mail unerwartet erhalten? Du kannst sie einfach ignorieren — es passiert nichts.",
+
+    footerNoteInvite: "Du hast diese E-Mail erhalten, weil das Ladu-Team diese Adresse zur Registrierung eingeladen hat. Antworten an diese Adresse werden nicht gelesen.",
     footerTagline: "Mehrsprachiger Wortschatz-Aufbau",
     footerNote: "Du hast diese E-Mail aufgrund einer Aktivität in deinem Ladu-Konto erhalten. Antworten an diese Adresse werden nicht überwacht.",
   },
@@ -109,6 +142,17 @@ const STRINGS = {
     expiryReset: "See link aegub 30 minuti pärast ja seda saab kasutada ainult üks kord.",
     ignoreReset: "Ei taotlenud parooli lähtestamist? Võid selle e-kirja rahulikult ignoreerida — sinu parool jääb samaks.",
 
+    preheaderInvite: "Sind on kutsutud Ladus registreeruma",
+    eyebrowInvite: "Ladu · Kutse",
+    subjectInvite: "Kutse Ladus registreeruma",
+    titleInvite: "Sind on Ladusse kutsutud",
+    greetingInvite: "Tere,",
+    bodyInvite: (email) =>
+      `Sind on kutsutud looma Ladu konto. Ladu on sõnavarahaldur inimestele, kes räägivad mitut keelt. Registreeru selle e-posti aadressiga: ${email}.`,
+    ctaInvite: "Registreeru Ladus",
+    ignoreInvite: "Ei oodanud seda kirja? Võid selle rahulikult tähelepanuta jätta — midagi ei juhtu.",
+
+    footerNoteInvite: "Said selle kirja, sest Ladu meeskond kutsus selle aadressi registreeruma. Sellele aadressile saadetud vastuseid ei jälgita.",
     footerTagline: "Mitmekeelse sõnavara looja",
     footerNote: "Said selle e-kirja oma Ladu konto tegevuse tõttu. Sellele aadressile vastamist ei jälgita.",
   },
