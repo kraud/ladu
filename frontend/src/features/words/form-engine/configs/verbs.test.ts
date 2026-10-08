@@ -230,9 +230,9 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
             const infinitive = config.fields.find((f) => f.name === 'infinitiveNonFiniteSimple')!;
             const gerund = config.fields.find((f) => f.name === 'gerundNonFiniteSimple')!;
             const participle = config.fields.find((f) => f.name === 'participleNonFiniteSimple')!;
-            expect(infinitive.layout).toEqual({ row: 'nonFinite', column: 'infinitive' });
-            expect(gerund.layout).toEqual({ row: 'nonFinite', column: 'gerund' });
-            expect(participle.layout).toEqual({ row: 'nonFinite', column: 'participle' });
+            expect(infinitive.layout).toEqual({ row: 'nonFinite', column: 'infinitive', stackOnMobile: true });
+            expect(gerund.layout).toEqual({ row: 'nonFinite', column: 'gerund', stackOnMobile: true });
+            expect(participle.layout).toEqual({ row: 'nonFinite', column: 'participle', stackOnMobile: true });
             expect(config.fields.find((f) => f.name === 'regularity')?.layout).toBeUndefined();
         });
 
@@ -244,7 +244,7 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
             const regularity = config.fields.find((f) => f.name === 'regularity')!;
             const verbCases = config.fields.find((f) => f.name === 'verbCases')!;
 
-            expect(infinitive.layout).toEqual({ row: 'meta1', column: 'infinitive', block: 'verbMeta1' });
+            expect(infinitive.layout).toEqual({ row: 'meta1', column: 'infinitive', block: 'verbMeta1', fullRowOnMobile: true });
             expect(auxiliaryVerb.layout).toEqual({ row: 'meta1', column: 'auxiliaryVerb', block: 'verbMeta1' });
             expect(prefix.layout).toEqual({ row: 'meta1', column: 'prefix', block: 'verbMeta1' });
             expect(regularity.layout).toEqual({ row: 'meta2', column: 'regularity', block: 'verbMeta2' });

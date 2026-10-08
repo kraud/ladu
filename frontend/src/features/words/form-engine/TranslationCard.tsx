@@ -52,7 +52,8 @@ import { getFormConfig } from './configs';
 import { capitalizeFirst } from './fieldLayout';
 import { FieldRenderer } from './FieldRenderer';
 import { HorizontalScroller } from './HorizontalScroller';
-import { buildLayoutItems, isHiddenInDisplayOnly, isPersistedCaseField } from './fieldLayout';
+import { buildLayoutItems, isHiddenInDisplayOnly, isPersistedCaseField, type GridLayoutItem } from './fieldLayout';
+import { useIsMobile } from '@/lib/useMediaQuery';
 
 export interface TranslationCardChange {
     cases: WordItem[];
@@ -95,17 +96,21 @@ export function fieldsHaveData(fields: FieldConfig[], values: Record<string, unk
  * past that it scrolls sideways inside its own box, so the fields above and
  * below it keep the card's width and never move.
  */
-const MAX_VISIBLE_GRID_COLUMNS = 2;
+const MOBILE_VISIBLE_GRID_COLUMNS = 2;
+/** On a desktop the card is wide: up to this many columns sit side by side, with no scrolling. */
+const DESKTOP_VISIBLE_GRID_COLUMNS = 4;
+/** Desktop display mode: each column is only as wide as a short value needs. */
+const DISPLAY_COLUMN_MAX_WIDTH = '13rem';
 
 /** Wraps a grid block in `HorizontalScroller` only when it has more columns than fit. */
 function GridScroller({ scrolls, children }: { scrolls: boolean; children: ReactNode }) {
     return scrolls ? <HorizontalScroller>{children}</HorizontalScroller> : <>{children}</>;
 }
 
-/** Every column is as wide as one of `MAX_VISIBLE_GRID_COLUMNS` fitting the box (`gap-x-4` = 1rem). */
-function gridWidth(columnCount: number): string | undefined {
-    if (columnCount <= MAX_VISIBLE_GRID_COLUMNS) return undefined;
-    return `calc((100% - ${MAX_VISIBLE_GRID_COLUMNS - 1}rem) / ${MAX_VISIBLE_GRID_COLUMNS} * ${columnCount} + ${columnCount - 1}rem)`;
+/** Every column is as wide as one of `visibleColumns` fitting the box (`gap-x-4` = 1rem). */
+function gridWidth(columnCount: number, visibleColumns: number): string | undefined {
+    if (columnCount <= visibleColumns) return undefined;
+    return `calc((100% - ${visibleColumns - 1}rem) / ${visibleColumns} * ${columnCount} + ${columnCount - 1}rem)`;
 }
 
 export function translationGridClass(pos?: PartOfSpeech): string {
@@ -287,6 +292,8 @@ export function TranslationCard({
     );
 
     const layoutItems = useMemo(() => buildLayoutItems(visibleFields), [visibleFields]);
+    const isMobile = useIsMobile();
+    const visibleColumns = isMobile ? MOBILE_VISIBLE_GRID_COLUMNS : DESKTOP_VISIBLE_GRID_COLUMNS;
     // The collapsed-card summary's denominator: how many cases a COMPLETE
     // translation on this branch would persist — mirrors `fieldsToCases`'
     // drop rules via the shared `isPersistedCaseField` (also used by
@@ -334,6 +341,11 @@ export function TranslationCard({
         total: expectedCaseCount,
     });
     const summary = headline ? `${headline} · ${caseCountText}` : t('wordRelated:translationFormGeneric.emptyCard');
+
+    /** A block that stacks in one column on a phone (never scrolls there). */
+    const stacked = (item: GridLayoutItem) => isMobile && !!item.stackOnMobile;
+    /** A block that wraps 2-up on a phone, some of its fields taking a whole row (never scrolls there). */
+    const wrapped = (item: GridLayoutItem) => isMobile && !!item.wrapsOnMobile;
 
     return (
         <div
@@ -407,13 +419,21 @@ export function TranslationCard({
                                     // Only rows with a mandatory field use it (every autocomplete trigger is
                                     // mandatory); an optional row's cells are `self-start`, so a message
                                     // that takes its own line there cannot push a neighbour's input down.
-                                    <GridScroller scrolls={item.columns.length > MAX_VISIBLE_GRID_COLUMNS}>
+                                    <GridScroller scrolls={!stacked(item) && !wrapped(item) && item.columns.length > visibleColumns}>
                                     <div
-                                        className="grid items-end gap-x-4 gap-y-3"
-                                        style={{
-                                            gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, 1fr))`,
-                                            width: gridWidth(item.columns.length),
-                                        }}
+                                        className={cn('grid items-end gap-x-4', displayOnly && isMobile ? 'gap-y-2' : 'gap-y-3')}
+                                        style={
+                                            stacked(item)
+                                                ? { gridTemplateColumns: 'minmax(0, 1fr)' }
+                                                : wrapped(item)
+                                                  ? { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }
+                                                  : {
+                                                      gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, ${
+                                                          displayOnly && !isMobile ? DISPLAY_COLUMN_MAX_WIDTH : '1fr'
+                                                      }))`,
+                                                      width: gridWidth(item.columns.length, visibleColumns),
+                                                  }
+                                        }
                                     >
                                         {item.columnHeadings?.map((heading, columnIndex) => (
                                             <p
@@ -429,12 +449,17 @@ export function TranslationCard({
                                             return rowFields.map((field, columnIndex) => (
                                                 <div
                                                     key={`${rowIndex}-${columnIndex}`}
-                                                    className={reserveMessageSpace ? 'self-end' : 'self-start'}
+                                                    className={cn(
+                                                        reserveMessageSpace ? 'self-end' : 'self-start',
+                                                        isMobile && field?.layout?.fullRowOnMobile && 'col-span-2',
+                                                    )}
                                                 >
                                                     {field && (
                                                         <FieldRenderer
                                                             field={field}
                                                             displayOnly={displayOnly}
+                                                            // Verb pronouns (the tense grid's row labels) stay beside their value; every other label sits above it.
+                                                            compact={displayOnly && isMobile && field.layout?.columnHeading !== undefined}
                                                             autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
                                                             reserveMessageSpace={reserveMessageSpace}
                                                         />

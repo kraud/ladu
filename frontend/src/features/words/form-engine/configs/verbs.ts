@@ -281,21 +281,21 @@ function buildEsConfig(): TranslationFormConfig {
             'infinitiveNonFiniteSimple',
             verbErrorKey(suffix, 'infinitiveNonFiniteRequired'),
             { regex: /^(?!.*\d).*(ar|er|ir)$/, messageKey: verbErrorKey(suffix, 'infinitiveNotMatching') },
-            { row: 'nonFinite', column: 'infinitive' }
+            { row: 'nonFinite', column: 'infinitive', stackOnMobile: true }
         ),
         requiredTextField(
             VerbCases.gerundNonFiniteSimpleES,
             'gerundNonFiniteSimple',
             verbErrorKey(suffix, 'gerundNonFiniteRequired'),
             undefined,
-            { row: 'nonFinite', column: 'gerund' }
+            { row: 'nonFinite', column: 'gerund', stackOnMobile: true }
         ),
         requiredTextField(
             VerbCases.participleNonFiniteSimpleES,
             'participleNonFiniteSimple',
             verbErrorKey(suffix, 'participleNonFiniteRequired'),
             undefined,
-            { row: 'nonFinite', column: 'participle' }
+            { row: 'nonFinite', column: 'participle', stackOnMobile: true }
         ),
         regularityField(Lang.ES),
     ];
@@ -331,7 +331,7 @@ function buildDeConfig(): TranslationFormConfig {
             'infinitive',
             verbErrorKey(suffix, 'infinitiveNonFiniteRequired'),
             { regex: /^(?!.*\d).*(en|ern|eln)$/, messageKey: verbErrorKey(suffix, 'infinitiveNotMatching') },
-            { row: 'meta1', column: 'infinitive', block: 'verbMeta1' }
+            { row: 'meta1', column: 'infinitive', block: 'verbMeta1', fullRowOnMobile: true }
         ),
         {
             kind: 'toggle',

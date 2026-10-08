@@ -64,6 +64,8 @@ export interface FieldRendererProps {
     autocompleteFieldName?: string;
     /** Reserve a strip under the control and show its validation message out of the flow (see the file header). Ignored in `displayOnly`. */
     reserveMessageSpace?: boolean;
+    /** `displayOnly` on a phone: label and value share one line, to keep grids short. */
+    compact?: boolean;
 }
 
 function optionLabel(options: { value: string; label: string }[], value: unknown): string {
@@ -89,6 +91,7 @@ export function FieldRenderer({
     displayOnly = false,
     autocompleteFieldName,
     reserveMessageSpace = false,
+    compact = false,
 }: FieldRendererProps) {
     const { control } = useFormContext();
     const { t } = useTranslation();
@@ -132,10 +135,18 @@ export function FieldRenderer({
                     } else {
                         displayValue = String(rhf.value ?? '');
                     }
+                    const empty = isEmptyValue(displayValue);
                     return (
-                        <FormItem>
-                            <FormLabel>{label}</FormLabel>
-                            <p className="text-sm text-foreground">{isEmptyValue(displayValue) ? '—' : displayValue}</p>
+                        <FormItem className={compact ? 'flex flex-row flex-wrap items-baseline gap-x-2 gap-y-0' : undefined}>
+                            {/* `!`: the base `.label` class sets a colour and weight of its own. */}
+                            <FormLabel className="text-xs! font-normal! text-muted-foreground!">{label}</FormLabel>
+                            <p className="text-sm text-foreground">
+                                {/* The auxiliary verb (or other prefix) reads as a hint, not as part of the stored value. */}
+                                {adornmentText && !empty && (
+                                    <span className="text-foreground/65 italic">{adornmentText} </span>
+                                )}
+                                {empty ? '—' : displayValue}
+                            </p>
                         </FormItem>
                     );
                 }

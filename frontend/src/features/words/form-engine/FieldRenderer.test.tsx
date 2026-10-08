@@ -116,12 +116,20 @@ function Harness({
 }
 
 /** Mounts several fields on one shared RHF instance — for cases where one field's rendering depends on a sibling's live value (`visibleWhen`, `adornment`). */
-function MultiHarness({ fields, defaultValues }: { fields: FieldConfig[]; defaultValues: Record<string, unknown> }) {
+function MultiHarness({
+    fields,
+    defaultValues,
+    displayOnly,
+}: {
+    fields: FieldConfig[];
+    defaultValues: Record<string, unknown>;
+    displayOnly?: boolean;
+}) {
     const form = useForm({ defaultValues });
     return (
         <Form {...form}>
             {fields.map((f) => (
-                <FieldRenderer key={f.name} field={f} />
+                <FieldRenderer key={f.name} field={f} displayOnly={displayOnly} />
             ))}
         </Form>
     );
@@ -360,6 +368,19 @@ describe('FieldRenderer', () => {
     });
 
     describe('adornment', () => {
+        it('keeps the prefix visible in displayOnly, in italics and ahead of the value', () => {
+            renderWithProviders(
+                <MultiHarness
+                    displayOnly
+                    fields={[selectField, adornedField]}
+                    defaultValues={{ auxiliaryVerb: 'haben', indicativePerfect1s: 'gespielt' }}
+                />,
+            );
+            const prefix = screen.getByText('habe');
+            expect(prefix).toHaveClass('italic');
+            expect(prefix.parentElement).toHaveTextContent('habe gespielt');
+        });
+
         it('shows the prefix mapped from the watched sibling value, and none when there is no entry', async () => {
             const user = userEvent.setup();
             renderWithProviders(
