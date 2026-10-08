@@ -110,6 +110,13 @@ describe('ResultsView', () => {
         expect(within(rows[3]!).getByText('Chosen')).toBeInTheDocument();
     });
 
+    it('ends each row with the four attempt dots, and no knowledge percentage', async () => {
+        await openResults();
+        const [row] = await screen.findAllByTestId('result-row');
+        expect(within(row!).getAllByRole('listitem')).toHaveLength(4);
+        expect(within(row!).queryByText(/\d ?%/)).not.toBeInTheDocument();
+    });
+
     it('has the title, the score, the languages and the word types in one header', async () => {
         await openResults();
         const heading = await screen.findByRole('heading', { name: 'Session results' });

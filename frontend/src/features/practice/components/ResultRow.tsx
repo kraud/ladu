@@ -6,6 +6,7 @@ import { pronounFor } from '@/lib/cases';
 import { languageByLabel } from '@/lib/language';
 import type { GivenAnswer } from '../session';
 import type { Exercise, ExerciseSide } from '../types';
+import { AttemptDots } from './AttemptDots';
 import { FormLabel } from './FormLabel';
 import { ResultIcon } from './ResultIcon';
 
@@ -17,8 +18,8 @@ const languageName = (label: string) => languageByLabel(label)?.native ?? label;
  * word type and the form of the answer side are shown once, in their own column (for a
  * cross-language pair both sides share the form; for a drill it is the property asked).
  * The user's own answer is not in the row, so every row has the same height (it is on the
- * opened card). Narrow screens: 2 columns, without
- * the style and the arrow. The status is icon + text, never colour alone. A save that
+ * opened card). Wide screens end with the last attempts (`AttemptDots`, no percentage). Narrow screens: 3 columns —
+ * status | style icon with the form under it | prompt over answer | attempts — without the arrow. The status is icon + text, never colour alone. A save that
  * failed shows "Not saved" here; the retry is on the banner ("Retry all") and on the card.
  */
 export function ResultRow({
@@ -39,10 +40,10 @@ export function ResultRow({
         <li data-testid="result-row" className="border-b border-border last:border-b-0">
             <button
                 type="button"
-                className="grid w-full grid-cols-[118px_minmax(0,1fr)] items-center gap-x-3 gap-y-1 px-1 py-2.5 text-left text-[13.5px] hover:bg-(--hover) md:grid-cols-[118px_20px_minmax(0,0.8fr)_minmax(0,1fr)_18px_minmax(0,1fr)]"
+                className="grid w-full grid-cols-[84px_96px_minmax(0,1fr)_auto] items-center gap-x-2 md:gap-x-3 gap-y-1 px-1 py-2.5 text-left text-[13.5px] hover:bg-(--hover) md:grid-cols-[118px_20px_minmax(0,0.8fr)_minmax(0,1fr)_18px_minmax(0,1fr)_auto]"
                 onClick={onOpen}
             >
-                <span className="flex flex-col gap-0.5">
+                <span className="col-start-1 row-span-2 row-start-1 flex flex-col gap-0.5 md:col-auto md:row-auto md:row-span-1">
                     <b className="inline-flex items-center gap-1.5 whitespace-nowrap">
                         <ResultIcon result={answer.result} />
                         {t(statusKey)}
@@ -55,28 +56,31 @@ export function ResultRow({
                     )}
                 </span>
 
-                <Tooltip>
-                    <TooltipTrigger
-                        delay={1000}
-                        render={<span className="hidden text-muted-foreground md:inline-flex" />}
-                    >
-                        {exercise.type === 'Text-Input' ? (
-                            <PencilSimpleLineIcon aria-hidden weight="bold" size={16} />
-                        ) : (
-                            <ListBulletsIcon aria-hidden weight="bold" size={16} />
-                        )}
-                        <span className="sr-only">{styleLabel}</span>
-                    </TooltipTrigger>
-                    <TooltipContent>{styleLabel}</TooltipContent>
-                </Tooltip>
+                {/* Phone: the style icon with the form under it, in a column of its own. Wide: the two are separate grid cells. */}
+                <span className="col-start-2 row-span-2 row-start-1 mr-2 flex min-w-0 flex-col items-start gap-1 md:contents">
+                    <Tooltip>
+                        <TooltipTrigger
+                            delay={1000}
+                            render={<span className="inline-flex text-muted-foreground" />}
+                        >
+                            {exercise.type === 'Text-Input' ? (
+                                <PencilSimpleLineIcon aria-hidden weight="bold" size={16} />
+                            ) : (
+                                <ListBulletsIcon aria-hidden weight="bold" size={16} />
+                            )}
+                            <span className="sr-only">{styleLabel}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>{styleLabel}</TooltipContent>
+                    </Tooltip>
 
-                <FormLabel
-                    partOfSpeech={exercise.partOfSpeech}
-                    caseName={expected.caseName}
-                    className="col-start-2 font-mono text-[11.5px] text-muted-foreground md:col-start-auto"
-                />
+                    <FormLabel
+                        partOfSpeech={exercise.partOfSpeech}
+                        caseName={expected.caseName}
+                        className="text-left font-mono text-[11.5px] text-muted-foreground"
+                    />
+                </span>
 
-                <Side side={prompt} exercise={exercise} className="col-start-2 md:col-start-auto" />
+                <Side side={prompt} exercise={exercise} className="col-start-3 row-start-1 md:col-auto md:row-auto" />
 
                 <ArrowRightIcon aria-hidden size={14} className="hidden text-muted-foreground md:block" />
 
@@ -84,7 +88,12 @@ export function ResultRow({
                     side={expected}
                     exercise={exercise}
                     label={t('practice:results.expectedAnswer')}
-                    className="col-start-2 md:col-start-auto"
+                    className="col-start-3 row-start-2 md:col-auto md:row-auto"
+                />
+                <AttemptDots
+                    exercise={exercise}
+                    size="sm"
+                    className="col-start-4 row-span-2 row-start-1 md:col-auto md:row-auto md:row-span-1 md:justify-end"
                 />
                 <span className="sr-only">{t('practice:results.open')}</span>
             </button>
