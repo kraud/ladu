@@ -43,12 +43,16 @@ const PERSONS: [string, string[]][] = [
 
 const NOT_STANDARD = ['vos-form', 'combined-form', 'negative'];
 
+/** Decision D8: verb forms are stored without the reflexive pronoun ("nos personamos" → "personamos"). */
+const REFLEXIVE_PRONOUNS = ['me', 'te', 'se', 'nos', 'os'];
+
 function tense(prefix: string, tags: string[], slots = PERSONS, excludeTags: string[] = []): FormSelector[] {
     return slots.map(([slot, personTags]) => ({
         kind: 'form',
         caseName: `${prefix}${slot}ES`,
         tags: [...tags, ...personTags],
         excludeTags: [...NOT_STANDARD, ...excludeTags],
+        removeWords: REFLEXIVE_PRONOUNS,
     }));
 }
 

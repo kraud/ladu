@@ -8039,6 +8039,852 @@
    ]
   },
   {
+   "word": "personarse",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "me persono",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "me personé",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "personado",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "personarse",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "personándose",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "personado",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "personada",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "personados",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "personadas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "personarme",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "singular"
+     ]
+    },
+    {
+     "form": "personarte",
+     "tags": [
+      "infinitive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "personarse",
+     "tags": [
+      "infinitive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "personarnos",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "plural"
+     ]
+    },
+    {
+     "form": "personaros",
+     "tags": [
+      "infinitive",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "personarse",
+     "tags": [
+      "infinitive",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "personándome",
+     "tags": [
+      "first-person",
+      "gerund",
+      "singular"
+     ]
+    },
+    {
+     "form": "personándote",
+     "tags": [
+      "gerund",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "personándose",
+     "tags": [
+      "gerund",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "personándonos",
+     "tags": [
+      "first-person",
+      "gerund",
+      "plural"
+     ]
+    },
+    {
+     "form": "personándoos",
+     "tags": [
+      "gerund",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "personándose",
+     "tags": [
+      "gerund",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me persono",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "te personas",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "te personás",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "se persona",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "os personáis",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se personan",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me personaba",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te personabas",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se personaba",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personábamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os personabais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se personaban",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me personé",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "te personaste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se personó",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "os personasteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se personaron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me personaré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te personarás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se personará",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personaremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os personaréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se personarán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me personaría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te personarías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se personaría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personaríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os personaríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se personarían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me persone",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te persones",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te personés",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "se persone",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personemos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os personéis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se personen",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me personara",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te personaras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se personara",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personáramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os personarais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se personaran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me personase",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te personases",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se personase",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personásemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os personaseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se personasen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me personare",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te personares",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se personare",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personáremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os personareis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se personaren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "persónate",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "personate",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "persónese",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "persónese",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "personémonos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "personaos",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "persónense",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "persónense",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "te persones",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se persone",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se persone",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos personemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os personéis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se personen",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se personen",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "formal"
+     ]
+    }
+   ]
+  },
+  {
    "word": "casa",
    "pos": "noun",
    "forms": [

@@ -63,6 +63,28 @@ describe('German verb selectors', () => {
     });
 });
 
+describe('German verb selector fixes from the Slice 0 measurement', () => {
+    test('-ern verbs keep the e in first-person singular, -eln verbs drop it', () => {
+        // kaikki lists "sichre, sichere, sicher" and "sammle, sammele, sammel" with equal tags.
+        expect(verb('sichern').indicativePresent1sDE).toBe('sichere');
+        expect(verb('sammeln').indicativePresent1sDE).toBe('sammle');
+    });
+
+    test('the longest-form rule does not reach other cells', () => {
+        expect(verb('sichern').indicativePresent3sDE).toBe('sichert');
+        expect(verb('sammeln').indicativeSimplePast1sDE).toBe('sammelte');
+    });
+
+    test('reflexive verbs are stored without the pronoun (decision D8)', () => {
+        const cases = verb('sputen');
+        expect(cases.infinitiveDE).toBe('sputen');
+        expect(cases.indicativePresent1plDE).toBe('sputen');
+        expect(cases.indicativePresent3sDE).toBe('sputet');
+        expect(cases.indicativeSimpleFuture1sDE).toBe('sputen');
+        expect(cases.indicativePerfect1sDE).toBe('gesputet');
+    });
+});
+
 describe('German noun selectors', () => {
     test('a strong neuter noun fills gender and all eight forms, standard forms first', () => {
         expect(noun('Haus')).toEqual({

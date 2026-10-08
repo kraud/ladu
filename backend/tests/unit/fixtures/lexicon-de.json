@@ -4087,6 +4087,3516 @@
    ]
   },
   {
+   "word": "sichern",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "sichert",
+     "tags": [
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sicherte",
+     "tags": [
+      "past"
+     ]
+    },
+    {
+     "form": "gesichert",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "sichern",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "sichernd",
+     "tags": [
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "gesichert",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "sichre",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "sichere",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "sicher",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "sichern",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "sichere",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sichre",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sichern",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sicherst",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sichert",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sicherest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sichrest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sicheret",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sichret",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sichert",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sichern",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sichere",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sichre",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sichern",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sicherte",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "sicherten",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "sicherte",
+     "tags": [
+      "first-person",
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sicherten",
+     "tags": [
+      "first-person",
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sichertest",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sichertet",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sichertest",
+     "tags": [
+      "formal",
+      "rare",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sichertet",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sicherte",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sicherten",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sicherte",
+     "tags": [
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sicherten",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sichre",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sicher",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sichere",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sichert",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "habe gesichert",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "haben gesichert",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "habe gesichert",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben gesichert",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hast gesichert",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "habt gesichert",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "habest gesichert",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "habet gesichert",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hat gesichert",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gesichert",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "habe gesichert",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gesichert",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatte gesichert",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "hatten gesichert",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "hätte gesichert",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hätten gesichert",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hattest gesichert",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "hattet gesichert",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "hättest gesichert",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hättet gesichert",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hatte gesichert",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatten gesichert",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätte gesichert",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätten gesichert",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sichern werden",
+     "tags": [
+      "future",
+      "future-i",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde sichern",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden sichern",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde sichern",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden sichern",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde sichern",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden sichern",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden sichern",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gesichert haben werden",
+     "tags": [
+      "future",
+      "future-ii",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde gesichert haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden gesichert haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde gesichert haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden gesichert haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde gesichert haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden gesichert haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden gesichert haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "weak"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "sammeln",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "sammelt",
+     "tags": [
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammelte",
+     "tags": [
+      "past"
+     ]
+    },
+    {
+     "form": "gesammelt",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "sammeln",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "sammelnd",
+     "tags": [
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "gesammelt",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "sammle",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "sammele",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "sammel",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "sammeln",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "sammele",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sammle",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sammeln",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sammelst",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sammelt",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sammelest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sammlest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sammelet",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sammlet",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sammelt",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammeln",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammele",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammle",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammeln",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammelte",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "sammelten",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "sammelte",
+     "tags": [
+      "first-person",
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sammelten",
+     "tags": [
+      "first-person",
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sammeltest",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sammeltet",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sammeltest",
+     "tags": [
+      "formal",
+      "rare",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sammeltet",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sammelte",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammelten",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammelte",
+     "tags": [
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammelten",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammle",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sammel",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sammele",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sammelt",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "habe gesammelt",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "haben gesammelt",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "habe gesammelt",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben gesammelt",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hast gesammelt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "habt gesammelt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "habest gesammelt",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "habet gesammelt",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hat gesammelt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gesammelt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "habe gesammelt",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gesammelt",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatte gesammelt",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "hatten gesammelt",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "hätte gesammelt",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hätten gesammelt",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hattest gesammelt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "hattet gesammelt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "hättest gesammelt",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hättet gesammelt",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hatte gesammelt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatten gesammelt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätte gesammelt",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätten gesammelt",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sammeln werden",
+     "tags": [
+      "future",
+      "future-i",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde sammeln",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden sammeln",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde sammeln",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden sammeln",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde sammeln",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden sammeln",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden sammeln",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gesammelt haben werden",
+     "tags": [
+      "future",
+      "future-ii",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde gesammelt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden gesammelt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde gesammelt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden gesammelt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde gesammelt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden gesammelt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden gesammelt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "transitive",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive",
+      "weak"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "sputen",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "sich sputen",
+     "tags": [
+      "canonical"
+     ]
+    },
+    {
+     "form": "sputet sich",
+     "tags": [
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sputete sich",
+     "tags": [
+      "past"
+     ]
+    },
+    {
+     "form": "sich gesputet",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "sich sputen",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "sich sputend",
+     "tags": [
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "sich gesputet",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "sich zu sputen",
+     "tags": [
+      "infinitive",
+      "infinitive-zu"
+     ]
+    },
+    {
+     "form": "spute mich",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "sputen uns",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "spute mich",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sputen uns",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sputest dich",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sputet euch",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sputest dich",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sputet euch",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "sputet sich",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sputen sich",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "spute sich",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sputen sich",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sputete mich",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "sputeten uns",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "sputete mich",
+     "tags": [
+      "first-person",
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sputeten uns",
+     "tags": [
+      "first-person",
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sputetest dich",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sputetet euch",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sputetest dich",
+     "tags": [
+      "formal",
+      "rare",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sputetet euch",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "sputete sich",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sputeten sich",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sputete sich",
+     "tags": [
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sputeten sich",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sput dich",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "spute dich",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sputet euch",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "mich spute",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "uns sputen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "mich spute",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "uns sputen",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "dich sputest",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "euch sputet",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "dich sputest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "euch sputet",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "sich sputet",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sich sputen",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sich spute",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sich sputen",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "mich sputete",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "uns sputeten",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "mich sputete",
+     "tags": [
+      "first-person",
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "uns sputeten",
+     "tags": [
+      "first-person",
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "dich sputetest",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "euch sputetet",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "dich sputetest",
+     "tags": [
+      "formal",
+      "rare",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "euch sputetet",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "sich sputete",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sich sputeten",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sich sputete",
+     "tags": [
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sich sputeten",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "habe mich gesputet",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "haben uns gesputet",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "habe mich gesputet",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben uns gesputet",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hast dich gesputet",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "habt euch gesputet",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "habest dich gesputet",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "habet euch gesputet",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hat sich gesputet",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben sich gesputet",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "habe sich gesputet",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben sich gesputet",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatte mich gesputet",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "hatten uns gesputet",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "hätte mich gesputet",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hätten uns gesputet",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hattest dich gesputet",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "hattet euch gesputet",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "hättest dich gesputet",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hättet euch gesputet",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hatte sich gesputet",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatten sich gesputet",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätte sich gesputet",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätten sich gesputet",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sich sputen werden",
+     "tags": [
+      "future",
+      "future-i",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde mich sputen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden uns sputen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest dich sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet euch sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde sich sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden sich sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde mich sputen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden uns sputen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde mich sputen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden uns sputen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst dich sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet euch sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest dich sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet euch sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird sich sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden sich sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde sich sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden sich sputen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sich gesputet haben werden",
+     "tags": [
+      "future",
+      "future-ii",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde mich gesputet haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden uns gesputet haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest dich gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet euch gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde sich gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden sich gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde mich gesputet haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden uns gesputet haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde mich gesputet haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden uns gesputet haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst dich gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet euch gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest dich gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet euch gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird sich gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden sich gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde sich gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden sich gesputet haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "literary",
+      "reflexive",
+      "weak"
+     ]
+    }
+   ]
+  },
+  {
    "word": "Haus",
    "pos": "noun",
    "forms": [

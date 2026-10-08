@@ -50,6 +50,22 @@ function prefixDE(entry: LexiconEntry): string | undefined {
     return prefix && SEPARABLE_PREFIXES.includes(prefix) && entry.word.startsWith(prefix) ? prefix : undefined;
 }
 
+/**
+ * kaikki lists three 1s forms for -ern/-eln verbs with equal tags, elided first ("sichre, sichere, sicher";
+ * "sammle, sammele, sammel"). Standard German (and today's library): -ern keeps the e ("ich sichere"),
+ * -eln drops it ("ich sammle"). So -ern takes the longest row, everything else the first row.
+ * Not on other cells: there "longest" picks rarer doublets ("melkte" over "molk", "liket" over "likt").
+ */
+function present1sDE(entry: LexiconEntry): string | undefined {
+    return selectForm(entry, {
+        kind: 'form',
+        caseName: 'indicativePresent1sDE',
+        tags: ['indicative', 'present', 'first-person', 'singular'],
+        ...SIMPLE,
+        preferLongest: entry.word.endsWith('ern'),
+    });
+}
+
 const PERSONS: [string, string[]][] = [
     ['1s', ['first-person', 'singular']],
     ['2s', ['second-person', 'singular']],
@@ -83,16 +99,20 @@ export const NOUN_SELECTORS_DE: CaseSelector[] = [
     ]),
 ];
 
-const SIMPLE = { excludeTags: ['multiword-construction'], preferTags: ['subordinate-clause'] };
+/** Decision D8: verb forms are stored without the reflexive pronoun ("uns sputen" → "sputen"). */
+const REFLEXIVE_PRONOUNS = ['mich', 'dich', 'sich', 'uns', 'euch', 'mir', 'dir'];
+
+const SIMPLE = { excludeTags: ['multiword-construction'], preferTags: ['subordinate-clause'], removeWords: REFLEXIVE_PRONOUNS };
 // Subordinate compound rows put the auxiliary last ("angerufen habe"), so dropping the first word would be wrong.
-const COMPOUND = { excludeTags: ['subordinate-clause'], dropLeadingWords: 1 };
+const COMPOUND = { excludeTags: ['subordinate-clause'], dropLeadingWords: 1, removeWords: REFLEXIVE_PRONOUNS };
 
 export const VERB_SELECTORS_DE: CaseSelector[] = [
-    { kind: 'form', caseName: 'infinitiveDE', tags: ['infinitive'], excludeTags: ['multiword-construction'], fallbackToLemma: true },
+    { kind: 'form', caseName: 'infinitiveDE', tags: ['infinitive'], excludeTags: ['multiword-construction'], removeWords: REFLEXIVE_PRONOUNS, fallbackToLemma: true },
     { kind: 'property', caseName: 'auxVerbDE', extract: auxVerbDE },
     { kind: 'property', caseName: 'prefixDE', extract: prefixDE },
     { kind: 'property', caseName: 'regularityDE', extract: regularityDE },
-    ...tense('indicativePresent', ['present'], SIMPLE),
+    { kind: 'property', caseName: 'indicativePresent1sDE', extract: present1sDE },
+    ...tense('indicativePresent', ['present'], SIMPLE).filter((s) => s.caseName !== 'indicativePresent1sDE'),
     ...tense('indicativePerfect', ['perfect', 'multiword-construction'], COMPOUND),
     ...tense('indicativeSimpleFuture', ['future-i', 'multiword-construction'], COMPOUND),
     ...tense('indicativeSimplePast', ['preterite'], SIMPLE),

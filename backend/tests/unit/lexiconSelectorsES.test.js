@@ -70,6 +70,14 @@ describe('Spanish verb selectors', () => {
         expect(tener.imperative2sES).toBe('ten');
     });
 
+    test('reflexive verbs are stored without the pronoun (decision D8)', () => {
+        const cases = verb('personarse');
+        expect(cases.infinitiveNonFiniteSimpleES).toBe('personarse');
+        expect(cases.indicativePresent1plES).toBe('personamos');
+        expect(cases.indicativeImperfectPast3sES).toBe('personaba');
+        expect(cases.indicativePerfectSimplePast1sES).toBe('personé');
+    });
+
     test('there is never a first-person singular imperative', () => {
         expect(verb('bailar').imperative1sES).toBeUndefined();
     });

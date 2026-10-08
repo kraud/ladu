@@ -31,8 +31,12 @@ export interface FormSelector {
     excludeTags?: string[];
     /** Among the matching rows, the first row that also has all these tags wins. */
     preferTags?: string[];
+    /** Among equal candidates, take the longest: German "sichere" over "sichre" and "sicher". */
+    preferLongest?: boolean;
     /** Remove this many leading words: the auxiliary in "habe getanzt" → "getanzt". */
     dropLeadingWords?: number;
+    /** Remove these whole words anywhere: reflexive pronouns, "uns sputen" → "sputen" (decision D8). */
+    removeWords?: string[];
     /** Use the entry's own word when no row matches (the lemma is this case). */
     fallbackToLemma?: boolean;
 }
@@ -68,12 +72,18 @@ export function selectForm(entry: LexiconEntry, selector: FormSelector): string 
     if (matches.length === 0 && selector.fallbackTags) matches = rowsWith(selector.fallbackTags);
 
     const preferred = selector.preferTags
-        ? matches.find((row) => selector.preferTags!.every((tag) => row.tags?.includes(tag)))
-        : undefined;
-    const row = preferred ?? matches[0];
+        ? matches.filter((row) => selector.preferTags!.every((tag) => row.tags?.includes(tag)))
+        : [];
+    const candidates = preferred.length > 0 ? preferred : matches;
+    const row = selector.preferLongest
+        ? candidates.reduce<typeof candidates[number] | undefined>((best, r) => (!best || r.form.length > best.form.length ? r : best), undefined)
+        : candidates[0];
     if (!row) return selector.fallbackToLemma ? entry.word : undefined;
 
-    const words = row.form.split(' ').slice(selector.dropLeadingWords ?? 0);
+    const words = row.form
+        .split(' ')
+        .slice(selector.dropLeadingWords ?? 0)
+        .filter((word) => !selector.removeWords?.includes(word));
     return words.length > 0 ? words.join(' ') : undefined;
 }
 

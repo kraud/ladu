@@ -133,6 +133,8 @@ async function sample(lang: LangCode, kaikkiVersion: string | null): Promise<voi
     const seen = new Set<string>();
     let frequencyWords = 0;
     let unmatched = 0;
+    /** The most frequent words with no kaikki match, for the coverage report. */
+    const unmatchedTop: { word: string; rank: number }[] = [];
 
     const lines = fs.readFileSync(frequencyFile(lang), 'utf8').split('\n');
     for (const line of lines) {
@@ -147,6 +149,7 @@ async function sample(lang: LangCode, kaikkiVersion: string | null): Promise<voi
         const matches = lookup(lang, index, word);
         if (matches.length === 0) {
             unmatched++;
+            if (unmatchedTop.length < 200) unmatchedTop.push({ word, rank: frequencyWords });
             continue;
         }
         for (const key of matches) {
@@ -160,7 +163,7 @@ async function sample(lang: LangCode, kaikkiVersion: string | null): Promise<voi
     const summary = Object.fromEntries(Object.entries(byPos).map(([pos, list]) => [pos, list.length]));
     fs.writeFileSync(
         sampleFile(lang),
-        JSON.stringify({ lang, kaikkiVersion, frequencyWords, unmatched, summary, byPos }, null, 1)
+        JSON.stringify({ lang, kaikkiVersion, frequencyWords, unmatched, unmatchedTop, summary, byPos }, null, 1)
     );
     console.log(`${lang}: ${frequencyWords} frequency words, ${unmatched} unmatched, lemmas per PoS:`, summary);
 }

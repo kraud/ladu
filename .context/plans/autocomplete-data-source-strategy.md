@@ -620,7 +620,10 @@ It gets its own plan document.
 
 ### Slice H — Adjectives and adverbs for EN, ES and DE
 
-New selector tables and new form configurations. Planned after parity (decision D6).
+New selector tables and new form configurations. Planned after parity (decision D6). The Slice 0
+measurement shows adjectives have good data in all three languages (DE full declension, ES gender and
+number, EN comparative and superlative), so adjectives come first. The "reflexive" verb field
+(decision D8) belongs to this slice too.
 
 ### Slice I — Browse all words (out of scope)
 
@@ -641,6 +644,8 @@ Reads the same tables. No plan yet.
 | D5 | 2026-10-08 | Data scope: every noun and verb lemma that has forms, but only the forms that fill our case fields. Not a frequency subset. |
 | D6 | 2026-10-08 | Type-ahead, translation and new parts of speech come after the parity checkpoint. |
 | D7 | 2026-10-08 | Translation: measure in Slice 0, build in Slice F, "one term → whole Word" gets its own plan. Keep Estonian `searchInEnglish` until Slice F. |
+| D8 | 2026-10-08 | Reflexive verbs: forms are stored **without** the reflexive pronoun (`sputen`, `personamos`), as today. A new "reflexive" field on the verb form is planned after parity (Slice H). kaikki can fill it: "always reflexive" from the lemma (DE infinitive `sich sputen`, ES lemma ending in `-se`), "reflexive in some senses" from the sense tag `reflexive`. The pronoun per person is then derived; for German, the verb-case field selects accusative (`mich`) or dative (`mir`). |
+| D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)
 
