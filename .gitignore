@@ -40,3 +40,6 @@ deploy/ansible/*.retry
 
 # Local design mockups — never tracked
 MOCKUPS/
+
+# lexicon source downloads (several GB, rebuilt by backend/scripts/lexicon/download.ts)
+backend/scripts/lexicon/.data/
