@@ -9,7 +9,8 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  * A signed-in user opens New word, picks a part of speech and one language, types the base
  * form, and uses the autocomplete values. Nothing is saved: the subject is the lookup.
  *
- *  1. German noun (library adapter): gender and declension fill in.
+ *  1. German noun: gender and declension fill in (from the lexicon since Slice B2; see
+ *     autocomplete-b-german-lexicon.spec.ts for the German lexicon cases).
  *  2. Spanish verb (library adapter): participle and present fill in.
  *  3. Spanish noun the word list does not know: the guessed gender comes as `partial`, with the
  *     "not fully sure" notice.

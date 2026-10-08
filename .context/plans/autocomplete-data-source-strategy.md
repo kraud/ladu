@@ -572,8 +572,10 @@ Questions for the start of this slice: Q-B1, Q-B2, Q-B3 (section 10).
 
 **Steps.** B2a backend — done 2026-10-08: migration `0022` (`lexemes.entry_order`),
 `services/dictionary/lexicon.ts` (`lexiconAdapter`, `lexiconFirst`), German registry entries use
-the chain, homographs per D15. B2b: e2e (fixture for CI/e2e databases, new cases) and the
-credits page.
+the chain, homographs per D15. B2b — done 2026-10-09: the e2e backend command loads the German
+fixture into an empty `lexemes` table (`npm run lexicon:load:fixture -w backend`, `--if-empty`),
+new gate spec `e2e/tests/autocomplete-b-german-lexicon.spec.ts`, credits page names Wiktionary /
+kaikki and FrequencyWords.
 
 - The registry for DE noun and DE verb becomes a chain: `lexicon` → `generator-de`.
   Lexicon hit = `found`. Lexicon miss + generator result = `partial`. Both miss = `not-found`.

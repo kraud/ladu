@@ -88,7 +88,9 @@ export default defineConfig({
         {
             // Migrations are a separate step from server startup (backend/scripts/migrate.js)
             // — the backend no longer applies them itself on boot.
-            command: 'npm run migrate -w backend && npm run dev -w backend',
+            // Then the committed German lexicon fixture (44 words) loads, but only into an empty
+            // `lexemes` table (--if-empty): CI gets it, a local database with the full lexicon keeps it.
+            command: 'npm run migrate -w backend && npm run lexicon:load:fixture -w backend && npm run dev -w backend',
             cwd: '..',
             // OAUTH_ISSUER_GOOGLE points discovery at the local stub instead of the
             // real provider — accepted by the backend only outside production
