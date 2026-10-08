@@ -111,13 +111,13 @@
   },
   "partOfSpeech": {
     "noun": "Noun",
-    "pronoun":"Pronoun",
+    "pronoun": "Pronoun",
     "verb": "Verb",
-    "adjective":"Adjective",
+    "adjective": "Adjective",
     "adverb": "Adverb",
-    "preposition":"Preposition",
+    "preposition": "Preposition",
     "conjunction": "Conjunction",
-    "interjection":"Interjection",
+    "interjection": "Interjection",
     "properNoun": "Proper noun",
     "numerals": "Numerals"
   },
@@ -142,5 +142,9 @@
     "errors": {
       "notEnoughLanguages": "Please select at least 2 languages."
     }
+  },
+  "scroll": {
+    "left": "Scroll left",
+    "right": "Scroll right"
   }
 }

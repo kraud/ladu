@@ -506,7 +506,8 @@ describe('PracticePage — running session', () => {
         expect(await screen.findByText('Exercise 1 of 1')).toBeInTheDocument();
         await user.click(screen.getByRole('button', { name: 'Leave session' }));
         await user.click(await screen.findByRole('button', { name: 'Leave session and delete' }));
-        expect(await screen.findByRole('heading', { name: 'Practice' })).toBeInTheDocument();
+        // No saved sessions or configurations: the set-up opens on New configuration.
+        expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
     });
 
     async function renderWithSession() {

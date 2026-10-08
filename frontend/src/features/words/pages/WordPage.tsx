@@ -39,6 +39,8 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useAuthStore } from '@/stores/authStore';
 import { PageColumn } from '@/components/layout/PageColumn';
 import { useIsMobile } from '@/lib/useMediaQuery';
+import { cn } from '@/lib/utils';
+import { PartOfSpeech } from '@/ts/enums';
 import { useWordSidebarSections } from '../layout/SidebarFields';
 import type { EditorAction, EditorPrimary } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
@@ -261,9 +263,15 @@ function WordViewLayout({
     primary: EditorPrimary;
 }) {
     const sections = useWordSidebarSections({ clue: word.clue ?? '', tags: word.tags, tagsHint });
+    const isMobile = useIsMobile();
+    // A verb has one card per row: on a desktop each card is as wide as its content, aligned to the left.
+    const cardsClass =
+        word.partOfSpeech === PartOfSpeech.verb && !isMobile
+            ? 'flex flex-col items-start gap-4'
+            : translationGridClass(word.partOfSpeech);
     return (
         <WordEditorLayout sections={sections} header={header} actions={actions} primary={primary} readOnly>
-            <div className={translationGridClass(word.partOfSpeech)}>
+            <div className={cn(cardsClass, '[&>*]:max-w-full')}>
                 {word.translations.map((translation) => (
                     <TranslationCard
                         key={translation.language}

@@ -75,6 +75,18 @@ export interface FieldLayout {
      * would merge into one sparse 2x5 grid instead of two clean rows.
      */
     block?: string;
+    /**
+     * On a phone the block's cells stack in one column (no sideways scroll)
+     * instead of the usual 2-up grid — for a short row such as the Spanish
+     * verb's infinitive/gerund/participle. Any field in the block may set it.
+     */
+    stackOnMobile?: boolean;
+    /**
+     * On a phone this field takes a whole row of a 2-up grid (no sideways
+     * scroll), and the block's other fields share the rows below — for the
+     * German verb's infinitive, which sits above its auxiliary verb and prefix.
+     */
+    fullRowOnMobile?: boolean;
 }
 
 /**

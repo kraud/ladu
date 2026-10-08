@@ -1,8 +1,9 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { InfoIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
+import { InfoIcon, PencilSimpleIcon, SlidersHorizontalIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -38,10 +39,13 @@ export interface LoadedTags {
 export function SavedConfigurations({
     onLoad,
     rail,
+    onNew,
 }: {
     onLoad: (config: SavedConfig, words: PreselectedWord[] | null, loadedTags: LoadedTags | null) => void;
     /** The scope badges of the set-up (they sit in the toolbar of this list). */
     rail: ReactNode;
+    /** Open the New configuration view (the call to action of the empty list). */
+    onNew: () => void;
 }) {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user);
@@ -136,7 +140,19 @@ export function SavedConfigurations({
                 </div>
             )}
 
-            {configs.isSuccess && configs.data.length === 0 && <p className="hint">{t('practice:configs.empty')}</p>}
+            {configs.isSuccess && configs.data.length === 0 && (
+                <div className="card">
+                    <EmptyState
+                        icon={<SlidersHorizontalIcon aria-hidden size={20} />}
+                        title={t('practice:configs.empty')}
+                        action={
+                            <Button size="sm" onClick={onNew}>
+                                {t('practice:configs.emptyCta')}
+                            </Button>
+                        }
+                    />
+                </div>
+            )}
 
             {loadWords.isError && (
                 <p className="err show" role="alert">

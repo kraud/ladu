@@ -43,7 +43,7 @@ export interface BarSeriesMeta {
 }
 
 export interface BarChartGroup {
-    /** X-axis label (a `"YYYY-MM"` month or a language name). */
+    /** X-axis label (a short month name or a language name). */
     xLabel: string;
     /** One count per `series` entry, same order/index. */
     values: number[];
@@ -170,7 +170,13 @@ export function BarChart({
                         />
                     ))}
                     {groups.map((group, groupIndex) => (
-                        <text key={group.xLabel} x={PAD_L + groupIndex * groupW + groupW / 2} y={H - 8} textAnchor="middle">
+                        <text
+                            key={group.xLabel}
+                            className="bar-x-label"
+                            x={PAD_L + groupIndex * groupW + groupW / 2}
+                            y={H - 8}
+                            textAnchor="middle"
+                        >
                             {group.xLabel}
                         </text>
                     ))}

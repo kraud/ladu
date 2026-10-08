@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { makeAutocompleteHandlers } from '@/test/msw/autocompleteHandlers';
 import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
+import { mockMobileViewport } from '@/test/viewport';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 import type { FieldConfig } from './configs/types';
 import {
@@ -311,7 +312,13 @@ describe('TranslationCard', () => {
 });
 
 describe('TranslationCard — Verb', () => {
-    it('keeps a verb grid of more than two tense columns inside its own horizontal scroller', () => {
+    it('shows a verb grid of up to four tense columns side by side on a desktop, with no scroller', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EN} pos={PartOfSpeech.verb} />);
+        expect(screen.queryByTestId('horizontal-scroller')).not.toBeInTheDocument();
+    });
+
+    it('keeps a verb grid of more than two tense columns inside its own horizontal scroller on a phone', () => {
+        mockMobileViewport();
         renderWithProviders(<TranslationCard lang={Lang.EN} pos={PartOfSpeech.verb} />);
         const scroller = screen.getByTestId('horizontal-scroller').firstElementChild;
         expect(scroller).not.toBeNull();
@@ -319,6 +326,40 @@ describe('TranslationCard — Verb', () => {
         const columns = grid.style.gridTemplateColumns;
         // The edge fades need measured widths (jsdom has none): see HorizontalScroller.test.tsx.
         expect(Number(/repeat\((\d+)/.exec(columns)?.[1])).toBeGreaterThan(2);
+    });
+
+    it('stacks the Spanish infinitive, gerund and participle in one column on a phone, without a scroller', () => {
+        mockMobileViewport();
+        renderWithProviders(<TranslationCard lang={Lang.ES} pos={PartOfSpeech.verb} />);
+        const infinitive = screen.getAllByRole('textbox')[0]!;
+        const grid = infinitive.closest('.grid') as HTMLElement;
+        expect(grid.style.gridTemplateColumns).toBe('minmax(0, 1fr)');
+        expect(grid.closest('[data-testid="horizontal-scroller"]')).toBeNull();
+    });
+
+    it('gives the German infinitive its own row on a phone, with the auxiliary verb and prefix below it and no scroller', () => {
+        mockMobileViewport();
+        renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.verb} />);
+        const infinitive = screen.getAllByRole('textbox')[0]!;
+        const grid = infinitive.closest('.grid') as HTMLElement;
+        expect(grid.style.gridTemplateColumns).toBe('repeat(2, minmax(0, 1fr))');
+        expect(infinitive.closest('.col-span-2')).not.toBeNull();
+        expect(grid.closest('[data-testid="horizontal-scroller"]')).toBeNull();
+    });
+
+    it('on a phone in display mode, keeps verb pronouns beside their value and puts other labels above it', () => {
+        mockMobileViewport();
+        // Required fields render even when empty (as '—').
+        renderWithProviders(<TranslationCard lang={Lang.EN} pos={PartOfSpeech.verb} displayOnly />);
+        const pronounItem = screen.getAllByText('I')[0]!.closest('[data-slot="form-item"]') as HTMLElement;
+        expect(pronounItem.className).toContain('flex-row');
+    });
+
+    it('on a phone in display mode, puts a verb\'s non-pronoun labels above the value', () => {
+        mockMobileViewport();
+        renderWithProviders(<TranslationCard lang={Lang.ES} pos={PartOfSpeech.verb} displayOnly />);
+        const infinitiveItem = screen.getAllByText('—')[0]!.closest('[data-slot="form-item"]') as HTMLElement;
+        expect(infinitiveItem.className).not.toContain('flex-row');
     });
 
     it('mounts an English verb card with its stacked group heading and hardcoded pronoun labels', () => {

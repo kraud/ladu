@@ -33,7 +33,7 @@ import { ResultsView } from '../components/ResultsView';
 import { SessionView } from '../components/SessionView';
 import { configToParams, narrowToPickable } from '../configs';
 import { practiceErrorKey } from '../errors';
-import { tagWordsQuery, useGenerateExercises, useTagWords } from '../hooks';
+import { tagWordsQuery, useConfigs, useGenerateExercises, useSavedSessions, useTagWords } from '../hooks';
 import { toGenerateBody } from '../params';
 import { unionWords, type PreselectedWord } from '../preselection';
 import { loadRememberedParams, rememberParams } from '../remembered';
@@ -241,6 +241,24 @@ function SetUp({
     const [tab, setTab] = useState<SetUpTab>('sessions');
     const isMobile = useIsMobile();
 
+    // Open on the first list that has something: ongoing sessions, else saved configurations, else New configuration.
+    // Decided once, when both lists have loaded (a failed list counts as filled, so its error shows);
+    // a tab the user picks first wins.
+    const savedSessions = useSavedSessions();
+    const savedConfigs = useConfigs();
+    const [opened, setOpened] = useState(() => creating);
+    if (!opened && !savedSessions.isPending && !savedConfigs.isPending) {
+        setOpened(true);
+        if (savedSessions.isSuccess && savedSessions.data.length === 0) {
+            if (savedConfigs.isSuccess && savedConfigs.data.length === 0) {
+                useUiStore.getState().setSidebarCollapsed('practice', false);
+                setCreating(true);
+            } else {
+                setTab('configs');
+            }
+        }
+    }
+
     function openNewConfiguration() {
         // The panel opens expanded here, as it does for words that come from Review.
         useUiStore.getState().setSidebarCollapsed('practice', false);
@@ -356,7 +374,10 @@ function SetUp({
                     type="button"
                     className="chip"
                     aria-pressed={tab === candidate}
-                    onClick={() => setTab(candidate)}
+                    onClick={() => {
+                        setOpened(true);
+                        setTab(candidate);
+                    }}
                 >
                     {t(candidate === 'sessions' ? 'practice:sessions.title' : 'practice:configs.title')}
                 </button>
@@ -440,9 +461,10 @@ function SetUp({
                         hasUnfinished={parkedSession !== null}
                         onResumed={clearPreselected}
                         rail={scopeRail}
+                        onNew={openNewConfiguration}
                     />
                 )}
-                {!creating && tab === 'configs' && <SavedConfigurations onLoad={chooseConfig} rail={scopeRail} />}
+                {!creating && tab === 'configs' && <SavedConfigurations onLoad={chooseConfig} rail={scopeRail} onNew={openNewConfiguration} />}
                 {/* Kept mounted while hidden: the form holds the working copy of the settings. */}
                 <div hidden={!creating} className="flex flex-col gap-3">
                     {wordsMissing && (

@@ -1,13 +1,12 @@
-import { CheckIcon, DotIcon, XIcon } from '@phosphor-icons/react';
+import { XIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { htmlLangByI18nCode } from '@/lib/language';
 import { cn } from '@/lib/utils';
 import { answerCaseStat, type GivenAnswer } from '../session';
 import type { Exercise } from '../types';
+import { AttemptDots } from './AttemptDots';
 import { ModifierButtons, useModifierChange } from './ModifierActions';
 import { SaveStatus } from './SaveStatus';
-
-const WINDOW = 4;
 
 const PILL = {
     Mastered: 'bg-(--success-soft) text-[color-mix(in_oklch,var(--success)_82%,var(--fg))]',
@@ -17,8 +16,7 @@ const PILL = {
 /**
  * Knowledge of this exact form (Part C §C.4 items 4 and 5). Top row: the label,
  * the Mastered / Revise pill (with a remove button once answered) and, at the
- * end, the two icon buttons. Second row: the last up to 4 attempts (oldest first,
- * empty slots when fewer), the knowledge percentage, the date of the last
+ * end, the two icon buttons. Second row: the last up to 4 attempts (`AttemptDots`), the knowledge percentage, the date of the last
  * practice, and the state of the save. A form that was never practised reads
  * "New" — never "0 %" or an invalid date.
  */
@@ -35,8 +33,6 @@ export function PerformanceIndicator({
     const change = useModifierChange(exercise, answer);
     const stat = answerCaseStat(exercise);
     const modifier = exercise.performance?.modifier ?? null;
-    const record = stat?.record.slice(-WINDOW) ?? [];
-    const slots = Array.from({ length: WINDOW }, (_, i) => record[i] ?? null);
 
     const lastDate = stat ? new Date(stat.lastDate) : null;
     const lastLabel =
@@ -89,32 +85,7 @@ export function PerformanceIndicator({
             </div>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                <ul className="flex items-center gap-1" aria-label={t('practice:indicator.attempts')}>
-                    {slots.map((attempt, i) => (
-                        <li
-                            key={i}
-                            className={cn(
-                                'flex size-6 items-center justify-center rounded-full border',
-                                attempt === true && 'border-(--success) bg-(--success-soft) text-(--success)',
-                                attempt === false && 'border-(--danger) bg-(--danger-soft) text-(--danger)',
-                                attempt === null && 'border-dashed border-border text-muted-foreground',
-                            )}
-                        >
-                            {attempt === true && <CheckIcon aria-hidden weight="bold" size={12} />}
-                            {attempt === false && <XIcon aria-hidden weight="bold" size={12} />}
-                            {attempt === null && <DotIcon aria-hidden weight="bold" size={12} />}
-                            <span className="sr-only">
-                                {t(
-                                    attempt === true
-                                        ? 'practice:indicator.attemptRight'
-                                        : attempt === false
-                                          ? 'practice:indicator.attemptWrong'
-                                          : 'practice:indicator.attemptEmpty',
-                                )}
-                            </span>
-                        </li>
-                    ))}
-                </ul>
+                <AttemptDots exercise={exercise} />
 
                 {stat ? (
                     <>

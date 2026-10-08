@@ -355,7 +355,7 @@
     "save": "Konfiguration speichern",
     "title": "Gespeicherte Konfigurationen",
     "loading": "Wird geladen…",
-    "empty": "Du hast keine gespeicherten Konfigurationen. Stelle im Einstellungsbereich die Optionen ein und wähle „Konfiguration speichern“.",
+    "empty": "Du hast keine gespeicherten Konfigurationen. Erstelle eine, um dieselbe Übung mit einem Tipp erneut zu starten.",
     "listError": "Die gespeicherten Konfigurationen konnten nicht geladen werden.",
     "use": "Konfiguration {{name}} verwenden",
     "edit": "Konfiguration {{name}} bearbeiten",
@@ -412,12 +412,13 @@
       "recent": "Zuletzt",
       "name": "Name A–Z"
     },
-    "descriptionAria": "Beschreibung von {{name}} anzeigen"
+    "descriptionAria": "Beschreibung von {{name}} anzeigen",
+    "emptyCta": "Konfiguration erstellen"
   },
   "sessions": {
     "title": "Laufende Sitzungen",
     "loading": "Wird geladen…",
-    "empty": "Du hast keine gespeicherten Sitzungen. Verlasse eine Sitzung und wähle „Sitzung speichern und verlassen“, um sie zu behalten.",
+    "empty": "Du hast keine gespeicherten Sitzungen. Starte eine neue und wähle „Sitzung speichern und verlassen“, um sie zu behalten.",
     "listError": "Die gespeicherten Sitzungen konnten nicht geladen werden.",
     "resumeAria": "Sitzung mit {{answered}} von {{total}} beantwortet fortsetzen",
     "deleteAria": "Sitzung mit {{answered}} von {{total}} beantwortet löschen",
@@ -444,7 +445,8 @@
     "sort": {
       "recent": "Neueste",
       "oldest": "Älteste"
-    }
+    },
+    "emptyCta": "Neue Sitzung starten"
   },
   "apiErrors": {
     "invalidLanguages": "Wählen Sie mindestens eine Sprache. \"Verschiedene Sprachen\" braucht zwei.",

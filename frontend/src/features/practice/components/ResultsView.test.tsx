@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
-import { makeExercise, makePracticeHandlers, type PracticeFakeOptions } from '@/test/msw/practiceHandlers';
+import { makeExercise, makePracticeHandlers, makeSavedSession, type PracticeFakeOptions } from '@/test/msw/practiceHandlers';
 import { futureToken } from '@/test/tokens';
 import { useAuthStore } from '@/stores/authStore';
 import { PartOfSpeech } from '@/ts/enums';
@@ -108,6 +108,13 @@ describe('ResultsView', () => {
         expect(within(rows[2]!).getByText('Wrong')).toBeInTheDocument();
         expect(within(rows[0]!).getByText('Typed')).toBeInTheDocument();
         expect(within(rows[3]!).getByText('Chosen')).toBeInTheDocument();
+    });
+
+    it('ends each row with the four attempt dots, and no knowledge percentage', async () => {
+        await openResults();
+        const [row] = await screen.findAllByTestId('result-row');
+        expect(within(row!).getAllByRole('listitem')).toHaveLength(4);
+        expect(within(row!).queryByText(/\d ?%/)).not.toBeInTheDocument();
     });
 
     it('has the title, the score, the languages and the word types in one header', async () => {
@@ -360,7 +367,7 @@ describe('ResultsView', () => {
     });
 
     it('"Finish" returns to the lists of the set-up, and there is no link to Review', async () => {
-        await openResults({ params: { amount: 7 } });
+        await openResults({ params: { amount: 7 }, sessions: [makeSavedSession()] });
         server.use(
             ...makeWordHandlers({
                 callerId: 'u1',
