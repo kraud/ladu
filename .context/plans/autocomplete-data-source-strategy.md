@@ -1,12 +1,17 @@
 # Autocomplete & lexical data sources — research record
 
-*Status: research only. No code was written. Started 2026-09-25.*
+*Status: research done (2026-09-25). Reviewed against the code and the per-slice plan written
+2026-10-08 (sections 9 to 12). No code was written yet.*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
 whether one source can replace the current per-language set of libraries and APIs.*
 
-*Related: `snapshot/autocomplete.md` (the frozen 8-endpoint spec), `snapshot/word-cases-data.md`
-(the case registry), `new-repo-build-plan.md` §5 phase 3.*
+*Related: `.context/.frontend/snapshot/autocomplete.md` (the frozen 8-endpoint spec),
+`.context/.frontend/snapshot/word-cases-data.md` (the case registry),
+`.context/licence-study.md` (licence decisions, 2026-10-06), `new-repo-build-plan.md` §5 phase 3.*
+
+*Read section 11 first. It lists the claims in sections 2 to 8 that the 2026-10-08 review
+found wrong or incomplete.*
 
 ---
 
@@ -198,13 +203,19 @@ This is the important limit. There are two kinds of current source. They are not
 | **Generator** | `spanish-verbs`, `english-verbs-helper` | Conjugates **any** verb from rules, including a verb with no dictionary entry | none |
 | **Dictionary** | `german-verbs-dict`, `german-words-dict`, `rosaenlg-gender-es`, `api.sonapi.ee` | Looks the word up, fails when the word is absent | yes, and usually richer |
 
-So a dictionary-backed source cannot replace a generator. A user can type a valid Spanish verb
-that Wiktionary has no page for, and the current backend fills the whole form. The new source
-would say "not found".
+So a dictionary-backed source cannot replace a generator.
+
+> **Correction (2026-10-08).** The first version of this section said that the current backend
+> fills the whole form for a valid verb that no dictionary knows. That is wrong. Every EN, ES
+> and DE route first checks the word with `is-word`. An unknown word gets `found: false`, and
+> the generator never runs. Only the Spanish noun route returns a guess (`possibleMatch`). So
+> the fallback below is **new behaviour**, not today's behaviour.
 
 **Decision: keep the generators, use the dictionary as the first choice.** Look up the local
-lexicon. If the lexicon has no row, fall back to the rule-based generator. This keeps today's
-behaviour and adds coverage. It also fits the app model, because the app needs only a small,
+lexicon. If the lexicon has no row, fall back to the rule-based generator and return the
+result as **`partial`**. The frontend already shows a notice for `partial` ("We're not fully
+sure, but here's our best guess.", key `partialMatch`, all four locales). This adds coverage
+and tells the user when the data is uncertain. It also fits the app model, because the app needs only a small,
 named set of cases per language and part of speech — not a full paradigm. The Estonian noun
 needs 7 cases. The Estonian verb needs 20 cells. `snapshot/word-cases-data.md` lists them all.
 
@@ -253,6 +264,15 @@ Evidence for each verb group:
 **The 13 missing forms are cheap.** 10 English future/conditional forms are `will`/`would` plus
 the bare infinitive. The 2 Spanish compound non-finites are `haber`/`habiendo` plus the
 participle. These are 4 lines of rule code. They do not need a data source.
+
+> **Correction (2026-10-08).** The app does not store `will run`. The current controller
+> removes the auxiliary (`extractVerb`) and stores only `run` in all 10 English
+> future/conditional cases. So these 10 cases are a copy of the infinitive. (The conditional
+> cases also call `SIMPLE_FUTURE`. That works only because the auxiliary is removed.)
+> German is the same: the perfect cases store only the participle (`getanzt`), and Futur I
+> stores only the infinitive. A kaikki form such as `habe getanzt` must have its auxiliary
+> removed by the selector. The current code also always uses `haben`, which is wrong for
+> verbs such as `gehen`. kaikki gives the correct auxiliary.
 
 **Caveat A — several forms can match one selector.** One tag combination can have more than one
 form. Spanish `baila [imperative, informal, second-person, singular]` and
@@ -396,8 +416,21 @@ This section records the situation. It does not give legal advice.
 | `german-pos-dict` data | CC-BY-SA-4.0 | Already in use today. |
 | Vabamorf | LGPL | Keep the library replaceable. A separate process is the simplest way. |
 
-**Open item.** You said you want to think about this and possibly ask a lawyer. The two
-questions that matter:
+> **Update (2026-10-08).** `.context/licence-study.md` (2026-10-06) closes most of this
+> item. CC BY-SA 4.0 allows commercial use. For German, option C was chosen: a separate table
+> with `source` and `licence` columns, and no data download for users. The same rule applies
+> to the EN and ES data from kaikki. One lawyer question is still open (licence study §7
+> item 1). Extend it from German to EN and ES. Removing `is-word` also removes the GPL German
+> word list (licence study action B9).
+>
+> **Effect on a paid tier.** No source in this plan has a non-commercial licence. A paid tier
+> is possible. The limit is that the derived lexicon stays CC BY-SA: we can charge for
+> access, but we cannot own the data exclusively. Before a paid tier, read the terms of the
+> Estonian online fallback (`api.sonapi.ee` has none that I found; the Ekilex API terms are
+> unread).
+
+**Original open item.** You said you want to think about this and possibly ask a lawyer. The
+two questions that matter:
 
 1. Does CC BY-SA 4.0 on Wiktionary-derived data oblige Ladu to share the derived lexicon table?
 2. Is an attribution line in the app enough, or is more needed?
@@ -407,37 +440,287 @@ registry are licence-neutral. Only the *ingest* step depends on the answer.
 
 ---
 
-## 9. Proposed slices
+## 9. Slice plan (written 2026-10-08)
 
-Do not start these without approval. Each slice must end with a runnable app and a green
-`npm run test:e2e`, per `new-repo-build-plan.md` §6.
+Do not start a slice without approval. Each slice starts with a plain-language overview
+before any file changes. Each slice ends with a runnable app, its own tests and docs, and a
+green `npm run test:e2e` (`new-repo-build-plan.md` §6). The known OAuth e2e failures
+(oauth-2 to oauth-5, Google stub) are not caused by this work. Report them, but do not fix
+them here.
 
-1. **Slice A — unify the seam.** Add `GET /api/dictionary/:lang/:pos/:query`. Keep all 8 old
-   routes as thin wrappers or move their callers. Collapse the frontend registry to one entry
-   point. No data change, no licence question. This alone removes most of the duplication.
-2. **Slice B — ingest one language.** Build the ingest script and the `lexeme_form` table.
-   Start with **German**, because the kaikki German sample I checked is complete for our needs
-   and because it replaces two npm packages and their 18 MB of dictionaries.
-3. **Slice C — add Spanish and English.** Same script, new case maps. Retire
-   `rosaenlg-gender-es` and `is-word`. Keep `spanish-verbs` and `english-verbs-helper` as the
-   generator fallback.
-4. **Slice D — Estonian.** Ingest Eesthetic and the Pikhof list. Decide the long-tail fallback.
-5. **Slice E — the browse feature.** Read the same table for free word browsing. Out of scope
-   for now.
+**Order:** Slice 0 → A → B1 → B2 → C1 → C2 → D → **parity checkpoint** → E → F → H.
+G and I have their own plans. Nothing after the parity checkpoint starts before the
+checkpoint is met (decision D6 in section 10).
+
+### Slice 0 — Measure coverage (no app change)
+
+**Goal.** Replace the 6-entry sample in §5.1 with real numbers before we build anything. This
+closes Caveat B.
+
+**What it does.**
+
+1. Download the kaikki data for EN, ES and DE to a git-ignored folder
+   (`backend/scripts/lexicon/.data/`). For a measurement, the deprecated per-language files are
+   acceptable. The production ingest source is decided in Slice B1 (Q-B1).
+2. Choose a public frequency list for EN, ES and DE. Candidate: `hermitdave/FrequencyWords`
+   (OpenSubtitles 2018). Read its licence: the rank is shipped later (type-ahead order), so the
+   licence matters. For Estonian, use the Pikhof list's frequency rank.
+3. Map the list to lemmas and parts of speech. A frequency list holds inflected forms; use the
+   kaikki `form_of` field to find the lemma. Keep the top 5,000 noun and verb lemmas per
+   language.
+4. Write the first version of the **selector tables** (one row per registry case:
+   `caseName → required tags, excluded tags, auxiliary removal`) for EN, ES and DE, as data.
+   Each selector gets a unit test. Slices B2, C1 and C2 reuse these tables.
+5. For each lemma, record: which cases kaikki fills, which cases today's libraries fill, and
+   whether `is-word` knows the word.
+6. Measure Estonian: how many of the same top lemmas Eesthetic and Pikhof cover, and whether
+   Eesthetic contains adjectives (it states nouns and verbs).
+7. Measure translation coverage: for the English lemmas, how many senses have a
+   `translations[]` entry for `es`, `de` and `et` (section 13).
+8. Count the rows of the full filtered data set and estimate the database size (section 12).
+
+**Output.** `.context/plans/autocomplete-coverage-report.md`: fill rate per case and per
+language, the comparison with today, a go/no-go per language, the size estimate, and the
+translation coverage. Scripts stay in `backend/scripts/lexicon/`.
+
+**Done when.** The report exists, the selector tests pass, and `npm run test:e2e` is still
+green.
+
+### Slice A — One route, one response shape (no data change)
+
+**Goal.** Remove the 8-way duplication. Behaviour stays exactly as today.
+
+**Backend.**
+
+- New route `GET /api/dictionary/:lang/:pos/:query`, behind `protect`. The Estonian verb keeps
+  `?searchInEnglish=true`.
+- Response: `200 { status: 'found' | 'partial' | 'not-found', cases: [{ caseName, word }] }`.
+  This matches the frontend's existing `AutocompleteResult`. `400` for an unsupported
+  language or part of speech. `502` when the Estonian service fails (as today).
+- A registry maps `(lang, pos)` to an adapter. Adapters for this slice:
+  `generator-en`, `generator-es`, `generator-de` (today's code, moved) and `eki`
+  (`api.sonapi.ee` plus the 3 Estonian transforms, moved from the frontend to the backend).
+- The `is-word` check stays. The Spanish noun still returns `partial` for an unknown word.
+- Delete `autocompleteTranslationController.ts`, the 8 routes and their mount in `app.js`.
+  Only the v2 frontend calls them (checked 2026-10-08), so no wrappers are needed.
+
+**Frontend.**
+
+- `features/autocomplete/api.ts`: one function, `lookupDictionary(lang, pos, query, extra?)`.
+- `transforms.ts`: the registry keeps only `queryFieldName` and `extraFieldName`. The Estonian
+  transforms and the generic transform are deleted.
+- Update `types.ts` and the Mock Service Worker handler (`test/msw/autocompleteHandlers.ts`).
+
+**Tests.**
+
+- Jest: `tests/dictionary.test.js` replaces `tests/autocomplete.test.js`, with one block per
+  adapter. The Estonian service stays mocked. Port the Estonian transform tests from
+  `transforms.test.ts`.
+- Vitest: update the autocomplete hook and the `AutocompleteRow` tests.
+- E2E: a new spec for autocomplete (none exists today). It fills a German noun, a Spanish
+  verb and an Estonian noun from the base form. The e2e backend must not call the real
+  Estonian service: point `URL_EESTI_LANG_API` at a local stub, in the same way as the Google
+  OAuth stub.
+
+**Docs.** The route in the backend API docs and the spec index (`.context/README.md`). The
+frozen snapshot files under `.context/.frontend/snapshot/` are not changed.
+
+### Slice B1 — Lexicon tables, ingest and load (no user-visible change)
+
+**Goal.** The German data reaches every environment's database.
+
+- Migration: the `lexeme` and `lexeme_form` tables (section 12).
+- `backend/scripts/lexicon/ingest`: reads the kaikki German data, applies the selector table,
+  and writes one versioned file (for example `lexicon-de-2026-10-15.tsv.gz`). It runs on a
+  developer machine, never on the VPS.
+- `backend/scripts/lexicon/load`: loads one file into one database in a single transaction
+  (replace all rows for that language) and records the version.
+- Backup: `deploy/scripts/backup.sh` gets `--exclude-table-data` for the lexicon tables.
+  The infrastructure guide (files 02 and 05) gets a step: after a restore, run `load`.
+- Fixture: about 50 German lemmas, loaded into the test, CI and e2e databases.
+- Tests: ingest unit tests on sample JSONL lines; a `load` integration test on
+  `keelapp_test`.
+
+Questions for the start of this slice: Q-B1, Q-B2, Q-B3 (section 10).
+
+### Slice B2 — German from the lexicon
+
+- The registry for DE noun and DE verb becomes a chain: `lexicon` → `generator-de`.
+  Lexicon hit = `found`. Lexicon miss + generator result = `partial`. Both miss = `not-found`.
+- The German existence check uses the lexicon, not `is-word`.
+- The German perfect gets the correct auxiliary (`sein` or `haben`) from the data.
+- The credits page (`landing/credits.html`) gets Wiktionary / kaikki (CC BY-SA 4.0).
+- Tests: Jest for the three chain outcomes. E2E: a known noun fills as `found`; an unknown
+  but plausible verb shows the `partialMatch` notice.
+
+Question for the start of this slice: Q-B4 (homographs).
+
+### Slice C1 — Spanish from the lexicon
+
+- Selector table for 42 verb cases and 3 noun cases. Noun gender comes from `senses[].tags`.
+- Chains: verb `lexicon` → `spanish-verbs`; noun `lexicon` → `rosaenlg-gender-es`. A
+  generator result is `partial`.
+- Cases that today stay empty can now fill (gerund, conditional, imperatives). This is a
+  side effect of the data, not a new part of speech, so it is inside parity scope.
+- Tests and e2e as in B2.
+
+### Slice C2 — English from the lexicon, remove `is-word`
+
+- Selector table for 21 verb cases and 2 noun cases. The 10 future/conditional cases copy the
+  infinitive (correction in §5.1).
+- Chain: `lexicon` → `english-verbs-helper`.
+- Remove the `is-word` package. This removes the GPL German word list (licence study action
+  B9). Update the licence study, the credits page and the third-party notices.
+- Run the Slice 0 measurement again. EN, ES and DE must fill at least the cases that today's
+  libraries fill.
+
+### Slice D — Estonian from local data
+
+- Ingest Eesthetic (labelled forms, top ~5,000 nouns and verbs) and the Pikhof list
+  (existence, part of speech, frequency) into the same tables. Use the Eesthetic `cells`
+  table to map its codes to our case names. The codes are the same `sonapi` codes the
+  transforms use today.
+- Chain: `lexicon` → online fallback. A result from the online fallback is `found`, because
+  it comes from a real dictionary, not from a rule.
+- `searchInEnglish` stays on the online service in this slice.
+- Decide the online fallback (Q-D1). Credits: Eesthetic (CC BY 4.0), Pikhof list
+  (CC BY-SA 4.0).
+
+### Parity checkpoint
+
+Every (language, part of speech) pair that has autocomplete today answers from the new route.
+It fills at least the same cases as before, with the same or better results. The Slice 0
+numbers prove it. Only after this checkpoint do Slices E, F and H start.
+
+### Slice E — Type-ahead list
+
+- While the user types in a query field (for example the German `infinitive`), a select list
+  shows matching lemmas, ordered by frequency rank. A pick fills the form as before.
+- Backend: `GET /api/dictionary/:lang/:pos?prefix=<text>&limit=10`. Prefix search with a
+  B-tree index on `(lang, pos, search_key text_pattern_ops)`. Typo tolerance (`pg_trgm`) only
+  if you ask for it later.
+- Frontend: an accessible combobox on the query field. Minimum 2 characters, short debounce.
+  It must not slow down typing (design commandment 1).
+- E2E: type a prefix, pick a suggestion, see the form fill.
+
+### Slice F — Translation table
+
+- Ingest `translations[]` from the English entries into `lexeme_translation` (section 13).
+- Route: `GET /api/dictionary/translate/:fromLang/:query` returns the senses and, for each
+  sense, the candidate words per language with gender.
+- Any of the 4 languages can be the start language (reverse lookup through English).
+- Move the Estonian "search in English" to this path. The online service becomes the
+  fallback.
+
+### Slice G — "One term → whole Word" (own plan)
+
+The user types one word in any language. Ladu shows the senses, then builds a draft Word with
+every translation and its forms in one step. The user confirms. This needs Slices E and F.
+It gets its own plan document.
+
+### Slice H — Adjectives and adverbs for EN, ES and DE
+
+New selector tables and new form configurations. Planned after parity (decision D6).
+
+### Slice I — Browse all words (out of scope)
+
+Reads the same tables. No plan yet.
 
 ---
 
-## 10. Open questions
+## 10. Decisions and open questions
 
-1. **Licence.** Awaiting your decision, and possibly a lawyer's. See section 8.
-2. **Ingest format.** Postgres table, or a single SQLite file shipped with the backend? The
-   table is simpler for prefix search. A file is simpler to rebuild.
-3. **Estonian fallback.** Keep `api.sonapi.ee`, or get an Ekilex API key and use the official
-   route? The official route needs an account and a key. The community route needs nothing, but
-   it is one person's project.
-4. **Re-ingest cadence.** kaikki updates weekly. Do we want a script that a human runs, or a
-   scheduled job?
-5. **Adjectives and adverbs.** The new source makes them cheap to add. Is that in scope?
+### Decisions
+
+| # | Date | Decision |
+|---|------|----------|
+| D1 | 2026-10-06 | Licence: option C for CC BY-SA data (separate tables, `source` and `licence` columns, no data download for users). See `licence-study.md`. |
+| D2 | 2026-10-08 | Lexicon miss + generator result = `partial`, shown with the existing `partialMatch` notice. |
+| D3 | 2026-10-08 | Slice 0 uses a public frequency list, not production data (production data is too small). |
+| D4 | 2026-10-08 | Storage: Postgres tables in each environment's database, excluded from the nightly backup, refilled by a load script from a versioned file. Not SQLite. |
+| D5 | 2026-10-08 | Data scope: every noun and verb lemma that has forms, but only the forms that fill our case fields. Not a frequency subset. |
+| D6 | 2026-10-08 | Type-ahead, translation and new parts of speech come after the parity checkpoint. |
+| D7 | 2026-10-08 | Translation: measure in Slice 0, build in Slice F, "one term → whole Word" gets its own plan. Keep Estonian `searchInEnglish` until Slice F. |
+
+### Open questions (ask at the start of the named slice)
+
+| # | Slice | Question |
+|---|-------|----------|
+| Q-B1 | B1 | Production ingest source: the deprecated per-language files, the 23.5 GB raw file, or our own Wiktextract run? |
+| Q-B2 | B1 | How does the versioned data file reach the VPS? A private B2 bucket, or a copy step in Ansible? (A public GitHub release conflicts with D1.) |
+| Q-B3 | B1 | Re-ingest cadence: a script that a human runs (my recommendation, for example once per quarter), or a scheduled job? |
+| Q-B4 | B2 | Homographs: one query can match more than one lemma (German `See` is `der` and `die`). Today we return one result. Return the most frequent one, or let the user choose? |
+| Q-D1 | D | Online fallback for Estonian: keep `api.sonapi.ee`, or move to the official Ekilex API (needs an account, a key in the vault, and a read of its terms)? |
+
+---
+
+## 11. Review corrections (2026-10-08)
+
+The review checked sections 2 to 8 against the code.
+
+| # | The research said | The code shows | Effect |
+|---|-------------------|----------------|--------|
+| 1 | The generator fills any verb, even one with no dictionary entry (§5). | Every EN, ES and DE route checks `is-word` first. An unknown word gets `found: false`. | The fallback is new behaviour (D2). §5 is corrected. |
+| 2 | 10 English future/conditional forms need `will`/`would` rule code. | The app stores only the bare verb. | The 10 cases copy the infinitive. §5.1 is corrected. |
+| 3 | German perfect = `habe getanzt`. | The app stores only the participle and always uses `haben`. | The selector removes the auxiliary. `sein` verbs get the correct auxiliary. |
+| 4 | 88 of 105 cases (84%) can be filled. | That compares kaikki to the registry. Today's routes fill fewer: ES 26 of 42, DE 25 of 28. | Compared with today, the change is a gain. |
+| 5 | Keep the 8 old routes as wrappers (old Slice A). | Only the v2 frontend calls them. | Delete them in Slice A. |
+| 6 | The licence question is open (§8). | `licence-study.md` closed most of it. | §8 is updated. |
+| 7 | Paths `snapshot/...`. | The files are under `.context/.frontend/snapshot/`. | Header is corrected. |
+| 8 | (not mentioned) | No e2e spec covers autocomplete. The e2e backend calls the real Estonian service. | Slice A adds a spec and a stub. |
+| 9 | (not mentioned) | Both options need VPS disk. The nightly backup dumps all of `ladu_prod` to B2 (10 GB cap). No retention rule was found in the repo. | Exclude the lexicon from the backup (D4). Check the B2 retention setting in the B2 UI. |
+
+**Offline behaviour.** Today EN, ES and DE call no outside service; the browser still needs our
+backend. The new design keeps this, and Estonian improves (local data for the frequent
+words). The network is still needed for the ingest download (once, on a developer machine),
+for rare Estonian words, and for `searchInEnglish` until Slice F.
+
+---
+
+## 12. Data and storage design
+
+**Tables** (names are proposals; final names in Slice B1):
+
+| table | columns | note |
+|-------|---------|------|
+| `lexeme` | `id`, `lang`, `pos`, `lemma`, `search_key` (lowercase, no accents), `gender` (nullable), `freq_rank` (nullable), `source`, `licence`, `source_version` | One row per lemma and part of speech. Not unique on `(lang, pos, search_key)`: homographs exist (Q-B4). |
+| `lexeme_form` | `lexeme_id`, `case_name`, `form` | Only forms that fill one of our case fields. Primary key `(lexeme_id, case_name)`. |
+| `lexeme_translation` | (Slice F) English `lexeme_id`, sense gloss, target `lang`, `word`, tags | From `translations[]` in the English entries. |
+
+**Not stored:** full paradigms, glosses, examples, audio, etymology.
+
+**Where:** in `ladu_staging` and `ladu_prod` (and the local dev database). Test, CI and e2e
+databases get a small fixture.
+
+**Disk:** the VPS has 128 GB NVMe. The size estimate comes from Slice 0. The expectation is a
+few hundred MB per environment at most.
+
+**Backup:** the lexicon tables are reference data that we can rebuild. The nightly dump skips
+their data. After a restore, the `load` script refills them from the versioned file.
+
+---
+
+## 13. Translation (exploration for Slices F and G)
+
+**Recommended source:** the `translations[]` field of the English kaikki entries.
+
+- It is the same source and licence as the EN forms. We download it anyway. No network call
+  at request time.
+- Each translation belongs to one sense (for example "bank" as river bank, and "bank" as
+  money bank). This matches the Ladu model: one Word is one concept.
+- Translations often carry gender tags. They can fill `genderES` and `genderDE`.
+- Reverse lookup makes every language a possible start: a Spanish word finds the English
+  sense, and the English sense gives the German and Estonian words. All four languages are
+  equal (design commandment 4).
+
+**Rejected:**
+
+- Machine-translation APIs (DeepL, Google): cost, no sense choice for a single word, and a
+  network dependency.
+- Self-hosted LibreTranslate: needs about 2 GB of RAM or more, and the VPS has 4 GB for both
+  environments.
+
+**Risk:** coverage, mostly for Estonian. Slice 0 measures it.
 
 ---
 
