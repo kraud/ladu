@@ -15,6 +15,22 @@ npx tsx scripts/lexicon/extract.ts    # streams the dump once → kaikki-<lang>.
 npx tsx scripts/lexicon/sample.ts     # frequency list → ranked lemmas per part of speech → sample-<lang>.json
 ```
 
+## Building and loading the lexicon (Slice B)
+
+```sh
+npx tsx scripts/lexicon/ingest.ts de              # → .data/out/lexicon-de-<kaikki date>.jsonl.gz (~3 MB, ~69k lexemes)
+node scripts/lexicon/load.js <file>               # replaces that language's rows in the DATABASE_URL database, in one transaction
+node scripts/lexicon/load.js <file> --if-empty    # only if the language has no rows yet (test / e2e databases)
+npx tsx scripts/lexicon/ingest.ts de --fixture    # rewrites the committed test fixture, fixtures/lexicon-de-fixture.jsonl
+```
+
+The file format (JSONL, a header line then one lexeme per line) is described at the top of
+`load.js`. The table is `lexemes` (`backend/src/db/schema.ts`). Re-ingest is manual, about
+once per quarter (decision D14): download → extract → sample → ingest → load.
+
+`fixtures/lexicon-de-fixture.jsonl` is real Wiktionary data (CC BY-SA 4.0, attribution in its
+header line): the words the tests use, common nouns, and the 20 most frequent verbs.
+
 Slice 0 measurements (each writes a Markdown file into `.data/`; the results are copied into
 `.context/plans/autocomplete-coverage-report.md`):
 

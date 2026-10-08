@@ -542,6 +542,13 @@ frozen snapshot files under `.context/.frontend/snapshot/` are not changed.
 
 ### Slice B1 — Lexicon tables, ingest and load (no user-visible change)
 
+**Steps.** B1a local (table + migration `0021_lexemes`, `ingest.ts`, `load.js`, committed fixture,
+Jest) — done 2026-10-08. B1b deploy side (backup exclusion, Ansible copy + load, infra docs).
+Differences from the text below: the table is `lexemes` (plural, like the other tables) with a
+`forms` jsonb column (D11), so there is no `lexeme_form`; `search_key` is lowercase + NFC but
+**keeps accents** (removing them merges "año"/"ano", "schön"/"schon"). Measured: German =
+68,974 lexemes, a 3.1 MB file, 42 MB in Postgres with its index, load < 2 s, lookup 0.03 ms.
+
 **Goal.** The German data reaches every environment's database.
 
 - Migration: the `lexeme` and `lexeme_form` tables (section 12).
@@ -669,6 +676,10 @@ Reads the same tables. No plan yet.
 | D8 | 2026-10-08 | Reflexive verbs: forms are stored **without** the reflexive pronoun (`sputen`, `personamos`), as today. A new "reflexive" field on the verb form is planned after parity (Slice H). kaikki can fill it: "always reflexive" from the lemma (DE infinitive `sich sputen`, ES lemma ending in `-se`), "reflexive in some senses" from the sense tag `reflexive`. The pronoun per person is then derived; for German, the verb-case field selects accusative (`mich`) or dative (`mir`). |
 | D10 | 2026-10-08 | Spanish 2nd person: **tú** (singular) and **ustedes** (plural; it takes the 3rd-person plural form, `bailan`). Vosotros is not used outside Spain. Today's form labels say `Vos` / `Ustedes` while the library fills tú / vosotros (`bailas` / `bailáis`): fix the `Vos` label to `Tú` and the 2pl value to the ustedes form in Slice C1, with the Spanish selectors. Later (TBD): a UI setting for the Spanish variety (Spain / voseo). |
 | D2-fix | 2026-10-08 | D2 said the frontend already showed the `partial` notice. It did not: `AutocompleteRow` treated `partial` like `found`, and the `partialMatch` text was never rendered. Fixed in Slice A step A3: the notice shows next to the button and stays after applying. |
+| D11 | 2026-10-08 | Q-B5: one `lexeme` table with a `forms` jsonb column holding **every** case (lemma copies included; ~235 MB per environment for all four languages). No `lexeme_form` table. |
+| D12 | 2026-10-08 | Q-B2: an Ansible task copies the versioned file from the developer machine to the VPS and runs the load script in the backend container. |
+| D13 | 2026-10-08 | Q-B1: ingest reads the raw all-languages kaikki dump (Slice 0's `download.ts` + `extract.ts`). |
+| D14 | 2026-10-08 | Q-B3: re-ingest is manual, about once per quarter (download → ingest → Ansible load). |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)

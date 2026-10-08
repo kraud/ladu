@@ -753,3 +753,37 @@ export const userActivityDays = pgTable(
         index('user_activity_days_day_idx').on(table.day),
     ],
 );
+
+// ---------------------------------------------------------------------------
+// LEXEMES
+// The autocomplete dictionary (autocomplete-data-source-strategy.md, Slice B;
+// decisions D11–D14). One row per lemma entry of one source, with every app
+// case value in `forms` ({ caseName: word }). Reference data, not user data:
+// it is rebuilt from a versioned file by `scripts/lexicon/load.js`, the nightly
+// backup skips its rows, and nothing references it.
+// Homographs are separate rows (German "See" is der and die), so
+// (language, part_of_speech, search_key) is NOT unique.
+// ---------------------------------------------------------------------------
+export const lexemes = pgTable(
+    'lexemes',
+    {
+        id:            uuid('id').primaryKey().defaultRandom(),
+        // The app's own values (Lang / PartOfSpeech in frontend/src/ts/enums.ts): 'German', 'Noun'.
+        language:      varchar('language', { length: 16 }).notNull(),
+        partOfSpeech:  varchar('part_of_speech', { length: 16 }).notNull(),
+        lemma:         text('lemma').notNull(),
+        // lib/lexicon/searchKey.ts — the lookup applies the same function to the query.
+        searchKey:     text('search_key').notNull(),
+        forms:         jsonb('forms').$type<Record<string, string>>().notNull(),
+        // Rank in the source frequency list (1 = most common); NULL when the list does not have it.
+        frequencyRank: integer('frequency_rank'),
+        // Where the row came from, under which licence (licence-study.md option C), and which version.
+        source:        varchar('source', { length: 32 }).notNull(),
+        licence:       varchar('licence', { length: 32 }).notNull(),
+        sourceVersion: varchar('source_version', { length: 32 }).notNull(),
+    },
+    (table) => [
+        // Backs the autocomplete lookup: one language, one part of speech, one typed word.
+        index('lexemes_lookup_idx').on(table.language, table.partOfSpeech, table.searchKey),
+    ],
+);
