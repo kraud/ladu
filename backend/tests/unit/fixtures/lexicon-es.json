@@ -1,0 +1,8089 @@
+{
+ "_source": "Excerpts of English Wiktionary via the kaikki.org raw Wiktextract dump (Last-Modified Sat, 03 Oct 2026 08:24:38 GMT), CC BY-SA 4.0. Senses reduced to tags. Rebuild: scripts/lexicon/fixture.ts.",
+ "entries": [
+  {
+   "word": "bailar",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "bailo",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailé",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailado",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "bailar",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "bailando",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "bailado",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailada",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailados",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailadas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailo",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailas",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailás",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "baila",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "bailáis",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailan",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailaba",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailabas",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailaba",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailábamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailabais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailaban",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailé",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailaste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailó",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "bailasteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailaron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailaré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailarás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailará",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailaremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailaréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailarán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailaría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailarías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailaría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailaríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailaríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailarían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "baile",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailes",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailés",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "baile",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailemos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailéis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailen",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailara",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailaras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailara",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailáramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailarais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailaran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailase",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailases",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailase",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailásemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailaseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailasen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailare",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailares",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailare",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailáremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailareis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "bailaren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "baila",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "bailá",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "baile",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "baile",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailad",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailen",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailen",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailes",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "baile",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "baile",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailéis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailen",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "bailen",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "bailarme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "bailarte",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "bailarle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailarse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailarnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "bailaros",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "bailarles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailarse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailarme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "bailarte",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "bailarlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailarla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailarse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailarnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "bailaros",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "bailarlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailarlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailarse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándome",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "bailándote",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "bailándole",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "bailándoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "bailándoles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándome",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "bailándote",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "bailándolo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándola",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "bailándoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "bailándolos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándolas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "bailándose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "báilame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilate",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilate",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "báilalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "bailame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailate",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailate",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "bailalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "báileme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báilele",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báilese",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báilenos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báileles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báileme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báilelo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báilela",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báilese",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báilenos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báilelos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "báilelas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémoste",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémosle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémosles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémoste",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémoslo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémosla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémoslos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailémoslas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "bailadme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailadle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailadnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailaos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailadles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailadme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailadlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailadla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailadnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailaos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailadlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "bailadlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilenme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilenle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilennos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilenles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilense",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilenme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilenlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilenla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilennos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilenlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilenlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "báilense",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "baylar",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "intransitive",
+      "transitive"
+     ]
+    },
+    {}
+   ]
+  },
+  {
+   "word": "tener",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "tengo",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "tuve",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "tenido",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "irregular",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "e-ie alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "tener",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "teniendo",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "tenido",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "tenida",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "tenidos",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "tenidas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengo",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "tienes",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "tenés",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "tiene",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tenemos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "tenéis",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tienen",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tenía",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "tenías",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "tenía",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "teníamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "teníais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenían",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tuve",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "tuviste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "tuvo",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tuvimos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "tuvisteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tuvieron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tendré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "tendrás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "tendrá",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tendremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "tendréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tendrán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tendría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "tendrías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "tendría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tendríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "tendríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tendrían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tenga",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tengas",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tengás",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "tenga",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tengamos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tengáis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tengan",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tuviera",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuvieras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuviera",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tuviéramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuvierais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuvieran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tuviese",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuvieses",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuviese",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tuviésemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuvieseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuviesen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tuviere",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuvieres",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuviere",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tuviéremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuviereis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "tuvieren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "ten",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "tené",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "tenga",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tenga",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tengamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "tened",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tengan",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tengan",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tengas",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "tenga",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tenga",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tengamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengáis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tengan",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "tengan",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "irregular",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "e-ie alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "tenerme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "tenerte",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "tenerle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenerse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenernos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "teneros",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "tenerles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenerse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenerme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "tenerte",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "tenerlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenerla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenerse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenernos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "teneros",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "tenerlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenerlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenerse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndome",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "teniéndote",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "teniéndole",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "teniéndoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "teniéndoles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndome",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "teniéndote",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "teniéndolo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndola",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "teniéndoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "teniéndolos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndolas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "teniéndose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "tenme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tente",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tenle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tennos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tenles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tenme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tente",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tenlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tenla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tennos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tenlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "tenlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "teneme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "tenete",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "tenele",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "tenenos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "teneles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "teneme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "tenete",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "tenelo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "tenela",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "tenenos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "tenelos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "tenelas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "téngame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "téngale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "téngase",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "ténganos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "téngales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "téngame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "téngalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "téngala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "téngase",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "ténganos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "téngalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "téngalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámoste",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámosle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámosles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámoste",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámoslo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámosla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámoslos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "tengámoslas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "tenedme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenedle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenednos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "teneos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenedles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenedme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenedlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenedla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenednos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "teneos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenedlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "tenedlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "téngannos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "téngannos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "ténganse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "literally",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {
+     "tags": [
+      "reflexive"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "ir",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "voy",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "fui",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "ido",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "irregular",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "ir",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "yendo",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "ido",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "ida",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "idos",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "idas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "voy",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "vas",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "va",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "vais",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "van",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "iba",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "ibas",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "iba",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "íbamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "ibais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "iban",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fui",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "fuiste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "fue",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fuimos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "fuisteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "fueron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "iré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "irás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "irá",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "iremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "iréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "irán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "iría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "irías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "iría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "iríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "iríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "irían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vaya",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vayas",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vayás",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "vaya",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vayamos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vayáis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "vayan",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fuera",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fueras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fuera",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fuéramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fuerais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fueran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fuese",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fueses",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fuese",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fuésemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fueseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fuesen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fuere",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fueres",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fuere",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "fuéremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fuereis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "fueren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "ve",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "andá",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "vaya",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vaya",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "id",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "vayan",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vayan",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vayas",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "vaya",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vaya",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vayamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayáis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "vayan",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vayan",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "irregular",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "irme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "irte",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "irle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "irse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "irnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "iros",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "irles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "irse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "irme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "irte",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "irlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "irla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "irse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "irnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "iros",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "irlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "irlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "irse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndome",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "yéndote",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "yéndole",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "yéndoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "yéndoles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndome",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "yéndote",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "yéndolo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndola",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "yéndoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "yéndolos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndolas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "yéndose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "veme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "vete",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "vele",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "venos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "veles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "veme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "vete",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "velo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "vela",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "venos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "velos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "velas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "andame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andate",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andate",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "andalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "váyame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyase",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyase",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "váyalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámoste",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámoste",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámosle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámosle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámosles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámosles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámoste",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámoste",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámoslo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámoslo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámosla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámosla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámoslos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámoslos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vámoslas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámoslas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "idme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "iros",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "iros",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "idlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyannos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyannos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "irregular",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "irse",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "yéndose",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "ido",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "ida",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "idos",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "idas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "irme",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "singular"
+     ]
+    },
+    {
+     "form": "irte",
+     "tags": [
+      "infinitive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "irse",
+     "tags": [
+      "infinitive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "irnos",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "plural"
+     ]
+    },
+    {
+     "form": "iros",
+     "tags": [
+      "infinitive",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "irse",
+     "tags": [
+      "infinitive",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "yéndome",
+     "tags": [
+      "first-person",
+      "gerund",
+      "singular"
+     ]
+    },
+    {
+     "form": "yéndote",
+     "tags": [
+      "gerund",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "yéndose",
+     "tags": [
+      "gerund",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "yéndonos",
+     "tags": [
+      "first-person",
+      "gerund",
+      "plural"
+     ]
+    },
+    {
+     "form": "yéndoos",
+     "tags": [
+      "gerund",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "yéndose",
+     "tags": [
+      "gerund",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me voy",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "te vas",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se va",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos vamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "os vais",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se van",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me iba",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te ibas",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se iba",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos íbamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os ibais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se iban",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me fui",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "te fuiste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se fue",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos fuimos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "os fuisteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se fueron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me iré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te irás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se irá",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos iremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os iréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se irán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me iría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te irías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se iría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos iríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os iríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se irían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me vaya",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te vayas",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te vayás",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "se vaya",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos vayamos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os vayáis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se vayan",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me fuera",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te fueras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se fuera",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos fuéramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os fuerais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se fueran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me fuese",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te fueses",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se fuese",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos fuésemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os fueseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se fuesen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me fuere",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te fueres",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se fuere",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos fuéremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os fuereis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se fueren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vete",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "andate",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "váyase",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "váyase",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vámonos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "vayámonos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "idos",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "iros",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "váyanse",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "váyanse",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "te vayas",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se vaya",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se vaya",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos vayamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os vayáis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se vayan",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se vayan",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "colloquial",
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {},
+    {},
+    {},
+    {
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "imperfective",
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "colloquial",
+      "intransitive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "informal",
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "informal",
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive",
+      "vulgar"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "casa",
+   "pos": "noun",
+   "forms": [
+    {
+     "form": "casas",
+     "tags": [
+      "plural"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "feminine"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "estudiante",
+   "pos": "noun",
+   "forms": [
+    {
+     "form": "estudiantes",
+     "tags": [
+      "plural"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "by-personal-gender",
+      "feminine",
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "by-personal-gender",
+      "feminine",
+      "masculine"
+     ]
+    }
+   ]
+  }
+ ]
+}

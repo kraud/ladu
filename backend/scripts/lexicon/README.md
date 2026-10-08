@@ -15,6 +15,16 @@ npx tsx scripts/lexicon/extract.ts    # streams the dump once → kaikki-<lang>.
 npx tsx scripts/lexicon/sample.ts     # frequency list → ranked lemmas per part of speech → sample-<lang>.json
 ```
 
+Test fixtures (real entries for the selector unit tests in `tests/unit/lexiconSelectors*.test.js`):
+
+```sh
+npx tsx scripts/lexicon/fixture.ts de 'tanzen|verb' 'gehen|verb' 'anrufen|verb' 'Haus|noun' 'Junge|noun'
+npx tsx scripts/lexicon/fixture.ts es 'bailar|verb' 'tener|verb' 'ir|verb' 'casa|noun' 'estudiante|noun'
+npx tsx scripts/lexicon/fixture.ts en 'run|verb' 'walk|verb' 'bake|verb' 'be|verb' 'child|noun' 'sheep|noun' 'news|noun'
+```
+
+The selector tables themselves live in `backend/lib/lexicon/selectors/<lang>.ts`.
+
 ## Sources
 
 | File | Source | Licence |

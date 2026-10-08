@@ -3,7 +3,8 @@
  * (lemma, part of speech) pairs, written to sample-<lang>.json.
  *
  * A frequency list holds inflected, lowercase words ("tanzt", "haus"). To find the lemma:
- *   1. an entry whose word matches and whose senses have `form_of` → those lemmas;
+ *   1. an entry whose word matches and whose senses have `form_of` → those lemmas,
+ *      following chains of form_of entries to the real lemma ("querida" → "querido" → "querer");
  *   2. an entry whose word matches, without `form_of` → the entry itself is a lemma;
  *   3. only when no entry matches: a lemma whose `forms[]` contains the word (covers forms
  *      with no page of their own). Not earlier: German "an" is a form of every separable verb.
@@ -49,24 +50,40 @@ function addToIndex(index: LemmaIndex, word: string, pos: string, lemma: string,
     candidates.set(key, (candidates.get(key) ?? 0) + score);
 }
 
-/** entries: exact entry word → candidates (rules 1 and 2). forms: lowercase form → candidates (rule 3). */
-async function buildIndex(lang: LangCode): Promise<{ entries: LemmaIndex; forms: LemmaIndex }> {
-    const entries: LemmaIndex = new Map();
-    const forms: LemmaIndex = new Map();
+interface Index {
+    /** Exact entry word → candidates (rules 1 and 2). */
+    entries: LemmaIndex;
+    /** Lowercase form → candidates (rule 3). */
+    forms: LemmaIndex;
+    /** "<PartOfSpeech>\t<word>" of every entry that has at least one real (non-form_of) sense. */
+    lemmas: Set<string>;
+    /** "<PartOfSpeech>\t<word>" of a form_of-only entry → its targets. */
+    formOf: Map<string, string[]>;
+}
+
+async function buildIndex(lang: LangCode): Promise<Index> {
+    const index: Index = { entries: new Map(), forms: new Map(), lemmas: new Set(), formOf: new Map() };
+    const { entries, forms } = index;
     for await (const line of readLines(fs.createReadStream(kaikkiFile(lang)))) {
         const entry = JSON.parse(line);
         const pos = POS_MAP[entry.pos];
         if (!pos) continue;
 
         let lemmaSenses = 0;
+        const targets: string[] = [];
         for (const sense of entry.senses ?? []) {
             if (sense.form_of?.length) {
+                targets.push(...sense.form_of);
                 for (const lemma of sense.form_of) addToIndex(entries, entry.word, pos, lemma);
             } else {
                 lemmaSenses++;
             }
         }
-        if (lemmaSenses === 0) continue;
+        if (lemmaSenses === 0) {
+            index.formOf.set(`${pos}\t${entry.word}`, targets);
+            continue;
+        }
+        index.lemmas.add(`${pos}\t${entry.word}`);
 
         addToIndex(entries, entry.word, pos, entry.word, lemmaSenses);
         for (const form of entry.forms ?? []) {
@@ -75,10 +92,26 @@ async function buildIndex(lang: LangCode): Promise<{ entries: LemmaIndex; forms:
             addToIndex(forms, form.form.toLowerCase(), pos, entry.word);
         }
     }
-    return { entries, forms };
+    return index;
 }
 
-function lookup(lang: LangCode, index: { entries: LemmaIndex; forms: LemmaIndex }, word: string): string[] {
+/**
+ * Follows form_of chains to a real lemma: "querida" → "querido" (itself only a participle
+ * form) → "querer"; "adentrarse" → "adentrar". A key that reaches no lemma is dropped.
+ */
+function resolve(index: Index, key: string, depth = 0): string[] {
+    if (index.lemmas.has(key)) return [key];
+    const targets = index.formOf.get(key);
+    if (!targets || depth >= 3) return [];
+    const pos = key.split('\t')[0];
+    return targets.flatMap((target) => resolve(index, `${pos}\t${target}`, depth + 1));
+}
+
+function lookup(lang: LangCode, index: Index, word: string): string[] {
+    return [...new Set(candidates(lang, index, word).flatMap((key) => resolve(index, key)))];
+}
+
+function candidates(lang: LangCode, index: Index, word: string): string[] {
     const exact = index.entries.get(word);
     // German nouns are always capitalized, so German always also tries "Haus" for "haus".
     // Other languages only try it when there is no exact entry.

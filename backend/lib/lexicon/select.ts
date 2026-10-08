@@ -25,6 +25,8 @@ export interface FormSelector {
     caseName: string;
     /** Every tag must be on the form row. */
     tags: string[];
+    /** Tried when no row matches `tags` (English "walked | past" when no per-person row exists). */
+    fallbackTags?: string[];
     /** None of these may be on the form row (added to EXCLUDED_TAGS). */
     excludeTags?: string[];
     /** Among the matching rows, the first row that also has all these tags wins. */
@@ -56,12 +58,14 @@ export const EXCLUDED_TAGS = [
 
 export function selectForm(entry: LexiconEntry, selector: FormSelector): string | undefined {
     const excluded = [...EXCLUDED_TAGS, ...(selector.excludeTags ?? [])];
-    const matches = (entry.forms ?? []).filter((row) => {
+    const rowsWith = (required: string[]) => (entry.forms ?? []).filter((row) => {
         const tags = row.tags ?? [];
         return row.form && row.form !== '-'
-            && selector.tags.every((tag) => tags.includes(tag))
+            && required.every((tag) => tags.includes(tag))
             && !excluded.some((tag) => tags.includes(tag));
     });
+    let matches = rowsWith(selector.tags);
+    if (matches.length === 0 && selector.fallbackTags) matches = rowsWith(selector.fallbackTags);
 
     const preferred = selector.preferTags
         ? matches.find((row) => selector.preferTags!.every((tag) => row.tags?.includes(tag)))
