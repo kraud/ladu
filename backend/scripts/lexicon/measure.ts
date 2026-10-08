@@ -25,6 +25,18 @@ const { selectCases, EXCLUDED_TAGS }: typeof import('../../lib/lexicon/select') 
 const de: typeof import('../../lib/lexicon/selectors/de') = require('../../lib/lexicon/selectors/de');
 const es: typeof import('../../lib/lexicon/selectors/es') = require('../../lib/lexicon/selectors/es');
 const en: typeof import('../../lib/lexicon/selectors/en') = require('../../lib/lexicon/selectors/en');
+/**
+ * The controller calls isWord('<list>') on every request, and each call reloads the word list
+ * (~27 ms). Same lists, same answers, loaded once: replace the module in Node's cache with a
+ * memoized wrapper BEFORE the controller requires it. Production code is not changed.
+ */
+const isWordPath = require.resolve('is-word', { paths: [path.join(__dirname, '../..')] });
+const isWord = require(isWordPath);
+const loadedLists = new Map<string, unknown>();
+require.cache[isWordPath]!.exports = (list: string) => {
+    if (!loadedLists.has(list)) loadedLists.set(list, isWord(list));
+    return loadedLists.get(list);
+};
 const controller = require('../../controllers/autocompleteTranslationController');
 type LangCode = import('./common').LangCode;
 type CaseSelector = import('../../lib/lexicon/select').CaseSelector;

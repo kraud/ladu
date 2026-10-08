@@ -452,7 +452,11 @@ them here.
 G and I have their own plans. Nothing after the parity checkpoint starts before the
 checkpoint is met (decision D6 in section 10).
 
-### Slice 0 — Measure coverage (no app change)
+### Slice 0 — Measure coverage (no app change) — DONE 2026-10-08
+
+**Result: `autocomplete-coverage-report.md`.** Go for EN, ES and DE; go with an online fallback
+for Estonian. The findings for later slices are in its section 8 and are added below to
+Slices A, C1, D and F.
 
 **Goal.** Replace the 6-entry sample in §5.1 with real numbers before we build anything. This
 closes Caveat B.
@@ -501,6 +505,9 @@ green.
   `generator-en`, `generator-es`, `generator-de` (today's code, moved) and `eki`
   (`api.sonapi.ee` plus the 3 Estonian transforms, moved from the frontend to the backend).
 - The `is-word` check stays. The Spanish noun still returns `partial` for an unknown word.
+- Two fixes found by Slice 0: a library error returns `not-found`, not HTTP 500 (today 20.6%
+  of frequent German nouns and 7.6% of German verbs crash); and each `is-word` list is loaded
+  once, not on every request (about 27 ms per request today).
 - Delete `autocompleteTranslationController.ts`, the 8 routes and their mount in `app.js`.
   Only the v2 frontend calls them (checked 2026-10-08), so no wrappers are needed.
 
@@ -559,7 +566,8 @@ Question for the start of this slice: Q-B4 (homographs).
 
 - Selector table for 42 verb cases and 3 noun cases. Noun gender comes from `senses[].tags`.
 - Chains: verb `lexicon` → `spanish-verbs`; noun `lexicon` → `rosaenlg-gender-es`. A
-  generator result is `partial`.
+  generator result is `partial`. Slice 0 showed both generators are often wrong for irregular
+  verbs and for gender (report §4), so the `partial` notice is essential here.
 - Cases that today stay empty can now fill (gerund, conditional, imperatives). This is a
   side effect of the data, not a new part of speech, so it is inside parity scope.
 - Tests and e2e as in B2.
@@ -583,6 +591,9 @@ Question for the start of this slice: Q-B4 (homographs).
 - Chain: `lexicon` → online fallback. A result from the online fallback is `found`, because
   it comes from a real dictionary, not from a rule.
 - `searchInEnglish` stays on the online service in this slice.
+- Slice 0 (report §5): Eesthetic covers all frequent verbs, about half of the frequent nouns
+  and almost no adjectives. The online fallback serves a large share of lookups, not only
+  rare words. 40,295 Eesthetic cells have more than one form and need a tie-break rule.
 - Decide the online fallback (Q-D1). Credits: Eesthetic (CC BY 4.0), Pikhof list
   (CC BY-SA 4.0).
 
@@ -611,6 +622,9 @@ numbers prove it. Only after this checkpoint do Slices E, F and H start.
 - Any of the 4 languages can be the start language (reverse lookup through English).
 - Move the Estonian "search in English" to this path. The online service becomes the
   fallback.
+- Slice 0 (report §6): EN↔ES and EN↔DE coverage is good (75–92%). Estonian is thin (11–58%),
+  so Estonian translation needs a second source (for example Ekilex `api/meaning/search`) or
+  must show that it is incomplete.
 
 ### Slice G — "One term → whole Word" (own plan)
 
@@ -654,6 +668,7 @@ Reads the same tables. No plan yet.
 | Q-B1 | B1 | Production ingest source: the deprecated per-language files, the 23.5 GB raw file, or our own Wiktextract run? |
 | Q-B2 | B1 | How does the versioned data file reach the VPS? A private B2 bucket, or a copy step in Ansible? (A public GitHub release conflicts with D1.) |
 | Q-B3 | B1 | Re-ingest cadence: a script that a human runs (my recommendation, for example once per quarter), or a scheduled job? |
+| Q-B5 | B1 | Table layout: one `lexeme_form` row per form (§12, about 460 MB), or one `jsonb` column of forms per `lexeme` with lemma copies not stored (about 176 MB)? Slice 0 recommends the `jsonb` layout (report §7). |
 | Q-B4 | B2 | Homographs: one query can match more than one lemma (German `See` is `der` and `die`). Today we return one result. Return the most frequent one, or let the user choose? |
 | Q-D1 | D | Online fallback for Estonian: keep `api.sonapi.ee`, or move to the official Ekilex API (needs an account, a key in the vault, and a read of its terms)? |
 
@@ -697,8 +712,8 @@ for rare Estonian words, and for `searchInEnglish` until Slice F.
 **Where:** in `ladu_staging` and `ladu_prod` (and the local dev database). Test, CI and e2e
 databases get a small fixture.
 
-**Disk:** the VPS has 128 GB NVMe. The size estimate comes from Slice 0. The expectation is a
-few hundred MB per environment at most.
+**Disk:** the VPS has 128 GB NVMe. Slice 0 measured about 460 MB per environment for this
+layout, or about 176 MB for a `jsonb` layout (Q-B5, report §7). Both fit.
 
 **Backup:** the lexicon tables are reference data that we can rebuild. The nightly dump skips
 their data. After a restore, the `load` script refills them from the versioned file.

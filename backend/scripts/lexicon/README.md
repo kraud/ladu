@@ -15,6 +15,16 @@ npx tsx scripts/lexicon/extract.ts    # streams the dump once → kaikki-<lang>.
 npx tsx scripts/lexicon/sample.ts     # frequency list → ranked lemmas per part of speech → sample-<lang>.json
 ```
 
+Slice 0 measurements (each writes a Markdown file into `.data/`; the results are copied into
+`.context/plans/autocomplete-coverage-report.md`):
+
+```sh
+npx tsx scripts/lexicon/measure.ts                # EN/ES/DE: kaikki selectors vs today's controllers (~5 s)
+npx tsx scripts/lexicon/measure-et.ts             # Estonian: Eesthetic, Pikhof, kaikki (et)
+npx tsx scripts/lexicon/measure-translations.ts   # translations[] coverage, both directions
+npx tsx scripts/lexicon/estimate-size.ts          # database size, two table layouts
+```
+
 Test fixtures (real entries for the selector unit tests in `tests/unit/lexiconSelectors*.test.js`):
 
 ```sh
@@ -31,6 +41,8 @@ The selector tables themselves live in `backend/lib/lexicon/selectors/<lang>.ts`
 |------|--------|---------|
 | `raw-wiktextract-data.jsonl.gz` | kaikki.org raw Wiktextract dump (English Wiktionary) | CC BY-SA 4.0 (some text also GFDL) |
 | `frequency-<lang>.txt` | `hermitdave/FrequencyWords`, `content/2018/<lang>/<lang>_50k.txt` (OpenSubtitles 2018) | CC BY-SA 4.0 (content), MIT (code) |
+| `pikhof-est_words_160k.tsv` | `KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex`, `data/est_words_160k.tsv` | CC BY-SA 4.0 |
+| `eesthetic/` (from `eesthetic-v1.0.5.zip`) | Eesthetic v1.0.5, Zenodo record 14069724 | CC BY 4.0 |
 
 `.data/manifest.json` records the URL, the `Last-Modified` header and the download time of
 each file. A report must name the version it measured.

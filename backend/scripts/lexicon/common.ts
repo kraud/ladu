@@ -44,7 +44,15 @@ export const KAIKKI_RAW_URL = 'https://kaikki.org/dictionary/raw-wiktextract-dat
 export const KAIKKI_RAW_FILE = path.join(DATA_DIR, 'raw-wiktextract-data.jsonl.gz');
 export const MANIFEST_FILE = path.join(DATA_DIR, 'manifest.json');
 
-export const frequencyUrl = (lang: LangCode): string =>
+/** Eesthetic v1.0.5 (Zenodo 14069724, CC BY 4.0): labelled Estonian paradigms, top ~5,000 nouns and verbs. */
+export const EESTHETIC_URL = 'https://zenodo.org/api/records/14069724/files/eesthetic-v1.0.5.zip/content';
+export const EESTHETIC_ZIP = path.join(DATA_DIR, 'eesthetic-v1.0.5.zip');
+export const EESTHETIC_DIR = path.join(DATA_DIR, 'eesthetic');
+/** Pikhof Estonian word list (CC BY-SA 4.0): 160k Ekilex base words with part of speech and frequency rank. */
+export const PIKHOF_URL = 'https://raw.githubusercontent.com/KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex/main/data/est_words_160k.tsv';
+export const PIKHOF_FILE = path.join(DATA_DIR, 'pikhof-est_words_160k.tsv');
+
+export const frequencyUrl =(lang: LangCode): string =>
     `https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/${lang}/${lang}_50k.txt`;
 export const frequencyFile = (lang: LangCode): string => path.join(DATA_DIR, `frequency-${lang}.txt`);
 export const kaikkiFile = (lang: LangCode): string => path.join(DATA_DIR, `kaikki-${lang}.jsonl`);
