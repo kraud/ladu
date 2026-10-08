@@ -18,6 +18,8 @@ One spec file per phase: `tests/phase-1-auth.spec.ts`, `tests/phase-2-noun-crud.
 `tests/phase-5-practice.spec.ts`, `tests/phase-5-5-saved-practice.spec.ts`, …
 `tests/smoke.spec.ts` is the Phase 0 harness check. The two practice specs share helpers in `fixtures/practice.ts`
 (register + verify through the API, seed nouns, sign in, answer cards).
+`tests/autocomplete-a-dictionary-route.spec.ts` is the autocomplete Slice A gate
+(`.context/plans/autocomplete-data-source-strategy.md`).
 
 ## Prerequisites
 
@@ -48,6 +50,24 @@ worker opens a real Chromium window you can watch.
 Playwright starts `npm run dev -w backend` and `npm run dev -w frontend` itself
 (see `playwright.config.ts` → `webServer`). If you already have `npm run dev`
 running, it reuses those servers locally.
+
+## Stub servers
+
+Two local stubs stand in for third-party services, so no spec depends on them:
+
+| Stub | Port | Stands in for | Used by |
+|------|------|---------------|---------|
+| `fixtures/oidc-stub/server.ts` (`npm run stub:oidc -w e2e`) | 4400 | Google sign-in (OIDC) | `oauth-*.spec.ts` |
+| `fixtures/eki-stub/server.ts` (`npm run stub:eki -w e2e`) | 4401 | api.sonapi.ee (Estonian dictionary) | `autocomplete-a-dictionary-route.spec.ts` |
+
+Playwright points the backend at them through env values in `playwright.config.ts`. Two
+local traps make the backend ignore those values:
+
+1. **The repo-root `.env` wins** (the backend loads it with `override: true`). So it must
+   not set `URL_EESTI_LANG_API` or `OAUTH_ISSUER_GOOGLE`. (`URL_EESTI_LANG_API` has a code
+   default, the public sonapi URL, for local development without it.)
+2. **A reused dev backend keeps its own environment.** Stop `npm run dev -w backend` before
+   a full run, so Playwright starts a backend with the stub values.
 
 ## Playwright MCP
 

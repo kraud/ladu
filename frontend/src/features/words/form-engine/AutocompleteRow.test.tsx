@@ -158,6 +158,46 @@ describe('AutocompleteRow', () => {
         expect(fake.requests).toHaveLength(1);
     });
 
+    it('a partial result (a guess) shows the "not fully sure" notice next to the button, and keeps it after applying', async () => {
+        const user = userEvent.setup();
+        const fake = makeAutocompleteHandlers({
+            spanishNoun: {
+                status: 'partial',
+                cases: [
+                    { caseName: 'genderES', word: 'la' },
+                    { caseName: 'singularES', word: 'zorplata' },
+                ],
+            },
+        });
+        server.use(...fake.handlers);
+        const esNounFields = getFormConfig(PartOfSpeech.noun, Lang.ES)!.fields;
+
+        renderWithProviders(
+            <Harness lang={Lang.ES} pos={PartOfSpeech.noun} fields={esNounFields} defaultValues={{ singular: 'zorplata' }} />
+        );
+
+        const button = await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 });
+        expect(screen.getByTestId('autocomplete-partial')).toHaveTextContent("We're not fully sure, but here's our best guess.");
+
+        await user.click(button);
+        await waitFor(() => expect(screen.getByText('Autocomplete values applied')).toBeInTheDocument());
+        expect(screen.getByTestId('autocomplete-partial')).toBeInTheDocument();
+    });
+
+    it('a found result shows no "not fully sure" notice', async () => {
+        const fake = makeAutocompleteHandlers({
+            englishVerb: { status: 'found', cases: [{ caseName: 'simplePresent3sEN', word: 'runs' }] },
+        });
+        server.use(...fake.handlers);
+
+        renderWithProviders(
+            <Harness lang={Lang.EN} pos={PartOfSpeech.verb} fields={enVerbFields} defaultValues={{ simplePresent1s: 'run' }} />
+        );
+
+        await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 });
+        expect(screen.queryByTestId('autocomplete-partial')).not.toBeInTheDocument();
+    });
+
     it('shows a "not found" status and renders no Autocomplete button — nothing to fill', async () => {
         const fake = makeAutocompleteHandlers({ englishVerb: { status: 'not-found', cases: [] } });
         server.use(...fake.handlers);

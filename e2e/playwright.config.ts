@@ -29,6 +29,8 @@ const BACKEND_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
 // Local stub OIDC issuer standing in for Google in tests —
 // see e2e/fixtures/oidc-stub/server.ts and oauth-login-strategy.md Phase 0.
 const OIDC_STUB_URL = process.env.OIDC_STUB_URL ?? 'http://localhost:4400';
+// Local stub of api.sonapi.ee (the Estonian dictionary) — see e2e/fixtures/eki-stub/server.ts.
+const EKI_STUB_URL = process.env.EKI_STUB_URL ?? 'http://localhost:4401';
 const CI = !!process.env.CI;
 // The specs that change the registration or login gate (access-gates.md): `admin-11-registration-gate.spec.ts`, ...
 const GATE_SPECS = /-gate\.spec\.ts$/;
@@ -106,6 +108,9 @@ export default defineConfig({
                 // Signs staff tokens (admin-dashboard.md slice 2). Locally the
                 // repo-root .env wins; CI has none, so it needs a value here.
                 ADMIN_JWT_SECRET: 'e2e-admin-secret',
+                // The Estonian dictionary stub. Works only if the repo-root .env does NOT set
+                // URL_EESTI_LANG_API (that file wins over these values); the backend has a default.
+                URL_EESTI_LANG_API: `${EKI_STUB_URL}/v2`,
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.
@@ -141,6 +146,17 @@ export default defineConfig({
             command: 'npm run stub:oidc -w e2e',
             cwd: '..',
             url: `${OIDC_STUB_URL}/.well-known/openid-configuration`,
+            reuseExistingServer: !CI,
+            timeout: 30_000,
+            stdout: 'pipe',
+            stderr: 'pipe',
+        },
+        {
+            // Stub Estonian dictionary (api.sonapi.ee) for the autocomplete spec — fixed answers,
+            // plus a request log the spec reads to check the URL encoding.
+            command: 'npm run stub:eki -w e2e',
+            cwd: '..',
+            url: `${EKI_STUB_URL}/health`,
             reuseExistingServer: !CI,
             timeout: 30_000,
             stdout: 'pipe',

@@ -97,6 +97,18 @@ describe('Estonian (api.sonapi.ee, fetch replaced)', () => {
         expect(fetchMock.mock.calls[0][0]).toBe('https://sonapi.test/v2/%C3%B5un');
     });
 
+    it('uses the public sonapi URL when URL_EESTI_LANG_API is not set', async () => {
+        const configured = process.env.URL_EESTI_LANG_API;
+        delete process.env.URL_EESTI_LANG_API;
+        try {
+            const fetchMock = sonapi({ searchResult: [] });
+            await lookup('Estonian/Noun/maja');
+            expect(fetchMock.mock.calls[0][0]).toBe('https://api.sonapi.ee/v2/maja');
+        } finally {
+            process.env.URL_EESTI_LANG_API = configured;
+        }
+    });
+
     it('the verb passes searchInEnglish on as ?lg=en', async () => {
         const fetchMock = sonapi({ searchResult: [] });
         const res = await lookup('Estonian/Verb/run?searchInEnglish=true');

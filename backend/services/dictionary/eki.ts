@@ -12,6 +12,12 @@ const { NOT_FOUND, toCases }: typeof import('./types') = require('./types');
 const { HttpError }: typeof import('../../lib/httpError') = require('../../lib/httpError');
 
 const TIMEOUT_MS = 5_000;
+/**
+ * A public URL, not a secret, so it has a default. `URL_EESTI_LANG_API` overrides it: the
+ * deploy secrets set it, and the e2e run points it at a local stub (e2e/fixtures/eki-stub).
+ * Do not set it in the local repo-root .env: that file overrides what Playwright passes.
+ */
+const DEFAULT_URL = 'https://api.sonapi.ee/v2';
 
 interface WordForm { code: string; value: string }
 export interface SonapiResponse {
@@ -24,8 +30,7 @@ export interface SonapiResponse {
 
 /** Read at call time, so tests and the e2e stub can point it elsewhere. */
 async function search(query: string, searchInEnglish: boolean | undefined): Promise<SonapiResponse> {
-    const base = process.env.URL_EESTI_LANG_API;
-    if (!base) throw new HttpError(502, 'Estonian dictionary is not configured');
+    const base = process.env.URL_EESTI_LANG_API || DEFAULT_URL;
     const url = `${base}/${encodeURIComponent(query)}${searchInEnglish ? '?lg=en' : ''}`;
     try {
         const response = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });

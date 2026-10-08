@@ -37,10 +37,15 @@
  * Editing the query field itself re-fires the lookup (existing debounce);
  * editing any other field just re-runs this comparison against the lookup
  * result already in hand — no new request.
+ *
+ * A `partial` result is a guess, not a dictionary entry (decision D2 in
+ * autocomplete-data-source-strategy.md). It fills like `found`, but both states
+ * above carry the "not fully sure" notice next to them, before and after applying
+ * (`data-testid="autocomplete-partial"`), so a guess never looks like a fact.
  */
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { CheckIcon, MagnifyingGlassIcon, PencilSimpleLineIcon } from '@phosphor-icons/react';
+import { CheckIcon, MagnifyingGlassIcon, PencilSimpleLineIcon, WarningIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { useAutocompleteTranslation } from '@/features/autocomplete/hooks';
 import { getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
@@ -179,19 +184,26 @@ export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
     };
 
     if (canFill) {
-        if (valuesMatchLookup(fields, data, allValues)) {
-            return (
-                <span className="flex items-center gap-1.5 text-xs text-(--success)">
-                    <CheckIcon size={14} weight="bold" />
-                    {t('wordRelated:wordForm.autocompleteTranslationButton.valuesApplied')}
-                </span>
-            );
-        }
-        return (
+        const action = valuesMatchLookup(fields, data, allValues) ? (
+            <span className="flex items-center gap-1.5 text-xs text-(--success)">
+                <CheckIcon size={14} weight="bold" />
+                {t('wordRelated:wordForm.autocompleteTranslationButton.valuesApplied')}
+            </span>
+        ) : (
             <Button type="button" variant="outline" size="sm" onClick={handleApply} className={APPLY_BUTTON_CLASS}>
                 <PencilSimpleLineIcon size={14} />
                 {t('wordRelated:wordForm.autocompleteTranslationButton.autocompleteButton')}
             </Button>
+        );
+        if (data?.status !== 'partial') return action;
+        return (
+            <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                {action}
+                <span className="flex items-center gap-1.5 text-xs text-(--warning)" data-testid="autocomplete-partial">
+                    <WarningIcon aria-hidden size={14} className="shrink-0" />
+                    {t('wordRelated:wordForm.autocompleteTranslationButton.partialMatch')}
+                </span>
+            </span>
         );
     }
 

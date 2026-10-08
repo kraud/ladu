@@ -496,7 +496,10 @@ green.
 
 **Steps.** A1 backend (route, registry, adapters, Jest) — done 2026-10-08. A2 frontend switch and
 delete the 8 old routes — done 2026-10-08 (`scripts/lexicon/measure.ts` now measures "today"
-through the same adapters). A3 e2e spec with an Estonian stub server. Route path values are the
+through the same adapters). A3 e2e spec with an Estonian stub server — done 2026-10-08
+(`e2e/tests/autocomplete-a-dictionary-route.spec.ts`, `e2e/fixtures/eki-stub/`; the
+backend now defaults `URL_EESTI_LANG_API` to the public sonapi URL; the `partial` notice is
+now rendered — see D2-fix). Route path values are the
 app's own enum values (`/api/dictionary/German/Noun/Haus`), decided 2026-10-08.
 
 **Backend.**
@@ -664,6 +667,8 @@ Reads the same tables. No plan yet.
 | D6 | 2026-10-08 | Type-ahead, translation and new parts of speech come after the parity checkpoint. |
 | D7 | 2026-10-08 | Translation: measure in Slice 0, build in Slice F, "one term → whole Word" gets its own plan. Keep Estonian `searchInEnglish` until Slice F. |
 | D8 | 2026-10-08 | Reflexive verbs: forms are stored **without** the reflexive pronoun (`sputen`, `personamos`), as today. A new "reflexive" field on the verb form is planned after parity (Slice H). kaikki can fill it: "always reflexive" from the lemma (DE infinitive `sich sputen`, ES lemma ending in `-se`), "reflexive in some senses" from the sense tag `reflexive`. The pronoun per person is then derived; for German, the verb-case field selects accusative (`mich`) or dative (`mir`). |
+| D10 | 2026-10-08 | Spanish 2nd person: **tú** (singular) and **ustedes** (plural; it takes the 3rd-person plural form, `bailan`). Vosotros is not used outside Spain. Today's form labels say `Vos` / `Ustedes` while the library fills tú / vosotros (`bailas` / `bailáis`): fix the `Vos` label to `Tú` and the 2pl value to the ustedes form in Slice C1, with the Spanish selectors. Later (TBD): a UI setting for the Spanish variety (Spain / voseo). |
+| D2-fix | 2026-10-08 | D2 said the frontend already showed the `partial` notice. It did not: `AutocompleteRow` treated `partial` like `found`, and the `partialMatch` text was never rendered. Fixed in Slice A step A3: the notice shows next to the button and stays after applying. |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)
