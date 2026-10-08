@@ -4,7 +4,7 @@
  * For every sampled lemma (top N per part of speech, from sample-<lang>.json):
  * - kaikki: the selector tables in lib/lexicon/selectors/ applied to the lemma's entry;
  * - today: the production dictionary adapters (services/dictionary/generators.ts), so the
- *   is-word check and every library call behave exactly as the route does. Estonian is not
+ *   library calls behave exactly as the route's fallback does (no is-word gate since C2). Estonian is not
  *   measured here (network; step 0e).
  *
  * The Slice 0 report (2026-10-08) was made with the old autocompleteTranslationController,

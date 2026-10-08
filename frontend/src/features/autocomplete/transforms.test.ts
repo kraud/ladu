@@ -16,6 +16,7 @@ describe('getAutocompleteEndpoint — coverage table', () => {
         expect(present.sort()).toEqual(
             [
                 'English/Verb',
+                'English/Noun',
                 'Spanish/Verb',
                 'Spanish/Noun',
                 'German/Verb',
@@ -63,6 +64,10 @@ describe('toAutocompleteResult — the one transform for every (language, PoS)',
 describe('registry query field names — pinned per (language, PoS)', () => {
     it('EN verb queries off simplePresent1s (no stored infinitive case exists for English)', () => {
         expect(getAutocompleteEndpoint(Lang.EN, PartOfSpeech.verb)?.queryFieldName).toBe('simplePresent1s');
+    });
+
+    it('EN noun queries off singular (Slice C2)', () => {
+        expect(getAutocompleteEndpoint(Lang.EN, PartOfSpeech.noun)?.queryFieldName).toBe('singular');
     });
 
     it('ES verb, DE verb query off their own infinitive fields', () => {

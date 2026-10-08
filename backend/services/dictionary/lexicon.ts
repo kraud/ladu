@@ -4,8 +4,10 @@
  *
  * Lookup: same language, part of speech and search key (lib/lexicon/searchKey.ts — the load
  * script stores the key with the same function). Several rows can match (homographs, decision
- * D15): the one that fills the most fields wins, ties broken by `entry_order` (0 = the source's
- * main sense). Choosing between meanings comes with the type-ahead (Slice E).
+ * D15): among the rows that fill at least HALF as many fields as the fullest one, the source's
+ * main sense wins (lowest `entry_order`). So a stub entry never wins ("Tag" with 2 fields vs 9),
+ * and a main sense that lacks one field still does (modal "can": 20 fields vs 21 for "to can",
+ * past "could", not "canned"). Choosing between meanings comes with the type-ahead (Slice E).
  */
 
 import type { DictionaryAdapter, LookupResult } from './types';
@@ -26,9 +28,10 @@ export function lexiconAdapter(language: string, partOfSpeech: string): Dictiona
             .where(and(eq(lexemes.language, language), eq(lexemes.partOfSpeech, partOfSpeech), eq(lexemes.searchKey, searchKey(query))));
         if (rows.length === 0) return NOT_FOUND;
 
-        const best = rows.reduce((a, b) =>
-            filled(b.forms) > filled(a.forms) || (filled(b.forms) === filled(a.forms) && b.entryOrder < a.entryOrder) ? b : a
-        );
+        const most = Math.max(...rows.map((row) => filled(row.forms)));
+        const best = rows
+            .filter((row) => filled(row.forms) * 2 >= most)
+            .reduce((a, b) => (b.entryOrder < a.entryOrder ? b : a));
         return { status: 'found', cases: toCases(Object.entries(best.forms)) };
     };
 }

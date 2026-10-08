@@ -5,8 +5,8 @@
  *
  * For every lemma entry (not a pure form_of entry) of a supported part of speech, it applies
  * that language's selector table (lib/lexicon/selectors/) and writes one line with every case
- * value. An entry whose cases add nothing beyond its own lemma is skipped (a noun with no
- * gender and no table). Identical rows (same part of speech, lemma and forms) are written once;
+ * value. An entry that fills only lemma copies is skipped (a noun with no gender and no table;
+ * see `lemmaCopies`). Identical rows (same part of speech, lemma and forms) are written once;
  * homographs with different forms stay separate rows. The frequency rank comes from
  * sample-<lang>.json.
  *
@@ -24,13 +24,15 @@ const { DATA_DIR, MANIFEST_FILE, POS_MAP, kaikkiFile, sampleFile, readLines }: t
 const { selectCases }: typeof import('../../lib/lexicon/select') = require('../../lib/lexicon/select');
 const de: typeof import('../../lib/lexicon/selectors/de') = require('../../lib/lexicon/selectors/de');
 const es: typeof import('../../lib/lexicon/selectors/es') = require('../../lib/lexicon/selectors/es');
+const en: typeof import('../../lib/lexicon/selectors/en') = require('../../lib/lexicon/selectors/en');
 type LangCode = import('./common').LangCode;
 type CaseSelector = import('../../lib/lexicon/select').CaseSelector;
 
-/** Languages the ingest supports so far. English joins in Slice C2. */
+/** Languages the ingest supports so far. Estonian comes from other sources (Slice D). */
 const LANGUAGES: Partial<Record<LangCode, { language: string; selectors: Record<string, CaseSelector[]> }>> = {
     de: { language: 'German', selectors: { noun: de.NOUN_SELECTORS_DE, verb: de.VERB_SELECTORS_DE } },
     es: { language: 'Spanish', selectors: { noun: es.NOUN_SELECTORS_ES, verb: es.VERB_SELECTORS_ES } },
+    en: { language: 'English', selectors: { noun: en.NOUN_SELECTORS_EN, verb: en.VERB_SELECTORS_EN } },
 };
 
 /**
@@ -51,6 +53,11 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'hombre|noun', 'mujer|noun', 'libro|noun', 'perro|noun', 'ciudad|noun', 'tiempo|noun', 'problema|noun',
         'bailar|verb', 'tener|verb', 'ir|verb', 'sentir|verb', 'venir|verb', 'oír|verb', 'pensar|verb', 'quejarse|verb',
     ],
+    // "can"/"will": modals the old library got wrong ("caned"); "child"/"sheep"/"mouse": irregular plurals.
+    en: [
+        'child|noun', 'sheep|noun', 'mouse|noun', 'house|noun', 'book|noun', 'city|noun', 'woman|noun', 'man|noun',
+        'run|verb', 'walk|verb', 'bake|verb', 'be|verb', 'go|verb', 'can|verb', 'will|verb', 'swim|verb', 'cry|verb',
+    ],
 };
 const FIXTURE_TOP_N = 20;
 const MAX_LEMMA_LENGTH = 100; // the dictionary route refuses longer queries
@@ -66,6 +73,22 @@ interface LexiconRow {
     /** 0, 1, … in source order among the written rows of the same part of speech and lemma (decision D15). */
     entryOrder: number;
     forms: Record<string, string>;
+}
+
+/**
+ * The cases a selector table fills from the lemma alone (fallbacks, "the lemma is the singular",
+ * the bare English verb): found by running the table on an entry with no forms and no senses.
+ * An entry is worth a row only if it fills at least one case NOT in this set. Comparing values
+ * with the lemma instead would wrongly drop "sheep" (plural = singular).
+ */
+const lemmaCopyCache = new Map<CaseSelector[], Set<string>>();
+function lemmaCopies(selectors: CaseSelector[]): Set<string> {
+    let copies = lemmaCopyCache.get(selectors);
+    if (!copies) {
+        copies = new Set(selectCases({ word: 'lemma', pos: '', forms: [], senses: [] }, selectors).keys());
+        lemmaCopyCache.set(selectors, copies);
+    }
+    return copies;
 }
 
 function sourceVersion(): string {
@@ -106,7 +129,7 @@ async function main(): Promise<void> {
         if (!(entry.senses ?? []).some((sense: any) => !sense.form_of)) continue;
 
         const forms = Object.fromEntries(selectCases(entry, selectors));
-        if (!Object.values(forms).some((value) => value !== entry.word)) {
+        if (!Object.keys(forms).some((caseName) => !lemmaCopies(selectors).has(caseName))) {
             skippedEmpty++;
             continue;
         }

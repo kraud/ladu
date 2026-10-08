@@ -3,7 +3,7 @@
  * (autocomplete-data-source-strategy.md, Slice A). Every adapter returns it.
  *
  * - found: a real dictionary entry.
- * - partial: a guess (today only the Spanish noun gender for a word `is-word` does not know);
+ * - partial: a guess from a rule-based library, after a lexicon miss (decision D2);
  *   the form shows the "not fully sure" notice.
  * - not-found: nothing to fill.
  */

@@ -141,7 +141,7 @@ frontend/src/
 │   │   │   │                        #   only when their handler prop is passed. Owns its own RHF instance + yup
 │   │   │   │                        #   resolver per card — NOT a shared form. No in-place language switch;
 │   │   │   │                        #   changing a slot's language is Remove + re-Add.
-│   │   │   ├── AutocompleteRow.tsx  # Phase 3 — automatic debounced lookup + manual "Fill in" for the 8
+│   │   │   ├── AutocompleteRow.tsx  # Phase 3 — automatic debounced lookup + manual "Fill in" for the 9
 │   │   │   │                        #   (lang, PoS) pairs `AUTOCOMPLETE_REGISTRY` covers; `null` otherwise
 │   │   │   ├── fieldLayout.ts       # Phase 3 — FieldConfig[] → row/column/block grid items for TranslationCard;
 │   │   │   │                        #   also owns the shared `isEmptyValue`/`isHiddenInDisplayOnly`/`isPersistedCaseField`
@@ -190,7 +190,7 @@ frontend/src/
 │   │   ├── keys.ts              # ['autocomplete', lang, pos, query, extra]
 │   │   ├── types.ts             # `DictionaryResponse` ({ status, cases }) and `AutocompleteResult` —
 │   │   │                        #   `cases: Map<CaseName, string>` (a `Record` can't index the `CaseName` union)
-│   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 8-entry lang×PoS table: query field + the
+│   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 9-entry lang×PoS table: query field + the
 │   │                            #   Estonian searchInEnglish field) + `toAutocompleteResult`. Which source answers
 │   │                            #   a pair is the backend's business (autocomplete-data-source-strategy.md Slice A)
 │   │

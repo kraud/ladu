@@ -12,7 +12,7 @@
  * so a failure changes nothing, and a reader never sees a half-loaded language. Other
  * languages are not touched. `search_key` is computed here (lib/lexicon/searchKey.ts).
  *
- *   node scripts/lexicon/load.js <file> [--if-empty]
+ *   node scripts/lexicon/load.js <file>... [--if-empty]   (several files: one after the other)
  *     --if-empty  do nothing when the language already has rows (for test and e2e databases:
  *                 the committed fixture never replaces a full local load)
  *
@@ -119,18 +119,21 @@ if (require.main === module) {
     // Lets this plain-JS script require the TypeScript modules (src/db, lib/lexicon), as purge.js does.
     require('tsx/cjs');
     const args = process.argv.slice(2);
-    const file = args.find((arg) => !arg.startsWith('--'));
-    if (!file) {
-        console.error('usage: node scripts/lexicon/load.js <file> [--if-empty]');
+    const files = args.filter((arg) => !arg.startsWith('--'));
+    if (files.length === 0) {
+        console.error('usage: node scripts/lexicon/load.js <file>... [--if-empty]');
         process.exit(1);
     }
     const { pool } = require('../../src/db');
-    loadLexiconFile(pool, path.resolve(file), { ifEmpty: args.includes('--if-empty') })
-        .then(({ language, loaded, skipped }) => {
+    (async () => {
+        // One file after the other; each is its own transaction. A failure stops before the next file.
+        for (const file of files) {
+            const { language, loaded, skipped } = await loadLexiconFile(pool, path.resolve(file), { ifEmpty: args.includes('--if-empty') });
             console.log(skipped ? `${language}: rows already present, nothing loaded (--if-empty)` : `${language}: loaded ${loaded} lexemes from ${file}`);
-        })
+        }
+    })()
         .catch((error) => {
-            console.error('Lexicon load failed, nothing changed:', error.message);
+            console.error('Lexicon load failed; that file changed nothing:', error.message);
             process.exitCode = 1;
         })
         .finally(() => pool.end());

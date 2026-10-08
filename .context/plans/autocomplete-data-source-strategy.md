@@ -606,6 +606,14 @@ VPS: run `lexicon.yml` with `lexicon-es-2026-10-03.jsonl.gz` too (§14).
 
 ### Slice C2 — English from the lexicon, remove `is-word`
 
+**Done 2026-10-09.** English = 404,424 lexemes (9.9 MB file); the three Wiktionary languages take
+~217 MB in Postgres. English verbs use the chain; English nouns are new (lexicon only, plural).
+`is-word` is uninstalled (D17: the generators answer without a gate, always `partial`); the GPL
+German list is gone (licence study action B9 done). D15 refined (half-complete rule; modal
+"can" → "could"). Ingest fix: an entry is kept if it fills any case that is not a lemma copy
+(the old "any value ≠ lemma" rule dropped "sheep"). `load.js` takes several files. Gate spec:
+`e2e/tests/autocomplete-d-english-lexicon.spec.ts`. VPS: also load `lexicon-en-2026-10-03.jsonl.gz` (§14).
+
 - Selector table for 21 verb cases and 2 noun cases. The 10 future/conditional cases copy the
   infinitive (correction in §5.1).
 - Chain: `lexicon` → `english-verbs-helper`.
@@ -697,8 +705,9 @@ Reads the same tables. No plan yet.
 | D12 | 2026-10-08 | Q-B2: an Ansible task copies the versioned file from the developer machine to the VPS and runs the load script in the backend container. |
 | D13 | 2026-10-08 | Q-B1: ingest reads the raw all-languages kaikki dump (Slice 0's `download.ts` + `extract.ts`). |
 | D14 | 2026-10-08 | Q-B3: re-ingest is manual, about once per quarter (download → ingest → Ansible load). |
-| D15 | 2026-10-08 | Q-B4 homographs: the lookup returns ONE entry — the one that fills the most fields, ties broken by the source's own entry order (`lexemes.entry_order`, main sense first). Choosing between meanings (der See / die See) comes with the type-ahead list in Slice E. German: 658 noun keys have more than one entry (369 with a different gender; 244 among frequent words). |
+| D15 | 2026-10-08 | Q-B4 homographs: the lookup returns ONE entry — the one that fills the most fields, ties broken by the source's own entry order (`lexemes.entry_order`, main sense first). Choosing between meanings (der See / die See) comes with the type-ahead list in Slice E. German: 658 noun keys have more than one entry (369 with a different gender; 244 among frequent words). **Refined 2026-10-09 (Slice C2):** "most fields" was too strict — the English modal "can" (20 fields) lost to "to can" (21, past "canned"). Rule now: among entries that fill at least half as many fields as the fullest, the main sense (lowest `entry_order`) wins. Stubs still lose (Tag: 2 vs 9). Changes the answer for 139 keys (EN 5, DE 60, ES 74), all toward the main sense. |
 | D16 | 2026-10-09 | Spanish regularity: **irregular** = Wiktionary's "irregular" table tag OR any stem-changing class (e-ie, o-ue, e-i, e-ie-i, o-ue-u, u-ue, i-ie, …), -zc (conozco) and e-í (reír). **Regular** = spelling-only classes (c-z, c-qu, g-gu, g-j, gu-gü) and accent-only classes (i-í, u-ú). Saved words keep their values (C1 decision: no data migration). |
+| D17 | 2026-10-09 | Slice C2 removes `is-word`. On a lexicon miss the rule-based generators still answer, always as `partial` (D2), with no word-list gate: a made-up Spanish/English word can get a marked guess. German is unaffected (its libraries are dictionaries and fail on unknown words → not-found). English nouns have no library: a lexicon miss is not-found. |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)

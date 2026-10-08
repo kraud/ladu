@@ -1,19 +1,18 @@
 /**
- * Adapters over the rule-based npm libraries (EN, ES, DE). Moved from the old
- * autocompleteTranslationController (deleted in Slice A step A2) with the same output, plus
- * two fixes found by Slice 0 (.context/plans/autocomplete-coverage-report.md §8):
- * - a library that throws for a word it does not know gives `not-found`, not HTTP 500
- *   (20.6% of frequent German nouns and 7.6% of German verbs threw);
- * - each `is-word` list is loaded once, not on every request (~27 ms per request).
+ * Adapters over the rule-based npm libraries (EN, ES, DE). Since Slices B2/C1/C2 they are only
+ * the FALLBACK behind the local lexicon (`lexiconFirst` in ./lexicon.ts), which turns their
+ * `found` into `partial` (decision D2). Moved from the old autocompleteTranslationController
+ * (deleted in Slice A step A2); a library that throws for a word it does not know gives
+ * `not-found`, not HTTP 500.
  *
- * `is-word` still gates every lookup: a word it does not know is `not-found`, except the
- * Spanish noun, whose gender is guessed and returned as `partial`.
+ * No word-list gate (decision D17: `is-word` was removed in Slice C2). The German libraries are
+ * dictionaries themselves and throw for unknown words; the Spanish and English ones are pure
+ * rule generators and answer for any word — a marked guess.
  */
 
 import type { DictionaryAdapter, LookupResult } from './types';
 const { NOT_FOUND, toCases }: typeof import('./types') = require('./types');
 
-const isWord = require('is-word');
 const SpanishVerbs = require('spanish-verbs');
 const SpanishGender = require('rosaenlg-gender-es');
 const GermanVerbsLib = require('german-verbs');
@@ -24,14 +23,6 @@ const EnglishVerbs = require('english-verbs-helper');
 const Irregular = require('english-verbs-irregular/dist/verbs.json');
 const Gerunds = require('english-verbs-gerunds/dist/gerunds.json');
 const EnglishVerbsData = EnglishVerbs.mergeVerbsData(Irregular, Gerunds);
-
-const wordLists = new Map<string, { check: (word: string) => boolean }>();
-/** `isWord(list)` reads and indexes the whole list file; do it once per list. */
-function knows(list: 'american-english' | 'spanish' | 'ngerman', word: string): boolean {
-    let checker = wordLists.get(list);
-    if (!checker) wordLists.set(list, (checker = isWord(list)));
-    return checker!.check(word);
-}
 
 /** Runs the library calls; a library error means the word is not in its dictionary. */
 function fromLibrary(build: () => LookupResult): LookupResult {
@@ -53,7 +44,6 @@ const PERSONS_EN = PERSONS.filter(([slot]) => slot !== '2pl');
 const PERSONS_ES: [slot: string, index: number][] = PERSONS.map(([slot, index]) => [slot, slot === '2pl' ? 5 : index]);
 
 export const englishVerb: DictionaryAdapter = async (query) => {
-    if (!knows('american-english', query)) return NOT_FOUND;
     const conjugate = (tense: string, person: number): string =>
         EnglishVerbs.getConjugation(EnglishVerbsData, query, tense, person);
     // Future and conditional store the bare verb: the form shows "will"/"would" itself.
@@ -70,7 +60,6 @@ export const englishVerb: DictionaryAdapter = async (query) => {
 };
 
 export const spanishVerb: DictionaryAdapter = async (query) => {
-    if (!knows('spanish', query)) return NOT_FOUND;
     const conjugate = (tense: string, person: number): string => SpanishVerbs.getConjugation(query, tense, person);
     return fromLibrary(() => ({
         status: 'found',
@@ -86,25 +75,18 @@ export const spanishVerb: DictionaryAdapter = async (query) => {
     }));
 };
 
-/**
- * The gender library always answers "m" or "f", even for a word that does not exist. So a
- * word `is-word` does not know still gets the guess, as `partial`.
- */
-export const spanishNoun: DictionaryAdapter = async (query) => {
-    const result = fromLibrary(() => ({
+/** The gender library guesses "m" or "f" from the ending, for any word (it has no word list). */
+export const spanishNoun: DictionaryAdapter = async (query) =>
+    fromLibrary(() => ({
         status: 'found',
         cases: toCases([
             ['genderES', SPANISH_ARTICLE[SpanishGender(query)]],
             ['singularES', query],
         ]),
     }));
-    if (result.status === 'found' && !knows('spanish', query)) return { ...result, status: 'partial' };
-    return result;
-};
 
 export const germanVerb: DictionaryAdapter = async (query) => {
     const verb = query.toLowerCase();
-    if (!knows('ngerman', verb)) return NOT_FOUND;
     // [0] is the single form; for compound tenses [1] is the main verb after the auxiliary ("habe", "getanzt").
     const conjugate = (tense: string, person: number, number: 'S' | 'P', aux?: string): string[] =>
         GermanVerbsLib.getConjugation(GermanVerbsDict, verb, tense, person, number, aux);
@@ -125,7 +107,6 @@ export const germanVerb: DictionaryAdapter = async (query) => {
 
 export const germanNoun: DictionaryAdapter = async (query) => {
     const noun = query.length > 1 ? query[0].toUpperCase() + query.slice(1) : query;
-    if (!knows('ngerman', noun)) return NOT_FOUND;
     const decline = (grammaticalCase: string, number: 'S' | 'P'): string =>
         GermanWords.getCaseGermanWord(null, GermanWordsList, noun, grammaticalCase, number);
     const cases: [app: string, library: string][] = [

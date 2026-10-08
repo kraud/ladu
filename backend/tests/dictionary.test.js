@@ -1,5 +1,5 @@
 // GET /api/dictionary/:language/:partOfSpeech/:query (autocomplete-data-source-strategy.md, Slice A).
-// EN/ES/DE run the real libraries and the real is-word lists. Estonian replaces global fetch.
+// EN/ES/DE run the local lexicon (loaded from the committed fixtures) and the real libraries as the fallback.
 // jest.mock comes before require('../app'): this .js file is not transformed, so Jest does not hoist
 // it, and userController.ts must capture the mock, not the real nodemailer-backed module.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
@@ -13,6 +13,7 @@ const { loadLexiconFile } = require('../scripts/lexicon/load');
 
 const FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-de-fixture.jsonl');
 const ES_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-es-fixture.jsonl');
+const EN_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-en-fixture.jsonl');
 
 beforeAll(() => db.connectDB());
 beforeEach(() => db.clearDB());
@@ -32,16 +33,43 @@ beforeEach(async () => {
 const lookup = (path) => request(app).get(`/api/dictionary/${path}`).set('Authorization', `Bearer ${token}`);
 const casesOf = (body) => Object.fromEntries(body.cases.map(({ caseName, word }) => [caseName, word]));
 
-describe('English (rule-based library)', () => {
-    it('English verb: found, with the bare verb in future and conditional', async () => {
-        const res = await lookup('English/Verb/run');
-        expect(res.statusCode).toBe(200);
-        expect(res.body.status).toBe('found');
-        expect(casesOf(res.body)).toMatchObject({
-            simplePresent3sEN: 'runs',
-            simplePast1sEN: 'ran',
-            simpleFuture1sEN: 'run',
-            simpleConditional3plEN: 'run',
+describe('English (Slice C2: verbs lexicon-first with the library fallback; nouns lexicon only)', () => {
+    describe('with the lexicon loaded (the committed fixture)', () => {
+        beforeEach(() => loadLexiconFile(pool, EN_FIXTURE));
+
+        it('a verb is found, with the bare verb in future and conditional and its regularity', async () => {
+            const res = await lookup('English/Verb/run');
+            expect(res.statusCode).toBe(200);
+            expect(res.body.status).toBe('found');
+            expect(casesOf(res.body)).toMatchObject({
+                regularityEN: 'irregular',
+                simplePresent3sEN: 'runs',
+                simplePast1sEN: 'ran',
+                simpleFuture1sEN: 'run',
+                simpleConditional3plEN: 'run',
+            });
+        });
+
+        it('modal verbs are right (the old library said "caned")', async () => {
+            expect(casesOf((await lookup('English/Verb/can')).body).simplePast1sEN).toBe('could');
+        });
+
+        it('nouns get their plural for the first time, irregular and unchanged ones too', async () => {
+            expect(casesOf((await lookup('English/Noun/child')).body)).toEqual({ singularEN: 'child', pluralEN: 'children' });
+            expect(casesOf((await lookup('English/Noun/sheep')).body)).toEqual({ singularEN: 'sheep', pluralEN: 'sheep' });
+        });
+
+        it('a noun not in the lexicon is not-found: there is no library for English nouns', async () => {
+            expect((await lookup('English/Noun/zorplate')).body).toEqual({ status: 'not-found', cases: [] });
+        });
+    });
+
+    describe('with an empty lexicon (no is-word gate since C2, decision D17)', () => {
+        it('the library answers as partial, also for a made-up verb', async () => {
+            expect((await lookup('English/Verb/run')).body.status).toBe('partial');
+            const made = await lookup('English/Verb/zorplate');
+            expect(made.body.status).toBe('partial');
+            expect(casesOf(made.body).simplePresent3sEN).toBe('zorplates');
         });
     });
 
@@ -134,6 +162,10 @@ describe('German (Slice B2: the lexicon first, the library as a partial fallback
             expect(casesOf(res.body).genderDE).toBe('der');
         });
 
+        it('a stub entry never wins over a full one ("Tag": the entry with a plural, D15 refined)', async () => {
+            expect(casesOf((await lookup('German/Noun/Tag')).body)).toMatchObject({ genderDE: 'der', pluralNominativDE: 'Tage' });
+        });
+
         it('a word not in the lexicon falls back to the library, as partial', async () => {
             const res = await lookup('German/Verb/abkleben');
             expect(res.body.status).toBe('partial');
@@ -153,7 +185,7 @@ describe('German (Slice B2: the lexicon first, the library as a partial fallback
         });
 
         it('a word the library cannot decline is not-found, not a server error', async () => {
-            // is-word knows "Polizei", but german-words-dict has no entry and throws.
+            // german-words-dict has no entry for "Polizei" and throws.
             const res = await lookup('German/Noun/Polizei');
             expect(res.statusCode).toBe(200);
             expect(res.body).toEqual({ status: 'not-found', cases: [] });

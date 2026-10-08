@@ -23,7 +23,7 @@ describe('useAutocompleteTranslation', () => {
     it('is disabled — never fetches — for a (language, PoS) pair with no registry entry', async () => {
         const { fake, wrapper } = setup();
         const { result } = renderHook(
-            () => useAutocompleteTranslation({ language: Lang.EN, pos: PartOfSpeech.noun, query: 'house' }),
+            () => useAutocompleteTranslation({ language: Lang.EN, pos: PartOfSpeech.adjective, query: 'big' }),
             { wrapper }
         );
 

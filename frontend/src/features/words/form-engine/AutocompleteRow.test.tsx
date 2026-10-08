@@ -11,7 +11,7 @@ import { AutocompleteRow } from './AutocompleteRow';
 import { getFormConfig } from './configs';
 
 const enVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EN)!.fields;
-const enNounFields = getFormConfig(PartOfSpeech.noun, Lang.EN)!.fields;
+const enAdjectiveFields = getFormConfig(PartOfSpeech.adjective, Lang.EN)!.fields;
 const eeVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EE)!.fields;
 
 function Harness({
@@ -36,7 +36,7 @@ function Harness({
 describe('AutocompleteRow', () => {
     it('renders nothing for a (language, PoS) pair with no lookup endpoint', () => {
         const { container } = renderWithProviders(
-            <Harness lang={Lang.EN} pos={PartOfSpeech.noun} fields={enNounFields} defaultValues={{}} />
+            <Harness lang={Lang.EN} pos={PartOfSpeech.adjective} fields={enAdjectiveFields} defaultValues={{}} />
         );
         expect(container).toBeEmptyDOMElement();
     });

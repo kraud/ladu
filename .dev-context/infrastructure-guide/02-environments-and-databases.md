@@ -143,6 +143,10 @@ docker cp /opt/ladu/lexicon/lexicon-de-2026-10-03.jsonl.gz backend-prod:/tmp/
 docker exec backend-prod node scripts/lexicon/load.js /tmp/lexicon-de-2026-10-03.jsonl.gz
 ```
 
+**Space:** all three Wiktionary languages (English, German, Spanish) take about 220 MB per
+database. A reload deletes and re-inserts a language, so for a while the old rows still take
+space; Postgres's autovacuum frees it for reuse on its own, nothing to do.
+
 **Check what is loaded:**
 
 ```sql

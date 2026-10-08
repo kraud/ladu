@@ -21,7 +21,11 @@ type Language = (typeof LANGUAGES)[number];
 type PartOfSpeech = (typeof PARTS_OF_SPEECH)[number];
 
 const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, DictionaryAdapter>>>> = {
-    English: { Verb: generators.englishVerb },
+    // Slice C2: verbs use the chain; nouns have no library, so the lexicon alone (a miss is not-found).
+    English: {
+        Verb: lexiconFirst(lexiconAdapter('English', 'Verb'), generators.englishVerb),
+        Noun: lexiconAdapter('English', 'Noun'),
+    },
     // Slice C1: the same chain as German.
     Spanish: {
         Verb: lexiconFirst(lexiconAdapter('Spanish', 'Verb'), generators.spanishVerb),

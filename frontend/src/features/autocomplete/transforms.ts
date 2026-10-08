@@ -30,6 +30,8 @@ export const AUTOCOMPLETE_REGISTRY: Partial<Record<Lang, Partial<Record<PartOfSp
     [Lang.EN]: {
         // English has no stored infinitive case — `simplePresent1s` doubles as the query (D#: see Outcome).
         [PartOfSpeech.verb]: { queryFieldName: 'simplePresent1s' },
+        // Slice C2: English nouns from the lexicon (the plural); no library behind them.
+        [PartOfSpeech.noun]: { queryFieldName: 'singular' },
     },
     [Lang.ES]: {
         [PartOfSpeech.verb]: { queryFieldName: 'infinitiveNonFiniteSimple' },
