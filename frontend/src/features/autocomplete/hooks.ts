@@ -4,8 +4,9 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
+import { lookupDictionary } from './api';
 import { autocompleteKeys } from './keys';
-import { getAutocompleteEndpoint } from './transforms';
+import { getAutocompleteEndpoint, toAutocompleteResult } from './transforms';
 import type { AutocompleteResult } from './types';
 
 export interface UseAutocompleteTranslationArgs {
@@ -24,7 +25,7 @@ export function useAutocompleteTranslation({ language, pos, query, extra }: UseA
 
     return useQuery<AutocompleteResult>({
         queryKey: autocompleteKeys.lookup(language, pos, trimmed, extra),
-        queryFn: () => endpoint!.fetch(trimmed, extra),
+        queryFn: () => lookupDictionary(language, pos, trimmed, extra).then(toAutocompleteResult),
         enabled: endpoint !== undefined && trimmed !== '',
     });
 }

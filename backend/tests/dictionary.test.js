@@ -1,6 +1,7 @@
 // GET /api/dictionary/:language/:partOfSpeech/:query (autocomplete-data-source-strategy.md, Slice A).
 // EN/ES/DE run the real libraries and the real is-word lists. Estonian replaces global fetch.
-// See tests/autocomplete.test.js for why jest.mock comes before require('../app').
+// jest.mock comes before require('../app'): this .js file is not transformed, so Jest does not hoist
+// it, and userController.ts must capture the mock, not the real nodemailer-backed module.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const request = require('supertest');

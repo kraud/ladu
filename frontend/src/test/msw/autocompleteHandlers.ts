@@ -1,61 +1,50 @@
 /**
- * An in-memory fake of the 8 `autocompleteTranslationController` endpoints,
- * following `wordHandlers.ts`'s factory pattern: each call to
- * `makeAutocompleteHandlers()` gets its own configurable response map, and
- * every request received is logged for payload-shape assertions.
+ * An in-memory fake of `GET /api/dictionary/:language/:partOfSpeech/:query`, following
+ * `wordHandlers.ts`'s factory pattern: each call to `makeAutocompleteHandlers()` gets its
+ * own configurable response map, and every request received is logged for assertions.
+ *
+ * Responses are keyed by a short name per (language, part of speech); a key that is not
+ * given answers `not-found`. `{ status: <number> }` alone makes the request fail with it.
  */
 import { http, HttpResponse } from 'msw';
-import type { EstonianLookupResponse, GenericLookupResponse } from '@/features/autocomplete/types';
+import type { DictionaryResponse } from '@/features/autocomplete/types';
 
-export type AutocompleteResponseMap = {
-    englishVerb?: GenericLookupResponse;
-    spanishVerb?: GenericLookupResponse;
-    spanishNoun?: GenericLookupResponse;
-    germanVerb?: GenericLookupResponse;
-    germanNoun?: GenericLookupResponse;
-    estonianVerb?: EstonianLookupResponse | { status: number };
-    estonianNoun?: EstonianLookupResponse | { status: number };
-    estonianAdjective?: EstonianLookupResponse | { status: number };
-};
+const KEYS = {
+    'English/Verb': 'englishVerb',
+    'Spanish/Verb': 'spanishVerb',
+    'Spanish/Noun': 'spanishNoun',
+    'German/Verb': 'germanVerb',
+    'German/Noun': 'germanNoun',
+    'Estonian/Verb': 'estonianVerb',
+    'Estonian/Noun': 'estonianNoun',
+    'Estonian/Adjective': 'estonianAdjective',
+} as const;
+
+type Key = (typeof KEYS)[keyof typeof KEYS];
+export type AutocompleteResponseMap = Partial<Record<Key, DictionaryResponse | { status: number }>>;
+
+const NOT_FOUND: DictionaryResponse = { status: 'not-found', cases: [] };
 
 function isFailure(value: unknown): value is { status: number } {
-    return typeof value === 'object' && value !== null && 'status' in value && Object.keys(value).length === 1;
+    return typeof value === 'object' && value !== null && typeof (value as { status: unknown }).status === 'number';
 }
 
 export function makeAutocompleteHandlers(responses: AutocompleteResponseMap = {}) {
-    const requests: { path: string; query: string }[] = [];
-
-    const respond = (path: string, query: string, body: unknown) => {
-        requests.push({ path, query });
-        if (isFailure(body)) return HttpResponse.json({ message: 'lookup failed' }, { status: body.status });
-        return HttpResponse.json(body ?? { foundVerb: false, foundNoun: false });
-    };
+    /** `path` is "<language>/<partOfSpeech>", e.g. "German/Noun". */
+    const requests: { path: string; query: string; searchInEnglish: boolean }[] = [];
 
     const handlers = [
-        http.get('*/autocompleteTranslations/english/verb/:query', ({ params }) =>
-            respond('english/verb', String(params.query), responses.englishVerb ?? { foundVerb: false })
-        ),
-        http.get('*/autocompleteTranslations/spanish/verb/:query', ({ params }) =>
-            respond('spanish/verb', String(params.query), responses.spanishVerb ?? { foundVerb: false })
-        ),
-        http.get('*/autocompleteTranslations/spanish/noun/:query', ({ params }) =>
-            respond('spanish/noun', String(params.query), responses.spanishNoun ?? { foundNoun: false })
-        ),
-        http.get('*/autocompleteTranslations/german/verb/:query', ({ params }) =>
-            respond('german/verb', String(params.query), responses.germanVerb ?? { foundVerb: false })
-        ),
-        http.get('*/autocompleteTranslations/german/noun/:query', ({ params }) =>
-            respond('german/noun', String(params.query), responses.germanNoun ?? { foundNoun: false })
-        ),
-        http.get('*/autocompleteTranslations/estonian/verb/:query', ({ params }) =>
-            respond('estonian/verb', String(params.query), responses.estonianVerb ?? { searchResult: [] })
-        ),
-        http.get('*/autocompleteTranslations/estonian/noun/:query', ({ params }) =>
-            respond('estonian/noun', String(params.query), responses.estonianNoun ?? { searchResult: [] })
-        ),
-        http.get('*/autocompleteTranslations/estonian/adjective/:query', ({ params }) =>
-            respond('estonian/adjective', String(params.query), responses.estonianAdjective ?? { searchResult: [] })
-        ),
+        http.get('*/dictionary/:language/:partOfSpeech/:query', ({ params, request }) => {
+            const path = `${String(params.language)}/${String(params.partOfSpeech)}`;
+            const searchInEnglish = new URL(request.url).searchParams.get('searchInEnglish') === 'true';
+            requests.push({ path, query: String(params.query), searchInEnglish });
+
+            const key = KEYS[path as keyof typeof KEYS];
+            if (!key) return HttpResponse.json({ message: `No dictionary for ${path}` }, { status: 400 });
+            const body = responses[key] ?? NOT_FOUND;
+            if (isFailure(body)) return HttpResponse.json({ message: 'lookup failed' }, { status: body.status });
+            return HttpResponse.json(body);
+        }),
     ];
 
     return { handlers, requests };

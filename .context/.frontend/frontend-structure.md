@@ -184,16 +184,15 @@ frontend/src/
 │   │   └── pages/               # AddWordPage, WordPage (view/edit toggle, owner vs read-only), ReviewPage
 │   │
 │   ├── autocomplete/            # Phase 3 — all new
-│   │   ├── api.ts               # the 8 lang×PoS endpoints
+│   │   ├── api.ts               # lookupDictionary — the one GET /api/dictionary/:language/:pos/:query
 │   │   ├── hooks.ts             # useAutocompleteTranslation(lang, pos, query, extra?); enabled only on a
 │   │   │                        #   non-blank query — debouncing itself lives in `AutocompleteRow`
-│   │   ├── keys.ts              # ['autocompleteTranslation', lang, pos, query]
-│   │   ├── types.ts             # `AutocompleteResult` — `cases: Map<CaseName, string>` (a `Record` can't
-│   │   │                        #   index the `CaseName` union — see the plan's Slice 4 outcome)
-│   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 8-entry lang×PoS table) + one
-│   │                            #   `transformGenericLookup` (covers EN/ES verb, DE verb/noun, ES noun-gender —
-│   │                            #   one wire envelope) + 3 bespoke Estonian transforms (noun/adjective/verb,
-│   │                            #   a raw external-dictionary passthrough with no shared envelope)
+│   │   ├── keys.ts              # ['autocomplete', lang, pos, query, extra]
+│   │   ├── types.ts             # `DictionaryResponse` ({ status, cases }) and `AutocompleteResult` —
+│   │   │                        #   `cases: Map<CaseName, string>` (a `Record` can't index the `CaseName` union)
+│   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 8-entry lang×PoS table: query field + the
+│   │                            #   Estonian searchInEnglish field) + `toAutocompleteResult`. Which source answers
+│   │                            #   a pair is the backend's business (autocomplete-data-source-strategy.md Slice A)
 │   │
 │   ├── exercises/              # Phase 5
 │   │   ├── api.ts hooks.ts keys.ts types.ts   # getUserExercises; saveTranslationPerformance / master / forget mutations

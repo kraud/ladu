@@ -1,7 +1,7 @@
 /**
  * Adapters over the rule-based npm libraries (EN, ES, DE). Moved from the old
- * autocompleteTranslationController with the same output, plus two fixes found by Slice 0
- * (.context/plans/autocomplete-coverage-report.md §8):
+ * autocompleteTranslationController (deleted in Slice A step A2) with the same output, plus
+ * two fixes found by Slice 0 (.context/plans/autocomplete-coverage-report.md §8):
  * - a library that throws for a word it does not know gives `not-found`, not HTTP 500
  *   (20.6% of frequent German nouns and 7.6% of German verbs threw);
  * - each `is-word` list is loaded once, not on every request (~27 ms per request).

@@ -481,15 +481,12 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
             englishVerb: {
-                foundVerb: true,
-                verbData: {
-                    language: 'English',
-                    cases: [
-                        { caseName: 'simplePresent1sEN', word: 'run' },
-                        { caseName: 'simplePresent2sEN', word: 'run' },
-                        { caseName: 'simplePresent3sEN', word: 'runs' },
-                    ],
-                },
+                status: 'found',
+                cases: [
+                    { caseName: 'simplePresent1sEN', word: 'run' },
+                    { caseName: 'simplePresent2sEN', word: 'run' },
+                    { caseName: 'simplePresent3sEN', word: 'runs' },
+                ],
             },
         });
         server.use(...fake.handlers);
@@ -507,8 +504,8 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
             spanishVerb: {
-                foundVerb: true,
-                verbData: { language: 'Spanish', cases: [{ caseName: 'indicativePresent1sES', word: 'bailo' }] },
+                status: 'found',
+                cases: [{ caseName: 'indicativePresent1sES', word: 'bailo' }],
             },
         });
         server.use(...fake.handlers);
@@ -524,8 +521,8 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
             germanNoun: {
-                foundNoun: true,
-                nounData: { language: 'German', cases: [{ caseName: 'genderDE', word: 'das' }] },
+                status: 'found',
+                cases: [{ caseName: 'genderDE', word: 'das' }],
             },
         });
         server.use(...fake.handlers);
@@ -541,9 +538,7 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
     it('Estonian verb: the lookup fires off infinitiveMa, gated by the same field the pattern validation uses', async () => {
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
-            estonianVerb: {
-                searchResult: [{ wordClasses: ['verb'], wordForms: [{ code: 'Inf', value: 'tantsida' }] }],
-            },
+            estonianVerb: { status: 'found', cases: [{ caseName: 'infinitiveDaEE', word: 'tantsida' }] },
         });
         server.use(...fake.handlers);
 

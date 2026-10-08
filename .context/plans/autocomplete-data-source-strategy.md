@@ -495,7 +495,8 @@ green.
 **Goal.** Remove the 8-way duplication. Behaviour stays exactly as today.
 
 **Steps.** A1 backend (route, registry, adapters, Jest) — done 2026-10-08. A2 frontend switch and
-delete the 8 old routes. A3 e2e spec with an Estonian stub server. Route path values are the
+delete the 8 old routes — done 2026-10-08 (`scripts/lexicon/measure.ts` now measures "today"
+through the same adapters). A3 e2e spec with an Estonian stub server. Route path values are the
 app's own enum values (`/api/dictionary/German/Noun/Haus`), decided 2026-10-08.
 
 **Backend.**

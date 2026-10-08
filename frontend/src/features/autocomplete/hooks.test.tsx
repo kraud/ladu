@@ -45,8 +45,8 @@ describe('useAutocompleteTranslation', () => {
     it('fetches and normalizes a found English verb', async () => {
         const { wrapper } = setup({
             englishVerb: {
-                foundVerb: true,
-                verbData: { language: 'English', cases: [{ caseName: 'simplePresent1sEN', word: 'run' }] },
+                status: 'found',
+                cases: [{ caseName: 'simplePresent1sEN', word: 'run' }],
             },
         });
         const { result } = renderHook(
@@ -59,24 +59,38 @@ describe('useAutocompleteTranslation', () => {
         expect(result.current.data?.cases.get('simplePresent1sEN' as never)).toBe('run');
     });
 
-    it('fetches and normalizes an Estonian verb through its bespoke transform', async () => {
-        const { wrapper } = setup({
-            estonianVerb: {
-                searchResult: [{ wordClasses: ['verb'], wordForms: [{ code: 'Sup', value: 'jooksma' }] }],
-            },
+    it('calls the one dictionary route with the app values and passes searchInEnglish on', async () => {
+        const { fake, wrapper } = setup({
+            estonianVerb: { status: 'found', cases: [{ caseName: 'infinitiveMaEE', word: 'jooksma' }] },
         });
         const { result } = renderHook(
-            () => useAutocompleteTranslation({ language: Lang.EE, pos: PartOfSpeech.verb, query: 'jooksma', extra: false }),
+            () => useAutocompleteTranslation({ language: Lang.EE, pos: PartOfSpeech.verb, query: 'run', extra: true }),
             { wrapper }
         );
 
         await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(fake.requests).toEqual([{ path: 'Estonian/Verb', query: 'run', searchInEnglish: true }]);
         expect(result.current.data?.status).toBe('found');
         expect(result.current.data?.cases.get('infinitiveMaEE' as never)).toBe('jooksma');
     });
 
+    it('keeps a partial status (the "not fully sure" notice) and encodes the query', async () => {
+        const { fake, wrapper } = setup({
+            spanishNoun: { status: 'partial', cases: [{ caseName: 'genderES', word: 'la' }] },
+        });
+        const { result } = renderHook(
+            () => useAutocompleteTranslation({ language: Lang.ES, pos: PartOfSpeech.noun, query: 'canción' }),
+            { wrapper }
+        );
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(fake.requests[0]).toMatchObject({ path: 'Spanish/Noun', query: 'canción' });
+        expect(result.current.data?.status).toBe('partial');
+        expect(result.current.data?.cases.get('genderES' as never)).toBe('la');
+    });
+
     it('reports a not-found German noun', async () => {
-        const { wrapper } = setup({ germanNoun: { foundNoun: false } });
+        const { wrapper } = setup({ germanNoun: { status: 'not-found', cases: [] } });
         const { result } = renderHook(
             () => useAutocompleteTranslation({ language: Lang.DE, pos: PartOfSpeech.noun, query: 'zzzznotaword' }),
             { wrapper }

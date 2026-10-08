@@ -52,14 +52,11 @@ describe('AutocompleteRow', () => {
     it('fires the lookup automatically once the debounced query settles, and shows the "use values" button while a found case is still blank — no status text once a match exists', async () => {
         const fake = makeAutocompleteHandlers({
             englishVerb: {
-                foundVerb: true,
-                verbData: {
-                    language: 'English',
-                    cases: [
-                        { caseName: 'simplePresent1sEN', word: 'run' },
-                        { caseName: 'simplePresent3sEN', word: 'runs' },
-                    ],
-                },
+                status: 'found',
+                cases: [
+                    { caseName: 'simplePresent1sEN', word: 'run' },
+                    { caseName: 'simplePresent3sEN', word: 'runs' },
+                ],
             },
         });
         server.use(...fake.handlers);
@@ -80,8 +77,8 @@ describe('AutocompleteRow', () => {
     it('draws the ready button in the brand colour (accent fill, border and text), in both themes', async () => {
         const fake = makeAutocompleteHandlers({
             englishVerb: {
-                foundVerb: true,
-                verbData: { language: 'English', cases: [{ caseName: 'simplePresent3sEN', word: 'runs' }] },
+                status: 'found',
+                cases: [{ caseName: 'simplePresent3sEN', word: 'runs' }],
             },
         });
         server.use(...fake.handlers);
@@ -103,8 +100,8 @@ describe('AutocompleteRow', () => {
         // field's own value) already matches.
         const fake = makeAutocompleteHandlers({
             englishVerb: {
-                foundVerb: true,
-                verbData: { language: 'English', cases: [{ caseName: 'simplePresent1sEN', word: 'run' }] },
+                status: 'found',
+                cases: [{ caseName: 'simplePresent1sEN', word: 'run' }],
             },
         });
         server.use(...fake.handlers);
@@ -123,14 +120,11 @@ describe('AutocompleteRow', () => {
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
             englishVerb: {
-                foundVerb: true,
-                verbData: {
-                    language: 'English',
-                    cases: [
-                        { caseName: 'simplePresent1sEN', word: 'run' },
-                        { caseName: 'simplePresent3sEN', word: 'runs' },
-                    ],
-                },
+                status: 'found',
+                cases: [
+                    { caseName: 'simplePresent1sEN', word: 'run' },
+                    { caseName: 'simplePresent3sEN', word: 'runs' },
+                ],
             },
         });
         server.use(...fake.handlers);
@@ -165,7 +159,7 @@ describe('AutocompleteRow', () => {
     });
 
     it('shows a "not found" status and renders no Autocomplete button — nothing to fill', async () => {
-        const fake = makeAutocompleteHandlers({ englishVerb: { foundVerb: false } });
+        const fake = makeAutocompleteHandlers({ englishVerb: { status: 'not-found', cases: [] } });
         server.use(...fake.handlers);
 
         renderWithProviders(
@@ -187,15 +181,12 @@ describe('AutocompleteRow', () => {
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
             englishVerb: {
-                foundVerb: true,
-                verbData: {
-                    language: 'English',
-                    cases: [
-                        { caseName: 'simplePresent1sEN', word: 'run' },
-                        { caseName: 'simplePresent2sEN', word: 'run' },
-                        { caseName: 'simplePresent3sEN', word: 'runs' },
-                    ],
-                },
+                status: 'found',
+                cases: [
+                    { caseName: 'simplePresent1sEN', word: 'run' },
+                    { caseName: 'simplePresent2sEN', word: 'run' },
+                    { caseName: 'simplePresent3sEN', word: 'runs' },
+                ],
             },
         });
         server.use(...fake.handlers);
@@ -227,7 +218,7 @@ describe('AutocompleteRow', () => {
 
     it('reads the Estonian searchInEnglish checkbox as the extra query param', async () => {
         const fake = makeAutocompleteHandlers({
-            estonianVerb: { searchResult: [{ wordClasses: ['verb'], wordForms: [{ code: 'Sup', value: 'jooksma' }] }] },
+            estonianVerb: { status: 'found', cases: [{ caseName: 'infinitiveMaEE', word: 'jooksma' }] },
         });
         server.use(...fake.handlers);
 
@@ -241,6 +232,6 @@ describe('AutocompleteRow', () => {
         );
 
         await waitFor(() => expect(fake.requests).toHaveLength(1), { timeout: 2000 });
-        expect(fake.requests[0].query).toBe('jooksma');
+        expect(fake.requests[0]).toEqual({ path: 'Estonian/Verb', query: 'jooksma', searchInEnglish: true });
     });
 });

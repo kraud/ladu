@@ -3,9 +3,12 @@
  *
  * For every sampled lemma (top N per part of speech, from sample-<lang>.json):
  * - kaikki: the selector tables in lib/lexicon/selectors/ applied to the lemma's entry;
- * - today: the REAL controller functions in controllers/autocompleteTranslationController.ts,
- *   called with a fake request and response, so the is-word check and every library call
- *   behave exactly as in production. Estonian is not measured here (network; step 0e).
+ * - today: the production dictionary adapters (services/dictionary/generators.ts), so the
+ *   is-word check and every library call behave exactly as the route does. Estonian is not
+ *   measured here (network; step 0e).
+ *
+ * The Slice 0 report (2026-10-08) was made with the old autocompleteTranslationController,
+ * before Slice A: its "today errors" column (library throws → HTTP 500) is now `not-found`.
  *
  * Bias: the sample is drawn from kaikki, so every sampled lemma exists in kaikki. What kaikki
  * does NOT know shows in the "unmatched frequency words" list instead.
@@ -25,20 +28,9 @@ const { selectCases, EXCLUDED_TAGS }: typeof import('../../lib/lexicon/select') 
 const de: typeof import('../../lib/lexicon/selectors/de') = require('../../lib/lexicon/selectors/de');
 const es: typeof import('../../lib/lexicon/selectors/es') = require('../../lib/lexicon/selectors/es');
 const en: typeof import('../../lib/lexicon/selectors/en') = require('../../lib/lexicon/selectors/en');
-/**
- * The controller calls isWord('<list>') on every request, and each call reloads the word list
- * (~27 ms). Same lists, same answers, loaded once: replace the module in Node's cache with a
- * memoized wrapper BEFORE the controller requires it. Production code is not changed.
- */
-const isWordPath = require.resolve('is-word', { paths: [path.join(__dirname, '../..')] });
-const isWord = require(isWordPath);
-const loadedLists = new Map<string, unknown>();
-require.cache[isWordPath]!.exports = (list: string) => {
-    if (!loadedLists.has(list)) loadedLists.set(list, isWord(list));
-    return loadedLists.get(list);
-};
-const controller = require('../../controllers/autocompleteTranslationController');
+const generators: typeof import('../../services/dictionary/generators') = require('../../services/dictionary/generators');
 type LangCode = import('./common').LangCode;
+type DictionaryAdapter = import('../../services/dictionary/types').DictionaryAdapter;
 type CaseSelector = import('../../lib/lexicon/select').CaseSelector;
 type LexiconEntry = import('../../lib/lexicon/select').LexiconEntry;
 
@@ -51,26 +43,14 @@ interface TodayResult {
     cases: Map<string, string>;
 }
 
-/** Calls an Express controller with a fake request/response and returns the JSON body (or the thrown error). */
-function callController(handler: any, params: Record<string, string>): Promise<{ body?: any; error?: unknown }> {
-    return new Promise((resolve) => {
-        const res = {
-            status() { return res; },
-            json(body: any) { resolve({ body }); },
-        };
-        handler({ params, query: {}, user: {} }, res, (error: unknown) => resolve({ error }));
-    });
-}
-
-async function today(handler: any, params: Record<string, string>, foundKey: string, dataKey: string): Promise<TodayResult> {
-    const { body, error } = await callController(handler, params);
-    if (error || !body) return { status: 'error', cases: new Map() };
-    const cases = new Map<string, string>();
-    for (const { caseName, word } of body[dataKey]?.cases ?? []) {
-        if (word && word !== '-') cases.set(caseName, word);
+/** Runs one production adapter; a throw counts as `error`. */
+async function today(adapter: DictionaryAdapter, lemma: string): Promise<TodayResult> {
+    try {
+        const { status, cases } = await adapter(lemma, {});
+        return { status, cases: new Map(cases.map(({ caseName, word }) => [caseName, word])) };
+    } catch {
+        return { status: 'error', cases: new Map() };
     }
-    if (body[foundKey]) return { status: 'found', cases };
-    return { status: body[dataKey] ? 'partial' : 'not-found', cases };
 }
 
 interface Group {
@@ -82,12 +62,12 @@ interface Group {
 }
 
 const GROUPS: Group[] = [
-    { lang: 'de', kaikkiPos: 'noun', selectors: de.NOUN_SELECTORS_DE, today: (w) => today(controller.getNounDE, { singularNominativeNoun: w }, 'foundNoun', 'nounData') },
-    { lang: 'de', kaikkiPos: 'verb', selectors: de.VERB_SELECTORS_DE, today: (w) => today(controller.getVerbDE, { infinitiveVerb: w }, 'foundVerb', 'verbData') },
-    { lang: 'es', kaikkiPos: 'noun', selectors: es.NOUN_SELECTORS_ES, today: (w) => today(controller.getNounGenderES, { singularNominativeNoun: w }, 'foundNoun', 'nounData') },
-    { lang: 'es', kaikkiPos: 'verb', selectors: es.VERB_SELECTORS_ES, today: (w) => today(controller.getVerbES, { infinitiveVerb: w }, 'foundVerb', 'verbData') },
+    { lang: 'de', kaikkiPos: 'noun', selectors: de.NOUN_SELECTORS_DE, today: (w) => today(generators.germanNoun, w) },
+    { lang: 'de', kaikkiPos: 'verb', selectors: de.VERB_SELECTORS_DE, today: (w) => today(generators.germanVerb, w) },
+    { lang: 'es', kaikkiPos: 'noun', selectors: es.NOUN_SELECTORS_ES, today: (w) => today(generators.spanishNoun, w) },
+    { lang: 'es', kaikkiPos: 'verb', selectors: es.VERB_SELECTORS_ES, today: (w) => today(generators.spanishVerb, w) },
     { lang: 'en', kaikkiPos: 'noun', selectors: en.NOUN_SELECTORS_EN },
-    { lang: 'en', kaikkiPos: 'verb', selectors: en.VERB_SELECTORS_EN, today: (w) => today(controller.getVerbEN, { infinitiveVerb: w }, 'foundVerb', 'verbData') },
+    { lang: 'en', kaikkiPos: 'verb', selectors: en.VERB_SELECTORS_EN, today: (w) => today(generators.englishVerb, w) },
 ];
 
 /** First lemma entry (not form_of-only) per "pos|word", for the wanted words of one language. */
