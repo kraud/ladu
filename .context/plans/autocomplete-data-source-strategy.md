@@ -570,6 +570,11 @@ Questions for the start of this slice: Q-B1, Q-B2, Q-B3 (section 10).
 
 ### Slice B2 — German from the lexicon
 
+**Steps.** B2a backend — done 2026-10-08: migration `0022` (`lexemes.entry_order`),
+`services/dictionary/lexicon.ts` (`lexiconAdapter`, `lexiconFirst`), German registry entries use
+the chain, homographs per D15. B2b: e2e (fixture for CI/e2e databases, new cases) and the
+credits page.
+
 - The registry for DE noun and DE verb becomes a chain: `lexicon` → `generator-de`.
   Lexicon hit = `found`. Lexicon miss + generator result = `partial`. Both miss = `not-found`.
 - The German existence check uses the lexicon, not `is-word`.
@@ -683,6 +688,7 @@ Reads the same tables. No plan yet.
 | D12 | 2026-10-08 | Q-B2: an Ansible task copies the versioned file from the developer machine to the VPS and runs the load script in the backend container. |
 | D13 | 2026-10-08 | Q-B1: ingest reads the raw all-languages kaikki dump (Slice 0's `download.ts` + `extract.ts`). |
 | D14 | 2026-10-08 | Q-B3: re-ingest is manual, about once per quarter (download → ingest → Ansible load). |
+| D15 | 2026-10-08 | Q-B4 homographs: the lookup returns ONE entry — the one that fills the most fields, ties broken by the source's own entry order (`lexemes.entry_order`, main sense first). Choosing between meanings (der See / die See) comes with the type-ahead list in Slice E. German: 658 noun keys have more than one entry (369 with a different gender; 244 among frequent words). |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)

@@ -5,7 +5,8 @@
  * The file (written by ingest.ts, or a committed fixture) is JSONL, optionally gzipped:
  *   line 1  header  {"format":"ladu-lexicon/1","language":"German","source":"kaikki",
  *                    "licence":"CC BY-SA 4.0","sourceVersion":"2026-10-03","attribution":"…"}
- *   line 2+ lexeme  {"partOfSpeech":"Noun","lemma":"Haus","frequencyRank":118,"forms":{"genderDE":"das",…}}
+ *   line 2+ lexeme  {"partOfSpeech":"Noun","lemma":"Haus","frequencyRank":118,"entryOrder":0,"forms":{"genderDE":"das",…}}
+ *                   (entryOrder: 0 = the source's first entry for that lemma; optional, default 0)
  *
  * In ONE transaction it deletes every row of the file's language and inserts the file's rows,
  * so a failure changes nothing, and a reader never sees a half-loaded language. Other
@@ -36,7 +37,7 @@ const FORMAT = 'ladu-lexicon/1';
 const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
 const PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb', 'Preposition', 'Conjunction', 'Pronoun', 'Interjection', 'Proper noun', 'Numerals'];
 const BATCH = 1000;
-const COLUMNS = ['language', 'part_of_speech', 'lemma', 'search_key', 'forms', 'frequency_rank', 'source', 'licence', 'source_version'];
+const COLUMNS = ['language', 'part_of_speech', 'lemma', 'search_key', 'forms', 'frequency_rank', 'entry_order', 'source', 'licence', 'source_version'];
 
 /** Reads and validates the whole file. Throws on the first bad line, naming it. */
 function readLexiconFile(file) {
@@ -62,6 +63,7 @@ function readLexiconFile(file) {
             throw new Error(`${where}: forms must be an object of strings`);
         }
         if (row.frequencyRank != null && !Number.isInteger(row.frequencyRank)) throw new Error(`${where}: frequencyRank must be an integer`);
+        if (row.entryOrder != null && !Number.isInteger(row.entryOrder)) throw new Error(`${where}: entryOrder must be an integer`);
         return row;
     });
     return { header, rows };
@@ -95,7 +97,7 @@ async function loadLexiconFile(pool, file, options = {}) {
             const placeholders = batch.map((row, i) => {
                 values.push(
                     header.language, row.partOfSpeech, row.lemma, searchKey(row.lemma), JSON.stringify(row.forms),
-                    row.frequencyRank ?? null, header.source, header.licence, header.sourceVersion,
+                    row.frequencyRank ?? null, row.entryOrder ?? 0, header.source, header.licence, header.sourceVersion,
                 );
                 return `(${COLUMNS.map((_, c) => `$${i * COLUMNS.length + c + 1}`).join(', ')})`;
             });

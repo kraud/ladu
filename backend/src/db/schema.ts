@@ -777,6 +777,9 @@ export const lexemes = pgTable(
         forms:         jsonb('forms').$type<Record<string, string>>().notNull(),
         // Rank in the source frequency list (1 = most common); NULL when the list does not have it.
         frequencyRank: integer('frequency_rank'),
+        // Position among the source's entries for the same lemma and part of speech (0 = first =
+        // Wiktionary's main sense). Breaks ties between homographs (decision D15).
+        entryOrder:    integer('entry_order').notNull().default(0),
         // Where the row came from, under which licence (licence-study.md option C), and which version.
         source:        varchar('source', { length: 32 }).notNull(),
         licence:       varchar('licence', { length: 32 }).notNull(),

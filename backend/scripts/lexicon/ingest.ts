@@ -54,6 +54,8 @@ interface LexiconRow {
     partOfSpeech: string;
     lemma: string;
     frequencyRank: number | null;
+    /** 0, 1, … in source order among the written rows of the same part of speech and lemma (decision D15). */
+    entryOrder: number;
     forms: Record<string, string>;
 }
 
@@ -85,6 +87,7 @@ async function main(): Promise<void> {
     const ranks = frequencyRanks(lang);
     const rows: LexiconRow[] = [];
     const seen = new Set<string>();
+    const entriesPerLemma = new Map<string, number>();
     let skippedEmpty = 0;
 
     for await (const line of readLines(fs.createReadStream(kaikkiFile(lang)))) {
@@ -102,7 +105,10 @@ async function main(): Promise<void> {
         const key = `${partOfSpeech}|${entry.word}|${JSON.stringify(forms)}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        rows.push({ partOfSpeech, lemma: entry.word, frequencyRank: ranks.get(`${partOfSpeech}|${entry.word}`) ?? null, forms });
+        const lemmaKey = `${partOfSpeech}|${entry.word}`;
+        const entryOrder = entriesPerLemma.get(lemmaKey) ?? 0;
+        entriesPerLemma.set(lemmaKey, entryOrder + 1);
+        rows.push({ partOfSpeech, lemma: entry.word, frequencyRank: ranks.get(lemmaKey) ?? null, entryOrder, forms });
     }
 
     let output = rows;

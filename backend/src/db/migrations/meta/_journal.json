@@ -155,6 +155,13 @@
       "when": 1791488326994,
       "tag": "0021_lexemes",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1791493084063,
+      "tag": "0022_lexemes_entry_order",
+      "breakpoints": true
     }
   ]
 }
