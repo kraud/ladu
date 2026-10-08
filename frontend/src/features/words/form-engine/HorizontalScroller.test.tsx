@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { HorizontalScroller } from './HorizontalScroller';
 
@@ -50,5 +50,24 @@ describe('HorizontalScroller', () => {
         });
         expect(screen.queryByTestId('scroll-hint-right')).not.toBeInTheDocument();
         expect(screen.queryByTestId('scroll-hint-left')).not.toBeInTheDocument();
+    });
+
+    it('scrolls the box toward an edge when its arrow is pressed', () => {
+        render(
+            <HorizontalScroller>
+                <div>wide</div>
+            </HorizontalScroller>,
+        );
+        const box = screen.getByTestId('horizontal-scroller').firstElementChild as HTMLElement;
+        measure(box, { scrollWidth: 600, clientWidth: 300 });
+        const scrollBy = vi.fn();
+        box.scrollBy = scrollBy;
+
+        box.scrollLeft = 150;
+        fireEvent.scroll(box);
+        fireEvent.click(screen.getByRole('button', { name: 'common:scroll.right' }));
+        expect(scrollBy).toHaveBeenLastCalledWith({ left: 240, behavior: 'smooth' });
+        fireEvent.click(screen.getByRole('button', { name: 'common:scroll.left' }));
+        expect(scrollBy).toHaveBeenLastCalledWith({ left: -240, behavior: 'smooth' });
     });
 });

@@ -15,7 +15,7 @@ import { ErrorState } from '@/components/common/ErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { languageByLabel } from '@/lib/language';
+import { htmlLangByI18nCode, languageByLabel } from '@/lib/language';
 import { partOfSpeechLabelKey, partOfSpeechToRouteParam } from '@/lib/words';
 import { PartOfSpeech } from '@/ts/enums';
 import { useUserMetrics } from '../hooks';
@@ -24,6 +24,7 @@ import {
     barSeriesByLanguage,
     barSeriesByMonth,
     CREATABLE_POS,
+    monthAxisLabels,
     pieSeries,
     worstSegment,
     wordsAddedThisMonth,
@@ -39,7 +40,7 @@ type BarGrouping = 'stacked' | 'separate';
 type BarMonthsRange = 'all' | BarMonthRangeOption;
 
 export function MetricsPanel() {
-    const { t } = useTranslation('dashboard');
+    const { t, i18n } = useTranslation('dashboard');
     const navigate = useNavigate();
     const { data: metrics, isPending, isError, error, refetch } = useUserMetrics();
 
@@ -119,8 +120,15 @@ export function MetricsPanel() {
         barXModeChoice ?? (wordsAddedThisMonth(metrics) === 0 && languageHasData ? 'language' : 'month');
 
     const barGroupsRaw = barXMode === 'month' ? monthGroupsRaw : languageGroupsRaw;
-    const barChartGroups: BarChartGroup[] = barGroupsRaw.map((group) => ({
-        xLabel: barXMode === 'month' ? group.xLabel : (languageByLabel(group.xLabel)?.native ?? group.xLabel),
+    const monthLabels =
+        barXMode === 'month'
+            ? monthAxisLabels(
+                  barGroupsRaw.map((group) => group.xLabel),
+                  htmlLangByI18nCode(i18n.language),
+              )
+            : [];
+    const barChartGroups: BarChartGroup[] = barGroupsRaw.map((group, i) => ({
+        xLabel: barXMode === 'month' ? monthLabels[i]! : (languageByLabel(group.xLabel)?.native ?? group.xLabel),
         values: group.series.map((s) => s.count),
     }));
     const barSeriesMeta: BarSeriesMeta[] = CREATABLE_POS.map((pos) => ({

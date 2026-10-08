@@ -355,7 +355,7 @@
     "save": "Save configuration",
     "title": "Saved configurations",
     "loading": "Loading…",
-    "empty": "You have no saved configurations. Set the options in the settings panel, then select \"Save configuration\".",
+    "empty": "You have no saved configurations. Create one to start the same practice again in one tap.",
     "listError": "The saved configurations could not be loaded.",
     "use": "Use configuration {{name}}",
     "edit": "Edit configuration {{name}}",
@@ -412,12 +412,13 @@
       "recent": "Recent",
       "name": "Name A–Z"
     },
-    "descriptionAria": "Show description of {{name}}"
+    "descriptionAria": "Show description of {{name}}",
+    "emptyCta": "Create a configuration"
   },
   "sessions": {
     "title": "Ongoing sessions",
     "loading": "Loading…",
-    "empty": "You have no saved sessions. Leave a session and select \"Save session and leave\" to keep it.",
+    "empty": "You have no saved sessions. Start a new one, then select \"Save session and leave\" to keep it.",
     "listError": "The saved sessions could not be loaded.",
     "resumeAria": "Resume session with {{answered}} of {{total}} answered",
     "deleteAria": "Delete session with {{answered}} of {{total}} answered",
@@ -444,7 +445,8 @@
     "sort": {
       "recent": "Newest",
       "oldest": "Oldest"
-    }
+    },
+    "emptyCta": "Start a new session"
   },
   "apiErrors": {
     "invalidLanguages": "Select at least one language. \"Different languages\" needs two.",

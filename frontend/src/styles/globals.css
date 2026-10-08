@@ -1265,6 +1265,9 @@
     font-size: 10px;
     fill: var(--muted);
   }
+  .bar-svg .bar-x-label {
+    font-size: 12px;
+  }
   .bar-svg .grid-line {
     stroke: var(--border);
     stroke-width: 1;

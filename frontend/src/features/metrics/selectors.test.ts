@@ -15,6 +15,7 @@ import {
     translationsPerWord,
     worstSegment,
     wordsAddedThisMonth,
+    monthAxisLabels,
 } from './selectors';
 
 const EMPTY: BasicUserMetricsBE = {
@@ -237,5 +238,16 @@ describe('barSeriesByLanguage', () => {
         const groups = barSeriesByLanguage(EMPTY);
         expect(groups).toHaveLength(4);
         expect(groups.every((g) => g.series.every((s) => s.count === 0))).toBe(true);
+    });
+});
+
+describe('monthAxisLabels', () => {
+    it('gives short month names in the locale, without years inside one calendar year', () => {
+        expect(monthAxisLabels(['2026-01', '2026-02'], 'en')).toEqual(['Jan', 'Feb']);
+        expect(monthAxisLabels(['2026-03'], 'es')).toEqual(['mar']);
+    });
+
+    it('adds the two-digit year to the months before the last year', () => {
+        expect(monthAxisLabels(['2025-11', '2025-12', '2026-01'], 'en')).toEqual(["Nov ('25)", "Dec ('25)", 'Jan']);
     });
 });

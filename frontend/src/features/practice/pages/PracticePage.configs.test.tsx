@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers, type SeedWord } from '@/test/msw/wordHandlers';
-import { makeConfig, makeConfigWord, makeExercise, makePracticeHandlers } from '@/test/msw/practiceHandlers';
+import { makeConfig, makeConfigWord, makeExercise, makePracticeHandlers, makeSavedSession } from '@/test/msw/practiceHandlers';
 import { futureToken } from '@/test/tokens';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
@@ -64,9 +64,12 @@ const renderPracticeSettings = async () => {
 
 describe('PracticePage — saved configurations', () => {
     it('says so when there are none', async () => {
-        setUp();
+        setUp({ sessions: [makeSavedSession()] });
         await renderPractice();
+        await openConfigurationsTab();
         expect(await screen.findByText(/You have no saved configurations/)).toBeInTheDocument();
+        await userEvent.click(screen.getByRole('button', { name: 'Create a configuration' }));
+        expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
     });
 
     it('lists the saved configurations with their description and the same three facts as a session', async () => {
@@ -527,6 +530,8 @@ describe('PracticePage — count and sort on the lists', () => {
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/practice', session: SESSION });
 
+        expect(await screen.findByText('1 configuration')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Ongoing sessions' }));
         expect(await screen.findByText('0 sessions (max. 10)')).toBeInTheDocument();
         expect(screen.getByRole('combobox', { name: 'Sort' })).toBeInTheDocument();
         await user.click(screen.getByRole('button', { name: 'Saved configurations' }));

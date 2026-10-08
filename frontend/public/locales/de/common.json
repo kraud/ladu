@@ -142,5 +142,9 @@
     "errors": {
       "notEnoughLanguages": "Bitte wählen Sie mindestens 2 Sprachen aus."
     }
+  },
+  "scroll": {
+    "left": "Nach links scrollen",
+    "right": "Nach rechts scrollen"
   }
 }

@@ -355,7 +355,7 @@
     "save": "Guardar configuración",
     "title": "Configuraciones guardadas",
     "loading": "Cargando…",
-    "empty": "No tienes configuraciones guardadas. Elige las opciones en el panel de ajustes y pulsa «Guardar configuración».",
+    "empty": "No tienes configuraciones guardadas. Crea una para repetir la misma práctica con un solo toque.",
     "listError": "No se pudieron cargar las configuraciones guardadas.",
     "use": "Usar la configuración {{name}}",
     "edit": "Editar la configuración {{name}}",
@@ -412,12 +412,13 @@
       "recent": "Recientes",
       "name": "Nombre A–Z"
     },
-    "descriptionAria": "Mostrar la descripción de {{name}}"
+    "descriptionAria": "Mostrar la descripción de {{name}}",
+    "emptyCta": "Crear una configuración"
   },
   "sessions": {
     "title": "Sesiones en curso",
     "loading": "Cargando…",
-    "empty": "No tienes sesiones guardadas. Sal de una sesión y elige «Guardar sesión y salir» para conservarla.",
+    "empty": "No tienes sesiones guardadas. Empieza una nueva y elige «Guardar sesión y salir» para conservarla.",
     "listError": "No se pudieron cargar las sesiones guardadas.",
     "resumeAria": "Reanudar la sesión con {{answered}} de {{total}} respondidos",
     "deleteAria": "Eliminar la sesión con {{answered}} de {{total}} respondidos",
@@ -444,7 +445,8 @@
     "sort": {
       "recent": "Más recientes",
       "oldest": "Más antiguas"
-    }
+    },
+    "emptyCta": "Empezar una sesión nueva"
   },
   "apiErrors": {
     "invalidLanguages": "Selecciona al menos un idioma. \"Idiomas distintos\" necesita dos.",

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
-import { makeExercise, makePracticeHandlers, type PracticeFakeOptions } from '@/test/msw/practiceHandlers';
+import { makeExercise, makePracticeHandlers, makeSavedSession, type PracticeFakeOptions } from '@/test/msw/practiceHandlers';
 import { futureToken } from '@/test/tokens';
 import { useAuthStore } from '@/stores/authStore';
 import { PartOfSpeech } from '@/ts/enums';
@@ -360,7 +360,7 @@ describe('ResultsView', () => {
     });
 
     it('"Finish" returns to the lists of the set-up, and there is no link to Review', async () => {
-        await openResults({ params: { amount: 7 } });
+        await openResults({ params: { amount: 7 }, sessions: [makeSavedSession()] });
         server.use(
             ...makeWordHandlers({
                 callerId: 'u1',

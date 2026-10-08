@@ -355,7 +355,7 @@
     "save": "Salvesta seadistus",
     "title": "Salvestatud seadistused",
     "loading": "Laadimine…",
-    "empty": "Sul pole salvestatud seadistusi. Vali seadete paneelis valikud ja vajuta „Salvesta seadistus“.",
+    "empty": "Sul pole salvestatud seadistusi. Loo üks, et sama harjutus ühe puudutusega uuesti alustada.",
     "listError": "Salvestatud seadistusi ei saanud laadida.",
     "use": "Kasuta seadistust {{name}}",
     "edit": "Muuda seadistust {{name}}",
@@ -412,12 +412,13 @@
       "recent": "Hiljutised",
       "name": "Nimi A–Z"
     },
-    "descriptionAria": "Näita konfiguratsiooni {{name}} kirjeldust"
+    "descriptionAria": "Näita konfiguratsiooni {{name}} kirjeldust",
+    "emptyCta": "Loo seadistus"
   },
   "sessions": {
     "title": "Pooleliolevad sessioonid",
     "loading": "Laadimine…",
-    "empty": "Sul pole salvestatud sessioone. Lahku sessioonist ja vali „Salvesta sessioon ja lahku“, et see alles jätta.",
+    "empty": "Sul pole salvestatud sessioone. Alusta uut ja vali „Salvesta sessioon ja lahku“, et see alles jätta.",
     "listError": "Salvestatud sessioone ei saanud laadida.",
     "resumeAria": "Jätka sessiooni, kus on vastatud {{answered}} / {{total}}",
     "deleteAria": "Kustuta sessioon, kus on vastatud {{answered}} / {{total}}",
@@ -444,7 +445,8 @@
     "sort": {
       "recent": "Uusimad",
       "oldest": "Vanimad"
-    }
+    },
+    "emptyCta": "Alusta uut sessiooni"
   },
   "apiErrors": {
     "invalidLanguages": "Vali vähemalt üks keel. \"Eri keeled\" vajab kahte.",

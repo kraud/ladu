@@ -44,6 +44,23 @@ export function monthLabel(date: Date): string {
 }
 
 /**
+ * Axis labels for `"YYYY-MM"` months: the short month name in `locale`. When the
+ * months span more than one calendar year, every month before the last year gets
+ * its two-digit year, e.g. `"Mar ('25)"`, so repeated month names stay distinct.
+ */
+export function monthAxisLabels(labels: string[], locale: string): string[] {
+    const format = new Intl.DateTimeFormat(locale, { month: 'short' });
+    const years = labels.map((label) => Number(label.slice(0, 4)));
+    const lastYear = Math.max(...years);
+    const multiYear = Math.min(...years) !== lastYear;
+    return labels.map((label, i) => {
+        const [year, month] = label.split('-').map(Number) as [number, number];
+        const name = format.format(new Date(year, month - 1, 1)).replace(/\.$/, '');
+        return multiYear && years[i] !== lastYear ? `${name} ('${String(year).slice(-2)})` : name;
+    });
+}
+
+/**
  * Words created in the current calendar month, summed across every
  * `wordsPerMonth` row (which is split by `partOfSpeech`) matching that label.
  */

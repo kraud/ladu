@@ -5,6 +5,7 @@ import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
 import { makeConfig, makeExercise, makePracticeHandlers, makeSavedSession } from '@/test/msw/practiceHandlers';
+import { openSessionsTab } from '@/test/practiceTabs';
 import { futureToken } from '@/test/tokens';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
@@ -240,11 +241,40 @@ describe('finishing a resumed session', () => {
 
 describe('Saved sessions list', () => {
     it('says so when there are none', async () => {
+        setUp({ configs: [makeConfig()] });
+        await renderPractice();
+        // The page first settles on Saved configurations (no sessions); the user then goes to Ongoing sessions.
+        await waitFor(() =>
+            expect(screen.getByRole('button', { name: 'Saved configurations' })).toHaveAttribute('aria-pressed', 'true'),
+        );
+        await openSessionsTab();
+        expect(await screen.findByText(/You have no saved sessions/)).toBeInTheDocument();
+        expect(screen.getByText('0 sessions (max. 10)')).toBeInTheDocument();
+        await userEvent.click(screen.getByRole('button', { name: 'Start a new session' }));
+        expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
+    });
+
+    it('opens on Ongoing sessions when there are some', async () => {
+        setUp({ sessions: [makeSavedSession()], configs: [makeConfig()] });
+        await renderPractice();
+
+        expect(await screen.findByRole('button', { name: 'Ongoing sessions' })).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('opens on Saved configurations when there are no sessions', async () => {
+        setUp({ configs: [makeConfig()] });
+        await renderPractice();
+
+        await waitFor(() =>
+            expect(screen.getByRole('button', { name: 'Saved configurations' })).toHaveAttribute('aria-pressed', 'true'),
+        );
+    });
+
+    it('opens on New configuration when there are no sessions and no configurations', async () => {
         setUp();
         await renderPractice();
 
-        expect(await screen.findByText(/You have no saved sessions/)).toBeInTheDocument();
-        expect(screen.getByText('0 sessions (max. 10)')).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
     });
 
     it('shows each session with the same three facts as the resume banner, and the expiry date', async () => {

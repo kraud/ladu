@@ -142,5 +142,9 @@
     "errors": {
       "notEnoughLanguages": "Valige vähemalt 2 keelt."
     }
+  },
+  "scroll": {
+    "left": "Keri vasakule",
+    "right": "Keri paremale"
   }
 }

@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { ClockCounterClockwiseIcon, TrashIcon } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { htmlLangByI18nCode } from '@/lib/language';
@@ -27,6 +28,7 @@ export function SavedSessions({
     hasUnfinished,
     onResumed,
     rail,
+    onNew,
 }: {
     /** A session is parked in this tab: resuming a saved one replaces it. */
     hasUnfinished: boolean;
@@ -34,6 +36,8 @@ export function SavedSessions({
     onResumed: () => void;
     /** The scope badges of the set-up (they sit in the toolbar of this list). */
     rail: ReactNode;
+    /** Open the New configuration view (the call to action of the empty list). */
+    onNew: () => void;
 }) {
     const { t, i18n } = useTranslation();
     const user = useAuthStore((s) => s.user);
@@ -109,7 +113,19 @@ export function SavedSessions({
                 </div>
             )}
 
-            {sessions.isSuccess && sessions.data.length === 0 && <p className="hint">{t('practice:sessions.empty')}</p>}
+            {sessions.isSuccess && sessions.data.length === 0 && (
+                <div className="card">
+                    <EmptyState
+                        icon={<ClockCounterClockwiseIcon aria-hidden size={20} />}
+                        title={t('practice:sessions.empty')}
+                        action={
+                            <Button size="sm" onClick={onNew}>
+                                {t('practice:sessions.emptyCta')}
+                            </Button>
+                        }
+                    />
+                </div>
+            )}
 
             {gone && (
                 <p className="err show" role="alert">
