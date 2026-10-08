@@ -1,0 +1,14 @@
+---
+# The versioned lexicon file to load, as a path on the machine that runs Ansible, e.g.
+#   -e lexicon_file=../../backend/scripts/lexicon/.data/out/lexicon-de-2026-10-03.jsonl.gz
+# No default: the playbook stops if it is not given.
+lexicon_file: ""
+
+# Which environments to load, in this order. Staging first, so a bad file stops before prod.
+# Load one only with e.g.  -e '{"lexicon_environments": ["staging"]}'
+lexicon_environments:
+  - staging
+  - prod
+
+# Where the VPS keeps every loaded file, so a database restore can reload it without the laptop.
+lexicon_dir: /opt/ladu/lexicon

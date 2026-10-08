@@ -543,7 +543,10 @@ frozen snapshot files under `.context/.frontend/snapshot/` are not changed.
 ### Slice B1 — Lexicon tables, ingest and load (no user-visible change)
 
 **Steps.** B1a local (table + migration `0021_lexemes`, `ingest.ts`, `load.js`, committed fixture,
-Jest) — done 2026-10-08. B1b deploy side (backup exclusion, Ansible copy + load, infra docs).
+Jest) — done 2026-10-08. B1b deploy side (backup exclusion, Ansible copy + load, infra docs) —
+done 2026-10-08: `deploy/ansible/lexicon.yml` + role `lexicon` (not in `site.yml`), `backup.sh`
+uses `--exclude-table-data=public.lexemes`, guide files 01/02/05 updated. Running the playbook
+and `site.yml` (to deploy the new `backup.sh`) on the VPS is the operator's step.
 Differences from the text below: the table is `lexemes` (plural, like the other tables) with a
 `forms` jsonb column (D11), so there is no `lexeme_form`; `search_key` is lowercase + NFC but
 **keeps accents** (removing them merges "año"/"ano", "schön"/"schon"). Measured: German =

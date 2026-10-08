@@ -110,6 +110,49 @@ expand/contract discipline is what keeps that combination safe rather than
 catastrophic — never edit a migration file that has already run against any
 shared environment; write a new one instead.
 
+## The autocomplete lexicon (table `lexemes`)
+
+Autocomplete reads the word forms of a language from the `lexemes` table: one row per dictionary
+entry, built from Wiktionary data (CC BY-SA 4.0). It is **reference data, not user data**:
+
+- It is rebuilt from a **versioned file** (`lexicon-<lang>-<date>.jsonl.gz`, a few MB), made on a
+  developer machine by `backend/scripts/lexicon/ingest.ts` (see that folder's README).
+- The **nightly backup skips its rows** (`pg_dump --exclude-table-data=public.lexemes`); the table
+  definition is still backed up. So a restored database has the table, but **empty**.
+- A load replaces **one language** in **one transaction**: a failed load changes nothing.
+- Refreshing it is manual, about once per quarter (plan decision D14).
+
+**Load or refresh** (from `deploy/ansible/`, after building the file):
+
+```bash
+ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/lexicon-de-2026-10-03.jsonl.gz
+# staging only:
+ansible-playbook lexicon.yml -e lexicon_file=<file> -e '{"lexicon_environments": ["staging"]}'
+```
+
+The playbook copies the file to `/opt/ladu/lexicon/` on the VPS (every version is kept there), then
+runs `node scripts/lexicon/load.js` inside `backend-staging`, then `backend-prod`. If staging
+fails, prod is not touched.
+
+**After a database restore** the lexicon is empty; autocomplete then falls back to the old
+libraries or answers "not found". Reload from the copy on the VPS, no laptop needed:
+
+```bash
+# on the VPS, as deploy, for each language file and each environment:
+docker cp /opt/ladu/lexicon/lexicon-de-2026-10-03.jsonl.gz backend-prod:/tmp/
+docker exec backend-prod node scripts/lexicon/load.js /tmp/lexicon-de-2026-10-03.jsonl.gz
+```
+
+**Check what is loaded:**
+
+```sql
+SELECT language, part_of_speech, source_version, count(*) FROM lexemes GROUP BY 1, 2, 3;
+```
+
+Local dev and test databases load the same way (`node scripts/lexicon/load.js <file>` from
+`backend/`). The committed fixture `backend/scripts/lexicon/fixtures/lexicon-de-fixture.jsonl`
+(44 German words) is enough for tests and e2e.
+
 ## Email sender addresses per environment
 
 Not a database, but environment-scoped the same way: staging sends real
