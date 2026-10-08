@@ -589,6 +589,13 @@ Question for the start of this slice: Q-B4 (homographs).
 
 ### Slice C1 — Spanish from the lexicon
 
+**Done 2026-10-09.** Spanish = 78,900 lexemes (2.7 MB file). Chain lexicon → `spanish-verbs` /
+`rosaenlg-gender-es` (partial). D10 implemented: label `Vos` → `Tú`; 2pl stores the ustedes form in
+both the lexicon selectors and the library fallback; saved words are not migrated. D16: Spanish
+regularity counts stem changes and -zc as irregular. Spanish fixture (40 words) loads into e2e/CI
+databases with the German one. Gate spec: `e2e/tests/autocomplete-c-spanish-lexicon.spec.ts`.
+VPS: run `lexicon.yml` with `lexicon-es-2026-10-03.jsonl.gz` too (§14).
+
 - Selector table for 42 verb cases and 3 noun cases. Noun gender comes from `senses[].tags`.
 - Chains: verb `lexicon` → `spanish-verbs`; noun `lexicon` → `rosaenlg-gender-es`. A
   generator result is `partial`. Slice 0 showed both generators are often wrong for irregular
@@ -691,6 +698,7 @@ Reads the same tables. No plan yet.
 | D13 | 2026-10-08 | Q-B1: ingest reads the raw all-languages kaikki dump (Slice 0's `download.ts` + `extract.ts`). |
 | D14 | 2026-10-08 | Q-B3: re-ingest is manual, about once per quarter (download → ingest → Ansible load). |
 | D15 | 2026-10-08 | Q-B4 homographs: the lookup returns ONE entry — the one that fills the most fields, ties broken by the source's own entry order (`lexemes.entry_order`, main sense first). Choosing between meanings (der See / die See) comes with the type-ahead list in Slice E. German: 658 noun keys have more than one entry (369 with a different gender; 244 among frequent words). |
+| D16 | 2026-10-09 | Spanish regularity: **irregular** = Wiktionary's "irregular" table tag OR any stem-changing class (e-ie, o-ue, e-i, e-ie-i, o-ue-u, u-ue, i-ie, …), -zc (conozco) and e-í (reír). **Regular** = spelling-only classes (c-z, c-qu, g-gu, g-j, gu-gü) and accent-only classes (i-í, u-ú). Saved words keep their values (C1 decision: no data migration). |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)
@@ -773,6 +781,29 @@ their data. After a restore, the `load` script refills them from the versioned f
   environments.
 
 **Risk:** coverage, mostly for Estonian. Slice 0 measures it.
+
+---
+
+## 14. VPS checklist (do once the slices are deployed)
+
+Code reaches staging and production through the normal deploy (merge to `main`): that creates
+the `lexemes` table (migrations 0021, 0022). The server-side steps below are manual. Until they
+run, autocomplete still works, but every lexicon language answers only from the old libraries,
+marked "not fully sure". Commands run from `deploy/ansible/`. Details:
+`.dev-context/infrastructure-guide/02-environments-and-databases.md`, "The autocomplete lexicon".
+
+- [ ] **Backup script** (from Slice B1): `ansible-playbook site.yml` — puts the new `backup.sh`
+      (skips the `lexemes` rows) on the VPS. Safe to repeat; `--check` first for a dry run.
+- [ ] **German lexicon** (from Slice B): build the file if it is not on this machine
+      (`backend/scripts/lexicon/README.md`), then
+      `ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/lexicon-de-2026-10-03.jsonl.gz`
+      (staging only first: add `-e '{"lexicon_environments": ["staging"]}'`).
+- [ ] **Each later language** (Slices C1, C2, D): the same playbook with that language's file. One
+      run per file; a load replaces only its own language.
+- [ ] **Check** on staging and prod:
+      `SELECT language, source_version, count(*) FROM lexemes GROUP BY 1, 2;`
+- [ ] **Try it** on staging: a German noun the old library could not decline (`Polizei`) fills
+      without the "not fully sure" notice.
 
 ---
 

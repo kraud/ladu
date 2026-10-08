@@ -2,8 +2,11 @@
  * Spanish selector table: app case field → where its value is in a kaikki entry.
  * Case names: frontend/src/ts/enums.ts (NounCases, VerbCases). Engine: ../select.ts.
  *
- * - Only standard peninsular/tú forms: `vos-form` rows ("bailás"), clitic `combined-form`
- *   rows ("bailarlo") and `negative` imperatives ("no bailes") are excluded.
+ * - 2nd person is tú (singular) and USTEDES (plural), decision D10: vosotros is not used outside
+ *   Spain, and ustedes takes the 3rd-person plural form ("bailan", imperative "bailen"). The form
+ *   labels these slots "Tú" and "Ustedes". `vos-form` rows ("bailás"), clitic `combined-form` rows
+ *   ("bailarlo") and `negative` imperatives ("no bailes") are excluded. A UI setting for the Spanish
+ *   variety (Spain / voseo) is a later decision.
  * - Conditional and imperative are in the case registry but not in the v2 form
  *   (configs/verbs.ts buildEsConfig). They are here so Slice 0 can measure them.
  * - `imperative1sES` has no form in Spanish. The compound non-finites
@@ -13,11 +16,28 @@
 
 import type { CaseSelector, FormSelector, LexiconEntry } from '../select';
 
-/** Wiktionary's es-conj table names irregular verbs in a `table-tags` row whose text is "irregular". */
+/**
+ * `class` alternations that only change the SPELLING (buscar → busqué, llegar → llegué) or only add
+ * an ACCENT (enviar → envío). Spanish grammar counts these verbs as regular. Every other alternation
+ * (stem changes e-ie, o-ue, e-i, …, the -zc of conozco, the e-í of río) makes a verb irregular.
+ */
+const REGULAR_ALTERNATIONS = new Set([
+    'c-z alternation', 'c-qu alternation', 'g-gu alternation', 'g-j alternation', 'gu-gü alternation',
+    'c-ç alternation', 'hard-soft alternation', 'i-í alternation', 'u-ú alternation',
+]);
+
+/**
+ * Wiktionary's es-conj table names fully irregular verbs in a `table-tags` row whose text is
+ * "irregular" (ser, ir, tener), and stem-changing verbs in `class` rows ("e-ie alternation").
+ * Both count as irregular; spelling- and accent-only classes do not (decision D16).
+ */
 function regularityES(entry: LexiconEntry): string | undefined {
-    const tableRows = (entry.forms ?? []).filter((row) => row.tags?.includes('table-tags'));
+    const rows = entry.forms ?? [];
+    const tableRows = rows.filter((row) => row.tags?.includes('table-tags'));
     if (tableRows.length === 0) return undefined;
-    return tableRows.some((row) => row.form === 'irregular') ? 'irregular' : 'regular';
+    if (tableRows.some((row) => row.form === 'irregular')) return 'irregular';
+    const classes = rows.filter((row) => row.tags?.includes('class')).map((row) => row.form);
+    return classes.some((name) => !REGULAR_ALTERNATIONS.has(name)) ? 'irregular' : 'regular';
 }
 
 /** Gender of the first sense that has one. Both genders in one sense ("estudiante") → "el/la" (GenderES.N). */
@@ -37,7 +57,8 @@ const PERSONS: [string, string[]][] = [
     ['2s', ['second-person', 'singular']],
     ['3s', ['third-person', 'singular']],
     ['1pl', ['first-person', 'plural']],
-    ['2pl', ['second-person', 'plural']],
+    // Ustedes, not vosotros (decision D10): the 3rd-person plural form.
+    ['2pl', ['third-person', 'plural']],
     ['3pl', ['third-person', 'plural']],
 ];
 
@@ -73,8 +94,8 @@ export const VERB_SELECTORS_ES: CaseSelector[] = [
     ...tense('indicativePerfectSimplePast', ['indicative', 'preterite']),
     ...tense('indicativeFuture', ['indicative', 'future']),
     ...tense('indicativeConditional', ['indicative', 'conditional']),
-    // Imperative: 2s/2pl are tú/vosotros ("baila", "bailad") and exclude the `formal` usted rows;
-    // 3s/3pl are usted/ustedes ("baile", "bailen"), which carry both `formal` and `third-person`.
-    ...tense('imperative', ['imperative'], PERSONS.filter(([slot]) => slot === '2s' || slot === '2pl'), ['formal']),
-    ...tense('imperative', ['imperative'], PERSONS.filter(([slot]) => slot === '3s' || slot === '1pl' || slot === '3pl')),
+    // Imperative: 2s is tú ("baila") and excludes the `formal` usted rows; 3s is usted ("baile");
+    // 2pl and 3pl are both ustedes ("bailen", decision D10).
+    ...tense('imperative', ['imperative'], PERSONS.filter(([slot]) => slot === '2s'), ['formal']),
+    ...tense('imperative', ['imperative'], PERSONS.filter(([slot]) => slot !== '1s' && slot !== '2s')),
 ];

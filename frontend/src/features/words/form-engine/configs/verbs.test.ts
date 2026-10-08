@@ -182,6 +182,13 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
         }
     });
 
+    it('Spanish 2nd person is labelled Tú and Ustedes — the forms the dictionary fills (decision D10)', () => {
+        const fields = getFormConfig(PartOfSpeech.verb, Lang.ES)!.fields;
+        const labelOf = (name: string) => fields.find((f) => f.name === name)?.label;
+        expect(labelOf('indicativePresent2s')).toBe('Tú');
+        expect(labelOf('indicativePresent2pl')).toBe('Ustedes');
+    });
+
     describe('layout — each tense becomes a column, pronoun becomes a row', () => {
         it('English: tense is the column (captioned), pronoun slot is the row, mood stays in group', () => {
             const config = getFormConfig(PartOfSpeech.verb, Lang.EN)!;

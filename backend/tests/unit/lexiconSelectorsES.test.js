@@ -22,36 +22,36 @@ describe('Spanish verb selectors', () => {
             indicativePresent2sES: 'bailas',
             indicativePresent3sES: 'baila',
             indicativePresent1plES: 'bailamos',
-            indicativePresent2plES: 'bailáis',
+            indicativePresent2plES: 'bailan',
             indicativePresent3plES: 'bailan',
             indicativeImperfectPast1sES: 'bailaba',
             indicativeImperfectPast2sES: 'bailabas',
             indicativeImperfectPast3sES: 'bailaba',
             indicativeImperfectPast1plES: 'bailábamos',
-            indicativeImperfectPast2plES: 'bailabais',
+            indicativeImperfectPast2plES: 'bailaban',
             indicativeImperfectPast3plES: 'bailaban',
             indicativePerfectSimplePast1sES: 'bailé',
             indicativePerfectSimplePast2sES: 'bailaste',
             indicativePerfectSimplePast3sES: 'bailó',
             indicativePerfectSimplePast1plES: 'bailamos',
-            indicativePerfectSimplePast2plES: 'bailasteis',
+            indicativePerfectSimplePast2plES: 'bailaron',
             indicativePerfectSimplePast3plES: 'bailaron',
             indicativeFuture1sES: 'bailaré',
             indicativeFuture2sES: 'bailarás',
             indicativeFuture3sES: 'bailará',
             indicativeFuture1plES: 'bailaremos',
-            indicativeFuture2plES: 'bailaréis',
+            indicativeFuture2plES: 'bailarán',
             indicativeFuture3plES: 'bailarán',
             indicativeConditional1sES: 'bailaría',
             indicativeConditional2sES: 'bailarías',
             indicativeConditional3sES: 'bailaría',
             indicativeConditional1plES: 'bailaríamos',
-            indicativeConditional2plES: 'bailaríais',
+            indicativeConditional2plES: 'bailarían',
             indicativeConditional3plES: 'bailarían',
             imperative2sES: 'baila',
             imperative3sES: 'baile',
             imperative1plES: 'bailemos',
-            imperative2plES: 'bailad',
+            imperative2plES: 'bailen',
             imperative3plES: 'bailen',
         });
     });
@@ -76,6 +76,24 @@ describe('Spanish verb selectors', () => {
         expect(cases.indicativePresent1plES).toBe('personamos');
         expect(cases.indicativeImperfectPast3sES).toBe('personaba');
         expect(cases.indicativePerfectSimplePast1sES).toBe('personé');
+    });
+
+    test('regularity: stem changes and -zc are irregular, spelling- and accent-only changes are regular (D16)', () => {
+        expect(verb('sentir').regularityES).toBe('irregular'); // e-ie-i: siento
+        expect(verb('conocer').regularityES).toBe('irregular'); // c-zc: conozco
+        expect(verb('buscar').regularityES).toBe('regular'); // c-qu: busqué
+        expect(verb('enviar').regularityES).toBe('regular'); // i-í: envío
+        expect(verb('bailar').regularityES).toBe('regular');
+    });
+
+    test('2nd person plural is ustedes, the 3rd-person plural form, in every tense (decision D10)', () => {
+        for (const word of ['bailar', 'tener', 'ir']) {
+            const cases = verb(word);
+            for (const prefix of ['indicativePresent', 'indicativeImperfectPast', 'indicativePerfectSimplePast', 'indicativeFuture', 'indicativeConditional', 'imperative']) {
+                expect(cases[`${prefix}2plES`]).toBe(cases[`${prefix}3plES`]);
+            }
+        }
+        expect(verb('tener').indicativePresent2plES).toBe('tienen');
     });
 
     test('there is never a first-person singular imperative', () => {

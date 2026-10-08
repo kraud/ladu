@@ -23,12 +23,14 @@ const zlib: typeof import('zlib') = require('zlib');
 const { DATA_DIR, MANIFEST_FILE, POS_MAP, kaikkiFile, sampleFile, readLines }: typeof import('./common') = require('./common');
 const { selectCases }: typeof import('../../lib/lexicon/select') = require('../../lib/lexicon/select');
 const de: typeof import('../../lib/lexicon/selectors/de') = require('../../lib/lexicon/selectors/de');
+const es: typeof import('../../lib/lexicon/selectors/es') = require('../../lib/lexicon/selectors/es');
 type LangCode = import('./common').LangCode;
 type CaseSelector = import('../../lib/lexicon/select').CaseSelector;
 
-/** Languages the ingest supports so far. Spanish and English join in Slice C. */
+/** Languages the ingest supports so far. English joins in Slice C2. */
 const LANGUAGES: Partial<Record<LangCode, { language: string; selectors: Record<string, CaseSelector[]> }>> = {
     de: { language: 'German', selectors: { noun: de.NOUN_SELECTORS_DE, verb: de.VERB_SELECTORS_DE } },
+    es: { language: 'Spanish', selectors: { noun: es.NOUN_SELECTORS_ES, verb: es.VERB_SELECTORS_ES } },
 };
 
 /**
@@ -41,6 +43,13 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'Haus|noun', 'Junge|noun', 'See|noun', 'Polizei|noun', 'Mann|noun', 'Frau|noun', 'Kind|noun', 'Tag|noun',
         'Zeit|noun', 'Auto|noun', 'Stadt|noun', 'Hund|noun', 'Katze|noun', 'Wasser|noun', 'Buch|noun', 'Schule|noun',
         'tanzen|verb', 'gehen|verb', 'anrufen|verb', 'sichern|verb', 'sammeln|verb', 'sputen|verb',
+    ],
+    // "leche"/"crisis": genders the old library got wrong; "estudiante": both genders (el/la);
+    // "sentir"/"venir"/"oír": verbs the old library conjugated wrongly; "quejarse": reflexive (D8).
+    es: [
+        'casa|noun', 'estudiante|noun', 'leche|noun', 'crisis|noun', 'mano|noun', 'día|noun', 'agua|noun',
+        'hombre|noun', 'mujer|noun', 'libro|noun', 'perro|noun', 'ciudad|noun', 'tiempo|noun', 'problema|noun',
+        'bailar|verb', 'tener|verb', 'ir|verb', 'sentir|verb', 'venir|verb', 'oír|verb', 'pensar|verb', 'quejarse|verb',
     ],
 };
 const FIXTURE_TOP_N = 20;

@@ -121,7 +121,9 @@ const PRONOUN_LABELS: Record<Lang, Partial<Record<PronounSlot, string>>> = {
     [Lang.EN]: { '1S': 'I', '2S': 'You', '3S': 'He/She/it', '1P': 'We', '3P': 'They' },
     [Lang.ES]: {
         '1S': 'Yo',
-        '2S': 'Vos',
+        // Tú and Ustedes, not Vos / Vosotros (decision D10 in autocomplete-data-source-strategy.md):
+        // the dictionary fills tú forms and the ustedes (3rd-person plural) form.
+        '2S': 'Tú',
         '3S': 'Él/Ella/eso',
         '1P': 'Nosotros/as',
         '2P': 'Ustedes',

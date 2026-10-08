@@ -12,6 +12,7 @@ const { pool } = require('../src/db');
 const { loadLexiconFile } = require('../scripts/lexicon/load');
 
 const FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-de-fixture.jsonl');
+const ES_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-es-fixture.jsonl');
 
 beforeAll(() => db.connectDB());
 beforeEach(() => db.clearDB());
@@ -31,7 +32,7 @@ beforeEach(async () => {
 const lookup = (path) => request(app).get(`/api/dictionary/${path}`).set('Authorization', `Bearer ${token}`);
 const casesOf = (body) => Object.fromEntries(body.cases.map(({ caseName, word }) => [caseName, word]));
 
-describe('EN and ES (rule-based libraries)', () => {
+describe('English (rule-based library)', () => {
     it('English verb: found, with the bare verb in future and conditional', async () => {
         const res = await lookup('English/Verb/run');
         expect(res.statusCode).toBe(200);
@@ -44,26 +45,62 @@ describe('EN and ES (rule-based libraries)', () => {
         });
     });
 
-    it('Spanish verb: found', async () => {
-        const res = await lookup('Spanish/Verb/bailar');
-        expect(res.body.status).toBe('found');
-        expect(casesOf(res.body)).toMatchObject({
-            infinitiveNonFiniteSimpleES: 'bailar',
-            participleNonFiniteSimpleES: 'bailado',
-            indicativePresent1sES: 'bailo',
-            indicativeFuture3plES: 'bailarán',
+});
+
+describe('Spanish (Slice C1: the lexicon first, the library as a partial fallback)', () => {
+    describe('with the lexicon loaded (the committed fixture)', () => {
+        beforeEach(() => loadLexiconFile(pool, ES_FIXTURE));
+
+        it('a verb is found, with gerund, regularity and the ustedes form in 2nd person plural (D10)', async () => {
+            const res = await lookup('Spanish/Verb/bailar');
+            expect(res.body.status).toBe('found');
+            expect(casesOf(res.body)).toMatchObject({
+                infinitiveNonFiniteSimpleES: 'bailar',
+                gerundNonFiniteSimpleES: 'bailando',
+                participleNonFiniteSimpleES: 'bailado',
+                regularityES: 'regular',
+                indicativePresent2sES: 'bailas',
+                indicativePresent2plES: 'bailan',
+                indicativeFuture3plES: 'bailarán',
+            });
+        });
+
+        it('stem-changing and irregular verbs are right (the old library said "sento", "veniré")', async () => {
+            expect(casesOf((await lookup('Spanish/Verb/sentir')).body)).toMatchObject({ indicativePresent1sES: 'siento', regularityES: 'irregular' });
+            expect(casesOf((await lookup('Spanish/Verb/venir')).body)).toMatchObject({ indicativeFuture1sES: 'vendré' });
+        });
+
+        it('a reflexive verb is stored without the pronoun (D8)', async () => {
+            expect(casesOf((await lookup('Spanish/Verb/quejarse')).body)).toMatchObject({ indicativePresent1sES: 'quejo' });
+        });
+
+        it('nouns get the right gender and a plural (the old library said "el leche")', async () => {
+            expect((await lookup('Spanish/Noun/casa')).body).toEqual({
+                status: 'found',
+                cases: expect.arrayContaining([
+                    { caseName: 'genderES', word: 'la' },
+                    { caseName: 'singularES', word: 'casa' },
+                    { caseName: 'pluralES', word: 'casas' },
+                ]),
+            });
+            expect(casesOf((await lookup('Spanish/Noun/leche')).body).genderES).toBe('la');
+            expect(casesOf((await lookup('Spanish/Noun/estudiante')).body).genderES).toBe('el/la');
+        });
+
+        it('an unknown noun still gets the guessed gender, as partial', async () => {
+            const res = await lookup('Spanish/Noun/zorplata');
+            expect(res.body.status).toBe('partial');
+            expect(casesOf(res.body).singularES).toBe('zorplata');
         });
     });
 
-    it('Spanish noun: a known word is found, an unknown word gets a guessed gender as partial', async () => {
-        const known = await lookup('Spanish/Noun/casa');
-        expect(known.body).toEqual({ status: 'found', cases: [{ caseName: 'genderES', word: 'la' }, { caseName: 'singularES', word: 'casa' }] });
-
-        const guessed = await lookup('Spanish/Noun/zorplata');
-        expect(guessed.body.status).toBe('partial');
-        expect(casesOf(guessed.body).singularES).toBe('zorplata');
+    describe('with an empty lexicon', () => {
+        it('the library answers as partial, also with the ustedes form (D10)', async () => {
+            const res = await lookup('Spanish/Verb/bailar');
+            expect(res.body.status).toBe('partial');
+            expect(casesOf(res.body)).toMatchObject({ indicativePresent1sES: 'bailo', indicativePresent2plES: 'bailan', indicativeFuture2plES: 'bailarán' });
+        });
     });
-
 });
 
 describe('German (Slice B2: the lexicon first, the library as a partial fallback)', () => {

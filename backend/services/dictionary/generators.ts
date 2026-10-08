@@ -49,6 +49,8 @@ const GERMAN_ARTICLE: Record<string, string> = { F: 'die', M: 'der', N: 'das' };
 const PERSONS: [slot: string, index: number][] = [['1s', 0], ['2s', 1], ['3s', 2], ['1pl', 3], ['2pl', 4], ['3pl', 5]];
 /** English has no 2pl case in the app. */
 const PERSONS_EN = PERSONS.filter(([slot]) => slot !== '2pl');
+/** Spanish 2pl is ustedes, which conjugates like the 3rd-person plural (decision D10), not vosotros (index 4). */
+const PERSONS_ES: [slot: string, index: number][] = PERSONS.map(([slot, index]) => [slot, slot === '2pl' ? 5 : index]);
 
 export const englishVerb: DictionaryAdapter = async (query) => {
     if (!knows('american-english', query)) return NOT_FOUND;
@@ -76,10 +78,10 @@ export const spanishVerb: DictionaryAdapter = async (query) => {
             ['infinitiveNonFiniteSimpleES', query],
             // The gerund has no source here; the participle is the second word of "he bailado".
             ['participleNonFiniteSimpleES', conjugate('INDICATIVE_PRETERITE_PERFECT', 0).split(' ')[1]],
-            ...PERSONS.map(([slot, p]): [string, string] => [`indicativePresent${slot}ES`, conjugate('INDICATIVE_PRESENT', p)]),
-            ...PERSONS.map(([slot, p]): [string, string] => [`indicativeImperfectPast${slot}ES`, conjugate('INDICATIVE_IMPERFECT', p)]),
-            ...PERSONS.map(([slot, p]): [string, string] => [`indicativePerfectSimplePast${slot}ES`, conjugate('INDICATIVE_PRETERITE', p)]),
-            ...PERSONS.map(([slot, p]): [string, string] => [`indicativeFuture${slot}ES`, conjugate('INDICATIVE_FUTURE', p)]),
+            ...PERSONS_ES.map(([slot, p]): [string, string] => [`indicativePresent${slot}ES`, conjugate('INDICATIVE_PRESENT', p)]),
+            ...PERSONS_ES.map(([slot, p]): [string, string] => [`indicativeImperfectPast${slot}ES`, conjugate('INDICATIVE_IMPERFECT', p)]),
+            ...PERSONS_ES.map(([slot, p]): [string, string] => [`indicativePerfectSimplePast${slot}ES`, conjugate('INDICATIVE_PRETERITE', p)]),
+            ...PERSONS_ES.map(([slot, p]): [string, string] => [`indicativeFuture${slot}ES`, conjugate('INDICATIVE_FUTURE', p)]),
         ]),
     }));
 };

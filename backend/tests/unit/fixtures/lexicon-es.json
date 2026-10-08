@@ -8885,6 +8885,10037 @@
    ]
   },
   {
+   "word": "sentir",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "siento",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentí",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentido",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "e-ie-i alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "sentir",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "sintiendo",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "sentido",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentida",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentidos",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentidas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "siento",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "sientes",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentís",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "siente",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentimos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "sentís",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sienten",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentía",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentías",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentía",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentíamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentíais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentían",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentí",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentiste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sintió",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentimos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "sentisteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sintieron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentiré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentirás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentirá",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentiremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentiréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentirán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentiría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentirías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentiría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentiríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentiríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentirían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sienta",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sientas",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintás",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "sienta",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintamos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintáis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sientan",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintiera",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintieras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintiera",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintiéramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintierais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintieran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintiese",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintieses",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintiese",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintiésemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintieseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintiesen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintiere",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintieres",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintiere",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintiéremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintiereis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "sintieren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "siente",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentí",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "sienta",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sienta",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentid",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sientan",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sientan",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sientas",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sienta",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sienta",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintáis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sientan",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sientan",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "e-ie-i alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "sentirme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "sentirte",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "sentirle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sentirse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sentirnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "sentiros",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "sentirles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sentirse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sentirme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "sentirte",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "sentirlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sentirla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sentirse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sentirnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "sentiros",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "sentirlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sentirlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sentirse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndome",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "sintiéndote",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "sintiéndole",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "sintiéndoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "sintiéndoles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndome",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "sintiéndote",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "sintiéndolo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndola",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "sintiéndoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "sintiéndolos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndolas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "sintiéndose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "siénteme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siéntete",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siéntele",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siéntenos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siénteles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siénteme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siéntete",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siéntelo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siéntela",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siéntenos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siéntelos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "siéntelas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "sentime",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentite",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentile",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentinos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentiles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentime",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentite",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentilo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentila",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentinos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentilos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "sentilas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "siéntame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntase",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntase",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "siéntalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámoste",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámosle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámosles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámoste",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámoslo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámosla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámoslos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintámoslas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentidme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentidle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentidnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentíos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentidles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentidme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentidlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentidla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentidnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentíos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentidlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentidlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntannos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntannos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "e-ie-i alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "sentirse",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "sintiéndose",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "sentido",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentida",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentidos",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentidas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentirme",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentirte",
+     "tags": [
+      "infinitive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentirse",
+     "tags": [
+      "infinitive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sentirnos",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentiros",
+     "tags": [
+      "infinitive",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sentirse",
+     "tags": [
+      "infinitive",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintiéndome",
+     "tags": [
+      "first-person",
+      "gerund",
+      "singular"
+     ]
+    },
+    {
+     "form": "sintiéndote",
+     "tags": [
+      "gerund",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sintiéndose",
+     "tags": [
+      "gerund",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintiéndonos",
+     "tags": [
+      "first-person",
+      "gerund",
+      "plural"
+     ]
+    },
+    {
+     "form": "sintiéndoos",
+     "tags": [
+      "gerund",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "sintiéndose",
+     "tags": [
+      "gerund",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me siento",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "te sientes",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "te sentís",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "se siente",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sentimos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "os sentís",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se sienten",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me sentía",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te sentías",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se sentía",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sentíamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os sentíais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se sentían",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me sentí",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "te sentiste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se sintió",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sentimos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "os sentisteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se sintieron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me sentiré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te sentirás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se sentirá",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sentiremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os sentiréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se sentirán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me sentiría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te sentirías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se sentiría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sentiríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os sentiríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se sentirían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me sienta",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te sientas",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te sintás",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "se sienta",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sintamos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os sintáis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se sientan",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me sintiera",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te sintieras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se sintiera",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sintiéramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os sintierais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se sintieran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me sintiese",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te sintieses",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se sintiese",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sintiésemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os sintieseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se sintiesen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me sintiere",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te sintieres",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se sintiere",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sintiéremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os sintiereis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se sintieren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "siéntete",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "sentite",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "siéntase",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "siéntase",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "sintámonos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "sentíos",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "siéntanse",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "siéntanse",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "te sientas",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se sienta",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se sienta",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos sintamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os sintáis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se sientan",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se sientan",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "conocer",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "conozco",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocí",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocido",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "c-zc alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "conocer",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "conociendo",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "conocido",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocida",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocidos",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "conocidas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozco",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "conoces",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocés",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "conoce",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conocemos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "conocéis",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocen",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conocía",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocías",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocía",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conocíamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "conocíais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocían",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conocí",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "conociste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conoció",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conocimos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "conocisteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocieron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conoceré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocerás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocerá",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conoceremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "conoceréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocerán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conocería",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocerías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocería",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conoceríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "conoceríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocerían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conozca",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conozcas",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conozcás",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "conozca",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conozcamos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conozcáis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conozcan",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conociera",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conocieras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conociera",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conociéramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conocierais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conocieran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conociese",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conocieses",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conociese",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conociésemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conocieseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conociesen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conociere",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conocieres",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conociere",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conociéremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conociereis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "conocieren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conoce",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conocé",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "conozca",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conozca",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conozcamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "conoced",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conozcan",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conozcan",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conozcas",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conozca",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conozca",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conozcamos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcáis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conozcan",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "conozcan",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "c-zc alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "conocerme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "conocerte",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "conocerle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conocerse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conocernos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "conoceros",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "conocerles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conocerse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conocerme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "conocerte",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "conocerlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conocerla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conocerse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conocernos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "conoceros",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "conocerlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conocerlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conocerse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndome",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "conociéndote",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "conociéndole",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "conociéndoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "conociéndoles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndome",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "conociéndote",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "conociéndolo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndola",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "conociéndoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "conociéndolos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndolas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conociéndose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "conóceme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conócete",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conócele",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conócenos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conóceles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conóceme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conócete",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conócelo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conócela",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conócenos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conócelos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conócelas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "conoceme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conocete",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conocele",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conocenos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conoceles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conoceme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conocete",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conocelo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conocela",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conocenos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conocelos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conocelas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "conózcame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcase",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcase",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "conózcalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámoste",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámosle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámosles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámoste",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámoslo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámosla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámoslos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "conozcámoslas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "conocedme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocedle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocednos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conoceos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocedles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocedme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocedlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocedla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocednos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conoceos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocedlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conocedlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcannos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcannos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "conózcanse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "cognocer",
+     "tags": [
+      "alternative",
+      "archaic"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {
+     "tags": [
+      "reciprocal",
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    },
+    {},
+    {
+     "tags": [
+      "archaic"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "buscar",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "busco",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "busqué",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscado",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "c-qu alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "buscar",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "buscando",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "buscado",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscada",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscados",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "buscadas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "busco",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscas",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscás",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "busca",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "buscáis",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscan",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscaba",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscabas",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscaba",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscábamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "buscabais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscaban",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busqué",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscaste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscó",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "buscasteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscaron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscaré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscarás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscará",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscaremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "buscaréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscarán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscaría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscarías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscaría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscaríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "buscaríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscarían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busque",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "busques",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "busqués",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "busque",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busquemos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "busquéis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "busquen",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscara",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscaras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscara",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscáramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscarais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscaran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscase",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscases",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscase",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscásemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscaseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscasen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscare",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscares",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscare",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "buscáremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscareis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "buscaren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busca",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "buscá",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "busque",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busque",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busquemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "buscad",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "busquen",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busquen",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busques",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "busque",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busque",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busquemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquéis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "busquen",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "busquen",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "c-qu alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "buscarme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "buscarte",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "buscarle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscarse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscarnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "buscaros",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "buscarles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscarse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscarme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "buscarte",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "buscarlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscarla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscarse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscarnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "buscaros",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "buscarlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscarlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscarse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándome",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "buscándote",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "buscándole",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "buscándoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "buscándoles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándome",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "buscándote",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "buscándolo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándola",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "buscándoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "buscándolos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándolas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "buscándose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "búscame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscate",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscate",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "búscalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "buscame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscate",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscate",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "buscalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "búsqueme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsquele",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsquese",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsquenos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsqueles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsqueme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsquelo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsquela",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsquese",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsquenos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsquelos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "búsquelas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémoste",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémosle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémosles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémoste",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémoslo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémosla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémoslos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "busquémoslas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "buscadme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscadle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscadnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscaos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscadles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscadme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscadlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscadla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscadnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscaos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscadlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "buscadlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquenme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquenle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquennos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquenles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquense",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquenme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquenlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquenla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquennos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquenlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquenlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "búsquense",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {},
+    {
+     "tags": [
+      "colloquial",
+      "reflexive"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "enviar",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "envío",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "envié",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviado",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "i-í alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "enviar",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "enviando",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "enviado",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviada",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviados",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviadas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "envío",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "envías",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviás",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "envía",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "enviáis",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envían",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviaba",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviabas",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviaba",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviábamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviabais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviaban",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "envié",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviaste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envió",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "enviasteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviaron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviaré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviarás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviará",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviaremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviaréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviarán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviaría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviarías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviaría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviaríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviaríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviarían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "envíe",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "envíes",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviés",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "envíe",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviemos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviéis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "envíen",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviara",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviaras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviara",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviáramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviarais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviaran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviase",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviases",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviase",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviásemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviaseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviasen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviare",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviares",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviare",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviáremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviareis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "enviaren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "envía",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "enviá",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "envíe",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "envíe",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviad",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíen",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "envíen",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "envíes",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíe",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "envíe",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "enviemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviéis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíen",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "envíen",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "i-í alternation",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "enviarme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "enviarte",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "enviarle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviarse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviarnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "enviaros",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "enviarles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviarse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviarme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "enviarte",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "enviarlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviarla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviarse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviarnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "enviaros",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "enviarlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviarlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviarse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándome",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "enviándote",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "enviándole",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "enviándoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "enviándoles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándome",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "enviándote",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "enviándolo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándola",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "enviándoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "enviándolos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándolas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "enviándose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "envíame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíate",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíate",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "envíalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "enviame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "enviate",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "enviale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "envianos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "enviales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "enviame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "enviate",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "envialo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "enviala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "envianos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "envialos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "envialas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "envíeme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíele",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíese",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíenos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíeles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíeme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíelo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíela",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíese",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíenos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíelos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "envíelas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémoste",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémosle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémosles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémoste",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémoslo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémosla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémoslos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviémoslas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "enviadme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviadle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviadnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviaos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviadles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviadme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviadlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviadla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviadnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviaos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviadlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enviadlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíenme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíenle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíennos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíenles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíense",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíenme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíenlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíenla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíennos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíenlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíenlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "envíense",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "enbiar",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    }
+   ],
+   "senses": [
+    {}
+   ]
+  },
+  {
    "word": "casa",
    "pos": "noun",
    "forms": [
