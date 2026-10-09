@@ -1,27 +1,21 @@
 /**
- * Estonian response transforms (services/dictionary/eki.ts), ported with their tests from
- * frontend/src/features/autocomplete/transforms.test.ts (Slice A moves them to the backend).
+ * Estonian paradigm transforms (services/dictionary/eki.ts) on the Ekilex paradigm shape
+ * (`api/paradigm/details/{id}`): forms with a `morphCode` (decision D18).
  */
 const { transformAdjective, transformNoun, transformVerb } = require('../../services/dictionary/eki');
 
 const casesOf = (result) => Object.fromEntries(result.cases.map(({ caseName, word }) => [caseName, word]));
+const paradigm = (wordClass, forms) => ({
+    wordClass,
+    paradigmForms: forms.map(([morphCode, value, questionable]) => ({ morphCode, value, questionable })),
+});
 
 describe('transformNoun', () => {
-    it('found: maps SgN/PlN/SgG/PlG/SgP/PlP and the short form', () => {
-        const result = transformNoun({
-            searchResult: [{
-                wordClasses: ['noomen'],
-                wordForms: [
-                    { code: 'SgN', value: 'maja' },
-                    { code: 'PlN', value: 'majad' },
-                    { code: 'SgG', value: 'maja' },
-                    { code: 'PlG', value: 'majade' },
-                    { code: 'SgP', value: 'maja' },
-                    { code: 'PlP', value: 'maju' },
-                    { code: 'SgAdt', value: 'majja,koju' },
-                ],
-            }],
-        });
+    it('maps SgN/PlN/SgG/PlG/SgP/PlP and the short form', () => {
+        const result = transformNoun(paradigm('noomen', [
+            ['SgN', 'maja'], ['PlN', 'majad'], ['SgG', 'maja'], ['PlG', 'majade'],
+            ['SgP', 'maja'], ['PlP', 'maju'], ['SgAdt', 'majja'], ['SgIll', 'majasse'],
+        ]));
         expect(result.status).toBe('found');
         expect(casesOf(result)).toEqual({
             singularNimetavEE: 'maja',
@@ -34,53 +28,36 @@ describe('transformNoun', () => {
         });
     });
 
-    it('omits the short form when SgAdt is absent', () => {
-        const result = transformNoun({ searchResult: [{ wordClasses: ['noomen'], wordForms: [{ code: 'SgN', value: 'maja' }] }] });
-        expect(casesOf(result)).toEqual({ singularNimetavEE: 'maja' });
+    it('takes the first listed variant, and a questionable form only when there is no other (D19)', () => {
+        const result = transformNoun(paradigm('noomen', [
+            ['SgN', 'hea'], ['PlP', 'häid'], ['PlP', 'heasid'], ['SgG', 'heaa', true], ['SgG', 'hea'],
+        ]));
+        expect(casesOf(result)).toMatchObject({ pluralOsastavEE: 'häid', singularOmastavEE: 'hea' });
     });
 
-    it('not-found: wrong word class, or no result', () => {
-        expect(transformNoun({ searchResult: [{ wordClasses: ['verb'], wordForms: [] }] })).toEqual({ status: 'not-found', cases: [] });
-        expect(transformNoun({ searchResult: [] }).status).toBe('not-found');
-        expect(transformNoun({}).status).toBe('not-found');
+    it('omits the short form when there is none', () => {
+        expect(casesOf(transformNoun(paradigm('noomen', [['SgN', 'maja']])))).toEqual({ singularNimetavEE: 'maja' });
+    });
+
+    it('not-found: no paradigm, or a paradigm with no usable form', () => {
+        expect(transformNoun(undefined)).toEqual({ status: 'not-found', cases: [] });
+        expect(transformNoun(paradigm('noomen', [['SgIll', 'majasse']])).status).toBe('not-found');
     });
 });
 
 describe('transformAdjective', () => {
-    it('found: gates on meanings[0].partOfSpeech[0].code === "adj"', () => {
-        const result = transformAdjective({
-            searchResult: [{
-                meanings: [{ partOfSpeech: [{ code: 'adj' }] }],
-                wordForms: [{ code: 'SgN', value: 'hea' }, { code: 'SgG', value: 'hea' }],
-            }],
-        });
-        expect(result.status).toBe('found');
-        expect(casesOf(result)).toEqual({ algvorreEE: 'hea', singularOmastavEE: 'hea' });
-    });
-
-    it('not-found: a different part of speech', () => {
-        const result = transformAdjective({ searchResult: [{ meanings: [{ partOfSpeech: [{ code: 'noun' }] }], wordForms: [] }] });
-        expect(result.status).toBe('not-found');
+    it('declines like a noun (Ekilex gives adjectives the word class "noomen")', () => {
+        const result = transformAdjective(paradigm('noomen', [['SgN', 'hea'], ['SgG', 'hea'], ['PlN', 'head']]));
+        expect(casesOf(result)).toEqual({ algvorreEE: 'hea', singularOmastavEE: 'hea', pluralNimetavEE: 'head' });
     });
 });
 
 describe('transformVerb', () => {
-    it('found: maps infinitives, present and simple past, and the shared past-perfect participle', () => {
-        const result = transformVerb({
-            searchResult: [{
-                wordClasses: ['verb'],
-                wordForms: [
-                    { code: 'Sup', value: 'jooksma' },
-                    { code: 'Inf', value: 'joosta' },
-                    { code: 'IndPrSg1', value: 'jooksen' },
-                    { code: 'IndPrPl3', value: 'jooksevad' },
-                    { code: 'IndIpfSg1', value: 'jooksin' },
-                    { code: 'PtsPtPs', value: 'jooksnud' },
-                ],
-            }],
-        });
-        const cases = casesOf(result);
-        expect(result.status).toBe('found');
+    it('maps infinitives, present and simple past, and the shared past-perfect participle', () => {
+        const cases = casesOf(transformVerb(paradigm('verb', [
+            ['Sup', 'jooksma'], ['Inf', 'joosta'], ['IndPrSg1', 'jooksen'], ['IndPrPl3', 'jooksevad'],
+            ['IndIpfSg1', 'jooksin'], ['PtsPtPs', 'jooksnud'],
+        ])));
         expect(cases).toMatchObject({
             infinitiveMaEE: 'jooksma',
             infinitiveDaEE: 'joosta',
@@ -90,11 +67,7 @@ describe('transformVerb', () => {
         });
         // The same "PtsPtPs" form fills all six past-perfect persons.
         for (const slot of ['1s', '2s', '3s', '1pl', '2pl', '3pl']) expect(cases[`kindelPastPerfect${slot}EE`]).toBe('jooksnud');
-        // Codes the answer does not have are left out.
+        // Codes the paradigm does not have are left out.
         expect(cases.kindelPresent2sEE).toBeUndefined();
-    });
-
-    it('not-found: wrong word class', () => {
-        expect(transformVerb({ searchResult: [{ wordClasses: ['noomen'], wordForms: [] }] }).status).toBe('not-found');
     });
 });

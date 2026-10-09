@@ -708,6 +708,8 @@ Reads the same tables. No plan yet.
 | D15 | 2026-10-08 | Q-B4 homographs: the lookup returns ONE entry — the one that fills the most fields, ties broken by the source's own entry order (`lexemes.entry_order`, main sense first). Choosing between meanings (der See / die See) comes with the type-ahead list in Slice E. German: 658 noun keys have more than one entry (369 with a different gender; 244 among frequent words). **Refined 2026-10-09 (Slice C2):** "most fields" was too strict — the English modal "can" (20 fields) lost to "to can" (21, past "canned"). Rule now: among entries that fill at least half as many fields as the fullest, the main sense (lowest `entry_order`) wins. Stubs still lose (Tag: 2 vs 9). Changes the answer for 139 keys (EN 5, DE 60, ES 74), all toward the main sense. |
 | D16 | 2026-10-09 | Spanish regularity: **irregular** = Wiktionary's "irregular" table tag OR any stem-changing class (e-ie, o-ue, e-i, e-ie-i, o-ue-u, u-ue, i-ie, …), -zc (conozco) and e-í (reír). **Regular** = spelling-only classes (c-z, c-qu, g-gu, g-j, gu-gü) and accent-only classes (i-í, u-ú). Saved words keep their values (C1 decision: no data migration). |
 | D17 | 2026-10-09 | Slice C2 removes `is-word`. On a lexicon miss the rule-based generators still answer, always as `partial` (D2), with no word-list gate: a made-up Spanish/English word can get a marked guess. German is unaffected (its libraries are dictionaries and fail on unknown words → not-found). English nouns have no library: a lexicon miss is not-found. |
+| D18 | 2026-10-09 | Q-D1: the official **Ekilex API only** (`https://ekilex.ee`, header `ekilex-api-key`); `api.sonapi.ee` is removed. Measured on 24 words: identical field coverage to sonapi (sonapi wraps Ekilex), ~150 ms (2 calls) vs ~70 ms. Lookup = `api/word/ids/{word}/eki/est` → `api/paradigm/details/{id}` (`morphCode` = the same codes as sonapi). "Search in English" = `api/meaning/search/{word}` → first Estonian word of the right kind → its paradigm. Adjectives: the paradigm's word class is `noomen`, so they are matched by declension (no separate `adj` check). Key: `EKILEX_API_KEY` (local `.env`; staging/prod as a GitHub environment secret). Ekilex meaning search also returns EN/DE/RU/… equivalents — a candidate second source for Estonian translations in Slice F. |
+| D19 | 2026-10-09 | Several variant forms in one cell (Ekilex "häid, heasid"; Eesthetic overabundant cells): fill the **first listed** (the standard form first). |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)
@@ -801,6 +803,11 @@ run, autocomplete still works, but every lexicon language answers only from the 
 marked "not fully sure". Commands run from `deploy/ansible/`. Details:
 `.dev-context/infrastructure-guide/02-environments-and-databases.md`, "The autocomplete lexicon".
 
+- [ ] **BEFORE the Slice D deploy — Ekilex key:** in GitHub → Settings → Environments, add the
+      secret `EKILEX_API_KEY` (your Ekilex API key) to **both** `staging` and `production`.
+      `deploy.yml` writes it into each environment's `.env`. Without it, Estonian autocomplete
+      answers 502 after the deploy. After a successful deploy, the old secret
+      `URL_EESTI_LANG_API` can be deleted (nothing reads it any more).
 - [ ] **Backup script** (from Slice B1): `ansible-playbook site.yml` — puts the new `backup.sh`
       (skips the `lexemes` rows) on the VPS. Safe to repeat; `--check` first for a dry run.
 - [ ] **German lexicon** (from Slice B): build the file if it is not on this machine

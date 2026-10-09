@@ -29,7 +29,7 @@ const BACKEND_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
 // Local stub OIDC issuer standing in for Google in tests —
 // see e2e/fixtures/oidc-stub/server.ts and oauth-login-strategy.md Phase 0.
 const OIDC_STUB_URL = process.env.OIDC_STUB_URL ?? 'http://localhost:4400';
-// Local stub of api.sonapi.ee (the Estonian dictionary) — see e2e/fixtures/eki-stub/server.ts.
+// Local stub of the Ekilex API (the Estonian dictionary) — see e2e/fixtures/eki-stub/server.ts.
 const EKI_STUB_URL = process.env.EKI_STUB_URL ?? 'http://localhost:4401';
 const CI = !!process.env.CI;
 // The specs that change the registration or login gate (access-gates.md): `admin-11-registration-gate.spec.ts`, ...
@@ -110,9 +110,11 @@ export default defineConfig({
                 // Signs staff tokens (admin-dashboard.md slice 2). Locally the
                 // repo-root .env wins; CI has none, so it needs a value here.
                 ADMIN_JWT_SECRET: 'e2e-admin-secret',
-                // The Estonian dictionary stub. Works only if the repo-root .env does NOT set
-                // URL_EESTI_LANG_API (that file wins over these values); the backend has a default.
-                URL_EESTI_LANG_API: `${EKI_STUB_URL}/v2`,
+                // The Estonian dictionary stub (Ekilex shape). Works only if the repo-root .env does NOT
+                // set EKILEX_API_URL (that file wins over these values). The key is not checked by the
+                // stub; a real EKILEX_API_KEY in .env wins over this dummy and is simply ignored.
+                EKILEX_API_URL: EKI_STUB_URL,
+                EKILEX_API_KEY: 'e2e-stub-key',
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.
@@ -154,7 +156,7 @@ export default defineConfig({
             stderr: 'pipe',
         },
         {
-            // Stub Estonian dictionary (api.sonapi.ee) for the autocomplete spec — fixed answers,
+            // Stub Estonian dictionary (Ekilex API) for the autocomplete spec — fixed answers,
             // plus a request log the spec reads to check the URL encoding.
             command: 'npm run stub:eki -w e2e',
             cwd: '..',

@@ -21,7 +21,7 @@ export interface LookupResult {
 }
 
 export interface LookupOptions {
-    /** Estonian only: search by an English word (api.sonapi.ee `?lg=en`). */
+    /** Estonian verb only: search by an English word (Ekilex meaning search). */
     searchInEnglish?: boolean;
 }
 

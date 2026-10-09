@@ -58,14 +58,14 @@ Two local stubs stand in for third-party services, so no spec depends on them:
 | Stub | Port | Stands in for | Used by |
 |------|------|---------------|---------|
 | `fixtures/oidc-stub/server.ts` (`npm run stub:oidc -w e2e`) | 4400 | Google sign-in (OIDC) | `oauth-*.spec.ts` |
-| `fixtures/eki-stub/server.ts` (`npm run stub:eki -w e2e`) | 4401 | api.sonapi.ee (Estonian dictionary) | `autocomplete-a-dictionary-route.spec.ts` |
+| `fixtures/eki-stub/server.ts` (`npm run stub:eki -w e2e`) | 4401 | the Ekilex API (Estonian dictionary) | `autocomplete-a-dictionary-route.spec.ts` |
 
 Playwright points the backend at them through env values in `playwright.config.ts`. Two
 local traps make the backend ignore those values:
 
 1. **The repo-root `.env` wins** (the backend loads it with `override: true`). So it must
-   not set `URL_EESTI_LANG_API` or `OAUTH_ISSUER_GOOGLE`. (`URL_EESTI_LANG_API` has a code
-   default, the public sonapi URL, for local development without it.)
+   not set `EKILEX_API_URL` or `OAUTH_ISSUER_GOOGLE`. (`EKILEX_API_URL` defaults to
+   `https://ekilex.ee` in code. `EKILEX_API_KEY` in `.env` is fine: the stub ignores it.)
 2. **A reused dev backend keeps its own environment.** Stop `npm run dev -w backend` before
    a full run, so Playwright starts a backend with the stub values.
 

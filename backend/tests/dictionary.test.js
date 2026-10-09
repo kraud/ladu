@@ -193,48 +193,100 @@ describe('German (Slice B2: the lexicon first, the library as a partial fallback
     });
 });
 
-describe('Estonian (api.sonapi.ee, fetch replaced)', () => {
+describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
     // This Jest sandbox has no global fetch (Node has it), so set a fake and restore it (as in accessGateLogin.test.js).
     const originalFetch = global.fetch;
-    const sonapi = (body, ok = true) =>
-        (global.fetch = jest.fn().mockResolvedValue({ ok, status: ok ? 200 : 503, json: async () => body }));
-    const NOUN = { searchResult: [{ wordClasses: ['noomen'], wordForms: [{ code: 'SgN', value: 'õun' }, { code: 'PlN', value: 'õunad' }] }] };
+    const forms = (pairs) => pairs.map(([morphCode, value]) => ({ morphCode, value }));
+    /** word → [word id, paradigm]; ids 1x are nouns/adjectives, 2x verbs. */
+    const WORDS = {
+        õun: [11, { wordClass: 'noomen', paradigmForms: forms([['SgN', 'õun'], ['PlN', 'õunad']]) }],
+        hea: [12, { wordClass: 'noomen', paradigmForms: forms([['SgN', 'hea'], ['PlP', 'häid'], ['PlP', 'heasid']]) }],
+        jooksma: [21, { wordClass: 'verb', paradigmForms: forms([['Sup', 'jooksma'], ['Inf', 'joosta']]) }],
+    };
+    /** A fake Ekilex: answers by path, like e2e/fixtures/eki-stub/server.ts. */
+    function fakeEkilex({ ok = true } = {}) {
+        global.fetch = jest.fn(async (url) => {
+            const path = decodeURIComponent(new URL(url).pathname);
+            const json = (body) => ({ ok, status: ok ? 200 : 503, json: async () => body });
+            let match;
+            if ((match = /^\/api\/word\/ids\/(.+)\/eki\/est$/.exec(path))) return json(WORDS[match[1]] ? [WORDS[match[1]][0]] : []);
+            if ((match = /^\/api\/paradigm\/details\/(\d+)$/.exec(path))) {
+                const entry = Object.values(WORDS).find(([id]) => id === Number(match[1]));
+                return json(entry ? [entry[1]] : []);
+            }
+            if ((match = /^\/api\/meaning\/search\/(.+)$/.exec(path))) {
+                // Like the real answer for "run": "astuma" (to step) is listed first, "jooksma" is in more meanings.
+                const meaning = (...est) => ({ meaningWords: [...est.map((wordValue) => ({ wordValue, lang: 'est' })), { wordValue: 'run', lang: 'eng' }] });
+                return json({ results: match[1] === 'run' ? [meaning('astuma'), meaning('jooks', 'jooksma'), meaning('jooksma')] : [] });
+            }
+            return json({});
+        });
+        return global.fetch;
+    }
 
-    beforeAll(() => { process.env.URL_EESTI_LANG_API = 'https://sonapi.test/v2'; });
+    beforeAll(() => {
+        process.env.EKILEX_API_URL = 'https://ekilex.test';
+        process.env.EKILEX_API_KEY = 'test-key';
+    });
     afterEach(() => { global.fetch = originalFetch; });
 
-    it('maps the answer and encodes the word in the URL', async () => {
-        const fetchMock = sonapi(NOUN);
+    it('looks the word up (ids, then paradigm), sends the key, and encodes the word', async () => {
+        const fetchMock = fakeEkilex();
         const res = await lookup(`Estonian/Noun/${encodeURIComponent('õun')}`);
         expect(res.body).toEqual({ status: 'found', cases: [{ caseName: 'singularNimetavEE', word: 'õun' }, { caseName: 'pluralNimetavEE', word: 'õunad' }] });
-        expect(fetchMock.mock.calls[0][0]).toBe('https://sonapi.test/v2/%C3%B5un');
+        expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+            'https://ekilex.test/api/word/ids/%C3%B5un/eki/est',
+            'https://ekilex.test/api/paradigm/details/11',
+        ]);
+        expect(fetchMock.mock.calls[0][1].headers).toEqual({ 'ekilex-api-key': 'test-key' });
     });
 
-    it('uses the public sonapi URL when URL_EESTI_LANG_API is not set', async () => {
-        const configured = process.env.URL_EESTI_LANG_API;
-        delete process.env.URL_EESTI_LANG_API;
+    it('an adjective declines like a noun and takes the first listed variant (D18, D19)', async () => {
+        fakeEkilex();
+        const res = await lookup('Estonian/Adjective/hea');
+        expect(casesOf(res.body)).toEqual({ algvorreEE: 'hea', pluralOsastavEE: 'häid' });
+    });
+
+    it('a word with the wrong word class, or no entry, is not-found', async () => {
+        fakeEkilex();
+        expect((await lookup('Estonian/Verb/hea')).body).toEqual({ status: 'not-found', cases: [] });
+        expect((await lookup('Estonian/Noun/zorplata')).body).toEqual({ status: 'not-found', cases: [] });
+    });
+
+    it('searchInEnglish takes the Estonian -ma verb found in the most meanings, then its paradigm', async () => {
+        const fetchMock = fakeEkilex();
+        const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
+        expect(casesOf(res.body)).toEqual({ infinitiveMaEE: 'jooksma', infinitiveDaEE: 'joosta' });
+        expect(fetchMock.mock.calls[0][0]).toBe('https://ekilex.test/api/meaning/search/run');
+    });
+
+    it('uses https://ekilex.ee when EKILEX_API_URL is not set', async () => {
+        const configured = process.env.EKILEX_API_URL;
+        delete process.env.EKILEX_API_URL;
         try {
-            const fetchMock = sonapi({ searchResult: [] });
+            const fetchMock = fakeEkilex();
             await lookup('Estonian/Noun/maja');
-            expect(fetchMock.mock.calls[0][0]).toBe('https://api.sonapi.ee/v2/maja');
+            expect(fetchMock.mock.calls[0][0]).toBe('https://ekilex.ee/api/word/ids/maja/eki/est');
         } finally {
-            process.env.URL_EESTI_LANG_API = configured;
+            process.env.EKILEX_API_URL = configured;
         }
     });
 
-    it('the verb passes searchInEnglish on as ?lg=en', async () => {
-        const fetchMock = sonapi({ searchResult: [] });
-        const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
-        expect(res.body.status).toBe('not-found');
-        expect(fetchMock.mock.calls[0][0]).toBe('https://sonapi.test/v2/run?lg=en');
-    });
-
-    it('answers 502 when the service is unreachable or answers an error', async () => {
+    it('answers 502 when the service is unreachable, answers an error, or no key is set', async () => {
         global.fetch = jest.fn().mockRejectedValue(new Error('upstream unreachable'));
         expect((await lookup('Estonian/Adjective/hea')).statusCode).toBe(502);
 
-        sonapi({}, false);
+        fakeEkilex({ ok: false });
         expect((await lookup('Estonian/Noun/maja')).statusCode).toBe(502);
+
+        const key = process.env.EKILEX_API_KEY;
+        delete process.env.EKILEX_API_KEY;
+        try {
+            fakeEkilex();
+            expect((await lookup('Estonian/Noun/õun')).statusCode).toBe(502);
+        } finally {
+            process.env.EKILEX_API_KEY = key;
+        }
     });
 });
 
