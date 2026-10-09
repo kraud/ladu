@@ -26,7 +26,8 @@
  * `AutocompleteRow` (now in the card's footer) owns the actual fetch, this
  * only renders that one field with a heavier border, a bold label, a
  * magnifying-glass icon and a placeholder so it's obvious which field to
- * fill to trigger it.
+ * fill to trigger it. With `typeAhead` (Slice E) that field is a `TypeAheadInput`: the same input,
+ * plus the list of dictionary words that start with the typed text.
  *
  * When `reserveMessageSpace` is set, the field reserves a strip of room under
  * its control (`FIELD_ITEM`), and its validation message is positioned inside
@@ -48,6 +49,7 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
+import { TypeAheadInput, type TypeAheadConfig } from './TypeAheadInput';
 import { matchesVisibility, type FieldConfig } from './configs/types';
 import { capitalizeFirst, isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
 import { cn } from '@/lib/utils';
@@ -62,6 +64,8 @@ export interface FieldRendererProps {
     displayOnly?: boolean;
     /** The RHF field name that drives this (lang, pos) pair's autocomplete lookup, if any. */
     autocompleteFieldName?: string;
+    /** Turns the autocomplete query field into a `TypeAheadInput` (Slice E). Ignored for every other field. */
+    typeAhead?: TypeAheadConfig;
     /** Reserve a strip under the control and show its validation message out of the flow (see the file header). Ignored in `displayOnly`. */
     reserveMessageSpace?: boolean;
     /** `displayOnly` on a phone: label and value share one line, to keep grids short. */
@@ -90,6 +94,7 @@ export function FieldRenderer({
     field,
     displayOnly = false,
     autocompleteFieldName,
+    typeAhead,
     reserveMessageSpace = false,
     compact = false,
 }: FieldRendererProps) {
@@ -181,23 +186,33 @@ export function FieldRenderer({
                 }
 
                 if (field.kind === 'text') {
-                    const input = (
-                        <Input
-                            {...rhf}
-                            value={rhf.value ?? ''}
-                            onChange={
-                                field.capitalize
-                                    ? (event) => rhf.onChange(capitalizeFirst(event.target.value))
-                                    : rhf.onChange
-                            }
-                            placeholder={
-                                isAutocompleteTrigger
-                                    ? t('wordRelated:wordForm.autocompleteTranslationButton.inputPlaceholder')
-                                    : undefined
-                            }
-                            className={isAutocompleteTrigger ? 'border-2 border-(--border-strong) pl-8' : undefined}
-                        />
-                    );
+                    const toStored = (text: string) => (field.capitalize ? capitalizeFirst(text) : text);
+                    const placeholder = isAutocompleteTrigger
+                        ? t('wordRelated:wordForm.autocompleteTranslationButton.inputPlaceholder')
+                        : undefined;
+                    const inputClass = isAutocompleteTrigger ? 'border-2 border-(--border-strong) pl-8' : undefined;
+                    const input =
+                        isAutocompleteTrigger && typeAhead ? (
+                            <TypeAheadInput
+                                config={typeAhead}
+                                ref={rhf.ref}
+                                name={rhf.name}
+                                onBlur={rhf.onBlur}
+                                disabled={rhf.disabled}
+                                value={rhf.value ?? ''}
+                                onValueChange={(text) => rhf.onChange(toStored(text))}
+                                placeholder={placeholder}
+                                className={inputClass}
+                            />
+                        ) : (
+                            <Input
+                                {...rhf}
+                                value={rhf.value ?? ''}
+                                onChange={(event) => rhf.onChange(toStored(event.target.value))}
+                                placeholder={placeholder}
+                                className={inputClass}
+                            />
+                        );
                     const control = isAutocompleteTrigger ? (
                         <div className="relative">
                             <MagnifyingGlassIcon

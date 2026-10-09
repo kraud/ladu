@@ -32,6 +32,7 @@
  */
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
 import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
@@ -45,7 +46,10 @@ import { primaryCaseWord } from '@/lib/words';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
 import { getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
-import { AutocompleteRow } from './AutocompleteRow';
+import { lookupQueryOptions } from '@/features/autocomplete/hooks';
+import type { Suggestion } from '@/features/autocomplete/types';
+import { AutocompleteRow, applyLookup, type PickedEntry } from './AutocompleteRow';
+import type { TypeAheadConfig } from './TypeAheadInput';
 import { buildYupSchema } from './buildYupSchema';
 import { isDerived, isStoredCheckbox, matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
@@ -272,6 +276,35 @@ export function TranslationCard({
     const watched = useWatch({ control: form.control }) as Record<string, unknown>;
     const { isDirty } = form.formState;
 
+    // Type-ahead (Slice E, D21): a pick from the query field's list writes the lemma, then fills the
+    // card with that exact entry — the same fill as "Use autocomplete values". `pickedEntry` tells
+    // `AutocompleteRow` which entry the lemma stands for (der See vs die See). The lookup goes through
+    // the query cache, so the footer row reads the same answer without a second request.
+    const queryClient = useQueryClient();
+    const [pickedEntry, setPickedEntry] = useState<PickedEntry | null>(null);
+    const typeAhead = useMemo<TypeAheadConfig | undefined>(() => {
+        const endpoint = getAutocompleteEndpoint(lang, pos);
+        if (!endpoint || !config || displayOnly) return undefined;
+        const pickSuggestion = async ({ lemma, entryId }: Suggestion) => {
+            form.setValue(endpoint.queryFieldName, lemma, { shouldDirty: true, shouldValidate: true });
+            setPickedEntry({ lemma, entryId });
+            const extra = endpoint.extraFieldName ? Boolean(form.getValues(endpoint.extraFieldName)) : undefined;
+            try {
+                const data = await queryClient.fetchQuery(lookupQueryOptions({ language: lang, pos, query: lemma, extra, entryId }));
+                applyLookup(config.fields, data, form.getValues(), form.setValue);
+            } catch {
+                // Nothing to fill; the footer row shows the failed lookup.
+            }
+        };
+        return {
+            lang,
+            pos,
+            offWhenField: endpoint.extraFieldName,
+            onPick: (suggestion) => void pickSuggestion(suggestion),
+            onType: () => setPickedEntry(null),
+        };
+    }, [lang, pos, config, displayOnly, form, queryClient]);
+
     const cases = useMemo(
         () => (config ? fieldsToCases(config.fields, watched) : []),
         [config, watched],
@@ -423,6 +456,7 @@ export function TranslationCard({
                                         field={item.field}
                                         displayOnly={displayOnly}
                                         autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                        typeAhead={typeAhead}
                                         reserveMessageSpace={item.field.required}
                                     />
                                 ) : (
@@ -474,6 +508,7 @@ export function TranslationCard({
                                                             // Verb pronouns (the tense grid's row labels) stay beside their value; every other label sits above it.
                                                             compact={displayOnly && isMobile && field.layout?.columnHeading !== undefined}
                                                             autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                                            typeAhead={typeAhead}
                                                             reserveMessageSpace={reserveMessageSpace}
                                                         />
                                                     )}
@@ -494,7 +529,7 @@ export function TranslationCard({
                             )}
                         >
                             <div className="min-w-0">
-                                {hasAutocomplete && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} />}
+                                {hasAutocomplete && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} pickedEntry={pickedEntry} />}
                             </div>
                             <div className="flex shrink-0 items-center gap-2">
                                 {onClear && (

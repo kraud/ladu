@@ -670,7 +670,15 @@ in Postgres: EN 404,424 · ES 78,914 · DE 69,084 · ET 10,551 lexemes. Remainin
   Migration 0023 rebuilds `lexemes_lookup_idx` with `text_pattern_ops` (the database collation is
   `en_US`, so a plain B-tree cannot serve `LIKE 'co%'`); equality lookups use it too. Measured on
   the full local lexicon: a 2-letter English noun prefix (10,396 matches) takes ~9 ms.
-- **E2 (frontend)** — the combobox on the query field; a pick fills the card. **E3** — e2e spec.
+- **E2 (frontend) — done 2026-10-09.** `TypeAheadInput` (Base UI Autocomplete: free text, the list
+  only suggests) replaces the query field's input. List from 2 characters, 150 ms pause, most
+  frequent first, "der See" / "die See". A pick (click, or arrows + Enter) writes the lemma and
+  fills the card with that entry through the same `applyLookup` as the button; the footer then
+  reads the same cache entry (`pickedEntry`), so it shows "applied", not an offer to overwrite.
+  Typing after a pick drops it. No list while "Search verb in English" is checked. The list
+  closes on a pick, Escape, Tab, a click outside, and by itself after the lookup's pause (500 ms)
+  when the text exactly matches a listed word (D21 addition); arrow down shows it again.
+- **E3** — e2e spec: type a prefix, pick a suggestion, see the form fill.
 
 - While the user types in a query field (for example the German `infinitive`), a select list
   shows matching lemmas, ordered by frequency rank. A pick fills the form as before.
@@ -738,7 +746,7 @@ Reads the same tables. No plan yet.
 | D18 | 2026-10-09 | Q-D1: the official **Ekilex API only** (`https://ekilex.ee`, header `ekilex-api-key`); `api.sonapi.ee` is removed. Measured on 24 words: identical field coverage to sonapi (sonapi wraps Ekilex), ~150 ms (2 calls) vs ~70 ms. Lookup = `api/word/ids/{word}/eki/est` → `api/paradigm/details/{id}` (`morphCode` = the same codes as sonapi). "Search in English" = `api/meaning/search/{word}` → first Estonian word of the right kind → its paradigm. Adjectives: the paradigm's word class is `noomen`, so they are matched by declension (no separate `adj` check). Key: `EKILEX_API_KEY` (local `.env`; staging/prod as a GitHub environment secret). Ekilex meaning search also returns EN/DE/RU/… equivalents — a candidate second source for Estonian translations in Slice F. |
 | D19 | 2026-10-09 | Several variant forms in one cell (Ekilex "häid, heasid"; Eesthetic overabundant cells): fill the **first listed** (the standard form first). |
 | D20 | 2026-10-09 | Slice D3, Estonian adjective comparison. Ekilex `api/word/details/{id}` (3rd call) gives the part of speech (the adjective check is back, superseding that part of D18) and the relation groups `komp` / `superl`. The form gets a stored checkbox `periphrasticSuperlativeEE` ("no one-word superlative"): when checked, the superlative shows as read-only "kõige " + comparative and is NOT stored; the superlative is no longer required. Autocomplete prefers the one-word superlative ("suurim") and unchecks the box; when only "kõige …" exists it checks the box; an adjective with no comparison relations ("eestikeelne") changes neither. First stored checkbox in the form engine (stored as the string "true", only when checked). |
-| D21 | 2026-10-09 | Slice E type-ahead. (1) **A pick fills the card at once** (the same fill as "Use autocomplete values", for the picked entry). Typing without a pick changes nothing: the user fills the fields by hand or presses the button. (2) A pick fills the **exact entry** chosen (der See vs die See): the list carries `entryId`, the lookup takes `?entry=`. (3) Only the field the autocomplete already reads (one per card); no list while "Search verb in English" is checked. (4) Estonian: local lexicon only (~10,500 words; Ekilex has no prefix search). |
+| D21 | 2026-10-09 | Slice E type-ahead. (1) **A pick fills the card at once** (the same fill as "Use autocomplete values", for the picked entry). Typing without a pick changes nothing: the user fills the fields by hand or presses the button. (2) A pick fills the **exact entry** chosen (der See vs die See): the list carries `entryId`, the lookup takes `?entry=`. (3) Only the field the autocomplete already reads (one per card); no list while "Search verb in English" is checked. (4) Estonian: local lexicon only (~10,500 words; Ekilex has no prefix search). (5) Added at E2: an open list covers the card footer and hides the rest of the page from screen readers, so it closes on a pick, Escape, Tab or a click outside, and also by itself when the user stops typing (500 ms) on a word that is in the list. |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)

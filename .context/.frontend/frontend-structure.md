@@ -142,7 +142,10 @@ frontend/src/
 │   │   │   │                        #   resolver per card — NOT a shared form. No in-place language switch;
 │   │   │   │                        #   changing a slot's language is Remove + re-Add.
 │   │   │   ├── AutocompleteRow.tsx  # Phase 3 — automatic debounced lookup + manual "Fill in" for the 9
-│   │   │   │                        #   (lang, PoS) pairs `AUTOCOMPLETE_REGISTRY` covers; `null` otherwise
+│   │   │   │                        #   (lang, PoS) pairs `AUTOCOMPLETE_REGISTRY` covers; `null` otherwise.
+│   │   │   │                        #   `applyLookup` = the fill, shared with a type-ahead pick (Slice E)
+│   │   │   ├── TypeAheadInput.tsx   # Slice E — the query field as a Base UI Autocomplete: suggestion list
+│   │   │   │                        #   from 2 chars; a pick fills the card (TranslationCard's `pickSuggestion`)
 │   │   │   ├── fieldLayout.ts       # Phase 3 — FieldConfig[] → row/column/block grid items for TranslationCard;
 │   │   │   │                        #   also owns the shared `isEmptyValue`/`isHiddenInDisplayOnly`/`isPersistedCaseField`
 │   │   │   ├── buildYupSchema.ts    # (config, t) → yup object — generic over any TranslationFormConfig; Phase 3
@@ -184,10 +187,12 @@ frontend/src/
 │   │   └── pages/               # AddWordPage, WordPage (view/edit toggle, owner vs read-only), ReviewPage
 │   │
 │   ├── autocomplete/            # Phase 3 — all new
-│   │   ├── api.ts               # lookupDictionary — the one GET /api/dictionary/:language/:pos/:query
-│   │   ├── hooks.ts             # useAutocompleteTranslation(lang, pos, query, extra?); enabled only on a
-│   │   │                        #   non-blank query — debouncing itself lives in `AutocompleteRow`
-│   │   ├── keys.ts              # ['autocomplete', lang, pos, query, extra]
+│   │   ├── api.ts               # lookupDictionary — GET /api/dictionary/:language/:pos/:query (?entry= a pick);
+│   │   │                        #   suggestDictionary — GET /api/dictionary/:language/:pos?prefix= (Slice E)
+│   │   ├── hooks.ts             # useAutocompleteTranslation(lang, pos, query, extra?, entryId?); enabled only on a
+│   │   │                        #   non-blank query — debouncing itself lives in `AutocompleteRow`.
+│   │   │                        #   useDictionarySuggestions (2+ chars); lookupQueryOptions (shared with a pick)
+│   │   ├── keys.ts              # ['autocomplete', lang, pos, query, extra, entryId], ['autocomplete', 'suggestions', …]
 │   │   ├── types.ts             # `DictionaryResponse` ({ status, cases }) and `AutocompleteResult` —
 │   │   │                        #   `cases: Map<CaseName, string>` (a `Record` can't index the `CaseName` union)
 │   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 9-entry lang×PoS table: query field + the

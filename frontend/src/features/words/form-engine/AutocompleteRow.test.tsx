@@ -272,6 +272,6 @@ describe('AutocompleteRow', () => {
         );
 
         await waitFor(() => expect(fake.requests).toHaveLength(1), { timeout: 2000 });
-        expect(fake.requests[0]).toEqual({ path: 'Estonian/Verb', query: 'jooksma', searchInEnglish: true });
+        expect(fake.requests[0]).toEqual({ path: 'Estonian/Verb', query: 'jooksma', searchInEnglish: true, entry: null });
     });
 });

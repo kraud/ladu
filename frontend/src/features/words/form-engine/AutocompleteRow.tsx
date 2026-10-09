@@ -42,8 +42,15 @@
  * autocomplete-data-source-strategy.md). It fills like `found`, but both states
  * above carry the "not fully sure" notice next to them, before and after applying
  * (`data-testid="autocomplete-partial"`), so a guess never looks like a fact.
+ *
+ * Type-ahead (Slice E, decision D21): a pick from the query field's suggestion list fills the
+ * card at once (`TypeAheadInput` → `TranslationCard`'s `pickSuggestion`, which runs the same
+ * `applyLookup` as the button). The pick arrives here as `pickedEntry`: while the query field
+ * still holds the picked lemma, the lookup asks for that exact entry (der See, not the main
+ * sense der See/die See), without the debounce — the pick already fetched it, so this reads the
+ * cache. Otherwise the button would offer to overwrite the pick with the main sense.
  */
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch, type FieldValues, type UseFormSetValue } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CheckIcon, MagnifyingGlassIcon, PencilSimpleLineIcon, WarningIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
@@ -54,13 +61,21 @@ import type { Lang, PartOfSpeech } from '@/ts/enums';
 import { matchesVisibility, type FieldConfig } from './configs/types';
 import type { AutocompleteResult } from '@/features/autocomplete/types';
 
+/** A type-ahead pick (see the file header). */
+export interface PickedEntry {
+    lemma: string;
+    entryId: string;
+}
+
 export interface AutocompleteRowProps {
     lang: Lang;
     pos: PartOfSpeech;
     fields: FieldConfig[];
+    pickedEntry?: PickedEntry | null;
 }
 
-const DEBOUNCE_MS = 500;
+/** The pause after typing before the lookup runs. `TypeAheadInput` closes an exactly matching list after the same pause. */
+export const LOOKUP_DEBOUNCE_MS = 500;
 /**
  * The ready-to-click "Use autocomplete values" button, in the brand colour so
  * it stands out from the neutral Clear/Remove beside it: a soft accent fill,
@@ -135,7 +150,27 @@ function valuesMatchLookup(
     });
 }
 
-export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
+/**
+ * Writes every case the lookup has a word for into its field — overwriting unconditionally (see the
+ * file header on why). Skips a field hidden by its own `visibleWhen`. Shared by the "Use
+ * autocomplete values" button and a type-ahead pick (D21: the same fill).
+ */
+export function applyLookup(
+    fields: FieldConfig[],
+    data: AutocompleteResult,
+    values: Record<string, unknown>,
+    setValue: UseFormSetValue<FieldValues>
+): void {
+    for (const field of fields) {
+        if (!field.caseName) continue;
+        const looked = data.cases.get(field.caseName);
+        if (looked === undefined) continue;
+        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, values[field.visibleWhen.field])) continue;
+        setValue(field.name, valueToApply(field, looked), { shouldDirty: true, shouldValidate: true });
+    }
+}
+
+export function AutocompleteRow({ lang, pos, fields, pickedEntry }: AutocompleteRowProps) {
     const { t } = useTranslation();
     const { control, setValue } = useFormContext();
     const endpoint = getAutocompleteEndpoint(lang, pos);
@@ -146,14 +181,17 @@ export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
     // card — cheap: `TranslationCard` already re-renders on every keystroke
     // via this exact same unfiltered `useWatch`, so this adds no new render.
     const allValues = useWatch({ control }) as Record<string, unknown>;
-    const debouncedQuery = useDebouncedCallback(queryValue ?? '', DEBOUNCE_MS);
+    const debouncedQuery = useDebouncedCallback(queryValue ?? '', LOOKUP_DEBOUNCE_MS);
+    const entryId = pickedEntry && queryValue === pickedEntry.lemma ? pickedEntry.entryId : undefined;
+    const query = entryId ? (queryValue ?? '') : debouncedQuery;
 
-    const hasQuery = endpoint !== undefined && debouncedQuery.trim() !== '';
+    const hasQuery = endpoint !== undefined && query.trim() !== '';
     const { data, isFetching } = useAutocompleteTranslation({
         language: lang,
         pos,
-        query: hasQuery ? debouncedQuery : '',
+        query: hasQuery ? query : '',
         extra: endpoint?.extraFieldName ? Boolean(extraValue) : undefined,
+        entryId,
     });
 
     if (!endpoint) return null;
@@ -176,14 +214,7 @@ export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
     // right call once the button (`valuesMatch` below) has already decided
     // there's a real disagreement to resolve.
     const handleApply = () => {
-        if (!data) return;
-        for (const field of fields) {
-            if (!field.caseName) continue;
-            const looked = data.cases.get(field.caseName);
-            if (looked === undefined) continue;
-            if (field.visibleWhen && !matchesVisibility(field.visibleWhen, allValues[field.visibleWhen.field])) continue;
-            setValue(field.name, valueToApply(field, looked), { shouldDirty: true, shouldValidate: true });
-        }
+        if (data) applyLookup(fields, data, allValues, setValue);
     };
 
     if (canFill) {

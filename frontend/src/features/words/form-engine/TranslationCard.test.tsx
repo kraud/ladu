@@ -117,7 +117,8 @@ describe('TranslationCard', () => {
         renderWithProviders(
             <TranslationCard lang={Lang.EN} initialCases={[{ caseName: NounCases.singularEN, word: 'cat' }]} />
         );
-        expect(screen.getByDisplayValue('cat')).toBeInTheDocument();
+        // The query field is a combobox since Slice E (the type-ahead list).
+        expect(screen.getByRole('combobox', { name: 'Singular' })).toHaveValue('cat');
     });
 
     it('shows Clear and Remove actions when their handlers are passed, unless displayOnly', () => {
@@ -331,7 +332,8 @@ describe('TranslationCard — Verb', () => {
     it('stacks the Spanish infinitive, gerund and participle in one column on a phone, without a scroller', () => {
         mockMobileViewport();
         renderWithProviders(<TranslationCard lang={Lang.ES} pos={PartOfSpeech.verb} />);
-        const infinitive = screen.getAllByRole('textbox')[0]!;
+        // The infinitive is the autocomplete query field (a combobox since Slice E).
+        const infinitive = screen.getByPlaceholderText('Type to autocomplete');
         const grid = infinitive.closest('.grid') as HTMLElement;
         expect(grid.style.gridTemplateColumns).toBe('minmax(0, 1fr)');
         expect(grid.closest('[data-testid="horizontal-scroller"]')).toBeNull();
@@ -340,7 +342,8 @@ describe('TranslationCard — Verb', () => {
     it('gives the German infinitive its own row on a phone, with the auxiliary verb and prefix below it and no scroller', () => {
         mockMobileViewport();
         renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.verb} />);
-        const infinitive = screen.getAllByRole('textbox')[0]!;
+        // The infinitive is the autocomplete query field (a combobox since Slice E).
+        const infinitive = screen.getByPlaceholderText('Type to autocomplete');
         const grid = infinitive.closest('.grid') as HTMLElement;
         expect(grid.style.gridTemplateColumns).toBe('repeat(2, minmax(0, 1fr))');
         expect(infinitive.closest('.col-span-2')).not.toBeNull();
@@ -548,6 +551,132 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         await waitFor(() => expect(screen.getByRole('button', { name: /autocomplete/i })).toBeInTheDocument(), { timeout: 2000 });
         await user.click(screen.getByRole('button', { name: /autocomplete/i }));
         await waitFor(() => expect(screen.getByLabelText('-da infinitive')).toHaveValue('tantsida'));
+    });
+});
+
+describe('TranslationCard — type-ahead list on the query field (Slice E, D21)', () => {
+    const DER_SEE = { entryId: '11111111-1111-1111-1111-111111111111', lemma: 'See', hint: 'der' };
+    const DIE_SEE = { entryId: '22222222-2222-2222-2222-222222222222', lemma: 'See', hint: 'die' };
+    const SEELE = { entryId: '33333333-3333-3333-3333-333333333333', lemma: 'Seele', hint: 'die' };
+    const seeCases = (gender: string, plural: string) => ({
+        status: 'found' as const,
+        cases: [
+            { caseName: 'genderDE', word: gender },
+            { caseName: 'singularNominativDE', word: 'See' },
+            { caseName: 'pluralNominativDE', word: plural },
+        ],
+    });
+
+    /** A German noun card; the main-sense lookup (no entry) answers der See, the entries their own. */
+    function setup() {
+        const fake = makeAutocompleteHandlers(
+            { germanNoun: seeCases('der', 'Seen') },
+            {
+                suggestions: { germanNoun: [DER_SEE, DIE_SEE, SEELE] },
+                entries: { [DIE_SEE.entryId]: seeCases('die', 'Seen') },
+            }
+        );
+        server.use(...fake.handlers);
+        renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.noun} />);
+        return { fake, user: userEvent.setup(), field: screen.getByRole('combobox', { name: 'Singular nominative' }) };
+    }
+
+    it('from 2 characters, lists the matching dictionary words, a homograph once per meaning with its article', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'se');
+
+        const list = await screen.findByRole('listbox');
+        expect(within(list).getAllByRole('option').map((option) => option.textContent)).toEqual(['derSee', 'dieSee', 'dieSeele']);
+    });
+
+    it('1 character asks for nothing and shows no list', async () => {
+        const { fake, user, field } = setup();
+        await user.type(field, 's');
+
+        // Longer than the list debounce (150 ms).
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        expect(fake.suggestionRequests).toEqual([]);
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
+    it('a click on a suggestion fills the card with that exact entry, and the footer shows it as applied', async () => {
+        const { fake, user, field } = setup();
+        await user.type(field, 'se');
+        await user.click(await screen.findByRole('option', { name: 'die See' }));
+
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+        expect(field).toHaveValue('See');
+        expect(screen.getByLabelText('Plural nominative')).toHaveValue('Seen');
+        expect(fake.requests.map((request) => request.entry)).toContain(DIE_SEE.entryId);
+        // The footer reads the same entry: no button that offers to overwrite die with der.
+        await waitFor(() => expect(screen.getByText('Autocomplete values applied')).toBeInTheDocument());
+        expect(screen.queryByRole('button', { name: 'Use autocomplete values' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
+    it('arrow keys and Enter pick a suggestion too', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'se');
+        await screen.findByRole('listbox');
+        await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
+
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+        expect(field).toHaveValue('See');
+    });
+
+    it('typing a whole word fills nothing, and the list closes by itself after the pause: the button is free', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'See');
+        await screen.findByRole('listbox');
+
+        // "See" is a listed word: after the lookup's pause the list closes, and the button shows.
+        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument(), { timeout: 2000 });
+        expect(await screen.findByRole('button', { name: 'Use autocomplete values' })).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: 'der' })).not.toBeChecked();
+        expect(screen.getByLabelText('Plural nominative')).toHaveValue('');
+
+        // Arrow down asks for the list again.
+        await user.keyboard('{ArrowDown}');
+        expect(await screen.findByRole('listbox')).toBeInTheDocument();
+    });
+
+    it('a part of a word keeps the list open; Escape closes it', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'se');
+        await screen.findByRole('listbox');
+
+        // Longer than the lookup's pause: "se" is no listed word, so the list stays.
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+        await user.keyboard('{Escape}');
+        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+    });
+
+    it('typing after a pick drops it: the lookup goes back to the main sense', async () => {
+        const { fake, user, field } = setup();
+        await user.type(field, 'se');
+        await user.click(await screen.findByRole('option', { name: 'die See' }));
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+
+        await user.type(field, '{Backspace}e');
+        await waitFor(() => expect(fake.requests.at(-1)).toMatchObject({ query: 'See', entry: null }), { timeout: 2000 });
+        // The main sense (der) disagrees with the filled die: the button offers it.
+        expect(await screen.findByRole('button', { name: 'Use autocomplete values' })).toBeInTheDocument();
+    });
+
+    it('Estonian verb: no list while "Search verb in English" is checked', async () => {
+        const fake = makeAutocompleteHandlers({}, { suggestions: { estonianVerb: [{ entryId: DER_SEE.entryId, lemma: 'jooksma' }] } });
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.verb} />);
+
+        await user.click(screen.getByRole('checkbox', { name: 'Search verb in english' }));
+        await user.type(screen.getByLabelText('-ma infinitive'), 'jo');
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        expect(fake.suggestionRequests).toEqual([]);
+
+        await user.click(screen.getByRole('checkbox', { name: 'Search verb in english' }));
+        expect(await screen.findByRole('option', { name: 'jooksma' })).toBeInTheDocument();
     });
 });
 

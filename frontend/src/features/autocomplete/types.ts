@@ -1,6 +1,6 @@
 /**
- * Wire contract of `GET /api/dictionary/:language/:partOfSpeech/:query` (backend
- * `services/dictionary/`), plus the shape everything downstream (`hooks.ts`,
+ * Wire contract of `GET /api/dictionary/:language/:partOfSpeech/:query` and of the type-ahead
+ * list `GET /api/dictionary/:language/:partOfSpeech?prefix=` (backend `services/dictionary/`), plus the shape everything downstream (`hooks.ts`,
  * `AutocompleteRow`) consumes.
  */
 import type { CaseName } from '@/features/words/form-engine/configs/types';
@@ -18,6 +18,18 @@ export interface LookupCase {
 export interface DictionaryResponse {
     status: AutocompleteStatus;
     cases: LookupCase[];
+}
+
+/** One item of the type-ahead list (Slice E). `hint` tells homographs apart: the noun's article. */
+export interface Suggestion {
+    entryId: string;
+    lemma: string;
+    hint?: string;
+}
+
+/** `GET /api/dictionary/:language/:partOfSpeech?prefix=`. */
+export interface SuggestionsResponse {
+    suggestions: Suggestion[];
 }
 
 export interface AutocompleteResult {

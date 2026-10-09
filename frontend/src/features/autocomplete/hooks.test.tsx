@@ -6,10 +6,13 @@ import { createQueryClient } from '@/app/query-client';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import { server } from '@/test/msw/server';
 import { makeAutocompleteHandlers } from '@/test/msw/autocompleteHandlers';
-import { useAutocompleteTranslation } from './hooks';
+import { useAutocompleteTranslation, useDictionarySuggestions } from './hooks';
 
-function setup(responses: Parameters<typeof makeAutocompleteHandlers>[0] = {}) {
-    const fake = makeAutocompleteHandlers(responses);
+function setup(
+    responses: Parameters<typeof makeAutocompleteHandlers>[0] = {},
+    options: Parameters<typeof makeAutocompleteHandlers>[1] = {}
+) {
+    const fake = makeAutocompleteHandlers(responses, options);
     server.use(...fake.handlers);
 
     const queryClient = createQueryClient();
@@ -69,7 +72,7 @@ describe('useAutocompleteTranslation', () => {
         );
 
         await waitFor(() => expect(result.current.isSuccess).toBe(true));
-        expect(fake.requests).toEqual([{ path: 'Estonian/Verb', query: 'run', searchInEnglish: true }]);
+        expect(fake.requests).toEqual([{ path: 'Estonian/Verb', query: 'run', searchInEnglish: true, entry: null }]);
         expect(result.current.data?.status).toBe('found');
         expect(result.current.data?.cases.get('infinitiveMaEE' as never)).toBe('jooksma');
     });
@@ -98,5 +101,58 @@ describe('useAutocompleteTranslation', () => {
 
         await waitFor(() => expect(result.current.isSuccess).toBe(true));
         expect(result.current.data?.status).toBe('not-found');
+    });
+});
+
+describe('useDictionarySuggestions (Slice E)', () => {
+    const TANZEN = { entryId: '44444444-4444-4444-4444-444444444444', lemma: 'tanzen' };
+
+    it('asks for nothing under 2 characters, or while turned off', () => {
+        const { fake, wrapper } = setup({}, { suggestions: { germanVerb: [TANZEN] } });
+        const short = renderHook(
+            () => useDictionarySuggestions({ language: Lang.DE, pos: PartOfSpeech.verb, prefix: ' t ', enabled: true }),
+            { wrapper }
+        );
+        const off = renderHook(
+            () => useDictionarySuggestions({ language: Lang.DE, pos: PartOfSpeech.verb, prefix: 'ta', enabled: false }),
+            { wrapper }
+        );
+
+        expect(short.result.current.fetchStatus).toBe('idle');
+        expect(off.result.current.fetchStatus).toBe('idle');
+        expect(fake.suggestionRequests).toHaveLength(0);
+    });
+
+    it('asks the suggestion route with the app values and the trimmed prefix', async () => {
+        const { fake, wrapper } = setup({}, { suggestions: { germanVerb: [TANZEN] } });
+        const { result } = renderHook(
+            () => useDictionarySuggestions({ language: Lang.DE, pos: PartOfSpeech.verb, prefix: 'ta ', enabled: true }),
+            { wrapper }
+        );
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data).toEqual([TANZEN]);
+        expect(fake.suggestionRequests).toEqual([{ path: 'German/Verb', prefix: 'ta' }]);
+    });
+});
+
+describe('useAutocompleteTranslation with a type-ahead pick', () => {
+    it('sends the entry id, and caches the answer apart from the main-sense lookup', async () => {
+        const entryId = '55555555-5555-5555-5555-555555555555';
+        const { fake, wrapper } = setup(
+            { germanNoun: { status: 'found', cases: [{ caseName: 'genderDE', word: 'der' }] } },
+            { entries: { [entryId]: { status: 'found', cases: [{ caseName: 'genderDE', word: 'die' }] } } }
+        );
+        const picked = renderHook(
+            () => useAutocompleteTranslation({ language: Lang.DE, pos: PartOfSpeech.noun, query: 'See', entryId }),
+            { wrapper }
+        );
+        const main = renderHook(() => useAutocompleteTranslation({ language: Lang.DE, pos: PartOfSpeech.noun, query: 'See' }), {
+            wrapper,
+        });
+
+        await waitFor(() => expect(picked.result.current.data?.cases.get('genderDE' as never)).toBe('die'));
+        await waitFor(() => expect(main.result.current.data?.cases.get('genderDE' as never)).toBe('der'));
+        expect(fake.requests.map((request) => request.entry).sort()).toEqual([entryId, null].sort());
     });
 });
