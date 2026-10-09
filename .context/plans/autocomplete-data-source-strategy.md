@@ -696,7 +696,9 @@ in Postgres: EN 404,424 · ES 78,914 · DE 69,084 · ET 10,551 lexemes. Remainin
 
 ### Slice F — Translation table
 
-**In progress.** Decisions: D22.
+**Done 2026-10-09.** Decisions: D22. Gate: `autocomplete-e-estonian-lexicon.spec.ts` (search in
+English from the table, and the Ekilex fallback), 113/113 e2e. No new UI (D22): the translate route
+waits for Slice G. Server step: §14, "Translations".
 
 - **F1 (data) — done 2026-10-09.** Table `lexeme_translations` (migration 0024): one row per
   (English entry, sense, target word), with the English lemma and its search key, `entry_order`,
@@ -723,7 +725,14 @@ in Postgres: EN 404,424 · ES 78,914 · DE 69,084 · ET 10,551 lexemes. Remainin
   Also fixed in this step (Slice E): the list no longer closes by itself while an item is
   highlighted (mouse or arrows), and the E3 spec waits for the settled state before it opens the
   list (it failed once when the suggestions came after the pause).
-- **F3** — Estonian "search in English" from the table.
+- **F3 (Estonian "search in English") — done 2026-10-09.** registry.ts `withSearchInEnglish`: the
+  English word first becomes an Estonian verb — `firstEstonianVerb` (the table, Wiktionary order,
+  one-word "-ma" verbs; "run" → "jooksma"), else Ekilex `estonianVerbFor` (the verb in the most
+  meanings, as before) — then the normal lookup runs on that verb: the Estonian lexicon, then
+  Ekilex. Change: a verb found through Ekilex now also takes its forms from the local lexicon
+  when it is there (before, always from Ekilex). `lexiconFirst` no longer needs its
+  `searchInEnglish` skip. E2E: "run" fills with no Ekilex call; "zorp" (made up, stub only)
+  goes to Ekilex.
 
 - Ingest `translations[]` from the English entries into `lexeme_translation` (section 13).
 - Route: `GET /api/dictionary/translate/:fromLang/:query` returns the senses and, for each

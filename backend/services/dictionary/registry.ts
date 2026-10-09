@@ -11,6 +11,8 @@ import type { DictionaryAdapter } from './types';
 const generators: typeof import('./generators') = require('./generators');
 const eki: typeof import('./eki') = require('./eki');
 const { lexiconAdapter, lexiconFirst }: typeof import('./lexicon') = require('./lexicon');
+const { firstEstonianVerb }: typeof import('./translate') = require('./translate');
+const { NOT_FOUND }: typeof import('./types') = require('./types');
 
 export const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'] as const;
 export const PARTS_OF_SPEECH = [
@@ -19,6 +21,20 @@ export const PARTS_OF_SPEECH = [
 
 type Language = (typeof LANGUAGES)[number];
 type PartOfSpeech = (typeof PARTS_OF_SPEECH)[number];
+
+/**
+ * Estonian verb, with "Search verb in English" (step F3, D22). The English word first becomes an
+ * Estonian verb: from the local translation table (`firstEstonianVerb`), else from Ekilex (the
+ * verb in the most meanings, as before F3). Then `lookup` runs on that verb as if the user had
+ * typed it: the local lexicon, then Ekilex.
+ */
+function withSearchInEnglish(lookup: DictionaryAdapter): DictionaryAdapter {
+    return async (query, options) => {
+        if (!options.searchInEnglish) return lookup(query, options);
+        const verb = (await firstEstonianVerb(query)) ?? (await eki.estonianVerbFor(query));
+        return verb ? lookup(verb, { ...options, searchInEnglish: false }) : NOT_FOUND;
+    };
+}
 
 const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, DictionaryAdapter>>>> = {
     // Slice C2: verbs use the chain; nouns have no library, so the lexicon alone (a miss is not-found).
@@ -39,7 +55,7 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
     // Slice D2: Eesthetic in the lexicon first, then Ekilex — a real dictionary, so its answers stay
     // `found`. Adjectives: Eesthetic has (almost) none, so Ekilex only.
     Estonian: {
-        Verb: lexiconFirst(lexiconAdapter('Estonian', 'Verb'), eki.estonianVerb, { fallbackIs: 'dictionary' }),
+        Verb: withSearchInEnglish(lexiconFirst(lexiconAdapter('Estonian', 'Verb'), eki.estonianVerb, { fallbackIs: 'dictionary' })),
         Noun: lexiconFirst(lexiconAdapter('Estonian', 'Noun'), eki.estonianNoun, { fallbackIs: 'dictionary' }),
         Adjective: eki.estonianAdjective,
     },

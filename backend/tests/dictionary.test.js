@@ -332,10 +332,32 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
             expect(fetchMock).toHaveBeenCalled();
         });
 
-        it('search in English skips the lexicon and asks Ekilex', async () => {
+        it('search in English, empty translation table: Ekilex picks the verb, the lexicon gives its forms (F3)', async () => {
             const fetchMock = fakeEkilex();
-            await lookup('Estonian/Verb/run?searchInEnglish=true');
-            expect(fetchMock.mock.calls[0][0]).toBe('https://ekilex.test/api/meaning/search/run');
+            const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
+            expect(res.body.status).toBe('found');
+            expect(casesOf(res.body)).toMatchObject({ infinitiveMaEE: 'jooksma', infinitiveDaEE: 'joosta', kindelPresent1sEE: 'jooksen' });
+            // Only the meaning search: "jooksma" is in the Estonian lexicon, so no paradigm call.
+            expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['https://ekilex.test/api/meaning/search/run']);
+        });
+
+        describe('and the translation table (step F3)', () => {
+            beforeEach(() => loadLexiconFile(pool, path.join(__dirname, '../scripts/lexicon/fixtures/translations-en-fixture.jsonl')));
+
+            it('search in English takes the verb from the table ("run" → "jooksma"): Ekilex is not asked', async () => {
+                const fetchMock = fakeEkilex();
+                const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
+                expect(res.body.status).toBe('found');
+                expect(casesOf(res.body)).toMatchObject({ infinitiveMaEE: 'jooksma', infinitiveDaEE: 'joosta' });
+                expect(fetchMock).not.toHaveBeenCalled();
+            });
+
+            it('an English verb the table has no Estonian verb for goes to Ekilex', async () => {
+                const fetchMock = fakeEkilex();
+                const res = await lookup('Estonian/Verb/stroll?searchInEnglish=true');
+                expect(res.body).toEqual({ status: 'not-found', cases: [] });
+                expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['https://ekilex.test/api/meaning/search/stroll']);
+            });
         });
     });
 

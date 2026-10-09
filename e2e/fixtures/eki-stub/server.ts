@@ -48,8 +48,12 @@ const DETAILS: Record<number, Details> = {
     103: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: relations({ komp: ['väiksem'], superl: ['kõige väiksem', 'väikseim'] }) },
     104: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: relations({ komp: ['toredam'], superl: ['kõige toredam'] }) },
 };
-/** English word → meanings, each with its Estonian words (for "search in English"). */
-const MEANINGS: Record<string, string[][]> = { run: [['jooks', 'jooksma']] };
+/**
+ * English word → meanings, each with its Estonian words (for "search in English"). Since step F3 the
+ * backend asks only when its translation table has no Estonian verb: "zorp" is made up, so no table
+ * has it, and its verb "tantsima" is in the Estonian lexicon.
+ */
+const MEANINGS: Record<string, string[][]> = { run: [['jooks', 'jooksma']], zorp: [['tantsima']] };
 
 const requests: { rawPath: string }[] = [];
 

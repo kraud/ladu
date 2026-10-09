@@ -5,8 +5,9 @@
  *
  * Lookup (2 calls): `api/word/ids/{word}/eki/est` → word ids → `api/paradigm/details/{id}` →
  * forms, each with a `morphCode` (SgN, PlP, IndPrSg1, …: the codes the old transforms read).
- * "Search in English" (Estonian verb only, 3 calls): `api/meaning/search/{word}` → the Estonian
- * verb (a "-ma" word) found in the most meanings → its paradigm.
+ * "Search in English" (Estonian verb only): `estonianVerbFor` reads `api/meaning/search/{word}` → the
+ * Estonian verb (a "-ma" word) found in the most meanings. Since step F3 it is the fallback after
+ * the local translation table, and the verb's forms then come from the usual lookup (registry.ts).
  *
  * - Homonyms: the first word id whose paradigm has the wanted word class wins.
  * - Adjectives (Slice D3, 3 calls): the paradigm's word class is "noomen" like a noun's, so a
@@ -157,7 +158,7 @@ export function transformVerb(paradigm: Paradigm | undefined): LookupResult {
  * word, ties to the first listed. Ekilex's first meaning is not always the common one: for "run"
  * it lists "astuma" (to step) first, but "jooksma" is in two meanings, "astuma" in one.
  */
-async function estonianVerbFor(english: string): Promise<string | undefined> {
+export async function estonianVerbFor(english: string): Promise<string | undefined> {
     const search = await get<MeaningSearch>(`api/meaning/search/${encodeURIComponent(english)}`);
     const counts = new Map<string, number>(); // insertion order = first-listed order, for ties
     for (const meaning of search.results ?? []) {
@@ -204,7 +205,4 @@ export const estonianAdjective: DictionaryAdapter = async (query) => {
     const isAdjective = (details.lexemes ?? []).some((lexeme) => (lexeme.pos ?? []).some((pos) => pos.code === 'adj'));
     return isAdjective ? transformAdjective(match.paradigm, details) : NOT_FOUND;
 };
-export const estonianVerb: DictionaryAdapter = async (query, options) => {
-    const word = options.searchInEnglish ? await estonianVerbFor(query) : query;
-    return word ? transformVerb((await paradigmOf(word, 'verb'))?.paradigm) : NOT_FOUND;
-};
+export const estonianVerb: DictionaryAdapter = async (query) => transformVerb((await paradigmOf(query, 'verb'))?.paradigm);
