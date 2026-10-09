@@ -19,7 +19,8 @@
  * pattern). So besides a pick, Escape, Tab and a click outside, the list also closes by itself
  * once the user stops typing (the lookup's own pause, `LOOKUP_DEBOUNCE_MS`) on text that exactly
  * matches a listed word: the user typed a whole word, and the button is the next step. Typing
- * again, or asking for the list with arrow down, shows it again.
+ * again, or asking for the list with arrow down, shows it again. It never closes by itself while
+ * the user is in the list: a highlighted item (mouse over it, or arrow keys) keeps it open.
  *
  * Not slower to type in (design commandment 1): the text reaches the form on every key press as
  * before; only the list request waits for a short pause (`SUGGEST_DEBOUNCE_MS`).
@@ -63,7 +64,7 @@ export const TypeAheadInput = forwardRef<HTMLInputElement, TypeAheadInputProps>(
     const { control } = useFormContext();
     const listOff = useWatch({ control, name: config.offWhenField ?? NO_FIELD }) === true;
     const [open, setOpen] = useState(false);
-    // The text for which the user asked for the list again after it closed by itself (see the header).
+    // The text for which the user asked for the list again, or used it (see the header): no self-close.
     const [reopenedFor, setReopenedFor] = useState<string | null>(null);
 
     const prefix = useDebouncedCallback(value, SUGGEST_DEBOUNCE_MS);
@@ -93,6 +94,9 @@ export const TypeAheadInput = forwardRef<HTMLInputElement, TypeAheadInputProps>(
             onOpenChange={(next, details) => {
                 setOpen(next);
                 if (next && details.reason !== 'input-change') setReopenedFor(value);
+            }}
+            onItemHighlighted={(item) => {
+                if (item) setReopenedFor(value);
             }}
         >
             <Autocomplete.Input ref={ref} render={<Input />} autoComplete="off" {...inputProps} />

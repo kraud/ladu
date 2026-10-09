@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -25,6 +25,19 @@ test.afterAll(async () => {
 const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
 const applied = (page: Page) => page.getByText('Autocomplete values applied');
 
+/**
+ * Types `text` and opens the list for sure. "see" exactly matches the listed word "See", so the list
+ * closes by itself after the typing pause (D21) — and if the suggestions arrive late it may never
+ * show. So: wait for that settled state (the list closed, the button free), then ask for the list
+ * with arrow down, as a user would.
+ */
+async function typeAndOpenList(page: Page, field: Locator, text: string): Promise<void> {
+    await field.pressSequentially(text);
+    await expect(useValues(page)).toBeVisible();
+    await field.press('ArrowDown');
+    await expect(page.getByRole('listbox')).toBeVisible();
+}
+
 /** New word → part of speech → the card for `language` (its native name). */
 async function openCard(page: Page, partOfSpeech: RegExp, language: string): Promise<void> {
     await page.goto('/addWord');
@@ -46,7 +59,7 @@ test.describe.serial('Autocomplete — type-ahead list (Slice E)', () => {
 
     test('a prefix lists both meanings of "See"; a click on "die See" fills that meaning', async ({ page }) => {
         await openCard(page, /Noun/, 'Deutsch');
-        await page.getByLabel('Singular nominative').pressSequentially('see');
+        await typeAndOpenList(page, page.getByLabel('Singular nominative'), 'see');
 
         const list = page.getByRole('listbox');
         await expect(list.getByRole('option', { name: 'der See', exact: true })).toBeVisible();
@@ -64,7 +77,7 @@ test.describe.serial('Autocomplete — type-ahead list (Slice E)', () => {
     test('arrow keys and Enter pick a suggestion too', async ({ page }) => {
         await openCard(page, /Noun/, 'Deutsch');
         const field = page.getByLabel('Singular nominative');
-        await field.pressSequentially('see');
+        await typeAndOpenList(page, field, 'see');
 
         const derSee = page.getByRole('listbox').getByRole('option', { name: 'der See', exact: true });
         await expect(derSee).toBeVisible();

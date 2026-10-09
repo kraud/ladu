@@ -627,7 +627,6 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
     it('typing a whole word fills nothing, and the list closes by itself after the pause: the button is free', async () => {
         const { user, field } = setup();
         await user.type(field, 'See');
-        await screen.findByRole('listbox');
 
         // "See" is a listed word: after the lookup's pause the list closes, and the button shows.
         await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument(), { timeout: 2000 });
@@ -638,6 +637,17 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
         // Arrow down asks for the list again.
         await user.keyboard('{ArrowDown}');
         expect(await screen.findByRole('listbox')).toBeInTheDocument();
+    });
+
+    it('a whole word does not close the list while the user is in it (an item highlighted)', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'See');
+        await user.hover(await screen.findByRole('option', { name: 'die See' }));
+
+        // Longer than the lookup's pause: the list stays, and a click still picks.
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        await user.click(screen.getByRole('option', { name: 'die See' }));
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
     });
 
     it('a part of a word keeps the list open; Escape closes it', async () => {
