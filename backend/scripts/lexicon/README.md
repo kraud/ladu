@@ -24,7 +24,12 @@ node scripts/lexicon/load.js <file> --if-empty    # only if the language has no 
 npx tsx scripts/lexicon/ingest.ts de --fixture    # rewrites the committed test fixture, fixtures/lexicon-de-fixture.jsonl
 npx tsx scripts/lexicon/ingest.ts es|en [--fixture]   # the same for Spanish and English (Wiktionary)
 npx tsx scripts/lexicon/ingest-et.ts [--fixture]  # Estonian from Eesthetic (not Wiktionary) → lexicon-et-eesthetic-v1.0.5.jsonl.gz
+npx tsx scripts/lexicon/ingest-translations.ts [--fixture]   # Slice F: English translations[] → translations-en-<date>.jsonl.gz (~5 MB, ~300k rows)
 ```
+
+The translation file goes through the same `load.js` (its header format, `ladu-translations/1`,
+selects the `lexeme_translations` table) and the same Ansible playbook. A load replaces every
+translation row.
 
 Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
 `EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).

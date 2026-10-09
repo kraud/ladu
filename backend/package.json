@@ -9,7 +9,7 @@
     "dev": "nodemon --config nodemon.json api/index.js",
     "migrate": "node scripts/migrate.js",
     "lexicon:load": "node scripts/lexicon/load.js",
-    "lexicon:load:fixture": "node scripts/lexicon/load.js --if-empty scripts/lexicon/fixtures/lexicon-de-fixture.jsonl scripts/lexicon/fixtures/lexicon-es-fixture.jsonl scripts/lexicon/fixtures/lexicon-en-fixture.jsonl scripts/lexicon/fixtures/lexicon-et-fixture.jsonl",
+    "lexicon:load:fixture": "node scripts/lexicon/load.js --if-empty scripts/lexicon/fixtures/lexicon-de-fixture.jsonl scripts/lexicon/fixtures/lexicon-es-fixture.jsonl scripts/lexicon/fixtures/lexicon-en-fixture.jsonl scripts/lexicon/fixtures/lexicon-et-fixture.jsonl scripts/lexicon/fixtures/translations-en-fixture.jsonl",
     "test": "jest --config jest.config.js --forceExit --detectOpenHandles",
     "test:watch": "jest --config jest.config.js --watch --forceExit --detectOpenHandles",
     "test:coverage": "jest --config jest.config.js --coverage --forceExit --detectOpenHandles",

@@ -32,7 +32,7 @@ describe('loadLexiconFile', () => {
     it('loads the German fixture with source, licence, version and search keys', async () => {
         const result = await loadLexiconFile(pool, FIXTURE);
         const lines = fs.readFileSync(FIXTURE, 'utf8').trim().split('\n').length - 1;
-        expect(result).toEqual({ language: 'German', loaded: lines, skipped: false });
+        expect(result).toEqual({ kind: 'lexemes', language: 'German', loaded: lines, skipped: false });
         expect(await count('German')).toBe(lines);
 
         const { rows } = await pool.query(
@@ -70,7 +70,7 @@ describe('loadLexiconFile', () => {
     it('--if-empty loads into an empty language and skips a filled one', async () => {
         expect((await loadLexiconFile(pool, FIXTURE, { ifEmpty: true })).skipped).toBe(false);
         const small = writeFile('de-small.jsonl', [header('German'), { partOfSpeech: 'Noun', lemma: 'Tisch', forms: { genderDE: 'der' } }]);
-        expect(await loadLexiconFile(pool, small, { ifEmpty: true })).toEqual({ language: 'German', loaded: 0, skipped: true });
+        expect(await loadLexiconFile(pool, small, { ifEmpty: true })).toEqual({ kind: 'lexemes', language: 'German', loaded: 0, skipped: true });
         expect(await count('German')).toBeGreaterThan(1);
     });
 
@@ -104,6 +104,57 @@ describe('loadLexiconFile', () => {
         await expect(loadLexiconFile(pool, noFormat)).rejects.toThrow(/header format/);
         const unknownLanguage = writeFile('unknown.jsonl', [header('Klingon')]);
         await expect(loadLexiconFile(pool, unknownLanguage)).rejects.toThrow(/unknown language/);
+    });
+});
+
+describe('loadLexiconFile with a translation file (Slice F)', () => {
+    const TRANSLATIONS = path.join(__dirname, '../scripts/lexicon/fixtures/translations-en-fixture.jsonl');
+    const translationHeader = { format: 'ladu-translations/1', language: 'English', source: 'test', licence: 'CC BY-SA 4.0', sourceVersion: '2026-01-01' };
+    const row = (word, overrides = {}) => ({
+        englishLemma: 'lake', partOfSpeech: 'Noun', entryOrder: 0, sense: 'body of water', senseOrder: 0,
+        language: 'German', word, gender: 'der', tags: ['masculine'], ...overrides,
+    });
+    const countTranslations = async () => Number((await pool.query('SELECT count(*) FROM lexeme_translations')).rows[0].count);
+
+    it('loads the committed fixture into lexeme_translations, with both search keys', async () => {
+        const lines = fs.readFileSync(TRANSLATIONS, 'utf8').trim().split('\n').length - 1;
+        expect(await loadLexiconFile(pool, TRANSLATIONS)).toEqual({ kind: 'translations', language: 'English', loaded: lines, skipped: false });
+        expect(await countTranslations()).toBe(lines);
+
+        const { rows } = await pool.query(
+            `SELECT english_lemma, english_search_key, word, search_key, gender, tags, source, licence FROM lexeme_translations
+             WHERE language = 'German' AND part_of_speech = 'Noun' AND search_key = 'see' ORDER BY english_lemma`,
+        );
+        expect(rows.map((r) => [r.english_lemma, r.gender])).toEqual([['lake', 'der'], ['sea', 'die']]);
+        expect(rows[0]).toMatchObject({ english_search_key: 'lake', word: 'See', tags: ['masculine'], source: 'kaikki', licence: 'CC BY-SA 4.0' });
+    });
+
+    it('does not touch the lexemes table, and a lexicon load does not touch the translations', async () => {
+        await loadLexiconFile(pool, FIXTURE);
+        const lexemes = await count('German');
+        await loadLexiconFile(pool, TRANSLATIONS);
+        expect(await count('German')).toBe(lexemes);
+        const translations = await countTranslations();
+        await loadLexiconFile(pool, FIXTURE);
+        expect(await countTranslations()).toBe(translations);
+    });
+
+    it('a second load replaces every translation; --if-empty skips a filled table', async () => {
+        await loadLexiconFile(pool, TRANSLATIONS);
+        const one = writeFile('tr-one.jsonl', [translationHeader, row('See')]);
+        expect((await loadLexiconFile(pool, one, { ifEmpty: true })).skipped).toBe(true);
+        await loadLexiconFile(pool, one);
+        expect(await countTranslations()).toBe(1);
+    });
+
+    it('a bad row stops the load before anything changes', async () => {
+        await loadLexiconFile(pool, TRANSLATIONS);
+        const before = await countTranslations();
+        const broken = writeFile('tr-broken.jsonl', [translationHeader, row('See'), row('See', { language: 'Klingon' })]);
+        await expect(loadLexiconFile(pool, broken)).rejects.toThrow(/line 3: unknown target language "Klingon"/);
+        const noTags = writeFile('tr-no-tags.jsonl', [translationHeader, row('See', { tags: 'masculine' })]);
+        await expect(loadLexiconFile(pool, noTags)).rejects.toThrow(/line 2: tags must be an array of strings/);
+        expect(await countTranslations()).toBe(before);
     });
 });
 

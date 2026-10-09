@@ -55,16 +55,18 @@ export interface LexiconFileRow {
 
 /**
  * Writes a lexicon file: a header line, then one row per line. Gzipped for the real files
- * (.data/out/…jsonl.gz), plain for committed fixtures (readable diffs).
+ * (.data/out/…jsonl.gz), plain for committed fixtures (readable diffs). `format` is
+ * "ladu-lexicon/1" (lexemes, the default) or "ladu-translations/1" (Slice F; load.js reads both).
  */
 export function writeLexiconFile(
     file: string,
-    header: { language: string; source: string; licence: string; sourceVersion: string; attribution: string },
-    rows: LexiconFileRow[],
+    header: { format?: string; language: string; source: string; licence: string; sourceVersion: string; attribution: string },
+    rows: object[],
 ): void {
     const fsModule: typeof import('fs') = require('fs');
     const zlib: typeof import('zlib') = require('zlib');
-    const text = [{ format: 'ladu-lexicon/1', ...header }, ...rows].map((value) => JSON.stringify(value)).join('\n') + '\n';
+    const { format = 'ladu-lexicon/1', ...rest } = header;
+    const text = [{ format, ...rest }, ...rows].map((value) => JSON.stringify(value)).join('\n') + '\n';
     fsModule.mkdirSync(path.dirname(file), { recursive: true });
     fsModule.writeFileSync(file, file.endsWith('.gz') ? zlib.gzipSync(text) : text);
 }

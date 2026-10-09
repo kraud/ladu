@@ -696,6 +696,20 @@ in Postgres: EN 404,424 · ES 78,914 · DE 69,084 · ET 10,551 lexemes. Remainin
 
 ### Slice F — Translation table
 
+**In progress.** Decisions: D22.
+
+- **F1 (data) — done 2026-10-09.** Table `lexeme_translations` (migration 0024): one row per
+  (English entry, sense, target word), with the English lemma and its search key, `entry_order`,
+  `sense` + `sense_order`, target `language`, `word` + `search_key`, `gender` (der/die/das,
+  el/la/"el/la"; NULL if absent or two German genders) and the raw `tags`. Not tied to `lexemes`
+  (no foreign key: English adjectives/adverbs have no lexeme rows yet). Built by
+  `scripts/lexicon/ingest-translations.ts` into its own file, `translations-en-2026-10-03.jsonl.gz`
+  (5.2 MB, 298,568 rows: DE 148,036 · ES 132,956 · ET 17,576; nouns 192k, verbs 49k, adjectives
+  50k, adverbs 8k), header format `ladu-translations/1`. `load.js` reads either format; a
+  translation load replaces the whole table. Local: load 7.5 s, 87 MB with indexes, reverse
+  lookup ("banco") 3 ms. Fixture: 11 English words, 204 rows. Backup skips the rows too.
+- **F2** — the translate route. **F3** — Estonian "search in English" from the table.
+
 - Ingest `translations[]` from the English entries into `lexeme_translation` (section 13).
 - Route: `GET /api/dictionary/translate/:fromLang/:query` returns the senses and, for each
   sense, the candidate words per language with gender.
@@ -752,6 +766,7 @@ Reads the same tables. No plan yet.
 | D19 | 2026-10-09 | Several variant forms in one cell (Ekilex "häid, heasid"; Eesthetic overabundant cells): fill the **first listed** (the standard form first). |
 | D20 | 2026-10-09 | Slice D3, Estonian adjective comparison. Ekilex `api/word/details/{id}` (3rd call) gives the part of speech (the adjective check is back, superseding that part of D18) and the relation groups `komp` / `superl`. The form gets a stored checkbox `periphrasticSuperlativeEE` ("no one-word superlative"): when checked, the superlative shows as read-only "kõige " + comparative and is NOT stored; the superlative is no longer required. Autocomplete prefers the one-word superlative ("suurim") and unchecks the box; when only "kõige …" exists it checks the box; an adjective with no comparison relations ("eestikeelne") changes neither. First stored checkbox in the form engine (stored as the string "true", only when checked). |
 | D21 | 2026-10-09 | Slice E type-ahead. (1) **A pick fills the card at once** (the same fill as "Use autocomplete values", for the picked entry). Typing without a pick changes nothing: the user fills the fields by hand or presses the button. (2) A pick fills the **exact entry** chosen (der See vs die See): the list carries `entryId`, the lookup takes `?entry=`. (3) Only the field the autocomplete already reads (one per card); no list while "Search verb in English" is checked. (4) Estonian: local lexicon only (~10,500 words; Ekilex has no prefix search). (5) Added at E2: an open list covers the card footer and hides the rest of the page from screen readers, so it closes on a pick, Escape, Tab or a click outside, and also by itself when the user stops typing (500 ms) on a word that is in the list. |
+| D22 | 2026-10-09 | Slice F translations. (1) Ingest nouns, verbs, adjectives and adverbs (adjectives/adverbs ready for Slice H). (2) When no sense has an Estonian word, the translate route also asks Ekilex meaning search and adds its Estonian words, marked as from Ekilex (not tied to a sense). (3) Estonian "search in English": the first English sense (Wiktionary order) that has an Estonian word ending in -ma, its first such word; none → Ekilex as before. (4) No new UI in Slice F: the route waits for Slice G. File: a separate `translations-en-<date>.jsonl.gz` (not inside the English lexicon file), same `load.js` and playbook. |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)
@@ -858,8 +873,12 @@ marked "not fully sure". Commands run from `deploy/ansible/`. Details:
       (staging only first: add `-e '{"lexicon_environments": ["staging"]}'`).
 - [ ] **Each later language** (Slices C1, C2, D): the same playbook with that language's file. One
       run per file; a load replaces only its own language.
+- [ ] **Translations** (Slice F): the same playbook with
+      `translations-en-2026-10-03.jsonl.gz` (build: `ingest-translations.ts`). The backup step
+      above also skips its rows (`lexeme_translations`).
 - [ ] **Check** on staging and prod:
-      `SELECT language, source_version, count(*) FROM lexemes GROUP BY 1, 2;`
+      `SELECT language, source_version, count(*) FROM lexemes GROUP BY 1, 2;` and
+      `SELECT language, count(*) FROM lexeme_translations GROUP BY 1;`
 - [ ] **Try it** on staging: a German noun the old library could not decline (`Polizei`) fills
       without the "not fully sure" notice.
 

@@ -169,6 +169,13 @@
       "when": 1791553539910,
       "tag": "0023_lexemes_prefix_index",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791559803919,
+      "tag": "0024_lexeme_translations",
+      "breakpoints": true
     }
   ]
 }

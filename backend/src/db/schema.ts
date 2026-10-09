@@ -792,3 +792,45 @@ export const lexemes = pgTable(
         index('lexemes_lookup_idx').on(table.language, table.partOfSpeech, table.searchKey.op('text_pattern_ops')),
     ],
 );
+
+// ---------------------------------------------------------------------------
+// Lexeme translations (autocomplete-data-source-strategy.md Slice F, decision D22).
+// The `translations[]` of the English Wiktionary entries: one row per (English
+// entry, sense, target word). English is the hub: a lookup from Spanish finds the
+// English senses that list the Spanish word, then the other languages' words of
+// those senses. Reference data like `lexemes`: rebuilt from a versioned file by
+// `scripts/lexicon/load.js`, skipped by the nightly backup, referenced by nothing.
+// ---------------------------------------------------------------------------
+export const lexemeTranslations = pgTable(
+    'lexeme_translations',
+    {
+        id:               uuid('id').primaryKey().defaultRandom(),
+        // The English entry the row comes from: lemma, part of speech ('Noun', …) and its position
+        // among the source's entries for that lemma and part of speech (0 = first).
+        englishLemma:     text('english_lemma').notNull(),
+        englishSearchKey: text('english_search_key').notNull(),
+        partOfSpeech:     varchar('part_of_speech', { length: 16 }).notNull(),
+        entryOrder:       integer('entry_order').notNull().default(0),
+        // The sense, as Wiktionary labels its translation table ("body of water"), and its position
+        // in the entry (0 = the first table = usually the main sense).
+        sense:            text('sense').notNull(),
+        senseOrder:       integer('sense_order').notNull(),
+        // The translation: target language (the app's value, 'Spanish'), the word, its search key
+        // (lib/lexicon/searchKey.ts), the noun gender as the form stores it (der/die/das, el/la/el/la;
+        // NULL when not given or ambiguous), and Wiktionary's own tags (["masculine", "plural"]).
+        language:         varchar('language', { length: 16 }).notNull(),
+        word:             text('word').notNull(),
+        searchKey:        text('search_key').notNull(),
+        gender:           varchar('gender', { length: 8 }),
+        tags:             jsonb('tags').$type<string[]>().notNull().default([]),
+        source:           varchar('source', { length: 32 }).notNull(),
+        licence:          varchar('licence', { length: 32 }).notNull(),
+        sourceVersion:    varchar('source_version', { length: 32 }).notNull(),
+    },
+    (table) => [
+        // From English: every sense of an English word.
+        index('lexeme_translations_english_idx').on(table.partOfSpeech, table.englishSearchKey),
+        // From another language: the English senses that list the word (reverse lookup).
+        index('lexeme_translations_word_idx').on(table.language, table.partOfSpeech, table.searchKey),
+    ],
+);
