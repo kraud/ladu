@@ -659,7 +659,8 @@ in Postgres: EN 404,424 · ES 78,914 · DE 69,084 · ET 10,551 lexemes. Remainin
 
 ### Slice E — Type-ahead list
 
-**In progress.** Decisions: D21.
+**Done 2026-10-09.** Decisions: D21. Gate spec: `e2e/tests/autocomplete-f-type-ahead.spec.ts`
+(112/112 e2e). No server step: migration 0023 runs with the normal deploy.
 
 - **E1 (backend) — done 2026-10-09.** `GET /api/dictionary/:language/:partOfSpeech?prefix=&limit=`
   → `{ suggestions: [{ entryId, lemma, hint? }] }`. From the lexicon only (Estonian adjectives:
@@ -678,7 +679,11 @@ in Postgres: EN 404,424 · ES 78,914 · DE 69,084 · ET 10,551 lexemes. Remainin
   Typing after a pick drops it. No list while "Search verb in English" is checked. The list
   closes on a pick, Escape, Tab, a click outside, and by itself after the lookup's pause (500 ms)
   when the text exactly matches a listed word (D21 addition); arrow down shows it again.
-- **E3** — e2e spec: type a prefix, pick a suggestion, see the form fill.
+- **E3 — done 2026-10-09.** `autocomplete-f-type-ahead.spec.ts`: "see" lists der See and die See,
+  a click on die See fills that meaning (genitive "See", the footer shows "applied"); arrows +
+  Enter pick der See (genitive "Sees"); a Spanish pick ("bailar") fills the conjugation; a whole
+  word typed without a pick ("Polizei") closes the list by itself and the button fills. Options
+  are found by name, because the order differs between the CI fixture and the full lexicon.
 
 - While the user types in a query field (for example the German `infinitive`), a select list
   shows matching lemmas, ordered by frequency rank. A pick fills the form as before.
