@@ -1,7 +1,9 @@
 # Autocomplete & lexical data sources — research record
 
-*Status: research done (2026-09-25). Reviewed against the code and the per-slice plan written
-2026-10-08 (sections 9 to 12). No code was written yet.*
+*Status (2026-10-09, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
+translation table and route). Next: **Slice G** (own plan document, see its section in §9), then
+**Slice H**. Server steps for everything done so far: §14 (do once the plan is complete).
+History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
 whether one source can replace the current per-language set of libraries and APIs.*
@@ -33,6 +35,9 @@ stores forms. Section 5 explains that limit. Section 6 gives the recommendation.
 ---
 
 ## 2. Current state
+
+*As of the research (2026-09-25). Replaced since: one route `GET /api/dictionary/…` with the local
+lexicon (Slices A–D), the type-ahead list (E) and the translation route (F); see §9.*
 
 Eight routes, all `GET /api/autocompleteTranslations/*`, all behind `protect`:
 
@@ -750,6 +755,22 @@ The user types one word in any language. Ladu shows the senses, then builds a dr
 every translation and its forms in one step. The user confirms. This needs Slices E and F.
 It gets its own plan document.
 
+**Ready for it (hand-off, 2026-10-09):**
+- `GET /api/dictionary/translate/:fromLanguage/:partOfSpeech/:query` (F2): the senses of a word
+  in any of the 4 languages, each with the words of all 4 languages and the noun gender; an
+  `ekilex` part with Estonian words when no sense has one. `backend/services/dictionary/translate.ts`.
+- `GET /api/dictionary/:language/:partOfSpeech?prefix=` (E1): the type-ahead list, with `entryId`;
+  the lookup `GET /api/dictionary/:language/:partOfSpeech/:query?entry=<entryId>` fills one exact
+  entry (der See vs die See).
+- The form fill: `applyLookup` (frontend `AutocompleteRow.tsx`), and `TranslationCard`'s
+  `pickSuggestion` (a pick → lemma + exact entry → fill).
+- Data: `lexeme_translations` (nouns, verbs, adjectives, adverbs; German 148k, Spanish 133k,
+  Estonian 18k rows). The lookup (forms) exists for nouns and verbs in all 4 languages and for
+  Estonian adjectives only, until Slice H.
+- Open points for that plan: how a translation word is matched to a lexicon entry (a word can
+  have several entries: use the gender from the translation to pick der See / die See), what the
+  draft shows when a language has no word or no forms, and the Estonian thinness (D22).
+
 ### Slice H — Adjectives and adverbs for EN, ES and DE
 
 New selector tables and new form configurations. Planned after parity (decision D6). The Slice 0
@@ -879,7 +900,7 @@ their data. After a restore, the `load` script refills them from the versioned f
 ## 14. VPS checklist (do once the slices are deployed)
 
 Code reaches staging and production through the normal deploy (merge to `main`): that creates
-the `lexemes` table (migrations 0021, 0022). The server-side steps below are manual. Until they
+the `lexemes` and `lexeme_translations` tables (migrations 0021–0025). The server-side steps below are manual. Until they
 run, autocomplete still works, but every lexicon language answers only from the old libraries,
 marked "not fully sure". Commands run from `deploy/ansible/`. Details:
 `.dev-context/infrastructure-guide/02-environments-and-databases.md`, "The autocomplete lexicon".
