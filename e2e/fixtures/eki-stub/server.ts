@@ -7,6 +7,8 @@
  * few fixed words; any other word has no entry, which the backend reports as `not-found`:
  *   GET /api/word/ids/{word}/eki/est   → [wordId]
  *   GET /api/paradigm/details/{wordId} → [{ wordClass, paradigmForms: [{ morphCode, value }] }]
+ *   GET /api/word/details/{wordId}     → { lexemes: [{ pos }], wordRelationDetails: { level1WordRelationGroups } }
+ *                                         (part of speech + comparison relations komp/superl, decision D20)
  *   GET /api/meaning/search/{word}     → { results: [{ meaningWords: [{ wordValue, lang }] }] }
  * The `ekilex-api-key` header is not checked.
  *
@@ -30,7 +32,21 @@ const WORDS: Record<string, [number, Paradigm]> = {
     õun: [101, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'õun', PlN: 'õunad', SgG: 'õuna', PlG: 'õunte', SgP: 'õuna', PlP: 'õunu', SgAdt: 'õuna' }) }],
     maja: [102, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'maja', PlN: 'majad', SgG: 'maja', PlG: 'majade', SgP: 'maja', PlP: 'maju', SgAdt: 'majja' }) }],
     väike: [103, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'väike', PlN: 'väikesed', SgG: 'väikese', PlG: 'väikeste', SgP: 'väikest', PlP: 'väikesi' }) }],
+    // MADE-UP comparison data (see DETAILS): the real Ekilex lists "toredaim" too. Here "tore" has only
+    // "kõige toredam", so the e2e spec can exercise the rare "no one-word superlative" branch.
+    tore: [104, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'tore', PlN: 'toredad', SgG: 'toreda' }) }],
     jooksma: [201, { wordClass: 'verb', paradigmForms: forms({ Sup: 'jooksma', Inf: 'joosta', IndPrSg1: 'jooksen', IndIpfSg1: 'jooksin', PtsPtPs: 'jooksnud' }) }],
+};
+type Details = { lexemes: { pos: { code: string }[] }[]; wordRelationDetails?: { level1WordRelationGroups: { groupTypeCode: string; members: { wordValue: string }[] }[] } };
+const relations = (groups: Record<string, string[]>) => ({
+    level1WordRelationGroups: Object.entries(groups).map(([groupTypeCode, words]) => ({ groupTypeCode, members: words.map((wordValue) => ({ wordValue })) })),
+});
+/** word id → word details. Nouns: part of speech only. */
+const DETAILS: Record<number, Details> = {
+    101: { lexemes: [{ pos: [{ code: 's' }] }] },
+    102: { lexemes: [{ pos: [{ code: 's' }] }] },
+    103: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: relations({ komp: ['väiksem'], superl: ['kõige väiksem', 'väikseim'] }) },
+    104: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: relations({ komp: ['toredam'], superl: ['kõige toredam'] }) },
 };
 /** English word → meanings, each with its Estonian words (for "search in English"). */
 const MEANINGS: Record<string, string[][]> = { run: [['jooks', 'jooksma']] };
@@ -57,6 +73,9 @@ const server = createServer((req, res) => {
     if ((match = /^\/api\/paradigm\/details\/(\d+)$/.exec(url.pathname))) {
         const entry = Object.values(WORDS).find(([id]) => id === Number(match![1]));
         return send(200, entry ? [entry[1]] : []);
+    }
+    if ((match = /^\/api\/word\/details\/(\d+)$/.exec(url.pathname))) {
+        return send(200, DETAILS[Number(match[1])] ?? {});
     }
     if ((match = /^\/api\/meaning\/search\/([^/]+)$/.exec(url.pathname))) {
         const meanings = MEANINGS[decodeURIComponent(match[1])] ?? [];

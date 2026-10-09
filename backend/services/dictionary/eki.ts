@@ -9,8 +9,13 @@
  * verb (a "-ma" word) found in the most meanings → its paradigm.
  *
  * - Homonyms: the first word id whose paradigm has the wanted word class wins.
- * - Adjectives: Ekilex gives them the word class "noomen" like nouns, so they match by
- *   declension; there is no separate adjective check (D18).
+ * - Adjectives (Slice D3, 3 calls): the paradigm's word class is "noomen" like a noun's, so a
+ *   third call, `api/word/details/{id}`, checks the part of speech (`adj`) and reads the
+ *   comparison relations: group `komp` (comparative) and `superl` (superlative). A one-word
+ *   superlative ("suurim") fills `ulivorreEE` and sends `periphrasticSuperlativeEE: "false"`;
+ *   when only "kõige …" exists, no superlative is sent and the flag is "true" (the form then
+ *   shows "kõige " + the comparative). An adjective with no comparison relations
+ *   ("eestikeelne") sends neither.
  * - Several forms for one code ("häid", "heasid"): the first listed (D19).
  *
  * An unreachable service, a non-OK answer, a non-JSON body, a timeout or a missing key is an
@@ -32,6 +37,11 @@ const MAX_HOMONYMS = 3;
 
 export interface ParadigmForm { morphCode: string; value: string; questionable?: boolean }
 export interface Paradigm { wordClass?: string; paradigmForms?: ParadigmForm[] }
+/** The parts of `api/word/details/{id}` the adjective adapter reads. */
+export interface WordDetails {
+    lexemes?: { pos?: { code: string }[] }[];
+    wordRelationDetails?: { level1WordRelationGroups?: { groupTypeCode: string; members?: { wordValue: string }[] }[] };
+}
 interface MeaningSearch { results?: { meaningWords?: { wordValue: string; lang: string }[] }[] }
 
 /** Read at call time, so tests and the e2e stub can point it elsewhere. */
@@ -55,13 +65,13 @@ async function get<T>(path: string): Promise<T> {
     }
 }
 
-/** The paradigm of the first homonym with the wanted word class, or undefined. */
-async function paradigmOf(word: string, wordClass: 'noomen' | 'verb'): Promise<Paradigm | undefined> {
+/** The word id and paradigm of the first homonym with the wanted word class, or undefined. */
+async function paradigmOf(word: string, wordClass: 'noomen' | 'verb'): Promise<{ id: number; paradigm: Paradigm } | undefined> {
     const ids = await get<number[]>(`api/word/ids/${encodeURIComponent(word)}/eki/est`);
     for (const id of (Array.isArray(ids) ? ids : []).slice(0, MAX_HOMONYMS)) {
         const paradigms = await get<Paradigm[]>(`api/paradigm/details/${id}`);
         const match = (Array.isArray(paradigms) ? paradigms : []).find((p) => p.wordClass === wordClass);
-        if (match) return match;
+        if (match) return { id, paradigm: match };
     }
     return undefined;
 }
@@ -93,10 +103,33 @@ export function transformNoun(paradigm: Paradigm | undefined): LookupResult {
     ]));
 }
 
-export function transformAdjective(paradigm: Paradigm | undefined): LookupResult {
+const PERIPHRASTIC = 'kõige ';
+
+/**
+ * Comparative and superlative from the word's relation groups (decision D20). The first listed
+ * comparative; the first one-word superlative, else the "kõige …" flag. Nothing when the word
+ * has no comparison relations.
+ */
+export function comparisonCases(details: WordDetails): [string, string][] {
+    const groups = details.wordRelationDetails?.level1WordRelationGroups ?? [];
+    const members = (code: string) => (groups.find((g) => g.groupTypeCode === code)?.members ?? []).map((m) => m.wordValue).filter(Boolean);
+    const comparative = members('komp')[0];
+    const superlatives = members('superl');
+    if (!comparative && superlatives.length === 0) return [];
+    const synthetic = superlatives.find((word) => !word.startsWith(PERIPHRASTIC));
+    return [
+        ['keskvorreEE', comparative ?? ''],
+        ...(synthetic
+            ? ([['ulivorreEE', synthetic], ['periphrasticSuperlativeEE', 'false']] as [string, string][])
+            : ([['periphrasticSuperlativeEE', 'true']] as [string, string][])),
+    ];
+}
+
+export function transformAdjective(paradigm: Paradigm | undefined, details: WordDetails = {}): LookupResult {
     if (!paradigm) return NOT_FOUND;
     return found(toCases([
         ['algvorreEE', formOf(paradigm, 'SgN')],
+        ...comparisonCases(details),
         ...DECLENSION.map(([code, caseName]): [string, string] => [caseName, formOf(paradigm, code)]),
     ]));
 }
@@ -134,9 +167,15 @@ async function estonianVerbFor(english: string): Promise<string | undefined> {
     return best;
 }
 
-export const estonianNoun: DictionaryAdapter = async (query) => transformNoun(await paradigmOf(query, 'noomen'));
-export const estonianAdjective: DictionaryAdapter = async (query) => transformAdjective(await paradigmOf(query, 'noomen'));
+export const estonianNoun: DictionaryAdapter = async (query) => transformNoun((await paradigmOf(query, 'noomen'))?.paradigm);
+export const estonianAdjective: DictionaryAdapter = async (query) => {
+    const match = await paradigmOf(query, 'noomen');
+    if (!match) return NOT_FOUND;
+    const details = await get<WordDetails>(`api/word/details/${match.id}`);
+    const isAdjective = (details.lexemes ?? []).some((lexeme) => (lexeme.pos ?? []).some((pos) => pos.code === 'adj'));
+    return isAdjective ? transformAdjective(match.paradigm, details) : NOT_FOUND;
+};
 export const estonianVerb: DictionaryAdapter = async (query, options) => {
     const word = options.searchInEnglish ? await estonianVerbFor(query) : query;
-    return word ? transformVerb(await paradigmOf(word, 'verb')) : NOT_FOUND;
+    return word ? transformVerb((await paradigmOf(word, 'verb'))?.paradigm) : NOT_FOUND;
 };

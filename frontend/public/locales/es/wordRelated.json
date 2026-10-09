@@ -233,6 +233,7 @@
         "algvorreEE": "Grado positivo",
         "keskvorreEE": "Grado comparativo",
         "ulivorreEE": "Grado superlativo",
+        "periphrasticSuperlativeEE": "Sin superlativo de una sola palabra (kõige + comparativo)",
         "pluralNimetavEE": "Plural nominativo",
         "singularOmastavEE": "Singular genitivo",
         "pluralOmastavEE": "Plural genitivo",

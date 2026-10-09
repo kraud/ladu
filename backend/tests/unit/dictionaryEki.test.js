@@ -2,7 +2,7 @@
  * Estonian paradigm transforms (services/dictionary/eki.ts) on the Ekilex paradigm shape
  * (`api/paradigm/details/{id}`): forms with a `morphCode` (decision D18).
  */
-const { transformAdjective, transformNoun, transformVerb } = require('../../services/dictionary/eki');
+const { comparisonCases, transformAdjective, transformNoun, transformVerb } = require('../../services/dictionary/eki');
 
 const casesOf = (result) => Object.fromEntries(result.cases.map(({ caseName, word }) => [caseName, word]));
 const paradigm = (wordClass, forms) => ({
@@ -49,6 +49,44 @@ describe('transformAdjective', () => {
     it('declines like a noun (Ekilex gives adjectives the word class "noomen")', () => {
         const result = transformAdjective(paradigm('noomen', [['SgN', 'hea'], ['SgG', 'hea'], ['PlN', 'head']]));
         expect(casesOf(result)).toEqual({ algvorreEE: 'hea', singularOmastavEE: 'hea', pluralNimetavEE: 'head' });
+    });
+
+    it('adds the comparative and the superlative from the relation groups (D20)', () => {
+        const details = relations({ komp: ['parem'], superl: ['kõige parem', 'parim'] });
+        expect(casesOf(transformAdjective(paradigm('noomen', [['SgN', 'hea']]), details))).toEqual({
+            algvorreEE: 'hea',
+            keskvorreEE: 'parem',
+            ulivorreEE: 'parim',
+            periphrasticSuperlativeEE: 'false',
+        });
+    });
+});
+
+const relations = (groups) => ({
+    wordRelationDetails: {
+        level1WordRelationGroups: Object.entries(groups).map(([groupTypeCode, words]) => ({ groupTypeCode, members: words.map((wordValue) => ({ wordValue })) })),
+    },
+});
+
+describe('comparisonCases (D20)', () => {
+    it('a one-word superlative fills the field and leaves the checkbox unchecked', () => {
+        expect(comparisonCases(relations({ komp: ['suurem'], superl: ['kõige suurem', 'suurim'] }))).toEqual([
+            ['keskvorreEE', 'suurem'],
+            ['ulivorreEE', 'suurim'],
+            ['periphrasticSuperlativeEE', 'false'],
+        ]);
+    });
+
+    it('only "kõige …": no superlative is sent, the checkbox is checked', () => {
+        expect(comparisonCases(relations({ komp: ['toredam'], superl: ['kõige toredam'] }))).toEqual([
+            ['keskvorreEE', 'toredam'],
+            ['periphrasticSuperlativeEE', 'true'],
+        ]);
+    });
+
+    it('no comparison relations at all (a non-gradable adjective): nothing, the checkbox is left alone', () => {
+        expect(comparisonCases(relations({ 'ls-esiosaga': ['eestikeelsus'] }))).toEqual([]);
+        expect(comparisonCases({})).toEqual([]);
     });
 });
 

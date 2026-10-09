@@ -84,6 +84,8 @@ const NO_FIELD = '__autocomplete_none__';
  * instead of checking them.
  */
 function valueToApply(field: FieldConfig, looked: string): unknown {
+    // A stored checkbox (Estonian "kõige …" superlative, D20) arrives as "true" / "false".
+    if (field.kind === 'checkbox') return looked === 'true';
     return field.kind === 'multi-select' ? field.decode(looked) : looked;
 }
 
@@ -99,6 +101,7 @@ function valueToApply(field: FieldConfig, looked: string): unknown {
  * a freshly-fetched (properly-cased) dictionary word.
  */
 function caseWordMatches(field: FieldConfig, currentRaw: unknown, available: string): boolean {
+    if (field.kind === 'checkbox') return (currentRaw === true) === (available === 'true');
     if (field.kind === 'multi-select') {
         const current = Array.isArray(currentRaw) ? (currentRaw as string[]) : [];
         return field.encode(current) === available;

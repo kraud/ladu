@@ -162,9 +162,27 @@ interface FieldConfigBase {
     layout?: FieldLayout;
 }
 
+/**
+ * While `when` matches, a text field is replaced by read-only text: `prefix` + the current value
+ * of the sibling field `fromField` (Estonian adjective superlative: "kõige " + the comparative,
+ * decision D20). While derived, the field is not validated and not stored — like a hidden field.
+ */
+export interface FieldDerivation {
+    when: FieldVisibility;
+    prefix: string;
+    fromField: string;
+}
+
+/** True while `field` shows derived text instead of its own input (see `FieldDerivation`). */
+export function isDerived(field: FieldConfig, values: Record<string, unknown>): boolean {
+    const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
+    return derivation !== undefined && matchesVisibility(derivation.when, values[derivation.when.field]);
+}
+
 export interface TextFieldConfig extends FieldConfigBase {
     kind: 'text';
     caseName: CaseName;
+    derivedWhen?: FieldDerivation;
     /** Lowercase the value before persisting. Noun text cases: all languages except German (which keeps capitalization). */
     lowercase: boolean;
     /** Capitalize the first letter, as the user types and before persisting. German nouns (a rule of the language). */
@@ -178,8 +196,19 @@ export interface RadioFieldConfig extends FieldConfigBase {
     options: RadioOption[];
 }
 
+/**
+ * Not stored by default. With a `caseName` (and `persisted` not `false`) it is stored as the word
+ * "true" when checked and omitted when unchecked (Estonian `periphrasticSuperlative`, D20). A
+ * stored checkbox is a property of the word, so it never counts as a case to fill
+ * (`isPersistedCaseField`).
+ */
 export interface CheckboxFieldConfig extends FieldConfigBase {
     kind: 'checkbox';
+}
+
+/** True for a checkbox whose state is stored as a case (see `CheckboxFieldConfig`). */
+export function isStoredCheckbox(field: FieldConfig): boolean {
+    return field.kind === 'checkbox' && field.persisted !== false && Boolean(field.caseName);
 }
 
 export interface SelectFieldConfig extends FieldConfigBase {

@@ -233,6 +233,7 @@
         "algvorreEE": "Positive degree",
         "keskvorreEE": "Comparative degree",
         "ulivorreEE": "Superlative degree",
+        "periphrasticSuperlativeEE": "No one-word superlative (kõige + comparative)",
         "pluralNimetavEE": "Plural nominative",
         "singularOmastavEE": "Singular genitive",
         "pluralOmastavEE": "Plural genitive",

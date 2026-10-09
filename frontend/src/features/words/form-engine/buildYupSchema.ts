@@ -15,6 +15,8 @@
  *    — a hidden field always validates as present-but-optional, regardless of
  *    its own `required` flag (Spanish adjective's gender branch, German
  *    adverb's non-gradable branch — `forms-adjectives-adverbs.md`).
+ *  - `derivedWhen` (text fields) does the same while the field shows derived
+ *    read-only text (Estonian "kõige …" superlative, decision D20).
  */
 import * as yup from 'yup';
 import { matchesVisibility, type FieldConfig, type FieldKind, type TranslationFormConfig } from './configs/types';
@@ -107,13 +109,21 @@ export function buildYupSchema(config: TranslationFormConfig, t: TranslateFn): y
     for (const field of config.fields) {
         const schema = baseFieldSchema(field, t);
         const visibility = field.visibleWhen;
-        shape[field.name] = visibility
+        const visible = visibility
             ? schema.when(visibility.field, {
                   is: (value: unknown) => matchesVisibility(visibility, value),
                   then: () => schema,
                   otherwise: () => hiddenFallbackSchema(field.kind),
               })
             : schema;
+        const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
+        shape[field.name] = derivation
+            ? visible.when(derivation.when.field, {
+                  is: (value: unknown) => matchesVisibility(derivation.when, value),
+                  then: () => hiddenFallbackSchema(field.kind),
+                  otherwise: () => visible,
+              })
+            : visible;
     }
     return yup.object(shape);
 }

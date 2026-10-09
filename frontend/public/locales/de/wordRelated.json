@@ -233,6 +233,7 @@
         "algvorreEE": "Positivform",
         "keskvorreEE": "Komparativform",
         "ulivorreEE": "Superlativform",
+        "periphrasticSuperlativeEE": "Kein einteiliger Superlativ (kõige + Komparativ)",
         "pluralNimetavEE": "Plural Nominativ",
         "singularOmastavEE": "Singular Genitiv",
         "pluralOmastavEE": "Plural Genitiv",

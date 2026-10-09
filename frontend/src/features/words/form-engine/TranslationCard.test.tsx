@@ -6,7 +6,7 @@ import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 import { mockMobileViewport } from '@/test/viewport';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
-import type { FieldConfig } from './configs/types';
+import type { CaseName, FieldConfig } from './configs/types';
 import {
     casesToFieldValues,
     fieldsHaveData,
@@ -551,6 +551,74 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
     });
 });
 
+describe('TranslationCard — Estonian adjective superlative (D20)', () => {
+    const CHECKBOX = 'No one-word superlative (kõige + comparative)';
+
+    it('a lookup with only "kõige …" checks the box and shows the superlative as read-only "kõige" + comparative', async () => {
+        const user = userEvent.setup();
+        server.use(
+            ...makeAutocompleteHandlers({
+                estonianAdjective: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'keskvorreEE', word: 'toredam' },
+                        { caseName: 'periphrasticSuperlativeEE', word: 'true' },
+                    ],
+                },
+            }).handlers
+        );
+
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.adjective} />);
+        await user.type(screen.getByLabelText('Positive degree'), 'tore');
+        await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+        await waitFor(() => expect(screen.getByRole('checkbox', { name: CHECKBOX })).toBeChecked());
+        expect(screen.getByTestId('derived-ulivorre')).toHaveValue('kõige toredam');
+        expect(screen.getByTestId('derived-ulivorre')).toHaveAttribute('readonly');
+    });
+
+    it('a lookup with a one-word superlative fills it and leaves the box unchecked', async () => {
+        const user = userEvent.setup();
+        server.use(
+            ...makeAutocompleteHandlers({
+                estonianAdjective: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'keskvorreEE', word: 'suurem' },
+                        { caseName: 'ulivorreEE', word: 'suurim' },
+                        { caseName: 'periphrasticSuperlativeEE', word: 'false' },
+                    ],
+                },
+            }).handlers
+        );
+
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.adjective} />);
+        await user.click(screen.getByRole('checkbox', { name: CHECKBOX })); // checked by hand first …
+        await user.type(screen.getByLabelText('Positive degree'), 'suur');
+        await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+        await waitFor(() => expect(screen.getByLabelText('Superlative degree')).toHaveValue('suurim'));
+        expect(screen.getByRole('checkbox', { name: CHECKBOX })).not.toBeChecked(); // … and unchecked by the lookup
+        expect(screen.queryByTestId('derived-ulivorre')).not.toBeInTheDocument();
+    });
+
+    it('the read-only view shows the derived superlative of a saved "kõige …" adjective', () => {
+        renderWithProviders(
+            <TranslationCard
+                lang={Lang.EE}
+                pos={PartOfSpeech.adjective}
+                displayOnly
+                initialCases={[
+                    { caseName: 'algvorreEE' as CaseName, word: 'tore' },
+                    { caseName: 'keskvorreEE' as CaseName, word: 'toredam' },
+                    { caseName: 'periphrasticSuperlativeEE' as CaseName, word: 'true' },
+                ]}
+            />
+        );
+        expect(screen.getByTestId('derived-ulivorre')).toHaveTextContent('kõige toredam');
+    });
+});
+
 describe('TranslationCard — bare (inside a dialog that has its own header)', () => {
     it('by default draws the header (name, ring, collapse toggle) and the frame', () => {
         const { container } = renderWithProviders(<TranslationCard lang={Lang.EN} />);
@@ -683,15 +751,43 @@ describe('fieldsToCases', () => {
         ]);
     });
 
-    it('still drops checkboxes (no PoS backs a case with one)', () => {
-        const checkbox: FieldConfig = {
-            kind: 'checkbox',
-            name: 'searchInEnglish',
-            caseName: CASE_NAME,
-            labelKey: 'searchInEnglish',
-            required: false,
-        };
+    it('drops a form-only checkbox (persisted: false, e.g. Estonian searchInEnglish)', () => {
+        const checkbox: FieldConfig = { kind: 'checkbox', name: 'searchInEnglish', labelKey: 'searchInEnglish', required: false, persisted: false };
         expect(fieldsToCases([checkbox], { searchInEnglish: true })).toEqual([]);
+    });
+
+    describe('a stored checkbox and a derived text field (Estonian superlative, D20)', () => {
+        const flag: FieldConfig = { kind: 'checkbox', name: 'periphrasticSuperlative', caseName: CASE_NAME, labelKey: 'flag', required: false };
+        const comparative: FieldConfig = { kind: 'text', name: 'keskvorre', caseName: 'keskvorreEE' as CaseName, labelKey: 'k', required: false, lowercase: true };
+        const superlative: FieldConfig = {
+            kind: 'text',
+            name: 'ulivorre',
+            caseName: 'ulivorreEE' as CaseName,
+            labelKey: 'u',
+            required: false,
+            lowercase: true,
+            derivedWhen: { when: { field: 'periphrasticSuperlative', equals: true }, prefix: 'kõige ', fromField: 'keskvorre' },
+        };
+        const fields = [comparative, superlative, flag];
+
+        it('checked: the flag is stored as "true" and the derived superlative is not stored', () => {
+            expect(fieldsToCases(fields, { keskvorre: 'toredam', ulivorre: 'leftover', periphrasticSuperlative: true })).toEqual([
+                { caseName: 'keskvorreEE', word: 'toredam' },
+                { caseName: CASE_NAME, word: 'true' },
+            ]);
+        });
+
+        it('unchecked: the flag is not stored and the superlative is', () => {
+            expect(fieldsToCases(fields, { keskvorre: 'suurem', ulivorre: 'suurim', periphrasticSuperlative: false })).toEqual([
+                { caseName: 'keskvorreEE', word: 'suurem' },
+                { caseName: 'ulivorreEE', word: 'suurim' },
+            ]);
+        });
+
+        it('hydrates the checkbox from a stored "true", and leaves it unchecked otherwise', () => {
+            expect(casesToFieldValues(fields, [{ caseName: CASE_NAME, word: 'true' }]).periphrasticSuperlative).toBe(true);
+            expect(casesToFieldValues(fields, []).periphrasticSuperlative).toBe(false);
+        });
     });
 
     it('encodes a multi-select selection into the acronym string', () => {

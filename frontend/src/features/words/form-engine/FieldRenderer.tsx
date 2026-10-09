@@ -111,15 +111,44 @@ export function FieldRenderer({
     const watchedAdornmentValue = useWatch({ control, name: adornmentSource ?? field.name });
     const adornmentText = field.adornment ? field.adornment.values[String(watchedAdornmentValue ?? '')] : undefined;
 
+    // `derivedWhen` (D20): while it matches, the field is read-only text built from a sibling — the
+    // Estonian superlative "kõige " + comparative. Same dummy-name trick as above when unused.
+    const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
+    const derivationControl = useWatch({ control, name: derivation?.when.field ?? field.name });
+    const derivationSource = useWatch({ control, name: derivation?.fromField ?? field.name });
+    const derivedText =
+        derivation && matchesVisibility(derivation.when, derivationControl)
+            ? `${derivation.prefix}${String(derivationSource ?? '').trim() || '…'}`
+            : undefined;
+
     if (!isVisible) {
         return null;
     }
+
 
     return (
         <FormField
             control={control}
             name={field.name}
             render={({ field: rhf }) => {
+                if (derivedText !== undefined) {
+                    // Before the display-only "empty optional field is hidden" rule: the stored value is empty on purpose.
+                    return displayOnly ? (
+                        <FormItem className={compact ? 'flex flex-row flex-wrap items-baseline gap-x-2 gap-y-0' : undefined}>
+                            <FormLabel className="text-xs! font-normal! text-muted-foreground!">{label}</FormLabel>
+                            <p className="text-sm text-foreground" data-testid={`derived-${field.name}`}>
+                                {derivedText}
+                            </p>
+                        </FormItem>
+                    ) : (
+                        <FormItem className={itemClass}>
+                            <FieldLabelRow label={label} required={false} />
+                            <FormControl>
+                                <Input value={derivedText} readOnly data-testid={`derived-${field.name}`} className="bg-muted text-muted-foreground" />
+                            </FormControl>
+                        </FormItem>
+                    );
+                }
                 const hidden = isHiddenInDisplayOnly(field, rhf.value, displayOnly);
                 if (hidden) {
                     return <></>;

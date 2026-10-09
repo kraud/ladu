@@ -11,7 +11,9 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *
  *  1. A noun in the lexicon fills locally: Ekilex is not asked.
  *  2. A verb in the lexicon fills every person locally.
- *  3. "Search verb in English" goes to Ekilex (meaning search) and fills the Estonian verb.
+ *  3. Adjectives (Ekilex, D20): a one-word superlative fills the field; with only "kõige …" the
+ *     new checkbox is checked and the superlative shows as read-only "kõige" + comparative.
+ *  4. "Search verb in English" goes to Ekilex (meaning search) and fills the Estonian verb.
  *
  * Nothing is saved: the subject is the lookup. Needs the stub, so no other backend may be
  * running on :5001 (see e2e/README.md, "Stub servers").
@@ -25,6 +27,7 @@ test.afterAll(async () => {
 });
 
 const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
+const NO_ONE_WORD_SUPERLATIVE = 'No one-word superlative (kõige + comparative)';
 // The stub's log is shared by every worker (other specs run in parallel), so a check looks only
 // for requests about ITS OWN word, never for an empty log.
 const stubLog = async (request: APIRequestContext) =>
@@ -69,6 +72,27 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         await useValues(page).click();
         await expect(page.getByLabel('-da infinitive')).toHaveValue('tantsida');
         expect(askedAbout((await stubLog(request)).slice(before), 'tantsima')).toEqual([]);
+    });
+
+    test('an adjective with a one-word superlative fills it, the "kõige" box stays unchecked (D20)', async ({ page }) => {
+        await openEstonian(page, /Adjective/);
+        await page.getByLabel('Positive degree').fill('väike');
+
+        await useValues(page).click();
+        await expect(page.getByLabel('Comparative degree')).toHaveValue('väiksem');
+        await expect(page.getByLabel('Superlative degree')).toHaveValue('väikseim');
+        await expect(page.getByRole('checkbox', { name: NO_ONE_WORD_SUPERLATIVE })).not.toBeChecked();
+    });
+
+    test('an adjective with only "kõige …" checks the box and shows the superlative read-only (D20)', async ({ page }) => {
+        await openEstonian(page, /Adjective/);
+        await page.getByLabel('Positive degree').fill('tore');
+
+        await useValues(page).click();
+        await expect(page.getByRole('checkbox', { name: NO_ONE_WORD_SUPERLATIVE })).toBeChecked();
+        const superlative = page.getByTestId('derived-ulivorre');
+        await expect(superlative).toHaveValue('kõige toredam');
+        await expect(superlative).toHaveAttribute('readonly', '');
     });
 
     test('search verb in English asks Ekilex and fills the Estonian verb', async ({ page, request }) => {

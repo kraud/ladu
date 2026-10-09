@@ -47,7 +47,7 @@ import type { WordItem } from '@/ts/interfaces';
 import { getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
 import { AutocompleteRow } from './AutocompleteRow';
 import { buildYupSchema } from './buildYupSchema';
-import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
+import { isDerived, isStoredCheckbox, matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
 import { capitalizeFirst } from './fieldLayout';
 import { FieldRenderer } from './FieldRenderer';
@@ -147,8 +147,10 @@ export interface TranslationCardProps {
  * Dropped, in order: a field hidden by its own `visibleWhen` (the sibling it
  * depends on doesn't currently equal the configured value); a field marked
  * `persisted: false` (form-only, e.g. Estonian `searchInEnglish`, Spanish
- * adjective `gender`); a `checkbox` field (no PoS backs a case with one
- * today); and finally, any field whose resulting word is blank.
+ * adjective `gender`); a text field currently showing derived text
+ * (`derivedWhen`, Estonian "kõige …" superlative); an unchecked or unstored
+ * `checkbox` (a stored one is saved as "true" — `isStoredCheckbox`, D20); and
+ * finally, any field whose resulting word is blank.
  *
  * Exported for direct unit testing against hand-built configs — the encode
  * round-trip (multi-select) and the two drop rules above don't need a real
@@ -159,7 +161,11 @@ export function fieldsToCases(fields: FieldConfig[], values: Record<string, unkn
     for (const field of fields) {
         if (field.persisted === false) continue;
         if (field.visibleWhen && !matchesVisibility(field.visibleWhen, values[field.visibleWhen.field])) continue;
-        if (field.kind === 'checkbox') continue;
+        if (isDerived(field, values)) continue;
+        if (field.kind === 'checkbox') {
+            if (isStoredCheckbox(field) && values[field.name] === true) cases.push({ caseName: field.caseName!, word: 'true' });
+            continue;
+        }
         if (!field.caseName) continue; // a case-less radio (Spanish adjective's `gender`) — always `persisted: false` in practice, guarded again here for the type checker.
 
         const raw = values[field.name];
@@ -187,7 +193,7 @@ export function casesToFieldValues(fields: FieldConfig[], cases: WordItem[] | un
     const byCaseName = new Map((cases ?? []).map((item) => [item.caseName, item.word]));
     return Object.fromEntries(
         fields.map((field) => {
-            if (field.kind === 'checkbox') return [field.name, false];
+            if (field.kind === 'checkbox') return [field.name, isStoredCheckbox(field) && byCaseName.get(field.caseName!) === 'true'];
             if (!field.caseName) return [field.name, '']; // a case-less radio has nothing to hydrate from
             if (field.kind === 'multi-select') return [field.name, field.decode(byCaseName.get(field.caseName) ?? '')];
             return [field.name, byCaseName.get(field.caseName) ?? ''];
@@ -287,7 +293,14 @@ export function TranslationCard({
         );
     }, [config, watched]);
     const visibleFields = useMemo(
-        () => branchFields.filter((field) => !isHiddenInDisplayOnly(field, watched[field.name], displayOnly)),
+        () =>
+            branchFields.filter((field) => {
+                // A field showing derived text (Estonian "kõige …" superlative, D20) has an empty value on purpose.
+                if (isDerived(field, watched)) return true;
+                // A checkbox is a form control: the read-only view shows its effect, not "true"/"false".
+                if (displayOnly && field.kind === 'checkbox') return false;
+                return !isHiddenInDisplayOnly(field, watched[field.name], displayOnly);
+            }),
         [branchFields, watched, displayOnly],
     );
 

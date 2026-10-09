@@ -202,7 +202,16 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
     const WORDS = {
         õun: [11, { wordClass: 'noomen', paradigmForms: forms([['SgN', 'õun'], ['PlN', 'õunad']]) }],
         hea: [12, { wordClass: 'noomen', paradigmForms: forms([['SgN', 'hea'], ['PlP', 'häid'], ['PlP', 'heasid']]) }],
+        // An adjective with no one-word superlative (the real Ekilex has few; this one is made up for the test).
+        tore: [13, { wordClass: 'noomen', paradigmForms: forms([['SgN', 'tore']]) }],
         jooksma: [21, { wordClass: 'verb', paradigmForms: forms([['Sup', 'jooksma'], ['Inf', 'joosta']]) }],
+    };
+    /** word id → `api/word/details` (part of speech + comparison relations, D20). */
+    const group = (groupTypeCode, words) => ({ groupTypeCode, members: words.map((wordValue) => ({ wordValue })) });
+    const DETAILS = {
+        11: { lexemes: [{ pos: [{ code: 's' }] }] },
+        12: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: { level1WordRelationGroups: [group('komp', ['parem']), group('superl', ['kõige parem', 'parim'])] } },
+        13: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: { level1WordRelationGroups: [group('komp', ['toredam']), group('superl', ['kõige toredam'])] } },
     };
     /** A fake Ekilex: answers by path, like e2e/fixtures/eki-stub/server.ts. */
     function fakeEkilex({ ok = true } = {}) {
@@ -215,6 +224,7 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
                 const entry = Object.values(WORDS).find(([id]) => id === Number(match[1]));
                 return json(entry ? [entry[1]] : []);
             }
+            if ((match = /^\/api\/word\/details\/(\d+)$/.exec(path))) return json(DETAILS[match[1]] ?? {});
             if ((match = /^\/api\/meaning\/search\/(.+)$/.exec(path))) {
                 // Like the real answer for "run": "astuma" (to step) is listed first, "jooksma" is in more meanings.
                 const meaning = (...est) => ({ meaningWords: [...est.map((wordValue) => ({ wordValue, lang: 'est' })), { wordValue: 'run', lang: 'eng' }] });
@@ -242,10 +252,35 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         expect(fetchMock.mock.calls[0][1].headers).toEqual({ 'ekilex-api-key': 'test-key' });
     });
 
-    it('an adjective declines like a noun and takes the first listed variant (D18, D19)', async () => {
-        fakeEkilex();
+    it('an adjective declines like a noun, takes the first listed variant, and gets its comparison (D19, D20)', async () => {
+        const fetchMock = fakeEkilex();
         const res = await lookup('Estonian/Adjective/hea');
-        expect(casesOf(res.body)).toEqual({ algvorreEE: 'hea', pluralOsastavEE: 'häid' });
+        expect(casesOf(res.body)).toEqual({
+            algvorreEE: 'hea',
+            pluralOsastavEE: 'häid',
+            keskvorreEE: 'parem',
+            ulivorreEE: 'parim',
+            periphrasticSuperlativeEE: 'false',
+        });
+        expect(fetchMock.mock.calls.map(([url]) => new URL(url).pathname)).toEqual([
+            '/api/word/ids/hea/eki/est',
+            '/api/paradigm/details/12',
+            '/api/word/details/12',
+        ]);
+    });
+
+    it('an adjective with only "kõige …" checks the box and sends no superlative (D20)', async () => {
+        fakeEkilex();
+        expect(casesOf((await lookup('Estonian/Adjective/tore')).body)).toEqual({
+            algvorreEE: 'tore',
+            keskvorreEE: 'toredam',
+            periphrasticSuperlativeEE: 'true',
+        });
+    });
+
+    it('a noun typed into the adjective form is not-found (the part-of-speech check, D20)', async () => {
+        fakeEkilex();
+        expect((await lookup(`Estonian/Adjective/${encodeURIComponent('õun')}`)).body).toEqual({ status: 'not-found', cases: [] });
     });
 
     it('a word with the wrong word class, or no entry, is not-found', async () => {

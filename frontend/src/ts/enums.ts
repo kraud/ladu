@@ -83,6 +83,9 @@ export enum AdjectiveCases {
     algvorreEE = "algvorreEE",
     keskvorreEE = "keskvorreEE",
     ulivorreEE = "ulivorreEE",
+    // A stored checkbox, not a word form: "true" when the adjective has no one-word superlative, so
+    // the superlative is "kõige" + the comparative and is not stored itself (decision D20).
+    periphrasticSuperlativeEE = "periphrasticSuperlativeEE",
 
     // NB! singularNivetav is the same as algvorre
     pluralNimetavEE = "pluralNimetavEE",
