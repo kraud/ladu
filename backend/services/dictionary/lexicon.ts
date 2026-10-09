@@ -37,15 +37,24 @@ export function lexiconAdapter(language: string, partOfSpeech: string): Dictiona
 }
 
 /**
- * Lexicon first; on a miss, the rule-based library. A library answer is a guess, not a dictionary
- * entry, so its `found` becomes `partial` — the form then shows the "not fully sure" notice
- * (decision D2).
+ * Lexicon first; on a miss, the fallback.
+ * - `fallback: 'guess'` (default): a rule-based library. Its answer is a guess, not a dictionary
+ *   entry, so its `found` becomes `partial` — the form shows the "not fully sure" notice (D2).
+ * - `fallback: 'dictionary'`: an online dictionary (Ekilex). Its `found` stays `found`.
+ * A search by English word (`searchInEnglish`) goes straight to the fallback: the lexicon is
+ * keyed by the word in its own language.
  */
-export function lexiconFirst(lexicon: DictionaryAdapter, fallback: DictionaryAdapter): DictionaryAdapter {
+export function lexiconFirst(
+    lexicon: DictionaryAdapter,
+    fallback: DictionaryAdapter,
+    { fallbackIs = 'guess' }: { fallbackIs?: 'guess' | 'dictionary' } = {},
+): DictionaryAdapter {
     return async (query, options) => {
-        const fromLexicon = await lexicon(query, options);
-        if (fromLexicon.status === 'found') return fromLexicon;
-        const guess: LookupResult = await fallback(query, options);
-        return guess.status === 'found' ? { ...guess, status: 'partial' } : guess;
+        if (!options.searchInEnglish) {
+            const fromLexicon = await lexicon(query, options);
+            if (fromLexicon.status === 'found') return fromLexicon;
+        }
+        const answer: LookupResult = await fallback(query, options);
+        return fallbackIs === 'guess' && answer.status === 'found' ? { ...answer, status: 'partial' } : answer;
     };
 }

@@ -14,6 +14,7 @@ const { loadLexiconFile } = require('../scripts/lexicon/load');
 const FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-de-fixture.jsonl');
 const ES_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-es-fixture.jsonl');
 const EN_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-en-fixture.jsonl');
+const ET_FIXTURE = path.join(__dirname, '../scripts/lexicon/fixtures/lexicon-et-fixture.jsonl');
 
 beforeAll(() => db.connectDB());
 beforeEach(() => db.clearDB());
@@ -270,6 +271,37 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         } finally {
             process.env.EKILEX_API_URL = configured;
         }
+    });
+
+    describe('with the Estonian lexicon loaded (Eesthetic fixture, Slice D2)', () => {
+        beforeEach(() => loadLexiconFile(pool, ET_FIXTURE));
+
+        it('a noun in the lexicon is answered locally: found, and Ekilex is not called', async () => {
+            const fetchMock = fakeEkilex();
+            const res = await lookup('Estonian/Noun/maja');
+            expect(res.body.status).toBe('found');
+            expect(casesOf(res.body)).toMatchObject({ pluralNimetavEE: 'majad', pluralOsastavEE: 'maju', shortFormEE: 'majja' });
+            expect(fetchMock).not.toHaveBeenCalled();
+        });
+
+        it('a verb in the lexicon fills all persons and the past participle', async () => {
+            fakeEkilex();
+            const cases = casesOf((await lookup('Estonian/Verb/tantsima')).body);
+            expect(cases).toMatchObject({ infinitiveDaEE: 'tantsida', kindelPresent1sEE: 'tantsin', kindelSimplePast3plEE: 'tantsisid', kindelPastPerfect2plEE: 'tantsinud' });
+        });
+
+        it('a word not in the lexicon goes to Ekilex, and its answer stays found (a dictionary, not a guess)', async () => {
+            const fetchMock = fakeEkilex();
+            const res = await lookup(`Estonian/Noun/${encodeURIComponent('õun')}`);
+            expect(res.body.status).toBe('found');
+            expect(fetchMock).toHaveBeenCalled();
+        });
+
+        it('search in English skips the lexicon and asks Ekilex', async () => {
+            const fetchMock = fakeEkilex();
+            await lookup('Estonian/Verb/run?searchInEnglish=true');
+            expect(fetchMock.mock.calls[0][0]).toBe('https://ekilex.test/api/meaning/search/run');
+        });
     });
 
     it('answers 502 when the service is unreachable, answers an error, or no key is set', async () => {

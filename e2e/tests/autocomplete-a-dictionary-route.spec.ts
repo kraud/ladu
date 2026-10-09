@@ -14,8 +14,8 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *  2. Spanish verb (library adapter): participle and present fill in.
  *  3. Spanish noun the word list does not know: the guessed gender comes as `partial`, with the
  *     "not fully sure" notice.
- *  4. Estonian noun (Ekilex adapter, answered by the local stub): the plural fills in,
- *     and the stub received "õun" URL-encoded as UTF-8.
+ *  4. Estonian adjective (Ekilex adapter, answered by the local stub): the plural fills in,
+ *     and the stub received "väike" URL-encoded as UTF-8.
  *  5. An Estonian word the dictionary does not know: "we don't know this word".
  *
  * The Estonian cases need the e2e backend to use the stub: the repo-root .env must NOT set
@@ -84,21 +84,23 @@ test.describe.serial('Autocomplete — one dictionary route (Slice A)', () => {
         await expect(notice).toBeVisible();
     });
 
-    test('Estonian noun through the stub dictionary: the plural fills in, and the word reaches the service URL-encoded', async ({
+    // An adjective: Estonian adjectives always go to Ekilex (the local lexicon has none since Slice D2), so this
+    // reaches the stub on every machine — a noun like "õun" may now be answered by a local full lexicon.
+    test('Estonian adjective through the stub dictionary: the plural fills in, and the word reaches the service URL-encoded', async ({
         page,
         request,
     }) => {
         const before = ((await (await request.get(`${EKI_STUB_URL}/__requests`)).json()) as unknown[]).length;
 
-        await openNewWord(page, /Noun/, 'Eesti');
-        await page.getByLabel('Singular nominative').fill('õun');
+        await openNewWord(page, /Adjective/, 'Eesti');
+        await page.getByLabel('Positive degree').fill('väike');
 
         await useValues(page).click();
-        await expect(page.getByLabel('Plural nominative')).toHaveValue('õunad');
+        await expect(page.getByLabel('Plural nominative')).toHaveValue('väikesed');
 
         const received = ((await (await request.get(`${EKI_STUB_URL}/__requests`)).json()) as { rawPath: string }[]).slice(before);
-        expect(received, 'the backend did not call the stub — is EKILEX_API_URL set in the repo-root .env, or is a dev backend already running?').toContainEqual(
-            expect.objectContaining({ rawPath: '/api/word/ids/%C3%B5un/eki/est' }),
+        expect(received, 'the backend did not call the stub — is EKILEX_API_URL set in the repo-root .env, or is a backend already running on :5001?').toContainEqual(
+            expect.objectContaining({ rawPath: '/api/word/ids/v%C3%A4ike/eki/est' }),
         );
     });
 

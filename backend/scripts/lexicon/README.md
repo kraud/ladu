@@ -22,7 +22,12 @@ npx tsx scripts/lexicon/ingest.ts de              # → .data/out/lexicon-de-<ka
 node scripts/lexicon/load.js <file>               # replaces that language's rows in the DATABASE_URL database, in one transaction
 node scripts/lexicon/load.js <file> --if-empty    # only if the language has no rows yet (test / e2e databases)
 npx tsx scripts/lexicon/ingest.ts de --fixture    # rewrites the committed test fixture, fixtures/lexicon-de-fixture.jsonl
+npx tsx scripts/lexicon/ingest.ts es|en [--fixture]   # the same for Spanish and English (Wiktionary)
+npx tsx scripts/lexicon/ingest-et.ts [--fixture]  # Estonian from Eesthetic (not Wiktionary) → lexicon-et-eesthetic-v1.0.5.jsonl.gz
 ```
+
+Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
+`EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).
 
 The file format (JSONL, a header line then one lexeme per line) is described at the top of
 `load.js`. The table is `lexemes` (`backend/src/db/schema.ts`). Re-ingest is manual, about

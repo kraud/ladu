@@ -36,7 +36,13 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Verb: lexiconFirst(lexiconAdapter('German', 'Verb'), generators.germanVerb),
         Noun: lexiconFirst(lexiconAdapter('German', 'Noun'), generators.germanNoun),
     },
-    Estonian: { Verb: eki.estonianVerb, Noun: eki.estonianNoun, Adjective: eki.estonianAdjective },
+    // Slice D2: Eesthetic in the lexicon first, then Ekilex — a real dictionary, so its answers stay
+    // `found`. Adjectives: Eesthetic has (almost) none, so Ekilex only.
+    Estonian: {
+        Verb: lexiconFirst(lexiconAdapter('Estonian', 'Verb'), eki.estonianVerb, { fallbackIs: 'dictionary' }),
+        Noun: lexiconFirst(lexiconAdapter('Estonian', 'Noun'), eki.estonianNoun, { fallbackIs: 'dictionary' }),
+        Adjective: eki.estonianAdjective,
+    },
 };
 
 export function findAdapter(language: string, partOfSpeech: string): DictionaryAdapter | undefined {

@@ -19,8 +19,7 @@
 
 const fs: typeof import('fs') = require('fs');
 const path: typeof import('path') = require('path');
-const zlib: typeof import('zlib') = require('zlib');
-const { DATA_DIR, MANIFEST_FILE, POS_MAP, kaikkiFile, sampleFile, readLines }: typeof import('./common') = require('./common');
+const { DATA_DIR, MANIFEST_FILE, POS_MAP, kaikkiFile, sampleFile, readLines, writeLexiconFile }: typeof import('./common') = require('./common');
 const { selectCases }: typeof import('../../lib/lexicon/select') = require('../../lib/lexicon/select');
 const de: typeof import('../../lib/lexicon/selectors/de') = require('../../lib/lexicon/selectors/de');
 const es: typeof import('../../lib/lexicon/selectors/es') = require('../../lib/lexicon/selectors/es');
@@ -66,14 +65,8 @@ const ATTRIBUTION =
     'Derived from English Wiktionary (https://en.wiktionary.org) via kaikki.org / Wiktextract, CC BY-SA 4.0. ' +
     'Frequency ranks from FrequencyWords (github.com/hermitdave/FrequencyWords), CC BY-SA 4.0.';
 
-interface LexiconRow {
-    partOfSpeech: string;
-    lemma: string;
-    frequencyRank: number | null;
-    /** 0, 1, … in source order among the written rows of the same part of speech and lemma (decision D15). */
-    entryOrder: number;
-    forms: Record<string, string>;
-}
+/** entryOrder: 0, 1, … in source order among the written rows of the same part of speech and lemma (decision D15). */
+type LexiconRow = import('./common').LexiconFileRow;
 
 /**
  * The cases a selector table fills from the lemma alone (fallbacks, "the lemma is the singular",
@@ -156,13 +149,10 @@ async function main(): Promise<void> {
         output = rows.filter((row) => wanted.has(`${row.partOfSpeech}|${row.lemma}`));
     }
 
-    const header = { format: 'ladu-lexicon/1', language: config.language, source: 'kaikki', licence: 'CC BY-SA 4.0', sourceVersion: version, attribution: ATTRIBUTION };
-    const text = [header, ...output].map((value) => JSON.stringify(value)).join('\n') + '\n';
     const file = fixture
         ? path.join(__dirname, 'fixtures', `lexicon-${lang}-fixture.jsonl`)
         : path.join(DATA_DIR, 'out', `lexicon-${lang}-${version}.jsonl.gz`);
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, fixture ? text : zlib.gzipSync(text));
+    writeLexiconFile(file, { language: config.language, source: 'kaikki', licence: 'CC BY-SA 4.0', sourceVersion: version, attribution: ATTRIBUTION }, output);
 
     const byPos = output.reduce<Record<string, number>>((acc, row) => ({ ...acc, [row.partOfSpeech]: (acc[row.partOfSpeech] ?? 0) + 1 }), {});
     console.log(`${config.language} ${version}: ${output.length} lexemes ${JSON.stringify(byPos)}, ${skippedEmpty} entries skipped (nothing beyond the lemma)`);

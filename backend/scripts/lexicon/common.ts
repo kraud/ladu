@@ -44,6 +44,31 @@ export const KAIKKI_RAW_URL = 'https://kaikki.org/dictionary/raw-wiktextract-dat
 export const KAIKKI_RAW_FILE = path.join(DATA_DIR, 'raw-wiktextract-data.jsonl.gz');
 export const MANIFEST_FILE = path.join(DATA_DIR, 'manifest.json');
 
+/** One line of a lexicon file after the header (the format load.js reads). */
+export interface LexiconFileRow {
+    partOfSpeech: string;
+    lemma: string;
+    frequencyRank: number | null;
+    entryOrder: number;
+    forms: Record<string, string>;
+}
+
+/**
+ * Writes a lexicon file: a header line, then one row per line. Gzipped for the real files
+ * (.data/out/…jsonl.gz), plain for committed fixtures (readable diffs).
+ */
+export function writeLexiconFile(
+    file: string,
+    header: { language: string; source: string; licence: string; sourceVersion: string; attribution: string },
+    rows: LexiconFileRow[],
+): void {
+    const fsModule: typeof import('fs') = require('fs');
+    const zlib: typeof import('zlib') = require('zlib');
+    const text = [{ format: 'ladu-lexicon/1', ...header }, ...rows].map((value) => JSON.stringify(value)).join('\n') + '\n';
+    fsModule.mkdirSync(path.dirname(file), { recursive: true });
+    fsModule.writeFileSync(file, file.endsWith('.gz') ? zlib.gzipSync(text) : text);
+}
+
 /** Eesthetic v1.0.5 (Zenodo 14069724, CC BY 4.0): labelled Estonian paradigms, top ~5,000 nouns and verbs. */
 export const EESTHETIC_URL = 'https://zenodo.org/api/records/14069724/files/eesthetic-v1.0.5.zip/content';
 export const EESTHETIC_ZIP = path.join(DATA_DIR, 'eesthetic-v1.0.5.zip');

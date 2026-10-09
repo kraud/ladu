@@ -624,6 +624,14 @@ German list is gone (licence study action B9 done). D15 refined (half-complete r
 
 ### Slice D — Estonian from local data
 
+**Done 2026-10-09.** D1: Ekilex replaces sonapi (D18, D19; "search in English" takes the verb in
+the most meanings). D2: Eesthetic → `lexemes` (10,551 nouns and verbs, 0.5 MB file) via the new
+`scripts/lexicon/ingest-et.ts`; Estonian noun and verb use `lexiconFirst(…, { fallbackIs:
+'dictionary' })` — an Ekilex answer stays `found`; search in English skips the lexicon; adjectives
+are Ekilex only. Estonian fixture (17 words) joins the e2e/CI load. The A spec's encoding check
+moved to the adjective "väike" (always online). Gate spec: `e2e/tests/autocomplete-e-estonian-lexicon.spec.ts`.
+VPS: load `lexicon-et-eesthetic-v1.0.5.jsonl.gz` too (§14).
+
 - Ingest Eesthetic (labelled forms, top ~5,000 nouns and verbs) and the Pikhof list
   (existence, part of speech, frequency) into the same tables. Use the Eesthetic `cells`
   table to map its codes to our case names. The codes are the same `sonapi` codes the
@@ -637,11 +645,17 @@ German list is gone (licence study action B9 done). D15 refined (half-complete r
 - Decide the online fallback (Q-D1). Credits: Eesthetic (CC BY 4.0), Pikhof list
   (CC BY-SA 4.0).
 
-### Parity checkpoint
+### Parity checkpoint — REACHED 2026-10-09
 
 Every (language, part of speech) pair that has autocomplete today answers from the new route.
 It fills at least the same cases as before, with the same or better results. The Slice 0
 numbers prove it. Only after this checkpoint do Slices E, F and H start.
+
+Status at the checkpoint: all 8 old pairs plus English nouns (new) answer through
+`GET /api/dictionary/…`; EN/ES/DE from the Wiktionary lexicon (library fallback marked "not
+fully sure"), ET from Eesthetic then Ekilex. Gates: 106/106 e2e, 1,126 backend tests. Lexicon
+in Postgres: EN 404,424 · ES 78,914 · DE 69,084 · ET 10,551 lexemes. Remaining server steps:
+§14 (backup script, one `lexicon.yml` run per language file).
 
 ### Slice E — Type-ahead list
 
@@ -803,7 +817,7 @@ run, autocomplete still works, but every lexicon language answers only from the 
 marked "not fully sure". Commands run from `deploy/ansible/`. Details:
 `.dev-context/infrastructure-guide/02-environments-and-databases.md`, "The autocomplete lexicon".
 
-- [ ] **BEFORE the Slice D deploy — Ekilex key:** in GitHub → Settings → Environments, add the
+- [x] **BEFORE the Slice D deploy — Ekilex key** (done 2026-10-09): in GitHub → Settings → Environments, add the
       secret `EKILEX_API_KEY` (your Ekilex API key) to **both** `staging` and `production`.
       `deploy.yml` writes it into each environment's `.env`. Without it, Estonian autocomplete
       answers 502 after the deploy. After a successful deploy, the old secret

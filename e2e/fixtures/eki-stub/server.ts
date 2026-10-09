@@ -29,6 +29,7 @@ const forms = (pairs: Record<string, string>): Form[] => Object.entries(pairs).m
 const WORDS: Record<string, [number, Paradigm]> = {
     õun: [101, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'õun', PlN: 'õunad', SgG: 'õuna', PlG: 'õunte', SgP: 'õuna', PlP: 'õunu', SgAdt: 'õuna' }) }],
     maja: [102, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'maja', PlN: 'majad', SgG: 'maja', PlG: 'majade', SgP: 'maja', PlP: 'maju', SgAdt: 'majja' }) }],
+    väike: [103, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'väike', PlN: 'väikesed', SgG: 'väikese', PlG: 'väikeste', SgP: 'väikest', PlP: 'väikesi' }) }],
     jooksma: [201, { wordClass: 'verb', paradigmForms: forms({ Sup: 'jooksma', Inf: 'joosta', IndPrSg1: 'jooksen', IndIpfSg1: 'jooksin', PtsPtPs: 'jooksnud' }) }],
 };
 /** English word → meanings, each with its Estonian words (for "search in English"). */
