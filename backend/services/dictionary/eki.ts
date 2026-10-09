@@ -17,6 +17,8 @@
  *   shows "kõige " + the comparative). An adjective with no comparison relations
  *   ("eestikeelne") sends neither.
  * - Several forms for one code ("häid", "heasid"): the first listed (D19).
+ * - Translations (Slice F2, D22): `estonianEquivalents` reads the Estonian words of the meanings
+ *   that list the query word in its own language. It fills the Estonian gap of the translate route.
  *
  * An unreachable service, a non-OK answer, a non-JSON body, a timeout or a missing key is an
  * HttpError 502: the form then shows the lookup as failed, not as "no such word".
@@ -165,6 +167,33 @@ async function estonianVerbFor(english: string): Promise<string | undefined> {
     let best: string | undefined;
     for (const [verb, count] of counts) if (best === undefined || count > counts.get(best)!) best = verb;
     return best;
+}
+
+/** Ekilex's language codes for the languages a translation can start from (besides Estonian). */
+const EKILEX_LANGUAGE: Record<string, string> = { English: 'eng', German: 'deu', Spanish: 'spa' };
+
+/**
+ * The Estonian words of every Ekilex meaning that lists `word` in `language` (letter case ignored),
+ * first-listed order, each word once. Meaning search matches words in any language ("lake" is
+ * also an Estonian word), hence the language check. Ekilex gives no part of speech here, and an
+ * English noun ("need") also matches verb meanings: a verb keeps only "-ma" words (the Estonian
+ * infinitive), other parts of speech drop them. A few real nouns end in "-ma" ("ema") and are lost;
+ * one call per word would be needed to tell them apart.
+ */
+export async function estonianEquivalents(word: string, language: string, partOfSpeech: string): Promise<string[]> {
+    const code = EKILEX_LANGUAGE[language];
+    if (!code) return [];
+    const search = await get<MeaningSearch>(`api/meaning/search/${encodeURIComponent(word)}`);
+    const wanted = word.trim().toLowerCase();
+    const words = new Set<string>();
+    for (const meaning of search.results ?? []) {
+        const meaningWords = meaning.meaningWords ?? [];
+        if (!meaningWords.some((w) => w.lang === code && w.wordValue.toLowerCase() === wanted)) continue;
+        for (const w of meaningWords) {
+            if (w.lang === 'est' && w.wordValue.endsWith('ma') === (partOfSpeech === 'Verb')) words.add(w.wordValue);
+        }
+    }
+    return [...words];
 }
 
 export const estonianNoun: DictionaryAdapter = async (query) => transformNoun((await paradigmOf(query, 'noomen'))?.paradigm);

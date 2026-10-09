@@ -445,6 +445,130 @@ describe('type-ahead suggestions (Slice E: GET /api/dictionary/:language/:partOf
     });
 });
 
+describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partOfSpeech/:query)', () => {
+    const TRANSLATIONS = path.join(__dirname, '../scripts/lexicon/fixtures/translations-en-fixture.jsonl');
+    const translate = (path) => request(app).get(`/api/dictionary/translate/${path}`).set('Authorization', `Bearer ${token}`);
+    const words = (list) => list.map(({ word, gender }) => (gender ? `${gender} ${word}` : word));
+    const originalFetch = global.fetch;
+    const saved = {};
+
+    /** A fake Ekilex meaning search: `meanings` per searched word, each a list of [lang, word]. */
+    function fakeMeaningSearch(meanings, { ok = true } = {}) {
+        global.fetch = jest.fn(async (url) => {
+            const word = decodeURIComponent(new URL(url).pathname.replace('/api/meaning/search/', ''));
+            const results = (meanings[word] ?? []).map((list) => ({ meaningWords: list.map(([lang, wordValue]) => ({ lang, wordValue })) }));
+            return { ok, status: ok ? 200 : 503, json: async () => ({ results }) };
+        });
+        return global.fetch;
+    }
+
+    beforeAll(() => {
+        for (const key of ['EKILEX_API_URL', 'EKILEX_API_KEY']) saved[key] = process.env[key];
+        process.env.EKILEX_API_URL = 'https://ekilex.test';
+        process.env.EKILEX_API_KEY = 'test-key';
+    });
+    afterAll(() => {
+        for (const [key, value] of Object.entries(saved)) {
+            if (value === undefined) delete process.env[key];
+            else process.env[key] = value;
+        }
+    });
+    beforeEach(async () => {
+        await loadLexiconFile(pool, TRANSLATIONS);
+        await loadLexiconFile(pool, EN_FIXTURE);
+        global.fetch = jest.fn(async () => { throw new Error('Ekilex must not be asked'); });
+    });
+    afterEach(() => { global.fetch = originalFetch; });
+
+    it('from English: the senses in Wiktionary order, each with all four languages and the noun gender', async () => {
+        const res = await translate('English/Noun/lake');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.senses.map((s) => s.sense)).toEqual(['body of water', 'a kind of coloring agent']);
+        const [water] = res.body.senses;
+        expect(water.english).toBe('lake');
+        expect(Object.fromEntries(Object.entries(water.words).map(([language, list]) => [language, words(list)]))).toEqual({
+            English: ['lake'], Spanish: ['el lago'], German: ['der See'], Estonian: ['järv'],
+        });
+        // Some sense has an Estonian word: Ekilex is not asked.
+        expect(res.body.ekilex).toBeUndefined();
+    });
+
+    it('from German: "See" belongs to two English words (lake: der See, sea: die See)', async () => {
+        const res = await translate('German/Noun/see');
+        const byEnglish = Object.fromEntries(res.body.senses.map((s) => [s.english, words(s.words.German)]));
+        expect(byEnglish).toEqual({ lake: ['der See'], sea: ['das Meer', 'die See'] });
+    });
+
+    it('from Spanish and from Estonian: the reverse lookup reaches the same sense', async () => {
+        for (const path of ['Spanish/Noun/lago', `Estonian/Noun/${encodeURIComponent('järv')}`]) {
+            const [sense] = (await translate(path)).body.senses;
+            expect(sense).toMatchObject({ english: 'lake', sense: 'body of water' });
+            expect(words(sense.words.German)).toEqual(['der See']);
+        }
+    });
+
+    it('reverse order: the senses where the word is listed first come first', async () => {
+        // "laufen" is the 1st German word of 5 senses of "run" ("to move quickly", …), and the 2nd of
+        // "to move quickly on two feet" (after "rennen"): that sense comes after the 5, in Wiktionary order.
+        const senses = (await translate('German/Verb/laufen')).body.senses;
+        expect(senses.map((s) => s.sense)).toEqual([
+            'to move quickly', 'to have a liquid flowing from', 'to extend in time, to last, to continue',
+            'of a machine, to be operating normally', 'to be presented in the media',
+            'to move quickly on two feet', 'to compete in a race',
+        ]);
+        expect(words(senses[5].words.German)).toEqual(['rennen', 'laufen']);
+    });
+
+    it('verbs, adjectives and adverbs have no gender; words keep their listed order', async () => {
+        const [run] = (await translate('English/Verb/run')).body.senses;
+        expect(words(run.words.Spanish)).toEqual(['correr', 'apeonar']);
+        expect(words(run.words.Estonian)).toEqual(['jooksma']);
+        const big = (await translate('English/Adjective/big')).body.senses;
+        expect(big.map((s) => words(s.words.German))).toEqual([['groß'], ['groß']]);
+        expect((await translate('Spanish/Adverb/deprisa')).body.senses[0].english).toBe('quickly');
+    });
+
+    it('no Estonian in any sense: Ekilex adds the Estonian words of the meanings that list the word', async () => {
+        const fetchMock = fakeMeaningSearch({
+            laca: [
+                [['est', 'lakk'], ['spa', 'laca'], ['eng', 'lacquer']],
+                // Another language's "laca" is not this word; a verb ("-ma") is not a noun.
+                [['est', 'vale'], ['ita', 'laca']],
+                [['est', 'lakkima'], ['spa', 'laca']],
+            ],
+        });
+        const res = await translate('Spanish/Noun/laca');
+        expect(res.body.senses.map((s) => s.sense)).toEqual(['a kind of coloring agent']);
+        expect(res.body.ekilex).toEqual({ estonian: [{ word: 'lakk' }] });
+        expect(fetchMock.mock.calls[0][0]).toBe('https://ekilex.test/api/meaning/search/laca');
+    });
+
+    it('a word not in the table: no senses, and Ekilex answers for a verb with "-ma" words only', async () => {
+        fakeMeaningSearch({ swim: [[['est', 'ujuma'], ['est', 'ujumine'], ['eng', 'swim']]] });
+        expect((await translate('English/Verb/swim')).body).toEqual({ senses: [], ekilex: { estonian: [{ word: 'ujuma' }] } });
+    });
+
+    it('Ekilex down: the route still answers, and says Ekilex was unavailable', async () => {
+        fakeMeaningSearch({}, { ok: false });
+        const res = await translate('Spanish/Noun/laca');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.senses).toHaveLength(1);
+        expect(res.body.ekilex).toEqual({ unavailable: true });
+    });
+
+    it('from Estonian: Ekilex is never asked', async () => {
+        expect((await translate('Estonian/Noun/tundmatu')).body).toEqual({ senses: [] });
+    });
+
+    it('400 for an unknown language or part of speech, or a bad query; 401 without a token', async () => {
+        expect((await translate('Klingon/Noun/lake')).statusCode).toBe(400);
+        expect((await translate('English/Preposition/in')).statusCode).toBe(400);
+        expect((await translate(`English/Noun/${'a'.repeat(101)}`)).statusCode).toBe(400);
+        expect((await translate('English/Noun/%20')).statusCode).toBe(400);
+        expect((await request(app).get('/api/dictionary/translate/English/Noun/lake')).statusCode).toBe(401);
+    });
+});
+
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
         expect((await lookup('English/Adjective/big')).statusCode).toBe(400);

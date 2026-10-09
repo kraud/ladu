@@ -708,7 +708,22 @@ in Postgres: EN 404,424 · ES 78,914 · DE 69,084 · ET 10,551 lexemes. Remainin
   50k, adverbs 8k), header format `ladu-translations/1`. `load.js` reads either format; a
   translation load replaces the whole table. Local: load 7.5 s, 87 MB with indexes, reverse
   lookup ("banco") 3 ms. Fixture: 11 English words, 204 rows. Backup skips the rows too.
-- **F2** — the translate route. **F3** — Estonian "search in English" from the table.
+- **F2 (route) — done 2026-10-09.** `GET /api/dictionary/translate/:fromLanguage/:partOfSpeech/:query`
+  (the part of speech is in the path: "run" the noun and "run" the verb are different senses) →
+  `{ senses: [{ english, sense, words: { English, Spanish, German, Estonian: [{ word, gender? }] } }],
+  ekilex? }`. Every sense lists all four languages (empty where the data has none). Migration 0025
+  adds `word_order` (the word's position in its sense and language; the file and fixture were
+  rebuilt). Order: from English, Wiktionary's; reverse, the senses where the word is listed first,
+  then the more frequent English word, then Wiktionary's. At most 20 senses. Estonian gap (D22):
+  when no sense has an Estonian word and the start is not Estonian, `ekilex: { estonian: [...] }`
+  from Ekilex meaning search — only meanings that list the query word in its own language;
+  verbs keep "-ma" words, other parts of speech drop them (Ekilex gives no part of speech here;
+  "need" the noun also matches verbs; a noun ending in "-ma", like "ema", is lost). Ekilex down →
+  `ekilex: { unavailable: true }`, still 200. Local timings 2–25 ms, with Ekilex 80–340 ms.
+  Also fixed in this step (Slice E): the list no longer closes by itself while an item is
+  highlighted (mouse or arrows), and the E3 spec waits for the settled state before it opens the
+  list (it failed once when the suggestions came after the pause).
+- **F3** — Estonian "search in English" from the table.
 
 - Ingest `translations[]` from the English entries into `lexeme_translation` (section 13).
 - Route: `GET /api/dictionary/translate/:fromLang/:query` returns the senses and, for each
@@ -765,7 +780,7 @@ Reads the same tables. No plan yet.
 | D18 | 2026-10-09 | Q-D1: the official **Ekilex API only** (`https://ekilex.ee`, header `ekilex-api-key`); `api.sonapi.ee` is removed. Measured on 24 words: identical field coverage to sonapi (sonapi wraps Ekilex), ~150 ms (2 calls) vs ~70 ms. Lookup = `api/word/ids/{word}/eki/est` → `api/paradigm/details/{id}` (`morphCode` = the same codes as sonapi). "Search in English" = `api/meaning/search/{word}` → first Estonian word of the right kind → its paradigm. Adjectives: the paradigm's word class is `noomen`, so they are matched by declension (no separate `adj` check). Key: `EKILEX_API_KEY` (local `.env`; staging/prod as a GitHub environment secret). Ekilex meaning search also returns EN/DE/RU/… equivalents — a candidate second source for Estonian translations in Slice F. |
 | D19 | 2026-10-09 | Several variant forms in one cell (Ekilex "häid, heasid"; Eesthetic overabundant cells): fill the **first listed** (the standard form first). |
 | D20 | 2026-10-09 | Slice D3, Estonian adjective comparison. Ekilex `api/word/details/{id}` (3rd call) gives the part of speech (the adjective check is back, superseding that part of D18) and the relation groups `komp` / `superl`. The form gets a stored checkbox `periphrasticSuperlativeEE` ("no one-word superlative"): when checked, the superlative shows as read-only "kõige " + comparative and is NOT stored; the superlative is no longer required. Autocomplete prefers the one-word superlative ("suurim") and unchecks the box; when only "kõige …" exists it checks the box; an adjective with no comparison relations ("eestikeelne") changes neither. First stored checkbox in the form engine (stored as the string "true", only when checked). |
-| D21 | 2026-10-09 | Slice E type-ahead. (1) **A pick fills the card at once** (the same fill as "Use autocomplete values", for the picked entry). Typing without a pick changes nothing: the user fills the fields by hand or presses the button. (2) A pick fills the **exact entry** chosen (der See vs die See): the list carries `entryId`, the lookup takes `?entry=`. (3) Only the field the autocomplete already reads (one per card); no list while "Search verb in English" is checked. (4) Estonian: local lexicon only (~10,500 words; Ekilex has no prefix search). (5) Added at E2: an open list covers the card footer and hides the rest of the page from screen readers, so it closes on a pick, Escape, Tab or a click outside, and also by itself when the user stops typing (500 ms) on a word that is in the list. |
+| D21 | 2026-10-09 | Slice E type-ahead. (1) **A pick fills the card at once** (the same fill as "Use autocomplete values", for the picked entry). Typing without a pick changes nothing: the user fills the fields by hand or presses the button. (2) A pick fills the **exact entry** chosen (der See vs die See): the list carries `entryId`, the lookup takes `?entry=`. (3) Only the field the autocomplete already reads (one per card); no list while "Search verb in English" is checked. (4) Estonian: local lexicon only (~10,500 words; Ekilex has no prefix search). (5) Added at E2: an open list covers the card footer and hides the rest of the page from screen readers, so it closes on a pick, Escape, Tab or a click outside, and also by itself when the user stops typing (500 ms) on a word that is in the list — but not while an item is highlighted (added at F2). |
 | D22 | 2026-10-09 | Slice F translations. (1) Ingest nouns, verbs, adjectives and adverbs (adjectives/adverbs ready for Slice H). (2) When no sense has an Estonian word, the translate route also asks Ekilex meaning search and adds its Estonian words, marked as from Ekilex (not tied to a sense). (3) Estonian "search in English": the first English sense (Wiktionary order) that has an Estonian word ending in -ma, its first such word; none → Ekilex as before. (4) No new UI in Slice F: the route waits for Slice G. File: a separate `translations-en-<date>.jsonl.gz` (not inside the English lexicon file), same `load.js` and playbook. |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 

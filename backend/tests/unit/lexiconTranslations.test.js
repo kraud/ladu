@@ -50,8 +50,20 @@ describe('translationRows', () => {
         ]);
         expect(rows[1]).toEqual({
             englishLemma: 'lake', partOfSpeech: 'Noun', entryOrder: 2, sense: 'body of water', senseOrder: 0,
-            language: 'German', word: 'See', gender: 'der', tags: ['masculine'],
+            language: 'German', word: 'See', wordOrder: 0, gender: 'der', tags: ['masculine'],
         });
+    });
+
+    it('numbers the words per sense and language, in source order', () => {
+        const rows = translationRows({ word: 'run', pos: 'verb', translations: [
+            { lang: 'de', word: 'rennen', sense: 'move fast' },
+            { lang: 'es', word: 'correr', sense: 'move fast' },
+            { lang: 'de', word: 'laufen', sense: 'move fast' },
+            { lang: 'de', word: 'laufen', sense: 'flow' },
+        ] }, 0);
+        expect(rows.map((r) => [r.sense, r.word, r.wordOrder])).toEqual([
+            ['move fast', 'rennen', 0], ['move fast', 'correr', 0], ['move fast', 'laufen', 1], ['flow', 'laufen', 0],
+        ]);
     });
 
     it('a sense label used only by a skipped language still takes its number', () => {

@@ -820,6 +820,9 @@ export const lexemeTranslations = pgTable(
         // NULL when not given or ambiguous), and Wiktionary's own tags (["masculine", "plural"]).
         language:         varchar('language', { length: 16 }).notNull(),
         word:             text('word').notNull(),
+        // Position of the word among the sense's words in the same language (0 = listed first,
+        // usually the most common: "run" → correr before apeonar). Step F2.
+        wordOrder:        integer('word_order').notNull().default(0),
         searchKey:        text('search_key').notNull(),
         gender:           varchar('gender', { length: 8 }),
         tags:             jsonb('tags').$type<string[]>().notNull().default([]),

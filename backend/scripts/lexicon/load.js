@@ -12,7 +12,8 @@
  * A translation file (written by ingest-translations.ts) has the same layout:
  *   line 1  header  {"format":"ladu-translations/1","language":"English",…}   (English: the hub)
  *   line 2+ row     {"englishLemma":"lake","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water",
- *                    "senseOrder":0,"language":"German","word":"See","gender":"der","tags":["masculine"]}
+ *                    "senseOrder":0,"language":"German","word":"See","wordOrder":0,"gender":"der","tags":["masculine"]}
+ *                   (wordOrder: the word's position in its sense and language; optional, default 0)
  *
  * In ONE transaction it deletes every row of the file's language (a translation file: every
  * translation row) and inserts the file's rows, so a failure changes nothing, and a reader never
@@ -49,7 +50,7 @@ const BATCH = 1000;
 const COLUMNS = ['language', 'part_of_speech', 'lemma', 'search_key', 'forms', 'frequency_rank', 'entry_order', 'source', 'licence', 'source_version'];
 const TRANSLATION_COLUMNS = [
     'english_lemma', 'english_search_key', 'part_of_speech', 'entry_order', 'sense', 'sense_order',
-    'language', 'word', 'search_key', 'gender', 'tags', 'source', 'licence', 'source_version',
+    'language', 'word', 'word_order', 'search_key', 'gender', 'tags', 'source', 'licence', 'source_version',
 ];
 
 /** Checks one translation row; throws naming the line. */
@@ -63,6 +64,7 @@ function checkTranslationRow(row, where) {
     for (const key of ['entryOrder', 'senseOrder']) {
         if (!Number.isInteger(row[key])) throw new Error(`${where}: ${key} must be an integer`);
     }
+    if (row.wordOrder != null && !Number.isInteger(row.wordOrder)) throw new Error(`${where}: wordOrder must be an integer`);
     if (row.gender != null && typeof row.gender !== 'string') throw new Error(`${where}: gender must be a string or null`);
     if (!Array.isArray(row.tags) || row.tags.some((tag) => typeof tag !== 'string')) throw new Error(`${where}: tags must be an array of strings`);
 }
@@ -119,7 +121,7 @@ function target(format, header) {
             scope: { where: 'TRUE', params: [] },
             values: (row) => [
                 row.englishLemma, searchKey(row.englishLemma), row.partOfSpeech, row.entryOrder, row.sense, row.senseOrder,
-                row.language, row.word, searchKey(row.word), row.gender ?? null, JSON.stringify(row.tags),
+                row.language, row.word, row.wordOrder ?? 0, searchKey(row.word), row.gender ?? null, JSON.stringify(row.tags),
                 header.source, header.licence, header.sourceVersion,
             ],
         };

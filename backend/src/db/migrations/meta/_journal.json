@@ -176,6 +176,13 @@
       "when": 1791559803919,
       "tag": "0024_lexeme_translations",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791560507587,
+      "tag": "0025_lexeme_translations_word_order",
+      "breakpoints": true
     }
   ]
 }

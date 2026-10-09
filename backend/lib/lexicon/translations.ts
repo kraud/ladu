@@ -43,14 +43,17 @@ export interface TranslationFileRow {
     senseOrder: number;
     language: string;
     word: string;
+    wordOrder: number;
     gender: string | null;
     tags: string[];
 }
 
 /**
  * The rows of one English entry. `senseOrder` numbers the sense labels in their order of first
- * appearance (Wiktionary lists the main sense's table first). A target item with no word, an
- * unknown language or a too-long word is skipped; the same (sense, language, word) is written once.
+ * appearance (Wiktionary lists the main sense's table first); `wordOrder` numbers the written
+ * words per sense and language in source order (the first listed is usually the common one).
+ * A target item with no word, an unknown language or a too-long word is skipped; the same
+ * (sense, language, word) is written once.
  */
 export function translationRows(entry: any, entryOrder: number): TranslationFileRow[] {
     const partOfSpeech = TRANSLATION_POS[entry.pos];
@@ -58,6 +61,7 @@ export function translationRows(entry: any, entryOrder: number): TranslationFile
 
     const senseOrders = new Map<string, number>();
     const seen = new Set<string>();
+    const wordsPerSenseLanguage = new Map<string, number>();
     const rows: TranslationFileRow[] = [];
     for (const item of entry.translations ?? []) {
         const sense = typeof item.sense === 'string' ? item.sense.trim() : '';
@@ -69,6 +73,9 @@ export function translationRows(entry: any, entryOrder: number): TranslationFile
         const key = `${sense}\u0000${language}\u0000${word}`;
         if (seen.has(key)) continue;
         seen.add(key);
+        const senseLanguage = `${sense}\u0000${language}`;
+        const wordOrder = wordsPerSenseLanguage.get(senseLanguage) ?? 0;
+        wordsPerSenseLanguage.set(senseLanguage, wordOrder + 1);
         const tags: string[] = Array.isArray(item.tags) ? item.tags.filter((tag: unknown) => typeof tag === 'string') : [];
         rows.push({
             englishLemma: entry.word,
@@ -78,6 +85,7 @@ export function translationRows(entry: any, entryOrder: number): TranslationFile
             senseOrder: senseOrders.get(sense)!,
             language,
             word,
+            wordOrder,
             gender: partOfSpeech === 'Noun' ? translationGender(language, tags) : null,
             tags,
         });

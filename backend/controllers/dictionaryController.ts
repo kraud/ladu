@@ -7,6 +7,7 @@ const asyncHandler = require('express-async-handler');
 const { HttpError }: typeof import('../lib/httpError') = require('../lib/httpError');
 const { findAdapter }: typeof import('../services/dictionary/registry') = require('../services/dictionary/registry');
 const { lexiconSuggestions }: typeof import('../services/dictionary/lexicon') = require('../services/dictionary/lexicon');
+const translation: typeof import('../services/dictionary/translate') = require('../services/dictionary/translate');
 
 const MAX_QUERY_LENGTH = 100;
 const MIN_PREFIX_LENGTH = 2;
@@ -77,4 +78,26 @@ const suggest = asyncHandler(async (req: any, res: any) => {
     res.status(200).json({ suggestions: await lexiconSuggestions(language, partOfSpeech, prefix, limit) });
 });
 
-module.exports = { lookup, suggest };
+// @desc    Translate one word (autocomplete-data-source-strategy.md Slice F, step F2): the senses it
+//          belongs to and, per sense, the words in all four languages (services/dictionary/translate.ts).
+// @route   GET /api/dictionary/translate/:fromLanguage/:partOfSpeech/:query
+//          fromLanguage: English | Spanish | German | Estonian; partOfSpeech: Noun | Verb | Adjective | Adverb
+// @access  Private
+// @returns 200 { senses: [{ english, sense, words: { English, Spanish, German, Estonian: [{ word, gender? }] } }],
+//               ekilex?: { estonian: [{ word }] } | { unavailable: true } }   (ekilex: only when no sense has Estonian)
+//          400 an unknown language or part of speech, or a query that is empty or longer than 100
+const translate = asyncHandler(async (req: any, res: any) => {
+    const { fromLanguage, partOfSpeech, query } = req.params;
+    if (!translation.TRANSLATE_LANGUAGES.includes(fromLanguage) || !translation.TRANSLATE_PARTS_OF_SPEECH.includes(partOfSpeech)) {
+        res.status(400);
+        throw new Error(`No translations for ${fromLanguage} ${partOfSpeech}`);
+    }
+    const word = String(query).trim();
+    if (word === '' || word.length > MAX_QUERY_LENGTH) {
+        res.status(400);
+        throw new Error('The query must be 1 to 100 characters');
+    }
+    res.status(200).json(await translation.translate(fromLanguage, partOfSpeech, word));
+});
+
+module.exports = { lookup, suggest, translate };
