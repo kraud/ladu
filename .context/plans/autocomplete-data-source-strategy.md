@@ -659,6 +659,19 @@ in Postgres: EN 404,424 · ES 78,914 · DE 69,084 · ET 10,551 lexemes. Remainin
 
 ### Slice E — Type-ahead list
 
+**In progress.** Decisions: D21.
+
+- **E1 (backend) — done 2026-10-09.** `GET /api/dictionary/:language/:partOfSpeech?prefix=&limit=`
+  → `{ suggestions: [{ entryId, lemma, hint? }] }`. From the lexicon only (Estonian adjectives:
+  empty list). Order: frequency rank (unranked last), shorter, alphabetical. Per search key, stubs
+  are dropped (the D15 half rule) and entries with the same lemma and hint collapse to the main
+  sense; `hint` is the noun article (DE/ES), so "See" lists der and die. The lookup route takes
+  `?entry=<entryId>` and returns that exact row (ignored when the row is for another word).
+  Migration 0023 rebuilds `lexemes_lookup_idx` with `text_pattern_ops` (the database collation is
+  `en_US`, so a plain B-tree cannot serve `LIKE 'co%'`); equality lookups use it too. Measured on
+  the full local lexicon: a 2-letter English noun prefix (10,396 matches) takes ~9 ms.
+- **E2 (frontend)** — the combobox on the query field; a pick fills the card. **E3** — e2e spec.
+
 - While the user types in a query field (for example the German `infinitive`), a select list
   shows matching lemmas, ordered by frequency rank. A pick fills the form as before.
 - Backend: `GET /api/dictionary/:lang/:pos?prefix=<text>&limit=10`. Prefix search with a
@@ -725,6 +738,7 @@ Reads the same tables. No plan yet.
 | D18 | 2026-10-09 | Q-D1: the official **Ekilex API only** (`https://ekilex.ee`, header `ekilex-api-key`); `api.sonapi.ee` is removed. Measured on 24 words: identical field coverage to sonapi (sonapi wraps Ekilex), ~150 ms (2 calls) vs ~70 ms. Lookup = `api/word/ids/{word}/eki/est` → `api/paradigm/details/{id}` (`morphCode` = the same codes as sonapi). "Search in English" = `api/meaning/search/{word}` → first Estonian word of the right kind → its paradigm. Adjectives: the paradigm's word class is `noomen`, so they are matched by declension (no separate `adj` check). Key: `EKILEX_API_KEY` (local `.env`; staging/prod as a GitHub environment secret). Ekilex meaning search also returns EN/DE/RU/… equivalents — a candidate second source for Estonian translations in Slice F. |
 | D19 | 2026-10-09 | Several variant forms in one cell (Ekilex "häid, heasid"; Eesthetic overabundant cells): fill the **first listed** (the standard form first). |
 | D20 | 2026-10-09 | Slice D3, Estonian adjective comparison. Ekilex `api/word/details/{id}` (3rd call) gives the part of speech (the adjective check is back, superseding that part of D18) and the relation groups `komp` / `superl`. The form gets a stored checkbox `periphrasticSuperlativeEE` ("no one-word superlative"): when checked, the superlative shows as read-only "kõige " + comparative and is NOT stored; the superlative is no longer required. Autocomplete prefers the one-word superlative ("suurim") and unchecks the box; when only "kõige …" exists it checks the box; an adjective with no comparison relations ("eestikeelne") changes neither. First stored checkbox in the form engine (stored as the string "true", only when checked). |
+| D21 | 2026-10-09 | Slice E type-ahead. (1) **A pick fills the card at once** (the same fill as "Use autocomplete values", for the picked entry). Typing without a pick changes nothing: the user fills the fields by hand or presses the button. (2) A pick fills the **exact entry** chosen (der See vs die See): the list carries `entryId`, the lookup takes `?entry=`. (3) Only the field the autocomplete already reads (one per card); no list while "Search verb in English" is checked. (4) Estonian: local lexicon only (~10,500 words; Ekilex has no prefix search). |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)

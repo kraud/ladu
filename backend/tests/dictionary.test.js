@@ -357,6 +357,94 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
     });
 });
 
+describe('type-ahead suggestions (Slice E: GET /api/dictionary/:language/:partOfSpeech?prefix=)', () => {
+    const suggest = (path) => request(app).get(`/api/dictionary/${path}`).set('Authorization', `Bearer ${token}`);
+    const lemmas = (body) => body.suggestions.map(({ lemma, hint }) => (hint ? `${hint} ${lemma}` : lemma));
+
+    beforeEach(async () => {
+        await loadLexiconFile(pool, FIXTURE);
+        await loadLexiconFile(pool, ES_FIXTURE);
+    });
+
+    it('lists the words that start with the prefix, most frequent first', async () => {
+        const res = await suggest('German/Verb?prefix=se');
+        expect(res.statusCode).toBe(200);
+        expect(lemmas(res.body)).toEqual(['sein', 'sehen']);
+    });
+
+    it('equal ranks: the shorter word first, then alphabetical', async () => {
+        // ser 8; sentar and sentir both 106.
+        expect(lemmas((await suggest('Spanish/Verb?prefix=se')).body)).toEqual(['ser', 'sentar', 'sentir']);
+    });
+
+    it('ignores letter case, and every item carries an entry id', async () => {
+        const res = await suggest('German/Noun?prefix=HA');
+        expect(lemmas(res.body)).toEqual(['das Haus']);
+        expect(res.body.suggestions[0].entryId).toMatch(/^[0-9a-f-]{36}$/);
+    });
+
+    it('a homograph shows once per meaning, with the article as the hint (der See, die See — D15)', async () => {
+        expect(lemmas((await suggest('German/Noun?prefix=see')).body)).toEqual(['der See', 'die See']);
+        expect(lemmas((await suggest('Spanish/Noun?prefix=man')).body)).toEqual(['la mano', 'el mano']);
+    });
+
+    it('a stub entry is not listed ("Tag" and "Buch" show once)', async () => {
+        expect(lemmas((await suggest('German/Noun?prefix=ta')).body)).toEqual(['der Tag']);
+        expect(lemmas((await suggest('German/Noun?prefix=bu')).body)).toEqual(['das Buch']);
+    });
+
+    it('respects the limit', async () => {
+        expect(lemmas((await suggest('German/Verb?prefix=se&limit=1')).body)).toEqual(['sein']);
+    });
+
+    it('a typed % or _ matches only itself, not any text', async () => {
+        expect((await suggest('German/Verb?prefix=s%25')).body.suggestions).toEqual([]);
+        expect((await suggest('German/Verb?prefix=s_')).body.suggestions).toEqual([]);
+    });
+
+    it('a pair with a dictionary but no lexicon (Estonian adjectives) returns an empty list', async () => {
+        expect((await suggest('Estonian/Adjective?prefix=su')).body).toEqual({ suggestions: [] });
+    });
+
+    it('400 for a pair without a dictionary, a prefix under 2 characters or a bad limit', async () => {
+        expect((await suggest('English/Adjective?prefix=bi')).statusCode).toBe(400);
+        expect((await suggest('German/Verb?prefix=s')).statusCode).toBe(400);
+        expect((await suggest('German/Verb')).statusCode).toBe(400);
+        expect((await suggest('German/Verb?prefix=se&limit=0')).statusCode).toBe(400);
+        expect((await suggest('German/Verb?prefix=se&limit=21')).statusCode).toBe(400);
+        expect((await suggest('German/Verb?prefix=se&limit=ten')).statusCode).toBe(400);
+    });
+
+    it('401 without a token', async () => {
+        expect((await request(app).get('/api/dictionary/German/Verb?prefix=se')).statusCode).toBe(401);
+    });
+
+    describe('a lookup with ?entry= returns the picked entry', () => {
+        const entryOf = async (prefix, hint) =>
+            (await suggest(`German/Noun?prefix=${prefix}`)).body.suggestions.find((s) => s.hint === hint).entryId;
+
+        it('die See, not the main sense der See', async () => {
+            const res = await lookup(`German/Noun/See?entry=${await entryOf('see', 'die')}`);
+            expect(res.body.status).toBe('found');
+            expect(casesOf(res.body).genderDE).toBe('die');
+        });
+
+        it('an entry of another word is ignored: the usual D15 choice', async () => {
+            const haus = await entryOf('ha', 'das');
+            expect(casesOf((await lookup(`German/Noun/See?entry=${haus}`)).body).genderDE).toBe('der');
+        });
+
+        it('an unknown entry id is ignored', async () => {
+            const res = await lookup('German/Noun/See?entry=00000000-0000-0000-0000-000000000000');
+            expect(casesOf(res.body).genderDE).toBe('der');
+        });
+
+        it('400 for an entry that is not an id', async () => {
+            expect((await lookup('German/Noun/See?entry=1')).statusCode).toBe(400);
+        });
+    });
+});
+
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
         expect((await lookup('English/Adjective/big')).statusCode).toBe(400);

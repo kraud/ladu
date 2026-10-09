@@ -786,7 +786,9 @@ export const lexemes = pgTable(
         sourceVersion: varchar('source_version', { length: 32 }).notNull(),
     },
     (table) => [
-        // Backs the autocomplete lookup: one language, one part of speech, one typed word.
-        index('lexemes_lookup_idx').on(table.language, table.partOfSpeech, table.searchKey),
+        // Backs the autocomplete lookup (one typed word: `=`) and the type-ahead list (a prefix:
+        // `LIKE 'ta%'`, Slice E). `text_pattern_ops` compares characters, not the database
+        // collation, so Postgres can use the index for a prefix. Equality still works.
+        index('lexemes_lookup_idx').on(table.language, table.partOfSpeech, table.searchKey.op('text_pattern_ops')),
     ],
 );

@@ -23,6 +23,8 @@ export interface LookupResult {
 export interface LookupOptions {
     /** Estonian verb only: search by an English word (Ekilex meaning search). */
     searchInEnglish?: boolean;
+    /** A type-ahead pick (Slice E): the `lexemes` row to return, instead of the D15 choice. */
+    entryId?: string;
 }
 
 /** One data source for one (language, part of speech) pair. */
