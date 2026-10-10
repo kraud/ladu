@@ -185,6 +185,9 @@
     container: ladu-platform-postgres-1
     command: "pg_isready -U {{ postgres_superuser }}"
   register: pg_ready
+  # `pg_isready` only reads, so it is safe to run in --check mode. Without this, a dry run skips the
+  # task and `until` fails ("object of type 'dict' has no attribute 'rc'").
+  check_mode: false
   until: pg_ready.rc == 0
   retries: 10
   delay: 3
@@ -196,8 +199,9 @@
     container: ladu-platform-postgres-1
     command: "psql -U {{ postgres_superuser }} -c \"CREATE DATABASE {{ item.db_name }}\""
   register: create_db
-  failed_when: create_db.rc != 0 and 'already exists' not in create_db.stderr
-  changed_when: create_db.rc == 0
+  # In --check mode the task is skipped and the result has no `rc`: the defaults keep the tests valid.
+  failed_when: create_db.rc | default(0) != 0 and 'already exists' not in (create_db.stderr | default(''))
+  changed_when: create_db.rc | default(1) == 0
   loop: "{{ environments }}"
   loop_control:
     label: "{{ item.db_name }}"
@@ -210,8 +214,8 @@
       psql -U {{ postgres_superuser }} -c
       "CREATE USER {{ item.db_user }} WITH ENCRYPTED PASSWORD '{{ item.db_password }}'"
   register: create_user
-  failed_when: create_user.rc != 0 and 'already exists' not in create_user.stderr
-  changed_when: create_user.rc == 0
+  failed_when: create_user.rc | default(0) != 0 and 'already exists' not in (create_user.stderr | default(''))
+  changed_when: create_user.rc | default(1) == 0
   loop: "{{ environments }}"
   loop_control:
     label: "{{ item.db_user }}"
@@ -225,7 +229,7 @@
       psql -U {{ postgres_superuser }} -c
       "GRANT ALL PRIVILEGES ON DATABASE {{ item.db_name }} TO {{ item.db_user }}"
   register: grant_result
-  failed_when: grant_result.rc != 0
+  failed_when: grant_result.rc | default(0) != 0
   changed_when: false
   loop: "{{ environments }}"
   loop_control:
@@ -247,7 +251,7 @@
       psql -U {{ postgres_superuser }} -d {{ item.db_name }} -c
       "GRANT ALL ON SCHEMA public TO {{ item.db_user }}"
   register: schema_grant_result
-  failed_when: schema_grant_result.rc != 0
+  failed_when: schema_grant_result.rc | default(0) != 0
   changed_when: false
   loop: "{{ environments }}"
   loop_control:
