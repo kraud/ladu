@@ -66,7 +66,8 @@ function buildDeConfig(): TranslationFormConfig {
         fields: [
             degreeField(AdjectiveCases.positiveDE, 'positive', true, adjectiveErrorKey(suffix, 'positiveDegreeRequired')),
             degreeField(AdjectiveCases.komparativDE, 'komparativ', false),
-            degreeField(AdjectiveCases.superlativDE, 'superlativ', false),
+            // D25: stored without "am"; the form shows it, so a hand-typed word does not repeat it.
+            { ...degreeField(AdjectiveCases.superlativDE, 'superlativ', false), adornment: { text: 'am' } },
         ],
     };
 }
@@ -88,6 +89,9 @@ function buildEsConfig(): TranslationFormConfig {
         invalidMessageKey: genderRequiredKey,
         persisted: false,
         options: GENDER_OPTIONS,
+        // Autocomplete picks the branch: a result with neutral cases is "Neutral", one with male cases "M/F".
+        fromLookup: (cases) =>
+            cases.has(AdjectiveCases.neutralSingularES) ? 'Neutral' : cases.has(AdjectiveCases.maleSingularES) ? 'M/F' : undefined,
     };
     const neutralWhen: FieldVisibility = { field: 'gender', equals: 'Neutral' };
     const mfWhen: FieldVisibility = { field: 'gender', equals: 'M/F' };

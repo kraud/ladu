@@ -35,6 +35,11 @@ describe('getFormConfig(Adverb, lang) — old field-list parity', () => {
         expect(getFormConfig(PartOfSpeech.adverb, Lang.EE)).toBeUndefined();
     });
 
+    it('German: the superlative shows a fixed "am" prefix (D25)', () => {
+        const superlative = getFormConfig(PartOfSpeech.adverb, Lang.DE)!.fields.find((f) => f.name === 'superlative');
+        expect(superlative?.adornment).toEqual({ text: 'am' });
+    });
+
     describe('German — gradable-branched visibility', () => {
         const config = getFormConfig(PartOfSpeech.adverb, Lang.DE)!;
 

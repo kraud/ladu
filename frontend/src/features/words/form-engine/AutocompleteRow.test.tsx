@@ -7,11 +7,13 @@ import { makeAutocompleteHandlers } from '@/test/msw/autocompleteHandlers';
 import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 import { Lang, PartOfSpeech } from '@/ts/enums';
-import { AutocompleteRow } from './AutocompleteRow';
+import type { DictionaryResponse } from '@/features/autocomplete/types';
+import { AutocompleteRow, LOOKUP_DEBOUNCE_MS } from './AutocompleteRow';
 import { getFormConfig } from './configs';
 
 const enVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EN)!.fields;
-const enAdjectiveFields = getFormConfig(PartOfSpeech.adjective, Lang.EN)!.fields;
+const esAdjectiveFields = getFormConfig(PartOfSpeech.adjective, Lang.ES)!.fields;
+const deAdverbFields = getFormConfig(PartOfSpeech.adverb, Lang.DE)!.fields;
 const eeVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EE)!.fields;
 
 function Harness({
@@ -36,7 +38,7 @@ function Harness({
 describe('AutocompleteRow', () => {
     it('renders nothing for a (language, PoS) pair with no lookup endpoint', () => {
         const { container } = renderWithProviders(
-            <Harness lang={Lang.EN} pos={PartOfSpeech.adjective} fields={enAdjectiveFields} defaultValues={{}} />
+            <Harness lang={Lang.EN} pos={PartOfSpeech.preposition} fields={[]} defaultValues={{}} />
         );
         expect(container).toBeEmptyDOMElement();
     });
@@ -273,5 +275,107 @@ describe('AutocompleteRow', () => {
 
         await waitFor(() => expect(fake.requests).toHaveLength(1), { timeout: 2000 });
         expect(fake.requests[0]).toEqual({ path: 'Estonian/Verb', query: 'jooksma', searchInEnglish: true, entry: null });
+    });
+    describe('adjectives and adverbs (Slice H3)', () => {
+        /** Shows the form values the lookup writes, so a test can read hidden-branch fields too. */
+        function Probe({ lang, pos, fields, defaultValues, names }: { lang: Lang; pos: PartOfSpeech; fields: typeof enVerbFields; defaultValues: Record<string, unknown>; names: string[] }) {
+            const form = useForm({ defaultValues });
+            return (
+                <Form {...form}>
+                    <AutocompleteRow lang={lang} pos={pos} fields={fields} />
+                    {names.map((name) => (
+                        <input key={name} aria-label={`${name}-probe`} readOnly value={String(form.watch(name) ?? '')} />
+                    ))}
+                </Form>
+            );
+        }
+
+        const NEUTRAL: DictionaryResponse = { status: 'found', cases: [{ caseName: 'neutralSingularES', word: 'feliz' }, { caseName: 'neutralPluralES', word: 'felices' }] };
+        const GENDERED: DictionaryResponse = {
+            status: 'found',
+            cases: [
+                { caseName: 'maleSingularES', word: 'rojo' },
+                { caseName: 'malePluralES', word: 'rojos' },
+                { caseName: 'femaleSingularES', word: 'roja' },
+                { caseName: 'femalePluralES', word: 'rojas' },
+            ],
+        };
+        const SPANISH = ['gender', 'neutralSingular', 'neutralPlural', 'maleSingular', 'femaleSingular', 'femalePlural'];
+
+        it('Spanish: a Neutral word typed while M/F is chosen switches the card to Neutral and fills its fields', async () => {
+            const user = userEvent.setup();
+            const fake = makeAutocompleteHandlers({ spanishAdjective: NEUTRAL });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe lang={Lang.ES} pos={PartOfSpeech.adjective} fields={esAdjectiveFields} defaultValues={{ gender: 'M/F', maleSingular: 'feliz' }} names={SPANISH} />
+            );
+
+            await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+            expect(fake.requests[0]).toMatchObject({ path: 'Spanish/Adjective', query: 'feliz' });
+            expect(screen.getByLabelText('gender-probe')).toHaveValue('Neutral');
+            expect(screen.getByLabelText('neutralSingular-probe')).toHaveValue('feliz');
+            expect(screen.getByLabelText('neutralPlural-probe')).toHaveValue('felices');
+        });
+
+        it('Spanish: a gendered word fills the M/F cells; the query is read from the Neutral field when that branch is shown', async () => {
+            const user = userEvent.setup();
+            const fake = makeAutocompleteHandlers({ spanishAdjective: GENDERED });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe lang={Lang.ES} pos={PartOfSpeech.adjective} fields={esAdjectiveFields} defaultValues={{ gender: 'Neutral', neutralSingular: 'rojo' }} names={SPANISH} />
+            );
+
+            await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+            expect(fake.requests[0]).toMatchObject({ path: 'Spanish/Adjective', query: 'rojo' });
+            expect(screen.getByLabelText('gender-probe')).toHaveValue('M/F');
+            expect(screen.getByLabelText('femaleSingular-probe')).toHaveValue('roja');
+            expect(screen.getByLabelText('femalePlural-probe')).toHaveValue('rojas');
+        });
+
+        it('Spanish: once the card shows the branch the lookup stands for, it reads "applied"', async () => {
+            const fake = makeAutocompleteHandlers({ spanishAdjective: NEUTRAL });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe lang={Lang.ES} pos={PartOfSpeech.adjective} fields={esAdjectiveFields} defaultValues={{ gender: 'Neutral', neutralSingular: 'feliz', neutralPlural: 'felices' }} names={SPANISH} />
+            );
+            await waitFor(() => expect(screen.getByText('Autocomplete values applied')).toBeInTheDocument(), { timeout: 2000 });
+        });
+
+        it('Spanish: no lookup before a gender is chosen (neither input is shown)', async () => {
+            const fake = makeAutocompleteHandlers({ spanishAdjective: NEUTRAL });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe lang={Lang.ES} pos={PartOfSpeech.adjective} fields={esAdjectiveFields} defaultValues={{}} names={SPANISH} />
+            );
+            await new Promise((resolve) => setTimeout(resolve, LOOKUP_DEBOUNCE_MS + 200));
+            expect(fake.requests).toHaveLength(0);
+        });
+
+        it('German adverb: the lookup sets Gradable first, so comparative and superlative are filled even after Non-gradable was chosen', async () => {
+            const user = userEvent.setup();
+            const fake = makeAutocompleteHandlers({
+                germanAdverb: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'gradableDE', word: 'Gradable' },
+                        { caseName: 'adverbDE', word: 'oft' },
+                        { caseName: 'comparativeDE', word: 'öfter' },
+                        { caseName: 'superlativeDE', word: 'öftesten' },
+                    ],
+                },
+            });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe lang={Lang.DE} pos={PartOfSpeech.adverb} fields={deAdverbFields} defaultValues={{ gradable: 'Non-gradable', adverb: 'oft' }} names={['gradable', 'comparative', 'superlative']} />
+            );
+
+            await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+            expect(screen.getByLabelText('gradable-probe')).toHaveValue('Gradable');
+            expect(screen.getByLabelText('comparative-probe')).toHaveValue('öfter');
+            expect(screen.getByLabelText('superlative-probe')).toHaveValue('öftesten');
+        });
     });
 });

@@ -1,7 +1,7 @@
 # Autocomplete & lexical data sources — research record
 
 *Status (2026-10-10, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
-translation table and route). Slice H in progress (H1 done). Next: H2–H5, then **Slice G** (own plan document, see its section in §9). Server steps for everything done so far: §14 (do once the plan is complete).
+translation table and route). Slice H in progress (H1–H3 done). Next: H4–H5, then **Slice G** (own plan document, see its section in §9). Server steps for everything done so far: §14 (do once the plan is complete).
 History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
@@ -780,6 +780,17 @@ adverb form + Ekilex, H5 reflexive verb field (D8). Decisions D23–D26 (section
 -ly and words of 3+ vowel groups take "more X"; others take the first row ("bigger"). Spanish adjective:
 Neutral branch when both genders share one shape ("feliz, felices"), else M/F; no superlative (no form field).
 Server step (§14): load the three rebuilt files again.
+**H2 done 2026-10-10:** `registry.ts` has Adjective and Adverb for EN/ES/DE, lexicon only (a miss is
+`not-found`; no library exists). The type-ahead route works for them too.
+**H3 done 2026-10-10:** frontend registry entries for EN/DE adjective and EN/ES/DE adverb (`transforms.ts`).
+Spanish adjective: `queryFieldName` + `alternativeQueryFieldNames` (`activeQueryField`: the query is the
+male-singular field on the M/F branch, the neutral-singular field on the Neutral branch); the gender radio
+has `fromLookup`, so a result switches the branch, and `applyLookup` sets branch radios first (German adverb
+"Gradable" too) so the fields they show fill in the same pass. Before a gender is chosen the Spanish card
+shows no input, so it has no autocomplete. German superlative (adjective and adverb): fixed "am" prefix
+(`adornment: { text: 'am' }`), value stored without it (D25). Gate spec:
+`e2e/tests/autocomplete-g-adjectives-adverbs.spec.ts`. Local trap: the e2e run uses the dev database, and
+`--if-empty` keeps old rows — load the rebuilt full files (`load.js`) before the first run.
 
 Original note: new selector tables and new form configurations. Planned after parity (decision D6). The Slice 0
 measurement shows adjectives have good data in all three languages (DE full declension, ES gender and

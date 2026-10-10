@@ -15,10 +15,16 @@ import type { DictionaryResponse, Suggestion } from '@/features/autocomplete/typ
 
 const KEYS = {
     'English/Verb': 'englishVerb',
+    'English/Adjective': 'englishAdjective',
+    'English/Adverb': 'englishAdverb',
     'Spanish/Verb': 'spanishVerb',
     'Spanish/Noun': 'spanishNoun',
+    'Spanish/Adjective': 'spanishAdjective',
+    'Spanish/Adverb': 'spanishAdverb',
     'German/Verb': 'germanVerb',
     'German/Noun': 'germanNoun',
+    'German/Adjective': 'germanAdjective',
+    'German/Adverb': 'germanAdverb',
     'Estonian/Verb': 'estonianVerb',
     'Estonian/Noun': 'estonianNoun',
     'Estonian/Adjective': 'estonianAdjective',

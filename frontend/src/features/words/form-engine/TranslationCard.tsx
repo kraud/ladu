@@ -45,7 +45,7 @@ import { langTint, languageByLabel } from '@/lib/language';
 import { primaryCaseWord } from '@/lib/words';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
-import { getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
+import { activeQueryField, getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
 import { lookupQueryOptions } from '@/features/autocomplete/hooks';
 import type { Suggestion } from '@/features/autocomplete/types';
 import { AutocompleteRow, applyLookup, type PickedEntry } from './AutocompleteRow';
@@ -286,7 +286,7 @@ export function TranslationCard({
         const endpoint = getAutocompleteEndpoint(lang, pos);
         if (!endpoint || !config || displayOnly) return undefined;
         const pickSuggestion = async ({ lemma, entryId }: Suggestion) => {
-            form.setValue(endpoint.queryFieldName, lemma, { shouldDirty: true, shouldValidate: true });
+            form.setValue(activeQueryField(endpoint, config.fields, form.getValues()), lemma, { shouldDirty: true, shouldValidate: true });
             setPickedEntry({ lemma, entryId });
             const extra = endpoint.extraFieldName ? Boolean(form.getValues(endpoint.extraFieldName)) : undefined;
             try {
@@ -379,6 +379,7 @@ export function TranslationCard({
 
     const autocompleteEndpoint = getAutocompleteEndpoint(lang, pos);
     const hasAutocomplete = autocompleteEndpoint !== undefined;
+    const queryFieldName = autocompleteEndpoint ? activeQueryField(autocompleteEndpoint, config.fields, watched) : undefined;
 
     const langEntry = languageByLabel(lang);
     const headline = primaryCaseWord(pos, { language: lang, cases });
@@ -455,7 +456,7 @@ export function TranslationCard({
                                     <FieldRenderer
                                         field={item.field}
                                         displayOnly={displayOnly}
-                                        autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                        autocompleteFieldName={queryFieldName}
                                         typeAhead={typeAhead}
                                         reserveMessageSpace={item.field.required}
                                     />
@@ -507,7 +508,7 @@ export function TranslationCard({
                                                             displayOnly={displayOnly}
                                                             // Verb pronouns (the tense grid's row labels) stay beside their value; every other label sits above it.
                                                             compact={displayOnly && isMobile && field.layout?.columnHeading !== undefined}
-                                                            autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                                            autocompleteFieldName={queryFieldName}
                                                             typeAhead={typeAhead}
                                                             reserveMessageSpace={reserveMessageSpace}
                                                         />

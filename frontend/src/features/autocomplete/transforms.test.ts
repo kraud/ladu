@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
-import { AUTOCOMPLETE_REGISTRY, getAutocompleteEndpoint, toAutocompleteResult } from './transforms';
+import { getFormConfig } from '@/features/words/form-engine/configs';
+import { activeQueryField, AUTOCOMPLETE_REGISTRY, getAutocompleteEndpoint, toAutocompleteResult } from './transforms';
 
 // The Estonian response transforms moved to the backend in Slice A
 // (backend/tests/unit/dictionaryEki.test.js); every pair now answers the same { status, cases }.
@@ -17,10 +18,16 @@ describe('getAutocompleteEndpoint — coverage table', () => {
             [
                 'English/Verb',
                 'English/Noun',
+                'English/Adjective',
+                'English/Adverb',
                 'Spanish/Verb',
                 'Spanish/Noun',
+                'Spanish/Adjective',
+                'Spanish/Adverb',
                 'German/Verb',
                 'German/Noun',
+                'German/Adjective',
+                'German/Adverb',
                 'Estonian/Verb',
                 'Estonian/Noun',
                 'Estonian/Adjective',
@@ -32,6 +39,35 @@ describe('getAutocompleteEndpoint — coverage table', () => {
         expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.verb]?.extraFieldName).toBe('searchInEnglish');
         expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.noun]?.extraFieldName).toBeUndefined();
         expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.adjective]?.extraFieldName).toBeUndefined();
+    });
+});
+
+describe('the query field of each adjective and adverb card (Slice H3)', () => {
+    it('every registered query field is a text field of that card', () => {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE]) {
+            for (const pos of [PartOfSpeech.adjective, PartOfSpeech.adverb]) {
+                const endpoint = getAutocompleteEndpoint(lang, pos)!;
+                const fields = getFormConfig(pos, lang)!.fields;
+                for (const name of [endpoint.queryFieldName, ...(endpoint.alternativeQueryFieldNames ?? [])]) {
+                    expect(fields.find((field) => field.name === name)?.kind, `${lang}/${pos}/${name}`).toBe('text');
+                }
+            }
+        }
+    });
+
+    it('Spanish adjective: the query is the field of the branch the card shows', () => {
+        const endpoint = getAutocompleteEndpoint(Lang.ES, PartOfSpeech.adjective)!;
+        const fields = getFormConfig(PartOfSpeech.adjective, Lang.ES)!.fields;
+        expect(activeQueryField(endpoint, fields, { gender: 'M/F' })).toBe('maleSingular');
+        expect(activeQueryField(endpoint, fields, { gender: 'Neutral' })).toBe('neutralSingular');
+        // No gender chosen yet: neither input is shown; the primary name is returned.
+        expect(activeQueryField(endpoint, fields, {})).toBe('maleSingular');
+    });
+
+    it('a card without branches always uses its one query field', () => {
+        const endpoint = getAutocompleteEndpoint(Lang.DE, PartOfSpeech.adjective)!;
+        const fields = getFormConfig(PartOfSpeech.adjective, Lang.DE)!.fields;
+        expect(activeQueryField(endpoint, fields, {})).toBe('positive');
     });
 });
 

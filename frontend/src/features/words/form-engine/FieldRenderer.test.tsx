@@ -396,5 +396,15 @@ describe('FieldRenderer', () => {
             await user.click(await screen.findByRole('option', { name: 'haben' }));
             expect(screen.getByText('habe')).toBeInTheDocument();
         });
+
+        it('a fixed prefix (German superlative "am") shows in the form and, in displayOnly, only once the field has a value', () => {
+            const superlative: FieldConfig = { ...adornedField, name: 'superlativ', adornment: { text: 'am' } };
+            const { unmount } = renderWithProviders(<Harness field={superlative} value="" />);
+            expect(screen.getByText('am')).toBeInTheDocument();
+            unmount();
+
+            renderWithProviders(<Harness field={superlative} displayOnly value="besten" />);
+            expect(screen.getByText('am').parentElement).toHaveTextContent('am besten');
+        });
     });
 });

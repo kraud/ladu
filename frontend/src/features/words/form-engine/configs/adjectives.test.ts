@@ -30,6 +30,20 @@ describe('getFormConfig(Adjective, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => f.name !== 'positive').every((f) => !f.required)).toBe(true);
     });
 
+    it('German: the superlative shows a fixed "am" prefix (D25: stored without it)', () => {
+        const config = getFormConfig(PartOfSpeech.adjective, Lang.DE)!;
+        expect(config.fields.find((f) => f.name === 'superlativ')?.adornment).toEqual({ text: 'am' });
+        expect(config.fields.find((f) => f.name === 'komparativ')?.adornment).toBeUndefined();
+    });
+
+    it('Spanish: the gender radio takes the branch from a lookup result', () => {
+        const gender = getFormConfig(PartOfSpeech.adjective, Lang.ES)!.fields.find((f) => f.name === 'gender');
+        const fromLookup = gender?.kind === 'radio' ? gender.fromLookup : undefined;
+        expect(fromLookup?.(new Map([[AdjectiveCases.neutralSingularES, 'feliz']]))).toBe('Neutral');
+        expect(fromLookup?.(new Map([[AdjectiveCases.maleSingularES, 'rojo']]))).toBe('M/F');
+        expect(fromLookup?.(new Map())).toBeUndefined();
+    });
+
     it('Estonian: algvorre*, keskvorre*, an optional ulivorre with its "kõige" checkbox, 5 optional case fields (D20)', () => {
         const config = getFormConfig(PartOfSpeech.adjective, Lang.EE)!;
         expect(config.fields.map((f) => f.name)).toEqual([

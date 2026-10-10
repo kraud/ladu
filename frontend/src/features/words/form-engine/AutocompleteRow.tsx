@@ -55,7 +55,7 @@ import { useTranslation } from 'react-i18next';
 import { CheckIcon, MagnifyingGlassIcon, PencilSimpleLineIcon, WarningIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { useAutocompleteTranslation } from '@/features/autocomplete/hooks';
-import { getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
+import { activeQueryField, getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
 import { matchesVisibility, type FieldConfig } from './configs/types';
@@ -129,6 +129,22 @@ function caseWordMatches(field: FieldConfig, currentRaw: unknown, available: str
 }
 
 /**
+ * The radios the lookup decides: one with its own `caseName` takes that case's word (German adverb
+ * "Gradable"), one with `fromLookup` takes the option the result stands for (Spanish adjective
+ * "Neutral" / "M/F"). Other fields' visibility depends on them, so they are read first: a field
+ * that the lookup's own answer shows must be filled, one that it hides must not be.
+ */
+function lookedUpRadios(fields: FieldConfig[], data: AutocompleteResult): Record<string, string> {
+    const radios: Record<string, string> = {};
+    for (const field of fields) {
+        if (field.kind !== 'radio') continue;
+        const value = field.fromLookup?.(data.cases) ?? (field.caseName ? data.cases.get(field.caseName) : undefined);
+        if (value !== undefined) radios[field.name] = value;
+    }
+    return radios;
+}
+
+/**
  * True once every case the lookup found is already sitting in the form —
  * i.e. clicking the fill button would change nothing. A field the lookup has
  * no opinion on, or one currently hidden by its own `visibleWhen` (the other
@@ -141,11 +157,14 @@ function valuesMatchLookup(
     values: Record<string, unknown>
 ): boolean {
     if (!data) return false;
+    const radios = lookedUpRadios(fields, data);
+    const afterFill = { ...values, ...radios };
     return fields.every((field) => {
-        if (!field.caseName) return true;
+        // A radio without a case (Spanish adjective gender) still has to show the branch the lookup stands for.
+        if (!field.caseName) return field.kind !== 'radio' || radios[field.name] === undefined || values[field.name] === radios[field.name];
         const available = data.cases.get(field.caseName);
         if (available === undefined) return true;
-        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, values[field.visibleWhen.field])) return true;
+        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, afterFill[field.visibleWhen.field])) return true;
         return caseWordMatches(field, values[field.name], available);
     });
 }
@@ -161,11 +180,15 @@ export function applyLookup(
     values: Record<string, unknown>,
     setValue: UseFormSetValue<FieldValues>
 ): void {
+    // The branch radios first, so the fields they show are filled in this same pass.
+    const radios = lookedUpRadios(fields, data);
+    for (const [name, value] of Object.entries(radios)) setValue(name, value, { shouldDirty: true, shouldValidate: true });
+    const afterRadios = { ...values, ...radios };
     for (const field of fields) {
-        if (!field.caseName) continue;
+        if (!field.caseName || field.name in radios) continue;
         const looked = data.cases.get(field.caseName);
         if (looked === undefined) continue;
-        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, values[field.visibleWhen.field])) continue;
+        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, afterRadios[field.visibleWhen.field])) continue;
         setValue(field.name, valueToApply(field, looked), { shouldDirty: true, shouldValidate: true });
     }
 }
@@ -175,12 +198,14 @@ export function AutocompleteRow({ lang, pos, fields, pickedEntry }: Autocomplete
     const { control, setValue } = useFormContext();
     const endpoint = getAutocompleteEndpoint(lang, pos);
 
-    const queryValue = useWatch({ control, name: endpoint?.queryFieldName ?? NO_FIELD }) as string | undefined;
     const extraValue = useWatch({ control, name: endpoint?.extraFieldName ?? NO_FIELD }) as boolean | undefined;
-    // Every other field, so `valuesMatchLookup` reruns on any edit in the
+    // Every field, so `valuesMatchLookup` reruns on any edit in the
     // card — cheap: `TranslationCard` already re-renders on every keystroke
     // via this exact same unfiltered `useWatch`, so this adds no new render.
+    // The query comes from here too: which field holds it can change with the card's branch
+    // (`activeQueryField`, Spanish adjective).
     const allValues = useWatch({ control }) as Record<string, unknown>;
+    const queryValue = (endpoint ? allValues[activeQueryField(endpoint, fields, allValues)] : undefined) as string | undefined;
     const debouncedQuery = useDebouncedCallback(queryValue ?? '', LOOKUP_DEBOUNCE_MS);
     const entryId = pickedEntry && queryValue === pickedEntry.lemma ? pickedEntry.entryId : undefined;
     const query = entryId ? (queryValue ?? '') : debouncedQuery;

@@ -95,7 +95,8 @@ function buildDeConfig(): TranslationFormConfig {
             gradable,
             degreeField(AdverbCases.adverbDE, 'adverb', true, adverbErrorKey(suffix, 'adverbRequired')),
             degreeField(AdverbCases.comparativeDE, 'comparative', false, undefined, hiddenWhenNonGradable),
-            degreeField(AdverbCases.superlativeDE, 'superlative', false, undefined, hiddenWhenNonGradable),
+            // D25: stored without "am"; the form shows it.
+            { ...degreeField(AdverbCases.superlativeDE, 'superlative', false, undefined, hiddenWhenNonGradable), adornment: { text: 'am' } },
         ],
     };
 }

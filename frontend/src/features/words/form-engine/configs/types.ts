@@ -111,11 +111,14 @@ export interface FieldPattern {
  * field's current value (German perfect/future tenses show the conjugated
  * auxiliary verb ahead of each pronoun's input). `values` maps the watched
  * field's current value to this field's own prefix text; a value with no
- * entry shows no prefix.
+ * entry shows no prefix. `text` instead is a fixed prefix: the German
+ * superlative shows "am" before its input, and stores the word without it.
  */
 export interface FieldAdornment {
-    watchField: string;
-    values: Record<string, string>;
+    watchField?: string;
+    values?: Record<string, string>;
+    /** Always shown, whatever any sibling holds (German superlative: "am"). Used when `watchField` is absent. */
+    text?: string;
 }
 
 interface FieldConfigBase {
@@ -194,6 +197,12 @@ export interface TextFieldConfig extends FieldConfigBase {
 export interface RadioFieldConfig extends FieldConfigBase {
     kind: 'radio';
     options: RadioOption[];
+    /**
+     * Which option an autocomplete result stands for, when the radio has no `caseName` of its own
+     * (Spanish adjective gender: the result has the neutral cases → "Neutral", the male cases → "M/F").
+     * `undefined`: the result says nothing, the radio stays as it is.
+     */
+    fromLookup?: (cases: ReadonlyMap<CaseName, string>) => string | undefined;
 }
 
 /**

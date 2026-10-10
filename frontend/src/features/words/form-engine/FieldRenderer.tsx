@@ -114,7 +114,9 @@ export function FieldRenderer({
 
     const adornmentSource = field.adornment?.watchField;
     const watchedAdornmentValue = useWatch({ control, name: adornmentSource ?? field.name });
-    const adornmentText = field.adornment ? field.adornment.values[String(watchedAdornmentValue ?? '')] : undefined;
+    const adornmentText = field.adornment
+        ? (field.adornment.text ?? field.adornment.values?.[String(watchedAdornmentValue ?? '')])
+        : undefined;
 
     // `derivedWhen` (D20): while it matches, the field is read-only text built from a sibling — the
     // Estonian superlative "kõige " + comparative. Same dummy-name trick as above when unused.
