@@ -385,6 +385,9 @@ main.legal {
 
 .prose {
     max-width: 38rem;
+    /* A flex item never shrinks below its content by default. Without this, a
+       wide table would widen the whole page instead of scrolling by itself. */
+    min-width: 0;
 }
 
 .prose h1 {
@@ -524,4 +527,40 @@ main.legal {
         gap: 2.5rem;
         padding-block: 1.5rem 3rem;
     }
+}
+
+/* Storage notice (app.js, region.js). A strip at the end of the page that
+   sticks to the bottom of the window, so it never covers the footer and the
+   page does not move when it appears. */
+.notice {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1.5rem;
+    padding: 0.9rem 1.5rem;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.notice-text {
+    margin: 0;
+    max-width: 44rem;
+}
+
+.notice-text .link-quiet {
+    font-size: inherit;
+    text-decoration: underline;
+}
+
+.notice-ok {
+    padding: 0.5rem 1.1rem;
+    border: 0;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
 }

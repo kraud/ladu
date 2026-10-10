@@ -21,7 +21,7 @@ RUN npm run build
 
 FROM caddy:alpine
 
-COPY index.html privacy.html terms.html credits.html impressum.html style.css app.js favicon.svg robots.txt /srv/
+COPY index.html privacy.html terms.html credits.html impressum.html style.css app.js region.js favicon.svg robots.txt /srv/
 COPY brand/ /srv/brand/
 COPY flags/ /srv/flags/
 # dist/ holds blog/ and sitemap.xml

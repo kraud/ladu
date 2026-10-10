@@ -82,4 +82,21 @@ The page frame (head, theme script, header, footer) is **`privacy.html`**. The b
 | `scripts/blog.mjs` | The library: reads posts, renders pages, feed and sitemap |
 | `scripts/build.mjs` | The command that writes `dist/` |
 | `scripts/blog.test.mjs` | Unit tests (`npm test`, run in CI) |
+| `scripts/region.test.mjs` | Unit tests of `region.js` |
+| `scripts/notice.test.mjs` | Checks that the notice texts exist in all four languages and that every page loads `region.js` before `app.js` |
+| `region.js` | Decides if the storage notice is shown. The country comes from `/region` (see below) |
 | `blog/posts/`, `blog/images/` | Your content |
+
+## Storage notice: who sees it
+
+The notice is shown only in the EU, the other EEA states (IS, LI, NO) and the UK. Switzerland is not in the list.
+
+1. Cloudflare adds the visitor's country to each request (`CF-IPCountry`). The option "IP Geolocation" must be on in the Cloudflare dashboard.
+2. The `/region` path in the `Caddyfile` returns that code as plain text. It is never cached.
+3. `region.js` checks the code against the list. An unknown or invalid code, or a failed request, shows the notice.
+
+`app.js` builds the notice and shows it. The visitor presses "Got it", and the choice is saved in `localStorage` under `ladu.notice.v1`. To show the notice to everyone again, change `v1` to `v2` in `app.js`. A new page needs `<script src="/region.js">` before `app.js` (a test checks the existing pages). The blog follows `privacy.html`.
+
+To change the list, edit `NOTICE_COUNTRIES` in `region.js` and the tests.
+
+To test on your computer, add `?region=DE` (notice) or `?region=AR` (no notice) to a local address. This works on `localhost` only. On the real site the parameter does nothing.

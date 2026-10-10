@@ -42,7 +42,7 @@
     <main class="legal">
         <article class="prose" lang="en">
             <h1>Privacy Policy</h1>
-            <p class="note">Last updated 2026-10-06.</p>
+            <p class="note">Last updated 2026-10-10.</p>
 
             <p>
                 Ladu is a vocabulary manager built and run by a single developer.
@@ -137,11 +137,73 @@
                 clauses.
             </p>
 
-            <h2>Cookies</h2>
+            <h2>Cookies and similar storage</h2>
             <p>
-                Ladu uses one short-lived cookie during Google sign-in, to safely
-                complete that login — it expires within minutes either way. We
-                don't use cookies for advertising or cross-site tracking.
+                Ladu uses no advertising or tracking cookies and no third-party
+                analytics. It does keep a small amount of data in your browser.
+                Each item below is needed to run the service, or remembers a
+                choice you made. Because of this, we do not ask for your consent
+                for them. In the EU, the other EEA states and the UK, the site
+                shows a short notice about this. If we add anything optional
+                later, we will ask first and list it here.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Kind and place</th>
+                        <th scope="col">What it holds and why</th>
+                        <th scope="col">How long</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ladu.session</code></td>
+                        <td>Local storage, app</td>
+                        <td>Your sign-in token and basic account details (such as your name and username). It keeps you signed in.</td>
+                        <td>Until you sign out. The token stops working after 30 days.</td>
+                    </tr>
+                    <tr>
+                        <td><code>__Host-ladu_oauth</code></td>
+                        <td>Cookie, app</td>
+                        <td>A signed value that protects a Google sign-in from forgery. Set only when you start a Google sign-in.</td>
+                        <td>10 minutes.</td>
+                    </tr>
+                    <tr>
+                        <td><code>ladu.theme</code></td>
+                        <td>Local storage, site and app</td>
+                        <td>Your choice of light or dark theme.</td>
+                        <td>Until you clear your browser data.</td>
+                    </tr>
+                    <tr>
+                        <td><code>i18nextLng</code></td>
+                        <td>Local storage, site and app</td>
+                        <td>Your choice of interface language.</td>
+                        <td>Until you clear your browser data.</td>
+                    </tr>
+                    <tr>
+                        <td><code>ladu.practice.params</code></td>
+                        <td>Local storage, app</td>
+                        <td>The settings of your last practice, so the next one starts the same way.</td>
+                        <td>Until you clear your browser data.</td>
+                    </tr>
+                    <tr>
+                        <td><code>ladu.practice.session</code></td>
+                        <td>Session storage, app</td>
+                        <td>The practice session that is running, so a page reload does not lose it.</td>
+                        <td>Until you close the tab or sign out.</td>
+                    </tr>
+                    <tr>
+                        <td><code>ladu.notice.v1</code></td>
+                        <td>Local storage, site</td>
+                        <td>That you closed the storage notice, so it does not show again.</td>
+                        <td>Until you clear your browser data.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>
+                You can delete all of this in your browser settings. The app then
+                asks you to sign in again and forgets your choices.
             </p>
 
             <h2>How long we keep it</h2>
@@ -201,6 +263,7 @@
         </nav>
     </footer>
 
+    <script src="/region.js"></script>
     <script src="/app.js"></script>
 </body>
 </html>
