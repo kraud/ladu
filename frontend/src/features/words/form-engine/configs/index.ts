@@ -50,6 +50,6 @@ export type {
 // (`features/words/review/completion.ts`) needs the exact same comparison
 // `TranslationCard.tsx` uses, so it is re-exported here rather than
 // reimplemented against a second copy that could drift.
-export { matchesVisibility } from './types';
+export { isDerived, isStoredCheckbox, matchesVisibility } from './types';
 
 export { coverageForLanguage } from './coverage';

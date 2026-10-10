@@ -12,7 +12,8 @@
     "test:smoke": "playwright test --config=playwright.deploy.config.ts",
     "report": "playwright show-report",
     "install:browsers": "playwright install chromium",
-    "stub:oidc": "tsx fixtures/oidc-stub/server.ts"
+    "stub:oidc": "tsx fixtures/oidc-stub/server.ts",
+    "stub:eki": "tsx fixtures/eki-stub/server.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

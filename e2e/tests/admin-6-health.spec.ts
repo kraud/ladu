@@ -54,7 +54,9 @@ test.afterAll(async () => {
 const section = (page: Page, heading: string): Locator =>
     page.locator('section', { has: page.getByRole('heading', { name: heading, exact: true }) });
 
-test.describe('Admin dashboard — health (slice 6)', () => {
+// Serial, like the other admin specs: the file-level beforeAll/afterAll own one staff account. In parallel, each
+// worker loads the file, can compute the same `run` id, and one worker's afterAll deletes the other's account.
+test.describe.serial('Admin dashboard — health (slice 6)', () => {
     test('a viewer opens the page from the header and sees the real deployment state', async ({ page }) => {
         await page.goto(`${ADMIN_URL}/login`);
         await page.getByLabel('Email').fill(viewerEmail);

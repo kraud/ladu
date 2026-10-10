@@ -26,7 +26,8 @@
  * `AutocompleteRow` (now in the card's footer) owns the actual fetch, this
  * only renders that one field with a heavier border, a bold label, a
  * magnifying-glass icon and a placeholder so it's obvious which field to
- * fill to trigger it.
+ * fill to trigger it. With `typeAhead` (Slice E) that field is a `TypeAheadInput`: the same input,
+ * plus the list of dictionary words that start with the typed text.
  *
  * When `reserveMessageSpace` is set, the field reserves a strip of room under
  * its control (`FIELD_ITEM`), and its validation message is positioned inside
@@ -48,7 +49,8 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
-import { matchesVisibility, type FieldConfig } from './configs/types';
+import { TypeAheadInput, type TypeAheadConfig } from './TypeAheadInput';
+import { matchesVisibility, reflexivePronoun, type FieldConfig } from './configs/types';
 import { capitalizeFirst, isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
 import { cn } from '@/lib/utils';
 
@@ -62,6 +64,8 @@ export interface FieldRendererProps {
     displayOnly?: boolean;
     /** The RHF field name that drives this (lang, pos) pair's autocomplete lookup, if any. */
     autocompleteFieldName?: string;
+    /** Turns the autocomplete query field into a `TypeAheadInput` (Slice E). Ignored for every other field. */
+    typeAhead?: TypeAheadConfig;
     /** Reserve a strip under the control and show its validation message out of the flow (see the file header). Ignored in `displayOnly`. */
     reserveMessageSpace?: boolean;
     /** `displayOnly` on a phone: label and value share one line, to keep grids short. */
@@ -90,6 +94,7 @@ export function FieldRenderer({
     field,
     displayOnly = false,
     autocompleteFieldName,
+    typeAhead,
     reserveMessageSpace = false,
     compact = false,
 }: FieldRendererProps) {
@@ -109,17 +114,58 @@ export function FieldRenderer({
 
     const adornmentSource = field.adornment?.watchField;
     const watchedAdornmentValue = useWatch({ control, name: adornmentSource ?? field.name });
-    const adornmentText = field.adornment ? field.adornment.values[String(watchedAdornmentValue ?? '')] : undefined;
+    const adornmentText = field.adornment
+        ? (field.adornment.text ?? field.adornment.values?.[String(watchedAdornmentValue ?? '')])
+        : undefined;
+
+    // Reflexive pronoun hint (Slice H5): shown while the verb is reflexive (`reflexive.on`); the German
+    // pronoun case comes from the `reflexiveCase` radio (D31). Same dummy-name trick.
+    const reflexiveOn = useWatch({ control, name: field.reflexive?.on.field ?? field.name });
+    const reflexiveCase = useWatch({ control, name: field.reflexive?.caseField ?? field.name });
+    const pronoun = reflexivePronoun(field.reflexive, reflexiveOn, reflexiveCase);
+    const pronounBefore = field.reflexive?.position === 'before' ? pronoun : undefined;
+    const pronounAfter = field.reflexive?.position === 'after' ? pronoun : undefined;
+    /** What stands before the input: the auxiliary, then the pronoun ("habe mich"). */
+    const beforeText = [adornmentText, pronounBefore].filter(Boolean).join(' ');
+
+    // `derivedWhen` (D20): while it matches, the field is read-only text built from a sibling — the
+    // Estonian superlative "kõige " + comparative. Same dummy-name trick as above when unused.
+    const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
+    const derivationControl = useWatch({ control, name: derivation?.when.field ?? field.name });
+    const derivationSource = useWatch({ control, name: derivation?.fromField ?? field.name });
+    const derivedText =
+        derivation && matchesVisibility(derivation.when, derivationControl)
+            ? `${derivation.prefix}${String(derivationSource ?? '').trim() || '…'}`
+            : undefined;
 
     if (!isVisible) {
         return null;
     }
+
 
     return (
         <FormField
             control={control}
             name={field.name}
             render={({ field: rhf }) => {
+                if (derivedText !== undefined) {
+                    // Before the display-only "empty optional field is hidden" rule: the stored value is empty on purpose.
+                    return displayOnly ? (
+                        <FormItem className={compact ? 'flex flex-row flex-wrap items-baseline gap-x-2 gap-y-0' : undefined}>
+                            <FormLabel className="text-xs! font-normal! text-muted-foreground!">{label}</FormLabel>
+                            <p className="text-sm text-foreground" data-testid={`derived-${field.name}`}>
+                                {derivedText}
+                            </p>
+                        </FormItem>
+                    ) : (
+                        <FormItem className={itemClass}>
+                            <FieldLabelRow label={label} required={false} />
+                            <FormControl>
+                                <Input value={derivedText} readOnly data-testid={`derived-${field.name}`} className="bg-muted text-muted-foreground" />
+                            </FormControl>
+                        </FormItem>
+                    );
+                }
                 const hidden = isHiddenInDisplayOnly(field, rhf.value, displayOnly);
                 if (hidden) {
                     return <></>;
@@ -142,33 +188,46 @@ export function FieldRenderer({
                             <FormLabel className="text-xs! font-normal! text-muted-foreground!">{label}</FormLabel>
                             <p className="text-sm text-foreground">
                                 {/* The auxiliary verb (or other prefix) reads as a hint, not as part of the stored value. */}
-                                {adornmentText && !empty && (
-                                    <span className="text-foreground/65 italic">{adornmentText} </span>
+                                {beforeText && !empty && (
+                                    <span className="text-foreground/65 italic">{beforeText} </span>
                                 )}
                                 {empty ? '—' : displayValue}
+                                {pronounAfter && !empty && (
+                                    <span className="text-foreground/65 italic"> {pronounAfter}</span>
+                                )}
                             </p>
                         </FormItem>
                     );
                 }
 
                 if (field.kind === 'text') {
-                    const input = (
-                        <Input
-                            {...rhf}
-                            value={rhf.value ?? ''}
-                            onChange={
-                                field.capitalize
-                                    ? (event) => rhf.onChange(capitalizeFirst(event.target.value))
-                                    : rhf.onChange
-                            }
-                            placeholder={
-                                isAutocompleteTrigger
-                                    ? t('wordRelated:wordForm.autocompleteTranslationButton.inputPlaceholder')
-                                    : undefined
-                            }
-                            className={isAutocompleteTrigger ? 'border-2 border-(--border-strong) pl-8' : undefined}
-                        />
-                    );
+                    const toStored = (text: string) => (field.capitalize ? capitalizeFirst(text) : text);
+                    const placeholder = isAutocompleteTrigger
+                        ? t('wordRelated:wordForm.autocompleteTranslationButton.inputPlaceholder')
+                        : undefined;
+                    const inputClass = isAutocompleteTrigger ? 'border-2 border-(--border-strong) pl-8' : undefined;
+                    const input =
+                        isAutocompleteTrigger && typeAhead ? (
+                            <TypeAheadInput
+                                config={typeAhead}
+                                ref={rhf.ref}
+                                name={rhf.name}
+                                onBlur={rhf.onBlur}
+                                disabled={rhf.disabled}
+                                value={rhf.value ?? ''}
+                                onValueChange={(text) => rhf.onChange(toStored(text))}
+                                placeholder={placeholder}
+                                className={inputClass}
+                            />
+                        ) : (
+                            <Input
+                                {...rhf}
+                                value={rhf.value ?? ''}
+                                onChange={(event) => rhf.onChange(toStored(event.target.value))}
+                                placeholder={placeholder}
+                                className={inputClass}
+                            />
+                        );
                     const control = isAutocompleteTrigger ? (
                         <div className="relative">
                             <MagnifyingGlassIcon
@@ -183,10 +242,11 @@ export function FieldRenderer({
                     return (
                         <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} bold={isAutocompleteTrigger} />
-                            {adornmentText ? (
+                            {beforeText || pronounAfter ? (
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-sm text-muted-foreground">{adornmentText}</span>
+                                    {beforeText && <span className="text-sm text-muted-foreground">{beforeText}</span>}
                                     {control}
+                                    {pronounAfter && <span className="text-sm text-muted-foreground">{pronounAfter}</span>}
                                 </div>
                             ) : (
                                 control

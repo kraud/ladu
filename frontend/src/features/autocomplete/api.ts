@@ -1,68 +1,33 @@
 /**
- * Thin transport layer over `apiClient`, one function per
- * `autocompleteTranslationController` route. No React, no query-cache access —
- * those live in `hooks.ts`. Matches `features/words/api.ts`'s own shape.
+ * Thin transport layer over `apiClient` for the one dictionary route. No React, no
+ * query-cache access — those live in `hooks.ts`. Matches `features/words/api.ts`'s own shape.
  */
 import { apiClient } from '@/api/client';
-import type { EstonianLookupResponse, GenericLookupResponse } from './types';
+import type { Lang, PartOfSpeech } from '@/ts/enums';
+import type { DictionaryResponse, Suggestion, SuggestionsResponse } from './types';
 
-const base = '/autocompleteTranslations';
-
-export async function getVerbEN(infinitive: string): Promise<GenericLookupResponse> {
-    const { data } = await apiClient.get<GenericLookupResponse>(
-        `${base}/english/verb/${encodeURIComponent(infinitive)}`
-    );
+/**
+ * `searchInEnglish`: Estonian verb only — look the word up by its English meaning.
+ * `entryId`: a type-ahead pick — the backend returns that exact entry (der See vs die See).
+ */
+export async function lookupDictionary(
+    language: Lang,
+    pos: PartOfSpeech,
+    query: string,
+    searchInEnglish?: boolean,
+    entryId?: string
+): Promise<DictionaryResponse> {
+    const path = [language, pos, query].map(encodeURIComponent).join('/');
+    const params = { ...(searchInEnglish ? { searchInEnglish: true } : {}), ...(entryId ? { entry: entryId } : {}) };
+    const { data } = await apiClient.get<DictionaryResponse>(`/dictionary/${path}`, {
+        params: Object.keys(params).length > 0 ? params : undefined,
+    });
     return data;
 }
 
-export async function getVerbES(infinitive: string): Promise<GenericLookupResponse> {
-    const { data } = await apiClient.get<GenericLookupResponse>(
-        `${base}/spanish/verb/${encodeURIComponent(infinitive)}`
-    );
-    return data;
-}
-
-export async function getNounGenderES(singular: string): Promise<GenericLookupResponse> {
-    const { data } = await apiClient.get<GenericLookupResponse>(
-        `${base}/spanish/noun/${encodeURIComponent(singular)}`
-    );
-    return data;
-}
-
-export async function getVerbDE(infinitive: string): Promise<GenericLookupResponse> {
-    const { data } = await apiClient.get<GenericLookupResponse>(
-        `${base}/german/verb/${encodeURIComponent(infinitive)}`
-    );
-    return data;
-}
-
-export async function getNounDE(singular: string): Promise<GenericLookupResponse> {
-    const { data } = await apiClient.get<GenericLookupResponse>(
-        `${base}/german/noun/${encodeURIComponent(singular)}`
-    );
-    return data;
-}
-
-export async function getVerbEE(infinitiveMa: string, searchInEnglish?: boolean): Promise<EstonianLookupResponse> {
-    const { data } = await apiClient.get<EstonianLookupResponse>(
-        `${base}/estonian/verb/${encodeURIComponent(infinitiveMa)}`,
-        { params: searchInEnglish ? { searchInEnglish: true } : undefined }
-    );
-    return data;
-}
-
-export async function getNounEE(singular: string, searchInEnglish?: boolean): Promise<EstonianLookupResponse> {
-    const { data } = await apiClient.get<EstonianLookupResponse>(
-        `${base}/estonian/noun/${encodeURIComponent(singular)}`,
-        { params: searchInEnglish ? { searchInEnglish: true } : undefined }
-    );
-    return data;
-}
-
-export async function getAdjectiveEE(singular: string, searchInEnglish?: boolean): Promise<EstonianLookupResponse> {
-    const { data } = await apiClient.get<EstonianLookupResponse>(
-        `${base}/estonian/adjective/${encodeURIComponent(singular)}`,
-        { params: searchInEnglish ? { searchInEnglish: true } : undefined }
-    );
-    return data;
+/** The type-ahead list: dictionary words that start with `prefix` (2+ characters), most frequent first. */
+export async function suggestDictionary(language: Lang, pos: PartOfSpeech, prefix: string): Promise<Suggestion[]> {
+    const path = [language, pos].map(encodeURIComponent).join('/');
+    const { data } = await apiClient.get<SuggestionsResponse>(`/dictionary/${path}`, { params: { prefix } });
+    return data.suggestions;
 }

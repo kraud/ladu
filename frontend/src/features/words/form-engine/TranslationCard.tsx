@@ -32,6 +32,7 @@
  */
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
 import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
@@ -44,10 +45,13 @@ import { langTint, languageByLabel } from '@/lib/language';
 import { primaryCaseWord } from '@/lib/words';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
-import { getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
-import { AutocompleteRow } from './AutocompleteRow';
+import { activeQueryField, getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
+import { lookupQueryOptions } from '@/features/autocomplete/hooks';
+import type { Suggestion } from '@/features/autocomplete/types';
+import { AutocompleteRow, applyLookup, type PickedEntry } from './AutocompleteRow';
+import type { TypeAheadConfig } from './TypeAheadInput';
 import { buildYupSchema } from './buildYupSchema';
-import { matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
+import { isDerived, isStoredCheckbox, matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
 import { capitalizeFirst } from './fieldLayout';
 import { FieldRenderer } from './FieldRenderer';
@@ -147,8 +151,10 @@ export interface TranslationCardProps {
  * Dropped, in order: a field hidden by its own `visibleWhen` (the sibling it
  * depends on doesn't currently equal the configured value); a field marked
  * `persisted: false` (form-only, e.g. Estonian `searchInEnglish`, Spanish
- * adjective `gender`); a `checkbox` field (no PoS backs a case with one
- * today); and finally, any field whose resulting word is blank.
+ * adjective `gender`); a text field currently showing derived text
+ * (`derivedWhen`, Estonian "kõige …" superlative); an unchecked or unstored
+ * `checkbox` (a stored one is saved as "true" — `isStoredCheckbox`, D20); and
+ * finally, any field whose resulting word is blank.
  *
  * Exported for direct unit testing against hand-built configs — the encode
  * round-trip (multi-select) and the two drop rules above don't need a real
@@ -159,7 +165,11 @@ export function fieldsToCases(fields: FieldConfig[], values: Record<string, unkn
     for (const field of fields) {
         if (field.persisted === false) continue;
         if (field.visibleWhen && !matchesVisibility(field.visibleWhen, values[field.visibleWhen.field])) continue;
-        if (field.kind === 'checkbox') continue;
+        if (isDerived(field, values)) continue;
+        if (field.kind === 'checkbox') {
+            if (isStoredCheckbox(field) && values[field.name] === true) cases.push({ caseName: field.caseName!, word: 'true' });
+            continue;
+        }
         if (!field.caseName) continue; // a case-less radio (Spanish adjective's `gender`) — always `persisted: false` in practice, guarded again here for the type checker.
 
         const raw = values[field.name];
@@ -187,7 +197,7 @@ export function casesToFieldValues(fields: FieldConfig[], cases: WordItem[] | un
     const byCaseName = new Map((cases ?? []).map((item) => [item.caseName, item.word]));
     return Object.fromEntries(
         fields.map((field) => {
-            if (field.kind === 'checkbox') return [field.name, false];
+            if (field.kind === 'checkbox') return [field.name, isStoredCheckbox(field) && byCaseName.get(field.caseName!) === 'true'];
             if (!field.caseName) return [field.name, '']; // a case-less radio has nothing to hydrate from
             if (field.kind === 'multi-select') return [field.name, field.decode(byCaseName.get(field.caseName) ?? '')];
             return [field.name, byCaseName.get(field.caseName) ?? ''];
@@ -266,6 +276,35 @@ export function TranslationCard({
     const watched = useWatch({ control: form.control }) as Record<string, unknown>;
     const { isDirty } = form.formState;
 
+    // Type-ahead (Slice E, D21): a pick from the query field's list writes the lemma, then fills the
+    // card with that exact entry — the same fill as "Use autocomplete values". `pickedEntry` tells
+    // `AutocompleteRow` which entry the lemma stands for (der See vs die See). The lookup goes through
+    // the query cache, so the footer row reads the same answer without a second request.
+    const queryClient = useQueryClient();
+    const [pickedEntry, setPickedEntry] = useState<PickedEntry | null>(null);
+    const typeAhead = useMemo<TypeAheadConfig | undefined>(() => {
+        const endpoint = getAutocompleteEndpoint(lang, pos);
+        if (!endpoint || !config || displayOnly) return undefined;
+        const pickSuggestion = async ({ lemma, entryId }: Suggestion) => {
+            form.setValue(activeQueryField(endpoint, config.fields, form.getValues()), lemma, { shouldDirty: true, shouldValidate: true });
+            setPickedEntry({ lemma, entryId });
+            const extra = endpoint.extraFieldName ? Boolean(form.getValues(endpoint.extraFieldName)) : undefined;
+            try {
+                const data = await queryClient.fetchQuery(lookupQueryOptions({ language: lang, pos, query: lemma, extra, entryId }));
+                applyLookup(config.fields, data, form.getValues(), form.setValue);
+            } catch {
+                // Nothing to fill; the footer row shows the failed lookup.
+            }
+        };
+        return {
+            lang,
+            pos,
+            offWhenField: endpoint.extraFieldName,
+            onPick: (suggestion) => void pickSuggestion(suggestion),
+            onType: () => setPickedEntry(null),
+        };
+    }, [lang, pos, config, displayOnly, form, queryClient]);
+
     const cases = useMemo(
         () => (config ? fieldsToCases(config.fields, watched) : []),
         [config, watched],
@@ -287,7 +326,14 @@ export function TranslationCard({
         );
     }, [config, watched]);
     const visibleFields = useMemo(
-        () => branchFields.filter((field) => !isHiddenInDisplayOnly(field, watched[field.name], displayOnly)),
+        () =>
+            branchFields.filter((field) => {
+                // A field showing derived text (Estonian "kõige …" superlative, D20) has an empty value on purpose.
+                if (isDerived(field, watched)) return true;
+                // A checkbox is a form control: the read-only view shows its effect, not "true"/"false".
+                if (displayOnly && field.kind === 'checkbox') return false;
+                return !isHiddenInDisplayOnly(field, watched[field.name], displayOnly);
+            }),
         [branchFields, watched, displayOnly],
     );
 
@@ -333,6 +379,7 @@ export function TranslationCard({
 
     const autocompleteEndpoint = getAutocompleteEndpoint(lang, pos);
     const hasAutocomplete = autocompleteEndpoint !== undefined;
+    const queryFieldName = autocompleteEndpoint ? activeQueryField(autocompleteEndpoint, config.fields, watched) : undefined;
 
     const langEntry = languageByLabel(lang);
     const headline = primaryCaseWord(pos, { language: lang, cases });
@@ -409,7 +456,8 @@ export function TranslationCard({
                                     <FieldRenderer
                                         field={item.field}
                                         displayOnly={displayOnly}
-                                        autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                        autocompleteFieldName={queryFieldName}
+                                        typeAhead={typeAhead}
                                         reserveMessageSpace={item.field.required}
                                     />
                                 ) : (
@@ -460,7 +508,8 @@ export function TranslationCard({
                                                             displayOnly={displayOnly}
                                                             // Verb pronouns (the tense grid's row labels) stay beside their value; every other label sits above it.
                                                             compact={displayOnly && isMobile && field.layout?.columnHeading !== undefined}
-                                                            autocompleteFieldName={autocompleteEndpoint?.queryFieldName}
+                                                            autocompleteFieldName={queryFieldName}
+                                                            typeAhead={typeAhead}
                                                             reserveMessageSpace={reserveMessageSpace}
                                                         />
                                                     )}
@@ -481,7 +530,7 @@ export function TranslationCard({
                             )}
                         >
                             <div className="min-w-0">
-                                {hasAutocomplete && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} />}
+                                {hasAutocomplete && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} pickedEntry={pickedEntry} />}
                             </div>
                             <div className="flex shrink-0 items-center gap-2">
                                 {onClear && (

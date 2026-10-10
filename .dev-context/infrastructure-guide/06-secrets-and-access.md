@@ -105,7 +105,7 @@ variable names, different (environment-appropriate) values:
 | `ADMIN_JWT_SECRET` | Signs the admin dashboard's staff tokens. A different value from `JWT_SECRET`, and a different value per environment (generate with `openssl rand -hex 32`). If it is missing or empty, the backend still starts, and `POST /api/admin/auth/login` answers 503 |
 | `ADMIN_LINKS` | Optional. The private tool links on the admin health page (your Sentry project, Healthchecks project, Netcup page...). The repo is public, so the real addresses live only here. One line of JSON; see "The admin health page links" below. If it is missing, the page shows generic links |
 | `BASE_URL` | `https://staging.ladu.com.ar` or `https://app.ladu.com.ar` |
-| `URL_EESTI_LANG_API` | The Estonian dictionary API URL (same value both environments) |
+| `EKILEX_API_KEY` | The Ekilex API key for Estonian autocomplete (same value both environments; a read-only key is enough). Without it, Estonian lookups answer 502. Replaced `URL_EESTI_LANG_API` (api.sonapi.ee) in autocomplete Slice D; that old secret can be deleted after the deploy |
 | `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASS` | Resend SMTP config — `EMAIL_PASS` is a Resend API key, currently the *same* key shared across both environments |
 | `EMAIL_FROM` | `staging@ladu.com.ar` or `noreply@ladu.com.ar` |
 | `SENTRY_DSN` | The **backend** Sentry project's DSN (same value both environments — `environment`/`release` tags do the separation, not separate DSNs) |

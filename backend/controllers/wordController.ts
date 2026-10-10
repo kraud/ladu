@@ -159,6 +159,8 @@ const getRequiredFieldsData = (
           return { dataES: findByCaseName("adverbES")! };
         case "German":
           return { dataDE: findByCaseName("adverbDE")! };
+        case "Estonian":
+          return { dataEE: findByCaseName("adverbEE")! };
         default:
           console.warn(
             `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Adverb"`,
@@ -402,7 +404,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   const q: string | undefined = req.query.q;
   if (q) {
     // Same matching rule as GET /api/words/searchWord: substring match on any
-    // stored case word, excluding gender/gradable metadata rows.
+    // stored case word, excluding gender/gradable/reflexive*/periphrasticSuperlative metadata rows.
     const matchingWordIds = db
       .select({ id: translations.wordId })
       .from(translationCases)
@@ -412,6 +414,8 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
           ilike(translationCases.word, `%${q}%`),
           not(ilike(translationCases.caseName, "gender%")),
           not(ilike(translationCases.caseName, "gradable%")),
+          not(ilike(translationCases.caseName, "reflexiv%")),
+          not(ilike(translationCases.caseName, "periphrasticSuperlative%")),
         ),
       );
     conditions.push(inArray(words.id, matchingWordIds));
@@ -955,6 +959,8 @@ const filterWordByAnyTranslation = asyncHandler(async (req: any, res: any) => {
         ilike(translationCases.word, `%${query}%`),
         not(ilike(translationCases.caseName, "gender%")),
         not(ilike(translationCases.caseName, "gradable%")),
+        not(ilike(translationCases.caseName, "reflexiv%")),
+        not(ilike(translationCases.caseName, "periphrasticSuperlative%")),
         or(
           eq(words.userId, req.user.id),
           wordsFromFollowedTags.length > 0

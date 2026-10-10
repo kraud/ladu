@@ -26,7 +26,7 @@ const MAIN_CASE_NAMES: Record<string, string[]> = {
   English: ["singularEN", "adverbEN", "positiveEN", "simplePresent1sEN"],
   Spanish: ["singularES", "adverbES", "maleSingularES", "neutralSingularES", "infinitiveNonFiniteSimpleES"],
   German: ["singularNominativDE", "adverbDE", "positiveDE", "infinitiveDE"],
-  Estonian: ["singularNimetavEE", "algvorreEE", "infinitiveMaEE"],
+  Estonian: ["singularNimetavEE", "algvorreEE", "adverbEE", "infinitiveMaEE"],
 };
 
 export type SortDirection = "asc" | "desc";

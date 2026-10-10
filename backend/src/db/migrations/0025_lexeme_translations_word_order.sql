@@ -1,0 +1,1 @@
+ALTER TABLE "lexeme_translations" ADD COLUMN "word_order" integer DEFAULT 0 NOT NULL;

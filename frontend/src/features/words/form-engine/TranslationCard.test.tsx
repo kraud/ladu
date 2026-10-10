@@ -6,7 +6,7 @@ import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 import { mockMobileViewport } from '@/test/viewport';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
-import type { FieldConfig } from './configs/types';
+import type { CaseName, FieldConfig } from './configs/types';
 import {
     casesToFieldValues,
     fieldsHaveData,
@@ -117,7 +117,8 @@ describe('TranslationCard', () => {
         renderWithProviders(
             <TranslationCard lang={Lang.EN} initialCases={[{ caseName: NounCases.singularEN, word: 'cat' }]} />
         );
-        expect(screen.getByDisplayValue('cat')).toBeInTheDocument();
+        // The query field is a combobox since Slice E (the type-ahead list).
+        expect(screen.getByRole('combobox', { name: 'Singular' })).toHaveValue('cat');
     });
 
     it('shows Clear and Remove actions when their handlers are passed, unless displayOnly', () => {
@@ -331,7 +332,8 @@ describe('TranslationCard — Verb', () => {
     it('stacks the Spanish infinitive, gerund and participle in one column on a phone, without a scroller', () => {
         mockMobileViewport();
         renderWithProviders(<TranslationCard lang={Lang.ES} pos={PartOfSpeech.verb} />);
-        const infinitive = screen.getAllByRole('textbox')[0]!;
+        // The infinitive is the autocomplete query field (a combobox since Slice E).
+        const infinitive = screen.getByPlaceholderText('Type to autocomplete');
         const grid = infinitive.closest('.grid') as HTMLElement;
         expect(grid.style.gridTemplateColumns).toBe('minmax(0, 1fr)');
         expect(grid.closest('[data-testid="horizontal-scroller"]')).toBeNull();
@@ -340,7 +342,8 @@ describe('TranslationCard — Verb', () => {
     it('gives the German infinitive its own row on a phone, with the auxiliary verb and prefix below it and no scroller', () => {
         mockMobileViewport();
         renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.verb} />);
-        const infinitive = screen.getAllByRole('textbox')[0]!;
+        // The infinitive is the autocomplete query field (a combobox since Slice E).
+        const infinitive = screen.getByPlaceholderText('Type to autocomplete');
         const grid = infinitive.closest('.grid') as HTMLElement;
         expect(grid.style.gridTemplateColumns).toBe('repeat(2, minmax(0, 1fr))');
         expect(infinitive.closest('.col-span-2')).not.toBeNull();
@@ -470,8 +473,16 @@ describe('TranslationCard — Adverb', () => {
         expect(screen.getByLabelText('Comparative')).toBeInTheDocument();
     });
 
-    it('there is no Estonian adverb card', () => {
+    it('the Estonian adverb card has the adverb, its comparative and superlative, and the "kõige" box (Slice H4, D27)', () => {
         renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.adverb} />);
+        expect(screen.getByLabelText('Adverb')).toBeInTheDocument();
+        expect(screen.getByLabelText('Comparative')).toBeInTheDocument();
+        expect(screen.getByLabelText('Superlative')).toBeInTheDocument();
+        expect(screen.getByRole('checkbox', { name: /No one-word superlative/ })).toBeInTheDocument();
+    });
+
+    it('a part of speech with no form engine shows the "not available yet" card', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.preposition} />);
         expect(screen.getByText('That language is not available yet')).toBeInTheDocument();
     });
 });
@@ -481,15 +492,12 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
             englishVerb: {
-                foundVerb: true,
-                verbData: {
-                    language: 'English',
-                    cases: [
-                        { caseName: 'simplePresent1sEN', word: 'run' },
-                        { caseName: 'simplePresent2sEN', word: 'run' },
-                        { caseName: 'simplePresent3sEN', word: 'runs' },
-                    ],
-                },
+                status: 'found',
+                cases: [
+                    { caseName: 'simplePresent1sEN', word: 'run' },
+                    { caseName: 'simplePresent2sEN', word: 'run' },
+                    { caseName: 'simplePresent3sEN', word: 'runs' },
+                ],
             },
         });
         server.use(...fake.handlers);
@@ -507,8 +515,8 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
             spanishVerb: {
-                foundVerb: true,
-                verbData: { language: 'Spanish', cases: [{ caseName: 'indicativePresent1sES', word: 'bailo' }] },
+                status: 'found',
+                cases: [{ caseName: 'indicativePresent1sES', word: 'bailo' }],
             },
         });
         server.use(...fake.handlers);
@@ -524,8 +532,8 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
             germanNoun: {
-                foundNoun: true,
-                nounData: { language: 'German', cases: [{ caseName: 'genderDE', word: 'das' }] },
+                status: 'found',
+                cases: [{ caseName: 'genderDE', word: 'das' }],
             },
         });
         server.use(...fake.handlers);
@@ -541,9 +549,7 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
     it('Estonian verb: the lookup fires off infinitiveMa, gated by the same field the pattern validation uses', async () => {
         const user = userEvent.setup();
         const fake = makeAutocompleteHandlers({
-            estonianVerb: {
-                searchResult: [{ wordClasses: ['verb'], wordForms: [{ code: 'Inf', value: 'tantsida' }] }],
-            },
+            estonianVerb: { status: 'found', cases: [{ caseName: 'infinitiveDaEE', word: 'tantsida' }] },
         });
         server.use(...fake.handlers);
 
@@ -553,6 +559,233 @@ describe('TranslationCard — Autocomplete integration (one case per language wi
         await waitFor(() => expect(screen.getByRole('button', { name: /autocomplete/i })).toBeInTheDocument(), { timeout: 2000 });
         await user.click(screen.getByRole('button', { name: /autocomplete/i }));
         await waitFor(() => expect(screen.getByLabelText('-da infinitive')).toHaveValue('tantsida'));
+    });
+});
+
+describe('TranslationCard — type-ahead list on the query field (Slice E, D21)', () => {
+    const DER_SEE = { entryId: '11111111-1111-1111-1111-111111111111', lemma: 'See', hint: 'der' };
+    const DIE_SEE = { entryId: '22222222-2222-2222-2222-222222222222', lemma: 'See', hint: 'die' };
+    const SEELE = { entryId: '33333333-3333-3333-3333-333333333333', lemma: 'Seele', hint: 'die' };
+    const seeCases = (gender: string, plural: string) => ({
+        status: 'found' as const,
+        cases: [
+            { caseName: 'genderDE', word: gender },
+            { caseName: 'singularNominativDE', word: 'See' },
+            { caseName: 'pluralNominativDE', word: plural },
+        ],
+    });
+
+    /** A German noun card; the main-sense lookup (no entry) answers der See, the entries their own. */
+    function setup() {
+        const fake = makeAutocompleteHandlers(
+            { germanNoun: seeCases('der', 'Seen') },
+            {
+                suggestions: { germanNoun: [DER_SEE, DIE_SEE, SEELE] },
+                entries: { [DIE_SEE.entryId]: seeCases('die', 'Seen') },
+            }
+        );
+        server.use(...fake.handlers);
+        renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.noun} />);
+        return { fake, user: userEvent.setup(), field: screen.getByRole('combobox', { name: 'Singular nominative' }) };
+    }
+
+    it('from 2 characters, lists the matching dictionary words, a homograph once per meaning with its article', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'se');
+
+        const list = await screen.findByRole('listbox');
+        expect(within(list).getAllByRole('option').map((option) => option.textContent)).toEqual(['derSee', 'dieSee', 'dieSeele']);
+    });
+
+    it('1 character asks for nothing and shows no list', async () => {
+        const { fake, user, field } = setup();
+        await user.type(field, 's');
+
+        // Longer than the list debounce (150 ms).
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        expect(fake.suggestionRequests).toEqual([]);
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
+    it('a click on a suggestion fills the card with that exact entry, and the footer shows it as applied', async () => {
+        const { fake, user, field } = setup();
+        await user.type(field, 'se');
+        await user.click(await screen.findByRole('option', { name: 'die See' }));
+
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+        expect(field).toHaveValue('See');
+        expect(screen.getByLabelText('Plural nominative')).toHaveValue('Seen');
+        expect(fake.requests.map((request) => request.entry)).toContain(DIE_SEE.entryId);
+        // The footer reads the same entry: no button that offers to overwrite die with der.
+        await waitFor(() => expect(screen.getByText('Autocomplete values applied')).toBeInTheDocument());
+        expect(screen.queryByRole('button', { name: 'Use autocomplete values' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
+    it('arrow keys and Enter pick a suggestion too', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'se');
+        await screen.findByRole('listbox');
+        await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
+
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+        expect(field).toHaveValue('See');
+    });
+
+    it('typing a whole word fills nothing, and the list stays open (also after the lookup pause) so the word can be clicked', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'See');
+        await screen.findByRole('listbox');
+
+        // Longer than the lookup's pause (500 ms): the list used to close by itself here.
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+        // While the list is open the rest of the page is hidden from assistive technology (`hidden: true`).
+        expect(screen.getByRole('radio', { name: 'der', hidden: true })).not.toBeChecked();
+        expect(screen.getByLabelText('Plural nominative')).toHaveValue('');
+
+        await user.click(screen.getByRole('option', { name: 'die See' }));
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+    });
+
+    it('a whole word with ONE match keeps the list open too: the single suggestion can still be clicked', async () => {
+        const POLIZEI = { entryId: '44444444-4444-4444-4444-444444444444', lemma: 'Polizei', hint: 'die' };
+        const fake = makeAutocompleteHandlers(
+            { germanNoun: { status: 'found', cases: [{ caseName: 'genderDE', word: 'die' }, { caseName: 'pluralNominativDE', word: 'Polizeien' }] } },
+            { suggestions: { germanNoun: [POLIZEI] } }
+        );
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.noun} />);
+
+        await user.type(screen.getByRole('combobox', { name: 'Singular nominative' }), 'Polizei');
+        const option = await screen.findByRole('option', { name: 'die Polizei' });
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        expect(option).toBeInTheDocument();
+
+        await user.click(option);
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+        expect(screen.getByLabelText('Plural nominative')).toHaveValue('Polizeien');
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
+    it('a click outside closes the list of a whole word, and the button is free', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'See');
+        await screen.findByRole('listbox');
+
+        await user.click(document.body);
+        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+        expect(await screen.findByRole('button', { name: 'Use autocomplete values' })).toBeInTheDocument();
+    });
+
+    it('a part of a word keeps the list open; Escape closes it', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'se');
+        await screen.findByRole('listbox');
+
+        // Longer than the lookup's pause: the list stays.
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+        await user.keyboard('{Escape}');
+        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+    });
+
+    it('typing after a pick drops it: the lookup goes back to the main sense', async () => {
+        const { fake, user, field } = setup();
+        await user.type(field, 'se');
+        await user.click(await screen.findByRole('option', { name: 'die See' }));
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+
+        await user.type(field, '{Backspace}e');
+        await waitFor(() => expect(fake.requests.at(-1)).toMatchObject({ query: 'See', entry: null }), { timeout: 2000 });
+        // The list of the whole word is open and hides the button; close it with Escape.
+        await user.keyboard('{Escape}');
+        // The main sense (der) disagrees with the filled die: the button offers it.
+        expect(await screen.findByRole('button', { name: 'Use autocomplete values' })).toBeInTheDocument();
+    });
+
+    it('Estonian verb: no list while "Search verb in English" is checked', async () => {
+        const fake = makeAutocompleteHandlers({}, { suggestions: { estonianVerb: [{ entryId: DER_SEE.entryId, lemma: 'jooksma' }] } });
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.verb} />);
+
+        await user.click(screen.getByRole('checkbox', { name: 'Search verb in english' }));
+        await user.type(screen.getByLabelText('-ma infinitive'), 'jo');
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        expect(fake.suggestionRequests).toEqual([]);
+
+        await user.click(screen.getByRole('checkbox', { name: 'Search verb in english' }));
+        expect(await screen.findByRole('option', { name: 'jooksma' })).toBeInTheDocument();
+    });
+});
+
+describe('TranslationCard — Estonian adjective superlative (D20)', () => {
+    const CHECKBOX = 'No one-word superlative (kõige + comparative)';
+
+    it('a lookup with only "kõige …" checks the box and shows the superlative as read-only "kõige" + comparative', async () => {
+        const user = userEvent.setup();
+        server.use(
+            ...makeAutocompleteHandlers({
+                estonianAdjective: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'keskvorreEE', word: 'toredam' },
+                        { caseName: 'periphrasticSuperlativeEE', word: 'true' },
+                    ],
+                },
+            }).handlers
+        );
+
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.adjective} />);
+        await user.type(screen.getByLabelText('Positive degree'), 'tore');
+        await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+        await waitFor(() => expect(screen.getByRole('checkbox', { name: CHECKBOX })).toBeChecked());
+        expect(screen.getByTestId('derived-ulivorre')).toHaveValue('kõige toredam');
+        expect(screen.getByTestId('derived-ulivorre')).toHaveAttribute('readonly');
+    });
+
+    it('a lookup with a one-word superlative fills it and leaves the box unchecked', async () => {
+        const user = userEvent.setup();
+        server.use(
+            ...makeAutocompleteHandlers({
+                estonianAdjective: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'keskvorreEE', word: 'suurem' },
+                        { caseName: 'ulivorreEE', word: 'suurim' },
+                        { caseName: 'periphrasticSuperlativeEE', word: 'false' },
+                    ],
+                },
+            }).handlers
+        );
+
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.adjective} />);
+        await user.click(screen.getByRole('checkbox', { name: CHECKBOX })); // checked by hand first …
+        await user.type(screen.getByLabelText('Positive degree'), 'suur');
+        await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+        await waitFor(() => expect(screen.getByLabelText('Superlative degree')).toHaveValue('suurim'));
+        expect(screen.getByRole('checkbox', { name: CHECKBOX })).not.toBeChecked(); // … and unchecked by the lookup
+        expect(screen.queryByTestId('derived-ulivorre')).not.toBeInTheDocument();
+    });
+
+    it('the read-only view shows the derived superlative of a saved "kõige …" adjective', () => {
+        renderWithProviders(
+            <TranslationCard
+                lang={Lang.EE}
+                pos={PartOfSpeech.adjective}
+                displayOnly
+                initialCases={[
+                    { caseName: 'algvorreEE' as CaseName, word: 'tore' },
+                    { caseName: 'keskvorreEE' as CaseName, word: 'toredam' },
+                    { caseName: 'periphrasticSuperlativeEE' as CaseName, word: 'true' },
+                ]}
+            />
+        );
+        expect(screen.getByTestId('derived-ulivorre')).toHaveTextContent('kõige toredam');
     });
 });
 
@@ -688,15 +921,43 @@ describe('fieldsToCases', () => {
         ]);
     });
 
-    it('still drops checkboxes (no PoS backs a case with one)', () => {
-        const checkbox: FieldConfig = {
-            kind: 'checkbox',
-            name: 'searchInEnglish',
-            caseName: CASE_NAME,
-            labelKey: 'searchInEnglish',
-            required: false,
-        };
+    it('drops a form-only checkbox (persisted: false, e.g. Estonian searchInEnglish)', () => {
+        const checkbox: FieldConfig = { kind: 'checkbox', name: 'searchInEnglish', labelKey: 'searchInEnglish', required: false, persisted: false };
         expect(fieldsToCases([checkbox], { searchInEnglish: true })).toEqual([]);
+    });
+
+    describe('a stored checkbox and a derived text field (Estonian superlative, D20)', () => {
+        const flag: FieldConfig = { kind: 'checkbox', name: 'periphrasticSuperlative', caseName: CASE_NAME, labelKey: 'flag', required: false };
+        const comparative: FieldConfig = { kind: 'text', name: 'keskvorre', caseName: 'keskvorreEE' as CaseName, labelKey: 'k', required: false, lowercase: true };
+        const superlative: FieldConfig = {
+            kind: 'text',
+            name: 'ulivorre',
+            caseName: 'ulivorreEE' as CaseName,
+            labelKey: 'u',
+            required: false,
+            lowercase: true,
+            derivedWhen: { when: { field: 'periphrasticSuperlative', equals: true }, prefix: 'kõige ', fromField: 'keskvorre' },
+        };
+        const fields = [comparative, superlative, flag];
+
+        it('checked: the flag is stored as "true" and the derived superlative is not stored', () => {
+            expect(fieldsToCases(fields, { keskvorre: 'toredam', ulivorre: 'leftover', periphrasticSuperlative: true })).toEqual([
+                { caseName: 'keskvorreEE', word: 'toredam' },
+                { caseName: CASE_NAME, word: 'true' },
+            ]);
+        });
+
+        it('unchecked: the flag is not stored and the superlative is', () => {
+            expect(fieldsToCases(fields, { keskvorre: 'suurem', ulivorre: 'suurim', periphrasticSuperlative: false })).toEqual([
+                { caseName: 'keskvorreEE', word: 'suurem' },
+                { caseName: 'ulivorreEE', word: 'suurim' },
+            ]);
+        });
+
+        it('hydrates the checkbox from a stored "true", and leaves it unchecked otherwise', () => {
+            expect(casesToFieldValues(fields, [{ caseName: CASE_NAME, word: 'true' }]).periphrasticSuperlative).toBe(true);
+            expect(casesToFieldValues(fields, []).periphrasticSuperlative).toBe(false);
+        });
     });
 
     it('encodes a multi-select selection into the acronym string', () => {

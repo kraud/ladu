@@ -11,7 +11,7 @@
  * primitive Slice 1 built for exactly this shape.
  */
 import { AdjectiveCases, Lang, PartOfSpeech } from '@/ts/enums';
-import type { FieldConfig, FieldLayout, FieldVisibility, RadioOption, TranslationFormConfig } from './types';
+import type { FieldConfig, FieldDerivation, FieldLayout, FieldVisibility, RadioOption, TextFieldConfig, TranslationFormConfig } from './types';
 
 function labelKey(key: string): string {
     return `wordRelated:wordForm.adjective.fields.${key}`;
@@ -28,8 +28,9 @@ function degreeField(
     required: boolean,
     requiredMessageKey?: string,
     visibleWhen?: FieldVisibility,
-    layout?: FieldLayout
-): FieldConfig {
+    layout?: FieldLayout,
+    derivedWhen?: FieldDerivation
+): TextFieldConfig {
     return {
         kind: 'text',
         name,
@@ -40,6 +41,7 @@ function degreeField(
         lowercase: true,
         visibleWhen,
         layout,
+        derivedWhen,
     };
 }
 
@@ -64,7 +66,8 @@ function buildDeConfig(): TranslationFormConfig {
         fields: [
             degreeField(AdjectiveCases.positiveDE, 'positive', true, adjectiveErrorKey(suffix, 'positiveDegreeRequired')),
             degreeField(AdjectiveCases.komparativDE, 'komparativ', false),
-            degreeField(AdjectiveCases.superlativDE, 'superlativ', false),
+            // D25: stored without "am"; the form shows it, so a hand-typed word does not repeat it.
+            { ...degreeField(AdjectiveCases.superlativDE, 'superlativ', false), adornment: { text: 'am' } },
         ],
     };
 }
@@ -86,6 +89,9 @@ function buildEsConfig(): TranslationFormConfig {
         invalidMessageKey: genderRequiredKey,
         persisted: false,
         options: GENDER_OPTIONS,
+        // Autocomplete picks the branch: a result with neutral cases is "Neutral", one with male cases "M/F".
+        fromLookup: (cases) =>
+            cases.has(AdjectiveCases.neutralSingularES) ? 'Neutral' : cases.has(AdjectiveCases.maleSingularES) ? 'M/F' : undefined,
     };
     const neutralWhen: FieldVisibility = { field: 'gender', equals: 'Neutral' };
     const mfWhen: FieldVisibility = { field: 'gender', equals: 'M/F' };
@@ -124,9 +130,22 @@ function buildEeConfig(): TranslationFormConfig {
         lang: Lang.EE,
         fields: [
             degreeField(AdjectiveCases.algvorreEE, 'algvorre', true, adjectiveErrorKey(suffix, 'algvorreFormRequired'), undefined, { row: 'degree', column: 'Positive' }),
-            // keskvorre/ulivorre: required (D4 fix — the old app had them both `.nullable()` AND `.required()`, a contradiction).
+            // keskvorre: required (D4 fix — the old app had it both `.nullable()` AND `.required()`, a contradiction).
             degreeField(AdjectiveCases.keskvorreEE, 'keskvorre', true, adjectiveErrorKey(suffix, 'keskvorreFormRequired'), undefined, { row: 'degree', column: 'Comparative' }),
-            degreeField(AdjectiveCases.ulivorreEE, 'ulivorre', true, adjectiveErrorKey(suffix, 'ulivorreFormRequired'), undefined, { row: 'degree', column: 'Superlative' }),
+            // ulivorre: optional since D20. With `periphrasticSuperlative` checked it shows "kõige " + the comparative,
+            // read-only, and is not stored (the checkbox is).
+            degreeField(AdjectiveCases.ulivorreEE, 'ulivorre', false, undefined, undefined, { row: 'degree', column: 'Superlative' }, {
+                when: { field: 'periphrasticSuperlative', equals: true },
+                prefix: 'kõige ',
+                fromField: 'keskvorre',
+            }),
+            {
+                kind: 'checkbox',
+                name: 'periphrasticSuperlative',
+                caseName: AdjectiveCases.periphrasticSuperlativeEE,
+                labelKey: labelKey(AdjectiveCases.periphrasticSuperlativeEE),
+                required: false,
+            },
             degreeField(AdjectiveCases.pluralNimetavEE, 'pluralNimetav', false),
             degreeField(AdjectiveCases.singularOmastavEE, 'singularOmastav', false, undefined, undefined, { row: 'omastav', column: singularColumn }),
             degreeField(AdjectiveCases.pluralOmastavEE, 'pluralOmastav', false, undefined, undefined, { row: 'omastav', column: pluralColumn }),

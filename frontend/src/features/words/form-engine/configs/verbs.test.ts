@@ -5,10 +5,85 @@
  */
 import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';
+import { matchesVisibility } from './types';
 import { getFormConfig } from './index';
 
 /** `auxiliaryVerb`/`caseTypeDE->verbCases` don't derive their `name` from `caseName` mechanically — old-app naming quirks the manifest reproduces on purpose. */
 const NAME_SUFFIX_EXCEPTIONS = new Set(['auxiliaryVerb', 'verbCases']);
+
+describe('reflexive verb fields (Slice H5, D28, D29, D31, D32)', () => {
+    const field = (lang: Lang, name: string) => getFormConfig(PartOfSpeech.verb, lang)!.fields.find((f) => f.name === name)!;
+
+    it('Spanish and German have the reflexivity radio (Not / Always / Optionally); English and Estonian have no reflexive field', () => {
+        for (const [lang, caseName] of [[Lang.ES, 'reflexivityES'], [Lang.DE, 'reflexivityDE']] as const) {
+            const reflexivity = field(lang, 'reflexivity');
+            expect(reflexivity).toMatchObject({ kind: 'radio', caseName, required: false });
+            expect(reflexivity.kind === 'radio' && reflexivity.options.map((o) => o.value)).toEqual(['Not reflexive', 'Always reflexive', 'Optionally reflexive']);
+        }
+        for (const lang of [Lang.EN, Lang.EE]) {
+            expect(field(lang, 'reflexive')).toBeUndefined();
+            expect(field(lang, 'reflexivity')).toBeUndefined();
+        }
+    });
+
+    it('Spanish has no pronoun-case radio: me, te, se are the same for dative and accusative (D33)', () => {
+        expect(field(Lang.ES, 'reflexiveCase')).toBeUndefined();
+    });
+
+    it('German also has a pronoun-case radio (Accusative / Dative / Both)', () => {
+        const pronounCase = field(Lang.DE, 'reflexiveCase');
+        expect(pronounCase).toMatchObject({ kind: 'radio', caseName: 'reflexiveCaseDE', required: false });
+        expect(pronounCase.kind === 'radio' && pronounCase.options.map((o) => o.value)).toEqual(['Accusative', 'Dative', 'Both']);
+    });
+
+    it('German: the pronoun-case radio is hidden only once "Not reflexive" is chosen', () => {
+        const visibility = field(Lang.DE, 'reflexiveCase').visibleWhen!;
+        expect(matchesVisibility(visibility, 'Not reflexive')).toBe(false);
+        for (const value of ['Always reflexive', 'Optionally reflexive', undefined]) expect(matchesVisibility(visibility, value)).toBe(true);
+    });
+
+    it('German: the verb-case field has a Prepositional box, stored as "P" after A, D, G (D32)', () => {
+        const verbCases = field(Lang.DE, 'verbCases');
+        if (verbCases.kind !== 'multi-select') throw new Error('verbCases is a multi-select');
+        expect(verbCases.options.map((o) => o.label)).toEqual(['Accusative', 'Dative', 'Genitive', 'Prepositional']);
+        const all = verbCases.options.map((o) => o.value);
+        expect(verbCases.encode(all)).toBe('ADGP');
+        expect(verbCases.encode(['prepositionalDE', 'accusativeDE'])).toBe('AP');
+        expect(verbCases.decode('DP')).toEqual(['dativeDE', 'prepositionalDE']);
+        // A word saved before the box existed still decodes.
+        expect(verbCases.decode('AD')).toEqual(['accusativeDE', 'dativeDE']);
+    });
+
+    it('Spanish: a pronoun before every person field of an always reflexive verb (2pl is ustedes: se, D10)', () => {
+        const pronouns = ['1s', '2s', '3s', '1pl', '2pl', '3pl'].map((slot) => field(Lang.ES, `indicativePresent${slot}`).reflexive);
+        const on = { field: 'reflexivity', equals: 'Always reflexive' };
+        expect(pronouns).toEqual([
+            { accusative: 'me', position: 'before', on },
+            { accusative: 'te', position: 'before', on },
+            { accusative: 'se', position: 'before', on },
+            { accusative: 'nos', position: 'before', on },
+            { accusative: 'se', position: 'before', on },
+            { accusative: 'se', position: 'before', on },
+        ]);
+        expect(field(Lang.ES, 'infinitiveNonFiniteSimple').reflexive).toBeUndefined();
+    });
+
+    it('German: the pronoun shows for an always reflexive verb, after the verb in present and past, before it in perfect and future', () => {
+        const on = { field: 'reflexivity', equals: 'Always reflexive' };
+        expect(field(Lang.DE, 'indicativePresent1s').reflexive).toEqual({ accusative: 'mich', dative: 'mir', position: 'after', on, caseField: 'reflexiveCase' });
+        expect(field(Lang.DE, 'indicativeSimplePast3pl').reflexive).toMatchObject({ accusative: 'sich', position: 'after' });
+        expect(field(Lang.DE, 'indicativePerfect2s').reflexive).toEqual({ accusative: 'dich', dative: 'dir', position: 'before', on, caseField: 'reflexiveCase' });
+        expect(field(Lang.DE, 'indicativeSimpleFuture1pl').reflexive).toMatchObject({ accusative: 'uns', position: 'before' });
+        expect(field(Lang.DE, 'infinitive').reflexive).toBeUndefined();
+    });
+
+    it('Spanish: the infinitive check accepts a reflexive "-se" and "-ír" (before H5 "quejarse" and "oír" could not be saved)', () => {
+        const infinitive = field(Lang.ES, 'infinitiveNonFiniteSimple');
+        const regex = infinitive.kind === 'text' ? infinitive.pattern!.regex : /$^/;
+        for (const word of ['bailar', 'tener', 'ir', 'oír', 'quejarse', 'lavarse', 'irse', 'reírse']) expect(regex.test(word), word).toBe(true);
+        for (const word of ['bailo', 'quejarsee', 'ser2', 'se']) expect(regex.test(word), word).toBe(false);
+    });
+});
 
 describe('getFormConfig(Verb, lang) — old field-list parity', () => {
     it('English: regularity, 4 simple tenses x 5 pronoun slots', () => {
@@ -40,13 +115,14 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => f.name !== 'simplePresent1s').every((f) => !f.required)).toBe(true);
     });
 
-    it('Spanish: 3 non-finites, regularity, 4 indicative simple tenses x 6 pronoun slots — no conditional/imperative', () => {
+    it('Spanish: 3 non-finites, regularity, reflexivity (H5), 4 indicative simple tenses x 6 pronoun slots — no conditional/imperative', () => {
         const config = getFormConfig(PartOfSpeech.verb, Lang.ES)!;
         expect(config.fields.map((f) => f.name)).toEqual([
             'infinitiveNonFiniteSimple',
             'gerundNonFiniteSimple',
             'participleNonFiniteSimple',
             'regularity',
+            'reflexivity', // new in Slice H5 (D33), not in the old app
             'indicativePresent1s',
             'indicativePresent2s',
             'indicativePresent3s',
@@ -79,7 +155,7 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => !requiredNames.includes(f.name)).every((f) => !f.required)).toBe(true);
     });
 
-    it('German: infinitive, auxiliaryVerb, prefix, regularity, verbCases, 4 tenses x 6 pronoun slots', () => {
+    it('German: infinitive, auxiliaryVerb, prefix, regularity, verbCases, reflexivity + reflexiveCase (H5), 4 tenses x 6 pronoun slots', () => {
         const config = getFormConfig(PartOfSpeech.verb, Lang.DE)!;
         // D36 — reordered from the old app's list (regularity used to sit right after
         // infinitive) so infinitive/auxiliaryVerb/prefix and regularity/verbCases each form one
@@ -90,6 +166,8 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
             'prefix',
             'regularity',
             'verbCases',
+            'reflexivity', // new in Slice H5 (D31), not in the old app
+            'reflexiveCase', // new in Slice H5 (D31), not in the old app
             'indicativePresent1s',
             'indicativePresent2s',
             'indicativePresent3s',
@@ -180,6 +258,13 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
                 expect(field.label).toBeTruthy();
             }
         }
+    });
+
+    it('Spanish 2nd person is labelled Tú and Ustedes — the forms the dictionary fills (decision D10)', () => {
+        const fields = getFormConfig(PartOfSpeech.verb, Lang.ES)!.fields;
+        const labelOf = (name: string) => fields.find((f) => f.name === name)?.label;
+        expect(labelOf('indicativePresent2s')).toBe('Tú');
+        expect(labelOf('indicativePresent2pl')).toBe('Ustedes');
     });
 
     describe('layout — each tense becomes a column, pronoun becomes a row', () => {

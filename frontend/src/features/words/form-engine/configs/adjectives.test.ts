@@ -4,8 +4,8 @@
  * `.context/.frontend/snapshot/forms-adjectives-adverbs.md`.
  */
 import { describe, expect, it } from 'vitest';
-import { Lang, PartOfSpeech } from '@/ts/enums';
-import { matchesVisibility, type FieldConfig } from './types';
+import { AdjectiveCases, Lang, PartOfSpeech } from '@/ts/enums';
+import { isStoredCheckbox, matchesVisibility, type FieldConfig } from './types';
 import { getFormConfig } from './index';
 
 /** Field names that would actually render given these sibling values — the same filter `FieldRenderer` applies via `visibleWhen`. */
@@ -30,23 +30,51 @@ describe('getFormConfig(Adjective, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => f.name !== 'positive').every((f) => !f.required)).toBe(true);
     });
 
-    it('Estonian: algvorre*, keskvorre*, ulivorre*, 5 optional case fields', () => {
+    it('German: the superlative shows a fixed "am" prefix (D25: stored without it)', () => {
+        const config = getFormConfig(PartOfSpeech.adjective, Lang.DE)!;
+        expect(config.fields.find((f) => f.name === 'superlativ')?.adornment).toEqual({ text: 'am' });
+        expect(config.fields.find((f) => f.name === 'komparativ')?.adornment).toBeUndefined();
+    });
+
+    it('Spanish: the gender radio takes the branch from a lookup result', () => {
+        const gender = getFormConfig(PartOfSpeech.adjective, Lang.ES)!.fields.find((f) => f.name === 'gender');
+        const fromLookup = gender?.kind === 'radio' ? gender.fromLookup : undefined;
+        expect(fromLookup?.(new Map([[AdjectiveCases.neutralSingularES, 'feliz']]))).toBe('Neutral');
+        expect(fromLookup?.(new Map([[AdjectiveCases.maleSingularES, 'rojo']]))).toBe('M/F');
+        expect(fromLookup?.(new Map())).toBeUndefined();
+    });
+
+    it('Estonian: algvorre*, keskvorre*, an optional ulivorre with its "kõige" checkbox, 5 optional case fields (D20)', () => {
         const config = getFormConfig(PartOfSpeech.adjective, Lang.EE)!;
         expect(config.fields.map((f) => f.name)).toEqual([
             'algvorre',
             'keskvorre',
             'ulivorre',
+            'periphrasticSuperlative',
             'pluralNimetav',
             'singularOmastav',
             'pluralOmastav',
             'singularOsastav',
             'pluralOsastav',
         ]);
-        const required = ['algvorre', 'keskvorre', 'ulivorre'];
+        const required = ['algvorre', 'keskvorre'];
         for (const name of required) {
             expect(config.fields.find((f) => f.name === name)?.required).toBe(true);
         }
         expect(config.fields.filter((f) => !required.includes(f.name)).every((f) => !f.required)).toBe(true);
+    });
+
+    it('Estonian superlative: derived from the comparative while the checkbox is checked; the checkbox is stored (D20)', () => {
+        const fields = getFormConfig(PartOfSpeech.adjective, Lang.EE)!.fields;
+        const ulivorre = fields.find((f) => f.name === 'ulivorre');
+        expect(ulivorre?.kind === 'text' && ulivorre.derivedWhen).toEqual({
+            when: { field: 'periphrasticSuperlative', equals: true },
+            prefix: 'kõige ',
+            fromField: 'keskvorre',
+        });
+        const flag = fields.find((f) => f.name === 'periphrasticSuperlative');
+        expect(flag).toMatchObject({ kind: 'checkbox', caseName: AdjectiveCases.periphrasticSuperlativeEE });
+        expect(flag && isStoredCheckbox(flag)).toBe(true);
     });
 
     it('Estonian layout: positive/comparative/superlative share one row; omastav and osastav pair singular/plural', () => {

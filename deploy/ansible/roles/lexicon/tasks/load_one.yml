@@ -1,0 +1,27 @@
+---
+# Load the lexicon file into ONE environment (`lexicon_env`). Included once per environment by
+# main.yml, so a failure here stops the play before the next environment is touched
+# (a plain `loop` would still run the remaining items after one fails).
+- name: "Load into {{ lexicon_env }}"
+  block:
+    # The file goes into the container's /tmp (not a volume): the image holds the script, not the data.
+    - name: "Copy the file into backend-{{ lexicon_env }}"
+      ansible.builtin.command:
+        cmd: "docker cp {{ lexicon_dir }}/{{ lexicon_file | basename }} backend-{{ lexicon_env }}:/tmp/{{ lexicon_file | basename }}"
+      changed_when: true
+
+    - name: "Run load.js in backend-{{ lexicon_env }}"
+      ansible.builtin.command:
+        cmd: "docker exec backend-{{ lexicon_env }} node scripts/lexicon/load.js /tmp/{{ lexicon_file | basename }}"
+      register: lexicon_load
+      changed_when: true
+
+    - name: "Show what was loaded into {{ lexicon_env }}"
+      ansible.builtin.debug:
+        msg: "{{ lexicon_env }}: {{ lexicon_load.stdout }}"
+  always:
+    - name: "Remove the file from backend-{{ lexicon_env }}"
+      ansible.builtin.command:
+        cmd: "docker exec backend-{{ lexicon_env }} rm -f /tmp/{{ lexicon_file | basename }}"
+      changed_when: true
+      failed_when: false

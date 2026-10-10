@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext } from '@playwright/test';
+import { clickUseValues, closeTypeAheadList } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
@@ -111,14 +112,12 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
 
         await page.getByRole('button', { name: 'Deutsch' }).click();
         await page.getByLabel('Singular nominative').fill('Baum');
-        await expect(
-            page.getByRole('button', { name: 'Use autocomplete values' }),
-        ).toBeVisible({ timeout: 10_000 });
-        await page.getByRole('button', { name: 'Use autocomplete values' }).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radio', { name: 'der', exact: true })).toBeChecked();
 
         await page.getByRole('button', { name: 'English' }).click();
         await page.getByLabel('Singular', { exact: true }).fill('Tree');
+        await closeTypeAheadList(page);
 
         await page.getByRole('button', { name: 'Save' }).click();
         await expect(page.getByText('Word was created successfully')).toBeVisible();
@@ -134,9 +133,11 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         // labels conjugation fields by pronoun, not by tense) — only
         // `simplePresent1s` is required, addressed by its RHF field name.
         await page.locator('input[name="simplePresent1s"]').fill('run');
+        await closeTypeAheadList(page);
 
         await page.getByRole('button', { name: 'Deutsch' }).click();
         await page.getByLabel('Infinitive').fill('laufen');
+        await closeTypeAheadList(page);
 
         await page.getByRole('button', { name: 'Save' }).click();
         await expect(page.getByText('Word was created successfully')).toBeVisible();

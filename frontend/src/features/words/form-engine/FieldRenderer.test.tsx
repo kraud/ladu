@@ -367,6 +367,85 @@ describe('FieldRenderer', () => {
         });
     });
 
+    describe('reflexive pronoun (Slice H5, D29, D31)', () => {
+        type Reflexive = NonNullable<FieldConfig['reflexive']>;
+        const person = (name: string, reflexive: Reflexive, adornment?: FieldConfig['adornment']): FieldConfig => ({
+            ...adornedField, name, labelKey: name, adornment, reflexive,
+        });
+        const reflexiveBox: FieldConfig = { ...checkboxField, name: 'reflexive', labelKey: 'reflexive' };
+        const spanish: Reflexive = { accusative: 'me', position: 'before', on: { field: 'reflexive', equals: true } };
+        const german = (position: 'before' | 'after'): Reflexive => ({
+            accusative: 'mich', dative: 'mir', position, on: { field: 'reflexivity', equals: 'Always reflexive' }, caseField: 'reflexiveCase',
+        });
+        const radio = (name: string): FieldConfig => ({ ...radioField, name, labelKey: name });
+
+        it('Spanish: nothing until the box is checked, then the pronoun before the input ("me")', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(
+                <MultiHarness fields={[reflexiveBox, person('indicativePresent1s', spanish)]} defaultValues={{ reflexive: false, indicativePresent1s: '' }} />,
+            );
+            expect(screen.queryByText('me')).not.toBeInTheDocument();
+            await user.click(screen.getByRole('checkbox'));
+            expect(screen.getByText('me')).toBeInTheDocument();
+            await user.click(screen.getByRole('checkbox'));
+            expect(screen.queryByText('me')).not.toBeInTheDocument();
+        });
+
+        it('German: only an ALWAYS reflexive verb shows the pronoun, after the verb in present and past ("wasche mich")', () => {
+            const fields = [radio('reflexivity'), person('indicativePresent1s', german('after'))];
+            const { unmount } = renderWithProviders(
+                <MultiHarness fields={fields} defaultValues={{ reflexivity: 'Optionally reflexive', indicativePresent1s: 'wasche' }} />,
+            );
+            expect(screen.queryByText('mich')).not.toBeInTheDocument();
+            unmount();
+
+            renderWithProviders(<MultiHarness fields={fields} defaultValues={{ reflexivity: 'Always reflexive', indicativePresent1s: 'wasche' }} />);
+            const pronoun = screen.getByText('mich');
+            const input = screen.getByDisplayValue('wasche');
+            expect(input.compareDocumentPosition(pronoun) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        });
+
+        it('German perfect: the auxiliary and the pronoun stand together before the input ("habe mich")', () => {
+            renderWithProviders(
+                <MultiHarness
+                    fields={[
+                        radio('reflexivity'),
+                        person('indicativePerfect1s', german('before'), { watchField: 'auxiliaryVerb', values: { haben: 'habe' } }),
+                    ]}
+                    defaultValues={{ reflexivity: 'Always reflexive', auxiliaryVerb: 'haben', indicativePerfect1s: '' }}
+                />,
+            );
+            expect(screen.getByText('habe mich')).toBeInTheDocument();
+        });
+
+        it('German: the pronoun case comes from the reflexive-case radio: Accusative, Dative, Both (mich/mir)', () => {
+            const fields = [radio('reflexivity'), radio('reflexiveCase'), person('indicativePresent1s', german('after'))];
+            const shown = (reflexiveCase?: string) => {
+                const { unmount } = renderWithProviders(
+                    <MultiHarness fields={fields} defaultValues={{ reflexivity: 'Always reflexive', reflexiveCase, indicativePresent1s: '' }} />,
+                );
+                const text = ['mich', 'mir', 'mich/mir'].find((candidate) => screen.queryByText(candidate) !== null);
+                unmount();
+                return text;
+            };
+            expect(shown('Accusative')).toBe('mich');
+            expect(shown('Dative')).toBe('mir');
+            expect(shown('Both')).toBe('mich/mir');
+            expect(shown(undefined)).toBe('mich');
+        });
+
+        it('displayOnly: the pronoun shows in italics beside a stored word', () => {
+            renderWithProviders(
+                <MultiHarness
+                    displayOnly
+                    fields={[radio('reflexivity'), { ...person('indicativePresent1s', german('after')), required: true }]}
+                    defaultValues={{ reflexivity: 'Always reflexive', indicativePresent1s: 'wasche' }}
+                />,
+            );
+            expect(screen.getByText('mich')).toHaveClass('italic');
+        });
+    });
+
     describe('adornment', () => {
         it('keeps the prefix visible in displayOnly, in italics and ahead of the value', () => {
             renderWithProviders(
@@ -395,6 +474,16 @@ describe('FieldRenderer', () => {
             await user.click(screen.getByRole('combobox'));
             await user.click(await screen.findByRole('option', { name: 'haben' }));
             expect(screen.getByText('habe')).toBeInTheDocument();
+        });
+
+        it('a fixed prefix (German superlative "am") shows in the form and, in displayOnly, only once the field has a value', () => {
+            const superlative: FieldConfig = { ...adornedField, name: 'superlativ', adornment: { text: 'am' } };
+            const { unmount } = renderWithProviders(<Harness field={superlative} value="" />);
+            expect(screen.getByText('am')).toBeInTheDocument();
+            unmount();
+
+            renderWithProviders(<Harness field={superlative} displayOnly value="besten" />);
+            expect(screen.getByText('am').parentElement).toHaveTextContent('am besten');
         });
     });
 });
