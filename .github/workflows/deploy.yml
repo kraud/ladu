@@ -126,7 +126,7 @@ jobs:
           ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
           ADMIN_LINKS=${{ secrets.ADMIN_LINKS }}
           BASE_URL=${{ secrets.BASE_URL }}
-          URL_EESTI_LANG_API=${{ secrets.URL_EESTI_LANG_API }}
+          EKILEX_API_KEY=${{ secrets.EKILEX_API_KEY }}
           EMAIL_HOST=${{ secrets.EMAIL_HOST }}
           EMAIL_PORT=${{ secrets.EMAIL_PORT }}
           EMAIL_SECURE=${{ secrets.EMAIL_SECURE }}
@@ -216,7 +216,7 @@ jobs:
           ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
           ADMIN_LINKS=${{ secrets.ADMIN_LINKS }}
           BASE_URL=${{ secrets.BASE_URL }}
-          URL_EESTI_LANG_API=${{ secrets.URL_EESTI_LANG_API }}
+          EKILEX_API_KEY=${{ secrets.EKILEX_API_KEY }}
           EMAIL_HOST=${{ secrets.EMAIL_HOST }}
           EMAIL_PORT=${{ secrets.EMAIL_PORT }}
           EMAIL_SECURE=${{ secrets.EMAIL_SECURE }}

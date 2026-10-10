@@ -42,13 +42,13 @@ describe('LanguageTiles', () => {
         );
     });
 
-    it("shows each tile's real part-of-speech coverage, Estonian excluding adverb", () => {
+    it("shows each tile's real part-of-speech coverage (all four for Estonian since Slice H4)", () => {
         renderWithProviders(<Harness onChange={vi.fn()} />);
 
         const english = screen.getByRole('button', { name: 'English' });
         expect(english).toHaveAccessibleDescription('noun · verb · adjective · adverb');
 
         const estonian = screen.getByRole('button', { name: 'Eesti' });
-        expect(estonian).toHaveAccessibleDescription('noun · verb · adjective');
+        expect(estonian).toHaveAccessibleDescription('noun · verb · adjective · adverb');
     });
 });

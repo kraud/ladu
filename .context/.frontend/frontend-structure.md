@@ -141,8 +141,11 @@ frontend/src/
 │   │   │   │                        #   only when their handler prop is passed. Owns its own RHF instance + yup
 │   │   │   │                        #   resolver per card — NOT a shared form. No in-place language switch;
 │   │   │   │                        #   changing a slot's language is Remove + re-Add.
-│   │   │   ├── AutocompleteRow.tsx  # Phase 3 — automatic debounced lookup + manual "Fill in" for the 8
-│   │   │   │                        #   (lang, PoS) pairs `AUTOCOMPLETE_REGISTRY` covers; `null` otherwise
+│   │   │   ├── AutocompleteRow.tsx  # Phase 3 — automatic debounced lookup + manual "Fill in" for the 9
+│   │   │   │                        #   (lang, PoS) pairs `AUTOCOMPLETE_REGISTRY` covers; `null` otherwise.
+│   │   │   │                        #   `applyLookup` = the fill, shared with a type-ahead pick (Slice E)
+│   │   │   ├── TypeAheadInput.tsx   # Slice E — the query field as a Base UI Autocomplete: suggestion list
+│   │   │   │                        #   from 2 chars; a pick fills the card (TranslationCard's `pickSuggestion`)
 │   │   │   ├── fieldLayout.ts       # Phase 3 — FieldConfig[] → row/column/block grid items for TranslationCard;
 │   │   │   │                        #   also owns the shared `isEmptyValue`/`isHiddenInDisplayOnly`/`isPersistedCaseField`
 │   │   │   ├── buildYupSchema.ts    # (config, t) → yup object — generic over any TranslationFormConfig; Phase 3
@@ -157,7 +160,7 @@ frontend/src/
 │   │   │       ├── index.ts         # getFormConfig(pos, lang) → TranslationFormConfig
 │   │   │       ├── types.ts         # FieldConfig, TranslationFormConfig
 │   │   │       ├── nouns.ts         # 4 lang configs (Phase 2) — derived from the shared WordCasesData.Noun registry
-│   │   │       └── verbs.ts adjectives.ts adverbs.ts   # Phase 3 — registry (verbs) / enums (adj/adv); NO EE adverb
+│   │   │       └── verbs.ts adjectives.ts adverbs.ts   # Phase 3 — registry (verbs) / enums (adj/adv); EE adverb since Slice H4
 │   │   ├── review/               # Phase 3 — all new
 │   │   │   ├── ReviewTable.tsx      # TanStack Table instance; stable-id row selection (`getRowId`); router-
 │   │   │   │                        #   and store-free — every input, including navigation, is a prop
@@ -184,16 +187,17 @@ frontend/src/
 │   │   └── pages/               # AddWordPage, WordPage (view/edit toggle, owner vs read-only), ReviewPage
 │   │
 │   ├── autocomplete/            # Phase 3 — all new
-│   │   ├── api.ts               # the 8 lang×PoS endpoints
-│   │   ├── hooks.ts             # useAutocompleteTranslation(lang, pos, query, extra?); enabled only on a
-│   │   │                        #   non-blank query — debouncing itself lives in `AutocompleteRow`
-│   │   ├── keys.ts              # ['autocompleteTranslation', lang, pos, query]
-│   │   ├── types.ts             # `AutocompleteResult` — `cases: Map<CaseName, string>` (a `Record` can't
-│   │   │                        #   index the `CaseName` union — see the plan's Slice 4 outcome)
-│   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 8-entry lang×PoS table) + one
-│   │                            #   `transformGenericLookup` (covers EN/ES verb, DE verb/noun, ES noun-gender —
-│   │                            #   one wire envelope) + 3 bespoke Estonian transforms (noun/adjective/verb,
-│   │                            #   a raw external-dictionary passthrough with no shared envelope)
+│   │   ├── api.ts               # lookupDictionary — GET /api/dictionary/:language/:pos/:query (?entry= a pick);
+│   │   │                        #   suggestDictionary — GET /api/dictionary/:language/:pos?prefix= (Slice E)
+│   │   ├── hooks.ts             # useAutocompleteTranslation(lang, pos, query, extra?, entryId?); enabled only on a
+│   │   │                        #   non-blank query — debouncing itself lives in `AutocompleteRow`.
+│   │   │                        #   useDictionarySuggestions (2+ chars); lookupQueryOptions (shared with a pick)
+│   │   ├── keys.ts              # ['autocomplete', lang, pos, query, extra, entryId], ['autocomplete', 'suggestions', …]
+│   │   ├── types.ts             # `DictionaryResponse` ({ status, cases }) and `AutocompleteResult` —
+│   │   │                        #   `cases: Map<CaseName, string>` (a `Record` can't index the `CaseName` union)
+│   │   └── transforms.ts        # AUTOCOMPLETE_REGISTRY (the 9-entry lang×PoS table: query field + the
+│   │                            #   Estonian searchInEnglish field) + `toAutocompleteResult`. Which source answers
+│   │                            #   a pair is the backend's business (autocomplete-data-source-strategy.md Slice A)
 │   │
 │   ├── exercises/              # Phase 5
 │   │   ├── api.ts hooks.ts keys.ts types.ts   # getUserExercises; saveTranslationPerformance / master / forget mutations

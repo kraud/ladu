@@ -753,3 +753,87 @@ export const userActivityDays = pgTable(
         index('user_activity_days_day_idx').on(table.day),
     ],
 );
+
+// ---------------------------------------------------------------------------
+// LEXEMES
+// The autocomplete dictionary (autocomplete-data-source-strategy.md, Slice B;
+// decisions D11–D14). One row per lemma entry of one source, with every app
+// case value in `forms` ({ caseName: word }). Reference data, not user data:
+// it is rebuilt from a versioned file by `scripts/lexicon/load.js`, the nightly
+// backup skips its rows, and nothing references it.
+// Homographs are separate rows (German "See" is der and die), so
+// (language, part_of_speech, search_key) is NOT unique.
+// ---------------------------------------------------------------------------
+export const lexemes = pgTable(
+    'lexemes',
+    {
+        id:            uuid('id').primaryKey().defaultRandom(),
+        // The app's own values (Lang / PartOfSpeech in frontend/src/ts/enums.ts): 'German', 'Noun'.
+        language:      varchar('language', { length: 16 }).notNull(),
+        partOfSpeech:  varchar('part_of_speech', { length: 16 }).notNull(),
+        lemma:         text('lemma').notNull(),
+        // lib/lexicon/searchKey.ts — the lookup applies the same function to the query.
+        searchKey:     text('search_key').notNull(),
+        forms:         jsonb('forms').$type<Record<string, string>>().notNull(),
+        // Rank in the source frequency list (1 = most common); NULL when the list does not have it.
+        frequencyRank: integer('frequency_rank'),
+        // Position among the source's entries for the same lemma and part of speech (0 = first =
+        // Wiktionary's main sense). Breaks ties between homographs (decision D15).
+        entryOrder:    integer('entry_order').notNull().default(0),
+        // Where the row came from, under which licence (licence-study.md option C), and which version.
+        source:        varchar('source', { length: 32 }).notNull(),
+        licence:       varchar('licence', { length: 32 }).notNull(),
+        sourceVersion: varchar('source_version', { length: 32 }).notNull(),
+    },
+    (table) => [
+        // Backs the autocomplete lookup (one typed word: `=`) and the type-ahead list (a prefix:
+        // `LIKE 'ta%'`, Slice E). `text_pattern_ops` compares characters, not the database
+        // collation, so Postgres can use the index for a prefix. Equality still works.
+        index('lexemes_lookup_idx').on(table.language, table.partOfSpeech, table.searchKey.op('text_pattern_ops')),
+    ],
+);
+
+// ---------------------------------------------------------------------------
+// Lexeme translations (autocomplete-data-source-strategy.md Slice F, decision D22).
+// The `translations[]` of the English Wiktionary entries: one row per (English
+// entry, sense, target word). English is the hub: a lookup from Spanish finds the
+// English senses that list the Spanish word, then the other languages' words of
+// those senses. Reference data like `lexemes`: rebuilt from a versioned file by
+// `scripts/lexicon/load.js`, skipped by the nightly backup, referenced by nothing.
+// ---------------------------------------------------------------------------
+export const lexemeTranslations = pgTable(
+    'lexeme_translations',
+    {
+        id:               uuid('id').primaryKey().defaultRandom(),
+        // The English entry the row comes from: lemma, part of speech ('Noun', …) and its position
+        // among the source's entries for that lemma and part of speech (0 = first).
+        englishLemma:     text('english_lemma').notNull(),
+        englishSearchKey: text('english_search_key').notNull(),
+        partOfSpeech:     varchar('part_of_speech', { length: 16 }).notNull(),
+        entryOrder:       integer('entry_order').notNull().default(0),
+        // The sense, as Wiktionary labels its translation table ("body of water"), and its position
+        // in the entry (0 = the first table = usually the main sense).
+        sense:            text('sense').notNull(),
+        senseOrder:       integer('sense_order').notNull(),
+        // The translation: target language (the app's value, 'Spanish'), the word, its search key
+        // (lib/lexicon/searchKey.ts), the noun gender as the form stores it (der/die/das, el/la/el/la;
+        // NULL when not given or ambiguous), and Wiktionary's own tags (["masculine", "plural"]).
+        language:         varchar('language', { length: 16 }).notNull(),
+        word:             text('word').notNull(),
+        // Position of the word among the sense's words in the same language (0 = listed first,
+        // usually the most common: "run" → correr before apeonar). Step F2.
+        wordOrder:        integer('word_order').notNull().default(0),
+        searchKey:        text('search_key').notNull(),
+        gender:           varchar('gender', { length: 8 }),
+        tags:             jsonb('tags').$type<string[]>().notNull().default([]),
+        source:           varchar('source', { length: 32 }).notNull(),
+        licence:          varchar('licence', { length: 32 }).notNull(),
+        sourceVersion:    varchar('source_version', { length: 32 }).notNull(),
+    },
+    (table) => [
+        // From English: every sense of an English word.
+        index('lexeme_translations_english_idx').on(table.partOfSpeech, table.englishSearchKey),
+        // From another language: the English senses that list the word (reverse lookup).
+        index('lexeme_translations_word_idx').on(table.language, table.partOfSpeech, table.searchKey),
+    ],
+);

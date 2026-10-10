@@ -21,6 +21,9 @@ dist
 frontend/dist
 *.tsbuildinfo
 
+# lexicon source downloads (several GB, developer machine only)
+backend/scripts/lexicon/.data
+
 # test artifacts
 backend/coverage
 e2e/test-results

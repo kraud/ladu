@@ -1,0 +1,1 @@
+ALTER TABLE "lexemes" ADD COLUMN "entry_order" integer DEFAULT 0 NOT NULL;

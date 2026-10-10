@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext } from '@playwright/test';
+import { closeTypeAheadList } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
@@ -86,17 +87,21 @@ test.describe.serial('Phase 2 — noun create / view', () => {
         // English
         await page.getByRole('button', { name: 'English' }).click();
         await page.getByLabel('Singular', { exact: true }).first().fill('House');
+        await closeTypeAheadList(page);
 
         // Español — required gender + singular
         await page.getByRole('button', { name: 'Español' }).click();
         // Exact match — "el" would otherwise also match the "el/la" (neutral) option.
         await page.getByRole('radio', { name: 'el', exact: true }).click();
         await page.getByLabel('Singular', { exact: true }).last().fill('Casa');
+        await closeTypeAheadList(page);
 
         // Deutsch — required gender + singular nominative
         await page.getByRole('button', { name: 'Deutsch' }).click();
         await page.getByRole('radio', { name: 'der', exact: true }).click();
         await page.getByLabel('Singular nominative').fill('Haus');
+        // "Haus" is a listed word: its type-ahead list stays open, so close it before the next step.
+        await closeTypeAheadList(page);
 
         const save = page.getByRole('button', { name: 'Save' });
         await expect(save).toBeEnabled();
@@ -124,6 +129,7 @@ test.describe.serial('Phase 2 — noun create / view', () => {
         const singularEN = page.getByLabel('Singular', { exact: true }).first();
         await singularEN.fill('');
         await singularEN.fill('Cottage');
+        await closeTypeAheadList(page);
         await page.getByRole('button', { name: 'Save' }).click();
 
         await expect(page.getByText('Word was updated successfully')).toBeVisible();

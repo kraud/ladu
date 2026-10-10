@@ -37,25 +37,45 @@
  * Editing the query field itself re-fires the lookup (existing debounce);
  * editing any other field just re-runs this comparison against the lookup
  * result already in hand — no new request.
+ *
+ * A `partial` result is a guess, not a dictionary entry (decision D2 in
+ * autocomplete-data-source-strategy.md). It fills like `found`, but both states
+ * above carry the "not fully sure" notice next to them, before and after applying
+ * (`data-testid="autocomplete-partial"`), so a guess never looks like a fact.
+ *
+ * Type-ahead (Slice E, decision D21): a pick from the query field's suggestion list fills the
+ * card at once (`TypeAheadInput` → `TranslationCard`'s `pickSuggestion`, which runs the same
+ * `applyLookup` as the button). The pick arrives here as `pickedEntry`: while the query field
+ * still holds the picked lemma, the lookup asks for that exact entry (der See, not the main
+ * sense der See/die See), without the debounce — the pick already fetched it, so this reads the
+ * cache. Otherwise the button would offer to overwrite the pick with the main sense.
  */
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch, type FieldValues, type UseFormSetValue } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { CheckIcon, MagnifyingGlassIcon, PencilSimpleLineIcon } from '@phosphor-icons/react';
+import { CheckIcon, MagnifyingGlassIcon, PencilSimpleLineIcon, WarningIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { useAutocompleteTranslation } from '@/features/autocomplete/hooks';
-import { getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
+import { activeQueryField, getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
 import { matchesVisibility, type FieldConfig } from './configs/types';
 import type { AutocompleteResult } from '@/features/autocomplete/types';
 
+/** A type-ahead pick (see the file header). */
+export interface PickedEntry {
+    lemma: string;
+    entryId: string;
+}
+
 export interface AutocompleteRowProps {
     lang: Lang;
     pos: PartOfSpeech;
     fields: FieldConfig[];
+    pickedEntry?: PickedEntry | null;
 }
 
-const DEBOUNCE_MS = 500;
+/** The pause after typing before the lookup runs. `TypeAheadInput` closes an exactly matching list after the same pause. */
+export const LOOKUP_DEBOUNCE_MS = 500;
 /**
  * The ready-to-click "Use autocomplete values" button, in the brand colour so
  * it stands out from the neutral Clear/Remove beside it: a soft accent fill,
@@ -79,6 +99,8 @@ const NO_FIELD = '__autocomplete_none__';
  * instead of checking them.
  */
 function valueToApply(field: FieldConfig, looked: string): unknown {
+    // A stored checkbox (Estonian "kõige …" superlative, D20) arrives as "true" / "false".
+    if (field.kind === 'checkbox') return looked === 'true';
     return field.kind === 'multi-select' ? field.decode(looked) : looked;
 }
 
@@ -94,6 +116,7 @@ function valueToApply(field: FieldConfig, looked: string): unknown {
  * a freshly-fetched (properly-cased) dictionary word.
  */
 function caseWordMatches(field: FieldConfig, currentRaw: unknown, available: string): boolean {
+    if (field.kind === 'checkbox') return (currentRaw === true) === (available === 'true');
     if (field.kind === 'multi-select') {
         const current = Array.isArray(currentRaw) ? (currentRaw as string[]) : [];
         return field.encode(current) === available;
@@ -103,6 +126,22 @@ function caseWordMatches(field: FieldConfig, currentRaw: unknown, available: str
         return current.toLowerCase() === available.toLowerCase();
     }
     return current === available;
+}
+
+/**
+ * The radios the lookup decides: one with its own `caseName` takes that case's word (German adverb
+ * "Gradable"), one with `fromLookup` takes the option the result stands for (Spanish adjective
+ * "Neutral" / "M/F"). Other fields' visibility depends on them, so they are read first: a field
+ * that the lookup's own answer shows must be filled, one that it hides must not be.
+ */
+function lookedUpRadios(fields: FieldConfig[], data: AutocompleteResult): Record<string, string> {
+    const radios: Record<string, string> = {};
+    for (const field of fields) {
+        if (field.kind !== 'radio') continue;
+        const value = field.fromLookup?.(data.cases) ?? (field.caseName ? data.cases.get(field.caseName) : undefined);
+        if (value !== undefined) radios[field.name] = value;
+    }
+    return radios;
 }
 
 /**
@@ -118,34 +157,66 @@ function valuesMatchLookup(
     values: Record<string, unknown>
 ): boolean {
     if (!data) return false;
+    const radios = lookedUpRadios(fields, data);
+    const afterFill = { ...values, ...radios };
     return fields.every((field) => {
-        if (!field.caseName) return true;
+        // A radio without a case (Spanish adjective gender) still has to show the branch the lookup stands for.
+        if (!field.caseName) return field.kind !== 'radio' || radios[field.name] === undefined || values[field.name] === radios[field.name];
         const available = data.cases.get(field.caseName);
         if (available === undefined) return true;
-        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, values[field.visibleWhen.field])) return true;
+        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, afterFill[field.visibleWhen.field])) return true;
         return caseWordMatches(field, values[field.name], available);
     });
 }
 
-export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
+/**
+ * Writes every case the lookup has a word for into its field — overwriting unconditionally (see the
+ * file header on why). Skips a field hidden by its own `visibleWhen`. Shared by the "Use
+ * autocomplete values" button and a type-ahead pick (D21: the same fill).
+ */
+export function applyLookup(
+    fields: FieldConfig[],
+    data: AutocompleteResult,
+    values: Record<string, unknown>,
+    setValue: UseFormSetValue<FieldValues>
+): void {
+    // The branch radios first, so the fields they show are filled in this same pass.
+    const radios = lookedUpRadios(fields, data);
+    for (const [name, value] of Object.entries(radios)) setValue(name, value, { shouldDirty: true, shouldValidate: true });
+    const afterRadios = { ...values, ...radios };
+    for (const field of fields) {
+        if (!field.caseName || field.name in radios) continue;
+        const looked = data.cases.get(field.caseName);
+        if (looked === undefined) continue;
+        if (field.visibleWhen && !matchesVisibility(field.visibleWhen, afterRadios[field.visibleWhen.field])) continue;
+        setValue(field.name, valueToApply(field, looked), { shouldDirty: true, shouldValidate: true });
+    }
+}
+
+export function AutocompleteRow({ lang, pos, fields, pickedEntry }: AutocompleteRowProps) {
     const { t } = useTranslation();
     const { control, setValue } = useFormContext();
     const endpoint = getAutocompleteEndpoint(lang, pos);
 
-    const queryValue = useWatch({ control, name: endpoint?.queryFieldName ?? NO_FIELD }) as string | undefined;
     const extraValue = useWatch({ control, name: endpoint?.extraFieldName ?? NO_FIELD }) as boolean | undefined;
-    // Every other field, so `valuesMatchLookup` reruns on any edit in the
+    // Every field, so `valuesMatchLookup` reruns on any edit in the
     // card — cheap: `TranslationCard` already re-renders on every keystroke
     // via this exact same unfiltered `useWatch`, so this adds no new render.
+    // The query comes from here too: which field holds it can change with the card's branch
+    // (`activeQueryField`, Spanish adjective).
     const allValues = useWatch({ control }) as Record<string, unknown>;
-    const debouncedQuery = useDebouncedCallback(queryValue ?? '', DEBOUNCE_MS);
+    const queryValue = (endpoint ? allValues[activeQueryField(endpoint, fields, allValues)] : undefined) as string | undefined;
+    const debouncedQuery = useDebouncedCallback(queryValue ?? '', LOOKUP_DEBOUNCE_MS);
+    const entryId = pickedEntry && queryValue === pickedEntry.lemma ? pickedEntry.entryId : undefined;
+    const query = entryId ? (queryValue ?? '') : debouncedQuery;
 
-    const hasQuery = endpoint !== undefined && debouncedQuery.trim() !== '';
+    const hasQuery = endpoint !== undefined && query.trim() !== '';
     const { data, isFetching } = useAutocompleteTranslation({
         language: lang,
         pos,
-        query: hasQuery ? debouncedQuery : '',
+        query: hasQuery ? query : '',
         extra: endpoint?.extraFieldName ? Boolean(extraValue) : undefined,
+        entryId,
     });
 
     if (!endpoint) return null;
@@ -168,30 +239,30 @@ export function AutocompleteRow({ lang, pos, fields }: AutocompleteRowProps) {
     // right call once the button (`valuesMatch` below) has already decided
     // there's a real disagreement to resolve.
     const handleApply = () => {
-        if (!data) return;
-        for (const field of fields) {
-            if (!field.caseName) continue;
-            const looked = data.cases.get(field.caseName);
-            if (looked === undefined) continue;
-            if (field.visibleWhen && !matchesVisibility(field.visibleWhen, allValues[field.visibleWhen.field])) continue;
-            setValue(field.name, valueToApply(field, looked), { shouldDirty: true, shouldValidate: true });
-        }
+        if (data) applyLookup(fields, data, allValues, setValue);
     };
 
     if (canFill) {
-        if (valuesMatchLookup(fields, data, allValues)) {
-            return (
-                <span className="flex items-center gap-1.5 text-xs text-(--success)">
-                    <CheckIcon size={14} weight="bold" />
-                    {t('wordRelated:wordForm.autocompleteTranslationButton.valuesApplied')}
-                </span>
-            );
-        }
-        return (
+        const action = valuesMatchLookup(fields, data, allValues) ? (
+            <span className="flex items-center gap-1.5 text-xs text-(--success)">
+                <CheckIcon size={14} weight="bold" />
+                {t('wordRelated:wordForm.autocompleteTranslationButton.valuesApplied')}
+            </span>
+        ) : (
             <Button type="button" variant="outline" size="sm" onClick={handleApply} className={APPLY_BUTTON_CLASS}>
                 <PencilSimpleLineIcon size={14} />
                 {t('wordRelated:wordForm.autocompleteTranslationButton.autocompleteButton')}
             </Button>
+        );
+        if (data?.status !== 'partial') return action;
+        return (
+            <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                {action}
+                <span className="flex items-center gap-1.5 text-xs text-(--warning)" data-testid="autocomplete-partial">
+                    <WarningIcon aria-hidden size={14} className="shrink-0" />
+                    {t('wordRelated:wordForm.autocompleteTranslationButton.partialMatch')}
+                </span>
+            </span>
         );
     }
 

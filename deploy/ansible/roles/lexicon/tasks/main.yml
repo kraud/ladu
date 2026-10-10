@@ -1,0 +1,43 @@
+---
+# Autocomplete Slice B1 (.context/plans/autocomplete-data-source-strategy.md, decisions D12/D14):
+# copy one versioned lexicon file from this machine to the VPS, then load it into each
+# environment's database with backend/scripts/lexicon/load.js inside that environment's
+# backend container, the same way the `purge` role runs purge.js. The container already has
+# DATABASE_URL, so the script needs no secret of its own.
+#
+# Not part of site.yml: it needs a file from the laptop and it replaces data, so it runs only
+# when asked, with lexicon.yml. Re-ingest is manual, about once per quarter (D14).
+#
+# load.js replaces only the file's language, in one transaction: a failed load changes nothing.
+
+- name: Check that a lexicon file was given and exists here
+  ansible.builtin.stat:
+    path: "{{ lexicon_file }}"
+  register: lexicon_local
+  delegate_to: localhost
+  become: false
+  failed_when: lexicon_file == "" or not lexicon_local.stat.exists
+
+- name: Create the lexicon directory on the VPS
+  ansible.builtin.file:
+    path: "{{ lexicon_dir }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0750"
+
+- name: Copy the lexicon file to the VPS
+  ansible.builtin.copy:
+    src: "{{ lexicon_file }}"
+    dest: "{{ lexicon_dir }}/{{ lexicon_file | basename }}"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0640"
+
+# One include per environment, in order (staging first): a failed load stops the play
+# before the next environment.
+- name: Load each environment
+  ansible.builtin.include_tasks: load_one.yml
+  loop: "{{ lexicon_environments }}"
+  loop_control:
+    loop_var: lexicon_env

@@ -34,7 +34,7 @@ Risk: **Low** = keep a notice or credit. **Medium** = act before launch.
 
 | # | Item | What I found | Risk | Action |
 |---|---|---|---|---|
-| 1 | **`is-word` word lists** (en, es, de) | The npm code is ISC. The lists match Debian's `wamerican` (102,305 lines), `wspanish` (86,016) and `wngerman` (356,008) in size and format. This is a strong match, not a proof. Licences: `ngerman` is **GPL v2 or v3** (igerman98). The English list is SCOWL: permissive, but the copyright notice must be shown, and the UKACD part wants it "prominently". The Spanish list is public domain. | **Medium** | The GPL list is data read by our program, not linked into it. Using it on our server is fine. **Giving the file to others counts as distribution.** Our backend image holds the list. If the GHCR images are public, that is distribution. See list A, item 2. Best fix: replace `is-word` with the planned lexicon. |
+| 1 | **`is-word` word lists** (en, es, de) | The npm code is ISC. The lists match Debian's `wamerican` (102,305 lines), `wspanish` (86,016) and `wngerman` (356,008) in size and format. This is a strong match, not a proof. Licences: `ngerman` is **GPL v2 or v3** (igerman98). The English list is SCOWL: permissive, but the copyright notice must be shown, and the UKACD part wants it "prominently". The Spanish list is public domain. | **Medium** | The GPL list is data read by our program, not linked into it. Using it on our server is fine. **Giving the file to others counts as distribution.** Our backend image holds the list. If the GHCR images are public, that is distribution. See list A, item 2. Best fix: replace `is-word` with the planned lexicon. **Resolved 2026-10-09:** `is-word` was removed in autocomplete Slice C2; the word lists are no longer in the backend image. |
 | 2 | **German dictionary data** (`german-verbs-dict`, `german-words-dict`) | The npm packages say Apache-2.0. The data is LanguageTool `german-pos-dict`, **CC BY-SA 4.0**. This licence allows commercial use. | Low | Credit it. Decision taken: option C (separate table, `source` and `licence` columns, no data download). |
 | 3 | **Estonian data, `api.sonapi.ee`** | A third-party, community service (not run by EKI). EKI data is **CC BY 4.0** (commercial use allowed with credit). I found no terms for the service itself. | Low (licence), **Medium** (reliability) | Credit "Sõnaveeb / EKI". Move to the official Ekilex API with a free key. Read its terms first. |
 | 4 | **`spanish-verbs`** | Apache-2.0. A fork of HealthTap's `conjugator`. The `LICENSE` file carries both copyrights (HealthTap 2017, Ludan Stoecklé 2019). Upstream is also Apache-2.0. The README is CC-BY-4.0 (docs only). | Low | Keep both notices in the notices file. |
@@ -76,7 +76,7 @@ Not a licence matter, but linked: these services (Google, Sentry, Cloudflare, Re
 6. Pin or remove `colors`.
 7. Move Estonian lookups to the official Ekilex API (read its terms first).
 8. Read the Resend AUP and the Cloudflare, GHCR and VPS terms.
-9. Replace `is-word` with the lexicon planned in `autocomplete-data-source-strategy.md`. This removes the GPL list.
+9. ~~Replace `is-word` with the lexicon planned in `autocomplete-data-source-strategy.md`. This removes the GPL list.~~ **Done 2026-10-09** (autocomplete Slice C2). The credits page no longer lists the `is-word` word lists; it lists the Wiktionary (kaikki.org) data and FrequencyWords instead.
 
 **C. Before a paid tier**
 

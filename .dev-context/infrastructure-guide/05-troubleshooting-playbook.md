@@ -205,6 +205,28 @@ is, so it only affects *inbound* traffic to the VPS, not container egress.
 
 ---
 
+### "Autocomplete stopped finding words" (for example after a database restore)
+
+**Symptom:** autocomplete answers "Sorry, we don't know this word!" (or only a "not fully
+sure" guess) for common words it used to fill.
+
+**Likely cause:** the `lexemes` table is empty for that language. The nightly backup skips its
+rows on purpose, so a restored database has the table but no lexicon. A failed lexicon load does
+**not** cause this: it changes nothing.
+
+**Check** (SQL shell as in `02-environments-and-databases.md`):
+```sql
+SELECT language, source_version, count(*) FROM lexemes GROUP BY 1, 2;
+SELECT language, count(*) FROM lexeme_translations GROUP BY 1;
+```
+(An empty `lexeme_translations` does not break autocomplete: the translate route then finds no
+senses, and the Estonian "Search verb in English" asks Ekilex for every word.)
+
+**Fix:** reload from the copy kept on the VPS — see "After a database restore" in
+[`02-environments-and-databases.md`](02-environments-and-databases.md#the-autocomplete-lexicon-tables-lexemes-and-lexeme_translations).
+
+---
+
 ### "I need to create the first admin owner, or I am locked out of the admin dashboard"
 
 Staff accounts are not in the learner `users` table, and nobody can sign in

@@ -56,23 +56,31 @@ test.afterAll(async () => {
 
 const configRow = (page: Page, name: string) => page.getByRole('button', { name: `Use configuration ${name}` });
 /**
- * The set-up screen has two list badges (Ongoing sessions is the default, then Saved configurations) and a
- * "New configuration" button that opens the settings view; that view hides the badges, with an arrow back.
+ * The set-up screen has two list badges (Ongoing sessions, Saved configurations) and a "New configuration"
+ * button that opens the settings view; that view hides the badges, with an arrow back.
+ *
+ * Once both saved lists have loaded, the page picks its first view by itself, one time (an empty account
+ * gets New configuration). So the view can change between a check and a click: each helper retries
+ * "check, click, confirm" until the wanted view is on screen. A closing dialog is covered by the retry too.
  */
 const showBadges = async (page: Page) => {
-    const back = page.getByRole('button', { name: 'Back to Practice' });
-    // `isVisible()` does not wait, and a closing dialog still hides the page from role queries.
-    await expect(back.or(page.getByRole('button', { name: 'Ongoing sessions' }))).toBeVisible();
-    if (await back.isVisible()) await back.click();
+    await expect(async () => {
+        const back = page.getByRole('button', { name: 'Back to Practice' });
+        if (await back.isVisible()) await back.click({ timeout: 1_000 });
+        await expect(page.getByRole('button', { name: 'Ongoing sessions' })).toBeVisible({ timeout: 1_000 });
+    }).toPass();
 };
-const openSessionsTab = async (page: Page) => {
-    await showBadges(page);
-    await page.getByRole('button', { name: 'Ongoing sessions' }).click();
+/** Picking a badge counts as the user's choice, so the page does not change the view after it. */
+const openTab = async (page: Page, name: 'Ongoing sessions' | 'Saved configurations') => {
+    await expect(async () => {
+        await showBadges(page);
+        const badge = page.getByRole('button', { name });
+        await badge.click({ timeout: 1_000 });
+        await expect(badge).toHaveAttribute('aria-pressed', 'true', { timeout: 1_000 });
+    }).toPass();
 };
-const openConfigurationsTab = async (page: Page) => {
-    await showBadges(page);
-    await page.getByRole('button', { name: 'Saved configurations' }).click();
-};
+const openSessionsTab = (page: Page) => openTab(page, 'Ongoing sessions');
+const openConfigurationsTab = (page: Page) => openTab(page, 'Saved configurations');
 const openNewConfigurationTab = openNewConfiguration;
 /** Selecting a saved configuration asks "start now or change first"; these tests take the second way. */
 const loadConfig = async (page: Page, name: string) => {

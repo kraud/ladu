@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { closeTypeAheadList } from '../fixtures/autocomplete';
 
 /**
  * Post-deploy smoke test — runs in `deploy.yml`'s `smoke` job, between the
@@ -112,10 +113,12 @@ test.describe.serial('Post-deploy smoke', () => {
 
         await page.getByRole('button', { name: 'English' }).click();
         await page.getByLabel('Singular', { exact: true }).first().fill('Smoke');
+        await closeTypeAheadList(page);
 
         await page.getByRole('button', { name: 'Español' }).click();
         await page.getByRole('radio', { name: 'el', exact: true }).click();
         await page.getByLabel('Singular', { exact: true }).last().fill('Humo');
+        await closeTypeAheadList(page);
 
         const save = page.getByRole('button', { name: 'Save' });
         await expect(save).toBeEnabled();

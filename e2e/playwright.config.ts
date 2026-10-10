@@ -29,6 +29,8 @@ const BACKEND_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
 // Local stub OIDC issuer standing in for Google in tests —
 // see e2e/fixtures/oidc-stub/server.ts and oauth-login-strategy.md Phase 0.
 const OIDC_STUB_URL = process.env.OIDC_STUB_URL ?? 'http://localhost:4400';
+// Local stub of the Ekilex API (the Estonian dictionary) — see e2e/fixtures/eki-stub/server.ts.
+const EKI_STUB_URL = process.env.EKI_STUB_URL ?? 'http://localhost:4401';
 const CI = !!process.env.CI;
 // The specs that change the registration or login gate (access-gates.md): `admin-11-registration-gate.spec.ts`, ...
 const GATE_SPECS = /-gate\.spec\.ts$/;
@@ -86,7 +88,9 @@ export default defineConfig({
         {
             // Migrations are a separate step from server startup (backend/scripts/migrate.js)
             // — the backend no longer applies them itself on boot.
-            command: 'npm run migrate -w backend && npm run dev -w backend',
+            // Then the committed lexicon fixtures (German, Spanish; ~40 words each) load, each only if its
+            // language has no rows yet (--if-empty): CI gets them, a local full lexicon is kept.
+            command: 'npm run migrate -w backend && npm run lexicon:load:fixture -w backend && npm run dev -w backend',
             cwd: '..',
             // OAUTH_ISSUER_GOOGLE points discovery at the local stub instead of the
             // real provider — accepted by the backend only outside production
@@ -106,6 +110,11 @@ export default defineConfig({
                 // Signs staff tokens (admin-dashboard.md slice 2). Locally the
                 // repo-root .env wins; CI has none, so it needs a value here.
                 ADMIN_JWT_SECRET: 'e2e-admin-secret',
+                // The Estonian dictionary stub (Ekilex shape). Works only if the repo-root .env does NOT
+                // set EKILEX_API_URL (that file wins over these values). The key is not checked by the
+                // stub; a real EKILEX_API_KEY in .env wins over this dummy and is simply ignored.
+                EKILEX_API_URL: EKI_STUB_URL,
+                EKILEX_API_KEY: 'e2e-stub-key',
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.
@@ -141,6 +150,17 @@ export default defineConfig({
             command: 'npm run stub:oidc -w e2e',
             cwd: '..',
             url: `${OIDC_STUB_URL}/.well-known/openid-configuration`,
+            reuseExistingServer: !CI,
+            timeout: 30_000,
+            stdout: 'pipe',
+            stderr: 'pipe',
+        },
+        {
+            // Stub Estonian dictionary (Ekilex API) for the autocomplete spec — fixed answers,
+            // plus a request log the spec reads to check the URL encoding.
+            command: 'npm run stub:eki -w e2e',
+            cwd: '..',
+            url: `${EKI_STUB_URL}/health`,
             reuseExistingServer: !CI,
             timeout: 30_000,
             stdout: 'pipe',

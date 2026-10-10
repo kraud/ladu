@@ -233,6 +233,7 @@
         "algvorreEE": "Algvõrre",
         "keskvorreEE": "Keskvõrre",
         "ulivorreEE": "Ülivõrre",
+        "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)",
         "pluralNimetavEE": "Mitmus nimetav",
         "singularOmastavEE": "Ainsus omastav",
         "pluralOmastavEE": "Mitmus omastav",
@@ -251,6 +252,9 @@
         "formDE": {
           "adverbRequired": "Määrsõna on kohustuslik",
           "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
+        },
+        "formEE": {
+          "adverbRequired": "Määrsõna on kohustuslik"
         }
       },
       "fields": {
@@ -263,7 +267,11 @@
         "gradableDE": "Astestatav",
         "adverbDE": "Määrsõna",
         "comparativeDE": "Keskvõrre",
-        "superlativeDE": "Ülivõrre"
+        "superlativeDE": "Ülivõrre",
+        "adverbEE": "Määrsõna",
+        "comparativeEE": "Keskvõrre",
+        "superlativeEE": "Ülivõrre",
+        "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)"
       }
     },
     "verb": {
@@ -276,7 +284,7 @@
           "infinitiveNonFiniteRequired": "Infinitiiv mittefiniitne on kohustuslik",
           "gerundNonFiniteRequired": "Gerundiiv mittefiniitne on kohustuslik",
           "participleNonFiniteRequired": "Partitsiip mittefiniitne on kohustuslik",
-          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-ar', '-er' või '-ir').",
+          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-ar', '-er', '-ir' või '-ír', enesekohasel tegusõnal lisaks '-se').",
           "regularityRequired": "See pole valik"
         },
         "formDE": {
@@ -296,6 +304,9 @@
         "regularityEN": "Reeglipärasus",
         "regularityES": "Reeglipärasus",
         "regularityDE": "Reeglipärasus",
+        "reflexivityES": "Refleksiivsus",
+        "reflexivityDE": "Refleksiivsus",
+        "reflexiveCaseDE": "Refleksiivpronoomeni kääne",
         "regularityEE": "Reeglipärasus",
         "infinitiveNonFiniteSimpleES": "Lihtne infinitiiv mittefiniitne",
         "gerundNonFiniteSimpleES": "Lihtne gerundiiv mittefiniitne",

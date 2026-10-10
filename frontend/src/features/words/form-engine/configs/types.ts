@@ -111,11 +111,42 @@ export interface FieldPattern {
  * field's current value (German perfect/future tenses show the conjugated
  * auxiliary verb ahead of each pronoun's input). `values` maps the watched
  * field's current value to this field's own prefix text; a value with no
- * entry shows no prefix.
+ * entry shows no prefix. `text` instead is a fixed prefix: the German
+ * superlative shows "am" before its input, and stores the word without it.
  */
 export interface FieldAdornment {
-    watchField: string;
-    values: Record<string, string>;
+    watchField?: string;
+    values?: Record<string, string>;
+    /** Always shown, whatever any sibling holds (German superlative: "am"). Used when `watchField` is absent. */
+    text?: string;
+}
+
+/**
+ * The reflexive pronoun shown next to a person field while the verb is reflexive (Slice H5, decisions
+ * D29, D31). The stored forms never hold the pronoun (D8); this is a read-only hint, like the German
+ * auxiliary adornment.
+ */
+export interface FieldReflexive {
+    accusative: string;
+    /** The dative form; for "Dative" it replaces `accusative`, for "Both" it follows it ("mich/mir"). */
+    dative?: string;
+    /**
+     * `before` the input (Spanish "me" + lavo; German "habe mich" + gewaschen, after the auxiliary) or
+     * `after` it (German present and past: wasche + "mich").
+     */
+    position: 'before' | 'after';
+    /** The sibling field that switches the pronoun on, and the value it must have: Spanish checkbox `reflexive` = true, German radio `reflexivity` = "Always reflexive". */
+    on: { field: string; equals: string | boolean };
+    /** German: the sibling radio `reflexiveCase` ("Accusative", "Dative", "Both"). Without it the pronoun is `accusative`. */
+    caseField?: string;
+}
+
+/** The pronoun to show for `reflexive`, or `undefined` while the verb is not (yet) reflexive. */
+export function reflexivePronoun(reflexive: FieldReflexive | undefined, onValue: unknown, caseValue: unknown): string | undefined {
+    if (!reflexive || onValue !== reflexive.on.equals) return undefined;
+    if (caseValue === 'Dative' && reflexive.dative) return reflexive.dative;
+    if (caseValue === 'Both' && reflexive.dative && reflexive.dative !== reflexive.accusative) return `${reflexive.accusative}/${reflexive.dative}`;
+    return reflexive.accusative;
 }
 
 interface FieldConfigBase {
@@ -159,12 +190,32 @@ interface FieldConfigBase {
     group?: FieldGroup[];
     visibleWhen?: FieldVisibility;
     adornment?: FieldAdornment;
+    /** Reflexive pronoun hint next to a verb's person field (Spanish and German, Slice H5). */
+    reflexive?: FieldReflexive;
     layout?: FieldLayout;
+}
+
+/**
+ * While `when` matches, a text field is replaced by read-only text: `prefix` + the current value
+ * of the sibling field `fromField` (Estonian adjective superlative: "kõige " + the comparative,
+ * decision D20). While derived, the field is not validated and not stored — like a hidden field.
+ */
+export interface FieldDerivation {
+    when: FieldVisibility;
+    prefix: string;
+    fromField: string;
+}
+
+/** True while `field` shows derived text instead of its own input (see `FieldDerivation`). */
+export function isDerived(field: FieldConfig, values: Record<string, unknown>): boolean {
+    const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
+    return derivation !== undefined && matchesVisibility(derivation.when, values[derivation.when.field]);
 }
 
 export interface TextFieldConfig extends FieldConfigBase {
     kind: 'text';
     caseName: CaseName;
+    derivedWhen?: FieldDerivation;
     /** Lowercase the value before persisting. Noun text cases: all languages except German (which keeps capitalization). */
     lowercase: boolean;
     /** Capitalize the first letter, as the user types and before persisting. German nouns (a rule of the language). */
@@ -176,10 +227,27 @@ export interface TextFieldConfig extends FieldConfigBase {
 export interface RadioFieldConfig extends FieldConfigBase {
     kind: 'radio';
     options: RadioOption[];
+    /**
+     * Which option an autocomplete result stands for, when the radio has no `caseName` of its own
+     * (Spanish adjective gender: the result has the neutral cases → "Neutral", the male cases → "M/F").
+     * `undefined`: the result says nothing, the radio stays as it is.
+     */
+    fromLookup?: (cases: ReadonlyMap<CaseName, string>) => string | undefined;
 }
 
+/**
+ * Not stored by default. With a `caseName` (and `persisted` not `false`) it is stored as the word
+ * "true" when checked and omitted when unchecked (Estonian `periphrasticSuperlative`, D20). A
+ * stored checkbox is a property of the word, so it never counts as a case to fill
+ * (`isPersistedCaseField`).
+ */
 export interface CheckboxFieldConfig extends FieldConfigBase {
     kind: 'checkbox';
+}
+
+/** True for a checkbox whose state is stored as a case (see `CheckboxFieldConfig`). */
+export function isStoredCheckbox(field: FieldConfig): boolean {
+    return field.kind === 'checkbox' && field.persisted !== false && Boolean(field.caseName);
 }
 
 export interface SelectFieldConfig extends FieldConfigBase {

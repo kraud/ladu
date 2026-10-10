@@ -114,11 +114,14 @@ export async function signIn(page: Page, account: Account): Promise<void> {
  * mounted but hidden on the tabs screen, so its fields cannot tell the two apart.
  */
 export async function openNewConfiguration(page: Page): Promise<void> {
-    const open = page.getByRole('button', { name: 'New configuration' });
-    const back = page.getByRole('button', { name: 'Back to Practice' });
-    await expect(open.or(back)).toBeVisible();
-    if (await open.isVisible()) await open.click();
-    await expect(page.getByLabel('Number of exercises')).toBeVisible();
+    // Once both saved lists have loaded, the page picks its first view by itself, one time (an empty account
+    // gets New configuration). The view can change between a check and a click, so retry until the settings show.
+    // Once they show, the view stays: the page never leaves New configuration on its own.
+    await expect(async () => {
+        const open = page.getByRole('button', { name: 'New configuration' });
+        if (await open.isVisible()) await open.click({ timeout: 1_000 });
+        await expect(page.getByLabel('Number of exercises')).toBeVisible({ timeout: 1_000 });
+    }).toPass();
 }
 
 /** Settings in the set-up screen's New configuration view. Everything not given stays as it is. */
