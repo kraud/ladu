@@ -100,4 +100,31 @@ const translate = asyncHandler(async (req: any, res: any) => {
     res.status(200).json(await translation.translate(fromLanguage, partOfSpeech, word));
 });
 
-module.exports = { lookup, suggest, translate };
+// @desc    The sense type-ahead (autocomplete-data-source-strategy.md Slice G, step G1): words of the start
+//          language that start with the typed text, one line per sense, from the translation table.
+// @route   GET /api/dictionary/translate/:fromLanguage?prefix=<text>&partOfSpeech=Any|Noun|Verb|Adjective|Adverb
+//          &limit=<1..20, default 10>  (fromLanguage: the language of the typed text; partOfSpeech default Any)
+// @access  Private
+// @returns 200 { suggestions: [{ word, partOfSpeech, gender?, english, sense, key: { englishLemma, entryOrder, senseOrder } }] }
+//          400 an unknown language or part of speech, a prefix shorter than 2 or longer than 100, or a bad limit
+const suggestSenses = asyncHandler(async (req: any, res: any) => {
+    const { fromLanguage } = req.params;
+    const partOfSpeech = req.query.partOfSpeech === undefined ? 'Any' : req.query.partOfSpeech;
+    if (!translation.TRANSLATE_LANGUAGES.includes(fromLanguage) || !['Any', ...translation.TRANSLATE_PARTS_OF_SPEECH].includes(partOfSpeech)) {
+        res.status(400);
+        throw new Error(`No translations for ${fromLanguage} ${partOfSpeech}`);
+    }
+    const prefix = typeof req.query.prefix === 'string' ? req.query.prefix.trim() : '';
+    if (prefix.length < MIN_PREFIX_LENGTH || prefix.length > MAX_QUERY_LENGTH) {
+        res.status(400);
+        throw new Error('The prefix must be 2 to 100 characters');
+    }
+    const limit = req.query.limit === undefined ? DEFAULT_LIMIT : Number(req.query.limit);
+    if (!Number.isInteger(limit) || limit < 1 || limit > MAX_LIMIT) {
+        res.status(400);
+        throw new Error('The limit must be 1 to 20');
+    }
+    res.status(200).json({ suggestions: await translation.senseSuggestions(fromLanguage, partOfSpeech, prefix, limit) });
+});
+
+module.exports = { lookup, suggest, translate, suggestSenses };

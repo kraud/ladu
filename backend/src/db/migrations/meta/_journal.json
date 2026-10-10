@@ -183,6 +183,13 @@
       "when": 1791560507587,
       "tag": "0025_lexeme_translations_word_order",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791672509164,
+      "tag": "0026_lexeme_translations_prefix_index",
+      "breakpoints": true
     }
   ]
 }

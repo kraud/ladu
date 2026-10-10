@@ -94,6 +94,18 @@ overview before any file changes. After each step: a commit message for the user
 
 ### G1 — Sense type-ahead (backend)
 
+**DONE 2026-10-11.** `senseSuggestions` in `services/dictionary/translate.ts`, controller
+`suggestSenses`, route registered **before** `/:language/:partOfSpeech` (that route would match
+`translate/English`). Migration `0026_lexeme_translations_prefix_index`: indexes
+`(language, search_key text_pattern_ops)` and `(english_search_key text_pattern_ops)`. Two queries:
+the words (one per part of speech and search key, ranked by `lexemes` frequency, then shorter, then
+alphabetical, cut at `limit`), then the senses of those words (at most 4 each). `key` is
+`{ englishLemma, entryOrder, senseOrder }`; the part of speech is a field of its own. Measured on
+the full local table (DE 148k, ES 133k, ET 18k rows): 10–25 ms for common 2-letter prefixes
+("co", "be"), about 10 ms for others. A two-step "distinct words first" query was not faster, so the
+simple query stays. The planner sometimes keeps the old English index for very common prefixes;
+that is fine. Jest: 8 new tests (`sense type-ahead` block in `tests/dictionary.test.js`).
+
 `GET /api/dictionary/translate/:fromLanguage?prefix=&partOfSpeech=Any|Noun|Verb|Adjective|Adverb&limit=`
 → `{ suggestions: [{ word, partOfSpeech, gender?, english, sense, key }] }`.
 

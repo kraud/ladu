@@ -720,6 +720,75 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
     });
 });
 
+describe('sense type-ahead (Slice G, G1: GET /api/dictionary/translate/:fromLanguage?prefix=)', () => {
+    const TRANSLATIONS = path.join(__dirname, '../scripts/lexicon/fixtures/translations-en-fixture.jsonl');
+    const senses = (query) => request(app).get(`/api/dictionary/translate/${query}`).set('Authorization', `Bearer ${token}`);
+    const line = ({ word, partOfSpeech, sense }) => `${word}|${partOfSpeech}|${sense}`;
+
+    beforeEach(async () => {
+        await loadLexiconFile(pool, TRANSLATIONS);
+        await loadLexiconFile(pool, EN_FIXTURE);
+    });
+
+    it('from English: one line per sense, in Wiktionary order, with the sense key', async () => {
+        const res = await senses('English?prefix=lak&partOfSpeech=Noun');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.suggestions.map(line)).toEqual(['lake|Noun|body of water', 'lake|Noun|a kind of coloring agent']);
+        expect(res.body.suggestions[0]).toEqual({
+            word: 'lake', partOfSpeech: 'Noun', english: 'lake', sense: 'body of water',
+            key: { englishLemma: 'lake', entryOrder: 0, senseOrder: 0 },
+        });
+    });
+
+    it('from German: the prefix is matched in German only, and the noun gender comes with the word', async () => {
+        const res = await senses('German?prefix=se&partOfSpeech=Noun');
+        const see = res.body.suggestions.filter((s) => s.word === 'See').map((s) => `${s.gender} ${s.word} = ${s.english}`);
+        expect(see.sort()).toEqual(['der See = lake', 'die See = sea']);
+        expect(res.body.suggestions.every((s) => s.word.toLowerCase().startsWith('se'))).toBe(true);
+    });
+
+    it('from Spanish and Estonian: the reverse lookup reaches the English sense', async () => {
+        const [spanish] = (await senses('Spanish?prefix=lag&partOfSpeech=Noun')).body.suggestions;
+        expect(spanish).toMatchObject({ word: 'lago', gender: 'el', english: 'lake', sense: 'body of water' });
+        const [estonian] = (await senses(`Estonian?prefix=${encodeURIComponent('järv')}`)).body.suggestions;
+        expect(estonian).toMatchObject({ word: 'järv', english: 'lake' });
+    });
+
+    it('"Any" lists every part of speech; one part of speech lists only that one', async () => {
+        const any = (await senses('English?prefix=ru')).body.suggestions;
+        expect(new Set(any.map((s) => s.partOfSpeech))).toContain('Verb');
+        const nouns = (await senses('English?prefix=ru&partOfSpeech=Noun')).body.suggestions;
+        expect(nouns.every((s) => s.partOfSpeech === 'Noun')).toBe(true);
+    });
+
+    it('at most 4 senses per word; limit cuts the list; the same sense is never listed twice', async () => {
+        const run = (await senses('English?prefix=run&partOfSpeech=Verb')).body.suggestions;
+        expect(run.length).toBeLessThanOrEqual(4);
+        expect(new Set(run.map((s) => JSON.stringify(s.key))).size).toBe(run.length);
+        expect((await senses('English?prefix=ba&limit=1')).body.suggestions).toHaveLength(1);
+    });
+
+    it('a typed % or _ matches itself, not everything', async () => {
+        expect((await senses('English?prefix=%25%25')).body.suggestions).toEqual([]);
+        expect((await senses('English?prefix=l_')).body.suggestions).toEqual([]);
+    });
+
+    it('a prefix with no match gives an empty list', async () => {
+        expect((await senses('German?prefix=zzzz')).body).toEqual({ suggestions: [] });
+    });
+
+    it('400 for an unknown language or part of speech, a bad prefix or limit; 401 without a token', async () => {
+        expect((await senses('Klingon?prefix=la')).statusCode).toBe(400);
+        expect((await senses('English?prefix=la&partOfSpeech=Preposition')).statusCode).toBe(400);
+        expect((await senses('English')).statusCode).toBe(400);
+        expect((await senses('English?prefix=a')).statusCode).toBe(400);
+        expect((await senses(`English?prefix=${'a'.repeat(101)}`)).statusCode).toBe(400);
+        expect((await senses('English?prefix=la&limit=0')).statusCode).toBe(400);
+        expect((await senses('English?prefix=la&limit=21')).statusCode).toBe(400);
+        expect((await request(app).get('/api/dictionary/translate/English?prefix=la')).statusCode).toBe(401);
+    });
+});
+
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
         expect((await lookup('English/Preposition/in')).statusCode).toBe(400);

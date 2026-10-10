@@ -1,0 +1,2 @@
+CREATE INDEX "lexeme_translations_word_prefix_idx" ON "lexeme_translations" USING btree ("language","search_key" text_pattern_ops);--> statement-breakpoint
+CREATE INDEX "lexeme_translations_english_prefix_idx" ON "lexeme_translations" USING btree ("english_search_key" text_pattern_ops);

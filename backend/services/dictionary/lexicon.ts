@@ -64,7 +64,7 @@ const GENDER_CASE: Record<string, string> = { German: 'genderDE', Spanish: 'gend
 const OVERFETCH = 4;
 
 /** `%` and `_` are LIKE wildcards and `\` is its escape character: a typed one must match itself. */
-const escapeLike = (text: string) => text.replace(/[\\%_]/g, (char) => `\\${char}`);
+export const escapeLike = (text: string) => text.replace(/[\\%_]/g, (char) => `\\${char}`);
 
 /**
  * The type-ahead list (Slice E): lemmas whose search key starts with `prefix`. Order: frequency
