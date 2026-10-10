@@ -7,7 +7,9 @@
      - links into the app carry ?lng=<code>, and &theme=<choice> ONLY when the
        visitor pressed the switch here. Sending the OS default as a "choice"
        would let a returning user on a new device overwrite the theme saved on
-       their account (D7). The app reads both values once and cleans the URL. */
+       their account (D7). The app reads both values once and cleans the URL.
+     - storage notice: shown only in regions with cookie rules (region.js), until
+       the visitor dismisses it. Needs region.js loaded before this file. */
 (function () {
     'use strict';
 
@@ -48,6 +50,10 @@
             languageLabel: 'Interface language',
             toDark: 'Switch to dark theme',
             toLight: 'Switch to light theme',
+            noticeLabel: 'Storage notice',
+            noticeText:
+                'Ladu keeps only essential data on your device: your sign-in, and your theme and language choices. No tracking and no ads.',
+            noticeOk: 'Got it',
         },
         es: {
             title: 'Ladu — mantén vivos todos tus idiomas',
@@ -71,6 +77,10 @@
             languageLabel: 'Idioma de la interfaz',
             toDark: 'Cambiar al tema oscuro',
             toLight: 'Cambiar al tema claro',
+            noticeLabel: 'Aviso de almacenamiento',
+            noticeText:
+                'Ladu guarda en tu dispositivo solo lo esencial: tu inicio de sesión y tus opciones de tema e idioma. Sin rastreo y sin anuncios.',
+            noticeOk: 'Entendido',
         },
         de: {
             title: 'Ladu — halte all deine Sprachen lebendig',
@@ -94,6 +104,10 @@
             languageLabel: 'Schnittstellensprache',
             toDark: 'Zum dunklen Design wechseln',
             toLight: 'Zum hellen Design wechseln',
+            noticeLabel: 'Hinweis zur Speicherung',
+            noticeText:
+                'Ladu speichert auf deinem Gerät nur das Nötigste: deine Anmeldung sowie deine Design- und Sprachwahl. Kein Tracking und keine Werbung.',
+            noticeOk: 'Verstanden',
         },
         ee: {
             title: 'Ladu — hoia kõik oma keeled elus',
@@ -117,6 +131,10 @@
             languageLabel: 'Liidese keel',
             toDark: 'Lülita tumedale teemale',
             toLight: 'Lülita heledale teemale',
+            noticeLabel: 'Teade salvestamise kohta',
+            noticeText:
+                'Ladu salvestab sinu seadmesse ainult hädavajaliku: sinu sisselogimise ning teema- ja keelevaliku. Jälgimist ega reklaami ei ole.',
+            noticeOk: 'Selge',
         },
     };
 
@@ -373,10 +391,46 @@
         });
     }
 
+    /* ---------- storage notice ---------- */
+
+    /* Shown only where cookie rules apply (region.js decides) and only until
+       the visitor presses the button. Bump the version to show it again, for
+       example when something optional, such as analytics, is added. The text
+       carries data-i18n, so applyText() translates it, also after a language
+       change. */
+    var NOTICE_KEY = 'ladu.notice.v1';
+
+    var NOTICE_HTML =
+        '<p class="notice-text"><span data-i18n="noticeText"></span> ' +
+        '<a class="link-quiet" href="/privacy.html" data-i18n="privacy"></a></p>' +
+        '<button type="button" class="button notice-ok" data-i18n="noticeOk"></button>';
+
+    function showNotice() {
+        var box = document.createElement('div');
+        box.className = 'notice';
+        box.setAttribute('role', 'region');
+        box.setAttribute('data-i18n-attr', 'aria-label:noticeLabel');
+        box.innerHTML = NOTICE_HTML;
+        box.querySelector('.notice-ok').addEventListener('click', function () {
+            write(NOTICE_KEY, 'ok');
+            box.remove();
+        });
+        document.body.appendChild(box);
+        applyText();
+    }
+
+    function setupNotice() {
+        if (!window.LaduRegion || read(NOTICE_KEY) === 'ok') return;
+        window.LaduRegion.check().then(function (needed) {
+            if (needed) showNotice();
+        });
+    }
+
     /* ---------- first render ---------- */
 
     applyText();
     applyLinks();
     applyThemeButtons();
     if (picker && trigger && menu) renderPicker();
+    setupNotice();
 })();

@@ -4,5 +4,19 @@
 :80 {
     root * /srv
     encode gzip
-    file_server
+
+    # The visitor's country, as Cloudflare saw it (CF-IPCountry; the edge
+    # proxy passes the header on). Read by region.js to decide whether to
+    # show the storage notice. Not cached, because the answer depends on the
+    # visitor. Empty when the header is missing: region.js treats that as
+    # "show the notice".
+    handle /region {
+        header Content-Type "text/plain; charset=utf-8"
+        header Cache-Control "no-store"
+        respond "{http.request.header.CF-IPCountry}"
+    }
+
+    handle {
+        file_server
+    }
 }
