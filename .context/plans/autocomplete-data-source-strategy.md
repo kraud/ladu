@@ -1,7 +1,7 @@
 # Autocomplete & lexical data sources — research record
 
 *Status (2026-10-10, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
-translation table and route). Slice H done (H1–H5). Next: Slice G, then **Slice G** (own plan document, see its section in §9). Server steps for everything done so far: §14 (do once the plan is complete).
+translation table and route). Slice H done (H1–H5). Next: **Slice G** (own plan: `autocomplete-slice-g-one-term-to-word.md`, draft 2026-10-11). Server steps for everything done so far: §14 (do once the plan is complete).
 History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
@@ -753,7 +753,7 @@ waits for Slice G. Server step: §14, "Translations".
 
 The user types one word in any language. Ladu shows the senses, then builds a draft Word with
 every translation and its forms in one step. The user confirms. This needs Slices E and F.
-It gets its own plan document.
+It gets its own plan document: **`autocomplete-slice-g-one-term-to-word.md`** (draft 2026-10-11).
 
 **Ready for it (hand-off, 2026-10-09):**
 - `GET /api/dictionary/translate/:fromLanguage/:partOfSpeech/:query` (F2): the senses of a word
