@@ -4,12 +4,14 @@
  * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0b.
  */
 const { selectCases, selectForm } = require('../../lib/lexicon/select');
-const { NOUN_SELECTORS_DE, VERB_SELECTORS_DE } = require('../../lib/lexicon/selectors/de');
+const { NOUN_SELECTORS_DE, VERB_SELECTORS_DE, ADJECTIVE_SELECTORS_DE, ADVERB_SELECTORS_DE } = require('../../lib/lexicon/selectors/de');
 const { entries } = require('./fixtures/lexicon-de.json');
 
 const entry = (word) => entries.find((e) => e.word === word);
 const verb = (word) => Object.fromEntries(selectCases(entry(word), VERB_SELECTORS_DE));
 const noun = (word) => Object.fromEntries(selectCases(entry(word), NOUN_SELECTORS_DE));
+const adjective = (word) => Object.fromEntries(selectCases(entry(word), ADJECTIVE_SELECTORS_DE));
+const adverb = (word) => Object.fromEntries(selectCases(entry(word), ADVERB_SELECTORS_DE));
 
 describe('German verb selectors', () => {
     test('a regular verb fills every tense and property field except caseTypeDE', () => {
@@ -136,5 +138,24 @@ describe('selectForm', () => {
     test('fallbackToLemma applies only when no row matches', () => {
         expect(selectForm(sample, { kind: 'form', caseName: 't', tags: ['z'] })).toBeUndefined();
         expect(selectForm(sample, { kind: 'form', caseName: 't', tags: ['z'], fallbackToLemma: true })).toBe('x');
+    });
+});
+
+describe('German adjective and adverb selectors', () => {
+    test('an adjective takes the degrees from the head rows, and the superlative has no "am" (D25)', () => {
+        expect(adjective('gut')).toEqual({ positiveDE: 'gut', komparativDE: 'besser', superlativDE: 'besten' });
+        expect(adjective('schön')).toEqual({ positiveDE: 'schön', komparativDE: 'schöner', superlativDE: 'schönsten' });
+    });
+
+    test('an adjective that cannot be compared keeps only the base word', () => {
+        expect(adjective('lila')).toEqual({ positiveDE: 'lila' });
+    });
+
+    test('an adverb with a comparative is gradable', () => {
+        expect(adverb('oft')).toEqual({ gradableDE: 'Gradable', adverbDE: 'oft', comparativeDE: 'öfter', superlativeDE: 'öftesten' });
+    });
+
+    test('an adverb without degrees is non-gradable', () => {
+        expect(adverb('hier')).toEqual({ gradableDE: 'Non-gradable', adverbDE: 'hier' });
     });
 });

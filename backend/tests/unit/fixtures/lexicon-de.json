@@ -8067,6 +8067,5065 @@
      ]
     }
    ]
+  },
+  {
+   "word": "gut",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "guter",
+     "tags": [
+      "masculine",
+      "nominative",
+      "singular",
+      "strong"
+     ]
+    },
+    {
+     "form": "besser",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "am besten",
+     "tags": [
+      "superlative"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-adecl",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "gut",
+     "tags": [
+      "masculine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "gut",
+     "tags": [
+      "feminine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "gut",
+     "tags": [
+      "neuter",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "gut",
+     "tags": [
+      "plural",
+      "predicative"
+     ]
+    },
+    {
+     "form": "guter",
+     "tags": [
+      "masculine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "gute",
+     "tags": [
+      "feminine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "gutes",
+     "tags": [
+      "neuter",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "gute",
+     "tags": [
+      "nominative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "guten",
+     "tags": [
+      "genitive",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "guter",
+     "tags": [
+      "feminine",
+      "genitive",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "guten",
+     "tags": [
+      "genitive",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "guter",
+     "tags": [
+      "genitive",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "gutem",
+     "tags": [
+      "dative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "guter",
+     "tags": [
+      "dative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "gutem",
+     "tags": [
+      "dative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "guten",
+     "tags": [
+      "dative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "guten",
+     "tags": [
+      "accusative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "gute",
+     "tags": [
+      "accusative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "gutes",
+     "tags": [
+      "accusative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "gute",
+     "tags": [
+      "accusative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "der gute",
+     "tags": [
+      "definite",
+      "includes-article",
+      "masculine",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die gute",
+     "tags": [
+      "definite",
+      "feminine",
+      "includes-article",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das gute",
+     "tags": [
+      "definite",
+      "includes-article",
+      "neuter",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die guten",
+     "tags": [
+      "definite",
+      "includes-article",
+      "nominative",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "des guten",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der guten",
+     "tags": [
+      "definite",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "des guten",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der guten",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem guten",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der guten",
+     "tags": [
+      "dative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem guten",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "den guten",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "den guten",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die gute",
+     "tags": [
+      "accusative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das gute",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die guten",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "ein guter",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine gute",
+     "tags": [
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein gutes",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "guten",
+     "tags": [
+      "indefinite",
+      "mixed",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine guten",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "eines guten",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer guten",
+     "tags": [
+      "feminine",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eines guten",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "guten",
+     "tags": [
+      "genitive",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keiner guten",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "einem guten",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer guten",
+     "tags": [
+      "dative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einem guten",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "guten",
+     "tags": [
+      "dative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keinen guten",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "einen guten",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine gute",
+     "tags": [
+      "accusative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein gutes",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "guten",
+     "tags": [
+      "accusative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine guten",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-adecl",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "besser",
+     "tags": [
+      "comparative",
+      "masculine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "besser",
+     "tags": [
+      "comparative",
+      "feminine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "besser",
+     "tags": [
+      "comparative",
+      "neuter",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "besser",
+     "tags": [
+      "comparative",
+      "plural",
+      "predicative"
+     ]
+    },
+    {
+     "form": "besserer",
+     "tags": [
+      "comparative",
+      "masculine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bessere",
+     "tags": [
+      "comparative",
+      "feminine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besseres",
+     "tags": [
+      "comparative",
+      "neuter",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bessere",
+     "tags": [
+      "comparative",
+      "nominative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besseren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besserer",
+     "tags": [
+      "comparative",
+      "feminine",
+      "genitive",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besseren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besserer",
+     "tags": [
+      "comparative",
+      "genitive",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besserem",
+     "tags": [
+      "comparative",
+      "dative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besserer",
+     "tags": [
+      "comparative",
+      "dative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besserem",
+     "tags": [
+      "comparative",
+      "dative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besseren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bessere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besseres",
+     "tags": [
+      "accusative",
+      "comparative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bessere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "der bessere",
+     "tags": [
+      "comparative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die bessere",
+     "tags": [
+      "comparative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das bessere",
+     "tags": [
+      "comparative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die besseren",
+     "tags": [
+      "comparative",
+      "definite",
+      "includes-article",
+      "nominative",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "des besseren",
+     "tags": [
+      "comparative",
+      "definite",
+      "genitive",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der besseren",
+     "tags": [
+      "comparative",
+      "definite",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "des besseren",
+     "tags": [
+      "comparative",
+      "definite",
+      "genitive",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der besseren",
+     "tags": [
+      "comparative",
+      "definite",
+      "genitive",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "den besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "den besseren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die bessere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das bessere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die besseren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "ein besserer",
+     "tags": [
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine bessere",
+     "tags": [
+      "comparative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein besseres",
+     "tags": [
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "besseren",
+     "tags": [
+      "comparative",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine besseren",
+     "tags": [
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "eines besseren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer besseren",
+     "tags": [
+      "comparative",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eines besseren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "besseren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keiner besseren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "einem besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einem besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keinen besseren",
+     "tags": [
+      "comparative",
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "einen besseren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine bessere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein besseres",
+     "tags": [
+      "accusative",
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "besseren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine besseren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-adecl",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "am besten",
+     "tags": [
+      "masculine",
+      "predicative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "am besten",
+     "tags": [
+      "feminine",
+      "predicative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "am besten",
+     "tags": [
+      "neuter",
+      "predicative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "am besten",
+     "tags": [
+      "plural",
+      "predicative",
+      "superlative"
+     ]
+    },
+    {
+     "form": "bester",
+     "tags": [
+      "masculine",
+      "nominative",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "beste",
+     "tags": [
+      "feminine",
+      "nominative",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bestes",
+     "tags": [
+      "neuter",
+      "nominative",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "beste",
+     "tags": [
+      "nominative",
+      "plural",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besten",
+     "tags": [
+      "genitive",
+      "masculine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bester",
+     "tags": [
+      "feminine",
+      "genitive",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besten",
+     "tags": [
+      "genitive",
+      "neuter",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bester",
+     "tags": [
+      "genitive",
+      "plural",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bestem",
+     "tags": [
+      "dative",
+      "masculine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bester",
+     "tags": [
+      "dative",
+      "feminine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bestem",
+     "tags": [
+      "dative",
+      "neuter",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besten",
+     "tags": [
+      "dative",
+      "plural",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "besten",
+     "tags": [
+      "accusative",
+      "masculine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "beste",
+     "tags": [
+      "accusative",
+      "feminine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "bestes",
+     "tags": [
+      "accusative",
+      "neuter",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "beste",
+     "tags": [
+      "accusative",
+      "plural",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "der beste",
+     "tags": [
+      "definite",
+      "includes-article",
+      "masculine",
+      "nominative",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "die beste",
+     "tags": [
+      "definite",
+      "feminine",
+      "includes-article",
+      "nominative",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "das beste",
+     "tags": [
+      "definite",
+      "includes-article",
+      "neuter",
+      "nominative",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "die besten",
+     "tags": [
+      "definite",
+      "includes-article",
+      "nominative",
+      "plural",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "des besten",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "masculine",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "der besten",
+     "tags": [
+      "definite",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "des besten",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "neuter",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "der besten",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "plural",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem besten",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "der besten",
+     "tags": [
+      "dative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem besten",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "den besten",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "plural",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "den besten",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "die beste",
+     "tags": [
+      "accusative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "das beste",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "die besten",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "plural",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "ein bester",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "nominative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "eine beste",
+     "tags": [
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "ein bestes",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "nominative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "besten",
+     "tags": [
+      "indefinite",
+      "mixed",
+      "nominative",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "keine besten",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "nominative",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "eines besten",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einer besten",
+     "tags": [
+      "feminine",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "eines besten",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "besten",
+     "tags": [
+      "genitive",
+      "indefinite",
+      "mixed",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "keiner besten",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einem besten",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einer besten",
+     "tags": [
+      "dative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einem besten",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "besten",
+     "tags": [
+      "dative",
+      "indefinite",
+      "mixed",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "keinen besten",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einen besten",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "eine beste",
+     "tags": [
+      "accusative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "ein bestes",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "besten",
+     "tags": [
+      "accusative",
+      "indefinite",
+      "mixed",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "keine besten",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "gůt",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "gud",
+     "tags": [
+      "alternative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "lila",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "lila or",
+     "tags": [
+      "canonical"
+     ]
+    },
+    {
+     "form": "lilaner",
+     "tags": [
+      "masculine",
+      "nominative",
+      "singular",
+      "strong"
+     ]
+    },
+    {
+     "form": "lilaer",
+     "tags": [
+      "masculine",
+      "nominative",
+      "rare",
+      "singular",
+      "strong"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-adecl",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "lila",
+     "tags": [
+      "masculine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "lila",
+     "tags": [
+      "feminine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "lila",
+     "tags": [
+      "neuter",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "lila",
+     "tags": [
+      "plural",
+      "predicative"
+     ]
+    },
+    {
+     "form": "lilaner",
+     "tags": [
+      "masculine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaer",
+     "tags": [
+      "masculine",
+      "nominative",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilane",
+     "tags": [
+      "feminine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilae",
+     "tags": [
+      "feminine",
+      "nominative",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilanes",
+     "tags": [
+      "neuter",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaes",
+     "tags": [
+      "neuter",
+      "nominative",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilane",
+     "tags": [
+      "nominative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilae",
+     "tags": [
+      "nominative",
+      "plural",
+      "rare",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilanen",
+     "tags": [
+      "genitive",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaen",
+     "tags": [
+      "genitive",
+      "masculine",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaner",
+     "tags": [
+      "feminine",
+      "genitive",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaer",
+     "tags": [
+      "feminine",
+      "genitive",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilanen",
+     "tags": [
+      "genitive",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaen",
+     "tags": [
+      "genitive",
+      "neuter",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaner",
+     "tags": [
+      "genitive",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaer",
+     "tags": [
+      "genitive",
+      "plural",
+      "rare",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilanem",
+     "tags": [
+      "dative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaem",
+     "tags": [
+      "dative",
+      "masculine",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaner",
+     "tags": [
+      "dative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaer",
+     "tags": [
+      "dative",
+      "feminine",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilanem",
+     "tags": [
+      "dative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaem",
+     "tags": [
+      "dative",
+      "neuter",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilanen",
+     "tags": [
+      "dative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaen",
+     "tags": [
+      "dative",
+      "plural",
+      "rare",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilanen",
+     "tags": [
+      "accusative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaen",
+     "tags": [
+      "accusative",
+      "masculine",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilane",
+     "tags": [
+      "accusative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilae",
+     "tags": [
+      "accusative",
+      "feminine",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilanes",
+     "tags": [
+      "accusative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilaes",
+     "tags": [
+      "accusative",
+      "neuter",
+      "rare",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilane",
+     "tags": [
+      "accusative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "lilae",
+     "tags": [
+      "accusative",
+      "plural",
+      "rare",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "der lilane",
+     "tags": [
+      "definite",
+      "includes-article",
+      "masculine",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der lilae",
+     "tags": [
+      "definite",
+      "includes-article",
+      "masculine",
+      "nominative",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die lilane",
+     "tags": [
+      "definite",
+      "feminine",
+      "includes-article",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die lilae",
+     "tags": [
+      "definite",
+      "feminine",
+      "includes-article",
+      "nominative",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das lilane",
+     "tags": [
+      "definite",
+      "includes-article",
+      "neuter",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das lilae",
+     "tags": [
+      "definite",
+      "includes-article",
+      "neuter",
+      "nominative",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die lilanen",
+     "tags": [
+      "definite",
+      "includes-article",
+      "nominative",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "die lilaen",
+     "tags": [
+      "definite",
+      "includes-article",
+      "nominative",
+      "plural",
+      "rare",
+      "weak"
+     ]
+    },
+    {
+     "form": "des lilanen",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "des lilaen",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "masculine",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der lilanen",
+     "tags": [
+      "definite",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der lilaen",
+     "tags": [
+      "definite",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "des lilanen",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "des lilaen",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "neuter",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der lilanen",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "der lilaen",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "plural",
+      "rare",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem lilanen",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem lilaen",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der lilanen",
+     "tags": [
+      "dative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der lilaen",
+     "tags": [
+      "dative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem lilanen",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem lilaen",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "den lilanen",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "den lilaen",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "plural",
+      "rare",
+      "weak"
+     ]
+    },
+    {
+     "form": "den lilanen",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "den lilaen",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die lilane",
+     "tags": [
+      "accusative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die lilae",
+     "tags": [
+      "accusative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das lilane",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das lilae",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "rare",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die lilanen",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "die lilaen",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "plural",
+      "rare",
+      "weak"
+     ]
+    },
+    {
+     "form": "ein lilaner",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein lilaer",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "nominative",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine lilane",
+     "tags": [
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine lilae",
+     "tags": [
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein lilanes",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein lilaes",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "nominative",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "lilanen",
+     "tags": [
+      "indefinite",
+      "mixed",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine lilanen",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lilaen",
+     "tags": [
+      "indefinite",
+      "mixed",
+      "nominative",
+      "plural",
+      "rare"
+     ]
+    },
+    {
+     "form": "keine lilaen",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "nominative",
+      "plural",
+      "rare"
+     ]
+    },
+    {
+     "form": "eines lilanen",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eines lilaen",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer lilanen",
+     "tags": [
+      "feminine",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer lilaen",
+     "tags": [
+      "feminine",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "eines lilanen",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "eines lilaen",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "lilanen",
+     "tags": [
+      "genitive",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keiner lilanen",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lilaen",
+     "tags": [
+      "genitive",
+      "indefinite",
+      "mixed",
+      "plural",
+      "rare"
+     ]
+    },
+    {
+     "form": "keiner lilaen",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural",
+      "rare"
+     ]
+    },
+    {
+     "form": "einem lilanen",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einem lilaen",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer lilanen",
+     "tags": [
+      "dative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer lilaen",
+     "tags": [
+      "dative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "einem lilanen",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "einem lilaen",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "lilanen",
+     "tags": [
+      "dative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keinen lilanen",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lilaen",
+     "tags": [
+      "dative",
+      "indefinite",
+      "mixed",
+      "plural",
+      "rare"
+     ]
+    },
+    {
+     "form": "keinen lilaen",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural",
+      "rare"
+     ]
+    },
+    {
+     "form": "einen lilanen",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einen lilaen",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine lilane",
+     "tags": [
+      "accusative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine lilae",
+     "tags": [
+      "accusative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein lilanes",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein lilaes",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "rare",
+      "singular"
+     ]
+    },
+    {
+     "form": "lilanen",
+     "tags": [
+      "accusative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine lilanen",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lilaen",
+     "tags": [
+      "accusative",
+      "indefinite",
+      "mixed",
+      "plural",
+      "rare"
+     ]
+    },
+    {
+     "form": "keine lilaen",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural",
+      "rare"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "indeclinable",
+      "informal",
+      "not-comparable"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "schön",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "schöner",
+     "tags": [
+      "masculine",
+      "nominative",
+      "singular",
+      "strong"
+     ]
+    },
+    {
+     "form": "schöner",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "am schönsten",
+     "tags": [
+      "superlative"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-adecl",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "schön",
+     "tags": [
+      "masculine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "schön",
+     "tags": [
+      "feminine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "schön",
+     "tags": [
+      "neuter",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "schön",
+     "tags": [
+      "plural",
+      "predicative"
+     ]
+    },
+    {
+     "form": "schöner",
+     "tags": [
+      "masculine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöne",
+     "tags": [
+      "feminine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönes",
+     "tags": [
+      "neuter",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöne",
+     "tags": [
+      "nominative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönen",
+     "tags": [
+      "genitive",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöner",
+     "tags": [
+      "feminine",
+      "genitive",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönen",
+     "tags": [
+      "genitive",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöner",
+     "tags": [
+      "genitive",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönem",
+     "tags": [
+      "dative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöner",
+     "tags": [
+      "dative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönem",
+     "tags": [
+      "dative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönen",
+     "tags": [
+      "dative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönen",
+     "tags": [
+      "accusative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöne",
+     "tags": [
+      "accusative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönes",
+     "tags": [
+      "accusative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöne",
+     "tags": [
+      "accusative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "der schöne",
+     "tags": [
+      "definite",
+      "includes-article",
+      "masculine",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schöne",
+     "tags": [
+      "definite",
+      "feminine",
+      "includes-article",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das schöne",
+     "tags": [
+      "definite",
+      "includes-article",
+      "neuter",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schönen",
+     "tags": [
+      "definite",
+      "includes-article",
+      "nominative",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "des schönen",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der schönen",
+     "tags": [
+      "definite",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "des schönen",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der schönen",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem schönen",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der schönen",
+     "tags": [
+      "dative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem schönen",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "den schönen",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "den schönen",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schöne",
+     "tags": [
+      "accusative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das schöne",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schönen",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "ein schöner",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine schöne",
+     "tags": [
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein schönes",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "schönen",
+     "tags": [
+      "indefinite",
+      "mixed",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine schönen",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "eines schönen",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer schönen",
+     "tags": [
+      "feminine",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eines schönen",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "schönen",
+     "tags": [
+      "genitive",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keiner schönen",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "einem schönen",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer schönen",
+     "tags": [
+      "dative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einem schönen",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "schönen",
+     "tags": [
+      "dative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keinen schönen",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "einen schönen",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine schöne",
+     "tags": [
+      "accusative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein schönes",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "schönen",
+     "tags": [
+      "accusative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine schönen",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-adecl",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "schöner",
+     "tags": [
+      "comparative",
+      "masculine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "schöner",
+     "tags": [
+      "comparative",
+      "feminine",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "schöner",
+     "tags": [
+      "comparative",
+      "neuter",
+      "predicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "schöner",
+     "tags": [
+      "comparative",
+      "plural",
+      "predicative"
+     ]
+    },
+    {
+     "form": "schönerer",
+     "tags": [
+      "comparative",
+      "masculine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönere",
+     "tags": [
+      "comparative",
+      "feminine",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöneres",
+     "tags": [
+      "comparative",
+      "neuter",
+      "nominative",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönere",
+     "tags": [
+      "comparative",
+      "nominative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöneren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönerer",
+     "tags": [
+      "comparative",
+      "feminine",
+      "genitive",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöneren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönerer",
+     "tags": [
+      "comparative",
+      "genitive",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönerem",
+     "tags": [
+      "comparative",
+      "dative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönerer",
+     "tags": [
+      "comparative",
+      "dative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönerem",
+     "tags": [
+      "comparative",
+      "dative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöneren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "masculine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "feminine",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schöneres",
+     "tags": [
+      "accusative",
+      "comparative",
+      "neuter",
+      "singular",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "plural",
+      "strong",
+      "without-article"
+     ]
+    },
+    {
+     "form": "der schönere",
+     "tags": [
+      "comparative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schönere",
+     "tags": [
+      "comparative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das schönere",
+     "tags": [
+      "comparative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "nominative",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schöneren",
+     "tags": [
+      "comparative",
+      "definite",
+      "includes-article",
+      "nominative",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "des schöneren",
+     "tags": [
+      "comparative",
+      "definite",
+      "genitive",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der schöneren",
+     "tags": [
+      "comparative",
+      "definite",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "des schöneren",
+     "tags": [
+      "comparative",
+      "definite",
+      "genitive",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der schöneren",
+     "tags": [
+      "comparative",
+      "definite",
+      "genitive",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "der schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "den schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "den schöneren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schönere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "das schönere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schöneren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "definite",
+      "includes-article",
+      "plural",
+      "weak"
+     ]
+    },
+    {
+     "form": "ein schönerer",
+     "tags": [
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine schönere",
+     "tags": [
+      "comparative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein schöneres",
+     "tags": [
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "nominative",
+      "singular"
+     ]
+    },
+    {
+     "form": "schöneren",
+     "tags": [
+      "comparative",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine schöneren",
+     "tags": [
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "nominative",
+      "plural"
+     ]
+    },
+    {
+     "form": "eines schöneren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer schöneren",
+     "tags": [
+      "comparative",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eines schöneren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "schöneren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keiner schöneren",
+     "tags": [
+      "comparative",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "einem schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einer schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "einem schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keinen schöneren",
+     "tags": [
+      "comparative",
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "einen schöneren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "eine schönere",
+     "tags": [
+      "accusative",
+      "comparative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular"
+     ]
+    },
+    {
+     "form": "ein schöneres",
+     "tags": [
+      "accusative",
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular"
+     ]
+    },
+    {
+     "form": "schöneren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "indefinite",
+      "mixed",
+      "plural"
+     ]
+    },
+    {
+     "form": "keine schöneren",
+     "tags": [
+      "accusative",
+      "comparative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-adecl",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "am schönsten",
+     "tags": [
+      "masculine",
+      "predicative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "am schönsten",
+     "tags": [
+      "feminine",
+      "predicative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "am schönsten",
+     "tags": [
+      "neuter",
+      "predicative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "am schönsten",
+     "tags": [
+      "plural",
+      "predicative",
+      "superlative"
+     ]
+    },
+    {
+     "form": "schönster",
+     "tags": [
+      "masculine",
+      "nominative",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönste",
+     "tags": [
+      "feminine",
+      "nominative",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönstes",
+     "tags": [
+      "neuter",
+      "nominative",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönste",
+     "tags": [
+      "nominative",
+      "plural",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönsten",
+     "tags": [
+      "genitive",
+      "masculine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönster",
+     "tags": [
+      "feminine",
+      "genitive",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönsten",
+     "tags": [
+      "genitive",
+      "neuter",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönster",
+     "tags": [
+      "genitive",
+      "plural",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönstem",
+     "tags": [
+      "dative",
+      "masculine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönster",
+     "tags": [
+      "dative",
+      "feminine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönstem",
+     "tags": [
+      "dative",
+      "neuter",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönsten",
+     "tags": [
+      "dative",
+      "plural",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönsten",
+     "tags": [
+      "accusative",
+      "masculine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönste",
+     "tags": [
+      "accusative",
+      "feminine",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönstes",
+     "tags": [
+      "accusative",
+      "neuter",
+      "singular",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "schönste",
+     "tags": [
+      "accusative",
+      "plural",
+      "strong",
+      "superlative",
+      "without-article"
+     ]
+    },
+    {
+     "form": "der schönste",
+     "tags": [
+      "definite",
+      "includes-article",
+      "masculine",
+      "nominative",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schönste",
+     "tags": [
+      "definite",
+      "feminine",
+      "includes-article",
+      "nominative",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "das schönste",
+     "tags": [
+      "definite",
+      "includes-article",
+      "neuter",
+      "nominative",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schönsten",
+     "tags": [
+      "definite",
+      "includes-article",
+      "nominative",
+      "plural",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "des schönsten",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "masculine",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "der schönsten",
+     "tags": [
+      "definite",
+      "feminine",
+      "genitive",
+      "includes-article",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "des schönsten",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "neuter",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "der schönsten",
+     "tags": [
+      "definite",
+      "genitive",
+      "includes-article",
+      "plural",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem schönsten",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "der schönsten",
+     "tags": [
+      "dative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "dem schönsten",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "den schönsten",
+     "tags": [
+      "dative",
+      "definite",
+      "includes-article",
+      "plural",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "den schönsten",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "masculine",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schönste",
+     "tags": [
+      "accusative",
+      "definite",
+      "feminine",
+      "includes-article",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "das schönste",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "neuter",
+      "singular",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "die schönsten",
+     "tags": [
+      "accusative",
+      "definite",
+      "includes-article",
+      "plural",
+      "superlative",
+      "weak"
+     ]
+    },
+    {
+     "form": "ein schönster",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "nominative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "eine schönste",
+     "tags": [
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "nominative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "ein schönstes",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "nominative",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "schönsten",
+     "tags": [
+      "indefinite",
+      "mixed",
+      "nominative",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "keine schönsten",
+     "tags": [
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "nominative",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "eines schönsten",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einer schönsten",
+     "tags": [
+      "feminine",
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "eines schönsten",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "schönsten",
+     "tags": [
+      "genitive",
+      "indefinite",
+      "mixed",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "keiner schönsten",
+     "tags": [
+      "genitive",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einem schönsten",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einer schönsten",
+     "tags": [
+      "dative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einem schönsten",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "schönsten",
+     "tags": [
+      "dative",
+      "indefinite",
+      "mixed",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "keinen schönsten",
+     "tags": [
+      "dative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "einen schönsten",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "masculine",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "eine schönste",
+     "tags": [
+      "accusative",
+      "feminine",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "ein schönstes",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "neuter",
+      "singular",
+      "superlative"
+     ]
+    },
+    {
+     "form": "schönsten",
+     "tags": [
+      "accusative",
+      "indefinite",
+      "mixed",
+      "plural",
+      "superlative"
+     ]
+    },
+    {
+     "form": "keine schönsten",
+     "tags": [
+      "accusative",
+      "includes-article",
+      "indefinite",
+      "mixed",
+      "negative",
+      "plural",
+      "superlative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "oft",
+   "pos": "adv",
+   "forms": [
+    {
+     "form": "öfter",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "am öftesten",
+     "tags": [
+      "superlative"
+     ]
+    }
+   ],
+   "senses": [
+    {}
+   ]
+  },
+  {
+   "word": "hier",
+   "pos": "adv",
+   "forms": [
+    {
+     "form": "hie",
+     "tags": [
+      "alternative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {
+     "tags": [
+      "abstract"
+     ]
+    },
+    {}
+   ]
   }
  ]
 }

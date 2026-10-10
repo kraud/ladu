@@ -4,12 +4,14 @@
  * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0c.
  */
 const { selectCases } = require('../../lib/lexicon/select');
-const { NOUN_SELECTORS_EN, VERB_SELECTORS_EN } = require('../../lib/lexicon/selectors/en');
+const { NOUN_SELECTORS_EN, VERB_SELECTORS_EN, ADJECTIVE_SELECTORS_EN, ADVERB_SELECTORS_EN } = require('../../lib/lexicon/selectors/en');
 const { entries } = require('./fixtures/lexicon-en.json');
 
 const entry = (word) => entries.find((e) => e.word === word);
 const verb = (word) => Object.fromEntries(selectCases(entry(word), VERB_SELECTORS_EN));
 const noun = (word) => Object.fromEntries(selectCases(entry(word), NOUN_SELECTORS_EN));
+const adjective = (word) => Object.fromEntries(selectCases(entry(word), ADJECTIVE_SELECTORS_EN));
+const adverb = (word) => Object.fromEntries(selectCases(entry(word), ADVERB_SELECTORS_EN));
 
 const sameIn = (cases, prefix, slots, value) => slots.forEach((slot) => expect(cases[`${prefix}${slot}EN`]).toBe(value));
 const ALL_SLOTS = ['1s', '2s', '3s', '1pl', '3pl'];
@@ -63,5 +65,22 @@ describe('English noun selectors', () => {
 
     test('an uncountable noun has no plural', () => {
         expect(noun('news')).toEqual({ singularEN: 'news' });
+    });
+});
+
+describe('English adjective and adverb selectors', () => {
+    test('a short adjective takes -er and -est', () => {
+        expect(adjective('big')).toEqual({ positiveEN: 'big', comparativeEN: 'bigger', superlativeEN: 'biggest' });
+        expect(adjective('happy')).toEqual({ positiveEN: 'happy', comparativeEN: 'happier', superlativeEN: 'happiest' });
+    });
+
+    test('a long adjective takes "more" and "most", also when -er is listed first', () => {
+        expect(adjective('beautiful')).toEqual({ positiveEN: 'beautiful', comparativeEN: 'more beautiful', superlativeEN: 'most beautiful' });
+        expect(adjective('unique').comparativeEN).toBe('more unique');
+    });
+
+    test('an adverb in -ly takes "more", another adverb takes -er', () => {
+        expect(adverb('quickly')).toEqual({ adverbEN: 'quickly', comparativeEN: 'more quickly', superlativeEN: 'most quickly' });
+        expect(adverb('fast')).toEqual({ adverbEN: 'fast', comparativeEN: 'faster', superlativeEN: 'fastest' });
     });
 });

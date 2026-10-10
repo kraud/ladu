@@ -6,7 +6,7 @@
  * For every lemma entry (not a pure form_of entry) of a supported part of speech, it applies
  * that language's selector table (lib/lexicon/selectors/) and writes one line with every case
  * value. An entry that fills only lemma copies is skipped (a noun with no gender and no table;
- * see `lemmaCopies`). Identical rows (same part of speech, lemma and forms) are written once;
+ * see `lemmaCopies`), except adjectives and adverbs (D24). Identical rows (same part of speech, lemma and forms) are written once;
  * homographs with different forms stay separate rows. The frequency rank comes from
  * sample-<lang>.json.
  *
@@ -29,9 +29,9 @@ type CaseSelector = import('../../lib/lexicon/select').CaseSelector;
 
 /** Languages the ingest supports so far. Estonian comes from other sources (Slice D). */
 const LANGUAGES: Partial<Record<LangCode, { language: string; selectors: Record<string, CaseSelector[]> }>> = {
-    de: { language: 'German', selectors: { noun: de.NOUN_SELECTORS_DE, verb: de.VERB_SELECTORS_DE } },
-    es: { language: 'Spanish', selectors: { noun: es.NOUN_SELECTORS_ES, verb: es.VERB_SELECTORS_ES } },
-    en: { language: 'English', selectors: { noun: en.NOUN_SELECTORS_EN, verb: en.VERB_SELECTORS_EN } },
+    de: { language: 'German', selectors: { noun: de.NOUN_SELECTORS_DE, verb: de.VERB_SELECTORS_DE, adj: de.ADJECTIVE_SELECTORS_DE, adv: de.ADVERB_SELECTORS_DE } },
+    es: { language: 'Spanish', selectors: { noun: es.NOUN_SELECTORS_ES, verb: es.VERB_SELECTORS_ES, adj: es.ADJECTIVE_SELECTORS_ES, adv: es.ADVERB_SELECTORS_ES } },
+    en: { language: 'English', selectors: { noun: en.NOUN_SELECTORS_EN, verb: en.VERB_SELECTORS_EN, adj: en.ADJECTIVE_SELECTORS_EN, adv: en.ADVERB_SELECTORS_EN } },
 };
 
 /**
@@ -44,6 +44,8 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'Haus|noun', 'Junge|noun', 'See|noun', 'Polizei|noun', 'Mann|noun', 'Frau|noun', 'Kind|noun', 'Tag|noun',
         'Zeit|noun', 'Auto|noun', 'Stadt|noun', 'Hund|noun', 'Katze|noun', 'Wasser|noun', 'Buch|noun', 'Schule|noun',
         'tanzen|verb', 'gehen|verb', 'anrufen|verb', 'sichern|verb', 'sammeln|verb', 'sputen|verb',
+        // "lila": no forms at all (D24); "oft"/"gern": adverbs with a comparative; "hier": gradable = no.
+        'gut|adj', 'schön|adj', 'groß|adj', 'lila|adj', 'oft|adv', 'gern|adv', 'hier|adv',
     ],
     // "leche"/"crisis": genders the old library got wrong; "estudiante": both genders (el/la);
     // "sentir"/"venir"/"oír": verbs the old library conjugated wrongly; "quejarse": reflexive (D8).
@@ -51,11 +53,15 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'casa|noun', 'estudiante|noun', 'leche|noun', 'crisis|noun', 'mano|noun', 'día|noun', 'agua|noun',
         'hombre|noun', 'mujer|noun', 'libro|noun', 'perro|noun', 'ciudad|noun', 'tiempo|noun', 'problema|noun',
         'bailar|verb', 'tener|verb', 'ir|verb', 'sentir|verb', 'venir|verb', 'oír|verb', 'pensar|verb', 'quejarse|verb',
+        // "rojo": M/F; "feliz"/"grande": Neutral (one shape for both genders); "rápidamente": no forms (D24).
+        'rojo|adj', 'feliz|adj', 'grande|adj', 'bonito|adj', 'bien|adv', 'rápidamente|adv', 'mucho|adv',
     ],
     // "can"/"will": modals the old library got wrong ("caned"); "child"/"sheep"/"mouse": irregular plurals.
     en: [
         'child|noun', 'sheep|noun', 'mouse|noun', 'house|noun', 'book|noun', 'city|noun', 'woman|noun', 'man|noun',
         'run|verb', 'walk|verb', 'bake|verb', 'be|verb', 'go|verb', 'can|verb', 'will|verb', 'swim|verb', 'cry|verb',
+        // "beautiful"/"unique"/"quickly": "more …" forms; "big"/"fast": plain -er/-est.
+        'big|adj', 'good|adj', 'beautiful|adj', 'unique|adj', 'happy|adj', 'quickly|adv', 'fast|adv', 'well|adv',
     ],
 };
 const FIXTURE_TOP_N = 20;
@@ -122,7 +128,9 @@ async function main(): Promise<void> {
         if (!(entry.senses ?? []).some((sense: any) => !sense.form_of)) continue;
 
         const forms = Object.fromEntries(selectCases(entry, selectors));
-        if (!Object.keys(forms).some((caseName) => !lemmaCopies(selectors).has(caseName))) {
+        // Adjectives and adverbs with no forms beyond the lemma stay (D24): "lila", "rápidamente", "hier".
+        const keepLemmaOnly = entry.pos === 'adj' || entry.pos === 'adv';
+        if (!keepLemmaOnly && !Object.keys(forms).some((caseName) => !lemmaCopies(selectors).has(caseName))) {
             skippedEmpty++;
             continue;
         }

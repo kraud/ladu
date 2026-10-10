@@ -1,8 +1,7 @@
 # Autocomplete & lexical data sources — research record
 
-*Status (2026-10-09, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
-translation table and route). Next: **Slice G** (own plan document, see its section in §9), then
-**Slice H**. Server steps for everything done so far: §14 (do once the plan is complete).
+*Status (2026-10-10, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
+translation table and route). Slice H in progress (H1 done). Next: H2–H5, then **Slice G** (own plan document, see its section in §9). Server steps for everything done so far: §14 (do once the plan is complete).
 History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
@@ -771,9 +770,18 @@ It gets its own plan document.
   have several entries: use the gender from the translation to pick der See / die See), what the
   draft shows when a language has no word or no forms, and the Estonian thinness (D22).
 
-### Slice H — Adjectives and adverbs for EN, ES and DE
+### Slice H — Adjectives and adverbs in all 4 languages (+ reflexive verb field)
 
-New selector tables and new form configurations. Planned after parity (decision D6). The Slice 0
+**Plan (2026-10-10):** steps H1 selectors + ingest, H2 backend routes, H3 frontend EN/ES/DE, H4 Estonian
+adverb form + Ekilex, H5 reflexive verb field (D8). Decisions D23–D26 (section 10).
+**H1 done 2026-10-10:** `ADJECTIVE_SELECTORS_XX` / `ADVERB_SELECTORS_XX` in `lib/lexicon/selectors/`;
+`ingest.ts` keeps adjective/adverb rows that have only the base word (D24). New files: DE 88,264 lexemes
+(3.5 MB), ES 108,910 (3.3 MB), EN 610,734 (13 MB; 178,970 adjectives). English "more/most" rule: adverbs in
+-ly and words of 3+ vowel groups take "more X"; others take the first row ("bigger"). Spanish adjective:
+Neutral branch when both genders share one shape ("feliz, felices"), else M/F; no superlative (no form field).
+Server step (§14): load the three rebuilt files again.
+
+Original note: new selector tables and new form configurations. Planned after parity (decision D6). The Slice 0
 measurement shows adjectives have good data in all three languages (DE full declension, ES gender and
 number, EN comparative and superlative), so adjectives come first. The "reflexive" verb field
 (decision D8) belongs to this slice too.
@@ -812,6 +820,10 @@ Reads the same tables. No plan yet.
 | D20 | 2026-10-09 | Slice D3, Estonian adjective comparison. Ekilex `api/word/details/{id}` (3rd call) gives the part of speech (the adjective check is back, superseding that part of D18) and the relation groups `komp` / `superl`. The form gets a stored checkbox `periphrasticSuperlativeEE` ("no one-word superlative"): when checked, the superlative shows as read-only "kõige " + comparative and is NOT stored; the superlative is no longer required. Autocomplete prefers the one-word superlative ("suurim") and unchecks the box; when only "kõige …" exists it checks the box; an adjective with no comparison relations ("eestikeelne") changes neither. First stored checkbox in the form engine (stored as the string "true", only when checked). |
 | D21 | 2026-10-09 | Slice E type-ahead. (1) **A pick fills the card at once** (the same fill as "Use autocomplete values", for the picked entry). Typing without a pick changes nothing: the user fills the fields by hand or presses the button. (2) A pick fills the **exact entry** chosen (der See vs die See): the list carries `entryId`, the lookup takes `?entry=`. (3) Only the field the autocomplete already reads (one per card); no list while "Search verb in English" is checked. (4) Estonian: local lexicon only (~10,500 words; Ekilex has no prefix search). (5) Added at E2: an open list covers the card footer and hides the rest of the page from screen readers, so it closes on a pick, Escape, Tab or a click outside, and also by itself when the user stops typing (500 ms) on a word that is in the list — but not while an item is highlighted (added at F2). |
 | D22 | 2026-10-09 | Slice F translations. (1) Ingest nouns, verbs, adjectives and adverbs (adjectives/adverbs ready for Slice H). (2) When no sense has an Estonian word, the translate route also asks Ekilex meaning search and adds its Estonian words, marked as from Ekilex (not tied to a sense). (3) Estonian "search in English": the first English sense (Wiktionary order) that has an Estonian word ending in -ma, its first such word; none → Ekilex as before. (4) No new UI in Slice F: the route waits for Slice G. File: a separate `translations-en-<date>.jsonl.gz` (not inside the English lexicon file), same `load.js` and playbook. |
+| D23 | 2026-10-10 | Slice H comes before Slice G, so that G can draft a Word of any part of speech. It adds an **Estonian adverb form** (adverb, comparative, superlative), filled from Ekilex. |
+| D24 | 2026-10-10 | Adjectives and adverbs with no forms besides the base word stay in the lexicon (lookup = `found`, base field only; German adverb gets `gradableDE = Non-gradable`). Type-ahead lists them. |
+| D25 | 2026-10-10 | German superlative (`superlativDE`, `superlativeDE`) is stored **without "am"** ("besten"). The form shows a fixed "am " prefix on the field (H3). |
+| D26 | 2026-10-10 | The D8 reflexive verb field is the last step of Slice H (H5), with its own overview and questions. |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)
@@ -918,6 +930,8 @@ marked "not fully sure". Commands run from `deploy/ansible/`. Details:
       (staging only first: add `-e '{"lexicon_environments": ["staging"]}'`).
 - [ ] **Each later language** (Slices C1, C2, D): the same playbook with that language's file. One
       run per file; a load replaces only its own language.
+- [ ] **Re-load DE, ES and EN** (Slice H1): the files now hold adjectives and adverbs. Build them again
+      (`ingest.ts`), then run `lexicon.yml` once per file.
 - [ ] **Translations** (Slice F): the same playbook with
       `translations-en-2026-10-03.jsonl.gz` (build: `ingest-translations.ts`). The backup step
       above also skips its rows (`lexeme_translations`).

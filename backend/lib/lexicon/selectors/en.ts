@@ -54,6 +54,39 @@ function past(slot: string, personTags: string[]): FormSelector {
 
 const bareVerb = (caseName: string): CaseSelector => ({ kind: 'property', caseName, extract: (entry) => entry.word });
 
+/**
+ * Adjectives and adverbs (Slice H). kaikki lists "uniquer | comparative" before "more unique", and
+ * "quicklier" before "more quickly". The "more/most" row wins for adverbs in -ly and for words of
+ * three or more syllables (vowel groups); every other word takes the first row ("bigger").
+ */
+function usesMore(word: string): boolean {
+    return word.endsWith('ly') || (word.match(/[aeiouy]+/g) ?? []).length >= 3;
+}
+
+function degreeEN(degree: 'comparative' | 'superlative') {
+    const more = degree === 'comparative' ? 'more ' : 'most ';
+    return (entry: LexiconEntry): string | undefined => {
+        const selector = { kind: 'form' as const, caseName: '', tags: [degree] };
+        if (usesMore(entry.word)) {
+            const periphrastic = selectForm({ ...entry, forms: entry.forms?.filter((row) => row.form.startsWith(more)) }, selector);
+            if (periphrastic) return periphrastic;
+        }
+        return selectForm(entry, selector);
+    };
+}
+
+export const ADJECTIVE_SELECTORS_EN: CaseSelector[] = [
+    { kind: 'property', caseName: 'positiveEN', extract: (entry) => entry.word },
+    { kind: 'property', caseName: 'comparativeEN', extract: degreeEN('comparative') },
+    { kind: 'property', caseName: 'superlativeEN', extract: degreeEN('superlative') },
+];
+
+export const ADVERB_SELECTORS_EN: CaseSelector[] = [
+    { kind: 'property', caseName: 'adverbEN', extract: (entry) => entry.word },
+    { kind: 'property', caseName: 'comparativeEN', extract: degreeEN('comparative') },
+    { kind: 'property', caseName: 'superlativeEN', extract: degreeEN('superlative') },
+];
+
 export const NOUN_SELECTORS_EN: CaseSelector[] = [
     { kind: 'property', caseName: 'singularEN', extract: (entry) => entry.word },
     { kind: 'form', caseName: 'pluralEN', tags: ['plural'] },

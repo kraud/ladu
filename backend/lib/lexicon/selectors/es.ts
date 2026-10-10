@@ -15,6 +15,7 @@
  */
 
 import type { CaseSelector, FormSelector, LexiconEntry } from '../select';
+const { selectForm }: typeof import('../select') = require('../select');
 
 /**
  * `class` alternations that only change the SPELLING (buscar → busqué, llegar → llegué) or only add
@@ -76,6 +77,40 @@ function tense(prefix: string, tags: string[], slots = PERSONS, excludeTags: str
         removeWords: REFLEXIVE_PRONOUNS,
     }));
 }
+
+/**
+ * Adjectives (Slice H). The form has two branches. A Neutral adjective has one shape for both
+ * genders ("feliz, felices"): its senses are tagged feminine AND masculine, and its plural row
+ * carries both tags. Every other adjective is M/F ("rojo, roja, rojos, rojas"); the lemma is the
+ * masculine singular. The Spanish form has no superlative field; "grandísimo" is not stored.
+ */
+function isNeutralES(entry: LexiconEntry): boolean {
+    const bothInSense = (entry.senses ?? []).some((sense) => sense.tags?.includes('feminine') && sense.tags.includes('masculine'));
+    const hasFeminineRow = (entry.forms ?? []).some((row) => row.tags?.includes('feminine') && !row.tags.includes('masculine') && !row.tags.includes('plural'));
+    return bothInSense && !hasFeminineRow;
+}
+
+const whenNeutral = (extract: (entry: LexiconEntry) => string | undefined) =>
+    (entry: LexiconEntry) => (isNeutralES(entry) ? extract(entry) : undefined);
+const whenGendered = (extract: (entry: LexiconEntry) => string | undefined) =>
+    (entry: LexiconEntry) => (isNeutralES(entry) ? undefined : extract(entry));
+const row = (tags: string[], excludeTags: string[]) =>
+    (entry: LexiconEntry) => selectForm(entry, { kind: 'form', caseName: '', tags, excludeTags });
+
+export const ADJECTIVE_SELECTORS_ES: CaseSelector[] = [
+    { kind: 'property', caseName: 'neutralSingularES', extract: whenNeutral((entry) => entry.word) },
+    { kind: 'property', caseName: 'neutralPluralES', extract: whenNeutral(row(['feminine', 'masculine', 'plural'], [])) },
+    { kind: 'property', caseName: 'maleSingularES', extract: whenGendered((entry) => entry.word) },
+    { kind: 'property', caseName: 'malePluralES', extract: whenGendered(row(['masculine', 'plural'], ['feminine'])) },
+    { kind: 'property', caseName: 'femaleSingularES', extract: whenGendered(row(['feminine'], ['masculine', 'plural'])) },
+    { kind: 'property', caseName: 'femalePluralES', extract: whenGendered(row(['feminine', 'plural'], ['masculine'])) },
+];
+
+export const ADVERB_SELECTORS_ES: CaseSelector[] = [
+    { kind: 'property', caseName: 'adverbES', extract: (entry) => entry.word },
+    { kind: 'form', caseName: 'comparativeES', tags: ['comparative'] },
+    { kind: 'form', caseName: 'superlativeES', tags: ['superlative'] },
+];
 
 export const NOUN_SELECTORS_ES: CaseSelector[] = [
     { kind: 'property', caseName: 'genderES', extract: genderES },

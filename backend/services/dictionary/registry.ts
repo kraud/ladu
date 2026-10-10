@@ -41,16 +41,23 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
     English: {
         Verb: lexiconFirst(lexiconAdapter('English', 'Verb'), generators.englishVerb),
         Noun: lexiconAdapter('English', 'Noun'),
+        // Slice H2: no library exists for adjectives and adverbs, so the lexicon alone (a miss is not-found).
+        Adjective: lexiconAdapter('English', 'Adjective'),
+        Adverb: lexiconAdapter('English', 'Adverb'),
     },
     // Slice C1: the same chain as German.
     Spanish: {
         Verb: lexiconFirst(lexiconAdapter('Spanish', 'Verb'), generators.spanishVerb),
         Noun: lexiconFirst(lexiconAdapter('Spanish', 'Noun'), generators.spanishNoun),
+        Adjective: lexiconAdapter('Spanish', 'Adjective'),
+        Adverb: lexiconAdapter('Spanish', 'Adverb'),
     },
     // Slice B2: the local lexicon first, the library as a `partial` fallback.
     German: {
         Verb: lexiconFirst(lexiconAdapter('German', 'Verb'), generators.germanVerb),
         Noun: lexiconFirst(lexiconAdapter('German', 'Noun'), generators.germanNoun),
+        Adjective: lexiconAdapter('German', 'Adjective'),
+        Adverb: lexiconAdapter('German', 'Adverb'),
     },
     // Slice D2: Eesthetic in the lexicon first, then Ekilex — a real dictionary, so its answers stay
     // `found`. Adjectives: Eesthetic has (almost) none, so Ekilex only.

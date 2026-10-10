@@ -99,6 +99,33 @@ export const NOUN_SELECTORS_DE: CaseSelector[] = [
     ]),
 ];
 
+/**
+ * Adjectives and adverbs (Slice H). The app form has three degrees and no declension. The head rows
+ * come first in the entry ("besser | comparative", "am besten | superlative"), before the declension
+ * tables, so the first matching row is the predicative form. The superlative is stored WITHOUT "am"
+ * (decision D25): the form shows "am " itself.
+ */
+const COMPARATIVE_DE = { tags: ['comparative'] };
+const SUPERLATIVE_DE = { tags: ['superlative'], removeWords: ['am'] };
+
+/** A German adverb with a comparative is gradable ("oft → öfter"); one without is not ("hier"). */
+function gradableDE(entry: LexiconEntry): string {
+    return selectForm(entry, { kind: 'form', caseName: '', ...COMPARATIVE_DE }) ? 'Gradable' : 'Non-gradable';
+}
+
+export const ADJECTIVE_SELECTORS_DE: CaseSelector[] = [
+    { kind: 'property', caseName: 'positiveDE', extract: (entry) => entry.word },
+    { kind: 'form', caseName: 'komparativDE', ...COMPARATIVE_DE },
+    { kind: 'form', caseName: 'superlativDE', ...SUPERLATIVE_DE },
+];
+
+export const ADVERB_SELECTORS_DE: CaseSelector[] = [
+    { kind: 'property', caseName: 'gradableDE', extract: gradableDE },
+    { kind: 'property', caseName: 'adverbDE', extract: (entry) => entry.word },
+    { kind: 'form', caseName: 'comparativeDE', ...COMPARATIVE_DE },
+    { kind: 'form', caseName: 'superlativeDE', ...SUPERLATIVE_DE },
+];
+
 /** Decision D8: verb forms are stored without the reflexive pronoun ("uns sputen" → "sputen"). */
 const REFLEXIVE_PRONOUNS = ['mich', 'dich', 'sich', 'uns', 'euch', 'mir', 'dir'];
 

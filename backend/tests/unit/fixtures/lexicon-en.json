@@ -1480,6 +1480,302 @@
      ]
     }
    ]
+  },
+  {
+   "word": "big",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "bigger",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "biggest",
+     "tags": [
+      "superlative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {
+     "tags": [
+      "informal"
+     ]
+    },
+    {
+     "tags": [
+      "figuratively",
+      "sometimes"
+     ]
+    },
+    {
+     "tags": [
+      "informal"
+     ]
+    },
+    {
+     "tags": [
+      "informal"
+     ]
+    },
+    {
+     "tags": [
+      "informal"
+     ]
+    },
+    {
+     "tags": [
+      "informal"
+     ]
+    },
+    {
+     "tags": [
+      "informal",
+      "rare",
+      "slang"
+     ]
+    },
+    {
+     "tags": [
+      "informal"
+     ]
+    },
+    {
+     "tags": [
+      "informal"
+     ]
+    },
+    {},
+    {},
+    {
+     "tags": [
+      "informal"
+     ]
+    },
+    {
+     "tags": [
+      "capitalized",
+      "humorous",
+      "often",
+      "sometimes"
+     ]
+    },
+    {
+     "tags": [
+      "informal"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "beautiful",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "more beautiful",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "most beautiful",
+     "tags": [
+      "superlative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "unique",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "uniquer",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "more unique",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "uniquest",
+     "tags": [
+      "superlative"
+     ]
+    },
+    {
+     "form": "most unique",
+     "tags": [
+      "superlative"
+     ]
+    },
+    {
+     "form": "unic",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "unick",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "not-comparable"
+     ]
+    },
+    {},
+    {},
+    {
+     "tags": [
+      "often",
+      "proscribed"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "happy",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "happier",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "more happy",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "happiest",
+     "tags": [
+      "superlative"
+     ]
+    },
+    {
+     "form": "most happy",
+     "tags": [
+      "superlative"
+     ]
+    },
+    {
+     "form": "happie",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {
+     "tags": [
+      "archaic"
+     ]
+    },
+    {},
+    {
+     "tags": [
+      "usually"
+     ]
+    },
+    {
+     "tags": [
+      "in-compounds"
+     ]
+    },
+    {
+     "tags": [
+      "often",
+      "rare"
+     ]
+    },
+    {}
+   ]
+  },
+  {
+   "word": "quickly",
+   "pos": "adv",
+   "forms": [
+    {
+     "form": "quicklier",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "more quickly",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "quickliest",
+     "tags": [
+      "superlative"
+     ]
+    },
+    {
+     "form": "most quickly",
+     "tags": [
+      "superlative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "fast",
+   "pos": "adv",
+   "forms": [
+    {
+     "form": "faster",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "fastest",
+     "tags": [
+      "superlative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {},
+    {},
+    {}
+   ]
   }
  ]
 }

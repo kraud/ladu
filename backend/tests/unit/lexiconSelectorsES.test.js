@@ -4,12 +4,14 @@
  * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0c.
  */
 const { selectCases } = require('../../lib/lexicon/select');
-const { NOUN_SELECTORS_ES, VERB_SELECTORS_ES } = require('../../lib/lexicon/selectors/es');
+const { NOUN_SELECTORS_ES, VERB_SELECTORS_ES, ADJECTIVE_SELECTORS_ES, ADVERB_SELECTORS_ES } = require('../../lib/lexicon/selectors/es');
 const { entries } = require('./fixtures/lexicon-es.json');
 
 const entry = (word) => entries.find((e) => e.word === word);
 const verb = (word) => Object.fromEntries(selectCases(entry(word), VERB_SELECTORS_ES));
 const noun = (word) => Object.fromEntries(selectCases(entry(word), NOUN_SELECTORS_ES));
+const adjective = (word) => Object.fromEntries(selectCases(entry(word), ADJECTIVE_SELECTORS_ES));
+const adverb = (word) => Object.fromEntries(selectCases(entry(word), ADVERB_SELECTORS_ES));
 
 describe('Spanish verb selectors', () => {
     test('a regular verb fills every field of the v2 form, plus conditional and imperative', () => {
@@ -108,5 +110,21 @@ describe('Spanish noun selectors', () => {
 
     test('a noun with both genders gets "el/la"', () => {
         expect(noun('estudiante')).toEqual({ genderES: 'el/la', singularES: 'estudiante', pluralES: 'estudiantes' });
+    });
+});
+
+describe('Spanish adjective and adverb selectors', () => {
+    test('a gendered adjective fills the four M/F cells', () => {
+        expect(adjective('rojo')).toEqual({ maleSingularES: 'rojo', malePluralES: 'rojos', femaleSingularES: 'roja', femalePluralES: 'rojas' });
+    });
+
+    test('an adjective with one shape for both genders fills the Neutral cells', () => {
+        expect(adjective('feliz')).toEqual({ neutralSingularES: 'feliz', neutralPluralES: 'felices' });
+        expect(adjective('grande')).toEqual({ neutralSingularES: 'grande', neutralPluralES: 'grandes' });
+    });
+
+    test('an adverb takes its comparative and has no forms otherwise', () => {
+        expect(adverb('bien').comparativeES).toBe('mejor');
+        expect(adverb('rápidamente')).toEqual({ adverbES: 'rápidamente' });
     });
 });

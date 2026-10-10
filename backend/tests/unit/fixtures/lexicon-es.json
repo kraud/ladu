@@ -18961,6 +18961,167 @@
      ]
     }
    ]
+  },
+  {
+   "word": "rojo",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "roja",
+     "tags": [
+      "feminine"
+     ]
+    },
+    {
+     "form": "rojos",
+     "tags": [
+      "masculine",
+      "plural"
+     ]
+    },
+    {
+     "form": "rojas",
+     "tags": [
+      "feminine",
+      "plural"
+     ]
+    }
+   ],
+   "senses": [
+    {}
+   ]
+  },
+  {
+   "word": "feliz",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "felices",
+     "tags": [
+      "feminine",
+      "masculine",
+      "plural"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "feminine",
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "feminine",
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "feminine",
+      "masculine"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "grande",
+   "pos": "adj",
+   "forms": [
+    {
+     "form": "before a noun gran",
+     "tags": [
+      "masculine",
+      "singular"
+     ]
+    },
+    {
+     "form": "grandes",
+     "tags": [
+      "feminine",
+      "masculine",
+      "plural"
+     ]
+    },
+    {
+     "form": "grandísimo",
+     "tags": [
+      "superlative"
+     ]
+    },
+    {
+     "form": "mayor",
+     "tags": [
+      "superlative"
+     ]
+    },
+    {
+     "form": "gran",
+     "tags": [
+      "alternative",
+      "apocopic"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "feminine",
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "feminine",
+      "masculine"
+     ]
+    },
+    {
+     "tags": [
+      "feminine",
+      "masculine"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "bien",
+   "pos": "adv",
+   "forms": [
+    {
+     "form": "mejor",
+     "tags": [
+      "comparative"
+     ]
+    },
+    {
+     "form": "biensísimo",
+     "tags": [
+      "Latin-America",
+      "superlative"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {},
+    {},
+    {
+     "tags": [
+      "colloquial"
+     ]
+    },
+    {}
+   ]
+  },
+  {
+   "word": "rápidamente",
+   "pos": "adv",
+   "senses": [
+    {}
+   ]
   }
  ]
 }

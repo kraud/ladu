@@ -18,9 +18,10 @@ npx tsx scripts/lexicon/sample.ts     # frequency list → ranked lemmas per par
 ## Building and loading the lexicon (Slice B)
 
 ```sh
-npx tsx scripts/lexicon/ingest.ts de              # → .data/out/lexicon-de-<kaikki date>.jsonl.gz (~3 MB, ~69k lexemes)
+npx tsx scripts/lexicon/ingest.ts de              # → .data/out/lexicon-de-<kaikki date>.jsonl.gz (nouns, verbs, adjectives, adverbs; de ~3.5 MB / 88k, es ~3.3 MB / 109k, en ~13 MB / 611k lexemes)
 node scripts/lexicon/load.js <file>               # replaces that language's rows in the DATABASE_URL database, in one transaction
-node scripts/lexicon/load.js <file> --if-empty    # only if the language has no rows yet (test / e2e databases)
+node scripts/lexicon/load.js <file> --if-empty    # only if the language has no rows yet (test / e2e databases). It checks per LANGUAGE: a local
+                                                    # database that has old German rows skips a new fixture — run load.js without the flag there.
 npx tsx scripts/lexicon/ingest.ts de --fixture    # rewrites the committed test fixture, fixtures/lexicon-de-fixture.jsonl
 npx tsx scripts/lexicon/ingest.ts es|en [--fixture]   # the same for Spanish and English (Wiktionary)
 npx tsx scripts/lexicon/ingest-et.ts [--fixture]  # Estonian from Eesthetic (not Wiktionary) → lexicon-et-eesthetic-v1.0.5.jsonl.gz
@@ -54,9 +55,9 @@ npx tsx scripts/lexicon/estimate-size.ts          # database size, two table lay
 Test fixtures (real entries for the selector unit tests in `tests/unit/lexiconSelectors*.test.js`):
 
 ```sh
-npx tsx scripts/lexicon/fixture.ts de 'tanzen|verb' 'gehen|verb' 'anrufen|verb' 'Haus|noun' 'Junge|noun'
-npx tsx scripts/lexicon/fixture.ts es 'bailar|verb' 'tener|verb' 'ir|verb' 'casa|noun' 'estudiante|noun'
-npx tsx scripts/lexicon/fixture.ts en 'run|verb' 'walk|verb' 'bake|verb' 'be|verb' 'child|noun' 'sheep|noun' 'news|noun'
+npx tsx scripts/lexicon/fixture.ts de 'tanzen|verb' 'gehen|verb' 'anrufen|verb' 'sichern|verb' 'sammeln|verb' 'sputen|verb' 'Haus|noun' 'Junge|noun' 'gut|adj' 'lila|adj' 'schön|adj' 'oft|adv' 'hier|adv'
+npx tsx scripts/lexicon/fixture.ts es 'bailar|verb' 'tener|verb' 'ir|verb' 'personarse|verb' 'sentir|verb' 'conocer|verb' 'buscar|verb' 'enviar|verb' 'casa|noun' 'estudiante|noun' 'rojo|adj' 'feliz|adj' 'grande|adj' 'bien|adv' 'rápidamente|adv'
+npx tsx scripts/lexicon/fixture.ts en 'run|verb' 'walk|verb' 'bake|verb' 'be|verb' 'child|noun' 'sheep|noun' 'news|noun' 'big|adj' 'beautiful|adj' 'unique|adj' 'happy|adj' 'quickly|adv' 'fast|adv'
 ```
 
 The selector tables themselves live in `backend/lib/lexicon/selectors/<lang>.ts`.

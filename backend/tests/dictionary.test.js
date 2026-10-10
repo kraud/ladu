@@ -379,6 +379,68 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
     });
 });
 
+describe('adjectives and adverbs (Slice H2: the lexicon alone, a miss is not-found)', () => {
+    const suggest = (path) => request(app).get(`/api/dictionary/${path}`).set('Authorization', `Bearer ${token}`);
+    const lemmas = (body) => body.suggestions.map(({ lemma }) => lemma);
+
+    beforeEach(async () => {
+        await loadLexiconFile(pool, FIXTURE);
+        await loadLexiconFile(pool, ES_FIXTURE);
+        await loadLexiconFile(pool, EN_FIXTURE);
+    });
+
+    it('English: an adjective takes -er/-est or more/most, an adverb the same', async () => {
+        expect(casesOf((await lookup('English/Adjective/big')).body)).toEqual({ positiveEN: 'big', comparativeEN: 'bigger', superlativeEN: 'biggest' });
+        expect(casesOf((await lookup('English/Adjective/beautiful')).body).comparativeEN).toBe('more beautiful');
+        expect(casesOf((await lookup('English/Adverb/quickly')).body)).toEqual({ adverbEN: 'quickly', comparativeEN: 'more quickly', superlativeEN: 'most quickly' });
+    });
+
+    it('English: a homograph stub does not hide the main sense ("good")', async () => {
+        const res = await lookup('English/Adjective/good');
+        expect(res.body.status).toBe('found');
+        expect(casesOf(res.body).comparativeEN).toBe('better');
+    });
+
+    it('Spanish: a gendered adjective fills the M/F cells, a Neutral one the Neutral cells', async () => {
+        expect(casesOf((await lookup('Spanish/Adjective/rojo')).body)).toEqual({
+            maleSingularES: 'rojo', malePluralES: 'rojos', femaleSingularES: 'roja', femalePluralES: 'rojas',
+        });
+        expect(casesOf((await lookup('Spanish/Adjective/feliz')).body)).toEqual({ neutralSingularES: 'feliz', neutralPluralES: 'felices' });
+    });
+
+    it('Spanish: an adverb with no forms is found with its base word only (D24)', async () => {
+        const res = await lookup('Spanish/Adverb/rápidamente');
+        expect(res.body.status).toBe('found');
+        expect(casesOf(res.body)).toEqual({ adverbES: 'rápidamente' });
+    });
+
+    it('German: the superlative has no "am" (D25), and an adjective that cannot be compared keeps the base word', async () => {
+        expect(casesOf((await lookup('German/Adjective/gut')).body)).toEqual({ positiveDE: 'gut', komparativDE: 'besser', superlativDE: 'besten' });
+        expect(casesOf((await lookup('German/Adjective/lila')).body)).toEqual({ positiveDE: 'lila' });
+    });
+
+    it('German: an adverb is Gradable when it has a comparative, else Non-gradable', async () => {
+        expect(casesOf((await lookup('German/Adverb/oft')).body)).toMatchObject({ gradableDE: 'Gradable', comparativeDE: 'öfter', superlativeDE: 'öftesten' });
+        expect(casesOf((await lookup('German/Adverb/hier')).body)).toEqual({ gradableDE: 'Non-gradable', adverbDE: 'hier' });
+    });
+
+    it('a word not in the lexicon is not-found: there is no library to guess with', async () => {
+        for (const path of ['English/Adjective/zorplate', 'Spanish/Adverb/zorplate', 'German/Adjective/zorplate']) {
+            expect((await lookup(path)).body).toEqual({ status: 'not-found', cases: [] });
+        }
+    });
+
+    it('a noun and an adjective with the same spelling do not mix', async () => {
+        expect((await lookup('German/Noun/gut')).body.status).not.toBe('found');
+    });
+
+    it('type-ahead lists adjectives and adverbs, also words with no forms', async () => {
+        expect(lemmas((await suggest('German/Adjective?prefix=li')).body)).toEqual(['lila']);
+        expect(lemmas((await suggest('Spanish/Adverb?prefix=rá')).body)).toEqual(['rápidamente']);
+        expect(lemmas((await suggest('English/Adjective?prefix=be')).body)).toEqual(['beautiful']);
+    });
+});
+
 describe('type-ahead suggestions (Slice E: GET /api/dictionary/:language/:partOfSpeech?prefix=)', () => {
     const suggest = (path) => request(app).get(`/api/dictionary/${path}`).set('Authorization', `Bearer ${token}`);
     const lemmas = (body) => body.suggestions.map(({ lemma, hint }) => (hint ? `${hint} ${lemma}` : lemma));
@@ -429,7 +491,7 @@ describe('type-ahead suggestions (Slice E: GET /api/dictionary/:language/:partOf
     });
 
     it('400 for a pair without a dictionary, a prefix under 2 characters or a bad limit', async () => {
-        expect((await suggest('English/Adjective?prefix=bi')).statusCode).toBe(400);
+        expect((await suggest('Estonian/Adverb?prefix=ki')).statusCode).toBe(400);
         expect((await suggest('German/Verb?prefix=s')).statusCode).toBe(400);
         expect((await suggest('German/Verb')).statusCode).toBe(400);
         expect((await suggest('German/Verb?prefix=se&limit=0')).statusCode).toBe(400);
@@ -593,7 +655,8 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
 
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
-        expect((await lookup('English/Adjective/big')).statusCode).toBe(400);
+        expect((await lookup('English/Preposition/in')).statusCode).toBe(400);
+        expect((await lookup('Estonian/Adverb/kiiresti')).statusCode).toBe(400);
         expect((await lookup('Klingon/Verb/x')).statusCode).toBe(400);
     });
 
