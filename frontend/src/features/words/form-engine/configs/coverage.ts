@@ -32,8 +32,8 @@ const CONFIGS_BY_POS: Record<PartOfSpeech, Partial<Record<Lang, unknown>>> = {
  * The parts of speech a language actually has a form config for, in
  * `ALL_POS` order. Backs the registration language tiles' coverage line
  * (`MOCKUPS/auth/register.html`'s "noun · verb · adjective") with real
- * data instead of hardcoded copy — Estonian has no adverb config
- * (`configs/index.ts`), so its tile correctly lists three, not four.
+ * data instead of hardcoded copy — a language without a config for a part of
+ * speech lists fewer (Estonian listed three before the adverb form of Slice H4).
  *
  * Reads the four PoS config maps directly (not `getFormConfig` in
  * `./index`) to avoid a circular import with that barrel file.

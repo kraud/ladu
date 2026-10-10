@@ -252,6 +252,9 @@
         "formDE": {
           "adverbRequired": "Das Adverb ist erforderlich",
           "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
+        },
+        "formEE": {
+          "adverbRequired": "Das Adverb ist erforderlich"
         }
       },
       "fields": {
@@ -264,7 +267,11 @@
         "gradableDE": "Steigerbar",
         "adverbDE": "Adverb",
         "comparativeDE": "Komparativ",
-        "superlativeDE": "Superlativ"
+        "superlativeDE": "Superlativ",
+        "adverbEE": "Adverb",
+        "comparativeEE": "Komparativ",
+        "superlativeEE": "Superlativ",
+        "periphrasticSuperlativeEE": "Kein einteiliger Superlativ (kõige + Komparativ)"
       }
     },
     "verb": {

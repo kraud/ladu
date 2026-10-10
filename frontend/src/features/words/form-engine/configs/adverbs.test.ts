@@ -1,12 +1,12 @@
 /**
  * Regression test: the config-driven field lists must equal the old
  * `AdverbForm{EN,ES,DE}` field lists transcribed verbatim in
- * `.context/.frontend/snapshot/forms-adjectives-adverbs.md`. There is no
- * Estonian adverb form in the old app at all.
+ * `.context/.frontend/snapshot/forms-adjectives-adverbs.md`. The Estonian
+ * adverb form is new (Slice H4) and is pinned here directly.
  */
 import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';
-import { matchesVisibility, type FieldConfig } from './types';
+import { isStoredCheckbox, matchesVisibility, type FieldConfig } from './types';
 import { getFormConfig } from './index';
 
 /** Field names that would actually render given these sibling values — the same filter `FieldRenderer` applies via `visibleWhen`. */
@@ -31,8 +31,18 @@ describe('getFormConfig(Adverb, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => f.name !== 'adverb').every((f) => !f.required)).toBe(true);
     });
 
-    it('there is no Estonian adverb config', () => {
-        expect(getFormConfig(PartOfSpeech.adverb, Lang.EE)).toBeUndefined();
+    it('Estonian (new, H4): adverb*, comparative, a superlative derived from it while the stored checkbox is checked (D27)', () => {
+        const config = getFormConfig(PartOfSpeech.adverb, Lang.EE)!;
+        expect(config.fields.map((f) => f.name)).toEqual(['adverb', 'comparative', 'superlative', 'periphrasticSuperlative']);
+        expect(config.fields.find((f) => f.name === 'adverb')?.required).toBe(true);
+        expect(config.fields.filter((f) => f.name !== 'adverb').every((f) => !f.required)).toBe(true);
+        const superlative = config.fields.find((f) => f.name === 'superlative');
+        expect(superlative?.kind === 'text' && superlative.derivedWhen).toEqual({
+            when: { field: 'periphrasticSuperlative', equals: true },
+            prefix: 'kõige ',
+            fromField: 'comparative',
+        });
+        expect(isStoredCheckbox(config.fields.find((f) => f.name === 'periphrasticSuperlative')!)).toBe(true);
     });
 
     it('German: the superlative shows a fixed "am" prefix (D25)', () => {

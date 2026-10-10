@@ -28,6 +28,7 @@ const KEYS = {
     'Estonian/Verb': 'estonianVerb',
     'Estonian/Noun': 'estonianNoun',
     'Estonian/Adjective': 'estonianAdjective',
+    'Estonian/Adverb': 'estonianAdverb',
 } as const;
 
 type Key = (typeof KEYS)[keyof typeof KEYS];

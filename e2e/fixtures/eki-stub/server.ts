@@ -35,6 +35,11 @@ const WORDS: Record<string, [number, Paradigm]> = {
     // MADE-UP comparison data (see DETAILS): the real Ekilex lists "toredaim" too. Here "tore" has only
     // "kõige toredam", so the e2e spec can exercise the rare "no one-word superlative" branch.
     tore: [104, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'tore', PlN: 'toredad', SgG: 'toreda' }) }],
+    // Adverbs (Slice H4): word class "muutumatu", one form `ID` = the word. Real Ekilex data. "ja" is a
+    // conjunction (also "muutumatu"): the part-of-speech check must say not-found for it.
+    kiiresti: [105, { wordClass: 'muutumatu', paradigmForms: forms({ ID: 'kiiresti' }) }],
+    väga: [106, { wordClass: 'muutumatu', paradigmForms: forms({ ID: 'väga' }) }],
+    ja: [107, { wordClass: 'muutumatu', paradigmForms: forms({ ID: 'ja' }) }],
     jooksma: [201, { wordClass: 'verb', paradigmForms: forms({ Sup: 'jooksma', Inf: 'joosta', IndPrSg1: 'jooksen', IndIpfSg1: 'jooksin', PtsPtPs: 'jooksnud' }) }],
 };
 type Details = { lexemes: { pos: { code: string }[] }[]; wordRelationDetails?: { level1WordRelationGroups: { groupTypeCode: string; members: { wordValue: string }[] }[] } };
@@ -47,6 +52,9 @@ const DETAILS: Record<number, Details> = {
     102: { lexemes: [{ pos: [{ code: 's' }] }] },
     103: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: relations({ komp: ['väiksem'], superl: ['kõige väiksem', 'väikseim'] }) },
     104: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: relations({ komp: ['toredam'], superl: ['kõige toredam'] }) },
+    105: { lexemes: [{ pos: [{ code: 'adv' }] }], wordRelationDetails: relations({ komp: ['kiiremini'], superl: ['kõige kiiremini', 'kiireimini'] }) },
+    106: { lexemes: [{ pos: [{ code: 'adv' }] }] },
+    107: { lexemes: [{ pos: [{ code: 'konj' }] }] },
 };
 /**
  * English word → meanings, each with its Estonian words (for "search in English"). Since step F3 the

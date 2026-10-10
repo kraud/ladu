@@ -2,7 +2,7 @@
  * Estonian paradigm transforms (services/dictionary/eki.ts) on the Ekilex paradigm shape
  * (`api/paradigm/details/{id}`): forms with a `morphCode` (decision D18).
  */
-const { comparisonCases, transformAdjective, transformNoun, transformVerb } = require('../../services/dictionary/eki');
+const { adverbComparisonCases, comparisonCases, transformAdjective, transformAdverb, transformNoun, transformVerb } = require('../../services/dictionary/eki');
 
 const casesOf = (result) => Object.fromEntries(result.cases.map(({ caseName, word }) => [caseName, word]));
 const paradigm = (wordClass, forms) => ({
@@ -87,6 +87,38 @@ describe('comparisonCases (D20)', () => {
     it('no comparison relations at all (a non-gradable adjective): nothing, the checkbox is left alone', () => {
         expect(comparisonCases(relations({ 'ls-esiosaga': ['eestikeelsus'] }))).toEqual([]);
         expect(comparisonCases({})).toEqual([]);
+    });
+});
+
+describe('transformAdverb and adverbComparisonCases (Slice H4, D27)', () => {
+    const adverb = paradigm('muutumatu', [['ID', 'kiiresti']]);
+
+    it('the adverb is the one form `ID`; with no relations nothing else is sent', () => {
+        expect(casesOf(transformAdverb(adverb))).toEqual({ adverbEE: 'kiiresti' });
+        expect(transformAdverb(undefined)).toEqual({ status: 'not-found', cases: [] });
+    });
+
+    it('"kõige …" is preferred over a one-word superlative: the box is checked and no superlative is sent', () => {
+        const details = relations({ komp: ['kiiremini'], superl: ['kõige kiiremini', 'kiireimini'] });
+        expect(adverbComparisonCases(details)).toEqual([['comparativeEE', 'kiiremini'], ['periphrasticSuperlativeEE', 'true']]);
+        expect(casesOf(transformAdverb(adverb, details))).toEqual({
+            adverbEE: 'kiiresti', comparativeEE: 'kiiremini', periphrasticSuperlativeEE: 'true',
+        });
+    });
+
+    it('a one-word superlative fills the field only when no "kõige …" form is listed (box unchecked)', () => {
+        expect(adverbComparisonCases(relations({ komp: ['tihemini'], superl: ['tihtaimini'] }))).toEqual([
+            ['comparativeEE', 'tihemini'], ['superlativeEE', 'tihtaimini'], ['periphrasticSuperlativeEE', 'false'],
+        ]);
+    });
+
+    it('a comparative alone (no superlative listed): the comparative only, the box is left alone', () => {
+        expect(adverbComparisonCases(relations({ komp: ['kauem'] }))).toEqual([['comparativeEE', 'kauem']]);
+    });
+
+    it('no comparison relations at all: nothing', () => {
+        expect(adverbComparisonCases(relations({ 'deriv_base': ['kiire'] }))).toEqual([]);
+        expect(adverbComparisonCases({})).toEqual([]);
     });
 });
 

@@ -14,8 +14,11 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *     branch switches the card to Neutral; a pick from the list works too.
  *  4. English: "beautiful" picked from the list gets "more beautiful"; the adverb "quickly" gets
  *     "more quickly".
+ *  5. Estonian adverb (new in H4, Ekilex stub): "kiiresti" fills the comparative and checks the
+ *     "no one-word superlative" box (D27), so the superlative reads "kõige kiiremini"; a conjunction
+ *     ("ja") is not found. The word is saved with an English adverb and shows after a reload.
  *
- * Nothing is saved: the subject is the fill.
+ * Only the Estonian adverb is saved: the subject of the others is the fill.
  */
 
 test.afterAll(async () => {
@@ -44,7 +47,7 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
     let user: Account;
 
     test.beforeAll(async ({ request }) => {
-        user = await registerAndVerify(request, 'Adjective User', ['English', 'German', 'Spanish']);
+        user = await registerAndVerify(request, 'Adjective User', ['English', 'German', 'Spanish', 'Estonian']);
     });
 
     test.beforeEach(async ({ page }) => {
@@ -115,5 +118,33 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
         await openCard(page, /Adverb/, 'English');
         await typeAndFill(page, 'Adverb', 'quickly');
         await expect(page.getByLabel('Comparative', { exact: true })).toHaveValue('more quickly');
+    });
+
+    test('Estonian adverb: the comparative fills, the "kõige" box is checked, a conjunction is not found, and the word saves', async ({ page }) => {
+        await openCard(page, /Adverb/, 'Eesti');
+        await page.getByLabel('Adverb', { exact: true }).pressSequentially('ja');
+        await expect(page.getByText("Sorry, we don't know this word!")).toBeVisible();
+
+        await page.getByLabel('Adverb', { exact: true }).fill('kiiresti');
+        await expect(page.getByRole('listbox')).toHaveCount(0);
+        await useValues(page).click();
+        await expect(page.getByLabel('Comparative', { exact: true })).toHaveValue('kiiremini');
+        await expect(page.getByRole('checkbox', { name: /No one-word superlative/ })).toBeChecked();
+        await expect(page.getByTestId('derived-superlative')).toHaveValue('kõige kiiremini');
+
+        // A second translation, then save.
+        await page.getByRole('button', { name: 'English' }).click();
+        await page.getByLabel('Adverb', { exact: true }).last().fill('quickly');
+        await page.getByRole('button', { name: 'Save' }).click();
+        await expect(page.getByText('Word was created successfully')).toBeVisible();
+        await page.getByRole('button', { name: 'Click here to see the new word' }).click();
+        await expect(page).toHaveURL(/\/word\/.+/);
+
+        await page.reload();
+        await expect(page.getByText('Detailed view: Adverb')).toBeVisible();
+        await expect(page.getByText('kiiresti')).toBeVisible();
+        await expect(page.getByText('kiiremini', { exact: true })).toBeVisible();
+        // The checkbox is stored; the view shows the superlative it stands for.
+        await expect(page.getByTestId('derived-superlative')).toHaveText('kõige kiiremini');
     });
 });

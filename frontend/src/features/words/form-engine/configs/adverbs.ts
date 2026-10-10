@@ -1,9 +1,8 @@
 /**
- * Adverb form configs — EN, ES, DE only. There is no `Lang.EE` branch in the
- * old app's `getAdverbForm()` router at all, so `ADVERB_CONFIGS` simply omits
- * the Estonian key; `getFormConfig(adverb, EE)` falls through to `undefined`
- * and `TranslationCard` shows its existing "language not available"
- * fallback, matching the old app's own missing route.
+ * Adverb form configs — EN, ES, DE as in the old app; Estonian is new (Slice H4, decision D27).
+ * The old app's `getAdverbForm()` router had no `Lang.EE` branch. The Estonian form copies the
+ * adjective's superlative design (D20): an optional one-word superlative, or the stored
+ * "no one-word superlative" checkbox, with which the field shows "kõige " + the comparative.
  *
  * German's `comparative`/`superlative` are visible by default and hidden
  * only once `gradable` is explicitly set to `"Non-gradable"` — the one
@@ -12,7 +11,7 @@
  * once a sibling matches, never by default.
  */
 import { AdverbCases, Lang, PartOfSpeech } from '@/ts/enums';
-import type { FieldConfig, FieldVisibility, RadioOption, TranslationFormConfig } from './types';
+import type { FieldConfig, FieldDerivation, FieldLayout, FieldVisibility, RadioOption, TranslationFormConfig } from './types';
 
 function labelKey(key: string): string {
     return `wordRelated:wordForm.adverb.fields.${key}`;
@@ -28,7 +27,9 @@ function degreeField(
     name: string,
     required: boolean,
     requiredMessageKey?: string,
-    visibleWhen?: FieldVisibility
+    visibleWhen?: FieldVisibility,
+    layout?: FieldLayout,
+    derivedWhen?: FieldDerivation
 ): FieldConfig {
     return {
         kind: 'text',
@@ -39,6 +40,8 @@ function degreeField(
         requiredMessageKey,
         lowercase: true,
         visibleWhen,
+        layout,
+        derivedWhen,
     };
 }
 
@@ -101,8 +104,34 @@ function buildDeConfig(): TranslationFormConfig {
     };
 }
 
+function buildEeConfig(): TranslationFormConfig {
+    const suffix = 'EE';
+    return {
+        pos: PartOfSpeech.adverb,
+        lang: Lang.EE,
+        fields: [
+            degreeField(AdverbCases.adverbEE, 'adverb', true, adverbErrorKey(suffix, 'adverbRequired'), undefined, { row: 'degree', column: 'Positive' }),
+            degreeField(AdverbCases.comparativeEE, 'comparative', false, undefined, undefined, { row: 'degree', column: 'Comparative' }),
+            // With `periphrasticSuperlative` checked the field shows "kõige " + the comparative, read-only, not stored (D20, D27).
+            degreeField(AdverbCases.superlativeEE, 'superlative', false, undefined, undefined, { row: 'degree', column: 'Superlative' }, {
+                when: { field: 'periphrasticSuperlative', equals: true },
+                prefix: 'kõige ',
+                fromField: 'comparative',
+            }),
+            {
+                kind: 'checkbox',
+                name: 'periphrasticSuperlative',
+                caseName: AdverbCases.periphrasticSuperlativeEE,
+                labelKey: labelKey(AdverbCases.periphrasticSuperlativeEE),
+                required: false,
+            },
+        ],
+    };
+}
+
 export const ADVERB_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> = {
     [Lang.EN]: buildEnConfig(),
     [Lang.ES]: buildEsConfig(),
     [Lang.DE]: buildDeConfig(),
+    [Lang.EE]: buildEeConfig(),
 };

@@ -17,6 +17,13 @@
  *   when only "kõige …" exists, no superlative is sent and the flag is "true" (the form then
  *   shows "kõige " + the comparative). An adjective with no comparison relations
  *   ("eestikeelne") sends neither.
+ * - Adverbs (Slice H4, 3 calls): the paradigm's word class is "muutumatu" (indeclinable; its one
+ *   form, code `ID`, is the word). Like an adjective, `api/word/details/{id}` checks the part of
+ *   speech (`adv`; "muutumatu" also holds conjunctions and interjections) and gives the relation
+ *   groups `komp` and `superl`. Decision D27: "kõige …" is the normal superlative of an adverb
+ *   ("kõige paremini"; the one-word "parimini" is rare), so when any "kõige …" form is listed the
+ *   flag `periphrasticSuperlativeEE` is "true" and no superlative is sent. Only when none is
+ *   listed does a one-word superlative fill `superlativeEE` (flag "false"). No relations: nothing.
  * - Several forms for one code ("häid", "heasid"): the first listed (D19).
  * - Translations (Slice F2, D22): `estonianEquivalents` reads the Estonian words of the meanings
  *   that list the query word in its own language. It fills the Estonian gap of the translate route.
@@ -69,7 +76,7 @@ async function get<T>(path: string): Promise<T> {
 }
 
 /** The word id and paradigm of the first homonym with the wanted word class, or undefined. */
-async function paradigmOf(word: string, wordClass: 'noomen' | 'verb'): Promise<{ id: number; paradigm: Paradigm } | undefined> {
+async function paradigmOf(word: string, wordClass: 'noomen' | 'verb' | 'muutumatu'): Promise<{ id: number; paradigm: Paradigm } | undefined> {
     const ids = await get<number[]>(`api/word/ids/${encodeURIComponent(word)}/eki/est`);
     for (const id of (Array.isArray(ids) ? ids : []).slice(0, MAX_HOMONYMS)) {
         const paradigms = await get<Paradigm[]>(`api/paradigm/details/${id}`);
@@ -134,6 +141,32 @@ export function transformAdjective(paradigm: Paradigm | undefined, details: Word
         ['algvorreEE', formOf(paradigm, 'SgN')],
         ...comparisonCases(details),
         ...DECLENSION.map(([code, caseName]): [string, string] => [caseName, formOf(paradigm, code)]),
+    ]));
+}
+
+/** The adverb's comparative and superlative from its relation groups (decision D27, see the file header). */
+export function adverbComparisonCases(details: WordDetails): [string, string][] {
+    const groups = details.wordRelationDetails?.level1WordRelationGroups ?? [];
+    const members = (code: string) => (groups.find((g) => g.groupTypeCode === code)?.members ?? []).map((m) => m.wordValue).filter(Boolean);
+    const comparative = members('komp')[0];
+    const superlatives = members('superl');
+    if (!comparative && superlatives.length === 0) return [];
+    if (superlatives.some((word) => word.startsWith(PERIPHRASTIC))) {
+        return [['comparativeEE', comparative ?? ''], ['periphrasticSuperlativeEE', 'true']];
+    }
+    return [
+        ['comparativeEE', comparative ?? ''],
+        ...(superlatives.length > 0
+            ? ([['superlativeEE', superlatives[0]], ['periphrasticSuperlativeEE', 'false']] as [string, string][])
+            : []),
+    ];
+}
+
+export function transformAdverb(paradigm: Paradigm | undefined, details: WordDetails = {}): LookupResult {
+    if (!paradigm) return NOT_FOUND;
+    return found(toCases([
+        ['adverbEE', formOf(paradigm, 'ID')],
+        ...adverbComparisonCases(details),
     ]));
 }
 
@@ -204,5 +237,12 @@ export const estonianAdjective: DictionaryAdapter = async (query) => {
     const details = await get<WordDetails>(`api/word/details/${match.id}`);
     const isAdjective = (details.lexemes ?? []).some((lexeme) => (lexeme.pos ?? []).some((pos) => pos.code === 'adj'));
     return isAdjective ? transformAdjective(match.paradigm, details) : NOT_FOUND;
+};
+export const estonianAdverb: DictionaryAdapter = async (query) => {
+    const match = await paradigmOf(query, 'muutumatu');
+    if (!match) return NOT_FOUND;
+    const details = await get<WordDetails>(`api/word/details/${match.id}`);
+    const isAdverb = (details.lexemes ?? []).some((lexeme) => (lexeme.pos ?? []).some((pos) => pos.code === 'adv'));
+    return isAdverb ? transformAdverb(match.paradigm, details) : NOT_FOUND;
 };
 export const estonianVerb: DictionaryAdapter = async (query) => transformVerb((await paradigmOf(query, 'verb'))?.paradigm);

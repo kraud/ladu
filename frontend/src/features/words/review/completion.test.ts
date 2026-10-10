@@ -22,6 +22,7 @@ describe('expectedCaseCount — plain configs (no visibleWhen)', () => {
         [PartOfSpeech.adjective, 'EN', 3],
         [PartOfSpeech.adjective, 'DE', 3],
         [PartOfSpeech.adjective, 'EE', 8],
+        [PartOfSpeech.adverb, 'EE', 3],
         [PartOfSpeech.adverb, 'EN', 3],
         [PartOfSpeech.adverb, 'ES', 3],
     ])('%s / %s -> %i', (pos, lang, expected) => {
@@ -44,8 +45,8 @@ describe('expectedCaseCount — branching configs collapse to the largest branch
 });
 
 describe('expectedCaseCount — no config at all', () => {
-    it('Estonian adverb (no route in the old app either) returns 0', () => {
-        expect(expectedCaseCount(PartOfSpeech.adverb, 'EE')).toBe(0);
+    it('a part of speech with no form engine (Estonian preposition) returns 0', () => {
+        expect(expectedCaseCount(PartOfSpeech.preposition, 'EE')).toBe(0);
     });
 
     it('an unshipped part of speech returns 0 for every language', () => {

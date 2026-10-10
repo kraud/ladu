@@ -204,6 +204,9 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         hea: [12, { wordClass: 'noomen', paradigmForms: forms([['SgN', 'hea'], ['PlP', 'häid'], ['PlP', 'heasid']]) }],
         // An adjective with no one-word superlative (the real Ekilex has few; this one is made up for the test).
         tore: [13, { wordClass: 'noomen', paradigmForms: forms([['SgN', 'tore']]) }],
+        // Adverbs (Slice H4): "muutumatu", one form `ID`. "ja" is a conjunction (also "muutumatu").
+        kiiresti: [31, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'kiiresti']]) }],
+        ja: [32, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'ja']]) }],
         jooksma: [21, { wordClass: 'verb', paradigmForms: forms([['Sup', 'jooksma'], ['Inf', 'joosta']]) }],
     };
     /** word id → `api/word/details` (part of speech + comparison relations, D20). */
@@ -212,6 +215,8 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         11: { lexemes: [{ pos: [{ code: 's' }] }] },
         12: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: { level1WordRelationGroups: [group('komp', ['parem']), group('superl', ['kõige parem', 'parim'])] } },
         13: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: { level1WordRelationGroups: [group('komp', ['toredam']), group('superl', ['kõige toredam'])] } },
+        31: { lexemes: [{ pos: [{ code: 'adv' }] }], wordRelationDetails: { level1WordRelationGroups: [group('komp', ['kiiremini']), group('superl', ['kõige kiiremini', 'kiireimini'])] } },
+        32: { lexemes: [{ pos: [{ code: 'konj' }] }] },
     };
     /** A fake Ekilex: answers by path, like e2e/fixtures/eki-stub/server.ts. */
     function fakeEkilex({ ok = true } = {}) {
@@ -276,6 +281,25 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
             keskvorreEE: 'toredam',
             periphrasticSuperlativeEE: 'true',
         });
+    });
+
+    it('an adverb: the word itself, its comparative, and the "kõige …" box checked (3 calls, D27)', async () => {
+        const fetchMock = fakeEkilex();
+        const res = await lookup(`Estonian/Adverb/kiiresti`);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.status).toBe('found');
+        expect(casesOf(res.body)).toEqual({ adverbEE: 'kiiresti', comparativeEE: 'kiiremini', periphrasticSuperlativeEE: 'true' });
+        expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+            'https://ekilex.test/api/word/ids/kiiresti/eki/est',
+            'https://ekilex.test/api/paradigm/details/31',
+            'https://ekilex.test/api/word/details/31',
+        ]);
+    });
+
+    it('a conjunction ("ja") typed into the adverb form is not-found (the part-of-speech check), and so is a noun', async () => {
+        fakeEkilex();
+        expect((await lookup('Estonian/Adverb/ja')).body).toEqual({ status: 'not-found', cases: [] });
+        expect((await lookup(`Estonian/Adverb/${encodeURIComponent('õun')}`)).body).toEqual({ status: 'not-found', cases: [] });
     });
 
     it('a noun typed into the adjective form is not-found (the part-of-speech check, D20)', async () => {
@@ -486,12 +510,13 @@ describe('type-ahead suggestions (Slice E: GET /api/dictionary/:language/:partOf
         expect((await suggest('German/Verb?prefix=s_')).body.suggestions).toEqual([]);
     });
 
-    it('a pair with a dictionary but no lexicon (Estonian adjectives) returns an empty list', async () => {
+    it('a pair with a dictionary but no lexicon (Estonian adjectives and adverbs) returns an empty list', async () => {
         expect((await suggest('Estonian/Adjective?prefix=su')).body).toEqual({ suggestions: [] });
+        expect((await suggest('Estonian/Adverb?prefix=ki')).body).toEqual({ suggestions: [] });
     });
 
     it('400 for a pair without a dictionary, a prefix under 2 characters or a bad limit', async () => {
-        expect((await suggest('Estonian/Adverb?prefix=ki')).statusCode).toBe(400);
+        expect((await suggest('Estonian/Preposition?prefix=ka')).statusCode).toBe(400);
         expect((await suggest('German/Verb?prefix=s')).statusCode).toBe(400);
         expect((await suggest('German/Verb')).statusCode).toBe(400);
         expect((await suggest('German/Verb?prefix=se&limit=0')).statusCode).toBe(400);
@@ -656,7 +681,7 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
         expect((await lookup('English/Preposition/in')).statusCode).toBe(400);
-        expect((await lookup('Estonian/Adverb/kiiresti')).statusCode).toBe(400);
+        expect((await lookup('Estonian/Preposition/kaudu')).statusCode).toBe(400);
         expect((await lookup('Klingon/Verb/x')).statusCode).toBe(400);
     });
 

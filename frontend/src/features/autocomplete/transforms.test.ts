@@ -31,6 +31,7 @@ describe('getAutocompleteEndpoint — coverage table', () => {
                 'Estonian/Verb',
                 'Estonian/Noun',
                 'Estonian/Adjective',
+                'Estonian/Adverb',
             ].sort()
         );
     });
@@ -39,12 +40,13 @@ describe('getAutocompleteEndpoint — coverage table', () => {
         expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.verb]?.extraFieldName).toBe('searchInEnglish');
         expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.noun]?.extraFieldName).toBeUndefined();
         expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.adjective]?.extraFieldName).toBeUndefined();
+        expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.adverb]?.extraFieldName).toBeUndefined();
     });
 });
 
 describe('the query field of each adjective and adverb card (Slice H3)', () => {
     it('every registered query field is a text field of that card', () => {
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
             for (const pos of [PartOfSpeech.adjective, PartOfSpeech.adverb]) {
                 const endpoint = getAutocompleteEndpoint(lang, pos)!;
                 const fields = getFormConfig(pos, lang)!.fields;

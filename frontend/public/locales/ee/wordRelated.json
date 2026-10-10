@@ -252,6 +252,9 @@
         "formDE": {
           "adverbRequired": "Määrsõna on kohustuslik",
           "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
+        },
+        "formEE": {
+          "adverbRequired": "Määrsõna on kohustuslik"
         }
       },
       "fields": {
@@ -264,7 +267,11 @@
         "gradableDE": "Astestatav",
         "adverbDE": "Määrsõna",
         "comparativeDE": "Keskvõrre",
-        "superlativeDE": "Ülivõrre"
+        "superlativeDE": "Ülivõrre",
+        "adverbEE": "Määrsõna",
+        "comparativeEE": "Keskvõrre",
+        "superlativeEE": "Ülivõrre",
+        "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)"
       }
     },
     "verb": {

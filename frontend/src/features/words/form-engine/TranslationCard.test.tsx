@@ -473,8 +473,16 @@ describe('TranslationCard — Adverb', () => {
         expect(screen.getByLabelText('Comparative')).toBeInTheDocument();
     });
 
-    it('there is no Estonian adverb card', () => {
+    it('the Estonian adverb card has the adverb, its comparative and superlative, and the "kõige" box (Slice H4, D27)', () => {
         renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.adverb} />);
+        expect(screen.getByLabelText('Adverb')).toBeInTheDocument();
+        expect(screen.getByLabelText('Comparative')).toBeInTheDocument();
+        expect(screen.getByLabelText('Superlative')).toBeInTheDocument();
+        expect(screen.getByRole('checkbox', { name: /No one-word superlative/ })).toBeInTheDocument();
+    });
+
+    it('a part of speech with no form engine shows the "not available yet" card', () => {
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.preposition} />);
         expect(screen.getByText('That language is not available yet')).toBeInTheDocument();
     });
 });

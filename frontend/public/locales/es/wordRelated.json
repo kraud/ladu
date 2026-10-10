@@ -252,6 +252,9 @@
         "formDE": {
           "adverbRequired": "El adverbio es obligatorio",
           "gradableRequired": "La selección de 'gradual' es obligatoria"
+        },
+        "formEE": {
+          "adverbRequired": "El adverbio es obligatorio"
         }
       },
       "fields": {
@@ -264,7 +267,11 @@
         "gradableDE": "Graduable",
         "adverbDE": "Adverbio",
         "comparativeDE": "Comparativo",
-        "superlativeDE": "Superlativo"
+        "superlativeDE": "Superlativo",
+        "adverbEE": "Adverbio",
+        "comparativeEE": "Comparativo",
+        "superlativeEE": "Superlativo",
+        "periphrasticSuperlativeEE": "Sin superlativo de una sola palabra (kõige + comparativo)"
       }
     },
     "verb": {

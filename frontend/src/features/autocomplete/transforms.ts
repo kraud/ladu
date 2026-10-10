@@ -62,6 +62,8 @@ export const AUTOCOMPLETE_REGISTRY: Partial<Record<Lang, Partial<Record<PartOfSp
         // one, added in Slice 2 for its pattern-relaxation feature) — these two always search natively.
         [PartOfSpeech.noun]: { queryFieldName: 'singularNimetav' },
         [PartOfSpeech.adjective]: { queryFieldName: 'algvorre' },
+        // Slice H4: Ekilex only, like the adjective; no type-ahead list (no local lexicon for it).
+        [PartOfSpeech.adverb]: { queryFieldName: 'adverb' },
     },
 };
 

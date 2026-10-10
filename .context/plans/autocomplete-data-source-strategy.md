@@ -1,7 +1,7 @@
 # Autocomplete & lexical data sources — research record
 
 *Status (2026-10-10, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
-translation table and route). Slice H in progress (H1–H3 done). Next: H4–H5, then **Slice G** (own plan document, see its section in §9). Server steps for everything done so far: §14 (do once the plan is complete).
+translation table and route). Slice H in progress (H1–H4 done). Next: H5, then **Slice G** (own plan document, see its section in §9). Server steps for everything done so far: §14 (do once the plan is complete).
 History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
@@ -791,6 +791,14 @@ shows no input, so it has no autocomplete. German superlative (adjective and adv
 (`adornment: { text: 'am' }`), value stored without it (D25). Gate spec:
 `e2e/tests/autocomplete-g-adjectives-adverbs.spec.ts`. Local trap: the e2e run uses the dev database, and
 `--if-empty` keeps old rows — load the rebuilt full files (`load.js`) before the first run.
+**H4 done 2026-10-10:** Estonian adverb form (`AdverbCases.adverbEE`, `comparativeEE`, `superlativeEE`,
+`periphrasticSuperlativeEE`; texts in the four locales; `ADVERB_CONFIGS[EE]`; the language tiles now list four
+parts of speech for Estonian). Ekilex check (7 real words): an adverb's paradigm word class is `muutumatu`
+(one form, code `ID` = the word), its part of speech in `api/word/details/{id}` is `adv`, and it has the same
+`komp` / `superl` relation groups as adjectives; "siin" and "eile" have a noun homonym listed second.
+`eki.ts`: `estonianAdverb` (3 calls, like the adjective), `adverbComparisonCases`; registry `Estonian.Adverb`;
+no type-ahead list (empty). A conjunction ("ja", also `muutumatu`) is not-found. Gate: `autocomplete-g` spec,
+Estonian adverb test (fills, checks the box, saves).
 
 Original note: new selector tables and new form configurations. Planned after parity (decision D6). The Slice 0
 measurement shows adjectives have good data in all three languages (DE full declension, ES gender and
@@ -835,6 +843,7 @@ Reads the same tables. No plan yet.
 | D24 | 2026-10-10 | Adjectives and adverbs with no forms besides the base word stay in the lexicon (lookup = `found`, base field only; German adverb gets `gradableDE = Non-gradable`). Type-ahead lists them. |
 | D25 | 2026-10-10 | German superlative (`superlativDE`, `superlativeDE`) is stored **without "am"** ("besten"). The form shows a fixed "am " prefix on the field (H3). |
 | D26 | 2026-10-10 | The D8 reflexive verb field is the last step of Slice H (H5), with its own overview and questions. |
+| D27 | 2026-10-10 | Estonian adverb superlative: **"kõige …" first**. When Ekilex lists any "kõige …" superlative ("kõige paremini"), the lookup checks `periphrasticSuperlativeEE` and sends no superlative; a one-word superlative ("parimini", rare for adverbs) fills the field only when no "kõige …" form is listed. The adjective keeps its D20 rule (one-word first). |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)

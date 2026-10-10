@@ -252,6 +252,9 @@
         "formDE": {
           "adverbRequired": "Adverb is required",
           "gradableRequired": "'Gradable' selection is required"
+        },
+        "formEE": {
+          "adverbRequired": "Adverb is required"
         }
       },
       "fields": {
@@ -264,7 +267,11 @@
         "gradableDE": "Gradable",
         "adverbDE": "Adverb",
         "comparativeDE": "Comparative",
-        "superlativeDE": "Superlative"
+        "superlativeDE": "Superlative",
+        "adverbEE": "Adverb",
+        "comparativeEE": "Comparative",
+        "superlativeEE": "Superlative",
+        "periphrasticSuperlativeEE": "No one-word superlative (kõige + comparative)"
       }
     },
     "verb": {

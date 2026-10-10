@@ -159,6 +159,8 @@ const getRequiredFieldsData = (
           return { dataES: findByCaseName("adverbES")! };
         case "German":
           return { dataDE: findByCaseName("adverbDE")! };
+        case "Estonian":
+          return { dataEE: findByCaseName("adverbEE")! };
         default:
           console.warn(
             `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Adverb"`,

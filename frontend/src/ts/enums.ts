@@ -57,6 +57,13 @@ export enum AdverbCases {
     adverbDE = "adverbDE",
     comparativeDE = "comparativeDE",
     superlativeDE = "superlativeDE",
+
+    // ESTONIAN (Slice H4)
+    adverbEE = "adverbEE",
+    comparativeEE = "comparativeEE",
+    superlativeEE = "superlativeEE",
+    /** Stored checkbox, same case name as the adjective's (D20, D27). */
+    periphrasticSuperlativeEE = "periphrasticSuperlativeEE",
 }
 
 export enum AdjectiveCases {

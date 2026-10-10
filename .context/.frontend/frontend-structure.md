@@ -160,7 +160,7 @@ frontend/src/
 │   │   │       ├── index.ts         # getFormConfig(pos, lang) → TranslationFormConfig
 │   │   │       ├── types.ts         # FieldConfig, TranslationFormConfig
 │   │   │       ├── nouns.ts         # 4 lang configs (Phase 2) — derived from the shared WordCasesData.Noun registry
-│   │   │       └── verbs.ts adjectives.ts adverbs.ts   # Phase 3 — registry (verbs) / enums (adj/adv); NO EE adverb
+│   │   │       └── verbs.ts adjectives.ts adverbs.ts   # Phase 3 — registry (verbs) / enums (adj/adv); EE adverb since Slice H4
 │   │   ├── review/               # Phase 3 — all new
 │   │   │   ├── ReviewTable.tsx      # TanStack Table instance; stable-id row selection (`getRowId`); router-
 │   │   │   │                        #   and store-free — every input, including navigation, is a prop

@@ -65,6 +65,8 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Verb: withSearchInEnglish(lexiconFirst(lexiconAdapter('Estonian', 'Verb'), eki.estonianVerb, { fallbackIs: 'dictionary' })),
         Noun: lexiconFirst(lexiconAdapter('Estonian', 'Noun'), eki.estonianNoun, { fallbackIs: 'dictionary' }),
         Adjective: eki.estonianAdjective,
+        // Slice H4: Ekilex only, like the adjective (Eesthetic has no adverbs).
+        Adverb: eki.estonianAdverb,
     },
 };
 
