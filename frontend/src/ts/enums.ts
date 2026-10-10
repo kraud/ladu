@@ -169,6 +169,8 @@ export enum VerbCases {
         // vosotros/as || ustedes: 2nd person plural (2pl)
         // ellos/as: 3rd person plural (3pl)
     regularityES = "regularityES",
+    /** Stored checkbox "Reflexive verb" (D28): the word "true" when checked, nothing when not. */
+    reflexiveES = "reflexiveES",
 
     infinitiveNonFiniteSimpleES = 'infinitiveNonFiniteSimpleES',
     gerundNonFiniteSimpleES = 'gerundNonFiniteSimpleES',
@@ -280,6 +282,8 @@ export enum VerbCases {
     caseTypeDE = 'caseTypeDE',
     prefixDE = 'prefixDE',
     regularityDE = 'regularityDE',
+    /** Stored checkbox "Reflexive verb" (D28): the word "true" when checked, nothing when not. */
+    reflexiveDE = 'reflexiveDE',
 
     // INDICATIVE: --------------
     // Present: different for almost all pronouns

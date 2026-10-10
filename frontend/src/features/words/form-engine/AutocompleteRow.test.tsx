@@ -14,6 +14,7 @@ import { getFormConfig } from './configs';
 const enVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EN)!.fields;
 const esAdjectiveFields = getFormConfig(PartOfSpeech.adjective, Lang.ES)!.fields;
 const deAdverbFields = getFormConfig(PartOfSpeech.adverb, Lang.DE)!.fields;
+const deVerbFields = getFormConfig(PartOfSpeech.verb, Lang.DE)!.fields;
 const eeVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EE)!.fields;
 
 function Harness({
@@ -351,6 +352,20 @@ describe('AutocompleteRow', () => {
             );
             await new Promise((resolve) => setTimeout(resolve, LOOKUP_DEBOUNCE_MS + 200));
             expect(fake.requests).toHaveLength(0);
+        });
+
+        it('an always-reflexive German verb: the lookup checks the "Reflexive verb" box (H5, D28)', async () => {
+            const user = userEvent.setup();
+            const fake = makeAutocompleteHandlers({
+                germanVerb: { status: 'found', cases: [{ caseName: 'infinitiveDE', word: 'sputen' }, { caseName: 'reflexiveDE', word: 'true' }] },
+            });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe lang={Lang.DE} pos={PartOfSpeech.verb} fields={deVerbFields} defaultValues={{ infinitive: 'sputen', reflexive: false }} names={['reflexive']} />
+            );
+
+            await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+            expect(screen.getByLabelText('reflexive-probe')).toHaveValue('true');
         });
 
         it('German adverb: the lookup sets Gradable first, so comparative and superlative are filled even after Non-gradable was chosen', async () => {

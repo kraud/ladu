@@ -10,6 +10,45 @@ import { getFormConfig } from './index';
 /** `auxiliaryVerb`/`caseTypeDE->verbCases` don't derive their `name` from `caseName` mechanically — old-app naming quirks the manifest reproduces on purpose. */
 const NAME_SUFFIX_EXCEPTIONS = new Set(['auxiliaryVerb', 'verbCases']);
 
+describe('reflexive verb field (Slice H5, D28–D30)', () => {
+    const field = (lang: Lang, name: string) => getFormConfig(PartOfSpeech.verb, lang)!.fields.find((f) => f.name === name)!;
+
+    it('German and Spanish have a stored checkbox; English and Estonian have none', () => {
+        expect(field(Lang.DE, 'reflexive')).toMatchObject({ kind: 'checkbox', caseName: 'reflexiveDE', required: false });
+        expect(field(Lang.ES, 'reflexive')).toMatchObject({ kind: 'checkbox', caseName: 'reflexiveES', required: false });
+        expect(field(Lang.EN, 'reflexive')).toBeUndefined();
+        expect(field(Lang.EE, 'reflexive')).toBeUndefined();
+    });
+
+    it('Spanish: the infinitive check accepts a reflexive "-se" and "-ír" (before H5 "quejarse" and "oír" could not be saved)', () => {
+        const infinitive = field(Lang.ES, 'infinitiveNonFiniteSimple');
+        const regex = infinitive.kind === 'text' ? infinitive.pattern!.regex : /$^/;
+        for (const word of ['bailar', 'tener', 'ir', 'oír', 'quejarse', 'lavarse', 'irse', 'reírse']) expect(regex.test(word), word).toBe(true);
+        for (const word of ['bailo', 'quejarsee', 'ser2', 'se']) expect(regex.test(word), word).toBe(false);
+    });
+
+    it('Spanish: a pronoun before every person field (2pl is ustedes: se, D10)', () => {
+        const pronouns = ['1s', '2s', '3s', '1pl', '2pl', '3pl'].map((slot) => field(Lang.ES, `indicativePresent${slot}`).reflexive);
+        expect(pronouns).toEqual([
+            { accusative: 'me', position: 'before' },
+            { accusative: 'te', position: 'before' },
+            { accusative: 'se', position: 'before' },
+            { accusative: 'nos', position: 'before' },
+            { accusative: 'se', position: 'before' },
+            { accusative: 'se', position: 'before' },
+        ]);
+        expect(field(Lang.ES, 'infinitiveNonFiniteSimple').reflexive).toBeUndefined();
+    });
+
+    it('German: after the verb in present and past ("wasche mich"), before it in perfect and future ("habe mich gewaschen")', () => {
+        expect(field(Lang.DE, 'indicativePresent1s').reflexive).toEqual({ accusative: 'mich', dative: 'mir', position: 'after' });
+        expect(field(Lang.DE, 'indicativeSimplePast3pl').reflexive).toMatchObject({ accusative: 'sich', position: 'after' });
+        expect(field(Lang.DE, 'indicativePerfect2s').reflexive).toEqual({ accusative: 'dich', dative: 'dir', position: 'before' });
+        expect(field(Lang.DE, 'indicativeSimpleFuture1pl').reflexive).toMatchObject({ accusative: 'uns', position: 'before' });
+        expect(field(Lang.DE, 'infinitive').reflexive).toBeUndefined();
+    });
+});
+
 describe('getFormConfig(Verb, lang) — old field-list parity', () => {
     it('English: regularity, 4 simple tenses x 5 pronoun slots', () => {
         const config = getFormConfig(PartOfSpeech.verb, Lang.EN)!;
@@ -40,13 +79,14 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => f.name !== 'simplePresent1s').every((f) => !f.required)).toBe(true);
     });
 
-    it('Spanish: 3 non-finites, regularity, 4 indicative simple tenses x 6 pronoun slots — no conditional/imperative', () => {
+    it('Spanish: 3 non-finites, regularity, reflexive (H5), 4 indicative simple tenses x 6 pronoun slots — no conditional/imperative', () => {
         const config = getFormConfig(PartOfSpeech.verb, Lang.ES)!;
         expect(config.fields.map((f) => f.name)).toEqual([
             'infinitiveNonFiniteSimple',
             'gerundNonFiniteSimple',
             'participleNonFiniteSimple',
             'regularity',
+            'reflexive', // new in Slice H5 (D28), not in the old app
             'indicativePresent1s',
             'indicativePresent2s',
             'indicativePresent3s',
@@ -79,7 +119,7 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => !requiredNames.includes(f.name)).every((f) => !f.required)).toBe(true);
     });
 
-    it('German: infinitive, auxiliaryVerb, prefix, regularity, verbCases, 4 tenses x 6 pronoun slots', () => {
+    it('German: infinitive, auxiliaryVerb, prefix, regularity, verbCases, reflexive (H5), 4 tenses x 6 pronoun slots', () => {
         const config = getFormConfig(PartOfSpeech.verb, Lang.DE)!;
         // D36 — reordered from the old app's list (regularity used to sit right after
         // infinitive) so infinitive/auxiliaryVerb/prefix and regularity/verbCases each form one
@@ -90,6 +130,7 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
             'prefix',
             'regularity',
             'verbCases',
+            'reflexive', // new in Slice H5 (D28), not in the old app
             'indicativePresent1s',
             'indicativePresent2s',
             'indicativePresent3s',

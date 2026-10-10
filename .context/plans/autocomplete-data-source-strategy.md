@@ -1,7 +1,7 @@
 # Autocomplete & lexical data sources — research record
 
 *Status (2026-10-10, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
-translation table and route). Slice H in progress (H1–H4 done). Next: H5, then **Slice G** (own plan document, see its section in §9). Server steps for everything done so far: §14 (do once the plan is complete).
+translation table and route). Slice H done (H1–H5). Next: Slice G, then **Slice G** (own plan document, see its section in §9). Server steps for everything done so far: §14 (do once the plan is complete).
 History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
@@ -799,6 +799,21 @@ parts of speech for Estonian). Ekilex check (7 real words): an adverb's paradigm
 `eki.ts`: `estonianAdverb` (3 calls, like the adjective), `adverbComparisonCases`; registry `Estonian.Adverb`;
 no type-ahead list (empty). A conjunction ("ja", also `muutumatu`) is not-found. Gate: `autocomplete-g` spec,
 Estonian adverb test (fills, checks the box, saves).
+**H5 done 2026-10-10:** reflexive verb field (D8, D28–D30). A stored checkbox `reflexiveDE` / `reflexiveES`
+(`VerbCases`; the word "true" when checked), named `reflexive` in the German and Spanish verb forms. Autocomplete
+checks it only for an ALWAYS-reflexive verb. German: the infinitive is listed with "sich" ("sich sputen"), or
+every sense is tagged `reflexive` and none `transitive`/`intransitive`/`ditransitive` (a lone `reflexive`
+tag means "can be reflexive": "waschen" has it next to `transitive`). Spanish: the lemma is a reflexive
+infinitive (`/(ar|er|ir|ír)se$/`: "quejarse"; "lavar", which only has a reflexive sense, is not set).
+Local data: 329 German and 252 Spanish verbs flagged. While the box is checked, each person field shows the
+pronoun (`FieldReflexive`, read-only, like the German auxiliary): Spanish before the input (me, te, se, nos, se,
+se; 2pl = ustedes, D10); German after the verb in present and past ("wasche mich") and before it, after the
+auxiliary, in perfect and future ("habe mich gewaschen"); the German pronoun is dative (mir, dir, …) when the
+"verb cases" field has Dative and not Accusative (D30). Stored forms stay without the pronoun (D8). Not for
+English or Estonian. Word search ignores the stored "true" of `reflexive%` and `periphrasticSuperlative%`
+cases (like `gender%`, `gradable%`). Bug fixed on the way: the Spanish infinitive check rejected "quejarse"
+and "oír" (it accepts "-se" and "-ír" now), so a reflexive Spanish verb could not be saved. Gate spec:
+`e2e/tests/autocomplete-h-reflexive.spec.ts`. Server step (§14): the DE and ES files changed again.
 
 Original note: new selector tables and new form configurations. Planned after parity (decision D6). The Slice 0
 measurement shows adjectives have good data in all three languages (DE full declension, ES gender and
@@ -844,6 +859,9 @@ Reads the same tables. No plan yet.
 | D25 | 2026-10-10 | German superlative (`superlativDE`, `superlativeDE`) is stored **without "am"** ("besten"). The form shows a fixed "am " prefix on the field (H3). |
 | D26 | 2026-10-10 | The D8 reflexive verb field is the last step of Slice H (H5), with its own overview and questions. |
 | D27 | 2026-10-10 | Estonian adverb superlative: **"kõige …" first**. When Ekilex lists any "kõige …" superlative ("kõige paremini"), the lookup checks `periphrasticSuperlativeEE` and sends no superlative; a one-word superlative ("parimini", rare for adverbs) fills the field only when no "kõige …" form is listed. The adjective keeps its D20 rule (one-word first). |
+| D28 | 2026-10-10 | Reflexive verb field: ONE stored checkbox (German and Spanish only). Autocomplete sets it only when the verb is always reflexive; "reflexive in some senses" is not stored (about 1,000 verbs per language have such a sense, and for most it is the minor use). |
+| D29 | 2026-10-10 | While the box is checked, each person field of the verb card shows the reflexive pronoun as a read-only hint (Spanish before the input; German after the verb in present and past, before it after the auxiliary in perfect and future). The stored forms stay without the pronoun (D8). |
+| D30 | 2026-10-10 | German reflexive pronoun case: from the existing "verb cases" field. Dative selected and Accusative not → dative (mir, dir); otherwise accusative (mich, dich). No new field. |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)
@@ -950,8 +968,8 @@ marked "not fully sure". Commands run from `deploy/ansible/`. Details:
       (staging only first: add `-e '{"lexicon_environments": ["staging"]}'`).
 - [ ] **Each later language** (Slices C1, C2, D): the same playbook with that language's file. One
       run per file; a load replaces only its own language.
-- [ ] **Re-load DE, ES and EN** (Slice H1): the files now hold adjectives and adverbs. Build them again
-      (`ingest.ts`), then run `lexicon.yml` once per file.
+- [ ] **Re-load DE, ES and EN** (Slice H1, H5): the files now hold adjectives and adverbs, and the DE and ES
+      files also the reflexive flag. Build them again (`ingest.ts`), then run `lexicon.yml` once per file.
 - [ ] **Translations** (Slice F): the same playbook with
       `translations-en-2026-10-03.jsonl.gz` (build: `ingest-translations.ts`). The backup step
       above also skips its rows (`lexeme_translations`).

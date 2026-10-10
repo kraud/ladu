@@ -367,6 +367,81 @@ describe('FieldRenderer', () => {
         });
     });
 
+    describe('reflexive pronoun (Slice H5, D28–D30)', () => {
+        const reflexiveBox: FieldConfig = { ...checkboxField, name: 'reflexive', labelKey: 'reflexive' };
+        const person = (name: string, reflexive: NonNullable<FieldConfig['reflexive']>, adornment?: FieldConfig['adornment']): FieldConfig => ({
+            ...adornedField, name, labelKey: name, adornment, reflexive,
+        });
+
+        it('shows nothing until the box is checked, then the pronoun before the input (Spanish "me")', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(
+                <MultiHarness
+                    fields={[reflexiveBox, person('indicativePresent1s', { accusative: 'me', position: 'before' })]}
+                    defaultValues={{ reflexive: false, indicativePresent1s: '' }}
+                />,
+            );
+            expect(screen.queryByText('me')).not.toBeInTheDocument();
+            await user.click(screen.getByRole('checkbox'));
+            expect(screen.getByText('me')).toBeInTheDocument();
+            await user.click(screen.getByRole('checkbox'));
+            expect(screen.queryByText('me')).not.toBeInTheDocument();
+        });
+
+        it('German, after the verb: the pronoun follows the input ("wasche" + "mich")', () => {
+            renderWithProviders(
+                <MultiHarness
+                    fields={[reflexiveBox, person('indicativePresent1s', { accusative: 'mich', dative: 'mir', position: 'after' })]}
+                    defaultValues={{ reflexive: true, indicativePresent1s: 'wasche' }}
+                />,
+            );
+            const pronoun = screen.getByText('mich');
+            const input = screen.getByRole('textbox');
+            // The pronoun comes after the input in the document.
+            expect(input.compareDocumentPosition(pronoun) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        });
+
+        it('German perfect: the auxiliary and the pronoun stand together before the input ("habe mich")', () => {
+            renderWithProviders(
+                <MultiHarness
+                    fields={[
+                        reflexiveBox,
+                        person('indicativePerfect1s', { accusative: 'mich', dative: 'mir', position: 'before' }, { watchField: 'auxiliaryVerb', values: { haben: 'habe' } }),
+                    ]}
+                    defaultValues={{ reflexive: true, auxiliaryVerb: 'haben', indicativePerfect1s: '' }}
+                />,
+            );
+            expect(screen.getByText('habe mich')).toBeInTheDocument();
+        });
+
+        it('German: the pronoun is dative when the verb cases have Dative and not Accusative (D30)', () => {
+            const fields = [reflexiveBox, multiSelectField, person('indicativePresent1s', { accusative: 'mich', dative: 'mir', position: 'after' })];
+            const { unmount } = renderWithProviders(
+                <MultiHarness fields={fields} defaultValues={{ reflexive: true, verbCases: ['dativeDE'], indicativePresent1s: '' }} />,
+            );
+            expect(screen.getByText('mir')).toBeInTheDocument();
+            unmount();
+            renderWithProviders(
+                <MultiHarness fields={fields} defaultValues={{ reflexive: true, verbCases: ['accusativeDE', 'dativeDE'], indicativePresent1s: '' }} />,
+            );
+            expect(screen.getByText('mich')).toBeInTheDocument();
+        });
+
+        it('displayOnly: the pronoun shows in italics around a stored word, and not for an empty field', () => {
+            renderWithProviders(
+                <MultiHarness
+                    displayOnly
+                    fields={[
+                        reflexiveBox,
+                        { ...person('indicativePresent1s', { accusative: 'mich', position: 'after' }), required: true },
+                    ]}
+                    defaultValues={{ reflexive: true, indicativePresent1s: 'wasche' }}
+                />,
+            );
+            expect(screen.getByText('mich')).toHaveClass('italic');
+        });
+    });
+
     describe('adornment', () => {
         it('keeps the prefix visible in displayOnly, in italics and ahead of the value', () => {
             renderWithProviders(

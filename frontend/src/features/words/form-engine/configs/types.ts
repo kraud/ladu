@@ -1,3 +1,4 @@
+import { VerbCaseTypeDE } from '@/ts/enums';
 import type { AdjectiveCases, AdverbCases, Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 
 /** Every case-name enum a `FieldConfig` can point at, across all four parts of speech. */
@@ -121,6 +122,30 @@ export interface FieldAdornment {
     text?: string;
 }
 
+/**
+ * The reflexive pronoun shown next to a person field while the verb's "Reflexive verb" box (the
+ * sibling field named `reflexive`) is checked (Slice H5, decisions D28–D30). The stored forms never
+ * hold the pronoun (D8); this is a read-only hint, like the German auxiliary adornment.
+ * `dative` is used for a German verb whose "verb cases" field has Dative but not Accusative (D30).
+ */
+export interface FieldReflexive {
+    accusative: string;
+    dative?: string;
+    /**
+     * `before` the input (Spanish "me" + lavo; German "habe mich" + gewaschen, after the auxiliary) or
+     * `after` it (German present and past: wasche + "mich").
+     */
+    position: 'before' | 'after';
+}
+
+/** The pronoun to show for `reflexive`, or `undefined` while the box is not checked. */
+export function reflexivePronoun(reflexive: FieldReflexive | undefined, checked: unknown, verbCases: unknown): string | undefined {
+    if (!reflexive || checked !== true) return undefined;
+    const cases = Array.isArray(verbCases) ? verbCases : [];
+    const dativeOnly = cases.includes(VerbCaseTypeDE.dativeDE) && !cases.includes(VerbCaseTypeDE.accusativeDE);
+    return dativeOnly && reflexive.dative ? reflexive.dative : reflexive.accusative;
+}
+
 interface FieldConfigBase {
     /**
      * RHF field name — the old app's own per-language, unsuffixed field name
@@ -162,6 +187,8 @@ interface FieldConfigBase {
     group?: FieldGroup[];
     visibleWhen?: FieldVisibility;
     adornment?: FieldAdornment;
+    /** Reflexive pronoun hint next to a verb's person field (Spanish and German, Slice H5). */
+    reflexive?: FieldReflexive;
     layout?: FieldLayout;
 }
 

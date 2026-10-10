@@ -113,6 +113,25 @@ describe('Spanish noun selectors', () => {
     });
 });
 
+describe('Spanish reflexive flag (D28)', () => {
+    test('a lemma that is a reflexive infinitive is flagged', () => {
+        expect(verb('quejarse').reflexiveES).toBe('true');
+        expect(verb('personarse').reflexiveES).toBe('true');
+    });
+
+    test('a verb with a reflexive sense but a plain lemma is not ("lavar"); neither is a regular verb', () => {
+        expect(verb('lavar').reflexiveES).toBeUndefined();
+        expect(verb('bailar').reflexiveES).toBeUndefined();
+    });
+
+    test('the ending must be a verb ending + "se": "se", "muse" and "ase" are not verbs of this kind', () => {
+        for (const word of ['se', 'muse', 'ase']) {
+            const stub = { word, pos: 'verb', forms: [], senses: [{ tags: [] }] };
+            expect(Object.fromEntries(selectCases(stub, VERB_SELECTORS_ES)).reflexiveES).toBeUndefined();
+        }
+    });
+});
+
 describe('Spanish adjective and adverb selectors', () => {
     test('a gendered adjective fills the four M/F cells', () => {
         expect(adjective('rojo')).toEqual({ maleSingularES: 'rojo', malePluralES: 'rojos', femaleSingularES: 'roja', femalePluralES: 'rojas' });

@@ -284,7 +284,7 @@
           "infinitiveNonFiniteRequired": "El infinitivo no finito es obligatorio",
           "gerundNonFiniteRequired": "El gerundio no finito es obligatorio",
           "participleNonFiniteRequired": "El participio no finito es obligatorio",
-          "infinitiveNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-ar', '-er' o '-ir').",
+          "infinitiveNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-ar', '-er', '-ir' o '-ír', más '-se' si es reflexivo).",
           "regularityRequired": "Esa no es una opción"
         },
         "formDE": {
@@ -304,6 +304,8 @@
         "regularityEN": "Regularidad",
         "regularityES": "Regularidad",
         "regularityDE": "Regularidad",
+        "reflexiveES": "Verbo reflexivo",
+        "reflexiveDE": "Verbo reflexivo",
         "regularityEE": "Regularidad",
         "infinitiveNonFiniteSimpleES": "Infinitivo no finito simple",
         "gerundNonFiniteSimpleES": "Gerundio no finito simple",

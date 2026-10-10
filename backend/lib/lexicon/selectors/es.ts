@@ -53,6 +53,16 @@ function genderES(entry: LexiconEntry): string | undefined {
     return undefined;
 }
 
+/**
+ * "Reflexive verb" flag (Slice H5, D28): `"true"` for a verb whose lemma is the reflexive infinitive
+ * ("quejarse", "arrepentirse"). Spanish lists "lavarse" as its own lemma next to "lavar", so the
+ * lemma tells it. The ending must be a verb ending + "se": it leaves out "se", "muse" and "ase".
+ * A sense tag `reflexive` on a non-"-se" lemma ("lavar", "dar") only says the verb CAN be used so.
+ */
+function reflexiveES(entry: LexiconEntry): string | undefined {
+    return /(ar|er|ir|ír)se$/.test(entry.word) ? 'true' : undefined;
+}
+
 const PERSONS: [string, string[]][] = [
     ['1s', ['first-person', 'singular']],
     ['2s', ['second-person', 'singular']],
@@ -121,6 +131,7 @@ export const NOUN_SELECTORS_ES: CaseSelector[] = [
 
 export const VERB_SELECTORS_ES: CaseSelector[] = [
     { kind: 'property', caseName: 'regularityES', extract: regularityES },
+    { kind: 'property', caseName: 'reflexiveES', extract: reflexiveES },
     { kind: 'form', caseName: 'infinitiveNonFiniteSimpleES', tags: ['infinitive'], excludeTags: NOT_STANDARD, fallbackToLemma: true },
     { kind: 'form', caseName: 'gerundNonFiniteSimpleES', tags: ['gerund'], excludeTags: NOT_STANDARD },
     { kind: 'form', caseName: 'participleNonFiniteSimpleES', tags: ['participle', 'past'], excludeTags: NOT_STANDARD },

@@ -44,6 +44,8 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'Haus|noun', 'Junge|noun', 'See|noun', 'Polizei|noun', 'Mann|noun', 'Frau|noun', 'Kind|noun', 'Tag|noun',
         'Zeit|noun', 'Auto|noun', 'Stadt|noun', 'Hund|noun', 'Katze|noun', 'Wasser|noun', 'Buch|noun', 'Schule|noun',
         'tanzen|verb', 'gehen|verb', 'anrufen|verb', 'sichern|verb', 'sammeln|verb', 'sputen|verb',
+        // "sputen": always reflexive ("sich sputen"); "waschen"/"geben": the reflexive use is only one of several (D28).
+        'waschen|verb', 'geben|verb',
         // "lila": no forms at all (D24); "oft"/"gern": adverbs with a comparative; "hier": gradable = no.
         'gut|adj', 'schön|adj', 'groß|adj', 'lila|adj', 'oft|adv', 'gern|adv', 'hier|adv',
     ],
@@ -53,6 +55,8 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'casa|noun', 'estudiante|noun', 'leche|noun', 'crisis|noun', 'mano|noun', 'día|noun', 'agua|noun',
         'hombre|noun', 'mujer|noun', 'libro|noun', 'perro|noun', 'ciudad|noun', 'tiempo|noun', 'problema|noun',
         'bailar|verb', 'tener|verb', 'ir|verb', 'sentir|verb', 'venir|verb', 'oír|verb', 'pensar|verb', 'quejarse|verb',
+        // "quejarse": the reflexive lemma; "lavar": has a reflexive sense, but its lemma is not "-se" (D28).
+        'lavar|verb',
         // "rojo": M/F; "feliz"/"grande": Neutral (one shape for both genders); "rápidamente": no forms (D24).
         'rojo|adj', 'feliz|adj', 'grande|adj', 'bonito|adj', 'bien|adv', 'rápidamente|adv', 'mucho|adv',
     ],

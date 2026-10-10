@@ -50,7 +50,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { TypeAheadInput, type TypeAheadConfig } from './TypeAheadInput';
-import { matchesVisibility, type FieldConfig } from './configs/types';
+import { matchesVisibility, reflexivePronoun, type FieldConfig } from './configs/types';
 import { capitalizeFirst, isEmptyValue, isHiddenInDisplayOnly } from './fieldLayout';
 import { cn } from '@/lib/utils';
 
@@ -118,6 +118,16 @@ export function FieldRenderer({
         ? (field.adornment.text ?? field.adornment.values?.[String(watchedAdornmentValue ?? '')])
         : undefined;
 
+    // Reflexive pronoun hint (Slice H5): shown while the card's `reflexive` box is checked. The German
+    // pronoun is dative when the `verbCases` field has Dative and not Accusative (D30). Same dummy-name trick.
+    const reflexiveChecked = useWatch({ control, name: field.reflexive ? 'reflexive' : field.name });
+    const reflexiveVerbCases = useWatch({ control, name: field.reflexive ? 'verbCases' : field.name });
+    const pronoun = reflexivePronoun(field.reflexive, reflexiveChecked, reflexiveVerbCases);
+    const pronounBefore = field.reflexive?.position === 'before' ? pronoun : undefined;
+    const pronounAfter = field.reflexive?.position === 'after' ? pronoun : undefined;
+    /** What stands before the input: the auxiliary, then the pronoun ("habe mich"). */
+    const beforeText = [adornmentText, pronounBefore].filter(Boolean).join(' ');
+
     // `derivedWhen` (D20): while it matches, the field is read-only text built from a sibling — the
     // Estonian superlative "kõige " + comparative. Same dummy-name trick as above when unused.
     const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
@@ -178,10 +188,13 @@ export function FieldRenderer({
                             <FormLabel className="text-xs! font-normal! text-muted-foreground!">{label}</FormLabel>
                             <p className="text-sm text-foreground">
                                 {/* The auxiliary verb (or other prefix) reads as a hint, not as part of the stored value. */}
-                                {adornmentText && !empty && (
-                                    <span className="text-foreground/65 italic">{adornmentText} </span>
+                                {beforeText && !empty && (
+                                    <span className="text-foreground/65 italic">{beforeText} </span>
                                 )}
                                 {empty ? '—' : displayValue}
+                                {pronounAfter && !empty && (
+                                    <span className="text-foreground/65 italic"> {pronounAfter}</span>
+                                )}
                             </p>
                         </FormItem>
                     );
@@ -229,10 +242,11 @@ export function FieldRenderer({
                     return (
                         <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} bold={isAutocompleteTrigger} />
-                            {adornmentText ? (
+                            {beforeText || pronounAfter ? (
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-sm text-muted-foreground">{adornmentText}</span>
+                                    {beforeText && <span className="text-sm text-muted-foreground">{beforeText}</span>}
                                     {control}
+                                    {pronounAfter && <span className="text-sm text-muted-foreground">{pronounAfter}</span>}
                                 </div>
                             ) : (
                                 control

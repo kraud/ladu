@@ -141,6 +141,23 @@ describe('selectForm', () => {
     });
 });
 
+describe('German reflexive flag (D28)', () => {
+    test('an always-reflexive verb is flagged: infinitive "sich sputen", every sense reflexive', () => {
+        expect(verb('sputen').reflexiveDE).toBe('true');
+    });
+
+    test('a verb that only CAN be reflexive is not: "waschen" has the reflexive tag next to transitive, "geben" has none', () => {
+        expect(verb('waschen').reflexiveDE).toBeUndefined();
+        expect(verb('geben').reflexiveDE).toBeUndefined();
+        expect(verb('tanzen').reflexiveDE).toBeUndefined();
+    });
+
+    test('an infinitive with "sich" is enough, also an idiom, whatever the sense tags say', () => {
+        const idiom = { word: 'sich auf den Weg machen', pos: 'verb', forms: [{ form: 'sich auf den Weg machen', tags: ['infinitive'] }], senses: [{ tags: ['transitive'] }] };
+        expect(Object.fromEntries(selectCases(idiom, VERB_SELECTORS_DE)).reflexiveDE).toBe('true');
+    });
+});
+
 describe('German adjective and adverb selectors', () => {
     test('an adjective takes the degrees from the head rows, and the superlative has no "am" (D25)', () => {
         expect(adjective('gut')).toEqual({ positiveDE: 'gut', komparativDE: 'besser', superlativDE: 'besten' });

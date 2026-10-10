@@ -465,6 +465,27 @@ describe('adjectives and adverbs (Slice H2: the lexicon alone, a miss is not-fou
     });
 });
 
+describe('reflexive flag (Slice H5, D28)', () => {
+    beforeEach(async () => {
+        await loadLexiconFile(pool, FIXTURE);
+        await loadLexiconFile(pool, ES_FIXTURE);
+    });
+
+    it('an always-reflexive verb comes with reflexiveDE / reflexiveES "true"; the forms stay without the pronoun (D8)', async () => {
+        const german = casesOf((await lookup('German/Verb/sputen')).body);
+        expect(german).toMatchObject({ reflexiveDE: 'true', infinitiveDE: 'sputen', indicativePresent1sDE: 'spute' });
+        const spanish = casesOf((await lookup('Spanish/Verb/quejarse')).body);
+        expect(spanish).toMatchObject({ reflexiveES: 'true' });
+        expect(spanish.indicativePresent1sES).not.toMatch(/^me /);
+    });
+
+    it('a verb that can only be used reflexively sometimes has no flag', async () => {
+        for (const path of ['German/Verb/waschen', 'German/Verb/geben', 'Spanish/Verb/lavar', 'Spanish/Verb/bailar']) {
+            expect(casesOf((await lookup(path)).body)).not.toHaveProperty(path.startsWith('German') ? 'reflexiveDE' : 'reflexiveES');
+        }
+    });
+});
+
 describe('type-ahead suggestions (Slice E: GET /api/dictionary/:language/:partOfSpeech?prefix=)', () => {
     const suggest = (path) => request(app).get(`/api/dictionary/${path}`).set('Authorization', `Bearer ${token}`);
     const lemmas = (body) => body.suggestions.map(({ lemma, hint }) => (hint ? `${hint} ${lemma}` : lemma));

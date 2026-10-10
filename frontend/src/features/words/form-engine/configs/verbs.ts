@@ -43,6 +43,7 @@ import type {
     FieldGroup,
     FieldLayout,
     FieldPattern,
+    FieldReflexive,
     RadioOption,
     TextFieldConfig,
     TranslationFormConfig,
@@ -88,6 +89,29 @@ function regularityField(lang: Lang): FieldConfig {
         invalidMessageKey: verbErrorKey(suffix, 'regularityRequired'),
         options: REGULARITY_OPTIONS,
     };
+}
+
+/**
+ * "Reflexive verb" (Slice H5, D28): a stored checkbox, German and Spanish only. While it is checked,
+ * each person field shows the reflexive pronoun (`FieldReflexive`). The name `reflexive` is what
+ * `FieldRenderer` watches.
+ */
+function reflexiveField(lang: Lang.DE | Lang.ES): CheckboxFieldConfig {
+    const caseName = lang === Lang.DE ? VerbCases.reflexiveDE : VerbCases.reflexiveES;
+    return { kind: 'checkbox', name: 'reflexive', caseName, labelKey: labelKey(caseName), required: false };
+}
+
+// Reflexive pronouns by person slot. Spanish 2pl is ustedes (D10), so "se". German 3P is "sich" too.
+const ES_REFLEXIVE: Record<PronounSlot, string> = { '1S': 'me', '2S': 'te', '3S': 'se', '1P': 'nos', '2P': 'se', '3P': 'se' };
+const DE_REFLEXIVE_ACCUSATIVE: Record<PronounSlot, string> = { '1S': 'mich', '2S': 'dich', '3S': 'sich', '1P': 'uns', '2P': 'euch', '3P': 'sich' };
+const DE_REFLEXIVE_DATIVE: Record<PronounSlot, string> = { '1S': 'mir', '2S': 'dir', '3S': 'sich', '1P': 'uns', '2P': 'euch', '3P': 'sich' };
+
+function reflexiveFor(lang: Lang.DE | Lang.ES, row: VerbTenseData): FieldReflexive {
+    const slot = slotOf(row);
+    if (lang === Lang.ES) return { accusative: ES_REFLEXIVE[slot], position: 'before' };
+    // "ich wasche mich" (present, past) but "ich habe mich gewaschen", "ich werde mich waschen".
+    const before = row.tense === TenseVerbDE.perfect || row.tense === TenseVerbDE.simpleFuture;
+    return { accusative: DE_REFLEXIVE_ACCUSATIVE[slot], dative: DE_REFLEXIVE_DATIVE[slot], position: before ? 'before' : 'after' };
 }
 
 function requiredTextField(
@@ -282,7 +306,8 @@ function buildEsConfig(): TranslationFormConfig {
             VerbCases.infinitiveNonFiniteSimpleES,
             'infinitiveNonFiniteSimple',
             verbErrorKey(suffix, 'infinitiveNonFiniteRequired'),
-            { regex: /^(?!.*\d).*(ar|er|ir)$/, messageKey: verbErrorKey(suffix, 'infinitiveNotMatching') },
+            // "-se" for a reflexive infinitive ("quejarse", Slice H5) and "ír" ("oír", "reír") are valid too.
+            { regex: /^(?!.*\d).*(ar|er|ir|ír)(se)?$/, messageKey: verbErrorKey(suffix, 'infinitiveNotMatching') },
             { row: 'nonFinite', column: 'infinitive', stackOnMobile: true }
         ),
         requiredTextField(
@@ -300,6 +325,7 @@ function buildEsConfig(): TranslationFormConfig {
             { row: 'nonFinite', column: 'participle', stackOnMobile: true }
         ),
         regularityField(Lang.ES),
+        reflexiveField(Lang.ES),
     ];
 
     for (const row of tenseRows) {
@@ -312,6 +338,7 @@ function buildEsConfig(): TranslationFormConfig {
             lowercase: true,
             group: [ES_MOOD_GROUP, ES_SIMPLE_TENSE_GROUP],
             layout: tenseLayout(row, ES_TENSE_HEADINGS[row.tense as TenseVerbES]!),
+            reflexive: reflexiveFor(Lang.ES, row),
         });
     }
     return { pos: PartOfSpeech.verb, lang: Lang.ES, fields };
@@ -365,6 +392,7 @@ function buildDeConfig(): TranslationFormConfig {
             decode: decodeVerbCases,
             layout: { row: 'meta2', column: 'verbCases', block: 'verbMeta2' },
         },
+        { ...reflexiveField(Lang.DE), layout: { row: 'meta2', column: 'reflexive', block: 'verbMeta2' } },
     ];
 
     for (const row of tenseRows) {
@@ -378,6 +406,7 @@ function buildDeConfig(): TranslationFormConfig {
             group: [DE_TOP_GROUP],
             layout: tenseLayout(row, DE_TENSE_HEADINGS[row.tense as TenseVerbDE]!),
             adornment: deAdornment(row),
+            reflexive: reflexiveFor(Lang.DE, row),
         });
     }
     return { pos: PartOfSpeech.verb, lang: Lang.DE, fields };

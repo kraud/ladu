@@ -284,7 +284,7 @@
           "infinitiveNonFiniteRequired": "Das nicht-finite Infinitiv ist erforderlich",
           "gerundNonFiniteRequired": "Das nicht-finite Gerundium ist erforderlich",
           "participleNonFiniteRequired": "Das nicht-finite Partizip ist erforderlich",
-          "infinitiveNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-ar', '-er' oder '-ir').",
+          "infinitiveNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-ar', '-er', '-ir' oder '-ír', bei reflexiven Verben mit '-se').",
           "regularityRequired": "Das ist keine Option"
         },
         "formDE": {
@@ -304,6 +304,8 @@
         "regularityEN": "Regelmäßigkeit",
         "regularityES": "Regelmäßigkeit",
         "regularityDE": "Regelmäßigkeit",
+        "reflexiveES": "Reflexives Verb",
+        "reflexiveDE": "Reflexives Verb",
         "regularityEE": "Regelmäßigkeit",
         "infinitiveNonFiniteSimpleES": "Einfaches nicht-finites Infinitiv",
         "gerundNonFiniteSimpleES": "Einfaches nicht-finites Gerundium",

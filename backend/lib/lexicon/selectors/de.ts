@@ -66,6 +66,23 @@ function present1sDE(entry: LexiconEntry): string | undefined {
     });
 }
 
+/**
+ * "Reflexive verb" flag (Slice H5, D28): `"true"` only for a verb that is ALWAYS reflexive. Either the
+ * infinitive is listed with "sich" ("sich sputen", also the idioms "sich auf den Weg machen"), or every
+ * sense is tagged `reflexive` and none says `transitive`/`intransitive`/`ditransitive` ("sputen").
+ * A sense tag `reflexive` alone means "can be used reflexively" ("waschen" has it next to `transitive`),
+ * so it is not enough: ~700 verbs have it next to other uses and are not set.
+ */
+function reflexiveDE(entry: LexiconEntry): string | undefined {
+    const infinitive = entry.forms?.find((row) => row.tags?.includes('infinitive')
+        && !row.tags.includes('infinitive-zu') && !row.tags.includes('multiword-construction'))?.form ?? entry.word;
+    if (/^sich /.test(infinitive) || /^sich /.test(entry.word)) return 'true';
+    const senses = (entry.senses ?? []).filter((sense) => !sense.form_of);
+    const onlyReflexive = senses.length > 0 && senses.every((sense) => sense.tags?.includes('reflexive')
+        && !['transitive', 'intransitive', 'ditransitive'].some((tag) => sense.tags!.includes(tag)));
+    return onlyReflexive ? 'true' : undefined;
+}
+
 const PERSONS: [string, string[]][] = [
     ['1s', ['first-person', 'singular']],
     ['2s', ['second-person', 'singular']],
@@ -138,6 +155,7 @@ export const VERB_SELECTORS_DE: CaseSelector[] = [
     { kind: 'property', caseName: 'auxVerbDE', extract: auxVerbDE },
     { kind: 'property', caseName: 'prefixDE', extract: prefixDE },
     { kind: 'property', caseName: 'regularityDE', extract: regularityDE },
+    { kind: 'property', caseName: 'reflexiveDE', extract: reflexiveDE },
     { kind: 'property', caseName: 'indicativePresent1sDE', extract: present1sDE },
     ...tense('indicativePresent', ['present'], SIMPLE).filter((s) => s.caseName !== 'indicativePresent1sDE'),
     ...tense('indicativePerfect', ['perfect', 'multiword-construction'], COMPOUND),

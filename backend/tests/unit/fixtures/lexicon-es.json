@@ -18916,6 +18916,3955 @@
    ]
   },
   {
+   "word": "quejarse",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "me quejo",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "me quejé",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "quejado",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "quejarse",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "quejándose",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "quejado",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "quejada",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "quejados",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "quejadas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "quejarme",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "singular"
+     ]
+    },
+    {
+     "form": "quejarte",
+     "tags": [
+      "infinitive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "quejarse",
+     "tags": [
+      "infinitive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "quejarnos",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "plural"
+     ]
+    },
+    {
+     "form": "quejaros",
+     "tags": [
+      "infinitive",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "quejarse",
+     "tags": [
+      "infinitive",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "quejándome",
+     "tags": [
+      "first-person",
+      "gerund",
+      "singular"
+     ]
+    },
+    {
+     "form": "quejándote",
+     "tags": [
+      "gerund",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "quejándose",
+     "tags": [
+      "gerund",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "quejándonos",
+     "tags": [
+      "first-person",
+      "gerund",
+      "plural"
+     ]
+    },
+    {
+     "form": "quejándoos",
+     "tags": [
+      "gerund",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "quejándose",
+     "tags": [
+      "gerund",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me quejo",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "te quejas",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "te quejás",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "se queja",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "os quejáis",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se quejan",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me quejaba",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te quejabas",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se quejaba",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejábamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os quejabais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se quejaban",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me quejé",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "te quejaste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se quejó",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "os quejasteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se quejaron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me quejaré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te quejarás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se quejará",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejaremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os quejaréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se quejarán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me quejaría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te quejarías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se quejaría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejaríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os quejaríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se quejarían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me queje",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te quejes",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te quejés",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "se queje",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejemos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os quejéis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se quejen",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me quejara",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te quejaras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se quejara",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejáramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os quejarais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se quejaran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me quejase",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te quejases",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se quejase",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejásemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os quejaseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se quejasen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me quejare",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te quejares",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se quejare",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejáremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os quejareis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se quejaren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "quéjate",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "quejate",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "quéjese",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "quéjese",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "quejémonos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "quejaos",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "quéjense",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "quéjense",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "te quejes",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se queje",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se queje",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos quejemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os quejéis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se quejen",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se quejen",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {},
+    {},
+    {}
+   ]
+  },
+  {
+   "word": "lavar",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "lavo",
+     "tags": [
+      "first-person",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavé",
+     "tags": [
+      "first-person",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavado",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "lavar",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "lavando",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "lavado",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavada",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavados",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavadas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavo",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavas",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavás",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "lava",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "laváis",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavan",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavaba",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavabas",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavaba",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavábamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavabais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavaban",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavé",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavaste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavó",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "lavasteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavaron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavaré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavarás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavará",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavaremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavaréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavarán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavaría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavarías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavaría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavaríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavaríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavarían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "laves",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavés",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavemos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavéis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "laven",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavara",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavaras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavara",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "laváramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavarais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavaran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavase",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavases",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavase",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavásemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavaseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavasen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavare",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavares",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavare",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "laváremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavareis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "lavaren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lava",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavá",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavad",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "laven",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "laven",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "laves",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lave",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavéis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "laven",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "laven",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "lavarme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "lavarte",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "lavarle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavarse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavarnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "lavaros",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "lavarles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavarse",
+     "tags": [
+      "combined-form",
+      "dative",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavarme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "lavarte",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "lavarlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavarla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavarse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavarnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "lavaros",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "lavarlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavarlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavarse",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "infinitive",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándome",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "lavándote",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "lavándole",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "lavándoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "lavándoles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándose",
+     "tags": [
+      "combined-form",
+      "dative",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándome",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "lavándote",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-second-person",
+      "object-singular"
+     ]
+    },
+    {
+     "form": "lavándolo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándola",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-singular",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-first-person",
+      "object-plural"
+     ]
+    },
+    {
+     "form": "lavándoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-second-person"
+     ]
+    },
+    {
+     "form": "lavándolos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándolas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lavándose",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "gerund",
+      "object-plural",
+      "object-third-person"
+     ]
+    },
+    {
+     "form": "lávame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávate",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávate",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lávalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-tú"
+     ]
+    },
+    {
+     "form": "lavame",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavate",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavale",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavanos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavales",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavame",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavate",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavalo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavala",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavanos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavalos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "lavalas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular",
+      "with-vos"
+     ]
+    },
+    {
+     "form": "láveme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lávele",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lávese",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lávenos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "láveles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "láveme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lávelo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lávela",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lávese",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lávenos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lávelos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lávelas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémoste",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémosle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémonos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémoos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémosles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémoste",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémoslo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémosla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémonos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémoos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémoslos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavémoslas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "first-person",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavadme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavadle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavadnos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavaos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavadles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavadme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavadlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavadla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavadnos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavaos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavadlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavadlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "imperative",
+      "informal",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávenme",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávenle",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávennos",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávenles",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávense",
+     "tags": [
+      "combined-form",
+      "dative",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávenme",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-second-person",
+      "object-singular",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávenlo",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávenla",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-singular",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávennos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-first-person",
+      "object-plural",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "-",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-second-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávenlos",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávenlas",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávense",
+     "tags": [
+      "accusative",
+      "combined-form",
+      "formal",
+      "imperative",
+      "object-plural",
+      "object-third-person",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "es-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "lavarse",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "lavándose",
+     "tags": [
+      "gerund"
+     ]
+    },
+    {
+     "form": "lavado",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavada",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavados",
+     "tags": [
+      "masculine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavadas",
+     "tags": [
+      "feminine",
+      "participle",
+      "past",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavarme",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavarte",
+     "tags": [
+      "infinitive",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavarse",
+     "tags": [
+      "infinitive",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavarnos",
+     "tags": [
+      "first-person",
+      "infinitive",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavaros",
+     "tags": [
+      "infinitive",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavarse",
+     "tags": [
+      "infinitive",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavándome",
+     "tags": [
+      "first-person",
+      "gerund",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavándote",
+     "tags": [
+      "gerund",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavándose",
+     "tags": [
+      "gerund",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavándonos",
+     "tags": [
+      "first-person",
+      "gerund",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavándoos",
+     "tags": [
+      "gerund",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lavándose",
+     "tags": [
+      "gerund",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavo",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "te lavas",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "te lavás",
+     "tags": [
+      "indicative",
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "se lava",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos lavamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "os laváis",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se lavan",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavaba",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te lavabas",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se lavaba",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos lavábamos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os lavabais",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se lavaban",
+     "tags": [
+      "imperfect",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavé",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "te lavaste",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se lavó",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos lavamos",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "os lavasteis",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se lavaron",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavaré",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te lavarás",
+     "tags": [
+      "future",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se lavará",
+     "tags": [
+      "future",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos lavaremos",
+     "tags": [
+      "first-person",
+      "future",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os lavaréis",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se lavarán",
+     "tags": [
+      "future",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavaría",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "singular"
+     ]
+    },
+    {
+     "form": "te lavarías",
+     "tags": [
+      "conditional",
+      "indicative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se lavaría",
+     "tags": [
+      "conditional",
+      "indicative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos lavaríamos",
+     "tags": [
+      "conditional",
+      "first-person",
+      "indicative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os lavaríais",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se lavarían",
+     "tags": [
+      "conditional",
+      "indicative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lave",
+     "tags": [
+      "first-person",
+      "present",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te laves",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te lavés",
+     "tags": [
+      "informal",
+      "present",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "se lave",
+     "tags": [
+      "present",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos lavemos",
+     "tags": [
+      "first-person",
+      "plural",
+      "present",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os lavéis",
+     "tags": [
+      "plural",
+      "present",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se laven",
+     "tags": [
+      "plural",
+      "present",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavara",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te lavaras",
+     "tags": [
+      "imperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lavara",
+     "tags": [
+      "imperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos laváramos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os lavarais",
+     "tags": [
+      "imperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lavaran",
+     "tags": [
+      "imperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavase",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te lavases",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lavase",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos lavásemos",
+     "tags": [
+      "first-person",
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os lavaseis",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lavasen",
+     "tags": [
+      "imperfect",
+      "imperfect-se",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "me lavare",
+     "tags": [
+      "first-person",
+      "future",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "te lavares",
+     "tags": [
+      "future",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lavare",
+     "tags": [
+      "future",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos laváremos",
+     "tags": [
+      "first-person",
+      "future",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "os lavareis",
+     "tags": [
+      "future",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "se lavaren",
+     "tags": [
+      "future",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lávate",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "lavate",
+     "tags": [
+      "imperative",
+      "informal",
+      "second-person",
+      "singular",
+      "vos-form"
+     ]
+    },
+    {
+     "form": "lávese",
+     "tags": [
+      "formal",
+      "imperative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lávese",
+     "tags": [
+      "imperative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lavémonos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "plural"
+     ]
+    },
+    {
+     "form": "lavaos",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "lávense",
+     "tags": [
+      "formal",
+      "imperative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "lávense",
+     "tags": [
+      "imperative",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "te laves",
+     "tags": [
+      "imperative",
+      "negative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "se lave",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "second-person-semantically",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se lave",
+     "tags": [
+      "imperative",
+      "negative",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nos lavemos",
+     "tags": [
+      "first-person",
+      "imperative",
+      "negative",
+      "plural"
+     ]
+    },
+    {
+     "form": "os lavéis",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "se laven",
+     "tags": [
+      "formal",
+      "imperative",
+      "negative",
+      "plural",
+      "second-person-semantically",
+      "third-person"
+     ]
+    },
+    {
+     "form": "se laven",
+     "tags": [
+      "imperative",
+      "negative",
+      "plural",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive"
+     ]
+    }
+   ]
+  },
+  {
    "word": "casa",
    "pos": "noun",
    "forms": [

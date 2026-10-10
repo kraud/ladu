@@ -7597,6 +7597,2200 @@
    ]
   },
   {
+   "word": "waschen",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "wäscht",
+     "tags": [
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "wusch",
+     "tags": [
+      "past"
+     ]
+    },
+    {
+     "form": "gewaschen",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "wüsche",
+     "tags": [
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "strong",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "6 strong",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "waschen",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "waschend",
+     "tags": [
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "gewaschen",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "wasche",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "waschen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "wasche",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "waschen",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "wäschst",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "wäscht",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "wascht",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "waschest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "waschet",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "wäscht",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "waschen",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "wasche",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "waschen",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "wusch",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "wuschen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "wüsche",
+     "tags": [
+      "first-person",
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wüschen",
+     "tags": [
+      "first-person",
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wuschst",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "wuscht",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "wüschest",
+     "tags": [
+      "formal",
+      "rare",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wüschst",
+     "tags": [
+      "formal",
+      "rare",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wüschet",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wüscht",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wusch",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "wuschen",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "wüsche",
+     "tags": [
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "wüschen",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "wasch",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "wasche",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "wascht",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "strong",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "6 strong",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "habe gewaschen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "haben gewaschen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "habe gewaschen",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben gewaschen",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hast gewaschen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "habt gewaschen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "habest gewaschen",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "habet gewaschen",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hat gewaschen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gewaschen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "habe gewaschen",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gewaschen",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatte gewaschen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "hatten gewaschen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "hätte gewaschen",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hätten gewaschen",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hattest gewaschen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "hattet gewaschen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "hättest gewaschen",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hättet gewaschen",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hatte gewaschen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatten gewaschen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätte gewaschen",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätten gewaschen",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "waschen werden",
+     "tags": [
+      "future",
+      "future-i",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde waschen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden waschen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde waschen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden waschen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde waschen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden waschen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden waschen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gewaschen haben werden",
+     "tags": [
+      "future",
+      "future-ii",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde gewaschen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden gewaschen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde gewaschen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden gewaschen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde gewaschen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden gewaschen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden gewaschen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "class-6",
+      "ditransitive",
+      "intransitive",
+      "reflexive",
+      "strong",
+      "transitive"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "geben",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "gibt",
+     "tags": [
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gab",
+     "tags": [
+      "past"
+     ]
+    },
+    {
+     "form": "gegeben",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "gäbe",
+     "tags": [
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "strong",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "5 strong",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "geben",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "gebend",
+     "tags": [
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "gegeben",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "gebe",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "geben",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "gebe",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "geben",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "gibst",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "gebt",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "gebest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "gebet",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "gibt",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "geben",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gebe",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "geben",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gab",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "gaben",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "gäbe",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "gäben",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "gabst",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "gabt",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "gäbest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "gäbst",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "gäbet",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "gäbt",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "gab",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gaben",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gäbe",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gäben",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gib",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "gebt",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "strong",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "5 strong",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "habe gegeben",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "haben gegeben",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "habe gegeben",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben gegeben",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hast gegeben",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "habt gegeben",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "habest gegeben",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "habet gegeben",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hat gegeben",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gegeben",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "habe gegeben",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gegeben",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatte gegeben",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "hatten gegeben",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "hätte gegeben",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hätten gegeben",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hattest gegeben",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "hattet gegeben",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "hättest gegeben",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hättet gegeben",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hatte gegeben",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatten gegeben",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätte gegeben",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätten gegeben",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "geben werden",
+     "tags": [
+      "future",
+      "future-i",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde geben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden geben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest geben",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet geben",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde geben",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden geben",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde geben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden geben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde geben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden geben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst geben",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet geben",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest geben",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet geben",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird geben",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden geben",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde geben",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden geben",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gegeben haben werden",
+     "tags": [
+      "future",
+      "future-ii",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde gegeben haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden gegeben haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde gegeben haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden gegeben haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde gegeben haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden gegeben haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden gegeben haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "class-5",
+      "ditransitive",
+      "strong"
+     ]
+    },
+    {
+     "tags": [
+      "class-5",
+      "ditransitive",
+      "strong"
+     ]
+    },
+    {
+     "tags": [
+      "class-5",
+      "impersonal",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-5",
+      "impersonal",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-5",
+      "ditransitive",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-5",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-5",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-5",
+      "impersonal",
+      "often",
+      "reflexive",
+      "strong"
+     ]
+    },
+    {
+     "tags": [
+      "class-5",
+      "reflexive",
+      "strong"
+     ]
+    },
+    {
+     "tags": [
+      "class-5",
+      "strong",
+      "uncommon"
+     ]
+    }
+   ]
+  },
+  {
    "word": "Haus",
    "pos": "noun",
    "forms": [

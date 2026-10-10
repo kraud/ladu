@@ -487,6 +487,28 @@ describe('GET /api/words/searchWord - Search', () => {
         expect(res.body.length).toBeGreaterThanOrEqual(1);
     });
 
+    it('does not match the stored "true" of a checkbox case (reflexive verb, "kõige …" superlative)', async () => {
+        await request(app).post('/api/words').set('Authorization', `Bearer ${token}`).send({
+            partOfSpeech: 'Verb',
+            translations: [
+                { language: 'Spanish', cases: [{ word: 'quejarse', caseName: 'infinitiveNonFiniteSimpleES' }, { word: 'true', caseName: 'reflexiveES' }] },
+                { language: 'German', cases: [{ word: 'sputen', caseName: 'infinitiveDE' }, { word: 'true', caseName: 'reflexiveDE' }] },
+            ],
+            tagIds: [],
+        });
+        await request(app).post('/api/words').set('Authorization', `Bearer ${token}`).send({
+            partOfSpeech: 'Adverb',
+            translations: [
+                { language: 'Estonian', cases: [{ word: 'kiiresti', caseName: 'adverbEE' }, { word: 'true', caseName: 'periphrasticSuperlativeEE' }] },
+                { language: 'English', cases: [{ word: 'quickly', caseName: 'adverbEN' }] },
+            ],
+            tagIds: [],
+        });
+        const search = async (query) => (await request(app).get(`/api/words/searchWord?query=${query}`).set('Authorization', `Bearer ${token}`)).body;
+        expect(await search('true')).toEqual([]);
+        expect((await search('quejarse')).length).toBe(1);
+    });
+
     it('returns empty for non-matching query', async () => {
         const res = await request(app)
             .get('/api/words/searchWord?query=xyznonexistent')
