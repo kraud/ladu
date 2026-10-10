@@ -3,17 +3,20 @@ import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
 /**
- * The "Reflexive verb" box (`.context/plans/autocomplete-data-source-strategy.md`, Slice H5 gate,
- * decisions D28–D30). The `lexemes` table holds the committed fixtures in CI, or the full lexicon
- * locally; every word below is in both.
+ * Reflexive verbs (`.context/plans/autocomplete-data-source-strategy.md`, Slice H5 gate, decisions
+ * D28–D33). The `lexemes` table holds the committed fixtures in CI, or the full lexicon locally; every
+ * word below is in both.
  *
- *  1. Spanish "quejarse" (a reflexive lemma): autocomplete checks the box, the forms stay without
- *     the pronoun ("quejo"), and the card shows "me" before the person field; an unchecked box shows
- *     no pronoun. "lavar" (a verb that only CAN be reflexive) leaves the box unchecked.
- *  2. German "sputen" ("sich sputen"): the box is checked; the present shows the pronoun after the
- *     verb ("spute" + "mich"), the perfect before it ("habe mich"); a Dative-only verb-case choice
- *     turns "mich" into "mir" (D30). "waschen" leaves the box unchecked.
- *  3. The flag is saved with the word and comes back after a reload.
+ *  1. Spanish "quejarse" (a reflexive lemma): Always reflexive, the forms stay without the pronoun
+ *     ("quejo"), and the card shows "me" before the person field; Optionally reflexive hides the hint.
+ *     "lavar" (a verb that only CAN be reflexive) is Optionally reflexive, "bailar" Not reflexive.
+ *  2. German "sputen" ("sich sputen"): Always reflexive, pronoun case Accusative; the present shows the
+ *     pronoun after the verb ("spute" + "mich"), the perfect before it ("habe mich"). The pronoun-case
+ *     radio changes it to "mir" or "mich/mir".
+ *  3. German "waschen": Optionally reflexive (no pronoun hint) and the Accusative object box checked
+ *     from the transitive tag; "denken": pronoun case Dative; "tanzen": Not reflexive, no pronoun-case
+ *     radio.
+ *  4. The values are saved with the word and come back after a reload (also the new Prepositional box).
  */
 
 test.afterAll(async () => {
@@ -22,7 +25,7 @@ test.afterAll(async () => {
 });
 
 const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
-const reflexiveBox = (page: Page) => page.getByRole('checkbox', { name: 'Reflexive verb' });
+const reflexivity = (page: Page, value: string) => page.getByRole('radio', { name: value, exact: true });
 
 /** New word → Verb → the card for `language` (its native name). */
 async function openVerbCard(page: Page, language: string): Promise<void> {
@@ -50,55 +53,78 @@ test.describe.serial('Autocomplete — reflexive verbs (Slice H5)', () => {
         await signIn(page, user);
     });
 
-    test('Spanish: a reflexive lemma checks the box and shows "me"; the forms stay without the pronoun', async ({ page }) => {
+    test('Spanish: a reflexive lemma is Always reflexive and shows "me"; the forms stay without the pronoun', async ({ page }) => {
         await openVerbCard(page, 'Español');
         await typeAndFill(page, 'Infinitive non-finite simple', 'quejarse');
 
-        await expect(reflexiveBox(page)).toBeChecked();
-        await expect(page.getByLabel('Yo').first()).toHaveValue('quejo');
+        await expect(reflexivity(page, 'Always reflexive')).toBeChecked();
+        await expect(page.getByLabel('Yo', { exact: true }).first()).toHaveValue('quejo');
         await expect(page.getByText('me', { exact: true }).first()).toBeVisible();
+        // No pronoun-case radio in Spanish: me, te, se are the same for dative and accusative.
+        await expect(page.getByRole('radio', { name: /Dative/ })).toHaveCount(0);
 
-        await reflexiveBox(page).uncheck();
+        await reflexivity(page, 'Optionally reflexive').click();
         await expect(page.getByText('me', { exact: true })).toHaveCount(0);
     });
 
-    test('Spanish: "lavar" has a reflexive sense but is not a reflexive lemma: the box stays unchecked', async ({ page }) => {
+    test('Spanish: "lavar" is Optionally reflexive (no hint), "bailar" is Not reflexive', async ({ page }) => {
         await openVerbCard(page, 'Español');
         await typeAndFill(page, 'Infinitive non-finite simple', 'lavar');
+        await expect(page.getByLabel('Yo', { exact: true }).first()).toHaveValue('lavo');
+        await expect(reflexivity(page, 'Optionally reflexive')).toBeChecked();
+        await expect(page.getByText('me', { exact: true })).toHaveCount(0);
 
-        await expect(page.getByLabel('Yo').first()).toHaveValue('lavo');
-        await expect(reflexiveBox(page)).not.toBeChecked();
+        await page.getByLabel('Infinitive non-finite simple', { exact: true }).fill('bailar');
+        await expect(page.getByRole('listbox')).toHaveCount(0);
+        await useValues(page).click();
+        await expect(reflexivity(page, 'Not reflexive')).toBeChecked();
     });
 
-    test('German: "sputen" checks the box; the pronoun follows the present and precedes the perfect; Dative gives "mir"', async ({ page }) => {
+    test('German: "sputen" is Always reflexive; the pronoun follows the present and precedes the perfect; the case radio gives mir / mich/mir', async ({ page }) => {
         await openVerbCard(page, 'Deutsch');
         await typeAndFill(page, 'Infinitive', 'sputen');
 
-        await expect(reflexiveBox(page)).toBeChecked();
-        await expect(page.getByLabel('Ich').first()).toHaveValue('spute');
+        await expect(page.getByRole('radio', { name: 'Always reflexive' })).toBeChecked();
+        await expect(page.getByRole('radio', { name: /^Accusative \(mich/ })).toBeChecked();
+        await expect(page.getByLabel('Ich', { exact: true }).first()).toHaveValue('spute');
         await expect(page.getByText('mich', { exact: true }).first()).toBeVisible();
         // Perfect: the auxiliary and the pronoun stand together before the participle.
         await expect(page.getByText('habe mich', { exact: true })).toBeVisible();
 
-        // D30: Dative and not Accusative → mir.
-        await page.getByRole('checkbox', { name: 'Dative' }).check();
+        await page.getByRole('radio', { name: /^Dative \(mir/ }).click();
         await expect(page.getByText('mir', { exact: true }).first()).toBeVisible();
-        await page.getByRole('checkbox', { name: 'Accusative' }).check();
-        await expect(page.getByText('mir', { exact: true })).toHaveCount(0);
+        await expect(page.getByText('mich', { exact: true })).toHaveCount(0);
+        await page.getByRole('radio', { name: 'Both / variable' }).click();
+        await expect(page.getByText('mich/mir', { exact: true }).first()).toBeVisible();
     });
 
-    test('German: "waschen" can be reflexive but is not always: the box stays unchecked', async ({ page }) => {
+    test('German: "waschen" is Optionally reflexive (no pronoun hint), with the accusative object box checked', async ({ page }) => {
         await openVerbCard(page, 'Deutsch');
         await typeAndFill(page, 'Infinitive', 'waschen');
 
-        await expect(page.getByLabel('Ich').first()).toHaveValue('wasche');
-        await expect(reflexiveBox(page)).not.toBeChecked();
+        await expect(page.getByLabel('Ich', { exact: true }).first()).toHaveValue('wasche');
+        await expect(page.getByRole('radio', { name: 'Optionally reflexive' })).toBeChecked();
+        await expect(page.getByText('mich', { exact: true })).toHaveCount(0);
+        await expect(page.getByRole('checkbox', { name: 'Accusative', exact: true })).toBeChecked();
+        await expect(page.getByRole('checkbox', { name: 'Dative', exact: true })).not.toBeChecked();
     });
 
-    test('the flag is saved with the word and survives a reload', async ({ page }) => {
+    test('German: "denken" has the Dative pronoun case; "tanzen" is Not reflexive and has no pronoun-case radio', async ({ page }) => {
+        await openVerbCard(page, 'Deutsch');
+        await typeAndFill(page, 'Infinitive', 'denken');
+        await expect(page.getByRole('radio', { name: /^Dative \(mir/ })).toBeChecked();
+
+        await page.getByLabel('Infinitive', { exact: true }).fill('tanzen');
+        await expect(page.getByRole('listbox')).toHaveCount(0);
+        await useValues(page).click();
+        await expect(page.getByRole('radio', { name: 'Not reflexive' })).toBeChecked();
+        await expect(page.getByRole('radio', { name: /^Dative \(mir/ })).toHaveCount(0);
+    });
+
+    test('the Spanish reflexivity is saved with the word and survives a reload', async ({ page }) => {
         await openVerbCard(page, 'Español');
         await typeAndFill(page, 'Infinitive non-finite simple', 'quejarse');
-        await expect(reflexiveBox(page)).toBeChecked();
+        await expect(reflexivity(page, 'Always reflexive')).toBeChecked();
 
         await page.getByRole('button', { name: 'English' }).click();
         await page.locator('input[name="simplePresent1s"]').fill('complain');
@@ -110,8 +136,31 @@ test.describe.serial('Autocomplete — reflexive verbs (Slice H5)', () => {
         await page.reload();
         await expect(page.getByText('Detailed view: Verb')).toBeVisible();
         await expect(page.getByText('quejarse')).toBeVisible();
-        // Edit: the box is still checked.
+        // Edit: the radio is still on "Always reflexive".
         await page.getByRole('button', { name: 'Edit' }).click();
-        await expect(reflexiveBox(page)).toBeChecked();
+        await expect(reflexivity(page, 'Always reflexive')).toBeChecked();
+    });
+
+    test('the German values and the Prepositional box are saved with the word and survive a reload', async ({ page }) => {
+        await openVerbCard(page, 'Deutsch');
+        await typeAndFill(page, 'Infinitive', 'sputen');
+        await page.getByRole('checkbox', { name: 'Prepositional' }).check();
+        await page.getByRole('radio', { name: /^Dative \(mir/ }).click();
+
+        await page.getByRole('button', { name: 'English' }).click();
+        await page.locator('input[name="simplePresent1s"]').fill('hurry');
+        await page.getByRole('button', { name: 'Save' }).click();
+        await expect(page.getByText('Word was created successfully')).toBeVisible();
+        await page.getByRole('button', { name: 'Click here to see the new word' }).click();
+        await expect(page).toHaveURL(/\/word\/.+/);
+
+        await page.reload();
+        await expect(page.getByText('Detailed view: Verb')).toBeVisible();
+        await page.getByRole('button', { name: 'Edit' }).click();
+        await expect(page.getByRole('radio', { name: 'Always reflexive' })).toBeChecked();
+        await expect(page.getByRole('radio', { name: /^Dative \(mir/ })).toBeChecked();
+        await expect(page.getByRole('checkbox', { name: 'Prepositional' })).toBeChecked();
+        // "sputen" has no transitive tag: the autocomplete leaves the object boxes to the user.
+        await expect(page.getByRole('checkbox', { name: 'Accusative', exact: true })).not.toBeChecked();
     });
 });

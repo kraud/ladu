@@ -7,7 +7,7 @@
  *   (deAdornment in the form config), so "habe getanzt" → "getanzt", "werde gehen" → "gehen".
  * - Separable verbs store the joined form ("anruft", "anrief"), which kaikki tags
  *   `subordinate-clause`. Main-clause rows ("ruft an") are the second choice.
- * - `caseTypeDE` (which case a verb governs) has no source in kaikki and is not here.
+ * - `caseTypeDE` (the object cases a verb takes) is only partly known: just the accusative (D32).
  */
 
 import type { CaseSelector, FormSelector, LexiconEntry } from '../select';
@@ -66,21 +66,55 @@ function present1sDE(entry: LexiconEntry): string | undefined {
     });
 }
 
+/** The senses that are real lemma senses (not "form of" pointers). */
+const lemmaSenses = (entry: LexiconEntry) => (entry.senses ?? []).filter((sense) => !sense.form_of);
+
 /**
- * "Reflexive verb" flag (Slice H5, D28): `"true"` only for a verb that is ALWAYS reflexive. Either the
- * infinitive is listed with "sich" ("sich sputen", also the idioms "sich auf den Weg machen"), or every
- * sense is tagged `reflexive` and none says `transitive`/`intransitive`/`ditransitive` ("sputen").
- * A sense tag `reflexive` alone means "can be used reflexively" ("waschen" has it next to `transitive`),
- * so it is not enough: ~700 verbs have it next to other uses and are not set.
+ * Always reflexive (Slice H5, rework D31): the infinitive is listed with "sich" ("sich sputen", also the
+ * idioms "sich auf den Weg machen"), or every sense is tagged `reflexive` and none says `transitive`,
+ * `intransitive` or `ditransitive` ("sputen"). A sense tag `reflexive` alone means "can be used
+ * reflexively" ("waschen" has it next to `transitive`), so it only makes a verb OPTIONALLY reflexive.
  */
-function reflexiveDE(entry: LexiconEntry): string | undefined {
+function alwaysReflexiveDE(entry: LexiconEntry): boolean {
     const infinitive = entry.forms?.find((row) => row.tags?.includes('infinitive')
         && !row.tags.includes('infinitive-zu') && !row.tags.includes('multiword-construction'))?.form ?? entry.word;
-    if (/^sich /.test(infinitive) || /^sich /.test(entry.word)) return 'true';
-    const senses = (entry.senses ?? []).filter((sense) => !sense.form_of);
-    const onlyReflexive = senses.length > 0 && senses.every((sense) => sense.tags?.includes('reflexive')
+    if (/^sich /.test(infinitive) || /^sich /.test(entry.word)) return true;
+    const senses = lemmaSenses(entry);
+    return senses.length > 0 && senses.every((sense) => sense.tags?.includes('reflexive')
         && !['transitive', 'intransitive', 'ditransitive'].some((tag) => sense.tags!.includes(tag)));
-    return onlyReflexive ? 'true' : undefined;
+}
+
+/**
+ * Reflexivity of a verb (D31): "Always reflexive", "Optionally reflexive" (a `reflexive` sense next to
+ * other uses) or "Not reflexive". The last one means "Wiktionary names no reflexive use", not proof.
+ */
+function reflexivityDE(entry: LexiconEntry): string {
+    if (alwaysReflexiveDE(entry)) return 'Always reflexive';
+    return lemmaSenses(entry).some((sense) => sense.tags?.includes('reflexive')) ? 'Optionally reflexive' : 'Not reflexive';
+}
+
+/**
+ * Case of the reflexive pronoun (D31): the tag `dative` sits only on reflexive senses ("sich (dat.) etwas
+ * vorstellen"). All reflexive senses dative → "Dative", some → "Both", none → "Accusative" (the default of
+ * about 1,000 verbs; there is no tag for it). Nothing for a verb that is not reflexive.
+ */
+function reflexiveCaseDE(entry: LexiconEntry): string | undefined {
+    const reflexive = lemmaSenses(entry).filter((sense) => sense.tags?.includes('reflexive'));
+    if (reflexive.length === 0 && !alwaysReflexiveDE(entry)) return undefined;
+    const dative = reflexive.filter((sense) => sense.tags?.includes('dative')).length;
+    if (dative === 0) return 'Accusative';
+    return dative === reflexive.length ? 'Dative' : 'Both';
+}
+
+/**
+ * Object cases of a verb, the stored acronym of the "verb cases" field (D32): only the accusative is
+ * known, from the sense tags `transitive`, `ditransitive` and `ambitransitive`. About 64% of verbs
+ * have no valency tag at all, and Wiktionary has no tag for dative, genitive or prepositional objects
+ * of a verb ("helfen" has none), so those boxes stay for the user.
+ */
+function caseTypeDE(entry: LexiconEntry): string | undefined {
+    const accusative = lemmaSenses(entry).some((sense) => ['transitive', 'ditransitive', 'ambitransitive'].some((tag) => sense.tags?.includes(tag)));
+    return accusative ? 'A' : undefined;
 }
 
 const PERSONS: [string, string[]][] = [
@@ -155,7 +189,9 @@ export const VERB_SELECTORS_DE: CaseSelector[] = [
     { kind: 'property', caseName: 'auxVerbDE', extract: auxVerbDE },
     { kind: 'property', caseName: 'prefixDE', extract: prefixDE },
     { kind: 'property', caseName: 'regularityDE', extract: regularityDE },
-    { kind: 'property', caseName: 'reflexiveDE', extract: reflexiveDE },
+    { kind: 'property', caseName: 'reflexivityDE', extract: reflexivityDE },
+    { kind: 'property', caseName: 'reflexiveCaseDE', extract: reflexiveCaseDE },
+    { kind: 'property', caseName: 'caseTypeDE', extract: caseTypeDE },
     { kind: 'property', caseName: 'indicativePresent1sDE', extract: present1sDE },
     ...tense('indicativePresent', ['present'], SIMPLE).filter((s) => s.caseName !== 'indicativePresent1sDE'),
     ...tense('indicativePerfect', ['perfect', 'multiword-construction'], COMPOUND),

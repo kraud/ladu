@@ -118,11 +118,11 @@ export function FieldRenderer({
         ? (field.adornment.text ?? field.adornment.values?.[String(watchedAdornmentValue ?? '')])
         : undefined;
 
-    // Reflexive pronoun hint (Slice H5): shown while the card's `reflexive` box is checked. The German
-    // pronoun is dative when the `verbCases` field has Dative and not Accusative (D30). Same dummy-name trick.
-    const reflexiveChecked = useWatch({ control, name: field.reflexive ? 'reflexive' : field.name });
-    const reflexiveVerbCases = useWatch({ control, name: field.reflexive ? 'verbCases' : field.name });
-    const pronoun = reflexivePronoun(field.reflexive, reflexiveChecked, reflexiveVerbCases);
+    // Reflexive pronoun hint (Slice H5): shown while the verb is reflexive (`reflexive.on`); the German
+    // pronoun case comes from the `reflexiveCase` radio (D31). Same dummy-name trick.
+    const reflexiveOn = useWatch({ control, name: field.reflexive?.on.field ?? field.name });
+    const reflexiveCase = useWatch({ control, name: field.reflexive?.caseField ?? field.name });
+    const pronoun = reflexivePronoun(field.reflexive, reflexiveOn, reflexiveCase);
     const pronounBefore = field.reflexive?.position === 'before' ? pronoun : undefined;
     const pronounAfter = field.reflexive?.position === 'after' ? pronoun : undefined;
     /** What stands before the input: the auxiliary, then the pronoun ("habe mich"). */

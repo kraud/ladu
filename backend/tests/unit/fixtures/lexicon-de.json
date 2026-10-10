@@ -9791,6 +9791,3536 @@
    ]
   },
   {
+   "word": "nehmen",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "nimmt",
+     "tags": [
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nahm",
+     "tags": [
+      "past"
+     ]
+    },
+    {
+     "form": "genommen",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "nähme",
+     "tags": [
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "strong",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "4 strong",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "nehmen",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "nehmend",
+     "tags": [
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "genommen",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "nehme",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "nehmen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "nehme",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "nehmen",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "nimmst",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "nehmt",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "nehmest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "nehmet",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "nimmt",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nehmen",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nehme",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nehmen",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nahm",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "nahmen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "nähme",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "nähmen",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "nahmst",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "nahmt",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "nähmest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "nähmst",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "nähmet",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "nähmt",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "nahm",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nahmen",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nähme",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nähmen",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nimm",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "nehmt",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "strong",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "4 strong",
+     "tags": [
+      "class"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "habe genommen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "haben genommen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "habe genommen",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben genommen",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hast genommen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "habt genommen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "habest genommen",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "habet genommen",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hat genommen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben genommen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "habe genommen",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben genommen",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatte genommen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "hatten genommen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "hätte genommen",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hätten genommen",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hattest genommen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "hattet genommen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "hättest genommen",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hättet genommen",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hatte genommen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatten genommen",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätte genommen",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätten genommen",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "nehmen werden",
+     "tags": [
+      "future",
+      "future-i",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde nehmen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden nehmen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde nehmen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden nehmen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde nehmen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden nehmen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden nehmen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "genommen haben werden",
+     "tags": [
+      "future",
+      "future-ii",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde genommen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden genommen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde genommen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden genommen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde genommen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden genommen haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden genommen haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "ditransitive",
+      "strong"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "dative",
+      "reflexive",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "reflexive",
+      "strong"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    },
+    {
+     "tags": [
+      "class-4",
+      "strong",
+      "transitive"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "denken",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "denkt",
+     "tags": [
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "dachte",
+     "tags": [
+      "past"
+     ]
+    },
+    {
+     "form": "gedacht",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "dächte",
+     "tags": [
+      "past",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "irregular weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "denken",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "denkend",
+     "tags": [
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "gedacht",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "denke",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "denken",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "denke",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "denken",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "denkst",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "denkt",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "denkest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "denket",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "denkt",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "denken",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "denke",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "denken",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "dachte",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "dachten",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "dächte",
+     "tags": [
+      "first-person",
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "dächten",
+     "tags": [
+      "first-person",
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "dachtest",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "dachtet",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "dächtest",
+     "tags": [
+      "formal",
+      "rare",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "dächtet",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "dachte",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "dachten",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "dächte",
+     "tags": [
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "dächten",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "denk",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "denke",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "denkt",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "irregular weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "habe gedacht",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "haben gedacht",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "habe gedacht",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben gedacht",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hast gedacht",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "habt gedacht",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "habest gedacht",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "habet gedacht",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hat gedacht",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gedacht",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "habe gedacht",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben gedacht",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatte gedacht",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "hatten gedacht",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "hätte gedacht",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hätten gedacht",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hattest gedacht",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "hattet gedacht",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "hättest gedacht",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hättet gedacht",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hatte gedacht",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatten gedacht",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätte gedacht",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätten gedacht",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "denken werden",
+     "tags": [
+      "future",
+      "future-i",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde denken",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden denken",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest denken",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet denken",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde denken",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden denken",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde denken",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden denken",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde denken",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden denken",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst denken",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet denken",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest denken",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet denken",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird denken",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden denken",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde denken",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden denken",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "gedacht haben werden",
+     "tags": [
+      "future",
+      "future-ii",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde gedacht haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden gedacht haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde gedacht haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden gedacht haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde gedacht haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden gedacht haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden gedacht haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "intransitive",
+      "irregular",
+      "rare",
+      "transitive",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "intransitive",
+      "irregular",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "dative",
+      "irregular",
+      "reflexive",
+      "transitive",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "dative",
+      "irregular",
+      "reflexive",
+      "transitive",
+      "weak"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "vorstellen",
+   "pos": "verb",
+   "forms": [
+    {
+     "form": "stellt vor",
+     "tags": [
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "stellte vor",
+     "tags": [
+      "past"
+     ]
+    },
+    {
+     "form": "vorgestellt",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "vorstellen",
+     "tags": [
+      "infinitive"
+     ]
+    },
+    {
+     "form": "vorstellend",
+     "tags": [
+      "participle",
+      "present"
+     ]
+    },
+    {
+     "form": "vorgestellt",
+     "tags": [
+      "participle",
+      "past"
+     ]
+    },
+    {
+     "form": "vorzustellen",
+     "tags": [
+      "infinitive",
+      "infinitive-zu"
+     ]
+    },
+    {
+     "form": "stelle vor",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular"
+     ]
+    },
+    {
+     "form": "stellen vor",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present"
+     ]
+    },
+    {
+     "form": "stelle vor",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "stellen vor",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "stellst vor",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "stellt vor",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person"
+     ]
+    },
+    {
+     "form": "stellest vor",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "stellet vor",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "stellt vor",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "stellen vor",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "third-person"
+     ]
+    },
+    {
+     "form": "stelle vor",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "stellen vor",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "stellte vor",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular"
+     ]
+    },
+    {
+     "form": "stellten vor",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite"
+     ]
+    },
+    {
+     "form": "stellte vor",
+     "tags": [
+      "first-person",
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "stellten vor",
+     "tags": [
+      "first-person",
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "stelltest vor",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "stelltet vor",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person"
+     ]
+    },
+    {
+     "form": "stelltest vor",
+     "tags": [
+      "formal",
+      "rare",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "stelltet vor",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "stellte vor",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "stellten vor",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "third-person"
+     ]
+    },
+    {
+     "form": "stellte vor",
+     "tags": [
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "stellten vor",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "stell vor",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "stelle vor",
+     "tags": [
+      "imperative",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "stellt vor",
+     "tags": [
+      "imperative",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "vorstelle",
+     "tags": [
+      "first-person",
+      "indicative",
+      "present",
+      "singular",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellen",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "present",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstelle",
+     "tags": [
+      "first-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellen",
+     "tags": [
+      "first-person",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellst",
+     "tags": [
+      "indicative",
+      "present",
+      "second-person",
+      "singular",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellt",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "second-person",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellest",
+     "tags": [
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellet",
+     "tags": [
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellt",
+     "tags": [
+      "indicative",
+      "present",
+      "singular",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vorstellen",
+     "tags": [
+      "indicative",
+      "plural",
+      "present",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vorstelle",
+     "tags": [
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vorstellen",
+     "tags": [
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vorstellte",
+     "tags": [
+      "first-person",
+      "indicative",
+      "preterite",
+      "singular",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellten",
+     "tags": [
+      "first-person",
+      "indicative",
+      "plural",
+      "preterite",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellte",
+     "tags": [
+      "first-person",
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellten",
+     "tags": [
+      "first-person",
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstelltest",
+     "tags": [
+      "indicative",
+      "preterite",
+      "second-person",
+      "singular",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstelltet",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "second-person",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstelltest",
+     "tags": [
+      "formal",
+      "rare",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstelltet",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause"
+     ]
+    },
+    {
+     "form": "vorstellte",
+     "tags": [
+      "indicative",
+      "preterite",
+      "singular",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vorstellten",
+     "tags": [
+      "indicative",
+      "plural",
+      "preterite",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vorstellte",
+     "tags": [
+      "formal",
+      "rare",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vorstellten",
+     "tags": [
+      "formal",
+      "plural",
+      "rare",
+      "subjunctive",
+      "subjunctive-ii",
+      "subordinate-clause",
+      "third-person"
+     ]
+    },
+    {
+     "form": "weak",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "de-conj",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "haben",
+     "tags": [
+      "auxiliary"
+     ]
+    },
+    {
+     "form": "habe vorgestellt",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "haben vorgestellt",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "habe vorgestellt",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "haben vorgestellt",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hast vorgestellt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "habt vorgestellt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "habest vorgestellt",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "habet vorgestellt",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hat vorgestellt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben vorgestellt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "habe vorgestellt",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "haben vorgestellt",
+     "tags": [
+      "multiword-construction",
+      "perfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatte vorgestellt",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular"
+     ]
+    },
+    {
+     "form": "hatten vorgestellt",
+     "tags": [
+      "first-person",
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural"
+     ]
+    },
+    {
+     "form": "hätte vorgestellt",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hätten vorgestellt",
+     "tags": [
+      "first-person",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hattest vorgestellt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "hattet vorgestellt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "hättest vorgestellt",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "second-person",
+      "singular",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hättet vorgestellt",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "second-person",
+      "subjunctive"
+     ]
+    },
+    {
+     "form": "hatte vorgestellt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hatten vorgestellt",
+     "tags": [
+      "indicative",
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätte vorgestellt",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "singular",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "hätten vorgestellt",
+     "tags": [
+      "multiword-construction",
+      "pluperfect",
+      "plural",
+      "subjunctive",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vorstellen werden",
+     "tags": [
+      "future",
+      "future-i",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde vorstellen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden vorstellen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde vorstellen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden vorstellen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde vorstellen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden vorstellen",
+     "tags": [
+      "first-person",
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden vorstellen",
+     "tags": [
+      "future",
+      "future-i",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "vorgestellt haben werden",
+     "tags": [
+      "future",
+      "future-ii",
+      "infinitive",
+      "multiword-construction"
+     ]
+    },
+    {
+     "form": "werde vorgestellt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werden vorgestellt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdest vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werdet vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-i"
+     ]
+    },
+    {
+     "form": "werde vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-i",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werde vorgestellt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular"
+     ]
+    },
+    {
+     "form": "werden vorgestellt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural"
+     ]
+    },
+    {
+     "form": "würde vorgestellt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würden vorgestellt haben",
+     "tags": [
+      "first-person",
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wirst vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "second-person",
+      "singular"
+     ]
+    },
+    {
+     "form": "werdet vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "second-person"
+     ]
+    },
+    {
+     "form": "würdest vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "second-person",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "würdet vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "second-person",
+      "subjunctive",
+      "subjunctive-ii"
+     ]
+    },
+    {
+     "form": "wird vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "singular",
+      "third-person"
+     ]
+    },
+    {
+     "form": "werden vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "indicative",
+      "multiword-construction",
+      "plural",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würde vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "singular",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    },
+    {
+     "form": "würden vorgestellt haben",
+     "tags": [
+      "future",
+      "future-ii",
+      "multiword-construction",
+      "plural",
+      "subjunctive",
+      "subjunctive-ii",
+      "third-person"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "tags": [
+      "transitive",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "reflexive",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "dative",
+      "reflexive",
+      "transitive",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "archaic",
+      "transitive",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "transitive",
+      "weak"
+     ]
+    },
+    {
+     "tags": [
+      "transitive",
+      "weak"
+     ]
+    }
+   ]
+  },
+  {
    "word": "Haus",
    "pos": "noun",
    "forms": [

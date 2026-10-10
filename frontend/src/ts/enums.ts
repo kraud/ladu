@@ -169,8 +169,8 @@ export enum VerbCases {
         // vosotros/as || ustedes: 2nd person plural (2pl)
         // ellos/as: 3rd person plural (3pl)
     regularityES = "regularityES",
-    /** Stored checkbox "Reflexive verb" (D28): the word "true" when checked, nothing when not. */
-    reflexiveES = "reflexiveES",
+    /** Radio: "Not reflexive" / "Always reflexive" / "Optionally reflexive" (D33, as German). */
+    reflexivityES = "reflexivityES",
 
     infinitiveNonFiniteSimpleES = 'infinitiveNonFiniteSimpleES',
     gerundNonFiniteSimpleES = 'gerundNonFiniteSimpleES',
@@ -282,8 +282,10 @@ export enum VerbCases {
     caseTypeDE = 'caseTypeDE',
     prefixDE = 'prefixDE',
     regularityDE = 'regularityDE',
-    /** Stored checkbox "Reflexive verb" (D28): the word "true" when checked, nothing when not. */
-    reflexiveDE = 'reflexiveDE',
+    /** Radio: "Not reflexive" / "Always reflexive" / "Optionally reflexive" (D31). */
+    reflexivityDE = 'reflexivityDE',
+    /** Radio: the case of the reflexive pronoun, "Accusative" / "Dative" / "Both" (D31). */
+    reflexiveCaseDE = 'reflexiveCaseDE',
 
     // INDICATIVE: --------------
     // Present: different for almost all pronouns
@@ -320,6 +322,7 @@ export enum VerbCaseTypeDE {
     dativeDE = 'dativeDE', // limited list ~50 verbs
     // accusativeDativeDE = 'accusativeDativeDE',
     genitiveDE = 'genitiveDE', // rare - mostly in formal writing?
+    prepositionalDE = 'prepositionalDE', // a prepositional object ("warten auf"), D32
 }
 
 export enum PrefixesVerbDE {

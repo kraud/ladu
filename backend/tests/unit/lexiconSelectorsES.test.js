@@ -17,6 +17,7 @@ describe('Spanish verb selectors', () => {
     test('a regular verb fills every field of the v2 form, plus conditional and imperative', () => {
         expect(verb('bailar')).toEqual({
             regularityES: 'regular',
+            reflexivityES: 'Not reflexive',
             infinitiveNonFiniteSimpleES: 'bailar',
             gerundNonFiniteSimpleES: 'bailando',
             participleNonFiniteSimpleES: 'bailado',
@@ -113,21 +114,31 @@ describe('Spanish noun selectors', () => {
     });
 });
 
-describe('Spanish reflexive flag (D28)', () => {
-    test('a lemma that is a reflexive infinitive is flagged', () => {
-        expect(verb('quejarse').reflexiveES).toBe('true');
-        expect(verb('personarse').reflexiveES).toBe('true');
+describe('Spanish reflexivity (D33)', () => {
+    test('always reflexive: the lemma is a reflexive infinitive', () => {
+        expect(verb('quejarse').reflexivityES).toBe('Always reflexive');
+        expect(verb('personarse').reflexivityES).toBe('Always reflexive');
     });
 
-    test('a verb with a reflexive sense but a plain lemma is not ("lavar"); neither is a regular verb', () => {
-        expect(verb('lavar').reflexiveES).toBeUndefined();
-        expect(verb('bailar').reflexiveES).toBeUndefined();
+    test('optionally reflexive: a plain lemma with a reflexive sense ("lavar" next to its own lemma "lavarse")', () => {
+        expect(verb('lavar').reflexivityES).toBe('Optionally reflexive');
     });
 
-    test('the ending must be a verb ending + "se": "se", "muse" and "ase" are not verbs of this kind', () => {
+    test('a `pronominal` sense also makes a verb optionally reflexive', () => {
+        const stub = { word: 'terminar', pos: 'verb', forms: [], senses: [{ tags: ['transitive'] }, { tags: ['pronominal'] }] };
+        expect(Object.fromEntries(selectCases(stub, VERB_SELECTORS_ES)).reflexivityES).toBe('Optionally reflexive');
+    });
+
+    test('not reflexive: no reflexive tag (the value means "no evidence"); a pointer sense (form_of) does not count', () => {
+        expect(verb('bailar').reflexivityES).toBe('Not reflexive');
+        const pointer = { word: 'x', pos: 'verb', forms: [], senses: [{ tags: ['reflexive'], form_of: ['y'] }] };
+        expect(Object.fromEntries(selectCases(pointer, VERB_SELECTORS_ES)).reflexivityES).toBe('Not reflexive');
+    });
+
+    test('the ending must be a verb ending + "se": "se", "muse" and "ase" are not reflexive infinitives', () => {
         for (const word of ['se', 'muse', 'ase']) {
             const stub = { word, pos: 'verb', forms: [], senses: [{ tags: [] }] };
-            expect(Object.fromEntries(selectCases(stub, VERB_SELECTORS_ES)).reflexiveES).toBeUndefined();
+            expect(Object.fromEntries(selectCases(stub, VERB_SELECTORS_ES)).reflexivityES).toBe('Not reflexive');
         }
     });
 });

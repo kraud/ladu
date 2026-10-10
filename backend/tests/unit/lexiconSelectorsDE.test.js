@@ -14,11 +14,12 @@ const adjective = (word) => Object.fromEntries(selectCases(entry(word), ADJECTIV
 const adverb = (word) => Object.fromEntries(selectCases(entry(word), ADVERB_SELECTORS_DE));
 
 describe('German verb selectors', () => {
-    test('a regular verb fills every tense and property field except caseTypeDE', () => {
+    test('a regular verb fills every tense and property field (no object case: "tanzen" has no valency tag)', () => {
         expect(verb('tanzen')).toEqual({
             infinitiveDE: 'tanzen',
             auxVerbDE: 'haben',
             regularityDE: 'regular',
+            reflexivityDE: 'Not reflexive',
             indicativePresent1sDE: 'tanze',
             indicativePresent2sDE: 'tanzt',
             indicativePresent3sDE: 'tanzt',
@@ -141,20 +142,39 @@ describe('selectForm', () => {
     });
 });
 
-describe('German reflexive flag (D28)', () => {
-    test('an always-reflexive verb is flagged: infinitive "sich sputen", every sense reflexive', () => {
-        expect(verb('sputen').reflexiveDE).toBe('true');
+describe('German reflexivity, pronoun case and object case (D31, D32)', () => {
+    test('always reflexive: infinitive "sich sputen", every sense reflexive', () => {
+        expect(verb('sputen')).toMatchObject({ reflexivityDE: 'Always reflexive', reflexiveCaseDE: 'Accusative' });
     });
 
-    test('a verb that only CAN be reflexive is not: "waschen" has the reflexive tag next to transitive, "geben" has none', () => {
-        expect(verb('waschen').reflexiveDE).toBeUndefined();
-        expect(verb('geben').reflexiveDE).toBeUndefined();
-        expect(verb('tanzen').reflexiveDE).toBeUndefined();
+    test('optionally reflexive: a reflexive sense next to other uses ("waschen" has it next to transitive)', () => {
+        expect(verb('waschen')).toMatchObject({ reflexivityDE: 'Optionally reflexive', reflexiveCaseDE: 'Accusative' });
+    });
+
+    test('not reflexive: no reflexive tag; the pronoun case is then left out', () => {
+        for (const word of ['tanzen', 'anrufen']) {
+            const cases = verb(word);
+            expect(cases.reflexivityDE).toBe('Not reflexive');
+            expect(cases).not.toHaveProperty('reflexiveCaseDE');
+        }
+    });
+
+    test('the pronoun case follows the tag `dative` on the reflexive senses: all → Dative, some → Both', () => {
+        expect(verb('denken').reflexiveCaseDE).toBe('Dative');
+        expect(verb('nehmen').reflexiveCaseDE).toBe('Both');
+        expect(verb('vorstellen').reflexiveCaseDE).toBe('Both');
     });
 
     test('an infinitive with "sich" is enough, also an idiom, whatever the sense tags say', () => {
         const idiom = { word: 'sich auf den Weg machen', pos: 'verb', forms: [{ form: 'sich auf den Weg machen', tags: ['infinitive'] }], senses: [{ tags: ['transitive'] }] };
-        expect(Object.fromEntries(selectCases(idiom, VERB_SELECTORS_DE)).reflexiveDE).toBe('true');
+        expect(Object.fromEntries(selectCases(idiom, VERB_SELECTORS_DE))).toMatchObject({ reflexivityDE: 'Always reflexive', reflexiveCaseDE: 'Accusative' });
+    });
+
+    test('object case: the accusative comes from transitive / ditransitive / ambitransitive, nothing else is guessed', () => {
+        expect(verb('geben')).toMatchObject({ caseTypeDE: 'A', reflexivityDE: 'Optionally reflexive' }); // ditransitive, with a reflexive sense
+        expect(verb('waschen').caseTypeDE).toBe('A');
+        expect(verb('tanzen')).not.toHaveProperty('caseTypeDE');
+        expect(verb('sputen')).not.toHaveProperty('caseTypeDE');
     });
 });
 

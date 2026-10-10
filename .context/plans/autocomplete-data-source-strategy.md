@@ -799,21 +799,31 @@ parts of speech for Estonian). Ekilex check (7 real words): an adverb's paradigm
 `eki.ts`: `estonianAdverb` (3 calls, like the adjective), `adverbComparisonCases`; registry `Estonian.Adverb`;
 no type-ahead list (empty). A conjunction ("ja", also `muutumatu`) is not-found. Gate: `autocomplete-g` spec,
 Estonian adverb test (fills, checks the box, saves).
-**H5 done 2026-10-10:** reflexive verb field (D8, D28–D30). A stored checkbox `reflexiveDE` / `reflexiveES`
-(`VerbCases`; the word "true" when checked), named `reflexive` in the German and Spanish verb forms. Autocomplete
-checks it only for an ALWAYS-reflexive verb. German: the infinitive is listed with "sich" ("sich sputen"), or
-every sense is tagged `reflexive` and none `transitive`/`intransitive`/`ditransitive` (a lone `reflexive`
-tag means "can be reflexive": "waschen" has it next to `transitive`). Spanish: the lemma is a reflexive
-infinitive (`/(ar|er|ir|ír)se$/`: "quejarse"; "lavar", which only has a reflexive sense, is not set).
-Local data: 329 German and 252 Spanish verbs flagged. While the box is checked, each person field shows the
-pronoun (`FieldReflexive`, read-only, like the German auxiliary): Spanish before the input (me, te, se, nos, se,
-se; 2pl = ustedes, D10); German after the verb in present and past ("wasche mich") and before it, after the
-auxiliary, in perfect and future ("habe mich gewaschen"); the German pronoun is dative (mir, dir, …) when the
-"verb cases" field has Dative and not Accusative (D30). Stored forms stay without the pronoun (D8). Not for
-English or Estonian. Word search ignores the stored "true" of `reflexive%` and `periphrasticSuperlative%`
-cases (like `gender%`, `gradable%`). Bug fixed on the way: the Spanish infinitive check rejected "quejarse"
-and "oír" (it accepts "-se" and "-ír" now), so a reflexive Spanish verb could not be saved. Gate spec:
-`e2e/tests/autocomplete-h-reflexive.spec.ts`. Server step (§14): the DE and ES files changed again.
+**H5 done 2026-10-10:** reflexive verbs (D8, D28–D33). **Spanish (D33, reworked the same day from a checkbox,
+D28):** the same reflexivity radio as German: "Always reflexive" (the lemma is a reflexive infinitive,
+`/(ar|er|ir|ír)se$/`: "quejarse"; 252 verbs; the lemma tells it better than the tags, 98 of them have none) /
+"Optionally reflexive" (a plain lemma with a `reflexive` or `pronominal` sense: "lavar", "estar", "terminar";
+1,064 + 246 verbs; "pronominal" is a judgement call) / "Not reflexive" (no tag, "no evidence"). No
+pronoun-case radio: me, te, se, nos are the same for dative and accusative. **German (reworked the same day, D31, D32):** two radios and one more box.
+`reflexivityDE`: "Always reflexive" (the infinitive is listed with "sich", or every sense is reflexive and none
+transitive: 283 verbs) / "Optionally reflexive" (a `reflexive` sense next to other uses: 772) / "Not reflexive" (no
+tag; it means "no evidence"). `reflexiveCaseDE` (shown unless "Not reflexive"): "Accusative" (default) / "Dative" /
+"Both"; the tag `dative` sits only on reflexive senses (48 verbs: 34 dative only, 14 mixed). The verb-case
+checkboxes get "Prepositional" (stored letter P after A, D, G). Autocomplete fills the Accusative object box only
+(`caseTypeDE` "A" from `transitive` / `ditransitive` / `ambitransitive`, about 28% of verbs). While a German verb
+is "Always reflexive" (Spanish: box checked), each person field shows the pronoun as a read-only hint
+(`FieldReflexive`): Spanish before the input (me, te, se, nos, se, se; 2pl = ustedes, D10); German after the verb in
+present and past ("wasche mich"), before it after the auxiliary in perfect and future ("habe mich gewaschen");
+"Both" shows "mich/mir". An "Optionally reflexive" verb shows no hint (German and Spanish). Stored forms stay without the pronoun
+(D8). Word search ignores the stored values of `reflexiv%` and `periphrasticSuperlative%` cases (like `gender%`,
+`gradable%`). The completion ring counts the new radios (German verb 31, Spanish verb 29; like `prefix`, a
+non-reflexive German verb never fills the pronoun-case radio). Bug fixed on the way: the Spanish infinitive check rejected "quejarse"
+and "oír" (it accepts "-se" and "-ír" now). Gate spec: `e2e/tests/autocomplete-h-reflexive.spec.ts`. Server step
+(§14): the DE and ES files changed again.
+**Follow-up (research, not started):** the German object cases (dative, genitive, prepositional) and the
+preposition itself are NOT in our source: 64% of German verbs have no valency tag, "helfen" has none, genitive has
+0 tags and prepositional none. Later: look for another source (for example German Wiktionary or an open valency
+lexicon) and judge its licence and coverage before use. Until then the user fills those boxes by hand.
 
 Original note: new selector tables and new form configurations. Planned after parity (decision D6). The Slice 0
 measurement shows adjectives have good data in all three languages (DE full declension, ES gender and
@@ -859,9 +869,12 @@ Reads the same tables. No plan yet.
 | D25 | 2026-10-10 | German superlative (`superlativDE`, `superlativeDE`) is stored **without "am"** ("besten"). The form shows a fixed "am " prefix on the field (H3). |
 | D26 | 2026-10-10 | The D8 reflexive verb field is the last step of Slice H (H5), with its own overview and questions. |
 | D27 | 2026-10-10 | Estonian adverb superlative: **"kõige …" first**. When Ekilex lists any "kõige …" superlative ("kõige paremini"), the lookup checks `periphrasticSuperlativeEE` and sends no superlative; a one-word superlative ("parimini", rare for adverbs) fills the field only when no "kõige …" form is listed. The adjective keeps its D20 rule (one-word first). |
-| D28 | 2026-10-10 | Reflexive verb field: ONE stored checkbox (German and Spanish only). Autocomplete sets it only when the verb is always reflexive; "reflexive in some senses" is not stored (about 1,000 verbs per language have such a sense, and for most it is the minor use). |
+| D28 | 2026-10-10 | (Replaced the same day: German by D31, Spanish by D33.) Reflexive verb field: ONE stored checkbox (German and Spanish only). Autocomplete sets it only when the verb is always reflexive; "reflexive in some senses" is not stored (about 1,000 verbs per language have such a sense, and for most it is the minor use). |
 | D29 | 2026-10-10 | While the box is checked, each person field of the verb card shows the reflexive pronoun as a read-only hint (Spanish before the input; German after the verb in present and past, before it after the auxiliary in perfect and future). The stored forms stay without the pronoun (D8). |
-| D30 | 2026-10-10 | German reflexive pronoun case: from the existing "verb cases" field. Dative selected and Accusative not → dative (mir, dir); otherwise accusative (mich, dich). No new field. |
+| D30 | 2026-10-10 | (Replaced the same day by D31.) German pronoun case from the "verb cases" field: Dative and not Accusative → mir. It could not say "sich die Hände waschen" (dative pronoun, accusative object). |
+| D31 | 2026-10-10 | German reflexivity is two stored radios, not a checkbox: reflexivity (Not / Always / Optionally reflexive) and, when not "Not reflexive", the pronoun case (Accusative / Dative / Both). Autocomplete fills both from the sense tags; "Not reflexive" means no evidence; the pronoun case defaults to Accusative. The pronoun hint shows only for "Always reflexive". Spanish keeps the D28 checkbox. |
+| D32 | 2026-10-10 | German "verb cases" (the object cases) get a Prepositional box (stored P). The data gives only the accusative (transitive / ditransitive tags), so autocomplete fills that box alone; dative, genitive and prepositional objects stay manual until another source is found (follow-up in Slice H). |
+| D33 | 2026-10-10 | Spanish reflexivity is the same stored radio as German (Not / Always / Optionally reflexive), replacing the D28 checkbox (it existed only in local test data, no migration). Always = reflexive-infinitive lemma; Optionally = a plain lemma with a `reflexive` or `pronominal` sense. No pronoun-case radio. The pronoun hint shows for "Always reflexive" only. |
 | D9 | 2026-10-08 | Separable German verbs keep today's joined form (`anruft`). German first-person singular follows standard grammar and today's library: `-ern` keeps the e (`sichere`), `-eln` drops it (`sammle`). |
 
 ### Open questions (ask at the start of the named slice)

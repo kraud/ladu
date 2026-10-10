@@ -354,18 +354,29 @@ describe('AutocompleteRow', () => {
             expect(fake.requests).toHaveLength(0);
         });
 
-        it('an always-reflexive German verb: the lookup checks the "Reflexive verb" box (H5, D28)', async () => {
+        it('a German verb: the lookup sets reflexivity and the pronoun case (radios) and the accusative object box (H5, D31, D32)', async () => {
             const user = userEvent.setup();
             const fake = makeAutocompleteHandlers({
-                germanVerb: { status: 'found', cases: [{ caseName: 'infinitiveDE', word: 'sputen' }, { caseName: 'reflexiveDE', word: 'true' }] },
+                germanVerb: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'infinitiveDE', word: 'vorstellen' },
+                        { caseName: 'reflexivityDE', word: 'Optionally reflexive' },
+                        { caseName: 'reflexiveCaseDE', word: 'Both' },
+                        { caseName: 'caseTypeDE', word: 'A' },
+                    ],
+                },
             });
             server.use(...fake.handlers);
             renderWithProviders(
-                <Probe lang={Lang.DE} pos={PartOfSpeech.verb} fields={deVerbFields} defaultValues={{ infinitive: 'sputen', reflexive: false }} names={['reflexive']} />
+                <Probe lang={Lang.DE} pos={PartOfSpeech.verb} fields={deVerbFields} defaultValues={{ infinitive: 'vorstellen', reflexivity: 'Not reflexive' }} names={['reflexivity', 'reflexiveCase', 'verbCases']} />
             );
 
             await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
-            expect(screen.getByLabelText('reflexive-probe')).toHaveValue('true');
+            expect(screen.getByLabelText('reflexivity-probe')).toHaveValue('Optionally reflexive');
+            // The pronoun-case radio was hidden by "Not reflexive"; the lookup shows it first, then fills it.
+            expect(screen.getByLabelText('reflexiveCase-probe')).toHaveValue('Both');
+            expect(screen.getByLabelText('verbCases-probe')).toHaveValue('accusativeDE');
         });
 
         it('German adverb: the lookup sets Gradable first, so comparative and superlative are filled even after Non-gradable was chosen', async () => {

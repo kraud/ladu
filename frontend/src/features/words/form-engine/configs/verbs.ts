@@ -91,14 +91,46 @@ function regularityField(lang: Lang): FieldConfig {
     };
 }
 
-/**
- * "Reflexive verb" (Slice H5, D28): a stored checkbox, German and Spanish only. While it is checked,
- * each person field shows the reflexive pronoun (`FieldReflexive`). The name `reflexive` is what
- * `FieldRenderer` watches.
- */
-function reflexiveField(lang: Lang.DE | Lang.ES): CheckboxFieldConfig {
-    const caseName = lang === Lang.DE ? VerbCases.reflexiveDE : VerbCases.reflexiveES;
-    return { kind: 'checkbox', name: 'reflexive', caseName, labelKey: labelKey(caseName), required: false };
+/** Reflexivity (German D31, Spanish D33): a radio; the options are the grammatical terms themselves, like the regularity radio. */
+const REFLEXIVITY_NOT = 'Not reflexive';
+const REFLEXIVITY_ALWAYS = 'Always reflexive';
+const REFLEXIVITY_OPTIONS: RadioOption[] = [
+    { value: REFLEXIVITY_NOT, label: REFLEXIVITY_NOT },
+    { value: REFLEXIVITY_ALWAYS, label: REFLEXIVITY_ALWAYS },
+    { value: 'Optionally reflexive', label: 'Optionally reflexive' },
+];
+const REFLEXIVE_CASE_OPTIONS: RadioOption[] = [
+    { value: 'Accusative', label: 'Accusative (mich, dich, sich …)' },
+    { value: 'Dative', label: 'Dative (mir, dir, sich …)' },
+    { value: 'Both', label: 'Both / variable' },
+];
+
+function reflexivityField(lang: Lang.DE | Lang.ES): FieldConfig {
+    const caseName = lang === Lang.DE ? VerbCases.reflexivityDE : VerbCases.reflexivityES;
+    return {
+        kind: 'radio',
+        name: 'reflexivity',
+        caseName,
+        labelKey: labelKey(caseName),
+        required: false,
+        options: REFLEXIVITY_OPTIONS,
+        // German: one row with the pronoun-case radio. Spanish: a plain field under the regularity radio.
+        layout: lang === Lang.DE ? { row: 'meta3', column: 'reflexivity', block: 'verbMeta3' } : undefined,
+    };
+}
+
+/** Shown once a reflexivity other than "Not reflexive" is chosen or looked up (blank counts as shown, like the German adverb's degrees). */
+function reflexiveCaseFieldDE(): FieldConfig {
+    return {
+        kind: 'radio',
+        name: 'reflexiveCase',
+        caseName: VerbCases.reflexiveCaseDE,
+        labelKey: labelKey(VerbCases.reflexiveCaseDE),
+        required: false,
+        options: REFLEXIVE_CASE_OPTIONS,
+        visibleWhen: { field: 'reflexivity', equals: REFLEXIVITY_NOT, invert: true },
+        layout: { row: 'meta3', column: 'reflexiveCase', block: 'verbMeta3' },
+    };
 }
 
 // Reflexive pronouns by person slot. Spanish 2pl is ustedes (D10), so "se". German 3P is "sich" too.
@@ -108,10 +140,17 @@ const DE_REFLEXIVE_DATIVE: Record<PronounSlot, string> = { '1S': 'mir', '2S': 'd
 
 function reflexiveFor(lang: Lang.DE | Lang.ES, row: VerbTenseData): FieldReflexive {
     const slot = slotOf(row);
-    if (lang === Lang.ES) return { accusative: ES_REFLEXIVE[slot], position: 'before' };
+    if (lang === Lang.ES) return { accusative: ES_REFLEXIVE[slot], position: 'before', on: { field: 'reflexivity', equals: REFLEXIVITY_ALWAYS } };
     // "ich wasche mich" (present, past) but "ich habe mich gewaschen", "ich werde mich waschen".
     const before = row.tense === TenseVerbDE.perfect || row.tense === TenseVerbDE.simpleFuture;
-    return { accusative: DE_REFLEXIVE_ACCUSATIVE[slot], dative: DE_REFLEXIVE_DATIVE[slot], position: before ? 'before' : 'after' };
+    return {
+        accusative: DE_REFLEXIVE_ACCUSATIVE[slot],
+        dative: DE_REFLEXIVE_DATIVE[slot],
+        position: before ? 'before' : 'after',
+        // The pronoun hint shows for an ALWAYS reflexive verb; an optional one has forms with and without it (also Spanish).
+        on: { field: 'reflexivity', equals: REFLEXIVITY_ALWAYS },
+        caseField: 'reflexiveCase',
+    };
 }
 
 function requiredTextField(
@@ -246,14 +285,21 @@ const VERB_CASE_OPTIONS: RadioOption[] = [
     { value: VerbCaseTypeDE.accusativeDE, label: 'Accusative' },
     { value: VerbCaseTypeDE.dativeDE, label: 'Dative' },
     { value: VerbCaseTypeDE.genitiveDE, label: 'Genitive' },
+    { value: VerbCaseTypeDE.prepositionalDE, label: 'Prepositional' },
 ];
-const VERB_CASE_ORDER = [VerbCaseTypeDE.accusativeDE, VerbCaseTypeDE.dativeDE, VerbCaseTypeDE.genitiveDE];
+const VERB_CASE_ORDER = [VerbCaseTypeDE.accusativeDE, VerbCaseTypeDE.dativeDE, VerbCaseTypeDE.genitiveDE, VerbCaseTypeDE.prepositionalDE];
 const VERB_CASE_ACRONYM: Record<string, string> = {
     [VerbCaseTypeDE.accusativeDE]: 'A',
     [VerbCaseTypeDE.dativeDE]: 'D',
     [VerbCaseTypeDE.genitiveDE]: 'G',
+    [VerbCaseTypeDE.prepositionalDE]: 'P',
 };
-const VERB_CASE_FROM_ACRONYM: Record<string, string> = { A: VerbCaseTypeDE.accusativeDE, D: VerbCaseTypeDE.dativeDE, G: VerbCaseTypeDE.genitiveDE };
+const VERB_CASE_FROM_ACRONYM: Record<string, string> = {
+    A: VerbCaseTypeDE.accusativeDE,
+    D: VerbCaseTypeDE.dativeDE,
+    G: VerbCaseTypeDE.genitiveDE,
+    P: VerbCaseTypeDE.prepositionalDE,
+};
 
 function encodeVerbCases(selected: string[]): string {
     return VERB_CASE_ORDER.filter((value) => selected.includes(value)).map((value) => VERB_CASE_ACRONYM[value]).join('');
@@ -325,7 +371,7 @@ function buildEsConfig(): TranslationFormConfig {
             { row: 'nonFinite', column: 'participle', stackOnMobile: true }
         ),
         regularityField(Lang.ES),
-        reflexiveField(Lang.ES),
+        reflexivityField(Lang.ES),
     ];
 
     for (const row of tenseRows) {
@@ -392,7 +438,8 @@ function buildDeConfig(): TranslationFormConfig {
             decode: decodeVerbCases,
             layout: { row: 'meta2', column: 'verbCases', block: 'verbMeta2' },
         },
-        { ...reflexiveField(Lang.DE), layout: { row: 'meta2', column: 'reflexive', block: 'verbMeta2' } },
+        reflexivityField(Lang.DE),
+        reflexiveCaseFieldDE(),
     ];
 
     for (const row of tenseRows) {

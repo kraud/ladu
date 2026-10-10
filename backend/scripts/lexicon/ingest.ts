@@ -45,7 +45,8 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'Zeit|noun', 'Auto|noun', 'Stadt|noun', 'Hund|noun', 'Katze|noun', 'Wasser|noun', 'Buch|noun', 'Schule|noun',
         'tanzen|verb', 'gehen|verb', 'anrufen|verb', 'sichern|verb', 'sammeln|verb', 'sputen|verb',
         // "sputen": always reflexive ("sich sputen"); "waschen"/"geben": the reflexive use is only one of several (D28).
-        'waschen|verb', 'geben|verb',
+        // "nehmen"/"denken"/"vorstellen": reflexive senses with a dative pronoun (some / all / one of several).
+        'waschen|verb', 'geben|verb', 'nehmen|verb', 'denken|verb', 'vorstellen|verb',
         // "lila": no forms at all (D24); "oft"/"gern": adverbs with a comparative; "hier": gradable = no.
         'gut|adj', 'schön|adj', 'groß|adj', 'lila|adj', 'oft|adv', 'gern|adv', 'hier|adv',
     ],

@@ -54,13 +54,19 @@ function genderES(entry: LexiconEntry): string | undefined {
 }
 
 /**
- * "Reflexive verb" flag (Slice H5, D28): `"true"` for a verb whose lemma is the reflexive infinitive
- * ("quejarse", "arrepentirse"). Spanish lists "lavarse" as its own lemma next to "lavar", so the
- * lemma tells it. The ending must be a verb ending + "se": it leaves out "se", "muse" and "ase".
- * A sense tag `reflexive` on a non-"-se" lemma ("lavar", "dar") only says the verb CAN be used so.
+ * Reflexivity of a verb (Slice H5, D33), the same three values as the German radio. "Always reflexive":
+ * the lemma is a reflexive infinitive ("quejarse", "arrepentirse"); the lemma tells it better than the
+ * tags (98 of the 252 such lemmas have no reflexive tag). Spanish lists "lavarse" as its own lemma next
+ * to "lavar", so "lavar" is "Optionally reflexive": a sense is tagged `reflexive` ("estar", "dar") or
+ * `pronominal` ("terminar", "llamar"; a judgement call, they are used with a pronoun). Everything else is
+ * "Not reflexive", which means "no evidence". The ending must be a verb ending + "se": it leaves out "se",
+ * "muse" and "ase". There is no pronoun-case value: me, te, se, nos are the same for dative and accusative.
  */
-function reflexiveES(entry: LexiconEntry): string | undefined {
-    return /(ar|er|ir|ír)se$/.test(entry.word) ? 'true' : undefined;
+function reflexivityES(entry: LexiconEntry): string {
+    if (/(ar|er|ir|ír)se$/.test(entry.word)) return 'Always reflexive';
+    const reflexiveSense = (entry.senses ?? []).some((sense) => !sense.form_of
+        && (sense.tags?.includes('reflexive') || sense.tags?.includes('pronominal')));
+    return reflexiveSense ? 'Optionally reflexive' : 'Not reflexive';
 }
 
 const PERSONS: [string, string[]][] = [
@@ -131,7 +137,7 @@ export const NOUN_SELECTORS_ES: CaseSelector[] = [
 
 export const VERB_SELECTORS_ES: CaseSelector[] = [
     { kind: 'property', caseName: 'regularityES', extract: regularityES },
-    { kind: 'property', caseName: 'reflexiveES', extract: reflexiveES },
+    { kind: 'property', caseName: 'reflexivityES', extract: reflexivityES },
     { kind: 'form', caseName: 'infinitiveNonFiniteSimpleES', tags: ['infinitive'], excludeTags: NOT_STANDARD, fallbackToLemma: true },
     { kind: 'form', caseName: 'gerundNonFiniteSimpleES', tags: ['gerund'], excludeTags: NOT_STANDARD },
     { kind: 'form', caseName: 'participleNonFiniteSimpleES', tags: ['participle', 'past'], excludeTags: NOT_STANDARD },

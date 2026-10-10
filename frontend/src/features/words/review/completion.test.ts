@@ -17,7 +17,7 @@ describe('expectedCaseCount — plain configs (no visibleWhen)', () => {
         [PartOfSpeech.noun, 'DE', 10],
         [PartOfSpeech.noun, 'EE', 8],
         [PartOfSpeech.verb, 'EN', 21],
-        [PartOfSpeech.verb, 'ES', 28],
+        [PartOfSpeech.verb, 'ES', 29], // + reflexivity (Slice H5, D33)
         [PartOfSpeech.verb, 'DE', 31], // + reflexivity and reflexiveCase (Slice H5, D31)
         [PartOfSpeech.adjective, 'EN', 3],
         [PartOfSpeech.adjective, 'DE', 3],

@@ -1,4 +1,3 @@
-import { VerbCaseTypeDE } from '@/ts/enums';
 import type { AdjectiveCases, AdverbCases, Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 
 /** Every case-name enum a `FieldConfig` can point at, across all four parts of speech. */
@@ -123,27 +122,31 @@ export interface FieldAdornment {
 }
 
 /**
- * The reflexive pronoun shown next to a person field while the verb's "Reflexive verb" box (the
- * sibling field named `reflexive`) is checked (Slice H5, decisions D28–D30). The stored forms never
- * hold the pronoun (D8); this is a read-only hint, like the German auxiliary adornment.
- * `dative` is used for a German verb whose "verb cases" field has Dative but not Accusative (D30).
+ * The reflexive pronoun shown next to a person field while the verb is reflexive (Slice H5, decisions
+ * D29, D31). The stored forms never hold the pronoun (D8); this is a read-only hint, like the German
+ * auxiliary adornment.
  */
 export interface FieldReflexive {
     accusative: string;
+    /** The dative form; for "Dative" it replaces `accusative`, for "Both" it follows it ("mich/mir"). */
     dative?: string;
     /**
      * `before` the input (Spanish "me" + lavo; German "habe mich" + gewaschen, after the auxiliary) or
      * `after` it (German present and past: wasche + "mich").
      */
     position: 'before' | 'after';
+    /** The sibling field that switches the pronoun on, and the value it must have: Spanish checkbox `reflexive` = true, German radio `reflexivity` = "Always reflexive". */
+    on: { field: string; equals: string | boolean };
+    /** German: the sibling radio `reflexiveCase` ("Accusative", "Dative", "Both"). Without it the pronoun is `accusative`. */
+    caseField?: string;
 }
 
-/** The pronoun to show for `reflexive`, or `undefined` while the box is not checked. */
-export function reflexivePronoun(reflexive: FieldReflexive | undefined, checked: unknown, verbCases: unknown): string | undefined {
-    if (!reflexive || checked !== true) return undefined;
-    const cases = Array.isArray(verbCases) ? verbCases : [];
-    const dativeOnly = cases.includes(VerbCaseTypeDE.dativeDE) && !cases.includes(VerbCaseTypeDE.accusativeDE);
-    return dativeOnly && reflexive.dative ? reflexive.dative : reflexive.accusative;
+/** The pronoun to show for `reflexive`, or `undefined` while the verb is not (yet) reflexive. */
+export function reflexivePronoun(reflexive: FieldReflexive | undefined, onValue: unknown, caseValue: unknown): string | undefined {
+    if (!reflexive || onValue !== reflexive.on.equals) return undefined;
+    if (caseValue === 'Dative' && reflexive.dative) return reflexive.dative;
+    if (caseValue === 'Both' && reflexive.dative && reflexive.dative !== reflexive.accusative) return `${reflexive.accusative}/${reflexive.dative}`;
+    return reflexive.accusative;
 }
 
 interface FieldConfigBase {

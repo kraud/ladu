@@ -465,24 +465,45 @@ describe('adjectives and adverbs (Slice H2: the lexicon alone, a miss is not-fou
     });
 });
 
-describe('reflexive flag (Slice H5, D28)', () => {
+describe('reflexive verbs (Slice H5: reflexivity D33 for Spanish; reflexivity, pronoun case and object case D31, D32 for German)', () => {
     beforeEach(async () => {
         await loadLexiconFile(pool, FIXTURE);
         await loadLexiconFile(pool, ES_FIXTURE);
     });
 
-    it('an always-reflexive verb comes with reflexiveDE / reflexiveES "true"; the forms stay without the pronoun (D8)', async () => {
-        const german = casesOf((await lookup('German/Verb/sputen')).body);
-        expect(german).toMatchObject({ reflexiveDE: 'true', infinitiveDE: 'sputen', indicativePresent1sDE: 'spute' });
+    it('Spanish: a reflexive lemma is "Always reflexive"; the forms stay without the pronoun (D8)', async () => {
         const spanish = casesOf((await lookup('Spanish/Verb/quejarse')).body);
-        expect(spanish).toMatchObject({ reflexiveES: 'true' });
+        expect(spanish).toMatchObject({ reflexivityES: 'Always reflexive' });
         expect(spanish.indicativePresent1sES).not.toMatch(/^me /);
+        expect(spanish).not.toHaveProperty('reflexiveCaseES');
     });
 
-    it('a verb that can only be used reflexively sometimes has no flag', async () => {
-        for (const path of ['German/Verb/waschen', 'German/Verb/geben', 'Spanish/Verb/lavar', 'Spanish/Verb/bailar']) {
-            expect(casesOf((await lookup(path)).body)).not.toHaveProperty(path.startsWith('German') ? 'reflexiveDE' : 'reflexiveES');
-        }
+    it('Spanish: "lavar" is Optionally reflexive, "bailar" Not reflexive (D33)', async () => {
+        expect(casesOf((await lookup('Spanish/Verb/lavar')).body).reflexivityES).toBe('Optionally reflexive');
+        expect(casesOf((await lookup('Spanish/Verb/bailar')).body).reflexivityES).toBe('Not reflexive');
+    });
+
+    it('German: an always reflexive verb: reflexivity, pronoun case, forms without the pronoun', async () => {
+        expect(casesOf((await lookup('German/Verb/sputen')).body)).toMatchObject({
+            reflexivityDE: 'Always reflexive', reflexiveCaseDE: 'Accusative', infinitiveDE: 'sputen', indicativePresent1sDE: 'spute',
+        });
+    });
+
+    it('German: optionally reflexive, with the pronoun case from the dative tag ("denken" Dative, "nehmen" Both)', async () => {
+        expect(casesOf((await lookup('German/Verb/waschen')).body)).toMatchObject({ reflexivityDE: 'Optionally reflexive', reflexiveCaseDE: 'Accusative' });
+        expect(casesOf((await lookup('German/Verb/denken')).body)).toMatchObject({ reflexivityDE: 'Optionally reflexive', reflexiveCaseDE: 'Dative' });
+        expect(casesOf((await lookup('German/Verb/nehmen')).body)).toMatchObject({ reflexivityDE: 'Optionally reflexive', reflexiveCaseDE: 'Both' });
+    });
+
+    it('German: a verb with no reflexive use is "Not reflexive" and has no pronoun case', async () => {
+        const cases = casesOf((await lookup('German/Verb/tanzen')).body);
+        expect(cases.reflexivityDE).toBe('Not reflexive');
+        expect(cases).not.toHaveProperty('reflexiveCaseDE');
+    });
+
+    it('German: the accusative object comes from the transitive tag only (caseTypeDE "A"); nothing else is guessed (D32)', async () => {
+        expect(casesOf((await lookup('German/Verb/geben')).body).caseTypeDE).toBe('A');
+        expect(casesOf((await lookup('German/Verb/tanzen')).body)).not.toHaveProperty('caseTypeDE');
     });
 });
 

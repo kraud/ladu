@@ -367,19 +367,22 @@ describe('FieldRenderer', () => {
         });
     });
 
-    describe('reflexive pronoun (Slice H5, D28–D30)', () => {
-        const reflexiveBox: FieldConfig = { ...checkboxField, name: 'reflexive', labelKey: 'reflexive' };
-        const person = (name: string, reflexive: NonNullable<FieldConfig['reflexive']>, adornment?: FieldConfig['adornment']): FieldConfig => ({
+    describe('reflexive pronoun (Slice H5, D29, D31)', () => {
+        type Reflexive = NonNullable<FieldConfig['reflexive']>;
+        const person = (name: string, reflexive: Reflexive, adornment?: FieldConfig['adornment']): FieldConfig => ({
             ...adornedField, name, labelKey: name, adornment, reflexive,
         });
+        const reflexiveBox: FieldConfig = { ...checkboxField, name: 'reflexive', labelKey: 'reflexive' };
+        const spanish: Reflexive = { accusative: 'me', position: 'before', on: { field: 'reflexive', equals: true } };
+        const german = (position: 'before' | 'after'): Reflexive => ({
+            accusative: 'mich', dative: 'mir', position, on: { field: 'reflexivity', equals: 'Always reflexive' }, caseField: 'reflexiveCase',
+        });
+        const radio = (name: string): FieldConfig => ({ ...radioField, name, labelKey: name });
 
-        it('shows nothing until the box is checked, then the pronoun before the input (Spanish "me")', async () => {
+        it('Spanish: nothing until the box is checked, then the pronoun before the input ("me")', async () => {
             const user = userEvent.setup();
             renderWithProviders(
-                <MultiHarness
-                    fields={[reflexiveBox, person('indicativePresent1s', { accusative: 'me', position: 'before' })]}
-                    defaultValues={{ reflexive: false, indicativePresent1s: '' }}
-                />,
+                <MultiHarness fields={[reflexiveBox, person('indicativePresent1s', spanish)]} defaultValues={{ reflexive: false, indicativePresent1s: '' }} />,
             );
             expect(screen.queryByText('me')).not.toBeInTheDocument();
             await user.click(screen.getByRole('checkbox'));
@@ -388,16 +391,17 @@ describe('FieldRenderer', () => {
             expect(screen.queryByText('me')).not.toBeInTheDocument();
         });
 
-        it('German, after the verb: the pronoun follows the input ("wasche" + "mich")', () => {
-            renderWithProviders(
-                <MultiHarness
-                    fields={[reflexiveBox, person('indicativePresent1s', { accusative: 'mich', dative: 'mir', position: 'after' })]}
-                    defaultValues={{ reflexive: true, indicativePresent1s: 'wasche' }}
-                />,
+        it('German: only an ALWAYS reflexive verb shows the pronoun, after the verb in present and past ("wasche mich")', () => {
+            const fields = [radio('reflexivity'), person('indicativePresent1s', german('after'))];
+            const { unmount } = renderWithProviders(
+                <MultiHarness fields={fields} defaultValues={{ reflexivity: 'Optionally reflexive', indicativePresent1s: 'wasche' }} />,
             );
+            expect(screen.queryByText('mich')).not.toBeInTheDocument();
+            unmount();
+
+            renderWithProviders(<MultiHarness fields={fields} defaultValues={{ reflexivity: 'Always reflexive', indicativePresent1s: 'wasche' }} />);
             const pronoun = screen.getByText('mich');
-            const input = screen.getByRole('textbox');
-            // The pronoun comes after the input in the document.
+            const input = screen.getByDisplayValue('wasche');
             expect(input.compareDocumentPosition(pronoun) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
         });
 
@@ -405,37 +409,37 @@ describe('FieldRenderer', () => {
             renderWithProviders(
                 <MultiHarness
                     fields={[
-                        reflexiveBox,
-                        person('indicativePerfect1s', { accusative: 'mich', dative: 'mir', position: 'before' }, { watchField: 'auxiliaryVerb', values: { haben: 'habe' } }),
+                        radio('reflexivity'),
+                        person('indicativePerfect1s', german('before'), { watchField: 'auxiliaryVerb', values: { haben: 'habe' } }),
                     ]}
-                    defaultValues={{ reflexive: true, auxiliaryVerb: 'haben', indicativePerfect1s: '' }}
+                    defaultValues={{ reflexivity: 'Always reflexive', auxiliaryVerb: 'haben', indicativePerfect1s: '' }}
                 />,
             );
             expect(screen.getByText('habe mich')).toBeInTheDocument();
         });
 
-        it('German: the pronoun is dative when the verb cases have Dative and not Accusative (D30)', () => {
-            const fields = [reflexiveBox, multiSelectField, person('indicativePresent1s', { accusative: 'mich', dative: 'mir', position: 'after' })];
-            const { unmount } = renderWithProviders(
-                <MultiHarness fields={fields} defaultValues={{ reflexive: true, verbCases: ['dativeDE'], indicativePresent1s: '' }} />,
-            );
-            expect(screen.getByText('mir')).toBeInTheDocument();
-            unmount();
-            renderWithProviders(
-                <MultiHarness fields={fields} defaultValues={{ reflexive: true, verbCases: ['accusativeDE', 'dativeDE'], indicativePresent1s: '' }} />,
-            );
-            expect(screen.getByText('mich')).toBeInTheDocument();
+        it('German: the pronoun case comes from the reflexive-case radio: Accusative, Dative, Both (mich/mir)', () => {
+            const fields = [radio('reflexivity'), radio('reflexiveCase'), person('indicativePresent1s', german('after'))];
+            const shown = (reflexiveCase?: string) => {
+                const { unmount } = renderWithProviders(
+                    <MultiHarness fields={fields} defaultValues={{ reflexivity: 'Always reflexive', reflexiveCase, indicativePresent1s: '' }} />,
+                );
+                const text = ['mich', 'mir', 'mich/mir'].find((candidate) => screen.queryByText(candidate) !== null);
+                unmount();
+                return text;
+            };
+            expect(shown('Accusative')).toBe('mich');
+            expect(shown('Dative')).toBe('mir');
+            expect(shown('Both')).toBe('mich/mir');
+            expect(shown(undefined)).toBe('mich');
         });
 
-        it('displayOnly: the pronoun shows in italics around a stored word, and not for an empty field', () => {
+        it('displayOnly: the pronoun shows in italics beside a stored word', () => {
             renderWithProviders(
                 <MultiHarness
                     displayOnly
-                    fields={[
-                        reflexiveBox,
-                        { ...person('indicativePresent1s', { accusative: 'mich', position: 'after' }), required: true },
-                    ]}
-                    defaultValues={{ reflexive: true, indicativePresent1s: 'wasche' }}
+                    fields={[radio('reflexivity'), { ...person('indicativePresent1s', german('after')), required: true }]}
+                    defaultValues={{ reflexivity: 'Always reflexive', indicativePresent1s: 'wasche' }}
                 />,
             );
             expect(screen.getByText('mich')).toHaveClass('italic');
