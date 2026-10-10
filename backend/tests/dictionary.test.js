@@ -789,6 +789,103 @@ describe('sense type-ahead (Slice G, G1: GET /api/dictionary/translate/:fromLang
     });
 });
 
+describe('one sense with its words (Slice G, G2: GET /api/dictionary/translate/sense/:partOfSpeech)', () => {
+    const TRANSLATIONS = path.join(__dirname, '../scripts/lexicon/fixtures/translations-en-fixture.jsonl');
+    const ALL = 'English,Spanish,German,Estonian';
+    const sense = (partOfSpeech, query) =>
+        request(app).get(`/api/dictionary/translate/sense/${partOfSpeech}?${query}`).set('Authorization', `Bearer ${token}`);
+    const words = (list) => list.map(({ word, gender }) => (gender ? `${gender} ${word}` : word));
+    const originalFetch = global.fetch;
+    const saved = {};
+
+    /** A fake Ekilex meaning search: `meanings` per searched word, each a list of [lang, word]. */
+    function fakeMeaningSearch(meanings, { ok = true } = {}) {
+        global.fetch = jest.fn(async (url) => {
+            const word = decodeURIComponent(new URL(url).pathname.replace('/api/meaning/search/', ''));
+            const results = (meanings[word] ?? []).map((list) => ({ meaningWords: list.map(([lang, wordValue]) => ({ lang, wordValue })) }));
+            return { ok, status: ok ? 200 : 503, json: async () => ({ results }) };
+        });
+        return global.fetch;
+    }
+
+    beforeAll(() => {
+        for (const key of ['EKILEX_API_URL', 'EKILEX_API_KEY']) saved[key] = process.env[key];
+        process.env.EKILEX_API_URL = 'https://ekilex.test';
+        process.env.EKILEX_API_KEY = 'test-key';
+    });
+    afterAll(() => {
+        for (const [key, value] of Object.entries(saved)) {
+            if (value === undefined) delete process.env[key];
+            else process.env[key] = value;
+        }
+    });
+    beforeEach(async () => {
+        await loadLexiconFile(pool, TRANSLATIONS);
+        global.fetch = jest.fn(async () => { throw new Error('Ekilex must not be asked'); });
+    });
+    afterEach(() => { global.fetch = originalFetch; });
+
+    it('a sense by its key: the words of all asked languages, with the noun gender', async () => {
+        const res = await sense('Noun', `english=lake&entry=0&sense=0&languages=${ALL}`);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.sense.english).toBe('lake');
+        expect(res.body.sense.sense).toBe('body of water');
+        expect(Object.fromEntries(Object.entries(res.body.sense.words).map(([language, list]) => [language, words(list)]))).toEqual({
+            English: ['lake'], Spanish: ['el lago'], German: ['der See'], Estonian: ['järv'],
+        });
+        expect(res.body.ekilex).toBeUndefined();
+    });
+
+    it('only the asked languages come back; with no languages given, all four', async () => {
+        const some = await sense('Noun', 'english=lake&entry=0&sense=0&languages=German,English');
+        expect(Object.keys(some.body.sense.words).sort()).toEqual(['English', 'German']);
+        const all = await sense('Noun', 'english=lake&entry=0&sense=0');
+        expect(Object.keys(all.body.sense.words).sort()).toEqual(['English', 'Estonian', 'German', 'Spanish']);
+    });
+
+    it('words keep their listed order (the common one first)', async () => {
+        const res = await sense('Noun', 'english=bank&entry=0&sense=0&languages=Spanish');
+        expect(words(res.body.sense.words.Spanish)).toEqual(['la banca', 'el banco']);
+    });
+
+    it('Estonian asked, none in the sense: Ekilex adds its words', async () => {
+        const fetchMock = fakeMeaningSearch({ lake: [[['est', 'lakk'], ['eng', 'lake']]] });
+        const res = await sense('Noun', `english=lake&entry=3&sense=0&languages=${ALL}`);
+        expect(res.body.sense.sense).toBe('a kind of coloring agent');
+        expect(res.body.sense.words.Estonian).toEqual([]);
+        expect(res.body.ekilex).toEqual({ estonian: [{ word: 'lakk' }] });
+        expect(fetchMock.mock.calls[0][0]).toBe('https://ekilex.test/api/meaning/search/lake');
+    });
+
+    it('Estonian not asked: Ekilex is never asked, and the answer has no Estonian', async () => {
+        const res = await sense('Noun', 'english=lake&entry=3&sense=0&languages=English,German');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.sense.words.Estonian).toBeUndefined();
+        expect(res.body.ekilex).toBeUndefined();
+        expect(global.fetch).not.toHaveBeenCalledWith(expect.stringContaining('ekilex'));
+    });
+
+    it('Ekilex down: the route still answers, and says Ekilex was unavailable', async () => {
+        fakeMeaningSearch({}, { ok: false });
+        const res = await sense('Noun', `english=lake&entry=3&sense=0&languages=${ALL}`);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.sense.words.German).toEqual([{ word: 'Färberlack', gender: 'der' }]);
+        expect(res.body.ekilex).toEqual({ unavailable: true });
+    });
+
+    it('404 for a key that matches no sense; 400 for a bad part of speech, language or number; 401 without a token', async () => {
+        expect((await sense('Noun', 'english=lake&entry=0&sense=99')).statusCode).toBe(404);
+        expect((await sense('Verb', 'english=lake&entry=0&sense=0')).statusCode).toBe(404);
+        expect((await sense('Preposition', 'english=lake&entry=0&sense=0')).statusCode).toBe(400);
+        expect((await sense('Noun', 'english=lake&entry=0&sense=0&languages=Klingon')).statusCode).toBe(400);
+        expect((await sense('Noun', 'english=&entry=0&sense=0')).statusCode).toBe(400);
+        expect((await sense('Noun', 'entry=0&sense=0')).statusCode).toBe(400);
+        expect((await sense('Noun', 'english=lake&entry=-1&sense=0')).statusCode).toBe(400);
+        expect((await sense('Noun', 'english=lake&entry=0&sense=x')).statusCode).toBe(400);
+        expect((await request(app).get('/api/dictionary/translate/sense/Noun?english=lake&entry=0&sense=0')).statusCode).toBe(401);
+    });
+});
+
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
         expect((await lookup('English/Preposition/in')).statusCode).toBe(400);

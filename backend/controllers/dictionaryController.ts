@@ -127,4 +127,35 @@ const suggestSenses = asyncHandler(async (req: any, res: any) => {
     res.status(200).json({ suggestions: await translation.senseSuggestions(fromLanguage, partOfSpeech, prefix, limit) });
 });
 
-module.exports = { lookup, suggest, translate, suggestSenses };
+// @desc    One sense with its words (autocomplete-data-source-strategy.md Slice G, step G2): the preview of a
+//          pick from the sense type-ahead. Only the languages in `languages` (the user's account) are returned.
+// @route   GET /api/dictionary/translate/sense/:partOfSpeech?english=<word>&entry=<n>&sense=<n>&languages=<English,German,…>
+//          (english, entry, sense: the `key` of a sense suggestion; languages: comma-separated, default all four)
+// @access  Private
+// @returns 200 { sense: { english, sense, words: { <language>: [{ word, gender? }] } },
+//                ekilex?: { estonian: [{ word }] } | { unavailable: true } }   (ekilex: only when Estonian is asked and has no word)
+//          400 an unknown part of speech or language, or a bad english, entry or sense; 404 no such sense
+const senseOfKey = asyncHandler(async (req: any, res: any) => {
+    const { partOfSpeech } = req.params;
+    const { english, entry, sense } = req.query;
+    const entryOrder = Number(entry);
+    const senseOrder = Number(sense);
+    const languages = req.query.languages === undefined ? [...translation.TRANSLATE_LANGUAGES] : String(req.query.languages).split(',');
+    if (
+        !translation.TRANSLATE_PARTS_OF_SPEECH.includes(partOfSpeech) ||
+        languages.length === 0 || !languages.every((language: string) => (translation.TRANSLATE_LANGUAGES as readonly string[]).includes(language)) ||
+        typeof english !== 'string' || english.trim() === '' || english.length > MAX_QUERY_LENGTH ||
+        !Number.isInteger(entryOrder) || entryOrder < 0 || !Number.isInteger(senseOrder) || senseOrder < 0
+    ) {
+        res.status(400);
+        throw new Error('A part of speech, an english word, an entry and a sense number, and known languages are required');
+    }
+    const result = await translation.senseWords(partOfSpeech, { englishLemma: english, entryOrder, senseOrder }, languages as (typeof translation.TRANSLATE_LANGUAGES)[number][]);
+    if (!result) {
+        res.status(404);
+        throw new Error('No such sense');
+    }
+    res.status(200).json(result);
+});
+
+module.exports = { lookup, suggest, translate, suggestSenses, senseOfKey };

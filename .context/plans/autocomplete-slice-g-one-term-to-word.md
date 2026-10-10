@@ -128,6 +128,16 @@ that is fine. Jest: 8 new tests (`sense type-ahead` block in `tests/dictionary.t
 
 ### G2 — One sense with its words (backend)
 
+**DONE 2026-10-11.** `senseWords` in `services/dictionary/translate.ts`, controller `senseOfKey`, route
+`GET /api/dictionary/translate/sense/:partOfSpeech?english=&entry=&sense=&languages=`. Registered
+**above** `/:language/:partOfSpeech/:query`, because `translate/sense/Noun` also fits that 3-segment
+lookup route. `languages` is a comma-separated list (default: all four). The answer holds only the
+asked languages as keys of `sense.words` (a missing key means "not asked", an empty list means "no
+word"). The English word is a row of its own when English is asked. Ekilex runs only when Estonian
+is asked and the sense has no Estonian word; it asks with the English word of the sense. The Ekilex
+call is now one helper (`ekilexEstonian`) shared with `translate()`. 404 when the key matches no
+row; 400 for a bad part of speech, language, English word or number. Jest: 7 new tests.
+
 `GET /api/dictionary/translate/sense/:partOfSpeech?english=&entry=&sense=&languages=` →
 `{ sense: TranslationSense, ekilex? }` (the same shapes as `translate.ts`).
 

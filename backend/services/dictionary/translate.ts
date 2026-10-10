@@ -131,15 +131,21 @@ export async function translate(fromLanguage: Language, partOfSpeech: string, qu
 
     const result: TranslateResult = { senses: senses.slice(0, MAX_SENSES).map(({ order, ...sense }) => sense) };
     if (fromLanguage !== 'Estonian' && !result.senses.some((sense) => sense.words.Estonian.length > 0)) {
-        try {
-            const estonian = await estonianEquivalents(query.trim(), fromLanguage, partOfSpeech);
-            result.ekilex = { estonian: estonian.map((word) => ({ word })) };
-        } catch {
-            // eki.ts has logged it; the local senses still answer.
-            result.ekilex = { unavailable: true };
-        }
+        result.ekilex = await ekilexEstonian(query.trim(), fromLanguage, partOfSpeech);
     }
     return result;
+}
+
+/**
+ * The Estonian words of the Ekilex meanings that list `word` (D22 item 2). An Ekilex failure does not
+ * fail the route: eki.ts has logged it, the local senses still answer, and the result says so.
+ */
+async function ekilexEstonian(word: string, language: string, partOfSpeech: string): Promise<{ estonian: TranslationWord[] } | { unavailable: true }> {
+    try {
+        return { estonian: (await estonianEquivalents(word, language, partOfSpeech)).map((estonian) => ({ word: estonian })) };
+    } catch {
+        return { unavailable: true };
+    }
 }
 
 /**
@@ -256,4 +262,44 @@ export async function senseSuggestions(
         }
     }
     return [...bySense.values()].slice(0, limit);
+}
+
+/** One sense with the words of the asked languages only (a key is absent when the language was not asked). */
+export interface SenseResult {
+    sense: Omit<TranslationSense, 'words'> & { words: Partial<Record<Language, TranslationWord[]>> };
+    /** Only when Estonian was asked and the sense has no Estonian word. */
+    ekilex?: { estonian: TranslationWord[] } | { unavailable: true };
+}
+
+/**
+ * One sense by its key (Slice G, step G2): the preview of a type-ahead pick. `languages` are the
+ * languages of the user's account: only their words are returned, and Ekilex (D22) is asked only
+ * when Estonian is among them and the sense has no Estonian word. undefined when the key matches
+ * no row (a stale pick after a data reload).
+ */
+export async function senseWords(partOfSpeech: string, key: SenseKey, languages: readonly Language[]): Promise<SenseResult | undefined> {
+    const t = lexemeTranslations;
+    const rows = await db
+        .select({ sense: t.sense, language: t.language, word: t.word, gender: t.gender })
+        .from(t)
+        .where(and(
+            eq(t.partOfSpeech, partOfSpeech),
+            eq(t.englishSearchKey, searchKey(key.englishLemma)),
+            eq(t.englishLemma, key.englishLemma),
+            eq(t.entryOrder, key.entryOrder),
+            eq(t.senseOrder, key.senseOrder),
+        ))
+        .orderBy(asc(t.wordOrder));
+    if (rows.length === 0) return undefined;
+
+    const words: Partial<Record<Language, TranslationWord[]>> = {};
+    for (const language of TRANSLATE_LANGUAGES) if (languages.includes(language)) words[language] = [];
+    words.English?.push({ word: key.englishLemma });
+    for (const row of rows) words[row.language as Language]?.push(row.gender ? { word: row.word, gender: row.gender } : { word: row.word });
+
+    const result: SenseResult = { sense: { english: key.englishLemma, sense: rows[0].sense, words } };
+    if (words.Estonian && words.Estonian.length === 0) {
+        result.ekilex = await ekilexEstonian(key.englishLemma, 'English', partOfSpeech);
+    }
+    return result;
 }
