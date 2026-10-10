@@ -10,6 +10,14 @@
         cmd: "docker cp {{ lexicon_dir }}/{{ lexicon_file | basename }} backend-{{ lexicon_env }}:/tmp/{{ lexicon_file | basename }}"
       changed_when: true
 
+    # `docker cp` creates the file owned by root (with the host file's mode, 0640), but the backend
+    # container runs as the non-root user `ladu`, which could not read it ("EACCES: permission denied").
+    # So hand the file to `ladu`; this one command runs as root.
+    - name: "Give the file to the backend user in backend-{{ lexicon_env }}"
+      ansible.builtin.command:
+        cmd: "docker exec --user root backend-{{ lexicon_env }} chown ladu:ladu /tmp/{{ lexicon_file | basename }}"
+      changed_when: true
+
     - name: "Run load.js in backend-{{ lexicon_env }}"
       ansible.builtin.command:
         cmd: "docker exec backend-{{ lexicon_env }} node scripts/lexicon/load.js /tmp/{{ lexicon_file | basename }}"
@@ -22,6 +30,7 @@
   always:
     - name: "Remove the file from backend-{{ lexicon_env }}"
       ansible.builtin.command:
-        cmd: "docker exec backend-{{ lexicon_env }} rm -f /tmp/{{ lexicon_file | basename }}"
+        # As root: the file may still be owned by root (when the chown step did not run), and `ladu` cannot delete it.
+        cmd: "docker exec --user root backend-{{ lexicon_env }} rm -f /tmp/{{ lexicon_file | basename }}"
       changed_when: true
       failed_when: false
