@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -24,7 +25,6 @@ test.afterAll(async () => {
     await closePool();
 });
 
-const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
 const reflexivity = (page: Page, value: string) => page.getByRole('radio', { name: value, exact: true });
 
 /** New word → Verb → the card for `language` (its native name). */
@@ -35,11 +35,10 @@ async function openVerbCard(page: Page, language: string): Promise<void> {
     await page.getByRole('button', { name: language }).click();
 }
 
-/** Types a whole word: the list closes by itself after the pause, then the button fills the card. */
+/** Types a whole word, then the button fills the card (`clickUseValues` closes the list first when the word is listed). */
 async function typeAndFill(page: Page, fieldLabel: string, word: string): Promise<void> {
     await page.getByLabel(fieldLabel, { exact: true }).fill(word);
-    await expect(page.getByRole('listbox')).toHaveCount(0);
-    await useValues(page).click();
+    await clickUseValues(page);
 }
 
 test.describe.serial('Autocomplete — reflexive verbs (Slice H5)', () => {
@@ -75,8 +74,7 @@ test.describe.serial('Autocomplete — reflexive verbs (Slice H5)', () => {
         await expect(page.getByText('me', { exact: true })).toHaveCount(0);
 
         await page.getByLabel('Infinitive non-finite simple', { exact: true }).fill('bailar');
-        await expect(page.getByRole('listbox')).toHaveCount(0);
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(reflexivity(page, 'Not reflexive')).toBeChecked();
     });
 
@@ -115,8 +113,7 @@ test.describe.serial('Autocomplete — reflexive verbs (Slice H5)', () => {
         await expect(page.getByRole('radio', { name: /^Dative \(mir/ })).toBeChecked();
 
         await page.getByLabel('Infinitive', { exact: true }).fill('tanzen');
-        await expect(page.getByRole('listbox')).toHaveCount(0);
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radio', { name: 'Not reflexive' })).toBeChecked();
         await expect(page.getByRole('radio', { name: /^Dative \(mir/ })).toHaveCount(0);
     });

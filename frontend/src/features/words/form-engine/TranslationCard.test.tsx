@@ -632,30 +632,51 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
         expect(field).toHaveValue('See');
     });
 
-    it('typing a whole word fills nothing, and the list closes by itself after the pause: the button is free', async () => {
+    it('typing a whole word fills nothing, and the list stays open (also after the lookup pause) so the word can be clicked', async () => {
         const { user, field } = setup();
         await user.type(field, 'See');
+        await screen.findByRole('listbox');
 
-        // "See" is a listed word: after the lookup's pause the list closes, and the button shows.
-        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument(), { timeout: 2000 });
-        expect(await screen.findByRole('button', { name: 'Use autocomplete values' })).toBeInTheDocument();
-        expect(screen.getByRole('radio', { name: 'der' })).not.toBeChecked();
+        // Longer than the lookup's pause (500 ms): the list used to close by itself here.
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+        // While the list is open the rest of the page is hidden from assistive technology (`hidden: true`).
+        expect(screen.getByRole('radio', { name: 'der', hidden: true })).not.toBeChecked();
         expect(screen.getByLabelText('Plural nominative')).toHaveValue('');
 
-        // Arrow down asks for the list again.
-        await user.keyboard('{ArrowDown}');
-        expect(await screen.findByRole('listbox')).toBeInTheDocument();
-    });
-
-    it('a whole word does not close the list while the user is in it (an item highlighted)', async () => {
-        const { user, field } = setup();
-        await user.type(field, 'See');
-        await user.hover(await screen.findByRole('option', { name: 'die See' }));
-
-        // Longer than the lookup's pause: the list stays, and a click still picks.
-        await new Promise((resolve) => setTimeout(resolve, 700));
         await user.click(screen.getByRole('option', { name: 'die See' }));
         await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+    });
+
+    it('a whole word with ONE match keeps the list open too: the single suggestion can still be clicked', async () => {
+        const POLIZEI = { entryId: '44444444-4444-4444-4444-444444444444', lemma: 'Polizei', hint: 'die' };
+        const fake = makeAutocompleteHandlers(
+            { germanNoun: { status: 'found', cases: [{ caseName: 'genderDE', word: 'die' }, { caseName: 'pluralNominativDE', word: 'Polizeien' }] } },
+            { suggestions: { germanNoun: [POLIZEI] } }
+        );
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.noun} />);
+
+        await user.type(screen.getByRole('combobox', { name: 'Singular nominative' }), 'Polizei');
+        const option = await screen.findByRole('option', { name: 'die Polizei' });
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        expect(option).toBeInTheDocument();
+
+        await user.click(option);
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+        expect(screen.getByLabelText('Plural nominative')).toHaveValue('Polizeien');
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
+    it('a click outside closes the list of a whole word, and the button is free', async () => {
+        const { user, field } = setup();
+        await user.type(field, 'See');
+        await screen.findByRole('listbox');
+
+        await user.click(document.body);
+        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+        expect(await screen.findByRole('button', { name: 'Use autocomplete values' })).toBeInTheDocument();
     });
 
     it('a part of a word keeps the list open; Escape closes it', async () => {
@@ -663,7 +684,7 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
         await user.type(field, 'se');
         await screen.findByRole('listbox');
 
-        // Longer than the lookup's pause: "se" is no listed word, so the list stays.
+        // Longer than the lookup's pause: the list stays.
         await new Promise((resolve) => setTimeout(resolve, 700));
         expect(screen.getByRole('listbox')).toBeInTheDocument();
         await user.keyboard('{Escape}');
@@ -678,6 +699,8 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
 
         await user.type(field, '{Backspace}e');
         await waitFor(() => expect(fake.requests.at(-1)).toMatchObject({ query: 'See', entry: null }), { timeout: 2000 });
+        // The list of the whole word is open and hides the button; close it with Escape.
+        await user.keyboard('{Escape}');
         // The main sense (der) disagrees with the filled die: the button offers it.
         expect(await screen.findByRole('button', { name: 'Use autocomplete values' })).toBeInTheDocument();
     });

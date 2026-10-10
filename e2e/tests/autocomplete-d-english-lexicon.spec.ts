@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -20,7 +21,6 @@ test.afterAll(async () => {
     await closePool();
 });
 
-const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
 const guessNotice = (page: Page) => page.getByText("We're not fully sure, but here's our best guess.");
 
 /** New word → part of speech → the English card. */
@@ -46,7 +46,7 @@ test.describe.serial('Autocomplete — English from the lexicon (Slice C2)', () 
         await openEnglish(page, /Noun/);
         await page.getByLabel('Singular', { exact: true }).fill('child');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('Plural', { exact: true })).toHaveValue('children');
         await expect(guessNotice(page)).toHaveCount(0);
     });
@@ -56,7 +56,7 @@ test.describe.serial('Autocomplete — English from the lexicon (Slice C2)', () 
         // "I" labels one field per tense: present, past, future, conditional. The first is the query field.
         await page.getByLabel('I', { exact: true }).first().fill('can');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('I', { exact: true }).nth(1)).toHaveValue('could');
         await expect(guessNotice(page)).toHaveCount(0);
     });
@@ -66,7 +66,7 @@ test.describe.serial('Autocomplete — English from the lexicon (Slice C2)', () 
         await page.getByLabel('I', { exact: true }).first().fill('zorplate');
 
         await expect(guessNotice(page)).toBeVisible();
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('He/She/it').first()).toHaveValue('zorplates');
         await expect(guessNotice(page)).toBeVisible();
     });

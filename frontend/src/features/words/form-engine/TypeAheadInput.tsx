@@ -14,13 +14,12 @@
  * in the list. `mode="none"`: the server already filtered the list, and arrow keys move the
  * highlight without rewriting the text. The list stays closed while it has nothing to show.
  *
- * Getting out of the way (D21): an open list covers the card footer, where "Use autocomplete
- * values" appears, and hides the rest of the page from assistive technology (the combobox
- * pattern). So besides a pick, Escape, Tab and a click outside, the list also closes by itself
- * once the user stops typing (the lookup's own pause, `LOOKUP_DEBOUNCE_MS`) on text that exactly
- * matches a listed word: the user typed a whole word, and the button is the next step. Typing
- * again, or asking for the list with arrow down, shows it again. It never closes by itself while
- * the user is in the list: a highlighted item (mouse over it, or arrow keys) keeps it open.
+ * Getting out of the way (D21, changed in Slice H): an open list covers the card footer, where "Use
+ * autocomplete values" appears, and hides the rest of the page from assistive technology (the
+ * combobox pattern). So the list closes on a pick, Escape, Tab and a click outside. It does NOT
+ * close by itself when the user has typed a whole word that is in the list (even when it is the
+ * only match): the user can still click it, and a pick fills the card with that exact entry, the
+ * same as the button. A word that is not in the list shows no list, so the button is free.
  *
  * Not slower to type in (design commandment 1): the text reaches the form on every key press as
  * before; only the list request waits for a short pause (`SUGGEST_DEBOUNCE_MS`).
@@ -33,7 +32,6 @@ import { MIN_PREFIX_LENGTH, useDictionarySuggestions } from '@/features/autocomp
 import type { Suggestion } from '@/features/autocomplete/types';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
-import { LOOKUP_DEBOUNCE_MS } from './AutocompleteRow';
 
 const SUGGEST_DEBOUNCE_MS = 150;
 /** Never a real RHF field; watching it is a harmless no-op (same trick as `AutocompleteRow`). */
@@ -64,19 +62,12 @@ export const TypeAheadInput = forwardRef<HTMLInputElement, TypeAheadInputProps>(
     const { control } = useFormContext();
     const listOff = useWatch({ control, name: config.offWhenField ?? NO_FIELD }) === true;
     const [open, setOpen] = useState(false);
-    // The text for which the user asked for the list again, or used it (see the header): no self-close.
-    const [reopenedFor, setReopenedFor] = useState<string | null>(null);
 
     const prefix = useDebouncedCallback(value, SUGGEST_DEBOUNCE_MS);
     const enabled = !listOff && prefix.trim().length >= MIN_PREFIX_LENGTH;
     const { data } = useDictionarySuggestions({ language: config.lang, pos: config.pos, prefix, enabled });
     // `keepPreviousData` would keep an old list after the text got too short, or the list was turned off.
     const items = enabled && value.trim().length >= MIN_PREFIX_LENGTH ? (data ?? []) : [];
-
-    const settled = useDebouncedCallback(value, LOOKUP_DEBOUNCE_MS) === value;
-    const typed = value.trim().toLowerCase();
-    const closedByMatch =
-        settled && reopenedFor !== value && items.some((item) => item.lemma.toLowerCase() === typed);
 
     return (
         <Autocomplete.Root
@@ -90,14 +81,8 @@ export const TypeAheadInput = forwardRef<HTMLInputElement, TypeAheadInputProps>(
                 config.onType();
             }}
             itemToStringValue={(item: Suggestion) => item.lemma}
-            open={open && items.length > 0 && !closedByMatch}
-            onOpenChange={(next, details) => {
-                setOpen(next);
-                if (next && details.reason !== 'input-change') setReopenedFor(value);
-            }}
-            onItemHighlighted={(item) => {
-                if (item) setReopenedFor(value);
-            }}
+            open={open && items.length > 0}
+            onOpenChange={setOpen}
         >
             <Autocomplete.Input ref={ref} render={<Input />} autoComplete="off" {...inputProps} />
             <Autocomplete.Portal>

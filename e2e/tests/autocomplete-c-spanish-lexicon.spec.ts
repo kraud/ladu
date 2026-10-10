@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -23,7 +24,6 @@ test.afterAll(async () => {
     await closePool();
 });
 
-const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
 const guessNotice = (page: Page) => page.getByText("We're not fully sure, but here's our best guess.");
 
 /** New word → part of speech → the Spanish card. */
@@ -49,7 +49,7 @@ test.describe.serial('Autocomplete — Spanish from the lexicon (Slice C1)', () 
         await openSpanish(page, /Verb/);
         await page.getByLabel('Infinitive non-finite simple').fill('sentir');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         // The first "Yo" field is the present tense.
         await expect(page.getByLabel('Yo').first()).toHaveValue('siento');
         await expect(page.getByLabel('Gerund non-finite simple')).toHaveValue('sintiendo');
@@ -61,7 +61,7 @@ test.describe.serial('Autocomplete — Spanish from the lexicon (Slice C1)', () 
         await openSpanish(page, /Verb/);
         await page.getByLabel('Infinitive non-finite simple').fill('bailar');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('Tú').first()).toHaveValue('bailas');
         await expect(page.getByLabel('Ustedes').first()).toHaveValue('bailan');
         await expect(page.getByLabel('Gerund non-finite simple')).toHaveValue('bailando');
@@ -72,7 +72,7 @@ test.describe.serial('Autocomplete — Spanish from the lexicon (Slice C1)', () 
         await openSpanish(page, /Noun/);
         await page.getByLabel('Singular', { exact: true }).fill('leche');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radio', { name: 'la', exact: true })).toBeChecked();
         await expect(page.getByLabel('Plural', { exact: true })).toHaveValue('leches');
     });
@@ -82,7 +82,7 @@ test.describe.serial('Autocomplete — Spanish from the lexicon (Slice C1)', () 
         await page.getByLabel('Infinitive non-finite simple').fill('abarrancar');
 
         await expect(guessNotice(page)).toBeVisible();
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByText('Autocomplete values applied')).toBeVisible();
         await expect(guessNotice(page)).toBeVisible();
     });

@@ -1,4 +1,5 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -12,7 +13,9 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *     with that meaning (not the main sense der See), and the footer shows it as applied.
  *  2. Arrow keys + Enter pick too ("der See": genitive "Sees", where die See has "See").
  *  3. A Spanish verb: a pick fills the conjugation.
- *  4. A whole word typed without a pick: the list closes by itself and the button fills.
+ *  4. A whole word typed without a pick, also when it is the only match: the list stays open (it does
+ *     not close by itself), and a click on the word fills the card. A click outside closes the list
+ *     and frees the "Use autocomplete values" button.
  *
  * Nothing is saved: the subject is the list and the fill.
  */
@@ -25,16 +28,9 @@ test.afterAll(async () => {
 const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
 const applied = (page: Page) => page.getByText('Autocomplete values applied');
 
-/**
- * Types `text` and opens the list for sure. "see" exactly matches the listed word "See", so the list
- * closes by itself after the typing pause (D21) — and if the suggestions arrive late it may never
- * show. So: wait for that settled state (the list closed, the button free), then ask for the list
- * with arrow down, as a user would.
- */
+/** Types `text` and waits for the list. The list also stays open when `text` is a whole listed word. */
 async function typeAndOpenList(page: Page, field: Locator, text: string): Promise<void> {
     await field.pressSequentially(text);
-    await expect(useValues(page)).toBeVisible();
-    await field.press('ArrowDown');
     await expect(page.getByRole('listbox')).toBeVisible();
 }
 
@@ -103,13 +99,29 @@ test.describe.serial('Autocomplete — type-ahead list (Slice E)', () => {
         await expect(page.getByLabel('Gerund non-finite simple')).toHaveValue('bailando');
     });
 
-    test('a whole word typed without a pick: the list closes by itself, and the button fills', async ({ page }) => {
+    test('a whole word that is the only match: the list stays open, and a click on it fills the card', async ({ page }) => {
         await openCard(page, /Noun/, 'Deutsch');
         await page.getByLabel('Singular nominative').pressSequentially('Polizei');
 
-        // "Polizei" is a listed word: after the pause the list closes and frees the button.
+        const option = page.getByRole('listbox').getByRole('option', { name: 'die Polizei', exact: true });
+        await expect(option).toBeVisible();
+        // Longer than the lookup pause: the list used to close by itself here.
+        await page.waitForTimeout(1200);
+        await expect(option).toBeVisible();
+
+        await option.click();
+        await expect(page.getByRole('radio', { name: 'die', exact: true })).toBeChecked();
+        await expect(page.getByLabel('Plural nominative')).toHaveValue('Polizeien');
+        await expect(applied(page)).toBeVisible();
+    });
+
+    test('a click outside closes the list and frees the button', async ({ page }) => {
+        await openCard(page, /Noun/, 'Deutsch');
+        await page.getByLabel('Singular nominative').pressSequentially('Polizei');
+        await expect(page.getByRole('listbox')).toBeVisible();
+
+        await clickUseValues(page);
         await expect(page.getByRole('listbox')).toHaveCount(0);
-        await useValues(page).click();
         await expect(page.getByRole('radio', { name: 'die', exact: true })).toBeChecked();
         await expect(page.getByLabel('Plural nominative')).toHaveValue('Polizeien');
     });

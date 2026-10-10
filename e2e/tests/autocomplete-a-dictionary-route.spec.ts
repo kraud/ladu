@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -55,7 +56,7 @@ test.describe.serial('Autocomplete — one dictionary route (Slice A)', () => {
         await openNewWord(page, /Noun/, 'Deutsch');
         await page.getByLabel('Singular nominative').fill('Haus');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radio', { name: 'das', exact: true })).toBeChecked();
         await expect(page.getByLabel('Plural nominative')).toHaveValue('Häuser');
         await expect(page.getByLabel('Plural dative')).toHaveValue('Häusern');
@@ -66,7 +67,7 @@ test.describe.serial('Autocomplete — one dictionary route (Slice A)', () => {
         await openNewWord(page, /Verb/, 'Español');
         await page.getByLabel('Infinitive non-finite simple').fill('bailar');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('Participle non-finite simple')).toHaveValue('bailado');
         await expect(page.getByLabel('Yo').first()).toHaveValue('bailo');
     });
@@ -77,7 +78,7 @@ test.describe.serial('Autocomplete — one dictionary route (Slice A)', () => {
 
         const notice = page.getByText("We're not fully sure, but here's our best guess.");
         await expect(notice).toBeVisible();
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radio', { name: 'la', exact: true })).toBeChecked();
         // The guess stays marked as a guess after it is applied.
         await expect(page.getByText('Autocomplete values applied')).toBeVisible();
@@ -95,7 +96,7 @@ test.describe.serial('Autocomplete — one dictionary route (Slice A)', () => {
         await openNewWord(page, /Adjective/, 'Eesti');
         await page.getByLabel('Positive degree').fill('väike');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('Plural nominative')).toHaveValue('väikesed');
 
         const received = ((await (await request.get(`${EKI_STUB_URL}/__requests`)).json()) as { rawPath: string }[]).slice(before);

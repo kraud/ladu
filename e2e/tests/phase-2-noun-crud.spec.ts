@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext } from '@playwright/test';
+import { closeTypeAheadList } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
@@ -97,6 +98,8 @@ test.describe.serial('Phase 2 — noun create / view', () => {
         await page.getByRole('button', { name: 'Deutsch' }).click();
         await page.getByRole('radio', { name: 'der', exact: true }).click();
         await page.getByLabel('Singular nominative').fill('Haus');
+        // "Haus" is a listed word: its type-ahead list stays open, so close it before the next step.
+        await closeTypeAheadList(page);
 
         const save = page.getByRole('button', { name: 'Save' });
         await expect(save).toBeEnabled();

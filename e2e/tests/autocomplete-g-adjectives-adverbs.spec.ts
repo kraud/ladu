@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -26,7 +27,6 @@ test.afterAll(async () => {
     await closePool();
 });
 
-const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
 
 /** New word → part of speech → the card for `language` (its native name). */
 async function openCard(page: Page, partOfSpeech: RegExp, language: string): Promise<void> {
@@ -36,11 +36,10 @@ async function openCard(page: Page, partOfSpeech: RegExp, language: string): Pro
     await page.getByRole('button', { name: language }).click();
 }
 
-/** Types a whole word: the list closes by itself after the pause, then the button fills the card. */
+/** Types a whole word, then the button fills the card (`clickUseValues` closes the list first when the word is listed). */
 async function typeAndFill(page: Page, fieldLabel: string, word: string): Promise<void> {
     await page.getByLabel(fieldLabel, { exact: true }).pressSequentially(word);
-    await expect(page.getByRole('listbox')).toHaveCount(0);
-    await useValues(page).click();
+    await clickUseValues(page);
 }
 
 test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () => {
@@ -72,8 +71,7 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
 
         // Another word on the same card: the Non-gradable branch hides the degrees.
         await page.getByLabel('Adverb', { exact: true }).fill('hier');
-        await expect(page.getByRole('listbox')).toHaveCount(0);
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radio', { name: 'Non-gradable', exact: true })).toBeChecked();
         await expect(page.getByLabel('Comparative', { exact: true })).toHaveCount(0);
     });
@@ -126,8 +124,7 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
         await expect(page.getByText("Sorry, we don't know this word!")).toBeVisible();
 
         await page.getByLabel('Adverb', { exact: true }).fill('kiiresti');
-        await expect(page.getByRole('listbox')).toHaveCount(0);
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('Comparative', { exact: true })).toHaveValue('kiiremini');
         await expect(page.getByRole('checkbox', { name: /No one-word superlative/ })).toBeChecked();
         await expect(page.getByTestId('derived-superlative')).toHaveValue('kõige kiiremini');

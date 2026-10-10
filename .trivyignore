@@ -11,5 +11,11 @@
 # 2026-10-09: caddy:alpine is Caddy v2.11.7 built with go1.26.8 (pushed
 # 2026-10-06). The fix is in Go 1.26.9 / 1.27.2, released 2026-10-08. The 16
 # entries from 2026-09-18 (Caddy v2.11.4) no longer appear and were removed.
+# 2026-10-10: one more, CVE-2026-78669 (HIGH): net/http2 denial of service through
+# excessive HTTP/2 SETTINGS frames. Trivy lists it twice for the same Caddy binary:
+# golang.org/x/net v0.59.0 (fixed in 0.60.0) and Go stdlib 1.26.8 (fixed in 1.26.9 / 1.27.2).
+# caddy:alpine is still the 2026-10-06 build (Caddy v2.11.7, go1.26.8), so the fix is not
+# available to us yet. Remove this entry when a scan stops reporting it.
 CVE-2026-78667
 CVE-2026-97031
+CVE-2026-78669

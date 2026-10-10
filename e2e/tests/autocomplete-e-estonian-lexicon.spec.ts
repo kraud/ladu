@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -27,7 +28,6 @@ test.afterAll(async () => {
     await closePool();
 });
 
-const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
 const NO_ONE_WORD_SUPERLATIVE = 'No one-word superlative (kõige + comparative)';
 // The stub's log is shared by every worker (other specs run in parallel), so a check looks only
 // for requests about ITS OWN word, never for an empty log.
@@ -59,7 +59,7 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         await openEstonian(page, /Noun/);
         await page.getByLabel('Singular nominative').fill('maja');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('Plural nominative')).toHaveValue('majad');
         await expect(page.getByLabel('Plural partitive')).toHaveValue('maju');
         expect(askedAbout((await stubLog(request)).slice(before), 'maja')).toEqual([]);
@@ -70,7 +70,7 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         await openEstonian(page, /Verb/);
         await page.getByLabel('-ma infinitive').fill('tantsima');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('-da infinitive')).toHaveValue('tantsida');
         expect(askedAbout((await stubLog(request)).slice(before), 'tantsima')).toEqual([]);
     });
@@ -79,7 +79,7 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         await openEstonian(page, /Adjective/);
         await page.getByLabel('Positive degree').fill('väike');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('Comparative degree')).toHaveValue('väiksem');
         await expect(page.getByLabel('Superlative degree')).toHaveValue('väikseim');
         await expect(page.getByRole('checkbox', { name: NO_ONE_WORD_SUPERLATIVE })).not.toBeChecked();
@@ -89,7 +89,7 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         await openEstonian(page, /Adjective/);
         await page.getByLabel('Positive degree').fill('tore');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByRole('checkbox', { name: NO_ONE_WORD_SUPERLATIVE })).toBeChecked();
         const superlative = page.getByTestId('derived-ulivorre');
         await expect(superlative).toHaveValue('kõige toredam');
@@ -102,7 +102,7 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         await page.getByRole('checkbox', { name: 'Search verb in english' }).click();
         await page.getByLabel('-ma infinitive').fill('run');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('-ma infinitive')).toHaveValue('jooksma');
         await expect(page.getByLabel('-da infinitive')).toHaveValue('joosta');
         expect(askedAbout((await stubLog(request)).slice(before), 'run')).toEqual([]);
@@ -114,7 +114,7 @@ test.describe.serial('Autocomplete — Estonian: lexicon first, then Ekilex (Sli
         await page.getByRole('checkbox', { name: 'Search verb in english' }).click();
         await page.getByLabel('-ma infinitive').fill('zorp');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByLabel('-da infinitive')).toHaveValue('tantsida');
         expect((await stubLog(request)).slice(before)).toContain('/api/meaning/search/zorp');
     });

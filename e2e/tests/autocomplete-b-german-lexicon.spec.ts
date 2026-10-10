@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -21,7 +22,6 @@ test.afterAll(async () => {
     await closePool();
 });
 
-const useValues = (page: Page) => page.getByRole('button', { name: 'Use autocomplete values' });
 const guessNotice = (page: Page) => page.getByText("We're not fully sure, but here's our best guess.");
 
 /** New word → part of speech → the German card. */
@@ -47,7 +47,7 @@ test.describe.serial('Autocomplete — German from the lexicon (Slice B2)', () =
         await openGerman(page, /Noun/);
         await page.getByLabel('Singular nominative').fill('Polizei');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radio', { name: 'die', exact: true })).toBeChecked();
         await expect(page.getByLabel('Plural nominative')).toHaveValue('Polizeien');
         await expect(guessNotice(page)).toHaveCount(0);
@@ -57,7 +57,7 @@ test.describe.serial('Autocomplete — German from the lexicon (Slice B2)', () =
         await openGerman(page, /Verb/);
         await page.getByLabel('Infinitive').fill('gehen');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radiogroup', { name: 'Auxiliary verb' }).getByRole('radio', { name: 'sein' })).toBeChecked();
         await expect(page.getByRole('radio', { name: 'irregular', exact: true })).toBeChecked();
         await expect(guessNotice(page)).toHaveCount(0);
@@ -67,7 +67,7 @@ test.describe.serial('Autocomplete — German from the lexicon (Slice B2)', () =
         await openGerman(page, /Noun/);
         await page.getByLabel('Singular nominative').fill('See');
 
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radio', { name: 'der', exact: true })).toBeChecked();
         await expect(page.getByLabel('Plural nominative')).toHaveValue('Seen');
     });
@@ -77,7 +77,7 @@ test.describe.serial('Autocomplete — German from the lexicon (Slice B2)', () =
         await page.getByLabel('Infinitive').fill('abkleben');
 
         await expect(guessNotice(page)).toBeVisible();
-        await useValues(page).click();
+        await clickUseValues(page);
         await expect(page.getByText('Autocomplete values applied')).toBeVisible();
         await expect(guessNotice(page)).toBeVisible();
     });

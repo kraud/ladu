@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext } from '@playwright/test';
+import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
 /**
@@ -111,10 +112,7 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
 
         await page.getByRole('button', { name: 'Deutsch' }).click();
         await page.getByLabel('Singular nominative').fill('Baum');
-        await expect(
-            page.getByRole('button', { name: 'Use autocomplete values' }),
-        ).toBeVisible({ timeout: 10_000 });
-        await page.getByRole('button', { name: 'Use autocomplete values' }).click();
+        await clickUseValues(page);
         await expect(page.getByRole('radio', { name: 'der', exact: true })).toBeChecked();
 
         await page.getByRole('button', { name: 'English' }).click();
