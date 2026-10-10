@@ -145,7 +145,10 @@ libraries or answers "not found". Reload from the copy on the VPS, no laptop nee
 ```bash
 # on the VPS, as deploy, for each language file and each environment:
 docker cp /opt/ladu/lexicon/lexicon-de-2026-10-03.jsonl.gz backend-prod:/tmp/
+# docker cp makes the file root-owned; the backend runs as the user `ladu`, so hand it over first:
+docker exec --user root backend-prod chown ladu:ladu /tmp/lexicon-de-2026-10-03.jsonl.gz
 docker exec backend-prod node scripts/lexicon/load.js /tmp/lexicon-de-2026-10-03.jsonl.gz
+docker exec --user root backend-prod rm -f /tmp/lexicon-de-2026-10-03.jsonl.gz
 ```
 
 **Space:** all three Wiktionary languages (English, German, Spanish) take about 220 MB per
