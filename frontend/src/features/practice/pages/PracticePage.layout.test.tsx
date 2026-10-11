@@ -119,7 +119,9 @@ describe('PracticePage — list badges', () => {
         await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
         await chooseChangeSettingsFirst();
 
-        expect(screen.getByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
+        // A saved configuration being changed shows its own name, not "New configuration".
+        expect(screen.getByRole('heading', { name: 'Morning drill' })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'New configuration' })).not.toBeInTheDocument();
         expect(await screen.findByLabelText('Number of exercises')).toHaveValue(5);
     });
 });

@@ -21,14 +21,20 @@ export interface ConfigDraft {
     tagIds: string[] | null;
 }
 
-type Props = { open: boolean; onOpenChange: (open: boolean) => void } & (
+type Props = { open: boolean; onOpenChange: (open: boolean) => void; onSaved?: (config: SavedConfig, draft: ConfigDraft | undefined) => void } & (
     | { mode: 'create'; draft: ConfigDraft; config?: undefined }
     | { mode: 'edit'; config: SavedConfig; draft?: undefined }
+    // Changes made to a configuration that was opened for changing: the new settings and words, and the
+    // configuration they came from. Two ways to keep them: "Save as copy" (a new configuration) or "Update".
+    | { mode: 'revise'; config: SavedConfig; draft: ConfigDraft }
 );
 
 /**
  * Name + description of a saved configuration. Create saves the settings on screen;
- * edit changes the name and the description only (the settings and words stay).
+ * edit changes the name and the description only (the settings and words stay);
+ * revise (the user changed a saved configuration in the set-up) has the saved name and description filled
+ * in, and three actions: Cancel, "Save as copy" (a new configuration; the original stays) and "Update"
+ * (the saved configuration takes the new settings, words, name and description).
  * A name that is already used stays an error under the name field, not a toast.
  * Deliberately not a `<form>`: the create dialog is opened from the set-up form,
  * and a nested submit must never start a session.
@@ -38,7 +44,9 @@ export function SaveConfigDialog(props: Props) {
     const { t } = useTranslation();
     const create = useCreateConfig();
     const update = useUpdateConfig();
-    const mutation = mode === 'create' ? create : update;
+    // Revise: the one that ran last decides which error shows.
+    const [lastAction, setLastAction] = useState<'copy' | 'update'>('update');
+    const mutation = mode === 'create' || (mode === 'revise' && lastAction === 'copy') ? create : update;
 
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -61,24 +69,31 @@ export function SaveConfigDialog(props: Props) {
     const code = mutation.isError ? getApiErrorCode(mutation.error) : null;
     const nameTaken = code === 'name_taken';
 
-    function save() {
+    /** `copy`: a new configuration from the settings on screen. `update`: the opened one takes them (edit: only name and description). */
+    function save(action: 'copy' | 'update' = mode === 'create' ? 'copy' : 'update') {
         setTouched(true);
-        if (trimmed === '' || mutation.isPending) return;
+        if (trimmed === '' || create.isPending || update.isPending) return;
+        setLastAction(action);
         const fields = { name: trimmed, description: description.trim() || null };
-        const onSuccess = () => {
-            toast.success(t(mode === 'create' ? 'practice:configs.toast.saved' : 'practice:configs.toast.updated'));
+        const done = (config: SavedConfig) => {
+            toast.success(t(action === 'copy' ? 'practice:configs.toast.saved' : 'practice:configs.toast.updated'));
             onOpenChange(false);
+            props.onSaved?.(config, props.draft);
         };
-        if (props.mode === 'create') {
-            create.mutate(
-                { ...fields, params: props.draft.params, wordIds: props.draft.wordIds, tagIds: props.draft.tagIds },
-                { onSuccess },
-            );
-        } else {
+        if (props.mode === 'edit') {
             const { config } = props;
             update.mutate(
                 { id: config.id, body: { ...fields, params: config.params, wordIds: config.wordIds, tagIds: config.tagIds } },
-                { onSuccess },
+                { onSuccess: done },
+            );
+        } else if (action === 'copy') {
+            const { draft } = props;
+            create.mutate({ ...fields, params: draft.params, wordIds: draft.wordIds, tagIds: draft.tagIds }, { onSuccess: done });
+        } else {
+            const { config, draft } = props as Extract<Props, { mode: 'revise' }>;
+            update.mutate(
+                { id: config.id, body: { ...fields, params: draft.params, wordIds: draft.wordIds, tagIds: draft.tagIds } },
+                { onSuccess: done },
             );
         }
     }
@@ -88,7 +103,13 @@ export function SaveConfigDialog(props: Props) {
             <DialogContent className="max-w-lg">
                 <DialogHeader>
                     <DialogTitle>
-                        {t(mode === 'create' ? 'practice:configs.dialog.createTitle' : 'practice:configs.dialog.editTitle')}
+                        {t(
+                            mode === 'create'
+                                ? 'practice:configs.dialog.createTitle'
+                                : mode === 'revise'
+                                  ? 'practice:configs.dialog.reviseTitle'
+                                  : 'practice:configs.dialog.editTitle',
+                        )}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -109,7 +130,7 @@ export function SaveConfigDialog(props: Props) {
                             onKeyDown={(event) => {
                                 if (event.key === 'Enter') {
                                     event.preventDefault();
-                                    save();
+                                    if (mode !== 'revise') save();
                                 }
                             }}
                         />
@@ -137,6 +158,7 @@ export function SaveConfigDialog(props: Props) {
                         />
                     </div>
 
+                    {mode === 'revise' && <p className="hint">{t('practice:configs.dialog.reviseHint')}</p>}
                     {mode === 'create' && props.draft.tagIds && (
                         <p className="hint">{t('practice:configs.dialog.withTags', { count: props.draft.tagIds.length })}</p>
                     )}
@@ -157,9 +179,20 @@ export function SaveConfigDialog(props: Props) {
                     <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                         {t('common:buttons.cancel')}
                     </Button>
-                    <Button type="button" disabled={mutation.isPending} onClick={save}>
-                        {mutation.isPending ? t('practice:configs.dialog.saving') : t('practice:configs.dialog.save')}
-                    </Button>
+                    {mode === 'revise' ? (
+                        <>
+                            <Button type="button" variant="outline" disabled={mutation.isPending} onClick={() => save('copy')}>
+                                {t('practice:configs.dialog.saveAsCopy')}
+                            </Button>
+                            <Button type="button" disabled={mutation.isPending} onClick={() => save('update')}>
+                                {mutation.isPending ? t('practice:configs.dialog.saving') : t('practice:configs.dialog.update')}
+                            </Button>
+                        </>
+                    ) : (
+                        <Button type="button" disabled={mutation.isPending} onClick={() => save()}>
+                            {mutation.isPending ? t('practice:configs.dialog.saving') : t('practice:configs.dialog.save')}
+                        </Button>
+                    )}
                 </DialogFooter>
             </DialogContent>
         </Dialog>

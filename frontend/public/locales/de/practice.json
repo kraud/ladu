@@ -385,7 +385,11 @@
       "withTags_one": "Diese Konfiguration enthält die Wörter von {{count}} Tag. Sie werden beim Laden neu gelesen.",
       "withTags_other": "Diese Konfiguration enthält die Wörter von {{count}} Tags. Sie werden beim Laden neu gelesen.",
       "save": "Speichern",
-      "saving": "Wird gespeichert…"
+      "saving": "Wird gespeichert…",
+      "reviseTitle": "Änderungen speichern",
+      "reviseHint": "Aktualisieren ersetzt die gespeicherten Einstellungen dieser Konfiguration. Als Kopie speichern lässt sie unverändert und legt eine neue Konfiguration mit einem anderen Namen an.",
+      "saveAsCopy": "Als Kopie speichern",
+      "update": "Aktualisieren"
     },
     "deleteDialog": {
       "title": "„{{name}}“ löschen?",

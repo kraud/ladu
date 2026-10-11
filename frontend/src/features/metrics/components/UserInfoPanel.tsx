@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { useUserMetrics } from '../hooks';
 import { incompletePercent, totalTranslations, translationsPerWord, wordsAddedThisMonth } from '../selectors';
+import { QuickActions } from './QuickActions';
 import { StatCard, StatCardSkeleton } from './StatCard';
 
 /**
@@ -12,6 +13,8 @@ import { StatCard, StatCardSkeleton } from './StatCard';
  * endpoint can't compute this without languages" (D10 — `getUserMetrics`
  * returns `incompleteWordsCount: 0` unconditionally for a language-less
  * account, which would otherwise render as a false 0%).
+ *
+ * Under the cards, on a desktop, `QuickActions` (random practice, new word); the phone menu has them there.
  */
 export function UserInfoPanel() {
     const { t } = useTranslation('dashboard');
@@ -24,6 +27,7 @@ export function UserInfoPanel() {
                 <StatCardSkeleton />
                 <StatCardSkeleton />
                 <StatCardSkeleton />
+                <QuickActions />
             </div>
         );
     }
@@ -55,6 +59,7 @@ export function UserInfoPanel() {
                     )
                 }
             />
+            <QuickActions />
         </div>
     );
 }

@@ -6,6 +6,10 @@ import { server } from '@/test/msw/server';
 import { EMPTY_METRICS, makeMetricsHandlers } from '@/test/msw/metricsHandlers';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
+import { makeExercise, makePracticeHandlers } from '@/test/msw/practiceHandlers';
+import { mockMobileViewport } from '@/test/viewport';
+import { usePracticeSessionStore } from '@/features/practice/sessionStore';
+import { defaultParams } from '@/features/practice/params';
 import { PartOfSpeech } from '@/ts/enums';
 import type { BasicUserMetricsBE } from '../types';
 import { monthLabel } from '../selectors';
@@ -163,5 +167,78 @@ describe('DashboardPage — MetricsPanel', () => {
         await userEvent.click(screen.getByRole('button', { name: /Adjective/ }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/addWord/adjective'));
+    });
+});
+
+describe('DashboardPage — quick actions', () => {
+    const quick = (name: string) => screen.queryByRole('button', { name });
+
+    it('on a desktop: two equal buttons under the stat cards, each a big icon with its label under it', async () => {
+        server.use(...makeMetricsHandlers(POPULATED).handlers);
+        await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+
+        const random = await screen.findByRole('button', { name: 'Random practice' });
+        const newWord = screen.getByRole('button', { name: 'New word' });
+        // One row, two halves.
+        expect(random.parentElement).toBe(newWord.parentElement);
+        expect(random.parentElement).toHaveClass('grid', 'grid-cols-2');
+        // Icon first (accent, decorative), the label under it.
+        for (const button of [random, newWord]) {
+            expect(button).toHaveClass('flex-col');
+            expect(button.firstElementChild?.querySelector('svg')).not.toBeNull();
+            expect(button.firstElementChild).toHaveClass('text-(--accent)');
+        }
+        // Under the last stat card: after the incomplete-words card in the same column.
+        const incomplete = (await screen.findByText('Incomplete words')).closest('.stat-card')!;
+        expect(incomplete.parentElement).toContainElement(random.parentElement as HTMLElement);
+        expect(incomplete.compareDocumentPosition(random) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('on a phone: not on the dashboard (the menu has them)', async () => {
+        mockMobileViewport();
+        server.use(...makeMetricsHandlers(POPULATED).handlers);
+        await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+
+        await screen.findByText('Incomplete words');
+        expect(quick('Random practice')).not.toBeInTheDocument();
+        expect(quick('New word')).not.toBeInTheDocument();
+    });
+
+    it('New word opens the Add word page', async () => {
+        server.use(...makeMetricsHandlers(POPULATED).handlers);
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+
+        await user.click(await screen.findByRole('button', { name: 'New word' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/addWord'));
+    });
+
+    it('Random practice starts a session with the default settings and opens Practice', async () => {
+        usePracticeSessionStore.getState().clear();
+        server.use(...makeMetricsHandlers(POPULATED).handlers);
+        const fake = makePracticeHandlers({ exercises: [makeExercise()] });
+        server.use(...fake.handlers);
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+
+        await user.click(await screen.findByRole('button', { name: 'Random practice' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/practice'));
+        expect(fake.state.generateBodies).toHaveLength(1);
+    });
+
+    it('Random practice asks first while a session is open, like the menu does', async () => {
+        server.use(...makeMetricsHandlers(POPULATED).handlers);
+        const fake = makePracticeHandlers({ exercises: [makeExercise({ key: 'new' })] });
+        server.use(...fake.handlers);
+        usePracticeSessionStore.getState().start({
+            userId: 'u1', params: defaultParams(['English', 'German']), wordIds: null, exercises: [makeExercise({ key: 'old' })],
+        });
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+
+        await user.click(await screen.findByRole('button', { name: 'Random practice' }));
+        expect(await screen.findByRole('button', { name: 'Leave session and delete' })).toBeInTheDocument();
+        expect(fake.state.generateBodies).toHaveLength(0);
+        usePracticeSessionStore.getState().clear();
     });
 });

@@ -16,9 +16,7 @@ import { LanguageSelector } from '@/components/layout/LanguageSelector';
 import { ThemeSelector } from '@/components/layout/ThemeSelector';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { featureFlags } from '@/app/feature-flags';
-import { LeaveSessionDialog } from '@/features/practice/components/LeaveSessionDialog';
-import { useSessionFor } from '@/features/practice/sessionStore';
-import { useQuickPractice } from '@/features/practice/useQuickPractice';
+import { useRandomPractice } from '@/features/practice/useRandomPractice';
 import { useEdgeSwipeOpen, useSwipeCloseProps } from '@/lib/useSwipe';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import { useAuthStore } from '@/stores/authStore';
@@ -161,22 +159,10 @@ export function AppHeader() {
     // On a phone, a swipe from the left edge opens the menu, and a swipe to the left closes it.
     useEdgeSwipeOpen(isMobile && !sheetOpen, openMenu);
     const swipeToClose = useSwipeCloseProps(() => setSheetOpen(false));
-    const quickPractice = useQuickPractice();
-    const user = useAuthStore((s) => s.user);
-    const session = useSessionFor(user?.id);
-    // A finished session (results) has all its answers saved: nothing to confirm.
-    const needsConfirm = session !== null && session.view !== 'results';
-    const [confirming, setConfirming] = useState(false);
-
-    function randomPractice() {
-        if (needsConfirm) {
-            // The menu closes first: two modal layers would fight for focus.
-            setSheetOpen(false);
-            setConfirming(true);
-        } else {
-            quickPractice.start(() => setSheetOpen(false));
-        }
-    }
+    const randomPractice = useRandomPractice();
+    // Closes the menu first when a running session needs confirming: two modal layers would fight for focus.
+    const startRandomPractice = () =>
+        randomPractice.run({ onBeforeConfirm: () => setSheetOpen(false), onStarted: () => setSheetOpen(false) });
 
     return (
         <header className="app-header">
@@ -208,8 +194,8 @@ export function AppHeader() {
                         />
                         <QuickActions
                             onDone={() => setSheetOpen(false)}
-                            onRandom={randomPractice}
-                            busy={quickPractice.isPending}
+                            onRandom={startRandomPractice}
+                            busy={randomPractice.isPending}
                         />
                         <div className="flex items-center justify-between border-t border-border pt-4">
                             <LanguageSelector />
@@ -228,17 +214,7 @@ export function AppHeader() {
 
                 <HeaderRight />
             </div>
-            {session && needsConfirm && (
-                <LeaveSessionDialog
-                    open={confirming}
-                    onOpenChange={setConfirming}
-                    session={session}
-                    onLeave={() => {
-                        setConfirming(false);
-                        quickPractice.start();
-                    }}
-                />
-            )}
+            {randomPractice.dialog}
         </header>
     );
 }

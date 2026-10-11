@@ -189,12 +189,12 @@
   "notFound": {
     "title": "No puedes ver esta etiqueta",
     "description": "Puede que ahora sea Privada, haya sido eliminada, o el enlace esté equivocado.",
-    "action": "Volver a /tags"
+    "action": "Volver a Etiquetas"
   },
   "view": {
     "by": "Por",
-    "backAriaLabel": "Volver a /tags",
-    "backLabel": "Volver a /tags",
+    "backAriaLabel": "Volver a Etiquetas",
+    "backLabel": "Volver a Etiquetas",
     "ownedHint": "Tu etiqueta",
     "ownedHintWithFollowers_one": "Tu etiqueta — {{count}} seguidor",
     "ownedHintWithFollowers_other": "Tu etiqueta — {{count}} seguidores",

@@ -218,3 +218,13 @@ Each slice starts with a plain-language overview, ends with something runnable, 
   Playwright waits for it to close. The session test therefore takes about 15 s and is marked `test.slow()`. A real user meets the same overlay for up to 5 s.
 - Gate results: backend 25 suites / 517 tests, frontend 113 files / 1286 tests, e2e: the 5 Phase 5.5 tests pass. See the Phase 5 close-out note for the
   8 failing `oauth-*` specs in the full e2e run.
+
+### Changing a saved configuration (2026-10-11)
+
+"Change settings first" (in the dialog that opens when a saved configuration is picked) now opens the set-up view **as that configuration**, not as a new one:
+
+- The page title is the saved name (not "New configuration"). `PracticePage` keeps `editing` = the configuration and its **baseline** (settings and words as loaded; for words chosen by tag, the tag ids). It is cleared by the back arrow and by "New configuration".
+- "Save configuration" is off until something differs from the baseline (`configChanged` in `configs.ts`: any setting, or the words; tag-chosen words are compared by their tags, because the words load later by themselves). Changing a value back switches it off again.
+- The save dialog (`SaveConfigDialog`, new mode `revise`) has the saved name and description filled in, a hint, and **Cancel / Save as copy / Update**. *Update* replaces the saved configuration (settings, words, name, description: `PUT`); *Save as copy* makes a new one (`POST`; a name that is taken stays an error under the field, so the copy needs another name) and leaves the original as it is. After either, the page shows the saved configuration's name and the baseline is what was just saved, so Save waits for the next change.
+- The rename-only dialog in the saved list (`mode="edit"`) and the plain save of a new configuration (`mode="create"`) are unchanged.
+- Tests: `PracticePage.revise.test.tsx`; e2e `practice-change-configuration.spec.ts`.
