@@ -675,6 +675,8 @@
        beats), while its part of the hint on the left is highlighted. On the phone all three are always shown, and
        all change on every beat. */
     var FEATURE_STEPS = WORDS.length;
+    /* How long the fill of a part of the hint stays full before the next preview comes. */
+    var FILL_HOLD_MS = 1500;
     var phoneQuery = window.matchMedia ? window.matchMedia('(max-width: 52rem)') : null;
 
     function isPhone() {
@@ -686,7 +688,13 @@
             dp.classList.toggle('is-current', dp.getAttribute('data-feature') === String(feature));
         });
         document.querySelectorAll('[data-feat]').forEach(function (part) {
-            part.classList.toggle('is-current', part.getAttribute('data-feat') === String(feature));
+            var on = part.getAttribute('data-feat') === String(feature);
+            part.classList.remove('is-current');
+            if (on) {
+                /* Off and on again, so the fill (a CSS animation) starts from the beginning. */
+                void part.offsetWidth;
+                part.classList.add('is-current');
+            }
         });
     }
 
@@ -695,36 +703,49 @@
         if (!terms.length) return;
         var stage = document.querySelector('[data-exercise]');
         var tagStage = document.querySelector('[data-tags]');
+        var parts = document.querySelectorAll('[data-feat]');
         var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
         if (stage) startExercises(stage, reduced);
         if (tagStage) startTags(tagStage, reduced);
-        if (reduced) return;
 
         var step = 0;
-        window.setInterval(function () {
+        var timer = null;
+        var switching = false;
+
+        /* The fill of the current part of the hint (style.css) takes the time of a feature, minus a short moment
+           at the end where the part stays full, before the next preview comes. */
+        var lead = document.querySelector('.lead');
+        if (lead) lead.style.setProperty('--feat-ms', FEATURE_STEPS * ROLL_MS - FILL_HOLD_MS + 'ms');
+
+        /* Desktop: the shown preview rolls out, the three go back to their first state while none is visible, and
+           the next one rolls in (the highlight and the fill change with it). */
+        function showFeature(feature) {
+            var shown = document.querySelector('[data-feature].is-current');
+            switching = true;
+            roll(shown, function () {
+                setFeature(feature);
+                terms.forEach(function (el) {
+                    setTerm(el, 0);
+                });
+                if (stage) setExercise(stage, 0);
+                if (tagStage) setTags(tagStage, 0);
+                /* The preview that comes in jumps to below with no transition, then settles. */
+                var next = document.querySelector('[data-feature].is-current');
+                next.classList.add('is-in');
+                void next.offsetWidth;
+                next.classList.remove('is-in');
+                switching = false;
+            });
+        }
+
+        function tick() {
             if (document.hidden) return;
             stopPlay();
             step += 1;
             var index = step % WORDS.length;
-            var feature = Math.floor(step / FEATURE_STEPS) % document.querySelectorAll('[data-feat]').length;
 
-            /* Desktop, when the next feature comes: the shown preview rolls out, the three go back to their first
-               state while none is visible, and the next one rolls in (the highlight changes with it). */
             if (!isPhone() && index === 0) {
-                var shown = document.querySelector('[data-feature].is-current');
-                roll(shown, function () {
-                    setFeature(feature);
-                    terms.forEach(function (el) {
-                        setTerm(el, index);
-                    });
-                    if (stage) setExercise(stage, index);
-                    if (tagStage) setTags(tagStage, index);
-                    /* The preview that comes in jumps to below with no transition, then settles. */
-                    var next = document.querySelector('[data-feature].is-current');
-                    next.classList.add('is-in');
-                    void next.offsetWidth;
-                    next.classList.remove('is-in');
-                });
+                showFeature(Math.floor(step / FEATURE_STEPS) % parts.length);
                 return;
             }
 
@@ -737,7 +758,42 @@
             });
             if (stage) roll(stage, function () { setExercise(stage, index); });
             if (tagStage) roll(tagStage, function () { setTags(tagStage, index); });
-        }, ROLL_MS);
+        }
+
+        function start() {
+            window.clearInterval(timer);
+            timer = window.setInterval(tick, ROLL_MS);
+        }
+
+        /* The parts of the hint are buttons (desktop): one jumps to its preview and the cycle starts again from
+           there. They are made buttons here, so that without script they stay plain text. With "reduce motion"
+           nothing turns by itself, so this is the only way to see the other previews. */
+        parts.forEach(function (part) {
+            var feature = Number(part.getAttribute('data-feat'));
+            part.setAttribute('role', 'button');
+            part.setAttribute('tabindex', '0');
+            function go() {
+                if (switching) return;
+                if (reduced) {
+                    setFeature(feature);
+                    return;
+                }
+                stopPlay();
+                step = feature * FEATURE_STEPS;
+                showFeature(feature);
+                start();
+            }
+            part.addEventListener('click', go);
+            part.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    go();
+                }
+            });
+        });
+
+        if (reduced) return;
+        start();
     }
 
     /* ---------- first render ---------- */

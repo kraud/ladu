@@ -500,20 +500,47 @@ h1 {
     display: none;
 }
 
-/* The hint on the desktop: the part that belongs to the preview now shown is highlighted (app.js moves
-   `.is-current`). The phone shows no `.lead`. */
+/* The hint on the desktop: each feature's part is a text-button (app.js) that shows its preview, and also the
+   progress bar of that preview. The part of the preview now shown (`.is-current`, moved by app.js) has a soft blue
+   background, and a darker blue fills it along the text (it follows the lines when the text wraps) for as long as the
+   preview stays (`--feat-ms`, set by app.js). When it is full, a moment later the next preview comes. The phone shows
+   no `.lead`. */
 .feat {
+    --feat-track: color-mix(in oklch, var(--accent) 13%, transparent);
+    --feat-fill: color-mix(in oklch, var(--accent) 30%, transparent);
     margin-inline: -0.25em;
     padding: 0.05em 0.25em;
     border-radius: 5px;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
-    transition: background 0.25s ease, color 0.25s ease;
+    background: linear-gradient(var(--feat-fill), var(--feat-fill)) 0 0 / 0% 100% no-repeat;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.feat[role='button'] {
+    cursor: pointer;
+}
+
+.feat[role='button']:hover {
+    color: var(--fg);
 }
 
 .feat.is-current {
-    background: color-mix(in oklch, var(--accent) 13%, transparent);
+    background-color: var(--feat-track);
     color: var(--fg);
+    animation: feat-fill var(--feat-ms, 18s) linear forwards;
+}
+
+@keyframes feat-fill {
+    to {
+        background-size: 100% 100%;
+    }
+}
+
+/* "Reduce motion": nothing fills; the current part is simply marked. */
+@media (prefers-reduced-motion: reduce) {
+    .feat.is-current {
+        animation: none;
+        background-color: var(--feat-fill);
+    }
 }
 
 /* The three previews (bubble, exercise card, tag card) share one place on the desktop, in the right column: the
@@ -545,12 +572,62 @@ h1 {
     }
 
     /* A card's own padding cannot use its own `cqw` (it counts the window here), so it is in rem. */
-    .exercise {
-        padding: 1.1rem 1.2rem 1rem;
+    .hero .exercise {
+        padding: 1.4rem 1.5rem 1.25rem;
     }
 
-    .tagcard {
-        padding: 1.2rem 1.25rem;
+    .hero .tagcard {
+        padding: 1.4rem 1.5rem;
+    }
+
+    /* The sizes of the texts in the two cards are capped (clamp) for the small cards of the phone. The desktop's
+       cards are about twice as wide, so here the texts follow the card's width (`cqw`) with no cap, and fill the
+       card as the words of the bubble do. */
+    .hero .ex-chip {
+        font-size: 3.9cqw;
+    }
+
+    .hero .ex-arrow {
+        width: 6cqw;
+        height: 6cqw;
+    }
+
+    .hero .ex-prompt {
+        font-size: 9.5cqw;
+    }
+
+    .hero .ex-opt {
+        font-size: 5.4cqw;
+    }
+
+    .hero .ex-input {
+        font-size: 6cqw;
+    }
+
+    .hero .tag-icon {
+        width: 7cqw;
+        height: 7cqw;
+    }
+
+    .hero .tag-name {
+        font-size: 8.5cqw;
+    }
+
+    .hero .tag-badge {
+        font-size: 3.5cqw;
+    }
+
+    .hero .tag-ico {
+        width: 3.8cqw;
+        height: 3.8cqw;
+    }
+
+    .hero .tag-word {
+        font-size: 4.7cqw;
+    }
+
+    .hero .tag-foot {
+        font-size: 3.6cqw;
     }
 }
 
