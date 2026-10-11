@@ -42,6 +42,14 @@
             leadB: 'Save each word once, with its translations in every language you know.',
             leadC: 'Then practise them together.',
             exerciseCard: 'Example exercise',
+            leadD: 'Group words into tags. Keep them private or share them.',
+            tagCard: 'Example tags',
+            tagPrivate: 'Private',
+            tagPublic: 'Public',
+            tagYours: 'Yours',
+            tagFollowing: 'Following',
+            tagWords: 'words',
+            tagFollowers: 'followers',
             open: 'Open',
             card: 'Example word: dance, in four languages',
             privacy: 'Privacy',
@@ -73,6 +81,14 @@
             leadB: 'Guarda cada palabra una sola vez, con sus traducciones en todos los idiomas que conoces.',
             leadC: 'Después, practícalas juntas.',
             exerciseCard: 'Ejercicio de ejemplo',
+            leadD: 'Agrupa palabras en etiquetas. Mantenlas privadas o compártelas.',
+            tagCard: 'Etiquetas de ejemplo',
+            tagPrivate: 'Privada',
+            tagPublic: 'Pública',
+            tagYours: 'Tuya',
+            tagFollowing: 'Siguiendo',
+            tagWords: 'palabras',
+            tagFollowers: 'seguidores',
             open: 'Abrir',
             card: 'Palabra de ejemplo: «dance», en cuatro idiomas',
             privacy: 'Privacidad',
@@ -104,6 +120,14 @@
             leadB: 'Speichere jedes Wort einmal, mit seinen Übersetzungen in allen Sprachen, die du kennst.',
             leadC: 'Übe sie dann gemeinsam.',
             exerciseCard: 'Beispielübung',
+            leadD: 'Fasse Wörter in Tags zusammen. Halte sie privat oder teile sie.',
+            tagCard: 'Beispiel-Tags',
+            tagPrivate: 'Privat',
+            tagPublic: 'Öffentlich',
+            tagYours: 'Deine',
+            tagFollowing: 'Folge ich',
+            tagWords: 'Wörter',
+            tagFollowers: 'Follower',
             open: 'Öffnen',
             card: 'Beispielwort: „dance“ in vier Sprachen',
             privacy: 'Datenschutz',
@@ -135,6 +159,14 @@
             leadB: 'Salvesta iga sõna ainult üks kord koos tõlgetega kõigis keeltes, mida oskad.',
             leadC: 'Seejärel harjuta neid koos.',
             exerciseCard: 'Näidisharjutus',
+            leadD: 'Koonda sõnad tagidesse. Hoia need privaatsena või jaga neid.',
+            tagCard: 'Näidistagid',
+            tagPrivate: 'Privaatne',
+            tagPublic: 'Avalik',
+            tagYours: 'Sinu',
+            tagFollowing: 'Jälgin',
+            tagWords: 'sõna',
+            tagFollowers: 'jälgijat',
             open: 'Ava',
             card: 'Näitesõna: „dance“ neljas keeles',
             privacy: 'Privaatsus',
@@ -452,7 +484,7 @@
        motion get the first word and no rolling; a hidden tab skips the turn. */
     var WORDS = [
         { en: 'dance', es: 'bailar', de: 'tanzen', ee: 'tantsima' },
-        { en: 'house', es: 'casa', de: 'Haus', ee: 'maja' },
+        { en: 'house', es: 'casa', de: 'Haus', ee: 'maja', gender: { es: 'la', de: 'das' } },
         { en: 'pretty', es: 'bonito', de: 'hübsch', ee: 'ilus' },
         { en: 'very', es: 'muy', de: 'sehr', ee: 'väga' },
     ];
@@ -587,7 +619,6 @@
 
     function turnExercise(stage, index) {
         var panels = exercisePanels(stage);
-        stopPlay();
         roll(stage, function () {
             panels.forEach(function (panel, i) {
                 resetPanel(panel);
@@ -597,26 +628,81 @@
         });
     }
 
+    /* The tag card (phone): three tags that turn on the same beat. The words of the tag that comes in appear one
+       after the other. While `data-anim` is on the stage, CSS hides the words until they get `.is-shown`. */
+    var TAG_WORD_MS = 190;
+
+    function tagPanels(stage) {
+        return Array.prototype.slice.call(stage.querySelectorAll('.tag-panel'));
+    }
+
+    function resetTagPanel(panel) {
+        panel.querySelectorAll('.tag-word').forEach(function (word) {
+            word.classList.remove('is-shown');
+        });
+    }
+
+    function playTagPanel(panel) {
+        panel.querySelectorAll('.tag-word').forEach(function (word, i) {
+            later(function () {
+                word.classList.add('is-shown');
+            }, PLAY_DELAY_MS + i * TAG_WORD_MS);
+        });
+    }
+
+    function startTags(stage, reduced) {
+        if (reduced) return;
+        stage.setAttribute('data-anim', '');
+        var panels = tagPanels(stage);
+        panels.forEach(resetTagPanel);
+        playTagPanel(panels[0]);
+    }
+
+    function turnTags(stage, index) {
+        var panels = tagPanels(stage);
+        var next = index % panels.length;
+        roll(stage, function () {
+            panels.forEach(function (panel, i) {
+                resetTagPanel(panel);
+                panel.classList.toggle('is-active', i === next);
+            });
+            playTagPanel(panels[next]);
+        });
+    }
+
     function rollWords() {
         var terms = document.querySelectorAll('[data-term]');
         if (!terms.length) return;
         var stage = document.querySelector('[data-exercise]');
+        var tagStage = document.querySelector('[data-tags]');
         var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
         if (stage) startExercises(stage, reduced);
+        if (tagStage) startTags(tagStage, reduced);
         if (reduced) return;
 
         var index = 0;
+        var tagIndex = 0;
         window.setInterval(function () {
             if (document.hidden) return;
+            stopPlay();
             index = (index + 1) % WORDS.length;
             terms.forEach(function (el, row) {
                 window.setTimeout(function () {
                     roll(el, function () {
-                        el.textContent = WORDS[index][el.getAttribute('data-term')];
+                        var code = el.getAttribute('data-term');
+                        el.textContent = WORDS[index][code];
+                        /* A noun shows its gender (a badge, phone only); the other words show none. */
+                        var badge = document.querySelector('[data-gender="' + code + '"]');
+                        if (badge) {
+                            var gender = WORDS[index].gender && WORDS[index].gender[code];
+                            badge.textContent = gender || '';
+                            badge.classList.toggle('is-on', !!gender);
+                        }
                     });
                 }, row * ROW_DELAY_MS);
             });
             if (stage) turnExercise(stage, index);
+            if (tagStage) turnTags(tagStage, ++tagIndex);
         }, ROLL_MS);
     }
 

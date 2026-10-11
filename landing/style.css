@@ -404,6 +404,12 @@ h1 {
 .lang-de { --lang-color: var(--lang-de); }
 .lang-ee { --lang-color: var(--lang-ee); }
 
+/* The gender of a noun, a small badge at the end of its row (the Spanish and German words of the bubble, when the word
+   is a noun: casa - la, Haus - das). app.js fills it and shows it; the phone only. */
+.gender {
+    display: none;
+}
+
 .code {
     min-width: 6cqw;
     font-size: clamp(0.62rem, 2.9cqw, 0.8rem);
@@ -433,6 +439,10 @@ h1 {
     transition: transform 0.22s ease, opacity 0.22s ease;
 }
 
+.roll-x {
+    transition-duration: 0.3s;
+}
+
 .is-out {
     transform: translateY(-0.7em);
     opacity: 0;
@@ -442,6 +452,18 @@ h1 {
     transform: translateY(0.7em);
     opacity: 0;
     transition: none;
+}
+
+/* The exercise card scrolls sideways instead: the old content goes out to the left, the new one comes in from the
+   right. The card (.exercise) clips it, so nothing shows outside the card. */
+.roll-x.is-out {
+    transform: translateX(calc(-100% - 6cqw));
+    opacity: 0;
+}
+
+.roll-x.is-in {
+    transform: translateX(calc(100% + 6cqw));
+    opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -454,7 +476,8 @@ h1 {
 /* Phone-only parts: the hint's three parts and the exercise card. The desktop has none of them. */
 .m-lead,
 .m-text,
-.exercise {
+.exercise,
+.tagcard {
     display: none;
 }
 
@@ -634,6 +657,8 @@ main.legal {
    under each are that word's recent answers, each with its own history. */
 .exercise {
     container-type: inline-size;
+    /* The card clips what slides in and out (the stage moves, so it cannot clip itself). */
+    overflow: hidden;
     padding: 4cqw 4.5cqw 3.5cqw;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -824,6 +849,168 @@ main.legal {
     border-color: var(--bad);
 }
 
+/* The tag card (phone): a tag as the Tags page of the app shows it, simplified. Three tags turn on the same beat
+   as the other features (app.js); the panels sit in one grid cell, the hidden ones invisible, so the card keeps one
+   height. The words of a tag come in one after the other (`.is-shown`, added by app.js; without script, or with
+   "reduce motion", they are all there). Each word shows 3 or 4 of its translations in the colour of their language. */
+.tagcard {
+    container-type: inline-size;
+    padding: 4.5cqw 5cqw;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 18px -14px rgb(0 0 0 / 0.3);
+}
+
+.tag-stage {
+    display: grid;
+    overflow: hidden;
+}
+
+.tag-panel {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2.6cqw;
+    visibility: hidden;
+}
+
+.tag-panel.is-active {
+    visibility: visible;
+}
+
+.tag-head {
+    display: flex;
+    align-items: center;
+    gap: 2cqw;
+    min-width: 0;
+}
+
+.tag-icon {
+    flex: none;
+    width: clamp(0.9rem, 6cqw, 1.25rem);
+    height: clamp(0.9rem, 6cqw, 1.25rem);
+    color: var(--accent);
+}
+
+.tag-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 7.2cqw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.15;
+}
+
+.tag-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.6cqw;
+}
+
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 1cqw;
+    padding: 0.7cqw 2.2cqw;
+    border-radius: 999px;
+    background: var(--fg-soft);
+    font-size: clamp(0.58rem, 3cqw, 0.72rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.tag-badge.is-yours {
+    background: color-mix(in oklch, var(--accent) 14%, transparent);
+    color: var(--accent);
+}
+
+.tag-badge.is-following {
+    background: color-mix(in oklch, var(--lang-gb) 14%, transparent);
+    color: var(--lang-gb);
+}
+
+.tag-badge.is-public {
+    background: color-mix(in oklch, var(--ok) 14%, transparent);
+    color: var(--ok);
+}
+
+.tag-ico {
+    flex: none;
+    width: clamp(0.62rem, 3.2cqw, 0.8rem);
+    height: clamp(0.62rem, 3.2cqw, 0.8rem);
+}
+
+.tag-words {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2cqw;
+}
+
+.tag-word {
+    display: flex;
+    align-items: baseline;
+    gap: 0 1.6cqw;
+    padding: 1.8cqw 2.6cqw;
+    border-radius: 6px;
+    background: var(--fg-soft);
+    font-family: var(--font-display);
+    font-size: clamp(0.62rem, 4.3cqw, 0.95rem);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* The translations of a word, each in the colour of its language, with a small dot between them. */
+.tag-word > span {
+    color: var(--lang-color);
+}
+
+.tag-word > span + span::before {
+    content: '·';
+    margin-right: 1.6cqw;
+    color: var(--muted);
+}
+
+.tag-word > .lang-gb {
+    font-weight: 600;
+}
+
+/* With script (and motion), the words wait (`data-anim`) until their turn. */
+[data-anim] .tag-word {
+    opacity: 0;
+    transform: translateY(0.5em);
+}
+
+[data-anim] .tag-word.is-shown {
+    opacity: 1;
+    transform: none;
+}
+
+.tag-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 2cqw;
+    padding-top: 2cqw;
+    border-top: 1px solid var(--border);
+    font-size: clamp(0.58rem, 3.1cqw, 0.74rem);
+    color: var(--muted);
+}
+
+.tag-foot > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 1cqw;
+}
+
+.tag-foot b {
+    color: var(--fg);
+}
+
 /* Phone (the width where the hero already becomes one column). The home page has no header here. The
    hero is a grid; its rows, top to bottom:
      the logo (wordmark and bubble), centred / the title, one line / the belt of language flags /
@@ -846,21 +1033,24 @@ main.legal {
     .hero {
         width: 100%;
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-rows: repeat(6, auto) 1fr auto auto;
+        /* Ten equal columns: feature 1 uses 5 + 5; features 2 and 3 (the exercise card and the tags) 6 + 4 and 4 + 6,
+           so their cards are 60% of the width. Five columns plus their four gaps are exactly half of the row minus half a gap. */
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+        grid-template-rows: repeat(7, auto) 1fr auto auto;
         grid-template-areas:
-            'mark mark'
-            'title title'
-            'flags flags'
-            'lead lead'
-            'text1 visual1'
-            'visual2 text2'
-            '. .'
-            'actions actions'
-            'controls controls';
+            'mark mark mark mark mark mark mark mark mark mark'
+            'title title title title title title title title title title'
+            'flags flags flags flags flags flags flags flags flags flags'
+            'lead lead lead lead lead lead lead lead lead lead'
+            'text1 text1 text1 text1 text1 visual1 visual1 visual1 visual1 visual1'
+            'visual2 visual2 visual2 visual2 visual2 visual2 text2 text2 text2 text2'
+            'text3 text3 text3 text3 visual3 visual3 visual3 visual3 visual3 visual3'
+            '. . . . . . . . . .'
+            'actions actions actions actions actions actions actions actions actions actions'
+            'controls controls controls controls controls controls controls controls controls controls';
         gap: 1.25rem 1rem;
-        /* Room above the logo, so the rows sit nearer the middle of the screen. */
-        padding-block: clamp(2rem, 11vh, 5rem) 1.25rem;
+        /* Only a little room above the logo (there is no header). */
+        padding-block: 1rem 1.25rem;
     }
 
     .hero-copy,
@@ -971,13 +1161,49 @@ main.legal {
         border-radius: 5px;
     }
 
-    /* Feature 2: the small exercise card beside its sentence. */
+    .gender {
+        display: inline-flex;
+        align-items: center;
+        margin-left: auto;
+        padding: 0.4cqw 2cqw;
+        border-radius: 999px;
+        background: color-mix(in oklch, var(--lang-color) 14%, transparent);
+        font-size: clamp(0.55rem, 2.9cqw, 0.7rem);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--lang-color);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+
+    .gender:empty {
+        display: none;
+    }
+
+    .gender.is-on {
+        opacity: 1;
+    }
+
+    /* Feature 3: the tag card, 60% of the row, with its hint beside it. */
+    .m-text-3 {
+        grid-area: text3;
+    }
+
+    .tagcard {
+        grid-area: visual3;
+        display: block;
+        width: 100%;
+        max-width: none;
+        justify-self: stretch;
+    }
+
+    /* Feature 2: the exercise card, 60% of the row, with its sentence beside it. */
     .exercise {
         grid-area: visual2;
         display: block;
         width: 100%;
-        max-width: 16rem;
-        justify-self: start;
+        max-width: none;
+        justify-self: stretch;
     }
 
     .actions {
