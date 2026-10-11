@@ -526,7 +526,7 @@ h1 {
 .feat.is-current {
     background-color: var(--feat-track);
     color: var(--fg);
-    animation: feat-fill var(--feat-ms, 18s) linear forwards;
+    animation: feat-fill var(--feat-ms, 10s) linear forwards;
 }
 
 @keyframes feat-fill {

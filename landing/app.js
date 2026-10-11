@@ -675,8 +675,12 @@
        beats), while its part of the hint on the left is highlighted. On the phone all three are always shown, and
        all change on every beat. */
     var FEATURE_STEPS = WORDS.length;
-    /* How long the fill of a part of the hint stays full before the next preview comes. */
-    var FILL_HOLD_MS = 1500;
+    /* The fill of the current part of the hint (style.css) takes FILL_MS and then stays full for FILL_HOLD_MS before the
+       next preview comes. The preview takes OUT_MS to roll out before the fill starts, so a feature lasts the three
+       together, and each of its states lasts a quarter of that. The phone keeps ROLL_MS. */
+    var FILL_MS = 10000;
+    var FILL_HOLD_MS = 500;
+    var DESKTOP_ROLL_MS = (FILL_MS + FILL_HOLD_MS + OUT_MS) / FEATURE_STEPS;
     var phoneQuery = window.matchMedia ? window.matchMedia('(max-width: 52rem)') : null;
 
     function isPhone() {
@@ -712,10 +716,8 @@
         var timer = null;
         var switching = false;
 
-        /* The fill of the current part of the hint (style.css) takes the time of a feature, minus a short moment
-           at the end where the part stays full, before the next preview comes. */
         var lead = document.querySelector('.lead');
-        if (lead) lead.style.setProperty('--feat-ms', FEATURE_STEPS * ROLL_MS - FILL_HOLD_MS + 'ms');
+        if (lead) lead.style.setProperty('--feat-ms', FILL_MS + 'ms');
 
         /* Desktop: the shown preview rolls out, the three go back to their first state while none is visible, and
            the next one rolls in (the highlight and the fill change with it). */
@@ -760,9 +762,17 @@
             if (tagStage) roll(tagStage, function () { setTags(tagStage, index); });
         }
 
+        /* The time to the next beat, now: the window may have changed between phone and desktop. */
+        function beat() {
+            return isPhone() ? ROLL_MS : DESKTOP_ROLL_MS;
+        }
+
         function start() {
-            window.clearInterval(timer);
-            timer = window.setInterval(tick, ROLL_MS);
+            window.clearTimeout(timer);
+            timer = window.setTimeout(function next() {
+                tick();
+                timer = window.setTimeout(next, beat());
+            }, beat());
         }
 
         /* The parts of the hint are buttons (desktop): one jumps to its preview and the cycle starts again from
