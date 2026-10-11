@@ -886,6 +886,101 @@ describe('one sense with its words (Slice G, G2: GET /api/dictionary/translate/s
     });
 });
 
+describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
+    const draft = (body) => request(app).post('/api/dictionary/draft').set('Authorization', `Bearer ${token}`).send(body);
+    const casesOf = (translation) => Object.fromEntries(translation.cases.map(({ caseName, word }) => [caseName, word]));
+    const originalFetch = global.fetch;
+    const saved = {};
+
+    beforeAll(() => {
+        for (const key of ['EKILEX_API_URL', 'EKILEX_API_KEY']) saved[key] = process.env[key];
+        process.env.EKILEX_API_URL = 'https://ekilex.test';
+        process.env.EKILEX_API_KEY = 'test-key';
+    });
+    afterAll(() => {
+        for (const [key, value] of Object.entries(saved)) {
+            if (value === undefined) delete process.env[key];
+            else process.env[key] = value;
+        }
+    });
+    beforeEach(async () => {
+        for (const file of [FIXTURE, ES_FIXTURE, EN_FIXTURE, ET_FIXTURE]) await loadLexiconFile(pool, file);
+        global.fetch = jest.fn(async () => { throw new Error('Ekilex must not be asked'); });
+    });
+    afterEach(() => { global.fetch = originalFetch; });
+
+    it('one call fills every language: the forms of each picked word, in the order of the picks', async () => {
+        const res = await draft({
+            partOfSpeech: 'Noun',
+            picks: [
+                { language: 'Spanish', word: 'casa', gender: 'la' },
+                { language: 'German', word: 'Haus', gender: 'das' },
+                { language: 'Estonian', word: 'maja' },
+                { language: 'English', word: 'house' },
+            ],
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.translations.map((t) => [t.language, t.word, t.status])).toEqual([
+            ['Spanish', 'casa', 'found'], ['German', 'Haus', 'found'], ['Estonian', 'maja', 'found'], ['English', 'house', 'found'],
+        ]);
+        expect(res.body.translations[0].gender).toBe('la');
+        expect(casesOf(res.body.translations[1])).toMatchObject({ genderDE: 'das', singularNominativDE: 'Haus' });
+        expect(casesOf(res.body.translations[3])).toEqual({ singularEN: 'house', pluralEN: 'houses' });
+    });
+
+    it('the gender chooses between homographs: die See / der See, la mano / el mano', async () => {
+        const genderOf = async (language, word, gender, key) =>
+            casesOf((await draft({ partOfSpeech: 'Noun', picks: [{ language, word, gender }] })).body.translations[0])[key];
+        expect(await genderOf('German', 'See', 'die', 'genderDE')).toBe('die');
+        expect(await genderOf('German', 'See', 'der', 'genderDE')).toBe('der');
+        expect(await genderOf('Spanish', 'mano', 'la', 'genderES')).toBe('la');
+        expect(await genderOf('Spanish', 'mano', 'el', 'genderES')).toBe('el');
+    });
+
+    it('a gender that no entry has, or no gender: the usual main-sense choice', async () => {
+        const main = async (picks) => casesOf((await draft({ partOfSpeech: 'Noun', picks })).body.translations[0]).genderDE;
+        expect(await main([{ language: 'German', word: 'Haus', gender: 'die' }])).toBe('das');
+        expect(await main([{ language: 'German', word: 'See' }])).toBe('der');
+    });
+
+    it('a word with no entry: not-found, no cases (English nouns have no library to guess with)', async () => {
+        const res = await draft({ partOfSpeech: 'Noun', picks: [{ language: 'English', word: 'zzyzx', gender: undefined }] });
+        expect(res.body.translations[0]).toEqual({ language: 'English', word: 'zzyzx', status: 'not-found', cases: [] });
+    });
+
+    it('a lookup that fails comes back as "error"; the other languages still fill', async () => {
+        global.fetch = jest.fn(async () => ({ ok: false, status: 503, json: async () => ({}) }));
+        const res = await draft({
+            partOfSpeech: 'Noun',
+            picks: [{ language: 'German', word: 'Haus', gender: 'das' }, { language: 'Estonian', word: 'tundmatu' }],
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.translations.map((t) => t.status)).toEqual(['found', 'error']);
+        expect(res.body.translations[1].cases).toEqual([]);
+        expect(res.body.translations[0].cases.length).toBeGreaterThan(0);
+    });
+
+    it('works for the other parts of speech too (a verb)', async () => {
+        const res = await draft({ partOfSpeech: 'Verb', picks: [{ language: 'Spanish', word: 'bailar' }, { language: 'Estonian', word: 'tantsima' }] });
+        expect(res.body.translations.map((t) => t.status)).toEqual(['found', 'found']);
+    });
+
+    it('400 for a bad part of speech, language, repeated language, word or number of picks; 401 without a token', async () => {
+        const ok = { language: 'German', word: 'Haus' };
+        expect((await draft({ partOfSpeech: 'Preposition', picks: [ok] })).statusCode).toBe(400);
+        expect((await draft({ partOfSpeech: 'Noun', picks: [] })).statusCode).toBe(400);
+        expect((await draft({ partOfSpeech: 'Noun' })).statusCode).toBe(400);
+        expect((await draft({ partOfSpeech: 'Noun', picks: [{ ...ok, language: 'Klingon' }] })).statusCode).toBe(400);
+        expect((await draft({ partOfSpeech: 'Noun', picks: [ok, ok] })).statusCode).toBe(400);
+        expect((await draft({ partOfSpeech: 'Noun', picks: [{ ...ok, word: ' ' }] })).statusCode).toBe(400);
+        expect((await draft({ partOfSpeech: 'Noun', picks: [{ ...ok, word: 'a'.repeat(101) }] })).statusCode).toBe(400);
+        expect((await draft({ partOfSpeech: 'Noun', picks: [{ ...ok, gender: 'x'.repeat(9) }] })).statusCode).toBe(400);
+        const five = ['English', 'Spanish', 'German', 'Estonian', 'English'].map((language) => ({ language, word: 'x' }));
+        expect((await draft({ partOfSpeech: 'Noun', picks: five })).statusCode).toBe(400);
+        expect((await request(app).post('/api/dictionary/draft').send({ partOfSpeech: 'Noun', picks: [ok] })).statusCode).toBe(401);
+    });
+});
+
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
         expect((await lookup('English/Preposition/in')).statusCode).toBe(400);

@@ -8,6 +8,7 @@ const { HttpError }: typeof import('../lib/httpError') = require('../lib/httpErr
 const { findAdapter }: typeof import('../services/dictionary/registry') = require('../services/dictionary/registry');
 const { lexiconSuggestions }: typeof import('../services/dictionary/lexicon') = require('../services/dictionary/lexicon');
 const translation: typeof import('../services/dictionary/translate') = require('../services/dictionary/translate');
+const draftService: typeof import('../services/dictionary/draft') = require('../services/dictionary/draft');
 
 const MAX_QUERY_LENGTH = 100;
 const MIN_PREFIX_LENGTH = 2;
@@ -158,4 +159,35 @@ const senseOfKey = asyncHandler(async (req: any, res: any) => {
     res.status(200).json(result);
 });
 
-module.exports = { lookup, suggest, translate, suggestSenses, senseOfKey };
+const MAX_PICKS = 4;
+
+// @desc    The draft of a Word (autocomplete-data-source-strategy.md Slice G, step G3): the forms of the
+//          word chosen for each language, in one call. Reads only (a POST because of the body); the
+//          Word is saved later by POST /api/words.
+// @route   POST /api/dictionary/draft
+//          body { partOfSpeech, picks: [{ language, word, gender? }] }  (1 to 4 picks, one per language)
+// @access  Private
+// @returns 200 { translations: [{ language, word, gender?, status: 'found' | 'partial' | 'not-found' | 'error', cases: [{ caseName, word }] }] }
+//          (one entry per pick, same order; `error`: that lookup failed, the others are unaffected)
+//          400 an unknown part of speech or language, a repeated language, an empty or too long word, or not 1 to 4 picks
+const draft = asyncHandler(async (req: any, res: any) => {
+    const { partOfSpeech, picks } = req.body ?? {};
+    const valid =
+        translation.TRANSLATE_PARTS_OF_SPEECH.includes(partOfSpeech) &&
+        Array.isArray(picks) && picks.length >= 1 && picks.length <= MAX_PICKS &&
+        new Set(picks.map((pick: any) => pick?.language)).size === picks.length &&
+        picks.every(
+            (pick: any) =>
+                (translation.TRANSLATE_LANGUAGES as readonly string[]).includes(pick?.language) &&
+                typeof pick.word === 'string' && pick.word.trim() !== '' && pick.word.length <= MAX_QUERY_LENGTH &&
+                (pick.gender === undefined || (typeof pick.gender === 'string' && pick.gender.length <= 8)),
+        );
+    if (!valid) {
+        res.status(400);
+        throw new Error('A part of speech and 1 to 4 picks (one per language, each with a word of 1 to 100 characters) are required');
+    }
+    const clean = picks.map((pick: any) => ({ language: pick.language, word: pick.word.trim(), gender: pick.gender || undefined }));
+    res.status(200).json({ translations: await draftService.draft(partOfSpeech, clean) });
+});
+
+module.exports = { lookup, suggest, translate, suggestSenses, senseOfKey, draft };

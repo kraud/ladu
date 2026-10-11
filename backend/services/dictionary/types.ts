@@ -25,6 +25,11 @@ export interface LookupOptions {
     searchInEnglish?: boolean;
     /** A type-ahead pick (Slice E): the `lexemes` row to return, instead of the D15 choice. */
     entryId?: string;
+    /**
+     * A translation's noun gender (Slice G draft): der / die / das, el / la. Among the lexicon rows of
+     * a homograph ("See", "mano"), the row with this article wins; with no match the usual choice stays.
+     */
+    gender?: string;
 }
 
 /** One data source for one (language, part of speech) pair. */

@@ -1,8 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const { lookup, suggest, translate, suggestSenses, senseOfKey } = require('../controllers/dictionaryController.ts')
+const { lookup, suggest, translate, suggestSenses, senseOfKey, draft } = require('../controllers/dictionaryController.ts')
 const { protect } = require('../middleware/authMiddleware.ts')
 
+router.post('/draft', protect, draft)
 // '/translate/:fromLanguage' must come before '/:language/:partOfSpeech' (it would match that path).
 router.get('/translate/:fromLanguage', protect, suggestSenses)
 // 'translate/sense/Noun' also fits the 3-segment lookup route '/:language/:partOfSpeech/:query': keep it above that one.

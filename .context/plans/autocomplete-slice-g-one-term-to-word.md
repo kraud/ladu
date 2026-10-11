@@ -151,6 +151,16 @@ row; 400 for a bad part of speech, language, English word or number. Jest: 7 new
 
 ### G3 — Draft route (backend)
 
+**DONE 2026-10-11.** `services/dictionary/draft.ts`, controller `draft`, `POST /api/dictionary/draft`.
+`LookupOptions.gender` (types.ts); `lexiconAdapter` narrows the D15 choice with it: of the non-stub
+rows, the one whose `genderDE` / `genderES` equals the gender; no match → the usual choice. Only
+German and Spanish nouns use it (English and Estonian nouns have no article). The library
+fallbacks ignore the gender. Each pick runs in parallel through the normal chain (`findAdapter`);
+a throw gives `status: 'error'` for that language only (logged on the server). The answer keeps
+the order of the picks and echoes `language`, `word` and `gender`. A pair with no adapter gives
+`not-found`. 400 for a bad part of speech, language, a repeated language, an empty or too long word
+or gender, or not 1 to 4 picks. Jest: 7 new tests (including der/die "See" and la/el "mano").
+
 `POST /api/dictionary/draft` with `{ partOfSpeech, picks: [{ language, word, gender? }] }` (1 to 4
 picks) → `{ translations: [{ language, word, status, cases }] }`.
 It is a POST only because of the body. It reads and changes nothing.
