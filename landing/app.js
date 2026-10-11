@@ -456,7 +456,7 @@
         { en: 'pretty', es: 'bonito', de: 'hübsch', ee: 'ilus' },
         { en: 'very', es: 'muy', de: 'sehr', ee: 'väga' },
     ];
-    var ROLL_MS = 4000;
+    var ROLL_MS = 5000;
     /* true: all four rows change at the same moment. false: one row after the other, a short delay apart. */
     var ROLL_ROWS_TOGETHER = true;
     var ROW_DELAY_MS = ROLL_ROWS_TOGETHER ? 0 : 140;
@@ -477,23 +477,134 @@
     }
 
     /* The small exercise cards (phone): one for each word of the bubble, in the same order. On the beat that
-       changes the words, the card that belongs to the new word comes in. All the panels are in the page; only
-       the active one is visible. */
+       changes the words, the card that belongs to the new word comes in, and is played as if someone were
+       answering it (see index.html): half a second after it appears the answer is chosen or typed, then the
+       choice or input turns green or red and the fourth dot takes the colour. All the panels are in the page;
+       only the active one is visible. */
+    var PLAY_DELAY_MS = 500;
+    var TYPE_MS = 120;
+    var RESULT_DELAY_MS = 280;
+    var PICK_MS = 380;
+    var playTimers = [];
+
+    function later(fn, ms) {
+        playTimers.push(window.setTimeout(fn, ms));
+    }
+
+    function stopPlay() {
+        playTimers.forEach(window.clearTimeout);
+        playTimers = [];
+    }
+
+    function lastDot(panel) {
+        var dots = panel.querySelectorAll('.ex-dots i');
+        return dots[dots.length - 1];
+    }
+
+    /* The card as a question not yet answered. */
+    function resetPanel(panel) {
+        panel.querySelectorAll('.ex-opt').forEach(function (opt) {
+            opt.classList.remove('is-picking', 'is-right', 'is-wrong');
+        });
+        var input = panel.querySelector('.ex-input');
+        if (input) {
+            input.classList.remove('is-right', 'is-wrong', 'is-typing');
+            panel.querySelector('.ex-answer').textContent = '';
+        }
+        lastDot(panel).classList.remove('is-good', 'is-bad');
+    }
+
+    /* Shows the result: the chosen option or the input in its colour, and the fourth dot. */
+    function showResult(panel) {
+        var cls = panel.getAttribute('data-result') === 'right' ? 'is-right' : 'is-wrong';
+        var pick = panel.getAttribute('data-pick');
+        if (pick) {
+            panel.querySelectorAll('.ex-opt').forEach(function (opt) {
+                opt.classList.remove('is-picking');
+                if (opt.textContent === pick) opt.classList.add(cls);
+            });
+        }
+        var input = panel.querySelector('.ex-input');
+        if (input) {
+            input.classList.remove('is-typing');
+            input.classList.add(cls);
+        }
+        lastDot(panel).classList.add(cls === 'is-right' ? 'is-good' : 'is-bad');
+    }
+
+    /* The finished card at once (visitors who asked for less motion). */
+    function settlePanel(panel) {
+        var word = panel.getAttribute('data-type');
+        if (word) panel.querySelector('.ex-answer').textContent = word;
+        showResult(panel);
+    }
+
+    function playPanel(panel) {
+        var word = panel.getAttribute('data-type');
+        if (!word) {
+            /* Multiple choice: the option is pressed, then it takes its colour and the dot follows. */
+            var pick = panel.getAttribute('data-pick');
+            later(function () {
+                panel.querySelectorAll('.ex-opt').forEach(function (opt) {
+                    if (opt.textContent === pick) opt.classList.add('is-picking');
+                });
+            }, PLAY_DELAY_MS);
+            later(function () {
+                showResult(panel);
+            }, PLAY_DELAY_MS + PICK_MS);
+            return;
+        }
+        /* Typed answer: the word appears letter by letter, then the result. */
+        var input = panel.querySelector('.ex-input');
+        var answer = panel.querySelector('.ex-answer');
+        later(function () {
+            input.classList.add('is-typing');
+        }, PLAY_DELAY_MS - 100);
+        for (var i = 1; i <= word.length; i++) {
+            (function (n) {
+                later(function () {
+                    answer.textContent = word.slice(0, n);
+                }, PLAY_DELAY_MS + n * TYPE_MS);
+            })(i);
+        }
+        later(function () {
+            showResult(panel);
+        }, PLAY_DELAY_MS + word.length * TYPE_MS + RESULT_DELAY_MS);
+    }
+
+    function exercisePanels(stage) {
+        return Array.prototype.slice.call(stage.querySelectorAll('.ex-panel'));
+    }
+
+    /* First card: unanswered, then played (or finished at once with reduced motion). */
+    function startExercises(stage, reduced) {
+        var panels = exercisePanels(stage);
+        panels.forEach(resetPanel);
+        var first = panels[0];
+        if (reduced) settlePanel(first);
+        else playPanel(first);
+    }
+
     function turnExercise(stage, index) {
-        var panels = Array.prototype.slice.call(stage.querySelectorAll('.ex-panel'));
+        var panels = exercisePanels(stage);
+        stopPlay();
         roll(stage, function () {
             panels.forEach(function (panel, i) {
+                resetPanel(panel);
                 panel.classList.toggle('is-active', i === index % panels.length);
             });
+            playPanel(panels[index % panels.length]);
         });
     }
 
     function rollWords() {
         var terms = document.querySelectorAll('[data-term]');
         if (!terms.length) return;
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
         var stage = document.querySelector('[data-exercise]');
+        var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        if (stage) startExercises(stage, reduced);
+        if (reduced) return;
+
         var index = 0;
         window.setInterval(function () {
             if (document.hidden) return;

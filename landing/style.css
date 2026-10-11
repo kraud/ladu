@@ -705,10 +705,27 @@ main.legal {
     font-weight: 600;
 }
 
+.ex-opt {
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+/* The option being pressed, just before the result colours it. */
+.ex-opt.is-picking {
+    border-color: var(--accent);
+    background: color-mix(in oklch, var(--accent) 12%, transparent);
+    color: var(--accent);
+}
+
 .ex-opt.is-right {
     border-color: var(--ok);
     background: color-mix(in oklch, var(--ok) 14%, transparent);
     color: var(--ok);
+}
+
+.ex-opt.is-wrong {
+    border-color: var(--bad);
+    background: color-mix(in oklch, var(--bad) 14%, transparent);
+    color: var(--bad);
 }
 
 .ex-input {
@@ -717,15 +734,54 @@ main.legal {
     justify-content: space-between;
     gap: 2cqw;
     padding: 2cqw 3cqw;
-    border: 1px solid var(--ok);
+    border: 1px solid var(--border);
     border-radius: 7px;
-    background: color-mix(in oklch, var(--ok) 8%, transparent);
+    background: var(--bg);
     font-size: clamp(0.8rem, 5cqw, 1rem);
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.ex-input.is-right {
+    border-color: var(--ok);
+    background: color-mix(in oklch, var(--ok) 8%, transparent);
+}
+
+.ex-input.is-wrong {
+    border-color: var(--bad);
+    background: color-mix(in oklch, var(--bad) 8%, transparent);
+}
+
+/* While a word is being typed there is a caret after it. */
+.ex-input.is-typing .ex-answer::after {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 1.05em;
+    margin-left: 1px;
+    vertical-align: text-bottom;
+    background: var(--fg);
+    animation: caret 0.8s steps(1) infinite;
+}
+
+@keyframes caret {
+    50% {
+        opacity: 0;
+    }
 }
 
 .ex-input .icon {
+    display: none;
     flex: none;
+}
+
+.ex-input.is-right .ex-ok {
+    display: block;
     color: var(--ok);
+}
+
+.ex-input.is-wrong .ex-no {
+    display: block;
+    color: var(--bad);
 }
 
 /* The language of the answer is a badge at the start of the input, inside it. */
@@ -752,6 +808,10 @@ main.legal {
     min-height: 8px;
     border-radius: 50%;
     border: 1.5px solid var(--border);
+}
+
+.ex-dots i {
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
 }
 
 .ex-dots .is-good {
@@ -800,7 +860,7 @@ main.legal {
             'controls controls';
         gap: 1.25rem 1rem;
         /* Room above the logo, so the rows sit nearer the middle of the screen. */
-        padding-block: clamp(2.5rem, 15vh, 7rem) 1.25rem;
+        padding-block: clamp(2rem, 11vh, 5rem) 1.25rem;
     }
 
     .hero-copy,

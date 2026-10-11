@@ -102,38 +102,43 @@
             </div>
 
             <!-- Phone only: small exercise cards, one for each word of the bubble, in the same order (dance, house,
-                 pretty, very). app.js shows the one that belongs to the word now in the bubble, on the same beat.
-                 Each has its own history: the four dots are the word's last answers (wrong, right, not answered).
-                 In the multiple-choice card that changes language, a small arrow points from the prompt to the badge
-                 of the answer's language beside it. A typed answer has its badge inside the input instead. -->
+                 pretty, very). app.js shows the one that belongs to the word now in the bubble, on the same beat, and
+                 plays it as if someone were answering: a card starts unanswered; half a second after it appears the
+                 answer is chosen (data-pick: the option is pressed, then turns) or typed (data-type), the choice or input turns green or red
+                 (data-result: right or wrong), and the fourth dot takes the same colour. The first three dots are
+                 the word's earlier answers, different for each card. In the multiple-choice card that changes
+                 language (pretty), a small arrow points from the prompt to the badge of the answer's language; a
+                 typed answer has its badge inside the input. With "reduce motion" the first card shows its
+                 finished answer and nothing turns; without script the cards stay unanswered. -->
             <div class="exercise" role="group" data-i18n-attr="aria-label:exerciseCard" aria-label="Example exercise">
                 <div class="ex-stage roll" data-exercise>
-                    <!-- dance: typed answer, German to Estonian -->
-                    <div class="ex-panel is-active">
+                    <!-- dance: typed answer, German to Estonian; right -->
+                    <div class="ex-panel is-active" data-type="tantsima" data-result="right">
                         <div class="ex-top"><span class="ex-chip lang-de">DE</span><span class="ex-prompt">tanzen</span></div>
-                        <div class="ex-input"><span class="ex-chip lang-ee">EE</span><span class="ex-answer">tantsima</span><svg class="icon" width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg></div>
+                        <div class="ex-input"><span class="ex-chip lang-ee">EE</span><span class="ex-answer"></span><svg class="ex-ok icon" width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg><svg class="ex-no icon" width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></div>
                         <div class="ex-dots" aria-hidden="true"><i class="is-bad"></i><i class="is-good"></i><i class="is-good"></i><i></i></div>
                     </div>
-                    <!-- house: multiple choice, the article -->
-                    <div class="ex-panel">
+                    <!-- house: multiple choice, the article; right -->
+                    <div class="ex-panel" data-pick="das" data-result="right">
                         <div class="ex-top"><span class="ex-chip lang-de">DE</span><span class="ex-prompt">Haus</span></div>
-                        <div class="ex-options"><span class="ex-opt">der</span><span class="ex-opt">die</span><span class="ex-opt is-right">das</span></div>
+                        <div class="ex-options"><span class="ex-opt">der</span><span class="ex-opt">die</span><span class="ex-opt">das</span></div>
                         <div class="ex-dots" aria-hidden="true"><i class="is-bad"></i><i class="is-bad"></i><i class="is-good"></i><i></i></div>
                     </div>
-                    <!-- pretty: multiple choice, English to Spanish -->
-                    <div class="ex-panel">
-                        <div class="ex-top"><span class="ex-chip lang-gb">EN</span><span class="ex-prompt">pretty</span><svg class="ex-arrow" width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg><span class="ex-chip lang-es">ES</span></div>
-                        <div class="ex-options"><span class="ex-opt">alto</span><span class="ex-opt">bueno</span><span class="ex-opt is-right">bonito</span></div>
-                        <div class="ex-dots" aria-hidden="true"><i class="is-good"></i><i class="is-good"></i><i class="is-good"></i><i class="is-bad"></i></div>
+                    <!-- pretty: multiple choice, Spanish to English; wrong ("scary") -->
+                    <div class="ex-panel" data-pick="scary" data-result="wrong">
+                        <div class="ex-top"><span class="ex-chip lang-es">ES</span><span class="ex-prompt">bonito</span><svg class="ex-arrow" width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg><span class="ex-chip lang-gb">EN</span></div>
+                        <div class="ex-options"><span class="ex-opt">pretty</span><span class="ex-opt">fast</span><span class="ex-opt">scary</span></div>
+                        <div class="ex-dots" aria-hidden="true"><i class="is-good"></i><i class="is-good"></i><i class="is-bad"></i><i></i></div>
                     </div>
-                    <!-- very: typed answer, English to German -->
-                    <div class="ex-panel">
+                    <!-- very: typed answer, English to German; wrong ("ser") -->
+                    <div class="ex-panel" data-type="ser" data-result="wrong">
                         <div class="ex-top"><span class="ex-chip lang-gb">EN</span><span class="ex-prompt">very</span></div>
-                        <div class="ex-input"><span class="ex-chip lang-de">DE</span><span class="ex-answer">sehr</span><svg class="icon" width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg></div>
-                        <div class="ex-dots" aria-hidden="true"><i class="is-bad"></i><i></i><i></i><i></i></div>
+                        <div class="ex-input"><span class="ex-chip lang-de">DE</span><span class="ex-answer"></span><svg class="ex-ok icon" width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg><svg class="ex-no icon" width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg></div>
+                        <div class="ex-dots" aria-hidden="true"><i class="is-good"></i><i class="is-bad"></i><i class="is-good"></i><i></i></div>
                     </div>
                 </div>
             </div>
+
             <p class="m-text m-text-2" data-i18n="leadC">Then practise them together.</p>
         </section>
     </main>
