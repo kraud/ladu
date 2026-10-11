@@ -1,6 +1,6 @@
 # Slice G — "One term → whole Word" (plan)
 
-*Status: DRAFT, open questions answered (2026-10-11); waiting for approval to start G1. Nothing is built. Parent plan:
+*Status: DONE 2026-10-11 (G1–G6). Open questions were answered the same day. Nothing is built. Parent plan:
 `autocomplete-data-source-strategy.md` §9 (Slice G), decisions D1–D34 in §10.*
 
 *Needs: Slice E (type-ahead), Slice F (translation table and route), Slice H (all four parts of
@@ -234,6 +234,22 @@ check confirmed the cache seeding matters (3 card tests fail without it).
 - Nothing in `useCreateWord` or the save route changes.
 
 ### G6 — E2E and docs
+
+**DONE 2026-10-11.** Gate spec `e2e/tests/autocomplete-slice-g-start-from-word.spec.ts` (4 tests, real
+browser, real backend). (1) English start "house — human abode": 3 preview rows (the account
+languages), draft, three filled cards, Save. (2) German start "die See — sea": gender picks the
+entry (genitive "See", not "Sees"), the footer shows "applied", no overwrite button. (3) Estonian
+gap: "lake — a kind of coloring agent": the preview shows "lakk" "from Ekilex" (the stub), the
+Estonian card fills with it. (4) The manual part-of-speech path is unchanged. Words are in the
+committed fixtures, senses are found by label, so the spec also runs in CI; the first run used the
+full local data. The Ekilex stub got "lakk" (paradigm and part of speech, forms written by hand), the
+meaning "lake" → "lakk", and a meaning now also lists the searched English word (like the real
+service; the draft route checks it). `E2E_SHOT_DIR` saves screenshots. Looked at in a real browser:
+the layout works. **Known small points:** (a) right after the draft opens, the card footers say
+"Autocomplete support" for about half a second, until the lookup pause (500 ms) ends and they read the
+seeded answer; (b) the preview has its own back arrow next to the page's back arrow ("Back to Words"),
+which can look like two arrows; (c) the draft's English noun cards leave "Regularity" empty (the
+lexicon has no value for it, same as the "Use autocomplete values" button).
 
 - E2E spec `e2e/tests/autocomplete-slice-g-start-from-word.spec.ts` (needs fixture rows; the
   translations fixture has 11 English words, 204 rows — check which pairs exist and add rows if
