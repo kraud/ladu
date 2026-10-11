@@ -146,6 +146,11 @@ frontend/src/
 │   │   │   │                        #   `applyLookup` = the fill, shared with a type-ahead pick (Slice E)
 │   │   │   ├── TypeAheadInput.tsx   # Slice E — the query field as a Base UI Autocomplete: suggestion list
 │   │   │   │                        #   from 2 chars; a pick fills the card (TranslationCard's `pickSuggestion`)
+│   │   │   ├── ../start-from-word/  # Slice G — "Start from a word" above the part-of-speech list on the
+│   │   │   │                        #   Add Word gate: `StartFromWord` (language + part-of-speech selects, text
+│   │   │   │                        #   field), `SenseTypeAhead` (senses), `SensePreview` (one row per account
+│   │   │   │                        #   language, "Create draft"). A draft seeds the cards (`TranslationCard`'s
+│   │   │   │                        #   `draft` prop; `useWordFormState`'s `initialDraft`)
 │   │   │   ├── fieldLayout.ts       # Phase 3 — FieldConfig[] → row/column/block grid items for TranslationCard;
 │   │   │   │                        #   also owns the shared `isEmptyValue`/`isHiddenInDisplayOnly`/`isPersistedCaseField`
 │   │   │   ├── buildYupSchema.ts    # (config, t) → yup object — generic over any TranslationFormConfig; Phase 3

@@ -6,6 +6,42 @@
     "backToType": "Tagasi sõnaliigi juurde",
     "toastCreateSuccess": "Sõna on edukalt loodud"
   },
+  "startFromWord": {
+    "title": "Alusta sõnast",
+    "description": "Sisesta sõna mis tahes keeles. Ladu leiab selle tähendused ja täidab teised keeled sinu eest.",
+    "languageLabel": "Sõna keel",
+    "partOfSpeechLabel": "Sõnaliik",
+    "anyPartOfSpeech": "Mis tahes tüüp",
+    "wordLabel": "Sõna",
+    "placeholderAny": "Sisesta sõna {{inLanguage}}",
+    "placeholderPos": "Sisesta {{partOfSpeech}} {{inLanguage}}",
+    "inLanguage": {
+      "english": "inglise keeles",
+      "spanish": "hispaania keeles",
+      "german": "saksa keeles",
+      "estonian": "eesti keeles"
+    },
+    "orLine": "või loo käsitsi",
+    "listLabel": "Tähendused",
+    "back": "Tagasi",
+    "previewTitle": "Vali kasutatavad sõnad",
+    "loading": "Tähendusi laaditakse…",
+    "loadFailed": "Tähendust ei õnnestunud laadida. Proovi uuesti.",
+    "noWord": "Sõna ei leitud",
+    "fromEkilex": "Ekilexist",
+    "ekilexUnavailable": "Eestikeelsed sõnad pole praegu saadaval.",
+    "noTranslation": "Tõlget pole",
+    "otherOptions_one": "{{count}} muu valik",
+    "otherOptions_other": "{{count}} muud valikut",
+    "noOtherOptions": "Muid valikuid pole",
+    "optionsAvailable_one": "{{count}} valik saadaval",
+    "optionsAvailable_other": "{{count}} valikut saadaval",
+    "createDraft": "Loo mustand",
+    "creating": "Loon…",
+    "draftFailed": "Mustandit ei õnnestunud luua. Proovi uuesti.",
+    "noneSelected": "Vali sõna vähemalt ühe keele jaoks.",
+    "draftLookupFailed": "Selle sõna vorme ei õnnestunud leida. Täida kaart käsitsi või proovi automaattäitmist uuesti."
+  },
   "apiErrors": {
     "wordNotFound": "Seda sõna ei leitud.",
     "notAuthorized": "Sul pole juurdepääsu sellele sõnale.",
@@ -139,6 +175,10 @@
     "confirmChangeType": {
       "title": "Muuta sõnaliiki?",
       "description": "Sisestatud tõlked lähevad kaotsi."
+    },
+    "confirmGoBack": {
+      "title": "Tagasi",
+      "confirm": "Tagasi"
     },
     "confirmRemoveTranslation": {
       "title": "Eemalda see tõlge?",

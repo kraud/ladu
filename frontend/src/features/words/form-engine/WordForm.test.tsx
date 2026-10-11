@@ -154,6 +154,49 @@ describe('WordForm — create mode', () => {
             expect(onChangePartOfSpeech).toHaveBeenCalledTimes(1);
         });
 
+        it('the arrow next to the title asks "Go back" (title and red button); the bar\'s button keeps "Change word type"', async () => {
+            const user = userEvent.setup();
+            const onChangePartOfSpeech = vi.fn();
+            renderWithProviders(
+                <WordForm
+                    mode="create"
+                    defaultPartOfSpeech={PartOfSpeech.noun}
+                    onSubmit={vi.fn()}
+                    onChangePartOfSpeech={onChangePartOfSpeech}
+                    header={({ requestChangePartOfSpeech }) => (
+                        <button type="button" onClick={requestChangePartOfSpeech}>
+                            Back arrow
+                        </button>
+                    )}
+                />,
+                { session: SESSION },
+            );
+            await addLanguage(user, 'English');
+            await user.type(screen.getByLabelText('Singular'), 'House');
+
+            // The arrow: "Go back" as title and as the confirming button; Cancel keeps the form.
+            await user.click(screen.getByRole('button', { name: 'Back arrow' }));
+            let dialog = await screen.findByRole('alertdialog');
+            expect(within(dialog).getByRole('heading', { name: 'Go back' })).toBeInTheDocument();
+            expect(within(dialog).getByRole('button', { name: 'Go back' })).toBeInTheDocument();
+            expect(within(dialog).queryByText('Change word type?')).not.toBeInTheDocument();
+            await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+            expect(onChangePartOfSpeech).not.toHaveBeenCalled();
+
+            // The bar's button: the old words.
+            await user.click(screen.getByRole('button', { name: 'Change word type' }));
+            dialog = await screen.findByRole('alertdialog');
+            expect(within(dialog).getByText('Change word type?')).toBeInTheDocument();
+            expect(within(dialog).queryByRole('button', { name: 'Go back' })).not.toBeInTheDocument();
+            await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+
+            // Confirming "Go back" leaves the form.
+            await user.click(screen.getByRole('button', { name: 'Back arrow' }));
+            dialog = await screen.findByRole('alertdialog');
+            await user.click(within(dialog).getByRole('button', { name: 'Go back' }));
+            expect(onChangePartOfSpeech).toHaveBeenCalledTimes(1);
+        });
+
         it('is absent in edit mode even when onChangePartOfSpeech is passed — partOfSpeech is immutable after creation', () => {
             const initialWord: WordBE = {
                 id: 'word-1',

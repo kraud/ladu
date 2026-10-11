@@ -6,6 +6,42 @@
     "backToType": "Zurück zur Wortart",
     "toastCreateSuccess": "Das Wort wurde erfolgreich erstellt"
   },
+  "startFromWord": {
+    "title": "Mit einem Wort beginnen",
+    "description": "Gib ein Wort in einer beliebigen Sprache ein. Ladu findet seine Bedeutungen und füllt die anderen Sprachen für dich aus.",
+    "languageLabel": "Sprache des Wortes",
+    "partOfSpeechLabel": "Wortart",
+    "anyPartOfSpeech": "Beliebiger Typ",
+    "wordLabel": "Wort",
+    "placeholderAny": "Gib ein Wort {{inLanguage}} ein",
+    "placeholderPos": "Gib das {{partOfSpeech}} {{inLanguage}} ein",
+    "inLanguage": {
+      "english": "auf Englisch",
+      "spanish": "auf Spanisch",
+      "german": "auf Deutsch",
+      "estonian": "auf Estnisch"
+    },
+    "orLine": "oder manuell erstellen",
+    "listLabel": "Bedeutungen",
+    "back": "Zurück",
+    "previewTitle": "Wähle die Wörter, die du verwenden möchtest",
+    "loading": "Bedeutungen werden geladen…",
+    "loadFailed": "Die Bedeutung konnte nicht geladen werden. Versuche es erneut.",
+    "noWord": "Kein Wort gefunden",
+    "fromEkilex": "aus Ekilex",
+    "ekilexUnavailable": "Estnische Wörter sind gerade nicht verfügbar.",
+    "noTranslation": "Keine Übersetzung",
+    "otherOptions_one": "{{count}} weitere Option",
+    "otherOptions_other": "{{count}} weitere Optionen",
+    "noOtherOptions": "Keine weiteren Optionen",
+    "optionsAvailable_one": "{{count}} Option verfügbar",
+    "optionsAvailable_other": "{{count}} Optionen verfügbar",
+    "createDraft": "Entwurf erstellen",
+    "creating": "Wird erstellt…",
+    "draftFailed": "Der Entwurf konnte nicht erstellt werden. Versuche es erneut.",
+    "noneSelected": "Wähle für mindestens eine Sprache ein Wort.",
+    "draftLookupFailed": "Die Formen dieses Wortes konnten nicht abgerufen werden. Fülle die Karte von Hand aus oder versuche die Autovervollständigung erneut."
+  },
   "apiErrors": {
     "wordNotFound": "Dieses Wort konnte nicht gefunden werden.",
     "notAuthorized": "Du hast keinen Zugriff auf dieses Wort.",
@@ -139,6 +175,10 @@
     "confirmChangeType": {
       "title": "Wortart ändern?",
       "description": "Die bereits eingegebenen Übersetzungen werden verworfen."
+    },
+    "confirmGoBack": {
+      "title": "Zurück",
+      "confirm": "Zurück"
     },
     "confirmRemoveTranslation": {
       "title": "Diese Übersetzung entfernen?",

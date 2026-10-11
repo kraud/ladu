@@ -40,6 +40,9 @@ const WORDS: Record<string, [number, Paradigm]> = {
     kiiresti: [105, { wordClass: 'muutumatu', paradigmForms: forms({ ID: 'kiiresti' }) }],
     väga: [106, { wordClass: 'muutumatu', paradigmForms: forms({ ID: 'väga' }) }],
     ja: [107, { wordClass: 'muutumatu', paradigmForms: forms({ ID: 'ja' }) }],
+    // Slice G (draft with an Ekilex Estonian word): "lakk" is the Estonian word of the English noun "lake"
+    // in the meaning below. Forms written by hand for the test, not copied from Ekilex.
+    lakk: [108, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'lakk', PlN: 'lakid', SgG: 'laki', PlG: 'lakkide', SgP: 'lakki', PlP: 'lakke', SgAdt: 'lakki' }) }],
     jooksma: [201, { wordClass: 'verb', paradigmForms: forms({ Sup: 'jooksma', Inf: 'joosta', IndPrSg1: 'jooksen', IndIpfSg1: 'jooksin', PtsPtPs: 'jooksnud' }) }],
 };
 type Details = { lexemes: { pos: { code: string }[] }[]; wordRelationDetails?: { level1WordRelationGroups: { groupTypeCode: string; members: { wordValue: string }[] }[] } };
@@ -55,13 +58,14 @@ const DETAILS: Record<number, Details> = {
     105: { lexemes: [{ pos: [{ code: 'adv' }] }], wordRelationDetails: relations({ komp: ['kiiremini'], superl: ['kõige kiiremini', 'kiireimini'] }) },
     106: { lexemes: [{ pos: [{ code: 'adv' }] }] },
     107: { lexemes: [{ pos: [{ code: 'konj' }] }] },
+    108: { lexemes: [{ pos: [{ code: 's' }] }] },
 };
 /**
  * English word → meanings, each with its Estonian words (for "search in English"). Since step F3 the
  * backend asks only when its translation table has no Estonian verb: "zorp" is made up, so no table
  * has it, and its verb "tantsima" is in the Estonian lexicon.
  */
-const MEANINGS: Record<string, string[][]> = { run: [['jooks', 'jooksma']], zorp: [['tantsima']] };
+const MEANINGS: Record<string, string[][]> = { run: [['jooks', 'jooksma']], zorp: [['tantsima']], lake: [['lakk']] };
 
 const requests: { rawPath: string }[] = [];
 
@@ -91,7 +95,13 @@ const server = createServer((req, res) => {
     }
     if ((match = /^\/api\/meaning\/search\/([^/]+)$/.exec(url.pathname))) {
         const meanings = MEANINGS[decodeURIComponent(match[1])] ?? [];
-        return send(200, { results: meanings.map((est) => ({ meaningWords: est.map((wordValue) => ({ wordValue, lang: 'est' })) })) });
+        // Like the real service, a meaning also lists the searched English word (the draft route checks it).
+        const searched = decodeURIComponent(match[1]);
+        return send(200, {
+            results: meanings.map((est) => ({
+                meaningWords: [...est.map((wordValue) => ({ wordValue, lang: 'est' })), { wordValue: searched, lang: 'eng' }],
+            })),
+        });
     }
     return send(404, { message: 'not found' });
 });

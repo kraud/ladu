@@ -6,6 +6,42 @@
     "backToType": "Volver al tipo de palabra",
     "toastCreateSuccess": "La palabra se creó correctamente"
   },
+  "startFromWord": {
+    "title": "Empezar desde una palabra",
+    "description": "Escribe una palabra en cualquier idioma. Ladu encuentra sus significados y rellena los demás idiomas por ti.",
+    "languageLabel": "Idioma de la palabra",
+    "partOfSpeechLabel": "Categoría gramatical",
+    "anyPartOfSpeech": "Cualquier tipo",
+    "wordLabel": "Palabra",
+    "placeholderAny": "Escribe una palabra {{inLanguage}}",
+    "placeholderPos": "Escribe el {{partOfSpeech}} {{inLanguage}}",
+    "inLanguage": {
+      "english": "en inglés",
+      "spanish": "en español",
+      "german": "en alemán",
+      "estonian": "en estonio"
+    },
+    "orLine": "o crear manualmente",
+    "listLabel": "Significados",
+    "back": "Atrás",
+    "previewTitle": "Elige las palabras que quieres usar",
+    "loading": "Cargando significados…",
+    "loadFailed": "No se pudo cargar el significado. Inténtalo de nuevo.",
+    "noWord": "No se encontró ninguna palabra",
+    "fromEkilex": "de Ekilex",
+    "ekilexUnavailable": "Las palabras en estonio no están disponibles ahora.",
+    "noTranslation": "Sin traducción",
+    "otherOptions_one": "{{count}} otra opción",
+    "otherOptions_other": "{{count}} otras opciones",
+    "noOtherOptions": "No hay otras opciones",
+    "optionsAvailable_one": "{{count}} opción disponible",
+    "optionsAvailable_other": "{{count}} opciones disponibles",
+    "createDraft": "Crear borrador",
+    "creating": "Creando…",
+    "draftFailed": "No se pudo crear el borrador. Inténtalo de nuevo.",
+    "noneSelected": "Elige una palabra para al menos un idioma.",
+    "draftLookupFailed": "No se pudieron buscar las formas de esta palabra. Rellena la tarjeta a mano o prueba el autocompletado otra vez."
+  },
   "apiErrors": {
     "wordNotFound": "No se pudo encontrar esta palabra.",
     "notAuthorized": "No tienes acceso a esta palabra.",
@@ -139,6 +175,10 @@
     "confirmChangeType": {
       "title": "¿Cambiar el tipo de palabra?",
       "description": "Las traducciones que has introducido se descartarán."
+    },
+    "confirmGoBack": {
+      "title": "Volver",
+      "confirm": "Volver"
     },
     "confirmRemoveTranslation": {
       "title": "¿Eliminar esta traducción?",

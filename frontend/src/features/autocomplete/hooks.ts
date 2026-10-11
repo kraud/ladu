@@ -7,11 +7,12 @@
  * - `lookupQueryOptions`: the lookup's query options, shared with a type-ahead pick
  *   (`queryClient.fetchQuery`), so the pick and `AutocompleteRow` read the same cache entry.
  */
-import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
-import { lookupDictionary, suggestDictionary } from './api';
+import { createDraft, fetchSense, lookupDictionary, suggestDictionary, suggestSenses } from './api';
 import { autocompleteKeys } from './keys';
 import { getAutocompleteEndpoint, toAutocompleteResult } from './transforms';
+import type { DraftPick, SenseKey, WordDraft } from './types';
 
 /** Fewer characters than this never ask for suggestions (the backend also refuses them). */
 export const MIN_PREFIX_LENGTH = 2;
@@ -32,6 +33,9 @@ export function lookupQueryOptions({ language, pos, query, extra, entryId }: Use
     return queryOptions({
         queryKey: autocompleteKeys.lookup(language, pos, trimmed, extra, entryId),
         queryFn: () => lookupDictionary(language, pos, trimmed, extra, entryId).then(toAutocompleteResult),
+        // Dictionary data does not change within a minute. It also keeps the answer a draft puts in
+        // the cache (Slice G, which chose the entry by gender) from being replaced by a plain lookup.
+        staleTime: 60_000,
     });
 }
 
@@ -65,5 +69,42 @@ export function useDictionarySuggestions({ language, pos, prefix, enabled }: Use
         enabled: enabled && trimmed.length >= MIN_PREFIX_LENGTH,
         placeholderData: keepPreviousData,
         staleTime: 5 * 60_000,
+    });
+}
+
+/** The sense type-ahead of the start section (Slice G). Like `useDictionarySuggestions`, for senses. */
+export function useSenseSuggestions({ language, pos, prefix, enabled }: {
+    language: Lang;
+    pos: PartOfSpeech | 'Any';
+    /** Already-debounced prefix. */
+    prefix: string;
+    enabled: boolean;
+}) {
+    const trimmed = prefix.trim();
+    return useQuery({
+        queryKey: autocompleteKeys.senseSuggestions(language, pos, trimmed),
+        queryFn: () => suggestSenses(language, pos, trimmed),
+        enabled: enabled && trimmed.length >= MIN_PREFIX_LENGTH,
+        placeholderData: keepPreviousData,
+        staleTime: 5 * 60_000,
+    });
+}
+
+/** One sense with its words for the preview, for the user's account languages only. */
+export function useSense(partOfSpeech: string, key: SenseKey, languages: readonly string[]) {
+    return useQuery({
+        queryKey: autocompleteKeys.sense(partOfSpeech, key, languages),
+        queryFn: () => fetchSense(partOfSpeech, key, languages),
+        staleTime: 5 * 60_000,
+    });
+}
+
+/** "Create draft": looks up the forms of the chosen words. Nothing is saved. */
+export function useCreateDraft() {
+    return useMutation({
+        mutationFn: async ({ partOfSpeech, picks }: { partOfSpeech: string; picks: DraftPick[] }): Promise<WordDraft> => ({
+            partOfSpeech,
+            translations: await createDraft(partOfSpeech, picks),
+        }),
     });
 }

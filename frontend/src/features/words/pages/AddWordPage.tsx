@@ -12,8 +12,10 @@ import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { WordForm } from '../form-engine/WordForm';
 import { useCreateWord } from '../hooks';
 import { wordErrorKey } from '../errors';
+import type { WordDraft } from '@/features/autocomplete/types';
 import type { CreateWordBody, UpdateWordBody } from '../types';
 import { partOfSpeechFromRouteParam, partOfSpeechLabelKey } from '@/lib/words';
+import type { PartOfSpeech } from '@/ts/enums';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
 
 const route = getRouteApi('/_protected/addWord/{-$partOfSpeech}');
@@ -29,6 +31,7 @@ export function AddWordPage() {
     // (`WordForm.tsx:291-305`) cleared the picked PoS too, not just the cards.
     const [partOfSpeech, setPartOfSpeech] = useState(() => partOfSpeechFromRouteParam(posParam));
     const [formKey, setFormKey] = useState(0);
+    const [draft, setDraft] = useState<WordDraft | undefined>();
 
     const createWord = useCreateWord();
 
@@ -42,6 +45,15 @@ export function AddWordPage() {
 
     function resetToGate() {
         setPartOfSpeech(undefined);
+        setDraft(undefined);
+        setFormKey((key) => key + 1);
+    }
+
+    // "Create draft" in the start section (Slice G): the form opens on the draft's part of speech with one
+    // filled card per chosen word. Cleared with the form (`resetToGate`).
+    function handleDraft(next: WordDraft) {
+        setDraft(next);
+        setPartOfSpeech(next.partOfSpeech as PartOfSpeech);
         setFormKey((key) => key + 1);
     }
 
@@ -69,6 +81,8 @@ export function AddWordPage() {
             onSubmit={handleSubmit}
             onChangePartOfSpeech={resetToGate}
             onPartOfSpeechChange={setPartOfSpeech}
+            onStartDraft={handleDraft}
+            initialDraft={draft}
             submitting={createWord.isPending}
             header={({ requestChangePartOfSpeech }) => (
                 <div className="flex items-center gap-2">

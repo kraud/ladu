@@ -1,7 +1,7 @@
 # Autocomplete & lexical data sources — research record
 
 *Status (2026-10-10, branch `autocomplete-improvements`): Slices 0, A–F done (parity reached; type-ahead;
-translation table and route). Slice H done (H1–H5). Next: Slice G, then **Slice G** (own plan document, see its section in §9). Server steps for everything done so far: §14 (do once the plan is complete).
+translation table and route). Slice H done (H1–H5). Slice G done 2026-10-11 (own plan: `autocomplete-slice-g-one-term-to-word.md`). Next: Slice I (own branch, no plan yet). Server steps for everything done so far: §14 (do once the plan is complete).
 History: research 2026-09-25, per-slice plan 2026-10-08 (sections 9 to 12).*
 
 *Scope: which free or very cheap source can supply the word-form autocomplete data, and
@@ -749,11 +749,12 @@ waits for Slice G. Server step: §14, "Translations".
   so Estonian translation needs a second source (for example Ekilex `api/meaning/search`) or
   must show that it is incomplete.
 
-### Slice G — "One term → whole Word" (own plan)
+### Slice G — "One term → whole Word" (own plan) — DONE 2026-10-11
 
 The user types one word in any language. Ladu shows the senses, then builds a draft Word with
 every translation and its forms in one step. The user confirms. This needs Slices E and F.
-It gets its own plan document.
+It gets its own plan document: **`autocomplete-slice-g-one-term-to-word.md`** (draft 2026-10-11).
+**Progress:** G1 done 2026-10-11 (sense type-ahead `GET /api/dictionary/translate/:fromLanguage?prefix=`, migration 0026; no server step, the deploy runs the migration). G2 done 2026-10-11 (`GET /api/dictionary/translate/sense/:partOfSpeech`). G3 done 2026-10-11 (`POST /api/dictionary/draft`). G4 done 2026-10-11 (start section and preview). G5 done 2026-10-11 (the cards fill from the draft). G6 done 2026-10-11 (e2e gate `autocomplete-slice-g-start-from-word.spec.ts`, docs). No server step beyond migration 0026, which the normal deploy runs.
 
 **Ready for it (hand-off, 2026-10-09):**
 - `GET /api/dictionary/translate/:fromLanguage/:partOfSpeech/:query` (F2): the senses of a word

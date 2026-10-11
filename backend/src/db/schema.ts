@@ -835,5 +835,9 @@ export const lexemeTranslations = pgTable(
         index('lexeme_translations_english_idx').on(table.partOfSpeech, table.englishSearchKey),
         // From another language: the English senses that list the word (reverse lookup).
         index('lexeme_translations_word_idx').on(table.language, table.partOfSpeech, table.searchKey),
+        // The sense type-ahead (Slice G, G1): a prefix of the typed word (`LIKE 'ba%'`). Same reason
+        // as `lexemes_lookup_idx`: only `text_pattern_ops` can serve a prefix under the en_US collation.
+        index('lexeme_translations_word_prefix_idx').on(table.language, table.searchKey.op('text_pattern_ops')),
+        index('lexeme_translations_english_prefix_idx').on(table.englishSearchKey.op('text_pattern_ops')),
     ],
 );

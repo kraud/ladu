@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import type { DraftTranslation } from '@/features/autocomplete/types';
 import { makeAutocompleteHandlers } from '@/test/msw/autocompleteHandlers';
 import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
@@ -1087,5 +1088,78 @@ describe('fieldsHaveData', () => {
 
     it('ignores a form-only checkbox — a ticked "search in English" alone is not data', () => {
         expect(fieldsHaveData([checkbox], { searchInEnglish: true })).toBe(false);
+    });
+});
+
+describe('TranslationCard — starts from a draft word (Slice G, G5)', () => {
+    const SEE_DIE = [
+        { caseName: 'genderDE', word: 'die' },
+        { caseName: 'singularNominativDE', word: 'See' },
+        { caseName: 'pluralNominativDE', word: 'Seen' },
+    ];
+
+    /** The autocomplete fake answers a plain lookup with "der See": a request would show in `requests`. */
+    function setup(draft: DraftTranslation) {
+        const fake = makeAutocompleteHandlers({
+            germanNoun: { status: 'found', cases: [{ caseName: 'genderDE', word: 'der' }, { caseName: 'singularNominativDE', word: 'See' }] },
+        });
+        server.use(...fake.handlers);
+        const onChange = vi.fn();
+        renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.noun} draft={draft} onChange={onChange} />);
+        return { fake, onChange };
+    }
+
+    it('found: fills every case the draft has, without a lookup, and the footer shows it as applied', async () => {
+        const { fake, onChange } = setup({ language: 'German', word: 'See', gender: 'die', status: 'found', cases: SEE_DIE });
+
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+        expect(screen.getByRole('combobox', { name: 'Singular nominative' })).toHaveValue('See');
+        expect(screen.getByLabelText('Plural nominative')).toHaveValue('Seen');
+        // The draft chose "die See" by gender; the footer reads that answer, not a plain lookup's "der See".
+        await waitFor(() => expect(screen.getByText('Autocomplete values applied')).toBeInTheDocument());
+        expect(screen.queryByRole('button', { name: 'Use autocomplete values' })).not.toBeInTheDocument();
+        expect(fake.requests).toEqual([]);
+        // The card counts as changed, so Save follows the normal rules.
+        await waitFor(() => expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ isDirty: true, hasData: true })));
+    });
+
+    it('partial: fills, and the footer shows the "not fully sure" notice', async () => {
+        setup({ language: 'German', word: 'See', status: 'partial', cases: SEE_DIE });
+
+        await waitFor(() => expect(screen.getByRole('radio', { name: 'die' })).toBeChecked());
+        expect(await screen.findByTestId('autocomplete-partial')).toBeInTheDocument();
+    });
+
+    it('not-found: only the word and the known gender; the footer says the word is unknown', async () => {
+        const { fake } = setup({ language: 'German', word: 'Zwurf', gender: 'der', status: 'not-found', cases: [] });
+
+        await waitFor(() => expect(screen.getByRole('combobox', { name: 'Singular nominative' })).toHaveValue('Zwurf'));
+        expect(screen.getByRole('radio', { name: 'der' })).toBeChecked();
+        expect(screen.getByLabelText('Plural nominative')).toHaveValue('');
+        expect(await screen.findByText("Sorry, we don't know this word!")).toBeInTheDocument();
+        expect(fake.requests).toEqual([]);
+    });
+
+    it('error: the word is filled and a line says the lookup failed; the line goes away when the word changes', async () => {
+        setup({ language: 'German', word: 'Zwurf', status: 'error', cases: [] });
+        const user = userEvent.setup();
+
+        const field = screen.getByRole('combobox', { name: 'Singular nominative' });
+        await waitFor(() => expect(field).toHaveValue('Zwurf'));
+        expect(screen.getByTestId('draft-lookup-failed')).toBeInTheDocument();
+
+        await user.type(field, 'x');
+        expect(screen.queryByTestId('draft-lookup-failed')).not.toBeInTheDocument();
+    });
+
+    it('a gender the form has no option for is ignored', async () => {
+        setup({ language: 'German', word: 'Zwurf', gender: 'el', status: 'not-found', cases: [] });
+        await waitFor(() => expect(screen.getByRole('combobox', { name: 'Singular nominative' })).toHaveValue('Zwurf'));
+        for (const name of ['der', 'die', 'das']) expect(screen.getByRole('radio', { name })).not.toBeChecked();
+    });
+
+    it('with no draft the card stays empty', () => {
+        renderWithProviders(<TranslationCard lang={Lang.DE} pos={PartOfSpeech.noun} />);
+        expect(screen.getByRole('combobox', { name: 'Singular nominative' })).toHaveValue('');
     });
 });

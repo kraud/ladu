@@ -6,6 +6,42 @@
     "backToType": "Back to word type",
     "toastCreateSuccess": "Word was created successfully"
   },
+  "startFromWord": {
+    "title": "Start from a word",
+    "description": "Type a word in any language. Ladu finds its meanings and fills the other languages for you.",
+    "languageLabel": "Language of the word",
+    "partOfSpeechLabel": "Part of speech",
+    "anyPartOfSpeech": "Any type",
+    "wordLabel": "Word",
+    "placeholderAny": "Type a word {{inLanguage}}",
+    "placeholderPos": "Type the {{partOfSpeech}} {{inLanguage}}",
+    "inLanguage": {
+      "english": "in English",
+      "spanish": "in Spanish",
+      "german": "in German",
+      "estonian": "in Estonian"
+    },
+    "orLine": "or create manually",
+    "listLabel": "Meanings",
+    "back": "Back",
+    "previewTitle": "Choose the words to use",
+    "loading": "Loading meanings…",
+    "loadFailed": "The meaning could not be loaded. Try again.",
+    "noWord": "No word found",
+    "fromEkilex": "from Ekilex",
+    "ekilexUnavailable": "Estonian words are not available now.",
+    "noTranslation": "No translation",
+    "otherOptions_one": "{{count}} other option",
+    "otherOptions_other": "{{count}} other options",
+    "noOtherOptions": "No other options",
+    "optionsAvailable_one": "{{count}} option available",
+    "optionsAvailable_other": "{{count}} options available",
+    "createDraft": "Create draft",
+    "creating": "Creating…",
+    "draftFailed": "The draft could not be created. Try again.",
+    "noneSelected": "Choose a word for at least one language.",
+    "draftLookupFailed": "The forms for this word could not be looked up. Fill the card by hand, or try the autocomplete again."
+  },
   "apiErrors": {
     "wordNotFound": "This word could not be found.",
     "notAuthorized": "You don't have access to this word.",
@@ -139,6 +175,10 @@
     "confirmChangeType": {
       "title": "Change word type?",
       "description": "The translations you have entered will be discarded."
+    },
+    "confirmGoBack": {
+      "title": "Go back",
+      "confirm": "Go back"
     },
     "confirmRemoveTranslation": {
       "title": "Remove this translation?",

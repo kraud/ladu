@@ -33,20 +33,33 @@ function fullEntries<T extends Row>(rows: T[]): T[] {
 
 const mainSense = <T extends Row>(rows: T[]): T => rows.reduce((a, b) => (b.entryOrder < a.entryOrder ? b : a));
 
+const GENDER_CASE: Record<string, string> = { German: 'genderDE', Spanish: 'genderES' };
+
+/**
+ * The D15 choice, narrowed by a noun gender (Slice G): of the non-stub rows, those whose article
+ * equals `gender`; if none does, all of them.
+ */
+function chooseEntry<T extends Row>(rows: T[], genderCase: string | undefined, gender: string | undefined): T {
+    const full = fullEntries(rows);
+    const sameGender = genderCase && gender ? full.filter((row) => row.forms[genderCase] === gender) : [];
+    return mainSense(sameGender.length > 0 ? sameGender : full);
+}
+
 /**
  * An adapter that answers from the `lexemes` table only: `found` or `not-found`.
  * With `entryId` (a type-ahead pick) it returns that row, if the row is still for this language,
- * part of speech and query; otherwise the usual D15 choice.
+ * part of speech and query; otherwise the usual D15 choice, narrowed by `gender` when given.
  */
 export function lexiconAdapter(language: string, partOfSpeech: string): DictionaryAdapter {
-    return async (query, { entryId }) => {
+    const genderCase = partOfSpeech === 'Noun' ? GENDER_CASE[language] : undefined;
+    return async (query, { entryId, gender }) => {
         const rows = await db
             .select({ id: lexemes.id, forms: lexemes.forms, entryOrder: lexemes.entryOrder })
             .from(lexemes)
             .where(and(eq(lexemes.language, language), eq(lexemes.partOfSpeech, partOfSpeech), eq(lexemes.searchKey, searchKey(query))));
         if (rows.length === 0) return NOT_FOUND;
 
-        const best = rows.find((row) => row.id === entryId) ?? mainSense(fullEntries(rows));
+        const best = rows.find((row) => row.id === entryId) ?? chooseEntry(rows, genderCase, gender);
         return { status: 'found', cases: toCases(Object.entries(best.forms)) };
     };
 }
@@ -58,13 +71,12 @@ export interface Suggestion {
     hint?: string;
 }
 
-const GENDER_CASE: Record<string, string> = { German: 'genderDE', Spanish: 'genderES' };
 // Rows read per request before the stubs and duplicates are removed: more than `limit`, so the
 // list stays full. A homograph group cut at this edge can show one stub; that is acceptable.
 const OVERFETCH = 4;
 
 /** `%` and `_` are LIKE wildcards and `\` is its escape character: a typed one must match itself. */
-const escapeLike = (text: string) => text.replace(/[\\%_]/g, (char) => `\\${char}`);
+export const escapeLike = (text: string) => text.replace(/[\\%_]/g, (char) => `\\${char}`);
 
 /**
  * The type-ahead list (Slice E): lemmas whose search key starts with `prefix`. Order: frequency

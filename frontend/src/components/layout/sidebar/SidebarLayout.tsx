@@ -24,6 +24,12 @@
  *
  * Collapse state lives in `uiStore.sidebarCollapsed[id]`: session-scoped, not
  * persisted. Two widths: `narrow` (16rem) and `wide` (24rem); rail is 3.5rem.
+ *
+ * The content column lines up with the `AppHeader`'s content, which is centred in the whole window. The
+ * column sits in the space right of the panel, so a plain `mx-auto` would centre it half the panel's
+ * width too far right. `columnStyle` takes that half off its left margin (the panel's width differs
+ * collapsed and open, so it is computed, not fixed); when the window is too narrow for any slack the
+ * margin is 0 and the column fills the space.
  */
 import {
     createContext,
@@ -133,6 +139,19 @@ export function SidebarTrigger({
 }
 
 const WIDTHS = { narrow: { px: '16rem', cls: 'w-64' }, wide: { px: '24rem', cls: 'w-96' } } as const;
+const RAIL_PX = '3.5rem';
+/** The two content column widths (`max-w-5xl`, `max-w-7xl`), as lengths the margin can be computed from. */
+const COLUMN_PX = { normal: '64rem', wide: '80rem' } as const;
+
+/**
+ * The content column's width limit and left margin: centred in the window, not in the space right of the
+ * panel (`panelPx` wide; `0px` when there is no panel). Both `calc` parts need `100%` = the space right of
+ * the panel, which is the column's container.
+ */
+function columnStyle(wide: boolean | undefined, panelPx: string): CSSProperties {
+    const column = wide ? COLUMN_PX.wide : COLUMN_PX.normal;
+    return { maxWidth: column, marginLeft: `max(0px, calc((100% - ${column}) / 2 - ${panelPx} / 2))` };
+}
 
 export function SidebarLayout({
     id,
@@ -194,6 +213,8 @@ export function SidebarLayout({
 
     // A page can have a state with nothing to put in the panel: then there is no panel at all.
     const hasPanel = sections.length > 0;
+    const panelPx = !isMobile && hasPanel ? (collapsed ? RAIL_PX : WIDTHS[width].px) : '0px';
+    const column = columnStyle(wide, panelPx);
     const context = useMemo<SidebarContextValue>(
         () => ({ isMobile, hasPanel, open, setOpen, panelId }),
         [isMobile, hasPanel, open, panelId],
@@ -301,10 +322,10 @@ export function SidebarLayout({
                 <div className={cn('min-w-0 flex-1', fill && 'h-[calc(100dvh-var(--app-header-h))]')}>
                     <div
                         className={cn(
-                            'mx-auto px-6 pt-3 pb-8 max-[920px]:px-3 max-[920px]:pt-2',
+                            'px-6 pt-3 pb-8 transition-[margin-left] duration-150 max-[920px]:px-3 max-[920px]:pt-2',
                             fill && 'flex h-full flex-col pb-3',
-                            wide ? 'max-w-7xl' : 'max-w-5xl',
                         )}
+                        style={column}
                     >
                         {header ? (
                             <div className={cn('flex flex-col gap-4', fill && 'min-h-0 flex-1')}>
@@ -365,7 +386,9 @@ export function SidebarLayout({
                                     />
                                 )}
                                 <div className="min-w-0 flex-1">
-                                    <div className={cn('mx-auto px-6', wide ? 'max-w-7xl' : 'max-w-5xl')}>{footer}</div>
+                                    <div className="px-6 transition-[margin-left] duration-150" style={column}>
+                                        {footer}
+                                    </div>
                                 </div>
                             </div>
                         ) : (
