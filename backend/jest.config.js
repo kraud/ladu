@@ -9,6 +9,10 @@ module.exports = {
     // failures). Run single-threaded: the database is the serialization point.
     maxWorkers: 1,
 
+    // clearDB() truncates ~25 tables per test. On a slow CI runner that can
+    // pass Jest's 5 s default, and the timed-out hook leaves its query running.
+    testTimeout: 30000,
+
     // Match both existing JS tests and future TS tests
     testMatch: [
         '**/__tests__/**/*.{js,ts}',
