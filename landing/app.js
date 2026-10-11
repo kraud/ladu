@@ -38,6 +38,10 @@
             heading: 'Keep all your languages alive.',
             lead:
                 'Ladu is a vocabulary manager for people who speak more than one language. Save each word once, with its translations in every language you know. Then practise them together.',
+            leadA: 'Ladu is a vocabulary manager for people who speak more than one language.',
+            leadB: 'Save each word once, with its translations in every language you know.',
+            leadC: 'Then practise them together.',
+            exerciseCard: 'Example exercise',
             open: 'Open',
             card: 'Example word: dance, in four languages',
             privacy: 'Privacy',
@@ -65,6 +69,10 @@
             heading: 'Mantén vivos todos tus idiomas.',
             lead:
                 'Ladu es un gestor de vocabulario para personas que hablan más de un idioma. Guarda cada palabra una sola vez, con sus traducciones en todos los idiomas que conoces. Después, practícalas juntas.',
+            leadA: 'Ladu es un gestor de vocabulario para personas que hablan más de un idioma.',
+            leadB: 'Guarda cada palabra una sola vez, con sus traducciones en todos los idiomas que conoces.',
+            leadC: 'Después, practícalas juntas.',
+            exerciseCard: 'Ejercicio de ejemplo',
             open: 'Abrir',
             card: 'Palabra de ejemplo: «dance», en cuatro idiomas',
             privacy: 'Privacidad',
@@ -92,6 +100,10 @@
             heading: 'Halte all deine Sprachen lebendig.',
             lead:
                 'Ladu ist ein Vokabelmanager für Menschen, die mehr als eine Sprache sprechen. Speichere jedes Wort einmal, mit seinen Übersetzungen in allen Sprachen, die du kennst. Übe sie dann gemeinsam.',
+            leadA: 'Ladu ist ein Vokabelmanager für Menschen, die mehr als eine Sprache sprechen.',
+            leadB: 'Speichere jedes Wort einmal, mit seinen Übersetzungen in allen Sprachen, die du kennst.',
+            leadC: 'Übe sie dann gemeinsam.',
+            exerciseCard: 'Beispielübung',
             open: 'Öffnen',
             card: 'Beispielwort: „dance“ in vier Sprachen',
             privacy: 'Datenschutz',
@@ -119,6 +131,10 @@
             heading: 'Hoia kõik oma keeled elus.',
             lead:
                 'Ladu on sõnavarahaldur inimestele, kes räägivad rohkem kui ühte keelt. Salvesta iga sõna ainult üks kord koos tõlgetega kõigis keeltes, mida oskad. Seejärel harjuta neid koos.',
+            leadA: 'Ladu on sõnavarahaldur inimestele, kes räägivad rohkem kui ühte keelt.',
+            leadB: 'Salvesta iga sõna ainult üks kord koos tõlgetega kõigis keeltes, mida oskad.',
+            leadC: 'Seejärel harjuta neid koos.',
+            exerciseCard: 'Näidisharjutus',
             open: 'Ava',
             card: 'Näitesõna: „dance“ neljas keeles',
             privacy: 'Privaatsus',
@@ -446,28 +462,50 @@
     var ROW_DELAY_MS = ROLL_ROWS_TOGETHER ? 0 : 140;
     var OUT_MS = 230;
 
+    /* Rolls one part of the page: it moves up and out, `change()` swaps its content, and it comes in from below
+       (the classes are in style.css). */
+    function roll(el, change) {
+        el.classList.add('is-out');
+        window.setTimeout(function () {
+            change();
+            /* Jump to below with no transition, then let it roll up into place. */
+            el.classList.remove('is-out');
+            el.classList.add('is-in');
+            void el.offsetWidth;
+            el.classList.remove('is-in');
+        }, OUT_MS);
+    }
+
+    /* The small exercise cards (phone): one for each word of the bubble, in the same order. On the beat that
+       changes the words, the card that belongs to the new word comes in. All the panels are in the page; only
+       the active one is visible. */
+    function turnExercise(stage, index) {
+        var panels = Array.prototype.slice.call(stage.querySelectorAll('.ex-panel'));
+        roll(stage, function () {
+            panels.forEach(function (panel, i) {
+                panel.classList.toggle('is-active', i === index % panels.length);
+            });
+        });
+    }
+
     function rollWords() {
         var terms = document.querySelectorAll('[data-term]');
         if (!terms.length) return;
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+        var stage = document.querySelector('[data-exercise]');
         var index = 0;
         window.setInterval(function () {
             if (document.hidden) return;
             index = (index + 1) % WORDS.length;
             terms.forEach(function (el, row) {
                 window.setTimeout(function () {
-                    el.classList.add('is-out');
-                    window.setTimeout(function () {
+                    roll(el, function () {
                         el.textContent = WORDS[index][el.getAttribute('data-term')];
-                        /* Jump to below with no transition, then let it roll up into place. */
-                        el.classList.remove('is-out');
-                        el.classList.add('is-in');
-                        void el.offsetWidth;
-                        el.classList.remove('is-in');
-                    }, OUT_MS);
+                    });
                 }, row * ROW_DELAY_MS);
             });
+            if (stage) turnExercise(stage, index);
         }, ROLL_MS);
     }
 

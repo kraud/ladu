@@ -22,6 +22,9 @@
     --lang-es: #b8352f;
     --lang-ee: #2265a8;
 
+    --ok: #1a8f4a; /* a right answer */
+    --bad: #d6453d; /* a wrong answer */
+
     --font-display: 'Iowan Old Style', 'Charter', Georgia, 'Times New Roman', serif;
     --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
@@ -46,6 +49,9 @@
     --lang-de: #b4b0a6;
     --lang-es: #ef7d76;
     --lang-ee: #6fb0ec;
+
+    --ok: #4cc38a;
+    --bad: #ef7d76;
 }
 
 /* No-script fallback: without JS nothing sets `data-theme`, so follow the OS.
@@ -67,6 +73,9 @@
         --lang-de: #b4b0a6;
         --lang-es: #ef7d76;
         --lang-ee: #6fb0ec;
+
+        --ok: #4cc38a;
+        --bad: #ef7d76;
     }
 }
 
@@ -414,24 +423,39 @@ h1 {
 
 .term-text {
     display: inline-block;
+}
+
+/* app.js rolls a part of the page by adding .is-out (it moves up and fades), swapping the content, then
+   .is-in for one frame (it jumps to below with no transition) and letting it settle. Used by the words in the
+   bubble and by the exercise card on a phone. */
+.term-text,
+.roll {
     transition: transform 0.22s ease, opacity 0.22s ease;
 }
 
-.term-text.is-out {
+.is-out {
     transform: translateY(-0.7em);
     opacity: 0;
 }
 
-.term-text.is-in {
+.is-in {
     transform: translateY(0.7em);
     opacity: 0;
     transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .term-text {
+    .term-text,
+    .roll {
         transition: none;
     }
+}
+
+/* Phone-only parts: the hint's three parts and the exercise card. The desktop has none of them. */
+.m-lead,
+.m-text,
+.exercise {
+    display: none;
 }
 
 /* Phone-only parts of the hero; the desktop does not show them. */
@@ -604,11 +628,149 @@ main.legal {
     text-decoration: underline;
 }
 
-/* Phone (the width where the hero already becomes one column). The home page has no header here: the
-   Open button is the way in. The hero is a grid; its rows, top to bottom:
-     the logo (wordmark and bubble), centred / the belt of language flags / the title, on one line /
-     the lead on the left and a small bubble with the example word on the right /
-     the Open button / (free space) / the language and theme switches, at the bottom, above the footer.
+/* The small exercise card (phone): the same card as in the app, simplified. One of two panels is shown
+   (app.js turns them): one card for each word of the bubble, a multiple-choice question or a typed answer.
+   All the panels sit in one grid cell, the hidden ones invisible, so the card keeps one height. The dots
+   under each are that word's recent answers, each with its own history. */
+.exercise {
+    container-type: inline-size;
+    padding: 4cqw 4.5cqw 3.5cqw;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 18px -14px rgb(0 0 0 / 0.3);
+}
+
+.ex-stage {
+    display: grid;
+    overflow: hidden;
+}
+
+.ex-panel {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3.5cqw;
+    visibility: hidden;
+}
+
+.ex-panel.is-active {
+    visibility: visible;
+}
+
+.ex-top {
+    display: flex;
+    align-items: center;
+    gap: 2.5cqw;
+}
+
+.ex-chip {
+    padding: 0.5cqw 2cqw;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--lang-color) 12%, transparent);
+    font-size: clamp(0.6rem, 3.2cqw, 0.72rem);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--lang-color);
+}
+
+.ex-arrow {
+    flex: none;
+    width: clamp(0.8rem, 5.4cqw, 1rem);
+    height: clamp(0.8rem, 5.4cqw, 1rem);
+    margin-left: -0.5cqw;
+    color: var(--muted);
+}
+
+.ex-prompt {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 8.5cqw, 1.5rem);
+    line-height: 1.2;
+}
+
+.ex-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2cqw;
+}
+
+.ex-opt {
+    padding: 2cqw 0;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg);
+    text-align: center;
+    font-size: clamp(0.72rem, 4.4cqw, 0.9rem);
+    font-weight: 600;
+}
+
+.ex-opt.is-right {
+    border-color: var(--ok);
+    background: color-mix(in oklch, var(--ok) 14%, transparent);
+    color: var(--ok);
+}
+
+.ex-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2cqw;
+    padding: 2cqw 3cqw;
+    border: 1px solid var(--ok);
+    border-radius: 7px;
+    background: color-mix(in oklch, var(--ok) 8%, transparent);
+    font-size: clamp(0.8rem, 5cqw, 1rem);
+}
+
+.ex-input .icon {
+    flex: none;
+    color: var(--ok);
+}
+
+/* The language of the answer is a badge at the start of the input, inside it. */
+.ex-input .ex-chip {
+    flex: none;
+}
+
+.ex-answer {
+    flex: 1;
+    min-width: 0;
+}
+
+.ex-dots {
+    display: flex;
+    justify-content: center;
+    gap: 2.4cqw;
+    margin-top: 0.5cqw;
+}
+
+.ex-dots i {
+    width: 3.2cqw;
+    height: 3.2cqw;
+    min-width: 8px;
+    min-height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+}
+
+.ex-dots .is-good {
+    background: var(--ok);
+    border-color: var(--ok);
+}
+
+.ex-dots .is-bad {
+    background: var(--bad);
+    border-color: var(--bad);
+}
+
+/* Phone (the width where the hero already becomes one column). The home page has no header here. The
+   hero is a grid; its rows, top to bottom:
+     the logo (wordmark and bubble), centred / the title, one line / the belt of language flags /
+     the first sentence of the hint /
+     feature 1: the second sentence, and the bubble with the example word /
+     feature 2: the small exercise card, and the third sentence beside it (the sides are swapped) /
+     (free space) / the Open button / the language and theme switches, at the bottom above the footer.
    `.hero-copy` and `.hero-title` give their children to the hero (`display: contents`) so each child can
    take its own place in the grid. The legal pages and the blog keep their header. */
 @media (max-width: 52rem) {
@@ -624,15 +786,17 @@ main.legal {
     .hero {
         width: 100%;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, min(48%, 16rem));
-        grid-template-rows: repeat(5, auto) 1fr auto;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(6, auto) 1fr auto auto;
         grid-template-areas:
             'mark mark'
-            'flags flags'
             'title title'
-            'lead bubble'
-            'actions actions'
+            'flags flags'
+            'lead lead'
+            'text1 visual1'
+            'visual2 text2'
             '. .'
+            'actions actions'
             'controls controls';
         gap: 1.25rem 1rem;
         /* Room above the logo, so the rows sit nearer the middle of the screen. */
@@ -653,7 +817,7 @@ main.legal {
     }
 
     /* The belt of flags, as on the sign-in screens: chips that slide to the left in a loop. */
-    .flag-row {
+.flag-row {
         grid-area: flags;
         display: block;
         min-width: 0;
@@ -690,27 +854,51 @@ main.legal {
     /* One line, whatever the width: the size follows the window (about 5.4vw fits 30 letters). */
     .hero-title h1 {
         grid-area: title;
-        margin: 0;
+        margin: -0.4rem 0 0;
         font-size: clamp(1.05rem, 5.4vw, 1.9rem);
         white-space: nowrap;
         text-align: center;
     }
 
+    /* The desktop's whole paragraph is replaced by its three parts. */
     .lead {
-        grid-area: lead;
-        align-self: center;
-        margin: 0;
-        max-width: none;
-        font-size: clamp(0.82rem, 2.2vw, 1rem);
-        line-height: 1.45;
+        display: none;
     }
 
-    /* The bubble, small, next to the lead. Its tail points left, to the text. The words inside follow its
-       size (`cqw`); the rows are tighter here so four of them fit. */
+    .m-lead {
+        grid-area: lead;
+        display: block;
+        margin: 0;
+        font-size: 0.92rem;
+        line-height: 1.45;
+        color: var(--muted);
+        text-align: center;
+    }
+
+    .m-text {
+        display: block;
+        align-self: center;
+        margin: 0;
+        font-size: clamp(0.82rem, 2.2vw, 1rem);
+        line-height: 1.45;
+        color: var(--muted);
+    }
+
+    .m-text-1 {
+        grid-area: text1;
+    }
+
+    .m-text-2 {
+        grid-area: text2;
+    }
+
+    /* Feature 1: the bubble, small, beside its sentence; its tail points left, to the text. The words inside
+       follow its size (`cqw`); the rows are tighter here so four of them fit. */
     .bubble {
-        grid-area: bubble;
-        max-width: none;
-        justify-self: stretch;
+        grid-area: visual1;
+        width: 100%;
+        max-width: 16rem;
+        justify-self: end;
     }
 
     .bubble ul {
@@ -721,6 +909,15 @@ main.legal {
         gap: 3cqw;
         padding: 1.5cqw 3cqw;
         border-radius: 5px;
+    }
+
+    /* Feature 2: the small exercise card beside its sentence. */
+    .exercise {
+        grid-area: visual2;
+        display: block;
+        width: 100%;
+        max-width: 16rem;
+        justify-self: start;
     }
 
     .actions {
