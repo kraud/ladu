@@ -706,23 +706,6 @@
         }, ROLL_MS);
     }
 
-    /* ---------- the belt of language flags (phone) ---------- */
-
-    /* The belt slides its chips to the left by half of its length, then starts again, so it needs a second
-       half that equals the first: three more copies of the four chips, hidden from assistive technology. */
-    function fillFlagBelt() {
-        var track = document.querySelector('.flag-track');
-        if (!track) return;
-        var chips = Array.prototype.slice.call(track.children);
-        for (var copy = 0; copy < 3; copy++) {
-            chips.forEach(function (chip) {
-                var clone = chip.cloneNode(true);
-                clone.setAttribute('aria-hidden', 'true');
-                track.appendChild(clone);
-            });
-        }
-    }
-
     /* ---------- first render ---------- */
 
     applyText();
@@ -730,6 +713,5 @@
     applyThemeButtons();
     if (picker && trigger && menu) renderPicker();
     setupNotice();
-    fillFlagBelt();
     rollWords();
 })();

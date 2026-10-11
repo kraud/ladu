@@ -482,8 +482,7 @@ h1 {
 }
 
 /* Phone-only parts of the hero; the desktop does not show them. */
-.hero-mark,
-.flag-row {
+.hero-mark {
     display: none;
 }
 
@@ -1013,11 +1012,12 @@ main.legal {
 
 /* Phone (the width where the hero already becomes one column). The home page has no header here. The
    hero is a grid; its rows, top to bottom:
-     the logo (wordmark and bubble), centred / the title, one line / the belt of language flags /
+     the logo (wordmark and bubble), centred / the title, one line, with a separator under it /
      the first sentence of the hint /
      feature 1: the second sentence, and the bubble with the example word /
      feature 2: the small exercise card, and the third sentence beside it (the sides are swapped) /
-     (free space) / the Open button / the language and theme switches, at the bottom above the footer.
+     (free space) / the Open button / the list of languages, centred / the language and theme switches, at the
+     bottom above the footer.
    `.hero-copy` and `.hero-title` give their children to the hero (`display: contents`) so each child can
    take its own place in the grid. The legal pages and the blog keep their header. */
 @media (max-width: 52rem) {
@@ -1036,21 +1036,21 @@ main.legal {
         /* Ten equal columns: feature 1 uses 5 + 5; features 2 and 3 (the exercise card and the tags) 6 + 4 and 4 + 6,
            so their cards are 60% of the width. Five columns plus their four gaps are exactly half of the row minus half a gap. */
         grid-template-columns: repeat(10, minmax(0, 1fr));
-        grid-template-rows: repeat(7, auto) 1fr auto auto;
+        grid-template-rows: repeat(6, auto) 1fr auto auto auto;
         grid-template-areas:
             'mark mark mark mark mark mark mark mark mark mark'
             'title title title title title title title title title title'
-            'flags flags flags flags flags flags flags flags flags flags'
             'lead lead lead lead lead lead lead lead lead lead'
             'text1 text1 text1 text1 text1 visual1 visual1 visual1 visual1 visual1'
             'visual2 visual2 visual2 visual2 visual2 visual2 text2 text2 text2 text2'
             'text3 text3 text3 text3 visual3 visual3 visual3 visual3 visual3 visual3'
             '. . . . . . . . . .'
             'actions actions actions actions actions actions actions actions actions actions'
+            'note note note note note note note note note note'
             'controls controls controls controls controls controls controls controls controls controls';
         gap: 1.25rem 1rem;
-        /* Only a little room above the logo (there is no header). */
-        padding-block: 1rem 1.25rem;
+        /* Room above the logo (there is no header). */
+        padding-block: 2rem 1.25rem;
     }
 
     .hero-copy,
@@ -1066,45 +1066,13 @@ main.legal {
         height: auto;
     }
 
-    /* The belt of flags, as on the sign-in screens: chips that slide to the left in a loop. */
-.flag-row {
-        grid-area: flags;
-        display: block;
-        min-width: 0;
-        overflow: hidden;
-        contain: inline-size;
-        mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
-        -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
-    }
-
-    .flag-track {
-        display: flex;
-        width: max-content;
-        animation: flag-marquee 60s linear infinite;
-    }
-
-    .flag-chip {
-        display: inline-flex;
-        flex-shrink: 0;
-        align-items: center;
-        gap: 7px;
-        height: 30px;
-        margin-right: 8px;
-        padding: 0 12px;
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        background: var(--bg);
-        font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        color: var(--muted);
-    }
-
     /* One line, whatever the width: the size follows the window (about 5.4vw fits 30 letters). */
     .hero-title h1 {
         grid-area: title;
         margin: -0.4rem 0 0;
+        /* A separator under the title, over the full width. */
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
         font-size: clamp(1.05rem, 5.4vw, 1.9rem);
         white-space: nowrap;
         text-align: center;
@@ -1214,26 +1182,17 @@ main.legal {
         width: 100%;
     }
 
+    /* The list of languages, as on the desktop, centred under the Open button. */
     .note {
-        display: none;
+        grid-area: note;
+        margin: -0.4rem 0 0;
+        text-align: center;
     }
 
     .js .controls {
         grid-area: controls;
         justify-content: center;
         margin: 0;
-    }
-}
-
-@keyframes flag-marquee {
-    to {
-        transform: translateX(-50%);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .flag-track {
-        animation: none;
     }
 }
 
