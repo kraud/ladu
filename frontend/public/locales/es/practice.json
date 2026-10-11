@@ -385,7 +385,11 @@
       "withTags_one": "Esta configuración incluye las palabras de {{count}} etiqueta. Se leen de nuevo al cargarla.",
       "withTags_other": "Esta configuración incluye las palabras de {{count}} etiquetas. Se leen de nuevo al cargarla.",
       "save": "Guardar",
-      "saving": "Guardando…"
+      "saving": "Guardando…",
+      "reviseTitle": "Guardar cambios",
+      "reviseHint": "Actualizar reemplaza los ajustes guardados de esta configuración. Guardar como copia la deja como está y añade una nueva configuración con otro nombre.",
+      "saveAsCopy": "Guardar como copia",
+      "update": "Actualizar"
     },
     "deleteDialog": {
       "title": "¿Eliminar «{{name}}»?",

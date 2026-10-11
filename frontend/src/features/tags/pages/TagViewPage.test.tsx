@@ -46,7 +46,7 @@ describe('TagViewPage — not found', () => {
         await renderApp({ initialEntry: '/tag/does-not-exist', session: SESSION });
 
         expect(await screen.findByText("You can't see this tag")).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: 'Back to /tags' })).toHaveAttribute('href', '/tags');
+        expect(screen.getByRole('link', { name: 'Return to Tags' })).toHaveAttribute('href', '/tags');
     });
 });
 

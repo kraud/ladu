@@ -22,6 +22,9 @@
     --lang-es: #b8352f;
     --lang-ee: #2265a8;
 
+    --ok: #1a8f4a; /* a right answer */
+    --bad: #d6453d; /* a wrong answer */
+
     --font-display: 'Iowan Old Style', 'Charter', Georgia, 'Times New Roman', serif;
     --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
@@ -46,6 +49,9 @@
     --lang-de: #b4b0a6;
     --lang-es: #ef7d76;
     --lang-ee: #6fb0ec;
+
+    --ok: #4cc38a;
+    --bad: #ef7d76;
 }
 
 /* No-script fallback: without JS nothing sets `data-theme`, so follow the OS.
@@ -67,6 +73,9 @@
         --lang-de: #b4b0a6;
         --lang-es: #ef7d76;
         --lang-ee: #6fb0ec;
+
+        --ok: #4cc38a;
+        --bad: #ef7d76;
     }
 }
 
@@ -133,6 +142,21 @@ main,
     text-decoration: underline;
 }
 
+/* "Log in" in the header: the sign-in icon, then the text. The underline on hover is for the text only. */
+.login {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.login:hover {
+    text-decoration: none;
+}
+
+.login:hover span {
+    text-decoration: underline;
+}
+
 main {
     flex: 1;
     display: flex;
@@ -164,7 +188,10 @@ h1 {
 }
 
 .button {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     padding: 0.8rem 1.6rem;
     border-radius: 8px;
     background: var(--accent);
@@ -312,28 +339,61 @@ h1 {
     visibility: visible;
 }
 
-/* Example word card: one concept, four languages, each with its own colour. */
-.card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 0.5rem;
-    box-shadow: 0 12px 32px -16px rgb(0 0 0 / 0.25);
+/* The example word: one concept, four languages, each with its own colour, inside the logo's message
+   bubble (brand/Ladu_bubble_outline.svg, drawn from the paths of Ladu_title_with_icon.svg). The bubble
+   keeps the shape's proportions (66 : 62); the rows sit inside its body, above the tail. Everything inside
+   is sized in `cqw` (a hundredth of the bubble's width), so the rows fill the bubble at any size.
+   The surface fill and the accent outline are masks of two brand files with the same path (the outline is a
+   thin stroke of it, the surface its fill), so both follow the theme and meet exactly. */
+.bubble {
+    position: relative;
+    container-type: inline-size;
+    width: 100%;
+    max-width: 28rem;
+    justify-self: center;
+    aspect-ratio: 66 / 62;
+    filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.12));
 }
 
-.card ul {
+.bubble::before,
+.bubble::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    -webkit-mask: center / 100% 100% no-repeat;
+    mask: center / 100% 100% no-repeat;
+}
+
+.bubble::before {
+    background: var(--surface);
+    -webkit-mask-image: url('/brand/Ladu_bubble_surface.svg');
+    mask-image: url('/brand/Ladu_bubble_surface.svg');
+}
+
+.bubble::after {
+    background: var(--accent);
+    -webkit-mask-image: url('/brand/Ladu_bubble_outline.svg');
+    mask-image: url('/brand/Ladu_bubble_outline.svg');
+}
+
+.bubble ul {
+    position: absolute;
+    inset: 9% 8% 21% 8%;
+    z-index: 1;
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.8cqw;
 }
 
 .lang {
     display: flex;
     align-items: baseline;
-    gap: 1rem;
-    padding: 0.9rem 1rem;
+    gap: 3.5cqw;
+    padding: 2.6cqw 3.6cqw;
     border-top: 2px solid var(--lang-color);
     border-radius: 8px;
     background: color-mix(in oklch, var(--lang-color) 7%, transparent);
@@ -344,17 +404,236 @@ h1 {
 .lang-de { --lang-color: var(--lang-de); }
 .lang-ee { --lang-color: var(--lang-ee); }
 
+/* The gender of a noun, a small badge at the end of its row (the Spanish and German words of the bubble, when the word
+   is a noun: casa - la, Haus - das). app.js fills it and shows it. */
+.gender {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    padding: 0.4cqw 2cqw;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--lang-color) 14%, transparent);
+    font-size: clamp(0.55rem, 2.9cqw, 0.8rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--lang-color);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.gender:empty {
+    display: none;
+}
+
+.gender.is-on {
+    opacity: 1;
+}
+
 .code {
-    min-width: 1.75rem;
-    font-size: 0.75rem;
+    min-width: 6cqw;
+    font-size: clamp(0.62rem, 2.9cqw, 0.8rem);
     font-weight: 700;
     letter-spacing: 0.06em;
     color: var(--lang-color);
 }
 
+/* The word rolls (app.js): the old one moves up and fades out, the new one comes in from below. The row
+   clips it, so it looks like a drum turning. */
 .term {
+    overflow: hidden;
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: clamp(0.72rem, 5.6cqw, 1.5rem);
+    line-height: 1.3;
+}
+
+.term-text {
+    display: inline-block;
+}
+
+/* app.js rolls a part of the page by adding .is-out (it moves up and fades), swapping the content, then
+   .is-in for one frame (it jumps to below with no transition) and letting it settle. Used by the words in the
+   bubble and by the exercise card on a phone. */
+.term-text,
+.roll,
+[data-feature] {
+    transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.roll-x {
+    transition-duration: 0.3s;
+}
+
+.is-out {
+    transform: translateY(-0.7em);
+    opacity: 0;
+}
+
+.is-in {
+    transform: translateY(0.7em);
+    opacity: 0;
+    transition: none;
+}
+
+/* The exercise card scrolls sideways instead: the old content goes out to the left, the new one comes in from the
+   right. The card (.exercise) clips it, so nothing shows outside the card. */
+.roll-x.is-out {
+    transform: translateX(calc(-100% - 6cqw));
+    opacity: 0;
+}
+
+.roll-x.is-in {
+    transform: translateX(calc(100% + 6cqw));
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .term-text,
+    .roll,
+    [data-feature] {
+        transition: none;
+    }
+}
+
+/* Phone-only parts: the hint's separate sentences. The desktop shows the whole hint in `.lead` instead. */
+.m-lead,
+.m-text {
+    display: none;
+}
+
+/* The hint on the desktop: each feature's part is a text-button (app.js) that shows its preview, and also the
+   progress bar of that preview. The part of the preview now shown (`.is-current`, moved by app.js) has a soft blue
+   background, and a darker blue fills it along the text (it follows the lines when the text wraps) for as long as the
+   preview stays (`--feat-ms`, set by app.js). When it is full, a moment later the next preview comes. The phone shows
+   no `.lead`. */
+.feat {
+    --feat-track: color-mix(in oklch, var(--accent) 13%, transparent);
+    --feat-fill: color-mix(in oklch, var(--accent) 30%, transparent);
+    margin-inline: -0.25em;
+    padding: 0.05em 0.25em;
+    border-radius: 5px;
+    background: linear-gradient(var(--feat-fill), var(--feat-fill)) 0 0 / 0% 100% no-repeat;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.feat[role='button'] {
+    cursor: pointer;
+}
+
+.feat[role='button']:hover {
+    color: var(--fg);
+}
+
+.feat.is-current {
+    background-color: var(--feat-track);
+    color: var(--fg);
+    animation: feat-fill var(--feat-ms, 10s) linear forwards;
+}
+
+@keyframes feat-fill {
+    to {
+        background-size: 100% 100%;
+    }
+}
+
+/* "Reduce motion": nothing fills; the current part is simply marked. */
+@media (prefers-reduced-motion: reduce) {
+    .feat.is-current {
+        animation: none;
+        background-color: var(--feat-fill);
+    }
+}
+
+/* The three previews (bubble, exercise card, tag card) share one place on the desktop, in the right column: the
+   one of the feature now current is shown, the others are invisible but keep the room, so nothing jumps. The
+   phone puts each in a row of its own (see the media query below). */
+.bubble,
+.exercise,
+.tagcard {
+    grid-area: 1 / 2;
+    width: 100%;
+    max-width: 26rem;
+    justify-self: center;
+    visibility: hidden;
+}
+
+.bubble.is-current,
+.exercise.is-current,
+.tagcard.is-current {
+    visibility: visible;
+}
+
+/* The panels inside a card set their own `visibility`, which would show through a hidden card. The phone shows
+   all three cards, so this is for the desktop only (the mirror of `max-width: 52rem` below). */
+@media (min-width: 52.01rem) {
+    .bubble:not(.is-current) *,
+    .exercise:not(.is-current) *,
+    .tagcard:not(.is-current) * {
+        visibility: hidden !important;
+    }
+
+    /* A card's own padding cannot use its own `cqw` (it counts the window here), so it is in rem. */
+    .hero .exercise {
+        padding: 1.4rem 1.5rem 1.25rem;
+    }
+
+    .hero .tagcard {
+        padding: 1.4rem 1.5rem;
+    }
+
+    /* The sizes of the texts in the two cards are capped (clamp) for the small cards of the phone. The desktop's
+       cards are about twice as wide, so here the texts follow the card's width (`cqw`) with no cap, and fill the
+       card as the words of the bubble do. */
+    .hero .ex-chip {
+        font-size: 3.9cqw;
+    }
+
+    .hero .ex-arrow {
+        width: 6cqw;
+        height: 6cqw;
+    }
+
+    .hero .ex-prompt {
+        font-size: 9.5cqw;
+    }
+
+    .hero .ex-opt {
+        font-size: 5.4cqw;
+    }
+
+    .hero .ex-input {
+        font-size: 6cqw;
+    }
+
+    .hero .tag-icon {
+        width: 7cqw;
+        height: 7cqw;
+    }
+
+    .hero .tag-name {
+        font-size: 8.5cqw;
+    }
+
+    .hero .tag-badge {
+        font-size: 3.5cqw;
+    }
+
+    .hero .tag-ico {
+        width: 3.8cqw;
+        height: 3.8cqw;
+    }
+
+    .hero .tag-word {
+        font-size: 4.7cqw;
+    }
+
+    .hero .tag-foot {
+        font-size: 3.6cqw;
+    }
+}
+
+/* Phone-only parts of the hero; the desktop does not show them. */
+.hero-mark {
+    display: none;
 }
 
 .site-footer {
@@ -521,11 +800,529 @@ main.legal {
     text-decoration: underline;
 }
 
+/* The small exercise card (phone): the same card as in the app, simplified. One of two panels is shown
+   (app.js turns them): one card for each word of the bubble, a multiple-choice question or a typed answer.
+   All the panels sit in one grid cell, the hidden ones invisible, so the card keeps one height. The dots
+   under each are that word's recent answers, each with its own history. */
+.exercise {
+    container-type: inline-size;
+    /* The card clips what slides in and out (the stage moves, so it cannot clip itself). */
+    overflow: hidden;
+    padding: 4cqw 4.5cqw 3.5cqw;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 18px -14px rgb(0 0 0 / 0.3);
+}
+
+.ex-stage {
+    display: grid;
+    overflow: hidden;
+}
+
+.ex-panel {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3.5cqw;
+    visibility: hidden;
+}
+
+.ex-panel.is-active {
+    visibility: visible;
+}
+
+.ex-top {
+    display: flex;
+    align-items: center;
+    gap: 2.5cqw;
+}
+
+.ex-chip {
+    padding: 0.5cqw 2cqw;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--lang-color) 12%, transparent);
+    font-size: clamp(0.6rem, 3.2cqw, 0.72rem);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--lang-color);
+}
+
+.ex-arrow {
+    flex: none;
+    width: clamp(0.8rem, 5.4cqw, 1rem);
+    height: clamp(0.8rem, 5.4cqw, 1rem);
+    margin-left: -0.5cqw;
+    color: var(--muted);
+}
+
+.ex-prompt {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 8.5cqw, 1.5rem);
+    line-height: 1.2;
+}
+
+.ex-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2cqw;
+}
+
+.ex-opt {
+    padding: 2cqw 0;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg);
+    text-align: center;
+    font-size: clamp(0.72rem, 4.4cqw, 0.9rem);
+    font-weight: 600;
+}
+
+.ex-opt {
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+/* The option being pressed, just before the result colours it. */
+.ex-opt.is-picking {
+    border-color: var(--accent);
+    background: color-mix(in oklch, var(--accent) 12%, transparent);
+    color: var(--accent);
+}
+
+.ex-opt.is-right {
+    border-color: var(--ok);
+    background: color-mix(in oklch, var(--ok) 14%, transparent);
+    color: var(--ok);
+}
+
+.ex-opt.is-wrong {
+    border-color: var(--bad);
+    background: color-mix(in oklch, var(--bad) 14%, transparent);
+    color: var(--bad);
+}
+
+.ex-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2cqw;
+    padding: 2cqw 3cqw;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg);
+    font-size: clamp(0.8rem, 5cqw, 1rem);
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.ex-input.is-right {
+    border-color: var(--ok);
+    background: color-mix(in oklch, var(--ok) 8%, transparent);
+}
+
+.ex-input.is-wrong {
+    border-color: var(--bad);
+    background: color-mix(in oklch, var(--bad) 8%, transparent);
+}
+
+/* While a word is being typed there is a caret after it. */
+.ex-input.is-typing .ex-answer::after {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 1.05em;
+    margin-left: 1px;
+    vertical-align: text-bottom;
+    background: var(--fg);
+    animation: caret 0.8s steps(1) infinite;
+}
+
+@keyframes caret {
+    50% {
+        opacity: 0;
+    }
+}
+
+.ex-input .icon {
+    display: none;
+    flex: none;
+}
+
+.ex-input.is-right .ex-ok {
+    display: block;
+    color: var(--ok);
+}
+
+.ex-input.is-wrong .ex-no {
+    display: block;
+    color: var(--bad);
+}
+
+/* The language of the answer is a badge at the start of the input, inside it. */
+.ex-input .ex-chip {
+    flex: none;
+}
+
+.ex-answer {
+    flex: 1;
+    min-width: 0;
+}
+
+.ex-dots {
+    display: flex;
+    justify-content: center;
+    gap: 2.4cqw;
+    margin-top: 0.5cqw;
+}
+
+.ex-dots i {
+    width: 3.2cqw;
+    height: 3.2cqw;
+    min-width: 8px;
+    min-height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+}
+
+.ex-dots i {
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.ex-dots .is-good {
+    background: var(--ok);
+    border-color: var(--ok);
+}
+
+.ex-dots .is-bad {
+    background: var(--bad);
+    border-color: var(--bad);
+}
+
+/* The tag card (phone): a tag as the Tags page of the app shows it, simplified. Three tags turn on the same beat
+   as the other features (app.js); the panels sit in one grid cell, the hidden ones invisible, so the card keeps one
+   height. The words of a tag come in one after the other (`.is-shown`, added by app.js; without script, or with
+   "reduce motion", they are all there). Each word shows 3 or 4 of its translations in the colour of their language. */
+.tagcard {
+    container-type: inline-size;
+    padding: 4.5cqw 5cqw;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 18px -14px rgb(0 0 0 / 0.3);
+}
+
+.tag-stage {
+    display: grid;
+    overflow: hidden;
+}
+
+.tag-panel {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2.6cqw;
+    visibility: hidden;
+}
+
+.tag-panel.is-active {
+    visibility: visible;
+}
+
+.tag-head {
+    display: flex;
+    align-items: center;
+    gap: 2cqw;
+    min-width: 0;
+}
+
+.tag-icon {
+    flex: none;
+    width: clamp(0.9rem, 6cqw, 1.25rem);
+    height: clamp(0.9rem, 6cqw, 1.25rem);
+    color: var(--accent);
+}
+
+.tag-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 7.2cqw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.15;
+}
+
+.tag-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.6cqw;
+}
+
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 1cqw;
+    padding: 0.7cqw 2.2cqw;
+    border-radius: 999px;
+    background: var(--fg-soft);
+    font-size: clamp(0.58rem, 3cqw, 0.72rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.tag-badge.is-yours {
+    background: color-mix(in oklch, var(--accent) 14%, transparent);
+    color: var(--accent);
+}
+
+.tag-badge.is-following {
+    background: color-mix(in oklch, var(--lang-gb) 14%, transparent);
+    color: var(--lang-gb);
+}
+
+.tag-badge.is-public {
+    background: color-mix(in oklch, var(--ok) 14%, transparent);
+    color: var(--ok);
+}
+
+.tag-ico {
+    flex: none;
+    width: clamp(0.62rem, 3.2cqw, 0.8rem);
+    height: clamp(0.62rem, 3.2cqw, 0.8rem);
+}
+
+.tag-words {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2cqw;
+}
+
+.tag-word {
+    display: flex;
+    align-items: baseline;
+    gap: 0 1.6cqw;
+    padding: 1.8cqw 2.6cqw;
+    border-radius: 6px;
+    background: var(--fg-soft);
+    font-family: var(--font-display);
+    font-size: clamp(0.62rem, 4.3cqw, 0.95rem);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* The translations of a word, each in the colour of its language, with a small dot between them. */
+.tag-word > span {
+    color: var(--lang-color);
+}
+
+.tag-word > span + span::before {
+    content: '·';
+    margin-right: 1.6cqw;
+    color: var(--muted);
+}
+
+.tag-word > .lang-gb {
+    font-weight: 600;
+}
+
+/* With script (and motion), the words wait (`data-anim`) until their turn. */
+[data-anim] .tag-word {
+    opacity: 0;
+    transform: translateY(0.5em);
+}
+
+[data-anim] .tag-word.is-shown {
+    opacity: 1;
+    transform: none;
+}
+
+.tag-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 2cqw;
+    padding-top: 2cqw;
+    border-top: 1px solid var(--border);
+    font-size: clamp(0.58rem, 3.1cqw, 0.74rem);
+    color: var(--muted);
+}
+
+.tag-foot > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 1cqw;
+}
+
+.tag-foot b {
+    color: var(--fg);
+}
+
+/* Phone (the width where the hero already becomes one column). The home page has no header here. The
+   hero is a grid; its rows, top to bottom:
+     the logo (wordmark and bubble), centred / the title, one line, with a separator under it /
+     the first sentence of the hint /
+     feature 1: the second sentence, and the bubble with the example word /
+     feature 2: the small exercise card, and the third sentence beside it (the sides are swapped) /
+     (free space) / the Open button / the list of languages, centred / the language and theme switches, at the
+     bottom above the footer.
+   `.hero-copy` and `.hero-title` give their children to the hero (`display: contents`) so each child can
+   take its own place in the grid. The legal pages and the blog keep their header. */
 @media (max-width: 52rem) {
+    .home .site-header {
+        display: none;
+    }
+
+    /* The hero fills the page between the top and the footer, so the switches can sit at the bottom. */
+    .home main {
+        align-items: stretch;
+    }
+
     .hero {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
-        padding-block: 1.5rem 3rem;
+        width: 100%;
+        display: grid;
+        /* Ten equal columns: feature 1 uses 5 + 5; features 2 and 3 (the exercise card and the tags) 6 + 4 and 4 + 6,
+           so their cards are 60% of the width. Five columns plus their four gaps are exactly half of the row minus half a gap. */
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+        grid-template-rows: repeat(6, auto) 1fr auto auto auto;
+        grid-template-areas:
+            'mark mark mark mark mark mark mark mark mark mark'
+            'title title title title title title title title title title'
+            'lead lead lead lead lead lead lead lead lead lead'
+            'text1 text1 text1 text1 text1 visual1 visual1 visual1 visual1 visual1'
+            'visual2 visual2 visual2 visual2 visual2 visual2 text2 text2 text2 text2'
+            'text3 text3 text3 text3 visual3 visual3 visual3 visual3 visual3 visual3'
+            '. . . . . . . . . .'
+            'actions actions actions actions actions actions actions actions actions actions'
+            'note note note note note note note note note note'
+            'controls controls controls controls controls controls controls controls controls controls';
+        gap: 1.25rem 1rem;
+        /* Room above the logo (there is no header). */
+        padding-block: 2rem 1.25rem;
+    }
+
+    .hero-copy,
+    .hero-title {
+        display: contents;
+    }
+
+    .hero-mark {
+        grid-area: mark;
+        justify-self: center;
+        display: block;
+        width: min(78%, 17rem);
+        height: auto;
+    }
+
+    /* One line, whatever the width: the size follows the window (about 5.4vw fits 30 letters). */
+    .hero-title h1 {
+        grid-area: title;
+        margin: -0.4rem 0 0;
+        /* A separator under the title, over the full width. */
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+        font-size: clamp(1.05rem, 5.4vw, 1.9rem);
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    /* The desktop's whole paragraph is replaced by its three parts. */
+    .lead {
+        display: none;
+    }
+
+    .m-lead {
+        grid-area: lead;
+        display: block;
+        margin: 0;
+        font-size: 0.92rem;
+        line-height: 1.45;
+        color: var(--muted);
+        text-align: center;
+    }
+
+    .m-text {
+        display: block;
+        align-self: center;
+        margin: 0;
+        font-size: clamp(0.82rem, 2.2vw, 1rem);
+        line-height: 1.45;
+        color: var(--muted);
+    }
+
+    .m-text-1 {
+        grid-area: text1;
+    }
+
+    .m-text-2 {
+        grid-area: text2;
+    }
+
+    /* Feature 1: the bubble, small, beside its sentence; its tail points left, to the text. The words inside
+       follow its size (`cqw`); the rows are tighter here so four of them fit. */
+    .bubble {
+        grid-area: visual1;
+        width: 100%;
+        max-width: 16rem;
+        justify-self: end;
+        visibility: visible;
+    }
+
+    .bubble ul {
+        gap: 1.1cqw;
+    }
+
+    .lang {
+        gap: 3cqw;
+        padding: 1.5cqw 3cqw;
+        border-radius: 5px;
+    }
+
+    /* Feature 3: the tag card, 60% of the row, with its hint beside it. */
+    .m-text-3 {
+        grid-area: text3;
+    }
+
+    .tagcard {
+        grid-area: visual3;
+        display: block;
+        width: 100%;
+        max-width: none;
+        justify-self: stretch;
+        visibility: visible;
+    }
+
+    /* Feature 2: the exercise card, 60% of the row, with its sentence beside it. */
+    .exercise {
+        grid-area: visual2;
+        display: block;
+        width: 100%;
+        max-width: none;
+        justify-self: stretch;
+        visibility: visible;
+    }
+
+    .actions {
+        grid-area: actions;
+    }
+
+    .actions .button {
+        width: 100%;
+    }
+
+    /* The list of languages, as on the desktop, centred under the Open button. */
+    .note {
+        grid-area: note;
+        margin: -0.4rem 0 0;
+        text-align: center;
+    }
+
+    .js .controls {
+        grid-area: controls;
+        justify-content: center;
+        margin: 0;
     }
 }
 

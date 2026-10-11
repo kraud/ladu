@@ -63,6 +63,8 @@ describe('PracticePage — list badges', () => {
         const group = await screen.findByRole('group', { name: 'Lists' });
         const tabs = within(group).getAllByRole('button');
         expect(tabs.map((tab) => tab.textContent)).toEqual(['Ongoing sessions', 'Saved configurations']);
+        // Each badge has its icon inside it, before the label.
+        for (const tab of tabs) expect(tab.firstElementChild?.tagName.toLowerCase()).toBe('svg');
         // New configuration is a button on the title row, not a badge.
         expect(screen.getByRole('button', { name: 'New configuration' })).toBeInTheDocument();
         expect(tabs[0]).toHaveAttribute('aria-pressed', 'true');
@@ -117,7 +119,9 @@ describe('PracticePage — list badges', () => {
         await user.click(await screen.findByRole('button', { name: 'Use configuration Morning drill' }));
         await chooseChangeSettingsFirst();
 
-        expect(screen.getByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
+        // A saved configuration being changed shows its own name, not "New configuration".
+        expect(screen.getByRole('heading', { name: 'Morning drill' })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'New configuration' })).not.toBeInTheDocument();
         expect(await screen.findByLabelText('Number of exercises')).toHaveValue(5);
     });
 });

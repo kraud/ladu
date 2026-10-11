@@ -16,9 +16,7 @@ import { LanguageSelector } from '@/components/layout/LanguageSelector';
 import { ThemeSelector } from '@/components/layout/ThemeSelector';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { featureFlags } from '@/app/feature-flags';
-import { LeaveSessionDialog } from '@/features/practice/components/LeaveSessionDialog';
-import { useSessionFor } from '@/features/practice/sessionStore';
-import { useQuickPractice } from '@/features/practice/useQuickPractice';
+import { useRandomPractice } from '@/features/practice/useRandomPractice';
 import { useEdgeSwipeOpen, useSwipeCloseProps } from '@/lib/useSwipe';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import { useAuthStore } from '@/stores/authStore';
@@ -66,12 +64,9 @@ function useLanguageGate() {
 function NavLinks({
     onNavigate,
     className,
-    withIcons,
 }: {
     onNavigate?: () => void;
     className?: string;
-    /** The phone menu shows an icon on the left of each label. */
-    withIcons?: boolean;
 }) {
     const { t } = useTranslation();
     const gate = useLanguageGate();
@@ -88,7 +83,7 @@ function NavLinks({
                         if (gate(item.requiresLanguages)(event)) onNavigate?.();
                     }}
                 >
-                    {withIcons && <item.icon size={22} aria-hidden="true" className="shrink-0" />}
+                    <item.icon aria-hidden="true" className="size-[18px] shrink-0 text-(--accent) max-[920px]:size-[22px]" />
                     {t(item.labelKey)}
                 </Link>
             ))}
@@ -164,22 +159,10 @@ export function AppHeader() {
     // On a phone, a swipe from the left edge opens the menu, and a swipe to the left closes it.
     useEdgeSwipeOpen(isMobile && !sheetOpen, openMenu);
     const swipeToClose = useSwipeCloseProps(() => setSheetOpen(false));
-    const quickPractice = useQuickPractice();
-    const user = useAuthStore((s) => s.user);
-    const session = useSessionFor(user?.id);
-    // A finished session (results) has all its answers saved: nothing to confirm.
-    const needsConfirm = session !== null && session.view !== 'results';
-    const [confirming, setConfirming] = useState(false);
-
-    function randomPractice() {
-        if (needsConfirm) {
-            // The menu closes first: two modal layers would fight for focus.
-            setSheetOpen(false);
-            setConfirming(true);
-        } else {
-            quickPractice.start(() => setSheetOpen(false));
-        }
-    }
+    const randomPractice = useRandomPractice();
+    // Closes the menu first when a running session needs confirming: two modal layers would fight for focus.
+    const startRandomPractice = () =>
+        randomPractice.run({ onBeforeConfirm: () => setSheetOpen(false), onStarted: () => setSheetOpen(false) });
 
     return (
         <header className="app-header">
@@ -207,13 +190,12 @@ export function AppHeader() {
                         </SheetHeader>
                         <NavLinks
                             className="app-nav flex-col gap-0 border-t border-border [&_a]:h-12 [&_a]:w-full [&_a]:rounded-none [&_a]:border-b [&_a]:border-border [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:px-2 [&_a]:text-lg"
-                            withIcons
                             onNavigate={() => setSheetOpen(false)}
                         />
                         <QuickActions
                             onDone={() => setSheetOpen(false)}
-                            onRandom={randomPractice}
-                            busy={quickPractice.isPending}
+                            onRandom={startRandomPractice}
+                            busy={randomPractice.isPending}
                         />
                         <div className="flex items-center justify-between border-t border-border pt-4">
                             <LanguageSelector />
@@ -232,17 +214,7 @@ export function AppHeader() {
 
                 <HeaderRight />
             </div>
-            {session && needsConfirm && (
-                <LeaveSessionDialog
-                    open={confirming}
-                    onOpenChange={setConfirming}
-                    session={session}
-                    onLeave={() => {
-                        setConfirming(false);
-                        quickPractice.start();
-                    }}
-                />
-            )}
+            {randomPractice.dialog}
         </header>
     );
 }

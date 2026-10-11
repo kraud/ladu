@@ -336,7 +336,7 @@ describe('PracticePage — tags in a saved configuration', () => {
         expect(await screen.findByRole('region', { name: 'Kitchen' })).toBeInTheDocument();
         // The saved words were only house (w1); the tag has house and run today.
         expect(await screen.findByText('Practice with 2 selected words')).toBeInTheDocument();
-        expect(screen.getByRole('heading', { name: 'New configuration' })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Kitchen drill' })).toBeInTheDocument();
         expect(screen.queryByText('Some words of this configuration are not available now.')).not.toBeInTheDocument();
     });
 

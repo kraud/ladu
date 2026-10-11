@@ -189,12 +189,12 @@
   "notFound": {
     "title": "Sa ei saa seda tagi näha",
     "description": "See võib nüüd olla privaatne, kustutatud, või link on vale.",
-    "action": "Tagasi /tags juurde"
+    "action": "Tagasi Tagide juurde"
   },
   "view": {
     "by": "Autor",
-    "backAriaLabel": "Tagasi /tags juurde",
-    "backLabel": "Tagasi /tags juurde",
+    "backAriaLabel": "Tagasi Tagide juurde",
+    "backLabel": "Tagasi Tagide juurde",
     "ownedHint": "Sinu tag",
     "ownedHintWithFollowers_one": "Sinu tag — {{count}} jälgija",
     "ownedHintWithFollowers_other": "Sinu tag — {{count}} jälgijat",

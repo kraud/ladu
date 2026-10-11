@@ -189,12 +189,12 @@
   "notFound": {
     "title": "Du kannst diesen Tag nicht sehen",
     "description": "Er ist vielleicht jetzt Privat, wurde gelöscht, oder der Link ist falsch.",
-    "action": "Zurück zu /tags"
+    "action": "Zurück zu Tags"
   },
   "view": {
     "by": "Von",
-    "backAriaLabel": "Zurück zu /tags",
-    "backLabel": "Zurück zu /tags",
+    "backAriaLabel": "Zurück zu Tags",
+    "backLabel": "Zurück zu Tags",
     "ownedHint": "Dein Tag",
     "ownedHintWithFollowers_one": "Dein Tag — {{count}} Follower",
     "ownedHintWithFollowers_other": "Dein Tag — {{count}} Follower",

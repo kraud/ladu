@@ -8,6 +8,9 @@
  * The language select says which language the typed text is in; the other languages are the targets,
  * filled from the picked sense (decisions G-a to G-j in autocomplete-slice-g-one-term-to-word.md).
  *
+ * The heading has the sparkle icon (accent colour) in a left column and the title and hint in the right one,
+ * as the dashboard's greeting has its hand-waving icon: 32 px on a desktop, as tall as the text beside it on a phone.
+ *
  * Layout: on a desktop the section takes half the row, aligned left, and the three controls share one
  * line (language as flag + two-letter code, part of speech, the word). On a phone it takes the full
  * row: the two selects share a line, 50% each, with the full language names; the word is underneath.
@@ -20,11 +23,13 @@
  */
 import { useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SparkleIcon } from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import type { SenseSuggestion, WordDraft } from '@/features/autocomplete/types';
 import { UI_LANGUAGES } from '@/lib/language';
+import { useColumnHeightVar } from '@/lib/useColumnHeightVar';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import { partOfSpeechLabelKey } from '@/lib/words';
@@ -61,6 +66,8 @@ export function StartFromWord({
     const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeech | 'Any'>('Any');
     const [text, setText] = useState('');
     const [picked, setPicked] = useState<SenseSuggestion | null>(null);
+    // The phone icon is as tall as the title and hint beside it, like the dashboard's greeting (`--start-h`).
+    const { containerRef: headingRef, columnRef: headingTextRef } = useColumnHeightVar<HTMLDivElement>('--start-h');
 
     if (picked) {
         return (
@@ -95,9 +102,15 @@ export function StartFromWord({
                 data-testid="start-from-word"
                 className={cn('flex flex-col gap-3 rounded-xl border border-(--border) p-4', !isMobile && 'w-1/2')}
             >
-                <div className="flex flex-col gap-1">
-                    <h2 className="h2">{t('wordRelated:startFromWord.title')}</h2>
-                    <p className="text-sm text-muted-foreground">{t('wordRelated:startFromWord.description')}</p>
+                {/* Icon in the left column; title and hint in the right one (like the dashboard's greeting). */}
+                <div ref={headingRef} className="flex items-center gap-3">
+                    <span aria-hidden data-testid="start-icon" className="size-8 shrink-0 text-(--accent) max-[920px]:size-[var(--start-h,2rem)]">
+                        <SparkleIcon className="size-full" />
+                    </span>
+                    <div ref={headingTextRef} className="flex min-w-0 flex-col gap-1">
+                        <h2 className="h2">{t('wordRelated:startFromWord.title')}</h2>
+                        <p className="text-sm text-muted-foreground">{t('wordRelated:startFromWord.description')}</p>
+                    </div>
                 </div>
                 <div className={isMobile ? 'grid grid-cols-2 gap-3' : 'flex items-center gap-3'}>
                     <Select<string> value={language} onValueChange={(value) => value && setLanguage(value)}>

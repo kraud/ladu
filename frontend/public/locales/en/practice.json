@@ -385,7 +385,11 @@
       "withTags_one": "This configuration includes the words of {{count}} tag. They are read again when you load it.",
       "withTags_other": "This configuration includes the words of {{count}} tags. They are read again when you load it.",
       "save": "Save",
-      "saving": "Saving…"
+      "saving": "Saving…",
+      "reviseTitle": "Save changes",
+      "reviseHint": "Update replaces the saved settings of this configuration. Save as copy keeps it as it is and adds a new configuration with a different name.",
+      "saveAsCopy": "Save as copy",
+      "update": "Update"
     },
     "deleteDialog": {
       "title": "Delete \"{{name}}\"?",

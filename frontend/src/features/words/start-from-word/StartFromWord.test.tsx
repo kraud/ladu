@@ -81,6 +81,16 @@ describe('StartFromWord — the section', () => {
         expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['EN', 'ES', 'DE']); // no Estonian: not on the account
     });
 
+    it('the heading has the sparkle icon in an accent-coloured left column, and the title and hint in the right one', () => {
+        setup();
+        const icon = screen.getByTestId('start-icon');
+        expect(icon).toHaveClass('text-(--accent)', 'size-8');
+        expect(icon.querySelector('svg')).not.toBeNull();
+        const textColumn = screen.getByRole('heading', { name: 'Start from a word' }).parentElement as HTMLElement;
+        expect(textColumn).toHaveTextContent('Type a word in any language.');
+        expect(icon.nextElementSibling).toBe(textColumn);
+    });
+
     it('takes half the row on a desktop, aligned left', () => {
         setup();
         expect(screen.getByTestId('start-from-word')).toHaveClass('w-1/2');

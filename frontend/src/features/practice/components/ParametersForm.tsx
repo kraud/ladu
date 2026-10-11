@@ -27,7 +27,7 @@ import {
     toGenerateBody,
     validateParams,
 } from '../params';
-import { narrowToPickable } from '../configs';
+import { configChanged, narrowToPickable } from '../configs';
 import { rememberParams } from '../remembered';
 import { usePracticeSessionStore } from '../sessionStore';
 import type { PreselectedWord } from '../preselection';
@@ -74,6 +74,7 @@ export function ParametersForm({
     tagIds,
     actionsHost,
     wordsSlot,
+    baseline,
 }: {
     user: SessionUser;
     initialParams: PracticeParams;
@@ -94,6 +95,11 @@ export function ParametersForm({
     actionsHost?: HTMLElement | null;
     /** The phone's "Selected words" badges: the first row of the card. Absent on desktop (the sidebar shows the words). */
     wordsSlot?: ReactNode;
+    /**
+     * Set while a saved configuration is being changed: its settings and words as loaded (or as last saved).
+     * "Save configuration" then stays off until something differs from it.
+     */
+    baseline?: ConfigDraft | null;
 }) {
     const { t } = useTranslation();
     const generate = useGenerateExercises();
@@ -171,6 +177,14 @@ export function ParametersForm({
             ? t('practice:setup.hints.modeSame')
             : t('practice:setup.hints.modeMixed');
 
+    // Changing a saved configuration: nothing to save until a setting or the words differ from it.
+    const current: ConfigDraft = {
+        params: { ...chosen, amount },
+        wordIds: preselected?.map((word) => word.id) ?? null,
+        tagIds: tagIds ?? null,
+    };
+    const unchanged = baseline ? !configChanged(current, baseline) : false;
+
     // Start and Save. In the page they sit in a bar fixed to the bottom of the window (`actionsHost`, the
     // layout's footer slot), so they are always in reach; the form is the `form=` of the submit button.
     // On a phone the bar stays one row: small buttons, short labels, the hint above them.
@@ -183,7 +197,7 @@ export function ParametersForm({
                     type="button"
                     variant="outline"
                     size={isMobile ? 'sm' : 'default'}
-                    disabled={!valid || !!startBlockedReason}
+                    disabled={!valid || !!startBlockedReason || unchanged}
                     onClick={() =>
                         onSaveConfig({
                             params: { ...params, amount },

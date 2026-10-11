@@ -385,7 +385,11 @@
       "withTags_one": "See seadistus sisaldab {{count}} sildi sõnu. Need loetakse laadimisel uuesti.",
       "withTags_other": "See seadistus sisaldab {{count}} sildi sõnu. Need loetakse laadimisel uuesti.",
       "save": "Salvesta",
-      "saving": "Salvestamine…"
+      "saving": "Salvestamine…",
+      "reviseTitle": "Salvesta muudatused",
+      "reviseHint": "Uuenda asendab selle seadistuse salvestatud sätted. Salvesta koopiana jätab selle samaks ja lisab uue seadistuse teise nimega.",
+      "saveAsCopy": "Salvesta koopiana",
+      "update": "Uuenda"
     },
     "deleteDialog": {
       "title": "Kas kustutada „{{name}}“?",

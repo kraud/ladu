@@ -11,7 +11,8 @@
 import { useMemo, useState } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { MagnifyingGlassIcon, PlusIcon, SealCheckIcon, UsersIcon, LightbulbIcon } from '@phosphor-icons/react';
+import { MagnifyingGlassIcon, PlusIcon, SealCheckIcon, TagIcon, UsersIcon, LightbulbIcon } from '@phosphor-icons/react';
+import { PageTitle } from '@/components/common/PageTitle';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -162,7 +163,7 @@ export function TagsPage() {
     return (
         <div className="flex flex-col gap-3.5">
             <div className="flex items-center justify-between gap-2">
-                <h1 className="h1">{t('tags:page.title')}</h1>
+                <PageTitle icon={TagIcon} section>{t('tags:page.title')}</PageTitle>
                 <Button onClick={() => setFormDialog({ mode: 'create' })}>
                     <PlusIcon size={15} weight="bold" />
                     {t('tags:page.newTag')}

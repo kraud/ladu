@@ -132,7 +132,8 @@ const clearDB = async () => {
 
     // access_settings always holds exactly one row (the migration inserts it, and
     // the truncate above cascades from staff_accounts), so put it back, both gates open.
-    await pool.query('INSERT INTO access_settings (id) VALUES (1)');
+    // ON CONFLICT: if a previous clearDB timed out, its insert may still land.
+    await pool.query('INSERT INTO access_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING');
 };
 
 /**

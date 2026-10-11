@@ -36,10 +36,20 @@
             home: 'Ladu home',
             login: 'Log in',
             heading: 'Keep all your languages alive.',
-            lead:
-                'Ladu is a vocabulary manager for people who speak more than one language. Save each word once, with its translations in every language you know. Then practise them together.',
-            open: 'Open Ladu',
-            card: 'Example word: to dance, in four languages',
+            leadA: 'Ladu is a vocabulary manager for people who speak more than one language.',
+            leadB: 'Save each word once, with its translations in every language you know.',
+            leadC: 'Then practise them together.',
+            exerciseCard: 'Example exercise',
+            leadD: 'Group words into tags. Keep them private or share them.',
+            tagCard: 'Example tags',
+            tagPrivate: 'Private',
+            tagPublic: 'Public',
+            tagYours: 'Yours',
+            tagFollowing: 'Following',
+            tagWords: 'words',
+            tagFollowers: 'followers',
+            open: 'Open',
+            card: 'Example word: dance, in four languages',
             privacy: 'Privacy',
             terms: 'Terms',
             credits: 'Credits',
@@ -63,10 +73,20 @@
             home: 'Inicio de Ladu',
             login: 'Iniciar sesión',
             heading: 'Mantén vivos todos tus idiomas.',
-            lead:
-                'Ladu es un gestor de vocabulario para personas que hablan más de un idioma. Guarda cada palabra una sola vez, con sus traducciones en todos los idiomas que conoces. Después, practícalas juntas.',
-            open: 'Abrir Ladu',
-            card: 'Palabra de ejemplo: «to dance», en cuatro idiomas',
+            leadA: 'Ladu es un gestor de vocabulario para personas que hablan más de un idioma.',
+            leadB: 'Guarda cada palabra una sola vez, con sus traducciones en todos los idiomas que conoces.',
+            leadC: 'Después, practícalas juntas.',
+            exerciseCard: 'Ejercicio de ejemplo',
+            leadD: 'Agrupa palabras en etiquetas. Mantenlas privadas o compártelas.',
+            tagCard: 'Etiquetas de ejemplo',
+            tagPrivate: 'Privada',
+            tagPublic: 'Pública',
+            tagYours: 'Tuya',
+            tagFollowing: 'Siguiendo',
+            tagWords: 'palabras',
+            tagFollowers: 'seguidores',
+            open: 'Abrir',
+            card: 'Palabra de ejemplo: «dance», en cuatro idiomas',
             privacy: 'Privacidad',
             terms: 'Términos',
             credits: 'Créditos',
@@ -90,10 +110,20 @@
             home: 'Ladu Startseite',
             login: 'Anmelden',
             heading: 'Halte all deine Sprachen lebendig.',
-            lead:
-                'Ladu ist ein Vokabelmanager für Menschen, die mehr als eine Sprache sprechen. Speichere jedes Wort einmal, mit seinen Übersetzungen in allen Sprachen, die du kennst. Übe sie dann gemeinsam.',
-            open: 'Ladu öffnen',
-            card: 'Beispielwort: „to dance“ in vier Sprachen',
+            leadA: 'Ladu ist ein Vokabelmanager für Menschen, die mehr als eine Sprache sprechen.',
+            leadB: 'Speichere jedes Wort einmal, mit seinen Übersetzungen in allen Sprachen, die du kennst.',
+            leadC: 'Übe sie dann gemeinsam.',
+            exerciseCard: 'Beispielübung',
+            leadD: 'Fasse Wörter in Tags zusammen. Halte sie privat oder teile sie.',
+            tagCard: 'Beispiel-Tags',
+            tagPrivate: 'Privat',
+            tagPublic: 'Öffentlich',
+            tagYours: 'Deine',
+            tagFollowing: 'Folge ich',
+            tagWords: 'Wörter',
+            tagFollowers: 'Follower',
+            open: 'Öffnen',
+            card: 'Beispielwort: „dance“ in vier Sprachen',
             privacy: 'Datenschutz',
             terms: 'Nutzungsbedingungen',
             credits: 'Danksagungen',
@@ -117,10 +147,20 @@
             home: 'Ladu avaleht',
             login: 'Logi sisse',
             heading: 'Hoia kõik oma keeled elus.',
-            lead:
-                'Ladu on sõnavarahaldur inimestele, kes räägivad rohkem kui ühte keelt. Salvesta iga sõna ainult üks kord koos tõlgetega kõigis keeltes, mida oskad. Seejärel harjuta neid koos.',
-            open: 'Ava Ladu',
-            card: 'Näitesõna: „to dance“ neljas keeles',
+            leadA: 'Ladu on sõnavarahaldur inimestele, kes räägivad rohkem kui ühte keelt.',
+            leadB: 'Salvesta iga sõna ainult üks kord koos tõlgetega kõigis keeltes, mida oskad.',
+            leadC: 'Seejärel harjuta neid koos.',
+            exerciseCard: 'Näidisharjutus',
+            leadD: 'Koonda sõnad tagidesse. Hoia need privaatsena või jaga neid.',
+            tagCard: 'Näidistagid',
+            tagPrivate: 'Privaatne',
+            tagPublic: 'Avalik',
+            tagYours: 'Sinu',
+            tagFollowing: 'Jälgin',
+            tagWords: 'sõna',
+            tagFollowers: 'jälgijat',
+            open: 'Ava',
+            card: 'Näitesõna: „dance“ neljas keeles',
             privacy: 'Privaatsus',
             terms: 'Kasutustingimused',
             credits: 'Autorid ja litsentsid',
@@ -426,6 +466,346 @@
         });
     }
 
+    /* ---------- the example word rolls ---------- */
+
+    /* The bubble shows one word in four languages. Every ROLL_MS the words change to the next one,
+       each old word moving up and out and the new one coming
+       in from below, like the greeting on the app's Dashboard changes language. (ROLL_ROWS_TOGETHER picks
+       between all rows at once and one row after the other.) The words are fixed
+       examples: they are not translated into the interface language. Visitors who asked for less
+       motion get the first word and no rolling; a hidden tab skips the turn. */
+    var WORDS = [
+        { en: 'dance', es: 'bailar', de: 'tanzen', ee: 'tantsima' },
+        { en: 'house', es: 'casa', de: 'Haus', ee: 'maja', gender: { es: 'la', de: 'das' } },
+        { en: 'pretty', es: 'bonito', de: 'hübsch', ee: 'ilus' },
+        { en: 'very', es: 'muy', de: 'sehr', ee: 'väga' },
+    ];
+    var ROLL_MS = 5000;
+    /* true: all four rows change at the same moment. false: one row after the other, a short delay apart. */
+    var ROLL_ROWS_TOGETHER = true;
+    var ROW_DELAY_MS = ROLL_ROWS_TOGETHER ? 0 : 140;
+    var OUT_MS = 230;
+
+    /* Rolls one part of the page: it moves up and out, `change()` swaps its content, and it comes in from below
+       (the classes are in style.css). */
+    function roll(el, change) {
+        el.classList.add('is-out');
+        window.setTimeout(function () {
+            change();
+            /* Jump to below with no transition, then let it roll up into place. */
+            el.classList.remove('is-out');
+            el.classList.add('is-in');
+            void el.offsetWidth;
+            el.classList.remove('is-in');
+        }, OUT_MS);
+    }
+
+    /* The small exercise cards (phone): one for each word of the bubble, in the same order. On the beat that
+       changes the words, the card that belongs to the new word comes in, and is played as if someone were
+       answering it (see index.html): half a second after it appears the answer is chosen or typed, then the
+       choice or input turns green or red and the fourth dot takes the colour. All the panels are in the page;
+       only the active one is visible. */
+    var PLAY_DELAY_MS = 500;
+    var TYPE_MS = 120;
+    var RESULT_DELAY_MS = 280;
+    var PICK_MS = 380;
+    var playTimers = [];
+
+    function later(fn, ms) {
+        playTimers.push(window.setTimeout(fn, ms));
+    }
+
+    function stopPlay() {
+        playTimers.forEach(window.clearTimeout);
+        playTimers = [];
+    }
+
+    function lastDot(panel) {
+        var dots = panel.querySelectorAll('.ex-dots i');
+        return dots[dots.length - 1];
+    }
+
+    /* The card as a question not yet answered. */
+    function resetPanel(panel) {
+        panel.querySelectorAll('.ex-opt').forEach(function (opt) {
+            opt.classList.remove('is-picking', 'is-right', 'is-wrong');
+        });
+        var input = panel.querySelector('.ex-input');
+        if (input) {
+            input.classList.remove('is-right', 'is-wrong', 'is-typing');
+            panel.querySelector('.ex-answer').textContent = '';
+        }
+        lastDot(panel).classList.remove('is-good', 'is-bad');
+    }
+
+    /* Shows the result: the chosen option or the input in its colour, and the fourth dot. */
+    function showResult(panel) {
+        var cls = panel.getAttribute('data-result') === 'right' ? 'is-right' : 'is-wrong';
+        var pick = panel.getAttribute('data-pick');
+        if (pick) {
+            panel.querySelectorAll('.ex-opt').forEach(function (opt) {
+                opt.classList.remove('is-picking');
+                if (opt.textContent === pick) opt.classList.add(cls);
+            });
+        }
+        var input = panel.querySelector('.ex-input');
+        if (input) {
+            input.classList.remove('is-typing');
+            input.classList.add(cls);
+        }
+        lastDot(panel).classList.add(cls === 'is-right' ? 'is-good' : 'is-bad');
+    }
+
+    /* The finished card at once (visitors who asked for less motion). */
+    function settlePanel(panel) {
+        var word = panel.getAttribute('data-type');
+        if (word) panel.querySelector('.ex-answer').textContent = word;
+        showResult(panel);
+    }
+
+    function playPanel(panel) {
+        var word = panel.getAttribute('data-type');
+        if (!word) {
+            /* Multiple choice: the option is pressed, then it takes its colour and the dot follows. */
+            var pick = panel.getAttribute('data-pick');
+            later(function () {
+                panel.querySelectorAll('.ex-opt').forEach(function (opt) {
+                    if (opt.textContent === pick) opt.classList.add('is-picking');
+                });
+            }, PLAY_DELAY_MS);
+            later(function () {
+                showResult(panel);
+            }, PLAY_DELAY_MS + PICK_MS);
+            return;
+        }
+        /* Typed answer: the word appears letter by letter, then the result. */
+        var input = panel.querySelector('.ex-input');
+        var answer = panel.querySelector('.ex-answer');
+        later(function () {
+            input.classList.add('is-typing');
+        }, PLAY_DELAY_MS - 100);
+        for (var i = 1; i <= word.length; i++) {
+            (function (n) {
+                later(function () {
+                    answer.textContent = word.slice(0, n);
+                }, PLAY_DELAY_MS + n * TYPE_MS);
+            })(i);
+        }
+        later(function () {
+            showResult(panel);
+        }, PLAY_DELAY_MS + word.length * TYPE_MS + RESULT_DELAY_MS);
+    }
+
+    function exercisePanels(stage) {
+        return Array.prototype.slice.call(stage.querySelectorAll('.ex-panel'));
+    }
+
+    /* First card: unanswered, then played (or finished at once with reduced motion). */
+    function startExercises(stage, reduced) {
+        var panels = exercisePanels(stage);
+        panels.forEach(resetPanel);
+        var first = panels[0];
+        if (reduced) settlePanel(first);
+        else playPanel(first);
+    }
+
+    function setExercise(stage, index) {
+        var panels = exercisePanels(stage);
+        panels.forEach(function (panel, i) {
+            resetPanel(panel);
+            panel.classList.toggle('is-active', i === index % panels.length);
+        });
+        playPanel(panels[index % panels.length]);
+    }
+
+    /* The tag card (phone): three tags that turn on the same beat. The words of the tag that comes in appear one
+       after the other. While `data-anim` is on the stage, CSS hides the words until they get `.is-shown`. */
+    var TAG_WORD_MS = 190;
+
+    function tagPanels(stage) {
+        return Array.prototype.slice.call(stage.querySelectorAll('.tag-panel'));
+    }
+
+    function resetTagPanel(panel) {
+        panel.querySelectorAll('.tag-word').forEach(function (word) {
+            word.classList.remove('is-shown');
+        });
+    }
+
+    function playTagPanel(panel) {
+        panel.querySelectorAll('.tag-word').forEach(function (word, i) {
+            later(function () {
+                word.classList.add('is-shown');
+            }, PLAY_DELAY_MS + i * TAG_WORD_MS);
+        });
+    }
+
+    function startTags(stage, reduced) {
+        if (reduced) return;
+        stage.setAttribute('data-anim', '');
+        var panels = tagPanels(stage);
+        panels.forEach(resetTagPanel);
+        playTagPanel(panels[0]);
+    }
+
+    function setTags(stage, index) {
+        var panels = tagPanels(stage);
+        var next = index % panels.length;
+        panels.forEach(function (panel, i) {
+            resetTagPanel(panel);
+            panel.classList.toggle('is-active', i === next);
+        });
+        playTagPanel(panels[next]);
+    }
+
+    /* The words of the bubble: one row's word, and the gender badge of its language (a noun shows its article;
+       the other words show none). */
+    function setTerm(el, index) {
+        var code = el.getAttribute('data-term');
+        el.textContent = WORDS[index][code];
+        var badge = document.querySelector('[data-gender="' + code + '"]');
+        if (badge) {
+            var gender = WORDS[index].gender && WORDS[index].gender[code];
+            badge.textContent = gender || '';
+            badge.classList.toggle('is-on', !!gender);
+        }
+    }
+
+    /* Desktop: the three previews share one place and take turns, each for all four of its states (FEATURE_STEPS
+       beats), while its part of the hint on the left is highlighted. On the phone all three are always shown, and
+       all change on every beat. */
+    var FEATURE_STEPS = WORDS.length;
+    /* The fill of the current part of the hint (style.css) takes FILL_MS and then stays full for FILL_HOLD_MS before the
+       next preview comes. The preview takes OUT_MS to roll out before the fill starts, so a feature lasts the three
+       together, and each of its states lasts a quarter of that. The phone keeps ROLL_MS. */
+    var FILL_MS = 10000;
+    var FILL_HOLD_MS = 500;
+    var DESKTOP_ROLL_MS = (FILL_MS + FILL_HOLD_MS + OUT_MS) / FEATURE_STEPS;
+    var phoneQuery = window.matchMedia ? window.matchMedia('(max-width: 52rem)') : null;
+
+    function isPhone() {
+        return !!(phoneQuery && phoneQuery.matches);
+    }
+
+    function setFeature(feature) {
+        document.querySelectorAll('[data-feature]').forEach(function (dp) {
+            dp.classList.toggle('is-current', dp.getAttribute('data-feature') === String(feature));
+        });
+        document.querySelectorAll('[data-feat]').forEach(function (part) {
+            var on = part.getAttribute('data-feat') === String(feature);
+            part.classList.remove('is-current');
+            if (on) {
+                /* Off and on again, so the fill (a CSS animation) starts from the beginning. */
+                void part.offsetWidth;
+                part.classList.add('is-current');
+            }
+        });
+    }
+
+    function rollWords() {
+        var terms = document.querySelectorAll('[data-term]');
+        if (!terms.length) return;
+        var stage = document.querySelector('[data-exercise]');
+        var tagStage = document.querySelector('[data-tags]');
+        var parts = document.querySelectorAll('[data-feat]');
+        var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        if (stage) startExercises(stage, reduced);
+        if (tagStage) startTags(tagStage, reduced);
+
+        var step = 0;
+        var timer = null;
+        var switching = false;
+
+        var lead = document.querySelector('.lead');
+        if (lead) lead.style.setProperty('--feat-ms', FILL_MS + 'ms');
+
+        /* Desktop: the shown preview rolls out, the three go back to their first state while none is visible, and
+           the next one rolls in (the highlight and the fill change with it). */
+        function showFeature(feature) {
+            var shown = document.querySelector('[data-feature].is-current');
+            switching = true;
+            roll(shown, function () {
+                setFeature(feature);
+                terms.forEach(function (el) {
+                    setTerm(el, 0);
+                });
+                if (stage) setExercise(stage, 0);
+                if (tagStage) setTags(tagStage, 0);
+                /* The preview that comes in jumps to below with no transition, then settles. */
+                var next = document.querySelector('[data-feature].is-current');
+                next.classList.add('is-in');
+                void next.offsetWidth;
+                next.classList.remove('is-in');
+                switching = false;
+            });
+        }
+
+        function tick() {
+            if (document.hidden) return;
+            stopPlay();
+            step += 1;
+            var index = step % WORDS.length;
+
+            if (!isPhone() && index === 0) {
+                showFeature(Math.floor(step / FEATURE_STEPS) % parts.length);
+                return;
+            }
+
+            terms.forEach(function (el, row) {
+                window.setTimeout(function () {
+                    roll(el, function () {
+                        setTerm(el, index);
+                    });
+                }, row * ROW_DELAY_MS);
+            });
+            if (stage) roll(stage, function () { setExercise(stage, index); });
+            if (tagStage) roll(tagStage, function () { setTags(tagStage, index); });
+        }
+
+        /* The time to the next beat, now: the window may have changed between phone and desktop. */
+        function beat() {
+            return isPhone() ? ROLL_MS : DESKTOP_ROLL_MS;
+        }
+
+        function start() {
+            window.clearTimeout(timer);
+            timer = window.setTimeout(function next() {
+                tick();
+                timer = window.setTimeout(next, beat());
+            }, beat());
+        }
+
+        /* The parts of the hint are buttons (desktop): one jumps to its preview and the cycle starts again from
+           there. They are made buttons here, so that without script they stay plain text. With "reduce motion"
+           nothing turns by itself, so this is the only way to see the other previews. */
+        parts.forEach(function (part) {
+            var feature = Number(part.getAttribute('data-feat'));
+            part.setAttribute('role', 'button');
+            part.setAttribute('tabindex', '0');
+            function go() {
+                if (switching) return;
+                if (reduced) {
+                    setFeature(feature);
+                    return;
+                }
+                stopPlay();
+                step = feature * FEATURE_STEPS;
+                showFeature(feature);
+                start();
+            }
+            part.addEventListener('click', go);
+            part.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    go();
+                }
+            });
+        });
+
+        if (reduced) return;
+        start();
+    }
+
     /* ---------- first render ---------- */
 
     applyText();
@@ -433,4 +813,5 @@
     applyThemeButtons();
     if (picker && trigger && menu) renderPicker();
     setupNotice();
+    rollWords();
 })();

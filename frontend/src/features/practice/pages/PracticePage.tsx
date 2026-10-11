@@ -3,15 +3,19 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import {
     ArrowLeftIcon,
+    BookmarkSimpleIcon,
     BookOpenIcon,
+    BrainIcon,
     ListChecksIcon,
     MagnifyingGlassPlusIcon,
     PlusIcon,
+    TrophyIcon,
     WarningIcon,
 } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/common/EmptyState';
+import { PageTitle } from '@/components/common/PageTitle';
 import { PageColumn } from '@/components/layout/PageColumn';
 import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -223,6 +227,10 @@ function SetUp({
     // Set when a loaded configuration has words that are gone (no details, on purpose).
     const [wordsMissing, setWordsMissing] = useState(false);
     const [configDraft, setConfigDraft] = useState<ConfigDraft | null>(null);
+    // The saved configuration being changed (opened with "Change settings"), and its settings and words as loaded
+    // or as last saved: the header shows its name, "Save configuration" waits for a difference, and the save
+    // dialog offers "Update" next to "Save as copy". Cleared with the New configuration view.
+    const [editing, setEditing] = useState<{ config: SavedConfig; baseline: ConfigDraft } | null>(null);
     // A saved configuration the user selected: start it now, or change it first (the dialog).
     const [chosen, setChosen] = useState<{
         config: SavedConfig;
@@ -260,6 +268,7 @@ function SetUp({
     }
 
     function openNewConfiguration() {
+        setEditing(null);
         // The panel opens expanded here, as it does for words that come from Review.
         useUiStore.getState().setSidebarCollapsed('practice', false);
         setCreating(true);
@@ -283,6 +292,10 @@ function SetUp({
             useUiStore.getState().setSidebarCollapsed('practice', false);
         }
         void navigate({ search: paramsToSearch(params), replace: true });
+        setEditing({
+            config,
+            baseline: { params, wordIds: words && words.length > 0 ? words.map((word) => word.id) : null, tagIds: chosenTags.length > 0 ? chosenTags.map((tag) => tag.id) : null },
+        });
         // The loaded settings are in the New configuration view.
         setCreating(true);
         toast.success(t('practice:configs.toast.loaded', { name: config.name }));
@@ -350,15 +363,19 @@ function SetUp({
                 className="icon-btn"
                 aria-label={t('practice:setup.newConfigurationBack')}
                 title={t('practice:setup.newConfigurationBack')}
-                onClick={() => setCreating(false)}
+                onClick={() => {
+                    setCreating(false);
+                    setEditing(null);
+                }}
             >
                 <ArrowLeftIcon size={18} />
             </button>
-            <h1 className="h1">{t('practice:setup.newConfiguration')}</h1>
+            {/* A saved configuration being changed shows its own name; otherwise the view is a new one. */}
+            <h1 className="h1 min-w-0 break-words">{editing ? editing.config.name : t('practice:setup.newConfiguration')}</h1>
         </div>
     ) : (
         <div className="flex items-center justify-between gap-2">
-            <h1 className="h1">{t('practice:setup.title')}</h1>
+            <PageTitle icon={BrainIcon} section>{t('practice:setup.title')}</PageTitle>
             <Button onClick={openNewConfiguration}>
                 <PlusIcon size={15} weight="bold" />
                 {t('practice:setup.newConfiguration')}
@@ -379,12 +396,13 @@ function SetUp({
                         setTab(candidate);
                     }}
                 >
+                    {candidate === 'sessions' ? <TrophyIcon size={14} aria-hidden /> : <BookmarkSimpleIcon size={14} aria-hidden />}
                     {t(candidate === 'sessions' ? 'practice:sessions.title' : 'practice:configs.title')}
                 </button>
             ))}
         </div>
     );
-    const plainHeader = <h1 className="h1">{t('practice:setup.title')}</h1>;
+    const plainHeader = <PageTitle icon={BrainIcon} section>{t('practice:setup.title')}</PageTitle>;
     const resumeBanner = parkedSession && (
         <ResumeSessionBanner session={parkedSession} onResume={onResume} onDismiss={onDismiss} />
     );
@@ -483,6 +501,7 @@ function SetUp({
                         startBlockedReason={tagsBlockedReason}
                         onStarted={clearPreselected}
                         onSaveConfig={setConfigDraft}
+                        baseline={editing?.baseline ?? null}
                         wordsSlot={
                             isMobile ? (
                                 <WordsBadges count={effective?.length ?? 0} onAll={clearPreselected} />
@@ -508,14 +527,25 @@ function SetUp({
                     onCancel={() => setChosen(null)}
                 />
             )}
-            {configDraft && (
-                <SaveConfigDialog
-                    open
-                    onOpenChange={(open) => !open && setConfigDraft(null)}
-                    mode="create"
-                    draft={configDraft}
-                />
-            )}
+            {configDraft &&
+                (editing ? (
+                    <SaveConfigDialog
+                        open
+                        onOpenChange={(open) => !open && setConfigDraft(null)}
+                        mode="revise"
+                        config={editing.config}
+                        draft={configDraft}
+                        // What was just saved is the new starting point: the header shows its name, Save waits again.
+                        onSaved={(config, saved) => saved && setEditing({ config, baseline: saved })}
+                    />
+                ) : (
+                    <SaveConfigDialog
+                        open
+                        onOpenChange={(open) => !open && setConfigDraft(null)}
+                        mode="create"
+                        draft={configDraft}
+                    />
+                ))}
         </SidebarLayout>
     );
 }
