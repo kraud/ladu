@@ -30,6 +30,8 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { languageByLabel } from '@/lib/language';
 import { PartOfSpeechSelector } from '@/components/common/PartOfSpeechSelector';
+import type { WordDraft } from '@/features/autocomplete/types';
+import { StartFromWord } from '../start-from-word/StartFromWord';
 import { ArrowsClockwiseIcon, FloppyDiskIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import { resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
 import { useLinkTagsToWords, useUnlinkTagsFromWords } from '@/features/tags/hooks';
@@ -66,6 +68,11 @@ export interface WordFormProps {
      * receives back.
      */
     onPartOfSpeechChange?: (pos: PartOfSpeech) => void;
+    /**
+     * Create mode only: shows "Start from a word" above the part-of-speech list on the gate (Slice G).
+     * Fires when the user presses "Create draft" in its preview, with the looked-up words.
+     */
+    onStartDraft?: (draft: WordDraft) => void;
     /** The page title block: first in the content column (or above the PoS gate). */
     /**
      * The page title. A function receives `requestChangePartOfSpeech` — the same
@@ -89,6 +96,7 @@ export function WordForm({
     onDelete,
     onChangePartOfSpeech,
     onPartOfSpeechChange,
+    onStartDraft,
     header,
     submitting,
     cancelAction,
@@ -147,7 +155,13 @@ export function WordForm({
             <PageColumn wide>
                 <div className="flex flex-col gap-4">
                     {typeof header === 'function' ? header({}) : header}
-                    <PartOfSpeechSelector value={state.partOfSpeech} onChange={pickPartOfSpeech} />
+                    {onStartDraft ? (
+                        <StartFromWord onDraft={onStartDraft}>
+                            <PartOfSpeechSelector value={state.partOfSpeech} onChange={pickPartOfSpeech} />
+                        </StartFromWord>
+                    ) : (
+                        <PartOfSpeechSelector value={state.partOfSpeech} onChange={pickPartOfSpeech} />
+                    )}
                 </div>
             </PageColumn>
         );

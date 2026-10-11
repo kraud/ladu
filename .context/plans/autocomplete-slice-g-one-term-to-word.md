@@ -176,6 +176,22 @@ It is a POST only because of the body. It reads and changes nothing.
 
 ### G4 — Start section and preview (frontend)
 
+**DONE 2026-10-11.** New folder `frontend/src/features/words/start-from-word/`: `StartFromWord.tsx`
+(language select with the account languages, part of speech select with `Any`, the text field, the
+"or" line; its `children` is the part-of-speech list, hidden while the preview is open),
+`SenseTypeAhead.tsx` (Base UI Autocomplete; items show the article, the word, the part of speech
+while `Any`, and "english — sense"), `SensePreview.tsx` (one row per account language, start
+language first; checkbox, one word or a radio list, "from Ekilex", "No word found", "Create draft").
+`features/autocomplete`: types, `api.ts` (`suggestSenses`, `fetchSense`, `createDraft`), keys,
+hooks (`useSenseSuggestions`, `useSense`, `useCreateDraft`). `WordForm` gets `onStartDraft`
+(create mode, gate only); `AddWordPage.handleDraft` moves on to the form of the draft's part of
+speech. **Interim:** until G5 the cards stay empty; `handleDraft` does not use the looked-up words
+yet. Texts: `wordRelated.startFromWord.*` in the four locales. Test fake:
+`test/msw/startFromWordHandlers.ts` (register it before `makeAutocompleteHandlers`: that one's
+wildcard routes also match `translate/English`). Vitest: 12 tests in `StartFromWord.test.tsx` and
+1 in `AddWordPage.test.tsx`; the whole suite 1569 tests. Not yet looked at in a real browser:
+the layout check comes with the G6 e2e run.
+
 - `features/autocomplete`: `api.ts` + `hooks.ts` + `types.ts` for the three routes (G1–G3).
 - `features/words/start-from-word/`: `StartFromWord.tsx` (language select, part of speech select,
   the type-ahead), `SenseTypeAhead` (reuses the `TypeAheadInput` list styling; a new item layout,

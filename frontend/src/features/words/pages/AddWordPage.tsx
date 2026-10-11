@@ -12,8 +12,10 @@ import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { WordForm } from '../form-engine/WordForm';
 import { useCreateWord } from '../hooks';
 import { wordErrorKey } from '../errors';
+import type { WordDraft } from '@/features/autocomplete/types';
 import type { CreateWordBody, UpdateWordBody } from '../types';
 import { partOfSpeechFromRouteParam, partOfSpeechLabelKey } from '@/lib/words';
+import type { PartOfSpeech } from '@/ts/enums';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
 
 const route = getRouteApi('/_protected/addWord/{-$partOfSpeech}');
@@ -45,6 +47,13 @@ export function AddWordPage() {
         setFormKey((key) => key + 1);
     }
 
+    // "Create draft" in the start section (Slice G). G4 only moves on to the form with the draft's part
+    // of speech; step G5 seeds the cards with the looked-up words.
+    function handleDraft(draft: WordDraft) {
+        setPartOfSpeech(draft.partOfSpeech as PartOfSpeech);
+        setFormKey((key) => key + 1);
+    }
+
     function handleSubmit(body: CreateWordBody | UpdateWordBody) {
         const toastId = startLoadingToast(t('common:status.saving'));
         createWord.mutate(body, {
@@ -69,6 +78,7 @@ export function AddWordPage() {
             onSubmit={handleSubmit}
             onChangePartOfSpeech={resetToGate}
             onPartOfSpeechChange={setPartOfSpeech}
+            onStartDraft={handleDraft}
             submitting={createWord.isPending}
             header={({ requestChangePartOfSpeech }) => (
                 <div className="flex items-center gap-2">

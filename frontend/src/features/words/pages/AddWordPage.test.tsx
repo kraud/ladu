@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { makeWordHandlers } from '@/test/msw/wordHandlers';
+import { makeStartFromWordHandlers } from '@/test/msw/startFromWordHandlers';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
 
@@ -35,6 +36,33 @@ async function fillEnEs(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('AddWordPage', () => {
+    it('shows "Start from a word" above the part-of-speech list; a draft moves on to the form of its part of speech', async () => {
+        const fake = makeStartFromWordHandlers({
+            suggestions: {
+                English: [{ word: 'bank', partOfSpeech: 'Noun', english: 'bank', sense: 'financial institution', key: { englishLemma: 'bank', entryOrder: 0, senseOrder: 0 } }],
+            },
+            senses: {
+                'bank|0|0': { sense: { english: 'bank', sense: 'financial institution', words: { English: [{ word: 'bank' }], Spanish: [{ word: 'banco', gender: 'el' }] } } },
+            },
+        });
+        server.use(...makeWordHandlers({ callerId: SESSION.id }).handlers, ...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/addWord', session: SESSION });
+
+        // The section, the "or" line, then the part-of-speech list.
+        expect(screen.getByTestId('start-from-word')).toBeInTheDocument();
+        expect(screen.getByText('or')).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: /Verb/ })).toBeInTheDocument();
+
+        await user.type(screen.getByTestId('start-word-input'), 'ban');
+        await user.click(await screen.findByRole('option', { name: /bank/ }));
+        await user.click(await screen.findByRole('button', { name: 'Create draft' }));
+
+        expect(await screen.findByRole('heading', { name: 'New Noun' })).toBeInTheDocument();
+        expect(screen.queryByTestId('start-from-word')).not.toBeInTheDocument();
+    });
+
     it('has a back arrow that returns to Words', async () => {
         server.use(...makeWordHandlers({ callerId: SESSION.id }).handlers);
 

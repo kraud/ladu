@@ -46,3 +46,62 @@ export interface AutocompleteResult {
      */
     cases: Map<CaseName, string>;
 }
+
+// --- Slice G: start from a word (autocomplete-slice-g-one-term-to-word.md) ---
+
+/** Which sense of an English entry (the `key` of a sense suggestion). */
+export interface SenseKey {
+    englishLemma: string;
+    entryOrder: number;
+    senseOrder: number;
+}
+
+/** One line of the sense type-ahead (G1): a word of the start language, in one of its senses. */
+export interface SenseSuggestion {
+    word: string;
+    partOfSpeech: string;
+    /** Nouns: der / die / das, el / la. */
+    gender?: string;
+    /** The English word whose entry holds the sense (the word itself when the start is English). */
+    english: string;
+    /** Wiktionary's label for the sense; may be empty. */
+    sense: string;
+    key: SenseKey;
+}
+
+export interface SenseSuggestionsResponse {
+    suggestions: SenseSuggestion[];
+}
+
+export interface TranslationWord {
+    word: string;
+    gender?: string;
+}
+
+/** `GET /api/dictionary/translate/sense/:partOfSpeech` (G2). A language not asked has no key. */
+export interface SenseResponse {
+    sense: { english: string; sense: string; words: Partial<Record<string, TranslationWord[]>> };
+    /** Only when Estonian was asked and the sense has none. */
+    ekilex?: { estonian: TranslationWord[] } | { unavailable: true };
+}
+
+export interface DraftPick {
+    language: string;
+    word: string;
+    gender?: string;
+}
+
+/** `POST /api/dictionary/draft` (G3): one entry per pick, in order. */
+export interface DraftTranslation {
+    language: string;
+    word: string;
+    gender?: string;
+    status: AutocompleteStatus | 'error';
+    cases: LookupCase[];
+}
+
+/** What the start section hands to the page: the part of speech and the looked-up words. */
+export interface WordDraft {
+    partOfSpeech: string;
+    translations: DraftTranslation[];
+}
