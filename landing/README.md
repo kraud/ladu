@@ -87,6 +87,14 @@ The page frame (head, theme script, header, footer) is **`privacy.html`**. The b
 | `region.js` | Decides if the storage notice is shown. The country comes from `/region` (see below) |
 | `blog/posts/`, `blog/images/` | Your content |
 
+## The home page
+
+- **Example word:** four rows (EN, ES, DE, EE) inside the logo's message bubble. The bubble is drawn by CSS masks of two brand files with the same path, the bubble of `Ladu_title_with_icon.svg` without the letters: `brand/Ladu_bubble_surface.svg` (its fill, the card colour) and `brand/Ladu_bubble_outline.svg` (a thin stroke of it, the accent colour; the stroke is 1.2 of the 62 units of height). Both follow the theme. The rows are sized in `cqw` (a hundredth of the bubble's width), so they fill the bubble at any size.
+- **Rolling words:** `app.js` (`WORDS`, `rollWords`) changes the words every 4 seconds, in this order: dance, house, pretty, very (each with its translations). The old word moves up and out, the new one comes in from below. All rows change together; set `ROLL_ROWS_TOGETHER = false` in `app.js` for one row after the other. Without script, or with "reduce motion" set in the system, the first word stays. The words are fixed examples; they are not translated into the interface language.
+- **Phone** (`max-width: 52rem`): the home page has **no header** (the Open button is the way in; the legal pages and the blog keep theirs). The hero is a grid; its rows, top to bottom: the logo `Ladu_title_with_icon.svg` (wordmark and bubble), centred, with room above it; a looping belt of language flags (as on the sign-in screens; `app.js` adds the copies for the loop); the title on one line (its size follows the window, `white-space: nowrap`); the lead on the left with a small bubble on the right (its tail points at the text; the words inside scale with it); the Open button; and, at the bottom of the page above the footer, the language and theme switches. `Ladu_inside_bubble_outline.svg` is no longer used on this page; it is kept for tests of other layouts.
+- **Buttons:** "Log in" has a sign-in icon, "Open" an arrow-square-out icon (Phosphor, inline).
+- Brand files are copied by the Dockerfile (`COPY brand/`), so a new file there needs no change in it.
+
 ## Storage notice: who sees it
 
 The notice is shown only in the EU, the other EEA states (IS, LI, NO) and the UK. Switzerland is not in the list.

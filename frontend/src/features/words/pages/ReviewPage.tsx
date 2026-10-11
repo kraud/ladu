@@ -239,7 +239,7 @@ export function ReviewPage() {
             fillHeight
             header={
                 <div className="flex items-center justify-between gap-2">
-                    <PageTitle icon={TranslateIcon}>{t('review:page.title')}</PageTitle>
+                    <PageTitle icon={TranslateIcon} section>{t('review:page.title')}</PageTitle>
                     <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants()}>
                         <PlusIcon size={15} weight="bold" />
                         {t('review:page.newWord')}

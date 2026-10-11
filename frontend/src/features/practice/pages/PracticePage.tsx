@@ -375,7 +375,7 @@ function SetUp({
         </div>
     ) : (
         <div className="flex items-center justify-between gap-2">
-            <PageTitle icon={BrainIcon}>{t('practice:setup.title')}</PageTitle>
+            <PageTitle icon={BrainIcon} section>{t('practice:setup.title')}</PageTitle>
             <Button onClick={openNewConfiguration}>
                 <PlusIcon size={15} weight="bold" />
                 {t('practice:setup.newConfiguration')}
@@ -402,7 +402,7 @@ function SetUp({
             ))}
         </div>
     );
-    const plainHeader = <PageTitle icon={BrainIcon}>{t('practice:setup.title')}</PageTitle>;
+    const plainHeader = <PageTitle icon={BrainIcon} section>{t('practice:setup.title')}</PageTitle>;
     const resumeBanner = parkedSession && (
         <ResumeSessionBanner session={parkedSession} onResume={onResume} onDismiss={onDismiss} />
     );

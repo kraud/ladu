@@ -30,25 +30,40 @@
         })();
     </script>
 </head>
-<body>
+<body class="home">
     <header class="site-header">
         <a class="brand" href="/" data-i18n-attr="aria-label:home" aria-label="Ladu home">
             <img src="/brand/Ladu_title_with_icon.svg" alt="" width="97" height="28" />
         </a>
-        <a class="link-quiet" data-app="" data-i18n="login" href="https://app.ladu.com.ar">Log in</a>
+        <a class="link-quiet login" data-app="" href="https://app.ladu.com.ar"><svg class="icon" width="18" height="18" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M141.66,133.66l-40,40a8,8,0,0,1-11.32-11.32L116.69,136H24a8,8,0,0,1,0-16h92.69L90.34,93.66a8,8,0,0,1,11.32-11.32l40,40A8,8,0,0,1,141.66,133.66ZM200,32H136a8,8,0,0,0,0,16h56V208H136a8,8,0,0,0,0,16h64a8,8,0,0,0,8-8V40A8,8,0,0,0,200,32Z"/></svg><span data-i18n="login">Log in</span></a>
     </header>
 
     <main>
         <section class="hero">
             <div class="hero-copy">
-                <h1 data-i18n="heading">Keep all your languages alive.</h1>
+                <!-- Phone: the logo (wordmark and bubble) on top. It is hidden on a desktop, where the header has it. -->
+                <div class="hero-title">
+                    <img class="hero-mark" src="/brand/Ladu_title_with_icon.svg" alt="" width="359" height="104" />
+                    <h1 data-i18n="heading">Keep all your languages alive.</h1>
+                </div>
+
+                <!-- Phone only: the supported languages as a looping belt (app.js adds the copies for the loop). -->
+                <div class="flag-row" aria-label="English, Español, Deutsch, Eesti">
+                    <div class="flag-track">
+                        <span class="flag-chip"><img class="flag" src="/flags/GB.svg" alt="" width="24" height="16" />English</span>
+                        <span class="flag-chip"><img class="flag" src="/flags/ES.svg" alt="" width="24" height="16" />Español</span>
+                        <span class="flag-chip"><img class="flag" src="/flags/DE.svg" alt="" width="24" height="16" />Deutsch</span>
+                        <span class="flag-chip"><img class="flag" src="/flags/EE.svg" alt="" width="24" height="16" />Eesti</span>
+                    </div>
+                </div>
+
                 <p class="lead" data-i18n="lead">
                     Ladu is a vocabulary manager for people who speak more than one language.
                     Save each word once, with its translations in every language you know.
                     Then practise them together.
                 </p>
                 <div class="actions">
-                    <a class="button" data-app="" data-i18n="open" href="https://app.ladu.com.ar">Open Ladu</a>
+                    <a class="button" data-app="" href="https://app.ladu.com.ar"><span data-i18n="open">Open</span><svg class="icon" width="18" height="18" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,104a8,8,0,0,1-16,0V59.32l-66.33,66.34a8,8,0,0,1-11.32-11.32L196.68,48H152a8,8,0,0,1,0-16h64a8,8,0,0,1,8,8Zm-40,24a8,8,0,0,0-8,8v72H48V80h72a8,8,0,0,0,0-16H48A16,16,0,0,0,32,80V208a16,16,0,0,0,16,16H176a16,16,0,0,0,16-16V136A8,8,0,0,0,184,128Z"/></svg></a>
                 </div>
                 <p class="note">English · Español · Deutsch · Eesti</p>
 
@@ -69,12 +84,14 @@
                 </div>
             </div>
 
-            <div class="card" data-i18n-attr="aria-label:card" aria-label="Example word: to dance, in four languages">
+            <!-- One word in four languages, inside the logo's message bubble. app.js rolls the words
+                 (dance, house, pretty, very); without script the first one stays. -->
+            <div class="bubble" role="group" data-i18n-attr="aria-label:card" aria-label="Example word: dance, in four languages">
                 <ul>
-                    <li class="lang lang-gb"><span class="code">EN</span><span class="term">to dance</span></li>
-                    <li class="lang lang-es"><span class="code">ES</span><span class="term">bailar</span></li>
-                    <li class="lang lang-de"><span class="code">DE</span><span class="term">tanzen</span></li>
-                    <li class="lang lang-ee"><span class="code">EE</span><span class="term">tantsima</span></li>
+                    <li class="lang lang-gb"><span class="code">EN</span><span class="term"><span class="term-text" data-term="en">dance</span></span></li>
+                    <li class="lang lang-es"><span class="code">ES</span><span class="term"><span class="term-text" data-term="es">bailar</span></span></li>
+                    <li class="lang lang-de"><span class="code">DE</span><span class="term"><span class="term-text" data-term="de">tanzen</span></span></li>
+                    <li class="lang lang-ee"><span class="code">EE</span><span class="term"><span class="term-text" data-term="ee">tantsima</span></span></li>
                 </ul>
             </div>
         </section>

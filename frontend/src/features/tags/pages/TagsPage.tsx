@@ -163,7 +163,7 @@ export function TagsPage() {
     return (
         <div className="flex flex-col gap-3.5">
             <div className="flex items-center justify-between gap-2">
-                <PageTitle icon={TagIcon}>{t('tags:page.title')}</PageTitle>
+                <PageTitle icon={TagIcon} section>{t('tags:page.title')}</PageTitle>
                 <Button onClick={() => setFormDialog({ mode: 'create' })}>
                     <PlusIcon size={15} weight="bold" />
                     {t('tags:page.newTag')}

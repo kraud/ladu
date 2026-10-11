@@ -38,8 +38,8 @@
             heading: 'Keep all your languages alive.',
             lead:
                 'Ladu is a vocabulary manager for people who speak more than one language. Save each word once, with its translations in every language you know. Then practise them together.',
-            open: 'Open Ladu',
-            card: 'Example word: to dance, in four languages',
+            open: 'Open',
+            card: 'Example word: dance, in four languages',
             privacy: 'Privacy',
             terms: 'Terms',
             credits: 'Credits',
@@ -65,8 +65,8 @@
             heading: 'Mantén vivos todos tus idiomas.',
             lead:
                 'Ladu es un gestor de vocabulario para personas que hablan más de un idioma. Guarda cada palabra una sola vez, con sus traducciones en todos los idiomas que conoces. Después, practícalas juntas.',
-            open: 'Abrir Ladu',
-            card: 'Palabra de ejemplo: «to dance», en cuatro idiomas',
+            open: 'Abrir',
+            card: 'Palabra de ejemplo: «dance», en cuatro idiomas',
             privacy: 'Privacidad',
             terms: 'Términos',
             credits: 'Créditos',
@@ -92,8 +92,8 @@
             heading: 'Halte all deine Sprachen lebendig.',
             lead:
                 'Ladu ist ein Vokabelmanager für Menschen, die mehr als eine Sprache sprechen. Speichere jedes Wort einmal, mit seinen Übersetzungen in allen Sprachen, die du kennst. Übe sie dann gemeinsam.',
-            open: 'Ladu öffnen',
-            card: 'Beispielwort: „to dance“ in vier Sprachen',
+            open: 'Öffnen',
+            card: 'Beispielwort: „dance“ in vier Sprachen',
             privacy: 'Datenschutz',
             terms: 'Nutzungsbedingungen',
             credits: 'Danksagungen',
@@ -119,8 +119,8 @@
             heading: 'Hoia kõik oma keeled elus.',
             lead:
                 'Ladu on sõnavarahaldur inimestele, kes räägivad rohkem kui ühte keelt. Salvesta iga sõna ainult üks kord koos tõlgetega kõigis keeltes, mida oskad. Seejärel harjuta neid koos.',
-            open: 'Ava Ladu',
-            card: 'Näitesõna: „to dance“ neljas keeles',
+            open: 'Ava',
+            card: 'Näitesõna: „dance“ neljas keeles',
             privacy: 'Privaatsus',
             terms: 'Kasutustingimused',
             credits: 'Autorid ja litsentsid',
@@ -426,6 +426,68 @@
         });
     }
 
+    /* ---------- the example word rolls ---------- */
+
+    /* The bubble shows one word in four languages. Every ROLL_MS the words change to the next one,
+       each old word moving up and out and the new one coming
+       in from below, like the greeting on the app's Dashboard changes language. (ROLL_ROWS_TOGETHER picks
+       between all rows at once and one row after the other.) The words are fixed
+       examples: they are not translated into the interface language. Visitors who asked for less
+       motion get the first word and no rolling; a hidden tab skips the turn. */
+    var WORDS = [
+        { en: 'dance', es: 'bailar', de: 'tanzen', ee: 'tantsima' },
+        { en: 'house', es: 'casa', de: 'Haus', ee: 'maja' },
+        { en: 'pretty', es: 'bonito', de: 'hübsch', ee: 'ilus' },
+        { en: 'very', es: 'muy', de: 'sehr', ee: 'väga' },
+    ];
+    var ROLL_MS = 4000;
+    /* true: all four rows change at the same moment. false: one row after the other, a short delay apart. */
+    var ROLL_ROWS_TOGETHER = true;
+    var ROW_DELAY_MS = ROLL_ROWS_TOGETHER ? 0 : 140;
+    var OUT_MS = 230;
+
+    function rollWords() {
+        var terms = document.querySelectorAll('[data-term]');
+        if (!terms.length) return;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        var index = 0;
+        window.setInterval(function () {
+            if (document.hidden) return;
+            index = (index + 1) % WORDS.length;
+            terms.forEach(function (el, row) {
+                window.setTimeout(function () {
+                    el.classList.add('is-out');
+                    window.setTimeout(function () {
+                        el.textContent = WORDS[index][el.getAttribute('data-term')];
+                        /* Jump to below with no transition, then let it roll up into place. */
+                        el.classList.remove('is-out');
+                        el.classList.add('is-in');
+                        void el.offsetWidth;
+                        el.classList.remove('is-in');
+                    }, OUT_MS);
+                }, row * ROW_DELAY_MS);
+            });
+        }, ROLL_MS);
+    }
+
+    /* ---------- the belt of language flags (phone) ---------- */
+
+    /* The belt slides its chips to the left by half of its length, then starts again, so it needs a second
+       half that equals the first: three more copies of the four chips, hidden from assistive technology. */
+    function fillFlagBelt() {
+        var track = document.querySelector('.flag-track');
+        if (!track) return;
+        var chips = Array.prototype.slice.call(track.children);
+        for (var copy = 0; copy < 3; copy++) {
+            chips.forEach(function (chip) {
+                var clone = chip.cloneNode(true);
+                clone.setAttribute('aria-hidden', 'true');
+                track.appendChild(clone);
+            });
+        }
+    }
+
     /* ---------- first render ---------- */
 
     applyText();
@@ -433,4 +495,6 @@
     applyThemeButtons();
     if (picker && trigger && menu) renderPicker();
     setupNotice();
+    fillFlagBelt();
+    rollWords();
 })();

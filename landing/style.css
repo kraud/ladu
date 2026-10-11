@@ -133,6 +133,21 @@ main,
     text-decoration: underline;
 }
 
+/* "Log in" in the header: the sign-in icon, then the text. The underline on hover is for the text only. */
+.login {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.login:hover {
+    text-decoration: none;
+}
+
+.login:hover span {
+    text-decoration: underline;
+}
+
 main {
     flex: 1;
     display: flex;
@@ -164,7 +179,10 @@ h1 {
 }
 
 .button {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     padding: 0.8rem 1.6rem;
     border-radius: 8px;
     background: var(--accent);
@@ -312,28 +330,61 @@ h1 {
     visibility: visible;
 }
 
-/* Example word card: one concept, four languages, each with its own colour. */
-.card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 0.5rem;
-    box-shadow: 0 12px 32px -16px rgb(0 0 0 / 0.25);
+/* The example word: one concept, four languages, each with its own colour, inside the logo's message
+   bubble (brand/Ladu_bubble_outline.svg, drawn from the paths of Ladu_title_with_icon.svg). The bubble
+   keeps the shape's proportions (66 : 62); the rows sit inside its body, above the tail. Everything inside
+   is sized in `cqw` (a hundredth of the bubble's width), so the rows fill the bubble at any size.
+   The surface fill and the accent outline are masks of two brand files with the same path (the outline is a
+   thin stroke of it, the surface its fill), so both follow the theme and meet exactly. */
+.bubble {
+    position: relative;
+    container-type: inline-size;
+    width: 100%;
+    max-width: 28rem;
+    justify-self: center;
+    aspect-ratio: 66 / 62;
+    filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.12));
 }
 
-.card ul {
+.bubble::before,
+.bubble::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    -webkit-mask: center / 100% 100% no-repeat;
+    mask: center / 100% 100% no-repeat;
+}
+
+.bubble::before {
+    background: var(--surface);
+    -webkit-mask-image: url('/brand/Ladu_bubble_surface.svg');
+    mask-image: url('/brand/Ladu_bubble_surface.svg');
+}
+
+.bubble::after {
+    background: var(--accent);
+    -webkit-mask-image: url('/brand/Ladu_bubble_outline.svg');
+    mask-image: url('/brand/Ladu_bubble_outline.svg');
+}
+
+.bubble ul {
+    position: absolute;
+    inset: 9% 8% 21% 8%;
+    z-index: 1;
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.8cqw;
 }
 
 .lang {
     display: flex;
     align-items: baseline;
-    gap: 1rem;
-    padding: 0.9rem 1rem;
+    gap: 3.5cqw;
+    padding: 2.6cqw 3.6cqw;
     border-top: 2px solid var(--lang-color);
     border-radius: 8px;
     background: color-mix(in oklch, var(--lang-color) 7%, transparent);
@@ -345,16 +396,48 @@ h1 {
 .lang-ee { --lang-color: var(--lang-ee); }
 
 .code {
-    min-width: 1.75rem;
-    font-size: 0.75rem;
+    min-width: 6cqw;
+    font-size: clamp(0.62rem, 2.9cqw, 0.8rem);
     font-weight: 700;
     letter-spacing: 0.06em;
     color: var(--lang-color);
 }
 
+/* The word rolls (app.js): the old one moves up and fades out, the new one comes in from below. The row
+   clips it, so it looks like a drum turning. */
 .term {
+    overflow: hidden;
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: clamp(0.72rem, 5.6cqw, 1.5rem);
+    line-height: 1.3;
+}
+
+.term-text {
+    display: inline-block;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.term-text.is-out {
+    transform: translateY(-0.7em);
+    opacity: 0;
+}
+
+.term-text.is-in {
+    transform: translateY(0.7em);
+    opacity: 0;
+    transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .term-text {
+        transition: none;
+    }
+}
+
+/* Phone-only parts of the hero; the desktop does not show them. */
+.hero-mark,
+.flag-row {
+    display: none;
 }
 
 .site-footer {
@@ -521,11 +604,153 @@ main.legal {
     text-decoration: underline;
 }
 
+/* Phone (the width where the hero already becomes one column). The home page has no header here: the
+   Open button is the way in. The hero is a grid; its rows, top to bottom:
+     the logo (wordmark and bubble), centred / the belt of language flags / the title, on one line /
+     the lead on the left and a small bubble with the example word on the right /
+     the Open button / (free space) / the language and theme switches, at the bottom, above the footer.
+   `.hero-copy` and `.hero-title` give their children to the hero (`display: contents`) so each child can
+   take its own place in the grid. The legal pages and the blog keep their header. */
 @media (max-width: 52rem) {
+    .home .site-header {
+        display: none;
+    }
+
+    /* The hero fills the page between the top and the footer, so the switches can sit at the bottom. */
+    .home main {
+        align-items: stretch;
+    }
+
     .hero {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
-        padding-block: 1.5rem 3rem;
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, min(48%, 16rem));
+        grid-template-rows: repeat(5, auto) 1fr auto;
+        grid-template-areas:
+            'mark mark'
+            'flags flags'
+            'title title'
+            'lead bubble'
+            'actions actions'
+            '. .'
+            'controls controls';
+        gap: 1.25rem 1rem;
+        /* Room above the logo, so the rows sit nearer the middle of the screen. */
+        padding-block: clamp(2.5rem, 15vh, 7rem) 1.25rem;
+    }
+
+    .hero-copy,
+    .hero-title {
+        display: contents;
+    }
+
+    .hero-mark {
+        grid-area: mark;
+        justify-self: center;
+        display: block;
+        width: min(78%, 17rem);
+        height: auto;
+    }
+
+    /* The belt of flags, as on the sign-in screens: chips that slide to the left in a loop. */
+    .flag-row {
+        grid-area: flags;
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        contain: inline-size;
+        mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    }
+
+    .flag-track {
+        display: flex;
+        width: max-content;
+        animation: flag-marquee 60s linear infinite;
+    }
+
+    .flag-chip {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        gap: 7px;
+        height: 30px;
+        margin-right: 8px;
+        padding: 0 12px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--bg);
+        font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+    }
+
+    /* One line, whatever the width: the size follows the window (about 5.4vw fits 30 letters). */
+    .hero-title h1 {
+        grid-area: title;
+        margin: 0;
+        font-size: clamp(1.05rem, 5.4vw, 1.9rem);
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    .lead {
+        grid-area: lead;
+        align-self: center;
+        margin: 0;
+        max-width: none;
+        font-size: clamp(0.82rem, 2.2vw, 1rem);
+        line-height: 1.45;
+    }
+
+    /* The bubble, small, next to the lead. Its tail points left, to the text. The words inside follow its
+       size (`cqw`); the rows are tighter here so four of them fit. */
+    .bubble {
+        grid-area: bubble;
+        max-width: none;
+        justify-self: stretch;
+    }
+
+    .bubble ul {
+        gap: 1.1cqw;
+    }
+
+    .lang {
+        gap: 3cqw;
+        padding: 1.5cqw 3cqw;
+        border-radius: 5px;
+    }
+
+    .actions {
+        grid-area: actions;
+    }
+
+    .actions .button {
+        width: 100%;
+    }
+
+    .note {
+        display: none;
+    }
+
+    .js .controls {
+        grid-area: controls;
+        justify-content: center;
+        margin: 0;
+    }
+}
+
+@keyframes flag-marquee {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .flag-track {
+        animation: none;
     }
 }
 
