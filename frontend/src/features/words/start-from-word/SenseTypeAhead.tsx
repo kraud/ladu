@@ -6,11 +6,12 @@
  *
  * From 2 characters, after a short pause, the list shows one line per sense of the words that start
  * with the text, in the language the section's language select names (the server matches only that
- * language). A line: the word (with its article), the part of speech when the section's part of
- * speech select says "Any", and the meaning ("bank — financial institution"). The list closes on a
- * pick, Escape, Tab and a click outside.
+ * language). A line: the word (with its article) and the meaning ("bank — financial institution").
+ * While the part of speech select says "Any" the lines are grouped by part of speech: a small heading
+ * per group and a separator line between groups (the groups follow the order of the select). The list
+ * closes on a pick, Escape, Tab and a click outside.
  */
-import { useId, useState } from 'react';
+import { Fragment, useId, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,18 @@ function meaningOf(item: SenseSuggestion, fromLanguage: Lang): string {
     return item.sense ? `${item.english} — ${item.sense}` : item.english;
 }
 
+interface Group {
+    value: string;
+    items: SenseSuggestion[];
+}
+
+/** The suggestions split by part of speech, groups in the order of `order`, items in the server's order. */
+function groupByPartOfSpeech(items: SenseSuggestion[], order: readonly string[]): Group[] {
+    return order
+        .map((value) => ({ value, items: items.filter((item) => item.partOfSpeech === value) }))
+        .filter((group) => group.items.length > 0);
+}
+
 export function SenseTypeAhead({
     language,
     partOfSpeech,
@@ -39,6 +52,8 @@ export function SenseTypeAhead({
     onValueChange,
     onPick,
     label,
+    placeholder,
+    partsOfSpeech,
 }: {
     language: Lang;
     partOfSpeech: PartOfSpeech | 'Any';
@@ -46,6 +61,9 @@ export function SenseTypeAhead({
     onValueChange: (value: string) => void;
     onPick: (suggestion: SenseSuggestion) => void;
     label: string;
+    placeholder: string;
+    /** The parts of speech, in the order of the groups. */
+    partsOfSpeech: readonly string[];
 }) {
     const { t } = useTranslation();
     const inputId = useId();
@@ -55,11 +73,51 @@ export function SenseTypeAhead({
     const enabled = prefix.trim().length >= MIN_PREFIX_LENGTH;
     const { data } = useSenseSuggestions({ language, pos: partOfSpeech, prefix, enabled });
     // `keepPreviousData` would keep an old list after the text got too short.
-    const items = enabled && value.trim().length >= MIN_PREFIX_LENGTH ? (data ?? []) : [];
+    const items = useMemo(
+        () => (enabled && value.trim().length >= MIN_PREFIX_LENGTH ? (data ?? []) : []),
+        [enabled, value, data],
+    );
+    const grouped = partOfSpeech === 'Any';
+    const groups = useMemo(() => (grouped ? groupByPartOfSpeech(items, partsOfSpeech) : []), [grouped, items, partsOfSpeech]);
+
+    const renderItem = (item: SenseSuggestion) => (
+        <Autocomplete.Item
+            key={itemId(item)}
+            value={item}
+            onClick={() => {
+                setOpen(false);
+                onPick(item);
+            }}
+            className="flex cursor-default flex-col gap-0.5 rounded-md px-2.5 py-1.5 text-sm outline-hidden select-none data-highlighted:bg-(--hover)"
+        >
+            <span className="flex items-baseline gap-1.5">
+                {item.gender && (
+                    <>
+                        <span className="text-muted-foreground">{item.gender}</span>{' '}
+                    </>
+                )}
+                <span className="font-medium">{item.word}</span>
+            </span>
+            {meaningOf(item, language) && <span className="text-xs text-muted-foreground">{meaningOf(item, language)}</span>}
+        </Autocomplete.Item>
+    );
+
+    const renderGroup = (group: Group, index: number) => (
+        <Fragment key={group.value}>
+            {index > 0 && <Autocomplete.Separator className="my-1 h-px bg-(--border)" />}
+            <Autocomplete.Group items={group.items}>
+                <Autocomplete.GroupLabel className="px-2.5 pt-1 pb-0.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    {t(partOfSpeechLabelKey(group.value as PartOfSpeech))}
+                </Autocomplete.GroupLabel>
+                <Autocomplete.Collection>{renderItem}</Autocomplete.Collection>
+            </Autocomplete.Group>
+        </Fragment>
+    );
 
     return (
         <Autocomplete.Root
-            items={items}
+            // Base UI takes either a flat list or groups (`{ items: [...] }`); its types cannot say "either".
+            items={(grouped ? groups : items) as unknown as SenseSuggestion[]}
             mode="none"
             value={value}
             onValueChange={(next, details) => {
@@ -76,7 +134,7 @@ export function SenseTypeAhead({
                 render={<Input />}
                 autoComplete="off"
                 aria-label={label}
-                placeholder={t('wordRelated:startFromWord.wordPlaceholder')}
+                placeholder={placeholder}
                 data-testid="start-word-input"
             />
             <Autocomplete.Portal>
@@ -87,34 +145,7 @@ export function SenseTypeAhead({
                         className="max-h-80 w-(--anchor-width) min-w-64 overflow-y-auto rounded-lg border border-(--border) bg-popover p-1 text-popover-foreground shadow-md"
                     >
                         <Autocomplete.List className="flex flex-col gap-0.5">
-                            {(item: SenseSuggestion) => (
-                                <Autocomplete.Item
-                                    key={itemId(item)}
-                                    value={item}
-                                    onClick={() => {
-                                        setOpen(false);
-                                        onPick(item);
-                                    }}
-                                    className="flex cursor-default flex-col gap-0.5 rounded-md px-2.5 py-1.5 text-sm outline-hidden select-none data-highlighted:bg-(--hover)"
-                                >
-                                    <span className="flex items-baseline gap-1.5">
-                                        {item.gender && (
-                                            <>
-                                                <span className="text-muted-foreground">{item.gender}</span>{' '}
-                                            </>
-                                        )}
-                                        <span className="font-medium">{item.word}</span>
-                                        {partOfSpeech === 'Any' && (
-                                            <span className="text-xs text-muted-foreground">
-                                                {t(partOfSpeechLabelKey(item.partOfSpeech as PartOfSpeech))}
-                                            </span>
-                                        )}
-                                    </span>
-                                    {meaningOf(item, language) && (
-                                        <span className="text-xs text-muted-foreground">{meaningOf(item, language)}</span>
-                                    )}
-                                </Autocomplete.Item>
-                            )}
+                            {(grouped ? renderGroup : renderItem) as (entry: SenseSuggestion, index: number) => ReactNode}
                         </Autocomplete.List>
                     </Autocomplete.Popup>
                 </Autocomplete.Positioner>

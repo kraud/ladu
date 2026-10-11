@@ -61,7 +61,7 @@ describe('AddWordPage', () => {
 
         // The section, the "or" line, then the part-of-speech list.
         expect(screen.getByTestId('start-from-word')).toBeInTheDocument();
-        expect(screen.getByText('or')).toBeInTheDocument();
+        expect(screen.getByText('or create manually')).toBeInTheDocument();
         expect(screen.getByRole('radio', { name: /Verb/ })).toBeInTheDocument();
 
         await user.type(screen.getByTestId('start-word-input'), 'ban');

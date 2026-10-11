@@ -157,13 +157,16 @@ export function WordForm({
         return (
             <PageColumn wide>
                 <div className="flex flex-col gap-4">
-                    {typeof header === 'function' ? header({}) : header}
                     {onStartDraft ? (
-                        <StartFromWord onDraft={onStartDraft}>
+                        // The start section brings the page header with it: its preview replaces the header.
+                        <StartFromWord onDraft={onStartDraft} header={typeof header === 'function' ? header({}) : header}>
                             <PartOfSpeechSelector value={state.partOfSpeech} onChange={pickPartOfSpeech} />
                         </StartFromWord>
                     ) : (
-                        <PartOfSpeechSelector value={state.partOfSpeech} onChange={pickPartOfSpeech} />
+                        <>
+                            {typeof header === 'function' ? header({}) : header}
+                            <PartOfSpeechSelector value={state.partOfSpeech} onChange={pickPartOfSpeech} />
+                        </>
                     )}
                 </div>
             </PageColumn>

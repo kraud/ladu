@@ -263,6 +263,39 @@ lexicon has no value for it, same as the "Use autocomplete values" button).
 
 ---
 
+## 4b. Polish (2026-10-11, after G6)
+
+The look of G4 and G5 was reworked. §2 describes the first version; where they differ, this wins.
+
+- **Section:** half the row, aligned left, on a desktop; the full row on a phone (the app's own
+  breakpoint, 920 px). One line of controls on a desktop: language (flag + two-letter code), part of
+  speech, the word. On a phone: the two selects share a line (50% each, full language names), the word
+  is underneath. No visible labels (the selects and the input keep their `aria-label`).
+- **Texts:** `Any` is now "Any type". The placeholder follows the selects ("Type a word in English",
+  "Type the verb in Spanish"; each locale has its own phrasing: "en inglés", "auf Englisch", "inglise
+  keeles"). The line under the section reads "or create manually".
+- **Sense list:** while "Any type" is selected the lines are grouped by part of speech (Noun, Verb,
+  Adjective, Adverb), with a small heading per group and a separator line between groups; the per-line
+  part-of-speech label is gone. With one part of speech selected the list is flat.
+- **Preview:** it replaces the page's own title and back arrow with its own (title "Choose the words to
+  use", one back arrow). That arrow returns to the start section on `/addWord`, not to the word list.
+  The page header is passed into `StartFromWord` (`header` prop) for this.
+- **Preview cards:** one collapsed card per account language, in the style of the real translation
+  cards, two to a row on a desktop (`translationGridClass`). The header has the flag, the preselected
+  word and a hint: "N other options" / "No other options" / "from Ekilex · …" / "No word found".
+  The expand button opens the words as radio buttons plus **"No translation"**. A card on "No
+  translation" stays in the preview but the draft has no card for that language (the user can still
+  add it by hand). The old per-row checkbox is gone.
+- **Interpretation to confirm:** the expand button is enabled whenever the language has at least one
+  word (because "No translation" is then always a choice), and disabled only when it has none. With one
+  word the hint says "No other options" and the button is still enabled.
+- **Tests:** Vitest 1584 pass (the start-from-word tests were rewritten: placeholders, groups,
+  desktop and phone layout, collapsed cards, "No translation"). E2E spec: the preview cards, the "DE"
+  option, and a new layout test that measures the real widths and rows in a browser at 1280 and 400
+  px. **The "Estonian gap" e2e test needs the Ekilex stub: it fails when the user's own dev servers
+  (`npm run dev`, backend on :5001) are running, because Playwright then reuses that backend, which
+  talks to the real Ekilex.** Stop the dev servers before `npm run test:e2e`.
+
 ## 5. Decisions (proposed — number after approval)
 
 | # | Proposal |

@@ -6,6 +6,7 @@ import { makeStartFromWordHandlers } from '@/test/msw/startFromWordHandlers';
 import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 import { futureToken } from '@/test/tokens';
+import { mockMobileViewport } from '@/test/viewport';
 import { StartFromWord } from './StartFromWord';
 
 const SESSION = {
@@ -17,7 +18,7 @@ const BANK_MONEY: SenseSuggestion = {
     word: 'banco', partOfSpeech: 'Noun', gender: 'el', english: 'bank', sense: 'financial institution',
     key: { englishLemma: 'bank', entryOrder: 0, senseOrder: 0 },
 };
-const BANK_RIVER: SenseSuggestion = {
+const BANK_SEAT: SenseSuggestion = {
     word: 'banco', partOfSpeech: 'Noun', gender: 'el', english: 'bench', sense: 'seat',
     key: { englishLemma: 'bench', entryOrder: 0, senseOrder: 0 },
 };
@@ -40,7 +41,7 @@ const BANK_SENSE: SenseResponse = {
 
 function setup(options: Parameters<typeof makeStartFromWordHandlers>[0] = {}) {
     const fake = makeStartFromWordHandlers({
-        suggestions: { Spanish: [BANK_MONEY, BANK_RIVER, BANK_VERB] },
+        suggestions: { Spanish: [BANK_MONEY, BANK_SEAT, BANK_VERB] },
         senses: { 'bank|0|0': BANK_SENSE },
         ...options,
     });
@@ -48,7 +49,7 @@ function setup(options: Parameters<typeof makeStartFromWordHandlers>[0] = {}) {
     const onDraft = vi.fn();
     const user = userEvent.setup();
     renderWithProviders(
-        <StartFromWord onDraft={onDraft}>
+        <StartFromWord onDraft={onDraft} header={<h1>New word</h1>}>
             <p>the part-of-speech list</p>
         </StartFromWord>,
         { session: SESSION },
@@ -61,21 +62,64 @@ async function typeAndPick(user: ReturnType<typeof userEvent.setup>, text: strin
     await user.click(await screen.findByRole('option', { name: option }));
 }
 
-describe('StartFromWord', () => {
-    it('starts in the UI language, offers only the account languages, and shows the part-of-speech list under "or"', async () => {
+const card = (language: string) => screen.getByTestId(`preview-card-${language}`);
+const expand = (language: string) => within(card(language)).getByRole('button', { name: 'Expand translation' });
+
+describe('StartFromWord — the section', () => {
+    it('starts in the UI language, shows flag and two-letter code, offers only the account languages, and has no visible labels', async () => {
         const { user } = setup();
-        expect(screen.getByTestId('start-language')).toHaveTextContent('Español');
-        expect(screen.getByTestId('start-pos')).toHaveTextContent('Any');
+        expect(screen.getByTestId('start-language')).toHaveTextContent('ES');
+        expect(screen.getByTestId('start-pos')).toHaveTextContent('Any type');
+        expect(screen.queryByText('Language of the word')).not.toBeInTheDocument();
+        expect(screen.queryByText('Part of speech')).not.toBeInTheDocument();
         expect(screen.getByText('the part-of-speech list')).toBeInTheDocument();
-        expect(screen.getByText('or')).toBeInTheDocument();
+        expect(screen.getByText('or create manually')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'New word' })).toBeInTheDocument();
 
         await user.click(screen.getByTestId('start-language'));
         await screen.findAllByRole('option');
-        const names = screen.getAllByRole('option').map((option) => option.textContent);
-        expect(names).toEqual(['English', 'Español', 'Deutsch']); // no Estonian: not on the account
+        expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['EN', 'ES', 'DE']); // no Estonian: not on the account
     });
 
-    it('lists the senses of the typed word in the chosen language, with the part of speech while "Any"', async () => {
+    it('takes half the row on a desktop, aligned left', () => {
+        setup();
+        expect(screen.getByTestId('start-from-word')).toHaveClass('w-1/2');
+    });
+
+    it('on a phone: the full row, two selects sharing a line, the word underneath, and the full language names', async () => {
+        mockMobileViewport();
+        const { user } = setup();
+        const section = screen.getByTestId('start-from-word');
+        expect(section).not.toHaveClass('w-1/2');
+        expect(screen.getByTestId('start-language')).toHaveTextContent('Español');
+        const controls = screen.getByTestId('start-language').parentElement as HTMLElement;
+        expect(controls).toHaveClass('grid-cols-2');
+        expect(within(controls).getByTestId('start-word-input').parentElement).toHaveClass('col-span-2');
+
+        await user.click(screen.getByTestId('start-language'));
+        await screen.findAllByRole('option');
+        expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['English', 'Español', 'Deutsch']);
+    });
+
+    it('the placeholder follows the two selects', async () => {
+        const { user } = setup();
+        const input = screen.getByTestId('start-word-input');
+        expect(input).toHaveAttribute('placeholder', 'Type a word in Spanish');
+
+        await user.click(screen.getByTestId('start-pos'));
+        await user.click(await screen.findByRole('option', { name: 'Verb' }));
+        expect(input).toHaveAttribute('placeholder', 'Type the verb in Spanish');
+
+        await user.click(screen.getByTestId('start-language'));
+        await user.click(await screen.findByRole('option', { name: 'DE' }));
+        expect(input).toHaveAttribute('placeholder', 'Type the verb in German');
+
+        await user.click(screen.getByTestId('start-pos'));
+        await user.click(await screen.findByRole('option', { name: 'Any type' }));
+        expect(input).toHaveAttribute('placeholder', 'Type a word in German');
+    });
+
+    it('lists the senses of the typed word in the chosen language, grouped by part of speech with a separator while "Any type"', async () => {
         const { user, fake } = setup();
         await user.type(screen.getByTestId('start-word-input'), 'ban');
 
@@ -83,14 +127,17 @@ describe('StartFromWord', () => {
         const options = within(list).getAllByRole('option');
         expect(options).toHaveLength(3);
         expect(options[0]).toHaveTextContent('el banco');
-        expect(options[0]).toHaveTextContent('Noun');
         expect(options[0]).toHaveTextContent('bank — financial institution');
         expect(options[2]).toHaveTextContent('bancar');
-        expect(options[2]).toHaveTextContent('Verb');
+        // One heading per group, and one separator between the two groups; no label on the lines themselves.
+        expect(within(list).getByRole('group', { name: 'Noun' })).toHaveTextContent('el banco');
+        expect(within(list).getByRole('group', { name: 'Verb' })).toHaveTextContent('bancar');
+        expect(list.querySelectorAll('.h-px')).toHaveLength(1); // the separator is decorative: no role to query
+        expect(options[0]).not.toHaveTextContent('Noun');
         expect(fake.suggestionRequests.at(-1)).toEqual({ language: 'Spanish', prefix: 'ban', partOfSpeech: 'Any' });
     });
 
-    it('a chosen part of speech limits the list and leaves the label out', async () => {
+    it('a chosen part of speech limits the list and shows no group headings', async () => {
         const { user, fake } = setup();
         await user.click(screen.getByTestId('start-pos'));
         await user.click(await screen.findByRole('option', { name: 'Verb' }));
@@ -99,45 +146,87 @@ describe('StartFromWord', () => {
         const options = await screen.findAllByRole('option');
         expect(options).toHaveLength(1);
         expect(options[0]).toHaveTextContent('bancar');
-        expect(options[0]).not.toHaveTextContent('Verb');
+        const list = screen.getByTestId('sense-list');
+        expect(list.querySelectorAll('.h-px')).toHaveLength(0);
+        expect(within(list).queryByRole('group')).not.toBeInTheDocument();
         expect(fake.suggestionRequests.at(-1)?.partOfSpeech).toBe('Verb');
     });
 
     it('sends the typed language to the server: German is searched when German is chosen', async () => {
         const { user, fake } = setup({ suggestions: { German: [{ ...BANK_MONEY, word: 'Bank', gender: 'die' }] } });
         await user.click(screen.getByTestId('start-language'));
-        await user.click(await screen.findByRole('option', { name: 'Deutsch' }));
+        await user.click(await screen.findByRole('option', { name: 'DE' }));
         await user.type(screen.getByTestId('start-word-input'), 'Ba');
 
         expect(await screen.findByRole('option', { name: /Bank/ })).toBeInTheDocument();
         expect(fake.suggestionRequests.at(-1)?.language).toBe('German');
     });
+});
 
-    it('a pick opens the preview: only account languages, start word selected, rows with a word are on', async () => {
+describe('StartFromWord — the preview', () => {
+    it('a pick replaces the page title and the list with its own title; the cards are collapsed, in the start language first', async () => {
         const { user, fake } = setup();
         await typeAndPick(user, 'ban', /el banco.*financial/);
 
         const preview = await screen.findByTestId('sense-preview');
+        expect(screen.getByRole('heading', { level: 1, name: 'Choose the words to use' })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'New word' })).not.toBeInTheDocument();
         expect(screen.queryByText('the part-of-speech list')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('start-from-word')).not.toBeInTheDocument();
         expect(fake.senseRequests.at(-1)).toEqual({ partOfSpeech: 'Noun', key: 'bank|0|0', languages: ['Spanish', 'English', 'German'] });
 
-        // Start language first, then the other account languages. Estonian is not on the account.
-        const rows = within(preview).getAllByRole('listitem').map((row) => row.getAttribute('data-testid'));
-        expect(rows).toEqual(['preview-row-Spanish', 'preview-row-English', 'preview-row-German']);
-        expect(within(screen.getByTestId('preview-row-Spanish')).getByRole('radio', { name: 'el banco' })).toBeChecked();
-        expect(within(screen.getByTestId('preview-row-German')).getByRole('radio', { name: 'die Bank' })).toBeChecked();
-        expect(screen.getByRole('checkbox', { name: 'Use Español' })).toBeChecked();
-        expect(screen.getByRole('checkbox', { name: 'Use English' })).toBeChecked();
+        // Two-column grid like the noun cards; account languages only (no Estonian); start language first.
+        expect(within(preview).getAllByRole('group').map((group) => group.getAttribute('data-testid'))).toEqual([
+            'preview-card-Spanish', 'preview-card-English', 'preview-card-German',
+        ]);
+        expect(preview.querySelector('.grid')).toHaveClass('sm:grid-cols-2');
+        // Collapsed: the header shows the preselected word and how many other options there are.
+        expect(card('Spanish')).toHaveTextContent('el banco');
+        expect(card('Spanish')).toHaveTextContent('1 other option');
+        expect(card('German')).toHaveTextContent('die Bank');
+        expect(card('English')).toHaveTextContent('bank');
+        expect(card('English')).toHaveTextContent('No other options');
+        expect(within(card('Spanish')).queryByRole('radio')).not.toBeInTheDocument();
     });
 
-    it('"Create draft" sends the chosen word of each language that is on, with its gender, and hands the answer up', async () => {
+    it('the back arrow returns to the start section, with the page title and the typed word', async () => {
+        const { user } = setup();
+        await typeAndPick(user, 'ban', /el banco.*financial/);
+        await screen.findByTestId('sense-preview');
+        await user.click(screen.getByRole('button', { name: 'Back' }));
+
+        expect(screen.getByTestId('start-from-word')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'New word' })).toBeInTheDocument();
+        expect(screen.getByTestId('start-word-input')).toHaveValue('banco');
+    });
+
+    it('expanding a card lists its words and "No translation"; choosing another word changes the header', async () => {
+        const { user } = setup();
+        await typeAndPick(user, 'ban', /el banco.*financial/);
+        await screen.findByTestId('sense-preview');
+        await user.click(expand('Spanish'));
+
+        const spanish = within(card('Spanish'));
+        expect(spanish.getByRole('radio', { name: 'el banco' })).toBeChecked();
+        expect(spanish.getByRole('radio', { name: 'No translation' })).not.toBeChecked();
+        await user.click(spanish.getByRole('radio', { name: 'la banca' }));
+        expect(card('Spanish')).toHaveTextContent('la banca');
+        await user.click(within(card('Spanish')).getByRole('button', { name: 'Collapse translation' }));
+        expect(within(card('Spanish')).queryByRole('radio')).not.toBeInTheDocument();
+    });
+
+    it('"Create draft" sends the chosen word of each card, leaves out a card set to "No translation", and hands the answer up', async () => {
         const { user, fake, onDraft } = setup({
             drafts: { 'Spanish|banca': { status: 'partial', cases: [{ caseName: 'singularES', word: 'banca' }] } },
         });
         await typeAndPick(user, 'ban', /el banco.*financial/);
-        const spanish = await screen.findByTestId('preview-row-Spanish');
-        await user.click(within(spanish).getByRole('radio', { name: 'la banca' }));
-        await user.click(screen.getByRole('checkbox', { name: 'Use English' })); // off
+        await screen.findByTestId('sense-preview');
+        await user.click(expand('Spanish'));
+        await user.click(within(card('Spanish')).getByRole('radio', { name: 'la banca' }));
+        await user.click(expand('English'));
+        await user.click(within(card('English')).getByRole('radio', { name: 'No translation' }));
+        expect(card('English')).toHaveTextContent('No translation');
+        expect(card('English')).toHaveTextContent('1 option available');
         await user.click(screen.getByRole('button', { name: 'Create draft' }));
 
         await waitFor(() => expect(onDraft).toHaveBeenCalledTimes(1));
@@ -153,47 +242,50 @@ describe('StartFromWord', () => {
         });
     });
 
-    it('one language is enough; none switches the button off', async () => {
+    it('one card is enough; with every card on "No translation" the button is off', async () => {
         const { user } = setup();
         await typeAndPick(user, 'ban', /el banco.*financial/);
         await screen.findByTestId('sense-preview');
-        await user.click(screen.getByRole('checkbox', { name: 'Use English' }));
-        await user.click(screen.getByRole('checkbox', { name: 'Use Deutsch' }));
+        for (const language of ['English', 'German']) {
+            await user.click(expand(language));
+            await user.click(within(card(language)).getByRole('radio', { name: 'No translation' }));
+        }
         expect(screen.getByRole('button', { name: 'Create draft' })).toBeEnabled();
 
-        await user.click(screen.getByRole('checkbox', { name: 'Use Español' }));
+        await user.click(expand('Spanish'));
+        await user.click(within(card('Spanish')).getByRole('radio', { name: 'No translation' }));
         expect(screen.getByRole('button', { name: 'Create draft' })).toBeDisabled();
-        expect(screen.getByText('Select at least one language.')).toBeInTheDocument();
+        expect(screen.getByText('Choose a word for at least one language.')).toBeInTheDocument();
     });
 
-    it('a language with no word says so and cannot be switched on', async () => {
+    it('a language with no word says so, has "No translation" in its header and cannot be expanded', async () => {
         const { user } = setup({
             senses: { 'bank|0|0': { sense: { ...BANK_SENSE.sense, words: { ...BANK_SENSE.sense.words, German: [] } } } },
         });
         await typeAndPick(user, 'ban', /el banco.*financial/);
-        const german = await screen.findByTestId('preview-row-German');
-        expect(within(german).getByText('No word found')).toBeInTheDocument();
-        expect(within(german).getByRole('checkbox')).toHaveAttribute('aria-disabled', 'true');
+        await screen.findByTestId('sense-preview');
+        expect(card('German')).toHaveTextContent('No translation');
+        expect(card('German')).toHaveTextContent('No word found');
+        expect(expand('German')).toBeDisabled();
+        expect(expand('Spanish')).toBeEnabled();
     });
 
-    it('Estonian (on the account) with no word in the table shows the Ekilex words, marked; or says they are unavailable', async () => {
-        const withEstonian = { ...SESSION, languages: ['English', 'Spanish', 'Estonian'] };
+    it('Estonian (on the account) with no word in the table shows the Ekilex word, marked', async () => {
         const fake = makeStartFromWordHandlers({
             suggestions: { Spanish: [BANK_MONEY] },
             senses: { 'bank|0|0': { ...BANK_SENSE, ekilex: { estonian: [{ word: 'pank' }] } } },
         });
         server.use(...fake.handlers);
         const user = userEvent.setup();
-        renderWithProviders(<StartFromWord onDraft={vi.fn()} />, { session: withEstonian });
+        renderWithProviders(<StartFromWord onDraft={vi.fn()} />, { session: { ...SESSION, languages: ['English', 'Spanish', 'Estonian'] } });
         await typeAndPick(user, 'ban', /el banco/);
 
-        const estonian = await screen.findByTestId('preview-row-Estonian');
-        expect(within(estonian).getByText('from Ekilex')).toBeInTheDocument();
-        expect(within(estonian).getByText('pank')).toBeInTheDocument();
-        expect(within(estonian).getByRole('checkbox')).toBeChecked();
+        await screen.findByTestId('preview-card-Estonian');
+        expect(card('Estonian')).toHaveTextContent('pank');
+        expect(card('Estonian')).toHaveTextContent('from Ekilex');
     });
 
-    it('Ekilex down: the Estonian row says the words are not available now', async () => {
+    it('Ekilex down: the Estonian card says the words are not available now', async () => {
         const fake = makeStartFromWordHandlers({
             suggestions: { Spanish: [BANK_MONEY] },
             senses: { 'bank|0|0': { ...BANK_SENSE, ekilex: { unavailable: true } } },
@@ -203,10 +295,12 @@ describe('StartFromWord', () => {
         renderWithProviders(<StartFromWord onDraft={vi.fn()} />, { session: { ...SESSION, languages: ['Spanish', 'Estonian'] } });
         await typeAndPick(user, 'ban', /el banco/);
 
-        expect(await screen.findByText('Estonian words are not available now.')).toBeInTheDocument();
+        await screen.findByTestId('preview-card-Estonian');
+        expect(card('Estonian')).toHaveTextContent('Estonian words are not available now.');
+        expect(expand('Estonian')).toBeDisabled();
     });
 
-    it('a failed draft shows an alert and keeps the preview; Back returns to the list', async () => {
+    it('a failed draft shows an alert and keeps the preview', async () => {
         const { user, onDraft } = setup({ draftFailure: 500 });
         await typeAndPick(user, 'ban', /el banco.*financial/);
         await screen.findByTestId('sense-preview');
@@ -214,10 +308,7 @@ describe('StartFromWord', () => {
 
         expect(await screen.findByRole('alert')).toHaveTextContent('The draft could not be created');
         expect(onDraft).not.toHaveBeenCalled();
-
-        await user.click(screen.getByRole('button', { name: 'Back' }));
-        expect(screen.getByTestId('start-from-word')).toBeInTheDocument();
-        expect(screen.getByTestId('start-word-input')).toHaveValue('banco');
+        expect(screen.getByTestId('sense-preview')).toBeInTheDocument();
     });
 
     it('a sense that cannot be loaded shows an alert', async () => {
