@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useForm } from 'react-hook-form';
 import { describe, expect, it } from 'vitest';
@@ -474,6 +474,32 @@ describe('FieldRenderer', () => {
             await user.click(screen.getByRole('combobox'));
             await user.click(await screen.findByRole('option', { name: 'haben' }));
             expect(screen.getByText('habe')).toBeInTheDocument();
+        });
+
+        it('a prefix and a suffix stand INSIDE the input\'s box (as text that cannot be edited), so the box is a plain input\'s width', () => {
+            const withAffixes: FieldConfig = {
+                ...adornedField, name: 'indicativePresent1s', labelKey: 'indicativePresent1s',
+                adornment: { text: 'am' },
+                reflexive: { accusative: 'mich', position: 'after', on: { field: 'reflexivity', equals: 'Always reflexive' } },
+            };
+            renderWithProviders(
+                <MultiHarness fields={[withAffixes]} defaultValues={{ reflexivity: 'Always reflexive', indicativePresent1s: 'wasche' }} />,
+            );
+            const input = screen.getByDisplayValue('wasche');
+            const box = input.parentElement as HTMLElement;
+            // The box wears the input's look; both affixes are in it, around the input, and are not inputs.
+            expect(box).toHaveClass('rounded-md', 'border', 'w-full');
+            expect(within(box).getByText('mich')).toBeInTheDocument();
+            expect(within(box).getByText('am')).toBeInTheDocument();
+            expect(within(box).getByText('am').compareDocumentPosition(input) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+            expect(box.querySelectorAll('input')).toHaveLength(1);
+            // The input itself has no border of its own and takes the rest of the box.
+            expect(input).toHaveClass('border-0', 'flex-1');
+        });
+
+        it('a field with no prefix keeps the plain input (no box around it)', () => {
+            renderWithProviders(<Harness field={{ ...adornedField, adornment: undefined }} value="x" />);
+            expect(screen.getByDisplayValue('x')).not.toHaveClass('border-0');
         });
 
         it('a fixed prefix (German superlative "am") shows in the form and, in displayOnly, only once the field has a value', () => {

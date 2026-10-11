@@ -296,6 +296,17 @@ The look of G4 and G5 was reworked. §2 describes the first version; where they 
   (`npm run dev`, backend on :5001) are running, because Playwright then reuses that backend, which
   talks to the real Ekilex.** Stop the dev servers before `npm run test:e2e`.
 
+### Prefixes inside the input (2026-10-11)
+
+A prefix or suffix of a text field (the German superlative's "am", the auxiliary "habe" / "werde", a
+reflexive pronoun before or after the verb) no longer sits beside the input, where it made the input
+narrower. `FieldRenderer` now draws a box that wears the input's own look (border, background, focus
+and error rings) and puts the affix text and the real input inside it; the input has no chrome of its
+own and takes the rest. The affix cannot be edited (a click on it focuses the input) and is not part of
+the stored value. Every input of a form is the same width. Display-only mode is unchanged. Tests:
+`FieldRenderer.test.tsx` (2) and the e2e spec `field-affixes.spec.ts`, which measures the box widths in a
+browser (German adjective: Comparative vs "am" Superlative; German verb: every person input).
+
 ## 5. Decisions (proposed — number after approval)
 
 | # | Proposal |

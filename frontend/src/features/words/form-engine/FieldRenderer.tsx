@@ -9,7 +9,10 @@
  *  - `visibleWhen` — the field renders nothing at all (in either mode) unless
  *    `matchesVisibility` (`configs/types.ts`) says so.
  *  - `adornment` — a read-only prefix shown before a `text` field's input,
- *    looked up from a sibling field's current value.
+ *    looked up from a sibling field's current value. A prefix (the auxiliary "habe", the German
+ *    superlative's "am", a reflexive pronoun before the verb) and a suffix (a reflexive pronoun after
+ *    it) stand INSIDE the input's box, as text the user cannot edit: the box keeps one width whatever
+ *    the affix, so the inputs of a form line up (`AFFIX_BOX`).
  *
  * A required (non-`displayOnly`) field prints a red `*` next to its label —
  * as a sibling of `FormLabel`, never inside it: `<label>`'s own text content
@@ -58,6 +61,18 @@ import { cn } from '@/lib/utils';
 const FIELD_ITEM = 'relative pb-4';
 /** The message itself: out of flow, pinned to the bottom of that strip, one line (an over-long one is cut with an ellipsis; `FormMessage` puts the full text in `title`). */
 const FIELD_MESSAGE = 'absolute inset-x-0 bottom-0 truncate leading-4';
+
+/**
+ * A text field with a prefix or suffix: the box wears the input's own look (border, background, focus and
+ * error rings), the affix text sits inside it, and the real input inside has no chrome of its own and takes
+ * the rest. So the box is as wide as any other input, with room for the affix taken from the typing area.
+ */
+const AFFIX_BOX =
+    'flex h-9 w-full min-w-0 cursor-text items-center rounded-md border border-input bg-card px-[11px] text-sm transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-(--accent-soft) has-[input[aria-invalid=true]]:border-destructive has-[input[aria-invalid=true]]:ring-3 has-[input[aria-invalid=true]]:ring-(--danger-soft) dark:bg-input/30';
+const AFFIX_TEXT = 'shrink-0 whitespace-nowrap text-sm text-muted-foreground select-none';
+/** The input inside `AFFIX_BOX`: no border, ring or background of its own. */
+const AFFIXED_INPUT =
+    'h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-0 py-0 shadow-none focus-visible:border-0 focus-visible:ring-0 aria-invalid:border-0 aria-invalid:ring-0 dark:bg-transparent';
 
 export interface FieldRendererProps {
     field: FieldConfig;
@@ -205,7 +220,12 @@ export function FieldRenderer({
                     const placeholder = isAutocompleteTrigger
                         ? t('wordRelated:wordForm.autocompleteTranslationButton.inputPlaceholder')
                         : undefined;
-                    const inputClass = isAutocompleteTrigger ? 'border-2 border-(--border-strong) pl-8' : undefined;
+                    const affixed = Boolean(beforeText || pronounAfter);
+                    const inputClass = isAutocompleteTrigger
+                        ? 'border-2 border-(--border-strong) pl-8'
+                        : affixed
+                          ? AFFIXED_INPUT
+                          : undefined;
                     const input =
                         isAutocompleteTrigger && typeAhead ? (
                             <TypeAheadInput
@@ -242,11 +262,15 @@ export function FieldRenderer({
                     return (
                         <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} bold={isAutocompleteTrigger} />
-                            {beforeText || pronounAfter ? (
-                                <div className="flex items-center gap-1.5">
-                                    {beforeText && <span className="text-sm text-muted-foreground">{beforeText}</span>}
+                            {affixed ? (
+                                // The box looks like the input; a click on the affix text focuses the real input.
+                                <div
+                                    className={AFFIX_BOX}
+                                    onClick={(event) => event.currentTarget.querySelector('input')?.focus()}
+                                >
+                                    {beforeText && <span className={cn(AFFIX_TEXT, 'mr-1.5')}>{beforeText}</span>}
                                     {control}
-                                    {pronounAfter && <span className="text-sm text-muted-foreground">{pronounAfter}</span>}
+                                    {pronounAfter && <span className={cn(AFFIX_TEXT, 'ml-1.5')}>{pronounAfter}</span>}
                                 </div>
                             ) : (
                                 control
