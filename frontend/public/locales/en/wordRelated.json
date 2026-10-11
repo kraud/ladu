@@ -27,7 +27,8 @@
     "createDraft": "Create draft",
     "creating": "Creating…",
     "draftFailed": "The draft could not be created. Try again.",
-    "noneSelected": "Select at least one language."
+    "noneSelected": "Select at least one language.",
+    "draftLookupFailed": "The forms for this word could not be looked up. Fill the card by hand, or try the autocomplete again."
   },
   "apiErrors": {
     "wordNotFound": "This word could not be found.",

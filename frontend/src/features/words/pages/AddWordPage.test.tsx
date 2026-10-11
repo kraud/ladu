@@ -36,13 +36,22 @@ async function fillEnEs(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('AddWordPage', () => {
-    it('shows "Start from a word" above the part-of-speech list; a draft moves on to the form of its part of speech', async () => {
+    it('shows "Start from a word" above the part-of-speech list; a draft opens the form with one filled card per language, ready to save', async () => {
         const fake = makeStartFromWordHandlers({
             suggestions: {
                 English: [{ word: 'bank', partOfSpeech: 'Noun', english: 'bank', sense: 'financial institution', key: { englishLemma: 'bank', entryOrder: 0, senseOrder: 0 } }],
             },
             senses: {
                 'bank|0|0': { sense: { english: 'bank', sense: 'financial institution', words: { English: [{ word: 'bank' }], Spanish: [{ word: 'banco', gender: 'el' }] } } },
+            },
+            drafts: {
+                'English|bank': { status: 'found', cases: [
+                    { caseName: 'regularityEN', word: 'regular' }, { caseName: 'singularEN', word: 'bank' }, { caseName: 'pluralEN', word: 'banks' },
+                ] },
+                'Spanish|banco': { status: 'found', cases: [
+                    { caseName: 'genderES', word: 'el' }, { caseName: 'regularityES', word: 'regular' },
+                    { caseName: 'singularES', word: 'banco' }, { caseName: 'pluralES', word: 'bancos' },
+                ] },
             },
         });
         server.use(...makeWordHandlers({ callerId: SESSION.id }).handlers, ...fake.handlers);
@@ -59,8 +68,15 @@ describe('AddWordPage', () => {
         await user.click(await screen.findByRole('option', { name: /bank/ }));
         await user.click(await screen.findByRole('button', { name: 'Create draft' }));
 
+        // The form of the draft's part of speech, with both cards filled; the section is gone.
         expect(await screen.findByRole('heading', { name: 'New Noun' })).toBeInTheDocument();
         expect(screen.queryByTestId('start-from-word')).not.toBeInTheDocument();
+        await waitFor(() => expect(screen.getAllByLabelText('Singular').map((input) => (input as HTMLInputElement).value)).toEqual(['bank', 'banco']));
+        expect(screen.getAllByLabelText('Plural').map((input) => (input as HTMLInputElement).value)).toEqual(['banks', 'bancos']);
+        expect(screen.getByRole('radio', { name: 'el' })).toBeChecked();
+
+        // Two languages, all required fields filled: Save is on.
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save word' })).toBeEnabled());
     });
 
     it('has a back arrow that returns to Words', async () => {

@@ -33,6 +33,9 @@ export function lookupQueryOptions({ language, pos, query, extra, entryId }: Use
     return queryOptions({
         queryKey: autocompleteKeys.lookup(language, pos, trimmed, extra, entryId),
         queryFn: () => lookupDictionary(language, pos, trimmed, extra, entryId).then(toAutocompleteResult),
+        // Dictionary data does not change within a minute. It also keeps the answer a draft puts in
+        // the cache (Slice G, which chose the entry by gender) from being replaced by a plain lookup.
+        staleTime: 60_000,
     });
 }
 

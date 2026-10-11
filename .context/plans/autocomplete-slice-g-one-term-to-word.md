@@ -205,6 +205,22 @@ the layout check comes with the G6 e2e run.
 
 ### G5 — Fill the cards (frontend)
 
+**DONE 2026-10-11.** `AddWordPage` keeps `draft` and passes it to `WordForm` as `initialDraft` (cleared
+by `resetToGate`); `useWordFormState` seeds the part of speech and one empty, changed card per word
+in the draft's order (the start language first, not the user's language order), and keeps `drafts`
+by language; removing or clearing a card (and `reset`) drops its entry, so adding that language
+again later gives an empty card. `TranslationCard` has the new prop `draft`: on mount (once, also
+under StrictMode) `found` / `partial` run `applyLookup` with the draft's cases; `not-found` / `error`
+write only the word into the active query field (if shown) and, for a German or Spanish noun, the
+gender when the form has that option. No request is made. The card also puts the draft's answer into
+the lookup cache under its query, so the footer shows "applied" / the partial notice / "don't know
+this word" from the same answer (it was chosen by gender: "die See"; a plain lookup would give
+"der See" and offer to overwrite it). For that, `lookupQueryOptions` got `staleTime: 60 s`. An
+`error` draft is not cached (the footer asks again) and shows the line
+`startFromWord.draftLookupFailed` until the word is edited. Vitest: 6 card tests, 4 hook tests, and
+the page test now walks start → preview → draft → two filled cards → Save enabled. A mutation
+check confirmed the cache seeding matters (3 card tests fail without it).
+
 - `AddWordPage` keeps a `draft` state `{ partOfSpeech, translations: DraftTranslation[] }` and
   passes it to `WordForm` (`initialDraft`); the existing `formKey` remount seeds it once.
 - `useWordFormState` seeds the cards: part of speech, one `TranslationItem` per language, in the

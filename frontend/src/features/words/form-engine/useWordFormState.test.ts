@@ -421,3 +421,49 @@ describe('useWordFormState — removing a translation from a saved word', () => 
         expect(result.current.saveBlockReason).toBe('noChanges');
     });
 });
+
+describe('useWordFormState — start from a draft (Slice G, G5)', () => {
+    const draft = {
+        partOfSpeech: 'Noun',
+        translations: [
+            { language: 'Spanish', word: 'banco', gender: 'el', status: 'found' as const, cases: [] },
+            { language: 'English', word: 'bank', status: 'not-found' as const, cases: [] },
+        ],
+    };
+
+    it('opens on the draft\'s part of speech with one empty, changed card per word, in the draft\'s order', () => {
+        seedSession(['English', 'Spanish']);
+        const { result } = renderHook(() => useWordFormState({ initialDraft: draft }));
+
+        expect(result.current.partOfSpeech).toBe(PartOfSpeech.noun);
+        expect(result.current.translations.map((t) => [t.language, t.isDirty, t.completionState])).toEqual([
+            [Lang.ES, true, false],
+            [Lang.EN, true, false],
+        ]);
+        expect(Object.keys(result.current.drafts).sort()).toEqual(['English', 'Spanish']);
+        expect(result.current.hasContent).toBe(false); // nothing typed yet: the cards fill themselves on mount
+    });
+
+    it('removing or clearing a card drops its draft, so adding the language again gives an empty card', () => {
+        seedSession(['English', 'Spanish']);
+        const { result } = renderHook(() => useWordFormState({ initialDraft: draft }));
+
+        act(() => result.current.removeTranslation(0));
+        expect(Object.keys(result.current.drafts)).toEqual(['English']);
+        act(() => result.current.clearTranslation(0));
+        expect(result.current.drafts).toEqual({});
+    });
+
+    it('reset drops every draft', () => {
+        seedSession(['English', 'Spanish']);
+        const { result } = renderHook(() => useWordFormState({ initialDraft: draft }));
+        act(() => result.current.reset());
+        expect(result.current.drafts).toEqual({});
+    });
+
+    it('without a draft there are none', () => {
+        seedSession(['English', 'Spanish']);
+        const { result } = renderHook(() => useWordFormState());
+        expect(result.current.drafts).toEqual({});
+    });
+});

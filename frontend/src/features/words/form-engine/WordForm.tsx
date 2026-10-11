@@ -73,6 +73,8 @@ export interface WordFormProps {
      * Fires when the user presses "Create draft" in its preview, with the looked-up words.
      */
     onStartDraft?: (draft: WordDraft) => void;
+    /** Create mode (Slice G): start with one card per word of this draft, already filled. Read once, at mount. */
+    initialDraft?: WordDraft;
     /** The page title block: first in the content column (or above the PoS gate). */
     /**
      * The page title. A function receives `requestChangePartOfSpeech` — the same
@@ -97,12 +99,13 @@ export function WordForm({
     onChangePartOfSpeech,
     onPartOfSpeechChange,
     onStartDraft,
+    initialDraft,
     header,
     submitting,
     cancelAction,
 }: WordFormProps) {
     const { t } = useTranslation();
-    const state = useWordFormState({ initialWord, defaultPartOfSpeech });
+    const state = useWordFormState({ initialWord, defaultPartOfSpeech, initialDraft });
     const [confirmChangeTypeOpen, setConfirmChangeTypeOpen] = useState(false);
     // The language whose Remove is waiting for a confirmation (by language, not index, so it stays right if the list changes).
     const [removeCandidate, setRemoveCandidate] = useState<Lang | null>(null);
@@ -284,6 +287,7 @@ export function WordForm({
                             lang={translation.language}
                             pos={partOfSpeech}
                             initialCases={translation.cases}
+                            draft={state.drafts[translation.language]}
                             onChange={(next) => state.updateTranslation(index, next)}
                             onRemove={() => handleRemove(index)}
                             onClear={() => state.clearTranslation(index)}

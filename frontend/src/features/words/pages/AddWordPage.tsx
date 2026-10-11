@@ -31,6 +31,7 @@ export function AddWordPage() {
     // (`WordForm.tsx:291-305`) cleared the picked PoS too, not just the cards.
     const [partOfSpeech, setPartOfSpeech] = useState(() => partOfSpeechFromRouteParam(posParam));
     const [formKey, setFormKey] = useState(0);
+    const [draft, setDraft] = useState<WordDraft | undefined>();
 
     const createWord = useCreateWord();
 
@@ -44,13 +45,15 @@ export function AddWordPage() {
 
     function resetToGate() {
         setPartOfSpeech(undefined);
+        setDraft(undefined);
         setFormKey((key) => key + 1);
     }
 
-    // "Create draft" in the start section (Slice G). G4 only moves on to the form with the draft's part
-    // of speech; step G5 seeds the cards with the looked-up words.
-    function handleDraft(draft: WordDraft) {
-        setPartOfSpeech(draft.partOfSpeech as PartOfSpeech);
+    // "Create draft" in the start section (Slice G): the form opens on the draft's part of speech with one
+    // filled card per chosen word. Cleared with the form (`resetToGate`).
+    function handleDraft(next: WordDraft) {
+        setDraft(next);
+        setPartOfSpeech(next.partOfSpeech as PartOfSpeech);
         setFormKey((key) => key + 1);
     }
 
@@ -79,6 +82,7 @@ export function AddWordPage() {
             onChangePartOfSpeech={resetToGate}
             onPartOfSpeechChange={setPartOfSpeech}
             onStartDraft={handleDraft}
+            initialDraft={draft}
             submitting={createWord.isPending}
             header={({ requestChangePartOfSpeech }) => (
                 <div className="flex items-center gap-2">

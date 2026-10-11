@@ -10,6 +10,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { UI_LANGUAGES } from '@/lib/language';
 import { filterTranslationsByUserLanguages } from '@/lib/words';
+import type { DraftTranslation, WordDraft } from '@/features/autocomplete/types';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
 import type { TranslationItem, WordItem } from '@/ts/interfaces';
 import type { TranslationCardChange } from './TranslationCard';
@@ -35,6 +36,8 @@ export interface UseWordFormStateOptions {
     initialWord?: WordBE;
     /** Create mode: pre-seed the part-of-speech gate from the route param. */
     defaultPartOfSpeech?: PartOfSpeech;
+    /** Create mode (Slice G): start from the looked-up words of "Start from a word" — one card per word. */
+    initialDraft?: WordDraft;
 }
 
 function initialState(options: UseWordFormStateOptions, userLanguages: readonly string[]) {
@@ -43,6 +46,16 @@ function initialState(options: UseWordFormStateOptions, userLanguages: readonly 
             partOfSpeech: options.initialWord.partOfSpeech as PartOfSpeech | undefined,
             clue: options.initialWord.clue ?? '',
             translations: filterTranslationsByUserLanguages(options.initialWord.translations, userLanguages),
+        };
+    }
+    if (options.initialDraft) {
+        // One empty card per chosen word, in the draft's order (the start language first). The cards fill
+        // themselves from `drafts` on mount; they count as changed, so Save follows the normal rules.
+        const languages = options.initialDraft.translations.map((t) => t.language as Lang);
+        return {
+            partOfSpeech: options.initialDraft.partOfSpeech as PartOfSpeech,
+            clue: '',
+            translations: languages.map((language): TranslationItem => ({ language, cases: [], completionState: false, isDirty: true, hasData: false })),
         };
     }
     return {
@@ -57,6 +70,20 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     // Hydration runs once, off the props present at mount — `WordForm` remounts
     // (via a `key`) rather than re-hydrating a live form on `initialWord` swap.
     const [seed] = useState(() => initialState(options, userLanguages));
+
+    // The draft words a card still has to start from. A card reads its entry once, on mount; removing or
+    // clearing the card drops the entry, so adding the language again later gives an empty card.
+    const [drafts, setDrafts] = useState<Partial<Record<Lang, DraftTranslation>>>(() =>
+        Object.fromEntries((options.initialDraft?.translations ?? []).map((t) => [t.language, t])),
+    );
+    const dropDraft = useCallback((language: Lang | undefined) => {
+        if (!language) return;
+        setDrafts((prev) => {
+            if (!(language in prev)) return prev;
+            const { [language]: _dropped, ...rest } = prev;
+            return rest;
+        });
+    }, []);
 
     const [partOfSpeech, setPartOfSpeech] = useState(seed.partOfSpeech);
     const [translations, setTranslations] = useState<TranslationItem[]>(seed.translations);
@@ -79,9 +106,10 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     }, []);
 
     const removeTranslation = useCallback((index: number) => {
+        dropDraft(translations[index]?.language);
         setTranslations((prev) => prev.filter((_, i) => i !== index));
         setTranslationRemoved(true);
-    }, []);
+    }, [dropDraft, translations]);
 
     // Clearing a slot resets its *parent* state, but the mounted `TranslationCard`
     // owns its RHF form independently (see that file's header comment) and never
@@ -92,6 +120,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     // out of alignment with a slot after an unrelated `removeTranslation`).
     const clearTranslation = (index: number) => {
         const language = translations[index]?.language;
+        dropDraft(language);
         setTranslations((prev) =>
             prev.map((t, i) => (i === index ? { ...t, cases: [], completionState: false, isDirty: true, hasData: false } : t)),
         );
@@ -112,6 +141,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
     const reset = useCallback((nextPartOfSpeech?: PartOfSpeech) => {
         setPartOfSpeech(nextPartOfSpeech);
         setTranslations([]);
+        setDrafts({});
         setClueValue('');
         setClueDirty(false);
         setTranslationRemoved(false);
@@ -163,6 +193,7 @@ export function useWordFormState(options: UseWordFormStateOptions = {}) {
         belowMinTranslations,
         hasContent,
         resetTokens,
+        drafts,
         addTranslation,
         removeTranslation,
         clearTranslation,

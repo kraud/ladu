@@ -27,7 +27,8 @@
     "createDraft": "Loo mustand",
     "creating": "Loon…",
     "draftFailed": "Mustandit ei õnnestunud luua. Proovi uuesti.",
-    "noneSelected": "Vali vähemalt üks keel."
+    "noneSelected": "Vali vähemalt üks keel.",
+    "draftLookupFailed": "Selle sõna vorme ei õnnestunud leida. Täida kaart käsitsi või proovi automaattäitmist uuesti."
   },
   "apiErrors": {
     "wordNotFound": "Seda sõna ei leitud.",

@@ -27,7 +27,8 @@
     "createDraft": "Crear borrador",
     "creating": "Creando…",
     "draftFailed": "No se pudo crear el borrador. Inténtalo de nuevo.",
-    "noneSelected": "Elige al menos un idioma."
+    "noneSelected": "Elige al menos un idioma.",
+    "draftLookupFailed": "No se pudieron buscar las formas de esta palabra. Rellena la tarjeta a mano o prueba el autocompletado otra vez."
   },
   "apiErrors": {
     "wordNotFound": "No se pudo encontrar esta palabra.",

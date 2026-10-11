@@ -27,7 +27,8 @@
     "createDraft": "Entwurf erstellen",
     "creating": "Wird erstellt…",
     "draftFailed": "Der Entwurf konnte nicht erstellt werden. Versuche es erneut.",
-    "noneSelected": "Wähle mindestens eine Sprache."
+    "noneSelected": "Wähle mindestens eine Sprache.",
+    "draftLookupFailed": "Die Formen dieses Wortes konnten nicht abgerufen werden. Fülle die Karte von Hand aus oder versuche die Autovervollständigung erneut."
   },
   "apiErrors": {
     "wordNotFound": "Dieses Wort konnte nicht gefunden werden.",

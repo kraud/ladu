@@ -43,11 +43,11 @@ import { CompletionRing } from '@/components/common/CompletionRing';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { langTint, languageByLabel } from '@/lib/language';
 import { primaryCaseWord } from '@/lib/words';
-import { Lang, PartOfSpeech } from '@/ts/enums';
+import { Lang, NounCases, PartOfSpeech } from '@/ts/enums';
 import type { WordItem } from '@/ts/interfaces';
-import { activeQueryField, getAutocompleteEndpoint } from '@/features/autocomplete/transforms';
+import { activeQueryField, getAutocompleteEndpoint, toAutocompleteResult } from '@/features/autocomplete/transforms';
 import { lookupQueryOptions } from '@/features/autocomplete/hooks';
-import type { Suggestion } from '@/features/autocomplete/types';
+import type { DraftTranslation, Suggestion } from '@/features/autocomplete/types';
 import { AutocompleteRow, applyLookup, type PickedEntry } from './AutocompleteRow';
 import type { TypeAheadConfig } from './TypeAheadInput';
 import { buildYupSchema } from './buildYupSchema';
@@ -144,6 +144,13 @@ export interface TranslationCardProps {
      * presence, so the very first render never fires a spurious reset.
      */
     resetKey?: number;
+    /**
+     * Slice G ("Start from a word"): the looked-up word this card starts with. Read once, on mount: the
+     * card writes the word into its query field and fills it like a type-ahead pick (`applyLookup`, no
+     * new request). `found` and `partial` fill every case; `not-found` and `error` only the word and,
+     * for a noun, the gender the translation gave.
+     */
+    draft?: DraftTranslation;
 }
 
 /**
@@ -234,6 +241,7 @@ export function TranslationCard({
     removeDisabled = false,
     onChange,
     resetKey,
+    draft,
 }: TranslationCardProps) {
     const { t } = useTranslation();
     const [collapsed, setCollapsed] = useState(false);
@@ -304,6 +312,47 @@ export function TranslationCard({
             onType: () => setPickedEntry(null),
         };
     }, [lang, pos, config, displayOnly, form, queryClient]);
+
+    // Slice G: start from a draft word (see `draft` on the props). Once, on mount; `useRef` keeps it
+    // once under React StrictMode's second effect run too.
+    const draftApplied = useRef(false);
+    useEffect(() => {
+        if (!draft || !config || draftApplied.current) return;
+        draftApplied.current = true;
+        const endpoint = getAutocompleteEndpoint(lang, pos);
+        const fill = { shouldDirty: true, shouldValidate: true };
+        const result = toAutocompleteResult({ status: draft.status === 'error' ? 'not-found' : draft.status, cases: draft.cases });
+
+        if (draft.status === 'found' || draft.status === 'partial') {
+            applyLookup(config.fields, result, form.getValues(), form.setValue);
+        } else {
+            // Only the word (when its field is on show) and, for a noun, the gender the translation gave.
+            if (endpoint) {
+                const values = form.getValues();
+                const name = activeQueryField(endpoint, config.fields, values);
+                const field = config.fields.find((candidate) => candidate.name === name);
+                if (field && (!field.visibleWhen || matchesVisibility(field.visibleWhen, values[field.visibleWhen.field]))) {
+                    form.setValue(name, draft.word, fill);
+                }
+            }
+            const gender = config.fields.find((field) => field.caseName === NounCases.genderDE || field.caseName === NounCases.genderES);
+            if (draft.gender && gender?.kind === 'radio' && gender.options.some((option) => option.value === draft.gender)) {
+                form.setValue(gender.name, draft.gender, fill);
+            }
+        }
+
+        // The footer row looks the query up too. Give it this answer (it was chosen by gender: "die See"),
+        // so it shows "applied" or the right notice, not a plain lookup's other entry. A failed lookup
+        // is left out: the footer asks again.
+        if (endpoint && draft.status !== 'error') {
+            const values = form.getValues();
+            const typed = values[activeQueryField(endpoint, config.fields, values)];
+            for (const query of new Set([draft.word, typeof typed === 'string' ? typed : ''])) {
+                if (query.trim() === '') continue;
+                queryClient.setQueryData(lookupQueryOptions({ language: lang, pos, query }).queryKey, result);
+            }
+        }
+    }, [draft, config, lang, pos, form, queryClient]);
 
     const cases = useMemo(
         () => (config ? fieldsToCases(config.fields, watched) : []),
@@ -380,6 +429,10 @@ export function TranslationCard({
     const autocompleteEndpoint = getAutocompleteEndpoint(lang, pos);
     const hasAutocomplete = autocompleteEndpoint !== undefined;
     const queryFieldName = autocompleteEndpoint ? activeQueryField(autocompleteEndpoint, config.fields, watched) : undefined;
+
+    // Slice G: the draft's lookup failed; the line goes away once the user changes the word.
+    const draftLookupFailed =
+        draft?.status === 'error' && queryFieldName !== undefined && watched[queryFieldName] === draft.word;
 
     const langEntry = languageByLabel(lang);
     const headline = primaryCaseWord(pos, { language: lang, cases });
@@ -530,6 +583,11 @@ export function TranslationCard({
                             )}
                         >
                             <div className="min-w-0">
+                                {draftLookupFailed && (
+                                    <p className="mb-1 text-xs text-(--warning)" role="status" data-testid="draft-lookup-failed">
+                                        {t('wordRelated:startFromWord.draftLookupFailed')}
+                                    </p>
+                                )}
                                 {hasAutocomplete && <AutocompleteRow lang={lang} pos={pos} fields={config.fields} pickedEntry={pickedEntry} />}
                             </div>
                             <div className="flex shrink-0 items-center gap-2">
