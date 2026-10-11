@@ -106,7 +106,9 @@ export function WordForm({
 }: WordFormProps) {
     const { t } = useTranslation();
     const state = useWordFormState({ initialWord, defaultPartOfSpeech, initialDraft });
-    const [confirmChangeTypeOpen, setConfirmChangeTypeOpen] = useState(false);
+    // Which action asked to leave the form with content in it: the arrow next to the title ('back') or the
+    // bar's "Change word type" ('type'). Both go to the part-of-speech gate; the dialog words follow the action.
+    const [confirmChangeType, setConfirmChangeType] = useState<'back' | 'type' | null>(null);
     // The language whose Remove is waiting for a confirmation (by language, not index, so it stays right if the list changes).
     const [removeCandidate, setRemoveCandidate] = useState<Lang | null>(null);
 
@@ -177,9 +179,9 @@ export function WordForm({
     if (!state.partOfSpeech) return null;
     const partOfSpeech = state.partOfSpeech;
 
-    function handleChangePartOfSpeechClick() {
+    function handleChangePartOfSpeechClick(action: 'back' | 'type') {
         if (state.hasContent) {
-            setConfirmChangeTypeOpen(true);
+            setConfirmChangeType(action);
         } else {
             onChangePartOfSpeech?.();
         }
@@ -236,7 +238,7 @@ export function WordForm({
                       key: 'change-word-type',
                       label: t('wordRelated:wordForm.buttons.changeWordType'),
                       icon: <ArrowsClockwiseIcon size={18} />,
-                      onClick: handleChangePartOfSpeechClick,
+                      onClick: () => handleChangePartOfSpeechClick('type'),
                   },
               ]
             : []),
@@ -269,7 +271,7 @@ export function WordForm({
     return (
         <WordEditorLayout
             sections={sidebarSections}
-            header={typeof header === 'function' ? header({ requestChangePartOfSpeech: onChangePartOfSpeech ? handleChangePartOfSpeechClick : undefined }) : header}
+            header={typeof header === 'function' ? header({ requestChangePartOfSpeech: onChangePartOfSpeech ? () => handleChangePartOfSpeechClick('back') : undefined }) : header}
             actions={actions}
             cancelAction={mode === 'edit' ? cancelAction : undefined}
             primary={{
@@ -341,13 +343,13 @@ export function WordForm({
                 />
 
                 <ConfirmDialog
-                    open={confirmChangeTypeOpen}
-                    onOpenChange={setConfirmChangeTypeOpen}
-                    title={t('wordRelated:wordForm.confirmChangeType.title')}
+                    open={confirmChangeType !== null}
+                    onOpenChange={(open) => !open && setConfirmChangeType(null)}
+                    title={t(confirmChangeType === 'back' ? 'wordRelated:wordForm.confirmGoBack.title' : 'wordRelated:wordForm.confirmChangeType.title')}
                     description={t('wordRelated:wordForm.confirmChangeType.description')}
-                    confirmLabel={t('wordRelated:wordForm.buttons.changeWordType')}
+                    confirmLabel={t(confirmChangeType === 'back' ? 'wordRelated:wordForm.confirmGoBack.confirm' : 'wordRelated:wordForm.buttons.changeWordType')}
                     onConfirm={() => {
-                        setConfirmChangeTypeOpen(false);
+                        setConfirmChangeType(null);
                         onChangePartOfSpeech?.();
                     }}
                 />

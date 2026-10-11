@@ -8,7 +8,8 @@
  * with the text, in the language the section's language select names (the server matches only that
  * language). A line: the word (with its article) and the meaning ("bank — financial institution").
  * While the part of speech select says "Any" the lines are grouped by part of speech: a small heading
- * per group and a separator line between groups (the groups follow the order of the select). The list
+ * per group and a separator line between groups (the groups follow the order of the select), both in the
+ * accent colour so the groups stand out in a long list. The list
  * closes on a pick, Escape, Tab and a click outside.
  */
 import { Fragment, useId, useMemo, useState, type ReactNode } from 'react';
@@ -104,9 +105,9 @@ export function SenseTypeAhead({
 
     const renderGroup = (group: Group, index: number) => (
         <Fragment key={group.value}>
-            {index > 0 && <Autocomplete.Separator className="my-1 h-px bg-(--border)" />}
+            {index > 0 && <Autocomplete.Separator className="my-1 h-px bg-(--accent)/40" />}
             <Autocomplete.Group items={group.items}>
-                <Autocomplete.GroupLabel className="px-2.5 pt-1 pb-0.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                <Autocomplete.GroupLabel className="px-2.5 pt-1 pb-0.5 text-xs font-semibold tracking-wide text-(--accent-strong) uppercase">
                     {t(partOfSpeechLabelKey(group.value as PartOfSpeech))}
                 </Autocomplete.GroupLabel>
                 <Autocomplete.Collection>{renderItem}</Autocomplete.Collection>

@@ -146,6 +146,8 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await page.goto('/words');
         await expect(page.getByText('run')).toBeVisible();
 
+        // The filter sidebar starts collapsed (and again after a reload): open it to reach the chips.
+        await page.getByRole('button', { name: 'Expand sidebar' }).click();
         await page.getByRole('button', { name: 'v.', exact: true }).click();
         await expect(page).toHaveURL(/pos=%5B%22Verb%22%5D/);
         await expect(page.getByText('run')).toBeVisible();
@@ -154,6 +156,7 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
 
         await page.reload();
         await expect(page).toHaveURL(/pos=%5B%22Verb%22%5D/);
+        await page.getByRole('button', { name: 'Expand sidebar' }).click();
         await expect(page.getByRole('button', { name: 'v.', exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect(page.getByText('run')).toBeVisible();
 

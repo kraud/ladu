@@ -51,7 +51,7 @@ export const useUiStore = create<UiState>()((set) => ({
     searchMode: 'words',
     setSearchMode: (searchMode) => set({ searchMode }),
 
-    sidebarCollapsed: { review: false, word: true, practice: true, practiceResults: false },
+    sidebarCollapsed: { review: true, word: true, practice: true, practiceResults: false },
     setSidebarCollapsed: (id, collapsed) =>
         set((state) => ({ sidebarCollapsed: { ...state.sidebarCollapsed, [id]: collapsed } })),
 

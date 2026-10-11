@@ -176,6 +176,10 @@
       "title": "Muuta sõnaliiki?",
       "description": "Sisestatud tõlked lähevad kaotsi."
     },
+    "confirmGoBack": {
+      "title": "Tagasi",
+      "confirm": "Tagasi"
+    },
     "confirmRemoveTranslation": {
       "title": "Eemalda see tõlge?",
       "description": "Tõlge ({{language}}) ja kõik selles sisestatu eemaldatakse."

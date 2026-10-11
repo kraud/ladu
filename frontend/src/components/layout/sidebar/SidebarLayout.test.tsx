@@ -95,6 +95,34 @@ describe('SidebarLayout — desktop', () => {
         expect(screen.getByLabelText('Second field')).toHaveFocus();
     });
 
+    describe('the content column lines up with the header content (centred in the window, not beside the panel)', () => {
+        /** The column: the wrapper that carries the page content. */
+        const column = () => screen.getByText('Page content').parentElement as HTMLElement;
+        const margin = (panel: string, width = '64rem') => `max(0px, calc((100% - ${width}) / 2 - ${panel} / 2))`;
+
+        it('open: half the panel is taken off the left margin', () => {
+            renderLayout();
+            expect(column()).toHaveStyle({ maxWidth: '64rem', marginLeft: margin('16rem') });
+        });
+
+        it('collapsed: half the rail', () => {
+            useUiStore.getState().setSidebarCollapsed('review', true);
+            renderLayout();
+            expect(column()).toHaveStyle({ maxWidth: '64rem', marginLeft: margin('3.5rem') });
+        });
+
+        it('the wide panel and the wide column use their own widths', () => {
+            renderLayout({ width: 'wide', wide: true });
+            expect(column()).toHaveStyle({ maxWidth: '80rem', marginLeft: margin('24rem', '80rem') });
+        });
+
+        it('on a phone there is no panel to make up for', () => {
+            mockMobileViewport();
+            renderLayout();
+            expect(column()).toHaveStyle({ maxWidth: '64rem', marginLeft: margin('0px') });
+        });
+    });
+
     it('renders the footer outside the panel', () => {
         renderLayout({ footer: <div>Footer bar</div> });
         expect(screen.getByText('Footer bar')).toBeInTheDocument();
