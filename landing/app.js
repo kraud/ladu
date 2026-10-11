@@ -36,8 +36,6 @@
             home: 'Ladu home',
             login: 'Log in',
             heading: 'Keep all your languages alive.',
-            lead:
-                'Ladu is a vocabulary manager for people who speak more than one language. Save each word once, with its translations in every language you know. Then practise them together.',
             leadA: 'Ladu is a vocabulary manager for people who speak more than one language.',
             leadB: 'Save each word once, with its translations in every language you know.',
             leadC: 'Then practise them together.',
@@ -75,8 +73,6 @@
             home: 'Inicio de Ladu',
             login: 'Iniciar sesión',
             heading: 'Mantén vivos todos tus idiomas.',
-            lead:
-                'Ladu es un gestor de vocabulario para personas que hablan más de un idioma. Guarda cada palabra una sola vez, con sus traducciones en todos los idiomas que conoces. Después, practícalas juntas.',
             leadA: 'Ladu es un gestor de vocabulario para personas que hablan más de un idioma.',
             leadB: 'Guarda cada palabra una sola vez, con sus traducciones en todos los idiomas que conoces.',
             leadC: 'Después, practícalas juntas.',
@@ -114,8 +110,6 @@
             home: 'Ladu Startseite',
             login: 'Anmelden',
             heading: 'Halte all deine Sprachen lebendig.',
-            lead:
-                'Ladu ist ein Vokabelmanager für Menschen, die mehr als eine Sprache sprechen. Speichere jedes Wort einmal, mit seinen Übersetzungen in allen Sprachen, die du kennst. Übe sie dann gemeinsam.',
             leadA: 'Ladu ist ein Vokabelmanager für Menschen, die mehr als eine Sprache sprechen.',
             leadB: 'Speichere jedes Wort einmal, mit seinen Übersetzungen in allen Sprachen, die du kennst.',
             leadC: 'Übe sie dann gemeinsam.',
@@ -153,8 +147,6 @@
             home: 'Ladu avaleht',
             login: 'Logi sisse',
             heading: 'Hoia kõik oma keeled elus.',
-            lead:
-                'Ladu on sõnavarahaldur inimestele, kes räägivad rohkem kui ühte keelt. Salvesta iga sõna ainult üks kord koos tõlgetega kõigis keeltes, mida oskad. Seejärel harjuta neid koos.',
             leadA: 'Ladu on sõnavarahaldur inimestele, kes räägivad rohkem kui ühte keelt.',
             leadB: 'Salvesta iga sõna ainult üks kord koos tõlgetega kõigis keeltes, mida oskad.',
             leadC: 'Seejärel harjuta neid koos.',
@@ -617,15 +609,13 @@
         else playPanel(first);
     }
 
-    function turnExercise(stage, index) {
+    function setExercise(stage, index) {
         var panels = exercisePanels(stage);
-        roll(stage, function () {
-            panels.forEach(function (panel, i) {
-                resetPanel(panel);
-                panel.classList.toggle('is-active', i === index % panels.length);
-            });
-            playPanel(panels[index % panels.length]);
+        panels.forEach(function (panel, i) {
+            resetPanel(panel);
+            panel.classList.toggle('is-active', i === index % panels.length);
         });
+        playPanel(panels[index % panels.length]);
     }
 
     /* The tag card (phone): three tags that turn on the same beat. The words of the tag that comes in appear one
@@ -658,15 +648,45 @@
         playTagPanel(panels[0]);
     }
 
-    function turnTags(stage, index) {
+    function setTags(stage, index) {
         var panels = tagPanels(stage);
         var next = index % panels.length;
-        roll(stage, function () {
-            panels.forEach(function (panel, i) {
-                resetTagPanel(panel);
-                panel.classList.toggle('is-active', i === next);
-            });
-            playTagPanel(panels[next]);
+        panels.forEach(function (panel, i) {
+            resetTagPanel(panel);
+            panel.classList.toggle('is-active', i === next);
+        });
+        playTagPanel(panels[next]);
+    }
+
+    /* The words of the bubble: one row's word, and the gender badge of its language (a noun shows its article;
+       the other words show none). */
+    function setTerm(el, index) {
+        var code = el.getAttribute('data-term');
+        el.textContent = WORDS[index][code];
+        var badge = document.querySelector('[data-gender="' + code + '"]');
+        if (badge) {
+            var gender = WORDS[index].gender && WORDS[index].gender[code];
+            badge.textContent = gender || '';
+            badge.classList.toggle('is-on', !!gender);
+        }
+    }
+
+    /* Desktop: the three previews share one place and take turns, each for all four of its states (FEATURE_STEPS
+       beats), while its part of the hint on the left is highlighted. On the phone all three are always shown, and
+       all change on every beat. */
+    var FEATURE_STEPS = WORDS.length;
+    var phoneQuery = window.matchMedia ? window.matchMedia('(max-width: 52rem)') : null;
+
+    function isPhone() {
+        return !!(phoneQuery && phoneQuery.matches);
+    }
+
+    function setFeature(feature) {
+        document.querySelectorAll('[data-feature]').forEach(function (dp) {
+            dp.classList.toggle('is-current', dp.getAttribute('data-feature') === String(feature));
+        });
+        document.querySelectorAll('[data-feat]').forEach(function (part) {
+            part.classList.toggle('is-current', part.getAttribute('data-feat') === String(feature));
         });
     }
 
@@ -680,29 +700,43 @@
         if (tagStage) startTags(tagStage, reduced);
         if (reduced) return;
 
-        var index = 0;
-        var tagIndex = 0;
+        var step = 0;
         window.setInterval(function () {
             if (document.hidden) return;
             stopPlay();
-            index = (index + 1) % WORDS.length;
+            step += 1;
+            var index = step % WORDS.length;
+            var feature = Math.floor(step / FEATURE_STEPS) % document.querySelectorAll('[data-feat]').length;
+
+            /* Desktop, when the next feature comes: the shown preview rolls out, the three go back to their first
+               state while none is visible, and the next one rolls in (the highlight changes with it). */
+            if (!isPhone() && index === 0) {
+                var shown = document.querySelector('[data-feature].is-current');
+                roll(shown, function () {
+                    setFeature(feature);
+                    terms.forEach(function (el) {
+                        setTerm(el, index);
+                    });
+                    if (stage) setExercise(stage, index);
+                    if (tagStage) setTags(tagStage, index);
+                    /* The preview that comes in jumps to below with no transition, then settles. */
+                    var next = document.querySelector('[data-feature].is-current');
+                    next.classList.add('is-in');
+                    void next.offsetWidth;
+                    next.classList.remove('is-in');
+                });
+                return;
+            }
+
             terms.forEach(function (el, row) {
                 window.setTimeout(function () {
                     roll(el, function () {
-                        var code = el.getAttribute('data-term');
-                        el.textContent = WORDS[index][code];
-                        /* A noun shows its gender (a badge, phone only); the other words show none. */
-                        var badge = document.querySelector('[data-gender="' + code + '"]');
-                        if (badge) {
-                            var gender = WORDS[index].gender && WORDS[index].gender[code];
-                            badge.textContent = gender || '';
-                            badge.classList.toggle('is-on', !!gender);
-                        }
+                        setTerm(el, index);
                     });
                 }, row * ROW_DELAY_MS);
             });
-            if (stage) turnExercise(stage, index);
-            if (tagStage) turnTags(tagStage, ++tagIndex);
+            if (stage) roll(stage, function () { setExercise(stage, index); });
+            if (tagStage) roll(tagStage, function () { setTags(tagStage, index); });
         }, ROLL_MS);
     }
 

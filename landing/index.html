@@ -47,14 +47,18 @@
                     <h1 data-i18n="heading">Keep all your languages alive.</h1>
                 </div>
 
-                <!-- Phone only: the hint comes in three parts (sentence 1 here; 2 and 3 beside the two examples
+                <!-- Phone only: the hint comes in parts (sentence 1 here; the others beside the three previews
                      below). The desktop shows the whole text in one paragraph (.lead) and none of these. -->
                 <p class="m-lead" data-i18n="leadA">Ladu is a vocabulary manager for people who speak more than one language.</p>
 
-                <p class="lead" data-i18n="lead">
-                    Ladu is a vocabulary manager for people who speak more than one language.
-                    Save each word once, with its translations in every language you know.
-                    Then practise them together.
+                <!-- Desktop: the whole hint in one paragraph, built from the same parts as the phone. The three
+                     features (data-feat 0, 1, 2) take turns to be highlighted, on the beat of the preview on the right
+                     (app.js). The first sentence has no preview and is never highlighted. -->
+                <p class="lead">
+                    <span data-i18n="leadA">Ladu is a vocabulary manager for people who speak more than one language.</span>
+                    <span class="feat is-current" data-feat="0" data-i18n="leadB">Save each word once, with its translations in every language you know.</span>
+                    <span class="feat" data-feat="1" data-i18n="leadC">Then practise them together.</span>
+                    <span class="feat" data-feat="2" data-i18n="leadD">Group words into tags. Keep them private or share them.</span>
                 </p>
                 <div class="actions">
                     <a class="button" data-app="" href="https://app.ladu.com.ar"><span data-i18n="open">Open</span><svg class="icon" width="18" height="18" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,104a8,8,0,0,1-16,0V59.32l-66.33,66.34a8,8,0,0,1-11.32-11.32L196.68,48H152a8,8,0,0,1,0-16h64a8,8,0,0,1,8,8Zm-40,24a8,8,0,0,0-8,8v72H48V80h72a8,8,0,0,0,0-16H48A16,16,0,0,0,32,80V208a16,16,0,0,0,16,16H176a16,16,0,0,0,16-16V136A8,8,0,0,0,184,128Z"/></svg></a>
@@ -80,9 +84,11 @@
 
             <p class="m-text m-text-1" data-i18n="leadB">Save each word once, with its translations in every language you know.</p>
 
-            <!-- One word in four languages, inside the logo's message bubble. app.js rolls the words
+            <!-- The three previews (this bubble, the exercise card, the tag card). Phone: one row each. Desktop: they share
+                 the right column, and app.js shows one at a time (.is-current) beside its part of the hint.
+                 One word in four languages, inside the logo's message bubble. app.js rolls the words
                  (dance, house, pretty, very); without script the first one stays. -->
-            <div class="bubble" role="group" data-i18n-attr="aria-label:card" aria-label="Example word: dance, in four languages">
+            <div class="bubble is-current" data-feature="0" role="group" data-i18n-attr="aria-label:card" aria-label="Example word: dance, in four languages">
                 <ul>
                     <li class="lang lang-gb"><span class="code">EN</span><span class="term"><span class="term-text" data-term="en">dance</span></span></li>
                     <li class="lang lang-es"><span class="code">ES</span><span class="term"><span class="term-text" data-term="es">bailar</span></span><span class="gender" data-gender="es" aria-hidden="true"></span></li>
@@ -91,7 +97,7 @@
                 </ul>
             </div>
 
-            <!-- Phone only: small exercise cards, one for each word of the bubble, in the same order (dance, house,
+            <!-- Small exercise cards, one for each word of the bubble, in the same order (dance, house,
                  pretty, very). app.js shows the one that belongs to the word now in the bubble, on the same beat, and
                  plays it as if someone were answering: a card starts unanswered; half a second after it appears the
                  answer is chosen (data-pick: the option is pressed, then turns) or typed (data-type), the choice or input turns green or red
@@ -100,7 +106,7 @@
                  language (pretty), a small arrow points from the prompt to the badge of the answer's language; a
                  typed answer has its badge inside the input. With "reduce motion" the first card shows its
                  finished answer and nothing turns; without script the cards stay unanswered. -->
-            <div class="exercise" role="group" data-i18n-attr="aria-label:exerciseCard" aria-label="Example exercise">
+            <div class="exercise" data-feature="1" role="group" data-i18n-attr="aria-label:exerciseCard" aria-label="Example exercise">
                 <div class="ex-stage roll roll-x" data-exercise>
                     <!-- dance: typed answer, German to Estonian; right -->
                     <div class="ex-panel is-active" data-type="tantsima" data-result="right">
@@ -133,11 +139,11 @@
 
             <p class="m-text m-text-3" data-i18n="leadD">Group words into tags. Keep them private or share them.</p>
 
-            <!-- Phone only: a tag card, as in the Tags page of the app: the name, whether it is yours or one you follow,
+            <!-- A tag card, as in the Tags page of the app: the name, whether it is yours or one you follow,
                  whether it is public or private, its words (each with 3 or 4 of its translations, in the colour of
                  their language), the number of words and of followers. app.js turns between four tags on the same
                  beat as the other features, and the words of each tag come in one after the other. -->
-            <div class="tagcard" role="group" data-i18n-attr="aria-label:tagCard" aria-label="Example tags">
+            <div class="tagcard" data-feature="2" role="group" data-i18n-attr="aria-label:tagCard" aria-label="Example tags">
                 <div class="tag-stage roll" data-tags>
                     <div class="tag-panel is-active">
                         <div class="tag-head"><svg class="tag-icon" width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M243.31,136,144,36.69A15.86,15.86,0,0,0,132.69,32H40a8,8,0,0,0-8,8v92.69A15.86,15.86,0,0,0,36.69,144L136,243.31a16,16,0,0,0,22.63,0l84.68-84.68a16,16,0,0,0,0-22.63Zm-96,96L48,132.69V48h84.69L232,147.31ZM96,84A12,12,0,1,1,84,72,12,12,0,0,1,96,84Z"/></svg><span class="tag-name">Travel</span></div>
