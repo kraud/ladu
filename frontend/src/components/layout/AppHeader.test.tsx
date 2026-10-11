@@ -62,6 +62,20 @@ describe('AppHeader nav gating', () => {
         expect(screen.queryByRole('link', { name: 'add word' })).not.toBeInTheDocument();
     });
 
+    it('puts an accent-coloured icon on the left of each header link on a desktop too', async () => {
+        await renderApp({ session: { ...baseSession, languages: ['English', 'Spanish'] } });
+
+        for (const name of ['words', 'tags', 'practice']) {
+            const link = screen.getAllByRole('link', { name }).find((candidate) => candidate.closest('.app-nav'))!;
+            const icon = link.querySelector('svg');
+            expect(icon, name).not.toBeNull();
+            expect(icon).toHaveClass('text-(--accent)');
+            expect(icon).toHaveAttribute('aria-hidden', 'true');
+            // To the left of the label: the icon comes first in the link.
+            expect(link.firstElementChild).toBe(icon);
+        }
+    });
+
     it('lets Practice through regardless of language count', async () => {
         const user = userEvent.setup();
         const { router } = await renderApp({

@@ -66,12 +66,9 @@ function useLanguageGate() {
 function NavLinks({
     onNavigate,
     className,
-    withIcons,
 }: {
     onNavigate?: () => void;
     className?: string;
-    /** The phone menu shows an icon on the left of each label. */
-    withIcons?: boolean;
 }) {
     const { t } = useTranslation();
     const gate = useLanguageGate();
@@ -88,7 +85,7 @@ function NavLinks({
                         if (gate(item.requiresLanguages)(event)) onNavigate?.();
                     }}
                 >
-                    {withIcons && <item.icon size={22} aria-hidden="true" className="shrink-0" />}
+                    <item.icon aria-hidden="true" className="size-[18px] shrink-0 text-(--accent) max-[920px]:size-[22px]" />
                     {t(item.labelKey)}
                 </Link>
             ))}
@@ -207,7 +204,6 @@ export function AppHeader() {
                         </SheetHeader>
                         <NavLinks
                             className="app-nav flex-col gap-0 border-t border-border [&_a]:h-12 [&_a]:w-full [&_a]:rounded-none [&_a]:border-b [&_a]:border-border [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:px-2 [&_a]:text-lg"
-                            withIcons
                             onNavigate={() => setSheetOpen(false)}
                         />
                         <QuickActions

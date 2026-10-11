@@ -15,7 +15,8 @@
 import { useMemo, useState } from 'react';
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftIcon, LockIcon, PencilSimpleIcon, TrashIcon, TranslateIcon, UsersIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, LockIcon, PencilSimpleIcon, TagIcon, TrashIcon, TranslateIcon, UsersIcon } from '@phosphor-icons/react';
+import { PageTitle } from '@/components/common/PageTitle';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -160,7 +161,7 @@ export function TagViewPage() {
             <section className="card">
                 <div className="tagen-top">
                     <div className="grow min-w-0">
-                        <h1 className="h1">{tag.label}</h1>
+                        <PageTitle icon={TagIcon}>{tag.label}</PageTitle>
                         {tag.description && (
                             <p className="mt-1 max-w-2xl text-[13.5px] text-(--muted) leading-relaxed">
                                 {tag.description}

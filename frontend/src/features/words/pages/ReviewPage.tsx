@@ -15,7 +15,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import type { RowSelectionState } from '@tanstack/react-table';
-import { PlusIcon, SlidersHorizontalIcon } from '@phosphor-icons/react';
+import { PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
+import { PageTitle } from '@/components/common/PageTitle';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
 import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
@@ -238,7 +239,7 @@ export function ReviewPage() {
             fillHeight
             header={
                 <div className="flex items-center justify-between gap-2">
-                    <h1 className="h1">{t('review:page.title')}</h1>
+                    <PageTitle icon={TranslateIcon}>{t('review:page.title')}</PageTitle>
                     <Link to="/addWord/{-$partOfSpeech}" className={buttonVariants()}>
                         <PlusIcon size={15} weight="bold" />
                         {t('review:page.newWord')}

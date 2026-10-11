@@ -63,6 +63,8 @@ describe('PracticePage — list badges', () => {
         const group = await screen.findByRole('group', { name: 'Lists' });
         const tabs = within(group).getAllByRole('button');
         expect(tabs.map((tab) => tab.textContent)).toEqual(['Ongoing sessions', 'Saved configurations']);
+        // Each badge has its icon inside it, before the label.
+        for (const tab of tabs) expect(tab.firstElementChild?.tagName.toLowerCase()).toBe('svg');
         // New configuration is a button on the title row, not a badge.
         expect(screen.getByRole('button', { name: 'New configuration' })).toBeInTheDocument();
         expect(tabs[0]).toHaveAttribute('aria-pressed', 'true');

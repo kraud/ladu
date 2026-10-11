@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HandWavingIcon } from '@phosphor-icons/react';
 import { UI_LANGUAGES } from '@/lib/language';
+import { useColumnHeightVar } from '@/lib/useColumnHeightVar';
 
 const ROTATE_MS = 8000;
 
@@ -14,22 +15,8 @@ const ROTATE_MS = 8000;
 export function WelcomeBanner({ name }: { name: string }) {
     const { t, i18n } = useTranslation('dashboard');
     const [index, setIndex] = useState(0);
-    const headerRef = useRef<HTMLElement>(null);
-    const textRef = useRef<HTMLDivElement>(null);
-
-    // The phone icon is as tall as the text column beside it. CSS alone cannot do that (a stretched
-    // box gives an `aspect-ratio` child no width), so the column's height is measured and handed to
-    // the icon as `--welcome-h`. The text column never depends on the icon, so this cannot loop.
-    useEffect(() => {
-        const header = headerRef.current;
-        const text = textRef.current;
-        if (!header || !text || typeof ResizeObserver === 'undefined') return;
-        const apply = () => header.style.setProperty('--welcome-h', `${text.offsetHeight}px`);
-        apply();
-        const observer = new ResizeObserver(apply);
-        observer.observe(text);
-        return () => observer.disconnect();
-    }, []);
+    // The phone icon is as tall as the text column beside it (`--welcome-h`).
+    const { containerRef: headerRef, columnRef: textRef } = useColumnHeightVar('--welcome-h');
 
     // Pull in the other three languages' `dashboard` bundle so each greeting
     // renders in its own language rather than falling back to the active one.

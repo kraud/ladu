@@ -3,15 +3,19 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import {
     ArrowLeftIcon,
+    BookmarkSimpleIcon,
     BookOpenIcon,
+    BrainIcon,
     ListChecksIcon,
     MagnifyingGlassPlusIcon,
     PlusIcon,
+    TrophyIcon,
     WarningIcon,
 } from '@phosphor-icons/react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/common/EmptyState';
+import { PageTitle } from '@/components/common/PageTitle';
 import { PageColumn } from '@/components/layout/PageColumn';
 import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -358,7 +362,7 @@ function SetUp({
         </div>
     ) : (
         <div className="flex items-center justify-between gap-2">
-            <h1 className="h1">{t('practice:setup.title')}</h1>
+            <PageTitle icon={BrainIcon}>{t('practice:setup.title')}</PageTitle>
             <Button onClick={openNewConfiguration}>
                 <PlusIcon size={15} weight="bold" />
                 {t('practice:setup.newConfiguration')}
@@ -379,12 +383,13 @@ function SetUp({
                         setTab(candidate);
                     }}
                 >
+                    {candidate === 'sessions' ? <TrophyIcon size={14} aria-hidden /> : <BookmarkSimpleIcon size={14} aria-hidden />}
                     {t(candidate === 'sessions' ? 'practice:sessions.title' : 'practice:configs.title')}
                 </button>
             ))}
         </div>
     );
-    const plainHeader = <h1 className="h1">{t('practice:setup.title')}</h1>;
+    const plainHeader = <PageTitle icon={BrainIcon}>{t('practice:setup.title')}</PageTitle>;
     const resumeBanner = parkedSession && (
         <ResumeSessionBanner session={parkedSession} onResume={onResume} onDismiss={onDismiss} />
     );
