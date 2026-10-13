@@ -67,7 +67,9 @@ Findings that shape the work, all verified against source:
   prefixes on the German perfect and future inputs. Spanish adjectives branch their whole field
   set on a gender radio that is not a persisted case. German adverbs hide comparative and
   superlative when non-gradable. This is real engine work, not just data.
-- **`GET /api/words/simple` has no pagination and no tests.** It returns the full list as
+- **`GET /api/words/simple` has no pagination and no tests.** *(Out of date: cursor pagination, a
+  sort parameter and tests were added in Slices 5–6 and later; offset pages came with
+  `words-pagination.md` Slice 1.)* It returned the full list as
   `{ amount, partsOfSpeechIncluded, words }`, takes filters as a JSON array of objects whose tag
   entries are keyed by `_id`, and throws on an unrecognised language or part of speech, which
   would 500 the whole list for one bad row.
@@ -566,6 +568,7 @@ more, skeleton rows, and both empty states. Route swaps its placeholder and decl
 - **D11 — no sorting in Slice 6.** `GET /api/words/simple` has no sort parameter (order is
   hardcoded `created_at DESC, id DESC`) and a client-side sort would silently sort only the pages
   already loaded. Headers ship with no sort control; a backend sort parameter is future work.
+  *(Out of date: `?sort=EN|ES|DE|EE&dir=asc|desc` exists now — see `lib/wordSort.ts`.)*
 - **D12 — the completion ring's hover detail reads "N of M cases", not a percentage.** The row
   carries a bare `registeredCasesXX` count, not which cases were filled in, so an exact percentage
   is undecidable for the two configs (Spanish adjective, German adverb) that branch their whole

@@ -64,6 +64,8 @@ const {
     fetchWordWithRelations,
     parseArrayParam,
     parseLimitParam,
+    parsePageParam,
+    parsePageLimitParam,
     encodeCursor,
     decodeCursor,
 }: typeof import('../services/wordService') = require('../services/wordService');
@@ -429,6 +431,27 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     conditions.push(inArray(words.id, tagWordIds));
   }
 
+  // `?owner=me`: only the caller's own words (no followed or discoverable-tag
+  // words). Feeds the "Select all N matching" action, which can only act on own words.
+  if (req.query.owner === "me") {
+    conditions.push(eq(words.userId, req.user.id));
+  }
+
+  // `?page=` switches to offset (numbered-page) mode; without it the list is
+  // cursor-paged. The two modes cannot be mixed.
+  let page: number | null;
+  let pageLimit: number | null = null;
+  try {
+    page = parsePageParam(req.query.page);
+    if (page !== null) {
+      if (req.query.cursor !== undefined) throw new Error("page and cursor cannot be combined");
+      pageLimit = parsePageLimitParam(req.query.limit);
+    }
+  } catch (error: any) {
+    res.status(400);
+    throw error;
+  }
+
   // Total matching the filters alone (not the cursor page) — computed before
   // the keyset predicate is added below, so it stays constant across pages.
   const [{ value: total }] = await db
@@ -446,7 +469,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   }
   const sortKey = sort ? sortKeyExpression(sort.langKey) : null;
 
-  if (req.query.cursor !== undefined) {
+  if (page === null && req.query.cursor !== undefined) {
     if (sort && sortKey) {
       const cursor = decodeSortCursor(req.query.cursor);
       if (!cursor) {
@@ -475,17 +498,27 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     }
   }
 
-  const limit = parseLimitParam(req.query.limit);
-
-  const pageRows = await db
+  const orderBy = sort && sortKey ? orderByClauses(sort, sortKey) : [desc(words.createdAt), desc(words.id)];
+  const baseQuery = db
     .select({ ...getTableColumns(words), sortKey: sortKey ?? sql<null>`NULL` })
     .from(words)
     .where(and(...conditions))
-    .orderBy(...(sort && sortKey ? orderByClauses(sort, sortKey) : [desc(words.createdAt), desc(words.id)]))
-    .limit(limit + 1);
+    .orderBy(...orderBy)
+    .$dynamic();
 
-  const hasMore = pageRows.length > limit;
-  const rows = hasMore ? pageRows.slice(0, limit) : pageRows;
+  // Offset mode: skip (page-1) x limit rows. `limit=all` has no limit or offset.
+  // A page past the last one returns no items; `total` still tells the caller how far to go back.
+  // Cursor mode: one extra row tells whether a next page exists.
+  const limit = page === null ? parseLimitParam(req.query.limit) : pageLimit;
+  const pageRows =
+    page !== null
+      ? pageLimit === null
+        ? await baseQuery
+        : await baseQuery.limit(pageLimit).offset((page - 1) * pageLimit)
+      : await baseQuery.limit((limit as number) + 1);
+
+  const hasMore = page === null && pageRows.length > (limit as number);
+  const rows = hasMore ? pageRows.slice(0, limit as number) : pageRows;
   const lastRow = rows[rows.length - 1];
   const nextCursor = hasMore
     ? sort
@@ -505,6 +538,10 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     .filter((w): w is WordResponse => w !== undefined)
     .map(simplifyWord);
 
+  if (page !== null) {
+    res.status(200).json({ items, total, page, pageSize: pageLimit });
+    return;
+  }
   res.status(200).json({ items, nextCursor, total });
 });
 

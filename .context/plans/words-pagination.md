@@ -1,6 +1,6 @@
 # Plan: Numbered pagination for /words and /tag/$tagId
 
-Status: not started. Plan agreed on 2026-10-12. No code has been changed yet.
+Status: in progress. Plan agreed on 2026-10-12. Slice 1 (backend) done on 2026-10-13.
 
 Goal: the two word tables show numbered pages with a page-size menu (50 / 100 / 200 / All), instead of the "Load more" button.
 
@@ -13,7 +13,7 @@ Goal: the two word tables show numbered pages with a page-size menu (50 / 100 / 
 ## Progress
 
 - [x] Stage 0 — This plan is in the repo (2026-10-12)
-- [ ] Slice 1 — Backend: offset mode and `owner=me` on `/api/words/simple`
+- [x] Slice 1 — Backend: offset mode and `owner=me` on `/api/words/simple` (2026-10-13). Built inline in `getWordsSimplified` (no separate helper functions); `owner=me` reuses `/simple`, no separate ids endpoint. Backend: 53 suites / 1,255 tests green, typecheck clean.
 - [ ] Slice 2 — Frontend groundwork: types, API, `useWordsPage`, page-size preference, `TablePagination`, MSW
 - [ ] Slice 3 — `/words` (ReviewPage): URL state, numbered pages, selection across pages
 - [ ] Slice 4 — `/tag/$tagId` (TagViewPage): URL state, numbered pages, `existingWordIds` fix

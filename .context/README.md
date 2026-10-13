@@ -115,7 +115,7 @@ Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playw
 | §8.1 Notifications | Keep polling, make it visibility-aware (`refetchInterval: 90_000`, `refetchIntervalInBackground: false`, `refetchOnWindowFocus: 'always'`, error toast); `?unreadOnly=&since=` cursor params; notifications become a display-only inbox; notification rows created **server-side** in the same transaction as the domain action. SSE only if Railway is chosen — documented contingency, not default. | 6 |
 | §8.2 Friendships | Redesigned table: `requesterId` / `addresseeId` NOT NULL, `status` enum (`pending/accepted/declined/cancelled`), partial-unique constraints, one action per endpoint, **decline** action (new), transactional compound ops. Drop the legacy `userIds`-array API shape. | 6 |
 | §8.3 Tag share / clone | Explicit `tag_shares` table + share/accept/decline endpoints; **transactional server-side clone that preserves translations + cases** (old clone silently drops them); `canViewTag` authz helper enforced on `getTagById` / `followTag` / clone; `createTag` sets `authorId` server-side; `public` column → `visibility` enum. | 7 |
-| §8.4 pagination | Cursor pagination on `getWords` / `getWordsSimplified` (+ `useInfiniteQuery` on FE); `GET /api/words/:id` gains an ownership check. | 3 (list), 2 (`:id` check) |
+| §8.4 pagination | `GET /api/words/simple` has two modes. Cursor mode (`cursor`, `limit` 1–100; `useInfiniteQuery` on FE): `{items, nextCursor, total}`. Offset mode (`page`, `limit` 1–200 or `all`; added in `plans/words-pagination.md` Slice 1): `{items, total, page, pageSize}`. Both accept `owner=me`. `GET /api/words` is not paginated and has no FE caller. `GET /api/words/:id` gains an ownership check. | 3 (list), 2 (`:id` check) |
 
 ---
 

@@ -230,6 +230,9 @@ const assembleWord = (
 // Public API: fetch words with full relations
 // ---------------------------------------------------------------------------
 
+/** Ids per `inArray` query in `fetchWordsWithRelations` (Postgres caps bind parameters at 65,535). */
+const HYDRATE_CHUNK_SIZE = 5000;
+
 /**
  * Fetch one or more words by their UUIDs and return them as fully assembled
  * WordResponse objects (with nested translations, cases, and tags).
@@ -254,16 +257,24 @@ const fetchWordsWithRelations = async (
 ): Promise<WordResponse[]> => {
     if (wordIds.length === 0) return [];
 
-    const wordRows = await db
-        .select()
-        .from(words)
-        .where(inArray(words.id, wordIds));
-    if (wordRows.length === 0) return [];
+    // Postgres allows at most 65,535 bind parameters in one query. A `limit=all`
+    // list can pass more ids than that, so the ids go in groups.
+    const result: WordResponse[] = [];
+    for (let start = 0; start < wordIds.length; start += HYDRATE_CHUNK_SIZE) {
+        const chunk = wordIds.slice(start, start + HYDRATE_CHUNK_SIZE);
 
-    const tMap = await fetchTranslationsMap(wordIds);
-    const tagsMap = await fetchTagsMap(wordIds, viewerId);
+        const wordRows = await db
+            .select()
+            .from(words)
+            .where(inArray(words.id, chunk));
+        if (wordRows.length === 0) continue;
 
-    return wordRows.map((w) => assembleWord(w, tMap, tagsMap));
+        const tMap = await fetchTranslationsMap(chunk);
+        const tagsMap = await fetchTagsMap(chunk, viewerId);
+
+        for (const w of wordRows) result.push(assembleWord(w, tMap, tagsMap));
+    }
+    return result;
 };
 
 /**
@@ -302,6 +313,8 @@ const getWordsByIds = async (wordIds: string[]): Promise<WordRow[]> => {
 
 const DEFAULT_PAGE_LIMIT = 50;
 const MAX_PAGE_LIMIT = 100;
+// Offset (numbered-page) mode allows bigger pages than cursor mode.
+const MAX_OFFSET_PAGE_LIMIT = 200;
 
 /** A repeatable query param (`?pos=Noun&pos=Verb`) arrives as an array only
  * when given more than once; normalise the single-value case too. */
@@ -314,6 +327,31 @@ const parseLimitParam = (value: any): number => {
     const parsed = value !== undefined ? parseInt(value, 10) : DEFAULT_PAGE_LIMIT;
     if (!Number.isFinite(parsed)) return DEFAULT_PAGE_LIMIT;
     return Math.min(Math.max(parsed, 1), MAX_PAGE_LIMIT);
+};
+
+/**
+ * `?page=` for offset mode. Returns null when the param is absent (cursor mode).
+ * Throws on anything that is not an integer >= 1; the controller maps it to 400.
+ */
+const parsePageParam = (value: any): number | null => {
+    if (value === undefined) return null;
+    if (typeof value !== 'string' || !/^\d+$/.test(value) || parseInt(value, 10) < 1) {
+        throw new Error('Invalid page');
+    }
+    return parseInt(value, 10);
+};
+
+/**
+ * `?limit=` for offset mode: an integer from 1 to 200, or the literal `all`
+ * (returned as null). Absent means the default. Throws on anything else.
+ */
+const parsePageLimitParam = (value: any): number | null => {
+    if (value === undefined) return DEFAULT_PAGE_LIMIT;
+    if (value === 'all') return null;
+    if (typeof value !== 'string' || !/^\d+$/.test(value)) throw new Error('Invalid limit');
+    const parsed = parseInt(value, 10);
+    if (parsed < 1 || parsed > MAX_OFFSET_PAGE_LIMIT) throw new Error('Invalid limit');
+    return parsed;
 };
 
 // Generic keyset-cursor pair: an opaque sort value (the word list encodes
@@ -344,6 +382,8 @@ export {
     getWordsByIds,
     parseArrayParam,
     parseLimitParam,
+    parsePageParam,
+    parsePageLimitParam,
     encodeCursor,
     decodeCursor,
 };
