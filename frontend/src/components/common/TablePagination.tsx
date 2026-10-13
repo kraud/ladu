@@ -21,6 +21,8 @@ interface TablePaginationProps {
     onPageSizeChange: (size: PageSize) => void;
     /** Disables the controls, for example while a new page loads. */
     disabled?: boolean;
+    /** Phone layout: no "Showing 201–300 of 1143" text, only the controls. */
+    compact?: boolean;
 }
 
 /**
@@ -35,6 +37,7 @@ export function TablePagination({
     onPageChange,
     onPageSizeChange,
     disabled = false,
+    compact = false,
 }: TablePaginationProps) {
     const { t } = useTranslation('common');
 
@@ -44,9 +47,11 @@ export function TablePagination({
 
     return (
         <div className="footer-row flex-wrap gap-3">
-            <span className="meta" data-testid="pagination-range">
-                {total > 0 ? t('pagination.range', { from, to, total }) : t('pagination.noRows')}
-            </span>
+            {!compact && (
+                <span className="meta" data-testid="pagination-range">
+                    {total > 0 ? t('pagination.range', { from, to, total }) : t('pagination.noRows')}
+                </span>
+            )}
 
             <div className="flex flex-wrap items-center gap-3">
                 {pageCount > 1 && (

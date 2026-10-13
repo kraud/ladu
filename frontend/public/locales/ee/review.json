@@ -51,7 +51,12 @@
     "tagsAddedToast_other": "Sildid lisati {{count}} sõnale",
     "tagsRemovedToast_one": "Silt eemaldati {{count}} sõnalt",
     "tagsRemovedToast_other": "Sildid eemaldati {{count}} sõnalt",
-    "unselect": "Tühista valik"
+    "unselect": "Tühista valik",
+    "pageSelected": "Kõik selle lehe sõnad on valitud.",
+    "selectAllMatching": "Vali kõik {{count}} sobivat sõna",
+    "allMatchingSelected": "Kõik {{count}} sobivat sõna on valitud.",
+    "clearSelection": "Tühista valik",
+    "selectAllFailed": "Kõiki sõnu ei saanud valida. Proovi uuesti."
   },
   "table": {
     "posAbbr": {

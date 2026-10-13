@@ -33,6 +33,8 @@ import type { LangKey } from '@/features/words/types';
 import type { WordListFilters } from '@/features/words/types';
 import { PartOfSpeech } from '@/ts/enums';
 import { UI_LANGUAGES, languageByLabel } from '@/lib/language';
+import { parsePageSize, type PageSize } from '@/lib/pagination';
+import type { LanguageSort } from './useLanguageSort';
 
 export interface ReviewSearch {
     /** Local search box (Slice 7); matched server-side against any stored case word. */
@@ -51,6 +53,13 @@ export interface ReviewSearch {
      * not a fixed enum, so only dedup applies.
      */
     tag?: string[];
+    /** Numbered page, 1-based. Omitted for page 1. */
+    page?: number;
+    /** Rows per page. Omitted: the size the user chose last (`readStoredPageSize`). */
+    size?: PageSize;
+    /** Server-side sort by one language column, with its direction (`dir` only goes with `sort`). */
+    sort?: LangKey;
+    dir?: 'asc' | 'desc';
 }
 
 const POS_VALUES = new Set<string>(Object.values(PartOfSpeech));
@@ -81,6 +90,12 @@ function toOptionalString(value: unknown): string | undefined {
     return trimmed === '' ? undefined : trimmed;
 }
 
+/** A page number: an integer >= 2. Page 1 is the default and is left out, so the URL stays clean. */
+function toPage(value: unknown): number | undefined {
+    const number = typeof value === 'number' ? value : typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN;
+    return Number.isInteger(number) && number >= 2 ? number : undefined;
+}
+
 /** Empty arrays collapse to `undefined` so the encoder omits the key entirely and URLs stay clean. */
 function orUndefined<T>(values: T[]): T[] | undefined {
     return values.length > 0 ? values : undefined;
@@ -92,6 +107,8 @@ function orUndefined<T>(values: T[]): T[] | undefined {
  * would fail that call at `tsc -b`.
  */
 export function validateReviewSearch(search: Record<string, unknown>): ReviewSearch {
+    const sort = toOptionalString(search.sort);
+    const validSort = sort !== undefined && LANG_KEYS.has(sort) ? (sort as LangKey) : undefined;
     return {
         q: toOptionalString(search.q),
         pos: orUndefined(
@@ -102,7 +119,16 @@ export function validateReviewSearch(search: Record<string, unknown>): ReviewSea
             toStringArray(search.lang).filter((value): value is LangKey => LANG_KEYS.has(value)),
         ),
         tag: orUndefined(Array.from(new Set(toStringArray(search.tag)))),
+        page: toPage(search.page),
+        size: parsePageSize(search.size),
+        sort: validSort,
+        dir: validSort ? (toOptionalString(search.dir) === 'desc' ? 'desc' : 'asc') : undefined,
     };
+}
+
+/** The sort in the URL, as the table's `LanguageSort`; `null` is the default order (newest first). */
+export function reviewSearchToSort(search: ReviewSearch): LanguageSort | null {
+    return search.sort ? { lang: search.sort, dir: search.dir ?? 'asc' } : null;
 }
 
 /** Search params -> the list-query filters. `lang` is display-only and never reaches the query key. */

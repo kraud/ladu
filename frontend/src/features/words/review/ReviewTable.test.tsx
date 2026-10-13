@@ -31,12 +31,14 @@ const baseProps: ReviewTableProps = {
     showOwner: true,
     showPos: true,
     isPending: false,
-    isFetchingNextPage: false,
+    isFetching: false,
     isError: false,
     error: undefined,
-    hasNextPage: false,
     total: 0,
-    onFetchNextPage: vi.fn(),
+    page: 1,
+    pageSize: 50,
+    onPageChange: vi.fn(),
+    onPageSizeChange: vi.fn(),
     onRetry: vi.fn(),
     rowSelection: {},
     onRowSelectionChange: vi.fn(),
@@ -297,27 +299,58 @@ describe('ReviewTable — Tags column (D1/D7/D14)', () => {
     });
 });
 
-describe('ReviewTable — Load more', () => {
-    it('is hidden when there is no next page', () => {
-        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} hasNextPage={false} />);
+describe('ReviewTable — numbered pages', () => {
+    it('shows the range of the page and the page buttons', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} total={120} page={2} pageSize={50} />);
+        expect(screen.getByTestId('pagination-range')).toHaveTextContent('Showing 51–100 of 120');
+        expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
         expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
     });
 
-    it('is shown and calls onFetchNextPage when there is a next page', async () => {
-        const onFetchNextPage = vi.fn();
+    it('calls onPageChange for Next and for a page number', async () => {
+        const onPageChange = vi.fn();
         const user = userEvent.setup();
         renderWithProviders(
-            <ReviewTable
-                {...baseProps}
-                rows={[makeRow()]}
-                hasNextPage
-                total={5}
-                onFetchNextPage={onFetchNextPage}
-            />,
+            <ReviewTable {...baseProps} rows={[makeRow()]} total={120} page={1} onPageChange={onPageChange} />,
         );
 
-        const button = screen.getByRole('button', { name: 'Load more' });
-        await user.click(button);
-        expect(onFetchNextPage).toHaveBeenCalled();
+        await user.click(screen.getByRole('button', { name: 'Next page' }));
+        expect(onPageChange).toHaveBeenLastCalledWith(2);
+        await user.click(screen.getByRole('button', { name: 'Page 3' }));
+        expect(onPageChange).toHaveBeenLastCalledWith(3);
+    });
+
+    it('calls onPageSizeChange from the Rows per page menu', async () => {
+        const onPageSizeChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <ReviewTable {...baseProps} rows={[makeRow()]} total={120} onPageSizeChange={onPageSizeChange} />,
+        );
+
+        await user.click(screen.getByRole('combobox', { name: 'Rows per page' }));
+        await user.click(screen.getByRole('option', { name: '200' }));
+        expect(onPageSizeChange).toHaveBeenCalledWith(200);
+    });
+
+    it('does not show the pagination while the first page loads', () => {
+        renderWithProviders(<ReviewTable {...baseProps} isPending />);
+        expect(screen.queryByTestId('pagination-range')).not.toBeInTheDocument();
+    });
+
+    it('dims the rows while the next page loads', () => {
+        const { container } = renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} total={5} isFetching />);
+        expect(container.querySelector('.tablewrap')).toHaveAttribute('aria-busy', 'true');
+    });
+
+    it('is not the empty state for a page past the last one', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[]} total={120} page={9} />);
+        expect(screen.queryByText('No words yet')).not.toBeInTheDocument();
+        expect(screen.getByTestId('pagination-range')).toBeInTheDocument();
+    });
+
+    it('keeps only the page controls on a phone', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} total={120} compact />);
+        expect(screen.queryByTestId('pagination-range')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Next page' })).toBeInTheDocument();
     });
 });

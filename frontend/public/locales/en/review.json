@@ -51,7 +51,12 @@
     "tagsAddedToast_other": "Tags added to {{count}} words",
     "tagsRemovedToast_one": "Tag removed from {{count}} word",
     "tagsRemovedToast_other": "Tags removed from {{count}} words",
-    "unselect": "Unselect"
+    "unselect": "Unselect",
+    "pageSelected": "All words on this page are selected.",
+    "selectAllMatching": "Select all {{count}} matching words",
+    "allMatchingSelected": "All {{count}} matching words are selected.",
+    "clearSelection": "Clear selection",
+    "selectAllFailed": "Could not select all words. Try again."
   },
   "table": {
     "posAbbr": {

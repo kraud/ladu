@@ -87,6 +87,14 @@ describe('TablePagination', () => {
         expect(onPageSizeChange).toHaveBeenCalledWith('all');
     });
 
+    it('leaves out the range text in compact mode', () => {
+        renderWithProviders(
+            <TablePagination page={1} pageSize={50} total={500} compact onPageChange={vi.fn()} onPageSizeChange={vi.fn()} />,
+        );
+        expect(screen.queryByTestId('pagination-range')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Next page' })).toBeInTheDocument();
+    });
+
     it('disables the page buttons while disabled', () => {
         setup({ page: 2, disabled: true });
         expect(screen.getByRole('button', { name: 'Page 3' })).toBeDisabled();

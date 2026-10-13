@@ -51,7 +51,12 @@
     "tagsAddedToast_other": "Etiquetas añadidas a {{count}} palabras",
     "tagsRemovedToast_one": "Etiqueta quitada de {{count}} palabra",
     "tagsRemovedToast_other": "Etiquetas quitadas de {{count}} palabras",
-    "unselect": "Deseleccionar"
+    "unselect": "Deseleccionar",
+    "pageSelected": "Todas las palabras de esta página están seleccionadas.",
+    "selectAllMatching": "Seleccionar las {{count}} palabras que coinciden",
+    "allMatchingSelected": "Las {{count}} palabras que coinciden están seleccionadas.",
+    "clearSelection": "Borrar selección",
+    "selectAllFailed": "No se pudieron seleccionar todas las palabras. Inténtalo de nuevo."
   },
   "table": {
     "posAbbr": {

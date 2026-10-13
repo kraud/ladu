@@ -116,19 +116,135 @@ describe('ReviewPage', () => {
         expect(headers[4]).toContain('EN');
     });
 
-    it('Load more appends a second page', async () => {
-        const words = Array.from({ length: 51 }, (_, i) => verbSeed(String(i), `w${i}`));
+    it('Next page shows the second page and writes page=2 in the URL', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
         server.use(...fake.handlers);
 
         const user = userEvent.setup();
-        await renderApp({ initialEntry: '/words', session: SESSION });
+        const { router } = await renderApp({ initialEntry: '/words', session: SESSION });
 
         await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(51)); // 50 words + header row
-        await user.click(screen.getByRole('button', { name: 'Load more' }));
+        expect(screen.getByTestId('pagination-range')).toHaveTextContent('Showing 1–50 of 51');
+        expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Next page' }));
+
+        await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2)); // 1 word + header row
+        expect(screen.getByText('word0')).toBeInTheDocument(); // the oldest word is last in the default order
+        expect(screen.getByTestId('pagination-range')).toHaveTextContent('Showing 51–51 of 51');
+        expect(router.state.location.search).toMatchObject({ page: 2 });
+        expect(fake.simpleQueries.at(-1)).toContain('page=2');
+    });
+
+    it('keeps the page in the URL when the search box mounts twice (React StrictMode, as in dev)', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
+        server.use(...fake.handlers);
+
+        const { router } = await renderApp({ initialEntry: '/words?page=2', session: SESSION, strictMode: true });
+
+        expect(await screen.findByText('word0')).toBeInTheDocument();
+        expect(router.state.location.search).toMatchObject({ page: 2 });
+    });
+
+    it('opens the page that is in the URL', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
+        server.use(...fake.handlers);
+
+        await renderApp({ initialEntry: '/words?page=2', session: SESSION });
+
+        expect(await screen.findByText('word0')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
+    });
+
+    it('goes to the last page when the page in the URL is past the end', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
+        server.use(...fake.handlers);
+
+        const { router } = await renderApp({ initialEntry: '/words?page=9', session: SESSION });
+
+        expect(await screen.findByText('word0')).toBeInTheDocument();
+        await waitFor(() => expect(router.state.location.search).toMatchObject({ page: 2 }));
+    });
+
+    it('changes the page size, keeps it for next time and goes back to page 1', async () => {
+        const words = Array.from({ length: 120 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/words?page=2', session: SESSION });
+        await screen.findByRole('combobox', { name: 'Rows per page' });
+
+        await user.click(screen.getByRole('combobox', { name: 'Rows per page' }));
+        await user.click(screen.getByRole('option', { name: '100' }));
+
+        await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(101)); // 100 words + header row
+        expect(fake.simpleQueries.at(-1)).toContain('limit=100');
+        expect(router.state.location.search).toMatchObject({ size: 100 });
+        expect(router.state.location.search).not.toHaveProperty('page');
+        expect(localStorage.getItem('ladu.pageSize')).toBe('100');
+    });
+
+    it('starts with the page size the user chose last', async () => {
+        localStorage.setItem('ladu.pageSize', '200');
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [verbSeed('run', 'w1')] });
+        server.use(...fake.handlers);
+
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        await screen.findByText('run');
+
+        expect(fake.simpleQueries[0]).toContain('limit=200');
+    });
+
+    it('shows the whole list for All, without page buttons', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
+        server.use(...fake.handlers);
+
+        await renderApp({ initialEntry: '/words?size=all', session: SESSION });
 
         await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(52)); // 51 words + header row
-        expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
+        expect(fake.simpleQueries.at(-1)).toContain('limit=all');
+        expect(screen.queryByRole('navigation', { name: 'Pagination' })).not.toBeInTheDocument();
+    });
+
+    it('goes back to page 1 when a filter changes', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [...words, nounSeed('cat', 'n1')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/words?page=2', session: SESSION });
+        await screen.findByRole('button', { name: 'n.' });
+
+        await user.click(screen.getByRole('button', { name: 'n.' }));
+
+        expect(await screen.findByText('cat')).toBeInTheDocument();
+        expect(router.state.location.search).toMatchObject({ pos: ['Noun'] });
+        expect(router.state.location.search).not.toHaveProperty('page');
+    });
+
+    it('keeps the sort in the URL, goes back to page 1 and sends it to the server after a reload', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        const first = await renderApp({ initialEntry: '/words?page=2', session: SESSION });
+        await user.click(await screen.findByRole('button', { name: 'Sort EN from A to Z' }));
+
+        await waitFor(() => expect(first.router.state.location.search).toMatchObject({ sort: 'EN', dir: 'asc' }));
+        expect(first.router.state.location.search).not.toHaveProperty('page');
+        const href = first.router.state.location.href;
+        first.unmount();
+
+        await renderApp({ initialEntry: href, session: SESSION });
+        expect(await screen.findByRole('button', { name: 'Sorted EN from A to Z. Sort from Z to A' })).toBeInTheDocument();
+        expect(fake.simpleQueries.at(-1)).toContain('sort=EN&dir=asc');
     });
 
     it('sorts by a language header: A to Z, Z to A, then back to the default order', async () => {
@@ -719,8 +835,8 @@ describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, fro
         expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument();
     });
 
-    it('a selection survives Load more paging in the next batch of the same filter', async () => {
-        const words = Array.from({ length: 51 }, (_, i) => verbSeed(String(i), `w${i}`));
+    it('a selection survives a change of page, and back', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
         server.use(...fake.handlers);
 
@@ -728,20 +844,122 @@ describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, fro
         await renderApp({ initialEntry: '/words', session: SESSION });
         await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(51)); // 50 words + header row
 
-        const firstRow = screen.getAllByRole('row')[1]!;
-        await user.click(within(firstRow).getByRole('checkbox'));
+        await user.click(within(screen.getByText('word50').closest('tr')!).getByRole('checkbox'));
         expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
 
-        await user.click(screen.getByRole('button', { name: 'Load more' }));
-        await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(52)); // 51 words + header row
-
-        // Same DOM row (TanStack Table's `getRowId` keys by word id, so
-        // appending a second page does not remount rows already on screen) —
-        // its checkbox is still checked and the bulk bar still reflects one
-        // selection, proving selection tracks the row's stable id across a
-        // data-append, not a positional index that a second page would shift.
-        expect(within(firstRow).getByRole('checkbox')).toBeChecked();
+        await user.click(screen.getByRole('button', { name: 'Next page' }));
+        await screen.findByText('word0');
+        // The selected word is not on this page, but it still counts.
         expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+        expect(within(screen.getByText('word0').closest('tr')!).getByRole('checkbox')).not.toBeChecked();
+
+        await user.click(screen.getByRole('button', { name: 'Page 1' }));
+        const backRow = (await screen.findByText('word50')).closest('tr')!;
+        expect(within(backRow).getByRole('checkbox')).toBeChecked();
+        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+    });
+
+    it('Practice takes the selected words from two pages', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: words });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/words', session: SESSION });
+        await user.click(within((await screen.findByText('word50')).closest('tr')!).getByRole('checkbox'));
+        await user.click(screen.getByRole('button', { name: 'Next page' }));
+        await user.click(within((await screen.findByText('word0')).closest('tr')!).getByRole('checkbox'));
+        await user.click(screen.getByRole('button', { name: 'Practice' }));
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/practice'));
+        expect(await screen.findByText('Practice with 2 selected words')).toBeInTheDocument();
+        expect(screen.getByText('word50')).toBeInTheDocument();
+        expect(screen.getByText('word0')).toBeInTheDocument();
+    });
+
+    it('a change of filter clears a selection from another page', async () => {
+        const words = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [...words, nounSeed('cat', 'n1')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        await user.click(within((await screen.findByText('cat')).closest('tr')!).getByRole('checkbox'));
+        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+
+        await user.click(screen.getByRole('button', { name: 'v.' }));
+        await waitFor(() => expect(fake.simpleQueries.at(-1)).toContain('pos=Verb'));
+        await screen.findByText('word50');
+        expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument();
+    });
+});
+
+describe('ReviewPage — select all matching words', () => {
+    const manyWords = () => Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
+
+    it('offers to select every matching word after the page is selected, and selects them all', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: manyWords() });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        await screen.findByText('word50');
+        expect(screen.queryByTestId('select-all-matching')).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+
+        const banner = await screen.findByTestId('select-all-matching');
+        expect(within(banner).getByText('All words on this page are selected.')).toBeInTheDocument();
+        await user.click(within(banner).getByRole('button', { name: 'Select all 51 matching words' }));
+
+        await waitFor(() => expect(screen.getByText('All 51 matching words are selected.')).toBeInTheDocument());
+        expect(fake.simpleQueries.some((query) => query.includes('owner=me') && query.includes('limit=all'))).toBe(true);
+        expect(screen.getByText('51', { selector: '.count' })).toBeInTheDocument();
+    });
+
+    it('clears the selection from the banner', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: manyWords() });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        await screen.findByText('word50');
+        await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+        await user.click(await screen.findByRole('button', { name: 'Select all 51 matching words' }));
+        await user.click(await screen.findByRole('button', { name: 'Clear selection' }));
+
+        expect(screen.queryByTestId('select-all-matching')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Practice' })).not.toBeInTheDocument();
+    });
+
+    it('does not show the banner when everything fits on one page', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [verbSeed('run', 'w1'), verbSeed('jump', 'w2')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        await screen.findByText('run');
+        await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+
+        expect(screen.getByText('2', { selector: '.count' })).toBeInTheDocument();
+        expect(screen.queryByTestId('select-all-matching')).not.toBeInTheDocument();
+        expect(fake.simpleQueries.some((query) => query.includes('owner=me'))).toBe(false);
+    });
+
+    it('selected words from all pages can be used by Practice', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: manyWords() });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/words', session: SESSION });
+        await screen.findByText('word50');
+        await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+        await user.click(await screen.findByRole('button', { name: 'Select all 51 matching words' }));
+        await screen.findByText('All 51 matching words are selected.');
+        await user.click(screen.getByRole('button', { name: 'Practice' }));
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/practice'));
+        expect(await screen.findByText('Practice with 51 selected words')).toBeInTheDocument();
     });
 });
 

@@ -31,6 +31,42 @@ docker exec -it <container-name> psql -U keelapp_user -d keelapp_v2_dev
 npm run db:studio   # opens Drizzle Studio in the browser
 ```
 
+### The seed account and the pagination test tag (local dev only)
+
+A test account owns 200 popular words in one Public tag. It exists to test the word
+tables with several pages (`.context/plans/words-pagination.md`): follow the tag from your
+own account and `/tag/<id>` shows all 200 words, while `/words` shows them too (they come
+from a followed tag, so they are read-only there).
+
+| What | Value |
+|---|---|
+| Database | `keelapp_v2_dev` only (the account does **not** exist in staging or production) |
+| Email | `pagination-seed@ladu.test` |
+| Username | `pagination_seed` |
+| Password | `LocalDev-Seed-2026` (a throwaway; it protects nothing outside this laptop) |
+| Languages | English, Spanish, German, Estonian |
+| Tag | "Pagination test (200 words)", Public, id `ae72cf6a-bc73-416c-a106-50fb635cba72` (the id changes if the dev database is rebuilt) |
+
+To follow it from your own account: **Tags** → filter "Discover" → search "Pagination test" →
+Follow.
+
+The 200 words: 80 nouns, 55 verbs, 45 adjectives, 20 adverbs. Each keeps 2, 3 or 4 of the four
+languages (about 50 / 110 / 40 words), so most rows have empty cells. They were made with the
+same routes as the Add word page (English words by `frequency_rank` → `translate` → `draft`).
+The frequency list ranks a spelling, not a part of speech, so a few words are odd ("can" →
+"lata", "must" → "mosto"). That is normal for this data.
+
+To rebuild or top up the data (the dev server must run on :5001; the script refuses to run
+against anything that is not on this machine):
+
+```bash
+cd backend
+npx tsx scripts/seed-pagination-words.ts           # tops the tag up to 200 words; registers the account if it is missing
+npx tsx scripts/seed-pagination-words.ts --reset   # first deletes ALL words of the seed account, then seeds again
+```
+
+The script uses a fixed random seed, so a `--reset` run makes the same set again.
+
 ## 3. CI
 
 Every PR and every push to `main` spins up a **brand-new, empty** Postgres

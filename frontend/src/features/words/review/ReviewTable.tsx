@@ -12,12 +12,13 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { TablePagination } from '@/components/common/TablePagination';
+import type { PageSize } from '@/lib/pagination';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 import { buildWordColumns } from './columns';
 import type { LanguageSort } from './useLanguageSort';
 
 const SKELETON_ROWS = 8;
-const SKELETON_MORE_ROWS = 3;
 
 const LONG_PRESS_MS = 450;
 /** A finger that moves farther than this (px) is scrolling, not pressing. */
@@ -48,13 +49,17 @@ export interface ReviewTableProps {
     /** Toolbar "Display progress" switch — gates the completion ring per cell. */
     showProgress: boolean;
     isPending: boolean;
-    isFetchingNextPage: boolean;
+    /** A new page is loading while the old one stays on screen. */
+    isFetching?: boolean;
     isError: boolean;
     error: unknown;
-    hasNextPage: boolean;
     /** Filtered total (D8) — constant across pages of the same filter set. */
     total: number;
-    onFetchNextPage: () => void;
+    /** Current numbered page (1-based) and rows per page. */
+    page: number;
+    pageSize: PageSize;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (size: PageSize) => void;
     onRetry: () => void;
     rowSelection: RowSelectionState;
     onRowSelectionChange: OnChangeFn<RowSelectionState>;
@@ -75,7 +80,7 @@ export interface ReviewTableProps {
     sort?: LanguageSort | null;
     onSort?: (lang: LangKey) => void;
     /**
-     * Phone layout: no loaded/total text, and the footer only shows when "Load more" is needed. Rows have no
+     * Phone layout: the footer has the page controls only, without the "Showing …" text. Rows have no
      * checkbox either: a long press selects the first row, then a tap selects or unselects any row.
      */
     compact?: boolean;
@@ -99,12 +104,14 @@ export function ReviewTable({
     showOwner,
     showPos,
     isPending,
-    isFetchingNextPage,
+    isFetching = false,
     isError,
     error,
-    hasNextPage,
     total,
-    onFetchNextPage,
+    page,
+    pageSize,
+    onPageChange,
+    onPageSizeChange,
     onRetry,
     rowSelection,
     onRowSelectionChange,
@@ -187,7 +194,8 @@ export function ReviewTable({
         );
     }
 
-    if (!isPending && rows.length === 0) {
+    // A page past the last one has no rows but a total above 0: that is not an empty list (the page corrects itself).
+    if (!isPending && rows.length === 0 && total === 0) {
         if (hasActiveFilters) {
             return (
                 <EmptyState
@@ -213,7 +221,7 @@ export function ReviewTable({
 
     return (
         <div className="main-col min-h-0 flex-1">
-            <div className="tablewrap min-h-0 flex-1">
+            <div className="tablewrap min-h-0 flex-1" aria-busy={isFetching} style={isFetching ? { opacity: 0.6 } : undefined}>
                 <table className="dtable">
                     <thead>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -277,39 +285,19 @@ export function ReviewTable({
                                       ))}
                                   </tr>
                               ))}
-                        {isFetchingNextPage &&
-                            Array.from({ length: SKELETON_MORE_ROWS }).map((_, rowIndex) => (
-                                <tr key={`skeleton-more-${rowIndex}`}>
-                                    {columns.map((_, colIndex) => (
-                                        <td key={colIndex}>
-                                            <Skeleton className="h-4 w-24" />
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
                     </tbody>
                 </table>
             </div>
-            {(!compact || hasNextPage) && (
-                <div className="footer-row">
-                    {!compact && (
-                        <span className="meta">
-                            {hasNextPage
-                                ? t('review:table.loaded', { loaded: rows.length, total })
-                                : t('review:table.allLoaded', { total })}
-                        </span>
-                    )}
-                    {hasNextPage && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={onFetchNextPage}
-                            disabled={isFetchingNextPage}
-                        >
-                            {t('review:table.loadMore')}
-                        </Button>
-                    )}
-                </div>
+            {!isPending && (
+                <TablePagination
+                    page={page}
+                    pageSize={pageSize}
+                    total={total}
+                    onPageChange={onPageChange}
+                    onPageSizeChange={onPageSizeChange}
+                    disabled={isFetching}
+                    compact={compact}
+                />
             )}
         </div>
     );

@@ -1,6 +1,6 @@
 # Plan: Numbered pagination for /words and /tag/$tagId
 
-Status: in progress. Plan agreed on 2026-10-12. Slices 1 (backend) and 2 (frontend groundwork) done on 2026-10-13.
+Status: in progress. Plan agreed on 2026-10-12. Slices 1 (backend), 2 (frontend groundwork) and 3 (`/words`) done on 2026-10-13.
 
 Goal: the two word tables show numbered pages with a page-size menu (50 / 100 / 200 / All), instead of the "Load more" button.
 
@@ -15,7 +15,7 @@ Goal: the two word tables show numbered pages with a page-size menu (50 / 100 / 
 - [x] Stage 0 — This plan is in the repo (2026-10-12)
 - [x] Slice 1 — Backend: offset mode and `owner=me` on `/api/words/simple` (2026-10-13). Built inline in `getWordsSimplified` (no separate helper functions); `owner=me` reuses `/simple`, no separate ids endpoint. Backend: 53 suites / 1,255 tests green, typecheck clean.
 - [x] Slice 2 — Frontend groundwork: types, API, `useWordsPage`, page-size preference, `TablePagination`, MSW (2026-10-13). Two path changes from the plan: the page-size module is `src/lib/pagination.ts` (both the words feature and the tag page use it) and the component is `src/components/common/TablePagination.tsx` (`components/ui` holds only plain shadcn parts). Strings are in `common.json` under `pagination` (en, de, es, ee). Frontend: 131 files / 1,647 tests green, typecheck and lint clean. No screen uses the new parts yet.
-- [ ] Slice 3 — `/words` (ReviewPage): URL state, numbered pages, selection across pages
+- [x] Slice 3 — `/words` (ReviewPage): URL state, numbered pages, selection across pages (2026-10-13). Frontend: 131 files / 1,688 tests green, typecheck clean. Full e2e: 137 passed (`phase-3-review.spec.ts` walks pages, reload, All/50, sort in the URL, and a selection across two pages). Still to do by hand: look at the footer layout in a real browser, desktop and phone.
 - [ ] Slice 4 — `/tag/$tagId` (TagViewPage): URL state, numbered pages, `existingWordIds` fix
 
 ## Context
@@ -82,7 +82,8 @@ Also update the contract in the file's header comment.
 ## Slice 3 — `/words` (ReviewPage)
 
 - **URL state:** `frontend/src/features/words/review/search.ts` (`validateReviewSearch`) gets `page`, `size` (`50|100|200|all`), `sort` (`EN|ES|DE|EE`) and `dir`.
-  - Sort moves from local `useState` to the URL. Change `useLanguageSort` (`review/useLanguageSort.ts`) so it takes the value and an onChange, and keep its asc → desc → off cycle. The tag page uses the same hook.
+  - Sort moves from local `useState` to the URL. *Built:* `ReviewPage` reads the sort with `reviewSearchToSort` and moves it with the existing pure `nextLanguageSort` (asc → desc → off). The `useLanguageSort` hook itself is unchanged, because the tag page still uses it; Slice 4 moves that page too.
+  - *Built:* `updateSearch` goes back to page 1 only when a value really changes. The search box writes `q` once on mount (twice under React StrictMode in dev); a plain "always reset" rule threw the user off page 2 after a reload. The e2e run found this; `ReviewPage.test.tsx` has a StrictMode regression test (`renderApp({ strictMode: true })`).
   - A missing `size` falls back to `readStoredPageSize()`.
   - A change to a filter, the sort or the size sets `page` back to 1.
 - **ReviewPage.tsx:**
@@ -90,8 +91,8 @@ Also update the contract in the file's header comment.
   - if `page > pageCount` and `total > 0`, go to the last page with `replace`. This covers deleting the last rows of the last page.
 - **Selection across pages:**
   - keep `rowSelection` with `getRowId = id`, and remove the reset on page change. The reset on filter change at l.92-94 stays, because the matching set changes;
-  - add `selectedRows: Map<id, WordSimpleBE>`, filled from the selection change of the visible rows. `handlePractice` (l.135-141) reads this map, not `rows`, so selected words on other pages are not dropped;
-  - after the header checkbox selects the full page, and if `total` of own words is larger than the page, show a banner: "All 100 on this page are selected — Select all N matching words". It calls `getWordsPage({...filters, owner:'me', limit:'all', page:1})` and fills the selection and the map. A "Clear selection" link is also shown;
+  - add `selectedRows: Map<id, WordSimpleBE>` (built as a ref, filled by an effect from the visible rows, pruned to the selection). `handlePractice` reads this map, not `rows`, so selected words on other pages are not dropped. Limit: a word edited after it was selected, and now on another page, keeps its old data in the map until it is seen again;
+  - after the header checkbox selects the full page, and if more of your own words match on other pages, show a banner: "All words on this page are selected. [Select all N matching words]". *Built:* `review/SelectAllMatchingBanner.tsx`. `N` is exact: `useOwnWordsTotal` (one `owner=me&limit=1` request, only while the banner can show), because the list `total` also counts followed-tag words that cannot be selected. The click runs `useFetchAllOwnWords` (`owner=me`, `limit=all`) and fills the selection and the map. When all are selected the banner says so and offers "Clear selection";
   - the BulkActionBar count uses `selectedIds.length`. It already does.
 - **ReviewTable.tsx:** replace the Load more footer and the skeleton rows (l.280-313) with `TablePagination`. Remove `hasNextPage`, `onFetchNextPage` and `isFetchingNextPage`. Add `page`, `pageSize`, `total`, `onPageChange` and `onPageSizeChange`. In compact mode, show only the page controls.
 - **Tests:**
@@ -118,6 +119,10 @@ Also update the contract in the file's header comment.
 - `WordPicker` (5-row Load more) and `PracticePage`'s `useWordsInfinite({}, 1)` stay on cursor mode.
 - `fetchTagWords` in practice stays on cursor mode. It could later become one `limit=all` request, but that is not part of this work.
 - `GET /api/words` (full list, no frontend caller) is not touched.
+
+## Test data for the manual checks
+
+A local seed account owns a Public tag with 200 words ("Pagination test (200 words)"). Follow it from your own account to test `/words` and `/tag/$tagId` with several pages. The account, the tag and the rebuild command are in `.dev-context/infrastructure-guide/02-environments-and-databases.md` (section "The seed account and the pagination test tag"). The script is `backend/scripts/seed-pagination-words.ts`.
 
 ## Verification (at the end of each slice)
 
