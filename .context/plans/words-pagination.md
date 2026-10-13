@@ -1,6 +1,6 @@
 # Plan: Numbered pagination for /words and /tag/$tagId
 
-Status: in progress. Plan agreed on 2026-10-12. Slices 1 (backend), 2 (frontend groundwork) and 3 (`/words`) done on 2026-10-13.
+Status: in progress. Plan agreed on 2026-10-12. Slices 1 to 4 (backend, frontend groundwork, `/words`, `/tag/$tagId`) done on 2026-10-13.
 
 Goal: the two word tables show numbered pages with a page-size menu (50 / 100 / 200 / All), instead of the "Load more" button.
 
@@ -16,7 +16,7 @@ Goal: the two word tables show numbered pages with a page-size menu (50 / 100 / 
 - [x] Slice 1 — Backend: offset mode and `owner=me` on `/api/words/simple` (2026-10-13). Built inline in `getWordsSimplified` (no separate helper functions); `owner=me` reuses `/simple`, no separate ids endpoint. Backend: 53 suites / 1,255 tests green, typecheck clean.
 - [x] Slice 2 — Frontend groundwork: types, API, `useWordsPage`, page-size preference, `TablePagination`, MSW (2026-10-13). Two path changes from the plan: the page-size module is `src/lib/pagination.ts` (both the words feature and the tag page use it) and the component is `src/components/common/TablePagination.tsx` (`components/ui` holds only plain shadcn parts). Strings are in `common.json` under `pagination` (en, de, es, ee). Frontend: 131 files / 1,647 tests green, typecheck and lint clean. No screen uses the new parts yet.
 - [x] Slice 3 — `/words` (ReviewPage): URL state, numbered pages, selection across pages (2026-10-13). Frontend: 131 files / 1,688 tests green, typecheck clean. Full e2e: 137 passed (`phase-3-review.spec.ts` walks pages, reload, All/50, sort in the URL, and a selection across two pages). Still to do by hand: look at the footer layout in a real browser, desktop and phone.
-- [ ] Slice 4 — `/tag/$tagId` (TagViewPage): URL state, numbered pages, `existingWordIds` fix
+- [x] Slice 4 — `/tag/$tagId` (TagViewPage): URL state, numbered pages, `existingWordIds` fix (2026-10-13). Frontend: 131 files / 1,710 tests green, typecheck clean. The two Add-words regression tests fail with the old logic and pass with the fix (checked). Full e2e: 138 passed (`phase-4-tags.spec.ts` has a third account with a 51-word tag). The first full run had 11 failures, all stub tests (Ekilex and Google), because the user's own dev backend held port 5001 and the e2e run reused it; with the port free the run is green. **Stop the dev backend before `npm run test:e2e`.** Menu tests now use `findByRole` (the options appear a moment after the click; one test was flaky).
 
 ## Context
 
@@ -107,10 +107,11 @@ Also update the contract in the file's header comment.
 
 ## Slice 4 — `/tag/$tagId` (TagViewPage)
 
-- **Router** (`frontend/src/app/router.tsx:207`): add `validateSearch` with `q`, `page`, `size`, `sort` and `dir`. The local `query` state stays for the input, debounced as now, and then writes `q` to the URL.
+- **Router** (`frontend/src/app/router.tsx`): add `validateSearch: validateTagSearch` (new `features/tags/search.ts`, with `q`, `page`, `size`, `sort`, `dir`; it reuses `toOptionalString`, `toPage` and the new `toSortParams` exported from `words/review/search.ts`). The local `query` state stays for the input, debounced (300 ms), and then writes `q` to the URL. *Built:* the write only happens when `q` really changes (StrictMode safe, like Slice 3), and a change of the URL from outside (the back button) goes back into the box.
 - **TagViewPage.tsx** (l.59-62): change to `useWordsPage({ tag:[tagId], q, ...sort }, { page, pageSize })`, with the same clamp to the last page.
-- **Fix an existing bug:** `existingWordIds` (given to `AddWordsDialog` → `WordPicker excludeIds`) is built from the loaded rows only, so it is wrong for more than 50 words or during a search. Build it from `useTagWords(tagId)` in `features/practice/hooks.ts`. That hook already follows the cursor to collect every word in the tag. Fetch only while the dialog is open.
-- **TagWordsTable.tsx:** replace the Load more footer (l.403-410) with `TablePagination`. The count text (l.213-223) uses `total`.
+- **Fix an existing bug:** `existingWordIds` (given to `AddWordsDialog` → `WordPicker excludeIds`) was built from the loaded rows only, so it was wrong for more than 50 words or during a search. *Built differently from the plan:* a new hook `useTagWordIds(tagId, enabled)` in `features/words/hooks.ts` (one `tag=…&page=1&limit=all` request, key under `wordKeys.all`), not `useTagWords` from practice. It keeps the words feature the owner of that endpoint and avoids mapping to `PreselectedWord`. It runs only while the dialog is open; `AddWordsDialog` shows a skeleton until the ids are in (`existingWordIds` is `undefined` while loading), and if the request fails the dialog works without the filter.
+- **TagWordsTable.tsx:** replace the Load more footer with `TablePagination` (compact on a phone). The search count now says `N results` for all pages (`tags:words.resultTotal`), because "N of M" would count only the page on screen; the unused `words.resultCount` and `words.loaded` strings are removed. A page past the last one is not the empty state.
+- **`useLanguageSort` hook removed.** After this slice nothing uses it: both pages keep the sort in the URL and move it with the pure `nextLanguageSort`. `sortFilters` and `nextLanguageSort` stay.
 - **Tests:** `TagViewPage.test.tsx`, `TagWordsTable.test.tsx` (l.242), and a test for the `existingWordIds` fix in `AddWordsDialog.test.tsx`.
 - **E2E:** `e2e/tests/phase-4-tags.spec.ts`. Add enough words to a tag to get two pages at size 50, go to page 2, reload, and check that the page stays.
 

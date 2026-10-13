@@ -186,7 +186,9 @@ describe('validateReviewSearch — page, size and sort', () => {
     });
 
     it('drops an unknown sort, and a direction that has no sort', () => {
-        expect(validateReviewSearch({ sort: 'XX', dir: 'desc' })).toMatchObject({ sort: undefined, dir: undefined });
+        const unknown = validateReviewSearch({ sort: 'XX', dir: 'desc' });
+        expect(unknown.sort).toBeUndefined();
+        expect(unknown.dir).toBeUndefined();
         expect(validateReviewSearch({ dir: 'desc' }).dir).toBeUndefined();
     });
 

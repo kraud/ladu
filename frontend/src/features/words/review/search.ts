@@ -79,7 +79,7 @@ function toStringArray(value: unknown): string[] {
 }
 
 /** Undoes `qss.toValue`'s numeric/boolean coercion for a scalar search param. */
-function toOptionalString(value: unknown): string | undefined {
+export function toOptionalString(value: unknown): string | undefined {
     const text =
         typeof value === 'string'
             ? value
@@ -91,7 +91,7 @@ function toOptionalString(value: unknown): string | undefined {
 }
 
 /** A page number: an integer >= 2. Page 1 is the default and is left out, so the URL stays clean. */
-function toPage(value: unknown): number | undefined {
+export function toPage(value: unknown): number | undefined {
     const number = typeof value === 'number' ? value : typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN;
     return Number.isInteger(number) && number >= 2 ? number : undefined;
 }
@@ -101,14 +101,19 @@ function orUndefined<T>(values: T[]): T[] | undefined {
     return values.length > 0 ? values : undefined;
 }
 
+/** `?sort=EN&dir=desc`: a known language, with `dir` only when there is a sort (default asc). Shared by the tag page. */
+export function toSortParams(search: Record<string, unknown>): { sort?: LangKey; dir?: 'asc' | 'desc' } {
+    const sort = toOptionalString(search.sort);
+    if (sort === undefined || !LANG_KEYS.has(sort)) return {};
+    return { sort: sort as LangKey, dir: toOptionalString(search.dir) === 'desc' ? 'desc' : 'asc' };
+}
+
 /**
  * `validateSearch` for `/review`. Every field is optional — `AppHeader`'s
  * `<Link to="/words">` passes no `search` at all, and a required key here
  * would fail that call at `tsc -b`.
  */
 export function validateReviewSearch(search: Record<string, unknown>): ReviewSearch {
-    const sort = toOptionalString(search.sort);
-    const validSort = sort !== undefined && LANG_KEYS.has(sort) ? (sort as LangKey) : undefined;
     return {
         q: toOptionalString(search.q),
         pos: orUndefined(
@@ -121,8 +126,7 @@ export function validateReviewSearch(search: Record<string, unknown>): ReviewSea
         tag: orUndefined(Array.from(new Set(toStringArray(search.tag)))),
         page: toPage(search.page),
         size: parsePageSize(search.size),
-        sort: validSort,
-        dir: validSort ? (toOptionalString(search.dir) === 'desc' ? 'desc' : 'asc') : undefined,
+        ...toSortParams(search),
     };
 }
 

@@ -163,8 +163,8 @@
   "words": {
     "searchPlaceholder": "Otsi selle tagi sõnade seast…",
     "searchLabel": "Otsi sõnu tagi seest",
-    "resultCount": "{{shown}} / {{total}} sõna",
-    "loaded": "Kuvatud {{loaded}} / {{total}} sõna",
+    "resultTotal_one": "{{count}} tulemus",
+    "resultTotal_other": "{{count}} tulemust",
     "removeFromTag": "Eemalda tagilt",
     "removeWords": "Eemalda sõnu",
     "removedToast": "\"{{word}}\" eemaldati tagilt \"{{label}}\" — see jääb sinu kogusse alles",

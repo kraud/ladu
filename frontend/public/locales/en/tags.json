@@ -163,8 +163,8 @@
   "words": {
     "searchPlaceholder": "Search in this tag's words…",
     "searchLabel": "Search words in tag",
-    "resultCount": "{{shown}} of {{total}} words",
-    "loaded": "Showing {{loaded}} of {{total}} words",
+    "resultTotal_one": "{{count}} result",
+    "resultTotal_other": "{{count}} results",
     "removeFromTag": "Remove from tag",
     "removeWords": "Remove words",
     "removedToast": "\"{{word}}\" removed from \"{{label}}\" — it stays on your shelf",

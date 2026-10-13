@@ -163,8 +163,8 @@
   "words": {
     "searchPlaceholder": "Buscar en las palabras de esta etiqueta…",
     "searchLabel": "Buscar palabras en la etiqueta",
-    "resultCount": "{{shown}} de {{total}} palabras",
-    "loaded": "Mostrando {{loaded}} de {{total}} palabras",
+    "resultTotal_one": "{{count}} resultado",
+    "resultTotal_other": "{{count}} resultados",
     "removeFromTag": "Quitar de la etiqueta",
     "removeWords": "Quitar palabras",
     "removedToast": "\"{{word}}\" se quitó de \"{{label}}\" — se queda en tu colección",

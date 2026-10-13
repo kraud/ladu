@@ -180,7 +180,7 @@ describe('ReviewPage', () => {
         await screen.findByRole('combobox', { name: 'Rows per page' });
 
         await user.click(screen.getByRole('combobox', { name: 'Rows per page' }));
-        await user.click(screen.getByRole('option', { name: '100' }));
+        await user.click(await screen.findByRole('option', { name: '100' }));
 
         await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(101)); // 100 words + header row
         expect(fake.simpleQueries.at(-1)).toContain('limit=100');

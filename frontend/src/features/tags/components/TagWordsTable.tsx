@@ -4,12 +4,11 @@
  * table renderer, per phase-4-tags.md's Slice 6 architecture note.
  *
  * Deliberately router-, store- and query-free, mirroring `ReviewTable`'s own
- * convention exactly: `TagViewPage` owns the single `useWordsInfinite({tag:
- * [tagId], q})` call (and the search box's local/debounced state, the
+ * convention exactly: `TagViewPage` owns the single `useWordsPage({tag:
+ * [tagId], q}, {page, pageSize})` call (and the search box's local/debounced state, the
  * display-option state, and the cell-dialog target) and passes every result
- * down as a prop, so this stays testable through `renderWithProviders` alone
- * and so the page can reuse the same loaded rows to compute
- * `AddWordsDialog`'s `excludeIds` without a second query.
+ * down as a prop, so this stays testable through `renderWithProviders` alone.
+ * The footer is the shared numbered-page `TablePagination` (words-pagination.md, Slice 4).
  *
  * An owned tag's toolbar holds "Add words" and "Remove words". Remove mode
  * (`removeMode`, owned by `TagViewPage`) puts a trash column on the *left* of
@@ -26,6 +25,8 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { TablePagination } from '@/components/common/TablePagination';
+import type { PageSize } from '@/lib/pagination';
 import { buildLanguageColumns, buildPartOfSpeechColumn } from '@/features/words/review/columns';
 import { DisplayOptions } from '@/features/words/review/DisplayOptions';
 import type { LanguageSort } from '@/features/words/review/useLanguageSort';
@@ -40,12 +41,17 @@ export interface TagWordsTableProps {
     languages: LangKey[];
     userId: string;
     isPending: boolean;
-    isFetchingNextPage: boolean;
+    /** A new page is loading while the old one stays on screen. */
+    isFetching?: boolean;
     isError: boolean;
     error: unknown;
-    hasNextPage: boolean;
+    /** Words on the tag matching the search, over all pages. */
     total: number;
-    onFetchNextPage: () => void;
+    /** Current numbered page (1-based) and rows per page. */
+    page: number;
+    pageSize: PageSize;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (size: PageSize) => void;
     onRetry: () => void;
     query: string;
     debouncedQuery: string;
@@ -81,12 +87,14 @@ export function TagWordsTable({
     languages,
     userId,
     isPending,
-    isFetchingNextPage,
+    isFetching = false,
     isError,
     error,
-    hasNextPage,
     total,
-    onFetchNextPage,
+    page,
+    pageSize,
+    onPageChange,
+    onPageSizeChange,
     onRetry,
     query,
     debouncedQuery,
@@ -213,7 +221,8 @@ export function TagWordsTable({
     const countLabel = !isPending && (
         <span className="meta">
             {debouncedQuery ? (
-                t('tags:words.resultCount', { shown: rows.length, total })
+                // With pages, "N of M" would count only the page on screen: the total says it all.
+                t('tags:words.resultTotal', { count: total })
             ) : (
                 <>
                     {total} {t('tags:card.wordCount', { count: total })}
@@ -312,7 +321,7 @@ export function TagWordsTable({
                         </tbody>
                     </table>
                 </div>
-            ) : rows.length === 0 ? (
+            ) : rows.length === 0 && total === 0 ? (
                 debouncedQuery ? (
                     <EmptyState
                         icon={<MagnifyingGlassIcon size={20} />}
@@ -338,7 +347,7 @@ export function TagWordsTable({
                 )
             ) : (
                 <>
-                    <div className="tablewrap">
+                    <div className="tablewrap" aria-busy={isFetching} style={isFetching ? { opacity: 0.6 } : undefined}>
                         <table className="dtable">
                             <thead>
                                 {table.getHeaderGroups().map((headerGroup) => (
@@ -387,27 +396,18 @@ export function TagWordsTable({
                                         })}
                                     </tr>
                                 ))}
-                                {isFetchingNextPage &&
-                                    Array.from({ length: 2 }).map((_, rowIndex) => (
-                                        <tr key={`more-${rowIndex}`}>
-                                            {columns.map((_, colIndex) => (
-                                                <td key={colIndex}>
-                                                    <Skeleton className="h-4 w-24" />
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))}
                             </tbody>
                         </table>
                     </div>
-                    {hasNextPage && (
-                        <div className="footer-row">
-                            <span className="meta">{t('tags:words.loaded', { loaded: rows.length, total })}</span>
-                            <Button variant="outline" size="sm" onClick={onFetchNextPage} disabled={isFetchingNextPage}>
-                                {t('review:table.loadMore')}
-                            </Button>
-                        </div>
-                    )}
+                    <TablePagination
+                        page={page}
+                        pageSize={pageSize}
+                        total={total}
+                        onPageChange={onPageChange}
+                        onPageSizeChange={onPageSizeChange}
+                        disabled={isFetching}
+                        compact={isMobile}
+                    />
                 </>
             )}
         </section>

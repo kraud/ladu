@@ -184,6 +184,20 @@ export function useFetchAllOwnWords() {
 }
 
 /**
+ * The ids of every word on one tag, for the "Add words" dialog: it keeps those out of its pool.
+ * One `limit=all` request, only while `enabled` (the dialog is open). The key sits under
+ * `wordKeys.all`, so adding or removing a word marks it stale.
+ */
+export function useTagWordIds(tagId: string, enabled: boolean) {
+    return useQuery({
+        queryKey: [...wordKeys.all, 'tagWordIds', tagId],
+        queryFn: ({ signal }) => wordApi.getWordsPage({ tag: [tagId], page: 1, limit: 'all' }, signal),
+        select: (data) => new Set(data.items.map((word) => word.id)),
+        enabled: enabled && tagId !== '',
+    });
+}
+
+/**
  * Bulk delete for the Review table's selection. `enableRowSelection` on the
  * table (Slice 6) restricts selection to the caller's own words, so the
  * backend's 401 "not authorized to delete at least one" branch — which would

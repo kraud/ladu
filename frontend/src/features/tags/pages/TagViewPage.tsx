@@ -11,8 +11,12 @@
  * `CloneTagDialog`, `ConfirmDialog` for delete/unfollow) — only `AddWordsDialog`
  * is new here, wrapping `WordPicker` in the dialog chrome it deliberately
  * doesn't own itself.
+ *
+ * The word list is in numbered pages (words-pagination.md, Slice 4). The search, the page, the page
+ * size and the sort live in the URL (`validateTagSearch`), so a reload, the back button and a shared
+ * link keep the view.
  */
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeftIcon, LockIcon, PencilSimpleIcon, TagIcon, TrashIcon, TranslateIcon, UsersIcon } from '@phosphor-icons/react';
@@ -26,8 +30,10 @@ import { startLoadingToast, resolveLoadingToastSuccess, resolveLoadingToastError
 import { useAuthStore } from '@/stores/authStore';
 import { accountLanguageOrder } from '@/features/words/review/search';
 import { CellDialog } from '@/features/words/review/CellDialog';
-import { useWordsInfinite } from '@/features/words/hooks';
-import { sortFilters, useLanguageSort } from '@/features/words/review/useLanguageSort';
+import { useTagWordIds, useWordsPage } from '@/features/words/hooks';
+import { nextLanguageSort, sortFilters } from '@/features/words/review/useLanguageSort';
+import { reviewSearchToSort } from '@/features/words/review/search';
+import { pageCountFor, readStoredPageSize, storePageSize, type PageSize } from '@/lib/pagination';
 import type { LangKey } from '@/features/words/types';
 import { useDeleteTag, useFollowTag, useTag, useUnfollowTag, useUnlinkTagsFromWords } from '../hooks';
 import { tagErrorKey } from '../errors';
@@ -36,14 +42,19 @@ import { TagFormDialog } from '../components/TagFormDialog';
 import { CloneTagDialog } from '../components/CloneTagDialog';
 import { AddWordsDialog } from '../components/AddWordsDialog';
 import { TagWordsTable } from '../components/TagWordsTable';
+import type { TagSearch } from '../search';
 
 const route = getRouteApi('/_protected/tag/$tagId');
 const SEARCH_DEBOUNCE_MS = 300;
 
+const NO_WORD_IDS: ReadonlySet<string> = new Set();
+
 export function TagViewPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const searchNavigate = route.useNavigate();
     const { tagId } = route.useParams();
+    const search = route.useSearch();
 
     const user = useAuthStore((s) => s.user);
     const userId = user?.id ?? '';
@@ -56,13 +67,66 @@ export function TagViewPage() {
     const unfollowTag = useUnfollowTag();
     const unlinkTagsFromWords = useUnlinkTagsFromWords();
 
-    const [query, setQuery] = useState('');
+    // Any real change of search, sort or page size goes back to page 1, unless `keepPage` says it is
+    // not about the list. A write that changes nothing keeps the page (see `ReviewPage.updateSearch`).
+    function updateSearch(patch: Partial<TagSearch>, options: { keepPage?: boolean; replace?: boolean } = {}) {
+        void searchNavigate({
+            search: (prev) => {
+                const changed = Object.entries(patch).some(
+                    ([key, value]) => JSON.stringify(prev[key as keyof TagSearch]) !== JSON.stringify(value),
+                );
+                return { ...prev, ...(options.keepPage || !changed ? {} : { page: undefined }), ...patch };
+            },
+            replace: options.replace,
+        });
+    }
+
+    // The search box: typed text stays local, and goes to the URL after a short pause. The URL is the filter.
+    const [query, setQuery] = useState(search.q ?? '');
     const debouncedQuery = useDebouncedCallback(query, SEARCH_DEBOUNCE_MS);
-    const { sort, toggleSort } = useLanguageSort();
-    const wordsQuery = useWordsInfinite({ tag: [tagId], q: debouncedQuery || undefined, ...sortFilters(sort) });
-    const wordRows = useMemo(() => wordsQuery.data?.pages.flatMap((page) => page.items) ?? [], [wordsQuery.data]);
-    const wordTotal = wordsQuery.data?.pages[0]?.total ?? 0;
-    const existingWordIds = useMemo(() => new Set(wordRows.map((row) => row.id)), [wordRows]);
+    useEffect(() => {
+        const next = debouncedQuery.trim() || undefined;
+        if (next !== search.q) updateSearch({ q: next });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedQuery]);
+    // A change of the URL from outside (the back button) goes back into the box.
+    useEffect(() => {
+        if ((search.q ?? '') !== debouncedQuery.trim()) setQuery(search.q ?? '');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [search.q]);
+
+    const sort = useMemo(() => reviewSearchToSort({ sort: search.sort, dir: search.dir }), [search.sort, search.dir]);
+    const toggleSort = useCallback(
+        (lang: LangKey) => {
+            const next = nextLanguageSort(sort, lang);
+            void searchNavigate({ search: (prev) => ({ ...prev, sort: next?.lang, dir: next?.dir, page: undefined }) });
+        },
+        [sort, searchNavigate],
+    );
+    const storedPageSize = useMemo(readStoredPageSize, []);
+    const pageSize: PageSize = search.size ?? storedPageSize;
+    const page = search.page ?? 1;
+
+    const wordsQuery = useWordsPage({ tag: [tagId], q: search.q, ...sortFilters(sort) }, { page, pageSize });
+    const wordRows = useMemo(() => wordsQuery.data?.items ?? [], [wordsQuery.data]);
+    const wordTotal = wordsQuery.data?.total ?? 0;
+    const pageCount = pageCountFor(wordTotal, pageSize);
+
+    // A page past the last one (the last words were removed, or a stale link) goes to the last page.
+    useEffect(() => {
+        if (!wordsQuery.data || wordsQuery.isPlaceholderData || page <= pageCount) return;
+        updateSearch({ page: pageCount > 1 ? pageCount : undefined }, { keepPage: true, replace: true });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [wordsQuery.data, wordsQuery.isPlaceholderData, page, pageCount]);
+
+    function handlePageChange(next: number) {
+        updateSearch({ page: next > 1 ? next : undefined }, { keepPage: true });
+    }
+
+    function handlePageSizeChange(size: PageSize) {
+        storePageSize(size);
+        updateSearch({ size });
+    }
 
     const [editing, setEditing] = useState(false);
     const [removeMode, setRemoveMode] = useState(false);
@@ -70,6 +134,14 @@ export function TagViewPage() {
     const [confirmingUnfollow, setConfirmingUnfollow] = useState(false);
     const [cloning, setCloning] = useState(false);
     const [addingWords, setAddingWords] = useState(false);
+    // Every word of the tag, not only the page on screen: "Add words" must not offer a word the tag already has.
+    // `undefined` while it loads (the dialog waits); if the request fails, the dialog still works without the filter.
+    const tagWordIdsQuery = useTagWordIds(tagId, addingWords);
+    const existingWordIds = tagWordIdsQuery.isError
+        ? NO_WORD_IDS
+        : tagWordIdsQuery.isFetching
+          ? undefined
+          : tagWordIdsQuery.data;
     const [showGender, setShowGender] = useState(true);
     const [showProgress, setShowProgress] = useState(false);
     const [cellTarget, setCellTarget] = useState<{ wordId: string; langKey: LangKey } | null>(null);
@@ -266,15 +338,17 @@ export function TagViewPage() {
                         languages={languages}
                         userId={userId}
                         isPending={wordsQuery.isPending}
-                        isFetchingNextPage={wordsQuery.isFetchingNextPage}
+                        isFetching={wordsQuery.isFetching}
                         isError={wordsQuery.isError}
                         error={wordsQuery.error}
-                        hasNextPage={wordsQuery.hasNextPage}
                         total={wordTotal}
-                        onFetchNextPage={() => void wordsQuery.fetchNextPage()}
+                        page={page}
+                        pageSize={pageSize}
+                        onPageChange={handlePageChange}
+                        onPageSizeChange={handlePageSizeChange}
                         onRetry={() => void wordsQuery.refetch()}
                         query={query}
-                        debouncedQuery={debouncedQuery}
+                        debouncedQuery={search.q ?? ''}
                         onQueryChange={setQuery}
                         canRemove={relation === 'owned'}
                         removeMode={removeMode}

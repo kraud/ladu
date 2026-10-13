@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { act, renderHook } from '@testing-library/react';
-import { nextLanguageSort, sortFilters, useLanguageSort } from './useLanguageSort';
+import { nextLanguageSort, sortFilters } from './useLanguageSort';
 
 describe('nextLanguageSort', () => {
     it('goes A to Z, then Z to A, then back to the default order', () => {
@@ -14,16 +13,6 @@ describe('nextLanguageSort', () => {
     it('moves the sort to another column, A to Z, from any state', () => {
         expect(nextLanguageSort({ lang: 'EN', dir: 'asc' }, 'DE')).toEqual({ lang: 'DE', dir: 'asc' });
         expect(nextLanguageSort({ lang: 'EN', dir: 'desc' }, 'DE')).toEqual({ lang: 'DE', dir: 'asc' });
-    });
-});
-
-describe('useLanguageSort', () => {
-    it('keeps one sort at a time', () => {
-        const { result } = renderHook(() => useLanguageSort());
-        expect(result.current.sort).toBeNull();
-        act(() => result.current.toggleSort('EN'));
-        act(() => result.current.toggleSort('ES'));
-        expect(result.current.sort).toEqual({ lang: 'ES', dir: 'asc' });
     });
 });
 

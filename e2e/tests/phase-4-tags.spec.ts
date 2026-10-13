@@ -23,6 +23,12 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
  *    independent, editable copy (D11) — word-count and follower badges are
  *    checked at each step along the way, not just at the end.
  *
+ * A third account then owns a tag of 51 words, to walk the numbered pages of `/tag/:id`
+ * (`.context/plans/words-pagination.md` Slice 4): page, page size and search in the URL
+ * and surviving a reload, and "Add words" not offering a word the tag already has — even
+ * one that is only on page 2. It is a separate account so its 51 words do not push the
+ * four words of the main story onto a second page of Review.
+ *
  * Word creation itself (the form engine, autocomplete, case validation) is
  * already covered by `phase-2-noun-crud.spec.ts`/`phase-3-review.spec.ts`;
  * the four words this spec needs are seeded directly via the API so the run
@@ -154,6 +160,8 @@ test.afterAll(async () => {
 test.describe.serial('Phase 4 — tags', () => {
     let owner: Account;
     let follower: Account;
+    let pager: Account;
+    let manyWordsTagId: string;
 
     test.beforeAll(async ({ request }) => {
         owner = await registerAndVerify(request, 'Tag Owner', ['English', 'German']);
@@ -169,6 +177,18 @@ test.describe.serial('Phase 4 — tags', () => {
         await createNoun(request, ownerToken, 'Carrot', 'Karotte');
         const cuminId = await createNoun(request, ownerToken, 'Cumin', 'Kreuzkümmel');
         await createPublicTag(request, ownerToken, 'Spices', [cuminId]);
+
+        // The third account: 51 nouns in one tag (50 on page 1, `Seed00` alone on page 2 — the newest
+        // come first), and one noun that is not in it.
+        pager = await registerAndVerify(request, 'Tag Pager', ['English', 'German']);
+        const pagerToken = await loginForToken(request, pager);
+        const seedIds: string[] = [];
+        for (let i = 0; i < 51; i++) {
+            const n = String(i).padStart(2, '0');
+            seedIds.push(await createNoun(request, pagerToken, `Seed${n}`, `Samen${n}`));
+        }
+        manyWordsTagId = await createPublicTag(request, pagerToken, 'Many Words', seedIds);
+        await createNoun(request, pagerToken, 'Zucchini', 'Zucchini');
     });
 
     test('A creates a tag, bulk-adds it from Review; B discovers, follows, keeps read-only access through a Private/Public flip, then clones a different tag', async ({
@@ -330,5 +350,60 @@ test.describe.serial('Phase 4 — tags', () => {
 
         await pageA.context().close();
         await pageB.context().close();
+    });
+    test('a tag of 51 words: numbered pages, page / size / search in the URL, and Add words skips words already on the tag', async ({
+        page,
+    }) => {
+        await signIn(page, pager);
+        await page.goto(`/tag/${manyWordsTagId}`);
+
+        // --- Pages ---
+        await expect(page.getByTestId('pagination-range')).toHaveText('Showing 1–50 of 51');
+        await expect(page.getByText('Seed50')).toBeVisible();
+        await expect(page.getByText('Seed00')).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Load more' })).toHaveCount(0);
+
+        await page.getByRole('button', { name: 'Next page' }).click();
+        await expect(page).toHaveURL(/page=2/);
+        await expect(page.getByText('Seed00')).toBeVisible();
+        await expect(page.getByTestId('pagination-range')).toHaveText('Showing 51–51 of 51');
+
+        await page.reload(); // the page is in the URL
+        await expect(page).toHaveURL(/page=2/);
+        await expect(page.getByText('Seed00')).toBeVisible();
+
+        // --- Page size ---
+        await page.getByRole('combobox', { name: 'Rows per page' }).click();
+        await page.getByRole('option', { name: 'All' }).click();
+        await expect(page).toHaveURL(/size=all/);
+        await expect(page).not.toHaveURL(/page=/);
+        await expect(page.getByText('Seed50')).toBeVisible();
+        await expect(page.getByText('Seed00')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Next page' })).toHaveCount(0);
+        await page.getByRole('combobox', { name: 'Rows per page' }).click();
+        await page.getByRole('option', { name: '50' }).click();
+        await expect(page).toHaveURL(/size=50/);
+        await expect(page.getByText('Seed00')).not.toBeVisible();
+
+        // --- Search, in the URL and back to page 1 ---
+        await page.getByRole('button', { name: 'Next page' }).click();
+        await expect(page).toHaveURL(/page=2/);
+        await page.getByRole('textbox', { name: 'Search words in tag' }).fill('Seed00');
+        await expect(page).toHaveURL(/q=Seed00/);
+        await expect(page).not.toHaveURL(/page=/);
+        await expect(page.getByText('1 result', { exact: true })).toBeVisible();
+        await expect(page.getByText('Seed50')).not.toBeVisible();
+
+        await page.reload();
+        await expect(page.getByRole('textbox', { name: 'Search words in tag' })).toHaveValue('Seed00');
+        await expect(page.getByText('1 result', { exact: true })).toBeVisible();
+
+        // --- Add words: `Seed00` is on the tag (page 2 of it), `Zucchini` is not ---
+        await page.getByRole('button', { name: 'Add words' }).click();
+        const dialog = page.getByRole('dialog');
+        await dialog.getByRole('textbox', { name: 'Search your words to add now' }).fill('Seed00');
+        await expect(dialog.getByText('No words match')).toBeVisible();
+        await dialog.getByRole('textbox', { name: 'Search your words to add now' }).fill('Zucchini');
+        await expect(dialog.getByText('Zucchini')).toBeVisible();
     });
 });

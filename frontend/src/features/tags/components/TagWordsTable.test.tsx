@@ -25,12 +25,14 @@ const baseProps: TagWordsTableProps = {
     languages: ['EN'],
     userId: 'owner-1',
     isPending: false,
-    isFetchingNextPage: false,
+    isFetching: false,
     isError: false,
     error: undefined,
-    hasNextPage: false,
     total: 0,
-    onFetchNextPage: vi.fn(),
+    page: 1,
+    pageSize: 50,
+    onPageChange: vi.fn(),
+    onPageSizeChange: vi.fn(),
     onRetry: vi.fn(),
     query: '',
     debouncedQuery: '',
@@ -54,11 +56,18 @@ describe('TagWordsTable — rendering rows', () => {
         expect(screen.getByText('2 words')).toBeInTheDocument();
     });
 
-    it('shows a narrowed result count while a search is active', () => {
+    it('shows the number of results while a search is active (all pages, not the page on screen)', () => {
         renderWithProviders(
             <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={5} debouncedQuery="run" query="run" />,
         );
-        expect(screen.getByText('1 of 5 words')).toBeInTheDocument();
+        expect(screen.getByText('5 results')).toBeInTheDocument();
+    });
+
+    it('says "1 result" for a single match', () => {
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} debouncedQuery="run" query="run" />,
+        );
+        expect(screen.getByText('1 result')).toBeInTheDocument();
     });
 
     it('gives every language column an equal share of the table width', () => {
@@ -239,22 +248,50 @@ describe('TagWordsTable — loading and pagination', () => {
         expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument();
     });
 
-    it('shows Load more when there is a next page, and calls onFetchNextPage', async () => {
-        const onFetchNextPage = vi.fn();
+    it('shows the range of the page and the page buttons, and no Load more', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={120} page={2} />);
+
+        expect(screen.getByTestId('pagination-range')).toHaveTextContent('Showing 51–100 of 120');
+        expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
+        expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
+    });
+
+    it('calls onPageChange for Next and for a page number', async () => {
+        const onPageChange = vi.fn();
         const user = userEvent.setup();
         renderWithProviders(
-            <TagWordsTable
-                {...baseProps}
-                rows={[makeRow('w1', 'run')]}
-                total={5}
-                hasNextPage
-                onFetchNextPage={onFetchNextPage}
-            />,
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={120} onPageChange={onPageChange} />,
         );
 
-        expect(screen.getByText('Showing 1 of 5 words')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Load more' }));
-        expect(onFetchNextPage).toHaveBeenCalled();
+        await user.click(screen.getByRole('button', { name: 'Next page' }));
+        expect(onPageChange).toHaveBeenLastCalledWith(2);
+        await user.click(screen.getByRole('button', { name: 'Page 3' }));
+        expect(onPageChange).toHaveBeenLastCalledWith(3);
+    });
+
+    it('calls onPageSizeChange from the Rows per page menu', async () => {
+        const onPageSizeChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={120} onPageSizeChange={onPageSizeChange} />,
+        );
+
+        await user.click(screen.getByRole('combobox', { name: 'Rows per page' }));
+        await user.click(await screen.findByRole('option', { name: 'All' }));
+        expect(onPageSizeChange).toHaveBeenCalledWith('all');
+    });
+
+    it('dims the rows while the next page loads', () => {
+        const { container } = renderWithProviders(
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={120} isFetching />,
+        );
+        expect(container.querySelector('.tablewrap')).toHaveAttribute('aria-busy', 'true');
+    });
+
+    it('is not the empty state for a page past the last one', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={[]} total={120} page={9} />);
+        expect(screen.queryByText('No words here yet')).not.toBeInTheDocument();
+        expect(screen.getByTestId('pagination-range')).toBeInTheDocument();
     });
 });
 

@@ -45,6 +45,7 @@ import { ReviewPage } from '@/features/words/pages/ReviewPage';
 import { validateReviewSearch } from '@/features/words/review/search';
 import { TagsPage } from '@/features/tags/pages/TagsPage';
 import { TagViewPage } from '@/features/tags/pages/TagViewPage';
+import { validateTagSearch } from '@/features/tags/search';
 import { isAuthorBadgeType, type AuthorBadgeType, type TagScope } from '@/features/tags/types';
 
 const SCOPE_VALUES = new Set<string>(['all', 'owned', 'followed', 'discover'] satisfies TagScope[]);
@@ -205,6 +206,7 @@ const tagsRoute = createRoute({
 const tagRoute = createRoute({
     getParentRoute: () => protectedLayoutRoute,
     path: '/tag/$tagId',
+    validateSearch: validateTagSearch,
     component: TagViewPage,
 });
 

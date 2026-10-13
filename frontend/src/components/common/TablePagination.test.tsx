@@ -81,9 +81,9 @@ describe('TablePagination', () => {
         const { onPageSizeChange } = setup({ pageSize: 100 });
 
         await user.click(screen.getByRole('combobox', { name: 'Rows per page' }));
-        expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['50', '100', '200', 'All']);
+        expect((await screen.findAllByRole('option')).map((option) => option.textContent)).toEqual(['50', '100', '200', 'All']);
 
-        await user.click(screen.getByRole('option', { name: 'All' }));
+        await user.click(await screen.findByRole('option', { name: 'All' }));
         expect(onPageSizeChange).toHaveBeenCalledWith('all');
     });
 

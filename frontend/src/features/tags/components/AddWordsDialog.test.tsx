@@ -55,6 +55,21 @@ describe('AddWordsDialog', () => {
         expect(screen.queryByText('run')).not.toBeInTheDocument();
     });
 
+    it('waits for the ids of the tag before it shows the picker', async () => {
+        const { wordFake } = setUp([verbSeed('run', 'w1')]);
+        const { container } = renderWithProviders(
+            <AddWordsDialog open onOpenChange={vi.fn()} tagId="tag-1" tagLabel="Verbs" existingWordIds={undefined} />,
+            { session: SESSION },
+        );
+
+        expect(await screen.findByText('Add words to "Verbs"')).toBeInTheDocument();
+        expect(document.querySelector('[aria-busy="true"]')).toBeInTheDocument();
+        expect(screen.queryByText('run')).not.toBeInTheDocument();
+        // The picker has not asked for any word yet.
+        expect(wordFake.simpleQueries).toHaveLength(0);
+        expect(container).toBeTruthy();
+    });
+
     it('Cancel with nothing picked just closes, without calling the link endpoint', async () => {
         const { tagFake } = setUp([verbSeed('run', 'w1')], [{ id: 'tag-1', authorId: SESSION.id, label: 'Verbs', visibility: 'Private' }]);
         const user = userEvent.setup();

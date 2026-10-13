@@ -328,7 +328,7 @@ describe('ReviewTable — numbered pages', () => {
         );
 
         await user.click(screen.getByRole('combobox', { name: 'Rows per page' }));
-        await user.click(screen.getByRole('option', { name: '200' }));
+        await user.click(await screen.findByRole('option', { name: '200' }));
         expect(onPageSizeChange).toHaveBeenCalledWith(200);
     });
 

@@ -14,6 +14,7 @@ import {
     useDeleteWord,
     useUpdateWord,
     useWord,
+    useTagWordIds,
     useWordsInfinite,
     useWordsPage,
 } from './hooks';
@@ -290,6 +291,46 @@ describe('useWordsPage', () => {
         create.result.current.mutate(nounBody);
 
         await waitFor(() => expect(page.result.current.data?.total).toBe(8));
+    });
+});
+
+describe('useTagWordIds', () => {
+    const tagged = (label: string, id: string): SeedWord => ({
+        ...verbSeed(label, id),
+        tags: [{ id: 'tag-1', label: 'Kitchen', visibility: 'Private', authorId: ME }],
+    });
+
+    it('does not ask for anything while disabled', async () => {
+        const { fake, wrapper } = setup([tagged('a', 'w1')]);
+        const { result } = renderHook(() => useTagWordIds('tag-1', false), { wrapper });
+
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        expect(result.current.fetchStatus).toBe('idle');
+        expect(fake.simpleQueries).toHaveLength(0);
+    });
+
+    it('gives the ids of every word on the tag in one request, not only a page', async () => {
+        const words = Array.from({ length: 120 }, (_, i) => tagged(String(i), `w${i}`));
+        const { fake, wrapper } = setup([...words, verbSeed('other', 'w-other')]);
+        const { result } = renderHook(() => useTagWordIds('tag-1', true), { wrapper });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.size).toBe(120);
+        expect(result.current.data?.has('w119')).toBe(true);
+        expect(result.current.data?.has('w-other')).toBe(false);
+        expect(fake.simpleQueries).toHaveLength(1);
+        expect(fake.simpleQueries[0]).toContain('limit=all');
+        expect(fake.simpleQueries[0]).toContain('tag=tag-1');
+    });
+
+    it('is marked stale by a word change, like every list under wordKeys.all', async () => {
+        const { queryClient, wrapper } = setup([tagged('a', 'w1')]);
+        const { result } = renderHook(() => useTagWordIds('tag-1', true), { wrapper });
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+        await queryClient.invalidateQueries({ queryKey: wordKeys.all });
+        expect(queryClient.getQueryState([...wordKeys.all, 'tagWordIds', 'tag-1'])?.isInvalidated).toBe(false); // refetched at once
+        await waitFor(() => expect(result.current.isFetching).toBe(false));
     });
 });
 

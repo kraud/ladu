@@ -16,6 +16,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useLinkTagsToWords } from '../hooks';
 import { tagErrorKey } from '../errors';
 import { WordPicker, type PickedWord } from './WordPicker';
@@ -25,8 +26,8 @@ export interface AddWordsDialogProps {
     onOpenChange: (open: boolean) => void;
     tagId: string;
     tagLabel: string;
-    /** Word ids already on the tag — excluded from the picker's pool. */
-    existingWordIds: ReadonlySet<string>;
+    /** Word ids already on the tag — excluded from the picker's pool. `undefined` while they load: the picker waits. */
+    existingWordIds: ReadonlySet<string> | undefined;
     onAdded?: (added: PickedWord[]) => void;
     /** Forwarded to `WordPicker` — the caller owns `useNavigate`, this dialog doesn't. */
     onGoToReview?: () => void;
@@ -76,12 +77,20 @@ export function AddWordsDialog({
                     <DialogTitle>{t('tags:addWords.title', { label: tagLabel })}</DialogTitle>
                 </DialogHeader>
 
-                <WordPicker
-                    selected={selected}
-                    onSelectedChange={setSelected}
-                    excludeIds={existingWordIds}
-                    onGoToReview={onGoToReview}
-                />
+                {existingWordIds ? (
+                    <WordPicker
+                        selected={selected}
+                        onSelectedChange={setSelected}
+                        excludeIds={existingWordIds}
+                        onGoToReview={onGoToReview}
+                    />
+                ) : (
+                    <div className="flex flex-col gap-2" aria-busy="true">
+                        <Skeleton className="h-8 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                    </div>
+                )}
 
                 {linkTagsToWords.isError && (
                     <p className="text-sm text-(--danger)">{t(tagErrorKey(linkTagsToWords.error))}</p>
