@@ -18,9 +18,11 @@
  * `wordKeys.all = ['words']` is already a prefix of `wordKeys.list(filters)`,
  * so the existing `invalidateQueries({ queryKey: wordKeys.all })` already
  * covers every filter combination the Review table might be viewing. (It does
- * mean an infinite query with N pages loaded refetches all N sequentially.)
+ * mean an infinite query with N pages loaded refetches all N sequentially;
+ * `useWordsPage` caches one page per key, so it refetches only that page.)
  */
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { PageSize } from '@/lib/pagination';
 import * as wordApi from './api';
 import { wordKeys } from './keys';
 import { metricsKeys } from '@/features/metrics/keys';
@@ -129,6 +131,25 @@ export function useWordsInfinite(filters: WordListFilters = {}, pageSize: number
             ),
         initialPageParam: null as string | null,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
+    });
+}
+
+/**
+ * One numbered page of the word list — `GET /api/words/simple?page=N&limit=…`.
+ * `keepPreviousData` keeps the old page on screen while the next one loads, so
+ * the table does not flash empty. Only this one page is cached per key, so a
+ * word mutation (which invalidates `wordKeys.all`) refetches one page, not every
+ * page that was loaded so far. The page size is part of the key, like in
+ * `useWordsInfinite`.
+ */
+export function useWordsPage(filters: WordListFilters, options: { page: number; pageSize: PageSize }) {
+    const normalized = normalizeWordFilters(filters);
+    const { page, pageSize } = options;
+
+    return useQuery({
+        queryKey: wordKeys.list({ ...normalized, page, limit: pageSize }),
+        queryFn: ({ signal }) => wordApi.getWordsPage({ ...normalized, page, limit: pageSize }, signal),
+        placeholderData: keepPreviousData,
     });
 }
 

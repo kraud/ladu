@@ -146,5 +146,15 @@
   "scroll": {
     "left": "Desplazar a la izquierda",
     "right": "Desplazar a la derecha"
+  },
+  "pagination": {
+    "nav": "Paginación",
+    "previous": "Página anterior",
+    "next": "Página siguiente",
+    "page": "Página {{page}}",
+    "range": "Mostrando {{from}}–{{to}} de {{total}}",
+    "noRows": "Sin filas",
+    "rowsPerPage": "Filas por página",
+    "all": "Todas"
   }
 }

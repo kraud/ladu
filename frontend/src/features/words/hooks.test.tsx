@@ -15,6 +15,7 @@ import {
     useUpdateWord,
     useWord,
     useWordsInfinite,
+    useWordsPage,
 } from './hooks';
 import { wordKeys } from './keys';
 import { metricsKeys } from '@/features/metrics/keys';
@@ -202,6 +203,93 @@ describe('normalizeWordFilters', () => {
             q: 'cat',
             gender: ['der'],
         });
+    });
+});
+
+describe('useWordsPage', () => {
+    const manyWords = () => Array.from({ length: 7 }, (_, i) => verbSeed(String(i)));
+
+    it('fetches one numbered page with page and limit in the query', async () => {
+        const { fake, wrapper } = setup(manyWords());
+        const { result } = renderHook(() => useWordsPage({}, { page: 1, pageSize: 50 }), { wrapper });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(fake.simpleQueries[0]).toContain('page=1');
+        expect(fake.simpleQueries[0]).toContain('limit=50');
+        expect(result.current.data).toMatchObject({ total: 7, page: 1, pageSize: 50 });
+        expect(result.current.data?.items).toHaveLength(7);
+    });
+
+    it('asks for the whole list with limit=all', async () => {
+        const { fake, wrapper } = setup(manyWords());
+        const { result } = renderHook(() => useWordsPage({}, { page: 1, pageSize: 'all' }), { wrapper });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(fake.simpleQueries[0]).toContain('limit=all');
+        expect(result.current.data?.pageSize).toBeNull();
+    });
+
+    it('sends the filters as repeatable keys, like the infinite list', async () => {
+        const { fake, wrapper } = setup([nounSeed('a'), verbSeed('b')]);
+        const { result } = renderHook(
+            () => useWordsPage({ pos: [PartOfSpeech.noun, PartOfSpeech.verb], q: ' a ' }, { page: 1, pageSize: 50 }),
+            { wrapper },
+        );
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(fake.simpleQueries[0]).toContain('pos=Noun');
+        expect(fake.simpleQueries[0]).toContain('pos=Verb');
+        expect(fake.simpleQueries[0]).toContain('q=a');
+    });
+
+    it('keeps the old page on screen while the next page loads', async () => {
+        const { wrapper } = setup(Array.from({ length: 120 }, (_, i) => verbSeed(String(i))));
+        const { result, rerender } = renderHook(
+            ({ page }) => useWordsPage({}, { page, pageSize: 50 }),
+            { wrapper, initialProps: { page: 1 } },
+        );
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        const firstPageIds = result.current.data?.items.map((w) => w.id);
+        expect(firstPageIds).toHaveLength(50);
+
+        rerender({ page: 2 });
+        expect(result.current.isPlaceholderData).toBe(true);
+        expect(result.current.data?.items.map((w) => w.id)).toEqual(firstPageIds);
+
+        await waitFor(() => expect(result.current.isPlaceholderData).toBe(false));
+        expect(result.current.data?.page).toBe(2);
+        expect(result.current.data?.items).toHaveLength(50);
+    });
+
+    it('returns no items for a page past the last one, with the total', async () => {
+        const { wrapper } = setup(manyWords());
+        const { result } = renderHook(() => useWordsPage({}, { page: 9, pageSize: 50 }), { wrapper });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.items).toEqual([]);
+        expect(result.current.data?.total).toBe(7);
+    });
+
+    it('uses a different cache entry for each page and each page size', async () => {
+        const { queryClient, wrapper } = setup(manyWords());
+        const first = renderHook(() => useWordsPage({}, { page: 1, pageSize: 50 }), { wrapper });
+        await waitFor(() => expect(first.result.current.isSuccess).toBe(true));
+        const second = renderHook(() => useWordsPage({}, { page: 1, pageSize: 100 }), { wrapper });
+        await waitFor(() => expect(second.result.current.isSuccess).toBe(true));
+
+        expect(queryClient.getQueryCache().findAll({ queryKey: wordKeys.list() })).toHaveLength(2);
+    });
+
+    it('refetches after a word is created', async () => {
+        const { wrapper } = setup(manyWords());
+        const page = renderHook(() => useWordsPage({}, { page: 1, pageSize: 50 }), { wrapper });
+        await waitFor(() => expect(page.result.current.data?.total).toBe(7));
+
+        const create = renderHook(() => useCreateWord(), { wrapper });
+        create.result.current.mutate(nounBody);
+
+        await waitFor(() => expect(page.result.current.data?.total).toBe(8));
     });
 });
 

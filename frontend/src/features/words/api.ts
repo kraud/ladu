@@ -18,7 +18,7 @@ import type {
     WordListFilters,
     WordSimpleBE,
 } from './types';
-import type { CursorPage } from '@/api/types';
+import type { CursorPage, OffsetPage } from '@/api/types';
 
 /** `GET /api/words` — every word authored by the caller (no pagination in Phase 2). */
 export async function getWords(): Promise<WordBE[]> {
@@ -62,13 +62,23 @@ export interface GetWordsSimplifiedParams extends WordListFilters {
 }
 
 /**
+ * Params for `getWordsPage` (offset mode). `limit: 'all'` asks for the whole
+ * list. `owner: 'me'` keeps only the caller's own words (no followed-tag words).
+ */
+export interface GetWordsPageParams extends WordListFilters {
+    page: number;
+    limit: number | 'all';
+    owner?: 'me';
+}
+
+/**
  * `pos` / `gender` / `tag` are REPEATABLE query keys (`?pos=Noun&pos=Verb`) —
  * `wordController.ts`'s `parseArrayParam` only recognises that form. Axios's
  * default array serializer instead emits `pos[]=Noun&pos[]=Verb`; passing a
  * `URLSearchParams` bypasses the serializer entirely (axios special-cases it
  * in `buildURL`), so this is built by hand rather than via `params: {...}`.
  */
-function buildListQuery(params: GetWordsSimplifiedParams): URLSearchParams {
+function buildListQuery(params: GetWordsSimplifiedParams | GetWordsPageParams): URLSearchParams {
     const search = new URLSearchParams();
     for (const value of params.pos ?? []) search.append('pos', value);
     for (const value of params.gender ?? []) search.append('gender', value);
@@ -78,7 +88,11 @@ function buildListQuery(params: GetWordsSimplifiedParams): URLSearchParams {
         search.set('sort', params.sort);
         search.set('dir', params.dir ?? 'asc');
     }
-    if (params.cursor) search.set('cursor', params.cursor);
+    if ('cursor' in params && params.cursor) search.set('cursor', params.cursor);
+    if ('page' in params) {
+        search.set('page', String(params.page));
+        if (params.owner) search.set('owner', params.owner);
+    }
     if (params.limit !== undefined) search.set('limit', String(params.limit));
     return search;
 }
@@ -94,6 +108,22 @@ export async function getWordsSimplified(
     signal?: AbortSignal,
 ): Promise<CursorPage<WordSimpleBE>> {
     const { data } = await apiClient.get<CursorPage<WordSimpleBE>>('/words/simple', {
+        params: buildListQuery(params),
+        signal,
+    });
+    return data;
+}
+
+/**
+ * `GET /api/words/simple?page=N&limit=…` — the same list as `getWordsSimplified`,
+ * in numbered pages (offset mode). 400 on a bad `page` or `limit`. A page past
+ * the last one returns no items, with the right `total`.
+ */
+export async function getWordsPage(
+    params: GetWordsPageParams,
+    signal?: AbortSignal,
+): Promise<OffsetPage<WordSimpleBE>> {
+    const { data } = await apiClient.get<OffsetPage<WordSimpleBE>>('/words/simple', {
         params: buildListQuery(params),
         signal,
     });

@@ -146,5 +146,15 @@
   "scroll": {
     "left": "Keri vasakule",
     "right": "Keri paremale"
+  },
+  "pagination": {
+    "nav": "Lehekülgede valik",
+    "previous": "Eelmine leht",
+    "next": "Järgmine leht",
+    "page": "Leht {{page}}",
+    "range": "Kuvatud {{from}}–{{to}} / {{total}}",
+    "noRows": "Ridu pole",
+    "rowsPerPage": "Ridu lehel",
+    "all": "Kõik"
   }
 }

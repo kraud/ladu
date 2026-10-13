@@ -1,6 +1,6 @@
 # Plan: Numbered pagination for /words and /tag/$tagId
 
-Status: in progress. Plan agreed on 2026-10-12. Slice 1 (backend) done on 2026-10-13.
+Status: in progress. Plan agreed on 2026-10-12. Slices 1 (backend) and 2 (frontend groundwork) done on 2026-10-13.
 
 Goal: the two word tables show numbered pages with a page-size menu (50 / 100 / 200 / All), instead of the "Load more" button.
 
@@ -14,7 +14,7 @@ Goal: the two word tables show numbered pages with a page-size menu (50 / 100 / 
 
 - [x] Stage 0 — This plan is in the repo (2026-10-12)
 - [x] Slice 1 — Backend: offset mode and `owner=me` on `/api/words/simple` (2026-10-13). Built inline in `getWordsSimplified` (no separate helper functions); `owner=me` reuses `/simple`, no separate ids endpoint. Backend: 53 suites / 1,255 tests green, typecheck clean.
-- [ ] Slice 2 — Frontend groundwork: types, API, `useWordsPage`, page-size preference, `TablePagination`, MSW
+- [x] Slice 2 — Frontend groundwork: types, API, `useWordsPage`, page-size preference, `TablePagination`, MSW (2026-10-13). Two path changes from the plan: the page-size module is `src/lib/pagination.ts` (both the words feature and the tag page use it) and the component is `src/components/common/TablePagination.tsx` (`components/ui` holds only plain shadcn parts). Strings are in `common.json` under `pagination` (en, de, es, ee). Frontend: 131 files / 1,647 tests green, typecheck and lint clean. No screen uses the new parts yet.
 - [ ] Slice 3 — `/words` (ReviewPage): URL state, numbered pages, selection across pages
 - [ ] Slice 4 — `/tag/$tagId` (TagViewPage): URL state, numbered pages, `existingWordIds` fix
 
@@ -68,12 +68,12 @@ Also update the contract in the file's header comment.
   - reuses `normalizeWordFilters` (l.96-106).
   - Keep `useWordsInfinite` for `WordPicker` and `PracticePage`.
   - Invalidating `wordKeys.all` now refetches only one page. This also removes the N-page refetch that the comment at l.17-21 describes.
-- **Page-size preference:** new file `frontend/src/features/words/pageSize.ts`.
-  - `PAGE_SIZE_OPTIONS = [50, 100, 200, 'all']`;
+- **Page-size preference:** new file `frontend/src/lib/pagination.ts` (built; first planned as `features/words/pageSize.ts`).
+  - `PAGE_SIZE_OPTIONS = [50, 100, 200, 'all']`, `parsePageSize`, `pageCountFor`, `pageRange`, `buildPageItems`;
   - `readStoredPageSize()` / `storePageSize()` on one localStorage key, with every access in try/catch and 50 as the fallback;
   - one preference for both tables.
-- **UI:** new file `frontend/src/components/ui/TablePagination.tsx`.
-  - Prev / page numbers with ellipsis / Next, the "Showing 201–300 of 1,143" text, and a page-size `Select`. Use the existing ui `Select` component. Check first whether a shadcn `pagination` primitive is already in `components/ui`.
+- **UI:** new file `frontend/src/components/common/TablePagination.tsx` (built; first planned under `components/ui`).
+  - Prev / page numbers with ellipsis / Next, the "Showing 201–300 of 1143" text, and a page-size `Select`. Uses the existing ui `Select`; there was no shadcn `pagination` primitive.
   - The page buttons are hidden when the size is All.
   - Every label goes through i18n, in all four UI languages.
 - **MSW:** `frontend/src/test/msw/wordHandlers.ts:268` gets offset mode and `owner=me`, next to the cursor mode.

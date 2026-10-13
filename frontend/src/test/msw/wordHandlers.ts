@@ -291,6 +291,22 @@ export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) 
                     : compareNewestFirst,
             );
 
+            // Offset mode (`?page=N&limit=1..200|all`): same rules as the backend. `?owner=me` needs
+            // no code here, because this fake only returns the caller's own words anyway.
+            const pageParam = url.searchParams.get('page');
+            if (pageParam !== null) {
+                const page = Number(pageParam);
+                const limitRaw = url.searchParams.get('limit');
+                const pageSize = limitRaw === 'all' ? null : limitRaw === null ? 50 : Number(limitRaw);
+                const badPage = !Number.isInteger(page) || page < 1;
+                const badLimit = pageSize !== null && (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 200);
+                if (badPage || badLimit || url.searchParams.has('cursor')) {
+                    return HttpResponse.json({ message: 'Invalid page' }, { status: 400 });
+                }
+                const rows = pageSize === null ? sorted : sorted.slice((page - 1) * pageSize, page * pageSize);
+                return HttpResponse.json({ items: rows.map(simplifyWord), total, page, pageSize });
+            }
+
             let afterCursor = sorted;
             const cursorParam = url.searchParams.get('cursor');
             if (cursorParam !== null && sortLang) {
