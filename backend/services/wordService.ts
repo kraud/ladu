@@ -453,7 +453,8 @@ const cloneWordsForUser = async (
  * Practice word pool.
  *
  * The word list turns it off while a Tags filter is active (the copy is not on
- * the tag, and the user must still see the tag's real content).
+ * the tag, and the user must still see the tag's real content) and with the
+ * "Not mine" owner filter (`owner=others`: the user asked for the followed words).
  */
 const notHiddenByOwnCopy = (userId: string) =>
     sql`(${words.userId} = ${userId} or not exists (

@@ -302,12 +302,17 @@ describe('GET /api/words/simple — no duplicate of a followed word and its copy
         expect(ids(await list(second.token))).toEqual([original.id]);
     });
 
-    it('works with the Owner filter: "others" leaves out the hidden original, "me" lists the copy', async () => {
+    it('with the Owner filter "Not mine", the original is listed too (and the copy is not); "Mine" lists the copy', async () => {
         const { author, follower, tag, original } = await setUp();
         const other = (await createWord(author.token, { tagIds: [tag.id] })).body;
         const copy = (await clone(follower.token, original.id)).body;
 
-        expect(ids(await list(follower.token, '?owner=others'))).toEqual([other.id]);
+        const others = await list(follower.token, '?owner=others');
+        expect(ids(others).sort()).toEqual([original.id, other.id].sort());
+        expect(ids(others)).not.toContain(copy.id);
+        expect(others.body.total).toBe(2);
         expect(ids(await list(follower.token, '?owner=me'))).toEqual([copy.id]);
+        // Without the owner filter the original stays hidden.
+        expect(ids(await list(follower.token))).not.toContain(original.id);
     });
 });

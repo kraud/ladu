@@ -11,6 +11,7 @@ Follow-up of `plans/words-followed-selection.md`. Scope: the word page `/word/[i
 - **After a clone:** a toast, then the app opens the new word (`/word/<new id>`).
 - **Once you have a clone:** the original's word page shows "Open your copy" instead of "Clone" (no second copy). `GET /api/words/:id` returns `myCloneId` for that.
 - **No duplicates on /words:** if a followed word and the user's clone of it are both in the result, only the clone is listed. If the clone is deleted, the original is listed again (nothing is stored: it is a query rule). The total and the pages count the same rows.
+  - The rule is also off with the Owner filter "Not mine" (`owner=others`), so the original shows there (added 2026-10-14 after Slice 4).
   - The rule is off when a Tags filter is active: the clone is not in the tag, and the user must still see the tag's real content. The tag page `/tag/[id]` always shows all words of the tag.
   - Only words of someone else are hidden. Your own words are never hidden.
 - **Practice:** the word pool of Practice gets the same rule (included by the user's choice).

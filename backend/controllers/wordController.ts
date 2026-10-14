@@ -431,10 +431,11 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
       .from(tagWords)
       .where(inArray(tagWords.tagId, tagIds));
     conditions.push(inArray(words.id, tagWordIds));
-  } else {
-    // No Tags filter: a followed word is left out when the user has their own copy of it
-    // (plans/words-clone-followed.md, Slice 4). With a Tags filter (also `/tag/:id`) it stays,
-    // because the copy is not on the tag. The total and the pages count the same rows.
+  } else if (req.query.owner !== "others") {
+    // No Tags filter and not the "Not mine" owner filter: a followed word is left out when the
+    // user has their own copy of it (plans/words-clone-followed.md, Slice 4). With a Tags filter
+    // (also `/tag/:id`) or `owner=others` it stays: the first shows the tag's real content, the
+    // second the real followed words. The total and the pages count the same rows.
     conditions.push(notHiddenByOwnCopy(req.user.id));
   }
 
