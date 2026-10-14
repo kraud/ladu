@@ -19,16 +19,24 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftIcon, LockIcon, PencilSimpleIcon, TagIcon, TrashIcon, TranslateIcon, UsersIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, CopyIcon, FunnelIcon, LockIcon, PencilSimpleIcon, SlidersHorizontalIcon, TagIcon, TrashIcon, TranslateIcon, UserMinusIcon, UserPlusIcon, UsersIcon } from '@phosphor-icons/react';
 import { PageTitle } from '@/components/common/PageTitle';
+import { PageColumn } from '@/components/layout/PageColumn';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
+import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/lib/useMediaQuery';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import { startLoadingToast, resolveLoadingToastSuccess, resolveLoadingToastError } from '@/lib/toast';
 import { useAuthStore } from '@/stores/authStore';
-import { accountLanguageOrder } from '@/features/words/review/search';
+import { accountLanguageOrder, resolveLanguageOrder } from '@/features/words/review/search';
+import { buildDisplaySection } from '@/features/words/review/DisplayOptions';
+import { LanguageOrderControl } from '@/features/words/review/LanguageOrderControl';
+import { useFilterSections } from '@/features/words/review/FilterBar';
+import { PartOfSpeech } from '@/ts/enums';
 import { CellDialog } from '@/features/words/review/CellDialog';
 import { useTagWordIds, useWordsPage } from '@/features/words/hooks';
 import { nextLanguageSort, sortFilters } from '@/features/words/review/useLanguageSort';
@@ -48,6 +56,7 @@ const route = getRouteApi('/_protected/tag/$tagId');
 const SEARCH_DEBOUNCE_MS = 300;
 
 const NO_WORD_IDS: ReadonlySet<string> = new Set();
+const PART_OF_SPEECH_VALUES: ReadonlySet<string> = new Set(Object.values(PartOfSpeech));
 
 export function TagViewPage() {
     const { t } = useTranslation();
@@ -59,7 +68,9 @@ export function TagViewPage() {
     const user = useAuthStore((s) => s.user);
     const userId = user?.id ?? '';
     const userLanguages = user?.languages ?? [];
-    const languages = useMemo(() => accountLanguageOrder(userLanguages), [userLanguages]);
+    const allLanguages = useMemo(() => accountLanguageOrder(userLanguages), [userLanguages]);
+    const languages = useMemo(() => resolveLanguageOrder(search.lang, userLanguages), [search.lang, userLanguages]);
+    const isMobile = useIsMobile();
 
     const tagQuery = useTag(tagId);
     const deleteTag = useDeleteTag();
@@ -107,7 +118,7 @@ export function TagViewPage() {
     const pageSize: PageSize = search.size ?? storedPageSize;
     const page = search.page ?? 1;
 
-    const wordsQuery = useWordsPage({ tag: [tagId], q: search.q, ...sortFilters(sort) }, { page, pageSize });
+    const wordsQuery = useWordsPage({ tag: [tagId], q: search.q, pos: search.pos, gender: search.gender, ...sortFilters(sort) }, { page, pageSize });
     const wordRows = useMemo(() => wordsQuery.data?.items ?? [], [wordsQuery.data]);
     const wordTotal = wordsQuery.data?.total ?? 0;
     const pageCount = pageCountFor(wordTotal, pageSize);
@@ -142,34 +153,84 @@ export function TagViewPage() {
         : tagWordIdsQuery.isFetching
           ? undefined
           : tagWordIdsQuery.data;
+    // Not in the URL, like on `/words`: a display concern, not a filter.
     const [showGender, setShowGender] = useState(true);
     const [showProgress, setShowProgress] = useState(false);
+    const [showOwner, setShowOwner] = useState(true);
+    const [showPos, setShowPos] = useState(true);
     const [cellTarget, setCellTarget] = useState<{ wordId: string; langKey: LangKey } | null>(null);
+
+    // The side menu offers only what the whole tag holds (not the page on screen, which a filter can empty):
+    // Gender once it has a noun, and Part of speech with the parts of speech it has, even if there is one.
+    const tagPartsOfSpeech = useMemo(
+        () => (tagQuery.data?.partsOfSpeech ?? []).filter((value): value is PartOfSpeech => PART_OF_SPEECH_VALUES.has(value)),
+        [tagQuery.data],
+    );
+    const tagHasNouns = tagPartsOfSpeech.includes(PartOfSpeech.noun);
+    const filterSections = useFilterSections({
+        gender: search.gender ?? [],
+        pos: search.pos ?? [],
+        hasQuery: search.q !== undefined,
+        selectedTags: [],
+        sections: tagHasNouns ? ['gender', 'pos'] : ['pos'],
+        posOptions: tagPartsOfSpeech,
+        onGenderChange: (next) => updateSearch({ gender: next }),
+        onPosChange: (next) => updateSearch({ pos: next }),
+        onSelectedTagsChange: () => undefined,
+    });
+    const sections: SidebarSection[] = [
+        ...filterSections,
+        buildDisplaySection(t('review:filters.display'), {
+            languageOrder: (
+                <LanguageOrderControl
+                    active={languages}
+                    allLanguages={allLanguages}
+                    onChange={(next) => updateSearch({ lang: next }, { keepPage: true })}
+                    stacked
+                    hideLabel
+                />
+            ),
+            showGenderSwitch: tagHasNouns,
+            showGender,
+            onShowGenderChange: setShowGender,
+            showProgress,
+            onShowProgressChange: setShowProgress,
+            showOwner,
+            onShowOwnerChange: setShowOwner,
+            showPos,
+            onShowPosChange: setShowPos,
+        }),
+    ];
+    const activeFilterTotal = (search.gender?.length ?? 0) + (search.pos?.length ?? 0);
 
     if (tagQuery.isPending) {
         return (
-            <div className="flex flex-col gap-4">
-                <Skeleton className="h-4 w-32" />
-                <div className="card" style={{ padding: 20 }}>
-                    <Skeleton className="mb-2 h-4 w-20" />
-                    <Skeleton className="mb-2 h-7 w-48" />
-                    <Skeleton className="h-4 w-full max-w-md" />
+            <PageColumn>
+                <div className="flex flex-col gap-4">
+                    <Skeleton className="h-4 w-32" />
+                    <div className="card" style={{ padding: 20 }}>
+                        <Skeleton className="mb-2 h-4 w-20" />
+                        <Skeleton className="mb-2 h-7 w-48" />
+                        <Skeleton className="h-4 w-full max-w-md" />
+                    </div>
                 </div>
-            </div>
+            </PageColumn>
         );
     }
 
     if (tagQuery.isError) {
         return (
-            <EmptyState
-                title={t('tags:notFound.title')}
-                description={t('tags:notFound.description')}
-                action={
-                    <Link to="/tags" className={buttonVariants({ size: 'sm' })}>
-                        {t('tags:notFound.action')}
-                    </Link>
-                }
-            />
+            <PageColumn>
+                <EmptyState
+                    title={t('tags:notFound.title')}
+                    description={t('tags:notFound.description')}
+                    action={
+                        <Link to="/tags" className={buttonVariants({ size: 'sm' })}>
+                            {t('tags:notFound.action')}
+                        </Link>
+                    }
+                />
+            </PageColumn>
         );
     }
 
@@ -218,108 +279,121 @@ export function TagViewPage() {
     }
 
     return (
-        <div className="flex flex-col gap-3.5">
-            <div className="flex items-center gap-2">
-                <Link
-                    to="/tags"
-                    aria-label={t('tags:view.backAriaLabel')}
-                    className={buttonVariants({ variant: 'ghost', size: 'icon' })}
-                >
-                    <ArrowLeftIcon size={17} />
-                </Link>
-                <span className="hint">{t('tags:view.backLabel')}</span>
-            </div>
-
-            <section className="card">
-                <div className="tagen-top">
-                    <div className="grow min-w-0">
-                        <PageTitle icon={TagIcon}>{tag.label}</PageTitle>
-                        {tag.description && (
-                            <p className="mt-1 max-w-2xl text-[13.5px] text-(--muted) leading-relaxed">
-                                {tag.description}
-                            </p>
-                        )}
-                        {relation !== 'owned' && (
-                            <div className="t-by">
-                                <span>{t('tags:view.by')}</span>
-                                <span className={hasVerifiedBadge(tag.author.badges) ? 't-by-verified' : undefined}>
-                                    {tag.author.username}
-                                </span>
-                                {hasVerifiedBadge(tag.author.badges) && <VerifiedMark />}
-                            </div>
-                        )}
+        <SidebarLayout
+            id="tag"
+            label={t('review:filters.title')}
+            labelIcon={<FunnelIcon size={18} />}
+            sections={relation === 'unavailable' ? [] : sections}
+            header={
+                <>
+                    <div className="flex items-center gap-2">
+                        <Link
+                            to="/tags"
+                            aria-label={t('tags:view.backAriaLabel')}
+                            className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+                        >
+                            <ArrowLeftIcon size={17} />
+                        </Link>
+                        <span className="hint">{t('tags:view.backLabel')}</span>
                     </div>
-                    <aside className="tagen-side">
-                        <div className="card stat-card tagen-stat">
-                            <div className="tagen-stat-body">
-                                <div className="s-num">
-                                    <TranslateIcon size={18} aria-hidden="true" />
-                                    {tag.wordCount}
-                                </div>
-                                <div className="s-label">{t('tags:card.wordCount', { count: tag.wordCount })}</div>
+
+                    <section className="card">
+                        <div className="tagen-top">
+                            <div className="grow min-w-0">
+                                <PageTitle icon={TagIcon}>{tag.label}</PageTitle>
+                                {tag.description && (
+                                    <p className="mt-1 max-w-2xl text-[13.5px] text-(--muted) leading-relaxed">
+                                        {tag.description}
+                                    </p>
+                                )}
+                                {relation !== 'owned' && (
+                                    <div className="t-by">
+                                        <span>{t('tags:view.by')}</span>
+                                        <span className={hasVerifiedBadge(tag.author.badges) ? 't-by-verified' : undefined}>
+                                            {tag.author.username}
+                                        </span>
+                                        {hasVerifiedBadge(tag.author.badges) && <VerifiedMark />}
+                                    </div>
+                                )}
                             </div>
+                            <aside className="tagen-side">
+                                <div className="card stat-card tagen-stat">
+                                    <div className="tagen-stat-body">
+                                        <div className="s-num">
+                                            <TranslateIcon size={18} aria-hidden="true" />
+                                            {tag.wordCount}
+                                        </div>
+                                        <div className="s-label">{t('tags:card.wordCount', { count: tag.wordCount })}</div>
+                                    </div>
+                                </div>
+                                {relation !== 'unavailable' && tag.visibility === 'Public' && (
+                                    <div className="card stat-card tagen-stat">
+                                        <div className="tagen-stat-body">
+                                            <div className="s-num">
+                                                <UsersIcon size={18} aria-hidden="true" />
+                                                {tag.followerCount}
+                                            </div>
+                                            <div className="s-label">
+                                                {t('tags:view.followerLabel', { count: tag.followerCount })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </aside>
                         </div>
-                        {relation !== 'unavailable' && tag.visibility === 'Public' && (
-                            <div className="card stat-card tagen-stat">
-                                <div className="tagen-stat-body">
-                                    <div className="s-num">
-                                        <UsersIcon size={18} aria-hidden="true" />
-                                        {tag.followerCount}
-                                    </div>
-                                    <div className="s-label">
-                                        {t('tags:view.followerLabel', { count: tag.followerCount })}
-                                    </div>
-                                </div>
+                        <div className="tagen-foot">
+                            <div className="t-badge-row t-badge-row-card tagen-foot-badges">
+                                <RelationBadge relation={relation} />
+                                <VisibilityBadge visibility={tag.visibility} />
+                                {tag.sourceTag && <ClonedBadge sourceLabel={tag.sourceTag.label} />}
                             </div>
-                        )}
-                    </aside>
-                </div>
-                <div className="tagen-foot">
-                    <div className="t-badge-row t-badge-row-card tagen-foot-badges">
-                        <RelationBadge relation={relation} />
-                        <VisibilityBadge visibility={tag.visibility} />
-                        {tag.sourceTag && <ClonedBadge sourceLabel={tag.sourceTag.label} />}
-                    </div>
-                    {relation === 'owned' && (
-                        <>
-                            <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
-                                <PencilSimpleIcon size={14} aria-hidden="true" />
-                                {t('common:buttons.edit')}
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => setConfirmingDelete(true)}>
-                                <TrashIcon size={14} aria-hidden="true" />
-                                {t('common:buttons.delete')}
-                            </Button>
-                        </>
-                    )}
-                    {relation === 'followed' && (
-                        <>
-                            <Button size="sm" variant="ghost" onClick={() => setConfirmingUnfollow(true)}>
-                                {t('tags:card.unfollow')}
-                            </Button>
-                            <Button size="sm" variant="secondary" onClick={() => setCloning(true)}>
-                                {t('tags:card.clone')}
-                            </Button>
-                        </>
-                    )}
-                    {relation === 'discover' && (
-                        <>
-                            <Button size="sm" variant="secondary" onClick={handleFollow}>
-                                {t('tags:card.follow')}
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setCloning(true)}>
-                                {t('tags:card.clone')}
-                            </Button>
-                        </>
-                    )}
-                    {relation === 'unavailable' && (
-                        <Button size="sm" variant="secondary" onClick={() => setConfirmingUnfollow(true)}>
-                            {t('tags:card.unfollow')}
-                        </Button>
-                    )}
-                </div>
-            </section>
-
+                            {relation === 'owned' && (
+                                <>
+                                    <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
+                                        <PencilSimpleIcon size={14} aria-hidden="true" />
+                                        {t('common:buttons.edit')}
+                                    </Button>
+                                    <Button size="sm" variant="destructive" onClick={() => setConfirmingDelete(true)}>
+                                        <TrashIcon size={14} aria-hidden="true" />
+                                        {t('common:buttons.delete')}
+                                    </Button>
+                                </>
+                            )}
+                            {relation === 'followed' && (
+                                <>
+                                    <Button size="sm" variant="ghost" onClick={() => setConfirmingUnfollow(true)}>
+                                        <UserMinusIcon size={14} aria-hidden="true" />
+                                        {t('tags:card.unfollow')}
+                                    </Button>
+                                    <Button size="sm" variant="secondary" onClick={() => setCloning(true)}>
+                                        <CopyIcon size={14} aria-hidden="true" />
+                                        {t('tags:card.clone')}
+                                    </Button>
+                                </>
+                            )}
+                            {relation === 'discover' && (
+                                <>
+                                    <Button size="sm" variant="secondary" onClick={handleFollow}>
+                                        <UserPlusIcon size={14} aria-hidden="true" />
+                                        {t('tags:card.follow')}
+                                    </Button>
+                                    <Button size="sm" variant="ghost" onClick={() => setCloning(true)}>
+                                        <CopyIcon size={14} aria-hidden="true" />
+                                        {t('tags:card.clone')}
+                                    </Button>
+                                </>
+                            )}
+                            {relation === 'unavailable' && (
+                                <Button size="sm" variant="secondary" onClick={() => setConfirmingUnfollow(true)}>
+                                    <UserMinusIcon size={14} aria-hidden="true" />
+                                    {t('tags:card.unfollow')}
+                                </Button>
+                            )}
+                        </div>
+                    </section>
+                </>
+            }
+        >
             {relation === 'unavailable' ? (
                 <EmptyState
                     icon={<LockIcon size={20} />}
@@ -357,9 +431,27 @@ export function TagViewPage() {
                         onAddWords={() => setAddingWords(true)}
                         onOpenCell={(wordId, langKey) => setCellTarget({ wordId, langKey })}
                         showGender={showGender}
-                        onShowGenderChange={setShowGender}
                         showProgress={showProgress}
-                        onShowProgressChange={setShowProgress}
+                        showOwner={showOwner}
+                        showPos={showPos}
+                        userName={user?.name ?? ''}
+                        hasFilters={activeFilterTotal > 0}
+                        onClearFilters={() => {
+                            setQuery('');
+                            updateSearch({ q: undefined, pos: undefined, gender: undefined });
+                        }}
+                        leading={
+                            isMobile ? (
+                                <SidebarTrigger
+                                    label={t('review:filters.title')}
+                                    className={cn(buttonVariants({ variant: 'outline', className: 'gap-2' }))}
+                                >
+                                    <SlidersHorizontalIcon size={16} />
+                                    {t('review:filters.title')}
+                                    {activeFilterTotal > 0 && <span className="active-pill">{activeFilterTotal}</span>}
+                                </SidebarTrigger>
+                            ) : undefined
+                        }
                         sort={sort}
                         onSort={toggleSort}
                     />
@@ -440,6 +532,6 @@ export function TagViewPage() {
                     userLanguages={userLanguages}
                 />
             )}
-        </div>
+        </SidebarLayout>
     );
 }

@@ -68,6 +68,9 @@ interface TagSummary {
   // The languages the tag's words have (labels, sorted): the cards show the ones the viewer uses.
   // Empty when the viewer cannot see the tag's words (`isAvailable` false).
   languages: string[];
+  // The parts of speech the tag's words have (sorted): the tag page offers only these as filters.
+  // Empty when the viewer cannot see the tag's words (`isAvailable` false).
+  partsOfSpeech: string[];
   followerCount: number;
   isOwner: boolean;
   isFollowing: boolean;
@@ -240,7 +243,7 @@ const buildTagSummaries = async (
     ),
   ];
 
-  const [authorRows, sourceTagRows, wordCountRows, languageRows, followerCountRows, followingRows, friendIds, badgesByAuthorId] =
+  const [authorRows, sourceTagRows, wordCountRows, languageRows, partOfSpeechRows, followerCountRows, followingRows, friendIds, badgesByAuthorId] =
     await Promise.all([
       db.select({ id: users.id, username: users.username }).from(users).where(inArray(users.id, authorIds)),
       sourceTagIds.length > 0
@@ -255,6 +258,11 @@ const buildTagSummaries = async (
         .selectDistinct({ tagId: tagWords.tagId, language: translations.language })
         .from(tagWords)
         .innerJoin(translations, eq(translations.wordId, tagWords.wordId))
+        .where(inArray(tagWords.tagId, tagIds)),
+      db
+        .selectDistinct({ tagId: tagWords.tagId, partOfSpeech: words.partOfSpeech })
+        .from(tagWords)
+        .innerJoin(words, eq(words.id, tagWords.wordId))
         .where(inArray(tagWords.tagId, tagIds)),
       db
         .select({ tagId: userFollowingTags.tagId, value: sql<number>`count(*)::int` })
@@ -277,6 +285,10 @@ const buildTagSummaries = async (
   const languagesByTagId = new Map<string, string[]>();
   for (const row of languageRows) {
     languagesByTagId.set(row.tagId, [...(languagesByTagId.get(row.tagId) ?? []), row.language].sort());
+  }
+  const partsOfSpeechByTagId = new Map<string, string[]>();
+  for (const row of partOfSpeechRows) {
+    partsOfSpeechByTagId.set(row.tagId, [...(partsOfSpeechByTagId.get(row.tagId) ?? []), row.partOfSpeech].sort());
   }
   const followerCountByTagId = new Map(followerCountRows.map((row) => [row.tagId, row.value]));
   const followedTagIdSet = new Set(followingRows.map((row) => row.tagId));
@@ -301,6 +313,7 @@ const buildTagSummaries = async (
       },
       wordCount: wordCountByTagId.get(tag.id) ?? 0,
       languages: isAvailable ? (languagesByTagId.get(tag.id) ?? []) : [],
+      partsOfSpeech: isAvailable ? (partsOfSpeechByTagId.get(tag.id) ?? []) : [],
       followerCount: followerCountByTagId.get(tag.id) ?? 0,
       isOwner: tag.authorId === viewerId,
       isFollowing: followedTagIdSet.has(tag.id),

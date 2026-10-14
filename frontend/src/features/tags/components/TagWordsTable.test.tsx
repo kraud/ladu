@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { mockMobileViewport } from '@/test/viewport';
@@ -41,9 +41,10 @@ const baseProps: TagWordsTableProps = {
     removeMode: false,
     onRemoveModeChange: vi.fn(),
     showGender: true,
-    onShowGenderChange: vi.fn(),
     showProgress: false,
-    onShowProgressChange: vi.fn(),
+    showOwner: false,
+    showPos: true,
+    userName: 'Owner',
 };
 
 describe('TagWordsTable — rendering rows', () => {
@@ -184,31 +185,24 @@ describe('TagWordsTable — toolbar buttons', () => {
 });
 
 describe('TagWordsTable — display options', () => {
-    it('shows the Progress switch, and the gender switch only once a noun row is loaded', () => {
-        const { rerender } = renderWithProviders(
-            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run', 'owner-1', PartOfSpeech.verb)]} total={1} />,
+    it('shows the owner dot and the Type column only while their switches are on', () => {
+        const rows = [makeRow('w1', 'run', 'owner-1', PartOfSpeech.verb)];
+        const { container, rerender } = renderWithProviders(
+            <TagWordsTable {...baseProps} rows={rows} total={1} showOwner showPos />,
         );
-        expect(screen.getByText('Progress')).toBeInTheDocument();
-        expect(screen.queryByText('Gender')).not.toBeInTheDocument();
+        expect(container.querySelector('.owner-dot')).toBeInTheDocument();
+        expect(container.querySelector('.pos-abbr')).toBeInTheDocument();
 
-        rerender(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'tree', 'owner-1', PartOfSpeech.noun)]} total={1} />);
-        expect(screen.getByText('Gender')).toBeInTheDocument();
+        rerender(<TagWordsTable {...baseProps} rows={rows} total={1} showOwner={false} showPos={false} />);
+        expect(container.querySelector('.owner-dot')).not.toBeInTheDocument();
+        expect(container.querySelector('.pos-abbr')).not.toBeInTheDocument();
     });
 
-    it('calls the change handlers when a switch is toggled', async () => {
-        const onShowGenderChange = vi.fn();
-        const user = userEvent.setup();
-        renderWithProviders(
-            <TagWordsTable
-                {...baseProps}
-                rows={[makeRow('w1', 'tree', 'owner-1', PartOfSpeech.noun)]}
-                total={1}
-                onShowGenderChange={onShowGenderChange}
-            />,
-        );
-
-        await user.click(screen.getByText('Gender'));
-        expect(onShowGenderChange).toHaveBeenCalledWith(false);
+    it('renders `leading` before the search box', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} leading={<button type="button">Lead</button>} />);
+        const lead = screen.getByRole('button', { name: 'Lead' });
+        const search = screen.getByRole('textbox');
+        expect(lead.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 });
 
@@ -308,19 +302,13 @@ describe('TagWordsTable — error state', () => {
 });
 
 describe('TagWordsTable — phone', () => {
-    it('has a Filters button that opens a menu with the Progress switch, and keeps Add/Remove words on one row', async () => {
+    it('keeps Add/Remove words on one row', () => {
         mockMobileViewport();
-        const user = userEvent.setup();
         renderWithProviders(
             <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove onAddWords={vi.fn()} />,
         );
-        expect(screen.queryByRole('switch', { name: 'Progress' })).not.toBeInTheDocument();
         const add = screen.getByRole('button', { name: 'Add words' });
         const remove = screen.getByRole('button', { name: 'Remove words' });
         expect(add.parentElement).toBe(remove.parentElement);
-
-        await user.click(screen.getByRole('button', { name: 'Filters' }));
-        const menu = await screen.findByRole('dialog');
-        expect(within(menu).getByRole('switch', { name: 'Progress' })).toBeInTheDocument();
     });
 });

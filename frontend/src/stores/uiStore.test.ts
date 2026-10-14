@@ -6,6 +6,7 @@ describe('uiStore — sidebar defaults', () => {
         // `test/setup.ts` resets the live store between tests, so the real defaults are read from the initial state.
         expect(useUiStore.getInitialState().sidebarCollapsed).toEqual({
             review: true,
+            tag: true,
             word: true,
             practice: true,
             practiceResults: false,

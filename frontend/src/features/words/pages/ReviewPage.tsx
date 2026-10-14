@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import type { RowSelectionState } from '@tanstack/react-table';
-import { EyeIcon, FunnelIcon, PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
+import { FunnelIcon, PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
 import { PageTitle } from '@/components/common/PageTitle';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
@@ -36,7 +36,8 @@ import { wordErrorKey } from '../errors';
 import type { LangKey, WordSimpleBE } from '../types';
 import { BulkActionBar } from '../review/BulkActionBar';
 import { CellDialog } from '../review/CellDialog';
-import { DisplayOptions } from '../review/DisplayOptions';
+import { buildDisplaySection } from '../review/DisplayOptions';
+import { LanguageOrderControl } from '../review/LanguageOrderControl';
 import { activeFilterCount, useFilterSections } from '../review/FilterBar';
 import { TagsDialog } from '../review/TagsDialog';
 import { ReviewTable } from '../review/ReviewTable';
@@ -251,40 +252,36 @@ export function ReviewPage() {
         pos: search.pos ?? [],
         hasQuery: search.q !== undefined,
         selectedTags: selectedTagsQuery.data,
-        activeLanguages: languages,
-        allLanguages,
         onGenderChange: (next: string[] | undefined) => updateSearch({ gender: next }),
         onPosChange: (next: PartOfSpeech[] | undefined) => updateSearch({ pos: next }),
         onSelectedTagsChange: (next: TagSummary[]) =>
             updateSearch({ tag: next.length > 0 ? next.map((tag) => tag.id) : undefined }),
-        onLanguagesChange: (next: LangKey[]) => updateSearch({ lang: next }, { keepPage: true }),
     };
 
     const filterSections = useFilterSections(filterBarProps);
     // The display switches are pinned to the bottom of the side menu, apart from the filters above them.
     const sections: SidebarSection[] = [
         ...filterSections,
-        {
-            id: 'display',
-            label: t('review:filters.display'),
-            icon: <EyeIcon size={18} />,
-            pinBottom: true,
-            content: (
-                <div className="flex flex-col gap-4">
-                    <DisplayOptions
-                        showGenderSwitch={hasNounRows}
-                        showGender={showGender}
-                        onShowGenderChange={setShowGender}
-                        showProgress={showProgress}
-                        onShowProgressChange={setShowProgress}
-                        showOwner={showOwner}
-                        onShowOwnerChange={setShowOwner}
-                        showPos={showPos}
-                        onShowPosChange={setShowPos}
-                    />
-                </div>
+        buildDisplaySection(t('review:filters.display'), {
+            languageOrder: (
+                <LanguageOrderControl
+                    active={languages}
+                    allLanguages={allLanguages}
+                    onChange={(next: LangKey[]) => updateSearch({ lang: next }, { keepPage: true })}
+                    stacked
+                    hideLabel
+                />
             ),
-        },
+            showGenderSwitch: hasNounRows,
+            showGender,
+            onShowGenderChange: setShowGender,
+            showProgress,
+            onShowProgressChange: setShowProgress,
+            showOwner,
+            onShowOwnerChange: setShowOwner,
+            showPos,
+            onShowPosChange: setShowPos,
+        }),
     ];
     const activeCount = activeFilterCount(filterBarProps.gender, filterBarProps.pos, filterBarProps.hasQuery, filterBarProps.selectedTags.length);
 

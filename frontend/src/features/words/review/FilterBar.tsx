@@ -1,28 +1,26 @@
 /**
  * The Review filters as `SidebarLayout` sections (`useFilterSections`): Gender,
- * Part of speech, Tags (`TagCombobox`, mode="filter", D15/D17 — additive/OR,
- * applies instantly like the other groups, no Save step) and Language order.
+ * Part of speech and Tags (`TagCombobox`, mode="filter", D15/D17 — additive/OR,
+ * applies instantly like the other groups, no Save step). Language order moved to the
+ * "Display options" section (`DisplayOptions`): it changes the columns, it does not filter rows.
  * The layout draws the frame — the docked panel, the icon rail, the phone's
  * slide-in menu — so there is no collapse toggle, position toggle or top bar
  * here any more; the filters are always a column.
  *
  * Each section reports its own `count` (gender picks, part-of-speech picks,
- * tags), so the collapsed rail shows which groups are filtering. Language
- * order has none: it changes the columns, it does not filter rows. The search
+ * tags), so the collapsed rail shows which groups are filtering.  The search
  * box lives in the toolbar above the table, not here; `activeFilterCount`
  * adds it to the total that the phone's "Filters" button shows.
  */
 import { useTranslation } from 'react-i18next';
-import { GenderIntersexIcon, TagIcon, TextAaIcon, TranslateIcon } from '@phosphor-icons/react';
+import { GenderIntersexIcon, TagIcon, TextAaIcon } from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import type { SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 import { GenderDE, GenderES, PartOfSpeech } from '@/ts/enums';
 import { partOfSpeechLabelKey } from '@/lib/words';
 import { TagCombobox } from '@/features/tags/components/TagCombobox';
 import type { TagSummary } from '@/features/tags/types';
-import type { LangKey } from '@/features/words/types';
 import { posAbbrKey } from './columns';
-import { LanguageOrderControl } from './LanguageOrderControl';
 
 /** The four shipped parts of speech, matching `PartOfSpeechSelector`'s `SHIPPED_POS`. */
 const SHIPPED_POS: readonly PartOfSpeech[] = [
@@ -52,12 +50,13 @@ export interface FilterBarProps {
     hasQuery: boolean;
     /** Resolved `TagSummary`s for `ReviewSearch.tag`'s ids (`useTagsByIds`) — `TagCombobox`'s pills need the label/visibility, not just the id. */
     selectedTags: TagSummary[];
-    activeLanguages: LangKey[];
-    allLanguages: LangKey[];
+    /** Which sections to offer (default: all three) — the tag page has no tag filter, and only shows Gender with nouns. */
+    sections?: readonly ('gender' | 'pos' | 'tags')[];
+    /** The parts of speech to offer (default: the four shipped ones) — the tag page offers only those its words have. */
+    posOptions?: readonly PartOfSpeech[];
     onGenderChange: (next: string[] | undefined) => void;
     onPosChange: (next: PartOfSpeech[] | undefined) => void;
     onSelectedTagsChange: (next: TagSummary[]) => void;
-    onLanguagesChange: (next: LangKey[]) => void;
 }
 
 /** The number in the "N filters" pill: each gender, part-of-speech, and tag pick, plus the search box when it has text. */
@@ -74,12 +73,11 @@ export function useFilterSections({
     gender,
     pos,
     selectedTags,
-    activeLanguages,
-    allLanguages,
+    sections: shown = ['gender', 'pos', 'tags'],
+    posOptions = SHIPPED_POS,
     onGenderChange,
     onPosChange,
     onSelectedTagsChange,
-    onLanguagesChange,
 }: FilterBarProps): SidebarSection[] {
     const { t } = useTranslation();
 
@@ -99,7 +97,7 @@ export function useFilterSections({
         </button>
     );
 
-    return [
+    const all: (SidebarSection & { id: 'gender' | 'pos' | 'tags' })[] = [
         {
             id: 'gender',
             label: t('review:filters.gender'),
@@ -142,7 +140,7 @@ export function useFilterSections({
                 <div className="fb-group">
                     {pos.length > 0 && clear(() => onPosChange(undefined))}
                     <div className="chips">
-                        {SHIPPED_POS.map((value) => (
+                        {posOptions.map((value) => (
                             <button
                                 key={value}
                                 type="button"
@@ -177,19 +175,6 @@ export function useFilterSections({
                 </div>
             ),
         },
-        {
-            id: 'language-order',
-            label: t('review:filters.languageOrder'),
-            icon: <TranslateIcon size={18} />,
-            content: (
-                <LanguageOrderControl
-                    active={activeLanguages}
-                    allLanguages={allLanguages}
-                    onChange={onLanguagesChange}
-                    stacked
-                    hideLabel
-                />
-            ),
-        },
     ];
+    return all.filter((section) => shown.includes(section.id));
 }

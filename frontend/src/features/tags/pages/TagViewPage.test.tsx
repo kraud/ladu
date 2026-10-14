@@ -386,6 +386,67 @@ describe('TagViewPage — numbered pages', () => {
     });
 });
 
+describe('TagViewPage — side menu', () => {
+    it('offers only the parts of speech the tag holds (even one) and no Gender without nouns', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'], partsOfSpeech: ['Verb'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        const pos = within(panel).getByRole('heading', { name: 'Part of speech', level: 2 }).closest('section') as HTMLElement;
+        expect(within(pos).getAllByRole('button', { name: /^(n|v|adj|adv)\.?$/i })).toHaveLength(1);
+        expect(within(panel).queryByRole('heading', { name: 'Gender', level: 2 })).not.toBeInTheDocument();
+        expect(within(panel).queryByRole('heading', { name: 'Tags' })).not.toBeInTheDocument();
+    });
+
+    it('offers Gender once the tag holds a noun', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'], partsOfSpeech: ['Noun', 'Verb'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        expect(within(panel).getByRole('heading', { name: 'Gender', level: 2 })).toBeInTheDocument();
+    });
+
+    it('puts the display options at the bottom: language order, badges and columns', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'], partsOfSpeech: ['Verb'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        const display = panel.querySelector('[data-section="display"]') as HTMLElement;
+        for (const name of ['Language order', 'Badges', 'Columns']) {
+            expect(within(display).getByRole('heading', { name })).toBeInTheDocument();
+        }
+        expect(within(display).getByRole('switch', { name: 'Progress' })).toBeInTheDocument();
+        expect(within(display).getByRole('switch', { name: 'Owner' })).toBeInTheDocument();
+    });
+
+    it('a part-of-speech pick filters through the server and is written to the URL', async () => {
+        const { wordFake } = setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'], partsOfSpeech: ['Verb'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        await user.click(screen.getByRole('button', { name: 'v.' }));
+
+        await waitFor(() => expect(router.state.location.search).toMatchObject({ pos: ['Verb'] }));
+        await waitFor(() => expect(wordFake.simpleQueries.at(-1)).toContain('pos=Verb'));
+    });
+});
+
 describe('TagViewPage — search in the URL', () => {
     it('writes the search to the URL after a pause, and goes back to page 1', async () => {
         const { wordFake } = manySetUp();

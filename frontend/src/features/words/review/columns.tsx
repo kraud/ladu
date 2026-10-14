@@ -192,6 +192,26 @@ export function buildTagsColumn(
     };
 }
 
+/** The owner dot: the user's initials on their own words, "G" on a word that belongs to someone else. */
+export function buildOwnerColumn(t: TFunction, userId: string, userName: string): ColumnDef<WordSimpleBE> {
+    return {
+        id: 'owner',
+        size: 32,
+        header: '',
+        cell: ({ row }) => {
+            const isOwn = row.original.user === userId;
+            return (
+                <span
+                    className={`owner-dot ${isOwn ? 'owner-me' : 'owner-group'}`}
+                    title={isOwn ? t('review:table.ownerMe') : t('review:table.ownerGroup')}
+                >
+                    {isOwn ? avatarInitials(userName) : 'G'}
+                </span>
+            );
+        },
+    };
+}
+
 /**
  * select (desktop) -> owner -> Type -> one column per language -> Tags (D1), in that order. The owner
  * and Type columns come and go with their display switches.
@@ -221,28 +241,11 @@ export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSi
         ),
     };
 
-    const ownerColumn: ColumnDef<WordSimpleBE> = {
-        id: 'owner',
-        size: 32,
-        header: '',
-        cell: ({ row }) => {
-            const isOwn = row.original.user === userId;
-            return (
-                <span
-                    className={`owner-dot ${isOwn ? 'owner-me' : 'owner-group'}`}
-                    title={isOwn ? t('review:table.ownerMe') : t('review:table.ownerGroup')}
-                >
-                    {isOwn ? avatarInitials(userName) : 'G'}
-                </span>
-            );
-        },
-    };
-
     const languageColumns = buildLanguageColumns({ languages, userId, showGender, showProgress, onOpenCell, sort, onSort, t });
 
     return [
         ...(selectable ? [selectColumn] : []),
-        ...(showOwner ? [ownerColumn] : []),
+        ...(showOwner ? [buildOwnerColumn(t, userId, userName)] : []),
         ...(showPos ? [buildPartOfSpeechColumn(t, 52)] : []),
         ...languageColumns,
         buildTagsColumn(t, userId, onOpenTags),

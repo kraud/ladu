@@ -64,6 +64,8 @@ export interface TagSummary {
     wordCount: number;
     /** The languages the tag's words have (labels such as `"English"`). Empty when the caller cannot see the words. */
     languages: string[];
+    /** The parts of speech the tag's words have (`"Noun"`, …), whatever filter is on. Empty when the caller cannot see the words. */
+    partsOfSpeech: string[];
     followerCount: number;
     /** The caller authored this tag. */
     isOwner: boolean;

@@ -1,12 +1,13 @@
 /**
- * The Review display switches, grouped by feature like the filters: Badges (Gender, D14 — only
+ * The Review display options, grouped by feature like the filters: Badges (Gender, D14 — only
  * offered once a noun is on screen — and Progress) and Columns (Owner and Word type). Rendered as
- * a fragment of groups, for the pinned "Table Display Options" section of the side menu.
+ * a fragment of groups (Language order first), for the pinned "Display options" section of the side menu.
  */
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ColumnsIcon, MedalIcon } from '@phosphor-icons/react';
+import { ColumnsIcon, EyeIcon, MedalIcon, TranslateIcon } from '@phosphor-icons/react';
 import { Switch } from '@/components/ui/switch';
+import type { SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 
 export interface DisplayOptionsProps {
     /** D14: `ReviewPage` decides this from whether any loaded row is a Noun. */
@@ -20,6 +21,8 @@ export interface DisplayOptionsProps {
     onShowOwnerChange?: (next: boolean) => void;
     showPos?: boolean;
     onShowPosChange?: (next: boolean) => void;
+    /** The language-order control; shown first, as its own group. */
+    languageOrder?: ReactNode;
 }
 
 export function DisplayOptions({
@@ -32,6 +35,7 @@ export function DisplayOptions({
     onShowOwnerChange,
     showPos,
     onShowPosChange,
+    languageOrder,
 }: DisplayOptionsProps) {
     const { t } = useTranslation();
     const group = (icon: ReactNode, title: string, switches: ReactNode) => (
@@ -47,6 +51,17 @@ export function DisplayOptions({
     );
     return (
         <>
+            {languageOrder && (
+                <div className="fb-group">
+                    <h3 className="label flex items-center gap-1.5">
+                        <span aria-hidden="true" className="[&_svg]:size-3.5">
+                            <TranslateIcon />
+                        </span>
+                        {t('review:filters.languageOrder')}
+                    </h3>
+                    {languageOrder}
+                </div>
+            )}
             {group(
                 <MedalIcon />,
                 t('review:filters.displayBadges'),
@@ -80,4 +95,19 @@ export function DisplayOptions({
                 )}
         </>
     );
+}
+
+/** The side-menu section that holds the options: pinned to the bottom, under its own title (Review and the tag page). */
+export function buildDisplaySection(label: string, props: DisplayOptionsProps): SidebarSection {
+    return {
+        id: 'display',
+        label,
+        icon: <EyeIcon size={18} />,
+        pinBottom: true,
+        content: (
+            <div className="flex flex-col gap-4">
+                <DisplayOptions {...props} />
+            </div>
+        ),
+    };
 }

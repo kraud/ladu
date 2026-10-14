@@ -35,28 +35,20 @@ const baseProps: FilterBarProps = {
     pos: [],
     hasQuery: false,
     selectedTags: [],
-    activeLanguages: ['EN', 'DE'],
-    allLanguages: ['EN', 'DE', 'ES'],
     onGenderChange: vi.fn(),
     onPosChange: vi.fn(),
     onSelectedTagsChange: vi.fn(),
-    onLanguagesChange: vi.fn(),
 };
 
 describe('FilterBar — sections', () => {
-    it('shows Gender, Part of speech, Tags and Language order as sections, in a column', () => {
+    it('shows Gender, Part of speech and Tags as sections, in a column', () => {
         renderWithProviders(<FilterBar {...baseProps} />);
         const panel = screen.getByRole('complementary', { name: 'Filters' });
-        for (const name of ['Gender', 'Part of speech', 'Tags', 'Language order']) {
+        for (const name of ['Gender', 'Part of speech', 'Tags']) {
             expect(within(panel).getByRole('heading', { name })).toBeInTheDocument();
         }
         // The layout draws the frame: no collapse-to-top or move-to-top controls any more.
         expect(screen.queryByRole('button', { name: /Move filters/ })).not.toBeInTheDocument();
-    });
-
-    it('the language-order section shows its heading once, not twice', () => {
-        renderWithProviders(<FilterBar {...baseProps} />);
-        expect(screen.getAllByText('Language order')).toHaveLength(1);
     });
 });
 
@@ -66,14 +58,13 @@ describe('FilterBar — collapsed rail', () => {
         renderWithProviders(
             <FilterBar {...baseProps} gender={['der', 'die']} pos={[PartOfSpeech.noun]} hasQuery />,
         );
-        for (const name of ['Gender', 'Part of speech', 'Tags', 'Language order']) {
+        for (const name of ['Gender', 'Part of speech', 'Tags']) {
             expect(screen.getByRole('button', { name })).toBeInTheDocument();
         }
         expect(screen.getByTestId('gender-count')).toHaveTextContent('2');
         expect(screen.getByTestId('pos-count')).toHaveTextContent('1');
         // Idle groups show no counter; the search box is the toolbar's, not a group's.
         expect(screen.queryByTestId('tags-count')).not.toBeInTheDocument();
-        expect(screen.queryByTestId('language-order-count')).not.toBeInTheDocument();
     });
 
     it('a rail button expands the panel to the filters', async () => {
@@ -203,6 +194,7 @@ describe('FilterBar — Tags group (D15/D17)', () => {
             wordCount: 0,
             followerCount: 0,
             languages: [],
+            partsOfSpeech: [],
             isOwner: true,
             isFollowing: false,
             isAvailable: true,

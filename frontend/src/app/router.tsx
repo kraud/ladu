@@ -208,6 +208,7 @@ const tagRoute = createRoute({
     path: '/tag/$tagId',
     validateSearch: validateTagSearch,
     component: TagViewPage,
+    staticData: { sidebar: true },
 });
 
 const routeTree = rootRoute.addChildren([

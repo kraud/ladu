@@ -274,6 +274,31 @@ describe('GET /api/tags - List Tags', () => {
 });
 
 // ===========================================================================
+// Parts of speech of a tag's words (the tag page's filters)
+// ===========================================================================
+describe('Tag summary - parts of speech of the words', () => {
+    let owner;
+
+    beforeEach(async () => {
+        owner = await registerAndLogin();
+    });
+
+    it('lists each part of speech of the tag\'s words once, sorted', async () => {
+        const [n1] = await db.insert(words).values({ userId: owner.id, partOfSpeech: 'Noun' }).returning();
+        const [n2] = await db.insert(words).values({ userId: owner.id, partOfSpeech: 'Noun' }).returning();
+        const [v1] = await db.insert(words).values({ userId: owner.id, partOfSpeech: 'Verb' }).returning();
+        const tag = await createTag(owner.token, { label: 'Mixed', wordIds: [v1.id, n1.id, n2.id] });
+
+        expect(tag.body.partsOfSpeech).toEqual(['Noun', 'Verb']);
+    });
+
+    it('is empty for a tag without words', async () => {
+        const tag = await createTag(owner.token, { label: 'Empty' });
+        expect(tag.body.partsOfSpeech).toEqual([]);
+    });
+});
+
+// ===========================================================================
 // Languages of a tag's words (the card flags)
 // ===========================================================================
 describe('Tag summary - languages of the words', () => {

@@ -15,23 +15,20 @@
  * the table, so it stays in view however many language columns there are, and
  * disables "Add words". A cell's "+" (add translation) shows for an owned tag.
  */
-import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table';
-import { MagnifyingGlassIcon, PlusIcon, SlidersHorizontalIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
+import { MagnifyingGlassIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { TablePagination } from '@/components/common/TablePagination';
 import type { PageSize } from '@/lib/pagination';
-import { buildLanguageColumns, buildPartOfSpeechColumn } from '@/features/words/review/columns';
-import { DisplayOptions } from '@/features/words/review/DisplayOptions';
+import { buildLanguageColumns, buildOwnerColumn, buildPartOfSpeechColumn } from '@/features/words/review/columns';
 import type { LanguageSort } from '@/features/words/review/useLanguageSort';
 import { useIsMobile } from '@/lib/useMediaQuery';
-import { PartOfSpeech } from '@/ts/enums';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 
 const SKELETON_ROWS = 5;
@@ -65,10 +62,17 @@ export interface TagWordsTableProps {
     /** The empty-state CTA for an owned tag with zero words — absent elsewhere. */
     onAddWords?: () => void;
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
+    /** The display options live in the page's side menu; the table only reads them. */
     showGender: boolean;
-    onShowGenderChange: (next: boolean) => void;
     showProgress: boolean;
-    onShowProgressChange: (next: boolean) => void;
+    showOwner: boolean;
+    showPos: boolean;
+    userName: string;
+    /** Rendered before the search box: the phone's Filters button (nothing on desktop, the panel is docked). */
+    leading?: ReactNode;
+    /** Whether a side-menu filter is on: the empty state then says "no match" instead of "no words". */
+    hasFilters?: boolean;
+    onClearFilters?: () => void;
     /** The active column sort, and the click on a language header. */
     sort?: LanguageSort | null;
     onSort?: (lang: LangKey) => void;
@@ -106,20 +110,19 @@ export function TagWordsTable({
     onAddWords,
     onOpenCell,
     showGender,
-    onShowGenderChange,
     showProgress,
-    onShowProgressChange,
+    showOwner,
+    showPos,
+    userName,
+    leading,
+    hasFilters = false,
+    onClearFilters,
     sort,
     onSort,
 }: TagWordsTableProps) {
     const { t } = useTranslation();
     const isMobile = useIsMobile();
-    const [filtersOpen, setFiltersOpen] = useState(false);
     const showRemoveColumn = canRemove && removeMode;
-    // D14's own rule, reapplied here: the gender switch is only useful once a
-    // noun is actually on screen.
-    const hasNounRows = useMemo(() => rows.some((row) => row.partOfSpeech === PartOfSpeech.noun), [rows]);
-
     // Equal width for every language column, so N columns always fill the
     // table instead of leaving space on the right when there are only a few.
     const langColWidth = languages.length > 0 ? `${100 / languages.length}%` : undefined;
@@ -165,7 +168,8 @@ export function TagWordsTable({
                   } satisfies ColumnDef<WordSimpleBE>,
               ]
             : []),
-        buildPartOfSpeechColumn(t),
+        ...(showOwner ? [buildOwnerColumn(t, userId, userName)] : []),
+        ...(showPos ? [buildPartOfSpeechColumn(t)] : []),
         ...languageColumns,
     ];
 
@@ -209,15 +213,6 @@ export function TagWordsTable({
             </Button>
         </>
     );
-    const displayOptions = (
-        <DisplayOptions
-            showGenderSwitch={hasNounRows}
-            showGender={showGender}
-            onShowGenderChange={onShowGenderChange}
-            showProgress={showProgress}
-            onShowProgressChange={onShowProgressChange}
-        />
-    );
     const countLabel = !isPending && (
         <span className="meta">
             {debouncedQuery ? (
@@ -239,18 +234,7 @@ export function TagWordsTable({
         <section>
             <div className={isMobile ? 'flex flex-col gap-2' : 'flex flex-wrap items-center gap-3 mb-2'}>
                 <div className={isMobile ? 'flex items-center gap-2' : 'flex min-w-0 items-center gap-2'}>
-                    {isMobile && (
-                        <Button
-                            variant="outline"
-                            className="gap-2"
-                            aria-label={t('review:filters.title')}
-                            aria-expanded={filtersOpen}
-                            onClick={() => setFiltersOpen(true)}
-                        >
-                            <SlidersHorizontalIcon size={16} />
-                            {t('review:filters.title')}
-                        </Button>
-                    )}
+                    {leading}
                     <div
                         className="searchbox"
                         style={isMobile ? { flex: 1, minWidth: 0 } : { flex: '0 1 220px', minWidth: 250 }}
@@ -266,44 +250,9 @@ export function TagWordsTable({
                     {canRemove && !isMobile && wordActions}
                 </div>
                 {canRemove && isMobile && <div className="flex gap-2">{wordActions}</div>}
-                {!isMobile && (
-                    <div className="ml-auto flex items-center gap-3">
-                        {displayOptions}
-                        {countLabel}
-                    </div>
-                )}
+                {!isMobile && <div className="ml-auto">{countLabel}</div>}
                 {isMobile && <div className="text-right">{countLabel}</div>}
             </div>
-
-            {isMobile && (
-                <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-                    <SheetContent
-                        side="left"
-                        showCloseButton={false}
-                        className="w-72 max-w-[85vw] overflow-y-auto p-4 sm:max-w-none"
-                    >
-                        <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
-                            <SheetTitle>{t('review:filters.title')}</SheetTitle>
-                            <button
-                                type="button"
-                                className="icon-btn"
-                                aria-label={t('common:sidebar.close')}
-                                onClick={() => setFiltersOpen(false)}
-                            >
-                                <XIcon size={16} />
-                            </button>
-                        </div>
-                        <SheetDescription className="sr-only">{t('review:filters.title')}</SheetDescription>
-                        <section className="flex flex-col gap-2">
-                            <h2 className="label flex items-center gap-1.5">
-                                <SlidersHorizontalIcon size={14} aria-hidden="true" />
-                                {t('review:filters.display')}
-                            </h2>
-                            <div className="flex flex-col gap-3">{displayOptions}</div>
-                        </section>
-                    </SheetContent>
-                </Sheet>
-            )}
 
             {isPending ? (
                 <div className="tablewrap">
@@ -322,7 +271,17 @@ export function TagWordsTable({
                     </table>
                 </div>
             ) : rows.length === 0 && total === 0 ? (
-                debouncedQuery ? (
+                hasFilters ? (
+                    <EmptyState
+                        title={t('review:empty.noMatches.title')}
+                        description={t('review:empty.noMatches.description')}
+                        action={
+                            <Button size="sm" variant="outline" onClick={onClearFilters}>
+                                {t('review:empty.noMatches.action')}
+                            </Button>
+                        }
+                    />
+                ) : debouncedQuery ? (
                     <EmptyState
                         icon={<MagnifyingGlassIcon size={20} />}
                         title={t('tags:words.emptySearch.title', { query: debouncedQuery })}
