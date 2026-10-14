@@ -233,3 +233,81 @@ describe('GET /api/words/:id — myCloneId', () => {
         expect(row.isCloned).toBe(true);
     });
 });
+
+describe('GET /api/words/simple — no duplicate of a followed word and its copy (Slice 4)', () => {
+    const list = (token, query = '') =>
+        request(app).get(`/api/words/simple${query}`).set('Authorization', `Bearer ${token}`);
+    const ids = (res) => res.body.items.map((w) => w.id);
+
+    it('shows the followed original until it is cloned, then only the copy', async () => {
+        const { follower, original } = await setUp();
+        expect(ids(await list(follower.token))).toEqual([original.id]);
+
+        const copy = (await clone(follower.token, original.id)).body;
+
+        const res = await list(follower.token);
+        expect(ids(res)).toEqual([copy.id]);
+        expect(res.body.total).toBe(1);
+    });
+
+    it('does the same in numbered-page mode, and the total and pages count the same rows', async () => {
+        const { author, follower, tag, original } = await setUp();
+        const second = (await createWord(author.token, { tagIds: [tag.id] })).body;
+        const mine = (await createWord(follower.token)).body; // the follower's own word
+        const copy = (await clone(follower.token, original.id)).body;
+
+        const res = await list(follower.token, '?page=1&limit=2');
+        expect(res.body.total).toBe(3); // own word + copy + the other followed word (not the hidden original)
+        expect(res.body.items).toHaveLength(2);
+        const all = await list(follower.token, '?page=1&limit=all');
+        expect(ids(all).sort()).toEqual([copy.id, second.id, mine.id].sort());
+        expect(ids(all)).not.toContain(original.id);
+        expect(all.body.total).toBe(3);
+    });
+
+    it('brings the original back when the copy is deleted', async () => {
+        const { follower, original } = await setUp();
+        const copy = (await clone(follower.token, original.id)).body;
+        expect(ids(await list(follower.token))).toEqual([copy.id]);
+
+        await request(app).delete(`/api/words/${copy.id}`).set('Authorization', `Bearer ${follower.token}`);
+
+        expect(ids(await list(follower.token))).toEqual([original.id]);
+    });
+
+    it('keeps the original when a Tags filter is active (the copy is not on the tag)', async () => {
+        const { follower, tag, original } = await setUp();
+        const copy = (await clone(follower.token, original.id)).body;
+
+        const res = await list(follower.token, `?tag=${tag.id}`);
+        expect(ids(res)).toEqual([original.id]);
+        expect(ids(res)).not.toContain(copy.id);
+    });
+
+    it('never hides your own words, and the author still sees the original', async () => {
+        const { author, follower, original } = await setUp();
+        const mine = (await createWord(follower.token)).body;
+        await clone(follower.token, original.id);
+
+        expect(ids(await list(follower.token))).toContain(mine.id);
+        expect(ids(await list(author.token))).toEqual([original.id]);
+    });
+
+    it('is about the caller\'s own copy: another follower still sees the original', async () => {
+        const { tag, follower, original } = await setUp();
+        const second = await registerAndLogin('Second', 'second@test.com', 'second');
+        await db.insert(userFollowingTags).values({ tagId: tag.id, followerUserId: second.id });
+        await clone(follower.token, original.id);
+
+        expect(ids(await list(second.token))).toEqual([original.id]);
+    });
+
+    it('works with the Owner filter: "others" leaves out the hidden original, "me" lists the copy', async () => {
+        const { author, follower, tag, original } = await setUp();
+        const other = (await createWord(author.token, { tagIds: [tag.id] })).body;
+        const copy = (await clone(follower.token, original.id)).body;
+
+        expect(ids(await list(follower.token, '?owner=others'))).toEqual([other.id]);
+        expect(ids(await list(follower.token, '?owner=me'))).toEqual([copy.id]);
+    });
+});

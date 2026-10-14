@@ -28,7 +28,7 @@ const {
     translations,
     words,
 }: typeof import('../src/db/schema') = require('../src/db/schema');
-const { and, desc, eq, inArray, or } = require('drizzle-orm');
+const { and, desc, eq, inArray, or, sql } = require('drizzle-orm');
 
 // ---------------------------------------------------------------------------
 // Types
@@ -442,6 +442,26 @@ const cloneWordsForUser = async (
 };
 
 // ---------------------------------------------------------------------------
+// No duplicates: a followed word and the user's own copy of it
+// ---------------------------------------------------------------------------
+
+/**
+ * SQL condition on `words`: keeps a word, unless it belongs to someone else AND
+ * `userId` has an own copy (clone) of it (`source_word_id` points to it). Own
+ * words are always kept. Nothing is stored: when the copy is deleted, the
+ * original is kept again. Shared by the word list (`getWordsSimplified`) and the
+ * Practice word pool.
+ *
+ * The word list turns it off while a Tags filter is active (the copy is not on
+ * the tag, and the user must still see the tag's real content).
+ */
+const notHiddenByOwnCopy = (userId: string) =>
+    sql`(${words.userId} = ${userId} or not exists (
+        select 1 from "words" as "own_copy"
+        where "own_copy"."user_id" = ${userId} and "own_copy"."source_word_id" = ${words.id}
+    ))`;
+
+// ---------------------------------------------------------------------------
 // Generic list-pagination helpers
 // ---------------------------------------------------------------------------
 // Shared by `getWordsSimplified` (wordController.ts) and the tag list
@@ -522,6 +542,7 @@ export {
     fetchWordWithRelations,
     getWordsByIds,
     cloneWordsForUser,
+    notHiddenByOwnCopy,
     parseArrayParam,
     parseLimitParam,
     parsePageParam,

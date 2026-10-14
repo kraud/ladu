@@ -64,7 +64,7 @@
     "openClone": "Deine Kopie öffnen",
     "openCloneShort": "Kopie öffnen",
     "cloneConfirmTitle": "Dieses Wort klonen?",
-    "cloneConfirmDescription": "Eine Kopie dieses Wortes wird zu deinen Wörtern hinzugefügt. Die Kopie ist privat und hat keine Tags. Du kannst sie bearbeiten und löschen. Das Original ändert sich nicht. Dein Übungsfortschritt für dieses Wort wird auch kopiert.",
+    "cloneConfirmDescription": "Eine Kopie dieses Wortes wird zu deinen Wörtern hinzugefügt. Die Kopie ist privat und hat keine Tags. Du kannst sie bearbeiten und löschen. Das Original ändert sich nicht. Dein Übungsfortschritt für dieses Wort wird auch kopiert. In deiner Wortliste wird die Kopie statt des Originals gezeigt. Wenn du die Kopie löschst, wird das Original wieder gezeigt.",
     "toastCloned": "Wort in deine Wörter kopiert",
     "toastError": "Etwas ist schief gelaufen: {{error}}"
   },

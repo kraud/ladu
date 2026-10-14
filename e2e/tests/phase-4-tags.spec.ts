@@ -390,6 +390,29 @@ test.describe.serial('Phase 4 — tags', () => {
             await expect(bar.getByRole('button', { name: 'Clone' })).toHaveCount(0);
         });
 
+        await test.step('B\'s /words lists the copy and not the original; with the tag filter the original stays; deleting the copy brings the original back', async () => {
+            await pageB.getByRole('link', { name: 'words', exact: true }).click();
+            await expect(pageB).toHaveURL('/words');
+            // One Banana row, and it is B's own (owner dot "me", not the group dot).
+            await expect(pageB.getByRole('row', { name: /Banana/ })).toHaveCount(1);
+            await expect(pageB.getByRole('row', { name: /Banana/ }).locator('.owner-group')).toHaveCount(0);
+            await expect(pageB.getByRole('row', { name: /Apple/ }).locator('.owner-group')).toBeVisible(); // not cloned
+
+            // The tag page always lists every word of the tag, the original of Banana included.
+            await pageB.getByRole('link', { name: 'tags', exact: true }).click();
+            await setScope(pageB, 'Followed');
+            await tagCard(pageB, 'Kitchen Words').getByRole('link', { name: /^Open / }).click();
+            await expect(pageB).toHaveURL(/\/tag\/.+/);
+            await expect(pageB.getByRole('row', { name: /Banana/ })).toHaveCount(1);
+
+            // Delete the copy (select it in /words, then the trash button): the original shows again.
+            await pageB.getByRole('link', { name: 'words', exact: true }).click();
+            await pageB.getByRole('row', { name: /Banana/ }).getByRole('checkbox').click();
+            await pageB.getByRole('button', { name: 'Delete', exact: true }).click();
+            await pageB.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
+            await expect(pageB.getByRole('row', { name: /Banana/ }).locator('.owner-group')).toBeVisible();
+        });
+
         await pageA.context().close();
         await pageB.context().close();
     });

@@ -64,7 +64,7 @@
     "openClone": "Abrir tu copia",
     "openCloneShort": "Abrir copia",
     "cloneConfirmTitle": "¿Clonar esta palabra?",
-    "cloneConfirmDescription": "Se añade una copia de esta palabra a tus palabras. La copia es privada y no tiene etiquetas. Puedes editarla y eliminarla. La original no cambia. Tu progreso de práctica con esta palabra también se copia.",
+    "cloneConfirmDescription": "Se añade una copia de esta palabra a tus palabras. La copia es privada y no tiene etiquetas. Puedes editarla y eliminarla. La original no cambia. Tu progreso de práctica con esta palabra también se copia. En tu lista de palabras se muestra la copia en lugar de la original. Si eliminas la copia, la original vuelve a mostrarse.",
     "toastCloned": "Palabra copiada a tus palabras",
     "toastError": "Algo salió mal: {{error}}"
   },

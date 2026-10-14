@@ -197,6 +197,7 @@ describe('WordPage — a word of someone else (a followed tag)', () => {
         expect(within(dialog).getByText(/A copy of this word is added to your words/)).toBeInTheDocument();
         expect(within(dialog).getByText(/private and has no tags/)).toBeInTheDocument();
         expect(within(dialog).getByText(/The original does not change/)).toBeInTheDocument();
+        expect(within(dialog).getByText(/the copy shows instead of the original/)).toBeInTheDocument();
         expect(fake.cloneRequests).toEqual([]);
 
         await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
