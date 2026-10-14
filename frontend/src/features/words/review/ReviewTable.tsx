@@ -221,7 +221,7 @@ export function ReviewTable({
 
     return (
         <div className="main-col min-h-0 flex-1">
-            <div className="tablewrap min-h-0 flex-1" aria-busy={isFetching} style={isFetching ? { opacity: 0.6 } : undefined}>
+            <div className="tablewrap tablewrap-fill min-h-0 max-[920px]:flex-1" aria-busy={isFetching} style={isFetching ? { opacity: 0.6 } : undefined}>
                 <table className="dtable">
                     <thead>
                         {table.getHeaderGroups().map((headerGroup) => (

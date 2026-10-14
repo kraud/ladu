@@ -90,7 +90,7 @@ export interface SidebarLayoutProps {
     header?: ReactNode;
     /** Content column max width: `max-w-7xl` instead of `max-w-5xl`. */
     wide?: boolean;
-    /** Phone only: the content column is exactly the window height under the header, and the page's last child fills what is left (Words' table). */
+    /** The content column is exactly the window height under the header, and the page's last child fills what is left (Words' table). */
     fillHeight?: boolean;
     children: ReactNode;
 }
@@ -232,7 +232,7 @@ export function SidebarLayout({
     const repeatsTitle = loneSection !== undefined && loneSection.label === label;
     const titleInHeader = !isMobile && repeatsTitle;
     const hideHeading = isMobile && repeatsTitle;
-    const fill = fillHeight && isMobile;
+    const fill = fillHeight;
     const mainSections = sections.filter((section) => !section.pinBottom);
     const bottomSections = sections.filter((section) => section.pinBottom);
     const body = (

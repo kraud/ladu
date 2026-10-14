@@ -692,8 +692,11 @@
     border-radius: var(--radius-lg);
     background: var(--surface);
   }
+  /* The page gives the table the free height (flex) instead of a fixed number. */
+  .tablewrap.tablewrap-fill {
+    max-height: none;
+  }
   @media (max-width: 920px) {
-    /* The page gives the table the free height (flex) instead of a fixed number. */
     .tablewrap {
       max-height: none;
     }
