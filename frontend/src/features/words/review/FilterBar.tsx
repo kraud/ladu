@@ -102,7 +102,7 @@ export function useFilterSections({
     }
 
     const clear = (onClick: () => void) => (
-        <button type="button" className="hint self-start underline" onClick={onClick}>
+        <button type="button" className="hint underline" onClick={onClick}>
             {t('review:filters.clear')}
         </button>
     );
@@ -113,9 +113,9 @@ export function useFilterSections({
             label: t('review:filters.gender'),
             icon: <GenderIntersexIcon size={18} />,
             count: gender.length,
+            headerAction: gender.length > 0 && clear(() => onGenderChange(undefined)),
             content: (
                 <div className="fb-group">
-                    {gender.length > 0 && clear(() => onGenderChange(undefined))}
                     <div className="flex flex-col gap-1.5">
                         {GENDER_BY_LANGUAGE.map((group) => (
                             <div key={group.key} className="flex flex-wrap items-center gap-2">
@@ -146,9 +146,9 @@ export function useFilterSections({
             label: t('review:filters.partOfSpeech'),
             icon: <TextAaIcon size={18} />,
             count: pos.length,
+            headerAction: pos.length > 0 && clear(() => onPosChange(undefined)),
             content: (
                 <div className="fb-group">
-                    {pos.length > 0 && clear(() => onPosChange(undefined))}
                     <div className="chips">
                         {posOptions.map((value) => (
                             <button
@@ -171,9 +171,9 @@ export function useFilterSections({
             label: t('review:filters.tags'),
             icon: <TagIcon size={18} />,
             count: selectedTags.length,
+            headerAction: selectedTags.length > 0 && clear(() => onSelectedTagsChange([])),
             content: (
                 <div className="fb-group">
-                    {selectedTags.length > 0 && clear(() => onSelectedTagsChange([]))}
                     <TagCombobox
                         mode="filter"
                         selected={selectedTags}
@@ -190,9 +190,9 @@ export function useFilterSections({
             label: t('review:filters.owner'),
             icon: <UserIcon size={18} />,
             count: owner ? 1 : 0,
+            headerAction: owner && clear(() => onOwnerChange?.(undefined)),
             content: (
                 <div className="fb-group">
-                    {owner && clear(() => onOwnerChange?.(undefined))}
                     <div className="chips">
                         {OWNER_OPTIONS.map((value) => (
                             <button

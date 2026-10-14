@@ -22,7 +22,7 @@ Follow-up of `plans/words-followed-selection.md`. Scope: the word page `/word/[i
 - [x] **2. Backend: clone one word.** (built 2026-10-14; `cloneWord` in `wordController.ts`, shared helper `cloneWordsForUser` in `services/wordService.ts`, tests in `backend/tests/wordClone.test.js`; a second clone of the same word answers 409) `POST /api/words/:id/clone` (the caller must be able to see the word; own word = 400). Move the word-copy part of `cloneTagForUser` (`tagController.ts`) into a shared helper that both use. `GET /api/words/:id` adds `myCloneId` for a word of someone else. Backend tests.
 - [x] **3. Word page: Clone / Open your copy.** (built 2026-10-14; `WordPage.tsx`, `useCloneWord`, `myCloneId` on `WordBE`; the test fake `makeWordHandlers` has clone and `cloneRequests`; e2e step at the end of the phase-4 tags spec) The footer button, the toast, the hand-off to the new word. Frontend tests and an e2e step (B follows a tag, clones a word, sees it in /words, the original is gone from the list only after Slice 4).
 - [x] **4. /words: no duplicates.** (built 2026-10-14; `notHiddenByOwnCopy` in `services/wordService.ts`, used by `getWordsSimplified`; the Clone dialog text mentions it; e2e step added) The rule in `GET /api/words/simple` (both modes, `total` included), off with a `tag` filter. Backend tests (clone hides the original, delete brings it back, tag filter keeps it, own words never hidden, total and pages).
-- [ ] **5. Practice: no duplicates.** Same rule in the Practice word pool (`services/exerciseService.ts`). Research the pool query first.
+- [x] **5. Practice: no duplicates.** (built 2026-10-14; `rankCandidateWords` in `services/exerciseService.ts` uses `notHiddenByOwnCopy`; no exception for Practice, by the user's choice; `visibleWordCondition` itself is not changed, so saving an answer still works) Same rule in the Practice word pool (`services/exerciseService.ts`). Research the pool query first.
 
 ## Backlog (after Slice 5)
 
@@ -33,4 +33,4 @@ Follow-up of `plans/words-followed-selection.md`. Scope: the word page `/word/[i
 
 ## Open points
 
-- The Practice pool query is not read yet. Slice 5 starts with that.
+- Saved practice lists (`practiceConfigService`) still count a followed original as visible even when you have a copy. A saved list that holds the original does not practise it any more (the pool rule leaves it out), and the copy is not in that list, so the user must add the copy. Not changed; decide later if this matters.

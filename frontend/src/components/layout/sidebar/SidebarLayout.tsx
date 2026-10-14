@@ -63,6 +63,8 @@ export interface SidebarSection {
     focusSelector?: string;
     /** Desktop and phone: the section sits at the bottom of the panel, under a title and a separator like the panel's own header. */
     pinBottom?: boolean;
+    /** Inline with the heading, at the right end of its row (for example a "Clear" button). It does not take part in the heading's name. */
+    headerAction?: ReactNode;
     content: ReactNode;
 }
 
@@ -243,12 +245,15 @@ export function SidebarLayout({
             {mainSections.map((section) => (
                 <section key={section.id} data-section={section.id} className="flex flex-col gap-2">
                     {!titleInHeader && (
-                        <h2 className={cn('label flex items-center gap-1.5', hideHeading && 'sr-only')}>
-                            <span aria-hidden="true" className="[&_svg]:size-3.5">
-                                {section.icon}
-                            </span>
-                            {section.label}
-                        </h2>
+                        <div className={cn('flex items-center justify-between gap-2', hideHeading && 'sr-only')}>
+                            <h2 className="label flex items-center gap-1.5">
+                                <span aria-hidden="true" className="[&_svg]:size-3.5">
+                                    {section.icon}
+                                </span>
+                                {section.label}
+                            </h2>
+                            {section.headerAction}
+                        </div>
                     )}
                     {section.content}
                 </section>

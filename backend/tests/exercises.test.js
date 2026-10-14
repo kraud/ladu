@@ -327,6 +327,42 @@ describe('POST /api/exercises/generate', () => {
             res = await generate(user, { wordIds: [theirs.id], amount: 10 });
             expect(res.body.exercises).toHaveLength(0);
         });
+
+        it('leaves out a followed word once the caller has an own copy of it, and brings it back when the copy is deleted (plans/words-clone-followed.md, Slice 5)', async () => {
+            const tag = await request(app)
+                .post('/api/tags').set(auth(other))
+                .send({ label: 'Shared', visibility: 'Public', description: '', wordIds: [theirs.id] });
+            await request(app).post(`/api/tags/${tag.body.id}/follow`).set(auth(user));
+            const wordIdsOf = (res) => res.body.exercises.map((e) => e.wordId);
+
+            expect(wordIdsOf(await generate(user, { amount: 10 }))).toContain(theirs.id);
+
+            const copy = await request(app).post(`/api/words/${theirs.id}/clone`).set(auth(user));
+            expect(copy.statusCode).toBe(201);
+
+            // Pool of all words: the copy, not the original. Same with the word ids given.
+            const pool = wordIdsOf(await generate(user, { amount: 10 }));
+            expect(pool).toContain(copy.body.id);
+            expect(pool).not.toContain(theirs.id);
+            const picked = await generate(user, { wordIds: [theirs.id, copy.body.id], amount: 10 });
+            expect(new Set(wordIdsOf(picked))).toEqual(new Set([copy.body.id]));
+
+            await request(app).delete(`/api/words/${copy.body.id}`).set(auth(user));
+            expect(wordIdsOf(await generate(user, { amount: 10 }))).toContain(theirs.id);
+        });
+
+        it('does not hide the original from another follower who has no copy', async () => {
+            const tag = await request(app)
+                .post('/api/tags').set(auth(other))
+                .send({ label: 'Shared', visibility: 'Public', description: '', wordIds: [theirs.id] });
+            await request(app).post(`/api/tags/${tag.body.id}/follow`).set(auth(user));
+            const second = await register('Second', 'second@test.com', 'second');
+            await request(app).post(`/api/tags/${tag.body.id}/follow`).set(auth(second));
+            await request(app).post(`/api/words/${theirs.id}/clone`).set(auth(user));
+
+            const res = await generate(second, { amount: 10 });
+            expect(res.body.exercises.map((e) => e.wordId)).toContain(theirs.id);
+        });
     });
 });
 

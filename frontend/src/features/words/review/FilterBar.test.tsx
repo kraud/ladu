@@ -112,6 +112,26 @@ describe('FilterBar — owner', () => {
     });
 });
 
+describe('FilterBar — Clear sits in the heading row', () => {
+    it.each([
+        ['Gender', { gender: ['der'] }],
+        ['Part of speech', { pos: [PartOfSpeech.noun] }],
+        ['Owner', { owner: 'me' as const }],
+    ])('%s: the Clear button is in the same row as the title, not under it', (title, props) => {
+        renderWithProviders(<FilterBar {...baseProps} {...props} />);
+        const heading = screen.getByRole('heading', { name: title });
+        const clear = within(heading.closest('section') as HTMLElement).getByRole('button', { name: 'Clear' });
+        expect(clear.parentElement).toBe(heading.parentElement);
+        // The heading keeps its own name: the button is not inside it.
+        expect(heading).not.toContainElement(clear);
+    });
+
+    it('shows no Clear button without a pick', () => {
+        renderWithProviders(<FilterBar {...baseProps} />);
+        expect(screen.queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
+    });
+});
+
 describe('FilterBar — gender chips (per-language, revised per user review)', () => {
     it('shows a German group and a Spanish group, each labelled by the 2-letter language code', () => {
         renderWithProviders(<FilterBar {...baseProps} />);
