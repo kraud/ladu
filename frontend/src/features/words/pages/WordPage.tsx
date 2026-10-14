@@ -161,16 +161,26 @@ export function WordPage() {
 
     const posLabel = t(partOfSpeechLabelKey(word.partOfSpeech));
 
-    const viewActions: EditorAction[] = [
-        { key: 'return', label: t('common:buttons.return'), icon: <ArrowLeftIcon size={18} />, onClick: goBack },
-        {
-            key: 'delete',
-            label: t('common:buttons.delete'),
-            icon: <TrashIcon size={18} />,
-            variant: 'destructive',
-            onClick: () => setConfirmingDelete(true),
-        },
-    ];
+    const returnAction: EditorAction = {
+        key: 'return',
+        label: t('common:buttons.return'),
+        icon: <ArrowLeftIcon size={18} />,
+        onClick: goBack,
+    };
+    // A word of someone else (it came through a followed tag) is view only: no Edit, no Delete — in the
+    // footer (desktop and phone) and in the phone's side menu. The backend refuses them anyway (403/401).
+    const viewActions: EditorAction[] = isOwn
+        ? [
+              returnAction,
+              {
+                  key: 'delete',
+                  label: t('common:buttons.delete'),
+                  icon: <TrashIcon size={18} />,
+                  variant: 'destructive',
+                  onClick: () => setConfirmingDelete(true),
+              },
+          ]
+        : [returnAction];
 
     // The arrow goes back like the browser's Back button. Only in the view state:
     // while editing, leaving would drop unsaved changes without asking (Cancel exists for that).
@@ -230,7 +240,11 @@ export function WordPage() {
                     tagsHint={tagsHint}
                     header={header}
                     actions={viewActions}
-                    primary={{ label: t('common:buttons.edit'), icon: <PencilSimpleIcon size={18} />, onClick: startEdit }}
+                    primary={
+                        isOwn
+                            ? { label: t('common:buttons.edit'), icon: <PencilSimpleIcon size={18} />, onClick: startEdit }
+                            : undefined
+                    }
                 />
             )}
 
@@ -260,7 +274,7 @@ function WordViewLayout({
     tagsHint: string;
     header: ReactNode;
     actions: EditorAction[];
-    primary: EditorPrimary;
+    primary?: EditorPrimary;
 }) {
     const sections = useWordSidebarSections({ clue: word.clue ?? '', tags: word.tags, tagsHint });
     const isMobile = useIsMobile();

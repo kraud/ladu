@@ -145,6 +145,46 @@ describe('WordPage — view', () => {
     });
 });
 
+describe('WordPage — a word of someone else (a followed tag)', () => {
+    const FOLLOWED = { ...SEED, user: 'someone-else' };
+
+    function setUpFollowed() {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] }).handlers);
+    }
+
+    it('desktop: shows the word, and the footer has Return only — no Edit, no Delete', async () => {
+        setUpFollowed();
+        await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
+
+        expect(await screen.findByRole('heading', { level: 1, name: 'house' })).toBeInTheDocument();
+        const bar = screen.getByTestId('word-editor-bar');
+        expect(within(bar).getByRole('button', { name: 'Return' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('phone: neither the footer nor the side menu has Edit or Delete', async () => {
+        mockMobileViewport();
+        const user = userEvent.setup();
+        setUpFollowed();
+        await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: 'Open menu' }));
+        expect(await screen.findByRole('button', { name: 'Return' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('your own word still has Edit and Delete', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [SEED] }).handlers);
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        const bar = await screen.findByTestId('word-editor-bar');
+        expect(within(bar).getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+        expect(within(bar).getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    });
+});
+
 describe('WordPage — edit', () => {
     it('edits a case, saves, and drops back to the (now updated) read-only view', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [SEED] });
