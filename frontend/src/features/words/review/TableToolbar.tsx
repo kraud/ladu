@@ -1,20 +1,17 @@
 /**
- * The toolbar above the table: debounced search box, the display switches
- * (`DisplayOptions` — Display gender, D14, only when there's a noun to apply
- * it to; Display progress, which gates the per-cell completion ring and
- * applies to every part of speech), and the loaded/total row count.
+ * The toolbar above the table: debounced search box and the loaded/total row
+ * count. The display switches (`DisplayOptions`) live in the side menu's
+ * "Display" section, not here.
  *
- * On a phone the switches live in the slide-in menu instead
- * (`compact`), and the "Filters" button that opens it
+ * On a phone (`compact`) the count is left out, and the "Filters" button that opens it
  * (`SidebarTrigger`) comes in through `leading`, before the search box. On
  * desktop that button renders nothing: the filter panel is always docked.
- * Search stays here either way; the count is left out on a phone for now.
+ * Search stays here either way.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
-import { DisplayOptions } from './DisplayOptions';
 
 const SEARCH_DEBOUNCE_MS = 500;
 
@@ -22,16 +19,6 @@ export interface TableToolbarProps {
     /** Seeds the search box from `search.q` — also resynced on an external reset (e.g. Clear filters). */
     initialQuery: string;
     onQueryChange: (next: string | undefined) => void;
-    /** D14: `ReviewPage` decides this from whether any loaded row is a Noun. */
-    showSwitch: boolean;
-    showGender: boolean;
-    onShowGenderChange: (next: boolean) => void;
-    showProgress: boolean;
-    onShowProgressChange: (next: boolean) => void;
-    showOwner: boolean;
-    onShowOwnerChange: (next: boolean) => void;
-    showPos: boolean;
-    onShowPosChange: (next: boolean) => void;
     loadedCount: number;
     total: number;
     /** Rendered before the search box (the phone's Filters button; empty on desktop). */
@@ -43,15 +30,6 @@ export interface TableToolbarProps {
 export function TableToolbar({
     initialQuery,
     onQueryChange,
-    showSwitch,
-    showGender,
-    onShowGenderChange,
-    showProgress,
-    onShowProgressChange,
-    showOwner,
-    onShowOwnerChange,
-    showPos,
-    onShowPosChange,
     loadedCount,
     total,
     leading,
@@ -94,19 +72,6 @@ export function TableToolbar({
                     aria-label={t('review:toolbar.searchLabel')}
                 />
             </div>
-            {!compact && (
-                <DisplayOptions
-                    showGenderSwitch={showSwitch}
-                    showGender={showGender}
-                    onShowGenderChange={onShowGenderChange}
-                    showProgress={showProgress}
-                    onShowProgressChange={onShowProgressChange}
-                    showOwner={showOwner}
-                    onShowOwnerChange={onShowOwnerChange}
-                    showPos={showPos}
-                    onShowPosChange={onShowPosChange}
-                />
-            )}
             {!compact && (
                 <span className="meta" style={{ marginLeft: 'auto' }}>
                     {t('review:toolbar.rowCount', { count: loadedCount, total })}

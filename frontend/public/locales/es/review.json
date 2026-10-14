@@ -11,7 +11,9 @@
   },
   "filters": {
     "title": "Filtros",
-    "display": "Visualización",
+    "display": "Opciones de visualización",
+    "displayBadges": "Insignias",
+    "displayColumns": "Columnas",
     "gender": "Género",
     "clear": "Borrar",
     "partOfSpeech": "Categoría gramatical",

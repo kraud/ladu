@@ -716,7 +716,13 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--muted);
-    border-bottom: 1px solid var(--border);
+    /* Header stays visible while the rows scroll under it. The bottom line is a
+       shadow because borders of a collapsed table do not travel with sticky cells. */
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--surface);
+    box-shadow: inset 0 -1px 0 var(--border);
     white-space: nowrap;
   }
   .dtable th.lang-col {

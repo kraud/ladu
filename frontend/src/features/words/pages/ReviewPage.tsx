@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import type { RowSelectionState } from '@tanstack/react-table';
-import { PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
+import { EyeIcon, FunnelIcon, PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
 import { PageTitle } from '@/components/common/PageTitle';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
@@ -261,32 +261,31 @@ export function ReviewPage() {
     };
 
     const filterSections = useFilterSections(filterBarProps);
-    // A phone has no room for the switches in the toolbar: they close the menu instead.
-    const sections: SidebarSection[] = isMobile
-        ? [
-              ...filterSections,
-              {
-                  id: 'display',
-                  label: t('review:filters.display'),
-                  icon: <SlidersHorizontalIcon size={18} />,
-                  content: (
-                      <div className="flex flex-col gap-3">
-                          <DisplayOptions
-                              showGenderSwitch={hasNounRows}
-                              showGender={showGender}
-                              onShowGenderChange={setShowGender}
-                              showProgress={showProgress}
-                              onShowProgressChange={setShowProgress}
-                              showOwner={showOwner}
-                              onShowOwnerChange={setShowOwner}
-                              showPos={showPos}
-                              onShowPosChange={setShowPos}
-                          />
-                      </div>
-                  ),
-              },
-          ]
-        : filterSections;
+    // The display switches are pinned to the bottom of the side menu, apart from the filters above them.
+    const sections: SidebarSection[] = [
+        ...filterSections,
+        {
+            id: 'display',
+            label: t('review:filters.display'),
+            icon: <EyeIcon size={18} />,
+            pinBottom: true,
+            content: (
+                <div className="flex flex-col gap-4">
+                    <DisplayOptions
+                        showGenderSwitch={hasNounRows}
+                        showGender={showGender}
+                        onShowGenderChange={setShowGender}
+                        showProgress={showProgress}
+                        onShowProgressChange={setShowProgress}
+                        showOwner={showOwner}
+                        onShowOwnerChange={setShowOwner}
+                        showPos={showPos}
+                        onShowPosChange={setShowPos}
+                    />
+                </div>
+            ),
+        },
+    ];
     const activeCount = activeFilterCount(filterBarProps.gender, filterBarProps.pos, filterBarProps.hasQuery, filterBarProps.selectedTags.length);
 
     // The header's language gate already blocks navigating here below two
@@ -313,6 +312,7 @@ export function ReviewPage() {
         <SidebarLayout
             id="review"
             label={t('review:filters.title')}
+            labelIcon={<FunnelIcon size={18} />}
             sections={sections}
             fillHeight
             header={
@@ -329,15 +329,6 @@ export function ReviewPage() {
                 <TableToolbar
                     initialQuery={search.q ?? ''}
                     onQueryChange={(next) => updateSearch({ q: next })}
-                    showSwitch={hasNounRows}
-                    showGender={showGender}
-                    onShowGenderChange={setShowGender}
-                    showProgress={showProgress}
-                    onShowProgressChange={setShowProgress}
-                    showOwner={showOwner}
-                    onShowOwnerChange={setShowOwner}
-                    showPos={showPos}
-                    onShowPosChange={setShowPos}
                     loadedCount={rows.length}
                     total={total}
                     compact={isMobile}

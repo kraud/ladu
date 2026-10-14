@@ -11,7 +11,9 @@
   },
   "filters": {
     "title": "Filters",
-    "display": "Display",
+    "display": "Display options",
+    "displayBadges": "Badges",
+    "displayColumns": "Columns",
     "gender": "Gender",
     "clear": "Clear",
     "partOfSpeech": "Part of speech",

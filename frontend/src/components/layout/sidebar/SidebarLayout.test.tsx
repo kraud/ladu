@@ -44,6 +44,22 @@ describe('SidebarLayout — desktop', () => {
         expect(screen.queryByRole('button', { name: 'Open filters' })).not.toBeInTheDocument();
     });
 
+    it('puts a pinBottom section last, under its own title and a separator', () => {
+        const pinned: SidebarSection = {
+            id: 'pinned',
+            label: 'Pinned',
+            icon: <i />,
+            pinBottom: true,
+            content: <div>Pinned content</div>,
+        };
+        renderLayout({ sections: [pinned, ...SECTIONS] });
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        const sections = panel.querySelectorAll('[data-section]');
+        expect(sections[sections.length - 1]).toHaveAttribute('data-section', 'pinned');
+        expect(sections[sections.length - 1]).toHaveClass('mt-auto', 'border-t');
+        expect(within(panel).getByRole('heading', { name: 'Pinned' })).toBeInTheDocument();
+    });
+
     it('shows the panel title in the header row, beside the collapse button', () => {
         renderLayout();
         const panel = screen.getByRole('complementary', { name: 'Filters' });

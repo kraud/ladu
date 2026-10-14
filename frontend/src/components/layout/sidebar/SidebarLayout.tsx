@@ -61,6 +61,8 @@ export interface SidebarSection {
     count?: number;
     /** CSS selector inside the section: focused after a rail click expands the panel. */
     focusSelector?: string;
+    /** Desktop and phone: the section sits at the bottom of the panel, under a title and a separator like the panel's own header. */
+    pinBottom?: boolean;
     content: ReactNode;
 }
 
@@ -69,6 +71,8 @@ export interface SidebarLayoutProps {
     width?: 'narrow' | 'wide';
     /** Accessible name of the panel and the title of the slide-in menu. */
     label: string;
+    /** Icon before the panel title in the header row (accent colour). */
+    labelIcon?: ReactNode;
     sections: SidebarSection[];
     /** Phone only: shown above the sections in the slide-in menu. */
     drawerTop?: ReactNode;
@@ -157,6 +161,7 @@ export function SidebarLayout({
     id,
     width = 'narrow',
     label,
+    labelIcon,
     sections,
     drawerTop,
     drawerBottom,
@@ -228,9 +233,14 @@ export function SidebarLayout({
     const titleInHeader = !isMobile && repeatsTitle;
     const hideHeading = isMobile && repeatsTitle;
     const fill = fillHeight && isMobile;
+    const mainSections = sections.filter((section) => !section.pinBottom);
+    const bottomSections = sections.filter((section) => section.pinBottom);
     const body = (
-        <div className="flex flex-col gap-4" style={isMobile ? undefined : { width: `calc(${WIDTHS[width].px} - 2rem - 1px)` }}>
-            {sections.map((section) => (
+        <div
+            className="flex flex-1 flex-col gap-4"
+            style={isMobile ? undefined : { width: `calc(${WIDTHS[width].px} - 2rem - 1px)` }}
+        >
+            {mainSections.map((section) => (
                 <section key={section.id} data-section={section.id} className="flex flex-col gap-2">
                     {!titleInHeader && (
                         <h2 className={cn('label flex items-center gap-1.5', hideHeading && 'sr-only')}>
@@ -240,6 +250,26 @@ export function SidebarLayout({
                             {section.label}
                         </h2>
                     )}
+                    {section.content}
+                </section>
+            ))}
+            {bottomSections.map((section) => (
+                <section
+                    key={section.id}
+                    data-section={section.id}
+                    className="mt-auto flex flex-col gap-3 border-t border-border pb-3 pt-3"
+                >
+                    <h2
+                        className={cn(
+                            'label flex items-center gap-1.5 border-b border-border pb-2',
+                            isMobile ? 'text-[17px]' : 'text-[15px]',
+                        )}
+                    >
+                        <span aria-hidden="true" className="shrink-0 text-(--accent)">
+                            {section.icon}
+                        </span>
+                        {section.label}
+                    </h2>
                     {section.content}
                 </section>
             ))}
@@ -275,7 +305,12 @@ export function SidebarLayout({
                                 {collapsed ? <CaretRightIcon size={16} /> : <CaretLeftIcon size={16} />}
                             </button>
                             {!collapsed && (
-                                <h2 className="label flex min-w-0 items-center text-[15px]">
+                                <h2 className="label flex min-w-0 items-center gap-1.5 text-[15px]">
+                                    {labelIcon && (
+                                        <span aria-hidden="true" className="shrink-0 text-(--accent)">
+                                            {labelIcon}
+                                        </span>
+                                    )}
                                     <span className="truncate">{label}</span>
                                 </h2>
                             )}
@@ -348,7 +383,14 @@ export function SidebarLayout({
                         className="w-72 max-w-[85vw] overflow-y-auto p-4 sm:max-w-none"
                     >
                         <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
-                            <SheetTitle>{label}</SheetTitle>
+                            <SheetTitle className="flex items-center gap-1.5 text-[17px]">
+                                {labelIcon && (
+                                    <span aria-hidden="true" className="shrink-0 text-(--accent)">
+                                        {labelIcon}
+                                    </span>
+                                )}
+                                {label}
+                            </SheetTitle>
                             <button
                                 type="button"
                                 className="icon-btn"

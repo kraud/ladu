@@ -7,15 +7,6 @@ import { TableToolbar, type TableToolbarProps } from './TableToolbar';
 const baseProps: TableToolbarProps = {
     initialQuery: '',
     onQueryChange: vi.fn(),
-    showSwitch: false,
-    showGender: true,
-    onShowGenderChange: vi.fn(),
-    showProgress: true,
-    onShowProgressChange: vi.fn(),
-    showOwner: true,
-    onShowOwnerChange: vi.fn(),
-    showPos: true,
-    onShowPosChange: vi.fn(),
     loadedCount: 3,
     total: 10,
 };
@@ -87,46 +78,6 @@ describe('TableToolbar — search debounce', () => {
     });
 });
 
-describe('TableToolbar — Display-gender switch (D14)', () => {
-    it('is hidden when showSwitch is false', () => {
-        renderWithProviders(<TableToolbar {...baseProps} showSwitch={false} />);
-        expect(screen.queryByText('Gender')).not.toBeInTheDocument();
-    });
-
-    it('is shown, and toggles, when showSwitch is true', async () => {
-        const onShowGenderChange = vi.fn();
-        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-        renderWithProviders(
-            <TableToolbar {...baseProps} showSwitch showGender onShowGenderChange={onShowGenderChange} />,
-        );
-
-        const toggle = screen.getByText('Gender').closest('button')!;
-        expect(toggle).toHaveAttribute('aria-pressed', 'true');
-        await user.click(toggle);
-        expect(onShowGenderChange).toHaveBeenCalledWith(false);
-    });
-});
-
-describe('TableToolbar — Display-progress switch (always visible, unlike gender)', () => {
-    it('is shown regardless of showSwitch, and toggles', async () => {
-        const onShowProgressChange = vi.fn();
-        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-        renderWithProviders(
-            <TableToolbar
-                {...baseProps}
-                showSwitch={false}
-                showProgress
-                onShowProgressChange={onShowProgressChange}
-            />,
-        );
-
-        const toggle = screen.getByText('Progress').closest('button')!;
-        expect(toggle).toHaveAttribute('aria-pressed', 'true');
-        await user.click(toggle);
-        expect(onShowProgressChange).toHaveBeenCalledWith(false);
-    });
-});
-
 describe('TableToolbar — row count', () => {
     it('renders loaded/total', () => {
         renderWithProviders(<TableToolbar {...baseProps} loadedCount={3} total={10} />);
@@ -135,10 +86,8 @@ describe('TableToolbar — row count', () => {
 });
 
 describe('TableToolbar — phone layout', () => {
-    it('compact removes both switches and the count but keeps search', () => {
-        renderWithProviders(<TableToolbar {...baseProps} showSwitch compact />);
-        expect(screen.queryByText('Gender')).not.toBeInTheDocument();
-        expect(screen.queryByText('Progress')).not.toBeInTheDocument();
+    it('compact removes the count but keeps search', () => {
+        renderWithProviders(<TableToolbar {...baseProps} compact />);
         expect(screen.getByRole('textbox', { name: 'Filter table' })).toBeInTheDocument();
         expect(screen.queryByText('3 of 10 words')).not.toBeInTheDocument();
     });

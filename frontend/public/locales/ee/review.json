@@ -11,7 +11,9 @@
   },
   "filters": {
     "title": "Filtrid",
-    "display": "Kuva",
+    "display": "Kuvamise valikud",
+    "displayBadges": "Märgised",
+    "displayColumns": "Veerud",
     "gender": "Sugu",
     "clear": "Tühjenda",
     "partOfSpeech": "Sõnaliik",

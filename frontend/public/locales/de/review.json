@@ -11,7 +11,9 @@
   },
   "filters": {
     "title": "Filter",
-    "display": "Anzeige",
+    "display": "Anzeigeoptionen",
+    "displayBadges": "Kennzeichen",
+    "displayColumns": "Spalten",
     "gender": "Genus",
     "clear": "Löschen",
     "partOfSpeech": "Wortart",
