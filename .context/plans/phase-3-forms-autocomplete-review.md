@@ -898,6 +898,7 @@ Three further calls made by the agent, each reversible and flagged for review:
   followed-tag word in this app yet — the branch is unreachable, not merely unbuilt.
   `WordCell.tsx`'s filled-cell button gained the `isOwn` guard its empty-cell branch already had;
   a non-own row's filled cells now render an inert `<span>` instead of a button that would 403.
+  *Superseded 2026-10-14 (`plans/words-followed-selection.md`, Slice 5):* a filled cell of a followed word is a button again and opens the dialog read-only (`CellDialog` `readOnly`).
 - **D29 — the save payload is built from the fetched `WordBE` directly, not through
   `useWordFormState`'s `filterTranslationsByUserLanguages`.** That helper drops any translation in
   a language the account no longer lists — correct for the compose form, wrong here, since the

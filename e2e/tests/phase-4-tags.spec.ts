@@ -274,6 +274,17 @@ test.describe.serial('Phase 4 — tags', () => {
             }
         });
 
+        await test.step("B opens a translation of a followed word: the dialog is view only", async () => {
+            await pageB.getByRole('row', { name: /Apple/ }).getByRole('button', { name: /Apple/ }).click();
+            const dialog = pageB.getByRole('dialog');
+            await expect(dialog.getByRole('button', { name: 'Close' }).first()).toBeVisible();
+            await expect(dialog).toContainText('Apple');
+            await expect(dialog.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+            await expect(dialog.getByRole('button', { name: 'Delete translation' })).toHaveCount(0);
+            await pageB.keyboard.press('Escape');
+            await expect(dialog).toHaveCount(0);
+        });
+
         await test.step('A flips the tag to Private (D9) — the follower count already reflects B', async () => {
             await pageA.getByRole('link', { name: 'tags', exact: true }).click();
             await expect(pageA).toHaveURL('/tags');

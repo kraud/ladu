@@ -530,6 +530,7 @@ export function TagViewPage() {
                     onClose={() => setCellTarget(null)}
                     nativeLanguage={user?.nativeLanguage}
                     userLanguages={userLanguages}
+                    readOnly={wordRows.find((row) => row.id === cellTarget.wordId)?.user !== userId}
                 />
             )}
         </SidebarLayout>

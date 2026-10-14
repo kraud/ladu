@@ -185,9 +185,9 @@ describe('WordCell — translation stored', () => {
         expect(document.querySelector('.ring')).not.toBeInTheDocument();
     });
 
-    it('is not a button and does not call onOpenCell for a non-own (followed-tag) word (D28)', () => {
+    it('a filled cell of a non-own (followed-tag) word is a button that opens the cell (read-only dialog)', () => {
         const onOpenCell = vi.fn();
-        const row = baseRow({ dataEN: 'house', registeredCasesEN: 2, storedLanguages: ['English'] });
+        const row = baseRow({ id: 'followed-1', dataEN: 'house', registeredCasesEN: 2, storedLanguages: ['English'] });
         renderWithProviders(
             <table>
                 <tbody>
@@ -207,10 +207,26 @@ describe('WordCell — translation stored', () => {
             </table>,
         );
 
+        fireEvent.click(screen.getByRole('button', { name: /house/ }));
+        expect(onOpenCell).toHaveBeenCalledWith('followed-1', 'EN');
+    });
+
+    it('an empty cell of a non-own word has no button, so nothing can be added to it', () => {
+        const onOpenCell = vi.fn();
+        const row = baseRow({ dataEN: 'house', registeredCasesEN: 2, storedLanguages: ['English'] });
+        renderWithProviders(
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <WordCell row={row} langKey="DE" isOwn={false} showGender showProgress onOpenCell={onOpenCell} />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>,
+        );
+
         expect(screen.queryByRole('button')).not.toBeInTheDocument();
-        const wordSpan = screen.getByText('house');
-        expect(wordSpan.tagName).toBe('SPAN');
-        fireEvent.click(wordSpan);
         expect(onOpenCell).not.toHaveBeenCalled();
     });
 

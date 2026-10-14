@@ -61,6 +61,7 @@ function renderDialog(ui: {
     onClose: () => void;
     nativeLanguage?: string | null;
     userLanguages?: readonly string[];
+    readOnly?: boolean;
 }) {
     return renderWithProviders(
         <>
@@ -388,6 +389,29 @@ describe('CellDialog — delete translation', () => {
         // and `LanguagePicker` already use (design commandment: no language
         // treated as "primary", including via translation of its own name).
         expect(await screen.findByText('Deutsch translation removed')).toBeInTheDocument();
+    });
+});
+
+describe('CellDialog — read-only (a word from a followed tag)', () => {
+    it('shows the translation with no Edit and no Delete translation, even with 3 translations', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [THREE_LANG_WORD] }).handlers);
+        renderDialog({ wordId: THREE_LANG_WORD.id, langKey: 'DE', onClose: vi.fn(), readOnly: true });
+
+        await waitFor(() => expect(screen.getByRole('dialog')).toHaveTextContent('Baum'));
+        expect(screen.getAllByRole('button', { name: 'Close' }).length).toBeGreaterThan(0);
+        expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete translation' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();
+    });
+
+    it('a language the word does not have gives a note, no form and no Edit (nothing can be added)', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [TWO_LANG_WORD] }).handlers);
+        renderDialog({ wordId: TWO_LANG_WORD.id, langKey: 'DE', onClose: vi.fn(), readOnly: true });
+
+        expect(await screen.findByText(/read-only word from a followed tag/)).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
 });
 

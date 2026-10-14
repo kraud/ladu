@@ -56,3 +56,4 @@ Why first: Slice 2 removes "own words only" from Select all; this filter gives t
 - [x] Slice 2b — "Select all N matching" bar replaced by a "(+ all pages)" text button on the action bar (hover = highlight colour on desktop, always on mobile)
 - [x] Slice 3 — Action bar look and mobile layout (built 2026-10-14; icons, trash icon button, mobile Unselect next to the label + Select all, accent-tint colours; checked by screenshot in light, dark and phone width)
 - [x] Slice 4 — Row click opens the word, after a confirm dialog; View button removed (built 2026-10-14; `onOpenWord` on `ReviewTable`, e2e phase-3 updated)
+- [x] Slice 5 — A filled translation cell of a followed word opens the dialog read-only (no Edit, no Delete translation, no Save); an empty cell of a followed word has no button (built 2026-10-14; `CellDialog` prop `readOnly`; also on `/tag/[id]`; this is the follow-up that D28 of `phase-3-forms-autocomplete-review.md` deferred to Phase 4)

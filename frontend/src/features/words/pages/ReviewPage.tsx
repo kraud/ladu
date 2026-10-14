@@ -436,6 +436,7 @@ export function ReviewPage() {
                     onClose={closeCellDialog}
                     nativeLanguage={user?.nativeLanguage}
                     userLanguages={userLanguages}
+                    readOnly={rows.find((row) => row.id === cellTarget.wordId)?.user !== userId}
                 />
             )}
         </SidebarLayout>

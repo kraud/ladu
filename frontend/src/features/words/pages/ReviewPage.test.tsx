@@ -953,6 +953,39 @@ describe('ReviewPage — words from followed tags', () => {
         expect(screen.getByText(/available only when all selected words are your own/)).toBeInTheDocument();
     });
 
+    it('a filled cell of a followed word opens the dialog read-only; an empty one has no button', async () => {
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [followedSeed()],
+            followedWordIds: ['f1'],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        const row = (await screen.findByText('tree')).closest('tr')!;
+
+        // The German cell is empty: no Add button (the word is not yours).
+        expect(within(row).queryByRole('button', { name: /Add .* translation/ })).not.toBeInTheDocument();
+
+        await user.click(within(row).getByRole('button', { name: /tree/ }));
+        const dialog = await screen.findByRole('dialog');
+        await waitFor(() => expect(within(dialog).getAllByRole('button', { name: 'Close' }).length).toBeGreaterThan(1));
+        expect(within(dialog).queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+        expect(within(dialog).queryByRole('button', { name: 'Delete translation' })).not.toBeInTheDocument();
+    });
+
+    it('your own word still opens with an Edit button', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [nounSeed('cat', 'w1')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        const row = (await screen.findByText('cat')).closest('tr')!;
+        await user.click(within(row).getByRole('button', { name: /cat/ }));
+        expect(await screen.findByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    });
+
     it('brings Add tags and Delete back once only your own words stay selected', async () => {
         const fake = makeWordHandlers({
             callerId: SESSION.id,
