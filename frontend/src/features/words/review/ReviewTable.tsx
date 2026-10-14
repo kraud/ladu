@@ -17,15 +17,13 @@ import type { PageSize } from '@/lib/pagination';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 import { buildWordColumns } from './columns';
 import type { LanguageSort } from './useLanguageSort';
+import { isPlainRowClick } from './rowClick';
 
 const SKELETON_ROWS = 8;
 
 const LONG_PRESS_MS = 450;
 /** A finger that moves farther than this (px) is scrolling, not pressing. */
 const LONG_PRESS_SLOP = 10;
-
-/** A click on any of these is for the element itself (a cell label, a checkbox, a link), not for the row. */
-const ROW_CLICK_IGNORED = 'button, a, input, label, [role="checkbox"], .select-cell';
 
 const SHRINK_COLUMNS = new Set(['select', 'owner', 'partOfSpeech', 'tags']);
 
@@ -279,7 +277,7 @@ export function ReviewTable({
                                                         event.preventDefault();
                                                         event.stopPropagation();
                                                         row.toggleSelected();
-                                                    } else if (!(event.target as HTMLElement).closest(ROW_CLICK_IGNORED)) {
+                                                    } else if (isPlainRowClick(event)) {
                                                         onOpenWord?.(row.id);
                                                     }
                                                 },
@@ -288,9 +286,7 @@ export function ReviewTable({
                                       {...(!compact && onOpenWord
                                           ? {
                                                 onClick: (event: React.MouseEvent) => {
-                                                    if (!(event.target as HTMLElement).closest(ROW_CLICK_IGNORED)) {
-                                                        onOpenWord(row.id);
-                                                    }
+                                                    if (isPlainRowClick(event)) onOpenWord(row.id);
                                                 },
                                             }
                                           : {})}

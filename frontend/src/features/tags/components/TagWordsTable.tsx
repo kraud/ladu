@@ -14,6 +14,10 @@
  * (`removeMode`, owned by `TagViewPage`) puts a trash column on the *left* of
  * the table, so it stays in view however many language columns there are, and
  * disables "Add words". A cell's "+" (add translation) shows for an owned tag.
+ *
+ * A click on a row (not on a button, link or checkbox: `isPlainRowClick`) asks to open the word
+ * (`onOpenWord`) — for any tag, also a Public one the user does not follow. Off in remove mode,
+ * where the trash column is the only action.
  */
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +32,7 @@ import { TablePagination } from '@/components/common/TablePagination';
 import type { PageSize } from '@/lib/pagination';
 import { buildLanguageColumns, buildOwnerColumn, buildPartOfSpeechColumn } from '@/features/words/review/columns';
 import type { LanguageSort } from '@/features/words/review/useLanguageSort';
+import { isPlainRowClick } from '@/features/words/review/rowClick';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 
@@ -62,6 +67,8 @@ export interface TagWordsTableProps {
     /** The empty-state CTA for an owned tag with zero words — absent elsewhere. */
     onAddWords?: () => void;
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
+    /** A click on a row itself asks to open the word. Not offered in remove mode. */
+    onOpenWord?: (wordId: string) => void;
     /** The display options live in the page's side menu; the table only reads them. */
     showGender: boolean;
     showProgress: boolean;
@@ -109,6 +116,7 @@ export function TagWordsTable({
     onRemove,
     onAddWords,
     onOpenCell,
+    onOpenWord,
     showGender,
     showProgress,
     showOwner,
@@ -123,6 +131,8 @@ export function TagWordsTable({
     const { t } = useTranslation();
     const isMobile = useIsMobile();
     const showRemoveColumn = canRemove && removeMode;
+    // The trash column is the only action in remove mode, so a row click does nothing then.
+    const openWord = removeMode ? undefined : onOpenWord;
     // Equal width for every language column, so N columns always fill the
     // table instead of leaving space on the right when there are only a few.
     const langColWidth = languages.length > 0 ? `${100 / languages.length}%` : undefined;
@@ -337,7 +347,11 @@ export function TagWordsTable({
                             </thead>
                             <tbody>
                                 {table.getRowModel().rows.map((row) => (
-                                    <tr key={row.id}>
+                                    <tr
+                                        key={row.id}
+                                        className={openWord ? 'row-link' : undefined}
+                                        onClick={openWord ? (event) => isPlainRowClick(event) && openWord(row.id) : undefined}
+                                    >
                                         {row.getVisibleCells().map((cell) => {
                                             const isLangCol = cell.column.id.startsWith('lang_');
                                             const isShrinkCol =

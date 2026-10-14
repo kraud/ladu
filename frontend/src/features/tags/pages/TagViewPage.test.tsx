@@ -33,9 +33,14 @@ function verbSeed(label: string, id: string, tagId?: string): SeedWord {
     };
 }
 
-function setUp(seedTags: SeedTag[] = [], seedWords: SeedWord[] = [], authorBadges: Record<string, string[]> = {}) {
+function setUp(
+    seedTags: SeedTag[] = [],
+    seedWords: SeedWord[] = [],
+    authorBadges: Record<string, string[]> = {},
+    followedWordIds: string[] = [],
+) {
     const tagFake = makeTagHandlers({ callerId: ME, usernames: { [OTHER]: 'mari' }, seedTags, authorBadges });
-    const wordFake = makeWordHandlers({ callerId: ME, seed: seedWords });
+    const wordFake = makeWordHandlers({ callerId: ME, seed: seedWords, followedWordIds });
     server.use(...tagFake.handlers, ...wordFake.handlers);
     return { tagFake, wordFake };
 }
@@ -254,6 +259,79 @@ describe('TagViewPage — discover tag', () => {
         await user.click(screen.getByRole('button', { name: 'Create copy' }));
 
         expect(await screen.findByText('Copy of "Travel" created — it\'s all yours now')).toBeInTheDocument();
+    });
+});
+
+describe('TagViewPage — a click on a row opens the word', () => {
+    const otherWord = (): SeedWord => ({ ...verbSeed('wander', 'w9', 'tag-1'), user: OTHER });
+
+    it('asks first; Open goes to the word page — also on a Public tag the user does not follow', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public', wordIds: ['w9'] }],
+            [otherWord()],
+            {},
+            ['w9'],
+        );
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        expect(await screen.findByText('Discover')).toBeInTheDocument();
+        const row = (await screen.findByText('wander')).closest('tr')!;
+
+        await user.click(row.querySelector('.owner-dot, .pos-abbr')!);
+        expect(await screen.findByText('Open this word?')).toBeInTheDocument();
+        expect(screen.getByText('Go to the page of "wander"?')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Open' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/word/w9'));
+    });
+
+    it('Cancel stays on the tag page', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        const row = (await screen.findByText('simmer')).closest('tr')!;
+
+        await user.click(row.querySelector('.owner-dot, .pos-abbr')!);
+        await user.click(await screen.findByRole('button', { name: 'Cancel' }));
+
+        expect(screen.queryByText('Open this word?')).not.toBeInTheDocument();
+        expect(router.state.location.pathname).toBe('/tag/tag-1');
+    });
+
+    it('a click on a cell label opens the cell dialog, not the word — read-only for a word of someone else', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public', wordIds: ['w9'] }],
+            [otherWord()],
+            {},
+            ['w9'],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: /wander/ }));
+
+        const dialog = await screen.findByRole('dialog');
+        await waitFor(() => expect(within(dialog).getAllByRole('button', { name: 'Close' }).length).toBeGreaterThan(1));
+        expect(within(dialog).queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+        expect(screen.queryByText('Open this word?')).not.toBeInTheDocument();
+    });
+
+    it('in remove mode a click on a row does nothing', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        const row = (await screen.findByText('simmer')).closest('tr')!;
+
+        await user.click(screen.getByRole('button', { name: 'Remove words' }));
+        await user.click(row.querySelector('.owner-dot, .pos-abbr')!);
+
+        expect(screen.queryByText('Open this word?')).not.toBeInTheDocument();
     });
 });
 

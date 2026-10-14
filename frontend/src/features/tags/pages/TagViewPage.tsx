@@ -38,6 +38,7 @@ import { LanguageOrderControl } from '@/features/words/review/LanguageOrderContr
 import { useFilterSections } from '@/features/words/review/FilterBar';
 import { PartOfSpeech } from '@/ts/enums';
 import { CellDialog } from '@/features/words/review/CellDialog';
+import { OpenWordDialog } from '@/features/words/review/OpenWordDialog';
 import { useTagWordIds, useWordsPage } from '@/features/words/hooks';
 import { nextLanguageSort, sortFilters } from '@/features/words/review/useLanguageSort';
 import { reviewSearchToSort } from '@/features/words/review/search';
@@ -159,6 +160,10 @@ export function TagViewPage() {
     const [showOwner, setShowOwner] = useState(true);
     const [showPos, setShowPos] = useState(true);
     const [cellTarget, setCellTarget] = useState<{ wordId: string; langKey: LangKey } | null>(null);
+    // A click on a row asks first (a dialog), then opens `/word/$wordId`.
+    const [openWordId, setOpenWordId] = useState<string | null>(null);
+    const openWordRow = openWordId ? wordRows.find((row) => row.id === openWordId) : undefined;
+    const openWordLabel = openWordRow ? languages.map((lang) => openWordRow[`data${lang}`]).find(Boolean) : undefined;
 
     // The side menu offers only what the whole tag holds (not the page on screen, which a filter can empty):
     // Gender once it has a noun, and Part of speech with the parts of speech it has, even if there is one.
@@ -430,6 +435,7 @@ export function TagViewPage() {
                         onRemove={handleRemoveWord}
                         onAddWords={() => setAddingWords(true)}
                         onOpenCell={(wordId, langKey) => setCellTarget({ wordId, langKey })}
+                        onOpenWord={setOpenWordId}
                         showGender={showGender}
                         showProgress={showProgress}
                         showOwner={showOwner}
@@ -520,6 +526,13 @@ export function TagViewPage() {
                 description={t('tags:page.unfollowConfirmDescription', { label: tag.label, author: tag.author.username })}
                 confirmLabel={t('tags:card.unfollow')}
                 onConfirm={handleUnfollowConfirmed}
+            />
+
+            <OpenWordDialog
+                wordId={openWordId}
+                label={openWordLabel}
+                onClose={() => setOpenWordId(null)}
+                onOpen={(wordId) => void navigate({ to: '/word/$wordId', params: { wordId } })}
             />
 
             {cellTarget && (

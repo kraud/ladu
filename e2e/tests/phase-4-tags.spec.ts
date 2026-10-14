@@ -249,8 +249,37 @@ test.describe.serial('Phase 4 — tags', () => {
             await expect(pageA.getByRole('row', { name: /Carrot/ }).getByText('Kitchen Words')).toBeVisible();
         });
 
-        await test.step('B signs in and follows "Kitchen Words" from Discover', async () => {
+        await test.step('B signs in and previews "Kitchen Words" before following: a row opens the word, a cell opens read-only', async () => {
             await signIn(pageB, follower);
+            await pageB.getByRole('link', { name: 'tags', exact: true }).click();
+            await expect(pageB).toHaveURL('/tags');
+            await setScope(pageB, 'Discover');
+            await pageB.getByLabel('Search tags').fill('Kitchen Words');
+            await tagCard(pageB, 'Kitchen Words').getByRole('link', { name: /^Open / }).click();
+            await expect(pageB).toHaveURL(/\/tag\/.+/);
+            const tagUrl = pageB.url();
+
+            // A click on the row (the owner dot is no button) asks first, then opens the word page.
+            await pageB.getByRole('row', { name: /Apple/ }).locator('.owner-group').click();
+            await pageB.getByRole('alertdialog').getByRole('button', { name: 'Open' }).click();
+            await expect(pageB).toHaveURL(/\/word\/.+/);
+            await expect(pageB.getByRole('heading', { level: 1, name: 'Apple' })).toBeVisible();
+            const bar = pageB.getByTestId('word-editor-bar');
+            await expect(bar.getByRole('button', { name: 'Clone' })).toBeVisible();
+            await expect(bar.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+            await expect(bar.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+
+            // A click on a cell opens the translation dialog, view only.
+            await pageB.goto(tagUrl);
+            await pageB.getByRole('row', { name: /Apple/ }).getByRole('button', { name: /Apple/ }).click();
+            const dialog = pageB.getByRole('dialog');
+            await expect(dialog).toContainText('Apple');
+            await expect(dialog.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+            await expect(dialog.getByRole('button', { name: 'Delete translation' })).toHaveCount(0);
+            await pageB.keyboard.press('Escape');
+        });
+
+        await test.step('B follows "Kitchen Words" from Discover', async () => {
             await pageB.getByRole('link', { name: 'tags', exact: true }).click();
             await expect(pageB).toHaveURL('/tags');
 

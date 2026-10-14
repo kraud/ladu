@@ -83,6 +83,61 @@ describe('TagWordsTable — rendering rows', () => {
     });
 });
 
+describe('TagWordsTable — a click on a row opens the word', () => {
+    const rows = [makeRow('w1', 'run')];
+
+    it('calls onOpenWord for a click on the row, and marks the rows as links', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<TagWordsTable {...baseProps} rows={rows} total={1} onOpenWord={onOpenWord} />);
+
+        expect(document.querySelector('tbody tr')).toHaveClass('row-link');
+        await user.click(document.querySelector('tbody tr .pos-abbr')!);
+        expect(onOpenWord).toHaveBeenCalledWith('w1');
+    });
+
+    it('a click on a cell label opens the cell, not the word', async () => {
+        const onOpenWord = vi.fn();
+        const onOpenCell = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={rows} total={1} onOpenWord={onOpenWord} onOpenCell={onOpenCell} />,
+        );
+
+        await user.click(screen.getByRole('button', { name: /run/ }));
+        expect(onOpenCell).toHaveBeenCalled();
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('a word of someone else can be opened too', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={[makeRow('w2', 'jump', 'someone-else')]} total={1} onOpenWord={onOpenWord} />,
+        );
+
+        await user.click(document.querySelector('tbody tr .pos-abbr')!);
+        expect(onOpenWord).toHaveBeenCalledWith('w2');
+    });
+
+    it('does nothing in remove mode, and the rows are no links', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={rows} total={1} canRemove removeMode onOpenWord={onOpenWord} />,
+        );
+
+        expect(document.querySelector('tbody tr')).not.toHaveClass('row-link');
+        await user.click(document.querySelector('tbody tr .pos-abbr')!);
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('has no row links without onOpenWord', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={rows} total={1} />);
+        expect(document.querySelector('tbody tr')).not.toHaveClass('row-link');
+    });
+});
+
 describe('TagWordsTable — remove mode', () => {
     it('is absent when canRemove is false, remove mode or not', () => {
         renderWithProviders(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove={false} removeMode />);

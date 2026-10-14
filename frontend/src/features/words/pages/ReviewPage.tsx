@@ -17,7 +17,6 @@ import { useTranslation } from 'react-i18next';
 import type { RowSelectionState } from '@tanstack/react-table';
 import { FunnelIcon, PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
 import { PageTitle } from '@/components/common/PageTitle';
-import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
 import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
@@ -37,6 +36,7 @@ import { wordErrorKey } from '../errors';
 import type { LangKey, WordOwner, WordSimpleBE } from '../types';
 import { BulkActionBar } from '../review/BulkActionBar';
 import { CellDialog } from '../review/CellDialog';
+import { OpenWordDialog } from '../review/OpenWordDialog';
 import { buildDisplaySection } from '../review/DisplayOptions';
 import { LanguageOrderControl } from '../review/LanguageOrderControl';
 import { activeFilterCount, useFilterSections } from '../review/FilterBar';
@@ -404,18 +404,11 @@ export function ReviewPage() {
                     />
             </div>
 
-            <ConfirmDialog
-                open={openWordId !== null}
-                onOpenChange={(open) => !open && setOpenWordId(null)}
-                title={t('review:openWord.title')}
-                description={t('review:openWord.description', { word: openWordLabel ?? '' })}
-                confirmLabel={t('review:openWord.confirm')}
-                destructive={false}
-                onConfirm={() => {
-                    const wordId = openWordId;
-                    setOpenWordId(null);
-                    if (wordId) void navigate({ to: '/word/$wordId', params: { wordId } });
-                }}
+            <OpenWordDialog
+                wordId={openWordId}
+                label={openWordLabel}
+                onClose={() => setOpenWordId(null)}
+                onOpen={(wordId) => void navigate({ to: '/word/$wordId', params: { wordId } })}
             />
 
             {tagsRow && (
