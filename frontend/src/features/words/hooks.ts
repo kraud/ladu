@@ -99,6 +99,7 @@ export function normalizeWordFilters(filters: WordListFilters): WordListFilters 
     const q = filters.q?.trim();
     return {
         q: q ? q : undefined,
+        owner: filters.owner,
         pos: sortedOrUndefined(filters.pos),
         gender: sortedOrUndefined(filters.gender),
         tag: sortedOrUndefined(filters.tag),

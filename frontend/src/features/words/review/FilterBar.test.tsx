@@ -38,6 +38,7 @@ const baseProps: FilterBarProps = {
     onGenderChange: vi.fn(),
     onPosChange: vi.fn(),
     onSelectedTagsChange: vi.fn(),
+    onOwnerChange: vi.fn(),
 };
 
 describe('FilterBar — sections', () => {
@@ -80,6 +81,34 @@ describe('activeFilterCount', () => {
     it('adds each gender, part-of-speech and tag pick, plus the search box when it has text', () => {
         expect(activeFilterCount([], [], false)).toBe(0);
         expect(activeFilterCount(['der', 'die'], [PartOfSpeech.noun], true, 3)).toBe(7);
+    });
+
+    it('counts the owner pick as one', () => {
+        expect(activeFilterCount([], [], false, 0, true)).toBe(1);
+    });
+});
+
+describe('FilterBar — owner', () => {
+    it('offers Mine and Not mine, and picks one', async () => {
+        const onOwnerChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} onOwnerChange={onOwnerChange} />);
+        await user.click(screen.getByRole('button', { name: 'Not mine' }));
+        expect(onOwnerChange).toHaveBeenCalledWith('others');
+    });
+
+    it('a click on the active choice clears it', async () => {
+        const onOwnerChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} owner="me" onOwnerChange={onOwnerChange} />);
+        expect(screen.getByRole('button', { name: 'Mine' })).toHaveAttribute('aria-pressed', 'true');
+        await user.click(screen.getByRole('button', { name: 'Mine' }));
+        expect(onOwnerChange).toHaveBeenCalledWith(undefined);
+    });
+
+    it('is not offered without an owner handler', () => {
+        renderWithProviders(<FilterBar {...baseProps} onOwnerChange={undefined} />);
+        expect(screen.queryByRole('heading', { name: 'Owner' })).not.toBeInTheDocument();
     });
 });
 

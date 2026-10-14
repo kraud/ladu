@@ -189,6 +189,8 @@ function matchesListFilters(word: WordBE, callerId: string, url: URL): boolean {
     // fake models only ownership — followed-tag access is covered by the
     // backend's own integration tests (`words-simple.test.js`).
     if (word.user !== callerId) return false;
+    // So `?owner=others` (words that belong to someone else) is always empty here.
+    if (url.searchParams.get('owner') === 'others') return false;
 
     const posValues = url.searchParams.getAll('pos');
     if (posValues.length > 0 && !posValues.includes(word.partOfSpeech)) return false;

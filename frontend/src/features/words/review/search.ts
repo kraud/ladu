@@ -30,7 +30,7 @@
  * is unresolved until Slice 7 builds the filter chips against real data.
  */
 import type { LangKey } from '@/features/words/types';
-import type { WordListFilters } from '@/features/words/types';
+import type { WordListFilters, WordOwner } from '@/features/words/types';
 import { PartOfSpeech } from '@/ts/enums';
 import { UI_LANGUAGES, languageByLabel } from '@/lib/language';
 import { parsePageSize, type PageSize } from '@/lib/pagination';
@@ -53,6 +53,8 @@ export interface ReviewSearch {
      * not a fixed enum, so only dedup applies.
      */
     tag?: string[];
+    /** Whose words to list: only yours (`me`) or only the followed-tag words (`others`). Omitted: all. */
+    owner?: WordOwner;
     /** Numbered page, 1-based. Omitted for page 1. */
     page?: number;
     /** Rows per page. Omitted: the size the user chose last (`readStoredPageSize`). */
@@ -96,6 +98,12 @@ export function toPage(value: unknown): number | undefined {
     return Number.isInteger(number) && number >= 2 ? number : undefined;
 }
 
+/** `?owner=me|others`; anything else is dropped. */
+function toOwner(value: unknown): WordOwner | undefined {
+    const text = toOptionalString(value);
+    return text === 'me' || text === 'others' ? text : undefined;
+}
+
 /** Empty arrays collapse to `undefined` so the encoder omits the key entirely and URLs stay clean. */
 function orUndefined<T>(values: T[]): T[] | undefined {
     return values.length > 0 ? values : undefined;
@@ -124,6 +132,7 @@ export function validateReviewSearch(search: Record<string, unknown>): ReviewSea
             toStringArray(search.lang).filter((value): value is LangKey => LANG_KEYS.has(value)),
         ),
         tag: orUndefined(Array.from(new Set(toStringArray(search.tag)))),
+        owner: toOwner(search.owner),
         page: toPage(search.page),
         size: parsePageSize(search.size),
         ...toSortParams(search),
@@ -137,7 +146,7 @@ export function reviewSearchToSort(search: ReviewSearch): LanguageSort | null {
 
 /** Search params -> the list-query filters. `lang` is display-only and never reaches the query key. */
 export function reviewSearchToFilters(search: ReviewSearch): WordListFilters {
-    return { q: search.q, pos: search.pos, gender: search.gender, tag: search.tag };
+    return { q: search.q, pos: search.pos, gender: search.gender, tag: search.tag, owner: search.owner };
 }
 
 /** Picks between the two empty states: filtered-to-nothing vs. genuinely no words yet. */
@@ -146,7 +155,8 @@ export function hasActiveFilters(search: ReviewSearch): boolean {
         search.q !== undefined ||
         search.pos !== undefined ||
         search.gender !== undefined ||
-        search.tag !== undefined
+        search.tag !== undefined ||
+        search.owner !== undefined
     );
 }
 

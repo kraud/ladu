@@ -152,8 +152,12 @@ export interface WordSimpleBE extends SimpleHeadlineFields, SimpleCaseCountField
  */
 export type SortDirection = 'asc' | 'desc';
 
+/** `me`: only the words you wrote. `others`: only words that belong to someone else (followed tags). */
+export type WordOwner = 'me' | 'others';
+
 export interface WordListFilters {
     q?: string;
+    owner?: WordOwner;
     /** Sort by this language's column (server side). Without it: newest first. */
     sort?: LangKey;
     dir?: SortDirection;

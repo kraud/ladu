@@ -18,6 +18,11 @@
     "clear": "Clear",
     "partOfSpeech": "Part of speech",
     "tags": "Tags",
+    "owner": "Owner",
+    "owners": {
+      "me": "Mine",
+      "others": "Not mine"
+    },
     "languageOrder": "Language order",
     "languageOrderHint": "Use the arrows to reorder · min 2 shown",
     "moveEarlier": "Move {{language}} earlier",

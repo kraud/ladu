@@ -18,6 +18,11 @@
     "clear": "Tühjenda",
     "partOfSpeech": "Sõnaliik",
     "tags": "Sildid",
+    "owner": "Omanik",
+    "owners": {
+      "me": "Minu omad",
+      "others": "Mitte minu omad"
+    },
     "languageOrder": "Keelte järjekord",
     "languageOrderHint": "Järjesta nooltega · vähemalt 2 nähtavat",
     "moveEarlier": "Nihuta {{language}} varasemaks",

@@ -18,6 +18,11 @@
     "clear": "Borrar",
     "partOfSpeech": "Categoría gramatical",
     "tags": "Etiquetas",
+    "owner": "Propietario",
+    "owners": {
+      "me": "Mías",
+      "others": "No mías"
+    },
     "languageOrder": "Orden de idiomas",
     "languageOrderHint": "Usa las flechas para reordenar · mín. 2 visibles",
     "moveEarlier": "Mover {{language}} antes",

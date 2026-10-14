@@ -18,6 +18,11 @@
     "clear": "Löschen",
     "partOfSpeech": "Wortart",
     "tags": "Tags",
+    "owner": "Besitzer",
+    "owners": {
+      "me": "Meine",
+      "others": "Nicht meine"
+    },
     "languageOrder": "Sprachreihenfolge",
     "languageOrderHint": "Mit den Pfeilen sortieren · min. 2 sichtbar",
     "moveEarlier": "{{language}} nach vorne verschieben",

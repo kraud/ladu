@@ -432,9 +432,13 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   }
 
   // `?owner=me`: only the caller's own words (no followed or discoverable-tag
-  // words). Feeds the "Select all N matching" action, which can only act on own words.
+  // words). `?owner=others`: the opposite, only words that belong to someone
+  // else (the followed-tag words). Both feed the Review owner filter and
+  // "Select all N matching". Any other value is ignored, like an unknown `pos`.
   if (req.query.owner === "me") {
     conditions.push(eq(words.userId, req.user.id));
+  } else if (req.query.owner === "others") {
+    conditions.push(ne(words.userId, req.user.id));
   }
 
   // `?page=` switches to offset (numbered-page) mode; without it the list is

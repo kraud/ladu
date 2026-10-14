@@ -33,7 +33,7 @@ import { useTagsByIds } from '@/features/tags/hooks';
 import type { TagSummary } from '@/features/tags/types';
 import { useBulkDeleteWords, useFetchAllOwnWords, useOwnWordsTotal, useWordsPage } from '../hooks';
 import { wordErrorKey } from '../errors';
-import type { LangKey, WordSimpleBE } from '../types';
+import type { LangKey, WordOwner, WordSimpleBE } from '../types';
 import { BulkActionBar } from '../review/BulkActionBar';
 import { CellDialog } from '../review/CellDialog';
 import { buildDisplaySection } from '../review/DisplayOptions';
@@ -251,9 +251,11 @@ export function ReviewPage() {
         gender: search.gender ?? [],
         pos: search.pos ?? [],
         hasQuery: search.q !== undefined,
+        owner: search.owner,
         selectedTags: selectedTagsQuery.data,
         onGenderChange: (next: string[] | undefined) => updateSearch({ gender: next }),
         onPosChange: (next: PartOfSpeech[] | undefined) => updateSearch({ pos: next }),
+        onOwnerChange: (next: WordOwner | undefined) => updateSearch({ owner: next }),
         onSelectedTagsChange: (next: TagSummary[]) =>
             updateSearch({ tag: next.length > 0 ? next.map((tag) => tag.id) : undefined }),
     };
@@ -283,7 +285,7 @@ export function ReviewPage() {
             onShowPosChange: setShowPos,
         }),
     ];
-    const activeCount = activeFilterCount(filterBarProps.gender, filterBarProps.pos, filterBarProps.hasQuery, filterBarProps.selectedTags.length);
+    const activeCount = activeFilterCount(filterBarProps.gender, filterBarProps.pos, filterBarProps.hasQuery, filterBarProps.selectedTags.length, search.owner !== undefined);
 
     // The header's language gate already blocks navigating here below two
     // languages, but a direct URL bypasses it (`_protected.beforeLoad` only

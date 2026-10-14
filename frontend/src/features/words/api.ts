@@ -63,12 +63,11 @@ export interface GetWordsSimplifiedParams extends WordListFilters {
 
 /**
  * Params for `getWordsPage` (offset mode). `limit: 'all'` asks for the whole
- * list. `owner: 'me'` keeps only the caller's own words (no followed-tag words).
+ * list. `owner` (from `WordListFilters`) keeps only the caller's own words (`me`) or only the others' (`others`).
  */
 export interface GetWordsPageParams extends WordListFilters {
     page: number;
     limit: number | 'all';
-    owner?: 'me';
 }
 
 /**
@@ -89,10 +88,8 @@ function buildListQuery(params: GetWordsSimplifiedParams | GetWordsPageParams): 
         search.set('dir', params.dir ?? 'asc');
     }
     if ('cursor' in params && params.cursor) search.set('cursor', params.cursor);
-    if ('page' in params) {
-        search.set('page', String(params.page));
-        if (params.owner) search.set('owner', params.owner);
-    }
+    if (params.owner) search.set('owner', params.owner);
+    if ('page' in params) search.set('page', String(params.page));
     if (params.limit !== undefined) search.set('limit', String(params.limit));
     return search;
 }

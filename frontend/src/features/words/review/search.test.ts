@@ -95,6 +95,20 @@ describe('reviewSearchToFilters', () => {
     });
 });
 
+describe('owner', () => {
+    it('accepts me and others, and drops anything else', () => {
+        expect(validateReviewSearch({ owner: 'me' }).owner).toBe('me');
+        expect(validateReviewSearch({ owner: 'others' }).owner).toBe('others');
+        expect(validateReviewSearch({ owner: 'everyone' }).owner).toBeUndefined();
+        expect(validateReviewSearch({}).owner).toBeUndefined();
+    });
+
+    it('reaches the list-query filters and counts as an active filter', () => {
+        expect(reviewSearchToFilters({ owner: 'others' }).owner).toBe('others');
+        expect(hasActiveFilters({ owner: 'me' })).toBe(true);
+    });
+});
+
 describe('hasActiveFilters', () => {
     it('is false with no q/pos/gender/tag', () => {
         expect(hasActiveFilters({ lang: ['EN'] })).toBe(false);

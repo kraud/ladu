@@ -510,6 +510,23 @@ describe('GET /api/words/simple - offset pagination', () => {
         expect(mine.body.total).toBe(5);
     });
 
+    it('with owner=others, keeps only words that come from followed tags', async () => {
+        const owner = await registerAndLogin('Owner9', 'owner9@test.com', 'owner9', 'pass123');
+        const [tag] = await db.insert(tags).values({ authorId: owner.id, label: 'Shared', visibility: 'Public' }).returning();
+        const sharedWord = await create(owner.token, wordPayload({ tagIds: [tag.id] }));
+        await db.insert(userFollowingTags).values({ tagId: tag.id, followerUserId: userId });
+
+        const others = await get('page=1&limit=all&owner=others');
+        expect(others.body.items.map((w) => w.id)).toEqual([sharedWord.body.id]);
+        expect(others.body.total).toBe(1);
+    });
+
+    it('ignores an unknown owner value', async () => {
+        const res = await get('page=1&limit=all&owner=nobody');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.total).toBe(5);
+    });
+
     it('also accepts owner=me in cursor mode', async () => {
         const res = await get('owner=me');
         expect(res.body.total).toBe(5);
