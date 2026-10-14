@@ -10,7 +10,7 @@ const { db }: typeof import('../src/db') = require('../src/db');
 const { practiceConfigs, words }: typeof import('../src/db/schema') = require('../src/db/schema');
 const { and, desc, eq, inArray, sql } = require('drizzle-orm');
 const { visibleWordCondition }: typeof import('./exerciseService') = require('./exerciseService');
-const { fetchWordsWithRelations }: typeof import('./wordService') = require('./wordService');
+const { fetchWordsWithRelations, ownCopyIdsBySource }: typeof import('./wordService') = require('./wordService');
 
 import type { ConfigRequest } from './exercises';
 import type { WordResponse } from './wordService';
@@ -30,20 +30,38 @@ export interface PracticeConfigDto {
 
 type ConfigRow = typeof practiceConfigs.$inferSelect;
 
-/** How many of each row's word ids are gone (deleted, or no longer reachable). One query for all rows. */
+/**
+ * The saved ids with each followed original that the user has a copy of swapped for the copy, in the
+ * saved order (plans/words-clone-followed.md, Slice 7). If the copy is already in the list, the word
+ * is kept once.
+ */
+function swapForCopies(ids: readonly string[], copyIdBySource: Map<string, string>): string[] {
+    const swapped = ids.map((id) => copyIdBySource.get(id) ?? id);
+    return [...new Set(swapped)];
+}
+
+/**
+ * How many of each row's word ids are gone (deleted, or no longer reachable). A followed original the
+ * user has a copy of counts as present: the copy takes its place when the list runs. One query for all rows.
+ */
 async function missingCounts(userId: string, rows: ConfigRow[]): Promise<Map<string, number>> {
     const allIds = [...new Set(rows.flatMap((row) => row.wordIds ?? []))];
     const counts = new Map<string, number>();
     if (allIds.length === 0) return counts;
 
+    const copyIdBySource = await ownCopyIdsBySource(userId, allIds);
+    const checkIds = [...new Set(allIds.map((id) => copyIdBySource.get(id) ?? id))];
     const visible = await db
         .select({ id: words.id })
         .from(words)
-        .where(and(inArray(words.id, allIds), await visibleWordCondition(userId)));
+        .where(and(inArray(words.id, checkIds), await visibleWordCondition(userId)));
     const visibleIds = new Set<string>(visible.map((row: { id: string }) => row.id));
 
     for (const row of rows) {
-        counts.set(row.id, (row.wordIds ?? []).filter((id) => !visibleIds.has(id)).length);
+        counts.set(
+            row.id,
+            (row.wordIds ?? []).filter((id) => !visibleIds.has(copyIdBySource.get(id) ?? id)).length,
+        );
     }
     return counts;
 }
@@ -130,7 +148,8 @@ export async function deleteConfig(userId: string, id: string): Promise<boolean>
 
 /**
  * The saved words the user can still see, in the saved order — or `null` when the
- * configuration does not exist (or is not the user's).
+ * configuration does not exist (or is not the user's). A followed original the user has a copy of is
+ * replaced by the copy.
  */
 export async function getConfigWords(userId: string, id: string): Promise<WordResponse[] | null> {
     const [row]: ConfigRow[] = await db
@@ -143,12 +162,14 @@ export async function getConfigWords(userId: string, id: string): Promise<WordRe
     const savedIds = row.wordIds ?? [];
     if (savedIds.length === 0) return [];
 
+    // A followed original the user has a copy of is swapped for the copy.
+    const ids = swapForCopies(savedIds, await ownCopyIdsBySource(userId, savedIds));
     const visible = await db
         .select({ id: words.id })
         .from(words)
-        .where(and(inArray(words.id, savedIds), await visibleWordCondition(userId)));
+        .where(and(inArray(words.id, ids), await visibleWordCondition(userId)));
     const visibleIds = new Set<string>(visible.map((r: { id: string }) => r.id));
-    const orderedIds = savedIds.filter((wordId) => visibleIds.has(wordId));
+    const orderedIds = ids.filter((wordId) => visibleIds.has(wordId));
 
     // `fetchWordsWithRelations` does not keep the input order.
     const byId = new Map((await fetchWordsWithRelations(orderedIds, userId)).map((word) => [word.id, word]));

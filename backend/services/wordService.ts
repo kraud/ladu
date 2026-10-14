@@ -28,7 +28,8 @@ const {
     translations,
     words,
 }: typeof import('../src/db/schema') = require('../src/db/schema');
-const { and, desc, eq, inArray, or, sql } = require('drizzle-orm');
+const { and, asc, desc, eq, inArray, ne, or, sql } = require('drizzle-orm');
+const { alias } = require('drizzle-orm/pg-core');
 
 // ---------------------------------------------------------------------------
 // Types
@@ -462,6 +463,33 @@ const notHiddenByOwnCopy = (userId: string) =>
         where "own_copy"."user_id" = ${userId} and "own_copy"."source_word_id" = ${words.id}
     ))`;
 
+/**
+ * For words of someone else: the id of the user's own copy (clone) of each, as a map
+ * `source word id -> copy id`. A word that is not in the map has no copy, or is the user's own
+ * (an own word is never swapped, like in `notHiddenByOwnCopy`). With more than one copy of the
+ * same word (a word clone and a tag clone), the oldest copy is used, so the answer is stable.
+ *
+ * Used by saved practice lists: a list that holds a followed original practises the copy instead
+ * (plans/words-clone-followed.md, Slice 7). Nothing is stored: when the copy is deleted, the map no
+ * longer has it and the list uses the original again.
+ */
+const ownCopyIdsBySource = async (userId: string, sourceIds: string[]): Promise<Map<string, string>> => {
+    const copyIdBySource = new Map<string, string>();
+    if (sourceIds.length === 0) return copyIdBySource;
+
+    const copies = alias(words, 'own_copy');
+    const rows: { sourceId: string | null; copyId: string }[] = await db
+        .select({ sourceId: copies.sourceWordId, copyId: copies.id })
+        .from(copies)
+        .innerJoin(words, eq(words.id, copies.sourceWordId))
+        .where(and(eq(copies.userId, userId), ne(words.userId, userId), inArray(copies.sourceWordId, sourceIds)))
+        .orderBy(asc(copies.createdAt), asc(copies.id));
+    for (const row of rows) {
+        if (row.sourceId && !copyIdBySource.has(row.sourceId)) copyIdBySource.set(row.sourceId, row.copyId);
+    }
+    return copyIdBySource;
+};
+
 // ---------------------------------------------------------------------------
 // Generic list-pagination helpers
 // ---------------------------------------------------------------------------
@@ -544,6 +572,7 @@ export {
     getWordsByIds,
     cloneWordsForUser,
     notHiddenByOwnCopy,
+    ownCopyIdsBySource,
     parseArrayParam,
     parseLimitParam,
     parsePageParam,
