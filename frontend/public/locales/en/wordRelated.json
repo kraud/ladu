@@ -63,6 +63,8 @@
     "clone": "Clone",
     "openClone": "Open your copy",
     "openCloneShort": "Open copy",
+    "cloneConfirmTitle": "Clone this word?",
+    "cloneConfirmDescription": "A copy of this word is added to your words. The copy is private and has no tags. You can edit it and delete it. The original does not change. Your practice progress for this word is copied too.",
     "toastCloned": "Word copied to your words",
     "toastError": "Something went wrong: {{error}}"
   },

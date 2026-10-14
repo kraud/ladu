@@ -149,6 +149,12 @@ describe('WordPage — view', () => {
 describe('WordPage — a word of someone else (a followed tag)', () => {
     const FOLLOWED = { ...SEED, user: 'someone-else' };
 
+    /** Clone in the footer, then confirm in the dialog. */
+    async function cloneFromBar(user: ReturnType<typeof userEvent.setup>) {
+        await user.click(await within(await screen.findByTestId('word-editor-bar')).findByRole('button', { name: 'Clone' }));
+        await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Clone' }));
+    }
+
     function setUpFollowed() {
         server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] }).handlers);
     }
@@ -178,13 +184,34 @@ describe('WordPage — a word of someone else (a followed tag)', () => {
         expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
     });
 
-    it('Clone copies the word, toasts, and opens the copy — which you can edit and delete', async () => {
+    it('Clone first asks, and explains what is done; Cancel makes no request', async () => {
         const user = userEvent.setup();
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] });
         server.use(...fake.handlers);
         const { router } = await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
 
         await user.click(await within(await screen.findByTestId('word-editor-bar')).findByRole('button', { name: 'Clone' }));
+
+        const dialog = await screen.findByRole('alertdialog');
+        expect(within(dialog).getByText('Clone this word?')).toBeInTheDocument();
+        expect(within(dialog).getByText(/A copy of this word is added to your words/)).toBeInTheDocument();
+        expect(within(dialog).getByText(/private and has no tags/)).toBeInTheDocument();
+        expect(within(dialog).getByText(/The original does not change/)).toBeInTheDocument();
+        expect(fake.cloneRequests).toEqual([]);
+
+        await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+        expect(fake.cloneRequests).toEqual([]);
+        expect(router.state.location.pathname).toBe(`/word/${FOLLOWED.id}`);
+    });
+
+    it('Clone copies the word, toasts, and opens the copy — which you can edit and delete', async () => {
+        const user = userEvent.setup();
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] });
+        server.use(...fake.handlers);
+        const { router } = await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
+
+        await cloneFromBar(user);
 
         await waitFor(() => expect(fake.cloneRequests).toEqual([FOLLOWED.id]));
         await waitFor(() => expect(router.state.location.pathname).not.toBe(`/word/${FOLLOWED.id}`));
@@ -201,7 +228,7 @@ describe('WordPage — a word of someone else (a followed tag)', () => {
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] });
         server.use(...fake.handlers);
         const { router } = await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
-        await user.click(await within(await screen.findByTestId('word-editor-bar')).findByRole('button', { name: 'Clone' }));
+        await cloneFromBar(user);
         await waitFor(() => expect(router.state.location.pathname).not.toBe(`/word/${FOLLOWED.id}`));
         const copyPath = router.state.location.pathname;
 
@@ -227,7 +254,7 @@ describe('WordPage — a word of someone else (a followed tag)', () => {
         );
         const { router } = await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
 
-        await user.click(await within(await screen.findByTestId('word-editor-bar')).findByRole('button', { name: 'Clone' }));
+        await cloneFromBar(user);
 
         expect(await screen.findByText('You already have a copy of this word.')).toBeInTheDocument();
         expect(router.state.location.pathname).toBe(`/word/${FOLLOWED.id}`);

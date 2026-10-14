@@ -7,6 +7,7 @@ Follow-up of `plans/words-followed-selection.md`. Scope: the word page `/word/[i
 - **Word page of a word that is not yours:** no Edit and no Delete, in the footer (desktop and phone) and in the phone side menu. The footer keeps "Return".
 - **Clone (one word, no tag):** replaces the Edit button in the footer (desktop and phone). It copies the word into the user's account. The copy is private, has no tags, and keeps the user's own practice history (same as tag clone, D7 of `phase-5-practice.md`).
 - **Where the origin is stored:** `words.source_word_id` (exists since Phase 4, D11), plus `is_cloned = true` and `original_creator_id`. No schema change.
+- **Before a clone:** a confirmation dialog ("Clone this word?") says what is done: a private copy, no tags, editable, the original unchanged, practice progress copied. Added 2026-10-14 after Slice 3.
 - **After a clone:** a toast, then the app opens the new word (`/word/<new id>`).
 - **Once you have a clone:** the original's word page shows "Open your copy" instead of "Clone" (no second copy). `GET /api/words/:id` returns `myCloneId` for that.
 - **No duplicates on /words:** if a followed word and the user's clone of it are both in the result, only the clone is listed. If the clone is deleted, the original is listed again (nothing is stored: it is a query rule). The total and the pages count the same rows.

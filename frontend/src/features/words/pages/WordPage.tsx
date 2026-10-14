@@ -72,6 +72,7 @@ export function WordPage() {
 
     const [editing, setEditing] = useState(false);
     const [editKey, setEditKey] = useState(0);
+    const [confirmingClone, setConfirmingClone] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
 
     // A plain `router.history.back()` when there's no client-side history to
@@ -192,7 +193,7 @@ export function WordPage() {
                 label: t('wordRelated:displayWord.clone'),
                 icon: <CopyIcon size={18} />,
                 disabled: cloneWord.isPending,
-                onClick: handleClone,
+                onClick: () => setConfirmingClone(true),
             };
 
     const returnAction: EditorAction = {
@@ -277,6 +278,19 @@ export function WordPage() {
                     primary={primary}
                 />
             )}
+
+            <ConfirmDialog
+                open={confirmingClone}
+                onOpenChange={setConfirmingClone}
+                title={t('wordRelated:displayWord.cloneConfirmTitle')}
+                description={t('wordRelated:displayWord.cloneConfirmDescription')}
+                confirmLabel={t('wordRelated:displayWord.clone')}
+                destructive={false}
+                onConfirm={() => {
+                    setConfirmingClone(false);
+                    handleClone();
+                }}
+            />
 
             <ConfirmDialog
                 open={confirmingDelete}

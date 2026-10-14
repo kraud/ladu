@@ -374,6 +374,9 @@ test.describe.serial('Phase 4 — tags', () => {
             await expect(bar.getByRole('button', { name: 'Edit' })).toHaveCount(0);
             await expect(bar.getByRole('button', { name: 'Delete' })).toHaveCount(0);
             await bar.getByRole('button', { name: 'Clone' }).click();
+            const confirm = pageB.getByRole('alertdialog');
+            await expect(confirm.getByText('Clone this word?')).toBeVisible();
+            await confirm.getByRole('button', { name: 'Clone' }).click();
 
             // The copy opens, and it is B's own: Edit and Delete work there.
             await expect(pageB.getByText('Word copied to your words')).toBeVisible();

@@ -63,6 +63,8 @@
     "clone": "Klooni",
     "openClone": "Ava oma koopia",
     "openCloneShort": "Ava koopia",
+    "cloneConfirmTitle": "Kas kloonida see sõna?",
+    "cloneConfirmDescription": "Sinu sõnade hulka lisatakse selle sõna koopia. Koopia on privaatne ja sellel pole silte. Saad seda muuta ja kustutada. Originaal ei muutu. Ka sinu harjutamise edenemine selle sõnaga kopeeritakse.",
     "toastCloned": "Sõna kopeeriti sinu sõnade hulka",
     "toastError": "Midagi läks valesti: {{error}}"
   },
