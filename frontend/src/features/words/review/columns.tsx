@@ -213,14 +213,11 @@ export function buildOwnerColumn(t: TFunction, userId: string, userName: string)
 }
 
 /**
- * select (desktop) -> owner -> Type -> one column per language -> Tags (D1), in that order. The owner
- * and Type columns come and go with their display switches.
+ * The checkbox column: a header checkbox (select the page) and one checkbox per row. Desktop only —
+ * on a phone rows are selected by a long press (`useRowPress`). Shared by `/words` and `/tag/:id`.
  */
-export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSimpleBE>[] {
-    const { languages, userId, userName, showGender, showProgress, selectable, showOwner, showPos, t, onOpenCell, onOpenTags, sort, onSort } =
-        options;
-
-    const selectColumn: ColumnDef<WordSimpleBE> = {
+export function buildSelectColumn(t: TFunction): ColumnDef<WordSimpleBE> {
+    return {
         id: 'select',
         size: 44,
         header: ({ table }) => (
@@ -240,11 +237,20 @@ export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSi
             />
         ),
     };
+}
+
+/**
+ * select (desktop) -> owner -> Type -> one column per language -> Tags (D1), in that order. The owner
+ * and Type columns come and go with their display switches.
+ */
+export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSimpleBE>[] {
+    const { languages, userId, userName, showGender, showProgress, selectable, showOwner, showPos, t, onOpenCell, onOpenTags, sort, onSort } =
+        options;
 
     const languageColumns = buildLanguageColumns({ languages, userId, showGender, showProgress, onOpenCell, sort, onSort, t });
 
     return [
-        ...(selectable ? [selectColumn] : []),
+        ...(selectable ? [buildSelectColumn(t)] : []),
         ...(showOwner ? [buildOwnerColumn(t, userId, userName)] : []),
         ...(showPos ? [buildPartOfSpeechColumn(t, 52)] : []),
         ...languageColumns,

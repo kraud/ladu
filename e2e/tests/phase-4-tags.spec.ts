@@ -269,8 +269,12 @@ test.describe.serial('Phase 4 — tags', () => {
             await expect(bar.getByRole('button', { name: 'Edit' })).toHaveCount(0);
             await expect(bar.getByRole('button', { name: 'Delete' })).toHaveCount(0);
 
-            // A click on a cell opens the translation dialog, view only.
+            // No selection on a tag that is not followed: no checkboxes.
             await pageB.goto(tagUrl);
+            await expect(pageB.getByRole('row', { name: /Apple/ })).toBeVisible();
+            await expect(pageB.getByRole('checkbox')).toHaveCount(0);
+
+            // A click on a cell opens the translation dialog, view only.
             await pageB.getByRole('row', { name: /Apple/ }).getByRole('button', { name: /Apple/ }).click();
             const dialog = pageB.getByRole('dialog');
             await expect(dialog).toContainText('Apple');
@@ -290,6 +294,26 @@ test.describe.serial('Phase 4 — tags', () => {
 
             await card.getByRole('button', { name: 'Follow', exact: true }).click();
             await expect(pageB.getByText('You\'re now following "Kitchen Words"')).toBeVisible();
+        });
+
+        await test.step('B selects words on the followed tag for Practice: the bar has Practice only, and it opens the practice screen', async () => {
+            await setScope(pageB, 'Followed'); // the card left the Discover tab when B followed it
+            await tagCard(pageB, 'Kitchen Words').getByRole('link', { name: /^Open / }).click();
+            await expect(pageB).toHaveURL(/\/tag\/.+/);
+
+            await pageB.getByRole('row', { name: /Apple/ }).getByRole('checkbox').click();
+            const bar = pageB.locator('.bulkbar');
+            await expect(bar.locator('.count')).toHaveText('1');
+            await expect(bar.getByRole('button', { name: 'Practice' })).toBeVisible();
+            await expect(bar.getByRole('button', { name: 'Add tags' })).toHaveCount(0);
+            await expect(bar.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+
+            // The header checkbox selects the page; Remove words does not exist on a followed tag.
+            await pageB.getByRole('checkbox', { name: 'Select all rows' }).click();
+            await expect(bar.locator('.count')).toHaveText('3');
+
+            await bar.getByRole('button', { name: 'Practice' }).click();
+            await expect(pageB).toHaveURL(/\/practice/);
         });
 
         await test.step("B sees all three words in Review, read-only (owner dot as group, D10)", async () => {

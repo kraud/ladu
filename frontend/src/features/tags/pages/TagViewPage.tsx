@@ -39,11 +39,13 @@ import { useFilterSections } from '@/features/words/review/FilterBar';
 import { PartOfSpeech } from '@/ts/enums';
 import { CellDialog } from '@/features/words/review/CellDialog';
 import { OpenWordDialog } from '@/features/words/review/OpenWordDialog';
+import { BulkActionBar } from '@/features/words/review/BulkActionBar';
+import { useWordSelection } from '@/features/words/review/useWordSelection';
 import { useTagWordIds, useWordsPage } from '@/features/words/hooks';
 import { nextLanguageSort, sortFilters } from '@/features/words/review/useLanguageSort';
 import { reviewSearchToSort } from '@/features/words/review/search';
 import { pageCountFor, readStoredPageSize, storePageSize, type PageSize } from '@/lib/pagination';
-import type { LangKey } from '@/features/words/types';
+import type { LangKey, WordListFilters } from '@/features/words/types';
 import { useDeleteTag, useFollowTag, useTag, useUnfollowTag, useUnlinkTagsFromWords } from '../hooks';
 import { tagErrorKey } from '../errors';
 import { ClonedBadge, RelationBadge, VerifiedMark, VisibilityBadge, hasVerifiedBadge, tagRelation } from '../components/TagBadge';
@@ -164,6 +166,25 @@ export function TagViewPage() {
     const [openWordId, setOpenWordId] = useState<string | null>(null);
     const openWordRow = openWordId ? wordRows.find((row) => row.id === openWordId) : undefined;
     const openWordLabel = openWordRow ? languages.map((lang) => openWordRow[`data${lang}`]).find(Boolean) : undefined;
+
+    // Selecting words (for Practice only) is for a tag the user owns or follows, and not in remove mode, where
+    // the trash column is the only action. "(+ all pages)" selects the words of THIS tag that match the filters.
+    const earlyRelation = tagQuery.data ? tagRelation(tagQuery.data) : undefined;
+    const canSelect = (earlyRelation === 'owned' || earlyRelation === 'followed') && !removeMode;
+    const selectionFilters = useMemo<WordListFilters>(
+        () => ({ tag: [tagId], q: search.q, pos: search.pos, gender: search.gender }),
+        [tagId, search.q, search.pos, search.gender],
+    );
+    const selection = useWordSelection({
+        rows: wordRows,
+        languages,
+        filters: selectionFilters,
+        filtersKey: JSON.stringify(selectionFilters),
+    });
+    const { setRowSelection } = selection;
+    useEffect(() => {
+        if (!canSelect) setRowSelection({});
+    }, [canSelect, setRowSelection]);
 
     // The side menu offers only what the whole tag holds (not the page on screen, which a filter can empty):
     // Gender once it has a noun, and Part of speech with the parts of speech it has, even if there is one.
@@ -436,6 +457,22 @@ export function TagViewPage() {
                         onAddWords={() => setAddingWords(true)}
                         onOpenCell={(wordId, langKey) => setCellTarget({ wordId, langKey })}
                         onOpenWord={setOpenWordId}
+                        selectable={canSelect}
+                        rowSelection={selection.rowSelection}
+                        onRowSelectionChange={selection.setRowSelection}
+                        bar={
+                            <BulkActionBar
+                                selectedCount={selection.selectedIds.length}
+                                selectedWordIds={selection.selectedIds}
+                                canEdit={false}
+                                practiceOnly
+                                onPractice={selection.practice}
+                                compact={isMobile}
+                                onClear={isMobile ? selection.clear : undefined}
+                                onSelectAll={isMobile && !selection.pageFullySelected ? selection.selectPage : undefined}
+                                allPages={selection.allPagesFor(wordTotal)}
+                            />
+                        }
                         showGender={showGender}
                         showProgress={showProgress}
                         showOwner={showOwner}

@@ -11,10 +11,9 @@
  * their sections. On a phone the two display switches join them as a last
  * section, and the toolbar gets the "Filters" button that opens the menu.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import type { RowSelectionState } from '@tanstack/react-table';
 import { FunnelIcon, PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
 import { PageTitle } from '@/components/common/PageTitle';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -25,15 +24,13 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import { pageCountFor, readStoredPageSize, storePageSize, type PageSize } from '@/lib/pagination';
 import { useAuthStore } from '@/stores/authStore';
-import { useUiStore } from '@/stores/uiStore';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
 import { PartOfSpeech } from '@/ts/enums';
-import { toPreselectedWord } from '@/features/practice/preselection';
 import { useTagsByIds } from '@/features/tags/hooks';
 import type { TagSummary } from '@/features/tags/types';
-import { useBulkDeleteWords, useFetchAllMatchingWords, useWordsPage } from '../hooks';
+import { useBulkDeleteWords, useWordsPage } from '../hooks';
 import { wordErrorKey } from '../errors';
-import type { LangKey, WordOwner, WordSimpleBE } from '../types';
+import type { LangKey, WordOwner } from '../types';
 import { BulkActionBar } from '../review/BulkActionBar';
 import { CellDialog } from '../review/CellDialog';
 import { OpenWordDialog } from '../review/OpenWordDialog';
@@ -43,6 +40,7 @@ import { activeFilterCount, useFilterSections } from '../review/FilterBar';
 import { TagsDialog } from '../review/TagsDialog';
 import { ReviewTable } from '../review/ReviewTable';
 import { TableToolbar } from '../review/TableToolbar';
+import { useWordSelection } from '../review/useWordSelection';
 import { nextLanguageSort, sortFilters } from '../review/useLanguageSort';
 import {
     accountLanguageOrder,
@@ -95,23 +93,9 @@ export function ReviewPage() {
     // unfiltered list too).
     const hasNounRows = useMemo(() => rows.some((row) => row.partOfSpeech === PartOfSpeech.noun), [rows]);
 
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-    // A row selected under one filter set can drop out of the result set
-    // under another, so a stale id in `rowSelection` would otherwise target an
-    // invisible word. A change of page, sort or page size keeps the selection:
-    // the set of matching words is the same.
-    useEffect(() => {
-        setRowSelection({});
-    }, [filtersKey]);
-
-    // The selected words, kept by id across pages: Practice needs their data, and
-    // only the current page is loaded. A row is stored when it is seen selected.
-    const selectedRowsRef = useRef(new Map<string, WordSimpleBE>());
-    useEffect(() => {
-        const selectedRows = selectedRowsRef.current;
-        for (const row of rows) if (rowSelection[row.id]) selectedRows.set(row.id, row);
-        for (const id of [...selectedRows.keys()]) if (!rowSelection[id]) selectedRows.delete(id);
-    }, [rows, rowSelection]);
+    // The selection (stable ids, kept across pages) and its table-wide actions, shared with `/tag/:id`.
+    const selection = useWordSelection({ rows, languages, filters, filtersKey });
+    const { rowSelection, setRowSelection, selectedIds } = selection;
 
     // Not persisted in the URL (matches the mockup) — a display concern, not a filter.
     const [showGender, setShowGender] = useState(true);
@@ -171,11 +155,6 @@ export function ReviewPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wordsQuery.data, wordsQuery.isPlaceholderData, page, pageCount]);
 
-    const selectedIds = useMemo(
-        () => Object.keys(rowSelection).filter((id) => rowSelection[id]),
-        [rowSelection],
-    );
-
     // Ids-only in the URL (`ReviewSearch.tag`) resolved to full `TagSummary`s
     // for `TagCombobox`'s pill row — see `useTagsByIds`'s own doc comment.
     const selectedTagsQuery = useTagsByIds(search.tag ?? []);
@@ -186,49 +165,9 @@ export function ReviewPage() {
     const openWordRow = openWordId ? rows.find((row) => row.id === openWordId) : undefined;
     const openWordLabel = openWordRow ? languages.map((lang) => openWordRow[`data${lang}`]).find(Boolean) : undefined;
 
-    // Selected rows -> the practice parameters screen (Phase 5, C4). Ids only are not enough: the
-    // screen shows the words and limits the word types, so the rows' own data goes along.
-    function handlePractice() {
-        const words = selectedIds
-            .map((id) => selectedRowsRef.current.get(id))
-            .filter((row): row is WordSimpleBE => row !== undefined)
-            .map((row) => toPreselectedWord(row, languages));
-        if (words.length === 0) return;
-        useUiStore.getState().setPracticePreselection(words);
-        void navigate({ to: '/practice' });
-    }
-
-    // "(+ all pages)": the header checkbox selected the page; this selects the matching words on every page.
-    const pageFullySelected = rows.length > 0 && rows.every((row) => rowSelection[row.id]);
-    const fetchAllMatching = useFetchAllMatchingWords();
-
     // Add tags and Delete need every selected word to be the user's own. A selected word that is not known
     // (should not happen: each one was seen on screen) counts as not own.
-    const allSelectedOwn = selectedIds.every((id) => {
-        const row = rows.find((candidate) => candidate.id === id) ?? selectedRowsRef.current.get(id);
-        return row?.user === userId;
-    });
-
-    // Phone: no header checkbox, so the bar's "Select all" selects the page (words already selected on other pages stay).
-    function handleSelectPage() {
-        setRowSelection((previous) => ({ ...previous, ...Object.fromEntries(rows.map((row) => [row.id, true])) }));
-    }
-
-    function handleSelectAllMatching() {
-        fetchAllMatching.mutate(filters, {
-            onSuccess: (result) => {
-                const next: RowSelectionState = {};
-                for (const row of result.items) {
-                    selectedRowsRef.current.set(row.id, row);
-                    next[row.id] = true;
-                }
-                setRowSelection(next);
-            },
-            onError: () => {
-                resolveLoadingToastError(startLoadingToast(t('common:status.saving')), t('review:bulk.selectAllFailed'));
-            },
-        });
-    }
+    const allSelectedOwn = selectedIds.every((id) => selection.selectedRow(id)?.user === userId);
 
     function handleBulkDelete() {
         const ids = selectedIds;
@@ -357,17 +296,13 @@ export function ReviewPage() {
                         selectedCount={selectedIds.length}
                         selectedWordIds={selectedIds}
                         canEdit={allSelectedOwn}
-                        onPractice={handlePractice}
+                        onPractice={selection.practice}
                         onDelete={handleBulkDelete}
                         onTagsApplied={handleTagsApplied}
-                        onClear={isMobile ? () => setRowSelection({}) : undefined}
-                        onSelectAll={isMobile && !pageFullySelected ? handleSelectPage : undefined}
+                        onClear={isMobile ? selection.clear : undefined}
+                        onSelectAll={isMobile && !selection.pageFullySelected ? selection.selectPage : undefined}
                         compact={isMobile}
-                        allPages={
-                            pageFullySelected && total > rows.length && selectedIds.length < total
-                                ? { total, isSelecting: fetchAllMatching.isPending, onSelect: handleSelectAllMatching }
-                                : undefined
-                        }
+                        allPages={selection.allPagesFor(total)}
                     />
                     <ReviewTable
                         rows={rows}

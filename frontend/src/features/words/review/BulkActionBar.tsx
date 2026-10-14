@@ -23,6 +23,9 @@
  * the whole page is selected and more words match the filters on other pages: one
  * click selects them all. The page decides when it shows by passing `allPages`.
  *
+ * `practiceOnly` (the tag page `/tag/:id`): the bar has Practice only — no Add tags, no Delete, no
+ * hint line — and `canEdit`, `onDelete` and `onTagsApplied` are not needed.
+ *
  * Practice and Add tags carry the icons of their header links (brain, tag); Delete
  * is a red trash icon with no text (its `aria-label` is the name). On a phone
  * (`onClear`) the Unselect icon button sits right after the label, and
@@ -44,8 +47,10 @@ export interface BulkActionBarProps {
     canEdit: boolean;
     onPractice: () => void;
     /** Called once the user has confirmed the delete — this component owns the confirm step. */
-    onDelete: () => void;
-    onTagsApplied: (tags: TagSummary[]) => void;
+    onDelete?: () => void;
+    onTagsApplied?: (tags: TagSummary[]) => void;
+    /** Practice is the only action: Add tags, Delete and the hint are not shown. */
+    practiceOnly?: boolean;
     /** Phone only: clears the selection. */
     onClear?: () => void;
     /** Phone only: selects every row of the page. Unset once the page is fully selected. */
@@ -63,6 +68,7 @@ export function BulkActionBar({
     onPractice,
     onDelete,
     onTagsApplied,
+    practiceOnly = false,
     onClear,
     onSelectAll,
     compact = false,
@@ -114,7 +120,7 @@ export function BulkActionBar({
                     <BrainIcon size={14} aria-hidden="true" />
                     {t('review:bulk.practice')}
                 </Button>
-                {canEdit && (
+                {canEdit && !practiceOnly && (
                     <>
                         <Button type="button" variant="outline" size="sm" onClick={() => setTagPickerOpen(true)}>
                             <TagIcon size={14} aria-hidden="true" />
@@ -134,7 +140,7 @@ export function BulkActionBar({
                     </>
                 )}
             </div>
-            {!canEdit && (
+            {!canEdit && !practiceOnly && (
                 <p className="hint" role="status" style={{ fontSize: 12 }}>
                     {t('review:bulk.ownOnlyHint')}
                 </p>
@@ -147,7 +153,7 @@ export function BulkActionBar({
                 confirmLabel={t('review:bulk.delete')}
                 onConfirm={() => {
                     setConfirming(false);
-                    onDelete();
+                    onDelete?.();
                 }}
             />
             {tagPickerOpen && (
@@ -156,7 +162,7 @@ export function BulkActionBar({
                     onOpenChange={(open) => !open && setTagPickerOpen(false)}
                     mode="add"
                     wordIds={selectedWordIds}
-                    onApplied={onTagsApplied}
+                    onApplied={(tags) => onTagsApplied?.(tags)}
                 />
             )}
         </>

@@ -18,10 +18,21 @@
  * A click on a row (not on a button, link or checkbox: `isPlainRowClick`) asks to open the word
  * (`onOpenWord`) — for any tag, also a Public one the user does not follow. Off in remove mode,
  * where the trash column is the only action.
+ *
+ * `selectable` (a tag the user owns or follows, not in remove mode): rows can be selected, for Practice
+ * only — a checkbox column on desktop, a long press on a phone (`useRowPress`, shared with `/words`).
+ * The page owns the selection and the action bar (`bar`, shown between the toolbar and the table).
  */
-import type { ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table';
+import {
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+    type ColumnDef,
+    type OnChangeFn,
+    type RowSelectionState,
+} from '@tanstack/react-table';
 import { MagnifyingGlassIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
@@ -30,9 +41,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { TablePagination } from '@/components/common/TablePagination';
 import type { PageSize } from '@/lib/pagination';
-import { buildLanguageColumns, buildOwnerColumn, buildPartOfSpeechColumn } from '@/features/words/review/columns';
+import {
+    buildLanguageColumns,
+    buildOwnerColumn,
+    buildPartOfSpeechColumn,
+    buildSelectColumn,
+} from '@/features/words/review/columns';
 import type { LanguageSort } from '@/features/words/review/useLanguageSort';
 import { isPlainRowClick } from '@/features/words/review/rowClick';
+import { useRowPress } from '@/features/words/review/useRowPress';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 
@@ -69,6 +86,12 @@ export interface TagWordsTableProps {
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
     /** A click on a row itself asks to open the word. Not offered in remove mode. */
     onOpenWord?: (wordId: string) => void;
+    /** Rows can be selected (for Practice). Has no effect in remove mode. The page owns the selection state. */
+    selectable?: boolean;
+    rowSelection?: RowSelectionState;
+    onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+    /** The selection's action bar, shown between the toolbar and the table. */
+    bar?: ReactNode;
     /** The display options live in the page's side menu; the table only reads them. */
     showGender: boolean;
     showProgress: boolean;
@@ -117,6 +140,10 @@ export function TagWordsTable({
     onAddWords,
     onOpenCell,
     onOpenWord,
+    selectable: selectableProp = false,
+    rowSelection,
+    onRowSelectionChange,
+    bar,
     showGender,
     showProgress,
     showOwner,
@@ -133,6 +160,7 @@ export function TagWordsTable({
     const showRemoveColumn = canRemove && removeMode;
     // The trash column is the only action in remove mode, so a row click does nothing then.
     const openWord = removeMode ? undefined : onOpenWord;
+    const selectable = selectableProp && !removeMode && rowSelection !== undefined;
     // Equal width for every language column, so N columns always fill the
     // table instead of leaving space on the right when there are only a few.
     const langColWidth = languages.length > 0 ? `${100 / languages.length}%` : undefined;
@@ -148,7 +176,12 @@ export function TagWordsTable({
         onSort,
         t,
     });
+    // Stable between renders: the other columns are rebuilt on every render, which re-mounts their cells, and a
+    // checkbox that re-mounts loses the keyboard focus after a Space press.
+    const selectColumn = useMemo(() => buildSelectColumn(t), [t]);
     const columns: ColumnDef<WordSimpleBE>[] = [
+        // Desktop: a checkbox column. On a phone rows are selected by a long press.
+        ...(selectable && !isMobile ? [selectColumn] : []),
         ...(showRemoveColumn
             ? [
                   {
@@ -188,9 +221,13 @@ export function TagWordsTable({
         columns,
         getRowId: (row) => row.id,
         getCoreRowModel: getCoreRowModel(),
+        state: { rowSelection: selectable ? rowSelection : {} },
+        onRowSelectionChange,
         manualPagination: true,
         manualFiltering: true,
     });
+    const hasSelection = selectable && Object.values(rowSelection ?? {}).some(Boolean);
+    const rowPress = useRowPress(hasSelection);
 
     // Soft colour coding (blue add, red remove), the same on desktop and phone. Desktop matches the
     // search box height (32px); on a phone the two share a row, half each.
@@ -263,6 +300,7 @@ export function TagWordsTable({
                 {!isMobile && <div className="ml-auto">{countLabel}</div>}
                 {isMobile && <div className="text-right">{countLabel}</div>}
             </div>
+            {bar && selectable && <div className="mb-2 flex flex-col gap-2">{bar}</div>}
 
             {isPending ? (
                 <div className="tablewrap">
@@ -324,7 +362,9 @@ export function TagWordsTable({
                                         {headerGroup.headers.map((header) => {
                                             const isLangCol = header.column.id.startsWith('lang_');
                                             const isShrinkCol =
-                                                header.column.id === 'partOfSpeech' || header.column.id === 'remove';
+                                                header.column.id === 'partOfSpeech' ||
+                                                header.column.id === 'remove' ||
+                                                header.column.id === 'select';
                                             return (
                                                 <th
                                                     key={header.id}
@@ -349,18 +389,41 @@ export function TagWordsTable({
                                 {table.getRowModel().rows.map((row) => (
                                     <tr
                                         key={row.id}
-                                        className={openWord ? 'row-link' : undefined}
-                                        onClick={openWord ? (event) => isPlainRowClick(event) && openWord(row.id) : undefined}
+                                        className={
+                                            [row.getIsSelected() && 'selected', selectable && isMobile && 'press-select', openWord && 'row-link']
+                                                .filter(Boolean)
+                                                .join(' ') || undefined
+                                        }
+                                        // Phone with selection: long press selects, a tap toggles (or opens the word with nothing selected).
+                                        {...(selectable && isMobile
+                                            ? rowPress({
+                                                  select: () => row.toggleSelected(true),
+                                                  toggle: () => row.toggleSelected(),
+                                                  onTap: openWord ? () => openWord(row.id) : undefined,
+                                              })
+                                            : {
+                                                  onClick: openWord
+                                                      ? (event: React.MouseEvent) => isPlainRowClick(event) && openWord(row.id)
+                                                      : undefined,
+                                              })}
                                     >
                                         {row.getVisibleCells().map((cell) => {
                                             const isLangCol = cell.column.id.startsWith('lang_');
                                             const isShrinkCol =
-                                                cell.column.id === 'partOfSpeech' || cell.column.id === 'remove';
+                                                cell.column.id === 'partOfSpeech' ||
+                                                cell.column.id === 'remove' ||
+                                                cell.column.id === 'select';
                                             return (
                                                 <td
                                                     key={cell.id}
                                                     className={
-                                                        isLangCol ? 'word-cell' : isShrinkCol ? 'shrink-col' : undefined
+                                                        isLangCol
+                                                            ? 'word-cell'
+                                                            : isShrinkCol
+                                                              ? cell.column.id === 'select'
+                                                                  ? 'shrink-col select-cell'
+                                                                  : 'shrink-col'
+                                                              : undefined
                                                     }
                                                 >
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

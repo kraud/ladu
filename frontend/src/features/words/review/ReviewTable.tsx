@@ -1,4 +1,4 @@
-import { useMemo, useRef, type PointerEvent as ReactPointerEvent } from 'react';
+import { useMemo } from 'react';
 import {
     flexRender,
     getCoreRowModel,
@@ -18,12 +18,9 @@ import type { LangKey, WordSimpleBE } from '@/features/words/types';
 import { buildWordColumns } from './columns';
 import type { LanguageSort } from './useLanguageSort';
 import { isPlainRowClick } from './rowClick';
+import { useRowPress } from './useRowPress';
 
 const SKELETON_ROWS = 8;
-
-const LONG_PRESS_MS = 450;
-/** A finger that moves farther than this (px) is scrolling, not pressing. */
-const LONG_PRESS_SLOP = 10;
 
 const SHRINK_COLUMNS = new Set(['select', 'owner', 'partOfSpeech', 'tags']);
 
@@ -167,30 +164,8 @@ export function ReviewTable({
     });
 
     // Phone: long press selects, and once something is selected a tap toggles (the cells' own buttons stay quiet).
-    const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const pressStart = useRef<{ x: number; y: number } | null>(null);
-    const pressFired = useRef(false);
     const hasSelection = Object.values(rowSelection).some(Boolean);
-
-    function cancelPress() {
-        if (pressTimer.current) clearTimeout(pressTimer.current);
-        pressTimer.current = null;
-        pressStart.current = null;
-    }
-
-    function startPress(event: ReactPointerEvent, toggle: () => void) {
-        pressStart.current = { x: event.clientX, y: event.clientY };
-        pressTimer.current = setTimeout(() => {
-            pressFired.current = true;
-            pressTimer.current = null;
-            toggle();
-        }, LONG_PRESS_MS);
-    }
-
-    function movePress(event: ReactPointerEvent) {
-        const start = pressStart.current;
-        if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > LONG_PRESS_SLOP) cancelPress();
-    }
+    const rowPress = useRowPress(hasSelection);
 
     if (isError) {
         return (
@@ -257,31 +232,12 @@ export function ReviewTable({
                                       className={[row.getIsSelected() && 'selected', compact && 'press-select', onOpenWord && 'row-link']
                                           .filter(Boolean)
                                           .join(' ') || undefined}
-                                      {...(compact && row.getCanSelect()
-                                          ? {
-                                                onPointerDown: (event: ReactPointerEvent) => {
-                                                    pressFired.current = false;
-                                                    if (!hasSelection) startPress(event, () => row.toggleSelected(true));
-                                                },
-                                                onPointerMove: movePress,
-                                                onPointerUp: cancelPress,
-                                                onPointerCancel: cancelPress,
-                                                onContextMenu: (event: React.MouseEvent) => event.preventDefault(),
-                                                onClickCapture: (event: React.MouseEvent) => {
-                                                    // The click that ends a long press, or a tap while selecting, is for the row only.
-                                                    if (pressFired.current) {
-                                                        pressFired.current = false;
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                    } else if (hasSelection) {
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                        row.toggleSelected();
-                                                    } else if (isPlainRowClick(event)) {
-                                                        onOpenWord?.(row.id);
-                                                    }
-                                                },
-                                            }
+                                      {...(compact
+                                          ? rowPress({
+                                                select: () => row.toggleSelected(true),
+                                                toggle: () => row.toggleSelected(),
+                                                onTap: onOpenWord ? () => onOpenWord(row.id) : undefined,
+                                            })
                                           : {})}
                                       {...(!compact && onOpenWord
                                           ? {

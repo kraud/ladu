@@ -73,6 +73,20 @@ describe('BulkActionBar', () => {
         ).toBeInTheDocument();
     });
 
+    it('practiceOnly: Practice only — no Add tags, no Delete, no hint, whatever canEdit says', () => {
+        const { rerender } = renderWithProviders(
+            <BulkActionBar {...baseProps} selectedCount={2} canEdit={false} practiceOnly />,
+        );
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(screen.queryByText(/available only when all selected words/)).not.toBeInTheDocument();
+
+        rerender(<BulkActionBar {...baseProps} selectedCount={2} canEdit practiceOnly />);
+        expect(screen.queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
     it('with canEdit, shows Add tags and Delete and no hint', () => {
         renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} />);
         expect(screen.getByRole('button', { name: 'Add tags' })).toBeInTheDocument();

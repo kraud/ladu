@@ -1,8 +1,10 @@
-import { screen } from '@testing-library/react';
+import { useState } from 'react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { mockMobileViewport } from '@/test/viewport';
 import { renderWithProviders } from '@/test/render';
+import type { RowSelectionState } from '@tanstack/react-table';
 import { PartOfSpeech } from '@/ts/enums';
 import type { WordSimpleBE } from '@/features/words/types';
 import { TagWordsTable, type TagWordsTableProps } from './TagWordsTable';
@@ -80,6 +82,147 @@ describe('TagWordsTable — rendering rows', () => {
         langHeaders.forEach((th) => {
             expect((th as HTMLElement).style.width).toBe(`${100 / 3}%`);
         });
+    });
+});
+
+/** The table with its own selection state, as the page owns it. */
+function SelectableTable(props: Omit<TagWordsTableProps, 'rowSelection' | 'onRowSelectionChange'>) {
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+    return <TagWordsTable {...props} rowSelection={rowSelection} onRowSelectionChange={setRowSelection} />;
+}
+
+describe('TagWordsTable — selecting words (for Practice)', () => {
+    const rows = [makeRow('w1', 'run'), makeRow('w2', 'jump', 'someone-else')];
+
+    it('has no checkboxes unless selectable', () => {
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} />);
+        expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+    });
+
+    it('selectable: a checkbox on every row (also a word of someone else) and one in the header', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable />);
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes).toHaveLength(3);
+        expect(checkboxes[2]).not.toHaveAttribute('aria-disabled', 'true');
+
+        await user.click(checkboxes[2]!);
+        expect(screen.getAllByRole('checkbox')[2]).toBeChecked();
+        expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked();
+        await user.click(screen.getAllByRole('checkbox')[0]!); // the header: selects the page
+        expect(screen.getAllByRole('checkbox')[1]).toBeChecked();
+    });
+
+    it('a row checkbox is not re-mounted by a selection change (it keeps the keyboard focus)', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable />);
+        const checkbox = screen.getAllByRole('checkbox')[1]!;
+
+        await user.click(checkbox);
+
+        expect(screen.getAllByRole('checkbox')[1]).toBe(checkbox);
+    });
+
+    it('a click on the checkbox or its cell selects, and does not open the word', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable onOpenWord={onOpenWord} />);
+
+        await user.click(screen.getAllByRole('checkbox')[1]!);
+        await user.click(document.querySelector('tbody tr .select-cell')!);
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('marks a selected row, and shows the bar only while selectable', () => {
+        const { rerender } = renderWithProviders(
+            <TagWordsTable
+                {...baseProps}
+                rows={rows}
+                total={2}
+                selectable
+                rowSelection={{ w1: true }}
+                onRowSelectionChange={vi.fn()}
+                bar={<p>the bar</p>}
+            />,
+        );
+        expect(document.querySelector('tbody tr')).toHaveClass('selected');
+        expect(screen.getByText('the bar')).toBeInTheDocument();
+
+        rerender(
+            <TagWordsTable
+                {...baseProps}
+                rows={rows}
+                total={2}
+                rowSelection={{ w1: true }}
+                onRowSelectionChange={vi.fn()}
+                bar={<p>the bar</p>}
+            />,
+        );
+        expect(screen.queryByText('the bar')).not.toBeInTheDocument();
+    });
+
+    it('remove mode: no checkboxes, even when selectable', () => {
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable canRemove removeMode />);
+        expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+    });
+});
+
+describe('TagWordsTable — phone: long press selects, a tap toggles or opens the word', () => {
+    const rows = [makeRow('a', 'apple'), makeRow('b', 'bread')];
+
+    async function longPress(user: ReturnType<typeof userEvent.setup>, target: Element) {
+        await user.pointer({ keys: '[MouseLeft>]', target });
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        await user.pointer({ keys: '[/MouseLeft]', target });
+    }
+
+    it('has no checkboxes; a long press selects the row, then a tap selects another and a tap on it unselects', async () => {
+        mockMobileViewport();
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable />);
+        expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await longPress(user, first!);
+        expect(first).toHaveClass('selected');
+
+        await user.click(second!.querySelector('.pos-abbr')!);
+        expect(second).toHaveClass('selected');
+        await user.click(second!.querySelector('.pos-abbr')!);
+        expect(second).not.toHaveClass('selected');
+        expect(first).toHaveClass('selected');
+    });
+
+    it('a tap with nothing selected opens the word; while selecting it does not', async () => {
+        mockMobileViewport();
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable onOpenWord={onOpenWord} />);
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await user.click(first!.querySelector('.pos-abbr')!);
+        expect(onOpenWord).toHaveBeenCalledWith('a');
+        expect(first).not.toHaveClass('selected');
+
+        onOpenWord.mockClear();
+        await longPress(user, first!);
+        await user.click(second!.querySelector('.pos-abbr')!);
+        expect(onOpenWord).not.toHaveBeenCalled();
+        expect(second).toHaveClass('selected');
+    });
+
+    it('a tap on a cell label opens the cell, not the word', async () => {
+        mockMobileViewport();
+        const onOpenWord = vi.fn();
+        const onOpenCell = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <SelectableTable {...baseProps} rows={rows} total={2} selectable onOpenWord={onOpenWord} onOpenCell={onOpenCell} />,
+        );
+
+        await user.click(within(document.querySelector('tbody tr') as HTMLElement).getByRole('button', { name: /apple/ }));
+        expect(onOpenCell).toHaveBeenCalled();
+        expect(onOpenWord).not.toHaveBeenCalled();
     });
 });
 
