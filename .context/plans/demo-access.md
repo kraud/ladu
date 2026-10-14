@@ -1,6 +1,6 @@
 # Plan: Account-less demo access (ephemeral "demo" accounts)
 
-Status: **draft, planned on 2026-10-14.** No code written yet. Decisions D1–D7 below are confirmed with the user; open details at the end are not.
+Status: **draft, planned on 2026-10-14.** No code written yet. Decisions D1–D9 below are confirmed with the user; the two items at the end are non-blocking, to finalize during implementation.
 
 ## What this is (plain-language overview)
 
@@ -23,6 +23,8 @@ The owner can, from the admin panel, turn the demo **on or off** and tune **thre
 | D5. Seed data | **Placeholder now.** A small hand-written set so the feature can be exercised end-to-end. The user will author a comprehensive set later; the mechanism (template + clone, Slice 2) is content-agnostic so richer data is a data change, not a code change. |
 | D6. Remaining-time UI | The visitor sees a **countdown clock on the Account page** (`/user`), alongside counters for **words left** and **tags left**. A **small indicator in the app header** (mobile and desktop) shows the demo state and remaining time. Exact layout/placement is defined during implementation. |
 | D7. When caps are captured | The **duration and word/tag caps are captured at session start** and frozen on the demo's user row at bootstrap (`demo_expires_at`, `demo_word_limit`, `demo_tag_limit`). An admin change affects demos started afterward, not running ones — a running demo stays stable, and its limits stay bounded either way. |
+| D8. Audit action | A single `access.demo_configure` audit row per Save, with old → new values for all four fields in its metadata (no separate enable/disable/limits actions). |
+| D9. Tags-left counter source | Add `totalTags` to `calculateBasicUserMetrics` / `GET /api/users/getUserMetrics` (it currently returns `totalWords` only). The Account page computes words/tags left from these totals against the frozen limits. |
 
 ## Design
 
@@ -119,8 +121,7 @@ The nightly purge (`lib/userPurge.ts` → `scripts/purge.js`) gains a demo branc
 Reuses the access-gates machinery (`backend/controllers/admin/accessController.ts`, `backend/routes/admin/accessRoutes.js`, permission `access.manage`):
 
 - `GET /api/admin/access` already returns the settings; extend it with the four demo fields.
-- `PUT /api/admin/access/demo` (`{ enabled, durationMinutes, maxWords, maxTags, reason? }`) — one action, one audit row (`access.demo_configure`, metadata: old + new values).
-- Audit: `access.demo_configure` (or split `access.demo_enable` / `access.demo_disable` if the UI makes enable/disable a separate control — decide in the slice overview).
+- `PUT /api/admin/access/demo` (`{ enabled, durationMinutes, maxWords, maxTags, reason? }`) — one action, one audit row `access.demo_configure` (D8, metadata: old + new values).
 
 Admin UI: `/access` (`admin/src/features/access/`) gains a third tab `?tab=demo` (extend `AccessSearch.tab` from `'registration' | 'login'` to include `'demo'`, and `validateAccessSearch`). The tab has an **Enable demo** switch and three number inputs (duration minutes, max words, max tags), a Save with confirm, and a note that the demo is independent of the registration/login gates. A warning when enabled and any cap is zero ("the visitor can see nothing / do nothing").
 
@@ -130,9 +131,9 @@ Admin UI: `/access` (`admin/src/features/access/`) gains a third tab `?tab=demo`
 - New `frontend/src/features/demo/`: a `/demo` route (added to `frontend/src/app/router.tsx`) that calls `POST /api/demo`, sets the session through the same store flow the login mutation uses, and navigates into the app; on `demo_disabled` it shows a message and a link to sign up. A `useStartDemo` mutation mirrors the login mutation in `features/auth/api.ts` / `hooks.ts`.
 - Demo affordances, shown only when `user.isDemo`:
   - a **small header indicator** (mobile and desktop) with the demo state and remaining time;
-  - on the **Account page** (`frontend/src/features/account/pages/AccountPage.tsx`, route `/user`), a **countdown clock** plus counters for **words left** (`demoWordLimit − totalWords`) and **tags left** (`demoTagLimit − tagCount`); `totalWords` comes from `getUserMetrics`, the tag count needs a source (see open details);
+  - on the **Account page** (`frontend/src/features/account/pages/AccountPage.tsx`, route `/user`), a **countdown clock** plus counters for **words left** (`demoWordLimit − totalWords`) and **tags left** (`demoTagLimit − totalTags`); both totals come from `getUserMetrics` (add `totalTags`, D9);
   - a gentle countdown that logs out at zero; the existing 401 interceptor is the backstop for a server-side expiry.
-- Translated strings in `frontend/public/locales/{en,es,de,ee}/*.json` for the badge and the "the demo is off" message (draft English, then ask the user to have the others checked — see open details).
+- Translated strings in `frontend/public/locales/{en,es,de,ee}/*.json` for the badge and the "the demo is off" message (draft English; the user reviews the other languages once the feature is live — see "Details to finalize").
 
 ### Landing page
 
@@ -150,7 +151,7 @@ Slice 0 is independent and read-only; Slice 1 is the thin vertical slice that pr
 
 ## Files that change (summary)
 
-- **Backend:** `backend/src/db/schema.ts` + a migration; `backend/middleware/authMiddleware.ts`; `backend/controllers/userController.ts`; new `backend/controllers/demoController.ts` and `backend/routes/demoRoutes.js` (mounted in `backend/app.js` as `/api/demo`); `backend/controllers/admin/accessController.ts` + `backend/routes/admin/accessRoutes.js`; `backend/lib/userPurge.ts`; `backend/scripts/purge.js`; new `backend/scripts/seed-demo-template.ts`; the word- and tag-create controllers for the caps; tests.
+- **Backend:** `backend/src/db/schema.ts` + a migration; `backend/middleware/authMiddleware.ts`; `backend/controllers/userController.ts` and `backend/controllers/metricController.ts` (add `totalTags`); new `backend/controllers/demoController.ts` and `backend/routes/demoRoutes.js` (mounted in `backend/app.js` as `/api/demo`); `backend/controllers/admin/accessController.ts` + `backend/routes/admin/accessRoutes.js`; `backend/lib/userPurge.ts`; `backend/scripts/purge.js`; new `backend/scripts/seed-demo-template.ts`; the word- and tag-create controllers for the caps; tests.
 - **Admin:** `admin/src/features/access/` (`AccessPage.tsx`, `search.ts`, `api.ts`, `hooks.ts`, `types.ts`) + tests.
 - **Learner app:** `frontend/src/features/demo/` (new); `frontend/src/stores/authStore.ts`; `frontend/src/features/auth/types.ts` (+ `api.ts`/`hooks.ts` if the login mutation is the mirror); `frontend/src/app/router.tsx`; `frontend/src/components/layout/AppShell.tsx` / `AppHeader.tsx`; the 4 locale JSONs; tests.
 - **Landing:** `landing/index.html`, `landing/app.js`, landing locale strings.
@@ -166,9 +167,7 @@ Slice 0 is independent and read-only; Slice 1 is the thin vertical slice that pr
 - **Seed data drifting from the form rules.** The template is inserted through the same service functions the app uses, and re-cloned per session — a broken template fails loudly in the e2e gate, not in production.
 - **Lockout / gate misconfiguration.** The demo gate is independent of the registration/login gates; a cap of 0 is warned about in the admin page.
 
-## Open details to confirm before/while building
+## Details to finalize during implementation (non-blocking)
 
-1. **Audit granularity.** One `access.demo_configure` action (recommended — the row's metadata still records old → new for all four values) vs separate `access.demo_enable` / `access.demo_disable` / `access.demo_limits` for filtering. Confirm the recommended single action.
-2. **Tags-left counter source.** `getUserMetrics` returns `totalWords` but no tag total. Either add `totalTags` to `GET /api/users/getUserMetrics`, or derive the count from the tags list query. Decide in Slice 1/2.
-3. **"Try the demo" on login/registration.** Confirmed yes. Exact placement (and mobile vs desktop differences) is defined during implementation, alongside the header indicator.
-4. **Exact wording** of the demo badge, the countdown and the "the demo is off" message in EN/ES/DE/EE — draft English, then have the other three checked by a native speaker (do not assume a translation is right).
+1. **Placement of the demo entry and the header indicator.** The "Try the demo" link on login/registration and the header indicator have mobile-vs-desktop placement differences to settle during implementation (D6).
+2. **Wording.** Draft the demo badge, countdown and "the demo is off" strings in English; the user reviews the ES/DE/EE translations once the feature is live.
