@@ -150,8 +150,9 @@ describe('POST /api/words/:id/clone', () => {
         expect(res.body.message).toBe('You already own this word');
     });
 
-    it('answers 403 for a word of someone else that the caller cannot read (no followed tag)', async () => {
-        const { original } = await setUp();
+    it('answers 403 for a word of someone else that the caller cannot read (Private tag, no follow)', async () => {
+        const { tag, original } = await setUp();
+        await db.update(tags).set({ visibility: 'Private' }).where(eq(tags.id, tag.id));
         const stranger = await registerAndLogin('Stranger', 'stranger@test.com', 'stranger');
         const res = await clone(stranger.token, original.id);
         expect(res.statusCode).toBe(403);
@@ -314,5 +315,67 @@ describe('GET /api/words/simple — no duplicate of a followed word and its copy
         expect(ids(await list(follower.token, '?owner=me'))).toEqual([copy.id]);
         // Without the owner filter the original stays hidden.
         expect(ids(await list(follower.token))).not.toContain(original.id);
+    });
+});
+
+describe('Words of a Public tag are readable without a follow (plans/words-clone-followed.md, Slice 6a)', () => {
+    const makeStranger = () => registerAndLogin('Stranger', 'stranger@test.com', 'stranger');
+
+    it('a user who does not follow the Public tag can read the word, and sees no copy of it', async () => {
+        const { original } = await setUp();
+        const stranger = await makeStranger();
+
+        const res = await get(stranger.token, original.id);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.id).toBe(original.id);
+        expect(res.body.translations).toHaveLength(2);
+        expect(res.body.myCloneId).toBeNull();
+        // Only the Public tag shows on the word, as for a follower.
+        expect(res.body.tags.map((tg) => tg.label)).toEqual(['Home']);
+    });
+
+    it('the same user can clone it', async () => {
+        const { original } = await setUp();
+        const stranger = await makeStranger();
+
+        const res = await clone(stranger.token, original.id);
+
+        expect(res.statusCode).toBe(201);
+        expect(res.body).toMatchObject({ user: stranger.id, isCloned: true, tags: [] });
+        expect((await get(stranger.token, original.id)).body.myCloneId).toBe(res.body.id);
+    });
+
+    it('closes again when the tag turns Private', async () => {
+        const { tag, original } = await setUp();
+        const stranger = await makeStranger();
+        expect((await get(stranger.token, original.id)).statusCode).toBe(200);
+
+        await db.update(tags).set({ visibility: 'Private' }).where(eq(tags.id, tag.id));
+
+        expect((await get(stranger.token, original.id)).statusCode).toBe(403);
+        expect((await clone(stranger.token, original.id)).statusCode).toBe(403);
+    });
+
+    it('stays closed for a Friends-Only tag the user does not follow, and for a word on no tag', async () => {
+        const { author, tag, original } = await setUp();
+        const stranger = await makeStranger();
+        await db.update(tags).set({ visibility: 'Friends-Only' }).where(eq(tags.id, tag.id));
+        expect((await get(stranger.token, original.id)).statusCode).toBe(403);
+
+        const loose = (await createWord(author.token)).body; // no tag at all
+        expect((await get(stranger.token, loose.id)).statusCode).toBe(403);
+    });
+
+    it('stays open while the word is on a second, Private tag as well as a Public one', async () => {
+        const { author, original } = await setUp();
+        const stranger = await makeStranger();
+        const [secret] = await db.insert(tags).values({ authorId: author.id, label: 'Secret', visibility: 'Private' }).returning();
+        await db.insert(require('../src/db/schema').tagWords).values({ tagId: secret.id, wordId: original.id });
+
+        const res = await get(stranger.token, original.id);
+        expect(res.statusCode).toBe(200);
+        // The Private tag does not leak onto the word the stranger sees.
+        expect(res.body.tags.map((tg) => tg.label)).toEqual(['Home']);
     });
 });

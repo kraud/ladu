@@ -26,10 +26,14 @@ Follow-up of `plans/words-followed-selection.md`. Scope: the word page `/word/[i
 
 ## Backlog (after Slice 5)
 
-- [ ] **6. `/tag/[id]` table: parity with `/words`.** Plan this slice when Slices 1–5 are done. What the user asked for (2026-10-14):
-  - **Row click opens the word page** (confirm dialog first, as on `/words`). It must also work for a tag the user does **not** follow (a Public tag preview), so the user can judge the translations before following. *Backend check needed:* `GET /api/words/:id` allows a non-owner only through a followed tag today (`wordController.ts`, ownership check). A Public tag the user does not follow must be readable too. Same for the cell dialog (read-only) on that table. Decide how far the access goes (only words of a Public tag the user can see).
-  - **Row selection only for Practice**, and only on a tag the user owns or follows. No other bulk action on this page (no Add tags, no Delete, no Clone). The `/words` selection features come with it: header checkbox, "(+ all pages)", Select all on a phone, Unselect, long press on a phone, the count bar. The bar has Practice only.
-  - Reuse `BulkActionBar` and `ReviewTable` pieces where it is clean; do not copy them. `TagWordsTable` has its own table today.
+- **6. `/tag/[id]` table: parity with `/words`** (planned 2026-10-14; three slices). Decisions of the user:
+  - A word on a **Public tag** can be read (word page, cell dialog) by anyone, also when they do not follow the tag. A Private or Friends-Only tag stays closed; if the tag turns Private, the access ends.
+  - **Clone** works for any word the user can read, so also on a Public tag they do not follow (tag clone already lets anyone copy a Public tag).
+  - In **"Remove words" mode** (owned tag) row click and row selection are off: the trash column is the only action.
+  - Existing tag actions stay: "Add words" and "Remove words" (they act on the tag, not on a selection).
+  - [x] **6a. Backend: read access to words of a Public tag.** (built 2026-10-14; `canReadOthersWord` in `wordController.ts`; tests at the end of `backend/tests/wordClone.test.js`) `GET /api/words/:id` and `POST /api/words/:id/clone` accept a word that is on any Public tag, not only on a followed tag (`canReadFollowedWord` in `wordController.ts` gets the Public-tag case, in the same query). Backend tests: readable, clonable, closed again when the tag turns Private, a Private tag stays closed, a stranger without any tag stays closed.
+  - [ ] **6b. Tag table: row click opens the word.** `TagWordsTable` gets `onOpenWord` (same rules as `ReviewTable`: a click on a button, link or the checkbox is not a row click; a tap on a phone). The confirm dialog ("Open this word?") is shared with `/words` (move it into a small component both pages use). Off in remove mode. The cell dialog stays read-only for words of others (works for a Public tag without follow after 6a). Tests and an e2e step (a user who does not follow a Public tag opens one of its words and its cell dialog).
+  - [ ] **6c. Tag table: select words for Practice only.** Only when the user owns the tag or follows it (`tagRelation` is `owned` or `followed`), and not in remove mode. A checkbox column on desktop, long press on a phone, header checkbox, "(+ all pages)", "Select all" and Unselect on a phone, the count bar. The bar has **Practice only**: no Add tags, no Delete, no Clone, and no hint line. Reuse, do not copy: the long-press and row-selection code and the "(+ all pages)" logic come out of `ReviewTable` / `ReviewPage` into shared pieces; `BulkActionBar` gets a "Practice only" mode. "(+ all pages)" uses the tag's filters (`tag`, search, part of speech, gender), so it selects the words of this tag only. Tests and an e2e step.
 
 ## Open points
 

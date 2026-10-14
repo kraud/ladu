@@ -557,8 +557,18 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   res.status(200).json({ items, nextCursor, total });
 });
 
-// A word of someone else is readable through a tag the user follows and can currently view.
-const canReadFollowedWord = async (userId: string, wordId: string): Promise<boolean> => {
+// A word of someone else is readable when it is on a Public tag (anyone can already list a Public tag's
+// words at `/tag/:id`, so the user can judge it before following), or when it is reached through a tag
+// the user follows and can currently view (also Friends-Only). A Private tag is never readable by others.
+const canReadOthersWord = async (userId: string, wordId: string): Promise<boolean> => {
+  const [onPublicTag] = await db
+    .select({ wordId: tagWords.wordId })
+    .from(tagWords)
+    .innerJoin(tags, eq(tagWords.tagId, tags.id))
+    .where(and(eq(tagWords.wordId, wordId), eq(tags.visibility, "Public")))
+    .limit(1);
+  if (onPublicTag) return true;
+
   const followedWordIds: string[] = await getWordsIdFromFollowedTagsByUserId(userId);
   return followedWordIds.includes(wordId);
 };
@@ -586,11 +596,12 @@ const getWordById = asyncHandler(async (req: any, res: any) => {
 
   // Ownership check (§8.4), widened in Phase 4: a non-owner may also read a
   // word reached through a tag they follow and can currently view (matches
-  // `GET /api/words/simple`'s own access condition) — read-only either way,
+  // `GET /api/words/simple`'s own access condition), and (words-clone-followed.md, Slice 6a) a word
+  // on any Public tag — read-only either way,
   // which the frontend already derives from `wordData.user !== session user
   // id` (the same comparison Review's owner-dot uses), not a separate flag.
   if (wordData.user !== req.user.id) {
-    if (!(await canReadFollowedWord(req.user.id, req.params.id))) {
+    if (!(await canReadOthersWord(req.user.id, req.params.id))) {
       res.status(403);
       throw new Error("User not authorized");
     }
@@ -603,7 +614,8 @@ const getWordById = asyncHandler(async (req: any, res: any) => {
   res.status(200).json(wordData);
 });
 
-// @desc    Clone one word of someone else (reached through a followed tag) into
+// @desc    Clone one word of someone else (one the caller can read: on a Public tag, or reached through a
+//          followed tag) into
 //          the caller's account. The copy is private and has no tags; it stores
 //          where it came from (`sourceWordId`, `isCloned`, `originalCreator`).
 //          The caller's own practice history for the word is copied too.
@@ -619,7 +631,7 @@ const cloneWord = asyncHandler(async (req: any, res: any) => {
     res.status(400);
     throw new Error("You already own this word");
   }
-  if (!(await canReadFollowedWord(req.user.id, source.id))) {
+  if (!(await canReadOthersWord(req.user.id, source.id))) {
     res.status(403);
     throw new Error("User not authorized");
   }
