@@ -2,22 +2,16 @@ const { and, asc, count, desc, eq, gt, ilike, inArray, lt, ne, not, or, sql }: t
   require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
 const {
-  exercisePerformanceCases,
-  exercisePerformances,
   friendships,
   notifications,
   tagShares,
   tags,
   tagWords,
-  translationCases,
   translations,
   users,
   userFollowingTags,
   words,
 }: typeof import("../src/db/schema") = require("../src/db/schema");
-
-type PerformanceRow = typeof exercisePerformances.$inferSelect;
-type PerformanceCaseRow = typeof exercisePerformanceCases.$inferSelect;
 
 const asyncHandler = require("express-async-handler");
 
@@ -33,6 +27,7 @@ const { activeBadgesByUserIds, activeBadgeCondition, isBadgeType }: typeof impor
 // file wordController's still-empty `module.exports` from mid-load).
 const {
   fetchWordsWithRelations,
+  cloneWordsForUser,
   parseLimitParam,
   encodeCursor,
   decodeCursor,
@@ -658,109 +653,8 @@ const cloneTagForUser = async (
       .returning();
   }
 
-  const clonedWordRows =
-    sourceWords.length > 0
-      ? await tx
-          .insert(words)
-          .values(
-            sourceWords.map((sourceWord) => ({
-              userId: recipientId,
-              partOfSpeech: sourceWord.partOfSpeech,
-              clue: sourceWord.clue,
-              isCloned: true,
-              originalCreatorId: sourceWord.user,
-              sourceWordId: sourceWord.id,
-            })),
-          )
-          .returning()
-      : [];
-
-  // Flattened one-row-per-translation inserts, tagged with the cloned word
-  // (by index — `sourceWords[i]` <-> `clonedWordRows[i]`) they belong to.
-  const translationInserts = sourceWords.flatMap((sourceWord, i) =>
-    sourceWord.translations.map((translation) => ({
-      wordId: clonedWordRows[i].id,
-      language: translation.language,
-    })),
-  );
-  const clonedTranslationRows =
-    translationInserts.length > 0
-      ? await tx.insert(translations).values(translationInserts).returning()
-      : [];
-
-  // Same flattening for cases, one level deeper: rebuild the parallel
-  // flattened *source* translation list so `flattenedSourceTranslations[j]`
-  // <-> `clonedTranslationRows[j]` for every source translation regardless
-  // of which word it came from.
-  const flattenedSourceTranslations = sourceWords.flatMap((sourceWord) => sourceWord.translations);
-  const caseInserts = flattenedSourceTranslations.flatMap((translation, j) =>
-    translation.cases.map((c) => ({
-      translationId: clonedTranslationRows[j].id,
-      caseName: c.caseName,
-      word: c.word,
-    })),
-  );
-  if (caseInserts.length > 0) {
-    await tx.insert(translationCases).values(caseInserts);
-  }
-
-  // D7 (phase-5-practice.md): copy the *recipient's own* practice history from
-  // the source translations to the new copies, so cloning a followed tag does
-  // not reset what they already know. Only their rows are read — never the
-  // author's or anyone else's.
-  const sourceToClone = new Map<string, { id: string; wordId: string }>(
-    flattenedSourceTranslations.map((sourceTranslation, j) => [sourceTranslation.id, clonedTranslationRows[j]]),
-  );
-  if (sourceToClone.size > 0) {
-    const sourcePerformances: PerformanceRow[] = await tx
-      .select()
-      .from(exercisePerformances)
-      .where(
-        and(
-          eq(exercisePerformances.userId, recipientId),
-          inArray(exercisePerformances.translationId, [...sourceToClone.keys()]),
-        ),
-      );
-    if (sourcePerformances.length > 0) {
-      const clonedPerformances: PerformanceRow[] = await tx
-        .insert(exercisePerformances)
-        .values(
-          sourcePerformances.map((perf) => {
-            const target = sourceToClone.get(perf.translationId)!;
-            return {
-              userId: recipientId,
-              wordId: target.wordId,
-              translationId: target.id,
-              performanceModifier: perf.performanceModifier,
-              reviseCounter: perf.reviseCounter,
-              averageTranslationKnowledge: perf.averageTranslationKnowledge,
-              lastDateModifiedTranslation: perf.lastDateModifiedTranslation,
-              translationLanguage: perf.translationLanguage,
-            };
-          }),
-        )
-        .returning();
-      // `RETURNING` keeps the input order, so `clonedPerformances[i]` is the copy of `sourcePerformances[i]`.
-      const newPerformanceIdBySourceId = new Map<string, string>(
-        sourcePerformances.map((perf, i) => [perf.id, clonedPerformances[i].id]),
-      );
-      const sourceCaseStats: PerformanceCaseRow[] = await tx
-        .select()
-        .from(exercisePerformanceCases)
-        .where(inArray(exercisePerformanceCases.exercisePerformanceId, [...newPerformanceIdBySourceId.keys()]));
-      if (sourceCaseStats.length > 0) {
-        await tx.insert(exercisePerformanceCases).values(
-          sourceCaseStats.map((stat) => ({
-            exercisePerformanceId: newPerformanceIdBySourceId.get(stat.exercisePerformanceId)!,
-            caseName: stat.caseName,
-            record: stat.record,
-            lastDate: stat.lastDate,
-            knowledge: stat.knowledge,
-          })),
-        );
-      }
-    }
-  }
+  // Words, translations, cases and the recipient's own practice history (shared with `cloneWord`).
+  const clonedWordRows = await cloneWordsForUser(tx, sourceWords, recipientId);
 
   if (clonedTag && clonedWordRows.length > 0) {
     const cloneId = clonedTag.id;

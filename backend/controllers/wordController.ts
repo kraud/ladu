@@ -62,6 +62,7 @@ const {
     assembleWord,
     fetchWordsWithRelations,
     fetchWordWithRelations,
+    cloneWordsForUser,
     parseArrayParam,
     parseLimitParam,
     parsePageParam,
@@ -549,6 +550,22 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   res.status(200).json({ items, nextCursor, total });
 });
 
+// A word of someone else is readable through a tag the user follows and can currently view.
+const canReadFollowedWord = async (userId: string, wordId: string): Promise<boolean> => {
+  const followedWordIds: string[] = await getWordsIdFromFollowedTagsByUserId(userId);
+  return followedWordIds.includes(wordId);
+};
+
+// The id of the user's own copy (clone) of `sourceWordId`, or null.
+const findOwnCloneId = async (userId: string, sourceWordId: string): Promise<string | null> => {
+  const [clone] = await db
+    .select({ id: words.id })
+    .from(words)
+    .where(and(eq(words.userId, userId), eq(words.sourceWordId, sourceWordId)))
+    .limit(1);
+  return clone?.id ?? null;
+};
+
 // @desc    Get a single word by ID (with tags resolved)
 // @route   GET /api/words/:id
 // @access  Private
@@ -566,14 +583,47 @@ const getWordById = asyncHandler(async (req: any, res: any) => {
   // which the frontend already derives from `wordData.user !== session user
   // id` (the same comparison Review's owner-dot uses), not a separate flag.
   if (wordData.user !== req.user.id) {
-    const followedWordIds = await getWordsIdFromFollowedTagsByUserId(req.user.id);
-    if (!followedWordIds.includes(req.params.id)) {
+    if (!(await canReadFollowedWord(req.user.id, req.params.id))) {
       res.status(403);
       throw new Error("User not authorized");
     }
+    // The viewer's own copy of this word (a clone), if there is one — the word
+    // page then offers "Open your copy" instead of "Clone".
+    res.status(200).json({ ...wordData, myCloneId: await findOwnCloneId(req.user.id, wordData.id) });
+    return;
   }
 
   res.status(200).json(wordData);
+});
+
+// @desc    Clone one word of someone else (reached through a followed tag) into
+//          the caller's account. The copy is private and has no tags; it stores
+//          where it came from (`sourceWordId`, `isCloned`, `originalCreator`).
+//          The caller's own practice history for the word is copied too.
+// @route   POST /api/words/:id/clone
+// @access  Private
+const cloneWord = asyncHandler(async (req: any, res: any) => {
+  const source = await fetchWordWithRelations(req.params.id, req.user.id);
+  if (!source) {
+    res.status(400);
+    throw new Error("Word not found");
+  }
+  if (source.user === req.user.id) {
+    res.status(400);
+    throw new Error("You already own this word");
+  }
+  if (!(await canReadFollowedWord(req.user.id, source.id))) {
+    res.status(403);
+    throw new Error("User not authorized");
+  }
+  if (await findOwnCloneId(req.user.id, source.id)) {
+    res.status(409);
+    throw new Error("You already have a copy of this word");
+  }
+
+  const [clonedRow] = await db.transaction((tx: any) => cloneWordsForUser(tx, [source], req.user.id));
+  const cloned = await fetchWordWithRelations(clonedRow.id, req.user.id);
+  res.status(201).json(cloned);
 });
 
 // @desc    Create a word with translations, cases, and optional tag associations
@@ -1061,6 +1111,7 @@ module.exports = {
   getWords,
   getWordsSimplified,
   getWordById,
+  cloneWord,
   setWord,
   updateWord,
   deleteWord,

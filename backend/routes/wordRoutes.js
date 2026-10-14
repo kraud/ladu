@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const {
     getWords, setWord, updateWord, deleteWord, getWordsSimplified, getWordById, filterWordByAnyTranslation,
-    deleteManyWords, getWordsByFollowedTag
+    deleteManyWords, getWordsByFollowedTag, cloneWord
 } = require('../controllers/wordController.ts')
 const {protect} = require('../middleware/authMiddleware.ts')
 
@@ -17,6 +17,8 @@ router.get('/searchWord', protect, filterWordByAnyTranslation)
 router.get('/:id', protect, getWordById)
 
 router.post('/', protect, setWord)
+
+router.post('/:id/clone', protect, cloneWord)
 
 router.put('/:id', protect, updateWord)
 
