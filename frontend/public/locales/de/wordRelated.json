@@ -50,7 +50,9 @@
     "invalidCursor": "Dieser Seitenlink ist abgelaufen — lade die Liste neu.",
     "noWordIdsProvided": "Wähle mindestens ein Wort zum Löschen aus.",
     "someWordsMissing": "Einige der ausgewählten Wörter konnten nicht gefunden werden.",
-    "notAuthorizedToDeleteSome": "Du kannst nur Wörter löschen, die dir gehören."
+    "notAuthorizedToDeleteSome": "Du kannst nur Wörter löschen, die dir gehören.",
+    "alreadyOwned": "Dieses Wort gehört schon dir.",
+    "alreadyCloned": "Du hast schon eine Kopie dieses Wortes."
   },
   "displayWord": {
     "back": "Zurück",
@@ -58,6 +60,12 @@
     "titleSimple": "Detailansicht",
     "subtitle": "Alle derzeit gespeicherten Übersetzungen für dieses Wort",
     "toastUpdateSuccess": "Das Wort wurde erfolgreich aktualisiert",
+    "clone": "Klonen",
+    "openClone": "Deine Kopie öffnen",
+    "openCloneShort": "Kopie öffnen",
+    "cloneConfirmTitle": "Dieses Wort klonen?",
+    "cloneConfirmDescription": "Eine Kopie dieses Wortes wird zu deinen Wörtern hinzugefügt. Die Kopie ist privat und hat keine Tags. Du kannst sie bearbeiten und löschen. Das Original ändert sich nicht. Dein Übungsfortschritt für dieses Wort wird auch kopiert. In deiner Wortliste wird die Kopie statt des Originals gezeigt. Wenn du die Kopie löschst, wird das Original wieder gezeigt.",
+    "toastCloned": "Wort in deine Wörter kopiert",
     "toastError": "Etwas ist schief gelaufen: {{error}}"
   },
   "partOfSpeechSelector": {

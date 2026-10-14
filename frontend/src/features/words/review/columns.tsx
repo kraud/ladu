@@ -192,15 +192,32 @@ export function buildTagsColumn(
     };
 }
 
-/**
- * select (desktop) -> owner -> Type -> one column per language -> Tags (D1), in that order. The owner
- * and Type columns come and go with their display switches.
- */
-export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSimpleBE>[] {
-    const { languages, userId, userName, showGender, showProgress, selectable, showOwner, showPos, t, onOpenCell, onOpenTags, sort, onSort } =
-        options;
+/** The owner dot: the user's initials on their own words, "G" on a word that belongs to someone else. */
+export function buildOwnerColumn(t: TFunction, userId: string, userName: string): ColumnDef<WordSimpleBE> {
+    return {
+        id: 'owner',
+        size: 32,
+        header: '',
+        cell: ({ row }) => {
+            const isOwn = row.original.user === userId;
+            return (
+                <span
+                    className={`owner-dot ${isOwn ? 'owner-me' : 'owner-group'}`}
+                    title={isOwn ? t('review:table.ownerMe') : t('review:table.ownerGroup')}
+                >
+                    {isOwn ? avatarInitials(userName) : 'G'}
+                </span>
+            );
+        },
+    };
+}
 
-    const selectColumn: ColumnDef<WordSimpleBE> = {
+/**
+ * The checkbox column: a header checkbox (select the page) and one checkbox per row. Desktop only —
+ * on a phone rows are selected by a long press (`useRowPress`). Shared by `/words` and `/tag/:id`.
+ */
+export function buildSelectColumn(t: TFunction): ColumnDef<WordSimpleBE> {
+    return {
         id: 'select',
         size: 44,
         header: ({ table }) => (
@@ -220,29 +237,21 @@ export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSi
             />
         ),
     };
+}
 
-    const ownerColumn: ColumnDef<WordSimpleBE> = {
-        id: 'owner',
-        size: 32,
-        header: '',
-        cell: ({ row }) => {
-            const isOwn = row.original.user === userId;
-            return (
-                <span
-                    className={`owner-dot ${isOwn ? 'owner-me' : 'owner-group'}`}
-                    title={isOwn ? t('review:table.ownerMe') : t('review:table.ownerGroup')}
-                >
-                    {isOwn ? avatarInitials(userName) : 'G'}
-                </span>
-            );
-        },
-    };
+/**
+ * select (desktop) -> owner -> Type -> one column per language -> Tags (D1), in that order. The owner
+ * and Type columns come and go with their display switches.
+ */
+export function buildWordColumns(options: BuildColumnsOptions): ColumnDef<WordSimpleBE>[] {
+    const { languages, userId, userName, showGender, showProgress, selectable, showOwner, showPos, t, onOpenCell, onOpenTags, sort, onSort } =
+        options;
 
     const languageColumns = buildLanguageColumns({ languages, userId, showGender, showProgress, onOpenCell, sort, onSort, t });
 
     return [
-        ...(selectable ? [selectColumn] : []),
-        ...(showOwner ? [ownerColumn] : []),
+        ...(selectable ? [buildSelectColumn(t)] : []),
+        ...(showOwner ? [buildOwnerColumn(t, userId, userName)] : []),
         ...(showPos ? [buildPartOfSpeechColumn(t, 52)] : []),
         ...languageColumns,
         buildTagsColumn(t, userId, onOpenTags),

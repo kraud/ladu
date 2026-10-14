@@ -4,33 +4,53 @@
  * table renderer, per phase-4-tags.md's Slice 6 architecture note.
  *
  * Deliberately router-, store- and query-free, mirroring `ReviewTable`'s own
- * convention exactly: `TagViewPage` owns the single `useWordsInfinite({tag:
- * [tagId], q})` call (and the search box's local/debounced state, the
+ * convention exactly: `TagViewPage` owns the single `useWordsPage({tag:
+ * [tagId], q}, {page, pageSize})` call (and the search box's local/debounced state, the
  * display-option state, and the cell-dialog target) and passes every result
- * down as a prop, so this stays testable through `renderWithProviders` alone
- * and so the page can reuse the same loaded rows to compute
- * `AddWordsDialog`'s `excludeIds` without a second query.
+ * down as a prop, so this stays testable through `renderWithProviders` alone.
+ * The footer is the shared numbered-page `TablePagination` (words-pagination.md, Slice 4).
  *
  * An owned tag's toolbar holds "Add words" and "Remove words". Remove mode
  * (`removeMode`, owned by `TagViewPage`) puts a trash column on the *left* of
  * the table, so it stays in view however many language columns there are, and
  * disables "Add words". A cell's "+" (add translation) shows for an owned tag.
+ *
+ * A click on a row (not on a button, link or checkbox: `isPlainRowClick`) asks to open the word
+ * (`onOpenWord`) — for any tag, also a Public one the user does not follow. Off in remove mode,
+ * where the trash column is the only action.
+ *
+ * `selectable` (a tag the user owns or follows, not in remove mode): rows can be selected, for Practice
+ * only — a checkbox column on desktop, a long press on a phone (`useRowPress`, shared with `/words`).
+ * The page owns the selection and the action bar (`bar`, shown between the toolbar and the table).
  */
-import { useMemo, useState } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table';
-import { MagnifyingGlassIcon, PlusIcon, SlidersHorizontalIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
+import {
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+    type ColumnDef,
+    type OnChangeFn,
+    type RowSelectionState,
+} from '@tanstack/react-table';
+import { MagnifyingGlassIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { buildLanguageColumns, buildPartOfSpeechColumn } from '@/features/words/review/columns';
-import { DisplayOptions } from '@/features/words/review/DisplayOptions';
+import { TablePagination } from '@/components/common/TablePagination';
+import type { PageSize } from '@/lib/pagination';
+import {
+    buildLanguageColumns,
+    buildOwnerColumn,
+    buildPartOfSpeechColumn,
+    buildSelectColumn,
+} from '@/features/words/review/columns';
 import type { LanguageSort } from '@/features/words/review/useLanguageSort';
+import { isPlainRowClick } from '@/features/words/review/rowClick';
+import { useRowPress } from '@/features/words/review/useRowPress';
 import { useIsMobile } from '@/lib/useMediaQuery';
-import { PartOfSpeech } from '@/ts/enums';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 
 const SKELETON_ROWS = 5;
@@ -40,12 +60,17 @@ export interface TagWordsTableProps {
     languages: LangKey[];
     userId: string;
     isPending: boolean;
-    isFetchingNextPage: boolean;
+    /** A new page is loading while the old one stays on screen. */
+    isFetching?: boolean;
     isError: boolean;
     error: unknown;
-    hasNextPage: boolean;
+    /** Words on the tag matching the search, over all pages. */
     total: number;
-    onFetchNextPage: () => void;
+    /** Current numbered page (1-based) and rows per page. */
+    page: number;
+    pageSize: PageSize;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (size: PageSize) => void;
     onRetry: () => void;
     query: string;
     debouncedQuery: string;
@@ -59,10 +84,25 @@ export interface TagWordsTableProps {
     /** The empty-state CTA for an owned tag with zero words — absent elsewhere. */
     onAddWords?: () => void;
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
+    /** A click on a row itself asks to open the word. Not offered in remove mode. */
+    onOpenWord?: (wordId: string) => void;
+    /** Rows can be selected (for Practice). Has no effect in remove mode. The page owns the selection state. */
+    selectable?: boolean;
+    rowSelection?: RowSelectionState;
+    onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+    /** The selection's action bar, shown between the toolbar and the table. */
+    bar?: ReactNode;
+    /** The display options live in the page's side menu; the table only reads them. */
     showGender: boolean;
-    onShowGenderChange: (next: boolean) => void;
     showProgress: boolean;
-    onShowProgressChange: (next: boolean) => void;
+    showOwner: boolean;
+    showPos: boolean;
+    userName: string;
+    /** Rendered before the search box: the phone's Filters button (nothing on desktop, the panel is docked). */
+    leading?: ReactNode;
+    /** Whether a side-menu filter is on: the empty state then says "no match" instead of "no words". */
+    hasFilters?: boolean;
+    onClearFilters?: () => void;
     /** The active column sort, and the click on a language header. */
     sort?: LanguageSort | null;
     onSort?: (lang: LangKey) => void;
@@ -81,12 +121,14 @@ export function TagWordsTable({
     languages,
     userId,
     isPending,
-    isFetchingNextPage,
+    isFetching = false,
     isError,
     error,
-    hasNextPage,
     total,
-    onFetchNextPage,
+    page,
+    pageSize,
+    onPageChange,
+    onPageSizeChange,
     onRetry,
     query,
     debouncedQuery,
@@ -97,21 +139,28 @@ export function TagWordsTable({
     onRemove,
     onAddWords,
     onOpenCell,
+    onOpenWord,
+    selectable: selectableProp = false,
+    rowSelection,
+    onRowSelectionChange,
+    bar,
     showGender,
-    onShowGenderChange,
     showProgress,
-    onShowProgressChange,
+    showOwner,
+    showPos,
+    userName,
+    leading,
+    hasFilters = false,
+    onClearFilters,
     sort,
     onSort,
 }: TagWordsTableProps) {
     const { t } = useTranslation();
     const isMobile = useIsMobile();
-    const [filtersOpen, setFiltersOpen] = useState(false);
     const showRemoveColumn = canRemove && removeMode;
-    // D14's own rule, reapplied here: the gender switch is only useful once a
-    // noun is actually on screen.
-    const hasNounRows = useMemo(() => rows.some((row) => row.partOfSpeech === PartOfSpeech.noun), [rows]);
-
+    // The trash column is the only action in remove mode, so a row click does nothing then.
+    const openWord = removeMode ? undefined : onOpenWord;
+    const selectable = selectableProp && !removeMode && rowSelection !== undefined;
     // Equal width for every language column, so N columns always fill the
     // table instead of leaving space on the right when there are only a few.
     const langColWidth = languages.length > 0 ? `${100 / languages.length}%` : undefined;
@@ -127,7 +176,12 @@ export function TagWordsTable({
         onSort,
         t,
     });
+    // Stable between renders: the other columns are rebuilt on every render, which re-mounts their cells, and a
+    // checkbox that re-mounts loses the keyboard focus after a Space press.
+    const selectColumn = useMemo(() => buildSelectColumn(t), [t]);
     const columns: ColumnDef<WordSimpleBE>[] = [
+        // Desktop: a checkbox column. On a phone rows are selected by a long press.
+        ...(selectable && !isMobile ? [selectColumn] : []),
         ...(showRemoveColumn
             ? [
                   {
@@ -157,7 +211,8 @@ export function TagWordsTable({
                   } satisfies ColumnDef<WordSimpleBE>,
               ]
             : []),
-        buildPartOfSpeechColumn(t),
+        ...(showOwner ? [buildOwnerColumn(t, userId, userName)] : []),
+        ...(showPos ? [buildPartOfSpeechColumn(t)] : []),
         ...languageColumns,
     ];
 
@@ -166,9 +221,13 @@ export function TagWordsTable({
         columns,
         getRowId: (row) => row.id,
         getCoreRowModel: getCoreRowModel(),
+        state: { rowSelection: selectable ? rowSelection : {} },
+        onRowSelectionChange,
         manualPagination: true,
         manualFiltering: true,
     });
+    const hasSelection = selectable && Object.values(rowSelection ?? {}).some(Boolean);
+    const rowPress = useRowPress(hasSelection);
 
     // Soft colour coding (blue add, red remove), the same on desktop and phone. Desktop matches the
     // search box height (32px); on a phone the two share a row, half each.
@@ -201,19 +260,11 @@ export function TagWordsTable({
             </Button>
         </>
     );
-    const displayOptions = (
-        <DisplayOptions
-            showGenderSwitch={hasNounRows}
-            showGender={showGender}
-            onShowGenderChange={onShowGenderChange}
-            showProgress={showProgress}
-            onShowProgressChange={onShowProgressChange}
-        />
-    );
     const countLabel = !isPending && (
         <span className="meta">
             {debouncedQuery ? (
-                t('tags:words.resultCount', { shown: rows.length, total })
+                // With pages, "N of M" would count only the page on screen: the total says it all.
+                t('tags:words.resultTotal', { count: total })
             ) : (
                 <>
                     {total} {t('tags:card.wordCount', { count: total })}
@@ -230,18 +281,7 @@ export function TagWordsTable({
         <section>
             <div className={isMobile ? 'flex flex-col gap-2' : 'flex flex-wrap items-center gap-3 mb-2'}>
                 <div className={isMobile ? 'flex items-center gap-2' : 'flex min-w-0 items-center gap-2'}>
-                    {isMobile && (
-                        <Button
-                            variant="outline"
-                            className="gap-2"
-                            aria-label={t('review:filters.title')}
-                            aria-expanded={filtersOpen}
-                            onClick={() => setFiltersOpen(true)}
-                        >
-                            <SlidersHorizontalIcon size={16} />
-                            {t('review:filters.title')}
-                        </Button>
-                    )}
+                    {leading}
                     <div
                         className="searchbox"
                         style={isMobile ? { flex: 1, minWidth: 0 } : { flex: '0 1 220px', minWidth: 250 }}
@@ -257,44 +297,10 @@ export function TagWordsTable({
                     {canRemove && !isMobile && wordActions}
                 </div>
                 {canRemove && isMobile && <div className="flex gap-2">{wordActions}</div>}
-                {!isMobile && (
-                    <div className="ml-auto flex items-center gap-3">
-                        {displayOptions}
-                        {countLabel}
-                    </div>
-                )}
+                {!isMobile && <div className="ml-auto">{countLabel}</div>}
                 {isMobile && <div className="text-right">{countLabel}</div>}
             </div>
-
-            {isMobile && (
-                <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-                    <SheetContent
-                        side="left"
-                        showCloseButton={false}
-                        className="w-72 max-w-[85vw] overflow-y-auto p-4 sm:max-w-none"
-                    >
-                        <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
-                            <SheetTitle>{t('review:filters.title')}</SheetTitle>
-                            <button
-                                type="button"
-                                className="icon-btn"
-                                aria-label={t('common:sidebar.close')}
-                                onClick={() => setFiltersOpen(false)}
-                            >
-                                <XIcon size={16} />
-                            </button>
-                        </div>
-                        <SheetDescription className="sr-only">{t('review:filters.title')}</SheetDescription>
-                        <section className="flex flex-col gap-2">
-                            <h2 className="label flex items-center gap-1.5">
-                                <SlidersHorizontalIcon size={14} aria-hidden="true" />
-                                {t('review:filters.display')}
-                            </h2>
-                            <div className="flex flex-col gap-3">{displayOptions}</div>
-                        </section>
-                    </SheetContent>
-                </Sheet>
-            )}
+            {bar && selectable && <div className="mb-2 flex flex-col gap-2">{bar}</div>}
 
             {isPending ? (
                 <div className="tablewrap">
@@ -312,8 +318,18 @@ export function TagWordsTable({
                         </tbody>
                     </table>
                 </div>
-            ) : rows.length === 0 ? (
-                debouncedQuery ? (
+            ) : rows.length === 0 && total === 0 ? (
+                hasFilters ? (
+                    <EmptyState
+                        title={t('review:empty.noMatches.title')}
+                        description={t('review:empty.noMatches.description')}
+                        action={
+                            <Button size="sm" variant="outline" onClick={onClearFilters}>
+                                {t('review:empty.noMatches.action')}
+                            </Button>
+                        }
+                    />
+                ) : debouncedQuery ? (
                     <EmptyState
                         icon={<MagnifyingGlassIcon size={20} />}
                         title={t('tags:words.emptySearch.title', { query: debouncedQuery })}
@@ -338,7 +354,7 @@ export function TagWordsTable({
                 )
             ) : (
                 <>
-                    <div className="tablewrap">
+                    <div className="tablewrap" aria-busy={isFetching} style={isFetching ? { opacity: 0.6 } : undefined}>
                         <table className="dtable">
                             <thead>
                                 {table.getHeaderGroups().map((headerGroup) => (
@@ -346,7 +362,9 @@ export function TagWordsTable({
                                         {headerGroup.headers.map((header) => {
                                             const isLangCol = header.column.id.startsWith('lang_');
                                             const isShrinkCol =
-                                                header.column.id === 'partOfSpeech' || header.column.id === 'remove';
+                                                header.column.id === 'partOfSpeech' ||
+                                                header.column.id === 'remove' ||
+                                                header.column.id === 'select';
                                             return (
                                                 <th
                                                     key={header.id}
@@ -369,16 +387,43 @@ export function TagWordsTable({
                             </thead>
                             <tbody>
                                 {table.getRowModel().rows.map((row) => (
-                                    <tr key={row.id}>
+                                    <tr
+                                        key={row.id}
+                                        className={
+                                            [row.getIsSelected() && 'selected', selectable && isMobile && 'press-select', openWord && 'row-link']
+                                                .filter(Boolean)
+                                                .join(' ') || undefined
+                                        }
+                                        // Phone with selection: long press selects, a tap toggles (or opens the word with nothing selected).
+                                        {...(selectable && isMobile
+                                            ? rowPress({
+                                                  select: () => row.toggleSelected(true),
+                                                  toggle: () => row.toggleSelected(),
+                                                  onTap: openWord ? () => openWord(row.id) : undefined,
+                                              })
+                                            : {
+                                                  onClick: openWord
+                                                      ? (event: React.MouseEvent) => isPlainRowClick(event) && openWord(row.id)
+                                                      : undefined,
+                                              })}
+                                    >
                                         {row.getVisibleCells().map((cell) => {
                                             const isLangCol = cell.column.id.startsWith('lang_');
                                             const isShrinkCol =
-                                                cell.column.id === 'partOfSpeech' || cell.column.id === 'remove';
+                                                cell.column.id === 'partOfSpeech' ||
+                                                cell.column.id === 'remove' ||
+                                                cell.column.id === 'select';
                                             return (
                                                 <td
                                                     key={cell.id}
                                                     className={
-                                                        isLangCol ? 'word-cell' : isShrinkCol ? 'shrink-col' : undefined
+                                                        isLangCol
+                                                            ? 'word-cell'
+                                                            : isShrinkCol
+                                                              ? cell.column.id === 'select'
+                                                                  ? 'shrink-col select-cell'
+                                                                  : 'shrink-col'
+                                                              : undefined
                                                     }
                                                 >
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -387,27 +432,18 @@ export function TagWordsTable({
                                         })}
                                     </tr>
                                 ))}
-                                {isFetchingNextPage &&
-                                    Array.from({ length: 2 }).map((_, rowIndex) => (
-                                        <tr key={`more-${rowIndex}`}>
-                                            {columns.map((_, colIndex) => (
-                                                <td key={colIndex}>
-                                                    <Skeleton className="h-4 w-24" />
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))}
                             </tbody>
                         </table>
                     </div>
-                    {hasNextPage && (
-                        <div className="footer-row">
-                            <span className="meta">{t('tags:words.loaded', { loaded: rows.length, total })}</span>
-                            <Button variant="outline" size="sm" onClick={onFetchNextPage} disabled={isFetchingNextPage}>
-                                {t('review:table.loadMore')}
-                            </Button>
-                        </div>
-                    )}
+                    <TablePagination
+                        page={page}
+                        pageSize={pageSize}
+                        total={total}
+                        onPageChange={onPageChange}
+                        onPageSizeChange={onPageSizeChange}
+                        disabled={isFetching}
+                        compact={isMobile}
+                    />
                 </>
             )}
         </section>

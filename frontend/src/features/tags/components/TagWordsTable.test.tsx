@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { mockMobileViewport } from '@/test/viewport';
 import { renderWithProviders } from '@/test/render';
+import type { RowSelectionState } from '@tanstack/react-table';
 import { PartOfSpeech } from '@/ts/enums';
 import type { WordSimpleBE } from '@/features/words/types';
 import { TagWordsTable, type TagWordsTableProps } from './TagWordsTable';
@@ -25,12 +27,14 @@ const baseProps: TagWordsTableProps = {
     languages: ['EN'],
     userId: 'owner-1',
     isPending: false,
-    isFetchingNextPage: false,
+    isFetching: false,
     isError: false,
     error: undefined,
-    hasNextPage: false,
     total: 0,
-    onFetchNextPage: vi.fn(),
+    page: 1,
+    pageSize: 50,
+    onPageChange: vi.fn(),
+    onPageSizeChange: vi.fn(),
     onRetry: vi.fn(),
     query: '',
     debouncedQuery: '',
@@ -39,9 +43,10 @@ const baseProps: TagWordsTableProps = {
     removeMode: false,
     onRemoveModeChange: vi.fn(),
     showGender: true,
-    onShowGenderChange: vi.fn(),
     showProgress: false,
-    onShowProgressChange: vi.fn(),
+    showOwner: false,
+    showPos: true,
+    userName: 'Owner',
 };
 
 describe('TagWordsTable — rendering rows', () => {
@@ -54,11 +59,18 @@ describe('TagWordsTable — rendering rows', () => {
         expect(screen.getByText('2 words')).toBeInTheDocument();
     });
 
-    it('shows a narrowed result count while a search is active', () => {
+    it('shows the number of results while a search is active (all pages, not the page on screen)', () => {
         renderWithProviders(
             <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={5} debouncedQuery="run" query="run" />,
         );
-        expect(screen.getByText('1 of 5 words')).toBeInTheDocument();
+        expect(screen.getByText('5 results')).toBeInTheDocument();
+    });
+
+    it('says "1 result" for a single match', () => {
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} debouncedQuery="run" query="run" />,
+        );
+        expect(screen.getByText('1 result')).toBeInTheDocument();
     });
 
     it('gives every language column an equal share of the table width', () => {
@@ -70,6 +82,202 @@ describe('TagWordsTable — rendering rows', () => {
         langHeaders.forEach((th) => {
             expect((th as HTMLElement).style.width).toBe(`${100 / 3}%`);
         });
+    });
+});
+
+/** The table with its own selection state, as the page owns it. */
+function SelectableTable(props: Omit<TagWordsTableProps, 'rowSelection' | 'onRowSelectionChange'>) {
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+    return <TagWordsTable {...props} rowSelection={rowSelection} onRowSelectionChange={setRowSelection} />;
+}
+
+describe('TagWordsTable — selecting words (for Practice)', () => {
+    const rows = [makeRow('w1', 'run'), makeRow('w2', 'jump', 'someone-else')];
+
+    it('has no checkboxes unless selectable', () => {
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} />);
+        expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+    });
+
+    it('selectable: a checkbox on every row (also a word of someone else) and one in the header', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable />);
+        const checkboxes = screen.getAllByRole('checkbox');
+        expect(checkboxes).toHaveLength(3);
+        expect(checkboxes[2]).not.toHaveAttribute('aria-disabled', 'true');
+
+        await user.click(checkboxes[2]!);
+        expect(screen.getAllByRole('checkbox')[2]).toBeChecked();
+        expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked();
+        await user.click(screen.getAllByRole('checkbox')[0]!); // the header: selects the page
+        expect(screen.getAllByRole('checkbox')[1]).toBeChecked();
+    });
+
+    it('a row checkbox is not re-mounted by a selection change (it keeps the keyboard focus)', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable />);
+        const checkbox = screen.getAllByRole('checkbox')[1]!;
+
+        await user.click(checkbox);
+
+        expect(screen.getAllByRole('checkbox')[1]).toBe(checkbox);
+    });
+
+    it('a click on the checkbox or its cell selects, and does not open the word', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable onOpenWord={onOpenWord} />);
+
+        await user.click(screen.getAllByRole('checkbox')[1]!);
+        await user.click(document.querySelector('tbody tr .select-cell')!);
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('marks a selected row, and shows the bar only while selectable', () => {
+        const { rerender } = renderWithProviders(
+            <TagWordsTable
+                {...baseProps}
+                rows={rows}
+                total={2}
+                selectable
+                rowSelection={{ w1: true }}
+                onRowSelectionChange={vi.fn()}
+                bar={<p>the bar</p>}
+            />,
+        );
+        expect(document.querySelector('tbody tr')).toHaveClass('selected');
+        expect(screen.getByText('the bar')).toBeInTheDocument();
+
+        rerender(
+            <TagWordsTable
+                {...baseProps}
+                rows={rows}
+                total={2}
+                rowSelection={{ w1: true }}
+                onRowSelectionChange={vi.fn()}
+                bar={<p>the bar</p>}
+            />,
+        );
+        expect(screen.queryByText('the bar')).not.toBeInTheDocument();
+    });
+
+    it('remove mode: no checkboxes, even when selectable', () => {
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable canRemove removeMode />);
+        expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+    });
+});
+
+describe('TagWordsTable — phone: long press selects, a tap toggles or opens the word', () => {
+    const rows = [makeRow('a', 'apple'), makeRow('b', 'bread')];
+
+    async function longPress(user: ReturnType<typeof userEvent.setup>, target: Element) {
+        await user.pointer({ keys: '[MouseLeft>]', target });
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        await user.pointer({ keys: '[/MouseLeft]', target });
+    }
+
+    it('has no checkboxes; a long press selects the row, then a tap selects another and a tap on it unselects', async () => {
+        mockMobileViewport();
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable />);
+        expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await longPress(user, first!);
+        expect(first).toHaveClass('selected');
+
+        await user.click(second!.querySelector('.pos-abbr')!);
+        expect(second).toHaveClass('selected');
+        await user.click(second!.querySelector('.pos-abbr')!);
+        expect(second).not.toHaveClass('selected');
+        expect(first).toHaveClass('selected');
+    });
+
+    it('a tap with nothing selected opens the word; while selecting it does not', async () => {
+        mockMobileViewport();
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<SelectableTable {...baseProps} rows={rows} total={2} selectable onOpenWord={onOpenWord} />);
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await user.click(first!.querySelector('.pos-abbr')!);
+        expect(onOpenWord).toHaveBeenCalledWith('a');
+        expect(first).not.toHaveClass('selected');
+
+        onOpenWord.mockClear();
+        await longPress(user, first!);
+        await user.click(second!.querySelector('.pos-abbr')!);
+        expect(onOpenWord).not.toHaveBeenCalled();
+        expect(second).toHaveClass('selected');
+    });
+
+    it('a tap on a cell label opens the cell, not the word', async () => {
+        mockMobileViewport();
+        const onOpenWord = vi.fn();
+        const onOpenCell = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <SelectableTable {...baseProps} rows={rows} total={2} selectable onOpenWord={onOpenWord} onOpenCell={onOpenCell} />,
+        );
+
+        await user.click(within(document.querySelector('tbody tr') as HTMLElement).getByRole('button', { name: /apple/ }));
+        expect(onOpenCell).toHaveBeenCalled();
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+});
+
+describe('TagWordsTable — a click on a row opens the word', () => {
+    const rows = [makeRow('w1', 'run')];
+
+    it('calls onOpenWord for a click on the row, and marks the rows as links', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<TagWordsTable {...baseProps} rows={rows} total={1} onOpenWord={onOpenWord} />);
+
+        expect(document.querySelector('tbody tr')).toHaveClass('row-link');
+        await user.click(document.querySelector('tbody tr .pos-abbr')!);
+        expect(onOpenWord).toHaveBeenCalledWith('w1');
+    });
+
+    it('a click on a cell label opens the cell, not the word', async () => {
+        const onOpenWord = vi.fn();
+        const onOpenCell = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={rows} total={1} onOpenWord={onOpenWord} onOpenCell={onOpenCell} />,
+        );
+
+        await user.click(screen.getByRole('button', { name: /run/ }));
+        expect(onOpenCell).toHaveBeenCalled();
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('a word of someone else can be opened too', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={[makeRow('w2', 'jump', 'someone-else')]} total={1} onOpenWord={onOpenWord} />,
+        );
+
+        await user.click(document.querySelector('tbody tr .pos-abbr')!);
+        expect(onOpenWord).toHaveBeenCalledWith('w2');
+    });
+
+    it('does nothing in remove mode, and the rows are no links', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={rows} total={1} canRemove removeMode onOpenWord={onOpenWord} />,
+        );
+
+        expect(document.querySelector('tbody tr')).not.toHaveClass('row-link');
+        await user.click(document.querySelector('tbody tr .pos-abbr')!);
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('has no row links without onOpenWord', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={rows} total={1} />);
+        expect(document.querySelector('tbody tr')).not.toHaveClass('row-link');
     });
 });
 
@@ -175,31 +383,24 @@ describe('TagWordsTable — toolbar buttons', () => {
 });
 
 describe('TagWordsTable — display options', () => {
-    it('shows the Progress switch, and the gender switch only once a noun row is loaded', () => {
-        const { rerender } = renderWithProviders(
-            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run', 'owner-1', PartOfSpeech.verb)]} total={1} />,
+    it('shows the owner dot and the Type column only while their switches are on', () => {
+        const rows = [makeRow('w1', 'run', 'owner-1', PartOfSpeech.verb)];
+        const { container, rerender } = renderWithProviders(
+            <TagWordsTable {...baseProps} rows={rows} total={1} showOwner showPos />,
         );
-        expect(screen.getByText('Progress')).toBeInTheDocument();
-        expect(screen.queryByText('Gender')).not.toBeInTheDocument();
+        expect(container.querySelector('.owner-dot')).toBeInTheDocument();
+        expect(container.querySelector('.pos-abbr')).toBeInTheDocument();
 
-        rerender(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'tree', 'owner-1', PartOfSpeech.noun)]} total={1} />);
-        expect(screen.getByText('Gender')).toBeInTheDocument();
+        rerender(<TagWordsTable {...baseProps} rows={rows} total={1} showOwner={false} showPos={false} />);
+        expect(container.querySelector('.owner-dot')).not.toBeInTheDocument();
+        expect(container.querySelector('.pos-abbr')).not.toBeInTheDocument();
     });
 
-    it('calls the change handlers when a switch is toggled', async () => {
-        const onShowGenderChange = vi.fn();
-        const user = userEvent.setup();
-        renderWithProviders(
-            <TagWordsTable
-                {...baseProps}
-                rows={[makeRow('w1', 'tree', 'owner-1', PartOfSpeech.noun)]}
-                total={1}
-                onShowGenderChange={onShowGenderChange}
-            />,
-        );
-
-        await user.click(screen.getByText('Gender'));
-        expect(onShowGenderChange).toHaveBeenCalledWith(false);
+    it('renders `leading` before the search box', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} leading={<button type="button">Lead</button>} />);
+        const lead = screen.getByRole('button', { name: 'Lead' });
+        const search = screen.getByRole('textbox');
+        expect(lead.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 });
 
@@ -239,22 +440,50 @@ describe('TagWordsTable — loading and pagination', () => {
         expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument();
     });
 
-    it('shows Load more when there is a next page, and calls onFetchNextPage', async () => {
-        const onFetchNextPage = vi.fn();
+    it('shows the range of the page and the page buttons, and no Load more', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={120} page={2} />);
+
+        expect(screen.getByTestId('pagination-range')).toHaveTextContent('Showing 51–100 of 120');
+        expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
+        expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
+    });
+
+    it('calls onPageChange for Next and for a page number', async () => {
+        const onPageChange = vi.fn();
         const user = userEvent.setup();
         renderWithProviders(
-            <TagWordsTable
-                {...baseProps}
-                rows={[makeRow('w1', 'run')]}
-                total={5}
-                hasNextPage
-                onFetchNextPage={onFetchNextPage}
-            />,
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={120} onPageChange={onPageChange} />,
         );
 
-        expect(screen.getByText('Showing 1 of 5 words')).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Load more' }));
-        expect(onFetchNextPage).toHaveBeenCalled();
+        await user.click(screen.getByRole('button', { name: 'Next page' }));
+        expect(onPageChange).toHaveBeenLastCalledWith(2);
+        await user.click(screen.getByRole('button', { name: 'Page 3' }));
+        expect(onPageChange).toHaveBeenLastCalledWith(3);
+    });
+
+    it('calls onPageSizeChange from the Rows per page menu', async () => {
+        const onPageSizeChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={120} onPageSizeChange={onPageSizeChange} />,
+        );
+
+        await user.click(screen.getByRole('combobox', { name: 'Rows per page' }));
+        await user.click(await screen.findByRole('option', { name: 'All' }));
+        expect(onPageSizeChange).toHaveBeenCalledWith('all');
+    });
+
+    it('dims the rows while the next page loads', () => {
+        const { container } = renderWithProviders(
+            <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={120} isFetching />,
+        );
+        expect(container.querySelector('.tablewrap')).toHaveAttribute('aria-busy', 'true');
+    });
+
+    it('is not the empty state for a page past the last one', () => {
+        renderWithProviders(<TagWordsTable {...baseProps} rows={[]} total={120} page={9} />);
+        expect(screen.queryByText('No words here yet')).not.toBeInTheDocument();
+        expect(screen.getByTestId('pagination-range')).toBeInTheDocument();
     });
 });
 
@@ -271,19 +500,13 @@ describe('TagWordsTable — error state', () => {
 });
 
 describe('TagWordsTable — phone', () => {
-    it('has a Filters button that opens a menu with the Progress switch, and keeps Add/Remove words on one row', async () => {
+    it('keeps Add/Remove words on one row', () => {
         mockMobileViewport();
-        const user = userEvent.setup();
         renderWithProviders(
             <TagWordsTable {...baseProps} rows={[makeRow('w1', 'run')]} total={1} canRemove onAddWords={vi.fn()} />,
         );
-        expect(screen.queryByRole('switch', { name: 'Progress' })).not.toBeInTheDocument();
         const add = screen.getByRole('button', { name: 'Add words' });
         const remove = screen.getByRole('button', { name: 'Remove words' });
         expect(add.parentElement).toBe(remove.parentElement);
-
-        await user.click(screen.getByRole('button', { name: 'Filters' }));
-        const menu = await screen.findByRole('dialog');
-        expect(within(menu).getByRole('switch', { name: 'Progress' })).toBeInTheDocument();
     });
 });

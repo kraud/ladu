@@ -11,11 +11,18 @@
   },
   "filters": {
     "title": "Filtrid",
-    "display": "Kuva",
+    "display": "Kuvamise valikud",
+    "displayBadges": "Märgised",
+    "displayColumns": "Veerud",
     "gender": "Sugu",
     "clear": "Tühjenda",
     "partOfSpeech": "Sõnaliik",
     "tags": "Sildid",
+    "owner": "Omanik",
+    "owners": {
+      "me": "Minu omad",
+      "others": "Mitte minu omad"
+    },
     "languageOrder": "Keelte järjekord",
     "languageOrderHint": "Järjesta nooltega · vähemalt 2 nähtavat",
     "moveEarlier": "Nihuta {{language}} varasemaks",
@@ -36,9 +43,13 @@
     "displayOwner": "Omanik",
     "displayType": "Sõnaliik"
   },
+  "openWord": {
+    "title": "Kas avada see sõna?",
+    "description": "Kas minna sõna „{{word}}“ lehele?",
+    "confirm": "Ava"
+  },
   "bulk": {
     "selected": "valitud",
-    "view": "Vaata",
     "practice": "Harjuta",
     "delete": "Kustuta",
     "confirmTitle_one": "Kustutada {{count}} sõna?",
@@ -51,7 +62,12 @@
     "tagsAddedToast_other": "Sildid lisati {{count}} sõnale",
     "tagsRemovedToast_one": "Silt eemaldati {{count}} sõnalt",
     "tagsRemovedToast_other": "Sildid eemaldati {{count}} sõnalt",
-    "unselect": "Tühista valik"
+    "unselect": "Tühista valik",
+    "ownOnlyHint": "Siltide lisamine ja kustutamine on saadaval ainult siis, kui kõik valitud sõnad on sinu omad.",
+    "selectAllMatching": "Vali kõik {{count}} sobivat sõna",
+    "allPages": "(+ kõik lehed)",
+    "selectAll": "Vali kõik",
+    "selectAllFailed": "Kõiki sõnu ei saanud valida. Proovi uuesti."
   },
   "table": {
     "posAbbr": {

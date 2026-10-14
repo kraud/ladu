@@ -1,28 +1,27 @@
 /**
  * The Review filters as `SidebarLayout` sections (`useFilterSections`): Gender,
- * Part of speech, Tags (`TagCombobox`, mode="filter", D15/D17 — additive/OR,
- * applies instantly like the other groups, no Save step) and Language order.
+ * Part of speech, Tags and Owner (Mine / Not mine; one at a time) (`TagCombobox`, mode="filter", D15/D17 — additive/OR,
+ * applies instantly like the other groups, no Save step). Language order moved to the
+ * "Display options" section (`DisplayOptions`): it changes the columns, it does not filter rows.
  * The layout draws the frame — the docked panel, the icon rail, the phone's
  * slide-in menu — so there is no collapse toggle, position toggle or top bar
  * here any more; the filters are always a column.
  *
  * Each section reports its own `count` (gender picks, part-of-speech picks,
- * tags), so the collapsed rail shows which groups are filtering. Language
- * order has none: it changes the columns, it does not filter rows. The search
+ * tags), so the collapsed rail shows which groups are filtering.  The search
  * box lives in the toolbar above the table, not here; `activeFilterCount`
  * adds it to the total that the phone's "Filters" button shows.
  */
 import { useTranslation } from 'react-i18next';
-import { GenderIntersexIcon, TagIcon, TextAaIcon, TranslateIcon } from '@phosphor-icons/react';
+import { GenderIntersexIcon, TagIcon, TextAaIcon, UserIcon } from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import type { SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
 import { GenderDE, GenderES, PartOfSpeech } from '@/ts/enums';
 import { partOfSpeechLabelKey } from '@/lib/words';
 import { TagCombobox } from '@/features/tags/components/TagCombobox';
 import type { TagSummary } from '@/features/tags/types';
-import type { LangKey } from '@/features/words/types';
+import type { WordOwner } from '@/features/words/types';
 import { posAbbrKey } from './columns';
-import { LanguageOrderControl } from './LanguageOrderControl';
 
 /** The four shipped parts of speech, matching `PartOfSpeechSelector`'s `SHIPPED_POS`. */
 const SHIPPED_POS: readonly PartOfSpeech[] = [
@@ -31,6 +30,8 @@ const SHIPPED_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
 ];
+
+const OWNER_OPTIONS: readonly WordOwner[] = ['me', 'others'];
 
 /**
  * Gender chips are per-language, not merged across languages (revised from
@@ -52,12 +53,17 @@ export interface FilterBarProps {
     hasQuery: boolean;
     /** Resolved `TagSummary`s for `ReviewSearch.tag`'s ids (`useTagsByIds`) — `TagCombobox`'s pills need the label/visibility, not just the id. */
     selectedTags: TagSummary[];
-    activeLanguages: LangKey[];
-    allLanguages: LangKey[];
+    /** The Owner filter: your own words or the followed-tag words. Unset: all words. */
+    owner?: WordOwner;
+    /** Which sections to offer (default: all four) — the tag page has no tag or owner filter, and only shows Gender with nouns. */
+    sections?: readonly ('gender' | 'pos' | 'tags' | 'owner')[];
+    /** The parts of speech to offer (default: the four shipped ones) — the tag page offers only those its words have. */
+    posOptions?: readonly PartOfSpeech[];
     onGenderChange: (next: string[] | undefined) => void;
     onPosChange: (next: PartOfSpeech[] | undefined) => void;
     onSelectedTagsChange: (next: TagSummary[]) => void;
-    onLanguagesChange: (next: LangKey[]) => void;
+    /** Without it, the Owner section is not offered. */
+    onOwnerChange?: (next: WordOwner | undefined) => void;
 }
 
 /** The number in the "N filters" pill: each gender, part-of-speech, and tag pick, plus the search box when it has text. */
@@ -66,20 +72,22 @@ export function activeFilterCount(
     pos: PartOfSpeech[],
     hasQuery: boolean,
     tagCount = 0,
+    hasOwner = false,
 ): number {
-    return gender.length + pos.length + tagCount + (hasQuery ? 1 : 0);
+    return gender.length + pos.length + tagCount + (hasQuery ? 1 : 0) + (hasOwner ? 1 : 0);
 }
 
 export function useFilterSections({
     gender,
     pos,
     selectedTags,
-    activeLanguages,
-    allLanguages,
+    owner,
+    sections: shown = ['gender', 'pos', 'tags', 'owner'],
+    posOptions = SHIPPED_POS,
     onGenderChange,
     onPosChange,
     onSelectedTagsChange,
-    onLanguagesChange,
+    onOwnerChange,
 }: FilterBarProps): SidebarSection[] {
     const { t } = useTranslation();
 
@@ -94,20 +102,20 @@ export function useFilterSections({
     }
 
     const clear = (onClick: () => void) => (
-        <button type="button" className="hint self-start underline" onClick={onClick}>
+        <button type="button" className="hint underline" onClick={onClick}>
             {t('review:filters.clear')}
         </button>
     );
 
-    return [
+    const all: (SidebarSection & { id: 'gender' | 'pos' | 'tags' | 'owner' })[] = [
         {
             id: 'gender',
             label: t('review:filters.gender'),
             icon: <GenderIntersexIcon size={18} />,
             count: gender.length,
+            headerAction: gender.length > 0 && clear(() => onGenderChange(undefined)),
             content: (
                 <div className="fb-group">
-                    {gender.length > 0 && clear(() => onGenderChange(undefined))}
                     <div className="flex flex-col gap-1.5">
                         {GENDER_BY_LANGUAGE.map((group) => (
                             <div key={group.key} className="flex flex-wrap items-center gap-2">
@@ -138,11 +146,11 @@ export function useFilterSections({
             label: t('review:filters.partOfSpeech'),
             icon: <TextAaIcon size={18} />,
             count: pos.length,
+            headerAction: pos.length > 0 && clear(() => onPosChange(undefined)),
             content: (
                 <div className="fb-group">
-                    {pos.length > 0 && clear(() => onPosChange(undefined))}
                     <div className="chips">
-                        {SHIPPED_POS.map((value) => (
+                        {posOptions.map((value) => (
                             <button
                                 key={value}
                                 type="button"
@@ -163,9 +171,9 @@ export function useFilterSections({
             label: t('review:filters.tags'),
             icon: <TagIcon size={18} />,
             count: selectedTags.length,
+            headerAction: selectedTags.length > 0 && clear(() => onSelectedTagsChange([])),
             content: (
                 <div className="fb-group">
-                    {selectedTags.length > 0 && clear(() => onSelectedTagsChange([]))}
                     <TagCombobox
                         mode="filter"
                         selected={selectedTags}
@@ -178,18 +186,29 @@ export function useFilterSections({
             ),
         },
         {
-            id: 'language-order',
-            label: t('review:filters.languageOrder'),
-            icon: <TranslateIcon size={18} />,
+            id: 'owner',
+            label: t('review:filters.owner'),
+            icon: <UserIcon size={18} />,
+            count: owner ? 1 : 0,
+            headerAction: owner && clear(() => onOwnerChange?.(undefined)),
             content: (
-                <LanguageOrderControl
-                    active={activeLanguages}
-                    allLanguages={allLanguages}
-                    onChange={onLanguagesChange}
-                    stacked
-                    hideLabel
-                />
+                <div className="fb-group">
+                    <div className="chips">
+                        {OWNER_OPTIONS.map((value) => (
+                            <button
+                                key={value}
+                                type="button"
+                                className="chip"
+                                aria-pressed={owner === value}
+                                onClick={() => onOwnerChange?.(owner === value ? undefined : value)}
+                            >
+                                {t(`review:filters.owners.${value}`)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
             ),
         },
     ];
+    return all.filter((section) => shown.includes(section.id) && (section.id !== 'owner' || onOwnerChange));
 }

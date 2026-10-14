@@ -23,6 +23,12 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
  *    independent, editable copy (D11) — word-count and follower badges are
  *    checked at each step along the way, not just at the end.
  *
+ * A third account then owns a tag of 51 words, to walk the numbered pages of `/tag/:id`
+ * (`.context/plans/words-pagination.md` Slice 4): page, page size and search in the URL
+ * and surviving a reload, and "Add words" not offering a word the tag already has — even
+ * one that is only on page 2. It is a separate account so its 51 words do not push the
+ * four words of the main story onto a second page of Review.
+ *
  * Word creation itself (the form engine, autocomplete, case validation) is
  * already covered by `phase-2-noun-crud.spec.ts`/`phase-3-review.spec.ts`;
  * the four words this spec needs are seeded directly via the API so the run
@@ -154,6 +160,8 @@ test.afterAll(async () => {
 test.describe.serial('Phase 4 — tags', () => {
     let owner: Account;
     let follower: Account;
+    let pager: Account;
+    let manyWordsTagId: string;
 
     test.beforeAll(async ({ request }) => {
         owner = await registerAndVerify(request, 'Tag Owner', ['English', 'German']);
@@ -169,6 +177,18 @@ test.describe.serial('Phase 4 — tags', () => {
         await createNoun(request, ownerToken, 'Carrot', 'Karotte');
         const cuminId = await createNoun(request, ownerToken, 'Cumin', 'Kreuzkümmel');
         await createPublicTag(request, ownerToken, 'Spices', [cuminId]);
+
+        // The third account: 51 nouns in one tag (50 on page 1, `Seed00` alone on page 2 — the newest
+        // come first), and one noun that is not in it.
+        pager = await registerAndVerify(request, 'Tag Pager', ['English', 'German']);
+        const pagerToken = await loginForToken(request, pager);
+        const seedIds: string[] = [];
+        for (let i = 0; i < 51; i++) {
+            const n = String(i).padStart(2, '0');
+            seedIds.push(await createNoun(request, pagerToken, `Seed${n}`, `Samen${n}`));
+        }
+        manyWordsTagId = await createPublicTag(request, pagerToken, 'Many Words', seedIds);
+        await createNoun(request, pagerToken, 'Zucchini', 'Zucchini');
     });
 
     test('A creates a tag, bulk-adds it from Review; B discovers, follows, keeps read-only access through a Private/Public flip, then clones a different tag', async ({
@@ -229,8 +249,41 @@ test.describe.serial('Phase 4 — tags', () => {
             await expect(pageA.getByRole('row', { name: /Carrot/ }).getByText('Kitchen Words')).toBeVisible();
         });
 
-        await test.step('B signs in and follows "Kitchen Words" from Discover', async () => {
+        await test.step('B signs in and previews "Kitchen Words" before following: a row opens the word, a cell opens read-only', async () => {
             await signIn(pageB, follower);
+            await pageB.getByRole('link', { name: 'tags', exact: true }).click();
+            await expect(pageB).toHaveURL('/tags');
+            await setScope(pageB, 'Discover');
+            await pageB.getByLabel('Search tags').fill('Kitchen Words');
+            await tagCard(pageB, 'Kitchen Words').getByRole('link', { name: /^Open / }).click();
+            await expect(pageB).toHaveURL(/\/tag\/.+/);
+            const tagUrl = pageB.url();
+
+            // A click on the row (the owner dot is no button) asks first, then opens the word page.
+            await pageB.getByRole('row', { name: /Apple/ }).locator('.owner-group').click();
+            await pageB.getByRole('alertdialog').getByRole('button', { name: 'Open' }).click();
+            await expect(pageB).toHaveURL(/\/word\/.+/);
+            await expect(pageB.getByRole('heading', { level: 1, name: 'Apple' })).toBeVisible();
+            const bar = pageB.getByTestId('word-editor-bar');
+            await expect(bar.getByRole('button', { name: 'Clone' })).toBeVisible();
+            await expect(bar.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+            await expect(bar.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+
+            // No selection on a tag that is not followed: no checkboxes.
+            await pageB.goto(tagUrl);
+            await expect(pageB.getByRole('row', { name: /Apple/ })).toBeVisible();
+            await expect(pageB.getByRole('checkbox')).toHaveCount(0);
+
+            // A click on a cell opens the translation dialog, view only.
+            await pageB.getByRole('row', { name: /Apple/ }).getByRole('button', { name: /Apple/ }).click();
+            const dialog = pageB.getByRole('dialog');
+            await expect(dialog).toContainText('Apple');
+            await expect(dialog.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+            await expect(dialog.getByRole('button', { name: 'Delete translation' })).toHaveCount(0);
+            await pageB.keyboard.press('Escape');
+        });
+
+        await test.step('B follows "Kitchen Words" from Discover', async () => {
             await pageB.getByRole('link', { name: 'tags', exact: true }).click();
             await expect(pageB).toHaveURL('/tags');
 
@@ -243,6 +296,26 @@ test.describe.serial('Phase 4 — tags', () => {
             await expect(pageB.getByText('You\'re now following "Kitchen Words"')).toBeVisible();
         });
 
+        await test.step('B selects words on the followed tag for Practice: the bar has Practice only, and it opens the practice screen', async () => {
+            await setScope(pageB, 'Followed'); // the card left the Discover tab when B followed it
+            await tagCard(pageB, 'Kitchen Words').getByRole('link', { name: /^Open / }).click();
+            await expect(pageB).toHaveURL(/\/tag\/.+/);
+
+            await pageB.getByRole('row', { name: /Apple/ }).getByRole('checkbox').click();
+            const bar = pageB.locator('.bulkbar');
+            await expect(bar.locator('.count')).toHaveText('1');
+            await expect(bar.getByRole('button', { name: 'Practice' })).toBeVisible();
+            await expect(bar.getByRole('button', { name: 'Add tags' })).toHaveCount(0);
+            await expect(bar.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+
+            // The header checkbox selects the page; Remove words does not exist on a followed tag.
+            await pageB.getByRole('checkbox', { name: 'Select all rows' }).click();
+            await expect(bar.locator('.count')).toHaveText('3');
+
+            await bar.getByRole('button', { name: 'Practice' }).click();
+            await expect(pageB).toHaveURL(/\/practice/);
+        });
+
         await test.step("B sees all three words in Review, read-only (owner dot as group, D10)", async () => {
             await pageB.getByRole('link', { name: 'words', exact: true }).click();
             await expect(pageB).toHaveURL('/words');
@@ -252,6 +325,17 @@ test.describe.serial('Phase 4 — tags', () => {
                 await expect(row).toBeVisible();
                 await expect(row.locator('.owner-group')).toBeVisible();
             }
+        });
+
+        await test.step("B opens a translation of a followed word: the dialog is view only", async () => {
+            await pageB.getByRole('row', { name: /Apple/ }).getByRole('button', { name: /Apple/ }).click();
+            const dialog = pageB.getByRole('dialog');
+            await expect(dialog.getByRole('button', { name: 'Close' }).first()).toBeVisible();
+            await expect(dialog).toContainText('Apple');
+            await expect(dialog.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+            await expect(dialog.getByRole('button', { name: 'Delete translation' })).toHaveCount(0);
+            await pageB.keyboard.press('Escape');
+            await expect(dialog).toHaveCount(0);
         });
 
         await test.step('A flips the tag to Private (D9) — the follower count already reflects B', async () => {
@@ -328,7 +412,116 @@ test.describe.serial('Phase 4 — tags', () => {
             await expect(ownedCard.locator('.num').nth(0)).toHaveText('1'); // same word count as the source
         });
 
+        await test.step('B clones one followed word: the copy is theirs, and the original now offers "Open your copy"', async () => {
+            await pageB.getByRole('link', { name: 'words', exact: true }).click();
+            await expect(pageB).toHaveURL('/words');
+
+            // A click on the row (the owner dot is no button) asks first, then opens the word page.
+            await pageB.getByRole('row', { name: /Banana/ }).locator('.owner-group').click();
+            await pageB.getByRole('alertdialog').getByRole('button', { name: 'Open' }).click();
+            await expect(pageB).toHaveURL(/\/word\/.+/);
+            const originalUrl = pageB.url();
+
+            // A word of someone else: Clone, and no Edit / Delete.
+            const bar = pageB.getByTestId('word-editor-bar');
+            await expect(bar.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+            await expect(bar.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+            await bar.getByRole('button', { name: 'Clone' }).click();
+            const confirm = pageB.getByRole('alertdialog');
+            await expect(confirm.getByText('Clone this word?')).toBeVisible();
+            await confirm.getByRole('button', { name: 'Clone' }).click();
+
+            // The copy opens, and it is B's own: Edit and Delete work there.
+            await expect(pageB.getByText('Word copied to your words')).toBeVisible();
+            await expect(pageB).not.toHaveURL(originalUrl);
+            await expect(bar.getByRole('button', { name: 'Edit' })).toBeVisible();
+            await expect(bar.getByRole('button', { name: 'Delete' })).toBeVisible();
+
+            // Back on the original: "Open your copy", no second Clone.
+            await pageB.goto(originalUrl);
+            await expect(bar.getByRole('button', { name: 'Open your copy' })).toBeVisible();
+            await expect(bar.getByRole('button', { name: 'Clone' })).toHaveCount(0);
+        });
+
+        await test.step('B\'s /words lists the copy and not the original; with the tag filter the original stays; deleting the copy brings the original back', async () => {
+            await pageB.getByRole('link', { name: 'words', exact: true }).click();
+            await expect(pageB).toHaveURL('/words');
+            // One Banana row, and it is B's own (owner dot "me", not the group dot).
+            await expect(pageB.getByRole('row', { name: /Banana/ })).toHaveCount(1);
+            await expect(pageB.getByRole('row', { name: /Banana/ }).locator('.owner-group')).toHaveCount(0);
+            await expect(pageB.getByRole('row', { name: /Apple/ }).locator('.owner-group')).toBeVisible(); // not cloned
+
+            // The tag page always lists every word of the tag, the original of Banana included.
+            await pageB.getByRole('link', { name: 'tags', exact: true }).click();
+            await setScope(pageB, 'Followed');
+            await tagCard(pageB, 'Kitchen Words').getByRole('link', { name: /^Open / }).click();
+            await expect(pageB).toHaveURL(/\/tag\/.+/);
+            await expect(pageB.getByRole('row', { name: /Banana/ })).toHaveCount(1);
+
+            // Delete the copy (select it in /words, then the trash button): the original shows again.
+            await pageB.getByRole('link', { name: 'words', exact: true }).click();
+            await pageB.getByRole('row', { name: /Banana/ }).getByRole('checkbox').click();
+            await pageB.getByRole('button', { name: 'Delete', exact: true }).click();
+            await pageB.getByRole('alertdialog').getByRole('button', { name: 'Delete' }).click();
+            await expect(pageB.getByRole('row', { name: /Banana/ }).locator('.owner-group')).toBeVisible();
+        });
+
         await pageA.context().close();
         await pageB.context().close();
+    });
+    test('a tag of 51 words: numbered pages, page / size / search in the URL, and Add words skips words already on the tag', async ({
+        page,
+    }) => {
+        await signIn(page, pager);
+        await page.goto(`/tag/${manyWordsTagId}`);
+
+        // --- Pages ---
+        await expect(page.getByTestId('pagination-range')).toHaveText('Showing 1–50 of 51');
+        await expect(page.getByText('Seed50')).toBeVisible();
+        await expect(page.getByText('Seed00')).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Load more' })).toHaveCount(0);
+
+        await page.getByRole('button', { name: 'Next page' }).click();
+        await expect(page).toHaveURL(/page=2/);
+        await expect(page.getByText('Seed00')).toBeVisible();
+        await expect(page.getByTestId('pagination-range')).toHaveText('Showing 51–51 of 51');
+
+        await page.reload(); // the page is in the URL
+        await expect(page).toHaveURL(/page=2/);
+        await expect(page.getByText('Seed00')).toBeVisible();
+
+        // --- Page size ---
+        await page.getByRole('combobox', { name: 'Rows per page' }).click();
+        await page.getByRole('option', { name: 'All' }).click();
+        await expect(page).toHaveURL(/size=all/);
+        await expect(page).not.toHaveURL(/page=/);
+        await expect(page.getByText('Seed50')).toBeVisible();
+        await expect(page.getByText('Seed00')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Next page' })).toHaveCount(0);
+        await page.getByRole('combobox', { name: 'Rows per page' }).click();
+        await page.getByRole('option', { name: '50' }).click();
+        await expect(page).toHaveURL(/size=50/);
+        await expect(page.getByText('Seed00')).not.toBeVisible();
+
+        // --- Search, in the URL and back to page 1 ---
+        await page.getByRole('button', { name: 'Next page' }).click();
+        await expect(page).toHaveURL(/page=2/);
+        await page.getByRole('textbox', { name: 'Search words in tag' }).fill('Seed00');
+        await expect(page).toHaveURL(/q=Seed00/);
+        await expect(page).not.toHaveURL(/page=/);
+        await expect(page.getByText('1 result', { exact: true })).toBeVisible();
+        await expect(page.getByText('Seed50')).not.toBeVisible();
+
+        await page.reload();
+        await expect(page.getByRole('textbox', { name: 'Search words in tag' })).toHaveValue('Seed00');
+        await expect(page.getByText('1 result', { exact: true })).toBeVisible();
+
+        // --- Add words: `Seed00` is on the tag (page 2 of it), `Zucchini` is not ---
+        await page.getByRole('button', { name: 'Add words' }).click();
+        const dialog = page.getByRole('dialog');
+        await dialog.getByRole('textbox', { name: 'Search your words to add now' }).fill('Seed00');
+        await expect(dialog.getByText('No words match')).toBeVisible();
+        await dialog.getByRole('textbox', { name: 'Search your words to add now' }).fill('Zucchini');
+        await expect(dialog.getByText('Zucchini')).toBeVisible();
     });
 });

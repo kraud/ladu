@@ -33,7 +33,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { getRouteApi, useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { ArrowLeftIcon, PencilSimpleIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, ArrowSquareOutIcon, CopyIcon, PencilSimpleIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { useAuthStore } from '@/stores/authStore';
@@ -46,7 +46,7 @@ import type { EditorAction, EditorPrimary } from '../layout/WordEditorBar';
 import { WordEditorLayout } from '../layout/WordEditorLayout';
 import { TranslationCard, translationGridClass } from '../form-engine/TranslationCard';
 import { WordForm } from '../form-engine/WordForm';
-import { useDeleteWord, useUpdateWord, useWord } from '../hooks';
+import { useCloneWord, useDeleteWord, useUpdateWord, useWord } from '../hooks';
 import { wordErrorKey } from '../errors';
 import type { CreateWordBody, UpdateWordBody, WordBE } from '../types';
 import type { WordItem } from '@/ts/interfaces';
@@ -64,6 +64,7 @@ export function WordPage() {
     const wordQuery = useWord(wordId);
     const updateWord = useUpdateWord();
     const deleteWord = useDeleteWord();
+    const cloneWord = useCloneWord();
     const canGoBack = useCanGoBack();
     const isMobile = useIsMobile();
     const user = useAuthStore((s) => s.user);
@@ -71,6 +72,7 @@ export function WordPage() {
 
     const [editing, setEditing] = useState(false);
     const [editKey, setEditKey] = useState(0);
+    const [confirmingClone, setConfirmingClone] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
 
     // A plain `router.history.back()` when there's no client-side history to
@@ -146,6 +148,20 @@ export function WordPage() {
         });
     }
 
+    // A word of someone else: copy it into the user's words, then open the copy (where Edit and Delete work).
+    function handleClone() {
+        const toastId = startLoadingToast(t('common:status.saving'));
+        cloneWord.mutate(word.id, {
+            onSuccess: (copy) => {
+                resolveLoadingToastSuccess(toastId, t('wordRelated:displayWord.toastCloned'));
+                void navigate({ to: '/word/$wordId', params: { wordId: copy.id } });
+            },
+            onError: (error) => {
+                resolveLoadingToastError(toastId, t(wordErrorKey(error)));
+            },
+        });
+    }
+
     function handleDelete() {
         const toastId = startLoadingToast(t('common:status.saving'));
         deleteWord.mutate(word.id, {
@@ -161,16 +177,45 @@ export function WordPage() {
 
     const posLabel = t(partOfSpeechLabelKey(word.partOfSpeech));
 
-    const viewActions: EditorAction[] = [
-        { key: 'return', label: t('common:buttons.return'), icon: <ArrowLeftIcon size={18} />, onClick: goBack },
-        {
-            key: 'delete',
-            label: t('common:buttons.delete'),
-            icon: <TrashIcon size={18} />,
-            variant: 'destructive',
-            onClick: () => setConfirmingDelete(true),
-        },
-    ];
+    // The footer's main button: Edit on your own word. On a word of someone else: "Clone", or "Open your
+    // copy" once the user has one (so a second copy is not made).
+    const myCloneId = word.myCloneId;
+    const primary: EditorPrimary = isOwn
+        ? { label: t('common:buttons.edit'), icon: <PencilSimpleIcon size={18} />, onClick: startEdit }
+        : myCloneId
+          ? {
+                label: t('wordRelated:displayWord.openClone'),
+                shortLabel: t('wordRelated:displayWord.openCloneShort'),
+                icon: <ArrowSquareOutIcon size={18} />,
+                onClick: () => void navigate({ to: '/word/$wordId', params: { wordId: myCloneId } }),
+            }
+          : {
+                label: t('wordRelated:displayWord.clone'),
+                icon: <CopyIcon size={18} />,
+                disabled: cloneWord.isPending,
+                onClick: () => setConfirmingClone(true),
+            };
+
+    const returnAction: EditorAction = {
+        key: 'return',
+        label: t('common:buttons.return'),
+        icon: <ArrowLeftIcon size={18} />,
+        onClick: goBack,
+    };
+    // A word of someone else (it came through a followed tag) is view only: no Edit, no Delete — in the
+    // footer (desktop and phone) and in the phone's side menu. The backend refuses them anyway (403/401).
+    const viewActions: EditorAction[] = isOwn
+        ? [
+              returnAction,
+              {
+                  key: 'delete',
+                  label: t('common:buttons.delete'),
+                  icon: <TrashIcon size={18} />,
+                  variant: 'destructive',
+                  onClick: () => setConfirmingDelete(true),
+              },
+          ]
+        : [returnAction];
 
     // The arrow goes back like the browser's Back button. Only in the view state:
     // while editing, leaving would drop unsaved changes without asking (Cancel exists for that).
@@ -230,9 +275,22 @@ export function WordPage() {
                     tagsHint={tagsHint}
                     header={header}
                     actions={viewActions}
-                    primary={{ label: t('common:buttons.edit'), icon: <PencilSimpleIcon size={18} />, onClick: startEdit }}
+                    primary={primary}
                 />
             )}
+
+            <ConfirmDialog
+                open={confirmingClone}
+                onOpenChange={setConfirmingClone}
+                title={t('wordRelated:displayWord.cloneConfirmTitle')}
+                description={t('wordRelated:displayWord.cloneConfirmDescription')}
+                confirmLabel={t('wordRelated:displayWord.clone')}
+                destructive={false}
+                onConfirm={() => {
+                    setConfirmingClone(false);
+                    handleClone();
+                }}
+            />
 
             <ConfirmDialog
                 open={confirmingDelete}
@@ -260,7 +318,7 @@ function WordViewLayout({
     tagsHint: string;
     header: ReactNode;
     actions: EditorAction[];
-    primary: EditorPrimary;
+    primary?: EditorPrimary;
 }) {
     const sections = useWordSidebarSections({ clue: word.clue ?? '', tags: word.tags, tagsHint });
     const isMobile = useIsMobile();

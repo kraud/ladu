@@ -11,6 +11,11 @@
  * computed before the cursor predicate so it stays constant across pages of
  * one filter set (see the pagination block below for what "constant" means
  * across a sequence of requests where a row is inserted mid-page).
+ *
+ * Words pagination Slice 1 (.context/plans/words-pagination.md) added offset
+ * mode: `?page=N&limit=1..200|all` returns `{ items, total, page, pageSize }`
+ * (`pageSize` null for `all`; no `nextCursor`; `page` + `cursor` is a 400), and
+ * the `owner=me` filter (own words only, in both modes).
  */
 
 // Must run before `require('../app')` below — see auth.test.js's comment on
@@ -366,6 +371,165 @@ describe('GET /api/words/simple - pagination', () => {
             .get('/api/words/simple?cursor=not-valid-base64!!')
             .set('Authorization', `Bearer ${token}`);
         expect(res.statusCode).toBe(400);
+    });
+});
+
+// ===========================================================================
+// Offset pagination (?page=) and ?owner=me
+// ===========================================================================
+describe('GET /api/words/simple - offset pagination', () => {
+    let token;
+    let userId;
+    let createdIds;
+
+    // 5 words, created a, b, c, d, e (the default order is newest first: e, d, c, b, a).
+    beforeEach(async () => {
+        const me = await registerAndLogin();
+        token = me.token;
+        userId = me.id;
+        createdIds = [];
+        for (const label of ['a', 'b', 'c', 'd', 'e']) {
+            const r = await create(token, {
+                translations: [t('English', label, 'simplePresent1sEN'), t('Estonian', label, 'infinitiveMaEE')],
+            });
+            createdIds.push(r.body.id);
+        }
+    });
+
+    const get = (query, auth = token) =>
+        request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${auth}`);
+
+    it('returns pages that do not overlap and together hold every word', async () => {
+        const page1 = await get('page=1&limit=2');
+        const page2 = await get('page=2&limit=2');
+        const page3 = await get('page=3&limit=2');
+
+        expect(page1.statusCode).toBe(200);
+        expect(page1.body.items).toHaveLength(2);
+        expect(page2.body.items).toHaveLength(2);
+        expect(page3.body.items).toHaveLength(1);
+
+        const allIds = [...page1.body.items, ...page2.body.items, ...page3.body.items].map((w) => w.id);
+        expect(allIds).toEqual([...createdIds].reverse());
+    });
+
+    it('returns total, page and pageSize, and no nextCursor', async () => {
+        const res = await get('page=2&limit=2');
+        expect(res.body.total).toBe(5);
+        expect(res.body.page).toBe(2);
+        expect(res.body.pageSize).toBe(2);
+        expect(res.body).not.toHaveProperty('nextCursor');
+    });
+
+    it('uses a page size of 50 when limit is not given', async () => {
+        const res = await get('page=1');
+        expect(res.body.pageSize).toBe(50);
+        expect(res.body.items).toHaveLength(5);
+    });
+
+    it('returns every word for limit=all, with pageSize null', async () => {
+        const res = await get('page=1&limit=all');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.items).toHaveLength(5);
+        expect(res.body.total).toBe(5);
+        expect(res.body.pageSize).toBeNull();
+    });
+
+    it('accepts a page size of 200', async () => {
+        const res = await get('page=1&limit=200');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.pageSize).toBe(200);
+    });
+
+    it('returns no items for a page after the last one, with the correct total', async () => {
+        const res = await get('page=9&limit=2');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.items).toEqual([]);
+        expect(res.body.total).toBe(5);
+    });
+
+    it('works with a language sort and keeps the words without text last across the page boundary', async () => {
+        await create(token, {
+            partOfSpeech: 'Noun',
+            translations: [t('Spanish', 'pez', 'singularES'), t('Estonian', 'kala', 'singularNimetavEE')],
+        });
+        const page1 = await get('page=1&limit=3&sort=EN&dir=asc');
+        const page2 = await get('page=2&limit=3&sort=EN&dir=asc');
+        const english = (res) => res.body.items.map((w) => w.dataEN?.word ?? w.dataEN ?? null);
+        expect([...english(page1), ...english(page2)]).toEqual(['a', 'b', 'c', 'd', 'e', null]);
+    });
+
+    it('applies the filters before paging', async () => {
+        await create(token, {
+            partOfSpeech: 'Noun',
+            translations: [t('Spanish', 'pez', 'singularES'), t('Estonian', 'kala', 'singularNimetavEE')],
+        });
+        const res = await get('page=1&limit=2&pos=Noun');
+        expect(res.body.total).toBe(1);
+        expect(res.body.items).toHaveLength(1);
+    });
+
+    it.each([
+        ['page=0'],
+        ['page=-1'],
+        ['page=abc'],
+        ['page=1.5'],
+        ['page=1&limit=201'],
+        ['page=1&limit=0'],
+        ['page=1&limit=abc'],
+    ])('rejects %s with 400', async (query) => {
+        const res = await get(query);
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('rejects page together with cursor with 400', async () => {
+        const first = await get('limit=2');
+        const res = await get(`page=1&cursor=${encodeURIComponent(first.body.nextCursor)}`);
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('keeps the cursor mode unchanged when page is absent', async () => {
+        const res = await get('limit=2');
+        expect(res.body.items).toHaveLength(2);
+        expect(res.body.nextCursor).not.toBeNull();
+        expect(res.body).not.toHaveProperty('page');
+    });
+
+    it('with owner=me, leaves out words that come from followed tags', async () => {
+        const owner = await registerAndLogin('Owner5', 'owner5@test.com', 'owner5', 'pass123');
+        const [tag] = await db.insert(tags).values({ authorId: owner.id, label: 'Shared', visibility: 'Public' }).returning();
+        const sharedWord = await create(owner.token, wordPayload({ tagIds: [tag.id] }));
+        await db.insert(userFollowingTags).values({ tagId: tag.id, followerUserId: userId });
+
+        const all = await get('page=1&limit=all');
+        expect(all.body.items.map((w) => w.id)).toContain(sharedWord.body.id);
+        expect(all.body.total).toBe(6);
+
+        const mine = await get('page=1&limit=all&owner=me');
+        expect(mine.body.items.map((w) => w.id)).not.toContain(sharedWord.body.id);
+        expect(mine.body.total).toBe(5);
+    });
+
+    it('with owner=others, keeps only words that come from followed tags', async () => {
+        const owner = await registerAndLogin('Owner9', 'owner9@test.com', 'owner9', 'pass123');
+        const [tag] = await db.insert(tags).values({ authorId: owner.id, label: 'Shared', visibility: 'Public' }).returning();
+        const sharedWord = await create(owner.token, wordPayload({ tagIds: [tag.id] }));
+        await db.insert(userFollowingTags).values({ tagId: tag.id, followerUserId: userId });
+
+        const others = await get('page=1&limit=all&owner=others');
+        expect(others.body.items.map((w) => w.id)).toEqual([sharedWord.body.id]);
+        expect(others.body.total).toBe(1);
+    });
+
+    it('ignores an unknown owner value', async () => {
+        const res = await get('page=1&limit=all&owner=nobody');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.total).toBe(5);
+    });
+
+    it('also accepts owner=me in cursor mode', async () => {
+        const res = await get('owner=me');
+        expect(res.body.total).toBe(5);
     });
 });
 

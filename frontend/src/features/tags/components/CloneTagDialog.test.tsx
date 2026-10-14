@@ -22,6 +22,7 @@ function makeTag(overrides: Partial<TagSummary> = {}): TagSummary {
         wordCount: 5,
         followerCount: 3,
         languages: [],
+        partsOfSpeech: [],
         isOwner: false,
         isFollowing: false,
         isAvailable: true,

@@ -692,8 +692,11 @@
     border-radius: var(--radius-lg);
     background: var(--surface);
   }
+  /* The page gives the table the free height (flex) instead of a fixed number. */
+  .tablewrap.tablewrap-fill {
+    max-height: none;
+  }
   @media (max-width: 920px) {
-    /* The page gives the table the free height (flex) instead of a fixed number. */
     .tablewrap {
       max-height: none;
     }
@@ -716,7 +719,13 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--muted);
-    border-bottom: 1px solid var(--border);
+    /* Header stays visible while the rows scroll under it. The bottom line is a
+       shadow because borders of a collapsed table do not travel with sticky cells. */
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--surface);
+    box-shadow: inset 0 -1px 0 var(--border);
     white-space: nowrap;
   }
   .dtable th.lang-col {
@@ -766,6 +775,9 @@
   }
   .dtable tbody tr:hover {
     background: var(--hover);
+  }
+  .dtable tbody tr.row-link {
+    cursor: pointer;
   }
   .dtable tbody tr.selected {
     background: var(--accent-soft);
@@ -1078,21 +1090,26 @@
     font-weight: 600;
   }
 
+  /* The bulk bar: a soft tint of the highlight colour with a thin highlight border and normal text.
+     It is not inverted (an inverted bar was almost white in the dark theme and almost black in the light one). */
   .bulkbar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
     border-radius: var(--radius-md);
-    background: var(--fg);
-    color: var(--bg);
+    border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent);
+    background: color-mix(in oklch, var(--accent) 10%, var(--bg));
+    color: var(--fg);
     animation: page-in 0.16s ease;
   }
   .bulkbar .count {
     font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 700;
-    background: color-mix(in srgb, var(--bg) 14%, transparent);
+    background: var(--accent-soft2);
+    color: var(--accent-strong);
     border-radius: 999px;
     padding: 3px 10px;
   }
@@ -1104,22 +1121,43 @@
      utilities layer and would otherwise beat these component-layer rules. */
   .bulkbar [data-slot='button'] {
     height: 32px;
-    color: var(--bg);
-    border-color: color-mix(in srgb, var(--bg) 25%, transparent) !important;
-    background: transparent !important;
+    color: var(--fg);
+    border-color: color-mix(in oklch, var(--fg) 18%, transparent) !important;
+    background: var(--bg) !important;
     font-size: 13px;
   }
   .bulkbar [data-slot='button']:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--bg) 12%, transparent) !important;
-    border-color: color-mix(in srgb, var(--bg) 45%, transparent) !important;
+    background: var(--accent-soft) !important;
+    border-color: color-mix(in oklch, var(--accent) 45%, transparent) !important;
   }
   .bulkbar [data-slot='button']:disabled {
     opacity: 0.35;
   }
   .bulkbar [data-slot='button'].danger {
-    /* The bar is inverted (light text on a dark bar, or the reverse in the dark
-       theme), so the "danger" tint is mixed toward --bg, not a fixed pink. */
-    color: color-mix(in oklch, var(--danger) 55%, var(--bg));
+    color: var(--danger);
+  }
+  .bulkbar [data-slot='button'].danger:hover:not(:disabled) {
+    background: color-mix(in oklch, var(--danger) 12%, var(--bg)) !important;
+    border-color: color-mix(in oklch, var(--danger) 45%, transparent) !important;
+  }
+  /* "(+ all pages)": plain text next to the count. Highlight colour on hover (desktop), always on a phone. */
+  .bulkbar .bulk-more {
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: 13px;
+    color: inherit;
+    opacity: 0.75;
+  }
+  .bulkbar .bulk-more:hover:not(:disabled),
+  .bulkbar .bulk-more[data-compact]:not(:disabled) {
+    opacity: 1;
+    color: var(--accent-strong);
+  }
+  .bulkbar .bulk-more:disabled {
+    opacity: 0.35;
+    cursor: default;
   }
 
   /* ─── dashboard (Phase 3.5) ─────────────────────────────────── */

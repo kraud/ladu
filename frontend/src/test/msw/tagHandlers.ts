@@ -43,6 +43,7 @@ export interface SeedTag {
     sourceTag?: TagSourceRef | null;
     /** Languages (labels) of the tag's words, for the card flags. */
     languages?: string[];
+    partsOfSpeech?: string[];
 }
 
 interface InternalTag {
@@ -55,6 +56,7 @@ interface InternalTag {
     followerIds: Set<string>;
     sourceTag: TagSourceRef | null;
     languages: string[];
+    partsOfSpeech: string[];
     createdAt: string;
     updatedAt: string;
 }
@@ -79,6 +81,7 @@ function toSummary(tag: InternalTag, viewerId: string, authorOf: (id: string) =>
         author: authorOf(tag.authorId),
         wordCount: tag.wordIds.size,
         languages: isAvailable ? tag.languages : [],
+        partsOfSpeech: isAvailable ? tag.partsOfSpeech : [],
         followerCount: tag.followerIds.size,
         isOwner,
         isFollowing,
@@ -160,6 +163,7 @@ export function makeTagHandlers(opts: {
             followerIds: new Set(s.followerIds ?? []),
             sourceTag: s.sourceTag ?? null,
             languages: s.languages ?? [],
+            partsOfSpeech: s.partsOfSpeech ?? [],
             createdAt: now,
             updatedAt: now,
         };

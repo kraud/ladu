@@ -20,13 +20,16 @@
 
 const { db }: typeof import('../src/db') = require('../src/db');
 const {
+    exercisePerformanceCases,
+    exercisePerformances,
     tags,
     tagWords,
     translationCases,
     translations,
     words,
 }: typeof import('../src/db/schema') = require('../src/db/schema');
-const { and, desc, eq, inArray, or } = require('drizzle-orm');
+const { and, asc, desc, eq, inArray, ne, or, sql } = require('drizzle-orm');
+const { alias } = require('drizzle-orm/pg-core');
 
 // ---------------------------------------------------------------------------
 // Types
@@ -35,6 +38,8 @@ const { and, desc, eq, inArray, or } = require('drizzle-orm');
 type WordRow = typeof words.$inferSelect;
 type TranslationRow = typeof translations.$inferSelect;
 type CaseRow = typeof translationCases.$inferSelect;
+type PerformanceRow = typeof exercisePerformances.$inferSelect;
+type PerformanceCaseRow = typeof exercisePerformanceCases.$inferSelect;
 
 /**
  * The slim shape a tag rides on a word response in — enough to render a
@@ -230,6 +235,9 @@ const assembleWord = (
 // Public API: fetch words with full relations
 // ---------------------------------------------------------------------------
 
+/** Ids per `inArray` query in `fetchWordsWithRelations` (Postgres caps bind parameters at 65,535). */
+const HYDRATE_CHUNK_SIZE = 5000;
+
 /**
  * Fetch one or more words by their UUIDs and return them as fully assembled
  * WordResponse objects (with nested translations, cases, and tags).
@@ -254,16 +262,24 @@ const fetchWordsWithRelations = async (
 ): Promise<WordResponse[]> => {
     if (wordIds.length === 0) return [];
 
-    const wordRows = await db
-        .select()
-        .from(words)
-        .where(inArray(words.id, wordIds));
-    if (wordRows.length === 0) return [];
+    // Postgres allows at most 65,535 bind parameters in one query. A `limit=all`
+    // list can pass more ids than that, so the ids go in groups.
+    const result: WordResponse[] = [];
+    for (let start = 0; start < wordIds.length; start += HYDRATE_CHUNK_SIZE) {
+        const chunk = wordIds.slice(start, start + HYDRATE_CHUNK_SIZE);
 
-    const tMap = await fetchTranslationsMap(wordIds);
-    const tagsMap = await fetchTagsMap(wordIds, viewerId);
+        const wordRows = await db
+            .select()
+            .from(words)
+            .where(inArray(words.id, chunk));
+        if (wordRows.length === 0) continue;
 
-    return wordRows.map((w) => assembleWord(w, tMap, tagsMap));
+        const tMap = await fetchTranslationsMap(chunk);
+        const tagsMap = await fetchTagsMap(chunk, viewerId);
+
+        for (const w of wordRows) result.push(assembleWord(w, tMap, tagsMap));
+    }
+    return result;
 };
 
 /**
@@ -290,6 +306,191 @@ const getWordsByIds = async (wordIds: string[]): Promise<WordRow[]> => {
 };
 
 // ---------------------------------------------------------------------------
+// Clone words for a user
+// ---------------------------------------------------------------------------
+
+/**
+ * Copy words (with translations and cases) into `recipientId`'s account, inside
+ * the caller's own transaction (`tx`). Shared by the tag clone
+ * (`cloneTagForUser`, tagController.ts) and the single-word clone
+ * (`cloneWord`, wordController.ts).
+ *
+ * The copies carry no tags. Each one stores where it came from: `isCloned`,
+ * `originalCreatorId` (the user of the source word) and `sourceWordId` (the
+ * source word row, one hop back).
+ *
+ * Batch-inserts words/translations/cases (three `INSERT ... RETURNING`
+ * calls total, not one per word) — `RETURNING` preserves the input array's
+ * order, so `result[i]` is the copy of `sourceWords[i]`.
+ *
+ * Also copies the *recipient's own* practice history from the source
+ * translations to the new copies (D7 of phase-5-practice.md), so cloning does
+ * not reset what they already know. Only their rows are read — never the
+ * author's or anyone else's.
+ *
+ * @returns the inserted word rows, in the order of `sourceWords`
+ */
+const cloneWordsForUser = async (
+    tx: any,
+    sourceWords: WordResponse[],
+    recipientId: string,
+): Promise<WordRow[]> => {
+    const clonedWordRows =
+        sourceWords.length > 0
+            ? await tx
+                    .insert(words)
+                    .values(
+                        sourceWords.map((sourceWord) => ({
+                            userId: recipientId,
+                            partOfSpeech: sourceWord.partOfSpeech,
+                            clue: sourceWord.clue,
+                            isCloned: true,
+                            originalCreatorId: sourceWord.user,
+                            sourceWordId: sourceWord.id,
+                        })),
+                    )
+                    .returning()
+            : [];
+
+    // Flattened one-row-per-translation inserts, tagged with the cloned word
+    // (by index — `sourceWords[i]` <-> `clonedWordRows[i]`) they belong to.
+    const translationInserts = sourceWords.flatMap((sourceWord, i) =>
+        sourceWord.translations.map((translation) => ({
+            wordId: clonedWordRows[i].id,
+            language: translation.language,
+        })),
+    );
+    const clonedTranslationRows =
+        translationInserts.length > 0
+            ? await tx.insert(translations).values(translationInserts).returning()
+            : [];
+
+    // Same flattening for cases, one level deeper: rebuild the parallel
+    // flattened *source* translation list so `flattenedSourceTranslations[j]`
+    // <-> `clonedTranslationRows[j]` for every source translation regardless
+    // of which word it came from.
+    const flattenedSourceTranslations = sourceWords.flatMap((sourceWord) => sourceWord.translations);
+    const caseInserts = flattenedSourceTranslations.flatMap((translation, j) =>
+        translation.cases.map((c) => ({
+            translationId: clonedTranslationRows[j].id,
+            caseName: c.caseName,
+            word: c.word,
+        })),
+    );
+    if (caseInserts.length > 0) {
+        await tx.insert(translationCases).values(caseInserts);
+    }
+
+    // D7 (phase-5-practice.md): copy the *recipient's own* practice history from
+    // the source translations to the new copies, so cloning a followed tag does
+    // not reset what they already know. Only their rows are read — never the
+    // author's or anyone else's.
+    const sourceToClone = new Map<string, { id: string; wordId: string }>(
+        flattenedSourceTranslations.map((sourceTranslation, j) => [sourceTranslation.id, clonedTranslationRows[j]]),
+    );
+    if (sourceToClone.size > 0) {
+        const sourcePerformances: PerformanceRow[] = await tx
+            .select()
+            .from(exercisePerformances)
+            .where(
+                and(
+                    eq(exercisePerformances.userId, recipientId),
+                    inArray(exercisePerformances.translationId, [...sourceToClone.keys()]),
+                ),
+            );
+        if (sourcePerformances.length > 0) {
+            const clonedPerformances: PerformanceRow[] = await tx
+                .insert(exercisePerformances)
+                .values(
+                    sourcePerformances.map((perf) => {
+                        const target = sourceToClone.get(perf.translationId)!;
+                        return {
+                            userId: recipientId,
+                            wordId: target.wordId,
+                            translationId: target.id,
+                            performanceModifier: perf.performanceModifier,
+                            reviseCounter: perf.reviseCounter,
+                            averageTranslationKnowledge: perf.averageTranslationKnowledge,
+                            lastDateModifiedTranslation: perf.lastDateModifiedTranslation,
+                            translationLanguage: perf.translationLanguage,
+                        };
+                    }),
+                )
+                .returning();
+            // `RETURNING` keeps the input order, so `clonedPerformances[i]` is the copy of `sourcePerformances[i]`.
+            const newPerformanceIdBySourceId = new Map<string, string>(
+                sourcePerformances.map((perf, i) => [perf.id, clonedPerformances[i].id]),
+            );
+            const sourceCaseStats: PerformanceCaseRow[] = await tx
+                .select()
+                .from(exercisePerformanceCases)
+                .where(inArray(exercisePerformanceCases.exercisePerformanceId, [...newPerformanceIdBySourceId.keys()]));
+            if (sourceCaseStats.length > 0) {
+                await tx.insert(exercisePerformanceCases).values(
+                    sourceCaseStats.map((stat) => ({
+                        exercisePerformanceId: newPerformanceIdBySourceId.get(stat.exercisePerformanceId)!,
+                        caseName: stat.caseName,
+                        record: stat.record,
+                        lastDate: stat.lastDate,
+                        knowledge: stat.knowledge,
+                    })),
+                );
+            }
+        }
+    }
+
+    return clonedWordRows;
+};
+
+// ---------------------------------------------------------------------------
+// No duplicates: a followed word and the user's own copy of it
+// ---------------------------------------------------------------------------
+
+/**
+ * SQL condition on `words`: keeps a word, unless it belongs to someone else AND
+ * `userId` has an own copy (clone) of it (`source_word_id` points to it). Own
+ * words are always kept. Nothing is stored: when the copy is deleted, the
+ * original is kept again. Shared by the word list (`getWordsSimplified`) and the
+ * Practice word pool.
+ *
+ * The word list turns it off while a Tags filter is active (the copy is not on
+ * the tag, and the user must still see the tag's real content) and with the
+ * "Not mine" owner filter (`owner=others`: the user asked for the followed words).
+ */
+const notHiddenByOwnCopy = (userId: string) =>
+    sql`(${words.userId} = ${userId} or not exists (
+        select 1 from "words" as "own_copy"
+        where "own_copy"."user_id" = ${userId} and "own_copy"."source_word_id" = ${words.id}
+    ))`;
+
+/**
+ * For words of someone else: the id of the user's own copy (clone) of each, as a map
+ * `source word id -> copy id`. A word that is not in the map has no copy, or is the user's own
+ * (an own word is never swapped, like in `notHiddenByOwnCopy`). With more than one copy of the
+ * same word (a word clone and a tag clone), the oldest copy is used, so the answer is stable.
+ *
+ * Used by saved practice lists: a list that holds a followed original practises the copy instead
+ * (plans/words-clone-followed.md, Slice 7). Nothing is stored: when the copy is deleted, the map no
+ * longer has it and the list uses the original again.
+ */
+const ownCopyIdsBySource = async (userId: string, sourceIds: string[]): Promise<Map<string, string>> => {
+    const copyIdBySource = new Map<string, string>();
+    if (sourceIds.length === 0) return copyIdBySource;
+
+    const copies = alias(words, 'own_copy');
+    const rows: { sourceId: string | null; copyId: string }[] = await db
+        .select({ sourceId: copies.sourceWordId, copyId: copies.id })
+        .from(copies)
+        .innerJoin(words, eq(words.id, copies.sourceWordId))
+        .where(and(eq(copies.userId, userId), ne(words.userId, userId), inArray(copies.sourceWordId, sourceIds)))
+        .orderBy(asc(copies.createdAt), asc(copies.id));
+    for (const row of rows) {
+        if (row.sourceId && !copyIdBySource.has(row.sourceId)) copyIdBySource.set(row.sourceId, row.copyId);
+    }
+    return copyIdBySource;
+};
+
+// ---------------------------------------------------------------------------
 // Generic list-pagination helpers
 // ---------------------------------------------------------------------------
 // Shared by `getWordsSimplified` (wordController.ts) and the tag list
@@ -302,6 +503,8 @@ const getWordsByIds = async (wordIds: string[]): Promise<WordRow[]> => {
 
 const DEFAULT_PAGE_LIMIT = 50;
 const MAX_PAGE_LIMIT = 100;
+// Offset (numbered-page) mode allows bigger pages than cursor mode.
+const MAX_OFFSET_PAGE_LIMIT = 200;
 
 /** A repeatable query param (`?pos=Noun&pos=Verb`) arrives as an array only
  * when given more than once; normalise the single-value case too. */
@@ -314,6 +517,31 @@ const parseLimitParam = (value: any): number => {
     const parsed = value !== undefined ? parseInt(value, 10) : DEFAULT_PAGE_LIMIT;
     if (!Number.isFinite(parsed)) return DEFAULT_PAGE_LIMIT;
     return Math.min(Math.max(parsed, 1), MAX_PAGE_LIMIT);
+};
+
+/**
+ * `?page=` for offset mode. Returns null when the param is absent (cursor mode).
+ * Throws on anything that is not an integer >= 1; the controller maps it to 400.
+ */
+const parsePageParam = (value: any): number | null => {
+    if (value === undefined) return null;
+    if (typeof value !== 'string' || !/^\d+$/.test(value) || parseInt(value, 10) < 1) {
+        throw new Error('Invalid page');
+    }
+    return parseInt(value, 10);
+};
+
+/**
+ * `?limit=` for offset mode: an integer from 1 to 200, or the literal `all`
+ * (returned as null). Absent means the default. Throws on anything else.
+ */
+const parsePageLimitParam = (value: any): number | null => {
+    if (value === undefined) return DEFAULT_PAGE_LIMIT;
+    if (value === 'all') return null;
+    if (typeof value !== 'string' || !/^\d+$/.test(value)) throw new Error('Invalid limit');
+    const parsed = parseInt(value, 10);
+    if (parsed < 1 || parsed > MAX_OFFSET_PAGE_LIMIT) throw new Error('Invalid limit');
+    return parsed;
 };
 
 // Generic keyset-cursor pair: an opaque sort value (the word list encodes
@@ -342,8 +570,13 @@ export {
     fetchWordsWithRelations,
     fetchWordWithRelations,
     getWordsByIds,
+    cloneWordsForUser,
+    notHiddenByOwnCopy,
+    ownCopyIdsBySource,
     parseArrayParam,
     parseLimitParam,
+    parsePageParam,
+    parsePageLimitParam,
     encodeCursor,
     decodeCursor,
 };

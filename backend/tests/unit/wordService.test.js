@@ -193,3 +193,45 @@ describe('assembleWord', () => {
         expect(result.translations[0].cases).toEqual([]);
     });
 });
+
+// ---------------------------------------------------------------------------
+// Offset-mode query params (words pagination, Slice 1)
+// ---------------------------------------------------------------------------
+
+describe('parsePageParam', () => {
+    const { parsePageParam } = require('../../services/wordService');
+
+    it('returns null when the param is absent (cursor mode)', () => {
+        expect(parsePageParam(undefined)).toBeNull();
+    });
+
+    it('parses an integer >= 1', () => {
+        expect(parsePageParam('1')).toBe(1);
+        expect(parsePageParam('12')).toBe(12);
+    });
+
+    it.each(['0', '-1', 'abc', '1.5', '', ['1', '2']])('throws on %p', (value) => {
+        expect(() => parsePageParam(value)).toThrow('Invalid page');
+    });
+});
+
+describe('parsePageLimitParam', () => {
+    const { parsePageLimitParam } = require('../../services/wordService');
+
+    it('defaults to 50 when absent', () => {
+        expect(parsePageLimitParam(undefined)).toBe(50);
+    });
+
+    it('accepts 1 to 200', () => {
+        expect(parsePageLimitParam('1')).toBe(1);
+        expect(parsePageLimitParam('200')).toBe(200);
+    });
+
+    it('returns null for "all"', () => {
+        expect(parsePageLimitParam('all')).toBeNull();
+    });
+
+    it.each(['0', '201', '-5', 'abc', '2.5', 'ALL', ['10', '20']])('throws on %p', (value) => {
+        expect(() => parsePageLimitParam(value)).toThrow('Invalid limit');
+    });
+});

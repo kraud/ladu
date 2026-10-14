@@ -6,6 +6,7 @@ import {
     hasActiveFilters,
     resolveLanguageOrder,
     reviewSearchToFilters,
+    reviewSearchToSort,
     validateReviewSearch,
 } from './search';
 
@@ -94,6 +95,20 @@ describe('reviewSearchToFilters', () => {
     });
 });
 
+describe('owner', () => {
+    it('accepts me and others, and drops anything else', () => {
+        expect(validateReviewSearch({ owner: 'me' }).owner).toBe('me');
+        expect(validateReviewSearch({ owner: 'others' }).owner).toBe('others');
+        expect(validateReviewSearch({ owner: 'everyone' }).owner).toBeUndefined();
+        expect(validateReviewSearch({}).owner).toBeUndefined();
+    });
+
+    it('reaches the list-query filters and counts as an active filter', () => {
+        expect(reviewSearchToFilters({ owner: 'others' }).owner).toBe('others');
+        expect(hasActiveFilters({ owner: 'me' })).toBe(true);
+    });
+});
+
 describe('hasActiveFilters', () => {
     it('is false with no q/pos/gender/tag', () => {
         expect(hasActiveFilters({ lang: ['EN'] })).toBe(false);
@@ -155,5 +170,61 @@ describe('resolveLanguageOrder (D13 — visible set, not merely reorder)', () =>
 
     it('returns an empty order when the account has no configured languages', () => {
         expect(resolveLanguageOrder(['EN'], [])).toEqual([]);
+    });
+});
+
+describe('validateReviewSearch — page, size and sort', () => {
+    it('reads a page number the router decoded to a number, or left as a string', () => {
+        expect(validateReviewSearch({ page: 3 }).page).toBe(3);
+        expect(validateReviewSearch({ page: '3' }).page).toBe(3);
+    });
+
+    it.each([1, 0, -2, 1.5, 'abc', '', null, [2]])('drops page %p (page 1 is the default)', (page) => {
+        expect(validateReviewSearch({ page }).page).toBeUndefined();
+    });
+
+    it('reads the four page sizes, as numbers or strings', () => {
+        expect(validateReviewSearch({ size: 100 }).size).toBe(100);
+        expect(validateReviewSearch({ size: '200' }).size).toBe(200);
+        expect(validateReviewSearch({ size: 'all' }).size).toBe('all');
+    });
+
+    it.each([25, '25', 0, 'many', '1e2', null])('drops size %p', (size) => {
+        expect(validateReviewSearch({ size }).size).toBeUndefined();
+    });
+
+    it('reads a sort with its direction, and defaults the direction to asc', () => {
+        expect(validateReviewSearch({ sort: 'DE', dir: 'desc' })).toMatchObject({ sort: 'DE', dir: 'desc' });
+        expect(validateReviewSearch({ sort: 'EN' })).toMatchObject({ sort: 'EN', dir: 'asc' });
+        expect(validateReviewSearch({ sort: 'EN', dir: 'sideways' })).toMatchObject({ sort: 'EN', dir: 'asc' });
+    });
+
+    it('drops an unknown sort, and a direction that has no sort', () => {
+        const unknown = validateReviewSearch({ sort: 'XX', dir: 'desc' });
+        expect(unknown.sort).toBeUndefined();
+        expect(unknown.dir).toBeUndefined();
+        expect(validateReviewSearch({ dir: 'desc' }).dir).toBeUndefined();
+    });
+
+    it('does not count page, size or sort as filters', () => {
+        const search = validateReviewSearch({ page: 2, size: 100, sort: 'EN' });
+        expect(hasActiveFilters(search)).toBe(false);
+        expect(reviewSearchToFilters(search)).toEqual({
+            q: undefined,
+            pos: undefined,
+            gender: undefined,
+            tag: undefined,
+        });
+    });
+});
+
+describe('reviewSearchToSort', () => {
+    it('is null without a sort', () => {
+        expect(reviewSearchToSort({})).toBeNull();
+    });
+
+    it('gives the language and direction', () => {
+        expect(reviewSearchToSort({ sort: 'ES', dir: 'desc' })).toEqual({ lang: 'ES', dir: 'desc' });
+        expect(reviewSearchToSort({ sort: 'ES' })).toEqual({ lang: 'ES', dir: 'asc' });
     });
 });

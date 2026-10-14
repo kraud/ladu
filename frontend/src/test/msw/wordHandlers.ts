@@ -184,11 +184,15 @@ function compareNewestFirst(a: WordBE, b: WordBE): number {
     return a.id < b.id ? 1 : -1;
 }
 
-function matchesListFilters(word: WordBE, callerId: string, url: URL): boolean {
-    // The real access rule is "own words OR words from a followed tag"; this
-    // fake models only ownership — followed-tag access is covered by the
-    // backend's own integration tests (`words-simple.test.js`).
-    if (word.user !== callerId) return false;
+function matchesListFilters(word: WordBE, callerId: string, followedWordIds: ReadonlySet<string>, url: URL): boolean {
+    // The real access rule is "own words OR words from a followed tag"; this fake
+    // knows a followed word only by id (`followedWordIds`) — the tag rules are
+    // covered by the backend's own integration tests (`words-simple.test.js`).
+    const isOwn = word.user === callerId;
+    if (!isOwn && !followedWordIds.has(word.id)) return false;
+    const owner = url.searchParams.get('owner');
+    if (owner === 'me' && !isOwn) return false;
+    if (owner === 'others' && isOwn) return false;
 
     const posValues = url.searchParams.getAll('pos');
     if (posValues.length > 0 && !posValues.includes(word.partOfSpeech)) return false;
@@ -222,13 +226,23 @@ function matchesListFilters(word: WordBE, callerId: string, url: URL): boolean {
     return true;
 }
 
-export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) {
+export function makeWordHandlers(opts: {
+    callerId: string;
+    seed?: SeedWord[];
+    /** Ids of seeded words by someone else that the caller can see, as if from a followed tag. */
+    followedWordIds?: string[];
+}) {
     const { callerId, seed = [] } = opts;
+    const followedWordIds = new Set(opts.followedWordIds ?? []);
     const store = new Map<string, WordBE>();
     /** Bodies received by `POST` / `PUT`, in call order — for payload-shape assertions. */
     const requests: { method: 'POST' | 'PUT'; body: unknown }[] = [];
     /** Raw query strings received by `GET /simple`, in call order — for param-encoding assertions. */
     const simpleQueries: string[] = [];
+    /** Ids passed to `POST /:id/clone`, in call order. */
+    const cloneRequests: string[] = [];
+    /** The caller's copies: source word id -> id of the copy (what the real `myCloneId` reads). */
+    const cloneIdBySource = new Map<string, string>();
 
     // Monotonically increasing, distinct per word — a wall-clock `Date.now()`
     // can tie two words created in the same test's same millisecond, which
@@ -269,7 +283,7 @@ export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) 
             const url = new URL(request.url);
             simpleQueries.push(url.search);
 
-            const filtered = [...store.values()].filter((w) => matchesListFilters(w, callerId, url));
+            const filtered = [...store.values()].filter((w) => matchesListFilters(w, callerId, followedWordIds, url));
             const total = filtered.length;
             // `?sort=EN&dir=asc|desc`: by the cell text of that language, ignoring case, empty cells last.
             // The cursor of a sorted list is just the offset (the real one is a key + id; opaque to the client).
@@ -290,6 +304,21 @@ export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) 
                       }
                     : compareNewestFirst,
             );
+
+            // Offset mode (`?page=N&limit=1..200|all`): same rules as the backend.
+            const pageParam = url.searchParams.get('page');
+            if (pageParam !== null) {
+                const page = Number(pageParam);
+                const limitRaw = url.searchParams.get('limit');
+                const pageSize = limitRaw === 'all' ? null : limitRaw === null ? 50 : Number(limitRaw);
+                const badPage = !Number.isInteger(page) || page < 1;
+                const badLimit = pageSize !== null && (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 200);
+                if (badPage || badLimit || url.searchParams.has('cursor')) {
+                    return HttpResponse.json({ message: 'Invalid page' }, { status: 400 });
+                }
+                const rows = pageSize === null ? sorted : sorted.slice((page - 1) * pageSize, page * pageSize);
+                return HttpResponse.json({ items: rows.map(simplifyWord), total, page, pageSize });
+            }
 
             let afterCursor = sorted;
             const cursorParam = url.searchParams.get('cursor');
@@ -350,10 +379,45 @@ export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) 
             if (!word) {
                 return HttpResponse.json({ message: 'Word not found' }, { status: 400 });
             }
-            if (word.user !== callerId) {
+            if (word.user !== callerId && !followedWordIds.has(word.id)) {
                 return HttpResponse.json({ message: 'User not authorized' }, { status: 403 });
             }
+            // A word of someone else also tells whether the caller has a copy of it.
+            if (word.user !== callerId) {
+                return HttpResponse.json({ ...word, myCloneId: cloneIdBySource.get(word.id) ?? null });
+            }
             return HttpResponse.json(word);
+        }),
+
+        // POST /api/words/:id/clone — same rules as the backend: 400 own/unknown, 403 not readable, 409 already copied.
+        http.post('*/api/words/:id/clone', ({ params }) => {
+            const sourceId = params.id as string;
+            cloneRequests.push(sourceId);
+            const source = store.get(sourceId);
+            if (!source) return HttpResponse.json({ message: 'Word not found' }, { status: 400 });
+            if (source.user === callerId) {
+                return HttpResponse.json({ message: 'You already own this word' }, { status: 400 });
+            }
+            if (!followedWordIds.has(source.id)) {
+                return HttpResponse.json({ message: 'User not authorized' }, { status: 403 });
+            }
+            if (cloneIdBySource.has(source.id)) {
+                return HttpResponse.json({ message: 'You already have a copy of this word' }, { status: 409 });
+            }
+            const now = nextTimestamp();
+            const copy: WordBE = {
+                ...source,
+                id: nextId('word'),
+                user: callerId,
+                isCloned: true,
+                originalCreator: source.user,
+                tags: [],
+                createdAt: now,
+                updatedAt: now,
+            };
+            store.set(copy.id, copy);
+            cloneIdBySource.set(source.id, copy.id);
+            return HttpResponse.json(copy, { status: 201 });
         }),
 
         // POST /api/words
@@ -414,5 +478,5 @@ export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) 
         }),
     ];
 
-    return { handlers, store, requests, simpleQueries };
+    return { handlers, store, requests, simpleQueries, cloneRequests };
 }

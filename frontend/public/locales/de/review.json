@@ -11,11 +11,18 @@
   },
   "filters": {
     "title": "Filter",
-    "display": "Anzeige",
+    "display": "Anzeigeoptionen",
+    "displayBadges": "Kennzeichen",
+    "displayColumns": "Spalten",
     "gender": "Genus",
     "clear": "Löschen",
     "partOfSpeech": "Wortart",
     "tags": "Tags",
+    "owner": "Besitzer",
+    "owners": {
+      "me": "Meine",
+      "others": "Nicht meine"
+    },
     "languageOrder": "Sprachreihenfolge",
     "languageOrderHint": "Mit den Pfeilen sortieren · min. 2 sichtbar",
     "moveEarlier": "{{language}} nach vorne verschieben",
@@ -36,9 +43,13 @@
     "displayOwner": "Besitzer",
     "displayType": "Wortart"
   },
+  "openWord": {
+    "title": "Dieses Wort öffnen?",
+    "description": "Zur Seite von „{{word}}“ gehen?",
+    "confirm": "Öffnen"
+  },
   "bulk": {
     "selected": "ausgewählt",
-    "view": "Ansehen",
     "practice": "Üben",
     "delete": "Löschen",
     "confirmTitle_one": "{{count}} Wort löschen?",
@@ -51,7 +62,12 @@
     "tagsAddedToast_other": "Tags zu {{count}} Wörtern hinzugefügt",
     "tagsRemovedToast_one": "Tag von {{count}} Wort entfernt",
     "tagsRemovedToast_other": "Tags von {{count}} Wörtern entfernt",
-    "unselect": "Auswahl aufheben"
+    "unselect": "Auswahl aufheben",
+    "ownOnlyHint": "Tags hinzufügen und Löschen sind nur verfügbar, wenn alle ausgewählten Wörter von dir sind.",
+    "selectAllMatching": "Alle {{count}} passenden Wörter auswählen",
+    "allPages": "(+ alle Seiten)",
+    "selectAll": "Alle auswählen",
+    "selectAllFailed": "Die Wörter konnten nicht ausgewählt werden. Versuche es noch einmal."
   },
   "table": {
     "posAbbr": {

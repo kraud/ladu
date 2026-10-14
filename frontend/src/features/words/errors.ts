@@ -2,9 +2,9 @@
  * Backend error -> i18n key, mirroring `features/auth/errors.ts`. Every
  * message below is a verbatim `throw new Error(...)` from
  * `wordController.ts` (`getWordById` / `createWord` / `updateWord` /
- * `getWordsSimplified` / `deleteManyWords`). The client already gates PoS +
- * >= 2 translations before submit, and Slice 6's `enableRowSelection` keeps
- * a non-owned row out of the bulk-delete selection, so most of these are
+ * `getWordsSimplified` / `deleteManyWords` / `cloneWord`). The client already gates PoS +
+ * >= 2 translations before submit, and the bulk action bar hides Delete for a
+ * selection with a word of someone else, so most of these are
  * defence-in-depth, not the expected path.
  */
 import { getApiErrorMessage } from '@/api/types';
@@ -19,6 +19,8 @@ const MESSAGE_TO_KEY: Record<string, string> = {
     'Invalid cursor': 'wordRelated:apiErrors.invalidCursor',
     'No word IDs provided': 'wordRelated:apiErrors.noWordIdsProvided',
     'Some words are missing': 'wordRelated:apiErrors.someWordsMissing',
+    'You already own this word': 'wordRelated:apiErrors.alreadyOwned',
+    'You already have a copy of this word': 'wordRelated:apiErrors.alreadyCloned',
     'User not authorized to delete at least one of the words':
         'wordRelated:apiErrors.notAuthorizedToDeleteSome',
 };

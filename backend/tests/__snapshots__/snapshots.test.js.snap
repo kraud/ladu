@@ -12,6 +12,9 @@ Object {
     "DE",
     "EN",
   ],
+  "partsOfSpeech": Array [
+    "Adjective",
+  ],
   "sourceTag": null,
   "visibility": "Private",
   "wordCount": 1,

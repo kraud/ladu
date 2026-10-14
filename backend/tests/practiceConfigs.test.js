@@ -382,3 +382,93 @@ describe('cascade', () => {
         expect(rows[0].n).toBe(0);
     });
 });
+
+// ===========================================================================
+// A followed original is swapped for the user's own copy (words-clone-followed.md, Slice 7)
+// ===========================================================================
+describe('saved lists: a followed original is swapped for the user\'s copy', () => {
+    /** Bob owns a Public tag with one word; Ann follows it and has an own word. */
+    const setUp = async () => {
+        const ann = await register('Ann', 'ann@test.com', 'ann');
+        const bob = await register('Bob', 'bob@test.com', 'bob');
+        const original = await postNoun(bob, 'tree', 'arbol');
+        const tag = await request(app)
+            .post('/api/tags')
+            .set(auth(bob))
+            .send({ label: 'Nature', visibility: 'Public', description: '', wordIds: [original.id] });
+        await request(app).post(`/api/tags/${tag.body.id}/follow`).set(auth(ann)).expect(200);
+        const own = await postNoun(ann, 'house', 'casa');
+        return { ann, bob, original, own, tag: tag.body };
+    };
+    const wordsOf = async (user, configId) =>
+        (await request(app).get(`/api/practice/configs/${configId}/words`).set(auth(user))).body.map((w) => w.id);
+    const configOf = async (user, configId) =>
+        (await request(app).get('/api/practice/configs').set(auth(user))).body.find((c) => c.id === configId);
+
+    it('lists the original while there is no copy, and the copy once there is one (same place, no missing word)', async () => {
+        const { ann, original, own } = await setUp();
+        const { body: config } = await create(ann, { wordIds: [original.id, own.id] });
+        expect(await wordsOf(ann, config.id)).toEqual([original.id, own.id]);
+
+        const copy = (await request(app).post(`/api/words/${original.id}/clone`).set(auth(ann))).body;
+
+        expect(await wordsOf(ann, config.id)).toEqual([copy.id, own.id]);
+        const listed = await configOf(ann, config.id);
+        expect(listed.missingCount).toBe(0);
+        // Nothing is stored: the saved ids are still the original's.
+        expect(listed.wordIds).toEqual([original.id, own.id]);
+    });
+
+    it('the list goes back to the original when the copy is deleted', async () => {
+        const { ann, original, own } = await setUp();
+        const { body: config } = await create(ann, { wordIds: [original.id, own.id] });
+        const copy = (await request(app).post(`/api/words/${original.id}/clone`).set(auth(ann))).body;
+        expect(await wordsOf(ann, config.id)).toEqual([copy.id, own.id]);
+
+        await request(app).delete(`/api/words/${copy.id}`).set(auth(ann)).expect(200);
+
+        expect(await wordsOf(ann, config.id)).toEqual([original.id, own.id]);
+    });
+
+    it('keeps a word once when the list holds both the original and the copy', async () => {
+        const { ann, original, own } = await setUp();
+        const copy = (await request(app).post(`/api/words/${original.id}/clone`).set(auth(ann))).body;
+        const { body: config } = await create(ann, { wordIds: [original.id, own.id, copy.id] });
+
+        expect(await wordsOf(ann, config.id)).toEqual([copy.id, own.id]);
+    });
+
+    it('the copy is practised even when the tag is no longer visible (the copy is the user\'s own)', async () => {
+        const { ann, bob, original, own, tag } = await setUp();
+        const { body: config } = await create(ann, { wordIds: [original.id, own.id] });
+        const copy = (await request(app).post(`/api/words/${original.id}/clone`).set(auth(ann))).body;
+
+        await request(app).patch(`/api/tags/${tag.id}`).set(auth(bob)).send({ visibility: 'Private' });
+
+        expect(await wordsOf(ann, config.id)).toEqual([copy.id, own.id]);
+        expect((await configOf(ann, config.id)).missingCount).toBe(0);
+    });
+
+    it('does not touch the list of a user who has no copy, and never swaps an own word', async () => {
+        const { ann, bob, original, tag } = await setUp();
+        const cara = await register('Cara', 'cara@test.com', 'cara');
+        await request(app).post(`/api/tags/${tag.id}/follow`).set(auth(cara)).expect(200);
+        const { body: config } = await create(cara, { wordIds: [original.id] });
+        await request(app).post(`/api/words/${original.id}/clone`).set(auth(ann)).expect(201);
+
+        expect(await wordsOf(cara, config.id)).toEqual([original.id]);
+
+        // Bob's own word is not swapped, even though Ann copied it.
+        const { body: bobsConfig } = await create(bob, { wordIds: [original.id] });
+        expect(await wordsOf(bob, bobsConfig.id)).toEqual([original.id]);
+    });
+
+    it('a saved ORIGINAL with no copy still counts as missing once the tag turns Private', async () => {
+        const { ann, bob, original, tag } = await setUp();
+        const { body: config } = await create(ann, { wordIds: [original.id] });
+        await request(app).patch(`/api/tags/${tag.id}`).set(auth(bob)).send({ visibility: 'Private' });
+
+        expect((await configOf(ann, config.id)).missingCount).toBe(1);
+        expect(await wordsOf(ann, config.id)).toEqual([]);
+    });
+});

@@ -31,12 +31,14 @@ const baseProps: ReviewTableProps = {
     showOwner: true,
     showPos: true,
     isPending: false,
-    isFetchingNextPage: false,
+    isFetching: false,
     isError: false,
     error: undefined,
-    hasNextPage: false,
     total: 0,
-    onFetchNextPage: vi.fn(),
+    page: 1,
+    pageSize: 50,
+    onPageChange: vi.fn(),
+    onPageSizeChange: vi.fn(),
     onRetry: vi.fn(),
     rowSelection: {},
     onRowSelectionChange: vi.fn(),
@@ -124,16 +126,58 @@ describe('ReviewTable — selection', () => {
         expect(afterCheckboxes[1]).toBeChecked();
     });
 
-    it('disables the checkbox for a row the caller does not own', () => {
-        // Base UI's Checkbox renders `role="checkbox"` on a <span>, not a
-        // native <input>/<button> — `disabled` is exposed via aria/data
-        // attributes rather than the DOM `disabled` property.
+    it('lets the caller select a row they do not own (a word from a followed tag)', async () => {
+        const user = userEvent.setup();
         const row = makeRow({ id: 'word-b', user: 'someone-else', dataEN: 'b' });
-        renderWithProviders(<ReviewTable {...baseProps} rows={[row]} userId="me" />);
+        renderWithProviders(<ControlledTable {...baseProps} rows={[row]} userId="me" />);
 
         const checkboxes = screen.getAllByRole('checkbox');
-        expect(checkboxes[1]).toHaveAttribute('aria-disabled', 'true');
-        expect(checkboxes[1]).toHaveAttribute('data-disabled');
+        expect(checkboxes[1]).not.toHaveAttribute('aria-disabled', 'true');
+        await user.click(checkboxes[1]);
+        expect(checkboxes[1]).toBeChecked();
+    });
+});
+
+describe('ReviewTable — a click on the row opens the word', () => {
+    const row = makeRow({ id: 'word-a', dataEN: 'apple', storedLanguages: ['English'] });
+
+    it('a click on the row (not on a button) calls onOpenWord', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<ControlledTable {...baseProps} rows={[row]} onOpenWord={onOpenWord} />);
+
+        await user.click(document.querySelector('tbody tr .owner-dot')!);
+        expect(onOpenWord).toHaveBeenCalledWith('word-a');
+    });
+
+    it('a click on a cell label opens the cell, not the word', async () => {
+        const onOpenWord = vi.fn();
+        const onOpenCell = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <ControlledTable {...baseProps} rows={[row]} onOpenWord={onOpenWord} onOpenCell={onOpenCell} />,
+        );
+
+        await user.click(screen.getByRole('button', { name: /apple/ }));
+        expect(onOpenCell).toHaveBeenCalled();
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('a click on the checkbox or its cell selects and does not open', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<ControlledTable {...baseProps} rows={[row]} onOpenWord={onOpenWord} />);
+
+        await user.click(screen.getAllByRole('checkbox')[1]!);
+        await user.click(document.querySelector('tbody tr .select-cell')!);
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('marks the rows as links only when there is an onOpenWord', () => {
+        const { rerender } = renderWithProviders(<ControlledTable {...baseProps} rows={[row]} />);
+        expect(document.querySelector('tbody tr')).not.toHaveClass('row-link');
+        rerender(<ControlledTable {...baseProps} rows={[row]} onOpenWord={vi.fn()} />);
+        expect(document.querySelector('tbody tr')).toHaveClass('row-link');
     });
 });
 
@@ -175,6 +219,40 @@ describe('ReviewTable — phone selection (compact)', () => {
 
         await user.click(first!);
         expect(first).not.toHaveClass('selected');
+    });
+
+    it('a tap on a row with nothing selected calls onOpenWord; a tap on a cell label does not', async () => {
+        const onOpenWord = vi.fn();
+        const onOpenCell = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <ControlledTable {...baseProps} rows={rows} compact onOpenWord={onOpenWord} onOpenCell={onOpenCell} />,
+        );
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await user.click(first!.querySelector('.owner-dot')!);
+        expect(onOpenWord).toHaveBeenCalledWith('a');
+        expect(first).not.toHaveClass('selected');
+
+        onOpenWord.mockClear();
+        await user.click(within(second as HTMLElement).getByRole('button', { name: /bread/ }));
+        expect(onOpenCell).toHaveBeenCalled();
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('a tap while selecting selects instead of opening the word, and a long press still selects', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<ControlledTable {...baseProps} rows={rows} compact onOpenWord={onOpenWord} />);
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await longPress(user, first!);
+        expect(first).toHaveClass('selected');
+        expect(onOpenWord).not.toHaveBeenCalled();
+
+        await user.click(second!.querySelector('.owner-dot')!);
+        expect(second).toHaveClass('selected');
+        expect(onOpenWord).not.toHaveBeenCalled();
     });
 
     it('a tap while selecting does not open the cell', async () => {
@@ -297,27 +375,58 @@ describe('ReviewTable — Tags column (D1/D7/D14)', () => {
     });
 });
 
-describe('ReviewTable — Load more', () => {
-    it('is hidden when there is no next page', () => {
-        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} hasNextPage={false} />);
+describe('ReviewTable — numbered pages', () => {
+    it('shows the range of the page and the page buttons', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} total={120} page={2} pageSize={50} />);
+        expect(screen.getByTestId('pagination-range')).toHaveTextContent('Showing 51–100 of 120');
+        expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
         expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
     });
 
-    it('is shown and calls onFetchNextPage when there is a next page', async () => {
-        const onFetchNextPage = vi.fn();
+    it('calls onPageChange for Next and for a page number', async () => {
+        const onPageChange = vi.fn();
         const user = userEvent.setup();
         renderWithProviders(
-            <ReviewTable
-                {...baseProps}
-                rows={[makeRow()]}
-                hasNextPage
-                total={5}
-                onFetchNextPage={onFetchNextPage}
-            />,
+            <ReviewTable {...baseProps} rows={[makeRow()]} total={120} page={1} onPageChange={onPageChange} />,
         );
 
-        const button = screen.getByRole('button', { name: 'Load more' });
-        await user.click(button);
-        expect(onFetchNextPage).toHaveBeenCalled();
+        await user.click(screen.getByRole('button', { name: 'Next page' }));
+        expect(onPageChange).toHaveBeenLastCalledWith(2);
+        await user.click(screen.getByRole('button', { name: 'Page 3' }));
+        expect(onPageChange).toHaveBeenLastCalledWith(3);
+    });
+
+    it('calls onPageSizeChange from the Rows per page menu', async () => {
+        const onPageSizeChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <ReviewTable {...baseProps} rows={[makeRow()]} total={120} onPageSizeChange={onPageSizeChange} />,
+        );
+
+        await user.click(screen.getByRole('combobox', { name: 'Rows per page' }));
+        await user.click(await screen.findByRole('option', { name: '200' }));
+        expect(onPageSizeChange).toHaveBeenCalledWith(200);
+    });
+
+    it('does not show the pagination while the first page loads', () => {
+        renderWithProviders(<ReviewTable {...baseProps} isPending />);
+        expect(screen.queryByTestId('pagination-range')).not.toBeInTheDocument();
+    });
+
+    it('dims the rows while the next page loads', () => {
+        const { container } = renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} total={5} isFetching />);
+        expect(container.querySelector('.tablewrap')).toHaveAttribute('aria-busy', 'true');
+    });
+
+    it('is not the empty state for a page past the last one', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[]} total={120} page={9} />);
+        expect(screen.queryByText('No words yet')).not.toBeInTheDocument();
+        expect(screen.getByTestId('pagination-range')).toBeInTheDocument();
+    });
+
+    it('keeps only the page controls on a phone', () => {
+        renderWithProviders(<ReviewTable {...baseProps} rows={[makeRow()]} total={120} compact />);
+        expect(screen.queryByTestId('pagination-range')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Next page' })).toBeInTheDocument();
     });
 });

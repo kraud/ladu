@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { renderApp } from '@/test/render';
@@ -33,9 +33,14 @@ function verbSeed(label: string, id: string, tagId?: string): SeedWord {
     };
 }
 
-function setUp(seedTags: SeedTag[] = [], seedWords: SeedWord[] = [], authorBadges: Record<string, string[]> = {}) {
+function setUp(
+    seedTags: SeedTag[] = [],
+    seedWords: SeedWord[] = [],
+    authorBadges: Record<string, string[]> = {},
+    followedWordIds: string[] = [],
+) {
     const tagFake = makeTagHandlers({ callerId: ME, usernames: { [OTHER]: 'mari' }, seedTags, authorBadges });
-    const wordFake = makeWordHandlers({ callerId: ME, seed: seedWords });
+    const wordFake = makeWordHandlers({ callerId: ME, seed: seedWords, followedWordIds });
     server.use(...tagFake.handlers, ...wordFake.handlers);
     return { tagFake, wordFake };
 }
@@ -257,6 +262,181 @@ describe('TagViewPage — discover tag', () => {
     });
 });
 
+describe('TagViewPage — a click on a row opens the word', () => {
+    const otherWord = (): SeedWord => ({ ...verbSeed('wander', 'w9', 'tag-1'), user: OTHER });
+
+    it('asks first; Open goes to the word page — also on a Public tag the user does not follow', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public', wordIds: ['w9'] }],
+            [otherWord()],
+            {},
+            ['w9'],
+        );
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        expect(await screen.findByText('Discover')).toBeInTheDocument();
+        const row = (await screen.findByText('wander')).closest('tr')!;
+
+        await user.click(row.querySelector('.owner-dot, .pos-abbr')!);
+        expect(await screen.findByText('Open this word?')).toBeInTheDocument();
+        expect(screen.getByText('Go to the page of "wander"?')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Open' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/word/w9'));
+    });
+
+    it('Cancel stays on the tag page', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        const row = (await screen.findByText('simmer')).closest('tr')!;
+
+        await user.click(row.querySelector('.owner-dot, .pos-abbr')!);
+        await user.click(await screen.findByRole('button', { name: 'Cancel' }));
+
+        expect(screen.queryByText('Open this word?')).not.toBeInTheDocument();
+        expect(router.state.location.pathname).toBe('/tag/tag-1');
+    });
+
+    it('a click on a cell label opens the cell dialog, not the word — read-only for a word of someone else', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public', wordIds: ['w9'] }],
+            [otherWord()],
+            {},
+            ['w9'],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: /wander/ }));
+
+        const dialog = await screen.findByRole('dialog');
+        await waitFor(() => expect(within(dialog).getAllByRole('button', { name: 'Close' }).length).toBeGreaterThan(1));
+        expect(within(dialog).queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+        expect(screen.queryByText('Open this word?')).not.toBeInTheDocument();
+    });
+
+    it('in remove mode a click on a row does nothing', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        const row = (await screen.findByText('simmer')).closest('tr')!;
+
+        await user.click(screen.getByRole('button', { name: 'Remove words' }));
+        await user.click(row.querySelector('.owner-dot, .pos-abbr')!);
+
+        expect(screen.queryByText('Open this word?')).not.toBeInTheDocument();
+    });
+});
+
+describe('TagViewPage — selecting words for Practice', () => {
+    const otherWord = (): SeedWord => ({ ...verbSeed('wander', 'w9', 'tag-1'), user: OTHER });
+
+    it('an owned tag: a selection shows a bar with Practice only, and Practice opens the practice screen', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        const row = (await screen.findByText('simmer')).closest('tr')!;
+
+        await user.click(within(row).getByRole('checkbox'));
+
+        expect(screen.getByText('1', { selector: '.count' })).toBeInTheDocument();
+        // Inside the bar (the page's footer has its own "Delete" for the tag).
+        const bar = document.querySelector('.bulkbar') as HTMLElement;
+        expect(within(bar).getByRole('button', { name: 'Practice' })).toBeInTheDocument();
+        expect(within(bar).queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+        expect(within(bar).queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(within(bar).queryByRole('button', { name: 'Clone' })).not.toBeInTheDocument();
+        expect(screen.queryByText(/available only when all selected words are your own/)).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Practice' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/practice'));
+    });
+
+    it('a followed tag: words of someone else can be selected, and the bar has Practice only', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public', followerIds: [ME], wordIds: ['w9'] }],
+            [otherWord()],
+            {},
+            ['w9'],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        const row = (await screen.findByText('wander')).closest('tr')!;
+
+        await user.click(within(row).getByRole('checkbox'));
+
+        expect(screen.getByText('1', { selector: '.count' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('a Public tag the user does not follow: no checkboxes, no bar', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: OTHER, label: 'Travel', visibility: 'Public', wordIds: ['w9'] }],
+            [otherWord()],
+            {},
+            ['w9'],
+        );
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        expect(await screen.findByText('wander')).toBeInTheDocument();
+        expect(screen.getByText('Discover')).toBeInTheDocument();
+
+        expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+        expect(screen.queryByRole('button', { name: 'Practice' })).not.toBeInTheDocument();
+    });
+
+    it('Remove words mode hides the checkboxes and clears the selection', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        const row = (await screen.findByText('simmer')).closest('tr')!;
+        await user.click(within(row).getByRole('checkbox'));
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Remove words' }));
+        expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+        expect(screen.queryByRole('button', { name: 'Practice' })).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+        const back = (await screen.findByText('simmer')).closest('tr')!;
+        expect(within(back).getByRole('checkbox')).not.toBeChecked();
+        expect(screen.queryByRole('button', { name: 'Practice' })).not.toBeInTheDocument();
+    });
+
+    it('"(+ all pages)" selects the words of this tag only, with the tag filter in the request', async () => {
+        const inTag = Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`, 'tag-1'));
+        const { wordFake } = setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: inTag.map((word) => word.id!) }],
+            [...inTag, verbSeed('outsider', 'x1')],
+        );
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('word50');
+
+        await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+        expect(screen.getByText('50', { selector: '.count' })).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Select all 51 matching words' }));
+
+        await waitFor(() => expect(screen.getByText('51', { selector: '.count' })).toBeInTheDocument());
+        const allQuery = wordFake.simpleQueries.find((query) => query.includes('limit=all'));
+        expect(allQuery).toContain('tag=tag-1');
+        expect(screen.queryByRole('button', { name: /matching words/ })).not.toBeInTheDocument();
+    });
+});
+
 describe('TagViewPage — unavailable tag (D9)', () => {
     it('shows the words-hidden state instead of the table, and only Unfollow', async () => {
         setUp([
@@ -292,5 +472,243 @@ describe('TagViewPage — author badge', () => {
         expect(await screen.findByText('Travel')).toBeInTheDocument();
         expect(screen.getByText('mari')).not.toHaveClass('t-by-verified');
         expect(screen.queryByRole('img', { name: 'Official Ladu account' })).not.toBeInTheDocument();
+    });
+});
+
+// A tag with 51 words: 50 on page 1 (newest first: word50 … word1), and `word0` alone on page 2.
+const MANY = Array.from({ length: 51 }, (_, i) => i);
+function manySetUp(extraWords: SeedWord[] = []) {
+    return setUp(
+        [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: MANY.map((i) => `w${i}`) }],
+        [...MANY.map((i) => verbSeed(`word${i}`, `w${i}`, 'tag-1')), ...extraWords],
+    );
+}
+
+describe('TagViewPage — numbered pages', () => {
+    it('shows the first page, goes to page 2 with Next, and writes page=2 in the URL', async () => {
+        const { wordFake } = manySetUp();
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+
+        await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(51)); // 50 words + header row
+        expect(screen.getByTestId('pagination-range')).toHaveTextContent('Showing 1–50 of 51');
+        expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Next page' }));
+
+        expect(await screen.findByText('word0')).toBeInTheDocument();
+        expect(screen.getAllByRole('row')).toHaveLength(2); // 1 word + header row
+        expect(router.state.location.search).toMatchObject({ page: 2 });
+        expect(wordFake.simpleQueries.at(-1)).toContain('page=2');
+        expect(wordFake.simpleQueries.at(-1)).toContain('tag=tag-1');
+    });
+
+    it('opens the page that is in the URL, also under React StrictMode (dev)', async () => {
+        manySetUp();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1?page=2', session: SESSION, strictMode: true });
+
+        expect(await screen.findByText('word0')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
+        expect(router.state.location.search).toMatchObject({ page: 2 });
+    });
+
+    it('goes to the last page when the page in the URL is past the end', async () => {
+        manySetUp();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1?page=9', session: SESSION });
+
+        expect(await screen.findByText('word0')).toBeInTheDocument();
+        await waitFor(() => expect(router.state.location.search).toMatchObject({ page: 2 }));
+    });
+
+    it('changes the page size, keeps it for next time and goes back to page 1', async () => {
+        const { wordFake } = manySetUp();
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1?page=2', session: SESSION });
+        await screen.findByText('word0');
+
+        await user.click(screen.getByRole('combobox', { name: 'Rows per page' }));
+        await user.click(await screen.findByRole('option', { name: '100' }));
+
+        await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(52)); // 51 words + header row
+        expect(wordFake.simpleQueries.at(-1)).toContain('limit=100');
+        expect(router.state.location.search).toMatchObject({ size: 100 });
+        expect(router.state.location.search).not.toHaveProperty('page');
+        expect(localStorage.getItem('ladu.pageSize')).toBe('100');
+    });
+
+    it('shows the whole tag for size=all, without page buttons', async () => {
+        manySetUp();
+        await renderApp({ initialEntry: '/tag/tag-1?size=all', session: SESSION });
+
+        await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(52));
+        expect(screen.queryByRole('navigation', { name: 'Pagination' })).not.toBeInTheDocument();
+    });
+
+    it('puts the sort in the URL and goes back to page 1', async () => {
+        const { wordFake } = manySetUp();
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1?page=2', session: SESSION });
+        await screen.findByText('word0');
+
+        await user.click(screen.getByRole('button', { name: 'Sort EN from A to Z' }));
+
+        await waitFor(() => expect(router.state.location.search).toMatchObject({ sort: 'EN', dir: 'asc' }));
+        expect(router.state.location.search).not.toHaveProperty('page');
+        await waitFor(() => expect(wordFake.simpleQueries.at(-1)).toContain('sort=EN&dir=asc'));
+    });
+
+    it('reads the sort from the URL', async () => {
+        const { wordFake } = manySetUp();
+        await renderApp({ initialEntry: '/tag/tag-1?sort=EN&dir=desc', session: SESSION });
+
+        expect(await screen.findByRole('button', { name: 'Sorted EN from Z to A. Remove the sort' })).toBeInTheDocument();
+        expect(wordFake.simpleQueries.at(-1)).toContain('sort=EN&dir=desc');
+    });
+});
+
+describe('TagViewPage — side menu', () => {
+    it('offers only the parts of speech the tag holds (even one) and no Gender without nouns', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'], partsOfSpeech: ['Verb'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        const pos = within(panel).getByRole('heading', { name: 'Part of speech', level: 2 }).closest('section') as HTMLElement;
+        expect(within(pos).getAllByRole('button', { name: /^(n|v|adj|adv)\.?$/i })).toHaveLength(1);
+        expect(within(panel).queryByRole('heading', { name: 'Gender', level: 2 })).not.toBeInTheDocument();
+        expect(within(panel).queryByRole('heading', { name: 'Tags' })).not.toBeInTheDocument();
+    });
+
+    it('offers Gender once the tag holds a noun', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'], partsOfSpeech: ['Noun', 'Verb'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        expect(within(panel).getByRole('heading', { name: 'Gender', level: 2 })).toBeInTheDocument();
+    });
+
+    it('puts the display options at the bottom: language order, badges and columns', async () => {
+        setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'], partsOfSpeech: ['Verb'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        const panel = screen.getByRole('complementary', { name: 'Filters' });
+        const display = panel.querySelector('[data-section="display"]') as HTMLElement;
+        for (const name of ['Language order', 'Badges', 'Columns']) {
+            expect(within(display).getByRole('heading', { name })).toBeInTheDocument();
+        }
+        expect(within(display).getByRole('switch', { name: 'Progress' })).toBeInTheDocument();
+        expect(within(display).getByRole('switch', { name: 'Owner' })).toBeInTheDocument();
+    });
+
+    it('a part-of-speech pick filters through the server and is written to the URL', async () => {
+        const { wordFake } = setUp(
+            [{ id: 'tag-1', authorId: ME, label: 'Kitchen', visibility: 'Public', wordIds: ['w1'], partsOfSpeech: ['Verb'] }],
+            [verbSeed('simmer', 'w1', 'tag-1')],
+        );
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('simmer');
+
+        await user.click(screen.getByRole('button', { name: 'v.' }));
+
+        await waitFor(() => expect(router.state.location.search).toMatchObject({ pos: ['Verb'] }));
+        await waitFor(() => expect(wordFake.simpleQueries.at(-1)).toContain('pos=Verb'));
+    });
+});
+
+describe('TagViewPage — search in the URL', () => {
+    it('writes the search to the URL after a pause, and goes back to page 1', async () => {
+        const { wordFake } = manySetUp();
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1?page=2', session: SESSION });
+        await screen.findByText('word0');
+
+        await user.type(screen.getByRole('textbox', { name: 'Search words in tag' }), 'word4');
+
+        await waitFor(() => expect(router.state.location.search).toMatchObject({ q: 'word4' }));
+        expect(router.state.location.search).not.toHaveProperty('page');
+        await waitFor(() => expect(wordFake.simpleQueries.at(-1)).toContain('q=word4'));
+        expect(await screen.findByText('11 results')).toBeInTheDocument(); // word4, word40 … word49
+    });
+
+    it('fills the search box from the URL and filters with it', async () => {
+        const { wordFake } = manySetUp();
+        await renderApp({ initialEntry: '/tag/tag-1?q=word3', session: SESSION });
+
+        expect(await screen.findByRole('textbox', { name: 'Search words in tag' })).toHaveValue('word3');
+        await waitFor(() => expect(wordFake.simpleQueries.at(-1)).toContain('q=word3'));
+    });
+
+    it('keeps the page when the box only mounts (nothing typed)', async () => {
+        manySetUp();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1?page=2', session: SESSION, strictMode: true });
+        await screen.findByText('word0');
+        await new Promise((resolve) => setTimeout(resolve, 450)); // longer than the 300 ms pause
+
+        expect(router.state.location.search).toMatchObject({ page: 2 });
+    });
+
+    it('clearing the search takes q out of the URL', async () => {
+        manySetUp();
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/tag/tag-1?q=zzz', session: SESSION });
+
+        await user.click(await screen.findByRole('button', { name: 'Clear search' }));
+
+        await waitFor(() => expect(router.state.location.search).not.toHaveProperty('q'));
+    });
+});
+
+describe('TagViewPage — Add words with a tag of several pages', () => {
+    it('does not offer a word the tag already has, even when it is on another page', async () => {
+        manySetUp();
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('word50');
+
+        await user.click(screen.getAllByRole('button', { name: 'Add words' })[0]);
+        const dialog = await screen.findByRole('dialog');
+        // `word0` is on page 2 of the tag: the page on screen does not have it, the tag does.
+        await user.type(await within(dialog).findByRole('textbox', { name: 'Search your words to add now' }), 'word0');
+
+        expect(await within(dialog).findByText('No words match')).toBeInTheDocument();
+        expect(within(dialog).queryByText('word0')).not.toBeInTheDocument();
+    });
+
+    it('does not offer a word the tag has while a search narrows the page on screen', async () => {
+        manySetUp([verbSeed('extra', 'w-extra')]);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1?q=word3', session: SESSION });
+        await waitFor(() => expect(screen.getByText('11 results')).toBeInTheDocument()); // word3, word30 … word39
+
+        await user.click(screen.getAllByRole('button', { name: 'Add words' })[0]);
+        const dialog = await screen.findByRole('dialog');
+        await user.type(await within(dialog).findByRole('textbox', { name: 'Search your words to add now' }), 'word');
+
+        expect(await within(dialog).findByText('No words match')).toBeInTheDocument();
+    });
+
+    it('still offers a word that is not on the tag', async () => {
+        manySetUp([verbSeed('extra', 'w-extra')]);
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/tag/tag-1', session: SESSION });
+        await screen.findByText('word50');
+
+        await user.click(screen.getAllByRole('button', { name: 'Add words' })[0]);
+        const dialog = await screen.findByRole('dialog');
+
+        expect(await within(dialog).findByText('extra')).toBeInTheDocument();
+        expect(within(dialog).queryByText('word50')).not.toBeInTheDocument();
     });
 });

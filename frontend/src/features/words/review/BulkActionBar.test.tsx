@@ -23,7 +23,7 @@ const SESSION = {
 const baseProps: BulkActionBarProps = {
     selectedCount: 0,
     selectedWordIds: [],
-    onView: vi.fn(),
+    canEdit: true,
     onPractice: vi.fn(),
     onDelete: vi.fn(),
     onTagsApplied: vi.fn(),
@@ -41,9 +41,9 @@ describe('BulkActionBar', () => {
         expect(container).toBeEmptyDOMElement();
     });
 
-    it('shows the count and leaves View out unless exactly one is selected', () => {
-        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={3} />);
-        expect(screen.getByText('3')).toBeInTheDocument();
+    it('shows the count, and has no View button (a click on the row opens the word)', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={1} />);
+        expect(screen.getByText('1')).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument();
     });
 
@@ -63,6 +63,82 @@ describe('BulkActionBar', () => {
         expect(onClear).toHaveBeenCalled();
     });
 
+    it('without canEdit, hides Add tags and Delete and shows the hint; Practice stays', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} canEdit={false} />);
+        expect(screen.queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeInTheDocument();
+        expect(
+            screen.getByText('Add tags and Delete are available only when all selected words are your own.'),
+        ).toBeInTheDocument();
+    });
+
+    it('practiceOnly: Practice only — no Add tags, no Delete, no hint, whatever canEdit says', () => {
+        const { rerender } = renderWithProviders(
+            <BulkActionBar {...baseProps} selectedCount={2} canEdit={false} practiceOnly />,
+        );
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(screen.queryByText(/available only when all selected words/)).not.toBeInTheDocument();
+
+        rerender(<BulkActionBar {...baseProps} selectedCount={2} canEdit practiceOnly />);
+        expect(screen.queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('with canEdit, shows Add tags and Delete and no hint', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} />);
+        expect(screen.getByRole('button', { name: 'Add tags' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+        expect(screen.queryByText(/available only when all selected words/)).not.toBeInTheDocument();
+    });
+
+    it('shows "(+ all pages)" only when allPages is set, and the click calls back', async () => {
+        const onSelect = vi.fn();
+        const user = userEvent.setup();
+        const { rerender } = renderWithProviders(<BulkActionBar {...baseProps} selectedCount={50} />);
+        expect(screen.queryByText('(+ all pages)')).not.toBeInTheDocument();
+
+        rerender(<BulkActionBar {...baseProps} selectedCount={50} allPages={{ total: 120, isSelecting: false, onSelect }} />);
+        await user.click(screen.getByRole('button', { name: 'Select all 120 matching words' }));
+        expect(screen.getByText('(+ all pages)')).toBeInTheDocument();
+        expect(onSelect).toHaveBeenCalled();
+    });
+
+    it('disables "(+ all pages)" while the words load', () => {
+        renderWithProviders(
+            <BulkActionBar {...baseProps} selectedCount={50} allPages={{ total: 120, isSelecting: true, onSelect: vi.fn() }} />,
+        );
+        expect(screen.getByRole('button', { name: 'Select all 120 matching words' })).toBeDisabled();
+    });
+
+    it('Delete is an icon button (no visible text) and Practice and Add tags carry an icon', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} />);
+        const del = screen.getByRole('button', { name: 'Delete' });
+        expect(del).toHaveTextContent('');
+        expect(del.querySelector('svg')).not.toBeNull();
+        expect(screen.getByRole('button', { name: 'Practice' }).querySelector('svg')).not.toBeNull();
+        expect(screen.getByRole('button', { name: 'Add tags' }).querySelector('svg')).not.toBeNull();
+    });
+
+    it('on a phone, Unselect comes right after the label, before the actions', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} onClear={vi.fn()} />);
+        const buttons = screen.getAllByRole('button').map((button) => button.getAttribute('aria-label') ?? button.textContent);
+        expect(buttons.indexOf('Unselect')).toBe(0);
+    });
+
+    it('shows Select all only when it can select the page, and it calls back', async () => {
+        const onSelectAll = vi.fn();
+        const user = userEvent.setup();
+        const { rerender } = renderWithProviders(<BulkActionBar {...baseProps} selectedCount={1} onClear={vi.fn()} />);
+        expect(screen.queryByRole('button', { name: 'Select all' })).not.toBeInTheDocument();
+
+        rerender(<BulkActionBar {...baseProps} selectedCount={1} onClear={vi.fn()} onSelectAll={onSelectAll} />);
+        await user.click(screen.getByRole('button', { name: 'Select all' }));
+        expect(onSelectAll).toHaveBeenCalled();
+    });
+
     it('Practice is available from one selected word and calls back', async () => {
         const onPractice = vi.fn();
         const user = userEvent.setup();
@@ -70,16 +146,6 @@ describe('BulkActionBar', () => {
 
         await user.click(screen.getByRole('button', { name: 'Practice' }));
         expect(onPractice).toHaveBeenCalled();
-    });
-
-    it('shows View at exactly one selection, and it calls back', async () => {
-        const onView = vi.fn();
-        const user = userEvent.setup();
-        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={1} onView={onView} />);
-
-        const viewButton = screen.getByRole('button', { name: 'View' });
-        await user.click(viewButton);
-        expect(onView).toHaveBeenCalled();
     });
 
     it('Delete opens a confirm dialog; confirming calls onDelete', async () => {

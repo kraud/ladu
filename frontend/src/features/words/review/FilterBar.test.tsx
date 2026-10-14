@@ -35,28 +35,21 @@ const baseProps: FilterBarProps = {
     pos: [],
     hasQuery: false,
     selectedTags: [],
-    activeLanguages: ['EN', 'DE'],
-    allLanguages: ['EN', 'DE', 'ES'],
     onGenderChange: vi.fn(),
     onPosChange: vi.fn(),
     onSelectedTagsChange: vi.fn(),
-    onLanguagesChange: vi.fn(),
+    onOwnerChange: vi.fn(),
 };
 
 describe('FilterBar — sections', () => {
-    it('shows Gender, Part of speech, Tags and Language order as sections, in a column', () => {
+    it('shows Gender, Part of speech and Tags as sections, in a column', () => {
         renderWithProviders(<FilterBar {...baseProps} />);
         const panel = screen.getByRole('complementary', { name: 'Filters' });
-        for (const name of ['Gender', 'Part of speech', 'Tags', 'Language order']) {
+        for (const name of ['Gender', 'Part of speech', 'Tags']) {
             expect(within(panel).getByRole('heading', { name })).toBeInTheDocument();
         }
         // The layout draws the frame: no collapse-to-top or move-to-top controls any more.
         expect(screen.queryByRole('button', { name: /Move filters/ })).not.toBeInTheDocument();
-    });
-
-    it('the language-order section shows its heading once, not twice', () => {
-        renderWithProviders(<FilterBar {...baseProps} />);
-        expect(screen.getAllByText('Language order')).toHaveLength(1);
     });
 });
 
@@ -66,14 +59,13 @@ describe('FilterBar — collapsed rail', () => {
         renderWithProviders(
             <FilterBar {...baseProps} gender={['der', 'die']} pos={[PartOfSpeech.noun]} hasQuery />,
         );
-        for (const name of ['Gender', 'Part of speech', 'Tags', 'Language order']) {
+        for (const name of ['Gender', 'Part of speech', 'Tags']) {
             expect(screen.getByRole('button', { name })).toBeInTheDocument();
         }
         expect(screen.getByTestId('gender-count')).toHaveTextContent('2');
         expect(screen.getByTestId('pos-count')).toHaveTextContent('1');
         // Idle groups show no counter; the search box is the toolbar's, not a group's.
         expect(screen.queryByTestId('tags-count')).not.toBeInTheDocument();
-        expect(screen.queryByTestId('language-order-count')).not.toBeInTheDocument();
     });
 
     it('a rail button expands the panel to the filters', async () => {
@@ -89,6 +81,54 @@ describe('activeFilterCount', () => {
     it('adds each gender, part-of-speech and tag pick, plus the search box when it has text', () => {
         expect(activeFilterCount([], [], false)).toBe(0);
         expect(activeFilterCount(['der', 'die'], [PartOfSpeech.noun], true, 3)).toBe(7);
+    });
+
+    it('counts the owner pick as one', () => {
+        expect(activeFilterCount([], [], false, 0, true)).toBe(1);
+    });
+});
+
+describe('FilterBar — owner', () => {
+    it('offers Mine and Not mine, and picks one', async () => {
+        const onOwnerChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} onOwnerChange={onOwnerChange} />);
+        await user.click(screen.getByRole('button', { name: 'Not mine' }));
+        expect(onOwnerChange).toHaveBeenCalledWith('others');
+    });
+
+    it('a click on the active choice clears it', async () => {
+        const onOwnerChange = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<FilterBar {...baseProps} owner="me" onOwnerChange={onOwnerChange} />);
+        expect(screen.getByRole('button', { name: 'Mine' })).toHaveAttribute('aria-pressed', 'true');
+        await user.click(screen.getByRole('button', { name: 'Mine' }));
+        expect(onOwnerChange).toHaveBeenCalledWith(undefined);
+    });
+
+    it('is not offered without an owner handler', () => {
+        renderWithProviders(<FilterBar {...baseProps} onOwnerChange={undefined} />);
+        expect(screen.queryByRole('heading', { name: 'Owner' })).not.toBeInTheDocument();
+    });
+});
+
+describe('FilterBar — Clear sits in the heading row', () => {
+    it.each([
+        ['Gender', { gender: ['der'] }],
+        ['Part of speech', { pos: [PartOfSpeech.noun] }],
+        ['Owner', { owner: 'me' as const }],
+    ])('%s: the Clear button is in the same row as the title, not under it', (title, props) => {
+        renderWithProviders(<FilterBar {...baseProps} {...props} />);
+        const heading = screen.getByRole('heading', { name: title });
+        const clear = within(heading.closest('section') as HTMLElement).getByRole('button', { name: 'Clear' });
+        expect(clear.parentElement).toBe(heading.parentElement);
+        // The heading keeps its own name: the button is not inside it.
+        expect(heading).not.toContainElement(clear);
+    });
+
+    it('shows no Clear button without a pick', () => {
+        renderWithProviders(<FilterBar {...baseProps} />);
+        expect(screen.queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
     });
 });
 
@@ -203,6 +243,7 @@ describe('FilterBar — Tags group (D15/D17)', () => {
             wordCount: 0,
             followerCount: 0,
             languages: [],
+            partsOfSpeech: [],
             isOwner: true,
             isFollowing: false,
             isAvailable: true,

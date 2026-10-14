@@ -14,8 +14,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import type { RowSelectionState } from '@tanstack/react-table';
-import { PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
+import { FunnelIcon, PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
 import { PageTitle } from '@/components/common/PageTitle';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
@@ -23,29 +22,32 @@ import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/lib/useMediaQuery';
+import { pageCountFor, readStoredPageSize, storePageSize, type PageSize } from '@/lib/pagination';
 import { useAuthStore } from '@/stores/authStore';
-import { useUiStore } from '@/stores/uiStore';
 import { resolveLoadingToastError, resolveLoadingToastSuccess, startLoadingToast } from '@/lib/toast';
 import { PartOfSpeech } from '@/ts/enums';
-import { toPreselectedWord } from '@/features/practice/preselection';
 import { useTagsByIds } from '@/features/tags/hooks';
 import type { TagSummary } from '@/features/tags/types';
-import { useBulkDeleteWords, useWordsInfinite } from '../hooks';
+import { useBulkDeleteWords, useWordsPage } from '../hooks';
 import { wordErrorKey } from '../errors';
-import type { LangKey } from '../types';
+import type { LangKey, WordOwner } from '../types';
 import { BulkActionBar } from '../review/BulkActionBar';
 import { CellDialog } from '../review/CellDialog';
-import { DisplayOptions } from '../review/DisplayOptions';
+import { OpenWordDialog } from '../review/OpenWordDialog';
+import { buildDisplaySection } from '../review/DisplayOptions';
+import { LanguageOrderControl } from '../review/LanguageOrderControl';
 import { activeFilterCount, useFilterSections } from '../review/FilterBar';
 import { TagsDialog } from '../review/TagsDialog';
 import { ReviewTable } from '../review/ReviewTable';
 import { TableToolbar } from '../review/TableToolbar';
-import { sortFilters, useLanguageSort } from '../review/useLanguageSort';
+import { useWordSelection } from '../review/useWordSelection';
+import { nextLanguageSort, sortFilters } from '../review/useLanguageSort';
 import {
     accountLanguageOrder,
     hasActiveFilters,
     resolveLanguageOrder,
     reviewSearchToFilters,
+    reviewSearchToSort,
     type ReviewSearch,
 } from '../review/search';
 
@@ -72,26 +74,28 @@ export function ReviewPage() {
     const filters = useMemo(() => reviewSearchToFilters(search), [search]);
     const filtersKey = JSON.stringify(filters);
 
-    const { sort, toggleSort } = useLanguageSort();
-    const wordsQuery = useWordsInfinite({ ...filters, ...sortFilters(sort) });
-    const rows = useMemo(
-        () => wordsQuery.data?.pages.flatMap((page) => page.items) ?? [],
-        [wordsQuery.data],
+    // Sort, page and page size live in the URL (the page size falls back to the one the user chose last).
+    const sort = useMemo(
+        () => reviewSearchToSort({ sort: search.sort, dir: search.dir }),
+        [search.sort, search.dir],
     );
-    const total = wordsQuery.data?.pages[0]?.total ?? 0;
+    const storedPageSize = useMemo(readStoredPageSize, []);
+    const pageSize: PageSize = search.size ?? storedPageSize;
+    const page = search.page ?? 1;
+
+    const wordsQuery = useWordsPage({ ...filters, ...sortFilters(sort) }, { page, pageSize });
+    const rows = useMemo(() => wordsQuery.data?.items ?? [], [wordsQuery.data]);
+    const total = wordsQuery.data?.total ?? 0;
+    const pageCount = pageCountFor(total, pageSize);
     // D14: the Display-gender switch is only useful once a noun is actually
     // on screen — driven by the loaded rows themselves, not by whether the
     // PoS *filter* happens to be narrowed to Noun (nouns show up in the
     // unfiltered list too).
     const hasNounRows = useMemo(() => rows.some((row) => row.partOfSpeech === PartOfSpeech.noun), [rows]);
 
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-    // A row selected under one filter set can drop out of the result set
-    // under another — `getSelectedRowModel()` only sees loaded rows, so a
-    // stale id in `rowSelection` would otherwise target an invisible word.
-    useEffect(() => {
-        setRowSelection({});
-    }, [filtersKey]);
+    // The selection (stable ids, kept across pages) and its table-wide actions, shared with `/tag/:id`.
+    const selection = useWordSelection({ rows, languages, filters, filtersKey });
+    const { rowSelection, setRowSelection, selectedIds } = selection;
 
     // Not persisted in the URL (matches the mockup) — a display concern, not a filter.
     const [showGender, setShowGender] = useState(true);
@@ -112,33 +116,58 @@ export function ReviewPage() {
     const closeTagsDialog = useCallback(() => setTagsTarget(null), []);
     const tagsRow = tagsTarget ? rows.find((row) => row.id === tagsTarget) : undefined;
 
-    function updateSearch(patch: Partial<ReviewSearch>) {
-        void navigate({ search: (prev) => ({ ...prev, ...patch }) });
+    // Any real change of filter, sort or page size goes back to page 1, unless `keepPage` says it is not about
+    // the list. A write that changes nothing keeps the page: the search box writes `q` once on mount (twice in
+    // React's dev StrictMode), and that must not throw the user off page 2 after a reload.
+    function updateSearch(patch: Partial<ReviewSearch>, options: { keepPage?: boolean; replace?: boolean } = {}) {
+        void navigate({
+            search: (prev) => {
+                const changed = Object.entries(patch).some(
+                    ([key, value]) => JSON.stringify(prev[key as keyof ReviewSearch]) !== JSON.stringify(value),
+                );
+                return { ...prev, ...(options.keepPage || !changed ? {} : { page: undefined }), ...patch };
+            },
+            replace: options.replace,
+        });
     }
 
-    const selectedIds = useMemo(
-        () => Object.keys(rowSelection).filter((id) => rowSelection[id]),
-        [rowSelection],
+    const toggleSort = useCallback(
+        (lang: LangKey) => {
+            const next = nextLanguageSort(sort, lang);
+            void navigate({ search: (prev) => ({ ...prev, sort: next?.lang, dir: next?.dir, page: undefined }) });
+        },
+        [sort, navigate],
     );
+
+    function handlePageChange(next: number) {
+        updateSearch({ page: next > 1 ? next : undefined }, { keepPage: true });
+    }
+
+    function handlePageSizeChange(size: PageSize) {
+        storePageSize(size);
+        updateSearch({ size });
+    }
+
+    // A page past the last one (the last rows were deleted, or a stale link) goes to the last page.
+    useEffect(() => {
+        if (!wordsQuery.data || wordsQuery.isPlaceholderData || page <= pageCount) return;
+        updateSearch({ page: pageCount > 1 ? pageCount : undefined }, { keepPage: true, replace: true });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [wordsQuery.data, wordsQuery.isPlaceholderData, page, pageCount]);
 
     // Ids-only in the URL (`ReviewSearch.tag`) resolved to full `TagSummary`s
     // for `TagCombobox`'s pill row — see `useTagsByIds`'s own doc comment.
     const selectedTagsQuery = useTagsByIds(search.tag ?? []);
 
-    function handleView() {
-        const [id] = selectedIds;
-        if (id) void navigate({ to: '/word/$wordId', params: { wordId: id } });
-    }
+    // A click on a row asks first (a dialog), then opens `/word/$wordId`.
+    const [openWordId, setOpenWordId] = useState<string | null>(null);
+    const handleOpenWord = useCallback((wordId: string) => setOpenWordId(wordId), []);
+    const openWordRow = openWordId ? rows.find((row) => row.id === openWordId) : undefined;
+    const openWordLabel = openWordRow ? languages.map((lang) => openWordRow[`data${lang}`]).find(Boolean) : undefined;
 
-    // Selected rows -> the practice parameters screen (Phase 5, C4). Ids only are not enough: the
-    // screen shows the words and limits the word types, so the rows' own data goes along.
-    function handlePractice() {
-        const chosen = new Set(selectedIds);
-        const words = rows.filter((row) => chosen.has(row.id)).map((row) => toPreselectedWord(row, languages));
-        if (words.length === 0) return;
-        useUiStore.getState().setPracticePreselection(words);
-        void navigate({ to: '/practice' });
-    }
+    // Add tags and Delete need every selected word to be the user's own. A selected word that is not known
+    // (should not happen: each one was seen on screen) counts as not own.
+    const allSelectedOwn = selectedIds.every((id) => selection.selectedRow(id)?.user === userId);
 
     function handleBulkDelete() {
         const ids = selectedIds;
@@ -172,44 +201,41 @@ export function ReviewPage() {
         gender: search.gender ?? [],
         pos: search.pos ?? [],
         hasQuery: search.q !== undefined,
+        owner: search.owner,
         selectedTags: selectedTagsQuery.data,
-        activeLanguages: languages,
-        allLanguages,
         onGenderChange: (next: string[] | undefined) => updateSearch({ gender: next }),
         onPosChange: (next: PartOfSpeech[] | undefined) => updateSearch({ pos: next }),
+        onOwnerChange: (next: WordOwner | undefined) => updateSearch({ owner: next }),
         onSelectedTagsChange: (next: TagSummary[]) =>
             updateSearch({ tag: next.length > 0 ? next.map((tag) => tag.id) : undefined }),
-        onLanguagesChange: (next: LangKey[]) => updateSearch({ lang: next }),
     };
 
     const filterSections = useFilterSections(filterBarProps);
-    // A phone has no room for the switches in the toolbar: they close the menu instead.
-    const sections: SidebarSection[] = isMobile
-        ? [
-              ...filterSections,
-              {
-                  id: 'display',
-                  label: t('review:filters.display'),
-                  icon: <SlidersHorizontalIcon size={18} />,
-                  content: (
-                      <div className="flex flex-col gap-3">
-                          <DisplayOptions
-                              showGenderSwitch={hasNounRows}
-                              showGender={showGender}
-                              onShowGenderChange={setShowGender}
-                              showProgress={showProgress}
-                              onShowProgressChange={setShowProgress}
-                              showOwner={showOwner}
-                              onShowOwnerChange={setShowOwner}
-                              showPos={showPos}
-                              onShowPosChange={setShowPos}
-                          />
-                      </div>
-                  ),
-              },
-          ]
-        : filterSections;
-    const activeCount = activeFilterCount(filterBarProps.gender, filterBarProps.pos, filterBarProps.hasQuery, filterBarProps.selectedTags.length);
+    // The display switches are pinned to the bottom of the side menu, apart from the filters above them.
+    const sections: SidebarSection[] = [
+        ...filterSections,
+        buildDisplaySection(t('review:filters.display'), {
+            languageOrder: (
+                <LanguageOrderControl
+                    active={languages}
+                    allLanguages={allLanguages}
+                    onChange={(next: LangKey[]) => updateSearch({ lang: next }, { keepPage: true })}
+                    stacked
+                    hideLabel
+                />
+            ),
+            showGenderSwitch: hasNounRows,
+            showGender,
+            onShowGenderChange: setShowGender,
+            showProgress,
+            onShowProgressChange: setShowProgress,
+            showOwner,
+            onShowOwnerChange: setShowOwner,
+            showPos,
+            onShowPosChange: setShowPos,
+        }),
+    ];
+    const activeCount = activeFilterCount(filterBarProps.gender, filterBarProps.pos, filterBarProps.hasQuery, filterBarProps.selectedTags.length, search.owner !== undefined);
 
     // The header's language gate already blocks navigating here below two
     // languages, but a direct URL bypasses it (`_protected.beforeLoad` only
@@ -235,6 +261,7 @@ export function ReviewPage() {
         <SidebarLayout
             id="review"
             label={t('review:filters.title')}
+            labelIcon={<FunnelIcon size={18} />}
             sections={sections}
             fillHeight
             header={
@@ -251,15 +278,6 @@ export function ReviewPage() {
                 <TableToolbar
                     initialQuery={search.q ?? ''}
                     onQueryChange={(next) => updateSearch({ q: next })}
-                    showSwitch={hasNounRows}
-                    showGender={showGender}
-                    onShowGenderChange={setShowGender}
-                    showProgress={showProgress}
-                    onShowProgressChange={setShowProgress}
-                    showOwner={showOwner}
-                    onShowOwnerChange={setShowOwner}
-                    showPos={showPos}
-                    onShowPosChange={setShowPos}
                     loadedCount={rows.length}
                     total={total}
                     compact={isMobile}
@@ -277,11 +295,14 @@ export function ReviewPage() {
                     <BulkActionBar
                         selectedCount={selectedIds.length}
                         selectedWordIds={selectedIds}
-                        onView={handleView}
-                        onPractice={handlePractice}
+                        canEdit={allSelectedOwn}
+                        onPractice={selection.practice}
                         onDelete={handleBulkDelete}
                         onTagsApplied={handleTagsApplied}
-                        onClear={isMobile ? () => setRowSelection({}) : undefined}
+                        onClear={isMobile ? selection.clear : undefined}
+                        onSelectAll={isMobile && !selection.pageFullySelected ? selection.selectPage : undefined}
+                        compact={isMobile}
+                        allPages={selection.allPagesFor(total)}
                     />
                     <ReviewTable
                         rows={rows}
@@ -293,25 +314,37 @@ export function ReviewPage() {
                         showOwner={showOwner}
                         showPos={showPos}
                         isPending={wordsQuery.isPending}
-                        isFetchingNextPage={wordsQuery.isFetchingNextPage}
+                        isFetching={wordsQuery.isFetching}
                         isError={wordsQuery.isError}
                         error={wordsQuery.error}
-                        hasNextPage={wordsQuery.hasNextPage}
                         total={total}
-                        onFetchNextPage={() => void wordsQuery.fetchNextPage()}
+                        page={page}
+                        pageSize={pageSize}
+                        onPageChange={handlePageChange}
+                        onPageSizeChange={handlePageSizeChange}
                         onRetry={() => void wordsQuery.refetch()}
                         sort={sort}
                         onSort={toggleSort}
                         rowSelection={rowSelection}
                         onRowSelectionChange={setRowSelection}
                         hasActiveFilters={hasActiveFilters(search)}
-                        onClearFilters={() => void navigate({ search: (prev) => ({ lang: prev.lang }) })}
+                        onClearFilters={() =>
+                            void navigate({ search: (prev) => ({ lang: prev.lang, size: prev.size, sort: prev.sort, dir: prev.dir }) })
+                        }
                         onAddWord={() => void navigate({ to: '/addWord/{-$partOfSpeech}' })}
                         onOpenCell={handleOpenCell}
+                        onOpenWord={handleOpenWord}
                         onOpenTags={handleOpenTags}
                         compact={isMobile}
                     />
             </div>
+
+            <OpenWordDialog
+                wordId={openWordId}
+                label={openWordLabel}
+                onClose={() => setOpenWordId(null)}
+                onOpen={(wordId) => void navigate({ to: '/word/$wordId', params: { wordId } })}
+            />
 
             {tagsRow && (
                 <TagsDialog
@@ -331,6 +364,7 @@ export function ReviewPage() {
                     onClose={closeCellDialog}
                     nativeLanguage={user?.nativeLanguage}
                     userLanguages={userLanguages}
+                    readOnly={rows.find((row) => row.id === cellTarget.wordId)?.user !== userId}
                 />
             )}
         </SidebarLayout>

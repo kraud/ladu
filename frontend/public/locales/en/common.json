@@ -146,5 +146,15 @@
   "scroll": {
     "left": "Scroll left",
     "right": "Scroll right"
+  },
+  "pagination": {
+    "nav": "Pagination",
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "Page {{page}}",
+    "range": "Showing {{from}}–{{to}} of {{total}}",
+    "noRows": "No rows",
+    "rowsPerPage": "Rows per page",
+    "all": "All"
   }
 }

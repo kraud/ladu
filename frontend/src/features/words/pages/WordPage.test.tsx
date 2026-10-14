@@ -7,6 +7,7 @@ import { makeWordHandlers } from '@/test/msw/wordHandlers';
 import { makeTagHandlers } from '@/test/msw/tagHandlers';
 import { useAuthStore } from '@/stores/authStore';
 import { futureToken } from '@/test/tokens';
+import { http, HttpResponse } from 'msw';
 import { mockMobileViewport } from '@/test/viewport';
 import { Lang, NounCases, PartOfSpeech } from '@/ts/enums';
 
@@ -142,6 +143,131 @@ describe('WordPage — view', () => {
 
         expect(await screen.findByText("You don't have access to this word.")).toBeInTheDocument();
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    });
+});
+
+describe('WordPage — a word of someone else (a followed tag)', () => {
+    const FOLLOWED = { ...SEED, user: 'someone-else' };
+
+    /** Clone in the footer, then confirm in the dialog. */
+    async function cloneFromBar(user: ReturnType<typeof userEvent.setup>) {
+        await user.click(await within(await screen.findByTestId('word-editor-bar')).findByRole('button', { name: 'Clone' }));
+        await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Clone' }));
+    }
+
+    function setUpFollowed() {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] }).handlers);
+    }
+
+    it('desktop: shows the word, and the footer has Return and Clone — no Edit, no Delete', async () => {
+        setUpFollowed();
+        await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
+
+        expect(await screen.findByRole('heading', { level: 1, name: 'house' })).toBeInTheDocument();
+        const bar = screen.getByTestId('word-editor-bar');
+        expect(within(bar).getByRole('button', { name: 'Return' })).toBeInTheDocument();
+        expect(within(bar).getByRole('button', { name: 'Clone' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('phone: the footer has Clone; neither the footer nor the side menu has Edit or Delete', async () => {
+        mockMobileViewport();
+        const user = userEvent.setup();
+        setUpFollowed();
+        await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
+
+        expect(await within(await screen.findByTestId('word-editor-bar')).findByRole('button', { name: 'Clone' })).toBeInTheDocument();
+        await user.click(await screen.findByRole('button', { name: 'Open menu' }));
+        expect(await screen.findByRole('button', { name: 'Return' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('Clone first asks, and explains what is done; Cancel makes no request', async () => {
+        const user = userEvent.setup();
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] });
+        server.use(...fake.handlers);
+        const { router } = await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
+
+        await user.click(await within(await screen.findByTestId('word-editor-bar')).findByRole('button', { name: 'Clone' }));
+
+        const dialog = await screen.findByRole('alertdialog');
+        expect(within(dialog).getByText('Clone this word?')).toBeInTheDocument();
+        expect(within(dialog).getByText(/A copy of this word is added to your words/)).toBeInTheDocument();
+        expect(within(dialog).getByText(/private and has no tags/)).toBeInTheDocument();
+        expect(within(dialog).getByText(/The original does not change/)).toBeInTheDocument();
+        expect(within(dialog).getByText(/the copy shows instead of the original/)).toBeInTheDocument();
+        expect(fake.cloneRequests).toEqual([]);
+
+        await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+        expect(fake.cloneRequests).toEqual([]);
+        expect(router.state.location.pathname).toBe(`/word/${FOLLOWED.id}`);
+    });
+
+    it('Clone copies the word, toasts, and opens the copy — which you can edit and delete', async () => {
+        const user = userEvent.setup();
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] });
+        server.use(...fake.handlers);
+        const { router } = await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
+
+        await cloneFromBar(user);
+
+        await waitFor(() => expect(fake.cloneRequests).toEqual([FOLLOWED.id]));
+        await waitFor(() => expect(router.state.location.pathname).not.toBe(`/word/${FOLLOWED.id}`));
+        expect(router.state.location.pathname).toMatch(/^\/word\/word-/);
+        expect(await screen.findByText('Word copied to your words')).toBeInTheDocument();
+        const bar = await screen.findByTestId('word-editor-bar');
+        expect(await within(bar).findByRole('button', { name: 'Edit' })).toBeInTheDocument();
+        expect(within(bar).getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+        expect(within(bar).queryByRole('button', { name: 'Clone' })).not.toBeInTheDocument();
+    });
+
+    it('once you have a copy, the original shows "Open your copy" (no second Clone), and it opens the copy', async () => {
+        const user = userEvent.setup();
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] });
+        server.use(...fake.handlers);
+        const { router } = await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
+        await cloneFromBar(user);
+        await waitFor(() => expect(router.state.location.pathname).not.toBe(`/word/${FOLLOWED.id}`));
+        const copyPath = router.state.location.pathname;
+
+        await router.navigate({ to: '/word/$wordId', params: { wordId: FOLLOWED.id } });
+        const bar = await screen.findByTestId('word-editor-bar');
+        const open = await within(bar).findByRole('button', { name: 'Open your copy' });
+        expect(within(bar).queryByRole('button', { name: 'Clone' })).not.toBeInTheDocument();
+
+        await user.click(open);
+        await waitFor(() => expect(router.state.location.pathname).toBe(copyPath));
+        expect(fake.cloneRequests).toHaveLength(1);
+    });
+
+    it('shows an error toast and stays when the clone fails', async () => {
+        const user = userEvent.setup();
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [FOLLOWED], followedWordIds: [FOLLOWED.id] });
+        // The failing handler goes first: MSW takes the first handler that matches.
+        server.use(
+            http.post('*/api/words/:id/clone', () =>
+                HttpResponse.json({ message: 'You already have a copy of this word' }, { status: 409 }),
+            ),
+            ...fake.handlers,
+        );
+        const { router } = await renderApp({ initialEntry: `/word/${FOLLOWED.id}`, session: SESSION });
+
+        await cloneFromBar(user);
+
+        expect(await screen.findByText('You already have a copy of this word.')).toBeInTheDocument();
+        expect(router.state.location.pathname).toBe(`/word/${FOLLOWED.id}`);
+    });
+
+    it('your own word still has Edit and Delete', async () => {
+        server.use(...makeWordHandlers({ callerId: SESSION.id, seed: [SEED] }).handlers);
+        await renderApp({ initialEntry: `/word/${SEED.id}`, session: SESSION });
+
+        const bar = await screen.findByTestId('word-editor-bar');
+        expect(within(bar).getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+        expect(within(bar).getByRole('button', { name: 'Delete' })).toBeInTheDocument();
     });
 });
 

@@ -11,11 +11,18 @@
   },
   "filters": {
     "title": "Filters",
-    "display": "Display",
+    "display": "Display options",
+    "displayBadges": "Badges",
+    "displayColumns": "Columns",
     "gender": "Gender",
     "clear": "Clear",
     "partOfSpeech": "Part of speech",
     "tags": "Tags",
+    "owner": "Owner",
+    "owners": {
+      "me": "Mine",
+      "others": "Not mine"
+    },
     "languageOrder": "Language order",
     "languageOrderHint": "Use the arrows to reorder · min 2 shown",
     "moveEarlier": "Move {{language}} earlier",
@@ -36,9 +43,13 @@
     "displayOwner": "Owner",
     "displayType": "Word type"
   },
+  "openWord": {
+    "title": "Open this word?",
+    "description": "Go to the page of \"{{word}}\"?",
+    "confirm": "Open"
+  },
   "bulk": {
     "selected": "selected",
-    "view": "View",
     "practice": "Practice",
     "delete": "Delete",
     "confirmTitle_one": "Delete {{count}} word?",
@@ -51,7 +62,12 @@
     "tagsAddedToast_other": "Tags added to {{count}} words",
     "tagsRemovedToast_one": "Tag removed from {{count}} word",
     "tagsRemovedToast_other": "Tags removed from {{count}} words",
-    "unselect": "Unselect"
+    "unselect": "Unselect",
+    "ownOnlyHint": "Add tags and Delete are available only when all selected words are your own.",
+    "selectAllMatching": "Select all {{count}} matching words",
+    "allPages": "(+ all pages)",
+    "selectAll": "Select all",
+    "selectAllFailed": "Could not select all words. Try again."
   },
   "table": {
     "posAbbr": {

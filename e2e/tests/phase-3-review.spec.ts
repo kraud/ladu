@@ -11,10 +11,12 @@ import { closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
  * flow, lets the real (offline, dictionary-backed) autocomplete lookup fill
  * its gender -> creates a verb, exercising the Slice 9/10 wide-shell
  * tense-grid layout for the first time in e2e -> goes to `/review`, filters
- * to Verb, confirms the filter survives a reload -> pages in the next batch
- * with Load more -> selects a row from that second, filtered page and lands
- * on the correct word via View, proving selection tracks a stable id across
- * both a filter change and pagination, not a positional index.
+ * to Verb, confirms the filter survives a reload -> goes to page 2 of the
+ * numbered pages (page, page size and sort live in the URL and survive a
+ * reload) -> selects a row on each of the two pages, and lands on the
+ * correct word via View, proving selection tracks a stable id across both a
+ * filter change and a change of page, not a positional index.
+ * (Numbered pages: `.context/plans/words-pagination.md` Slice 3.)
  *
  * Runs against `keelapp_v2_dev`. Uses a unique `e2e-*@ladu.test` email and
  * deletes it in `afterAll` — `words`/`translations`/`cases` cascade off the
@@ -57,7 +59,7 @@ async function registerAndVerify(request: APIRequestContext, languages: string[]
     return account;
 }
 
-/** Number of extra Verb words seeded directly via the API so Load more has a real second page under a PoS filter (50 = the backend's default page size). */
+/** Number of extra Verb words seeded directly via the API so the Verb filter has a real second page (50 = the default page size; with the `run` verb that makes 51). */
 const BULK_VERB_COUNT = 50;
 
 test.afterAll(async () => {
@@ -142,7 +144,7 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await page.getByRole('button', { name: 'Save' }).click();
         await expect(page.getByText('Word was created successfully')).toBeVisible();
 
-        // --- Review: filter survives a reload, Load more pages in the rest ---
+        // --- Review: filter survives a reload, then numbered pages, page size and sort ---
         await page.goto('/words');
         await expect(page.getByText('run')).toBeVisible();
 
@@ -160,15 +162,62 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await expect(page.getByRole('button', { name: 'v.', exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect(page.getByText('run')).toBeVisible();
 
-        await page.getByRole('button', { name: 'Load more' }).click();
+        // --- Numbered pages: 51 verbs, 50 per page ---
+        await expect(page.getByTestId('pagination-range')).toHaveText('Showing 1–50 of 51');
+        await expect(page.getByRole('button', { name: 'Load more' })).toHaveCount(0);
+        await page.getByRole('button', { name: 'Next page' }).click();
+        await expect(page).toHaveURL(/page=2/);
+        await expect(page.getByText('bulk0')).toBeVisible();
+        await expect(page.getByTestId('pagination-range')).toHaveText('Showing 51–51 of 51');
+
+        // The page is in the URL: a reload keeps it.
+        await page.reload();
+        await expect(page).toHaveURL(/page=2/);
         await expect(page.getByText('bulk0')).toBeVisible();
 
-        // Select the one row that only exists on the second, filtered page
-        // and land on it via View -- stable-id selection, not a positional
-        // index a second page's rows would otherwise shift.
-        const bulk0Row = page.getByRole('row', { name: /bulk0/ });
-        await bulk0Row.getByRole('checkbox').click();
-        await page.getByRole('button', { name: 'View' }).click();
+        // Page size: All shows every verb on one page; 50 goes back to two pages (and back to page 1).
+        await page.getByRole('combobox', { name: 'Rows per page' }).click();
+        await page.getByRole('option', { name: 'All' }).click();
+        await expect(page).toHaveURL(/size=all/);
+        await expect(page).not.toHaveURL(/page=/);
+        await expect(page.getByText('bulk0')).toBeVisible();
+        await expect(page.getByText('run', { exact: true })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Next page' })).toHaveCount(0);
+        await page.getByRole('combobox', { name: 'Rows per page' }).click();
+        await page.getByRole('option', { name: '50' }).click();
+        await expect(page).toHaveURL(/size=50/);
+        await expect(page.getByText('bulk0')).not.toBeVisible();
+
+        // Sort is in the URL too, and survives a reload.
+        await page.getByRole('button', { name: 'Sort EN from A to Z' }).click();
+        await expect(page).toHaveURL(/sort=EN/);
+        await page.reload();
+        await expect(page).toHaveURL(/sort=EN/);
+        await page.getByRole('button', { name: 'Sorted EN from A to Z. Sort from Z to A' }).click();
+        await expect(page).toHaveURL(/dir=desc/);
+        await page.getByRole('button', { name: 'Sorted EN from Z to A. Remove the sort' }).click();
+        await expect(page).not.toHaveURL(/sort=/);
+
+        // --- Selection by stable id across pages ---
+        // Default order again: `run` (the newest verb) is on page 1, `bulk0` (the oldest) on page 2.
+        await page.getByRole('row', { name: /run/ }).getByRole('checkbox').click();
+        await page.getByRole('button', { name: 'Next page' }).click();
+        await expect(page.getByText('bulk0')).toBeVisible();
+        await page.getByRole('row', { name: /bulk0/ }).getByRole('checkbox').click();
+        await expect(page.locator('.bulkbar .count')).toHaveText('2');
+        await expect(page.getByRole('button', { name: 'View' })).toHaveCount(0); // no View button: a click on the row opens the word
+
+        // Back on page 1 the first selection is still there; unselect it, and only bulk0 (off this page) is left.
+        await page.getByRole('button', { name: 'Page 1' }).click();
+        const runCheckbox = page.getByRole('row', { name: /run/ }).getByRole('checkbox');
+        await expect(runCheckbox).toBeChecked();
+        await runCheckbox.click();
+        await expect(page.locator('.bulkbar .count')).toHaveText('1');
+        // `bulk0` is on page 2. A click on its row (the owner dot is no button) asks first, then opens the word.
+        await page.getByRole('button', { name: 'Next page' }).click();
+        await page.getByRole('row', { name: /bulk0/ }).locator('.owner-dot').click();
+        await expect(page.getByRole('alertdialog').getByText('Open this word?')).toBeVisible();
+        await page.getByRole('alertdialog').getByRole('button', { name: 'Open' }).click();
 
         await expect(page).toHaveURL(/\/word\/.+/);
         await expect(page.getByRole('heading', { level: 1, name: 'bulk0' })).toBeVisible();

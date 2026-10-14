@@ -1,4 +1,4 @@
-import { useMemo, useRef, type PointerEvent as ReactPointerEvent } from 'react';
+import { useMemo } from 'react';
 import {
     flexRender,
     getCoreRowModel,
@@ -12,16 +12,15 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ErrorState } from '@/components/common/ErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { TablePagination } from '@/components/common/TablePagination';
+import type { PageSize } from '@/lib/pagination';
 import type { LangKey, WordSimpleBE } from '@/features/words/types';
 import { buildWordColumns } from './columns';
 import type { LanguageSort } from './useLanguageSort';
+import { isPlainRowClick } from './rowClick';
+import { useRowPress } from './useRowPress';
 
 const SKELETON_ROWS = 8;
-const SKELETON_MORE_ROWS = 3;
-
-const LONG_PRESS_MS = 450;
-/** A finger that moves farther than this (px) is scrolling, not pressing. */
-const LONG_PRESS_SLOP = 10;
 
 const SHRINK_COLUMNS = new Set(['select', 'owner', 'partOfSpeech', 'tags']);
 
@@ -33,6 +32,7 @@ function headerClassName(columnId: string): string | undefined {
 }
 
 function cellClassName(columnId: string): string | undefined {
+    if (columnId === 'select') return 'shrink-col select-cell';
     if (SHRINK_COLUMNS.has(columnId)) return 'shrink-col';
     if (columnId.startsWith('lang_')) return 'word-cell';
     return undefined;
@@ -48,13 +48,17 @@ export interface ReviewTableProps {
     /** Toolbar "Display progress" switch — gates the completion ring per cell. */
     showProgress: boolean;
     isPending: boolean;
-    isFetchingNextPage: boolean;
+    /** A new page is loading while the old one stays on screen. */
+    isFetching?: boolean;
     isError: boolean;
     error: unknown;
-    hasNextPage: boolean;
     /** Filtered total (D8) — constant across pages of the same filter set. */
     total: number;
-    onFetchNextPage: () => void;
+    /** Current numbered page (1-based) and rows per page. */
+    page: number;
+    pageSize: PageSize;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (size: PageSize) => void;
     onRetry: () => void;
     rowSelection: RowSelectionState;
     onRowSelectionChange: OnChangeFn<RowSelectionState>;
@@ -65,6 +69,11 @@ export interface ReviewTableProps {
     onAddWord: () => void;
     /** Unset in Slice 6 — Slice 8 wires the cell editor dialog. */
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
+    /**
+     * A click on the row itself (not on a button, link, checkbox or the checkbox cell) asks to open the
+     * word. On a phone a tap does it too, unless a selection is active (then a tap selects).
+     */
+    onOpenWord?: (wordId: string) => void;
     /** Toolbar "Display owner" switch — gates the owner column. */
     showOwner: boolean;
     /** Toolbar "Display word type" switch — gates the word-type column. */
@@ -75,7 +84,7 @@ export interface ReviewTableProps {
     sort?: LanguageSort | null;
     onSort?: (lang: LangKey) => void;
     /**
-     * Phone layout: no loaded/total text, and the footer only shows when "Load more" is needed. Rows have no
+     * Phone layout: the footer has the page controls only, without the "Showing …" text. Rows have no
      * checkbox either: a long press selects the first row, then a tap selects or unselects any row.
      */
     compact?: boolean;
@@ -99,12 +108,14 @@ export function ReviewTable({
     showOwner,
     showPos,
     isPending,
-    isFetchingNextPage,
+    isFetching = false,
     isError,
     error,
-    hasNextPage,
     total,
-    onFetchNextPage,
+    page,
+    pageSize,
+    onPageChange,
+    onPageSizeChange,
     onRetry,
     rowSelection,
     onRowSelectionChange,
@@ -112,6 +123,7 @@ export function ReviewTable({
     onClearFilters,
     onAddWord,
     onOpenCell,
+    onOpenWord,
     onOpenTags,
     sort,
     onSort,
@@ -146,40 +158,14 @@ export function ReviewTable({
         getCoreRowModel: getCoreRowModel(),
         state: { rowSelection },
         onRowSelectionChange,
-        // Own words only — keeps the backend's 401 "not authorized to delete"
-        // branch (which would otherwise trip the axios client's any-401-clears-
-        // the-session interceptor) unreachable from this UI.
-        enableRowSelection: (row) => row.original.user === userId,
         manualPagination: true,
         manualFiltering: true,
         manualSorting: true,
     });
 
     // Phone: long press selects, and once something is selected a tap toggles (the cells' own buttons stay quiet).
-    const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const pressStart = useRef<{ x: number; y: number } | null>(null);
-    const pressFired = useRef(false);
     const hasSelection = Object.values(rowSelection).some(Boolean);
-
-    function cancelPress() {
-        if (pressTimer.current) clearTimeout(pressTimer.current);
-        pressTimer.current = null;
-        pressStart.current = null;
-    }
-
-    function startPress(event: ReactPointerEvent, toggle: () => void) {
-        pressStart.current = { x: event.clientX, y: event.clientY };
-        pressTimer.current = setTimeout(() => {
-            pressFired.current = true;
-            pressTimer.current = null;
-            toggle();
-        }, LONG_PRESS_MS);
-    }
-
-    function movePress(event: ReactPointerEvent) {
-        const start = pressStart.current;
-        if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > LONG_PRESS_SLOP) cancelPress();
-    }
+    const rowPress = useRowPress(hasSelection);
 
     if (isError) {
         return (
@@ -187,7 +173,8 @@ export function ReviewTable({
         );
     }
 
-    if (!isPending && rows.length === 0) {
+    // A page past the last one has no rows but a total above 0: that is not an empty list (the page corrects itself).
+    if (!isPending && rows.length === 0 && total === 0) {
         if (hasActiveFilters) {
             return (
                 <EmptyState
@@ -213,7 +200,7 @@ export function ReviewTable({
 
     return (
         <div className="main-col min-h-0 flex-1">
-            <div className="tablewrap min-h-0 flex-1">
+            <div className="tablewrap tablewrap-fill min-h-0 max-[920px]:flex-1" aria-busy={isFetching} style={isFetching ? { opacity: 0.6 } : undefined}>
                 <table className="dtable">
                     <thead>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -242,30 +229,20 @@ export function ReviewTable({
                             : table.getRowModel().rows.map((row) => (
                                   <tr
                                       key={row.id}
-                                      className={[row.getIsSelected() && 'selected', compact && 'press-select']
+                                      className={[row.getIsSelected() && 'selected', compact && 'press-select', onOpenWord && 'row-link']
                                           .filter(Boolean)
                                           .join(' ') || undefined}
-                                      {...(compact && row.getCanSelect()
+                                      {...(compact
+                                          ? rowPress({
+                                                select: () => row.toggleSelected(true),
+                                                toggle: () => row.toggleSelected(),
+                                                onTap: onOpenWord ? () => onOpenWord(row.id) : undefined,
+                                            })
+                                          : {})}
+                                      {...(!compact && onOpenWord
                                           ? {
-                                                onPointerDown: (event: ReactPointerEvent) => {
-                                                    pressFired.current = false;
-                                                    if (!hasSelection) startPress(event, () => row.toggleSelected(true));
-                                                },
-                                                onPointerMove: movePress,
-                                                onPointerUp: cancelPress,
-                                                onPointerCancel: cancelPress,
-                                                onContextMenu: (event: React.MouseEvent) => event.preventDefault(),
-                                                onClickCapture: (event: React.MouseEvent) => {
-                                                    // The click that ends a long press, or a tap while selecting, is for the row only.
-                                                    if (pressFired.current) {
-                                                        pressFired.current = false;
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                    } else if (hasSelection) {
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                        row.toggleSelected();
-                                                    }
+                                                onClick: (event: React.MouseEvent) => {
+                                                    if (isPlainRowClick(event)) onOpenWord(row.id);
                                                 },
                                             }
                                           : {})}
@@ -277,39 +254,19 @@ export function ReviewTable({
                                       ))}
                                   </tr>
                               ))}
-                        {isFetchingNextPage &&
-                            Array.from({ length: SKELETON_MORE_ROWS }).map((_, rowIndex) => (
-                                <tr key={`skeleton-more-${rowIndex}`}>
-                                    {columns.map((_, colIndex) => (
-                                        <td key={colIndex}>
-                                            <Skeleton className="h-4 w-24" />
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
                     </tbody>
                 </table>
             </div>
-            {(!compact || hasNextPage) && (
-                <div className="footer-row">
-                    {!compact && (
-                        <span className="meta">
-                            {hasNextPage
-                                ? t('review:table.loaded', { loaded: rows.length, total })
-                                : t('review:table.allLoaded', { total })}
-                        </span>
-                    )}
-                    {hasNextPage && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={onFetchNextPage}
-                            disabled={isFetchingNextPage}
-                        >
-                            {t('review:table.loadMore')}
-                        </Button>
-                    )}
-                </div>
+            {!isPending && (
+                <TablePagination
+                    page={page}
+                    pageSize={pageSize}
+                    total={total}
+                    onPageChange={onPageChange}
+                    onPageSizeChange={onPageSizeChange}
+                    disabled={isFetching}
+                    compact={compact}
+                />
             )}
         </div>
     );

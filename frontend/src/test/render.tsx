@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import { StrictMode, type ReactElement, type ReactNode } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
@@ -98,8 +98,8 @@ export function renderWithProviders(ui: ReactElement, options: ProviderOptions =
  * Install MSW auth handlers with `server.use(...makeAuthHandlers().handlers)`
  * before calling.
  */
-export async function renderApp(options: { initialEntry?: string; session?: RawUser } = {}) {
-    const { initialEntry = '/', session } = options;
+export async function renderApp(options: { initialEntry?: string; session?: RawUser; strictMode?: boolean } = {}) {
+    const { initialEntry = '/', session, strictMode = false } = options;
 
     useAuthStore.getState().clearSession();
     if (session) useAuthStore.getState().setSession(session);
@@ -111,14 +111,16 @@ export async function renderApp(options: { initialEntry?: string; session?: RawU
     // assert on `router.state` — mirrors `router.test.tsx`.
     await router.load();
 
-    const utils = render(
+    const app = (
         <QueryClientProvider client={queryClient}>
             <I18nextProvider i18n={i18n}>
                 <RouterProvider router={router} />
                 <ToastContainer position="bottom-center" autoClose={false} />
             </I18nextProvider>
-        </QueryClientProvider>,
+        </QueryClientProvider>
     );
+    // `strictMode` runs every effect twice on mount, like the dev server does (`main.tsx`) — for regressions that only show there.
+    const utils = render(strictMode ? <StrictMode>{app}</StrictMode> : app);
 
     return { queryClient, i18n, router, ...utils };
 }

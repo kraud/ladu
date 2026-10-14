@@ -43,5 +43,15 @@ This is a **from-scratch re-implementation**, not the live app.
 - **Docs + tests are written alongside the feature**, not deferred.
 - **Every phase ends with a green Playwright e2e run.** One spec per phase in the `e2e/` workspace, walking that phase's vertical slice against the real backend + Postgres + a browser. `npm run test:e2e` is a required gate — see `.context/plans/new-repo-build-plan.md` §6. Interactive browser driving mid-session comes from the `@playwright/mcp` server in `.mcp.json`.
 - **Ask before assuming.** On any critical/ambiguous decision, check with the user — do not guess.
+- **Present issues by severity, then ask how to act on each.** When a review, an investigation or a plan check finds problems, do not fix them one by one in silence. First, report all of them together:
+  - **Group and sort them by severity**, most severe first:
+    - **Blocker**: it cannot work as written.
+    - **Major**: it works, but has a security, data-integrity or data-leak hole.
+    - **Moderate**: a wrong assumption with a contained fix.
+    - **Minor**: it does not break anything (inconsistencies, wording, polish).
+  - **For each issue, explain** what is wrong, where (`file:line` when it applies), and why it matters. Give the facts you verified in the code, not guesses.
+  - **Give a suggestion for each issue**, and mark the recommended one.
+  - **Ask the user how to direct the effort** on each issue that needs a decision (use the question tool, with the recommended option first). Do not ask about issues that have one obvious fix: apply the suggestion and say so.
+  - Only after the user answers, apply the changes. Record each issue and its resolution where the work is tracked (for a plan: a "Review log" table with #, severity, finding and resolution).
 - **Friendships, notifications, tags and tag-sharing are explicitly deferred until after Phases 1–3.** Prior agents started the backend social redesign (§8.2/§8.3): keep its **schema changes**, but its controllers/tests are not to be reconciled now. Backend tests tied to friendship/tag_shares may be removed or left failing for now — "no test there yet" is acceptable until we return to it.
 - The user commits the working tree once **Phase 0 is agreed done** — there is one baseline commit to make, not per-change commits yet.

@@ -32,7 +32,7 @@ const {
     toPerformanceSummary,
     translationAverage,
 }: typeof import('./exercises') = require('./exercises');
-const { fetchWordsWithRelations }: typeof import('./wordService') = require('./wordService');
+const { fetchWordsWithRelations, notHiddenByOwnCopy }: typeof import('./wordService') = require('./wordService');
 const { getWordsIdFromFollowedTagsByUserId } = require('../controllers/tagController.ts');
 
 import type {
@@ -99,6 +99,10 @@ export async function rankCandidateWords(
 
     const conditions = [
         await visibleWordCondition(viewer.id),
+        // A followed word is left out when the viewer has an own copy of it (plans/words-clone-followed.md,
+        // Slice 5): the same rule as the word list, with no exception here. Not applied to `visibleWordCondition`
+        // itself: saving an answer for a word that is already in an exercise must still work.
+        notHiddenByOwnCopy(viewer.id),
         inArray(words.partOfSpeech, request.partsOfSpeech),
         // The word must have enough translations in the selected languages.
         sql`${words.id} IN (

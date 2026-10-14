@@ -27,6 +27,19 @@ export interface CursorPage<T> {
     total: number;
 }
 
+/**
+ * A numbered page of an offset-paginated list (`?page=N&limit=…`, words
+ * pagination Slice 1). `pageSize` is `null` when the whole list was asked for
+ * (`limit=all`). A page past the last one comes back with no items; `total`
+ * still says how far back to go.
+ */
+export interface OffsetPage<T> {
+    items: T[];
+    total: number;
+    page: number;
+    pageSize: number | null;
+}
+
 /** Every backend id is a Postgres UUID string. */
 export type Id = string;
 

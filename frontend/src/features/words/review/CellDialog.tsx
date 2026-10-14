@@ -65,9 +65,11 @@ export interface CellDialogProps {
     nativeLanguage?: string | null;
     /** The account's selected languages, in account order — the title's fallback when creating. */
     userLanguages?: readonly string[];
+    /** The word belongs to someone else (a followed tag): view only, nothing can be edited or removed. */
+    readOnly?: boolean;
 }
 
-export function CellDialog({ wordId, langKey, onClose, nativeLanguage, userLanguages }: CellDialogProps) {
+export function CellDialog({ wordId, langKey, onClose, nativeLanguage, userLanguages, readOnly = false }: CellDialogProps) {
     const { t } = useTranslation();
     const wordQuery = useWord(wordId);
     const updateWord = useUpdateWord();
@@ -123,9 +125,9 @@ export function CellDialog({ wordId, langKey, onClose, nativeLanguage, userLangu
     const existing = existingIndex >= 0 ? word.translations[existingIndex] : undefined;
     const isAdd = !existing;
     const atMax = isAdd && word.translations.length >= MAX_TRANSLATIONS;
-    const canDelete = !isAdd && word.translations.length >= MIN_TRANSLATIONS_TO_ALLOW_DELETE;
-    // An add always edits straight away — there's nothing to view yet (D41).
-    const isEditing = editing || isAdd;
+    const canDelete = !readOnly && !isAdd && word.translations.length >= MIN_TRANSLATIONS_TO_ALLOW_DELETE;
+    // An add always edits straight away — there's nothing to view yet (D41). Never in read-only mode.
+    const isEditing = !readOnly && (editing || isAdd);
 
     // The title is the word alone (the flag beside it names the language): this
     // language's own main case when viewing/editing, the user's native-language
@@ -219,7 +221,9 @@ export function CellDialog({ wordId, langKey, onClose, nativeLanguage, userLangu
                     </DialogTitle>
                 </DialogHeader>
 
-                {atMax ? (
+                {readOnly && isAdd ? (
+                    <p className="hint">{t('review:table.blockedTranslation')}</p>
+                ) : atMax ? (
                     <p className="hint">{t('review:cellDialog.maxTranslations')}</p>
                 ) : (
                     <TranslationCard
@@ -263,9 +267,11 @@ export function CellDialog({ wordId, langKey, onClose, nativeLanguage, userLangu
                             <Button type="button" variant="outline" onClick={onClose}>
                                 {t('common:buttons.close')}
                             </Button>
-                            <Button type="button" onClick={startEdit}>
-                                {t('common:buttons.edit')}
-                            </Button>
+                            {!readOnly && (
+                                <Button type="button" onClick={startEdit}>
+                                    {t('common:buttons.edit')}
+                                </Button>
+                            )}
                         </>
                     )}
                 </DialogFooter>

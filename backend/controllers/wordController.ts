@@ -62,8 +62,12 @@ const {
     assembleWord,
     fetchWordsWithRelations,
     fetchWordWithRelations,
+    cloneWordsForUser,
+    notHiddenByOwnCopy,
     parseArrayParam,
     parseLimitParam,
+    parsePageParam,
+    parsePageLimitParam,
     encodeCursor,
     decodeCursor,
 }: typeof import('../services/wordService') = require('../services/wordService');
@@ -427,6 +431,37 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
       .from(tagWords)
       .where(inArray(tagWords.tagId, tagIds));
     conditions.push(inArray(words.id, tagWordIds));
+  } else if (req.query.owner !== "others") {
+    // No Tags filter and not the "Not mine" owner filter: a followed word is left out when the
+    // user has their own copy of it (plans/words-clone-followed.md, Slice 4). With a Tags filter
+    // (also `/tag/:id`) or `owner=others` it stays: the first shows the tag's real content, the
+    // second the real followed words. The total and the pages count the same rows.
+    conditions.push(notHiddenByOwnCopy(req.user.id));
+  }
+
+  // `?owner=me`: only the caller's own words (no followed or discoverable-tag
+  // words). `?owner=others`: the opposite, only words that belong to someone
+  // else (the followed-tag words). Both feed the Review owner filter and
+  // "Select all N matching". Any other value is ignored, like an unknown `pos`.
+  if (req.query.owner === "me") {
+    conditions.push(eq(words.userId, req.user.id));
+  } else if (req.query.owner === "others") {
+    conditions.push(ne(words.userId, req.user.id));
+  }
+
+  // `?page=` switches to offset (numbered-page) mode; without it the list is
+  // cursor-paged. The two modes cannot be mixed.
+  let page: number | null;
+  let pageLimit: number | null = null;
+  try {
+    page = parsePageParam(req.query.page);
+    if (page !== null) {
+      if (req.query.cursor !== undefined) throw new Error("page and cursor cannot be combined");
+      pageLimit = parsePageLimitParam(req.query.limit);
+    }
+  } catch (error: any) {
+    res.status(400);
+    throw error;
   }
 
   // Total matching the filters alone (not the cursor page) — computed before
@@ -446,7 +481,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   }
   const sortKey = sort ? sortKeyExpression(sort.langKey) : null;
 
-  if (req.query.cursor !== undefined) {
+  if (page === null && req.query.cursor !== undefined) {
     if (sort && sortKey) {
       const cursor = decodeSortCursor(req.query.cursor);
       if (!cursor) {
@@ -475,17 +510,27 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     }
   }
 
-  const limit = parseLimitParam(req.query.limit);
-
-  const pageRows = await db
+  const orderBy = sort && sortKey ? orderByClauses(sort, sortKey) : [desc(words.createdAt), desc(words.id)];
+  const baseQuery = db
     .select({ ...getTableColumns(words), sortKey: sortKey ?? sql<null>`NULL` })
     .from(words)
     .where(and(...conditions))
-    .orderBy(...(sort && sortKey ? orderByClauses(sort, sortKey) : [desc(words.createdAt), desc(words.id)]))
-    .limit(limit + 1);
+    .orderBy(...orderBy)
+    .$dynamic();
 
-  const hasMore = pageRows.length > limit;
-  const rows = hasMore ? pageRows.slice(0, limit) : pageRows;
+  // Offset mode: skip (page-1) x limit rows. `limit=all` has no limit or offset.
+  // A page past the last one returns no items; `total` still tells the caller how far to go back.
+  // Cursor mode: one extra row tells whether a next page exists.
+  const limit = page === null ? parseLimitParam(req.query.limit) : pageLimit;
+  const pageRows =
+    page !== null
+      ? pageLimit === null
+        ? await baseQuery
+        : await baseQuery.limit(pageLimit).offset((page - 1) * pageLimit)
+      : await baseQuery.limit((limit as number) + 1);
+
+  const hasMore = page === null && pageRows.length > (limit as number);
+  const rows = hasMore ? pageRows.slice(0, limit as number) : pageRows;
   const lastRow = rows[rows.length - 1];
   const nextCursor = hasMore
     ? sort
@@ -505,8 +550,38 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
     .filter((w): w is WordResponse => w !== undefined)
     .map(simplifyWord);
 
+  if (page !== null) {
+    res.status(200).json({ items, total, page, pageSize: pageLimit });
+    return;
+  }
   res.status(200).json({ items, nextCursor, total });
 });
+
+// A word of someone else is readable when it is on a Public tag (anyone can already list a Public tag's
+// words at `/tag/:id`, so the user can judge it before following), or when it is reached through a tag
+// the user follows and can currently view (also Friends-Only). A Private tag is never readable by others.
+const canReadOthersWord = async (userId: string, wordId: string): Promise<boolean> => {
+  const [onPublicTag] = await db
+    .select({ wordId: tagWords.wordId })
+    .from(tagWords)
+    .innerJoin(tags, eq(tagWords.tagId, tags.id))
+    .where(and(eq(tagWords.wordId, wordId), eq(tags.visibility, "Public")))
+    .limit(1);
+  if (onPublicTag) return true;
+
+  const followedWordIds: string[] = await getWordsIdFromFollowedTagsByUserId(userId);
+  return followedWordIds.includes(wordId);
+};
+
+// The id of the user's own copy (clone) of `sourceWordId`, or null.
+const findOwnCloneId = async (userId: string, sourceWordId: string): Promise<string | null> => {
+  const [clone] = await db
+    .select({ id: words.id })
+    .from(words)
+    .where(and(eq(words.userId, userId), eq(words.sourceWordId, sourceWordId)))
+    .limit(1);
+  return clone?.id ?? null;
+};
 
 // @desc    Get a single word by ID (with tags resolved)
 // @route   GET /api/words/:id
@@ -521,18 +596,53 @@ const getWordById = asyncHandler(async (req: any, res: any) => {
 
   // Ownership check (§8.4), widened in Phase 4: a non-owner may also read a
   // word reached through a tag they follow and can currently view (matches
-  // `GET /api/words/simple`'s own access condition) — read-only either way,
+  // `GET /api/words/simple`'s own access condition), and (words-clone-followed.md, Slice 6a) a word
+  // on any Public tag — read-only either way,
   // which the frontend already derives from `wordData.user !== session user
   // id` (the same comparison Review's owner-dot uses), not a separate flag.
   if (wordData.user !== req.user.id) {
-    const followedWordIds = await getWordsIdFromFollowedTagsByUserId(req.user.id);
-    if (!followedWordIds.includes(req.params.id)) {
+    if (!(await canReadOthersWord(req.user.id, req.params.id))) {
       res.status(403);
       throw new Error("User not authorized");
     }
+    // The viewer's own copy of this word (a clone), if there is one — the word
+    // page then offers "Open your copy" instead of "Clone".
+    res.status(200).json({ ...wordData, myCloneId: await findOwnCloneId(req.user.id, wordData.id) });
+    return;
   }
 
   res.status(200).json(wordData);
+});
+
+// @desc    Clone one word of someone else (one the caller can read: on a Public tag, or reached through a
+//          followed tag) into
+//          the caller's account. The copy is private and has no tags; it stores
+//          where it came from (`sourceWordId`, `isCloned`, `originalCreator`).
+//          The caller's own practice history for the word is copied too.
+// @route   POST /api/words/:id/clone
+// @access  Private
+const cloneWord = asyncHandler(async (req: any, res: any) => {
+  const source = await fetchWordWithRelations(req.params.id, req.user.id);
+  if (!source) {
+    res.status(400);
+    throw new Error("Word not found");
+  }
+  if (source.user === req.user.id) {
+    res.status(400);
+    throw new Error("You already own this word");
+  }
+  if (!(await canReadOthersWord(req.user.id, source.id))) {
+    res.status(403);
+    throw new Error("User not authorized");
+  }
+  if (await findOwnCloneId(req.user.id, source.id)) {
+    res.status(409);
+    throw new Error("You already have a copy of this word");
+  }
+
+  const [clonedRow] = await db.transaction((tx: any) => cloneWordsForUser(tx, [source], req.user.id));
+  const cloned = await fetchWordWithRelations(clonedRow.id, req.user.id);
+  res.status(201).json(cloned);
 });
 
 // @desc    Create a word with translations, cases, and optional tag associations
@@ -1020,6 +1130,7 @@ module.exports = {
   getWords,
   getWordsSimplified,
   getWordById,
+  cloneWord,
   setWord,
   updateWord,
   deleteWord,

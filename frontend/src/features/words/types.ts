@@ -58,6 +58,11 @@ export interface WordBE {
     isCloned: boolean;
     originalCreator: string | null;
     tags: WordTagRef[];
+    /**
+     * Only on `GET /:id` of a word of someone else: the id of the caller's own copy (clone) of it,
+     * or `null` when there is none. The word page then offers "Open your copy" instead of "Clone".
+     */
+    myCloneId?: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -152,8 +157,12 @@ export interface WordSimpleBE extends SimpleHeadlineFields, SimpleCaseCountField
  */
 export type SortDirection = 'asc' | 'desc';
 
+/** `me`: only the words you wrote. `others`: only words that belong to someone else (followed tags). */
+export type WordOwner = 'me' | 'others';
+
 export interface WordListFilters {
     q?: string;
+    owner?: WordOwner;
     /** Sort by this language's column (server side). Without it: newest first. */
     sort?: LangKey;
     dir?: SortDirection;

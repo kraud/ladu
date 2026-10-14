@@ -13,7 +13,7 @@ import type { PreselectedWord } from '@/features/practice/preselection';
 import type { PartOfSpeech } from '@/ts/enums';
 
 type SearchMode = 'words' | 'tags';
-export type SidebarId = 'review' | 'word' | 'practice' | 'practiceResults';
+export type SidebarId = 'review' | 'tag' | 'word' | 'practice' | 'practiceResults';
 
 interface UiState {
     /** PoS chosen on the Add Word step, remembered across the form (Phase 2). */
@@ -51,7 +51,7 @@ export const useUiStore = create<UiState>()((set) => ({
     searchMode: 'words',
     setSearchMode: (searchMode) => set({ searchMode }),
 
-    sidebarCollapsed: { review: true, word: true, practice: true, practiceResults: false },
+    sidebarCollapsed: { review: true, tag: true, word: true, practice: true, practiceResults: false },
     setSidebarCollapsed: (id, collapsed) =>
         set((state) => ({ sidebarCollapsed: { ...state.sidebarCollapsed, [id]: collapsed } })),
 

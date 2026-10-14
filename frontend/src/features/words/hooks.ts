@@ -18,9 +18,11 @@
  * `wordKeys.all = ['words']` is already a prefix of `wordKeys.list(filters)`,
  * so the existing `invalidateQueries({ queryKey: wordKeys.all })` already
  * covers every filter combination the Review table might be viewing. (It does
- * mean an infinite query with N pages loaded refetches all N sequentially.)
+ * mean an infinite query with N pages loaded refetches all N sequentially;
+ * `useWordsPage` caches one page per key, so it refetches only that page.)
  */
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { PageSize } from '@/lib/pagination';
 import * as wordApi from './api';
 import { wordKeys } from './keys';
 import { metricsKeys } from '@/features/metrics/keys';
@@ -43,6 +45,22 @@ export function useCreateWord() {
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: wordKeys.all });
             void queryClient.invalidateQueries({ queryKey: metricsKeys.all });
+        },
+    });
+}
+
+/** Clone one followed word into the caller's account. Refreshes every word query (the list, and the original's `myCloneId`). */
+export function useCloneWord() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => wordApi.cloneWord(id),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: metricsKeys.all });
+        },
+        // Also after an error: a 409 means a copy exists, and the page must now show "Open your copy".
+        onSettled: () => {
+            void queryClient.invalidateQueries({ queryKey: wordKeys.all });
         },
     });
 }
@@ -97,6 +115,7 @@ export function normalizeWordFilters(filters: WordListFilters): WordListFilters 
     const q = filters.q?.trim();
     return {
         q: q ? q : undefined,
+        owner: filters.owner,
         pos: sortedOrUndefined(filters.pos),
         gender: sortedOrUndefined(filters.gender),
         tag: sortedOrUndefined(filters.tag),
@@ -133,11 +152,56 @@ export function useWordsInfinite(filters: WordListFilters = {}, pageSize: number
 }
 
 /**
- * Bulk delete for the Review table's selection. `enableRowSelection` on the
- * table (Slice 6) restricts selection to the caller's own words, so the
- * backend's 401 "not authorized to delete at least one" branch — which would
- * otherwise trip `apiClient`'s any-401-clears-the-session interceptor — is
- * unreachable from this UI.
+ * One numbered page of the word list — `GET /api/words/simple?page=N&limit=…`.
+ * `keepPreviousData` keeps the old page on screen while the next one loads, so
+ * the table does not flash empty. Only this one page is cached per key, so a
+ * word mutation (which invalidates `wordKeys.all`) refetches one page, not every
+ * page that was loaded so far. The page size is part of the key, like in
+ * `useWordsInfinite`.
+ */
+export function useWordsPage(filters: WordListFilters, options: { page: number; pageSize: PageSize }) {
+    const normalized = normalizeWordFilters(filters);
+    const { page, pageSize } = options;
+
+    return useQuery({
+        queryKey: wordKeys.list({ ...normalized, page, limit: pageSize }),
+        queryFn: ({ signal }) => wordApi.getWordsPage({ ...normalized, page, limit: pageSize }, signal),
+        placeholderData: keepPreviousData,
+    });
+}
+
+/**
+ * Every word that matches the filters (including the Owner filter), in one request
+ * (`limit=all`) — for "Select all N matching". A mutation, not a query: it runs on a
+ * click, and its result goes into the table's selection instead of the cache.
+ */
+export function useFetchAllMatchingWords() {
+    return useMutation({
+        mutationFn: (filters: WordListFilters) =>
+            wordApi.getWordsPage({ ...normalizeWordFilters(filters), page: 1, limit: 'all' }),
+    });
+}
+
+/**
+ * The ids of every word on one tag, for the "Add words" dialog: it keeps those out of its pool.
+ * One `limit=all` request, only while `enabled` (the dialog is open). The key sits under
+ * `wordKeys.all`, so adding or removing a word marks it stale.
+ */
+export function useTagWordIds(tagId: string, enabled: boolean) {
+    return useQuery({
+        queryKey: [...wordKeys.all, 'tagWordIds', tagId],
+        queryFn: ({ signal }) => wordApi.getWordsPage({ tag: [tagId], page: 1, limit: 'all' }, signal),
+        select: (data) => new Set(data.items.map((word) => word.id)),
+        enabled: enabled && tagId !== '',
+    });
+}
+
+/**
+ * Bulk delete for the Review table's selection. Any row can be selected, so
+ * the bulk action bar (`BulkActionBar`) only offers Delete when every selected word
+ * is the caller's own. That keeps the backend's 401 "not authorized to delete at
+ * least one" branch — which would otherwise trip `apiClient`'s
+ * any-401-clears-the-session interceptor — unreachable from this UI.
  */
 export function useBulkDeleteWords() {
     const queryClient = useQueryClient();
