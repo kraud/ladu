@@ -59,10 +59,9 @@
     "tagsRemovedToast_one": "Tag removed from {{count}} word",
     "tagsRemovedToast_other": "Tags removed from {{count}} words",
     "unselect": "Unselect",
-    "pageSelected": "All words on this page are selected.",
+    "ownOnlyHint": "Add tags and Delete are available only when all selected words are your own.",
     "selectAllMatching": "Select all {{count}} matching words",
-    "allMatchingSelected": "All {{count}} matching words are selected.",
-    "clearSelection": "Clear selection",
+    "allPages": "(+ all pages)",
     "selectAllFailed": "Could not select all words. Try again."
   },
   "table": {

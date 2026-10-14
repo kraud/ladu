@@ -59,10 +59,9 @@
     "tagsRemovedToast_one": "Etiqueta quitada de {{count}} palabra",
     "tagsRemovedToast_other": "Etiquetas quitadas de {{count}} palabras",
     "unselect": "Deseleccionar",
-    "pageSelected": "Todas las palabras de esta página están seleccionadas.",
+    "ownOnlyHint": "Añadir etiquetas y Eliminar solo están disponibles cuando todas las palabras seleccionadas son tuyas.",
     "selectAllMatching": "Seleccionar las {{count}} palabras que coinciden",
-    "allMatchingSelected": "Las {{count}} palabras que coinciden están seleccionadas.",
-    "clearSelection": "Borrar selección",
+    "allPages": "(+ todas las páginas)",
     "selectAllFailed": "No se pudieron seleccionar todas las palabras. Inténtalo de nuevo."
   },
   "table": {

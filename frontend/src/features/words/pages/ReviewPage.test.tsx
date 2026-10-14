@@ -894,30 +894,78 @@ describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, fro
     });
 });
 
-describe('ReviewPage — select all matching words', () => {
+describe('ReviewPage — words from followed tags', () => {
+    const followedSeed = (): SeedWord => ({ ...nounSeed('tree', 'f1'), user: 'someone-else' });
+
+    it('lets you select a followed word; Add tags and Delete are hidden, with a hint, and Practice stays', async () => {
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [nounSeed('cat', 'w1'), followedSeed()],
+            followedWordIds: ['f1'],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        const followedCheckbox = within((await screen.findByText('tree')).closest('tr')!).getByRole('checkbox');
+        await user.click(followedCheckbox);
+
+        expect(followedCheckbox).toBeChecked();
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(screen.getByText(/available only when all selected words are your own/)).toBeInTheDocument();
+    });
+
+    it('brings Add tags and Delete back once only your own words stay selected', async () => {
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [nounSeed('cat', 'w1'), followedSeed()],
+            followedWordIds: ['f1'],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        const ownCheckbox = within((await screen.findByText('cat')).closest('tr')!).getByRole('checkbox');
+        const followedCheckbox = within((await screen.findByText('tree')).closest('tr')!).getByRole('checkbox');
+
+        await user.click(ownCheckbox);
+        expect(screen.getByRole('button', { name: 'Add tags' })).toBeInTheDocument();
+        await user.click(followedCheckbox);
+        expect(screen.queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+        await user.click(followedCheckbox);
+        expect(screen.getByRole('button', { name: 'Add tags' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    });
+
+    it('Select all selects every row, and the Owner filter narrows it to your own words first', async () => {
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [nounSeed('cat', 'w1'), followedSeed()],
+            followedWordIds: ['f1'],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        await screen.findByText('tree');
+        await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+        expect(screen.getByText('2', { selector: '.count' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Mine' }));
+        await waitFor(() => expect(screen.queryByText('tree')).not.toBeInTheDocument());
+        await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+        expect(screen.getByText('1', { selector: '.count' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    });
+});
+
+describe('ReviewPage — "(+ all pages)"', () => {
     const manyWords = () => Array.from({ length: 51 }, (_, i) => verbSeed(`word${i}`, `w${i}`));
 
-    it('offers to select every matching word after the page is selected, and selects them all', async () => {
-        const fake = makeWordHandlers({ callerId: SESSION.id, seed: manyWords() });
-        server.use(...fake.handlers);
-
-        const user = userEvent.setup();
-        await renderApp({ initialEntry: '/words', session: SESSION });
-        await screen.findByText('word50');
-        expect(screen.queryByTestId('select-all-matching')).not.toBeInTheDocument();
-
-        await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
-
-        const banner = await screen.findByTestId('select-all-matching');
-        expect(within(banner).getByText('All words on this page are selected.')).toBeInTheDocument();
-        await user.click(within(banner).getByRole('button', { name: 'Select all 51 matching words' }));
-
-        await waitFor(() => expect(screen.getByText('All 51 matching words are selected.')).toBeInTheDocument());
-        expect(fake.simpleQueries.some((query) => query.includes('owner=me') && query.includes('limit=all'))).toBe(true);
-        expect(screen.getByText('51', { selector: '.count' })).toBeInTheDocument();
-    });
-
-    it('clears the selection from the banner', async () => {
+    it('shows next to the count once the page is selected, and one click selects every matching word', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: manyWords() });
         server.use(...fake.handlers);
 
@@ -925,14 +973,30 @@ describe('ReviewPage — select all matching words', () => {
         await renderApp({ initialEntry: '/words', session: SESSION });
         await screen.findByText('word50');
         await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
-        await user.click(await screen.findByRole('button', { name: 'Select all 51 matching words' }));
-        await user.click(await screen.findByRole('button', { name: 'Clear selection' }));
 
+        expect(screen.getByText('50', { selector: '.count' })).toBeInTheDocument();
         expect(screen.queryByTestId('select-all-matching')).not.toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: 'Practice' })).not.toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Select all 51 matching words' }));
+
+        await waitFor(() => expect(screen.getByText('51', { selector: '.count' })).toBeInTheDocument());
+        expect(fake.simpleQueries.some((query) => query.includes('limit=all'))).toBe(true);
+        // Everything is selected: nothing more to offer.
+        expect(screen.queryByRole('button', { name: 'Select all 51 matching words' })).not.toBeInTheDocument();
     });
 
-    it('does not show the banner when everything fits on one page', async () => {
+    it('is not shown before the whole page is selected', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: manyWords() });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/words', session: SESSION });
+        const firstRow = (await screen.findByText('word50')).closest('tr')!;
+        await user.click(within(firstRow).getByRole('checkbox'));
+
+        expect(screen.queryByRole('button', { name: /matching words/ })).not.toBeInTheDocument();
+    });
+
+    it('is not shown when everything fits on one page', async () => {
         const fake = makeWordHandlers({ callerId: SESSION.id, seed: [verbSeed('run', 'w1'), verbSeed('jump', 'w2')] });
         server.use(...fake.handlers);
 
@@ -942,8 +1006,8 @@ describe('ReviewPage — select all matching words', () => {
         await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
 
         expect(screen.getByText('2', { selector: '.count' })).toBeInTheDocument();
-        expect(screen.queryByTestId('select-all-matching')).not.toBeInTheDocument();
-        expect(fake.simpleQueries.some((query) => query.includes('owner=me'))).toBe(false);
+        expect(screen.queryByRole('button', { name: /matching words/ })).not.toBeInTheDocument();
+        expect(fake.simpleQueries.some((query) => query.includes('limit=all'))).toBe(false);
     });
 
     it('selected words from all pages can be used by Practice', async () => {
@@ -954,8 +1018,8 @@ describe('ReviewPage — select all matching words', () => {
         const { router } = await renderApp({ initialEntry: '/words', session: SESSION });
         await screen.findByText('word50');
         await user.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
-        await user.click(await screen.findByRole('button', { name: 'Select all 51 matching words' }));
-        await screen.findByText('All 51 matching words are selected.');
+        await user.click(screen.getByRole('button', { name: 'Select all 51 matching words' }));
+        await screen.findByText('51', { selector: '.count' });
         await user.click(screen.getByRole('button', { name: 'Practice' }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/practice'));

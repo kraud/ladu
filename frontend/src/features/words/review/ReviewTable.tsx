@@ -153,10 +153,6 @@ export function ReviewTable({
         getCoreRowModel: getCoreRowModel(),
         state: { rowSelection },
         onRowSelectionChange,
-        // Own words only — keeps the backend's 401 "not authorized to delete"
-        // branch (which would otherwise trip the axios client's any-401-clears-
-        // the-session interceptor) unreachable from this UI.
-        enableRowSelection: (row) => row.original.user === userId,
         manualPagination: true,
         manualFiltering: true,
         manualSorting: true,

@@ -52,6 +52,7 @@ Why first: Slice 2 removes "own words only" from Select all; this filter gives t
 ## Progress
 
 - [x] Slice 1 — Owner filter (built 2026-10-14; backend `owner=others`, URL `?owner=`, side-menu section Owner)
-- [ ] Slice 2 — Any row selectable, actions gated
+- [x] Slice 2 — Any row selectable, actions gated (built 2026-10-14; `canEdit` on `BulkActionBar`, `useFetchAllMatchingWords`, fake `followedWordIds`)
+- [x] Slice 2b — "Select all N matching" bar replaced by a "(+ all pages)" text button on the action bar (hover = highlight colour on desktop, always on mobile)
 - [ ] Slice 3 — Action bar look and mobile layout
 - [ ] Slice 4 — Row click opens the word

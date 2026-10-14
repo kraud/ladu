@@ -1122,6 +1122,26 @@
     background: color-mix(in srgb, var(--bg) 12%, transparent) !important;
     border-color: color-mix(in srgb, var(--bg) 45%, transparent) !important;
   }
+  /* "(+ all pages)": plain text next to the count. Highlight colour on hover (desktop), always on a phone.
+     Mixed toward --bg because the bar is inverted (see the danger tint below). */
+  .bulkbar .bulk-more {
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: 13px;
+    color: inherit;
+    opacity: 0.75;
+  }
+  .bulkbar .bulk-more:hover:not(:disabled),
+  .bulkbar .bulk-more[data-compact]:not(:disabled) {
+    opacity: 1;
+    color: color-mix(in oklch, var(--accent) 70%, var(--bg));
+  }
+  .bulkbar .bulk-more:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
   .bulkbar [data-slot='button']:disabled {
     opacity: 0.35;
   }

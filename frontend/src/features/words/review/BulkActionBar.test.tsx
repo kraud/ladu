@@ -23,6 +23,7 @@ const SESSION = {
 const baseProps: BulkActionBarProps = {
     selectedCount: 0,
     selectedWordIds: [],
+    canEdit: true,
     onView: vi.fn(),
     onPractice: vi.fn(),
     onDelete: vi.fn(),
@@ -61,6 +62,42 @@ describe('BulkActionBar', () => {
         rerender(<BulkActionBar {...baseProps} selectedCount={2} onClear={onClear} />);
         await user.click(screen.getByRole('button', { name: 'Unselect' }));
         expect(onClear).toHaveBeenCalled();
+    });
+
+    it('without canEdit, hides Add tags and Delete and shows the hint; Practice stays', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} canEdit={false} />);
+        expect(screen.queryByRole('button', { name: 'Add tags' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeInTheDocument();
+        expect(
+            screen.getByText('Add tags and Delete are available only when all selected words are your own.'),
+        ).toBeInTheDocument();
+    });
+
+    it('with canEdit, shows Add tags and Delete and no hint', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} />);
+        expect(screen.getByRole('button', { name: 'Add tags' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+        expect(screen.queryByText(/available only when all selected words/)).not.toBeInTheDocument();
+    });
+
+    it('shows "(+ all pages)" only when allPages is set, and the click calls back', async () => {
+        const onSelect = vi.fn();
+        const user = userEvent.setup();
+        const { rerender } = renderWithProviders(<BulkActionBar {...baseProps} selectedCount={50} />);
+        expect(screen.queryByText('(+ all pages)')).not.toBeInTheDocument();
+
+        rerender(<BulkActionBar {...baseProps} selectedCount={50} allPages={{ total: 120, isSelecting: false, onSelect }} />);
+        await user.click(screen.getByRole('button', { name: 'Select all 120 matching words' }));
+        expect(screen.getByText('(+ all pages)')).toBeInTheDocument();
+        expect(onSelect).toHaveBeenCalled();
+    });
+
+    it('disables "(+ all pages)" while the words load', () => {
+        renderWithProviders(
+            <BulkActionBar {...baseProps} selectedCount={50} allPages={{ total: 120, isSelecting: true, onSelect: vi.fn() }} />,
+        );
+        expect(screen.getByRole('button', { name: 'Select all 120 matching words' })).toBeDisabled();
     });
 
     it('Practice is available from one selected word and calls back', async () => {

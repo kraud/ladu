@@ -155,32 +155,14 @@ export function useWordsPage(filters: WordListFilters, options: { page: number; 
 }
 
 /**
- * How many of the caller's OWN words match the filters (`owner=me`). The list
- * `total` also counts words from followed tags, which cannot be selected, so the
- * "Select all N matching" banner needs this exact number. One row is fetched,
- * only for the count; `enabled` keeps it quiet until the banner can show.
+ * Every word that matches the filters (including the Owner filter), in one request
+ * (`limit=all`) — for "Select all N matching". A mutation, not a query: it runs on a
+ * click, and its result goes into the table's selection instead of the cache.
  */
-export function useOwnWordsTotal(filters: WordListFilters, enabled: boolean) {
-    const normalized = normalizeWordFilters(filters);
-
-    return useQuery({
-        queryKey: wordKeys.list({ ...normalized, owner: 'me', page: 1, limit: 1 }),
-        queryFn: ({ signal }) => wordApi.getWordsPage({ ...normalized, owner: 'me', page: 1, limit: 1 }, signal),
-        select: (data) => data.total,
-        enabled,
-    });
-}
-
-/**
- * Every one of the caller's own words that match the filters, in one request
- * (`owner=me`, `limit=all`) — for "Select all N matching". A mutation, not a
- * query: it runs on a click, and its result goes into the table's selection
- * instead of the cache.
- */
-export function useFetchAllOwnWords() {
+export function useFetchAllMatchingWords() {
     return useMutation({
         mutationFn: (filters: WordListFilters) =>
-            wordApi.getWordsPage({ ...normalizeWordFilters(filters), owner: 'me', page: 1, limit: 'all' }),
+            wordApi.getWordsPage({ ...normalizeWordFilters(filters), page: 1, limit: 'all' }),
     });
 }
 
@@ -199,11 +181,11 @@ export function useTagWordIds(tagId: string, enabled: boolean) {
 }
 
 /**
- * Bulk delete for the Review table's selection. `enableRowSelection` on the
- * table (Slice 6) restricts selection to the caller's own words, so the
- * backend's 401 "not authorized to delete at least one" branch — which would
- * otherwise trip `apiClient`'s any-401-clears-the-session interceptor — is
- * unreachable from this UI.
+ * Bulk delete for the Review table's selection. Any row can be selected, so
+ * the bulk action bar (`BulkActionBar`) only offers Delete when every selected word
+ * is the caller's own. That keeps the backend's 401 "not authorized to delete at
+ * least one" branch — which would otherwise trip `apiClient`'s
+ * any-401-clears-the-session interceptor — unreachable from this UI.
  */
 export function useBulkDeleteWords() {
     const queryClient = useQueryClient();

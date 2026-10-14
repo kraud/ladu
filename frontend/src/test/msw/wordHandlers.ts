@@ -184,13 +184,15 @@ function compareNewestFirst(a: WordBE, b: WordBE): number {
     return a.id < b.id ? 1 : -1;
 }
 
-function matchesListFilters(word: WordBE, callerId: string, url: URL): boolean {
-    // The real access rule is "own words OR words from a followed tag"; this
-    // fake models only ownership — followed-tag access is covered by the
-    // backend's own integration tests (`words-simple.test.js`).
-    if (word.user !== callerId) return false;
-    // So `?owner=others` (words that belong to someone else) is always empty here.
-    if (url.searchParams.get('owner') === 'others') return false;
+function matchesListFilters(word: WordBE, callerId: string, followedWordIds: ReadonlySet<string>, url: URL): boolean {
+    // The real access rule is "own words OR words from a followed tag"; this fake
+    // knows a followed word only by id (`followedWordIds`) — the tag rules are
+    // covered by the backend's own integration tests (`words-simple.test.js`).
+    const isOwn = word.user === callerId;
+    if (!isOwn && !followedWordIds.has(word.id)) return false;
+    const owner = url.searchParams.get('owner');
+    if (owner === 'me' && !isOwn) return false;
+    if (owner === 'others' && isOwn) return false;
 
     const posValues = url.searchParams.getAll('pos');
     if (posValues.length > 0 && !posValues.includes(word.partOfSpeech)) return false;
@@ -224,8 +226,14 @@ function matchesListFilters(word: WordBE, callerId: string, url: URL): boolean {
     return true;
 }
 
-export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) {
+export function makeWordHandlers(opts: {
+    callerId: string;
+    seed?: SeedWord[];
+    /** Ids of seeded words by someone else that the caller can see, as if from a followed tag. */
+    followedWordIds?: string[];
+}) {
     const { callerId, seed = [] } = opts;
+    const followedWordIds = new Set(opts.followedWordIds ?? []);
     const store = new Map<string, WordBE>();
     /** Bodies received by `POST` / `PUT`, in call order — for payload-shape assertions. */
     const requests: { method: 'POST' | 'PUT'; body: unknown }[] = [];
@@ -271,7 +279,7 @@ export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) 
             const url = new URL(request.url);
             simpleQueries.push(url.search);
 
-            const filtered = [...store.values()].filter((w) => matchesListFilters(w, callerId, url));
+            const filtered = [...store.values()].filter((w) => matchesListFilters(w, callerId, followedWordIds, url));
             const total = filtered.length;
             // `?sort=EN&dir=asc|desc`: by the cell text of that language, ignoring case, empty cells last.
             // The cursor of a sorted list is just the offset (the real one is a key + id; opaque to the client).
@@ -293,8 +301,7 @@ export function makeWordHandlers(opts: { callerId: string; seed?: SeedWord[] }) 
                     : compareNewestFirst,
             );
 
-            // Offset mode (`?page=N&limit=1..200|all`): same rules as the backend. `?owner=me` needs
-            // no code here, because this fake only returns the caller's own words anyway.
+            // Offset mode (`?page=N&limit=1..200|all`): same rules as the backend.
             const pageParam = url.searchParams.get('page');
             if (pageParam !== null) {
                 const page = Number(pageParam);

@@ -31,7 +31,7 @@ import { PartOfSpeech } from '@/ts/enums';
 import { toPreselectedWord } from '@/features/practice/preselection';
 import { useTagsByIds } from '@/features/tags/hooks';
 import type { TagSummary } from '@/features/tags/types';
-import { useBulkDeleteWords, useFetchAllOwnWords, useOwnWordsTotal, useWordsPage } from '../hooks';
+import { useBulkDeleteWords, useFetchAllMatchingWords, useWordsPage } from '../hooks';
 import { wordErrorKey } from '../errors';
 import type { LangKey, WordOwner, WordSimpleBE } from '../types';
 import { BulkActionBar } from '../review/BulkActionBar';
@@ -43,7 +43,6 @@ import { TagsDialog } from '../review/TagsDialog';
 import { ReviewTable } from '../review/ReviewTable';
 import { TableToolbar } from '../review/TableToolbar';
 import { nextLanguageSort, sortFilters } from '../review/useLanguageSort';
-import { SelectAllMatchingBanner } from '../review/SelectAllMatchingBanner';
 import {
     accountLanguageOrder,
     hasActiveFilters,
@@ -197,14 +196,19 @@ export function ReviewPage() {
         void navigate({ to: '/practice' });
     }
 
-    // "Select all N matching": the header checkbox selected the page; this selects your own words on every page.
-    const selectableRows = useMemo(() => rows.filter((row) => row.user === userId), [rows, userId]);
-    const pageFullySelected = selectableRows.length > 0 && selectableRows.every((row) => rowSelection[row.id]);
-    const ownTotalQuery = useOwnWordsTotal(filters, pageFullySelected && total > rows.length);
-    const fetchAllOwnWords = useFetchAllOwnWords();
+    // "(+ all pages)": the header checkbox selected the page; this selects the matching words on every page.
+    const pageFullySelected = rows.length > 0 && rows.every((row) => rowSelection[row.id]);
+    const fetchAllMatching = useFetchAllMatchingWords();
+
+    // Add tags and Delete need every selected word to be the user's own. A selected word that is not known
+    // (should not happen: each one was seen on screen) counts as not own.
+    const allSelectedOwn = selectedIds.every((id) => {
+        const row = rows.find((candidate) => candidate.id === id) ?? selectedRowsRef.current.get(id);
+        return row?.user === userId;
+    });
 
     function handleSelectAllMatching() {
-        fetchAllOwnWords.mutate(filters, {
+        fetchAllMatching.mutate(filters, {
             onSuccess: (result) => {
                 const next: RowSelectionState = {};
                 for (const row of result.items) {
@@ -345,20 +349,18 @@ export function ReviewPage() {
                     <BulkActionBar
                         selectedCount={selectedIds.length}
                         selectedWordIds={selectedIds}
+                        canEdit={allSelectedOwn}
                         onView={handleView}
                         onPractice={handlePractice}
                         onDelete={handleBulkDelete}
                         onTagsApplied={handleTagsApplied}
                         onClear={isMobile ? () => setRowSelection({}) : undefined}
-                    />
-                    <SelectAllMatchingBanner
-                        matchingTotal={ownTotalQuery.data ?? 0}
-                        selectedCount={selectedIds.length}
-                        pageSelectableCount={selectableRows.length}
-                        pageFullySelected={pageFullySelected}
-                        isSelecting={fetchAllOwnWords.isPending}
-                        onSelectAll={handleSelectAllMatching}
-                        onClear={() => setRowSelection({})}
+                        compact={isMobile}
+                        allPages={
+                            pageFullySelected && total > rows.length && selectedIds.length < total
+                                ? { total, isSelecting: fetchAllMatching.isPending, onSelect: handleSelectAllMatching }
+                                : undefined
+                        }
                     />
                     <ReviewTable
                         rows={rows}

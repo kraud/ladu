@@ -126,16 +126,15 @@ describe('ReviewTable — selection', () => {
         expect(afterCheckboxes[1]).toBeChecked();
     });
 
-    it('disables the checkbox for a row the caller does not own', () => {
-        // Base UI's Checkbox renders `role="checkbox"` on a <span>, not a
-        // native <input>/<button> — `disabled` is exposed via aria/data
-        // attributes rather than the DOM `disabled` property.
+    it('lets the caller select a row they do not own (a word from a followed tag)', async () => {
+        const user = userEvent.setup();
         const row = makeRow({ id: 'word-b', user: 'someone-else', dataEN: 'b' });
-        renderWithProviders(<ReviewTable {...baseProps} rows={[row]} userId="me" />);
+        renderWithProviders(<ControlledTable {...baseProps} rows={[row]} userId="me" />);
 
         const checkboxes = screen.getAllByRole('checkbox');
-        expect(checkboxes[1]).toHaveAttribute('aria-disabled', 'true');
-        expect(checkboxes[1]).toHaveAttribute('data-disabled');
+        expect(checkboxes[1]).not.toHaveAttribute('aria-disabled', 'true');
+        await user.click(checkboxes[1]);
+        expect(checkboxes[1]).toBeChecked();
     });
 });
 

@@ -59,10 +59,9 @@
     "tagsRemovedToast_one": "Tag von {{count}} Wort entfernt",
     "tagsRemovedToast_other": "Tags von {{count}} Wörtern entfernt",
     "unselect": "Auswahl aufheben",
-    "pageSelected": "Alle Wörter auf dieser Seite sind ausgewählt.",
+    "ownOnlyHint": "Tags hinzufügen und Löschen sind nur verfügbar, wenn alle ausgewählten Wörter von dir sind.",
     "selectAllMatching": "Alle {{count}} passenden Wörter auswählen",
-    "allMatchingSelected": "Alle {{count}} passenden Wörter sind ausgewählt.",
-    "clearSelection": "Auswahl aufheben",
+    "allPages": "(+ alle Seiten)",
     "selectAllFailed": "Die Wörter konnten nicht ausgewählt werden. Versuche es noch einmal."
   },
   "table": {

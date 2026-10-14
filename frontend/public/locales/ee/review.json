@@ -59,10 +59,9 @@
     "tagsRemovedToast_one": "Silt eemaldati {{count}} sõnalt",
     "tagsRemovedToast_other": "Sildid eemaldati {{count}} sõnalt",
     "unselect": "Tühista valik",
-    "pageSelected": "Kõik selle lehe sõnad on valitud.",
+    "ownOnlyHint": "Siltide lisamine ja kustutamine on saadaval ainult siis, kui kõik valitud sõnad on sinu omad.",
     "selectAllMatching": "Vali kõik {{count}} sobivat sõna",
-    "allMatchingSelected": "Kõik {{count}} sobivat sõna on valitud.",
-    "clearSelection": "Tühista valik",
+    "allPages": "(+ kõik lehed)",
     "selectAllFailed": "Kõiki sõnu ei saanud valida. Proovi uuesti."
   },
   "table": {
