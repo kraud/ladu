@@ -1,7 +1,7 @@
 /**
  * The bulk action bar — visible only once one or more rows are selected.
- * View at exactly one selection, Delete at one or more behind a
- * `ConfirmDialog`. "Add tags" (D5/D17, Phase 4 Slice 7) opens
+ * Delete works on one or more words behind a `ConfirmDialog`. Opening a single word is not
+ * here: a click on its row does it (`ReviewTable`, `onOpenWord`). "Add tags" (D5/D17, Phase 4 Slice 7) opens
  * `TagPickerDialog` — that dialog owns its own mutation
  * (`useLinkTagsToWords`) and staged selection, the
  * same self-contained shape `AddWordsDialog` already established; this bar
@@ -10,8 +10,7 @@
  * Delete already uses (this bar owns the confirm step, `ReviewPage` owns the
  * mutation + toast). "Practice" (Phase 5, C4) is available from one selected
  * word up; `ReviewPage` owns the hand-off to `/practice`. Removing tags is done
- * per word, in the tags dialog of its Tags cell. A button that cannot be used
- * (View with more than one word) is not shown. On a phone (`onClear`) an
+ * per word, in the tags dialog of its Tags cell. On a phone (`onClear`) an
  * "Unselect" button clears the selection: rows have no checkboxes there.
  *
  * Any row can be selected, also words from followed tags. Add tags and Delete
@@ -43,7 +42,6 @@ export interface BulkActionBarProps {
     selectedWordIds: string[];
     /** True when every selected word is the user's own: Add tags and Delete are shown only then. */
     canEdit: boolean;
-    onView: () => void;
     onPractice: () => void;
     /** Called once the user has confirmed the delete — this component owns the confirm step. */
     onDelete: () => void;
@@ -62,7 +60,6 @@ export function BulkActionBar({
     selectedCount,
     selectedWordIds,
     canEdit,
-    onView,
     onPractice,
     onDelete,
     onTagsApplied,
@@ -113,11 +110,6 @@ export function BulkActionBar({
                         </Button>
                     )}
                 </span>
-                {selectedCount === 1 && (
-                    <Button type="button" variant="outline" size="sm" onClick={onView}>
-                        {t('review:bulk.view')}
-                    </Button>
-                )}
                 <Button type="button" variant="outline" size="sm" onClick={onPractice}>
                     <BrainIcon size={14} aria-hidden="true" />
                     {t('review:bulk.practice')}

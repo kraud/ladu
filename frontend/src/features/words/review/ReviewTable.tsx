@@ -24,6 +24,9 @@ const LONG_PRESS_MS = 450;
 /** A finger that moves farther than this (px) is scrolling, not pressing. */
 const LONG_PRESS_SLOP = 10;
 
+/** A click on any of these is for the element itself (a cell label, a checkbox, a link), not for the row. */
+const ROW_CLICK_IGNORED = 'button, a, input, label, [role="checkbox"], .select-cell';
+
 const SHRINK_COLUMNS = new Set(['select', 'owner', 'partOfSpeech', 'tags']);
 
 /** select, owner, `partOfSpeech`, and `tags` (the newest tag + "+N") shrink to their own content's width (`.shrink-col`, CSS `width: 1%` trick); language columns get the wider `.lang-col`/`.word-cell` treatment. */
@@ -34,6 +37,7 @@ function headerClassName(columnId: string): string | undefined {
 }
 
 function cellClassName(columnId: string): string | undefined {
+    if (columnId === 'select') return 'shrink-col select-cell';
     if (SHRINK_COLUMNS.has(columnId)) return 'shrink-col';
     if (columnId.startsWith('lang_')) return 'word-cell';
     return undefined;
@@ -70,6 +74,11 @@ export interface ReviewTableProps {
     onAddWord: () => void;
     /** Unset in Slice 6 — Slice 8 wires the cell editor dialog. */
     onOpenCell?: (wordId: string, langKey: LangKey) => void;
+    /**
+     * A click on the row itself (not on a button, link, checkbox or the checkbox cell) asks to open the
+     * word. On a phone a tap does it too, unless a selection is active (then a tap selects).
+     */
+    onOpenWord?: (wordId: string) => void;
     /** Toolbar "Display owner" switch — gates the owner column. */
     showOwner: boolean;
     /** Toolbar "Display word type" switch — gates the word-type column. */
@@ -119,6 +128,7 @@ export function ReviewTable({
     onClearFilters,
     onAddWord,
     onOpenCell,
+    onOpenWord,
     onOpenTags,
     sort,
     onSort,
@@ -246,7 +256,7 @@ export function ReviewTable({
                             : table.getRowModel().rows.map((row) => (
                                   <tr
                                       key={row.id}
-                                      className={[row.getIsSelected() && 'selected', compact && 'press-select']
+                                      className={[row.getIsSelected() && 'selected', compact && 'press-select', onOpenWord && 'row-link']
                                           .filter(Boolean)
                                           .join(' ') || undefined}
                                       {...(compact && row.getCanSelect()
@@ -269,6 +279,17 @@ export function ReviewTable({
                                                         event.preventDefault();
                                                         event.stopPropagation();
                                                         row.toggleSelected();
+                                                    } else if (!(event.target as HTMLElement).closest(ROW_CLICK_IGNORED)) {
+                                                        onOpenWord?.(row.id);
+                                                    }
+                                                },
+                                            }
+                                          : {})}
+                                      {...(!compact && onOpenWord
+                                          ? {
+                                                onClick: (event: React.MouseEvent) => {
+                                                    if (!(event.target as HTMLElement).closest(ROW_CLICK_IGNORED)) {
+                                                        onOpenWord(row.id);
                                                     }
                                                 },
                                             }

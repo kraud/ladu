@@ -205,7 +205,7 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await expect(page.getByText('bulk0')).toBeVisible();
         await page.getByRole('row', { name: /bulk0/ }).getByRole('checkbox').click();
         await expect(page.locator('.bulkbar .count')).toHaveText('2');
-        await expect(page.getByRole('button', { name: 'View' })).toHaveCount(0); // View needs exactly one
+        await expect(page.getByRole('button', { name: 'View' })).toHaveCount(0); // no View button: a click on the row opens the word
 
         // Back on page 1 the first selection is still there; unselect it, and only bulk0 (off this page) is left.
         await page.getByRole('button', { name: 'Page 1' }).click();
@@ -213,7 +213,11 @@ test.describe.serial('Phase 3 — form engine, autocomplete, Review', () => {
         await expect(runCheckbox).toBeChecked();
         await runCheckbox.click();
         await expect(page.locator('.bulkbar .count')).toHaveText('1');
-        await page.getByRole('button', { name: 'View' }).click();
+        // `bulk0` is on page 2. A click on its row (the owner dot is no button) asks first, then opens the word.
+        await page.getByRole('button', { name: 'Next page' }).click();
+        await page.getByRole('row', { name: /bulk0/ }).locator('.owner-dot').click();
+        await expect(page.getByRole('alertdialog').getByText('Open this word?')).toBeVisible();
+        await page.getByRole('alertdialog').getByRole('button', { name: 'Open' }).click();
 
         await expect(page).toHaveURL(/\/word\/.+/);
         await expect(page.getByRole('heading', { level: 1, name: 'bulk0' })).toBeVisible();

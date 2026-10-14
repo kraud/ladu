@@ -138,6 +138,49 @@ describe('ReviewTable — selection', () => {
     });
 });
 
+describe('ReviewTable — a click on the row opens the word', () => {
+    const row = makeRow({ id: 'word-a', dataEN: 'apple', storedLanguages: ['English'] });
+
+    it('a click on the row (not on a button) calls onOpenWord', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<ControlledTable {...baseProps} rows={[row]} onOpenWord={onOpenWord} />);
+
+        await user.click(document.querySelector('tbody tr .owner-dot')!);
+        expect(onOpenWord).toHaveBeenCalledWith('word-a');
+    });
+
+    it('a click on a cell label opens the cell, not the word', async () => {
+        const onOpenWord = vi.fn();
+        const onOpenCell = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <ControlledTable {...baseProps} rows={[row]} onOpenWord={onOpenWord} onOpenCell={onOpenCell} />,
+        );
+
+        await user.click(screen.getByRole('button', { name: /apple/ }));
+        expect(onOpenCell).toHaveBeenCalled();
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('a click on the checkbox or its cell selects and does not open', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<ControlledTable {...baseProps} rows={[row]} onOpenWord={onOpenWord} />);
+
+        await user.click(screen.getAllByRole('checkbox')[1]!);
+        await user.click(document.querySelector('tbody tr .select-cell')!);
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('marks the rows as links only when there is an onOpenWord', () => {
+        const { rerender } = renderWithProviders(<ControlledTable {...baseProps} rows={[row]} />);
+        expect(document.querySelector('tbody tr')).not.toHaveClass('row-link');
+        rerender(<ControlledTable {...baseProps} rows={[row]} onOpenWord={vi.fn()} />);
+        expect(document.querySelector('tbody tr')).toHaveClass('row-link');
+    });
+});
+
 describe('ReviewTable — phone selection (compact)', () => {
     const rows = [makeRow({ id: 'a', dataEN: 'apple', storedLanguages: ['English'] }), makeRow({ id: 'b', dataEN: 'bread', storedLanguages: ['English'] })];
 
@@ -176,6 +219,40 @@ describe('ReviewTable — phone selection (compact)', () => {
 
         await user.click(first!);
         expect(first).not.toHaveClass('selected');
+    });
+
+    it('a tap on a row with nothing selected calls onOpenWord; a tap on a cell label does not', async () => {
+        const onOpenWord = vi.fn();
+        const onOpenCell = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(
+            <ControlledTable {...baseProps} rows={rows} compact onOpenWord={onOpenWord} onOpenCell={onOpenCell} />,
+        );
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await user.click(first!.querySelector('.owner-dot')!);
+        expect(onOpenWord).toHaveBeenCalledWith('a');
+        expect(first).not.toHaveClass('selected');
+
+        onOpenWord.mockClear();
+        await user.click(within(second as HTMLElement).getByRole('button', { name: /bread/ }));
+        expect(onOpenCell).toHaveBeenCalled();
+        expect(onOpenWord).not.toHaveBeenCalled();
+    });
+
+    it('a tap while selecting selects instead of opening the word, and a long press still selects', async () => {
+        const onOpenWord = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<ControlledTable {...baseProps} rows={rows} compact onOpenWord={onOpenWord} />);
+        const [first, second] = Array.from(document.querySelectorAll('tbody tr'));
+
+        await longPress(user, first!);
+        expect(first).toHaveClass('selected');
+        expect(onOpenWord).not.toHaveBeenCalled();
+
+        await user.click(second!.querySelector('.owner-dot')!);
+        expect(second).toHaveClass('selected');
+        expect(onOpenWord).not.toHaveBeenCalled();
     });
 
     it('a tap while selecting does not open the cell', async () => {

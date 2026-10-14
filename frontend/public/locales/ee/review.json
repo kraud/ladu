@@ -43,9 +43,13 @@
     "displayOwner": "Omanik",
     "displayType": "Sõnaliik"
   },
+  "openWord": {
+    "title": "Kas avada see sõna?",
+    "description": "Kas minna sõna „{{word}}“ lehele?",
+    "confirm": "Ava"
+  },
   "bulk": {
     "selected": "valitud",
-    "view": "Vaata",
     "practice": "Harjuta",
     "delete": "Kustuta",
     "confirmTitle_one": "Kustutada {{count}} sõna?",

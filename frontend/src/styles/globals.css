@@ -776,6 +776,9 @@
   .dtable tbody tr:hover {
     background: var(--hover);
   }
+  .dtable tbody tr.row-link {
+    cursor: pointer;
+  }
   .dtable tbody tr.selected {
     background: var(--accent-soft);
   }

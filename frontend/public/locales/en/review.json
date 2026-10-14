@@ -43,9 +43,13 @@
     "displayOwner": "Owner",
     "displayType": "Word type"
   },
+  "openWord": {
+    "title": "Open this word?",
+    "description": "Go to the page of \"{{word}}\"?",
+    "confirm": "Open"
+  },
   "bulk": {
     "selected": "selected",
-    "view": "View",
     "practice": "Practice",
     "delete": "Delete",
     "confirmTitle_one": "Delete {{count}} word?",

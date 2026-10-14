@@ -458,7 +458,7 @@ describe('ReviewPage — Slice 7: bulk actions', () => {
         expect(screen.queryByText('jump')).not.toBeInTheDocument();
     });
 
-    it('View is shown only at exactly one selection', async () => {
+    it('a click on a row asks first; Open goes to the word, Cancel stays', async () => {
         const fake = makeWordHandlers({
             callerId: SESSION.id,
             seed: [verbSeed('run', 'w1'), verbSeed('jump', 'w2')],
@@ -466,15 +466,51 @@ describe('ReviewPage — Slice 7: bulk actions', () => {
         server.use(...fake.handlers);
 
         const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/words', session: SESSION });
+        const runRow = (await screen.findByText('run')).closest('tr')!;
+
+        // A click on the owner dot (no button, no link) opens the question, not the page.
+        await user.click(runRow.querySelector('.owner-dot')!);
+        expect(await screen.findByText('Open this word?')).toBeInTheDocument();
+        expect(screen.getByText('Go to the page of "run"?')).toBeInTheDocument();
+        expect(router.state.location.pathname).toBe('/words');
+
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+        expect(screen.queryByText('Open this word?')).not.toBeInTheDocument();
+        expect(router.state.location.pathname).toBe('/words');
+
+        await user.click(runRow.querySelector('.owner-dot')!);
+        await user.click(await screen.findByRole('button', { name: 'Open' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/word/w1'));
+    });
+
+    it('a click on the checkbox or its cell selects, and does not ask to open', async () => {
+        const fake = makeWordHandlers({ callerId: SESSION.id, seed: [verbSeed('run', 'w1')] });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
         await renderApp({ initialEntry: '/words', session: SESSION });
-        await screen.findByText('run');
+        const runRow = (await screen.findByText('run')).closest('tr')!;
 
-        const rowCheckboxes = screen.getAllByRole('checkbox').slice(1);
-        await user.click(rowCheckboxes[0]);
-        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+        await user.click(within(runRow).getByRole('checkbox'));
+        await user.click(runRow.querySelector('.select-cell')!);
+        expect(screen.queryByText('Open this word?')).not.toBeInTheDocument();
+    });
 
-        await user.click(rowCheckboxes[1]);
-        expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument();
+    it('a followed word can be opened from its row too', async () => {
+        const fake = makeWordHandlers({
+            callerId: SESSION.id,
+            seed: [{ ...nounSeed('tree', 'f1'), user: 'someone-else' }],
+            followedWordIds: ['f1'],
+        });
+        server.use(...fake.handlers);
+
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/words', session: SESSION });
+        const row = (await screen.findByText('tree')).closest('tr')!;
+        await user.click(row.querySelector('.owner-dot')!);
+        await user.click(await screen.findByRole('button', { name: 'Open' }));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/word/f1'));
     });
 
     it('Practice hands the selected words to the practice screen and opens it', async () => {
@@ -822,7 +858,7 @@ describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, fro
         await renderApp({ initialEntry: '/words', session: SESSION });
         const catRow = (await screen.findByText('cat')).closest('tr')!;
         await user.click(within(catRow).getByRole('checkbox'));
-        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeEnabled();
 
         // Filters to Noun — `cat` stays on screen, `run` drops off. The
         // selection is not carried across the filter change regardless: a
@@ -832,7 +868,7 @@ describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, fro
         await user.click(screen.getByRole('button', { name: 'n.' }));
         await waitFor(() => expect(fake.simpleQueries).toHaveLength(2));
         expect(await screen.findByText('cat')).toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Practice' })).not.toBeInTheDocument();
     });
 
     it('a selection survives a change of page, and back', async () => {
@@ -845,18 +881,18 @@ describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, fro
         await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(51)); // 50 words + header row
 
         await user.click(within(screen.getByText('word50').closest('tr')!).getByRole('checkbox'));
-        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeEnabled();
 
         await user.click(screen.getByRole('button', { name: 'Next page' }));
         await screen.findByText('word0');
         // The selected word is not on this page, but it still counts.
-        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeEnabled();
         expect(within(screen.getByText('word0').closest('tr')!).getByRole('checkbox')).not.toBeChecked();
 
         await user.click(screen.getByRole('button', { name: 'Page 1' }));
         const backRow = (await screen.findByText('word50')).closest('tr')!;
         expect(within(backRow).getByRole('checkbox')).toBeChecked();
-        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeEnabled();
     });
 
     it('Practice takes the selected words from two pages', async () => {
@@ -885,12 +921,12 @@ describe('ReviewPage — Slice 11: selection lifecycle (stable-id invariant, fro
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/words', session: SESSION });
         await user.click(within((await screen.findByText('cat')).closest('tr')!).getByRole('checkbox'));
-        expect(screen.getByRole('button', { name: 'View' })).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'Practice' })).toBeEnabled();
 
         await user.click(screen.getByRole('button', { name: 'v.' }));
         await waitFor(() => expect(fake.simpleQueries.at(-1)).toContain('pos=Verb'));
         await screen.findByText('word50');
-        expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Practice' })).not.toBeInTheDocument();
     });
 });
 

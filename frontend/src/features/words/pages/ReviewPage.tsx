@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import type { RowSelectionState } from '@tanstack/react-table';
 import { FunnelIcon, PlusIcon, SlidersHorizontalIcon, TranslateIcon } from '@phosphor-icons/react';
 import { PageTitle } from '@/components/common/PageTitle';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { EmptyState } from '@/components/common/EmptyState';
 import { PageColumn } from '@/components/layout/PageColumn';
 import { SidebarLayout, SidebarTrigger, type SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
@@ -179,10 +180,11 @@ export function ReviewPage() {
     // for `TagCombobox`'s pill row — see `useTagsByIds`'s own doc comment.
     const selectedTagsQuery = useTagsByIds(search.tag ?? []);
 
-    function handleView() {
-        const [id] = selectedIds;
-        if (id) void navigate({ to: '/word/$wordId', params: { wordId: id } });
-    }
+    // A click on a row asks first (a dialog), then opens `/word/$wordId`.
+    const [openWordId, setOpenWordId] = useState<string | null>(null);
+    const handleOpenWord = useCallback((wordId: string) => setOpenWordId(wordId), []);
+    const openWordRow = openWordId ? rows.find((row) => row.id === openWordId) : undefined;
+    const openWordLabel = openWordRow ? languages.map((lang) => openWordRow[`data${lang}`]).find(Boolean) : undefined;
 
     // Selected rows -> the practice parameters screen (Phase 5, C4). Ids only are not enough: the
     // screen shows the words and limits the word types, so the rows' own data goes along.
@@ -355,7 +357,6 @@ export function ReviewPage() {
                         selectedCount={selectedIds.length}
                         selectedWordIds={selectedIds}
                         canEdit={allSelectedOwn}
-                        onView={handleView}
                         onPractice={handlePractice}
                         onDelete={handleBulkDelete}
                         onTagsApplied={handleTagsApplied}
@@ -397,10 +398,25 @@ export function ReviewPage() {
                         }
                         onAddWord={() => void navigate({ to: '/addWord/{-$partOfSpeech}' })}
                         onOpenCell={handleOpenCell}
+                        onOpenWord={handleOpenWord}
                         onOpenTags={handleOpenTags}
                         compact={isMobile}
                     />
             </div>
+
+            <ConfirmDialog
+                open={openWordId !== null}
+                onOpenChange={(open) => !open && setOpenWordId(null)}
+                title={t('review:openWord.title')}
+                description={t('review:openWord.description', { word: openWordLabel ?? '' })}
+                confirmLabel={t('review:openWord.confirm')}
+                destructive={false}
+                onConfirm={() => {
+                    const wordId = openWordId;
+                    setOpenWordId(null);
+                    if (wordId) void navigate({ to: '/word/$wordId', params: { wordId } });
+                }}
+            />
 
             {tagsRow && (
                 <TagsDialog

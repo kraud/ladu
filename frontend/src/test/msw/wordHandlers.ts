@@ -375,7 +375,7 @@ export function makeWordHandlers(opts: {
             if (!word) {
                 return HttpResponse.json({ message: 'Word not found' }, { status: 400 });
             }
-            if (word.user !== callerId) {
+            if (word.user !== callerId && !followedWordIds.has(word.id)) {
                 return HttpResponse.json({ message: 'User not authorized' }, { status: 403 });
             }
             return HttpResponse.json(word);

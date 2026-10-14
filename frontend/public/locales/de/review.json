@@ -43,9 +43,13 @@
     "displayOwner": "Besitzer",
     "displayType": "Wortart"
   },
+  "openWord": {
+    "title": "Dieses Wort öffnen?",
+    "description": "Zur Seite von „{{word}}“ gehen?",
+    "confirm": "Öffnen"
+  },
   "bulk": {
     "selected": "ausgewählt",
-    "view": "Ansehen",
     "practice": "Üben",
     "delete": "Löschen",
     "confirmTitle_one": "{{count}} Wort löschen?",

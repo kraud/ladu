@@ -24,7 +24,6 @@ const baseProps: BulkActionBarProps = {
     selectedCount: 0,
     selectedWordIds: [],
     canEdit: true,
-    onView: vi.fn(),
     onPractice: vi.fn(),
     onDelete: vi.fn(),
     onTagsApplied: vi.fn(),
@@ -42,9 +41,9 @@ describe('BulkActionBar', () => {
         expect(container).toBeEmptyDOMElement();
     });
 
-    it('shows the count and leaves View out unless exactly one is selected', () => {
-        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={3} />);
-        expect(screen.getByText('3')).toBeInTheDocument();
+    it('shows the count, and has no View button (a click on the row opens the word)', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={1} />);
+        expect(screen.getByText('1')).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'View' })).not.toBeInTheDocument();
     });
 
@@ -133,16 +132,6 @@ describe('BulkActionBar', () => {
 
         await user.click(screen.getByRole('button', { name: 'Practice' }));
         expect(onPractice).toHaveBeenCalled();
-    });
-
-    it('shows View at exactly one selection, and it calls back', async () => {
-        const onView = vi.fn();
-        const user = userEvent.setup();
-        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={1} onView={onView} />);
-
-        const viewButton = screen.getByRole('button', { name: 'View' });
-        await user.click(viewButton);
-        expect(onView).toHaveBeenCalled();
     });
 
     it('Delete opens a confirm dialog; confirming calls onDelete', async () => {
