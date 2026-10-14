@@ -50,7 +50,9 @@
     "invalidCursor": "See lehelink on aegunud — laadi loend uuesti.",
     "noWordIdsProvided": "Kustutamiseks vali vähemalt üks sõna.",
     "someWordsMissing": "Mõnda valitud sõnadest ei leitud.",
-    "notAuthorizedToDeleteSome": "Saad kustutada ainult endale kuuluvaid sõnu."
+    "notAuthorizedToDeleteSome": "Saad kustutada ainult endale kuuluvaid sõnu.",
+    "alreadyOwned": "See sõna on juba sinu oma.",
+    "alreadyCloned": "Sul on sellest sõnast juba koopia."
   },
   "displayWord": {
     "back": "Tagasi",
@@ -58,6 +60,10 @@
     "titleSimple": "Üksikasjalik vaatamine",
     "subtitle": "Kõik praegu salvestatud tõlked sellele sõnale",
     "toastUpdateSuccess": "Sõna on edukalt uuendatud",
+    "clone": "Klooni",
+    "openClone": "Ava oma koopia",
+    "openCloneShort": "Ava koopia",
+    "toastCloned": "Sõna kopeeriti sinu sõnade hulka",
     "toastError": "Midagi läks valesti: {{error}}"
   },
   "partOfSpeechSelector": {

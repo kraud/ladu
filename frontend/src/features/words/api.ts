@@ -38,6 +38,15 @@ export async function createWord(body: CreateWordBody): Promise<WordBE> {
     return data;
 }
 
+/**
+ * `POST /api/words/:id/clone` — copies one word of someone else (reached through a followed tag) into the
+ * caller's account: private, no tags. 400 own word, 403 not readable, 409 already copied. Returns the copy.
+ */
+export async function cloneWord(id: string): Promise<WordBE> {
+    const { data } = await apiClient.post<WordBE>(`/words/${encodeURIComponent(id)}/clone`);
+    return data;
+}
+
 /** `PUT /api/words/:id` — 401 if not the author; diff-syncs translations + cases. */
 export async function updateWord(body: UpdateWordBody): Promise<WordBE> {
     const { data } = await apiClient.put<WordBE>(

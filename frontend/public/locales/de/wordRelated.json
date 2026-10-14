@@ -50,7 +50,9 @@
     "invalidCursor": "Dieser Seitenlink ist abgelaufen — lade die Liste neu.",
     "noWordIdsProvided": "Wähle mindestens ein Wort zum Löschen aus.",
     "someWordsMissing": "Einige der ausgewählten Wörter konnten nicht gefunden werden.",
-    "notAuthorizedToDeleteSome": "Du kannst nur Wörter löschen, die dir gehören."
+    "notAuthorizedToDeleteSome": "Du kannst nur Wörter löschen, die dir gehören.",
+    "alreadyOwned": "Dieses Wort gehört schon dir.",
+    "alreadyCloned": "Du hast schon eine Kopie dieses Wortes."
   },
   "displayWord": {
     "back": "Zurück",
@@ -58,6 +60,10 @@
     "titleSimple": "Detailansicht",
     "subtitle": "Alle derzeit gespeicherten Übersetzungen für dieses Wort",
     "toastUpdateSuccess": "Das Wort wurde erfolgreich aktualisiert",
+    "clone": "Klonen",
+    "openClone": "Deine Kopie öffnen",
+    "openCloneShort": "Kopie öffnen",
+    "toastCloned": "Wort in deine Wörter kopiert",
     "toastError": "Etwas ist schief gelaufen: {{error}}"
   },
   "partOfSpeechSelector": {

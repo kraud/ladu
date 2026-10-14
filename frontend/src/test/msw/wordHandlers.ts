@@ -239,6 +239,10 @@ export function makeWordHandlers(opts: {
     const requests: { method: 'POST' | 'PUT'; body: unknown }[] = [];
     /** Raw query strings received by `GET /simple`, in call order — for param-encoding assertions. */
     const simpleQueries: string[] = [];
+    /** Ids passed to `POST /:id/clone`, in call order. */
+    const cloneRequests: string[] = [];
+    /** The caller's copies: source word id -> id of the copy (what the real `myCloneId` reads). */
+    const cloneIdBySource = new Map<string, string>();
 
     // Monotonically increasing, distinct per word — a wall-clock `Date.now()`
     // can tie two words created in the same test's same millisecond, which
@@ -378,7 +382,42 @@ export function makeWordHandlers(opts: {
             if (word.user !== callerId && !followedWordIds.has(word.id)) {
                 return HttpResponse.json({ message: 'User not authorized' }, { status: 403 });
             }
+            // A word of someone else also tells whether the caller has a copy of it.
+            if (word.user !== callerId) {
+                return HttpResponse.json({ ...word, myCloneId: cloneIdBySource.get(word.id) ?? null });
+            }
             return HttpResponse.json(word);
+        }),
+
+        // POST /api/words/:id/clone — same rules as the backend: 400 own/unknown, 403 not readable, 409 already copied.
+        http.post('*/api/words/:id/clone', ({ params }) => {
+            const sourceId = params.id as string;
+            cloneRequests.push(sourceId);
+            const source = store.get(sourceId);
+            if (!source) return HttpResponse.json({ message: 'Word not found' }, { status: 400 });
+            if (source.user === callerId) {
+                return HttpResponse.json({ message: 'You already own this word' }, { status: 400 });
+            }
+            if (!followedWordIds.has(source.id)) {
+                return HttpResponse.json({ message: 'User not authorized' }, { status: 403 });
+            }
+            if (cloneIdBySource.has(source.id)) {
+                return HttpResponse.json({ message: 'You already have a copy of this word' }, { status: 409 });
+            }
+            const now = nextTimestamp();
+            const copy: WordBE = {
+                ...source,
+                id: nextId('word'),
+                user: callerId,
+                isCloned: true,
+                originalCreator: source.user,
+                tags: [],
+                createdAt: now,
+                updatedAt: now,
+            };
+            store.set(copy.id, copy);
+            cloneIdBySource.set(source.id, copy.id);
+            return HttpResponse.json(copy, { status: 201 });
         }),
 
         // POST /api/words
@@ -439,5 +478,5 @@ export function makeWordHandlers(opts: {
         }),
     ];
 
-    return { handlers, store, requests, simpleQueries };
+    return { handlers, store, requests, simpleQueries, cloneRequests };
 }

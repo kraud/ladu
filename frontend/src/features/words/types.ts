@@ -58,6 +58,11 @@ export interface WordBE {
     isCloned: boolean;
     originalCreator: string | null;
     tags: WordTagRef[];
+    /**
+     * Only on `GET /:id` of a word of someone else: the id of the caller's own copy (clone) of it,
+     * or `null` when there is none. The word page then offers "Open your copy" instead of "Clone".
+     */
+    myCloneId?: string | null;
     createdAt: string;
     updatedAt: string;
 }

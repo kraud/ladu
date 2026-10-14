@@ -49,6 +49,22 @@ export function useCreateWord() {
     });
 }
 
+/** Clone one followed word into the caller's account. Refreshes every word query (the list, and the original's `myCloneId`). */
+export function useCloneWord() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => wordApi.cloneWord(id),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: metricsKeys.all });
+        },
+        // Also after an error: a 409 means a copy exists, and the page must now show "Open your copy".
+        onSettled: () => {
+            void queryClient.invalidateQueries({ queryKey: wordKeys.all });
+        },
+    });
+}
+
 export function useUpdateWord() {
     const queryClient = useQueryClient();
 

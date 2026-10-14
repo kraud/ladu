@@ -50,7 +50,9 @@
     "invalidCursor": "Ese enlace de página ha caducado — vuelve a cargar la lista.",
     "noWordIdsProvided": "Selecciona al menos una palabra para eliminar.",
     "someWordsMissing": "No se pudieron encontrar algunas de las palabras seleccionadas.",
-    "notAuthorizedToDeleteSome": "Solo puedes eliminar palabras que te pertenecen."
+    "notAuthorizedToDeleteSome": "Solo puedes eliminar palabras que te pertenecen.",
+    "alreadyOwned": "Esta palabra ya es tuya.",
+    "alreadyCloned": "Ya tienes una copia de esta palabra."
   },
   "displayWord": {
     "back": "Atrás",
@@ -58,6 +60,10 @@
     "titleSimple": "Vista detallada",
     "subtitle": "Todas las traducciones almacenadas actualmente para esta palabra",
     "toastUpdateSuccess": "La palabra se actualizó correctamente",
+    "clone": "Clonar",
+    "openClone": "Abrir tu copia",
+    "openCloneShort": "Abrir copia",
+    "toastCloned": "Palabra copiada a tus palabras",
     "toastError": "Algo salió mal: {{error}}"
   },
   "partOfSpeechSelector": {

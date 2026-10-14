@@ -359,6 +359,34 @@ test.describe.serial('Phase 4 — tags', () => {
             await expect(ownedCard.locator('.num').nth(0)).toHaveText('1'); // same word count as the source
         });
 
+        await test.step('B clones one followed word: the copy is theirs, and the original now offers "Open your copy"', async () => {
+            await pageB.getByRole('link', { name: 'words', exact: true }).click();
+            await expect(pageB).toHaveURL('/words');
+
+            // A click on the row (the owner dot is no button) asks first, then opens the word page.
+            await pageB.getByRole('row', { name: /Banana/ }).locator('.owner-group').click();
+            await pageB.getByRole('alertdialog').getByRole('button', { name: 'Open' }).click();
+            await expect(pageB).toHaveURL(/\/word\/.+/);
+            const originalUrl = pageB.url();
+
+            // A word of someone else: Clone, and no Edit / Delete.
+            const bar = pageB.getByTestId('word-editor-bar');
+            await expect(bar.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+            await expect(bar.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+            await bar.getByRole('button', { name: 'Clone' }).click();
+
+            // The copy opens, and it is B's own: Edit and Delete work there.
+            await expect(pageB.getByText('Word copied to your words')).toBeVisible();
+            await expect(pageB).not.toHaveURL(originalUrl);
+            await expect(bar.getByRole('button', { name: 'Edit' })).toBeVisible();
+            await expect(bar.getByRole('button', { name: 'Delete' })).toBeVisible();
+
+            // Back on the original: "Open your copy", no second Clone.
+            await pageB.goto(originalUrl);
+            await expect(bar.getByRole('button', { name: 'Open your copy' })).toBeVisible();
+            await expect(bar.getByRole('button', { name: 'Clone' })).toHaveCount(0);
+        });
+
         await pageA.context().close();
         await pageB.context().close();
     });

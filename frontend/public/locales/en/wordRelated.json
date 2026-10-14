@@ -50,7 +50,9 @@
     "invalidCursor": "That page link has expired — reload the list.",
     "noWordIdsProvided": "Select at least one word to delete.",
     "someWordsMissing": "Some of the selected words could not be found.",
-    "notAuthorizedToDeleteSome": "You can only delete words you own."
+    "notAuthorizedToDeleteSome": "You can only delete words you own.",
+    "alreadyOwned": "This word is already yours.",
+    "alreadyCloned": "You already have a copy of this word."
   },
   "displayWord": {
     "back": "Back",
@@ -58,6 +60,10 @@
     "titleSimple": "Detailed view",
     "subtitle": "All the currently stored translations for this word",
     "toastUpdateSuccess": "Word was updated successfully",
+    "clone": "Clone",
+    "openClone": "Open your copy",
+    "openCloneShort": "Open copy",
+    "toastCloned": "Word copied to your words",
     "toastError": "Something went wrong: {{error}}"
   },
   "partOfSpeechSelector": {
