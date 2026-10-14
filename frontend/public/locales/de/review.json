@@ -62,6 +62,7 @@
     "ownOnlyHint": "Tags hinzufügen und Löschen sind nur verfügbar, wenn alle ausgewählten Wörter von dir sind.",
     "selectAllMatching": "Alle {{count}} passenden Wörter auswählen",
     "allPages": "(+ alle Seiten)",
+    "selectAll": "Alle auswählen",
     "selectAllFailed": "Die Wörter konnten nicht ausgewählt werden. Versuche es noch einmal."
   },
   "table": {

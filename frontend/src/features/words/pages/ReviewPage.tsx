@@ -207,6 +207,11 @@ export function ReviewPage() {
         return row?.user === userId;
     });
 
+    // Phone: no header checkbox, so the bar's "Select all" selects the page (words already selected on other pages stay).
+    function handleSelectPage() {
+        setRowSelection((previous) => ({ ...previous, ...Object.fromEntries(rows.map((row) => [row.id, true])) }));
+    }
+
     function handleSelectAllMatching() {
         fetchAllMatching.mutate(filters, {
             onSuccess: (result) => {
@@ -355,6 +360,7 @@ export function ReviewPage() {
                         onDelete={handleBulkDelete}
                         onTagsApplied={handleTagsApplied}
                         onClear={isMobile ? () => setRowSelection({}) : undefined}
+                        onSelectAll={isMobile && !pageFullySelected ? handleSelectPage : undefined}
                         compact={isMobile}
                         allPages={
                             pageFullySelected && total > rows.length && selectedIds.length < total

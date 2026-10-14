@@ -62,6 +62,7 @@
     "ownOnlyHint": "Siltide lisamine ja kustutamine on saadaval ainult siis, kui kõik valitud sõnad on sinu omad.",
     "selectAllMatching": "Vali kõik {{count}} sobivat sõna",
     "allPages": "(+ kõik lehed)",
+    "selectAll": "Vali kõik",
     "selectAllFailed": "Kõiki sõnu ei saanud valida. Proovi uuesti."
   },
   "table": {

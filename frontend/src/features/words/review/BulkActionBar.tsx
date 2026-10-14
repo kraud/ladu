@@ -23,9 +23,16 @@
  * "(+ all pages)" (`allPages`) sits next to the "N selected" label. It shows once
  * the whole page is selected and more words match the filters on other pages: one
  * click selects them all. The page decides when it shows by passing `allPages`.
+ *
+ * Practice and Add tags carry the icons of their header links (brain, tag); Delete
+ * is a red trash icon with no text (its `aria-label` is the name). On a phone
+ * (`onClear`) the Unselect icon button sits right after the label, and
+ * `onSelectAll` adds a "Select all" button that selects the page (rows there have
+ * no header checkbox).
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BrainIcon, TagIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { TagPickerDialog } from '@/features/tags/components/TagPickerDialog';
@@ -43,6 +50,8 @@ export interface BulkActionBarProps {
     onTagsApplied: (tags: TagSummary[]) => void;
     /** Phone only: clears the selection. */
     onClear?: () => void;
+    /** Phone only: selects every row of the page. Unset once the page is fully selected. */
+    onSelectAll?: () => void;
     /** Phone layout: the "(+ all pages)" button is in the highlight colour all the time (no hover on a phone). */
     compact?: boolean;
     /** When set, shows "(+ all pages)": `total` matching words over all pages, `onSelect` selects them. */
@@ -58,6 +67,7 @@ export function BulkActionBar({
     onDelete,
     onTagsApplied,
     onClear,
+    onSelectAll,
     compact = false,
     allPages,
 }: BulkActionBarProps) {
@@ -85,6 +95,23 @@ export function BulkActionBar({
                             {t('review:bulk.allPages')}
                         </button>
                     )}
+                    {onClear && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon-sm"
+                            aria-label={t('review:bulk.unselect')}
+                            title={t('review:bulk.unselect')}
+                            onClick={onClear}
+                        >
+                            <XIcon size={14} weight="bold" />
+                        </Button>
+                    )}
+                    {onSelectAll && (
+                        <Button type="button" variant="outline" size="sm" onClick={onSelectAll}>
+                            {t('review:bulk.selectAll')}
+                        </Button>
+                    )}
                 </span>
                 {selectedCount === 1 && (
                     <Button type="button" variant="outline" size="sm" onClick={onView}>
@@ -92,28 +119,27 @@ export function BulkActionBar({
                     </Button>
                 )}
                 <Button type="button" variant="outline" size="sm" onClick={onPractice}>
+                    <BrainIcon size={14} aria-hidden="true" />
                     {t('review:bulk.practice')}
                 </Button>
                 {canEdit && (
                     <>
                         <Button type="button" variant="outline" size="sm" onClick={() => setTagPickerOpen(true)}>
+                            <TagIcon size={14} aria-hidden="true" />
                             {t('review:bulk.addTags')}
                         </Button>
                         <Button
                             type="button"
                             variant="outline"
-                            size="sm"
+                            size="icon-sm"
                             className="danger"
+                            aria-label={t('review:bulk.delete')}
+                            title={t('review:bulk.delete')}
                             onClick={() => setConfirming(true)}
                         >
-                            {t('review:bulk.delete')}
+                            <TrashIcon size={15} aria-hidden="true" />
                         </Button>
                     </>
-                )}
-                {onClear && (
-                    <Button type="button" variant="outline" size="sm" onClick={onClear}>
-                        {t('review:bulk.unselect')}
-                    </Button>
                 )}
             </div>
             {!canEdit && (

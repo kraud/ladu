@@ -62,6 +62,7 @@
     "ownOnlyHint": "Add tags and Delete are available only when all selected words are your own.",
     "selectAllMatching": "Select all {{count}} matching words",
     "allPages": "(+ all pages)",
+    "selectAll": "Select all",
     "selectAllFailed": "Could not select all words. Try again."
   },
   "table": {

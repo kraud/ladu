@@ -100,6 +100,32 @@ describe('BulkActionBar', () => {
         expect(screen.getByRole('button', { name: 'Select all 120 matching words' })).toBeDisabled();
     });
 
+    it('Delete is an icon button (no visible text) and Practice and Add tags carry an icon', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} />);
+        const del = screen.getByRole('button', { name: 'Delete' });
+        expect(del).toHaveTextContent('');
+        expect(del.querySelector('svg')).not.toBeNull();
+        expect(screen.getByRole('button', { name: 'Practice' }).querySelector('svg')).not.toBeNull();
+        expect(screen.getByRole('button', { name: 'Add tags' }).querySelector('svg')).not.toBeNull();
+    });
+
+    it('on a phone, Unselect comes right after the label, before the actions', () => {
+        renderWithProviders(<BulkActionBar {...baseProps} selectedCount={2} onClear={vi.fn()} />);
+        const buttons = screen.getAllByRole('button').map((button) => button.getAttribute('aria-label') ?? button.textContent);
+        expect(buttons.indexOf('Unselect')).toBe(0);
+    });
+
+    it('shows Select all only when it can select the page, and it calls back', async () => {
+        const onSelectAll = vi.fn();
+        const user = userEvent.setup();
+        const { rerender } = renderWithProviders(<BulkActionBar {...baseProps} selectedCount={1} onClear={vi.fn()} />);
+        expect(screen.queryByRole('button', { name: 'Select all' })).not.toBeInTheDocument();
+
+        rerender(<BulkActionBar {...baseProps} selectedCount={1} onClear={vi.fn()} onSelectAll={onSelectAll} />);
+        await user.click(screen.getByRole('button', { name: 'Select all' }));
+        expect(onSelectAll).toHaveBeenCalled();
+    });
+
     it('Practice is available from one selected word and calls back', async () => {
         const onPractice = vi.fn();
         const user = userEvent.setup();

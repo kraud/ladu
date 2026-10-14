@@ -62,6 +62,7 @@
     "ownOnlyHint": "Añadir etiquetas y Eliminar solo están disponibles cuando todas las palabras seleccionadas son tuyas.",
     "selectAllMatching": "Seleccionar las {{count}} palabras que coinciden",
     "allPages": "(+ todas las páginas)",
+    "selectAll": "Seleccionar todo",
     "selectAllFailed": "No se pudieron seleccionar todas las palabras. Inténtalo de nuevo."
   },
   "table": {
