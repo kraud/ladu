@@ -28,6 +28,7 @@ const {
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock, loginBlockMessage }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
+const { assertNotDemo }: typeof import("../lib/demo") = require("../lib/demo");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
 const { assertNamesAllowed }: typeof import("../lib/reservedNames") = require("../lib/reservedNames");
 const { getProvider, listConfiguredProviders }: typeof import("../lib/oauth/providers") = require("../lib/oauth/providers");
@@ -143,6 +144,8 @@ const startAuth = asyncHandler(async (req: any, res: any) => {
 
 /** `POST /api/auth/:provider/link` (protected) — Phase 5's "connect a second provider" start, from the Account page. */
 const startLink = asyncHandler(async (req: any, res: any) => {
+  // A demo account is deleted when it ends: a real Google account must never be tied to it (D10 a).
+  assertNotDemo(req.user, res);
   const provider = getProvider(req.params.provider);
   if (!provider) {
     res.status(404);
@@ -480,7 +483,9 @@ const link = asyncHandler(async (req: any, res: any) => {
   // targets could in principle have changed since it was issued (an email
   // update in another tab, within the 10-minute window).
   const user = await findUserByEmailInsensitive(payload.email);
-  if (!user || !user.password || user.deletedAt) {
+  // A demo has no password, so it never passes here; `isDemo` says the rule out loud (D10 a). The
+  // same answer as an unknown account, so it tells nothing about the account.
+  if (!user || !user.password || user.deletedAt || user.isDemo) {
     res.status(400);
     throw new Error("Invalid or expired ticket");
   }
@@ -538,6 +543,7 @@ const getIdentities = asyncHandler(async (req: any, res: any) => {
 
 /** `DELETE /api/auth/identities/:id` (protected) — refuses to remove the caller's last sign-in method. */
 const deleteIdentity = asyncHandler(async (req: any, res: any) => {
+  assertNotDemo(req.user, res);
   const { id } = req.params;
   if (!isUuid(id)) {
     res.status(404);

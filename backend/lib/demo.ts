@@ -6,6 +6,7 @@
  * - `takeDemoStart`: the per-IP limit on `POST /api/demo`. In memory only: an IP is never
  *   written to the database or to a log.
  * - `isDemoExpired`: the expiry check `protect` runs on every request.
+ * - `assertNotDemo`: the refusal of an action a demo may not take (D10).
  */
 const { and, count, eq, gt, sql } = require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
@@ -46,6 +47,19 @@ export class DemoError extends HttpError {
     super(status, message);
   }
 }
+
+const RESTRICTED_MESSAGE = "This is not available in the demo";
+
+/**
+ * Refuses an action that a demo account may not take (D10): 403 with `demo_restricted`. Puts the
+ * status on `res` (the shared error handler reads it) and throws. The UI hides these actions for
+ * a demo; this is the boundary.
+ */
+export const assertNotDemo = (user: { isDemo?: boolean | null } | undefined, res: any): void => {
+  if (!user?.isDemo) return;
+  res.status(403);
+  throw new DemoError(403, DEMO_CODE.restricted, RESTRICTED_MESSAGE);
+};
 
 /** True for a live demo session whose time is over. The template (no expiry) and normal users: false. */
 export const isDemoExpired = (

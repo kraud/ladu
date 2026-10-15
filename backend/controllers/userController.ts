@@ -28,6 +28,7 @@ const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = req
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
+const { assertNotDemo }: typeof import("../lib/demo") = require("../lib/demo");
 const { assertNamesAllowed }: typeof import("../lib/reservedNames") = require("../lib/reservedNames");
 const { calculateBasicUserMetrics } = require("./metricController");
 
@@ -426,6 +427,9 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
   const usernameChanged = nextUsername !== undefined && nextUsername !== userData.username;
   const nameChanged = typeof name === "string" && name !== userData.name;
   if (usernameChanged || nameChanged) {
+    // A demo keeps its synthetic name and username, so it can never take a real one (D10 c).
+    // Languages, UI language and theme stay editable.
+    assertNotDemo(userData, res);
     try {
       await assertNamesAllowed(
         {
@@ -676,7 +680,9 @@ const requestPasswordReset = asyncHandler(async (req: any, res: any) => {
   // Password reset starts from email because users may not know their id.
   const user = typeof email === "string" && email ? await findUserByEmailInsensitive(email) : undefined;
 
-  if (user) {
+  // A demo account has no mailbox (`@ladu.invalid`) and no password: nothing is sent, and the
+  // answer is the same as for any other email.
+  if (user && !user.isDemo) {
     // The row lock makes two parallel requests take turns, so only one passes the check.
     const sendReset = await db.transaction(async (tx) => {
       await tx.select({ id: users.id }).from(users).where(eq(users.id, user.id)).for("update");
