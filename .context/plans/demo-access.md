@@ -1,6 +1,6 @@
 # Plan: Account-less demo access (ephemeral "demo" accounts)
 
-Status: **draft, planned on 2026-10-14, reviewed against the code on 2026-10-14.** **Slice 0 done on 2026-10-15** (branch `demo-setup`): migrations 0027 + 0028, the admin API, the admin Demo tab and `GET /api/access` `demo.enabled`; Jest, Vitest and the full Playwright run (141 passed, with `admin-14-demo-gate.spec.ts`) are green. **Slice 1 done on 2026-10-15** (same branch): `POST /api/demo`, the session and expiry in `protect`, the account restrictions, `/demo`, `/demo/ended`, the header countdown, the Account page for a demo, and the landing link; `demo-access-gate.spec.ts` is green (see "Slice 1 — what was built"). **Slice 2 done on 2026-10-15** (same branch): the template and its copy, the word/tag caps, the tag and social restrictions, the purge, the exclusions and the counters (see "Slice 2 — what was built"). The demo feature is complete; the template content is still the placeholder (D5). Decisions D1–D15 below are confirmed with the user (D15 added on 2026-10-15). The items at the end are non-blocking, to finalize during implementation. The review findings and how each one was resolved are in "Review log (2026-10-14)" at the end.
+Status: **draft, planned on 2026-10-14, reviewed against the code on 2026-10-14.** **Slice 0 done on 2026-10-15** (branch `demo-setup`): migrations 0027 + 0028, the admin API, the admin Demo tab and `GET /api/access` `demo.enabled`; Jest, Vitest and the full Playwright run (141 passed, with `admin-14-demo-gate.spec.ts`) are green. **Slice 1 done on 2026-10-15** (same branch): `POST /api/demo`, the session and expiry in `protect`, the account restrictions, `/demo`, `/demo/ended`, the header countdown, the Account page for a demo, and the landing link; `demo-access-gate.spec.ts` is green (see "Slice 1 — what was built"). **Slice 2 done on 2026-10-15** (same branch): the template and its copy, the word/tag caps, the tag and social restrictions, the purge, the exclusions and the counters (see "Slice 2 — what was built"). The demo feature is complete; the template content is still the placeholder (D5). **Additions before the merge (Slices 3–5), planned on 2026-10-15:** a language choice on `/demo`, a start transition screen, and a demo users table + usage stats in the admin Demo tab (see "Additions before the merge"). Decisions D1–D15 below are confirmed with the user (D15 added on 2026-10-15). The items at the end are non-blocking, to finalize during implementation. The review findings and how each one was resolved are in "Review log (2026-10-14)" at the end.
 
 ## What this is (plain-language overview)
 
@@ -225,6 +225,8 @@ Slice 0 changes no learner-facing behaviour (the gate is off by default); Slice 
 2. **Wording.** Draft the demo badge, countdown, start screen, "the demo is off", "the demo has ended", and the error strings in English; the user reviews the ES/DE/EE translations once the feature is live.
 3. ~~**Limiter implementation**~~ — decided 2026-10-15: a hand-written fixed-window `Map` in `lib/demo.ts` (no new dependency). `DEMO_STARTS_PER_IP` defaults to 5/hour and can be set by an environment variable (Review log S1-1).
 4. ~~**Exact cap counting**~~ — decided 2026-10-15: lock the demo's `users` row (`FOR UPDATE`) before the count (Review log S2-5).
+5. **Retention of `demo_starts` / `demo_refusals`** (Slice 5): kept for now (small rows, no personal data). Add a cut-off in the purge (e.g. 1 year) if they grow.
+6. **The funny transition lines** (Slice 4): English drafts by Claude; the user reviews the wording and the ES/DE/EE versions.
 
 ## Review log (2026-10-14)
 
@@ -301,3 +303,53 @@ Differences from the design above, and choices made during the slice:
 - **e2e:** `demo-access-gate.spec.ts` checks the copy, the counters, the word cap (API) and the tag cap (UI message), and that a demo sees no visibility choice and no Follow. The purge is tested in Jest only (a nightly job).
 - **Still open:** the real template content (D5) and the review of the ES/DE/EE drafts in `demo.json` ("Details to finalize" 2).
 
+
+## Additions before the merge (planned on 2026-10-15)
+
+The user asked for three additions before `demo-setup` goes to `main`. Decisions D16–D20 are confirmed with the user (2026-10-15).
+
+### Decisions
+
+| Topic | Decision |
+|---|---|
+| D16. Language choice | `/demo` shows the registration `LanguageTiles` **above** the Start button, on the same screen (no second step). Start is disabled until **2 or more** languages are picked (same rule as registration). The order of the picks is the order of `users.languages`. `POST /api/demo` takes `languages` (validated like registration); the template data does not change. **Native language:** the UI language if the visitor picked it, else the first picked language. |
+| D17. Saved configs follow the picks | At copy time, each template practice config keeps only the picked languages in `params.languages`. A config that is not valid after that (`validateConfigRequest`, e.g. Multi-Language with fewer than 2) is not copied. The data file does not change (Review log S3-3). |
+| D18. Transition screen | After a click on Start, a full-screen transition shows the outline bubble logo (`BrandLogo variant="outline"`) and **3 short funny lines in the UI language**, about 1 s each (≈ 3 s in total), then a fade into the dashboard. The 3 lines are picked at random from a pool of about 6 per language (`demo` namespace). `POST /api/demo` runs during the screen; the screen ends at the later of "3 s passed" and "the answer came back". On an error, the screen closes and `/demo` shows the error. With `prefers-reduced-motion`, no fade and no motion (the lines still change). |
+| D19. Admin demo users table | Under the settings card of the Demo tab. It lists the demo accounts **on the DB now**: live ones and expired ones that the nightly purge has not deleted yet (Status column: Live / Expired). Columns: start time, end time, status, languages, UI language, words added, tags added, saved configs added, translations practised. The template user is not listed. The counts are live from the DB, minus the seed counts stored at the start (S3-2). |
+| D20. Usage stats banner | Beside/above the table: starts in the last 24 h / 7 d / 30 d / total and "running now"; engagement averages (words, tags, translations practised per demo; % of demos that added at least one word); cap hits (% of demos that reached the word or tag cap) and refused starts in the last 7 d (busy / rate-limited / off); language picks (how often each language was picked) and the UI language distribution. |
+
+### Design
+
+**`demo_starts` log table (Slice 5).** The nightly purge deletes expired demos and their rows cascade, so stats over a week, a month or all time cannot come from `users` (Review log S3-1). A new table keeps one row per **successful** start, and the purge does not delete it:
+
+- `id`, `user_id` (FK to `users`, `ON DELETE SET NULL`), `started_at`, `expires_at`, `ui_language`, `languages text[]`;
+- `seed_words`, `seed_tags`, `seed_configs`, `word_limit`, `tag_limit` (written at the start);
+- `words_added`, `tags_added`, `configs_added`, `translations_practised`, `closed_at` (all `NULL` until the purge; the purge writes the final counts, then deletes the user).
+
+No IP and no other personal data, so the privacy page does not change. The rows are small; they are kept (no retention job now — see "Details to finalize" 5).
+
+**Refused starts** are counted in a separate table `demo_refusals (day date, code text, count integer, PRIMARY KEY (day, code))`, with one upsert per refusal. One row per refused request would let a flood of 429s fill the DB; a daily counter is bounded (days × 3 codes) (Review log S3-4).
+
+**Counts for a demo:** "added" = the current count of the user's rows − the seed count on its `demo_starts` row. "Translations practised" = the user's `exercise_performances` rows with `updated_at` after `started_at`. "Reached a cap" = words (or tags) = the frozen limit. The averages and cap-hit % in the banner combine closed rows (final counts) with the live counts of demos that are still on the DB.
+
+**Admin API:** `GET /api/admin/access/demo/users` (the table, newest first, a fixed limit of the newest 200 — the live cap is 1000 at most) and `GET /api/admin/access/demo/stats` (the banner). Both need `access.manage`, like the rest of the Demo tab.
+
+### Slices
+
+| # | Slice | Sub-steps | Ends with |
+|---|---|---|---|
+| 3 | **Language choice** (D16, D17) | 3.1 Backend: `POST /api/demo` reads and validates `languages`, sets `nativeLanguage` (D16); `cloneDemoTemplate` filters the config languages (D17). Jest. 3.2 App: tiles on `/demo`, Start disabled under 2, `StartDemoRequest.languages`. Vitest. 3.3 e2e: pick EN + DE, start, the account shows those two, the Review table shows only those columns, the saved config has only EN + DE. | `demo-access-gate.spec.ts` green. |
+| 4 | **Transition screen** (D18) | 4.1 `DemoTransition` component (logo, lines, fade, reduced motion) and the line pool in the 4 locales (English drafts). 4.2 `useStartDemo` waits for the later of the timer and the answer, then navigates; on an error, back to `/demo` with the message. Vitest with fake timers. 4.3 e2e: the screen shows after Start, then the dashboard. | `demo-access-gate.spec.ts` green. |
+| 5 | **Admin users table + stats** (D19, D20) | 5.1 Migration (`demo_starts`, `demo_refusals`), the start writes the log row, the refusals upsert the counter, the purge closes the row before the delete. Jest (incl. `runPurge`). 5.2 The two admin endpoints + Jest. 5.3 Admin UI: the stats banner and the table on `?tab=demo`. Vitest. 5.4 e2e: start a demo, add a word, the admin table shows it as Live with 1 word added; force the expiry, it shows Expired; the banner counts the start. | `admin-14-demo-gate.spec.ts` (or the demo spec) green. |
+
+### Review log — additions (2026-10-15)
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| S3-1 | Moderate | The nightly purge (`lib/userPurge.ts`) deletes expired demos and their rows, so stats over a day/week/month/total cannot come from `users`. | The `demo_starts` log table, closed (final counts) by the purge. |
+| S3-2 | Moderate | "Words/tags added" cannot be calculated: the seed counts are not stored, and `demo_word_limit` includes the `maxWords` of the start time. | The seed counts are stored on the `demo_starts` row. |
+| S3-3 | Moderate | Both template practice configs use all four languages (`data.json`): a visitor who picks EN + DE practises ES and EE in them. | D17: the copy keeps only the picked languages. |
+| S3-4 | Moderate | One log row per refused start lets a flood of refused requests fill the DB. | A daily counter table (`demo_refusals`), bounded in size. |
+| S3-5 | Minor | With a language choice, the UI language may not be a picked language, but it is the native language now. | D16: the UI language if picked, else the first pick. |
+| S3-6 | Minor | The transition screen must handle a failed start, a slow answer, and reduced motion. | D18. |
+| S3-7 | Minor | No table records each practice answer, so "exercises answered" needs new logging. | Not counted; "translations practised" (`exercise_performances.updated_at`) is used. |
