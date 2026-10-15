@@ -48,6 +48,19 @@ describe('apiClient interceptors', () => {
         expect(useAuthStore.getState().token).toBeNull();
         expect(useAuthStore.getState().user).toBeNull();
         expect(handler).toHaveBeenCalledTimes(1);
+        expect(handler).toHaveBeenCalledWith({ wasDemo: false });
+    });
+
+    it('on 401 of a demo session tells the subscribers it was a demo (read before the clear)', async () => {
+        useAuthStore.getState().setSession({ id: 'd1', email: 'demo@ladu.invalid', token: 'tok', isDemo: true, demoExpiresAt: '2026-10-15T12:00:00.000Z' });
+        const handler = vi.fn();
+        unsubs.push(onUnauthorized(handler));
+        server.use(http.get('*/api/ping', () => new HttpResponse(null, { status: 401 })));
+
+        await expect(apiClient.get('/ping')).rejects.toMatchObject({ response: { status: 401 } });
+
+        expect(useAuthStore.getState().user).toBeNull();
+        expect(handler).toHaveBeenCalledWith({ wasDemo: true });
     });
 
     it('leaves the session intact on a non-401 error', async () => {

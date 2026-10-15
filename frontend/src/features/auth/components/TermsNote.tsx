@@ -11,11 +11,12 @@ import { privacyUrl, termsUrl } from '@/lib/landing';
  * The two links open the landing pages in a new tab, so the form keeps its
  * values. Those pages are English only.
  */
-export function TermsNote() {
+/** `i18nKey`: the demo start screen (demo-access.md D12) uses its own sentence, with the same two tags. */
+export function TermsNote({ i18nKey = 'loginRegister:register.termsNote' }: { i18nKey?: string }) {
     return (
         <p className="terms-note">
             <Trans
-                i18nKey="loginRegister:register.termsNote"
+                i18nKey={i18nKey}
                 components={{
                     terms: <a href={termsUrl} target="_blank" rel="noopener noreferrer" />,
                     privacy: <a href={privacyUrl} target="_blank" rel="noopener noreferrer" />,

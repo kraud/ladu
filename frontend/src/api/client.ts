@@ -14,7 +14,13 @@ import axios, { AxiosError, type AxiosInstance } from 'axios';
 import { authStore } from '@/stores/authStore';
 import type { ApiError } from '@/api/types';
 
-type UnauthorizedHandler = () => void;
+/** What a handler learns about the session that the 401 ended. */
+export interface UnauthorizedInfo {
+    /** The session was a demo (demo-access.md D13): its end goes to `/demo/ended`, not to `/login`. */
+    wasDemo: boolean;
+}
+
+type UnauthorizedHandler = (info: UnauthorizedInfo) => void;
 
 const unauthorizedHandlers = new Set<UnauthorizedHandler>();
 
@@ -49,9 +55,11 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error: AxiosError<ApiError>) => {
         if (error.response?.status === 401) {
+            // Read before the clear: after it, nothing says the session was a demo (Review log S1-3).
+            const info: UnauthorizedInfo = { wasDemo: authStore.getState().user?.isDemo === true };
             authStore.getState().clearSession();
             for (const handler of unauthorizedHandlers) {
-                handler();
+                handler(info);
             }
         }
         return Promise.reject(error);

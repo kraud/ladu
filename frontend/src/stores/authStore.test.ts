@@ -145,3 +145,30 @@ describe('guarded rehydration', () => {
         expect(useAuthStore.getState().token).toBe(token);
     });
 });
+
+describe('toSessionUser — demo fields (demo-access.md)', () => {
+    it('keeps the demo fields of a demo session', () => {
+        const user = toSessionUser({
+            id: 'd1',
+            email: 'demo+d1@ladu.invalid',
+            isDemo: true,
+            demoExpiresAt: '2026-10-15T12:15:00.000Z',
+            demoWordLimit: 35,
+            demoTagLimit: 7,
+        });
+        expect(user).toMatchObject({ isDemo: true, demoExpiresAt: '2026-10-15T12:15:00.000Z', demoWordLimit: 35, demoTagLimit: 7 });
+    });
+
+    it('reads a malformed demo value as null', () => {
+        const user = toSessionUser({ id: 'd1', email: 'd@x', isDemo: true, demoExpiresAt: 5 as unknown as string, demoWordLimit: '35' as unknown as number });
+        expect(user).toMatchObject({ isDemo: true, demoExpiresAt: null, demoWordLimit: null, demoTagLimit: null });
+    });
+
+    it('gives a normal account no demo keys at all (isDemo false or missing)', () => {
+        for (const raw of [{ id: 'u1', email: 'a@x', isDemo: false, demoExpiresAt: null }, { id: 'u1', email: 'a@x' }]) {
+            const user = toSessionUser(raw);
+            expect(user).not.toHaveProperty('isDemo');
+            expect(user).not.toHaveProperty('demoExpiresAt');
+        }
+    });
+});

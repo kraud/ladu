@@ -33,6 +33,16 @@ export interface SessionUser {
     theme?: Theme | null;
     nativeLanguage: string | null;
     verified: boolean;
+    /**
+     * Demo access (demo-access.md): true for a throwaway demo account. Optional, so a session
+     * persisted before this field read as a normal account.
+     */
+    isDemo?: boolean;
+    /** ISO time when the demo ends; null for a normal account. */
+    demoExpiresAt?: string | null;
+    /** The demo's absolute word and tag caps (seed + configured maximum); null for a normal account. */
+    demoWordLimit?: number | null;
+    demoTagLimit?: number | null;
 }
 
 /**
@@ -57,6 +67,10 @@ export interface RawUser {
     theme?: string | null;
     nativeLanguage?: string | null;
     verified?: boolean | null;
+    isDemo?: boolean | null;
+    demoExpiresAt?: string | null;
+    demoWordLimit?: number | null;
+    demoTagLimit?: number | null;
     token?: string;
 }
 
@@ -91,6 +105,15 @@ export function toSessionUser(raw: RawUser): SessionUser {
         // not log the user out — login/verify already gate the unverified path
         // (Phase 1 decision 1), so treat only an explicit `false` as unverified.
         verified: raw.verified == null ? true : raw.verified === true,
+        // Only a demo carries the demo keys, so a normal session keeps its shape.
+        ...(raw.isDemo === true
+            ? {
+                  isDemo: true,
+                  demoExpiresAt: typeof raw.demoExpiresAt === 'string' ? raw.demoExpiresAt : null,
+                  demoWordLimit: typeof raw.demoWordLimit === 'number' ? raw.demoWordLimit : null,
+                  demoTagLimit: typeof raw.demoTagLimit === 'number' ? raw.demoTagLimit : null,
+              }
+            : {}),
     };
 }
 

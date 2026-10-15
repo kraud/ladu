@@ -11,7 +11,8 @@
  *
  * The 401 interceptor in `api/client.ts` can't import the router (cycle), so it
  * exposes `onUnauthorized`; `UnauthorizedRedirect` below is the subscriber that
- * turns a 401 into a `/login` navigation.
+ * turns a 401 into a `/login` navigation, or into `/demo/ended` when the session
+ * was a demo (demo-access.md D13).
  */
 import { Suspense, useEffect } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -31,8 +32,8 @@ import { useTheme } from '@/lib/theme';
 function UnauthorizedRedirect() {
     useEffect(
         () =>
-            onUnauthorized(() => {
-                void router.navigate({ to: '/login' });
+            onUnauthorized(({ wasDemo }) => {
+                void router.navigate({ to: wasDemo ? '/demo/ended' : '/login' });
             }),
         [],
     );

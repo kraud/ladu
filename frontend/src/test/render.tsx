@@ -15,6 +15,7 @@ import account from '../../public/locales/en/account.json';
 import caseDescription from '../../public/locales/en/caseDescription.json';
 import common from '../../public/locales/en/common.json';
 import dashboard from '../../public/locales/en/dashboard.json';
+import demo from '../../public/locales/en/demo.json';
 import friendship from '../../public/locales/en/friendship.json';
 import loginRegister from '../../public/locales/en/loginRegister.json';
 import notifications from '../../public/locales/en/notifications.json';
@@ -29,6 +30,7 @@ const enResources = {
     caseDescription,
     common,
     dashboard,
+    demo,
     friendship,
     loginRegister,
     notifications,

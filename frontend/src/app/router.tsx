@@ -3,7 +3,8 @@
  *
  * Shape:
  *   root
- *   ├── _public     (pathless layout, no header)   → login, register, verify, reset
+ *   ├── _public     (pathless layout, no header)   → login, register, verify, reset,
+ *   │                                                 demo, demo/ended
  *   └── _protected  (pathless layout, AppShell)    → dashboard, addWord, word,
  *                                                     words, practice, account,
  *                                                     notifications, tag
@@ -34,6 +35,8 @@ import { RegisterPage } from '@/features/auth/pages/RegisterPage';
 import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage';
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
 import { OAuthCallbackPage } from '@/features/auth/pages/OAuthCallbackPage';
+import { DemoPage } from '@/features/demo/pages/DemoPage';
+import { DemoEndedPage } from '@/features/demo/pages/DemoEndedPage';
 import { DashboardPage } from '@/features/metrics/pages/DashboardPage';
 import { AccountPage } from '@/features/account/pages/AccountPage';
 import { AddWordPage } from '@/features/words/pages/AddWordPage';
@@ -110,6 +113,20 @@ const oauthCallbackRoute = createRoute({
     getParentRoute: () => publicLayoutRoute,
     path: '/auth/callback',
     component: OAuthCallbackPage,
+});
+
+// Demo access (demo-access.md): the start screen and the page a demo ends on. Public: the
+// visitor has no account, and a demo whose time is over has no session any more.
+const demoRoute = createRoute({
+    getParentRoute: () => publicLayoutRoute,
+    path: '/demo',
+    component: DemoPage,
+});
+
+const demoEndedRoute = createRoute({
+    getParentRoute: () => publicLayoutRoute,
+    path: '/demo/ended',
+    component: DemoEndedPage,
 });
 
 // ── Protected ──────────────────────────────────────────────────────────────
@@ -218,6 +235,8 @@ const routeTree = rootRoute.addChildren([
         verifyRoute,
         resetPasswordRoute,
         oauthCallbackRoute,
+        demoRoute,
+        demoEndedRoute,
     ]),
     protectedLayoutRoute.addChildren([
         dashboardRoute,

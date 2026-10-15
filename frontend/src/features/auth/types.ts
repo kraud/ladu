@@ -97,6 +97,11 @@ export interface AuthUser {
     theme?: Theme | null;
     nativeLanguage?: string | null;
     verified: boolean;
+    /** Demo access (demo-access.md): set on every login-shaped answer; false / null for a normal account. */
+    isDemo?: boolean;
+    demoExpiresAt?: string | null;
+    demoWordLimit?: number | null;
+    demoTagLimit?: number | null;
     token?: string;
 }
 

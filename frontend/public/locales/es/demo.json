@@ -1,0 +1,34 @@
+{
+  "start": {
+    "blurb": "Try Ladu without an account.",
+    "title": "Try the demo",
+    "intro": "The demo opens Ladu with sample words, tags and a practice setup. It lasts a few minutes. When it ends, all your changes are deleted.",
+    "termsNote": "By starting the demo, you confirm that you are at least 13 years old (with a parent's permission if you are under 16) and accept the <terms>Terms</terms> and the <privacy>Privacy Policy</privacy>.",
+    "logoutWarning": "You are logged in. Starting the demo logs you out of your account.",
+    "button": "Start the demo",
+    "buttonLogout": "Log out and start the demo",
+    "starting": "Starting the demo…",
+    "loading": "Loading…",
+    "haveAccount": "Do you have an account?",
+    "signIn": "Sign in"
+  },
+  "off": {
+    "title": "The demo is off",
+    "text": "The demo is not available now. You can create a free account instead.",
+    "createAccount": "Create an account"
+  },
+  "ended": {
+    "blurb": "Thank you for trying Ladu.",
+    "title": "The demo has ended",
+    "text": "All the changes you made in the demo are deleted. Create an account to keep your own words.",
+    "signUp": "Create an account",
+    "tryAgain": "Start a new demo"
+  },
+  "errors": {
+    "demo_disabled": "The demo is off now.",
+    "demo_busy": "Too many demos are running. Try again in a few minutes.",
+    "demo_rate_limited": "Too many demos were started from your network. Try again later.",
+    "demo_unavailable": "The demo is not available now. Try again later.",
+    "generic": "The demo could not start. Try again."
+  }
+}
