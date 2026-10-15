@@ -3,7 +3,7 @@
  * the language choice (D16, Slice 3), the start itself, the error messages, and `/demo/ended` (D13).
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { renderApp } from '@/test/render';
@@ -180,7 +180,7 @@ describe('/demo — the transition screen (D18)', () => {
     const ENGLISH_LINES = Object.values(demo.transition.lines);
     const shownLine = () => screen.getByRole('status', { name: 'Starting the demo' }).querySelector('p')?.textContent ?? '';
 
-    it('covers the start with the logo and the lines, opens the dashboard after the last line, then fades out', async () => {
+    it('covers the start with the logo, the loading bar and the lines, opens the dashboard after the last line, then fades out', async () => {
         Object.assign(demoTransitionTiming, { lineMs: 150, fadeMs: 50 });
         demoOn();
         startHandler(); // answers at once: the screen still shows every line
@@ -193,6 +193,9 @@ describe('/demo — the transition screen (D18)', () => {
 
         const layer = await screen.findByRole('status', { name: 'Starting the demo' });
         expect(layer.querySelector('img')).toHaveAttribute('src', '/brand/Ladu_inside_bubble_outline.svg');
+        // The loading bar is above the line.
+        const bar = within(layer).getByRole('progressbar', { name: 'Demo start progress' });
+        expect(bar.compareDocumentPosition(layer.querySelector('p')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
         const seen = new Set([shownLine()]);
         expect(ENGLISH_LINES).toContain(shownLine());
         expect(router.state.location.pathname).toBe('/demo');

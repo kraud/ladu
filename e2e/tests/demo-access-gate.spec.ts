@@ -92,6 +92,7 @@ async function startDemo(
     const transition = page.getByRole('status', { name: 'Starting the demo' });
     await expect(transition).toBeVisible();
     await expect(transition.getByRole('img')).toHaveCount(0); // the logo is decorative
+    await expect(transition.getByRole('progressbar', { name: 'Demo start progress' })).toBeVisible();
     await expect(page).toHaveURL(/\/$/, { timeout: 10_000 });
     await expect(transition).toHaveCount(0);
     await expect(page.getByRole('link', { name: /^Demo: \d+:\d\d left/ })).toBeVisible();

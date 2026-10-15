@@ -10,8 +10,8 @@ const keys = (value: unknown, prefix = ''): string[] =>
         ? Object.entries(value).flatMap(([k, v]) => keys(v, prefix ? `${prefix}.${k}` : k)).sort()
         : [prefix];
 
-// The four files start as English drafts (the user reviews them later). A translation must keep every
-// key, and the Terms note (rendered with <Trans> by TermsNote) must keep both link tags.
+// A translation must keep every key, and the Terms note (rendered with <Trans> by TermsNote) must keep
+// both link tags.
 describe.each([
     ['es', es],
     ['de', de],
@@ -29,3 +29,26 @@ describe.each([
         expect(text).toContain('13');
     });
 });
+
+/** Every string of a nested strings object, by key path. */
+const strings = (value: unknown, prefix = ''): [string, string][] =>
+    typeof value === 'object' && value !== null
+        ? Object.entries(value).flatMap(([k, v]) => strings(v, prefix ? `${prefix}.${k}` : k))
+        : [[prefix, String(value)]];
+
+// The files began as English drafts. A string that is still the English one shows English to a
+// visitor who chose another language. "Demo" is the same word in all four languages.
+const SAME_IN_EVERY_LANGUAGE = new Set(['badge.demo']);
+
+describe.each([
+    ['es', es],
+    ['de', de],
+    ['ee', ee],
+])('demo.json (%s) is translated', (_code, file) => {
+    it('has no string left in English', () => {
+        const english = new Map(strings(en));
+        const untranslated = strings(file).filter(([key, text]) => !SAME_IN_EVERY_LANGUAGE.has(key) && english.get(key) === text);
+        expect(untranslated).toEqual([]);
+    });
+});
+

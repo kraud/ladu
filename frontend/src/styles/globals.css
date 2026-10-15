@@ -1952,6 +1952,38 @@
   opacity: 0;
   pointer-events: none;
 }
+/* The loading bar: fills to 90% in the screen's shortest time (inline animation-duration), then to
+   100% when the screen leaves. */
+.demo-transition-bar {
+  width: min(240px, 70vw);
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--fg-soft);
+}
+.demo-transition-bar > span {
+  display: block;
+  height: 100%;
+  width: 90%;
+  border-radius: inherit;
+  background: var(--accent);
+  animation-name: demo-progress;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+.demo-transition[data-phase='leaving'] .demo-transition-bar > span {
+  width: 100%;
+  animation: none;
+  transition: width 0.2s ease;
+}
+@keyframes demo-progress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 90%;
+  }
+}
 .demo-transition-line {
   min-height: 1.5em;
   font-size: 15px;
@@ -1963,7 +1995,8 @@
   .demo-transition {
     transition: none;
   }
-  .demo-transition-line {
+  .demo-transition-line,
+  .demo-transition-bar > span {
     animation: none;
   }
 }

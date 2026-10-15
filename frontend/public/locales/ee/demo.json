@@ -1,61 +1,62 @@
 {
   "start": {
-    "blurb": "Try Ladu without an account.",
-    "title": "Try the demo",
-    "intro": "The demo opens Ladu with sample words, tags and a practice setup. It lasts a few minutes. When it ends, all your changes are deleted.",
-    "languagesTitle": "Which languages do you use?",
-    "languagesHint": "Pick 2 or more. The demo shows its sample words in these languages.",
-    "languageCountEmpty": "Select at least two languages",
-    "languageCountSelected_one": "1 language selected",
-    "languageCountSelected_other": "{{count}} languages selected",
-    "termsNote": "By starting the demo, you confirm that you are at least 13 years old (with a parent's permission if you are under 16) and accept the <terms>Terms</terms> and the <privacy>Privacy Policy</privacy>.",
-    "logoutWarning": "You are logged in. Starting the demo logs you out of your account.",
-    "button": "Start the demo",
-    "buttonLogout": "Log out and start the demo",
-    "starting": "Starting the demo…",
-    "loading": "Loading…",
-    "haveAccount": "Do you have an account?",
-    "signIn": "Sign in"
+    "blurb": "Proovi Ladu ilma kontota.",
+    "title": "Proovi demot",
+    "intro": "Demo avab Ladu näidissõnade, tagide ja harjutuse seadistusega. See kestab mõne minuti. Kui see lõpeb, kustutatakse kõik sinu muudatused.",
+    "languagesTitle": "Milliseid keeli sa kasutad?",
+    "languagesHint": "Vali 2 või rohkem. Demo näitab oma näidissõnu nendes keeltes.",
+    "languageCountEmpty": "Vali vähemalt kaks keelt",
+    "languageCountSelected_one": "1 keel valitud",
+    "languageCountSelected_other": "{{count}} keelt valitud",
+    "termsNote": "Demo alustamisega kinnitad, et oled vähemalt 13-aastane (alla 16-aastasena vanema nõusolekul) ja nõustud <terms>kasutustingimustega</terms> ning <privacy>privaatsuspoliitikaga</privacy>. Mõlemad dokumendid on inglise keeles.",
+    "logoutWarning": "Oled sisse logitud. Demo alustamine logib sind kontolt välja.",
+    "button": "Alusta demot",
+    "buttonLogout": "Logi välja ja alusta demot",
+    "starting": "Demo käivitub…",
+    "loading": "Laadimine…",
+    "haveAccount": "Kas sul on konto?",
+    "signIn": "Logi sisse"
   },
   "off": {
-    "title": "The demo is off",
-    "text": "The demo is not available now. You can create a free account instead.",
-    "createAccount": "Create an account"
+    "title": "Demo on välja lülitatud",
+    "text": "Demo pole praegu saadaval. Selle asemel saad luua tasuta konto.",
+    "createAccount": "Loo konto"
   },
   "ended": {
-    "blurb": "Thank you for trying Ladu.",
-    "title": "The demo has ended",
-    "text": "All the changes you made in the demo are deleted. Create an account to keep your own words.",
-    "signUp": "Create an account",
-    "tryAgain": "Start a new demo"
+    "blurb": "Aitäh, et proovisid Ladu.",
+    "title": "Demo on lõppenud",
+    "text": "Kõik demos tehtud muudatused on kustutatud. Loo konto, et oma sõnad alles jääksid.",
+    "signUp": "Loo konto",
+    "tryAgain": "Alusta uut demot"
   },
   "errors": {
-    "demo_disabled": "The demo is off now.",
-    "demo_busy": "Too many demos are running. Try again in a few minutes.",
-    "demo_rate_limited": "Too many demos were started from your network. Try again later.",
-    "demo_unavailable": "The demo is not available now. Try again later.",
-    "demo_invalid_languages": "Select at least two languages.",
-    "generic": "The demo could not start. Try again.",
-    "demo_restricted": "This is not available in the demo.",
-    "demo_word_limit": "The demo cannot have more words. Create an account to add more.",
-    "demo_tag_limit": "The demo cannot have more tags. Create an account to add more."
+    "demo_disabled": "Demo on praegu välja lülitatud.",
+    "demo_busy": "Praegu töötab liiga palju demosid. Proovi mõne minuti pärast uuesti.",
+    "demo_rate_limited": "Sinu võrgust alustati liiga palju demosid. Proovi hiljem uuesti.",
+    "demo_unavailable": "Demo pole praegu saadaval. Proovi hiljem uuesti.",
+    "demo_invalid_languages": "Vali vähemalt kaks keelt.",
+    "generic": "Demo ei käivitunud. Proovi uuesti.",
+    "demo_restricted": "See pole demos saadaval.",
+    "demo_word_limit": "Demos ei saa rohkem sõnu olla. Loo konto, et lisada rohkem.",
+    "demo_tag_limit": "Demos ei saa rohkem tage olla. Loo konto, et lisada rohkem."
   },
   "badge": {
     "demo": "Demo",
-    "label": "Demo: {{time}} left. Open your account page."
+    "label": "Demo: jäänud {{time}}. Ava oma konto leht."
   },
   "account": {
-    "title": "Demo account",
-    "accountLabel": "Demo account",
-    "timeLeft": "Time left: {{time}}",
-    "text": "This is a demo account. When the time ends, the account and all your changes are deleted.",
-    "createAccount": "Create an account",
-    "namesLocked": "A demo account cannot change its name or username.",
-    "wordsLeft": "Words you can add: {{count}}",
-    "tagsLeft": "Tags you can add: {{count}}"
+    "title": "Demokonto",
+    "accountLabel": "Demokonto",
+    "timeLeft": "Aega jäänud: {{time}}",
+    "text": "See on demokonto. Kui aeg saab läbi, kustutatakse konto ja kõik sinu muudatused.",
+    "createAccount": "Loo konto",
+    "namesLocked": "Demokonto ei saa oma nime ega kasutajanime muuta.",
+    "wordsLeft": "Sõnu, mida saad lisada: {{count}}",
+    "tagsLeft": "Tage, mida saad lisada: {{count}}"
   },
   "transition": {
     "label": "Demo käivitub",
+    "progress": "Demo käivitamise edenemine",
     "lines": {
       "line1": "Pühin sõnaraamatutelt tolmu…",
       "line2": "Õpetan tegusõnu pöörama…",

@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BrandLogo } from '@/components/common/BrandLogo';
 import { useUiStore } from '@/stores/uiStore';
-import { demoTransitionTiming, prefersReducedMotion } from '../transition';
+import { demoTransitionMinMs, demoTransitionTiming, prefersReducedMotion } from '../transition';
 
 /**
- * The screen between "Start the demo" and the dashboard (demo-access.md D18): the bubble logo and
- * one funny line at a time, in the UI language. `useStartDemo` opens it and asks it to leave; it
+ * The screen between "Start the demo" and the dashboard (demo-access.md D18): the bubble logo, a
+ * loading bar, and one funny line at a time, in the UI language. The bar fills to 90% in the
+ * screen's shortest time and stays there while a slow server answers; it fills up when the screen
+ * leaves. `useStartDemo` opens it and asks it to leave; it
  * fades out over the dashboard, then hides. Mounted once, beside the router (`app/Providers.tsx`),
  * so the route change under it does not remove it. With reduced motion it has no fade.
  */
@@ -48,6 +50,10 @@ export function DemoTransition() {
             aria-label={t('transition.label')}
         >
             <BrandLogo variant="outline" height={112} />
+            {/* No value: the bar shows time passing, not a measured amount of work. */}
+            <div className="demo-transition-bar" role="progressbar" aria-label={t('transition.progress')}>
+                <span style={{ animationDuration: `${demoTransitionMinMs()}ms` }} />
+            </div>
             {line && (
                 <p key={line} className="demo-transition-line">
                     {t(`transition.lines.${line}`)}

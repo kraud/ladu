@@ -1,61 +1,62 @@
 {
   "start": {
-    "blurb": "Try Ladu without an account.",
-    "title": "Try the demo",
-    "intro": "The demo opens Ladu with sample words, tags and a practice setup. It lasts a few minutes. When it ends, all your changes are deleted.",
-    "languagesTitle": "Which languages do you use?",
-    "languagesHint": "Pick 2 or more. The demo shows its sample words in these languages.",
-    "languageCountEmpty": "Select at least two languages",
-    "languageCountSelected_one": "1 language selected",
-    "languageCountSelected_other": "{{count}} languages selected",
-    "termsNote": "By starting the demo, you confirm that you are at least 13 years old (with a parent's permission if you are under 16) and accept the <terms>Terms</terms> and the <privacy>Privacy Policy</privacy>.",
-    "logoutWarning": "You are logged in. Starting the demo logs you out of your account.",
-    "button": "Start the demo",
-    "buttonLogout": "Log out and start the demo",
-    "starting": "Starting the demo…",
-    "loading": "Loading…",
-    "haveAccount": "Do you have an account?",
-    "signIn": "Sign in"
+    "blurb": "Teste Ladu ohne Konto.",
+    "title": "Demo ausprobieren",
+    "intro": "Die Demo öffnet Ladu mit Beispielwörtern, Tags und einer Übungseinstellung. Sie dauert ein paar Minuten. Danach werden alle deine Änderungen gelöscht.",
+    "languagesTitle": "Welche Sprachen nutzt du?",
+    "languagesHint": "Wähle 2 oder mehr. Die Demo zeigt ihre Beispielwörter in diesen Sprachen.",
+    "languageCountEmpty": "Wähle mindestens zwei Sprachen",
+    "languageCountSelected_one": "1 Sprache ausgewählt",
+    "languageCountSelected_other": "{{count}} Sprachen ausgewählt",
+    "termsNote": "Mit dem Start der Demo bestätigst du, dass du mindestens 13 Jahre alt bist (unter 16 mit Erlaubnis deiner Eltern) und die <terms>Nutzungsbedingungen</terms> sowie die <privacy>Datenschutzerklärung</privacy> akzeptierst. Beide Dokumente sind auf Englisch.",
+    "logoutWarning": "Du bist angemeldet. Mit dem Start der Demo wirst du von deinem Konto abgemeldet.",
+    "button": "Demo starten",
+    "buttonLogout": "Abmelden und Demo starten",
+    "starting": "Die Demo startet…",
+    "loading": "Laden…",
+    "haveAccount": "Hast du ein Konto?",
+    "signIn": "Anmelden"
   },
   "off": {
-    "title": "The demo is off",
-    "text": "The demo is not available now. You can create a free account instead.",
-    "createAccount": "Create an account"
+    "title": "Die Demo ist aus",
+    "text": "Die Demo ist gerade nicht verfügbar. Du kannst stattdessen ein kostenloses Konto erstellen.",
+    "createAccount": "Konto erstellen"
   },
   "ended": {
-    "blurb": "Thank you for trying Ladu.",
-    "title": "The demo has ended",
-    "text": "All the changes you made in the demo are deleted. Create an account to keep your own words.",
-    "signUp": "Create an account",
-    "tryAgain": "Start a new demo"
+    "blurb": "Danke, dass du Ladu ausprobiert hast.",
+    "title": "Die Demo ist beendet",
+    "text": "Alle Änderungen aus der Demo sind gelöscht. Erstelle ein Konto, um deine eigenen Wörter zu behalten.",
+    "signUp": "Konto erstellen",
+    "tryAgain": "Neue Demo starten"
   },
   "errors": {
-    "demo_disabled": "The demo is off now.",
-    "demo_busy": "Too many demos are running. Try again in a few minutes.",
-    "demo_rate_limited": "Too many demos were started from your network. Try again later.",
-    "demo_unavailable": "The demo is not available now. Try again later.",
-    "demo_invalid_languages": "Select at least two languages.",
-    "generic": "The demo could not start. Try again.",
-    "demo_restricted": "This is not available in the demo.",
-    "demo_word_limit": "The demo cannot have more words. Create an account to add more.",
-    "demo_tag_limit": "The demo cannot have more tags. Create an account to add more."
+    "demo_disabled": "Die Demo ist gerade aus.",
+    "demo_busy": "Gerade laufen zu viele Demos. Versuche es in ein paar Minuten noch einmal.",
+    "demo_rate_limited": "Aus deinem Netzwerk wurden zu viele Demos gestartet. Versuche es später noch einmal.",
+    "demo_unavailable": "Die Demo ist gerade nicht verfügbar. Versuche es später noch einmal.",
+    "demo_invalid_languages": "Wähle mindestens zwei Sprachen.",
+    "generic": "Die Demo konnte nicht starten. Versuche es noch einmal.",
+    "demo_restricted": "Das ist in der Demo nicht verfügbar.",
+    "demo_word_limit": "Die Demo kann keine weiteren Wörter haben. Erstelle ein Konto, um mehr hinzuzufügen.",
+    "demo_tag_limit": "Die Demo kann keine weiteren Tags haben. Erstelle ein Konto, um mehr hinzuzufügen."
   },
   "badge": {
     "demo": "Demo",
-    "label": "Demo: {{time}} left. Open your account page."
+    "label": "Demo: noch {{time}}. Öffne deine Kontoseite."
   },
   "account": {
-    "title": "Demo account",
-    "accountLabel": "Demo account",
-    "timeLeft": "Time left: {{time}}",
-    "text": "This is a demo account. When the time ends, the account and all your changes are deleted.",
-    "createAccount": "Create an account",
-    "namesLocked": "A demo account cannot change its name or username.",
-    "wordsLeft": "Words you can add: {{count}}",
-    "tagsLeft": "Tags you can add: {{count}}"
+    "title": "Demo-Konto",
+    "accountLabel": "Demo-Konto",
+    "timeLeft": "Verbleibende Zeit: {{time}}",
+    "text": "Das ist ein Demo-Konto. Wenn die Zeit abläuft, werden das Konto und alle deine Änderungen gelöscht.",
+    "createAccount": "Konto erstellen",
+    "namesLocked": "Ein Demo-Konto kann seinen Namen und Benutzernamen nicht ändern.",
+    "wordsLeft": "Wörter, die du hinzufügen kannst: {{count}}",
+    "tagsLeft": "Tags, die du hinzufügen kannst: {{count}}"
   },
   "transition": {
     "label": "Die Demo startet",
+    "progress": "Fortschritt beim Start der Demo",
     "lines": {
       "line1": "Die Wörterbücher werden abgestaubt…",
       "line2": "Die Verben lernen das Konjugieren…",

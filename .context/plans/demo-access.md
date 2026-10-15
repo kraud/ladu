@@ -222,7 +222,7 @@ Slice 0 changes no learner-facing behaviour (the gate is off by default); Slice 
 ## Details to finalize during implementation (non-blocking)
 
 1. **Placement of the header indicator** (mobile vs desktop, D6), and whether the login and registration pages also get a "Try the demo" link.
-2. **Wording.** Draft the demo badge, countdown, start screen, "the demo is off", "the demo has ended", and the error strings in English; the user reviews the ES/DE/EE translations once the feature is live.
+2. **Wording.** Draft the demo badge, countdown, start screen, "the demo is off", "the demo has ended", and the error strings in English; the user reviews the ES/DE/EE translations once the feature is live. **2026-10-15:** `demo.json` is now fully translated in ES/DE/EE by Claude (the user saw `/demo` in English after a language change). `locales.test.ts` fails when a string there is still the English one (except `badge.demo`). The user may still review the wording.
 3. ~~**Limiter implementation**~~ — decided 2026-10-15: a hand-written fixed-window `Map` in `lib/demo.ts` (no new dependency). `DEMO_STARTS_PER_IP` defaults to 5/hour and can be set by an environment variable (Review log S1-1).
 4. ~~**Exact cap counting**~~ — decided 2026-10-15: lock the demo's `users` row (`FOR UPDATE`) before the count (Review log S2-5).
 5. **Retention of `demo_starts` / `demo_refusals`** (Slice 5): kept for now (small rows, no personal data). Add a cut-off in the purge (e.g. 1 year) if they grow.
@@ -301,7 +301,7 @@ Differences from the design above, and choices made during the slice:
 - **Exclusions:** the admin statistics also leave out demo-owned content (words, translations, tags, saved sessions, practised translations), not only the accounts: each demo copies the template.
 - **Metrics:** every tag mutation now refreshes the user metrics (`totalTags`; a tag copy also adds words). Recorded in the invalidation graph (`frontend/src/app/query-client.ts`).
 - **e2e:** `demo-access-gate.spec.ts` checks the copy, the counters, the word cap (API) and the tag cap (UI message), and that a demo sees no visibility choice and no Follow. The purge is tested in Jest only (a nightly job).
-- **Still open:** the real template content (D5) and the review of the ES/DE/EE drafts in `demo.json` ("Details to finalize" 2).
+- **Still open:** the real template content (D5). (The ES/DE/EE strings of `demo.json` were translated on 2026-10-15, "Details to finalize" 2.)
 
 
 ## Additions before the merge (planned on 2026-10-15)
@@ -367,6 +367,7 @@ No IP and no other personal data, so the privacy page does not change. The rows 
 - **Screen:** `features/demo/components/DemoTransition.tsx`, mounted beside the router in `app/Providers.tsx` (and in the test `renderApp`). It stays on screen across the route change. It shows the outline bubble logo (decorative) and one line at a time. The last line stays until the screen leaves. The styles are `.demo-transition` in `globals.css`. With reduced motion, there is no fade and no line animation.
 - **Timing and lines:** `features/demo/transition.ts`: 3 lines × 1000 ms, a 500 ms fade, and 3 different keys picked at random from 6 (`demo:transition.lines.line1–6`). The user approved the English lines; the label and the lines are translated in ES, DE and EE (the rest of `demo.json` is still English drafts). Tests set shorter times through `demoTransitionTiming`.
 - **Start:** `useStartDemo` opens the screen when the request starts. It waits for the server answer and the minimum time together (`Promise.all`), then opens the dashboard and starts the fade. A refusal rejects at once, so the screen closes and `/demo` shows the message.
+- **Loading bar (added on 2026-10-15, after the slice):** between the logo and the line, `role="progressbar"` with no value (it shows time passing, not measured work), label `demo:transition.progress`. It fills to 90% in the screen's shortest time (`demoTransitionMinMs()`, inline `animation-duration`), stays there while a slow server answers, and goes to 100% when the screen leaves. No animation with reduced motion.
 - **Tests:** Vitest (the lines change before the dashboard opens, a slow server keeps the screen, a refusal closes it, the line pick); e2e `startDemo` checks the screen on every start. Results: Vitest 1825 passed; the full Playwright run passed 145 of 145.
 - **Test trap:** `admin-14-demo-gate.spec.ts` expects exactly its own 2 live demos ("Running now: 2 of 200"). A demo that is still live in the local DB from manual testing (≤ 15 min) fails it. Slice 5 touches this tab: make the check relative to the count before the seed.
 
