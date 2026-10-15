@@ -115,6 +115,9 @@ export default defineConfig({
                 // stub; a real EKILEX_API_KEY in .env wins over this dummy and is simply ignored.
                 EKILEX_API_URL: EKI_STUB_URL,
                 EKILEX_API_KEY: 'e2e-stub-key',
+                // Every e2e demo start comes from one IP (demo-access.md Review log S1-1). With a reused local
+                // `npm run dev` this value does not apply, so the demo spec starts at most 5 demos (the default).
+                DEMO_STARTS_PER_IP: '1000',
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.

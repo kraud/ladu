@@ -518,3 +518,23 @@ export async function seedDemoUser(email: string, username: string, expiresInMin
         [email, username, expiresInMinutes],
     );
 }
+
+/** Turns the demo gate on or off. Global state: only `*-gate.spec.ts` specs may call it. */
+export async function setDemoEnabled(enabled: boolean): Promise<void> {
+    await getPool().query(`UPDATE access_settings SET demo_enabled = $1 WHERE id = 1`, [enabled]);
+}
+
+/** Moves a demo's expiry into the past: `protect` refuses its token at the next request. */
+export async function expireDemoSession(userId: string): Promise<void> {
+    await getPool().query(`UPDATE users SET demo_expires_at = now() - interval '1 second' WHERE id = $1 AND is_demo`, [userId]);
+}
+
+/** Best-effort teardown of the demo sessions a spec started, by id (only demo rows, never the template). */
+export async function deleteDemoSessions(userIds: string[]): Promise<void> {
+    if (userIds.length === 0) return;
+    try {
+        await getPool().query(`DELETE FROM users WHERE is_demo AND demo_expires_at IS NOT NULL AND id = ANY($1::uuid[])`, [userIds]);
+    } catch (error) {
+        console.warn('[e2e] demo cleanup failed:', (error as Error).message);
+    }
+}

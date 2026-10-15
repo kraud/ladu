@@ -203,6 +203,27 @@ Local dev and test databases load the same way (`node scripts/lexicon/load.js <f
 language, and `translations-en-fixture.jsonl` with the translations of 11 English words) are
 enough for tests and e2e (`npm run lexicon:load:fixture -w backend`).
 
+## Demo accounts (`users.is_demo`)
+
+The "Try the demo" button makes a throwaway account (`.context/plans/demo-access.md`). It is off
+by default in every environment. The owner turns it on, and sets its duration and its caps, in the
+admin panel: **Access → Demo** (`/access?tab=demo`). Nothing to deploy.
+
+- **What a demo row looks like:** `is_demo = true`, name `Demo`, username `demo-<uuid>`, email
+  `demo+<uuid>@ladu.invalid` (no mail can reach it), no password. `demo_expires_at` is the end of
+  the demo; after it, the backend refuses the token.
+- **The per-IP limit** is an environment variable, `DEMO_STARTS_PER_IP` (default 5 starts per hour
+  and per IP). Not a secret, and not needed in a normal deploy. IPs stay in the backend's memory
+  only, and a restart clears them. The e2e config sets it to 1000, because all its demos come
+  from one IP.
+- **How many demos run now** (also shown in the admin Demo tab):
+
+  ```sql
+  SELECT count(*) FROM users WHERE is_demo AND demo_expires_at > now();
+  ```
+- **Cleanup:** Slice 2 adds expired demos to the nightly purge. Until then, an expired demo row
+  stays in the database. It does not count toward the live cap, and its token does not work.
+
 ## Email sender addresses per environment
 
 Not a database, but environment-scoped the same way: staging sends real

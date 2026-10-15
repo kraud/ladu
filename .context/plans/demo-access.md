@@ -1,6 +1,6 @@
 # Plan: Account-less demo access (ephemeral "demo" accounts)
 
-Status: **draft, planned on 2026-10-14, reviewed against the code on 2026-10-14.** **Slice 0 done on 2026-10-15** (branch `demo-setup`): migrations 0027 + 0028, the admin API, the admin Demo tab and `GET /api/access` `demo.enabled`; Jest, Vitest and the full Playwright run (141 passed, with `admin-14-demo-gate.spec.ts`) are green. Slice 1 is next. Decisions D1–D15 below are confirmed with the user (D15 added on 2026-10-15). The items at the end are non-blocking, to finalize during implementation. The review findings and how each one was resolved are in "Review log (2026-10-14)" at the end.
+Status: **draft, planned on 2026-10-14, reviewed against the code on 2026-10-14.** **Slice 0 done on 2026-10-15** (branch `demo-setup`): migrations 0027 + 0028, the admin API, the admin Demo tab and `GET /api/access` `demo.enabled`; Jest, Vitest and the full Playwright run (141 passed, with `admin-14-demo-gate.spec.ts`) are green. **Slice 1 done on 2026-10-15** (same branch): `POST /api/demo`, the session and expiry in `protect`, the account restrictions, `/demo`, `/demo/ended`, the header countdown, the Account page for a demo, and the landing link; `demo-access-gate.spec.ts` is green (see "Slice 1 — what was built"). Slice 2 is next. Decisions D1–D15 below are confirmed with the user (D15 added on 2026-10-15). The items at the end are non-blocking, to finalize during implementation. The review findings and how each one was resolved are in "Review log (2026-10-14)" at the end.
 
 ## What this is (plain-language overview)
 
@@ -194,8 +194,8 @@ Admin UI: `/access` (`admin/src/features/access/`) gains a third tab `?tab=demo`
 
 | # | Slice | Ends with |
 |---|---|---|
-| 0 | **Admin settings + gate.** Migration (all four `users` columns + the partial index, and the five `access_settings` columns with their `CHECK`s; migrations 0027 + 0028). Admin API read/write for the demo settings + audit. Admin `/access?tab=demo` tab. `GET /api/access` returns `demo.enabled`. | Jest + Vitest; Playwright `admin-14-demo-gate.spec.ts` (owner flips the gate and tunes caps; `GET /api/access` reflects it). |
-| 1 | **Bootstrap + session + expiry + account restrictions, end-to-end with inline placeholder seed.** `POST /api/demo` (per-IP limiter + global cap) with a tiny inline seed (1–2 tags, a few words, a saved config). `protect` expiry check + skipped activity writes. Account/OAuth restrictions (D10 a, c) and the silent password-reset skip. `serializeLoginUser`/`serializeUser` + `RawUser`/`AuthUser`. `/demo` start screen, `/demo/ended`, `useStartDemo`, header indicator + countdown, demo-aware 401 handling. Landing link. | Jest + Vitest; Playwright `demo-access-gate.spec.ts` (landing link → `/demo` → start → see seed data → add a word → force expiry in the DB → next request → `/demo/ended`; a logged-in user sees the log-out warning). |
+| 0 ✅ | **Admin settings + gate.** Migration (all four `users` columns + the partial index, and the five `access_settings` columns with their `CHECK`s; migrations 0027 + 0028). Admin API read/write for the demo settings + audit. Admin `/access?tab=demo` tab. `GET /api/access` returns `demo.enabled`. | Jest + Vitest; Playwright `admin-14-demo-gate.spec.ts` (owner flips the gate and tunes caps; `GET /api/access` reflects it). |
+| 1 ✅ | **Bootstrap + session + expiry + account restrictions, end-to-end with inline placeholder seed.** `POST /api/demo` (per-IP limiter + global cap) with a tiny inline seed (1–2 tags, a few words, a saved config). `protect` expiry check + skipped activity writes. Account/OAuth restrictions (D10 a, c) and the silent password-reset skip. `serializeLoginUser`/`serializeUser` + `RawUser`/`AuthUser`. `/demo` start screen, `/demo/ended`, `useStartDemo`, header indicator + countdown, demo-aware 401 handling. Landing link. | Jest + Vitest; Playwright `demo-access-gate.spec.ts` (landing link → `/demo` → start → see seed data → add a word → force expiry in the DB → next request → `/demo/ended`; a logged-in user sees the log-out warning). |
 | 2 | **Template + clone + caps + tag restrictions + purge.** `scripts/seed-demo-template.ts`; `POST /api/demo` clones the template instead of inline seeding (id maps, array remap, date shift). Word/tag caps on create **and** clone. Tag restrictions (D10 b, d). Purge deletes expired demo users. Exclude demo users from the admin users list, stats and `searchUser`. `totalTags` + Account page counters. | Jest + Vitest; Playwright extends `demo-access-gate.spec.ts` (rich seed shows up with recent mastery; exceeding the word/tag cap is refused; Follow and Public visibility are not offered). The purge is tested in Jest (`runPurge` removes an expired demo, keeps a live one and the template). |
 
 Slice 0 changes no learner-facing behaviour (the gate is off by default); Slice 1 is the thin vertical slice that proves the whole loop; Slice 2 hardens and scales it.
@@ -263,3 +263,16 @@ The Slice 1 design was checked against the code before any change.
 | S1-3 | Moderate | The 401 interceptor (`api/client.ts`) clears the session before it calls the handlers, so a handler cannot know the session was a demo. | The interceptor reads `isDemo` before it clears, and passes it to the handlers. |
 | S1-4 | Minor | `uiLanguage` default `'en'`: the code stores labels (`'English'`). | Labels for `uiLanguage`, `nativeLanguage` and `languages`. |
 | S1-5 | Minor | The demo e2e spec turns the demo on (global row), so it must be a `-gate` spec. | Named `demo-access-gate.spec.ts`. |
+
+## Slice 1 — what was built (2026-10-15)
+
+Differences from the design above, and choices made during the slice:
+
+- **Seed:** `backend/lib/demoSeed.ts` — 5 nouns in the four languages, 2 Private tags, 1 saved practice config (checked with `validateConfigRequest`). Slice 2 replaces it with the template clone.
+- **Live cap:** the count and the insert run under one Postgres advisory lock, so parallel starts cannot pass `demo_max_live` (decision 4 of "Details to finalize" is settled for the live cap; the word/tag caps are Slice 2).
+- **Account page of a demo:** besides the hidden Sign-in methods, the username and email rows are hidden too (they are synthetic), and the card says "Demo account" instead of `@username`. The edit form replaces name, username, email and sign-in methods with one line.
+- **Log-out of a demo** goes to `/demo/ended`, like an expiry (D13).
+- **Header badge** (D6): "⏱ Demo m:ss" before the avatar, on every size (below 480px only the clock); it links to `/user` and owns the expiry timer (one `setTimeout` at `demoExpiresAt`, at once after a reload).
+- **Strings:** a new `demo` namespace, English drafts in all four locales (to review once live, "Details to finalize" 2). The landing label `tryDemo` is translated in `landing/app.js`.
+- **e2e:** the landing page is not served in e2e, and `APP_ORIGIN` is fixed to production, so the landing link is checked by the landing node tests (`landing/scripts/demo-link.test.mjs`); `demo-access-gate.spec.ts` starts at `/demo`. The per-IP limit is tested in Jest only (all e2e demos come from one IP).
+
