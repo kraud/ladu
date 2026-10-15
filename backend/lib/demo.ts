@@ -7,10 +7,12 @@
  *   written to the database or to a log.
  * - `isDemoExpired`: the expiry check `protect` runs on every request.
  * - `assertNotDemo`: the refusal of an action a demo may not take (D10).
+ * - `assertDemoVisibility`: a demo's tags are always Private (D10 b).
+ * - `assertDemoRoom`: the word and tag caps on every create and clone path (D3, D11).
  */
 const { and, count, eq, gt, sql } = require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
-const { users } = require("../src/db/schema");
+const { users, words, tags } = require("../src/db/schema");
 const { HttpError }: typeof import("./httpError") = require("./httpError");
 
 /** Both `db` and a transaction can run the count. */
@@ -35,6 +37,8 @@ export const DEMO_CODE = {
   rateLimited: "demo_rate_limited",
   busy: "demo_busy",
   restricted: "demo_restricted",
+  wordLimit: "demo_word_limit",
+  tagLimit: "demo_tag_limit",
 } as const;
 
 /** A demo refusal: an HTTP status plus an `apiCode` that the error middleware sends as `code`. */
@@ -59,6 +63,51 @@ export const assertNotDemo = (user: { isDemo?: boolean | null } | undefined, res
   if (!user?.isDemo) return;
   res.status(403);
   throw new DemoError(403, DEMO_CODE.restricted, RESTRICTED_MESSAGE);
+};
+
+/** The only tag visibility a demo may use (D10 b): a real user can never see or follow a demo's tag. */
+export const assertDemoVisibility = (user: { isDemo?: boolean | null } | undefined, visibility: unknown, res: any): void => {
+  if (visibility !== "Private") assertNotDemo(user, res);
+};
+
+/** What a demo account carries for the cap checks (`req.user`, loaded by `protect`). */
+export interface DemoCapUser {
+  id: string;
+  isDemo?: boolean | null;
+  demoWordLimit?: number | null;
+  demoTagLimit?: number | null;
+}
+
+/**
+ * Refuses a create or clone that would take a demo past its word or tag cap (D3, D11): 403
+ * `demo_word_limit` / `demo_tag_limit`, and nothing of the request is written. Call it inside the
+ * transaction that writes, before the writes: it locks the demo's `users` row, so two parallel
+ * requests take turns and cannot pass the cap together (Review log S2-5). The caps are absolute
+ * (seed + configured maximum), frozen on the row when the demo started (D7). A normal account: no-op.
+ */
+export const assertDemoRoom = async (
+  tx: Pick<typeof db, "select">,
+  user: DemoCapUser | undefined,
+  add: { words?: number; tags?: number },
+  res: any,
+): Promise<void> => {
+  if (!user?.isDemo) return;
+  await tx.select({ id: users.id }).from(users).where(eq(users.id, user.id)).for("update");
+
+  if (add.words) {
+    const [row] = await tx.select({ value: count() }).from(words).where(eq(words.userId, user.id));
+    if (Number(row?.value ?? 0) + add.words > (user.demoWordLimit ?? 0)) {
+      res.status(403);
+      throw new DemoError(403, DEMO_CODE.wordLimit, "The demo cannot have more words");
+    }
+  }
+  if (add.tags) {
+    const [row] = await tx.select({ value: count() }).from(tags).where(eq(tags.authorId, user.id));
+    if (Number(row?.value ?? 0) + add.tags > (user.demoTagLimit ?? 0)) {
+      res.status(403);
+      throw new DemoError(403, DEMO_CODE.tagLimit, "The demo cannot have more tags");
+    }
+  }
 };
 
 /** True for a live demo session whose time is over. The template (no expiry) and normal users: false. */

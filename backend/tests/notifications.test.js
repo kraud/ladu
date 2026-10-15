@@ -4,8 +4,10 @@
  * Migration notes (Mongoose → Drizzle):
  *   - The aggregation pipeline (User/Tag $lookup) is replaced by
  *     application-level join queries in the controller.
- *   - `createNotification` accepts a `user` array (one notification per entry)
- *     just like the legacy controller.
+ *   - There is no client route to create a notification: `POST /api/notifications`
+ *     let any user notify any user ids with any text, and was removed
+ *     (demo-access.md Review log S2-2). Notification rows are made by the server, in
+ *     the transaction of the domain action (§8.1); these tests insert them directly.
  */
 
 // Must run before `require('../app')` below — see auth.test.js's comment on
@@ -29,6 +31,10 @@ afterAll(async () => {
     await pool.end();
 });
 
+/** A notification for `recipientId`, sent by `requesterId`, as the server would make it. */
+const notify = (recipientId, requesterId) =>
+    db.insert(notifications).values({ userId: recipientId, variant: 'friendRequest', dismissed: false, content: { requesterId } });
+
 const registerAndLogin = async (name, email, username) => {
     await request(app).post('/api/users').send({ name, email, username, password: 'pass123', languages: ['English', 'Spanish'] });
     const r = await request(app).post('/api/users/login').send({ email, password: 'pass123' });
@@ -43,23 +49,18 @@ describe('Notification CRUD', () => {
         userB = await registerAndLogin('Bob', 'bob@test.com', 'bob');
     });
 
-    it('POST /api/notifications - creates a notification', async () => {
+    it('POST /api/notifications is gone: 404, and nothing is created', async () => {
         const res = await request(app)
-            .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
+            .post('/api/notifications')
+            .set('Authorization', `Bearer ${userA.token}`)
             .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
 
-        expect(res.statusCode).toBe(200);
-        expect(Array.isArray(res.body)).toBe(true);
-        expect(res.body.length).toBe(1);
-        expect(res.body[0]).toHaveProperty('variant', 'friendRequest');
-        expect(res.body[0]).toHaveProperty('dismissed', false);
-        expect(res.body[0]).toHaveProperty('user', userB.id);
+        expect(res.statusCode).toBe(404);
+        expect(await db.select().from(notifications)).toHaveLength(0);
     });
 
     it('GET /api/notifications/getNotifications - lists notifications for the current user', async () => {
-        await request(app)
-            .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
+        await notify(userB.id, userA.id);
 
         const res = await request(app)
             .get('/api/notifications/getNotifications')
@@ -75,9 +76,7 @@ describe('Notification CRUD', () => {
     });
 
     it('GET /api/notifications/getRequesterNotifications - lists notifications where user is requester', async () => {
-        await request(app)
-            .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
+        await notify(userB.id, userA.id);
 
         const res = await request(app)
             .get('/api/notifications/getRequesterNotifications')
@@ -90,9 +89,7 @@ describe('Notification CRUD', () => {
 
     it('PUT /api/notifications/:id - updates a notification', async () => {
         // userB creates a notification for userA (userA is the owner)
-        await request(app)
-            .post('/api/notifications').set('Authorization', `Bearer ${userB.token}`)
-            .send({ user: [userA.id], variant: 'friendRequest', content: { requesterId: userB.id } });
+        await notify(userA.id, userB.id);
 
         const [notifRow] = await db
             .select()
@@ -110,9 +107,7 @@ describe('Notification CRUD', () => {
     });
 
     it('DELETE /api/notifications/:id - deletes a notification', async () => {
-        await request(app)
-            .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
+        await notify(userB.id, userA.id);
 
         const [notifRow] = await db
             .select()
@@ -146,9 +141,7 @@ describe('Notification Authorization', () => {
 
     it('DELETE /api/notifications/:id - rejects deletion by non-owner', async () => {
         // userA creates a notification for userB
-        await request(app)
-            .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
+        await notify(userB.id, userA.id);
 
         const [notifRow] = await db
             .select()
@@ -166,9 +159,7 @@ describe('Notification Authorization', () => {
 
     it('PUT /api/notifications/:id - rejects update by non-owner', async () => {
         // userA creates a notification for userB
-        await request(app)
-            .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userB.id], variant: 'friendRequest', content: { requesterId: userA.id } });
+        await notify(userB.id, userA.id);
 
         const [notifRow] = await db
             .select()
@@ -183,29 +174,5 @@ describe('Notification Authorization', () => {
             .send({ dismissed: true });
 
         expect(res.statusCode).toBe(401);
-    });
-});
-
-describe('Notification Error Handling', () => {
-    let userA;
-
-    beforeEach(async () => {
-        userA = await registerAndLogin('Alice', 'alice@test.com', 'alice');
-    });
-
-    it('POST /api/notifications - rejects missing user', async () => {
-        const res = await request(app)
-            .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ variant: 'friendRequest' });
-
-        expect(res.statusCode).toBe(400);
-    });
-
-    it('POST /api/notifications - rejects missing variant', async () => {
-        const res = await request(app)
-            .post('/api/notifications').set('Authorization', `Bearer ${userA.token}`)
-            .send({ user: [userA.id] });
-
-        expect(res.statusCode).toBe(400);
     });
 });

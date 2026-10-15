@@ -224,7 +224,7 @@ Slice 0 changes no learner-facing behaviour (the gate is off by default); Slice 
 1. **Placement of the header indicator** (mobile vs desktop, D6), and whether the login and registration pages also get a "Try the demo" link.
 2. **Wording.** Draft the demo badge, countdown, start screen, "the demo is off", "the demo has ended", and the error strings in English; the user reviews the ES/DE/EE translations once the feature is live.
 3. ~~**Limiter implementation**~~ — decided 2026-10-15: a hand-written fixed-window `Map` in `lib/demo.ts` (no new dependency). `DEMO_STARTS_PER_IP` defaults to 5/hour and can be set by an environment variable (Review log S1-1).
-4. **Exact cap counting** (accept a small overshoot, or lock the user row).
+4. ~~**Exact cap counting**~~ — decided 2026-10-15: lock the demo's `users` row (`FOR UPDATE`) before the count (Review log S2-5).
 
 ## Review log (2026-10-14)
 
@@ -275,4 +275,15 @@ Differences from the design above, and choices made during the slice:
 - **Header badge** (D6): "⏱ Demo m:ss" before the avatar, on every size (below 480px only the clock); it links to `/user` and owns the expiry timer (one `setTimeout` at `demoExpiresAt`, at once after a reload).
 - **Strings:** a new `demo` namespace, English drafts in all four locales (to review once live, "Details to finalize" 2). The landing label `tryDemo` is translated in `landing/app.js`.
 - **e2e:** the landing page is not served in e2e, and `APP_ORIGIN` is fixed to production, so the landing link is checked by the landing node tests (`landing/scripts/demo-link.test.mjs`); `demo-access-gate.spec.ts` starts at `/demo`. The per-IP limit is tested in Jest only (all e2e demos come from one IP).
+
+## Review log — Slice 2 start (2026-10-15)
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| S2-1 | Major | The social routes are mounted now (`POST /api/friendships`, accept/decline; `POST /api/tags/:id/share`, `/api/tag-shares/:id/accept|decline`). The plan defers them (D4), so a demo could send friend requests and shared tags to any user id. No app code calls them. | `assertNotDemo` on create/accept/decline of friendships and tag shares (Slice 2 step 1). |
+| S2-2 | Major | `POST /api/notifications` has no authorization: any signed-in user can notify any user ids with any text (pre-existing; a demo makes it anonymous). No app caller; §8.1 says notification rows are made server-side. | The route, its controller function and its tests are removed (Slice 2 step 1). |
+| S2-3 | Moderate | "The template is inserted through the app's validation" does not hold: the backend checks only "≥ 2 translations"; case names and form rules are checked in the browser only. | Template content is a JSON data file; Jest checks languages, parts of speech, case names, tag references and the practice config. The e2e shows the words in the UI. |
+| S2-4 | Moderate | Without a seeded template, `POST /api/demo` answers 503 `demo_unavailable` in staging and production. | The seed command goes in the infrastructure guide; the e2e setup seeds the template. |
+| S2-5 | Minor | Parallel creates can pass a word/tag cap slightly ("Details to finalize" 4). | Lock the demo's `users` row (`FOR UPDATE`) before the count. |
+| S2-6 | Minor | The tag clone dialog offers a visibility choice. | For a demo, the app sends Private and hides the choice (part of D10 b). |
 
