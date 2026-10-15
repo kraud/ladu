@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Link, Navigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { LanguageTiles } from '@/components/common/LanguageTiles';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { AuthLayout } from '@/features/auth/components/AuthLayout';
 import { TermsNote } from '@/features/auth/components/TermsNote';
@@ -16,6 +18,9 @@ import { isLiveDemo } from '../session';
  * A button, not an automatic start, so the visitor sees the Terms note first. With a normal
  * session open, it warns that the demo logs the visitor out. A demo that is still running opens
  * the app at once. When the demo is off, it says so and points to sign-up.
+ *
+ * The visitor picks their languages first, with the registration tiles (D16): Start waits for 2 or
+ * more, and the demo account gets them in the order picked.
  */
 export function DemoPage() {
     const { t, i18n } = useTranslation();
@@ -23,6 +28,8 @@ export function DemoPage() {
     const start = useStartDemo();
     const user = useAuthStore((s) => s.user);
     const token = useAuthStore((s) => s.token);
+    const [languages, setLanguages] = useState<string[]>([]);
+    const enoughLanguages = languages.length >= 2;
 
     if (isLiveDemo(user, token)) return <Navigate to="/" />;
 
@@ -50,6 +57,19 @@ export function DemoPage() {
             <div className="flex flex-col gap-4">
                 <p>{t('demo:start.intro')}</p>
 
+                <section className="flex flex-col gap-2" aria-labelledby="demo-languages-title">
+                    <h2 id="demo-languages-title" className="h3">
+                        {t('demo:start.languagesTitle')}
+                    </h2>
+                    <p className="hint">{t('demo:start.languagesHint')}</p>
+                    <LanguageTiles value={languages} onChange={setLanguages} />
+                    <span className="hint" aria-live="polite">
+                        {languages.length === 0
+                            ? t('demo:start.languageCountEmpty')
+                            : t('demo:start.languageCountSelected', { count: languages.length })}
+                    </span>
+                </section>
+
                 {signedIn && (
                     <p className="banner warning" role="status">
                         {t('demo:start.logoutWarning')}
@@ -64,8 +84,10 @@ export function DemoPage() {
 
                 <Button
                     className="w-full"
-                    disabled={status === 'loading' || start.isPending}
-                    onClick={() => start.mutate({ uiLanguage: labelByI18nCode(i18n.language), theme: themeForRequest() })}
+                    disabled={status === 'loading' || start.isPending || !enoughLanguages}
+                    onClick={() =>
+                        start.mutate({ uiLanguage: labelByI18nCode(i18n.language), languages, theme: themeForRequest() })
+                    }
                 >
                     {status === 'loading'
                         ? t('demo:start.loading')

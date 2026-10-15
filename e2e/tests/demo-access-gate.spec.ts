@@ -29,6 +29,9 @@ import {
  * no Follow and no visibility choice. The purge of expired demos is tested in Jest
  * (tests/demoExclusions.test.js): it is a nightly job, not something the browser sees.
  *
+ * Slice 3: the visitor picks 2 or more languages before Start (D16). The last test picks German and
+ * English and checks them on the account, as the Review columns and in the copied saved configs (D17).
+ *
  * Starts 4 demos at most: with a reused local `npm run dev` the per-IP limit stays at its default of 5.
  */
 
@@ -71,9 +74,19 @@ async function readSession(page: Page): Promise<{ user: { id: string; isDemo?: b
     });
 }
 
-/** Starts a demo from `/demo` and records its id for the teardown. */
-async function startDemo(page: Page, buttonName = 'Start the demo'): Promise<{ id: string; token: string }> {
-    await page.getByRole('button', { name: buttonName }).click();
+/**
+ * Starts a demo from `/demo` and records its id for the teardown. Picks `languages` first (the tile
+ * names, D16): Start waits for 2 or more.
+ */
+async function startDemo(
+    page: Page,
+    buttonName = 'Start the demo',
+    languages: string[] = ['English', 'Español'],
+): Promise<{ id: string; token: string }> {
+    const button = page.getByRole('button', { name: buttonName });
+    await expect(button).toBeDisabled();
+    for (const name of languages) await page.getByRole('button', { name, exact: true }).click();
+    await button.click();
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole('link', { name: /^Demo: \d+:\d\d left/ })).toBeVisible();
     const { user, token } = await readSession(page);
@@ -98,6 +111,7 @@ test('a visitor starts a demo, sees the seed, adds a word, and the demo ends on 
     await setDemoEnabled(true);
     await page.goto('/demo');
     await expect(page.getByRole('heading', { name: 'Try the demo' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Which languages do you use?' })).toBeVisible();
     await expect(page.getByText(/By starting the demo/)).toBeVisible();
     await expect(page.getByText(/logs you out/)).toHaveCount(0);
 
@@ -166,12 +180,25 @@ test('a signed-in user is warned that the demo logs them out, and the demo repla
     await expect(page).toHaveURL(/\/demo\/ended$/);
 });
 
-test('the demo is a copy of the template, with word and tag caps, and no Follow or visibility choice', async ({ page }) => {
+test('the demo is a copy of the template in the picked languages, with word and tag caps, and no Follow or visibility choice', async ({ page }) => {
     await setDemoEnabled(true);
     // On top of the template: room for 1 more word and no more tags (frozen when the demo starts).
     await setDemoCaps({ maxWords: 1, maxTags: 0 });
     await page.goto('/demo');
-    const demo = await startDemo(page);
+    // German first, then English (D16): the account keeps this order.
+    const demo = await startDemo(page, 'Start the demo', ['Deutsch', 'English']);
+
+    // The picked languages: on the account, as the Review columns, and in the copied saved configs (D17).
+    const me = await page.request.get(`${API_URL}/api/users/me`, { headers: { Authorization: `Bearer ${demo.token}` } });
+    expect(await me.json()).toMatchObject({ languages: ['German', 'English'], nativeLanguage: 'English' });
+    await page.goto('/review');
+    await expect(page.getByRole('columnheader', { name: /\bDE\b/ })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /\bEN\b/ })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /\b(ES|EE)\b/ })).toHaveCount(0);
+    const configs = await page.request.get(`${API_URL}/api/practice/configs`, { headers: { Authorization: `Bearer ${demo.token}` } });
+    const configLanguages = ((await configs.json()) as { params: { languages: string[] } }[]).map((c) => c.params.languages);
+    expect(configLanguages.length).toBeGreaterThan(0);
+    for (const languages of configLanguages) expect([...languages].sort()).toEqual(['English', 'German']);
 
     // The template's tags and words (scripts/demo-template/data.json), all four parts of speech.
     await page.goto('/tags');

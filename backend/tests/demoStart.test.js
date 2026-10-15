@@ -127,6 +127,69 @@ describe('POST /api/demo — the new demo account', () => {
     });
 });
 
+describe('POST /api/demo — the language choice (D16, D17)', () => {
+    beforeEach(() => setDemo({}));
+
+    const configLanguages = async (id) =>
+        (await db.select().from(practiceConfigs).where(eq(practiceConfigs.userId, id))).map((c) => c.params.languages);
+
+    it('stores the picked languages in their order, the UI language as native when it was picked', async () => {
+        const res = await start({ uiLanguage: 'German', languages: ['Estonian', 'German'] });
+        expect(res.status).toBe(201);
+        expect(res.body).toMatchObject({ languages: ['Estonian', 'German'], nativeLanguage: 'German', uiLanguage: 'German' });
+    });
+
+    it('makes the first pick the native language when the UI language was not picked', async () => {
+        const res = await start({ uiLanguage: 'English', languages: ['Spanish', 'Estonian'] });
+        expect(res.body).toMatchObject({ languages: ['Spanish', 'Estonian'], nativeLanguage: 'Spanish', uiLanguage: 'English' });
+    });
+
+    it('keeps only the picked languages in the copied saved configs; the words keep all their translations', async () => {
+        const { id, token } = (await start({ languages: ['English', 'German'] })).body;
+        const copied = await configLanguages(id);
+        expect(copied).toHaveLength(template.practiceConfigs.length);
+        for (const languages of copied) expect(languages).toEqual(['English', 'German']);
+        expect(await countFor(words, words.userId, id)).toBe(SEED_COUNTS.words);
+
+        // The app reads the copies back as valid configs.
+        const list = await request(app).get('/api/practice/configs').set('Authorization', `Bearer ${token}`);
+        expect(list.status).toBe(200);
+        expect(list.body).toHaveLength(copied.length);
+        for (const config of list.body) expect(config.params.languages).toEqual(['English', 'German']);
+    });
+
+    it('does not copy a config that has no picked language left', async () => {
+        const [templateUser] = await db.select().from(users).where(eq(users.username, TEMPLATE_USERNAME));
+        const spanishOnly = { ...template.practiceConfigs[0].params, languages: ['Spanish'], multiLang: 'Single-Language' };
+        await db.insert(practiceConfigs).values({ userId: templateUser.id, name: 'Spanish only', params: spanishOnly });
+
+        const { id } = (await start({ languages: ['English', 'German'] })).body;
+        const names = (await db.select().from(practiceConfigs).where(eq(practiceConfigs.userId, id))).map((c) => c.name);
+        expect(names).toHaveLength(template.practiceConfigs.length);
+        expect(names).not.toContain('Spanish only');
+    });
+
+    it('copies the configs unchanged when no languages are sent (all four)', async () => {
+        const { id } = (await start()).body;
+        expect(await configLanguages(id)).toEqual(template.practiceConfigs.map((c) => c.params.languages));
+    });
+
+    it.each([
+        ['one language', ['English']],
+        ['an unknown language', ['English', 'Klingon']],
+        ['not a list', 'English'],
+        ['the same language twice', ['German', 'German']],
+    ])('refuses %s with 400 demo_invalid_languages, makes no account and uses no start', async (_name, languages) => {
+        process.env.DEMO_STARTS_PER_IP = '1';
+        const ip = freshIp();
+        const res = await start({ languages }, ip);
+        expect(res.status).toBe(400);
+        expect(res.body.code).toBe('demo_invalid_languages');
+        expect(await accounts()).toHaveLength(0);
+        expect((await start({ languages: ['English', 'Spanish'] }, ip)).status).toBe(201);
+    });
+});
+
 describe('POST /api/demo — limits', () => {
     beforeEach(() => setDemo({}));
 

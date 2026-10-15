@@ -41,6 +41,8 @@ export const DEMO_CODE = {
   restricted: "demo_restricted",
   wordLimit: "demo_word_limit",
   tagLimit: "demo_tag_limit",
+  /** `POST /api/demo` with a language choice that registration would refuse (D16). */
+  invalidLanguages: "demo_invalid_languages",
 } as const;
 
 /** A demo refusal: an HTTP status plus an `apiCode` that the error middleware sends as `code`. */

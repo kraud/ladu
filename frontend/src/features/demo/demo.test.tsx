@@ -1,6 +1,6 @@
 /**
  * Demo access in the learner app (demo-access.md, Slice 1): the `/demo` start screen (D12, D14),
- * the start itself, the error messages, and `/demo/ended` (D13).
+ * the language choice (D16, Slice 3), the start itself, the error messages, and `/demo/ended` (D13).
  */
 import { describe, expect, it } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
@@ -47,6 +47,11 @@ const startHandler = (answer: () => Response = () => HttpResponse.json(demoAnswe
     return bodies;
 };
 
+/** Picks languages on the start screen by their tile names ("English", "Deutsch"…), in this order. */
+const pickLanguages = async (user: ReturnType<typeof userEvent.setup>, ...names: string[]) => {
+    for (const name of names) await user.click(await screen.findByRole('button', { name }));
+};
+
 const normalSession = { id: 'u1', name: 'Ada', email: 'ada@example.com', username: 'ada', languages: ['English', 'Spanish'], token: futureToken() };
 
 describe('/demo — the demo is off', () => {
@@ -68,7 +73,7 @@ describe('/demo — the start screen', () => {
     it('shows the start button and the Terms note with both links', async () => {
         demoOn();
         await renderApp({ initialEntry: '/demo' });
-        expect(await screen.findByRole('button', { name: 'Start the demo' })).toBeEnabled();
+        expect(await screen.findByRole('button', { name: 'Start the demo' })).toBeInTheDocument();
         expect(screen.getByRole('heading', { name: 'Try the demo' })).toBeInTheDocument();
         expect(screen.getByText(/By starting the demo/)).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Terms' })).toBeInTheDocument();
@@ -76,19 +81,41 @@ describe('/demo — the start screen', () => {
         expect(screen.queryByText(/logs you out/)).not.toBeInTheDocument();
     });
 
-    it('starts the demo on the click only: sends the UI language as a label, opens the session and the dashboard', async () => {
+    it('enables Start only with 2 or more languages picked (D16)', async () => {
+        demoOn();
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/demo' });
+
+        const startButton = await screen.findByRole('button', { name: 'Start the demo' });
+        await waitFor(() => expect(screen.getByRole('button', { name: 'English' })).toBeInTheDocument());
+        expect(startButton).toBeDisabled();
+        expect(screen.getByText('Select at least two languages')).toBeInTheDocument();
+
+        await pickLanguages(user, 'Deutsch');
+        expect(startButton).toBeDisabled();
+        expect(screen.getByText('1 language selected')).toBeInTheDocument();
+
+        await pickLanguages(user, 'English');
+        expect(startButton).toBeEnabled();
+        expect(screen.getByText('2 languages selected')).toBeInTheDocument();
+
+        await pickLanguages(user, 'English'); // a second click removes it
+        expect(startButton).toBeDisabled();
+    });
+
+    it('starts the demo on the click only: sends the UI language as a label and the picks in order, opens the session and the dashboard', async () => {
         demoOn();
         const bodies = startHandler();
         server.use(...makeMetricsHandlers().handlers);
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/demo' });
 
-        await screen.findByRole('button', { name: 'Start the demo' });
+        await pickLanguages(user, 'Eesti', 'English');
         expect(bodies).toEqual([]);
         await user.click(screen.getByRole('button', { name: 'Start the demo' }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
-        expect(bodies).toEqual([{ uiLanguage: 'English' }]);
+        expect(bodies).toEqual([{ uiLanguage: 'English', languages: ['Estonian', 'English'] }]);
         expect(useAuthStore.getState().user).toMatchObject({ id: 'demo-1', isDemo: true, demoWordLimit: 35, demoTagLimit: 7 });
         expect(useAuthStore.getState().token).toEqual(expect.any(String));
     });
@@ -101,6 +128,7 @@ describe('/demo — the start screen', () => {
         const { router } = await renderApp({ initialEntry: '/demo', session: normalSession });
 
         expect(await screen.findByText('You are logged in. Starting the demo logs you out of your account.')).toBeInTheDocument();
+        await pickLanguages(user, 'English', 'Español');
         await user.click(await screen.findByRole('button', { name: 'Log out and start the demo' }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
@@ -125,6 +153,7 @@ describe('/demo — the start screen', () => {
         ['demo_busy', 503, 'Too many demos are running. Try again in a few minutes.'],
         ['demo_rate_limited', 429, 'Too many demos were started from your network. Try again later.'],
         ['demo_disabled', 403, 'The demo is off now.'],
+        ['demo_invalid_languages', 400, 'Select at least two languages.'],
         ['something_else', 500, 'The demo could not start. Try again.'],
     ])('shows the message for %s and stays on the page', async (code, status, message) => {
         demoOn();
@@ -132,6 +161,7 @@ describe('/demo — the start screen', () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/demo' });
 
+        await pickLanguages(user, 'English', 'Español');
         await user.click(await screen.findByRole('button', { name: 'Start the demo' }));
         expect(await screen.findByRole('alert')).toHaveTextContent(message);
         expect(router.state.location.pathname).toBe('/demo');

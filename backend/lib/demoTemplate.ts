@@ -28,6 +28,7 @@ const {
   exercisePerformanceCases,
 }: typeof import("../src/db/schema") = require("../src/db/schema");
 const { applyAnswer, translationAverage }: typeof import("../services/exercises/knowledge") = require("../services/exercises/knowledge");
+const { validateConfigRequest }: typeof import("../services/exercises/validateConfig") = require("../services/exercises/validateConfig");
 
 export const TEMPLATE_USERNAME = "__demo_template__";
 const TEMPLATE_EMAIL = "demo-template@ladu.invalid";
@@ -204,11 +205,16 @@ const mapped = (map: Map<string, string>, id: string) => map.get(id) as string;
  *
  * The copies are the demo's OWN words and tags: `is_cloned = false` and no source ids, so the
  * "own copy" logic never treats them as followed words (Review log M4). Tags are Private.
+ *
+ * `languages` are the visitor's picks (D16): each saved config keeps only those languages, and a
+ * config that is not valid after that is not copied (D17). The words keep all their translations,
+ * like any word a user owns in a language they do not study.
  */
 export const cloneDemoTemplate = async (
   tx: Tx,
   userId: string,
   now: Date = new Date(),
+  languages?: string[],
 ): Promise<{ words: number; tags: number } | null> => {
   const template = await findTemplateUser(tx);
   if (!template) return null;
@@ -223,7 +229,14 @@ export const cloneDemoTemplate = async (
     ? await tx.select().from(translationCases).where(inArray(translationCases.translationId, translationIds))
     : [];
   const tTagWords = tagIds.length ? await tx.select().from(tagWords).where(inArray(tagWords.tagId, tagIds)) : [];
-  const tConfigs = await tx.select().from(practiceConfigs).where(eq(practiceConfigs.userId, template.id));
+  const tConfigs = (await tx.select().from(practiceConfigs).where(eq(practiceConfigs.userId, template.id))).flatMap((c) => {
+    if (!languages) return [c];
+    const params = c.params as Record<string, unknown>;
+    const configLanguages = Array.isArray(params.languages) ? (params.languages as unknown[]) : [];
+    const kept = { ...params, languages: configLanguages.filter((l) => typeof l === "string" && languages.includes(l)) };
+    const valid = validateConfigRequest({ name: c.name, description: c.description, params: kept }).ok;
+    return valid ? [{ ...c, params: kept }] : [];
+  });
   const tPerformances = await tx.select().from(exercisePerformances).where(eq(exercisePerformances.userId, template.id));
   const tPerformanceCases = tPerformances.length
     ? await tx
