@@ -1,6 +1,6 @@
 # Plan: Account-less demo access (ephemeral "demo" accounts)
 
-Status: **draft, planned on 2026-10-14, reviewed against the code on 2026-10-14.** Slice 0 in progress on branch `demo-setup` (2026-10-15): migrations 0027 + 0028, the admin API, and the admin Demo tab are built; the e2e gate spec is next. Decisions D1–D15 below are confirmed with the user (D15 added on 2026-10-15). The items at the end are non-blocking, to finalize during implementation. The review findings and how each one was resolved are in "Review log (2026-10-14)" at the end.
+Status: **draft, planned on 2026-10-14, reviewed against the code on 2026-10-14.** **Slice 0 done on 2026-10-15** (branch `demo-setup`): migrations 0027 + 0028, the admin API, the admin Demo tab and `GET /api/access` `demo.enabled`; Jest, Vitest and the full Playwright run (141 passed, with `admin-14-demo-gate.spec.ts`) are green. Slice 1 is next. Decisions D1–D15 below are confirmed with the user (D15 added on 2026-10-15). The items at the end are non-blocking, to finalize during implementation. The review findings and how each one was resolved are in "Review log (2026-10-14)" at the end.
 
 ## What this is (plain-language overview)
 
