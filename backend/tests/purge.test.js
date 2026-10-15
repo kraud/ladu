@@ -80,11 +80,11 @@ describe('runPurge', () => {
     });
 
     it('does nothing on a second run, and on an empty database', async () => {
-        expect(await runPurge()).toEqual({ purgedUsers: 0, deletedLoginEvents: 0, deletedActivityDays: 0 });
+        expect(await runPurge()).toEqual({ purgedUsers: 0, purgedDemos: 0, deletedLoginEvents: 0, deletedActivityDays: 0 });
         await makeUser({ deletedAt: daysAgo(31) });
 
         expect((await runPurge()).purgedUsers).toBe(1);
-        expect(await runPurge()).toEqual({ purgedUsers: 0, deletedLoginEvents: 0, deletedActivityDays: 0 });
+        expect(await runPurge()).toEqual({ purgedUsers: 0, purgedDemos: 0, deletedLoginEvents: 0, deletedActivityDays: 0 });
         expect(await db.select().from(auditLog)).toHaveLength(1);
     });
 
@@ -141,7 +141,7 @@ describe('scripts/purge.js', () => {
             encoding: 'utf8',
         });
 
-        expect(output).toMatch(/purge ok: 1 account\(s\), 0 login event\(s\), 0 activity day\(s\)/);
+        expect(output).toMatch(/purge ok: 1 account\(s\), 0 expired demo\(s\), 0 login event\(s\), 0 activity day\(s\)/);
         expect(await exists(old.id)).toBe(false);
         expect(await exists(recent.id)).toBe(true);
     });

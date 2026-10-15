@@ -82,6 +82,7 @@ describe('GET /api/users/getUserMetrics - fresh account', () => {
         expect(res.status).toBe(200);
         expect(res.body).toEqual({
             totalWords: 0,
+            totalTags: 0,
             incompleteWordsCount: 0,
             translationsPerLanguage: [],
             translationsPerLanguageAndPOS: [],

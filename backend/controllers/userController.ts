@@ -578,6 +578,8 @@ const getUsersBy = asyncHandler(async (req: any, res: any) => {
       and(
         or(ilike(users.name, searchText), ilike(users.username, searchText)),
         ne(users.id, req.user.id),
+        // A real user must never find a demo account or the demo template (demo-access.md).
+        eq(users.isDemo, false),
         matchingFriendIds ? inArray(users.id, matchingFriendIds) : undefined,
       ),
     );
@@ -779,6 +781,7 @@ const getBasicUserMetrics = asyncHandler(async (req: any, res: any) => {
 
     res.status(200).json({
       totalWords: metrics?.totalWords || 0,
+      totalTags: metrics?.totalTags || 0,
       incompleteWordsCount: metrics?.incompleteWordsCount || 0,
       translationsPerLanguage: metrics?.translationsPerLanguage || [],
       translationsPerLanguageAndPOS:

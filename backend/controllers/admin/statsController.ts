@@ -20,6 +20,11 @@ const WEEKS = 12;
 // The current UTC day. `timestamp` columns in this schema hold UTC wall-clock time.
 const TODAY = sql`(now() at time zone 'utc')::date`;
 
+// Demo accounts and the demo template (demo-access.md) are not real users: their rows and their
+// content (each demo copies the template) stay out of every number here.
+const REAL = sql`not is_demo`;
+const REAL_OWNER = (column: string) => sql`${sql.raw(column)} in (select id from users where not is_demo)`;
+
 const rowsOf = async <T>(query: ReturnType<typeof sql>): Promise<T[]> => (await db.execute(query)).rows as T[];
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -67,17 +72,17 @@ const getStats = asyncHandler(async (_req: any, res: any) => {
         count(*) filter (where deleted_at is null and verified is not true)::int as unverified,
         count(*) filter (where deleted_at is null and banned_at is not null)::int as banned,
         count(*) filter (where deleted_at is not null)::int as pending_deletion
-      from users`),
-    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${words}`),
-    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${translations}`),
-    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${tags}`),
+      from users where ${REAL}`),
+    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${words} where ${REAL_OWNER('user_id')}`),
+    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${translations} t join ${words} w on w.id = t.word_id where ${REAL_OWNER('w.user_id')}`),
+    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${tags} where ${REAL_OWNER('author_id')}`),
     // A saved session that has expired is already gone for its owner, so it is not counted.
-    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${practiceSessions} where expires_at > now()`),
-    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${exercisePerformances}`),
+    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${practiceSessions} where expires_at > now() and ${REAL_OWNER('user_id')}`),
+    rowsOf<{ n: number }>(sql`select count(*)::int as n from ${exercisePerformances} where ${REAL_OWNER('user_id')}`),
     rowsOf<{ day: string; count: number }>(sql`
       select to_char(d::date, 'YYYY-MM-DD') as day, count(u.id)::int as count
       from generate_series(${TODAY} - ${DAYS - 1}::int, ${TODAY}, interval '1 day') as d
-      left join users u on u.created_at::date = d::date
+      left join users u on u.created_at::date = d::date and not u.is_demo
       group by d order by d`),
     rowsOf<{ week_start: string; count: number }>(sql`
       select to_char(w::date, 'YYYY-MM-DD') as week_start, count(u.id)::int as count
@@ -85,7 +90,7 @@ const getStats = asyncHandler(async (_req: any, res: any) => {
         date_trunc('week', ${TODAY})::date - ${(WEEKS - 1) * 7}::int,
         date_trunc('week', ${TODAY})::date,
         interval '7 days') as w
-      left join users u on date_trunc('week', u.created_at)::date = w::date
+      left join users u on date_trunc('week', u.created_at)::date = w::date and not u.is_demo
       group by w order by w`),
     rowsOf<ActivityRow>(sql`
       select to_char(d::date, 'YYYY-MM-DD') as day,
@@ -98,7 +103,7 @@ const getStats = asyncHandler(async (_req: any, res: any) => {
     rowsOf<{ language: string; users: number }>(sql`
       select lang as language, count(*)::int as users
       from users, unnest(languages) as lang
-      where deleted_at is null
+      where deleted_at is null and ${REAL}
       group by lang
       order by users desc, lang asc`),
     rowsOf<{ today: string }>(sql`select to_char(${TODAY}, 'YYYY-MM-DD') as today`),

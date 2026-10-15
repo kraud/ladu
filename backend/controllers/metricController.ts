@@ -12,7 +12,7 @@
 
 const { count, eq, inArray, sql } = require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
-const { translations, words }: typeof import("../src/db/schema") = require("../src/db/schema");
+const { tags, translations, words }: typeof import("../src/db/schema") = require("../src/db/schema");
 
 interface BasicUserMetrics {
   translationsPerLanguage: Array<{
@@ -29,6 +29,8 @@ interface BasicUserMetrics {
   wordsPerPOS: Array<{ partOfSpeech: string; type: string; count: number }>;
   wordsPerMonth: Array<{ label: string; partOfSpeech: string; count: number }>;
   totalWords: number;
+  /** The user's own tags (demo-access.md D9: the demo's "tags left" counter). */
+  totalTags: number;
   incompleteWordsCount: number;
 }
 
@@ -48,6 +50,12 @@ const calculateBasicUserMetrics = async (user: {
     .select({ count: count() })
     .from(words)
     .where(eq(words.userId, userId));
+
+  // 1b) Own tag count
+  const [{ count: totalTags }] = await db
+    .select({ count: count() })
+    .from(tags)
+    .where(eq(tags.authorId, userId));
 
   // 2) Words per part-of-speech
   const wordsPerPOSRows = await db
@@ -162,6 +170,7 @@ const calculateBasicUserMetrics = async (user: {
     wordsPerPOS,
     wordsPerMonth,
     totalWords,
+    totalTags,
     incompleteWordsCount,
   };
 };
