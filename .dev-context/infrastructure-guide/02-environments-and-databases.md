@@ -234,6 +234,13 @@ admin panel: **Access → Demo** (`/access?tab=demo`). Nothing to deploy.
   docker exec backend-prod node scripts/seed-demo-template.js
   ```
 
+  **When:** after the merge, once `deploy.yml` has deployed the environment — the script and the
+  demo columns (migrations 0027 + 0028) only exist on the server from that deploy on. Then seed
+  staging, then production, and only after that turn the demo on (admin panel, staging first).
+  Nothing breaks in between: the demo is off by default. The tests never need this step: Jest
+  seeds its own template, and the e2e start-up (locally and in the CI `e2e` job) runs
+  `npm run demo:template`.
+
   Running it again keeps the existing template. After a change to `data.json`, rebuild it with
   `--reset` (`npm run demo:template -w backend -- --reset`, or add `--reset` to the `docker exec`
   line). Demos that are running keep their own copy.

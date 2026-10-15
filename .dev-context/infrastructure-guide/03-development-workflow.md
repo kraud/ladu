@@ -147,6 +147,12 @@ smoke test passes."
   `deploy/env/app.env.example` (docs) → `deploy.yml`'s two `ENVFILE` heredocs
   (`staging` and `production` jobs) → the matching GitHub Environment secret,
   in both `staging` and `production`.
+- **Data a feature needs on the servers is a manual step after the deploy** — a
+  migration creates tables and columns, not content. Today one feature has such a
+  step: the demo needs its template seeded once per environment, after the deploy
+  and before the demo is turned on (see "Demo accounts" in
+  [`02-environments-and-databases.md`](02-environments-and-databases.md)). CI and
+  e2e seed their own copy, so they never wait for it.
 - **Migrations must be expand/contract-safe** (see
   [`02-environments-and-databases.md`](02-environments-and-databases.md)) —
   because automatic rollback reverts images, never the database.
