@@ -76,15 +76,17 @@ async function readSession(page: Page): Promise<{ user: { id: string; isDemo?: b
 }
 
 /**
- * Starts a demo from `/demo` and records its id for the teardown. Picks `languages` first (the tile
- * names, D16): Start waits for 2 or more.
+ * Starts a demo from `/demo` and records its id for the teardown. "Get started" opens step 2, then it
+ * picks `languages` (the tile names, D16): Start waits for 2 or more.
  */
 async function startDemo(
     page: Page,
-    buttonName = 'Start the demo',
+    buttonName = 'Start',
     languages: string[] = ['English', 'Español'],
 ): Promise<{ id: string; token: string }> {
-    const button = page.getByRole('button', { name: buttonName });
+    await page.getByRole('button', { name: 'Get started' }).click();
+    await expect(page.getByRole('heading', { name: 'Which languages do you use?' })).toBeVisible();
+    const button = page.getByRole('button', { name: buttonName, exact: true });
     await expect(button).toBeDisabled();
     for (const name of languages) await page.getByRole('button', { name, exact: true }).click();
     await button.click();
@@ -107,7 +109,7 @@ test('the demo is off: /demo says so and offers sign-up, and the server refuses 
     await page.goto('/demo');
     await expect(page.getByRole('heading', { name: 'The demo is off' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Create an account' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Start the demo' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Get started' })).toHaveCount(0);
 
     const res = await page.request.post(`${API_URL}/api/demo`, { data: {} });
     expect(res.status()).toBe(403);
@@ -118,9 +120,13 @@ test('a visitor starts a demo, sees the seed, adds a word, and the demo ends on 
     await setDemoEnabled(true);
     await page.goto('/demo');
     await expect(page.getByRole('heading', { name: 'Try the demo' })).toBeVisible();
+    await expect(page.getByText(/logs you out/)).toHaveCount(0);
+    // Step 2 (the languages, Start and the Terms note): the back arrow returns to step 1.
+    await page.getByRole('button', { name: 'Get started' }).click();
     await expect(page.getByRole('heading', { name: 'Which languages do you use?' })).toBeVisible();
     await expect(page.getByText(/By starting the demo/)).toBeVisible();
-    await expect(page.getByText(/logs you out/)).toHaveCount(0);
+    await page.getByRole('button', { name: 'Back' }).click();
+    await expect(page.getByRole('heading', { name: 'Try the demo' })).toBeVisible();
 
     const demo = await startDemo(page);
 
@@ -174,7 +180,7 @@ test('a signed-in user is warned that the demo logs them out, and the demo repla
 
     await page.goto('/demo');
     await expect(page.getByText('You are logged in. Starting the demo logs you out of your account.')).toBeVisible();
-    await startDemo(page, 'Log out and start the demo');
+    await startDemo(page, 'Log out and start');
 
     // A demo that is still running goes straight back into the app from /demo.
     await page.goto('/demo');
@@ -193,7 +199,7 @@ test('the demo is a copy of the template in the picked languages, with word and 
     await setDemoCaps({ maxWords: 1, maxTags: 0 });
     await page.goto('/demo');
     // German first, then English (D16): the account keeps this order.
-    const demo = await startDemo(page, 'Start the demo', ['Deutsch', 'English']);
+    const demo = await startDemo(page, 'Start', ['Deutsch', 'English']);
 
     // The picked languages: on the account, as the Review columns, and in the copied saved configs (D17).
     const me = await page.request.get(`${API_URL}/api/users/me`, { headers: { Authorization: `Bearer ${demo.token}` } });

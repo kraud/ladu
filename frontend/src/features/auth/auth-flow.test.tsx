@@ -93,6 +93,29 @@ describe('register', () => {
     });
 });
 
+describe('auth screens: links out', () => {
+    it('register: under "Already registered? Sign in" a separate row says "Not sure yet? Try the demo." with a link to /demo', async () => {
+        await renderApp({ initialEntry: '/register' });
+        const demoLink = await screen.findByRole('link', { name: 'Try the demo' });
+        expect(demoLink).toHaveAttribute('href', '/demo');
+        expect(demoLink.closest('p')).toHaveTextContent('Not sure yet? Try the demo.');
+        const signIn = screen.getByRole('link', { name: 'Sign in' });
+        expect(signIn.compareDocumentPosition(demoLink) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        expect(signIn.closest('p')).not.toBe(demoLink.closest('p'));
+    });
+
+    it('login: no demo hint (it is on the register screen only)', async () => {
+        await renderApp({ initialEntry: '/login' });
+        await screen.findByRole('heading', { level: 1 });
+        expect(screen.queryByRole('link', { name: 'Try the demo' })).not.toBeInTheDocument();
+    });
+
+    it.each(['/login', '/register', '/demo'])('%s: the Ladu logo links to the landing page', async (path) => {
+        await renderApp({ initialEntry: path });
+        expect(await screen.findByRole('link', { name: 'Ladu home' })).toHaveAttribute('href', 'https://ladu.com.ar');
+    });
+});
+
 describe('verify email', () => {
     it('verifies via the emailed link, writes the session, and enters the app', async () => {
         // Set-up account via the API so the test owns the verify token.

@@ -19,8 +19,16 @@ export function RegisterPage() {
             blurb={t('loginRegister:brand.subRegister')}
             links={
                 <>
-                    <span>{t('loginRegister:switchSectionButtons.alreadyRegistered')}</span>{' '}
-                    <Link to="/login">{t('loginRegister:switchSectionButtons.signIn')}</Link>
+                    <p>
+                        <span>{t('loginRegister:switchSectionButtons.alreadyRegistered')}</span>{' '}
+                        <Link to="/login">{t('loginRegister:switchSectionButtons.signIn')}</Link>
+                    </p>
+                    {/* For a visitor who is not ready to register: the demo, under a small separator. */}
+                    <hr className="auth-foot-sep" />
+                    <p className="auth-foot-small">
+                        <span>{t('loginRegister:switchSectionButtons.notSureYet')}</span>{' '}
+                        <Link to="/demo">{t('loginRegister:switchSectionButtons.tryDemo')}</Link>.
+                    </p>
                 </>
             }
         >

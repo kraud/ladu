@@ -5,6 +5,7 @@ import { FlagIcon } from '@/components/common/FlagIcon';
 import { PublicLanguageSelector } from '@/components/layout/PublicLanguageSelector';
 import { PublicThemeToggle } from '@/components/layout/PublicThemeToggle';
 import { UI_LANGUAGES } from '@/lib/language';
+import { LANDING_ORIGIN } from '@/lib/landing';
 
 /**
  * The shared frame for every public auth screen + the 404
@@ -20,6 +21,8 @@ import { UI_LANGUAGES } from '@/lib/language';
  * `themeToggle` defaults to the saved-choice `PublicThemeToggle` next to the
  * language selector; the 404 passes a page-only switch instead (Phase 3.9,
  * Slice 7), so it shows a switch without the selector.
+ *
+ * The logo is a link to the landing page (another origin, so a plain `<a>`).
  */
 export function AuthLayout({
     blurb,
@@ -43,8 +46,10 @@ export function AuthLayout({
     return (
         <div className="auth-shell page">
             <aside className="auth-brand">
-                <BrandLogo variant="outline" height={178} title="Ladu" className="auth-brand-mark max-[760px]:hidden" />
-                <BrandLogo variant="wordmark" height={64} title="Ladu" className="auth-brand-wordmark hidden max-[760px]:inline-block" />
+                <a href={LANDING_ORIGIN} className="auth-brand-link" aria-label={t('loginRegister:brand.home')}>
+                    <BrandLogo variant="outline" height={178} className="auth-brand-mark max-[760px]:hidden" />
+                    <BrandLogo variant="wordmark" height={64} className="auth-brand-wordmark hidden max-[760px]:inline-block" />
+                </a>
                 <div className="stack-sm flex flex-col gap-2">
                     <p className="auth-tagline">{t('loginRegister:brand.tagline')}</p>
                     <p className="auth-sub">{blurb}</p>

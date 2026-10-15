@@ -48,7 +48,9 @@
             tagFollowing: 'Following',
             tagWords: 'words',
             tagFollowers: 'followers',
-            open: 'Open',
+            createAccount: 'Create account',
+            alreadyRegistered: 'Already registered?',
+            signIn: 'Sign in',
             tryDemo: 'Try the demo',
             card: 'Example word: dance, in four languages',
             privacy: 'Privacy',
@@ -86,7 +88,9 @@
             tagFollowing: 'Siguiendo',
             tagWords: 'palabras',
             tagFollowers: 'seguidores',
-            open: 'Abrir',
+            createAccount: 'Crear cuenta',
+            alreadyRegistered: '¿Ya estás registrado?',
+            signIn: 'Iniciar sesión',
             tryDemo: 'Probar la demo',
             card: 'Palabra de ejemplo: «dance», en cuatro idiomas',
             privacy: 'Privacidad',
@@ -124,7 +128,9 @@
             tagFollowing: 'Folge ich',
             tagWords: 'Wörter',
             tagFollowers: 'Follower',
-            open: 'Öffnen',
+            createAccount: 'Konto erstellen',
+            alreadyRegistered: 'Schon registriert?',
+            signIn: 'Anmelden',
             tryDemo: 'Demo ausprobieren',
             card: 'Beispielwort: „dance“ in vier Sprachen',
             privacy: 'Datenschutz',
@@ -162,7 +168,9 @@
             tagFollowing: 'Jälgin',
             tagWords: 'sõna',
             tagFollowers: 'jälgijat',
-            open: 'Ava',
+            createAccount: 'Loo konto',
+            alreadyRegistered: 'Juba registreeritud?',
+            signIn: 'Logi sisse',
             tryDemo: 'Proovi demot',
             card: 'Näitesõna: „dance“ neljas keeles',
             privacy: 'Privaatsus',
@@ -675,16 +683,16 @@
         }
     }
 
-    /* Desktop: the three previews share one place and take turns, each for all four of its states (FEATURE_STEPS
-       beats), while its part of the hint on the left is highlighted. On the phone all three are always shown, and
-       all change on every beat. */
-    var FEATURE_STEPS = WORDS.length;
-    /* The fill of the current part of the hint (style.css) takes FILL_MS and then stays full for FILL_HOLD_MS before the
-       next preview comes. The preview takes OUT_MS to roll out before the fill starts, so a feature lasts the three
-       together, and each of its states lasts a quarter of that. The phone keeps ROLL_MS. */
-    var FILL_MS = 10000;
+    /* Desktop: the three previews share one place and take turns, each for its first three states (FEATURE_STEPS
+       beats; the fourth is not shown, so a turn is shorter), while its part of the hint on the left is highlighted.
+       On the phone all three are always shown, all change on every beat, and they show all four states. */
+    var FEATURE_STEPS = 3;
+    /* A desktop beat (one state) lasts DESKTOP_ROLL_MS. A feature lasts FEATURE_STEPS beats: the preview takes OUT_MS
+       to roll out, then the fill of the current part of the hint (style.css) takes FILL_MS, and it stays full for
+       FILL_HOLD_MS before the next preview comes. The phone keeps ROLL_MS. */
+    var DESKTOP_ROLL_MS = 2680;
     var FILL_HOLD_MS = 500;
-    var DESKTOP_ROLL_MS = (FILL_MS + FILL_HOLD_MS + OUT_MS) / FEATURE_STEPS;
+    var FILL_MS = DESKTOP_ROLL_MS * FEATURE_STEPS - FILL_HOLD_MS - OUT_MS;
     var phoneQuery = window.matchMedia ? window.matchMedia('(max-width: 52rem)') : null;
 
     function isPhone() {
@@ -748,7 +756,7 @@
             if (document.hidden) return;
             stopPlay();
             step += 1;
-            var index = step % WORDS.length;
+            var index = step % (isPhone() ? WORDS.length : FEATURE_STEPS);
 
             if (!isPhone() && index === 0) {
                 showFeature(Math.floor(step / FEATURE_STEPS) % parts.length);

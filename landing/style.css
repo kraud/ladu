@@ -205,14 +205,14 @@ h1 {
     background: var(--accent-hover);
 }
 
-/* "Open" and "Try the demo" side by side; they wrap on a narrow screen. */
+/* "Create account" and "Try the demo" side by side; they wrap on a narrow screen. */
 .actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
 }
 
-/* The second call to action: the accent as an outline, so "Open" stays the main one. */
+/* The second call to action: the accent as an outline, so "Create account" stays the main one. */
 .button.secondary {
     background: transparent;
     color: var(--accent);
@@ -221,6 +221,11 @@ h1 {
 
 .button.secondary:hover {
     background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* Phone only: "Already registered? Sign in", under the switches (the phone has no header). */
+.m-signin {
+    display: none;
 }
 
 .note {
@@ -1184,8 +1189,8 @@ main.legal {
      the first sentence of the hint /
      feature 1: the second sentence, and the bubble with the example word /
      feature 2: the small exercise card, and the third sentence beside it (the sides are swapped) /
-     (free space) / the Open button / the list of languages, centred / the language and theme switches, at the
-     bottom above the footer.
+     (free space) / "Create account" and "Try the demo", half each / the list of languages, centred / the
+     language and theme switches / "Already registered? Sign in", at the bottom above the footer.
    `.hero-copy` and `.hero-title` give their children to the hero (`display: contents`) so each child can
    take its own place in the grid. The legal pages and the blog keep their header. */
 @media (max-width: 52rem) {
@@ -1204,7 +1209,7 @@ main.legal {
         /* Ten equal columns: feature 1 uses 5 + 5; features 2 and 3 (the exercise card and the tags) 6 + 4 and 4 + 6,
            so their cards are 60% of the width. Five columns plus their four gaps are exactly half of the row minus half a gap. */
         grid-template-columns: repeat(10, minmax(0, 1fr));
-        grid-template-rows: repeat(6, auto) 1fr auto auto auto;
+        grid-template-rows: repeat(6, auto) 1fr auto auto auto auto;
         grid-template-areas:
             'mark mark mark mark mark mark mark mark mark mark'
             'title title title title title title title title title title'
@@ -1215,7 +1220,8 @@ main.legal {
             '. . . . . . . . . .'
             'actions actions actions actions actions actions actions actions actions actions'
             'note note note note note note note note note note'
-            'controls controls controls controls controls controls controls controls controls controls';
+            'controls controls controls controls controls controls controls controls controls controls'
+            'signin signin signin signin signin signin signin signin signin signin';
         gap: 1.25rem 1rem;
         /* Room above the logo (there is no header). */
         padding-block: 2rem 1.25rem;
@@ -1322,15 +1328,32 @@ main.legal {
         visibility: visible;
     }
 
+    /* The two buttons on one row, half each. "Try the demo" is a neutral outline here, so the two do not look alike. */
     .actions {
         grid-area: actions;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
     }
 
     .actions .button {
         width: 100%;
+        gap: 0.4rem;
+        padding-inline: 0.5rem;
+        font-size: 0.95rem;
+        text-align: center;
     }
 
-    /* The list of languages, as on the desktop, centred under the Open button. */
+    .actions .button.secondary {
+        color: var(--fg);
+        box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fg) 28%, transparent);
+    }
+
+    .actions .button.secondary:hover {
+        background: color-mix(in srgb, var(--fg) 6%, transparent);
+    }
+
+    /* The list of languages, as on the desktop, centred under the buttons. */
     .note {
         grid-area: note;
         margin: -0.4rem 0 0;
@@ -1341,6 +1364,22 @@ main.legal {
         grid-area: controls;
         justify-content: center;
         margin: 0;
+    }
+
+    .m-signin {
+        grid-area: signin;
+        display: block;
+        margin: -0.5rem 0 0;
+        font-size: 0.9rem;
+        color: var(--muted);
+        text-align: center;
+    }
+
+    .m-signin a {
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 2px;
     }
 }
 
