@@ -2,7 +2,7 @@
  * Demo access in the learner app (demo-access.md, Slice 1): the `/demo` start screen (D12, D14),
  * the language choice (D16, Slice 3), the start itself, the error messages, and `/demo/ended` (D13).
  */
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -11,9 +11,16 @@ import { server } from '@/test/msw/server';
 import { makeAccessHandlers } from '@/test/msw/accessHandlers';
 import { makeMetricsHandlers } from '@/test/msw/metricsHandlers';
 import { futureToken } from '@/test/tokens';
+import demo from '../../../public/locales/en/demo.json';
 import { OPEN_ACCESS } from '@/features/access/types';
 import { useAuthStore } from '@/stores/authStore';
 import { demoMsLeft, isLiveDemo } from './session';
+import { DEMO_TRANSITION_LINES, demoTransitionTiming, pickDemoTransitionLines } from './transition';
+
+// The transition screen (D18) is short in tests; one block below sets its own timing.
+const realTiming = { ...demoTransitionTiming };
+beforeEach(() => Object.assign(demoTransitionTiming, { lineMs: 10, fadeMs: 10 }));
+afterEach(() => Object.assign(demoTransitionTiming, realTiming));
 
 const demoOn = () => server.use(...makeAccessHandlers({ ...OPEN_ACCESS, demo: { enabled: true } }));
 const inMinutes = (minutes: number) => new Date(Date.now() + minutes * 60_000).toISOString();
@@ -166,6 +173,84 @@ describe('/demo — the start screen', () => {
         expect(await screen.findByRole('alert')).toHaveTextContent(message);
         expect(router.state.location.pathname).toBe('/demo');
         expect(useAuthStore.getState().user).toBeNull();
+    });
+});
+
+describe('/demo — the transition screen (D18)', () => {
+    const ENGLISH_LINES = Object.values(demo.transition.lines);
+    const shownLine = () => screen.getByRole('status', { name: 'Starting the demo' }).querySelector('p')?.textContent ?? '';
+
+    it('covers the start with the logo and the lines, opens the dashboard after the last line, then fades out', async () => {
+        Object.assign(demoTransitionTiming, { lineMs: 150, fadeMs: 50 });
+        demoOn();
+        startHandler(); // answers at once: the screen still shows every line
+        server.use(...makeMetricsHandlers().handlers);
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/demo' });
+
+        await pickLanguages(user, 'English', 'Español');
+        await user.click(screen.getByRole('button', { name: 'Start the demo' }));
+
+        const layer = await screen.findByRole('status', { name: 'Starting the demo' });
+        expect(layer.querySelector('img')).toHaveAttribute('src', '/brand/Ladu_inside_bubble_outline.svg');
+        const seen = new Set([shownLine()]);
+        expect(ENGLISH_LINES).toContain(shownLine());
+        expect(router.state.location.pathname).toBe('/demo');
+
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'), { timeout: 2000 });
+        seen.add(shownLine());
+        expect(seen.size).toBeGreaterThan(1); // the line changed before the dashboard opened
+        expect(layer).toHaveAttribute('data-phase', 'leaving');
+        await waitFor(() => expect(screen.queryByRole('status', { name: 'Starting the demo' })).not.toBeInTheDocument());
+    });
+
+    it('waits for a slow server after the last line', async () => {
+        demoOn();
+        let answer: () => void = () => {};
+        const answered = new Promise<void>((resolve) => (answer = resolve));
+        server.use(
+            http.post('*/api/demo', async () => {
+                await answered;
+                return HttpResponse.json(demoAnswer(), { status: 201 });
+            }),
+        );
+        server.use(...makeMetricsHandlers().handlers);
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/demo' });
+
+        await pickLanguages(user, 'English', 'Español');
+        await user.click(screen.getByRole('button', { name: 'Start the demo' }));
+        await screen.findByRole('status', { name: 'Starting the demo' });
+        await new Promise((resolve) => setTimeout(resolve, 100)); // every line is shown by now
+        expect(router.state.location.pathname).toBe('/demo');
+        expect(screen.getByRole('status', { name: 'Starting the demo' })).toHaveAttribute('data-phase', 'showing');
+
+        answer();
+        await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    });
+
+    it('closes at once on a refusal, and /demo shows the message', async () => {
+        Object.assign(demoTransitionTiming, { lineMs: 5000 });
+        demoOn();
+        startHandler(() => HttpResponse.json({ message: 'refused', code: 'demo_busy' }, { status: 503 }));
+        const user = userEvent.setup();
+        const { router } = await renderApp({ initialEntry: '/demo' });
+
+        await pickLanguages(user, 'English', 'Español');
+        await user.click(screen.getByRole('button', { name: 'Start the demo' }));
+        expect(await screen.findByRole('alert')).toHaveTextContent('Too many demos are running.');
+        expect(screen.queryByRole('status', { name: 'Starting the demo' })).not.toBeInTheDocument();
+        expect(router.state.location.pathname).toBe('/demo');
+    });
+
+    it('pickDemoTransitionLines: different keys from the pool, in a random order', () => {
+        for (let run = 0; run < 20; run++) {
+            const picked = pickDemoTransitionLines(3);
+            expect(picked).toHaveLength(3);
+            expect(new Set(picked).size).toBe(3);
+            for (const key of picked) expect(DEMO_TRANSITION_LINES).toContain(key);
+        }
+        expect(pickDemoTransitionLines(3, () => 0)).not.toEqual(pickDemoTransitionLines(3, () => 0.99));
     });
 });
 

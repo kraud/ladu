@@ -31,6 +31,7 @@ import {
  *
  * Slice 3: the visitor picks 2 or more languages before Start (D16). The last test picks German and
  * English and checks them on the account, as the Review columns and in the copied saved configs (D17).
+ * Slice 4: every start passes through the transition screen (D18), checked in `startDemo`.
  *
  * Starts 4 demos at most: with a reused local `npm run dev` the per-IP limit stays at its default of 5.
  */
@@ -87,7 +88,12 @@ async function startDemo(
     await expect(button).toBeDisabled();
     for (const name of languages) await page.getByRole('button', { name, exact: true }).click();
     await button.click();
-    await expect(page).toHaveURL(/\/$/);
+    // The transition screen (D18) covers the start for about 3 s, then fades out over the dashboard.
+    const transition = page.getByRole('status', { name: 'Starting the demo' });
+    await expect(transition).toBeVisible();
+    await expect(transition.getByRole('img')).toHaveCount(0); // the logo is decorative
+    await expect(page).toHaveURL(/\/$/, { timeout: 10_000 });
+    await expect(transition).toHaveCount(0);
     await expect(page.getByRole('link', { name: /^Demo: \d+:\d\d left/ })).toBeVisible();
     const { user, token } = await readSession(page);
     expect(user?.isDemo).toBe(true);

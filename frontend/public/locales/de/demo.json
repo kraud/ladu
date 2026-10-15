@@ -53,5 +53,16 @@
     "namesLocked": "A demo account cannot change its name or username.",
     "wordsLeft": "Words you can add: {{count}}",
     "tagsLeft": "Tags you can add: {{count}}"
+  },
+  "transition": {
+    "label": "Die Demo startet",
+    "lines": {
+      "line1": "Die Wörterbücher werden abgestaubt…",
+      "line2": "Die Verben lernen das Konjugieren…",
+      "line3": "Die Nomen werden nach ihrem Geschlecht gefragt…",
+      "line4": "Die Umlaute kommen auf die richtigen Buchstaben…",
+      "line5": "Die estnischen Fälle werden gezählt. Es sind 14…",
+      "line6": "Die Wörter kommen ins Regal…"
+    }
   }
 }

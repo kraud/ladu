@@ -8,6 +8,8 @@ import { ToastContainer } from 'react-toastify';
 import { createQueryClient } from '@/app/query-client';
 import { createAppRouter } from '@/app/router';
 import { useAuthStore, type RawUser } from '@/stores/authStore';
+import { useUiStore } from '@/stores/uiStore';
+import { DemoTransition } from '@/features/demo/components/DemoTransition';
 
 // Real English locale bundles, so a missing key fails a test rather than
 // silently rendering the key name. Kept in sync with `public/locales/en/`.
@@ -105,6 +107,7 @@ export async function renderApp(options: { initialEntry?: string; session?: RawU
 
     useAuthStore.getState().clearSession();
     if (session) useAuthStore.getState().setSession(session);
+    useUiStore.getState().setDemoTransition('idle', []);
 
     const queryClient = createQueryClient();
     const i18n = createTestI18n();
@@ -117,6 +120,8 @@ export async function renderApp(options: { initialEntry?: string; session?: RawU
         <QueryClientProvider client={queryClient}>
             <I18nextProvider i18n={i18n}>
                 <RouterProvider router={router} />
+                {/* Beside the router, as in `app/Providers.tsx`. */}
+                <DemoTransition />
                 <ToastContainer position="bottom-center" autoClose={false} />
             </I18nextProvider>
         </QueryClientProvider>

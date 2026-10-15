@@ -1930,3 +1930,40 @@
     margin-top: 0;
   }
 }
+
+/* The demo start transition (features/demo/components/DemoTransition.tsx, demo-access.md D18):
+   full screen over the app, one line at a time, then a fade out over the dashboard. */
+.demo-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px;
+  background: var(--bg);
+  opacity: 1;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+.demo-transition[data-phase='leaving'] {
+  opacity: 0;
+  pointer-events: none;
+}
+.demo-transition-line {
+  min-height: 1.5em;
+  font-size: 15px;
+  color: var(--muted);
+  text-align: center;
+  animation: page-in 0.3s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-transition {
+    transition: none;
+  }
+  .demo-transition-line {
+    animation: none;
+  }
+}

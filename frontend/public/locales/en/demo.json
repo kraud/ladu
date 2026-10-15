@@ -53,5 +53,16 @@
     "namesLocked": "A demo account cannot change its name or username.",
     "wordsLeft": "Words you can add: {{count}}",
     "tagsLeft": "Tags you can add: {{count}}"
+  },
+  "transition": {
+    "label": "Starting the demo",
+    "lines": {
+      "line1": "Dusting off the dictionaries…",
+      "line2": "Teaching the verbs to conjugate…",
+      "line3": "Asking the nouns about their genders…",
+      "line4": "Putting the umlauts on the right letters…",
+      "line5": "Counting the Estonian cases. There are 14…",
+      "line6": "Putting the words on the shelf…"
+    }
   }
 }

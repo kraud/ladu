@@ -53,5 +53,16 @@
     "namesLocked": "A demo account cannot change its name or username.",
     "wordsLeft": "Words you can add: {{count}}",
     "tagsLeft": "Tags you can add: {{count}}"
+  },
+  "transition": {
+    "label": "Demo käivitub",
+    "lines": {
+      "line1": "Pühin sõnaraamatutelt tolmu…",
+      "line2": "Õpetan tegusõnu pöörama…",
+      "line3": "Küsin nimisõnadelt nende sugu…",
+      "line4": "Panen täpid õigete tähtede peale…",
+      "line5": "Loen kokku eesti keele käänded. Neid on 14…",
+      "line6": "Panen sõnad riiulile…"
+    }
   }
 }

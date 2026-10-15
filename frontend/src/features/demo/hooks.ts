@@ -4,8 +4,10 @@ import { useNavigate } from '@tanstack/react-router';
 import * as accessApi from '@/features/access/api';
 import { accessKeys } from '@/features/access/keys';
 import { useAuthStore } from '@/stores/authStore';
+import { useUiStore } from '@/stores/uiStore';
 import * as demoApi from './api';
 import { demoMsLeft } from './session';
+import { demoTransitionMinMs, pickDemoTransitionLines } from './transition';
 import type { StartDemoRequest } from './types';
 
 export type DemoStatus = 'loading' | 'on' | 'off';
@@ -35,19 +37,31 @@ export function useDemoStatus(): DemoStatus {
 /**
  * Starts a demo, like a login: a new session replaces any open one (the `/demo` page warns about
  * that first, D12), no query from the previous user survives, and the app opens on the dashboard.
+ *
+ * The transition screen (D18) covers the start: it opens with the request, and the dashboard opens
+ * only when the server has answered AND the screen has shown all its lines. Then the screen fades
+ * out over the dashboard. A refusal closes it at once, and `/demo` shows the message.
  */
 export function useStartDemo() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const setSession = useAuthStore((s) => s.setSession);
+    const setTransition = useUiStore((s) => s.setDemoTransition);
 
     return useMutation({
-        mutationFn: (body: StartDemoRequest) => demoApi.startDemo(body),
-        onSuccess: (user) => {
+        mutationFn: async (body: StartDemoRequest) => {
+            const minimum = new Promise((resolve) => setTimeout(resolve, demoTransitionMinMs()));
+            const [user] = await Promise.all([demoApi.startDemo(body), minimum]);
+            return user;
+        },
+        onMutate: () => setTransition('showing', pickDemoTransitionLines()),
+        onSuccess: async (user) => {
             queryClient.clear();
             setSession(user);
-            void navigate({ to: '/' });
+            await navigate({ to: '/' });
+            setTransition('leaving');
         },
+        onError: () => setTransition('idle'),
     });
 }
 
