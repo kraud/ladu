@@ -43,3 +43,6 @@ MOCKUPS/
 
 # lexicon source downloads (several GB, rebuilt by backend/scripts/lexicon/download.ts)
 backend/scripts/lexicon/.data/
+
+# simplified autocomplete word lists (rebuilt by backend/scripts/lexicon/word-lists.ts)
+word-lists/

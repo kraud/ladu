@@ -32,6 +32,16 @@ The translation file goes through the same `load.js` (its header format, `ladu-t
 selects the `lexeme_translations` table) and the same Ansible playbook. A load replaces every
 translation row.
 
+## Word lists for onboarding (repo-root `word-lists/`, git-ignored)
+
+```sh
+npx tsx scripts/lexicon/word-lists.ts   # ~5 min: newest lexicon-en file + raw dump → word-lists/en/<pos>.tsv
+```
+
+One TSV per part of speech with the English lemmas that have a frequency rank (~37k), their
+rank and their Wiktionary topics. The columns and their limits are described at the top of the
+script. Run it again after each re-ingest.
+
 Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
 `EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).
 
