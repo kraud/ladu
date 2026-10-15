@@ -4,6 +4,7 @@ const { users, userActivityDays } = require('../src/db/schema');
 
 const { and, eq, isNull, lt, or }: typeof import('drizzle-orm') = require('drizzle-orm');
 const { accountBlock }: typeof import('../lib/accountAccess') = require('../lib/accountAccess');
+const { isDemoExpired }: typeof import('../lib/demo') = require('../lib/demo');
 const asyncHandler = require('express-async-handler');
 
 // Columns loaded onto `req.user` for every protected route. The bcrypt
@@ -29,6 +30,12 @@ const userColumnsWithoutPassword = {
     deletedAt: users.deletedAt,
     tokenVersion: users.tokenVersion,
     lastSeenAt: users.lastSeenAt,
+    // Demo access (demo-access.md): the expiry is checked below, the limits are read by the
+    // word/tag cap checks, and `GET /me` returns all four, which the app needs.
+    isDemo: users.isDemo,
+    demoExpiresAt: users.demoExpiresAt,
+    demoWordLimit: users.demoWordLimit,
+    demoTagLimit: users.demoTagLimit,
 };
 
 // `last_seen_at` is refreshed at most this often per user, so an active user
@@ -58,10 +65,11 @@ const protect = asyncHandler(async (req: any, res: any, next: any) => {
                 .where(eq(users.id, decoded.id))
                 .limit(1);
 
-            // Deleted, banned, or an old token version (forced logout): all 401,
-            // so the client drops the session. Tokens issued before `tv`
-            // existed count as version 0.
-            if (!user || accountBlock(user) || (decoded.tv ?? 0) !== user.tokenVersion) {
+            // Deleted, banned, an old token version (forced logout), or a demo whose
+            // time is over: all 401, so the client drops the session. Tokens issued
+            // before `tv` existed count as version 0. The demo expiry lives on the row,
+            // not in the token, so a replayed token cannot extend a demo.
+            if (!user || accountBlock(user) || (decoded.tv ?? 0) !== user.tokenVersion || isDemoExpired(user)) {
                 res.status(401);
                 throw new Error('Not authorized');
             }
@@ -79,8 +87,10 @@ const protect = asyncHandler(async (req: any, res: any, next: any) => {
             const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
             const refreshBefore = new Date(Math.max(now.getTime() - LAST_SEEN_INTERVAL_MS, startOfToday.getTime()));
 
-            let dayRecorded = true;
-            if (!lastSeenAt || lastSeenAt < startOfToday) {
+            // A demo account records neither: demo activity must not count in the admin
+            // statistics, and the purge deletes the rows anyway.
+            let dayRecorded = !user.isDemo;
+            if (!user.isDemo && (!lastSeenAt || lastSeenAt < startOfToday)) {
                 try {
                     await db
                         .insert(userActivityDays)

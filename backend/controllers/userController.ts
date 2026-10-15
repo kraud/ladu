@@ -138,6 +138,18 @@ const serializeUser = (user: Partial<UserRow>) => ({
   verified: user.verified,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
+  ...demoFields(user),
+});
+
+// Demo access (demo-access.md): the app shows the time left and the limits of a demo session.
+// Every answer that the app writes into its session carries these, so a profile save cannot
+// drop `isDemo` (Review log S1-2). Not in `userColumnsWithoutPassword`: `searchUser` returns
+// other users with that list.
+const demoFields = (user: Partial<UserRow>) => ({
+  isDemo: user.isDemo ?? false,
+  demoExpiresAt: user.demoExpiresAt ?? null,
+  demoWordLimit: user.demoWordLimit ?? null,
+  demoTagLimit: user.demoTagLimit ?? null,
 });
 
 const serializeLoginUser = (user: UserRow) => ({
@@ -152,6 +164,7 @@ const serializeLoginUser = (user: UserRow) => ({
     user.nativeLanguage === null ? undefined : user.nativeLanguage,
   token: generateToken(user),
   verified: user.verified,
+  ...demoFields(user),
 });
 
 const findUserById = async (id: string) => {
@@ -491,7 +504,13 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
       updatedAt: new Date(),
     })
     .where(eq(users.id, userData.id))
-    .returning(userColumnsWithoutPassword);
+    .returning({
+      ...userColumnsWithoutPassword,
+      isDemo: users.isDemo,
+      demoExpiresAt: users.demoExpiresAt,
+      demoWordLimit: users.demoWordLimit,
+      demoTagLimit: users.demoTagLimit,
+    });
 
   res.status(200).json(serializeUser(updatedUser));
 });

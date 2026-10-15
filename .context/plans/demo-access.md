@@ -75,7 +75,7 @@ The public `GET /api/access` (`backend/controllers/accessController.ts`) already
 2. Check the **global live-demo cap**: `COUNT(users WHERE is_demo AND demo_expires_at > now())` ≥ `demo_max_live` (D15; `countLiveDemos` in `lib/demo.ts`) → 503 `{ code: "demo_busy" }` ("Too many demos are running. Try again in a few minutes.").
 3. Create a demo user in one transaction:
    - synthetic unique `name` ("Demo"), `username` (`demo-<uuid>`), `email` (`demo+<uuid>@ladu.invalid`); `password` stays `NULL` (demo never logs in with a password);
-   - `uiLanguage` from the request body (the `/demo` page sends the current i18n language, like login does), else `'en'`;
+   - `uiLanguage` from the request body (the `/demo` page sends the current i18n language as a label, like login does: `labelByI18nCode`), else `'English'`;
    - `nativeLanguage` = the language that matches `uiLanguage`; `languages` = all four, with that language first (commandment 4: no hardcoded English);
    - `verified = true` (a demo is not a trust boundary; no email verification);
    - `termsAcceptedAt` / `termsVersion` from `termsAcceptance()` (`lib/terms.ts`) — valid because `/demo` shows the Terms note before the click (D12);
@@ -195,8 +195,8 @@ Admin UI: `/access` (`admin/src/features/access/`) gains a third tab `?tab=demo`
 | # | Slice | Ends with |
 |---|---|---|
 | 0 | **Admin settings + gate.** Migration (all four `users` columns + the partial index, and the five `access_settings` columns with their `CHECK`s; migrations 0027 + 0028). Admin API read/write for the demo settings + audit. Admin `/access?tab=demo` tab. `GET /api/access` returns `demo.enabled`. | Jest + Vitest; Playwright `admin-14-demo-gate.spec.ts` (owner flips the gate and tunes caps; `GET /api/access` reflects it). |
-| 1 | **Bootstrap + session + expiry + account restrictions, end-to-end with inline placeholder seed.** `POST /api/demo` (per-IP limiter + global cap) with a tiny inline seed (1–2 tags, a few words, a saved config). `protect` expiry check + skipped activity writes. Account/OAuth restrictions (D10 a, c) and the silent password-reset skip. `serializeLoginUser`/`serializeUser` + `RawUser`/`AuthUser`. `/demo` start screen, `/demo/ended`, `useStartDemo`, header indicator + countdown, demo-aware 401 handling. Landing link. | Jest + Vitest; Playwright `demo-access.spec.ts` (landing link → `/demo` → start → see seed data → add a word → force expiry in the DB → next request → `/demo/ended`; a logged-in user sees the log-out warning). |
-| 2 | **Template + clone + caps + tag restrictions + purge.** `scripts/seed-demo-template.ts`; `POST /api/demo` clones the template instead of inline seeding (id maps, array remap, date shift). Word/tag caps on create **and** clone. Tag restrictions (D10 b, d). Purge deletes expired demo users. Exclude demo users from the admin users list, stats and `searchUser`. `totalTags` + Account page counters. | Jest + Vitest; Playwright extends `demo-access.spec.ts` (rich seed shows up with recent mastery; exceeding the word/tag cap is refused; Follow and Public visibility are not offered). The purge is tested in Jest (`runPurge` removes an expired demo, keeps a live one and the template). |
+| 1 | **Bootstrap + session + expiry + account restrictions, end-to-end with inline placeholder seed.** `POST /api/demo` (per-IP limiter + global cap) with a tiny inline seed (1–2 tags, a few words, a saved config). `protect` expiry check + skipped activity writes. Account/OAuth restrictions (D10 a, c) and the silent password-reset skip. `serializeLoginUser`/`serializeUser` + `RawUser`/`AuthUser`. `/demo` start screen, `/demo/ended`, `useStartDemo`, header indicator + countdown, demo-aware 401 handling. Landing link. | Jest + Vitest; Playwright `demo-access-gate.spec.ts` (landing link → `/demo` → start → see seed data → add a word → force expiry in the DB → next request → `/demo/ended`; a logged-in user sees the log-out warning). |
+| 2 | **Template + clone + caps + tag restrictions + purge.** `scripts/seed-demo-template.ts`; `POST /api/demo` clones the template instead of inline seeding (id maps, array remap, date shift). Word/tag caps on create **and** clone. Tag restrictions (D10 b, d). Purge deletes expired demo users. Exclude demo users from the admin users list, stats and `searchUser`. `totalTags` + Account page counters. | Jest + Vitest; Playwright extends `demo-access-gate.spec.ts` (rich seed shows up with recent mastery; exceeding the word/tag cap is refused; Follow and Public visibility are not offered). The purge is tested in Jest (`runPurge` removes an expired demo, keeps a live one and the template). |
 
 Slice 0 changes no learner-facing behaviour (the gate is off by default); Slice 1 is the thin vertical slice that proves the whole loop; Slice 2 hardens and scales it.
 
@@ -206,7 +206,7 @@ Slice 0 changes no learner-facing behaviour (the gate is off by default); Slice 
 - **Admin:** `admin/src/features/access/` (`pages/AccessPage.tsx`, `search.ts`, `api.ts`, `hooks.ts`, `types.ts`) + tests.
 - **Learner app:** `frontend/src/features/demo/` (new); `frontend/src/stores/authStore.ts`; `frontend/src/features/auth/types.ts` (+ `api.ts`/`hooks.ts`); `frontend/src/app/router.tsx`; `frontend/src/api/client.ts` / `frontend/src/app/Providers.tsx` (demo-aware 401); `frontend/src/components/layout/AppShell.tsx` / `AppHeader.tsx`; `frontend/src/features/account/` (counters, hidden blocks); the tag form and Follow button (hidden for demo); the 4 locale JSONs; tests.
 - **Landing:** `landing/index.html`, `landing/app.js`.
-- **e2e:** `e2e/tests/admin-14-demo-gate.spec.ts` (named `-gate`: it changes the global `access_settings` row, so the Playwright config runs it as its own chained project after every other spec), `e2e/tests/demo-access.spec.ts` (it needs the demo **on**: it turns it on and off through a DB helper, so it must also be a `-gate` spec, or the gate state must be set for it in a way that cannot race `admin-14` — decide in Slice 1), and helpers in `e2e/fixtures/db.ts` (set demo settings, seed the template, force `demo_expires_at` into the past).
+- **e2e:** `e2e/tests/admin-14-demo-gate.spec.ts` (named `-gate`: it changes the global `access_settings` row, so the Playwright config runs it as its own chained project after every other spec), `e2e/tests/demo-access-gate.spec.ts` (it needs the demo **on**, so it is a `-gate` spec: Review log S1-5), and helpers in `e2e/fixtures/db.ts` (set demo settings, seed the template, force `demo_expires_at` into the past).
 - **Docs:** this plan's status notes; the infrastructure guide (seed-template command, purge output); `landing/privacy.html` — **no change expected**: demo accounts are synthetic and deleted, and IPs are only held in memory for the rate limit (confirm with the user before Slice 1 ships).
 
 ## Risks and how the plan answers them
@@ -223,7 +223,7 @@ Slice 0 changes no learner-facing behaviour (the gate is off by default); Slice 
 
 1. **Placement of the header indicator** (mobile vs desktop, D6), and whether the login and registration pages also get a "Try the demo" link.
 2. **Wording.** Draft the demo badge, countdown, start screen, "the demo is off", "the demo has ended", and the error strings in English; the user reviews the ES/DE/EE translations once the feature is live.
-3. **Limiter implementation** (hand-written `Map` vs `express-rate-limit`) and the default `DEMO_STARTS_PER_IP = 5/hour` (the live cap is an admin setting since D15).
+3. ~~**Limiter implementation**~~ — decided 2026-10-15: a hand-written fixed-window `Map` in `lib/demo.ts` (no new dependency). `DEMO_STARTS_PER_IP` defaults to 5/hour and can be set by an environment variable (Review log S1-1).
 4. **Exact cap counting** (accept a small overshoot, or lock the user row).
 
 ## Review log (2026-10-14)
@@ -251,3 +251,15 @@ The plan was checked against the code. Severity: **Blocker** = cannot work as wr
 | m6 | Minor | Parallel creates can overshoot a cap slightly. | Recorded, decide in Slice 2. |
 | m7 | Minor | "Details to finalize" named a login/registration link not in the Design; "uiLanguage follows the request" was vague. | Both made explicit. |
 | m8 | Minor | Expired demos wait up to 24 h for the purge. | Accepted; the global cap counts live demos only. |
+
+## Review log — Slice 1 start (2026-10-15)
+
+The Slice 1 design was checked against the code before any change.
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| S1-1 | Moderate | The per-IP limit (5/hour) stops Jest and Playwright, which start every demo from one IP. | `DEMO_STARTS_PER_IP` comes from an environment variable (default 5); the e2e backend sets a high value; Jest resets the counter between tests. |
+| S1-2 | Moderate | `updateUser` returns the shared column list (`userController.ts`), which has no demo fields; the app writes that answer into the session, so a profile save drops `isDemo`. | The demo fields are added to `serializeUser` and to the `updateUser` answer, not to the shared list (which `searchUser` uses for other users). |
+| S1-3 | Moderate | The 401 interceptor (`api/client.ts`) clears the session before it calls the handlers, so a handler cannot know the session was a demo. | The interceptor reads `isDemo` before it clears, and passes it to the handlers. |
+| S1-4 | Minor | `uiLanguage` default `'en'`: the code stores labels (`'English'`). | Labels for `uiLanguage`, `nativeLanguage` and `languages`. |
+| S1-5 | Minor | The demo e2e spec turns the demo on (global row), so it must be a `-gate` spec. | Named `demo-access-gate.spec.ts`. |
