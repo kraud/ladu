@@ -1,6 +1,6 @@
 # Plan: Account-less demo access (ephemeral "demo" accounts)
 
-Status: **draft, planned on 2026-10-14, reviewed against the code on 2026-10-14.** No code written yet. Decisions D1–D14 below are confirmed with the user. The items at the end are non-blocking, to finalize during implementation. The review findings and how each one was resolved are in "Review log (2026-10-14)" at the end.
+Status: **draft, planned on 2026-10-14, reviewed against the code on 2026-10-14.** Slice 0 in progress on branch `demo-setup` (2026-10-15): migrations 0027 + 0028, the admin API, and the admin Demo tab are built; the e2e gate spec is next. Decisions D1–D15 below are confirmed with the user (D15 added on 2026-10-15). The items at the end are non-blocking, to finalize during implementation. The review findings and how each one was resolved are in "Review log (2026-10-14)" at the end.
 
 ## What this is (plain-language overview)
 
@@ -10,25 +10,26 @@ Technically it is **not** account-less: it is an anonymous, ephemeral `users` ro
 
 ## Goal
 
-The owner can, from the admin panel, turn the demo **on or off** and tune **three caps** — session length, maximum words, maximum tags — with sensible defaults (15 minutes, 30 words, 5 tags), no deploy. A visitor on the landing page starts a pre-loaded demo in two clicks, uses every implemented solo feature, and is sent to a "demo ended" page when it expires, with all their changes discarded. This scales to many simultaneous visitors because each gets a fresh clone of a template dataset.
+The owner can, from the admin panel, turn the demo **on or off** and tune **four caps** — session length, maximum words, maximum tags, maximum live demos — with sensible defaults (15 minutes, 30 words, 5 tags, 200 live demos), no deploy. A visitor on the landing page starts a pre-loaded demo in two clicks, uses every implemented solo feature, and is sent to a "demo ended" page when it expires, with all their changes discarded. This scales to many simultaneous visitors because each gets a fresh clone of a template dataset.
 
 ## Decisions (made with the user on 2026-10-14)
 
 | Topic | Decision |
 |---|---|
 | D1. What happens on expiry | **Throw away.** The demo user is deleted (cascade) and nothing is kept or migrated. No "sign up and keep your data" in this version; the design leaves room to add it later, but it is not built now. |
-| D2. Where the gate lives | A **dedicated demo gate** in the admin panel, independent of the registration and login gates. On/off plus the three caps, all on the existing single-row `access_settings` table, managed with the existing `access.manage` permission (owner). **Off by default** — a deploy changes nothing until the owner turns it on. |
+| D2. Where the gate lives | A **dedicated demo gate** in the admin panel, independent of the registration and login gates. On/off plus the four caps (D3, D15), all on the existing single-row `access_settings` table, managed with the existing `access.manage` permission (owner). **Off by default** — a deploy changes nothing until the owner turns it on. |
 | D3. Caps | Duration, words, tags are all configurable in the admin panel with **defaults**: 15 minutes, 30 words, 5 tags. Words and tags are **limits on what the visitor creates on top of the seed** — the pre-loaded data does not count toward them. Enforced server-side on **every** path that creates words or tags (create **and** clone, D11). |
 | D4. What is off-limits | Every implemented **solo** feature (words, tags, review, practice, saved configs/sessions, dashboard) is fully available for the demo duration. **Off-limits now** (server refuses, UI hides): see D10. When later features land, these also become off-limits (or heavily limited) for demo users: friendships, send/receive invitations for non-public tags, and any feature that uses a non-free external resource (e.g. LLM content generation). |
 | D5. Seed data | **Placeholder now.** A small hand-written set so the feature can be exercised end-to-end. The user will author a comprehensive set later; the mechanism (template + clone, Slice 2) is content-agnostic so richer data is a data change, not a code change. **No in-progress practice session in the seed** (its JSON snapshot holds word/translation ids and it expires after 7 days; see Review log B2). |
 | D6. Remaining-time UI | The visitor sees a **countdown clock on the Account page** (`/user`), alongside counters for **words left** and **tags left**. A **small indicator in the app header** (mobile and desktop) shows the demo state and remaining time. Exact layout/placement is defined during implementation. |
 | D7. When caps are captured | The **duration and word/tag caps are captured at session start** and frozen on the demo's user row at bootstrap (`demo_expires_at`, `demo_word_limit`, `demo_tag_limit`). An admin change affects demos started afterward, not running ones — a running demo stays stable, and its limits stay bounded either way. |
-| D8. Audit action | A single `access.demo_configure` audit row per Save, with old → new values for all four fields in its metadata (no separate enable/disable/limits actions). |
+| D8. Audit action | A single `access.demo_configure` audit row per Save, with old → new values for all five fields in its metadata (no separate enable/disable/limits actions). |
 | D9. Tags-left counter source | Add `totalTags` to `calculateBasicUserMetrics` / `GET /api/users/getUserMetrics` (it currently returns `totalWords` only). The Account page computes words/tags left from these totals against the frozen limits. |
 | D10. Demo restrictions (now) | A demo user **cannot**: (a) link a Google account or change sign-in methods (`POST /api/auth/:provider/link`, `POST /api/auth/link`, `DELETE /api/auth/identities/:id`; the Sign-in methods block on `/user` is hidden); (b) give a tag any visibility other than **Private** (create, update, clone); (c) change `username` or `name`; (d) **follow** a tag (`POST /api/tags/:id/follow`). The server answers `403 { code: "demo_restricted" }`. Because demo tags are always Private, a real user can never see or follow a demo account's tags. |
 | D11. Caps on clone paths | `POST /api/words/:id/clone` (+1 word) and `POST /api/tags/:id/clone` (+N words, +1 tag unless words-only) check the caps before they write. A clone that would pass a cap is refused as a whole (`demo_word_limit` / `demo_tag_limit`), never partly applied. |
 | D12. `/demo` start screen | `/demo` is a page with a **Start the demo** button, not an automatic start. It shows the Terms note ("By starting the demo you accept the Terms", like registration). If a real (non-demo) session is open, it also warns "This logs you out of your account" and the button reads "Log out and start the demo". |
 | D13. Expiry destination | On expiry (client countdown at zero, or a 401 for a demo session), the app clears the session and goes to a public **"The demo has ended"** page with **Sign up** and **Try again** — not to `/login`. |
+| D15. Live demo cap | The global cap on **simultaneous** (live, not expired) demos is an **admin setting** (`demo_max_live`, 1–1000, default 200), not a code constant. A daily or rolling 24 h cap was considered and not chosen: one burst would block the demo for real visitors until the reset, and a count that survives the purge needs its own table. A rolling 24 h cap stays a later option if storage growth becomes a problem. The admin Demo tab shows "Running now: N of M demos". Read on each `POST /api/demo` (not frozen, unlike D7). |
 | D14. Landing button | The landing "Try the demo" button is **always shown**; it makes no API call (the landing page and the API are on different origins and CORS is off). When the demo is off, `/demo` shows "The demo is off" with a link to sign up. |
 
 ## Design
@@ -52,14 +53,15 @@ Semantics (one flag + one timestamp covers all three cases):
 | `true` | `NULL` | the **template** user (clone source; never logs in, never expires, never purged) |
 | `true` | set | a live **demo session** (rejected by `protect` after this instant, purged after it) |
 
-`access_settings` (still one row, `id = 1`) gains four columns:
+`access_settings` (still one row, `id = 1`) gains five columns (four in migration 0027, `demo_max_live` in 0028):
 
 - `demo_enabled boolean NOT NULL DEFAULT false` — the gate (off by default, D2).
 - `demo_duration_minutes integer NOT NULL DEFAULT 15`.
 - `demo_max_words integer NOT NULL DEFAULT 30`.
 - `demo_max_tags integer NOT NULL DEFAULT 5`.
+- `demo_max_live integer NOT NULL DEFAULT 200` — the most live demos at one time (D15).
 
-Validation in the controller, mirrored by `CHECK` constraints like the existing mode checks: `1 ≤ duration ≤ 1440` (one day), `0 ≤ words ≤ 500`, `0 ≤ tags ≤ 50`. The upper bounds stop a typo (e.g. 15000 minutes) from making long-lived anonymous accounts. **No cache**: the demo endpoint reads the row on each request, exactly like the registration/login gates (`getAccessSettings` in `lib/accessGate.ts`), so a change takes effect at once.
+Validation in the controller, mirrored by `CHECK` constraints like the existing mode checks: `1 ≤ duration ≤ 1440` (one day), `0 ≤ words ≤ 500`, `0 ≤ tags ≤ 50`, `1 ≤ live ≤ 1000`. The upper bounds stop a typo (e.g. 15000 minutes) from making long-lived anonymous accounts. **No cache**: the demo endpoint reads the row on each request, exactly like the registration/login gates (`getAccessSettings` in `lib/accessGate.ts`), so a change takes effect at once.
 
 ### Public status (Slice 0) — extend `GET /api/access`
 
@@ -70,7 +72,7 @@ The public `GET /api/access` (`backend/controllers/accessController.ts`) already
 `POST /api/demo` (public, **rate-limited**, see below):
 
 1. Read `access_settings` (one primary-key read). If `demo_enabled` is false → 403 `{ code: "demo_disabled" }`.
-2. Check the **global live-demo cap**: `COUNT(users WHERE is_demo AND demo_expires_at > now())` ≥ `DEMO_MAX_LIVE` → 503 `{ code: "demo_busy" }` ("Too many demos are running. Try again in a few minutes.").
+2. Check the **global live-demo cap**: `COUNT(users WHERE is_demo AND demo_expires_at > now())` ≥ `demo_max_live` (D15; `countLiveDemos` in `lib/demo.ts`) → 503 `{ code: "demo_busy" }` ("Too many demos are running. Try again in a few minutes.").
 3. Create a demo user in one transaction:
    - synthetic unique `name` ("Demo"), `username` (`demo-<uuid>`), `email` (`demo+<uuid>@ladu.invalid`); `password` stays `NULL` (demo never logs in with a password);
    - `uiLanguage` from the request body (the `/demo` page sends the current i18n language, like login does), else `'en'`;
@@ -85,9 +87,9 @@ The public `GET /api/access` (`backend/controllers/accessController.ts`) already
 **Rate limiting.** Anonymous visitors can mint demo accounts, so this endpoint is the one place the feature can hurt production. The codebase has **no** per-IP limiter today (the password-reset throttle is per account, in the DB). So this plan adds two layers:
 
 - **Per IP, in memory**: a small fixed-window limiter (a `Map` keyed by `req.ip`, or the `express-rate-limit` package with its memory store — choose during Slice 1) with `DEMO_STARTS_PER_IP` per hour (default 5) → 429 `{ code: "demo_rate_limited" }`. `req.ip` is the real client IP: the edge Caddy trusts the Cloudflare ranges (`deploy/caddy-config/trusted_proxies.caddy`) and Express has `trust proxy 1`. Memory is enough because the backend is one container; it resets on restart, which is acceptable. **IPs are never written to the DB or to logs** (the codebase stores country only), so the privacy page does not change.
-- **Global, in the DB**: the `DEMO_MAX_LIVE` count above (default 200). It bounds storage even against many IPs.
+- **Global, in the DB**: the live-demo count above against the admin setting `demo_max_live` (default 200, D15). It bounds load and storage even against many IPs.
 
-Both are code constants in Slice 1 (not admin settings); moving them to the admin panel is a later option.
+The per-IP limit is a code constant in Slice 1 (not an admin setting); moving it to the admin panel is a later option.
 
 ### Expiry (Slice 1) — enforced at the server, not just by the token
 
@@ -160,10 +162,10 @@ The nightly purge (`lib/userPurge.ts` → `scripts/purge.js`) gains a demo branc
 
 Reuses the access-gates machinery (`backend/controllers/admin/accessController.ts`, `backend/routes/admin/accessRoutes.js`, permission `access.manage`):
 
-- `GET /api/admin/access` already returns the settings; extend it with the four demo fields.
-- `PUT /api/admin/access/demo` (`{ enabled, durationMinutes, maxWords, maxTags, reason? }`) — one action, one audit row `access.demo_configure` (D8, metadata: old + new values).
+- `GET /api/admin/access` already returns the settings; extend it with the `demo` block (five fields) and `counts.liveDemos` (the demos running now).
+- `PUT /api/admin/access/demo` (`{ enabled, durationMinutes, maxWords, maxTags, maxLive, reason? }`, all five required) — one action, one audit row `access.demo_configure` (D8, metadata: old + new values).
 
-Admin UI: `/access` (`admin/src/features/access/`) gains a third tab `?tab=demo` (extend `AccessSearch.tab` in `search.ts` from `'registration' | 'login'` to include `'demo'`, and `validateAccessSearch`). The tab has an **Enable demo** switch and three number inputs (duration minutes, max words, max tags) with the bounds above, a Save with confirm, and a note that the demo is independent of the registration/login gates. A warning when enabled and a word or tag cap is zero ("visitors can look, but cannot add words/tags").
+Admin UI: `/access` (`admin/src/features/access/`) gains a third tab `?tab=demo` (extend `AccessSearch.tab` in `search.ts` from `'registration' | 'login'` to include `'demo'`, and `validateAccessSearch`). The tab has an **Off / On** control (the same `SegmentedControl` as the other gates), "Running now: N of M demos", and four number inputs (duration minutes, max words, max tags, max live demos) with the bounds above, a Save with confirm, and a note that the demo is independent of the registration/login gates. A warning when enabled and a word or tag cap is zero ("visitors can look, but cannot add words/tags").
 
 ### Learner app (`frontend/`)
 
@@ -192,7 +194,7 @@ Admin UI: `/access` (`admin/src/features/access/`) gains a third tab `?tab=demo`
 
 | # | Slice | Ends with |
 |---|---|---|
-| 0 | **Admin settings + gate.** Migration (all four `users` columns + the partial index, and the four `access_settings` columns with their `CHECK`s). Admin API read/write for the demo settings + audit. Admin `/access?tab=demo` tab. `GET /api/access` returns `demo.enabled`. | Jest + Vitest; Playwright `admin-14-demo-gate.spec.ts` (owner flips the gate and tunes caps; `GET /api/access` reflects it). |
+| 0 | **Admin settings + gate.** Migration (all four `users` columns + the partial index, and the five `access_settings` columns with their `CHECK`s; migrations 0027 + 0028). Admin API read/write for the demo settings + audit. Admin `/access?tab=demo` tab. `GET /api/access` returns `demo.enabled`. | Jest + Vitest; Playwright `admin-14-demo-gate.spec.ts` (owner flips the gate and tunes caps; `GET /api/access` reflects it). |
 | 1 | **Bootstrap + session + expiry + account restrictions, end-to-end with inline placeholder seed.** `POST /api/demo` (per-IP limiter + global cap) with a tiny inline seed (1–2 tags, a few words, a saved config). `protect` expiry check + skipped activity writes. Account/OAuth restrictions (D10 a, c) and the silent password-reset skip. `serializeLoginUser`/`serializeUser` + `RawUser`/`AuthUser`. `/demo` start screen, `/demo/ended`, `useStartDemo`, header indicator + countdown, demo-aware 401 handling. Landing link. | Jest + Vitest; Playwright `demo-access.spec.ts` (landing link → `/demo` → start → see seed data → add a word → force expiry in the DB → next request → `/demo/ended`; a logged-in user sees the log-out warning). |
 | 2 | **Template + clone + caps + tag restrictions + purge.** `scripts/seed-demo-template.ts`; `POST /api/demo` clones the template instead of inline seeding (id maps, array remap, date shift). Word/tag caps on create **and** clone. Tag restrictions (D10 b, d). Purge deletes expired demo users. Exclude demo users from the admin users list, stats and `searchUser`. `totalTags` + Account page counters. | Jest + Vitest; Playwright extends `demo-access.spec.ts` (rich seed shows up with recent mastery; exceeding the word/tag cap is refused; Follow and Public visibility are not offered). The purge is tested in Jest (`runPurge` removes an expired demo, keeps a live one and the template). |
 
@@ -221,7 +223,7 @@ Slice 0 changes no learner-facing behaviour (the gate is off by default); Slice 
 
 1. **Placement of the header indicator** (mobile vs desktop, D6), and whether the login and registration pages also get a "Try the demo" link.
 2. **Wording.** Draft the demo badge, countdown, start screen, "the demo is off", "the demo has ended", and the error strings in English; the user reviews the ES/DE/EE translations once the feature is live.
-3. **Limiter implementation** (hand-written `Map` vs `express-rate-limit`) and the defaults `DEMO_STARTS_PER_IP = 5/hour`, `DEMO_MAX_LIVE = 200`.
+3. **Limiter implementation** (hand-written `Map` vs `express-rate-limit`) and the default `DEMO_STARTS_PER_IP = 5/hour` (the live cap is an admin setting since D15).
 4. **Exact cap counting** (accept a small overshoot, or lock the user row).
 
 ## Review log (2026-10-14)

@@ -28,8 +28,8 @@ const put = (token, body) => as(token)('put', '/api/admin/access/demo').send(bod
 const settingsRow = async () => (await db.select().from(accessSettings))[0];
 const audits = () => db.select().from(auditLog).where(eq(auditLog.action, 'access.demo_configure'));
 
-const DEFAULTS = { enabled: false, durationMinutes: 15, maxWords: 30, maxTags: 5 };
-const VALID = { enabled: true, durationMinutes: 20, maxWords: 40, maxTags: 8 };
+const DEFAULTS = { enabled: false, durationMinutes: 15, maxWords: 30, maxTags: 5, maxLive: 200 };
+const VALID = { enabled: true, durationMinutes: 20, maxWords: 40, maxTags: 8, maxLive: 50 };
 
 describe('permission', () => {
     it('is for the owner only, and a refused role changes nothing', async () => {
@@ -52,10 +52,27 @@ describe('permission', () => {
 });
 
 describe('GET /api/admin/access', () => {
-    it('returns the demo settings with their defaults: off, 15 minutes, 30 words, 5 tags', async () => {
+    it('returns the demo settings with their defaults: off, 15 minutes, 30 words, 5 tags, 200 live', async () => {
         const res = await as(await staffToken('owner'))('get', '/api/admin/access');
         expect(res.status).toBe(200);
         expect(res.body.demo).toEqual(DEFAULTS);
+        expect(res.body.counts.liveDemos).toBe(0);
+    });
+
+    it('counts only live demos: not expired ones, not the template, not normal users', async () => {
+        const minute = 60 * 1000;
+        const account = (n, extra) => ({
+            name: `U${n}`, email: `u${n}@example.com`, username: `u${n}`, languages: ['English', 'Spanish'], verified: true, ...extra,
+        });
+        await db.insert(users).values([
+            account(1, { isDemo: true, demoExpiresAt: new Date(Date.now() + 10 * minute) }),
+            account(2, { isDemo: true, demoExpiresAt: new Date(Date.now() + 1 * minute) }),
+            account(3, { isDemo: true, demoExpiresAt: new Date(Date.now() - 1 * minute) }), // expired, not purged yet
+            account(4, { isDemo: true, demoExpiresAt: null }), // the template
+            account(5, {}), // a normal user
+        ]);
+        const res = await as(await staffToken('owner'))('get', '/api/admin/access');
+        expect(res.body.counts.liveDemos).toBe(2);
     });
 });
 
@@ -68,7 +85,7 @@ describe('PUT /api/admin/access/demo', () => {
         expect(res.body.updatedBy).toBe('owner person');
 
         const row = await settingsRow();
-        expect(row).toMatchObject({ demoEnabled: true, demoDurationMinutes: 20, demoMaxWords: 40, demoMaxTags: 8 });
+        expect(row).toMatchObject({ demoEnabled: true, demoDurationMinutes: 20, demoMaxWords: 40, demoMaxTags: 8, demoMaxLive: 50 });
 
         const rows = await audits();
         expect(rows).toHaveLength(1);
@@ -89,9 +106,9 @@ describe('PUT /api/admin/access/demo', () => {
 
     it('accepts the edges of each bound', async () => {
         const token = await staffToken('owner');
-        expect((await put(token, { enabled: true, durationMinutes: 1, maxWords: 0, maxTags: 0 })).status).toBe(200);
-        expect((await put(token, { enabled: true, durationMinutes: 1440, maxWords: 500, maxTags: 50 })).status).toBe(200);
-        expect((await settingsRow())).toMatchObject({ demoDurationMinutes: 1440, demoMaxWords: 500, demoMaxTags: 50 });
+        expect((await put(token, { enabled: true, durationMinutes: 1, maxWords: 0, maxTags: 0, maxLive: 1 })).status).toBe(200);
+        expect((await put(token, { enabled: true, durationMinutes: 1440, maxWords: 500, maxTags: 50, maxLive: 1000 })).status).toBe(200);
+        expect((await settingsRow())).toMatchObject({ demoDurationMinutes: 1440, demoMaxWords: 500, demoMaxTags: 50, demoMaxLive: 1000 });
     });
 
     it('refuses a missing, wrong-type, fractional or out-of-bounds value, and changes nothing', async () => {
@@ -110,6 +127,9 @@ describe('PUT /api/admin/access/demo', () => {
             { ...VALID, maxWords: null },
             { ...VALID, maxTags: -1 },
             { ...VALID, maxTags: 51 },
+            { ...VALID, maxLive: 0 },
+            { ...VALID, maxLive: 1001 },
+            { ...VALID, maxLive: undefined },
             { ...VALID, reason: 'x'.repeat(501) },
             { ...VALID, reason: 5 },
         ];
@@ -117,7 +137,7 @@ describe('PUT /api/admin/access/demo', () => {
             const res = await put(token, body);
             expect({ body, status: res.status }).toEqual({ body, status: 400 });
         }
-        expect(await settingsRow()).toMatchObject({ demoEnabled: false, demoDurationMinutes: 15, demoMaxWords: 30, demoMaxTags: 5 });
+        expect(await settingsRow()).toMatchObject({ demoEnabled: false, demoDurationMinutes: 15, demoMaxWords: 30, demoMaxTags: 5, demoMaxLive: 200 });
         expect(await audits()).toHaveLength(0);
     });
 

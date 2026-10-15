@@ -1,0 +1,2 @@
+ALTER TABLE "access_settings" ADD COLUMN "demo_max_live" integer DEFAULT 200 NOT NULL;--> statement-breakpoint
+ALTER TABLE "access_settings" ADD CONSTRAINT "access_settings_demo_max_live_check" CHECK (demo_max_live BETWEEN 1 AND 1000);

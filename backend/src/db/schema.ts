@@ -129,6 +129,9 @@ export const accessSettings = pgTable(
         demoDurationMinutes:  integer('demo_duration_minutes').notNull().default(15),
         demoMaxWords:         integer('demo_max_words').notNull().default(30),
         demoMaxTags:          integer('demo_max_tags').notNull().default(5),
+        // The most demos that may be live at one time (not expired). Bounds load and storage
+        // against many visitors or many IPs; slots free up as demos end.
+        demoMaxLive:          integer('demo_max_live').notNull().default(200),
         updatedAt:        timestamp('updated_at').defaultNow().notNull(),
         updatedByStaffId:  uuid('updated_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
     },
@@ -140,6 +143,7 @@ export const accessSettings = pgTable(
         check('access_settings_demo_duration_check', sql`demo_duration_minutes BETWEEN 1 AND 1440`),
         check('access_settings_demo_max_words_check', sql`demo_max_words BETWEEN 0 AND 500`),
         check('access_settings_demo_max_tags_check', sql`demo_max_tags BETWEEN 0 AND 50`),
+        check('access_settings_demo_max_live_check', sql`demo_max_live BETWEEN 1 AND 1000`),
     ],
 );
 

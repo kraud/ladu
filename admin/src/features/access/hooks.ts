@@ -6,6 +6,7 @@ import {
     disallowLoginMany,
     fetchAccess,
     removeInvite,
+    saveDemo,
     saveGate,
     sendInvite,
     signOutEveryone,
@@ -46,6 +47,11 @@ export function useSaveGate(gate: GateName) {
         mutationFn: (body: { mode: AccessMode; note: string; reason?: string }) => saveGate(gate, body),
         onSuccess: store,
     });
+}
+
+export function useSaveDemo() {
+    const store = useStoreAnswer();
+    return useMutation({ mutationFn: saveDemo, onSuccess: store });
 }
 
 export function useAddInvites() {

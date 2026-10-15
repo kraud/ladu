@@ -21,16 +21,36 @@ export interface AllowedAccount {
 
 export type GateName = 'registration' | 'login';
 
+/** The demo gate and its caps (demo-access.md). Independent of the registration and login gates. */
+export interface DemoSettings {
+    enabled: boolean;
+    durationMinutes: number;
+    maxWords: number;
+    maxTags: number;
+    /** The most demos that may be live at one time. */
+    maxLive: number;
+}
+
+/** The same bounds as the server (`DEMO_BOUNDS` in backend/lib/accessGate.ts) and the database `CHECK`s. */
+export const DEMO_BOUNDS = {
+    durationMinutes: { min: 1, max: 1440 },
+    maxWords: { min: 0, max: 500 },
+    maxTags: { min: 0, max: 50 },
+    maxLive: { min: 1, max: 1000 },
+} as const;
+
 /** `GET /api/admin/access` */
 export interface AccessState {
     registration: { mode: AccessMode; note: string };
     login: { mode: AccessMode; note: string };
-    /** One row holds both gates, so this is the last change to either one. */
+    demo: DemoSettings;
+    /** One row holds every gate, so this is the last change to any of them. */
     updatedAt: string | null;
     updatedBy: string | null;
     invites: Invite[];
     loginAllowed: AllowedAccount[];
-    counts: { invites: number; loginAllowed: number };
+    /** `liveDemos`: demos running now (not expired), to compare with `demo.maxLive`. */
+    counts: { invites: number; loginAllowed: number; liveDemos: number };
 }
 
 export type SkipReason = 'invalid' | 'duplicate_in_request' | 'already_listed' | 'has_account';

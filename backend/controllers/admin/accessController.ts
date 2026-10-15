@@ -13,6 +13,7 @@ const { and, desc, eq, inArray, sql }: typeof import('drizzle-orm') = require('d
 const { HttpError }: typeof import('../../lib/httpError') = require('../../lib/httpError');
 const { readReason, withStatus }: typeof import('../../lib/adminRequest') = require('../../lib/adminRequest');
 const { getAccessSettings, normalizeInviteEmail, DEMO_BOUNDS }: typeof import('../../lib/accessGate') = require('../../lib/accessGate');
+const { countLiveDemos }: typeof import('../../lib/demo') = require('../../lib/demo');
 const { isUuid }: typeof import('../userController') = require('../userController');
 const sendMail = require('../../utils/sendEmail');
 import type { AccessMode, DemoSettings } from '../../lib/accessGate';
@@ -77,7 +78,8 @@ const loadAccess = async () => {
     // `addedBy` is null when the staff account that added it was removed.
     invites,
     loginAllowed,
-    counts: { invites: invites.length, loginAllowed: loginAllowed.length },
+    // `liveDemos`: demos running now, to compare with `demo.maxLive`.
+    counts: { invites: invites.length, loginAllowed: loginAllowed.length, liveDemos: await countLiveDemos() },
   };
 };
 
@@ -148,8 +150,8 @@ const readBounded = (value: unknown, field: keyof typeof DEMO_BOUNDS, label: str
 };
 
 /**
- * `PUT /api/admin/access/demo` — `{ enabled, durationMinutes, maxWords, maxTags, reason? }`. All four
- * values are required: the admin page always sends the whole form. One audit row
+ * `PUT /api/admin/access/demo` — `{ enabled, durationMinutes, maxWords, maxTags, maxLive, reason? }`. All
+ * five values are required: the admin page always sends the whole form. One audit row
  * `access.demo_configure` with the old and the new values (D8). A change applies to demos started
  * after it; a running demo keeps the values frozen on its user row (D7).
  */
@@ -163,6 +165,7 @@ const setDemo = asyncHandler(async (req: any, res: any) => {
       durationMinutes: readBounded(body.durationMinutes, 'durationMinutes', 'The duration'),
       maxWords: readBounded(body.maxWords, 'maxWords', 'The word limit'),
       maxTags: readBounded(body.maxTags, 'maxTags', 'The tag limit'),
+      maxLive: readBounded(body.maxLive, 'maxLive', 'The live demo limit'),
     };
 
     await db.transaction(async (tx) => {
@@ -174,6 +177,7 @@ const setDemo = asyncHandler(async (req: any, res: any) => {
         durationMinutes: current.demoDurationMinutes,
         maxWords: current.demoMaxWords,
         maxTags: current.demoMaxTags,
+        maxLive: current.demoMaxLive,
       };
       const changed = (Object.keys(next) as (keyof DemoSettings)[]).some((key) => next[key] !== previous[key]);
       if (!changed) return; // nothing to write, nothing to log
@@ -185,6 +189,7 @@ const setDemo = asyncHandler(async (req: any, res: any) => {
           demoDurationMinutes: next.durationMinutes,
           demoMaxWords: next.maxWords,
           demoMaxTags: next.maxTags,
+          demoMaxLive: next.maxLive,
           updatedAt: new Date(),
           updatedByStaffId: req.staff.id,
         })

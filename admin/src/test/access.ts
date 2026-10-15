@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import type { AccessMode, AccessState, AllowedAccount, Invite } from '@/features/access/types';
+import type { AccessMode, AccessState, AllowedAccount, DemoSettings, Invite } from '@/features/access/types';
 
 export function makeInvite(overrides: Partial<Invite> = {}): Invite {
     return { id: 'invite-1', email: 'friend@example.test', createdAt: '2026-10-01T08:00:00.000Z', addedBy: 'Sam Staff', ...overrides };
@@ -23,11 +23,12 @@ export function makeAccess(overrides: Partial<AccessState> = {}): AccessState {
     return {
         registration: { mode: 'open', note: '' },
         login: { mode: 'open', note: '' },
+        demo: { enabled: false, durationMinutes: 15, maxWords: 30, maxTags: 5, maxLive: 200 },
         updatedAt: null,
         updatedBy: null,
         invites,
         loginAllowed,
-        counts: { invites: invites.length, loginAllowed: loginAllowed.length },
+        counts: { invites: invites.length, loginAllowed: loginAllowed.length, liveDemos: 0 },
         ...overrides,
     };
 }
@@ -45,7 +46,7 @@ export interface AccessWrite {
 export function accessHandlers(state: { current: AccessState }, writes: AccessWrite[] = []) {
     const withCounts = (next: AccessState): AccessState => ({
         ...next,
-        counts: { invites: next.invites.length, loginAllowed: next.loginAllowed.length },
+        counts: { ...next.counts, invites: next.invites.length, loginAllowed: next.loginAllowed.length },
     });
     const putGate = (gate: 'registration' | 'login') =>
         http.put(`/api/admin/access/${gate}`, async ({ request }) => {
@@ -64,6 +65,19 @@ export function accessHandlers(state: { current: AccessState }, writes: AccessWr
         http.get('/api/admin/access', () => HttpResponse.json(state.current)),
         putGate('registration'),
         putGate('login'),
+        http.put('/api/admin/access/demo', async ({ request }) => {
+            const body = (await request.json()) as Record<string, unknown> & DemoSettings;
+            writes.push({ method: 'PUT', path: '/api/admin/access/demo', body });
+            const demo: DemoSettings = {
+                enabled: body.enabled,
+                durationMinutes: body.durationMinutes,
+                maxWords: body.maxWords,
+                maxTags: body.maxTags,
+                maxLive: body.maxLive,
+            };
+            state.current = withCounts({ ...state.current, demo, updatedAt: '2026-10-02T09:00:00.000Z', updatedBy: 'Sam Staff' });
+            return HttpResponse.json(state.current);
+        }),
         http.post('/api/admin/access/invites', async ({ request }) => {
             const body = (await request.json()) as { emails: string[] };
             writes.push({ method: 'POST', path: '/api/admin/access/invites', body });

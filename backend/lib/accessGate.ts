@@ -28,6 +28,8 @@ export interface DemoSettings {
   durationMinutes: number;
   maxWords: number;
   maxTags: number;
+  /** The most demos that may be live at one time. */
+  maxLive: number;
 }
 
 /** The bounds of the demo settings. The `CHECK` constraints on `access_settings` hold the same numbers. */
@@ -35,6 +37,7 @@ export const DEMO_BOUNDS = {
   durationMinutes: { min: 1, max: 1440 },
   maxWords: { min: 0, max: 500 },
   maxTags: { min: 0, max: 50 },
+  maxLive: { min: 1, max: 1000 },
 } as const;
 
 /** Both `db` and a transaction can run these queries. */
@@ -84,6 +87,7 @@ export const getAccessSettings = async (executor: GateExecutor = db): Promise<Ac
       durationMinutes: row?.demoDurationMinutes ?? 15,
       maxWords: row?.demoMaxWords ?? 30,
       maxTags: row?.demoMaxTags ?? 5,
+      maxLive: row?.demoMaxLive ?? 200,
     },
   };
 };
