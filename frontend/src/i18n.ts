@@ -29,6 +29,7 @@ i18n
             'caseDescription',
             'common',
             'dashboard',
+            'demo',
             'friendship',
             'loginRegister',
             'notifications',

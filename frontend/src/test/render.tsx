@@ -8,6 +8,8 @@ import { ToastContainer } from 'react-toastify';
 import { createQueryClient } from '@/app/query-client';
 import { createAppRouter } from '@/app/router';
 import { useAuthStore, type RawUser } from '@/stores/authStore';
+import { useUiStore } from '@/stores/uiStore';
+import { DemoTransition } from '@/features/demo/components/DemoTransition';
 
 // Real English locale bundles, so a missing key fails a test rather than
 // silently rendering the key name. Kept in sync with `public/locales/en/`.
@@ -15,6 +17,7 @@ import account from '../../public/locales/en/account.json';
 import caseDescription from '../../public/locales/en/caseDescription.json';
 import common from '../../public/locales/en/common.json';
 import dashboard from '../../public/locales/en/dashboard.json';
+import demo from '../../public/locales/en/demo.json';
 import friendship from '../../public/locales/en/friendship.json';
 import loginRegister from '../../public/locales/en/loginRegister.json';
 import notifications from '../../public/locales/en/notifications.json';
@@ -29,6 +32,7 @@ const enResources = {
     caseDescription,
     common,
     dashboard,
+    demo,
     friendship,
     loginRegister,
     notifications,
@@ -103,6 +107,7 @@ export async function renderApp(options: { initialEntry?: string; session?: RawU
 
     useAuthStore.getState().clearSession();
     if (session) useAuthStore.getState().setSession(session);
+    useUiStore.getState().setDemoTransition('idle', []);
 
     const queryClient = createQueryClient();
     const i18n = createTestI18n();
@@ -115,6 +120,8 @@ export async function renderApp(options: { initialEntry?: string; session?: RawU
         <QueryClientProvider client={queryClient}>
             <I18nextProvider i18n={i18n}>
                 <RouterProvider router={router} />
+                {/* Beside the router, as in `app/Providers.tsx`. */}
+                <DemoTransition />
                 <ToastContainer position="bottom-center" autoClose={false} />
             </I18nextProvider>
         </QueryClientProvider>

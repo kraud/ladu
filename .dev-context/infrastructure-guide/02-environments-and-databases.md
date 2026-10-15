@@ -203,6 +203,72 @@ Local dev and test databases load the same way (`node scripts/lexicon/load.js <f
 language, and `translations-en-fixture.jsonl` with the translations of 11 English words) are
 enough for tests and e2e (`npm run lexicon:load:fixture -w backend`).
 
+## Demo accounts (`users.is_demo`)
+
+The "Try the demo" button makes a throwaway account (`.context/plans/demo-access.md`). It is off
+by default in every environment. The owner turns it on, and sets its duration and its caps, in the
+admin panel: **Access → Demo** (`/access?tab=demo`). Nothing to deploy.
+
+- **What a demo row looks like:** `is_demo = true`, name `Demo`, username `demo-<uuid>`, email
+  `demo+<uuid>@ladu.invalid` (no mail can reach it), no password. `demo_expires_at` is the end of
+  the demo; after it, the backend refuses the token.
+- **The per-IP limit** is an environment variable, `DEMO_STARTS_PER_IP` (default 5 starts per hour
+  and per IP). Not a secret, and not needed in a normal deploy. IPs stay in the backend's memory
+  only, and a restart clears them. The e2e config sets it to 1000, because all its demos come
+  from one IP.
+- **How many demos run now** (also shown in the admin Demo tab):
+
+  ```sql
+  SELECT count(*) FROM users WHERE is_demo AND demo_expires_at > now();
+  ```
+- **The demo template (needed once per environment).** Every demo is a copy of one template
+  account (username `__demo_template__`, no expiry, never purged), built from
+  `backend/scripts/demo-template/data.json`. Without it, the demo start answers 503
+  `demo_unavailable` and the backend logs the command to run. Seed it once in each environment:
+
+  ```bash
+  # local dev (the e2e start-up does this by itself):
+  npm run demo:template -w backend
+  # staging / production, on the VPS:
+  docker exec backend-staging node scripts/seed-demo-template.js
+  docker exec backend-prod node scripts/seed-demo-template.js
+  ```
+
+  **When:** after the merge, once `deploy.yml` has deployed the environment — the script and the
+  demo columns (migrations 0027 + 0028) only exist on the server from that deploy on. Then seed
+  staging, then production, and only after that turn the demo on (admin panel, staging first).
+  Nothing breaks in between: the demo is off by default. The tests never need this step: Jest
+  seeds its own template, and the e2e start-up (locally and in the CI `e2e` job) runs
+  `npm run demo:template`.
+
+  Running it again keeps the existing template. After a change to `data.json`, rebuild it with
+  `--reset` (`npm run demo:template -w backend -- --reset`, or add `--reset` to the `docker exec`
+  line). Demos that are running keep their own copy.
+- **Cleanup:** the nightly purge (`scripts/purge.js`) deletes demos whose time is over, with all
+  their data. It writes no audit row; its log line counts them (`… N expired demo(s) …`). Until
+  the next run, an expired demo stays in the database, but it does not count toward the live cap
+  and its token does not work.
+- **Where demos do not show:** the admin users list, the admin statistics (accounts, sign-ups,
+  languages and content totals) and user search all leave out demo accounts and the template.
+- **Demo usage numbers (admin Demo tab, under the settings):** a banner (starts per window, what
+  visitors add, cap hits, refused starts, languages) and a table of the demo accounts on the
+  database now. They come from two tables that the purge does not delete (migration 0029, it arrives
+  with the deploy; nothing to run by hand):
+  - `demo_starts`: one row per start (time, languages, seed counts, caps). Before it deletes an
+    expired demo, the purge writes the final counts to its row (`closed_at`); `user_id` then becomes
+    NULL. No IP and no other personal data.
+  - `demo_refusals`: refused starts, one counter per UTC day and code (`demo_busy`,
+    `demo_rate_limited`, `demo_disabled`, `demo_unavailable`).
+
+  ```sql
+  SELECT count(*) FROM demo_starts WHERE started_at > now() - interval '7 days';
+  SELECT * FROM demo_refusals ORDER BY day DESC, code;
+  ```
+
+  Both are kept for now (small rows); a retention cut-off can be added to the purge later. The e2e
+  teardown deletes the start rows of its own demos, but its "demo is off" test adds 1 to the local
+  `demo_disabled` counter on each run.
+
 ## Email sender addresses per environment
 
 Not a database, but environment-scoped the same way: staging sends real

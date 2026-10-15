@@ -21,6 +21,8 @@ import type { Request, Response } from 'express';
 const { db } = require('../src/db');
 const { friendships, notifications, users } = require('../src/db/schema');
 const asyncHandler = require('express-async-handler');
+// A demo account never reaches another user (demo-access.md Review log S2-1).
+const { assertNotDemo }: typeof import('../lib/demo') = require('../lib/demo');
 
 type FriendshipRow = typeof friendships.$inferSelect;
 type FriendshipStatus = FriendshipRow['status'];
@@ -105,6 +107,7 @@ const getUserFriendships = asyncHandler(async (req: RequestWithAuth, res: Respon
 // @route   POST /api/friendships
 // @access  Private
 const createFriendship = asyncHandler(async (req: RequestWithAuth, res: Response) => {
+    assertNotDemo(req.user, res);
     const addresseeId: unknown = req.body.addresseeId;
 
     if (!isUuid(addresseeId)) {
@@ -186,6 +189,7 @@ const createFriendship = asyncHandler(async (req: RequestWithAuth, res: Response
 // @route   POST /api/friendships/:id/accept
 // @access  Private
 const acceptFriendship = asyncHandler(async (req: RequestWithAuth, res: Response) => {
+    assertNotDemo(req.user, res);
     const [friendship] = await db
         .select()
         .from(friendships)
@@ -227,6 +231,7 @@ const acceptFriendship = asyncHandler(async (req: RequestWithAuth, res: Response
 // @route   POST /api/friendships/:id/decline
 // @access  Private
 const declineFriendship = asyncHandler(async (req: RequestWithAuth, res: Response) => {
+    assertNotDemo(req.user, res);
     const [friendship] = await db
         .select()
         .from(friendships)

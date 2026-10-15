@@ -1,0 +1,69 @@
+{
+  "start": {
+    "blurb": "Try Ladu without an account.",
+    "title": "Try the demo",
+    "intro": "The demo opens Ladu with sample words, tags and a practice setup. It lasts a few minutes. When it ends, all your changes are deleted.",
+    "languagesTitle": "Which languages do you use?",
+    "languagesHint": "Pick 2 or more. The demo shows its sample words in these languages.",
+    "languageCountEmpty": "Select at least two languages",
+    "languageCountSelected_one": "1 language selected",
+    "languageCountSelected_other": "{{count}} languages selected",
+    "termsNote": "By starting the demo, you confirm that you are at least 13 years old (with a parent's permission if you are under 16) and accept the <terms>Terms</terms> and the <privacy>Privacy Policy</privacy>.",
+    "logoutWarning": "You are logged in. Starting the demo logs you out of your account.",
+    "button": "Start the demo",
+    "buttonLogout": "Log out and start the demo",
+    "starting": "Starting the demo…",
+    "loading": "Loading…",
+    "haveAccount": "Do you have an account?",
+    "signIn": "Sign in"
+  },
+  "off": {
+    "title": "The demo is off",
+    "text": "The demo is not available now. You can create a free account instead.",
+    "createAccount": "Create an account"
+  },
+  "ended": {
+    "blurb": "Thank you for trying Ladu.",
+    "title": "The demo has ended",
+    "text": "All the changes you made in the demo are deleted. Create an account to keep your own words.",
+    "signUp": "Create an account",
+    "tryAgain": "Start a new demo"
+  },
+  "errors": {
+    "demo_disabled": "The demo is off now.",
+    "demo_busy": "Too many demos are running. Try again in a few minutes.",
+    "demo_rate_limited": "Too many demos were started from your network. Try again later.",
+    "demo_unavailable": "The demo is not available now. Try again later.",
+    "demo_invalid_languages": "Select at least two languages.",
+    "generic": "The demo could not start. Try again.",
+    "demo_restricted": "This is not available in the demo.",
+    "demo_word_limit": "The demo cannot have more words. Create an account to add more.",
+    "demo_tag_limit": "The demo cannot have more tags. Create an account to add more."
+  },
+  "badge": {
+    "demo": "Demo",
+    "label": "Demo: {{time}} left. Open your account page."
+  },
+  "account": {
+    "title": "Demo account",
+    "accountLabel": "Demo account",
+    "timeLeft": "Time left: {{time}}",
+    "text": "This is a demo account. When the time ends, the account and all your changes are deleted.",
+    "createAccount": "Create an account",
+    "namesLocked": "A demo account cannot change its name or username.",
+    "wordsLeft": "Words you can add: {{count}}",
+    "tagsLeft": "Tags you can add: {{count}}"
+  },
+  "transition": {
+    "label": "Starting the demo",
+    "progress": "Demo start progress",
+    "lines": {
+      "line1": "Dusting off the dictionaries…",
+      "line2": "Teaching the verbs to conjugate…",
+      "line3": "Asking the nouns about their genders…",
+      "line4": "Putting the umlauts on the right letters…",
+      "line5": "Counting the Estonian cases. There are 14…",
+      "line6": "Putting the words on the shelf…"
+    }
+  }
+}

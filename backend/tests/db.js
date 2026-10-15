@@ -126,7 +126,9 @@ const clearDB = async () => {
             login_allowed_users,
             access_settings,
             lexemes,
-            lexeme_translations
+            lexeme_translations,
+            demo_starts,
+            demo_refusals
         RESTART IDENTITY CASCADE
     `);
 

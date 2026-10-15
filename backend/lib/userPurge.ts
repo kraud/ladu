@@ -11,7 +11,8 @@
  */
 const { db }: typeof import('../src/db') = require('../src/db');
 const { users, auditLog, loginEvents, userActivityDays }: typeof import('../src/db/schema') = require('../src/db/schema');
-const { and, eq, isNotNull, lt }: typeof import('drizzle-orm') = require('drizzle-orm');
+const { and, eq, inArray, isNotNull, lt }: typeof import('drizzle-orm') = require('drizzle-orm');
+const { closeDemoStarts }: typeof import('./demoStats') = require('./demoStats');
 
 /** How long a soft-deleted account can still be restored. */
 export const DELETE_GRACE_DAYS = 30;
@@ -50,7 +51,10 @@ export const hardDeleteUser = async (
 };
 
 /**
- * The nightly job: purges accounts soft-deleted more than 30 days ago, and
+ * The nightly job: purges accounts soft-deleted more than 30 days ago, deletes demo accounts whose
+ * time is over (demo-access.md; one transaction that first writes their final counts to the demo
+ * start log, no audit row: they are throwaway accounts, not admin actions; the template has no
+ * expiry and is never touched), and
  * deletes login history older than 90 days and activity days older than 400. One transaction per account, so
  * one failure does not undo the others. The cut-off is checked again inside the
  * transaction: an owner may restore an account between the read and the delete.
@@ -81,6 +85,17 @@ export const runPurge = async (now: Date = new Date()) => {
     if (purged) purgedUsers += 1;
   }
 
+  // Their rows cascade. A live demo is not touched: `protect` already refuses an expired one, so
+  // this is only garbage collection. First, their start-log rows get the final counts (the admin
+  // demo statistics, demo-access.md D20); the log rows stay.
+  const expiredDemo = and(eq(users.isDemo, true), isNotNull(users.demoExpiresAt), lt(users.demoExpiresAt, now));
+  const purgedDemoRows = await db.transaction(async (tx) => {
+    const ids = (await tx.select({ id: users.id }).from(users).where(expiredDemo).for("update")).map((u) => u.id);
+    if (ids.length === 0) return [];
+    await closeDemoStarts(tx, ids, now);
+    return tx.delete(users).where(and(expiredDemo, inArray(users.id, ids))).returning({ id: users.id });
+  });
+
   const removed = await db
     .delete(loginEvents)
     .where(lt(loginEvents.createdAt, loginCutoff))
@@ -91,5 +106,10 @@ export const runPurge = async (now: Date = new Date()) => {
     .where(lt(userActivityDays.day, activityCutoff))
     .returning({ day: userActivityDays.day });
 
-  return { purgedUsers, deletedLoginEvents: removed.length, deletedActivityDays: removedDays.length };
+  return {
+    purgedUsers,
+    purgedDemos: purgedDemoRows.length,
+    deletedLoginEvents: removed.length,
+    deletedActivityDays: removedDays.length,
+  };
 };

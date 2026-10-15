@@ -34,6 +34,7 @@ function session(languages: string[]) {
 // the unambiguous worst category here.
 const POPULATED: BasicUserMetricsBE = {
     totalWords: 12,
+    totalTags: 0,
     incompleteWordsCount: 2,
     translationsPerLanguage: [
         { language: 'English', count: 12, type: 'language' },

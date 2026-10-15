@@ -249,42 +249,9 @@ const getNotificationsByUserIdWhereUserIsRequester = asyncHandler(async (req: an
     res.status(200).json(results);
 });
 
-// @desc    Create notifications (one per user in the user array)
-// @route   POST /api/notifications
-// @access  Private
-const createNotification = asyncHandler(async (req: any, res: any) => {
-    // NB! when posting, a NotificationData-user property will always be an array (of at least 1).
-    if (!req.body.user) {
-        res.status(400);
-        throw new Error('Please specify a user to be notified.');
-    }
-    if (!req.body.variant) {
-        res.status(400);
-        throw new Error('Please specify the type (variant) of notification.');
-    }
-
-    // The notification is added once for each item in user array.
-    const notificationRows = (req.body.user as string[]).map((userId: string) => ({
-        userId,
-        variant: req.body.variant,
-        dismissed: false,
-        content: req.body.content ?? null,
-    }));
-
-    const created = await db
-        .insert(notifications)
-        .values(notificationRows)
-        .returning();
-
-    const augmented: NotificationAugmented[] = created.map((row) => ({
-        ...row,
-        content: row.content as Record<string, any> | null,
-        notificationSender: null,
-        notificationTag: null,
-    }));
-
-    res.status(200).json(augmented.map(toFrontendNotification));
-});
+// No client route creates a notification: `POST /api/notifications` let any user notify any
+// user ids with any text, and was removed (demo-access.md Review log S2-2). Notification rows are
+// made by the server, in the transaction of the domain action (§8.1).
 
 // @desc    Delete Notification
 // @route   DELETE /api/notifications/:id
@@ -384,7 +351,6 @@ const updateNotification = asyncHandler(async (req: any, res: any) => {
 module.exports = {
     getNotificationsByUserId,
     getNotificationsByUserIdWhereUserIsRequester,
-    createNotification,
     deleteNotification,
     updateNotification,
 };

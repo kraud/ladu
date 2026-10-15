@@ -55,6 +55,8 @@ export interface WordsPerMonthRow {
  */
 export interface BasicUserMetricsBE {
     totalWords: number;
+    /** The account's own tags (demo-access.md D9: the demo's "tags left"). */
+    totalTags: number;
     incompleteWordsCount: number;
     translationsPerLanguage: TranslationsPerLanguageRow[];
     translationsPerLanguageAndPOS: TranslationsPerLanguageAndPosRow[];

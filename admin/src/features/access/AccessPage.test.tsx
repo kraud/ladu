@@ -4,7 +4,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { server } from '@/test/msw/server';
 import { renderApp } from '@/test/renderApp';
-import { accessHandlers, makeAccess, makeAllowed, makeInvite, type AccessWrite } from '@/test/access';
+import { accessHandlers, makeAccess, makeAllowed, makeDemoStats, makeDemoUser, makeInvite, type AccessWrite } from '@/test/access';
 import { SIGN_OUT_PHRASE } from '@/features/access/types';
 import { parseEmails } from '@/features/access/pages/AccessPage';
 import type { AccessState } from '@/features/access/types';
@@ -735,3 +735,315 @@ describe('sign everyone out', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 });
+
+describe('the demo', () => {
+    const openDemo = () => renderApp({ initialEntry: '/access?tab=demo', role: 'owner' });
+    const demo = () => within(screen.getByRole('region', { name: 'Demo' }));
+    const demoLoaded = () => screen.findByRole('region', { name: 'Demo' });
+    const demoSwitch = (name: 'On' | 'Off') => demo().getByRole('button', { name });
+    const field = (label: string) => demo().getByLabelText(label);
+    const demoSave = () => demo().getByRole('button', { name: 'Save' });
+    const setField = async (user: ReturnType<typeof userEvent.setup>, label: string, value: string) => {
+        await user.clear(field(label));
+        if (value) await user.type(field(label), value);
+    };
+
+    it('has its own tab, reachable from the other tabs', async () => {
+        setup();
+        const user = userEvent.setup();
+        const { router } = await open();
+
+        await registrationLoaded();
+        await user.click(screen.getByRole('link', { name: 'Demo' }));
+        await demoLoaded();
+        expect(router.state.location.search).toEqual({ tab: 'demo' });
+    });
+
+    it('shows the saved state and values, and that the gate is independent', async () => {
+        setup(makeAccess({ demo: { enabled: true, durationMinutes: 20, maxWords: 40, maxTags: 8, maxLive: 50 } }));
+        await openDemo();
+
+        await demoLoaded();
+        expect(demoSwitch('On')).toHaveAttribute('aria-pressed', 'true');
+        expect(field('Duration (minutes)')).toHaveValue(20);
+        expect(field('Maximum words')).toHaveValue(40);
+        expect(field('Maximum tags')).toHaveValue(8);
+        expect(field('Maximum live demos')).toHaveValue(50);
+        expect(demo().getByText(/independent of registration and login/)).toBeInTheDocument();
+    });
+
+    it('shows how many demos are running now, against the saved cap', async () => {
+        const base = makeAccess({ demo: { enabled: true, durationMinutes: 15, maxWords: 30, maxTags: 5, maxLive: 200 } });
+        setup({ ...base, counts: { ...base.counts, liveDemos: 12 } });
+        await openDemo();
+
+        await demoLoaded();
+        expect(demo().getByText(/Running now:/)).toHaveTextContent('Running now: 12 of 200 demos.');
+    });
+
+    it('sends a new live demo cap', async () => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await openDemo();
+
+        await demoLoaded();
+        await setField(user, 'Maximum live demos', '50');
+        await user.click(demoSave());
+        await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Confirm' }));
+
+        expect(await screen.findByRole('status')).toHaveTextContent('The demo settings were saved.');
+        expect(writes[0].body).toEqual({ enabled: false, durationMinutes: 15, maxWords: 30, maxTags: 5, maxLive: 50 });
+        expect(demo().getByText(/Running now:/)).toHaveTextContent('Running now: 0 of 50 demos.');
+    });
+
+    it('keeps Save off until something changes', async () => {
+        setup();
+        const user = userEvent.setup();
+        await openDemo();
+
+        await demoLoaded();
+        expect(demoSave()).toBeDisabled();
+        await user.click(demoSwitch('On'));
+        expect(demoSave()).toBeEnabled();
+        await user.click(demoSwitch('Off'));
+        expect(demoSave()).toBeDisabled();
+        await setField(user, 'Maximum words', '31');
+        expect(demoSave()).toBeEnabled();
+    });
+
+    it('asks to confirm, says what will happen, then sends all four values and the reason', async () => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await openDemo();
+
+        await demoLoaded();
+        await user.click(demoSwitch('On'));
+        await setField(user, 'Duration (minutes)', '20');
+        await user.click(demoSave());
+
+        const dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getByText('Turn the demo on?')).toBeInTheDocument();
+        expect(within(dialog).getByText(/Each demo will last 20 minutes\./)).toBeInTheDocument();
+        expect(writes).toEqual([]);
+
+        await user.type(within(dialog).getByLabelText(/Reason/), 'launch');
+        await user.click(within(dialog).getByRole('button', { name: 'Confirm' }));
+
+        expect(await screen.findByRole('status')).toHaveTextContent('The demo is now on.');
+        expect(writes).toEqual([
+            {
+                method: 'PUT',
+                path: '/api/admin/access/demo',
+                body: { enabled: true, durationMinutes: 20, maxWords: 30, maxTags: 5, maxLive: 200, reason: 'launch' },
+            },
+        ]);
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        // The form now shows the saved state, so there is nothing left to save.
+        expect(demoSave()).toBeDisabled();
+    });
+
+    it('says that running demos keep their values when only the values change', async () => {
+        const { writes } = setup(makeAccess({ demo: { enabled: true, durationMinutes: 15, maxWords: 30, maxTags: 5, maxLive: 200 } }));
+        const user = userEvent.setup();
+        await openDemo();
+
+        await demoLoaded();
+        await setField(user, 'Maximum tags', '9');
+        await user.click(demoSave());
+        const dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getByText('Save the demo settings?')).toBeInTheDocument();
+        expect(within(dialog).getByText(/Demos that are running keep their values\./)).toBeInTheDocument();
+        await user.click(within(dialog).getByRole('button', { name: 'Confirm' }));
+
+        expect(await screen.findByRole('status')).toHaveTextContent('The demo settings were saved.');
+        expect(writes[0].body).toEqual({ enabled: true, durationMinutes: 15, maxWords: 30, maxTags: 9, maxLive: 200 });
+    });
+
+    it('says that running demos continue when the demo is turned off', async () => {
+        setup(makeAccess({ demo: { enabled: true, durationMinutes: 15, maxWords: 30, maxTags: 5, maxLive: 200 } }));
+        const user = userEvent.setup();
+        await openDemo();
+
+        await demoLoaded();
+        await user.click(demoSwitch('Off'));
+        await user.click(demoSave());
+        const dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getByText('Turn the demo off?')).toBeInTheDocument();
+        expect(within(dialog).getByText(/Demos that are running continue until they end\./)).toBeInTheDocument();
+    });
+
+    it.each([
+        ['Duration (minutes)', '0', 'Enter a whole number from 1 to 1440.'],
+        ['Duration (minutes)', '1441', 'Enter a whole number from 1 to 1440.'],
+        ['Duration (minutes)', '', 'Enter a whole number from 1 to 1440.'],
+        ['Maximum words', '501', 'Enter a whole number from 0 to 500.'],
+        ['Maximum tags', '51', 'Enter a whole number from 0 to 50.'],
+        ['Maximum live demos', '0', 'Enter a whole number from 1 to 1000.'],
+        ['Maximum live demos', '1001', 'Enter a whole number from 1 to 1000.'],
+    ])('refuses %s = "%s" before it sends', async (label, value, message) => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await openDemo();
+
+        await demoLoaded();
+        await user.click(demoSwitch('On'));
+        await setField(user, label, value);
+        expect(demo().getByText(message)).toBeInTheDocument();
+        expect(field(label)).toHaveAttribute('aria-invalid', 'true');
+        expect(demoSave()).toBeDisabled();
+        expect(writes).toEqual([]);
+    });
+
+    it('warns when the demo is on and a cap is zero, in the card and in the confirm', async () => {
+        setup();
+        const user = userEvent.setup();
+        await openDemo();
+
+        await demoLoaded();
+        await setField(user, 'Maximum words', '0');
+        // Off: no visitor can start a demo, so there is nothing to warn about.
+        expect(demo().queryByRole('alert')).not.toBeInTheDocument();
+        await user.click(demoSwitch('On'));
+        expect(demo().getByRole('alert')).toHaveTextContent('Visitors can look, but cannot add words.');
+        await setField(user, 'Maximum tags', '0');
+        expect(demo().getByRole('alert')).toHaveTextContent('Visitors can look, but cannot add words or tags.');
+        await setField(user, 'Maximum words', '3');
+        expect(demo().getByRole('alert')).toHaveTextContent('Visitors can look, but cannot add tags.');
+
+        await user.click(demoSave());
+        expect(await screen.findByRole('dialog')).toHaveTextContent('Visitors can look, but cannot add tags.');
+    });
+
+    it('leaves the settings alone when the owner cancels', async () => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await openDemo();
+
+        await demoLoaded();
+        await user.click(demoSwitch('On'));
+        await user.click(demoSave());
+        await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancel' }));
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(writes).toEqual([]);
+    });
+
+    it('shows the server error inside the dialog and keeps it open', async () => {
+        setup();
+        server.use(http.put('/api/admin/access/demo', () => HttpResponse.json({ message: 'The duration must be a whole number from 1 to 1440' }, { status: 400 })));
+        const user = userEvent.setup();
+        await openDemo();
+
+        await demoLoaded();
+        await user.click(demoSwitch('On'));
+        await user.click(demoSave());
+        const dialog = await screen.findByRole('dialog');
+        await user.click(within(dialog).getByRole('button', { name: 'Confirm' }));
+
+        expect(await within(dialog).findByRole('alert')).toHaveTextContent('The duration must be a whole number from 1 to 1440');
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+});
+
+describe('the demo usage and accounts (D19, D20)', () => {
+    const openDemo = () => renderApp({ initialEntry: '/access?tab=demo', role: 'owner' });
+    const usage = async () => within(await screen.findByRole('region', { name: 'Demo usage' }));
+    const accounts = async () => within(await screen.findByRole('region', { name: /Demo accounts/ }));
+    const tile = (scope: ReturnType<typeof within>, label: string) => scope.getByText(label).closest('div') as HTMLElement;
+
+    it('shows the starts, what visitors do, the refusals and the languages', async () => {
+        const stats = makeDemoStats({
+            starts: { last24h: 3, last7d: 12, last30d: 40, total: 1234 },
+            runningNow: 2,
+            engagement: { demos: 40, avgWordsAdded: 2.5, avgTagsAdded: 0.3, avgTranslationsPractised: 7, addedAWord: 30 },
+            caps: { wordCapDemos: 40, reachedWordCap: 4, tagCapDemos: 20, reachedTagCap: 0 },
+            refusals: { demo_disabled: 1, demo_rate_limited: 5, demo_busy: 2, demo_unavailable: 0 },
+            languages: [
+                { language: 'Spanish', count: 30 },
+                { language: 'English', count: 20 },
+            ],
+            uiLanguages: [{ language: 'English', count: 40 }],
+        });
+        server.use(...accessHandlers({ current: makeAccess() }, [], { stats }));
+        await openDemo();
+        const banner = await usage();
+
+        await waitFor(() => expect(tile(banner, 'Started, all time')).toHaveTextContent('1,234'));
+        expect(tile(banner, 'Started, last 24 hours')).toHaveTextContent('3');
+        expect(tile(banner, 'Live now')).toHaveTextContent('2');
+        expect(banner.getByText(/demos started in the last 30 days: 40/)).toBeInTheDocument();
+        expect(tile(banner, 'Words added per demo')).toHaveTextContent('2.5');
+        expect(tile(banner, 'Added at least one word')).toHaveTextContent('75%30 of 40 demos');
+        expect(tile(banner, 'Reached the word cap')).toHaveTextContent('10%4 of 40 demos with a word cap');
+        expect(tile(banner, 'Reached the tag cap')).toHaveTextContent('0%0 of 20 demos with a tag cap');
+
+        const refusals = within(banner.getByLabelText('Refused starts'));
+        expect(refusals.getByText('Too many from one network').nextSibling).toHaveTextContent('5');
+        expect(refusals.getByText('All live demos in use').nextSibling).toHaveTextContent('2');
+
+        expect(banner.getByRole('img', { name: 'Spanish: 30 demos, 75% of all' })).toBeInTheDocument();
+        expect(banner.getByRole('img', { name: 'English: 40 demos, 100% of all' })).toBeInTheDocument();
+    });
+
+    it('lists the demo accounts with their status, languages and what each one added against its cap', async () => {
+        const users = {
+            total: 2,
+            rows: [
+                makeDemoUser({ id: 'a', status: 'live', languages: ['German', 'Estonian'], uiLanguage: 'German', wordsAdded: 3, maxWords: 30, tagsAdded: 1, maxTags: 5, configsAdded: 2, translationsPractised: 9 }),
+                makeDemoUser({ id: 'b', status: 'expired', wordsAdded: null, tagsAdded: null, configsAdded: null, translationsPractised: null, maxWords: null, maxTags: null }),
+            ],
+        };
+        server.use(...accessHandlers({ current: makeAccess() }, [], { users }));
+        await openDemo();
+        const table = await accounts();
+
+        expect(await table.findByRole('heading', { name: 'Demo accounts (2)' })).toBeInTheDocument();
+        const [live, expired] = table.getAllByRole('row').slice(1);
+        expect(within(live!).getAllByRole('cell').map((c) => c.textContent)).toEqual([
+            'Live',
+            expect.any(String),
+            expect.any(String),
+            'German, Estonian',
+            'German',
+            '3 / 30',
+            '1 / 5',
+            '2',
+            '9',
+        ]);
+        // A demo from before the start log: no counts.
+        expect(within(expired!).getAllByRole('cell').map((c) => c.textContent)).toEqual([
+            'Expired',
+            expect.any(String),
+            expect.any(String),
+            'English, German',
+            'English',
+            '—',
+            '—',
+            '—',
+            '—',
+        ]);
+        expect(table.queryByText(/Only the newest/)).not.toBeInTheDocument();
+    });
+
+    it('says when only the newest demos are shown, and when there is none', async () => {
+        server.use(...accessHandlers({ current: makeAccess() }, [], { users: { total: 250, rows: [makeDemoUser()] } }));
+        await openDemo();
+        expect(await (await accounts()).findByText(/Only the newest 200 are shown/)).toBeInTheDocument();
+    });
+
+    it('shows the empty states', async () => {
+        server.use(...accessHandlers({ current: makeAccess() }));
+        await openDemo();
+        expect(await (await accounts()).findByText('There is no demo account on the database.')).toBeInTheDocument();
+        expect((await usage()).getAllByText('No demo yet.')).toHaveLength(2);
+    });
+
+    it('shows an error when the numbers cannot load, and the settings still work', async () => {
+        server.use(...accessHandlers({ current: makeAccess() }));
+        server.use(http.get('/api/admin/access/demo/stats', () => HttpResponse.json({ message: 'Boom' }, { status: 500 })));
+        await openDemo();
+        expect(await (await usage()).findByRole('alert')).toHaveTextContent('Boom');
+        expect(screen.getByRole('region', { name: 'Demo' }).querySelector('#demo-durationMinutes')).toBeInTheDocument();
+    });
+});
+

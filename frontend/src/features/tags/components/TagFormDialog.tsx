@@ -33,6 +33,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { getApiErrorMessage } from '@/api/types';
 import { useCreateTag, useUpdateTag } from '../hooks';
 import { tagErrorKey } from '../errors';
+import { useIsDemo } from '@/features/demo/hooks';
 import { WordPicker, type PickedWord } from './WordPicker';
 import type { TagSummary, TagVisibility } from '../types';
 
@@ -58,7 +59,10 @@ export function TagFormDialog({ open, onOpenChange, mode, tag, onSaved, onGoToRe
 
     const [label, setLabel] = useState('');
     const [description, setDescription] = useState('');
-    const [visibility, setVisibility] = useState<TagVisibility>('Public');
+    // A demo's tags are always Private (demo-access.md D10 b): the choice is hidden and Private is sent.
+    const isDemo = useIsDemo();
+    const newTagVisibility: TagVisibility = isDemo ? 'Private' : 'Public';
+    const [visibility, setVisibility] = useState<TagVisibility>(newTagVisibility);
     const [pickedWords, setPickedWords] = useState<PickedWord[]>([]);
     const [labelTouched, setLabelTouched] = useState(false);
 
@@ -69,7 +73,7 @@ export function TagFormDialog({ open, onOpenChange, mode, tag, onSaved, onGoToRe
         if (!open) return;
         setLabel(mode === 'edit' ? (tag?.label ?? '') : '');
         setDescription(mode === 'edit' ? (tag?.description ?? '') : '');
-        setVisibility(mode === 'edit' ? (tag?.visibility ?? 'Public') : 'Public');
+        setVisibility(mode === 'edit' ? (tag?.visibility ?? newTagVisibility) : newTagVisibility);
         setPickedWords([]);
         setLabelTouched(false);
         mutation.reset();
@@ -153,35 +157,37 @@ export function TagFormDialog({ open, onOpenChange, mode, tag, onSaved, onGoToRe
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <Label>
-                            {t('tags:form.visibilityField')} <span className="text-(--danger)">*</span>
-                        </Label>
-                        <RadioGroup
-                            className="flex-col gap-2"
-                            value={visibility}
-                            onValueChange={(next) => setVisibility(next as TagVisibility)}
-                        >
-                            <label className="flex cursor-pointer items-start gap-2.5 rounded-md border border-(--border) p-2.5">
-                                <RadioGroupItem value="Public" className="mt-0.5" />
-                                <span className="flex flex-col gap-0.5">
-                                    <b className="text-sm">{t('tags:form.visibilityPublic')}</b>
-                                    <span className="text-xs text-(--muted)">
-                                        {t('tags:form.visibilityPublicHint')}
+                    {!isDemo && (
+                        <div className="flex flex-col gap-1.5">
+                            <Label>
+                                {t('tags:form.visibilityField')} <span className="text-(--danger)">*</span>
+                            </Label>
+                            <RadioGroup
+                                className="flex-col gap-2"
+                                value={visibility}
+                                onValueChange={(next) => setVisibility(next as TagVisibility)}
+                            >
+                                <label className="flex cursor-pointer items-start gap-2.5 rounded-md border border-(--border) p-2.5">
+                                    <RadioGroupItem value="Public" className="mt-0.5" />
+                                    <span className="flex flex-col gap-0.5">
+                                        <b className="text-sm">{t('tags:form.visibilityPublic')}</b>
+                                        <span className="text-xs text-(--muted)">
+                                            {t('tags:form.visibilityPublicHint')}
+                                        </span>
                                     </span>
-                                </span>
-                            </label>
-                            <label className="flex cursor-pointer items-start gap-2.5 rounded-md border border-(--border) p-2.5">
-                                <RadioGroupItem value="Private" className="mt-0.5" />
-                                <span className="flex flex-col gap-0.5">
-                                    <b className="text-sm">{t('tags:form.visibilityPrivate')}</b>
-                                    <span className="text-xs text-(--muted)">
-                                        {t('tags:form.visibilityPrivateHint')}
+                                </label>
+                                <label className="flex cursor-pointer items-start gap-2.5 rounded-md border border-(--border) p-2.5">
+                                    <RadioGroupItem value="Private" className="mt-0.5" />
+                                    <span className="flex flex-col gap-0.5">
+                                        <b className="text-sm">{t('tags:form.visibilityPrivate')}</b>
+                                        <span className="text-xs text-(--muted)">
+                                            {t('tags:form.visibilityPrivateHint')}
+                                        </span>
                                     </span>
-                                </span>
-                            </label>
-                        </RadioGroup>
-                    </div>
+                                </label>
+                            </RadioGroup>
+                        </div>
+                    )}
 
                     {mode === 'create' && (
                         <WordPicker

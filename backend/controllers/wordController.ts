@@ -29,6 +29,7 @@ const {
 // Re-exported helper from the migrated tag controller.
 const { getWordsIdFromFollowedTagsByUserId } = require("./tagController.ts");
 const { capitalizeGermanNouns }: typeof import("../lib/germanNouns") = require("../lib/germanNouns");
+const { assertDemoRoom }: typeof import("../lib/demo") = require("../lib/demo");
 const {
   parseSort,
   sortKeyExpression,
@@ -640,7 +641,11 @@ const cloneWord = asyncHandler(async (req: any, res: any) => {
     throw new Error("You already have a copy of this word");
   }
 
-  const [clonedRow] = await db.transaction((tx: any) => cloneWordsForUser(tx, [source], req.user.id));
+  const [clonedRow] = await db.transaction(async (tx: any) => {
+    // A demo's word cap counts a copy too (demo-access.md D11).
+    await assertDemoRoom(tx, req.user, { words: 1 }, res);
+    return cloneWordsForUser(tx, [source], req.user.id);
+  });
   const cloned = await fetchWordWithRelations(clonedRow.id, req.user.id);
   res.status(201).json(cloned);
 });
@@ -683,6 +688,9 @@ const setWord = asyncHandler(async (req: any, res: any) => {
   // previously a crash partway through could leave an orphaned word row
   // with no translations.
   const newWordId: string = await db.transaction(async (tx: any) => {
+    // 0. A demo account has a word cap (demo-access.md D3); a normal account passes.
+    await assertDemoRoom(tx, req.user, { words: 1 }, res);
+
     // 1. Insert the word row
     const [newWord] = await tx
       .insert(words)

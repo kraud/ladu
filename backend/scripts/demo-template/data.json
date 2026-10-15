@@ -1,0 +1,703 @@
+{
+  "_comment": "PLACEHOLDER demo template (demo-access.md, Slice 2). Replace freely: tests/demoTemplate.test.js checks the shape, the languages, the parts of speech and every case name against frontend/src/ts/enums.ts. Then run the seed script with --reset in each environment.",
+  "tags": [
+    {
+      "key": "nouns",
+      "label": "Nouns",
+      "description": "Things and animals"
+    },
+    {
+      "key": "verbs",
+      "label": "Verbs",
+      "description": "Everyday actions"
+    },
+    {
+      "key": "adjectives",
+      "label": "Adjectives",
+      "description": "How things are"
+    },
+    {
+      "key": "adverbs",
+      "label": "Adverbs",
+      "description": "How and how often"
+    },
+    {
+      "key": "everyday",
+      "label": "Everyday words",
+      "description": "A mix to start with"
+    }
+  ],
+  "words": [
+    {
+      "key": "house",
+      "partOfSpeech": "Noun",
+      "tags": [
+        "nouns",
+        "everyday"
+      ],
+      "translations": {
+        "English": {
+          "singularEN": "house",
+          "pluralEN": "houses"
+        },
+        "Spanish": {
+          "genderES": "la",
+          "singularES": "casa",
+          "pluralES": "casas"
+        },
+        "German": {
+          "genderDE": "das",
+          "singularNominativDE": "Haus",
+          "pluralNominativDE": "Häuser"
+        },
+        "Estonian": {
+          "singularNimetavEE": "maja",
+          "pluralNimetavEE": "majad"
+        }
+      }
+    },
+    {
+      "key": "book",
+      "partOfSpeech": "Noun",
+      "tags": [
+        "nouns"
+      ],
+      "translations": {
+        "English": {
+          "singularEN": "book",
+          "pluralEN": "books"
+        },
+        "Spanish": {
+          "genderES": "el",
+          "singularES": "libro",
+          "pluralES": "libros"
+        },
+        "German": {
+          "genderDE": "das",
+          "singularNominativDE": "Buch",
+          "pluralNominativDE": "Bücher"
+        },
+        "Estonian": {
+          "singularNimetavEE": "raamat",
+          "pluralNimetavEE": "raamatud"
+        }
+      }
+    },
+    {
+      "key": "apple",
+      "partOfSpeech": "Noun",
+      "tags": [
+        "nouns"
+      ],
+      "translations": {
+        "English": {
+          "singularEN": "apple",
+          "pluralEN": "apples"
+        },
+        "Spanish": {
+          "genderES": "la",
+          "singularES": "manzana",
+          "pluralES": "manzanas"
+        },
+        "German": {
+          "genderDE": "der",
+          "singularNominativDE": "Apfel",
+          "pluralNominativDE": "Äpfel"
+        },
+        "Estonian": {
+          "singularNimetavEE": "õun",
+          "pluralNimetavEE": "õunad"
+        }
+      }
+    },
+    {
+      "key": "dog",
+      "partOfSpeech": "Noun",
+      "tags": [
+        "nouns"
+      ],
+      "translations": {
+        "English": {
+          "singularEN": "dog",
+          "pluralEN": "dogs"
+        },
+        "Spanish": {
+          "genderES": "el",
+          "singularES": "perro",
+          "pluralES": "perros"
+        },
+        "German": {
+          "genderDE": "der",
+          "singularNominativDE": "Hund",
+          "pluralNominativDE": "Hunde"
+        },
+        "Estonian": {
+          "singularNimetavEE": "koer",
+          "pluralNimetavEE": "koerad"
+        }
+      }
+    },
+    {
+      "key": "cat",
+      "partOfSpeech": "Noun",
+      "tags": [
+        "nouns"
+      ],
+      "translations": {
+        "English": {
+          "singularEN": "cat",
+          "pluralEN": "cats"
+        },
+        "Spanish": {
+          "genderES": "el",
+          "singularES": "gato",
+          "pluralES": "gatos"
+        },
+        "German": {
+          "genderDE": "die",
+          "singularNominativDE": "Katze",
+          "pluralNominativDE": "Katzen"
+        },
+        "Estonian": {
+          "singularNimetavEE": "kass",
+          "pluralNimetavEE": "kassid"
+        }
+      }
+    },
+    {
+      "key": "eat",
+      "partOfSpeech": "Verb",
+      "tags": [
+        "verbs",
+        "everyday"
+      ],
+      "translations": {
+        "English": {
+          "simplePresent1sEN": "eat",
+          "simplePresent3sEN": "eats",
+          "simplePast1sEN": "ate"
+        },
+        "Spanish": {
+          "infinitiveNonFiniteSimpleES": "comer",
+          "indicativePresent1sES": "como",
+          "indicativePresent3sES": "come"
+        },
+        "German": {
+          "infinitiveDE": "essen",
+          "indicativePresent1sDE": "esse",
+          "indicativePresent3sDE": "isst"
+        },
+        "Estonian": {
+          "infinitiveMaEE": "sööma",
+          "infinitiveDaEE": "süüa",
+          "kindelPresent1sEE": "söön",
+          "kindelPresent3sEE": "sööb"
+        }
+      }
+    },
+    {
+      "key": "speak",
+      "partOfSpeech": "Verb",
+      "tags": [
+        "verbs"
+      ],
+      "translations": {
+        "English": {
+          "simplePresent1sEN": "speak",
+          "simplePresent3sEN": "speaks",
+          "simplePast1sEN": "spoke"
+        },
+        "Spanish": {
+          "infinitiveNonFiniteSimpleES": "hablar",
+          "indicativePresent1sES": "hablo",
+          "indicativePresent3sES": "habla"
+        },
+        "German": {
+          "infinitiveDE": "sprechen",
+          "indicativePresent1sDE": "spreche",
+          "indicativePresent3sDE": "spricht"
+        },
+        "Estonian": {
+          "infinitiveMaEE": "rääkima",
+          "infinitiveDaEE": "rääkida",
+          "kindelPresent1sEE": "räägin",
+          "kindelPresent3sEE": "räägib"
+        }
+      }
+    },
+    {
+      "key": "dance",
+      "partOfSpeech": "Verb",
+      "tags": [
+        "verbs"
+      ],
+      "translations": {
+        "English": {
+          "simplePresent1sEN": "dance",
+          "simplePresent3sEN": "dances",
+          "simplePast1sEN": "danced"
+        },
+        "Spanish": {
+          "infinitiveNonFiniteSimpleES": "bailar",
+          "indicativePresent1sES": "bailo",
+          "indicativePresent3sES": "baila"
+        },
+        "German": {
+          "infinitiveDE": "tanzen",
+          "indicativePresent1sDE": "tanze",
+          "indicativePresent3sDE": "tanzt"
+        },
+        "Estonian": {
+          "infinitiveMaEE": "tantsima",
+          "infinitiveDaEE": "tantsida",
+          "kindelPresent1sEE": "tantsin",
+          "kindelPresent3sEE": "tantsib"
+        }
+      }
+    },
+    {
+      "key": "sleep",
+      "partOfSpeech": "Verb",
+      "tags": [
+        "verbs",
+        "everyday"
+      ],
+      "translations": {
+        "English": {
+          "simplePresent1sEN": "sleep",
+          "simplePresent3sEN": "sleeps",
+          "simplePast1sEN": "slept"
+        },
+        "Spanish": {
+          "infinitiveNonFiniteSimpleES": "dormir",
+          "indicativePresent1sES": "duermo",
+          "indicativePresent3sES": "duerme"
+        },
+        "German": {
+          "infinitiveDE": "schlafen",
+          "indicativePresent1sDE": "schlafe",
+          "indicativePresent3sDE": "schläft"
+        },
+        "Estonian": {
+          "infinitiveMaEE": "magama",
+          "infinitiveDaEE": "magada",
+          "kindelPresent1sEE": "magan",
+          "kindelPresent3sEE": "magab"
+        }
+      }
+    },
+    {
+      "key": "big",
+      "partOfSpeech": "Adjective",
+      "tags": [
+        "adjectives",
+        "everyday"
+      ],
+      "translations": {
+        "English": {
+          "positiveEN": "big",
+          "comparativeEN": "bigger",
+          "superlativeEN": "biggest"
+        },
+        "Spanish": {
+          "maleSingularES": "grande",
+          "femaleSingularES": "grande",
+          "malePluralES": "grandes",
+          "femalePluralES": "grandes"
+        },
+        "German": {
+          "positiveDE": "groß",
+          "komparativDE": "größer",
+          "superlativDE": "am größten"
+        },
+        "Estonian": {
+          "algvorreEE": "suur",
+          "keskvorreEE": "suurem",
+          "ulivorreEE": "suurim"
+        }
+      }
+    },
+    {
+      "key": "small",
+      "partOfSpeech": "Adjective",
+      "tags": [
+        "adjectives"
+      ],
+      "translations": {
+        "English": {
+          "positiveEN": "small",
+          "comparativeEN": "smaller",
+          "superlativeEN": "smallest"
+        },
+        "Spanish": {
+          "maleSingularES": "pequeño",
+          "femaleSingularES": "pequeña",
+          "malePluralES": "pequeños",
+          "femalePluralES": "pequeñas"
+        },
+        "German": {
+          "positiveDE": "klein",
+          "komparativDE": "kleiner",
+          "superlativDE": "am kleinsten"
+        },
+        "Estonian": {
+          "algvorreEE": "väike",
+          "keskvorreEE": "väiksem",
+          "ulivorreEE": "vähim"
+        }
+      }
+    },
+    {
+      "key": "new",
+      "partOfSpeech": "Adjective",
+      "tags": [
+        "adjectives"
+      ],
+      "translations": {
+        "English": {
+          "positiveEN": "new",
+          "comparativeEN": "newer",
+          "superlativeEN": "newest"
+        },
+        "Spanish": {
+          "maleSingularES": "nuevo",
+          "femaleSingularES": "nueva",
+          "malePluralES": "nuevos",
+          "femalePluralES": "nuevas"
+        },
+        "German": {
+          "positiveDE": "neu",
+          "komparativDE": "neuer",
+          "superlativDE": "am neuesten"
+        },
+        "Estonian": {
+          "algvorreEE": "uus",
+          "keskvorreEE": "uuem",
+          "ulivorreEE": "uusim"
+        }
+      }
+    },
+    {
+      "key": "quickly",
+      "partOfSpeech": "Adverb",
+      "tags": [
+        "adverbs"
+      ],
+      "translations": {
+        "English": {
+          "adverbEN": "quickly"
+        },
+        "Spanish": {
+          "adverbES": "rápidamente"
+        },
+        "German": {
+          "adverbDE": "schnell"
+        },
+        "Estonian": {
+          "adverbEE": "kiiresti"
+        }
+      }
+    },
+    {
+      "key": "often",
+      "partOfSpeech": "Adverb",
+      "tags": [
+        "adverbs",
+        "everyday"
+      ],
+      "translations": {
+        "English": {
+          "adverbEN": "often"
+        },
+        "Spanish": {
+          "adverbES": "a menudo"
+        },
+        "German": {
+          "adverbDE": "oft"
+        },
+        "Estonian": {
+          "adverbEE": "sageli"
+        }
+      }
+    }
+  ],
+  "practiceConfigs": [
+    {
+      "name": "Jump in — mixed practice",
+      "description": "Multiple choice across all your languages",
+      "words": null,
+      "tags": null,
+      "params": {
+        "languages": [
+          "English",
+          "Spanish",
+          "German",
+          "Estonian"
+        ],
+        "partsOfSpeech": [
+          "Noun",
+          "Verb"
+        ],
+        "amount": 10,
+        "type": "Multiple-Choice",
+        "multiLang": "Multi-Language",
+        "difficultyMC": 2,
+        "strictnessTI": 3,
+        "wordSelection": "Random",
+        "excludeNative": true
+      }
+    },
+    {
+      "name": "Verbs",
+      "description": "The verbs tag",
+      "words": [
+        "eat",
+        "speak",
+        "dance",
+        "sleep"
+      ],
+      "tags": [
+        "verbs"
+      ],
+      "params": {
+        "languages": [
+          "English",
+          "Spanish",
+          "German",
+          "Estonian"
+        ],
+        "partsOfSpeech": [
+          "Verb"
+        ],
+        "amount": 8,
+        "type": "Multiple-Choice",
+        "multiLang": "Multi-Language",
+        "difficultyMC": 2,
+        "strictnessTI": 3,
+        "wordSelection": "Random",
+        "excludeNative": true
+      }
+    }
+  ],
+  "history": [
+    {
+      "word": "house",
+      "language": "English",
+      "daysAgo": 1,
+      "cases": {
+        "singularEN": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "pluralEN": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "word": "house",
+      "language": "Spanish",
+      "daysAgo": 1,
+      "cases": {
+        "singularES": [
+          true,
+          true,
+          false,
+          true
+        ],
+        "pluralES": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "word": "house",
+      "language": "German",
+      "daysAgo": 2,
+      "cases": {
+        "singularNominativDE": [
+          true,
+          false,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "word": "house",
+      "language": "Estonian",
+      "daysAgo": 2,
+      "cases": {
+        "singularNimetavEE": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "word": "book",
+      "language": "English",
+      "daysAgo": 4,
+      "cases": {
+        "singularEN": [
+          true,
+          false,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "word": "book",
+      "language": "German",
+      "daysAgo": 4,
+      "cases": {
+        "singularNominativDE": [
+          false,
+          true,
+          false,
+          true
+        ],
+        "pluralNominativDE": [
+          false,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "word": "apple",
+      "language": "English",
+      "daysAgo": 6,
+      "modifier": "Mastered",
+      "cases": {
+        "singularEN": [
+          true,
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "word": "apple",
+      "language": "Spanish",
+      "daysAgo": 6,
+      "cases": {
+        "singularES": [
+          true,
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "word": "dog",
+      "language": "Spanish",
+      "daysAgo": 9,
+      "cases": {
+        "singularES": [
+          false,
+          true,
+          false,
+          false
+        ]
+      }
+    },
+    {
+      "word": "dog",
+      "language": "Estonian",
+      "daysAgo": 9,
+      "cases": {
+        "singularNimetavEE": [
+          false,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "word": "eat",
+      "language": "English",
+      "daysAgo": 1,
+      "cases": {
+        "simplePresent1sEN": [
+          true,
+          true,
+          true
+        ],
+        "simplePresent3sEN": [
+          true,
+          true,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "word": "eat",
+      "language": "Spanish",
+      "daysAgo": 2,
+      "cases": {
+        "indicativePresent1sES": [
+          true,
+          false,
+          true
+        ],
+        "indicativePresent3sES": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "word": "speak",
+      "language": "Spanish",
+      "daysAgo": 3,
+      "modifier": "Revise",
+      "cases": {
+        "indicativePresent1sES": [
+          false,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "word": "speak",
+      "language": "German",
+      "daysAgo": 3,
+      "cases": {
+        "indicativePresent3sDE": [
+          false,
+          true,
+          true,
+          false
+        ]
+      }
+    },
+    {
+      "word": "dance",
+      "language": "Estonian",
+      "daysAgo": 5,
+      "cases": {
+        "kindelPresent1sEE": [
+          true,
+          true,
+          false,
+          true
+        ],
+        "kindelPresent3sEE": [
+          true,
+          false
+        ]
+      }
+    }
+  ]
+}

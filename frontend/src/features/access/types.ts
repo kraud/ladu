@@ -1,4 +1,4 @@
-/** `GET /api/access` (public): the state of each gate, plus the owner's optional extra line. */
+/** `GET /api/access` (public): the state of each gate, plus the owner's optional extra line, and whether the demo is on. */
 export type AccessMode = 'open' | 'closed' | 'limited';
 
 export interface GateStatus {
@@ -10,10 +10,16 @@ export interface GateStatus {
 export interface AccessStatus {
     registration: GateStatus;
     login: GateStatus;
+    /** The demo gate (demo-access.md). Only on/off: the caps are not public. */
+    demo: { enabled: boolean };
 }
 
-/** What the app assumes when it cannot read the status: the server still enforces the gate. */
+/**
+ * What the app assumes when it cannot read the status: the server still enforces each gate. The demo
+ * reads as off, so `/demo` never offers a start that the server would refuse.
+ */
 export const OPEN_ACCESS: AccessStatus = {
     registration: { mode: 'open', note: '' },
     login: { mode: 'open', note: '' },
+    demo: { enabled: false },
 };

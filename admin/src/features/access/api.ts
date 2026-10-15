@@ -1,5 +1,15 @@
 import { apiClient } from '@/api/client';
-import type { AccessMode, AccessState, AddInvitesResult, AllowLoginResult, DisallowManyResult, GateName } from '@/features/access/types';
+import type {
+    AccessMode,
+    AccessState,
+    AddInvitesResult,
+    AllowLoginResult,
+    DemoSettings,
+    DemoStats,
+    DemoUsers,
+    DisallowManyResult,
+    GateName,
+} from '@/features/access/types';
 
 export async function fetchAccess(): Promise<AccessState> {
     const { data } = await apiClient.get<AccessState>('/admin/access');
@@ -8,6 +18,21 @@ export async function fetchAccess(): Promise<AccessState> {
 
 export async function saveGate(gate: GateName, body: { mode: AccessMode; note: string; reason?: string }): Promise<AccessState> {
     const { data } = await apiClient.put<AccessState>(`/admin/access/${gate}`, body);
+    return data;
+}
+
+export async function saveDemo(body: DemoSettings & { reason?: string }): Promise<AccessState> {
+    const { data } = await apiClient.put<AccessState>('/admin/access/demo', body);
+    return data;
+}
+
+export async function fetchDemoUsers(): Promise<DemoUsers> {
+    const { data } = await apiClient.get<DemoUsers>('/admin/access/demo/users');
+    return data;
+}
+
+export async function fetchDemoStats(): Promise<DemoStats> {
+    const { data } = await apiClient.get<DemoStats>('/admin/access/demo/stats');
     return data;
 }
 

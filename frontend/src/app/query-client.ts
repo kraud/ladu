@@ -36,6 +36,10 @@
  *                      update/follow/unfollow/clone also `setQueryData` on
  *                      the tag's detail key. Keys: `features/tags/keys.ts`
  *                      (`tagKeys`).
+ *                      Demo access (Slice 2): every tag mutation ALSO
+ *                      invalidates `metricsKeys.all` — getUserMetrics now
+ *                      counts tags (`totalTags`, the demo's "tags left"),
+ *                      and a tag clone adds words to `totalWords`.
  *   Phase 5 (exers)  — add: save/master/forget performance ⇒ setQueryData on ['exercises']
  *                       (getUserMetrics aggregates words/translations only — a practice
  *                        session does not change it; no `metricsKeys.all` edge here)

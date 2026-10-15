@@ -13,11 +13,13 @@ import {
     useDisallowLogin,
     useRemoveInvite,
     useSendInvite,
+    useSaveDemo,
     useSaveGate,
     useSignOutEveryone,
 } from '@/features/access/hooks';
 import {
     ALLOW_SKIP_REASONS,
+    DEMO_BOUNDS,
     MAX_EMAILS_PER_REQUEST,
     MAX_NOTE_LENGTH,
     MODES,
@@ -27,10 +29,12 @@ import {
     type AccessState,
     type AddInvitesResult,
     type AllowLoginResult,
+    type DemoSettings,
     type GateName,
 } from '@/features/access/types';
 import { FormDialog } from '@/features/staff/components/StaffDialogs';
 import { StatusBadge } from '@/features/users/components/StatusBadge';
+import { DemoActivity } from '@/features/access/components/DemoActivity';
 import { formatDateTime, NONE } from '@/features/users/format';
 
 const MAX_REASON_LENGTH = 500;
@@ -87,7 +91,7 @@ export function AccessPage() {
                 {data?.updatedAt && (
                     <p className="text-sm text-muted-foreground">
                         Last changed {formatDateTime(data.updatedAt)}
-                        {data.updatedBy ? ` by ${data.updatedBy}` : ''} (registration or login).
+                        {data.updatedBy ? ` by ${data.updatedBy}` : ''} (registration, login or demo).
                     </p>
                 )}
             </div>
@@ -109,6 +113,9 @@ export function AccessPage() {
                     className={tabClass(tab === 'login')}
                 >
                     Login
+                </Link>
+                <Link id="access-demo-tab" to="/access" search={{ tab: 'demo' }} className={tabClass(tab === 'demo')}>
+                    Demo
                 </Link>
             </nav>
 
@@ -142,6 +149,18 @@ export function AccessPage() {
                     <GateCard key={`login|${data.login.mode}|${data.login.note}`} gate="login" state={data} onDone={setNotice} />
                     <AllowedCard state={data} onDone={setNotice} />
                     <SignOutCard onDone={setNotice} />
+                </section>
+            )}
+
+            {data && tab === 'demo' && (
+                <section aria-labelledby="access-demo-tab" className="flex flex-col gap-4">
+                    <DemoCard
+                        key={`demo|${data.demo.enabled}|${data.demo.durationMinutes}|${data.demo.maxWords}|${data.demo.maxTags}|${data.demo.maxLive}`}
+                        saved={data.demo}
+                        liveDemos={data.counts.liveDemos}
+                        onDone={setNotice}
+                    />
+                    <DemoActivity />
                 </section>
             )}
         </div>
@@ -255,6 +274,183 @@ function GateCard({ gate, state, onDone }: { gate: GateName; state: AccessState;
                             Reason <span className="font-normal text-muted-foreground">(optional)</span>
                         </Label>
                         <Textarea id={`${gate}-reason`} value={reason} maxLength={MAX_REASON_LENGTH} onChange={(e) => setReason(e.target.value)} />
+                    </div>
+                </FormDialog>
+            )}
+        </div>
+    );
+}
+
+type DemoNumberField = keyof typeof DEMO_BOUNDS;
+
+const DEMO_FIELDS: { field: DemoNumberField; label: string; help: string }[] = [
+    { field: 'durationMinutes', label: 'Duration (minutes)', help: 'How long one demo lasts. Then the visitor sees "The demo has ended".' },
+    { field: 'maxWords', label: 'Maximum words', help: 'Words a visitor can add on top of the sample words.' },
+    { field: 'maxTags', label: 'Maximum tags', help: 'Tags a visitor can add on top of the sample tags.' },
+    {
+        field: 'maxLive',
+        label: 'Maximum live demos',
+        help: 'Demos that can run at the same time. When all are in use, a visitor is asked to try again in a few minutes.',
+    },
+];
+
+/** A whole number inside the bounds, or null. The inputs keep text, so a field can be empty while the owner types. */
+const parseBounded = (text: string, field: DemoNumberField): number | null => {
+    if (!/^\d+$/.test(text.trim())) return null;
+    const value = Number(text.trim());
+    const { min, max } = DEMO_BOUNDS[field];
+    return value >= min && value <= max ? value : null;
+};
+
+/** The warning when visitors can start a demo but cannot add anything; null when there is nothing to warn about. */
+const zeroCapWarning = (draft: DemoSettings): string | null => {
+    if (!draft.enabled) return null;
+    if (draft.maxWords === 0 && draft.maxTags === 0) return 'Visitors can look, but cannot add words or tags.';
+    if (draft.maxWords === 0) return 'Visitors can look, but cannot add words.';
+    if (draft.maxTags === 0) return 'Visitors can look, but cannot add tags.';
+    return null;
+};
+
+function DemoCard({ saved, liveDemos, onDone }: { saved: DemoSettings; liveDemos: number; onDone: (message: string) => void }) {
+    const [enabled, setEnabled] = useState(saved.enabled);
+    const [text, setText] = useState<Record<DemoNumberField, string>>({
+        durationMinutes: String(saved.durationMinutes),
+        maxWords: String(saved.maxWords),
+        maxTags: String(saved.maxTags),
+        maxLive: String(saved.maxLive),
+    });
+    const [confirming, setConfirming] = useState(false);
+    const [reason, setReason] = useState('');
+    const save = useSaveDemo();
+
+    const durationMinutes = parseBounded(text.durationMinutes, 'durationMinutes');
+    const maxWords = parseBounded(text.maxWords, 'maxWords');
+    const maxTags = parseBounded(text.maxTags, 'maxTags');
+    const maxLive = parseBounded(text.maxLive, 'maxLive');
+    const draft =
+        durationMinutes !== null && maxWords !== null && maxTags !== null && maxLive !== null
+            ? { enabled, durationMinutes, maxWords, maxTags, maxLive }
+            : null;
+    const changed =
+        draft !== null &&
+        (draft.enabled !== saved.enabled ||
+            draft.durationMinutes !== saved.durationMinutes ||
+            draft.maxWords !== saved.maxWords ||
+            draft.maxTags !== saved.maxTags ||
+            draft.maxLive !== saved.maxLive);
+    const warning = draft ? zeroCapWarning(draft) : null;
+
+    const title = enabled === saved.enabled ? 'Save the demo settings?' : enabled ? 'Turn the demo on?' : 'Turn the demo off?';
+    const consequence =
+        enabled === saved.enabled
+            ? 'The new values apply to demos that start after this. Demos that are running keep their values.'
+            : enabled
+              ? `Visitors will be able to start a demo from the /demo page. Each demo will last ${draft?.durationMinutes ?? saved.durationMinutes} minutes.`
+              : 'Nobody will be able to start a new demo. Demos that are running continue until they end.';
+
+    const submit = () => {
+        if (!draft) return;
+        save.mutate(
+            { ...draft, reason: reason.trim() || undefined },
+            {
+                onSuccess: () => {
+                    setConfirming(false);
+                    onDone(enabled === saved.enabled ? 'The demo settings were saved.' : `The demo is now ${enabled ? 'on' : 'off'}.`);
+                },
+            },
+        );
+    };
+
+    return (
+        <div className="flex flex-col gap-4 rounded-lg border bg-card p-4">
+            <p className="text-sm text-muted-foreground">
+                Lets visitors try the app without an account. Each demo is a temporary account with sample data. It is deleted when the demo
+                ends. This gate is independent of registration and login: a demo can start when they are closed. A change applies to demos
+                that start after it.
+            </p>
+
+            <div className="flex flex-col gap-2">
+                <SegmentedControl
+                    label="Demo"
+                    value={enabled ? 'on' : 'off'}
+                    options={[
+                        { value: 'off', label: 'Off' },
+                        { value: 'on', label: 'On' },
+                    ]}
+                    onChange={(next) => {
+                        setEnabled(next === 'on');
+                        save.reset();
+                    }}
+                />
+                <p className="text-sm text-muted-foreground">
+                    {enabled ? 'Visitors can start a demo from the /demo page.' : 'Nobody can start a demo. The /demo page says that the demo is off.'}
+                </p>
+                <p className="text-sm">
+                    Running now: <span className="font-semibold">{liveDemos}</span> of {saved.maxLive} demos.
+                </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+                {DEMO_FIELDS.map(({ field, label, help }) => {
+                    const { min, max } = DEMO_BOUNDS[field];
+                    const invalid = parseBounded(text[field], field) === null;
+                    return (
+                        <div key={field} className="flex flex-col gap-1.5">
+                            <Label htmlFor={`demo-${field}`}>{label}</Label>
+                            <Input
+                                id={`demo-${field}`}
+                                type="number"
+                                inputMode="numeric"
+                                min={min}
+                                max={max}
+                                step={1}
+                                value={text[field]}
+                                aria-invalid={invalid}
+                                aria-describedby={`demo-${field}-help`}
+                                onChange={(e) => {
+                                    setText((current) => ({ ...current, [field]: e.target.value }));
+                                    save.reset();
+                                }}
+                            />
+                            <p id={`demo-${field}-help`} className={`text-xs ${invalid ? 'text-destructive' : 'text-muted-foreground'}`}>
+                                {invalid ? `Enter a whole number from ${min} to ${max}.` : help}
+                            </p>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {warning && (
+                <p role="alert" className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+                    {warning}
+                </p>
+            )}
+
+            <div>
+                <Button disabled={!changed} onClick={() => setConfirming(true)}>
+                    Save
+                </Button>
+            </div>
+
+            {confirming && (
+                <FormDialog
+                    title={title}
+                    description={warning ? `${consequence} ${warning}` : consequence}
+                    submitLabel="Confirm"
+                    canSubmit
+                    pending={save.isPending}
+                    error={save.error}
+                    onSubmit={submit}
+                    onClose={() => {
+                        setConfirming(false);
+                        save.reset();
+                    }}
+                >
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="demo-reason">
+                            Reason <span className="font-normal text-muted-foreground">(optional)</span>
+                        </Label>
+                        <Textarea id="demo-reason" value={reason} maxLength={MAX_REASON_LENGTH} onChange={(e) => setReason(e.target.value)} />
                     </div>
                 </FormDialog>
             )}

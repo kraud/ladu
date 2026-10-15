@@ -75,56 +75,64 @@ export function ProfileForm({ user, onDone }: { user: SessionUser; onDone: () =>
                 })}
             >
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>
-                                    {t('loginRegister:formLabels.name')} <span className="req">*</span>
-                                </FormLabel>
-                                <FormControl>
-                                    <Input autoComplete="name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="username"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>
-                                    {t('loginRegister:formLabels.username')}{' '}
-                                    <span className="req">*</span>
-                                </FormLabel>
-                                <FormControl>
-                                    <Input autoComplete="username" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <div className="field sm:col-span-2">
-                        <label className="label" htmlFor="account-email">
-                            {t('loginRegister:formLabels.email')}
-                        </label>
-                        <Input
-                            id="account-email"
-                            value={user.email}
-                            disabled
-                            readOnly
-                            aria-describedby="account-email-hint"
-                        />
-                        <p className="hint" id="account-email-hint">
-                            {t('account:fields.emailHint')}
-                        </p>
-                    </div>
-                    <div className="field sm:col-span-2">
-                        <span className="label">{t('account:signInMethods.title')}</span>
-                        <SignInMethodsField />
-                    </div>
+                    {/* A demo cannot change its name or username, and has no email or sign-in method to manage
+                        (demo-access.md D10). The two values still go back unchanged on save, which the server accepts. */}
+                    {user.isDemo ? (
+                        <p className="hint sm:col-span-2">{t('demo:account.namesLocked')}</p>
+                    ) : (
+                        <>
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            {t('loginRegister:formLabels.name')} <span className="req">*</span>
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input autoComplete="name" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="username"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            {t('loginRegister:formLabels.username')}{' '}
+                                            <span className="req">*</span>
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input autoComplete="username" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <div className="field sm:col-span-2">
+                                <label className="label" htmlFor="account-email">
+                                    {t('loginRegister:formLabels.email')}
+                                </label>
+                                <Input
+                                    id="account-email"
+                                    value={user.email}
+                                    disabled
+                                    readOnly
+                                    aria-describedby="account-email-hint"
+                                />
+                                <p className="hint" id="account-email-hint">
+                                    {t('account:fields.emailHint')}
+                                </p>
+                            </div>
+                            <div className="field sm:col-span-2">
+                                <span className="label">{t('account:signInMethods.title')}</span>
+                                <SignInMethodsField />
+                            </div>
+                        </>
+                    )}
                     <FormField
                         control={form.control}
                         name="languages"

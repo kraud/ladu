@@ -18,6 +18,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCloneTag } from '../hooks';
 import { tagErrorKey } from '../errors';
+import { useIsDemo } from '@/features/demo/hooks';
 import { tagRelation } from './TagBadge';
 import type { CloneTagResult, TagSummary, TagVisibility } from '../types';
 
@@ -32,6 +33,8 @@ export function CloneTagDialog({ open, onOpenChange, tag, onCloned }: CloneTagDi
     const { t } = useTranslation();
     const cloneTag = useCloneTag();
     const [visibility, setVisibility] = useState<TagVisibility>('Private');
+    // A demo's copy is always Private (demo-access.md D10 b): the choice is hidden, the default is sent.
+    const isDemo = useIsDemo();
     const [keepTag, setKeepTag] = useState(true);
 
     useEffect(() => {
@@ -96,7 +99,7 @@ export function CloneTagDialog({ open, onOpenChange, tag, onCloned }: CloneTagDi
                         </span>
                     </div>
 
-                    {keepTag && (
+                    {keepTag && !isDemo && (
                     <div className="flex flex-col gap-1.5">
                         <span className="label">{t('tags:clone.visibilityLabel')}</span>
                         <RadioGroup

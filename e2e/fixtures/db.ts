@@ -476,3 +476,81 @@ export async function getAuditByReason(
     const { rows } = await getPool().query(`SELECT action, reason, metadata FROM audit_log WHERE action = $1 AND reason = $2`, [action, reason]);
     return rows;
 }
+
+/**
+ * The demo gate (demo-access.md) lives on the same global `access_settings` row, so only the
+ * `*-gate.spec.ts` specs may change it. Puts all five values back to the migration defaults.
+ */
+export async function resetDemoSettings(): Promise<void> {
+    await getPool().query(
+        `UPDATE access_settings SET demo_enabled = false, demo_duration_minutes = 15, demo_max_words = 30, demo_max_tags = 5, demo_max_live = 200 WHERE id = 1`,
+    );
+}
+
+export interface DemoSettingsRow {
+    enabled: boolean;
+    durationMinutes: number;
+    maxWords: number;
+    maxTags: number;
+    maxLive: number;
+}
+
+export async function getDemoSettings(): Promise<DemoSettingsRow> {
+    const { rows } = await getPool().query<DemoSettingsRow>(
+        `SELECT demo_enabled AS "enabled", demo_duration_minutes AS "durationMinutes", demo_max_words AS "maxWords",
+                demo_max_tags AS "maxTags", demo_max_live AS "maxLive"
+         FROM access_settings WHERE id = 1`,
+    );
+    if (!rows[0]) throw new Error('access_settings has no row');
+    return rows[0];
+}
+
+/**
+ * A demo account row as the demo bootstrap makes it (Slice 1), with no data. `expiresInMinutes`
+ * negative = expired but not purged yet; `null` = a template (never expires). Remove it with
+ * `deleteUsersByEmail`.
+ */
+export async function seedDemoUser(email: string, username: string, expiresInMinutes: number | null): Promise<void> {
+    await getPool().query(
+        `INSERT INTO users (name, email, username, languages, verified, is_demo, demo_expires_at)
+         VALUES ('Demo', $1, $2, ARRAY['English','Spanish'], true, true,
+                 CASE WHEN $3::int IS NULL THEN NULL ELSE now() + make_interval(mins => $3::int) END)`,
+        [email, username, expiresInMinutes],
+    );
+}
+
+/** The demos live now (not expired; the template has no expiry), as the admin Demo tab counts them. */
+export async function countLiveDemos(): Promise<number> {
+    const { rows } = await getPool().query(`SELECT count(*)::int AS n FROM users WHERE is_demo AND demo_expires_at > now()`);
+    return rows[0].n;
+}
+
+/** Turns the demo gate on or off. Global state: only `*-gate.spec.ts` specs may call it. */
+export async function setDemoEnabled(enabled: boolean): Promise<void> {
+    await getPool().query(`UPDATE access_settings SET demo_enabled = $1 WHERE id = 1`, [enabled]);
+}
+
+/** Moves a demo's expiry into the past: `protect` refuses its token at the next request. */
+export async function expireDemoSession(userId: string): Promise<void> {
+    await getPool().query(`UPDATE users SET demo_expires_at = now() - interval '1 second' WHERE id = $1 AND is_demo`, [userId]);
+}
+
+/**
+ * Best-effort teardown of the demo sessions a spec started, by id (only demo rows, never the template).
+ * Their start-log rows go first: the log outlives the user (it only loses `user_id`), so without this
+ * every run would add to the admin demo statistics of the local database.
+ */
+export async function deleteDemoSessions(userIds: string[]): Promise<void> {
+    if (userIds.length === 0) return;
+    try {
+        await getPool().query(`DELETE FROM demo_starts WHERE user_id = ANY($1::uuid[])`, [userIds]);
+        await getPool().query(`DELETE FROM users WHERE is_demo AND demo_expires_at IS NOT NULL AND id = ANY($1::uuid[])`, [userIds]);
+    } catch (error) {
+        console.warn('[e2e] demo cleanup failed:', (error as Error).message);
+    }
+}
+
+/** The word and tag caps for demos started after this call (frozen at start, D7). */
+export async function setDemoCaps(caps: { maxWords: number; maxTags: number }): Promise<void> {
+    await getPool().query(`UPDATE access_settings SET demo_max_words = $1, demo_max_tags = $2 WHERE id = 1`, [caps.maxWords, caps.maxTags]);
+}

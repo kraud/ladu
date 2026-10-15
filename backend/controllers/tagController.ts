@@ -19,6 +19,8 @@ const asyncHandler = require("express-async-handler");
 // from the token, so a revoke takes effect at once.
 const { activeBadgesByUserIds, activeBadgeCondition, isBadgeType }: typeof import("../lib/badges") =
   require("../lib/badges");
+// Demo access (demo-access.md D10, D11): Private tags only, no follow or share, and the word/tag caps.
+const { assertDemoRoom, assertDemoVisibility, assertNotDemo }: typeof import("../lib/demo") = require("../lib/demo");
 
 // Generic keyset-pagination helpers live in wordService.ts, not
 // wordController.ts — wordController.ts already requires *this* file (for
@@ -539,6 +541,7 @@ const unlinkTagsFromWords = asyncHandler(async (req: any, res: any) => {
 // @route   POST /api/tags/:id/follow
 // @access  Private
 const followTag = asyncHandler(async (req: any, res: any) => {
+  assertNotDemo(req.user, res);
   const [tag] = await db.select().from(tags).where(eq(tags.id, req.params.id)).limit(1);
   if (!tag) {
     res.status(404);
@@ -703,10 +706,16 @@ const cloneTag = asyncHandler(async (req: any, res: any) => {
     res.status(400);
     throw new Error("Invalid visibility status");
   }
+  if (keepTag) assertDemoVisibility(req.user, req.body.visibility, res);
 
-  const { clonedTag, clonedWordCount } = await db.transaction((tx: any) =>
-    cloneTagForUser(tx, sourceTag, req.user.id, req.body.visibility, keepTag),
-  );
+  const { clonedTag, clonedWordCount } = await db.transaction(async (tx: any) => {
+    // The whole clone is refused when it would pass a demo cap, never applied in part (D11).
+    if (req.user.isDemo) {
+      const [{ value }] = await tx.select({ value: count() }).from(tagWords).where(eq(tagWords.tagId, sourceTag.id));
+      await assertDemoRoom(tx, req.user, { words: Number(value), tags: keepTag ? 1 : 0 }, res);
+    }
+    return cloneTagForUser(tx, sourceTag, req.user.id, req.body.visibility, keepTag);
+  });
   // With a tag: the new tag's summary. Without: only the number of words copied.
   if (!clonedTag) {
     res.status(200).json({ tag: null, clonedWordCount });
@@ -719,6 +728,8 @@ const cloneTag = asyncHandler(async (req: any, res: any) => {
 // @route   POST /api/tags/:id/share
 // @access  Private
 const shareTag = asyncHandler(async (req: any, res: any) => {
+  // Sharing reaches another user (and notifies them): never from a demo (Review log S2-1).
+  assertNotDemo(req.user, res);
   const tagId = req.params.id;
   const recipientId: unknown = req.body.recipientId;
 
@@ -801,6 +812,7 @@ const shareTag = asyncHandler(async (req: any, res: any) => {
 // @route   POST /api/tag-shares/:id/accept
 // @access  Private
 const acceptTagShare = asyncHandler(async (req: any, res: any) => {
+  assertNotDemo(req.user, res);
   const [share] = await db
     .select()
     .from(tagShares)
@@ -867,6 +879,7 @@ const acceptTagShare = asyncHandler(async (req: any, res: any) => {
 // @route   POST /api/tag-shares/:id/decline
 // @access  Private
 const declineTagShare = asyncHandler(async (req: any, res: any) => {
+  assertNotDemo(req.user, res);
   const [share] = await db
     .select()
     .from(tagShares)
@@ -948,6 +961,7 @@ const createTag = asyncHandler(async (req: any, res: any) => {
     res.status(400);
     throw new Error("Invalid visibility status");
   }
+  assertDemoVisibility(req.user, req.body.visibility, res);
   // Pre-check (D13): a friendly 409 in the common case; the transaction
   // below still guards the race via the DB's own unique index.
   if (await labelAlreadyUsedByAuthor(label, req.user.id)) {
@@ -970,6 +984,7 @@ const createTag = asyncHandler(async (req: any, res: any) => {
 
   try {
     const newTag: TagRow = await db.transaction(async (tx: any) => {
+      await assertDemoRoom(tx, req.user, { tags: 1 }, res);
       const [created] = await tx
         .insert(tags)
         .values({
@@ -1028,6 +1043,7 @@ const updateTag = asyncHandler(async (req: any, res: any) => {
       res.status(400);
       throw new Error("Invalid visibility status");
     }
+    assertDemoVisibility(req.user, req.body.visibility, res);
     updateFields.visibility = req.body.visibility;
   }
 

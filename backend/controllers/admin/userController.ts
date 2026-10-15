@@ -111,6 +111,8 @@ const listUsers = asyncHandler(async (req: any, res: any) => {
 
   const term = single(q.search)?.trim();
   const conditions = [
+    // Demo accounts and the demo template are not users to manage (demo-access.md): never listed.
+    eq(users.isDemo, false),
     term ? or(ilike(users.email, likePattern(term)), ilike(users.username, likePattern(term)), ilike(users.name, likePattern(term))) : undefined,
     // `users.verified` is nullable; NULL counts as not verified.
     verified === 'true' ? eq(users.verified, true) : undefined,

@@ -13,6 +13,8 @@ import type { PreselectedWord } from '@/features/practice/preselection';
 import type { PartOfSpeech } from '@/ts/enums';
 
 type SearchMode = 'words' | 'tags';
+/** The demo start transition (demo-access.md D18): hidden, on screen, or fading out over the app. */
+export type DemoTransitionPhase = 'idle' | 'showing' | 'leaving';
 export type SidebarId = 'review' | 'tag' | 'word' | 'practice' | 'practiceResults';
 
 interface UiState {
@@ -42,6 +44,15 @@ interface UiState {
      */
     practicePreselection: PreselectedWord[] | null;
     setPracticePreselection: (words: PreselectedWord[] | null) => void;
+
+    /**
+     * The screen between "Start the demo" and the dashboard (D18). It lives here, not in the
+     * `/demo` page, because it stays on screen while the app changes route and fades out over the
+     * dashboard. `demoTransitionLines` are the line keys picked for this start.
+     */
+    demoTransition: DemoTransitionPhase;
+    demoTransitionLines: string[];
+    setDemoTransition: (phase: DemoTransitionPhase, lines?: string[]) => void;
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -57,4 +68,9 @@ export const useUiStore = create<UiState>()((set) => ({
 
     practicePreselection: null,
     setPracticePreselection: (practicePreselection) => set({ practicePreselection }),
+
+    demoTransition: 'idle',
+    demoTransitionLines: [],
+    setDemoTransition: (demoTransition, lines) =>
+        set(lines === undefined ? { demoTransition } : { demoTransition, demoTransitionLines: lines }),
 }));

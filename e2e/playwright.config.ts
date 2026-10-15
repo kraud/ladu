@@ -90,7 +90,8 @@ export default defineConfig({
             // — the backend no longer applies them itself on boot.
             // Then the committed lexicon fixtures (German, Spanish; ~40 words each) load, each only if its
             // language has no rows yet (--if-empty): CI gets them, a local full lexicon is kept.
-            command: 'npm run migrate -w backend && npm run lexicon:load:fixture -w backend && npm run dev -w backend',
+            // Then the demo template (demo-access.md Slice 2), kept when it is there: every demo start copies it.
+            command: 'npm run migrate -w backend && npm run lexicon:load:fixture -w backend && npm run demo:template -w backend && npm run dev -w backend',
             cwd: '..',
             // OAUTH_ISSUER_GOOGLE points discovery at the local stub instead of the
             // real provider — accepted by the backend only outside production
@@ -115,6 +116,9 @@ export default defineConfig({
                 // stub; a real EKILEX_API_KEY in .env wins over this dummy and is simply ignored.
                 EKILEX_API_URL: EKI_STUB_URL,
                 EKILEX_API_KEY: 'e2e-stub-key',
+                // Every e2e demo start comes from one IP (demo-access.md Review log S1-1). With a reused local
+                // `npm run dev` this value does not apply, so the demo spec starts at most 5 demos (the default).
+                DEMO_STARTS_PER_IP: '1000',
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.

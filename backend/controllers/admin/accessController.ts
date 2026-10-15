@@ -1,7 +1,7 @@
 /**
  * The access gates, owner side (access-gates.md): the registration gate and its invite
  * list (PR 1), the login gate, the allowed accounts and the "sign everyone out" button
- * (PR 2). Every route needs `access.manage`. Each change runs in one transaction with
+ * (PR 2), and the demo gate with its caps (demo-access.md). Every route needs `access.manage`. Each change runs in one transaction with
  * its audit row. The settings row is locked while it changes, so two owners acting at
  * once cannot both write a wrong "from" mode into the log.
  */
@@ -12,10 +12,12 @@ const { accessSettings, registrationInvites, loginAllowedUsers, staffAccounts, u
 const { and, desc, eq, inArray, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 const { HttpError }: typeof import('../../lib/httpError') = require('../../lib/httpError');
 const { readReason, withStatus }: typeof import('../../lib/adminRequest') = require('../../lib/adminRequest');
-const { getAccessSettings, normalizeInviteEmail }: typeof import('../../lib/accessGate') = require('../../lib/accessGate');
+const { getAccessSettings, normalizeInviteEmail, DEMO_BOUNDS }: typeof import('../../lib/accessGate') = require('../../lib/accessGate');
+const { countLiveDemos }: typeof import('../../lib/demo') = require('../../lib/demo');
+const { listDemoUsers, demoUsageStats }: typeof import('../../lib/demoStats') = require('../../lib/demoStats');
 const { isUuid }: typeof import('../userController') = require('../userController');
 const sendMail = require('../../utils/sendEmail');
-import type { AccessMode } from '../../lib/accessGate';
+import type { AccessMode, DemoSettings } from '../../lib/accessGate';
 
 const MODES: readonly AccessMode[] = ['open', 'closed', 'limited'];
 const MAX_NOTE_LENGTH = 300;
@@ -70,13 +72,15 @@ const loadAccess = async () => {
   return {
     registration: { mode: settings.registrationMode, note: settings.registrationNote },
     login: { mode: settings.loginMode, note: settings.loginNote },
-    // One row of settings holds both gates, so this is the last change to either one.
+    demo: settings.demo,
+    // One row of settings holds every gate, so this is the last change to any of them.
     updatedAt: row?.updatedAt ?? null,
     updatedBy: row?.staffName ?? null,
     // `addedBy` is null when the staff account that added it was removed.
     invites,
     loginAllowed,
-    counts: { invites: invites.length, loginAllowed: loginAllowed.length },
+    // `liveDemos`: demos running now, to compare with `demo.maxLive`.
+    counts: { invites: invites.length, loginAllowed: loginAllowed.length, liveDemos: await countLiveDemos() },
   };
 };
 
@@ -136,6 +140,88 @@ const setGate = (gate: keyof typeof GATES) => {
 
 const setRegistration = setGate('registration');
 const setLogin = setGate('login');
+
+/** A whole number inside the bounds, or a 400 that names the field. */
+const readBounded = (value: unknown, field: keyof typeof DEMO_BOUNDS, label: string): number => {
+  const { min, max } = DEMO_BOUNDS[field];
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max) {
+    throw new HttpError(400, `${label} must be a whole number from ${min} to ${max}`);
+  }
+  return value;
+};
+
+/**
+ * `GET /api/admin/access/demo/users` — the demo accounts on the DB now, live and expired (the purge
+ * has not deleted them yet), newest first, at most `DEMO_USERS_LIMIT`; `total` counts them all
+ * (demo-access.md D19). Read-only: no audit row.
+ */
+const getDemoUsers = asyncHandler(async (_req: any, res: any) => {
+  res.status(200).json(await listDemoUsers());
+});
+
+/** `GET /api/admin/access/demo/stats` — the demo usage banner (D20). Read-only: no audit row. */
+const getDemoStats = asyncHandler(async (_req: any, res: any) => {
+  res.status(200).json(await demoUsageStats());
+});
+
+/**
+ * `PUT /api/admin/access/demo` — `{ enabled, durationMinutes, maxWords, maxTags, maxLive, reason? }`. All
+ * five values are required: the admin page always sends the whole form. One audit row
+ * `access.demo_configure` with the old and the new values (D8). A change applies to demos started
+ * after it; a running demo keeps the values frozen on its user row (D7).
+ */
+const setDemo = asyncHandler(async (req: any, res: any) => {
+  await withStatus(res, async () => {
+    const body = req.body ?? {};
+    const reason = readReason(body);
+    if (typeof body.enabled !== 'boolean') throw new HttpError(400, 'Enabled must be true or false');
+    const next: DemoSettings = {
+      enabled: body.enabled,
+      durationMinutes: readBounded(body.durationMinutes, 'durationMinutes', 'The duration'),
+      maxWords: readBounded(body.maxWords, 'maxWords', 'The word limit'),
+      maxTags: readBounded(body.maxTags, 'maxTags', 'The tag limit'),
+      maxLive: readBounded(body.maxLive, 'maxLive', 'The live demo limit'),
+    };
+
+    await db.transaction(async (tx) => {
+      const [current] = await tx.select().from(accessSettings).where(eq(accessSettings.id, 1)).for('update');
+      if (!current) throw new HttpError(500, 'The access settings row is missing');
+
+      const previous: DemoSettings = {
+        enabled: current.demoEnabled,
+        durationMinutes: current.demoDurationMinutes,
+        maxWords: current.demoMaxWords,
+        maxTags: current.demoMaxTags,
+        maxLive: current.demoMaxLive,
+      };
+      const changed = (Object.keys(next) as (keyof DemoSettings)[]).some((key) => next[key] !== previous[key]);
+      if (!changed) return; // nothing to write, nothing to log
+
+      await tx
+        .update(accessSettings)
+        .set({
+          demoEnabled: next.enabled,
+          demoDurationMinutes: next.durationMinutes,
+          demoMaxWords: next.maxWords,
+          demoMaxTags: next.maxTags,
+          demoMaxLive: next.maxLive,
+          updatedAt: new Date(),
+          updatedByStaffId: req.staff.id,
+        })
+        .where(eq(accessSettings.id, 1));
+      await tx.insert(auditLog).values({
+        staffId: req.staff.id,
+        action: 'access.demo_configure',
+        targetType: 'access',
+        targetId: 'demo',
+        reason: reason || null,
+        metadata: { from: previous, to: next },
+      });
+    });
+  });
+
+  res.json(await loadAccess());
+});
 
 type SkipReason = 'invalid' | 'duplicate_in_request' | 'already_listed' | 'has_account';
 
@@ -474,6 +560,9 @@ export = {
   getAccess,
   setRegistration,
   setLogin,
+  setDemo,
+  getDemoUsers,
+  getDemoStats,
   addInvites,
   removeInvite,
   sendInvite,

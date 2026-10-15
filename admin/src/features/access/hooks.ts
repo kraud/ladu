@@ -5,17 +5,33 @@ import {
     disallowLogin,
     disallowLoginMany,
     fetchAccess,
+    fetchDemoStats,
+    fetchDemoUsers,
     removeInvite,
+    saveDemo,
     saveGate,
     sendInvite,
     signOutEveryone,
 } from '@/features/access/api';
 import type { AccessMode, AccessState, GateName } from '@/features/access/types';
 
-export const accessKeys = { state: ['access'] as const };
+export const accessKeys = {
+    state: ['access'] as const,
+    demoUsers: ['access-demo', 'users'] as const,
+    demoStats: ['access-demo', 'stats'] as const,
+};
 
 export function useAccessState() {
     return useQuery({ queryKey: accessKeys.state, queryFn: fetchAccess });
+}
+
+/** The demo accounts on the DB, and the usage banner (demo-access.md D19, D20). Read-only; they follow the clock, so they refresh each minute. */
+export function useDemoUsers() {
+    return useQuery({ queryKey: accessKeys.demoUsers, queryFn: fetchDemoUsers, refetchInterval: 60_000 });
+}
+
+export function useDemoStats() {
+    return useQuery({ queryKey: accessKeys.demoStats, queryFn: fetchDemoStats, refetchInterval: 60_000 });
 }
 
 /** Every answer carries the new state, so the page shows it at once. A change also writes an audit row. */
@@ -46,6 +62,11 @@ export function useSaveGate(gate: GateName) {
         mutationFn: (body: { mode: AccessMode; note: string; reason?: string }) => saveGate(gate, body),
         onSuccess: store,
     });
+}
+
+export function useSaveDemo() {
+    const store = useStoreAnswer();
+    return useMutation({ mutationFn: saveDemo, onSuccess: store });
 }
 
 export function useAddInvites() {

@@ -47,6 +47,7 @@ import { reviewSearchToSort } from '@/features/words/review/search';
 import { pageCountFor, readStoredPageSize, storePageSize, type PageSize } from '@/lib/pagination';
 import type { LangKey, WordListFilters } from '@/features/words/types';
 import { useDeleteTag, useFollowTag, useTag, useUnfollowTag, useUnlinkTagsFromWords } from '../hooks';
+import { useIsDemo } from '@/features/demo/hooks';
 import { tagErrorKey } from '../errors';
 import { ClonedBadge, RelationBadge, VerifiedMark, VisibilityBadge, hasVerifiedBadge, tagRelation } from '../components/TagBadge';
 import { TagFormDialog } from '../components/TagFormDialog';
@@ -78,6 +79,7 @@ export function TagViewPage() {
     const tagQuery = useTag(tagId);
     const deleteTag = useDeleteTag();
     const followTag = useFollowTag();
+    const isDemo = useIsDemo();
     const unfollowTag = useUnfollowTag();
     const unlinkTagsFromWords = useUnlinkTagsFromWords();
 
@@ -399,10 +401,13 @@ export function TagViewPage() {
                             )}
                             {relation === 'discover' && (
                                 <>
-                                    <Button size="sm" variant="secondary" onClick={handleFollow}>
-                                        <UserPlusIcon size={14} aria-hidden="true" />
-                                        {t('tags:card.follow')}
-                                    </Button>
+                                    {/* A demo cannot follow (demo-access.md D10 d); it can still copy. */}
+                                    {!isDemo && (
+                                        <Button size="sm" variant="secondary" onClick={handleFollow}>
+                                            <UserPlusIcon size={14} aria-hidden="true" />
+                                            {t('tags:card.follow')}
+                                        </Button>
+                                    )}
                                     <Button size="sm" variant="ghost" onClick={() => setCloning(true)}>
                                         <CopyIcon size={14} aria-hidden="true" />
                                         {t('tags:card.clone')}

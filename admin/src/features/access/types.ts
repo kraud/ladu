@@ -21,16 +21,36 @@ export interface AllowedAccount {
 
 export type GateName = 'registration' | 'login';
 
+/** The demo gate and its caps (demo-access.md). Independent of the registration and login gates. */
+export interface DemoSettings {
+    enabled: boolean;
+    durationMinutes: number;
+    maxWords: number;
+    maxTags: number;
+    /** The most demos that may be live at one time. */
+    maxLive: number;
+}
+
+/** The same bounds as the server (`DEMO_BOUNDS` in backend/lib/accessGate.ts) and the database `CHECK`s. */
+export const DEMO_BOUNDS = {
+    durationMinutes: { min: 1, max: 1440 },
+    maxWords: { min: 0, max: 500 },
+    maxTags: { min: 0, max: 50 },
+    maxLive: { min: 1, max: 1000 },
+} as const;
+
 /** `GET /api/admin/access` */
 export interface AccessState {
     registration: { mode: AccessMode; note: string };
     login: { mode: AccessMode; note: string };
-    /** One row holds both gates, so this is the last change to either one. */
+    demo: DemoSettings;
+    /** One row holds every gate, so this is the last change to any of them. */
     updatedAt: string | null;
     updatedBy: string | null;
     invites: Invite[];
     loginAllowed: AllowedAccount[];
-    counts: { invites: number; loginAllowed: number };
+    /** `liveDemos`: demos running now (not expired), to compare with `demo.maxLive`. */
+    counts: { invites: number; loginAllowed: number; liveDemos: number };
 }
 
 export type SkipReason = 'invalid' | 'duplicate_in_request' | 'already_listed' | 'has_account';
@@ -92,3 +112,47 @@ export const SIGN_OUT_PHRASE = 'SIGN OUT EVERYONE';
 
 export const MAX_NOTE_LENGTH = 300;
 export const MAX_EMAILS_PER_REQUEST = 500;
+
+/** A demo account on the DB now (`GET /api/admin/access/demo/users`, demo-access.md D19). */
+export interface DemoUserRow {
+    id: string;
+    /** Live: time left. Expired: the nightly purge has not deleted it yet. */
+    status: 'live' | 'expired';
+    startedAt: string;
+    expiresAt: string;
+    languages: string[];
+    uiLanguage: string | null;
+    /** What the visitor added on top of the sample data. Null for a demo started before the start log. */
+    wordsAdded: number | null;
+    tagsAdded: number | null;
+    configsAdded: number | null;
+    translationsPractised: number | null;
+    /** The word and tag caps of this demo (frozen when it started). */
+    maxWords: number | null;
+    maxTags: number | null;
+}
+
+export interface DemoUsers {
+    /** Every demo on the DB; `rows` holds the newest, at most `DEMO_USERS_LIMIT`. */
+    total: number;
+    rows: DemoUserRow[];
+}
+
+export const DEMO_USERS_LIMIT = 200;
+
+export type DemoRefusalCode = 'demo_disabled' | 'demo_rate_limited' | 'demo_busy' | 'demo_unavailable';
+
+/** `GET /api/admin/access/demo/stats` (D20). */
+export interface DemoStats {
+    starts: { last24h: number; last7d: number; last30d: number; total: number };
+    runningNow: number;
+    /** The engagement, cap and language numbers cover the starts of these last days. */
+    windowDays: number;
+    engagement: { demos: number; avgWordsAdded: number; avgTagsAdded: number; avgTranslationsPractised: number; addedAWord: number };
+    caps: { wordCapDemos: number; reachedWordCap: number; tagCapDemos: number; reachedTagCap: number };
+    refusalWindowDays: number;
+    refusals: Record<DemoRefusalCode, number>;
+    languages: { language: string; count: number }[];
+    uiLanguages: { language: string; count: number }[];
+}
+

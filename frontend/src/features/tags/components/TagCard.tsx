@@ -15,6 +15,7 @@ import { CopyIcon, UserMinusIcon, UserPlusIcon, UsersIcon } from '@phosphor-icon
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/stores/authStore';
+import { useIsDemo } from '@/features/demo/hooks';
 import { ClonedBadge, RelationBadge, VerifiedMark, VisibilityBadge, hasVerifiedBadge, tagRelation } from './TagBadge';
 import type { TagSummary } from '../types';
 
@@ -87,6 +88,7 @@ function Description({ text }: { text: string }) {
 }
 
 export function TagCard({ tag, showActions = true, onFollow, onUnfollow, onClone }: TagCardProps) {
+    const isDemo = useIsDemo();
     const { t } = useTranslation();
     const relation = tagRelation(tag);
     // The mockup hides the follower count specifically for an unavailable
@@ -164,10 +166,13 @@ export function TagCard({ tag, showActions = true, onFollow, onUnfollow, onClone
                     )}
                     {relation === 'discover' && (
                         <>
-                            <Button size="xs" variant="secondary" onClick={() => onFollow?.(tag)}>
-                                <UserPlusIcon size={12} aria-hidden="true" />
-                                {t('tags:card.follow')}
-                            </Button>
+                            {/* A demo cannot follow (demo-access.md D10 d); it can still copy. */}
+                            {!isDemo && (
+                                <Button size="xs" variant="secondary" onClick={() => onFollow?.(tag)}>
+                                    <UserPlusIcon size={12} aria-hidden="true" />
+                                    {t('tags:card.follow')}
+                                </Button>
+                            )}
                             <Button size="xs" variant="secondary" onClick={() => onClone?.(tag)}>
                                 <CopyIcon size={12} aria-hidden="true" />
                                 {t('tags:card.clone')}

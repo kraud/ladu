@@ -11,6 +11,7 @@ import { avatarColor, avatarInitials } from '@/lib/avatar';
 import { UI_LANGUAGES, languageByLabel } from '@/lib/language';
 import type { SessionUser } from '@/stores/authStore';
 import { ProfileForm } from '../components/ProfileForm';
+import { DemoAccountCard } from '@/features/demo/components/DemoAccountCard';
 
 /**
  * Account (`/user`). Phase 1 scope: view + edit the profile basics — name,
@@ -34,6 +35,8 @@ export function AccountPage() {
                 <p className="meta">{t('account:subtitle')}</p>
             </div>
 
+            {user.isDemo && <DemoAccountCard />}
+
             <section className="card max-w-2xl">
                 <div className="flex items-center gap-4 border-b border-border p-5">
                     <span
@@ -45,7 +48,8 @@ export function AccountPage() {
                     </span>
                     <div className="min-w-0">
                         <div className="h2 text-lg">{user.name}</div>
-                        <div className="meta">@{user.username}</div>
+                        {/* A demo's username is synthetic (`demo-<uuid>`): say what the account is instead. */}
+                        <div className="meta">{user.isDemo ? t('demo:account.accountLabel') : `@${user.username}`}</div>
                     </div>
                     <span className="grow" />
                     <div className="flex shrink-0 flex-col items-stretch gap-2">
@@ -95,7 +99,8 @@ function ProfileView({
     const { t } = useTranslation();
     const total = UI_LANGUAGES.length;
     const hasLanguages = user.languages.length > 0;
-    const identities = useOAuthIdentities();
+    // A demo has no sign-in methods and no real username or email (demo-access.md D10).
+    const identities = useOAuthIdentities({ enabled: !user.isDemo });
 
     return (
         <div className="flex flex-col gap-5">
@@ -103,11 +108,15 @@ function ProfileView({
                 <p className="eyebrow mb-2">{t('account:sections.details')}</p>
                 <dl className="flex flex-col gap-1">
                     <InfoRow label={t('loginRegister:formLabels.name')} value={user.name} />
-                    <InfoRow
-                        label={t('loginRegister:formLabels.username')}
-                        value={`@${user.username}`}
-                    />
-                    <InfoRow label={t('loginRegister:formLabels.email')} value={user.email} />
+                    {!user.isDemo && (
+                        <>
+                            <InfoRow
+                                label={t('loginRegister:formLabels.username')}
+                                value={`@${user.username}`}
+                            />
+                            <InfoRow label={t('loginRegister:formLabels.email')} value={user.email} />
+                        </>
+                    )}
                     <InfoRow
                         label={t('account:fields.nativeLanguage')}
                         value={

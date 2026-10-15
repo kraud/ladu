@@ -28,6 +28,7 @@ const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = req
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
+const { assertNotDemo }: typeof import("../lib/demo") = require("../lib/demo");
 const { assertNamesAllowed }: typeof import("../lib/reservedNames") = require("../lib/reservedNames");
 const { calculateBasicUserMetrics } = require("./metricController");
 
@@ -138,6 +139,18 @@ const serializeUser = (user: Partial<UserRow>) => ({
   verified: user.verified,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
+  ...demoFields(user),
+});
+
+// Demo access (demo-access.md): the app shows the time left and the limits of a demo session.
+// Every answer that the app writes into its session carries these, so a profile save cannot
+// drop `isDemo` (Review log S1-2). Not in `userColumnsWithoutPassword`: `searchUser` returns
+// other users with that list.
+const demoFields = (user: Partial<UserRow>) => ({
+  isDemo: user.isDemo ?? false,
+  demoExpiresAt: user.demoExpiresAt ?? null,
+  demoWordLimit: user.demoWordLimit ?? null,
+  demoTagLimit: user.demoTagLimit ?? null,
 });
 
 const serializeLoginUser = (user: UserRow) => ({
@@ -152,6 +165,7 @@ const serializeLoginUser = (user: UserRow) => ({
     user.nativeLanguage === null ? undefined : user.nativeLanguage,
   token: generateToken(user),
   verified: user.verified,
+  ...demoFields(user),
 });
 
 const findUserById = async (id: string) => {
@@ -413,6 +427,9 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
   const usernameChanged = nextUsername !== undefined && nextUsername !== userData.username;
   const nameChanged = typeof name === "string" && name !== userData.name;
   if (usernameChanged || nameChanged) {
+    // A demo keeps its synthetic name and username, so it can never take a real one (D10 c).
+    // Languages, UI language and theme stay editable.
+    assertNotDemo(userData, res);
     try {
       await assertNamesAllowed(
         {
@@ -491,7 +508,13 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
       updatedAt: new Date(),
     })
     .where(eq(users.id, userData.id))
-    .returning(userColumnsWithoutPassword);
+    .returning({
+      ...userColumnsWithoutPassword,
+      isDemo: users.isDemo,
+      demoExpiresAt: users.demoExpiresAt,
+      demoWordLimit: users.demoWordLimit,
+      demoTagLimit: users.demoTagLimit,
+    });
 
   res.status(200).json(serializeUser(updatedUser));
 });
@@ -555,6 +578,8 @@ const getUsersBy = asyncHandler(async (req: any, res: any) => {
       and(
         or(ilike(users.name, searchText), ilike(users.username, searchText)),
         ne(users.id, req.user.id),
+        // A real user must never find a demo account or the demo template (demo-access.md).
+        eq(users.isDemo, false),
         matchingFriendIds ? inArray(users.id, matchingFriendIds) : undefined,
       ),
     );
@@ -657,7 +682,9 @@ const requestPasswordReset = asyncHandler(async (req: any, res: any) => {
   // Password reset starts from email because users may not know their id.
   const user = typeof email === "string" && email ? await findUserByEmailInsensitive(email) : undefined;
 
-  if (user) {
+  // A demo account has no mailbox (`@ladu.invalid`) and no password: nothing is sent, and the
+  // answer is the same as for any other email.
+  if (user && !user.isDemo) {
     // The row lock makes two parallel requests take turns, so only one passes the check.
     const sendReset = await db.transaction(async (tx) => {
       await tx.select({ id: users.id }).from(users).where(eq(users.id, user.id)).for("update");
@@ -754,6 +781,7 @@ const getBasicUserMetrics = asyncHandler(async (req: any, res: any) => {
 
     res.status(200).json({
       totalWords: metrics?.totalWords || 0,
+      totalTags: metrics?.totalTags || 0,
       incompleteWordsCount: metrics?.incompleteWordsCount || 0,
       translationsPerLanguage: metrics?.translationsPerLanguage || [],
       translationsPerLanguageAndPOS:
