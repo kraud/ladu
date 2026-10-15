@@ -90,7 +90,8 @@ export default defineConfig({
             // — the backend no longer applies them itself on boot.
             // Then the committed lexicon fixtures (German, Spanish; ~40 words each) load, each only if its
             // language has no rows yet (--if-empty): CI gets them, a local full lexicon is kept.
-            command: 'npm run migrate -w backend && npm run lexicon:load:fixture -w backend && npm run dev -w backend',
+            // Then the demo template (demo-access.md Slice 2), kept when it is there: every demo start copies it.
+            command: 'npm run migrate -w backend && npm run lexicon:load:fixture -w backend && npm run demo:template -w backend && npm run dev -w backend',
             cwd: '..',
             // OAUTH_ISSUER_GOOGLE points discovery at the local stub instead of the
             // real provider — accepted by the backend only outside production

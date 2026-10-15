@@ -2,20 +2,22 @@
 // account and its seed) and the demo session in `protect`. See .context/plans/demo-access.md.
 const request = require('supertest');
 const bcrypt = require('bcryptjs');
-const { eq } = require('drizzle-orm');
+const { eq, ne } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
 const { users, words, tags, practiceConfigs, userActivityDays } = require('../src/db/schema');
+const { seedDemoTemplate } = require('../lib/demoTemplate');
 const { resetDemoStartLimiter, takeDemoStart } = require('../lib/demo');
-const { SEED_COUNTS, SEED_PRACTICE_CONFIG } = require('../lib/demoSeed');
-const { validateConfigRequest } = require('../services/exercises');
+const { loadTemplateData, TEMPLATE_USERNAME } = require('../lib/demoTemplate');
 const { TERMS_VERSION } = require('../lib/terms');
 
 beforeAll(() => testDb.connectDB());
 beforeEach(async () => {
     await testDb.clearDB();
     resetDemoStartLimiter();
+    // Every demo start copies the template (Slice 2).
+    await seedDemoTemplate();
     delete process.env.DEMO_STARTS_PER_IP;
 });
 afterAll(async () => {
@@ -25,6 +27,9 @@ afterAll(async () => {
 });
 
 const MINUTE = 60 * 1000;
+// What the copy of the template adds (the caps count on top of it, D3).
+const template = loadTemplateData();
+const SEED_COUNTS = { words: template.words.length, tags: template.tags.length };
 
 const setDemo = (values) =>
     pool.query(
@@ -37,6 +42,8 @@ let ipSeq = 0;
 const freshIp = () => `203.0.113.${++ipSeq}`;
 const start = (body = {}, ip = freshIp()) => request(app).post('/api/demo').set('X-Forwarded-For', ip).send(body);
 
+/** Every account except the template (which every test seeds). */
+const accounts = () => db.select().from(users).where(ne(users.username, TEMPLATE_USERNAME));
 const userRow = async (id) => (await db.select().from(users).where(eq(users.id, id)))[0];
 const countFor = async (table, column, id) => (await db.select().from(table).where(eq(column, id))).length;
 
@@ -45,7 +52,7 @@ describe('POST /api/demo — the gate', () => {
         const res = await start();
         expect(res.status).toBe(403);
         expect(res.body.code).toBe('demo_disabled');
-        expect(await db.select().from(users)).toHaveLength(0);
+        expect(await accounts()).toHaveLength(0);
     });
 });
 
@@ -93,13 +100,13 @@ describe('POST /api/demo — the new demo account', () => {
         expect(row.theme).toBeNull();
     });
 
-    it('seeds the placeholder data: words with translations, Private tags and a saved config', async () => {
+    it('copies the template: its words, Private tags and saved configs', async () => {
         const { id } = (await start()).body;
         expect(await countFor(words, words.userId, id)).toBe(SEED_COUNTS.words);
         const seededTags = await db.select().from(tags).where(eq(tags.authorId, id));
         expect(seededTags).toHaveLength(SEED_COUNTS.tags);
         expect(seededTags.every((t) => t.visibility === 'Private')).toBe(true);
-        expect(await countFor(practiceConfigs, practiceConfigs.userId, id)).toBe(1);
+        expect(await countFor(practiceConfigs, practiceConfigs.userId, id)).toBe(template.practiceConfigs.length);
 
         // The app's own word list shows the seed with all four languages.
         const { token } = (await start()).body;
@@ -108,10 +115,6 @@ describe('POST /api/demo — the new demo account', () => {
         expect(list.body.total).toBe(SEED_COUNTS.words);
     });
 
-    it('seeds a practice config that the app itself accepts', () => {
-        const result = validateConfigRequest({ ...SEED_PRACTICE_CONFIG, wordIds: null, tagIds: null });
-        expect(result.ok).toBe(true);
-    });
 
     it('freezes the duration and the caps on the row: a later change does not move a running demo', async () => {
         const { id } = (await start()).body;
@@ -136,7 +139,7 @@ describe('POST /api/demo — limits', () => {
         expect(third.status).toBe(429);
         expect(third.body.code).toBe('demo_rate_limited');
         expect((await start({}, freshIp())).status).toBe(201);
-        expect(await db.select().from(users)).toHaveLength(3);
+        expect(await accounts()).toHaveLength(3);
     });
 
     it('defaults to 5 starts per IP in one hour, and opens again after the hour', () => {
@@ -150,13 +153,13 @@ describe('POST /api/demo — limits', () => {
         await setDemo({ maxLive: 2 });
         await db.insert(users).values([
             { name: 'Old', email: 'old@ladu.invalid', username: 'old-demo', languages: ['English', 'Spanish'], isDemo: true, demoExpiresAt: new Date(Date.now() - MINUTE) },
-            { name: 'Template', email: 'template@ladu.invalid', username: '__demo_template__', languages: ['English', 'Spanish'], isDemo: true },
         ]);
         expect((await start()).status).toBe(201);
         expect((await start()).status).toBe(201);
         const third = await start();
         expect(third.status).toBe(503);
         expect(third.body.code).toBe('demo_busy');
+        // The old demo, the template (seeded in beforeEach) and the two new demos.
         expect((await db.select().from(users).where(eq(users.isDemo, true))).length).toBe(4);
     });
 

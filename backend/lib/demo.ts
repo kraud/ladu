@@ -36,6 +36,8 @@ export const DEMO_CODE = {
   disabled: "demo_disabled",
   rateLimited: "demo_rate_limited",
   busy: "demo_busy",
+  /** No template is seeded in this environment (`scripts/seed-demo-template.js`). */
+  unavailable: "demo_unavailable",
   restricted: "demo_restricted",
   wordLimit: "demo_word_limit",
   tagLimit: "demo_tag_limit",

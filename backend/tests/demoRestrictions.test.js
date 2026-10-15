@@ -10,6 +10,7 @@ const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
 const { users, oauthIdentities, passwordResetTokens } = require('../src/db/schema');
+const { seedDemoTemplate } = require('../lib/demoTemplate');
 const { resetDemoStartLimiter } = require('../lib/demo');
 const { issueTicket } = require('../lib/oauth/ticket');
 
@@ -17,6 +18,8 @@ beforeAll(() => testDb.connectDB());
 beforeEach(async () => {
     await testDb.clearDB();
     resetDemoStartLimiter();
+    // Every demo start copies the template (Slice 2).
+    await seedDemoTemplate();
     sendMail.mockClear();
     await pool.query(`UPDATE access_settings SET demo_enabled = true WHERE id = 1`);
 });

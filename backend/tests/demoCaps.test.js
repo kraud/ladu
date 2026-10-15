@@ -9,6 +9,7 @@ const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
 const { users, words, tags, tagWords, friendships, tagShares } = require('../src/db/schema');
+const { seedDemoTemplate } = require('../lib/demoTemplate');
 const { resetDemoStartLimiter } = require('../lib/demo');
 const { generateToken } = require('../controllers/userController');
 
@@ -18,6 +19,8 @@ beforeAll(() => testDb.connectDB());
 beforeEach(async () => {
     await testDb.clearDB();
     resetDemoStartLimiter();
+    // Every demo start copies the template (Slice 2).
+    await seedDemoTemplate();
     process.env.DEMO_STARTS_PER_IP = '100';
 });
 afterAll(async () => {

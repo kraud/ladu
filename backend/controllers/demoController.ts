@@ -3,18 +3,19 @@
  * account with sample data and answers like a login, so the app opens a session at once.
  *
  * Checks, in this order: the demo gate (403 `demo_disabled`), the per-IP limit (429
- * `demo_rate_limited`), the live-demo cap (503 `demo_busy`). The cap check and the insert run under
+ * `demo_rate_limited`), the live-demo cap (503 `demo_busy`). The sample data is a copy of the
+ * template user (`lib/demoTemplate.ts`); with no template, 503 `demo_unavailable` and nothing is kept. The cap check and the insert run under
  * one advisory lock, so parallel starts cannot pass the cap together. The duration and the word/tag
  * caps are frozen on the new row (D7); the live cap is read on each start (D15).
  */
 const asyncHandler = require("express-async-handler");
 const { randomUUID } = require("crypto");
-const { sql }: typeof import("drizzle-orm") = require("drizzle-orm");
+const { eq, sql }: typeof import("drizzle-orm") = require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
 const { users }: typeof import("../src/db/schema") = require("../src/db/schema");
 const { getAccessSettings }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { countLiveDemos, DemoError, DEMO_CODE, takeDemoStart }: typeof import("../lib/demo") = require("../lib/demo");
-const { seedDemoData, SEED_COUNTS }: typeof import("../lib/demoSeed") = require("../lib/demoSeed");
+const { cloneDemoTemplate }: typeof import("../lib/demoTemplate") = require("../lib/demoTemplate");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
 const { withStatus }: typeof import("../lib/adminRequest") = require("../lib/adminRequest");
 const { serializeLoginUser, isSupportedLanguage, parseThemeInput }: typeof import("./userController") =
@@ -65,12 +66,23 @@ const startDemo = asyncHandler(async (req: any, res: any) => {
           ...termsAcceptance(now),
           isDemo: true,
           demoExpiresAt: new Date(now.getTime() + demo.durationMinutes * 60_000),
-          demoWordLimit: SEED_COUNTS.words + demo.maxWords,
-          demoTagLimit: SEED_COUNTS.tags + demo.maxTags,
         })
         .returning();
-      await seedDemoData(tx, created.id);
-      return created;
+
+      const seeded = await cloneDemoTemplate(tx, created.id, now);
+      if (!seeded) {
+        // The transaction rolls back: no demo account without its sample data.
+        console.error("Demo start refused: no demo template. Run `node scripts/seed-demo-template.js` (backend).");
+        throw new DemoError(503, DEMO_CODE.unavailable, "The demo is not available right now");
+      }
+
+      // The caps count on top of the sample data (D3), frozen now (D7).
+      const [withLimits] = await tx
+        .update(users)
+        .set({ demoWordLimit: seeded.words + demo.maxWords, demoTagLimit: seeded.tags + demo.maxTags })
+        .where(eq(users.id, created.id))
+        .returning();
+      return withLimits;
     });
   });
 
