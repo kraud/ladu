@@ -20,6 +20,7 @@ import {
 
 const EMPTY: BasicUserMetricsBE = {
     totalWords: 0,
+    totalTags: 0,
     incompleteWordsCount: 0,
     translationsPerLanguage: [],
     translationsPerLanguageAndPOS: [],
@@ -29,6 +30,7 @@ const EMPTY: BasicUserMetricsBE = {
 
 const POPULATED: BasicUserMetricsBE = {
     totalWords: 10,
+    totalTags: 0,
     incompleteWordsCount: 3,
     translationsPerLanguage: [
         { language: 'English', count: 10, type: 'language' },

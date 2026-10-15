@@ -8,6 +8,7 @@
  * defence-in-depth, not the expected path.
  */
 import { getApiErrorMessage } from '@/api/types';
+import { demoCodeErrorKey } from '@/features/demo/errors';
 
 export const GENERIC_ERROR_KEY = 'common:errors.somethingWrong';
 
@@ -27,6 +28,9 @@ const MESSAGE_TO_KEY: Record<string, string> = {
 
 /** The i18n key for whatever the backend threw. Never throws; always returns a key. */
 export function wordErrorKey(error: unknown): string {
+    // A demo's word cap (create or copy) carries a code, not a known message.
+    const demoKey = demoCodeErrorKey(error);
+    if (demoKey) return demoKey;
     const message = getApiErrorMessage(error);
     if (message && message in MESSAGE_TO_KEY) return MESSAGE_TO_KEY[message];
     return GENERIC_ERROR_KEY;

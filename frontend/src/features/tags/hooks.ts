@@ -27,6 +27,7 @@ import type { QueryClient } from '@tanstack/react-query';
 import * as tagApi from './api';
 import { tagKeys } from './keys';
 import { wordKeys } from '@/features/words/keys';
+import { metricsKeys } from '@/features/metrics/keys';
 import type {
     CloneTagBody,
     CreateTagBody,
@@ -38,10 +39,15 @@ import type {
 
 const LIST_PAGE_SIZE = 24;
 
-/** Invalidates both this feature's own keys and the words feature's — see the module note above. */
+/**
+ * Invalidates both this feature's own keys and the words feature's — see the module note above —
+ * and the user metrics: they count the user's tags (`totalTags`, the demo's "tags left") and words
+ * (a tag copy adds words).
+ */
 function invalidateTagsAndWords(queryClient: QueryClient): void {
     void queryClient.invalidateQueries({ queryKey: tagKeys.all });
     void queryClient.invalidateQueries({ queryKey: wordKeys.all });
+    void queryClient.invalidateQueries({ queryKey: metricsKeys.all });
 }
 
 /**

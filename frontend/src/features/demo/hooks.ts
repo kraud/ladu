@@ -10,6 +10,11 @@ import type { StartDemoRequest } from './types';
 
 export type DemoStatus = 'loading' | 'on' | 'off';
 
+/** Is the open session a demo? The UI hides what a demo may not do (D10); the server refuses it anyway. */
+export function useIsDemo(): boolean {
+    return useAuthStore((s) => s.user?.isDemo === true);
+}
+
 /**
  * Is the demo on? Reads the public `GET /api/access` (the same query as the gate banners). Unlike
  * `useAccess`, it tells "loading" apart, so `/demo` does not show "the demo is off" for a moment.

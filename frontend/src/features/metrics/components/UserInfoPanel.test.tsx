@@ -24,6 +24,7 @@ function session(languages: string[]) {
 
 const populated: BasicUserMetricsBE = {
     totalWords: 10,
+    totalTags: 0,
     incompleteWordsCount: 3,
     translationsPerLanguage: [
         { language: 'English', count: 10, type: 'language' },

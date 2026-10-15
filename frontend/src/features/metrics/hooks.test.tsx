@@ -22,6 +22,7 @@ function setup() {
 
 const populated: BasicUserMetricsBE = {
     totalWords: 4,
+    totalTags: 0,
     incompleteWordsCount: 1,
     translationsPerLanguage: [{ language: 'English', count: 4, type: 'language' }],
     translationsPerLanguageAndPOS: [
