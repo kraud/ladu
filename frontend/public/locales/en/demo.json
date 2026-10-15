@@ -29,6 +29,19 @@
     "demo_busy": "Too many demos are running. Try again in a few minutes.",
     "demo_rate_limited": "Too many demos were started from your network. Try again later.",
     "demo_unavailable": "The demo is not available now. Try again later.",
-    "generic": "The demo could not start. Try again."
+    "generic": "The demo could not start. Try again.",
+    "demo_restricted": "This is not available in the demo."
+  },
+  "badge": {
+    "demo": "Demo",
+    "label": "Demo: {{time}} left. Open your account page."
+  },
+  "account": {
+    "title": "Demo account",
+    "accountLabel": "Demo account",
+    "timeLeft": "Time left: {{time}}",
+    "text": "This is a demo account. When the time ends, the account and all your changes are deleted.",
+    "createAccount": "Create an account",
+    "namesLocked": "A demo account cannot change its name or username."
   }
 }

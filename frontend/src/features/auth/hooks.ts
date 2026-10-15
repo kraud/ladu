@@ -156,9 +156,11 @@ export function useLogout() {
     const clearSession = useAuthStore((s) => s.clearSession);
 
     return () => {
+        // A demo has no login to go back to (demo-access.md D13): logging out ends it.
+        const wasDemo = authStore.getState().user?.isDemo === true;
         clearSession();
         queryClient.clear();
-        void navigate({ to: '/login' });
+        void navigate({ to: wasDemo ? '/demo/ended' : '/login' });
     };
 }
 
@@ -291,10 +293,12 @@ export function useOAuthLinkComplete() {
  * runtime), this changes whenever the user connects/disconnects, so the
  * default "refetch on mount" behavior is what's wanted here.
  */
-export function useOAuthIdentities() {
+/** `enabled: false` skips the call (a demo account has no sign-in methods to show). */
+export function useOAuthIdentities({ enabled = true }: { enabled?: boolean } = {}) {
     return useQuery({
         queryKey: OAUTH_IDENTITIES_QUERY_KEY,
         queryFn: authApi.getOAuthIdentities,
+        enabled,
     });
 }
 

@@ -28,6 +28,8 @@ const CODE_TO_KEY: Record<string, string> = {
     username_reserved: 'loginRegister:apiErrors.usernameReserved',
     name_reserved: 'loginRegister:apiErrors.nameReserved',
     google_name_reserved: 'loginRegister:apiErrors.googleNameReserved',
+    // Demo access (D10): an action a demo account may not take. The UI hides these; this is the fallback.
+    demo_restricted: 'demo:errors.demo_restricted',
 };
 
 const MESSAGE_TO_KEY: Record<string, string> = {

@@ -20,6 +20,7 @@ import { useRandomPractice } from '@/features/practice/useRandomPractice';
 import { useEdgeSwipeOpen, useSwipeCloseProps } from '@/lib/useSwipe';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import { useAuthStore } from '@/stores/authStore';
+import { DemoBadge } from '@/features/demo/components/DemoBadge';
 
 /** Nav targets. `requiresLanguages` = the old "≥2 languages" gate on Words (Add word hangs off it). */
 const NAV_ITEMS = [
@@ -141,6 +142,8 @@ function HeaderRight() {
             {featureFlags.notifications && (
                 <button type="button" className="icon-btn" aria-label="Notifications" />
             )}
+            {/* Demo access (demo-access.md D6): only for a demo session, on every screen size. */}
+            <DemoBadge />
             <UserMenu />
         </div>
     );
