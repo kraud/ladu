@@ -4,7 +4,8 @@ const { getAccessSettings }: typeof import("../lib/accessGate") = require("../li
 /**
  * `GET /api/access` (public) — feeds the banners in the learner app. Only the mode and
  * the owner's extra line; never a list of invites or allowed accounts. The server
- * enforces the gates itself, so a banner is a courtesy.
+ * enforces the gates itself, so a banner is a courtesy. `demo.enabled` tells the
+ * `/demo` page whether to show the start button; the caps stay private.
  */
 const getAccess = asyncHandler(async (_req: any, res: any) => {
   const settings = await getAccessSettings();
@@ -13,6 +14,7 @@ const getAccess = asyncHandler(async (_req: any, res: any) => {
   res.json({
     registration: { mode: settings.registrationMode, note: settings.registrationNote },
     login: { mode: settings.loginMode, note: settings.loginNote },
+    demo: { enabled: settings.demo.enabled },
   });
 });
 
