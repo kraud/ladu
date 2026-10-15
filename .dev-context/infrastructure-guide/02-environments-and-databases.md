@@ -221,8 +221,28 @@ admin panel: **Access → Demo** (`/access?tab=demo`). Nothing to deploy.
   ```sql
   SELECT count(*) FROM users WHERE is_demo AND demo_expires_at > now();
   ```
-- **Cleanup:** Slice 2 adds expired demos to the nightly purge. Until then, an expired demo row
-  stays in the database. It does not count toward the live cap, and its token does not work.
+- **The demo template (needed once per environment).** Every demo is a copy of one template
+  account (username `__demo_template__`, no expiry, never purged), built from
+  `backend/scripts/demo-template/data.json`. Without it, the demo start answers 503
+  `demo_unavailable` and the backend logs the command to run. Seed it once in each environment:
+
+  ```bash
+  # local dev (the e2e start-up does this by itself):
+  npm run demo:template -w backend
+  # staging / production, on the VPS:
+  docker exec backend-staging node scripts/seed-demo-template.js
+  docker exec backend-prod node scripts/seed-demo-template.js
+  ```
+
+  Running it again keeps the existing template. After a change to `data.json`, rebuild it with
+  `--reset` (`npm run demo:template -w backend -- --reset`, or add `--reset` to the `docker exec`
+  line). Demos that are running keep their own copy.
+- **Cleanup:** the nightly purge (`scripts/purge.js`) deletes demos whose time is over, with all
+  their data. It writes no audit row; its log line counts them (`… N expired demo(s) …`). Until
+  the next run, an expired demo stays in the database, but it does not count toward the live cap
+  and its token does not work.
+- **Where demos do not show:** the admin users list, the admin statistics (accounts, sign-ups,
+  languages and content totals) and user search all leave out demo accounts and the template.
 
 ## Email sender addresses per environment
 

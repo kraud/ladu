@@ -538,3 +538,8 @@ export async function deleteDemoSessions(userIds: string[]): Promise<void> {
         console.warn('[e2e] demo cleanup failed:', (error as Error).message);
     }
 }
+
+/** The word and tag caps for demos started after this call (frozen at start, D7). */
+export async function setDemoCaps(caps: { maxWords: number; maxTags: number }): Promise<void> {
+    await getPool().query(`UPDATE access_settings SET demo_max_words = $1, demo_max_tags = $2 WHERE id = 1`, [caps.maxWords, caps.maxTags]);
+}

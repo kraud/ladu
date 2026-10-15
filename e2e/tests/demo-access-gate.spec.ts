@@ -5,7 +5,9 @@ import {
     deleteUsersByEmail,
     expireDemoSession,
     resetDemoSettings,
+    seedTag,
     seedUser,
+    setDemoCaps,
     setDemoEnabled,
 } from '../fixtures/db';
 
@@ -22,12 +24,19 @@ import {
  * It turns the demo on, which is the global `access_settings` row, so it is a `-gate` spec (Review log
  * S1-5): its own Playwright project, after every other spec. `afterAll` puts the demo back off.
  *
- * Starts 3 demos at most: with a reused local `npm run dev` the per-IP limit stays at its default of 5.
+ * Slice 2: every demo is a copy of the template (seeded at e2e start-up, `npm run demo:template`).
+ * The last test checks the copy, the word and tag caps and the counters, and that a demo is offered
+ * no Follow and no visibility choice. The purge of expired demos is tested in Jest
+ * (tests/demoExclusions.test.js): it is a nightly job, not something the browser sees.
+ *
+ * Starts 4 demos at most: with a reused local `npm run dev` the per-IP limit stays at its default of 5.
  */
 
 const API_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
 const run = Date.now();
 const learnerEmail = `e2e-demo-${run}-learner@ladu.test`;
+/** A real user's Public tag, for the Discover check. */
+const publicTagLabel = `E2E demo discover ${run}`;
 const LEARNER_PASSWORD = 'a-good-password-1';
 
 /** The demo accounts this spec started, removed in `afterAll`. */
@@ -38,7 +47,13 @@ test.describe.configure({ mode: 'serial' });
 test.beforeAll(async () => {
     // A run that was killed may have left the demo on.
     await resetDemoSettings();
-    await seedUser(learnerEmail, { name: 'E2E Demo Learner', username: `e2edemo${run}`, learnerPassword: LEARNER_PASSWORD, languages: ['English', 'Spanish'] });
+    const { userId } = await seedUser(learnerEmail, {
+        name: 'E2E Demo Learner',
+        username: `e2edemo${run}`,
+        learnerPassword: LEARNER_PASSWORD,
+        languages: ['English', 'Spanish'],
+    });
+    await seedTag(userId, publicTagLabel, 'Public');
 });
 
 test.afterAll(async () => {
@@ -150,3 +165,65 @@ test('a signed-in user is warned that the demo logs them out, and the demo repla
     await page.getByRole('alertdialog').getByRole('button', { name: 'Logout' }).click();
     await expect(page).toHaveURL(/\/demo\/ended$/);
 });
+
+test('the demo is a copy of the template, with word and tag caps, and no Follow or visibility choice', async ({ page }) => {
+    await setDemoEnabled(true);
+    // On top of the template: room for 1 more word and no more tags (frozen when the demo starts).
+    await setDemoCaps({ maxWords: 1, maxTags: 0 });
+    await page.goto('/demo');
+    const demo = await startDemo(page);
+
+    // The template's tags and words (scripts/demo-template/data.json), all four parts of speech.
+    await page.goto('/tags');
+    for (const label of ['Nouns', 'Verbs', 'Adjectives', 'Adverbs', 'Everyday words']) {
+        await expect(page.locator('.tagcard', { hasText: label }).first()).toBeVisible();
+    }
+    await page.goto('/words');
+    for (const word of ['house', 'dance', 'big', 'often']) {
+        await expect(page.getByText(word, { exact: true }).first()).toBeVisible();
+    }
+
+    // The counters: the frozen caps minus what the demo has.
+    await page.goto('/user');
+    const card = page.getByRole('region', { name: 'Demo account' });
+    await expect(card.getByText('Words you can add: 1')).toBeVisible();
+    await expect(card.getByText('Tags you can add: 0')).toBeVisible();
+
+    // The word cap: one more word fits, the next is refused.
+    const addWord = (en: string, es: string) =>
+        page.request.post(`${API_URL}/api/words`, {
+            headers: { Authorization: `Bearer ${demo.token}` },
+            data: {
+                partOfSpeech: 'Noun',
+                translations: [
+                    { language: 'English', cases: [{ caseName: 'singularEN', word: en }] },
+                    { language: 'Spanish', cases: [{ caseName: 'singularES', word: es }] },
+                ],
+                tags: [],
+            },
+        });
+    expect((await addWord('window', 'ventana')).ok()).toBe(true);
+    const refused = await addWord('door', 'puerta');
+    expect(refused.status()).toBe(403);
+    expect((await refused.json()).code).toBe('demo_word_limit');
+    await page.reload();
+    await expect(page.getByRole('region', { name: 'Demo account' }).getByText('Words you can add: 0')).toBeVisible();
+
+    // The tag cap, in the app: the form offers no visibility choice, and the refusal is explained.
+    await page.goto('/tags');
+    await page.getByRole('button', { name: 'New tag' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('radio')).toHaveCount(0);
+    await dialog.getByLabel(/Label/).fill('One too many');
+    await dialog.getByRole('button', { name: 'Create tag' }).click();
+    await expect(page.getByText('The demo cannot have more tags. Create an account to add more.').first()).toBeVisible();
+    await page.keyboard.press('Escape');
+
+    // Discover: a real user's Public tag can be copied, not followed.
+    await page.getByRole('button', { name: 'Discover', exact: true }).click();
+    const discovered = page.locator('.tagcard', { hasText: publicTagLabel });
+    await expect(discovered).toBeVisible();
+    await expect(discovered.getByRole('button', { name: 'Clone' })).toBeVisible();
+    await expect(discovered.getByRole('button', { name: 'Follow' })).toHaveCount(0);
+});
+
