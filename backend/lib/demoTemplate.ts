@@ -199,9 +199,9 @@ const idMap = (ids: string[]) => new Map(ids.map((id) => [id, randomUUID() as st
 const mapped = (map: Map<string, string>, id: string) => map.get(id) as string;
 
 /**
- * Copies the template into `userId`, inside the demo start transaction. Returns how many words and
- * tags it added (the frozen caps are these plus the configured maximums, D3/D7), or null when there
- * is no template.
+ * Copies the template into `userId`, inside the demo start transaction. Returns how many words,
+ * tags and saved configs it added (the frozen caps are the words and tags plus the configured
+ * maximums, D3/D7; the start log keeps all three, D19), or null when there is no template.
  *
  * The copies are the demo's OWN words and tags: `is_cloned = false` and no source ids, so the
  * "own copy" logic never treats them as followed words (Review log M4). Tags are Private.
@@ -215,7 +215,7 @@ export const cloneDemoTemplate = async (
   userId: string,
   now: Date = new Date(),
   languages?: string[],
-): Promise<{ words: number; tags: number } | null> => {
+): Promise<{ words: number; tags: number; configs: number } | null> => {
   const template = await findTemplateUser(tx);
   if (!template) return null;
 
@@ -351,5 +351,5 @@ export const cloneDemoTemplate = async (
     );
   }
 
-  return { words: tWords.length, tags: tTags.length };
+  return { words: tWords.length, tags: tTags.length, configs: tConfigs.length };
 };

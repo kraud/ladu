@@ -245,6 +245,60 @@ export const userBadges = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// DEMO_STARTS
+// One row per demo start (demo-access.md D19, D20): the source of the demo
+// usage statistics in the admin Demo tab. The nightly purge deletes expired
+// demo users, so this table keeps what the statistics need: the seed counts
+// and limits (written at the start) and the final counts (written by the purge
+// just before it deletes the user; `closedAt` set). `userId` becomes NULL when
+// the user row goes. No IP and no other personal data.
+// ---------------------------------------------------------------------------
+export const demoStarts = pgTable(
+    'demo_starts',
+    {
+        id:                    uuid('id').primaryKey().defaultRandom(),
+        userId:                uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+        startedAt:             timestamp('started_at').notNull(),
+        expiresAt:             timestamp('expires_at').notNull(),
+        uiLanguage:            varchar('ui_language', { length: 50 }).notNull(),
+        languages:             text('languages').array().notNull(),
+        // What the copy of the template added, and the frozen caps (seed + maximum).
+        seedWords:             integer('seed_words').notNull(),
+        seedTags:              integer('seed_tags').notNull(),
+        seedConfigs:           integer('seed_configs').notNull(),
+        wordLimit:             integer('word_limit').notNull(),
+        tagLimit:              integer('tag_limit').notNull(),
+        // The final counts, written by the purge. NULL while the demo user exists.
+        wordsAdded:            integer('words_added'),
+        tagsAdded:             integer('tags_added'),
+        configsAdded:          integer('configs_added'),
+        translationsPractised: integer('translations_practised'),
+        closedAt:              timestamp('closed_at'),
+    },
+    (table) => [
+        index('demo_starts_started_idx').on(table.startedAt),
+        index('demo_starts_user_idx').on(table.userId),
+    ],
+);
+
+// ---------------------------------------------------------------------------
+// DEMO_REFUSALS
+// Refused demo starts, counted per UTC day and refusal code (demo-access.md
+// D20): one row per (day, code), not one per request, so a flood of refused
+// requests cannot fill the table (Review log S3-4).
+// ---------------------------------------------------------------------------
+export const demoRefusals = pgTable(
+    'demo_refusals',
+    {
+        // A plain 'YYYY-MM-DD' string (UTC), like `user_activity_days.day`.
+        day:   date('day', { mode: 'string' }).notNull(),
+        code:  varchar('code', { length: 32 }).notNull(),
+        count: integer('count').notNull().default(0),
+    },
+    (table) => [primaryKey({ columns: [table.day, table.code] })],
+);
+
+// ---------------------------------------------------------------------------
 // LOGIN_EVENTS
 // One row per successful login: the login history shown on the admin user
 // page. Country only, never an IP. Rows older than 90 days are deleted by the

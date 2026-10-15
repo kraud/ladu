@@ -112,3 +112,47 @@ export const SIGN_OUT_PHRASE = 'SIGN OUT EVERYONE';
 
 export const MAX_NOTE_LENGTH = 300;
 export const MAX_EMAILS_PER_REQUEST = 500;
+
+/** A demo account on the DB now (`GET /api/admin/access/demo/users`, demo-access.md D19). */
+export interface DemoUserRow {
+    id: string;
+    /** Live: time left. Expired: the nightly purge has not deleted it yet. */
+    status: 'live' | 'expired';
+    startedAt: string;
+    expiresAt: string;
+    languages: string[];
+    uiLanguage: string | null;
+    /** What the visitor added on top of the sample data. Null for a demo started before the start log. */
+    wordsAdded: number | null;
+    tagsAdded: number | null;
+    configsAdded: number | null;
+    translationsPractised: number | null;
+    /** The word and tag caps of this demo (frozen when it started). */
+    maxWords: number | null;
+    maxTags: number | null;
+}
+
+export interface DemoUsers {
+    /** Every demo on the DB; `rows` holds the newest, at most `DEMO_USERS_LIMIT`. */
+    total: number;
+    rows: DemoUserRow[];
+}
+
+export const DEMO_USERS_LIMIT = 200;
+
+export type DemoRefusalCode = 'demo_disabled' | 'demo_rate_limited' | 'demo_busy' | 'demo_unavailable';
+
+/** `GET /api/admin/access/demo/stats` (D20). */
+export interface DemoStats {
+    starts: { last24h: number; last7d: number; last30d: number; total: number };
+    runningNow: number;
+    /** The engagement, cap and language numbers cover the starts of these last days. */
+    windowDays: number;
+    engagement: { demos: number; avgWordsAdded: number; avgTagsAdded: number; avgTranslationsPractised: number; addedAWord: number };
+    caps: { wordCapDemos: number; reachedWordCap: number; tagCapDemos: number; reachedTagCap: number };
+    refusalWindowDays: number;
+    refusals: Record<DemoRefusalCode, number>;
+    languages: { language: string; count: number }[];
+    uiLanguages: { language: string; count: number }[];
+}
+

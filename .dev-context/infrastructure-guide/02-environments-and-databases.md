@@ -250,6 +250,24 @@ admin panel: **Access → Demo** (`/access?tab=demo`). Nothing to deploy.
   and its token does not work.
 - **Where demos do not show:** the admin users list, the admin statistics (accounts, sign-ups,
   languages and content totals) and user search all leave out demo accounts and the template.
+- **Demo usage numbers (admin Demo tab, under the settings):** a banner (starts per window, what
+  visitors add, cap hits, refused starts, languages) and a table of the demo accounts on the
+  database now. They come from two tables that the purge does not delete (migration 0029, it arrives
+  with the deploy; nothing to run by hand):
+  - `demo_starts`: one row per start (time, languages, seed counts, caps). Before it deletes an
+    expired demo, the purge writes the final counts to its row (`closed_at`); `user_id` then becomes
+    NULL. No IP and no other personal data.
+  - `demo_refusals`: refused starts, one counter per UTC day and code (`demo_busy`,
+    `demo_rate_limited`, `demo_disabled`, `demo_unavailable`).
+
+  ```sql
+  SELECT count(*) FROM demo_starts WHERE started_at > now() - interval '7 days';
+  SELECT * FROM demo_refusals ORDER BY day DESC, code;
+  ```
+
+  Both are kept for now (small rows); a retention cut-off can be added to the purge later. The e2e
+  teardown deletes the start rows of its own demos, but its "demo is off" test adds 1 to the local
+  `demo_disabled` counter on each run.
 
 ## Email sender addresses per environment
 

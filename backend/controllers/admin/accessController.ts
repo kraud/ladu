@@ -14,6 +14,7 @@ const { HttpError }: typeof import('../../lib/httpError') = require('../../lib/h
 const { readReason, withStatus }: typeof import('../../lib/adminRequest') = require('../../lib/adminRequest');
 const { getAccessSettings, normalizeInviteEmail, DEMO_BOUNDS }: typeof import('../../lib/accessGate') = require('../../lib/accessGate');
 const { countLiveDemos }: typeof import('../../lib/demo') = require('../../lib/demo');
+const { listDemoUsers, demoUsageStats }: typeof import('../../lib/demoStats') = require('../../lib/demoStats');
 const { isUuid }: typeof import('../userController') = require('../userController');
 const sendMail = require('../../utils/sendEmail');
 import type { AccessMode, DemoSettings } from '../../lib/accessGate';
@@ -148,6 +149,20 @@ const readBounded = (value: unknown, field: keyof typeof DEMO_BOUNDS, label: str
   }
   return value;
 };
+
+/**
+ * `GET /api/admin/access/demo/users` — the demo accounts on the DB now, live and expired (the purge
+ * has not deleted them yet), newest first, at most `DEMO_USERS_LIMIT`; `total` counts them all
+ * (demo-access.md D19). Read-only: no audit row.
+ */
+const getDemoUsers = asyncHandler(async (_req: any, res: any) => {
+  res.status(200).json(await listDemoUsers());
+});
+
+/** `GET /api/admin/access/demo/stats` — the demo usage banner (D20). Read-only: no audit row. */
+const getDemoStats = asyncHandler(async (_req: any, res: any) => {
+  res.status(200).json(await demoUsageStats());
+});
 
 /**
  * `PUT /api/admin/access/demo` — `{ enabled, durationMinutes, maxWords, maxTags, maxLive, reason? }`. All
@@ -546,6 +561,8 @@ export = {
   setRegistration,
   setLogin,
   setDemo,
+  getDemoUsers,
+  getDemoStats,
   addInvites,
   removeInvite,
   sendInvite,

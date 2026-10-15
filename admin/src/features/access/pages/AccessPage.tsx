@@ -34,6 +34,7 @@ import {
 } from '@/features/access/types';
 import { FormDialog } from '@/features/staff/components/StaffDialogs';
 import { StatusBadge } from '@/features/users/components/StatusBadge';
+import { DemoActivity } from '@/features/access/components/DemoActivity';
 import { formatDateTime, NONE } from '@/features/users/format';
 
 const MAX_REASON_LENGTH = 500;
@@ -159,6 +160,7 @@ export function AccessPage() {
                         liveDemos={data.counts.liveDemos}
                         onDone={setNotice}
                     />
+                    <DemoActivity />
                 </section>
             )}
         </div>

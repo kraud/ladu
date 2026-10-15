@@ -519,6 +519,12 @@ export async function seedDemoUser(email: string, username: string, expiresInMin
     );
 }
 
+/** The demos live now (not expired; the template has no expiry), as the admin Demo tab counts them. */
+export async function countLiveDemos(): Promise<number> {
+    const { rows } = await getPool().query(`SELECT count(*)::int AS n FROM users WHERE is_demo AND demo_expires_at > now()`);
+    return rows[0].n;
+}
+
 /** Turns the demo gate on or off. Global state: only `*-gate.spec.ts` specs may call it. */
 export async function setDemoEnabled(enabled: boolean): Promise<void> {
     await getPool().query(`UPDATE access_settings SET demo_enabled = $1 WHERE id = 1`, [enabled]);
@@ -529,10 +535,15 @@ export async function expireDemoSession(userId: string): Promise<void> {
     await getPool().query(`UPDATE users SET demo_expires_at = now() - interval '1 second' WHERE id = $1 AND is_demo`, [userId]);
 }
 
-/** Best-effort teardown of the demo sessions a spec started, by id (only demo rows, never the template). */
+/**
+ * Best-effort teardown of the demo sessions a spec started, by id (only demo rows, never the template).
+ * Their start-log rows go first: the log outlives the user (it only loses `user_id`), so without this
+ * every run would add to the admin demo statistics of the local database.
+ */
 export async function deleteDemoSessions(userIds: string[]): Promise<void> {
     if (userIds.length === 0) return;
     try {
+        await getPool().query(`DELETE FROM demo_starts WHERE user_id = ANY($1::uuid[])`, [userIds]);
         await getPool().query(`DELETE FROM users WHERE is_demo AND demo_expires_at IS NOT NULL AND id = ANY($1::uuid[])`, [userIds]);
     } catch (error) {
         console.warn('[e2e] demo cleanup failed:', (error as Error).message);

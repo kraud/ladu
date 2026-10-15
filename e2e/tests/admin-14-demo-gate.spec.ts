@@ -1,13 +1,17 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
     closePool,
+    countLiveDemos,
     createStaffAccount,
+    deleteDemoSessions,
     deleteStaffByEmail,
     deleteUsersByEmail,
     getAuditByReason,
     getDemoSettings,
+    expireDemoSession,
     resetDemoSettings,
     seedDemoUser,
+    setDemoEnabled,
 } from '../fixtures/db';
 
 /**
@@ -23,7 +27,11 @@ import {
  * every other spec (`playwright.config.ts`). `beforeAll` and `afterAll` put the demo settings back to
  * the defaults (off).
  *
- * Uses unique `e2e-admin14-*` emails and removes them in `afterAll`.
+ * Slice 5 (D19, D20): the owner sees a demo that a visitor starts in the usage banner and in the demo
+ * accounts table, first Live with the word it added, then Expired.
+ *
+ * Uses unique `e2e-admin14-*` emails and removes them in `afterAll`. Other demos may be live in the
+ * local database (manual testing), so the live counts are checked against the count before the seed.
  */
 
 const ADMIN_URL = process.env.E2E_ADMIN_URL ?? 'http://localhost:5174';
@@ -42,6 +50,10 @@ const demoAccounts: { key: string; expiresInMinutes: number | null }[] = [
     { key: 'template', expiresInMinutes: null },
 ];
 const demoEmail = (key: string) => `e2e-admin14-${run}-${key}@ladu.invalid`;
+/** Live demos in the database before this spec seeds its own. */
+let liveBefore = 0;
+/** Demos this spec starts through `POST /api/demo`, removed in `afterAll`. */
+const startedDemoIds: string[] = [];
 
 test.describe.configure({ mode: 'serial' });
 
@@ -49,6 +61,7 @@ test.beforeAll(async () => {
     // A run that was killed may have left the demo on.
     await resetDemoSettings();
     await createStaffAccount(ownerEmail, 'owner', STAFF_PASSWORD);
+    liveBefore = await countLiveDemos();
     for (const { key, expiresInMinutes } of demoAccounts) {
         await seedDemoUser(demoEmail(key), `e2e-admin14-${run}-${key}`, expiresInMinutes);
     }
@@ -56,6 +69,7 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
     await resetDemoSettings();
+    await deleteDemoSessions(startedDemoIds);
     await deleteUsersByEmail(demoAccounts.map(({ key }) => demoEmail(key)));
     await deleteStaffByEmail([ownerEmail]);
     await closePool();
@@ -68,7 +82,7 @@ async function ownerSignIn(page: Page, goTo: string) {
     await page.getByRole('button', { name: 'Sign in' }).click();
 }
 
-const demoCard = (page: Page) => page.getByRole('region', { name: 'Demo' });
+const demoCard = (page: Page) => page.getByRole('region', { name: 'Demo', exact: true });
 const demoSwitch = (page: Page, name: 'On' | 'Off') =>
     demoCard(page).getByRole('group', { name: 'Demo' }).getByRole('button', { name, exact: true });
 
@@ -89,7 +103,7 @@ test('the Demo tab shows the defaults and the number of live demos', async ({ pa
     await expect(demoCard(page).getByLabel('Maximum words')).toHaveValue('30');
     await expect(demoCard(page).getByLabel('Maximum tags')).toHaveValue('5');
     await expect(demoCard(page).getByLabel('Maximum live demos')).toHaveValue('200');
-    await expect(demoCard(page).getByText(/Running now:/)).toHaveText('Running now: 2 of 200 demos.');
+    await expect(demoCard(page).getByText(/Running now:/)).toHaveText(`Running now: ${liveBefore + 2} of 200 demos.`);
     await expect(demoCard(page).getByRole('button', { name: 'Save', exact: true })).toBeDisabled();
 
     expect(await publicDemo(page)).toEqual({ enabled: false });
@@ -124,7 +138,7 @@ test('the owner turns the demo on with new caps: the row, the audit and the publ
     await dialog.getByRole('button', { name: 'Confirm', exact: true }).click();
     await expect(dialog).toHaveCount(0);
     await expect(page.getByRole('status').first()).toContainText('The demo is now on.');
-    await expect(demoCard(page).getByText(/Running now:/)).toHaveText('Running now: 2 of 50 demos.');
+    await expect(demoCard(page).getByText(/Running now:/)).toHaveText(`Running now: ${liveBefore + 2} of 50 demos.`);
 
     const on = { enabled: true, durationMinutes: 20, maxWords: 40, maxTags: 8, maxLive: 50 };
     expect(await getDemoSettings()).toEqual(on);
@@ -161,3 +175,48 @@ test('the owner turns the demo off again', async ({ page }) => {
     expect(await getDemoSettings()).toEqual({ enabled: false, durationMinutes: 20, maxWords: 40, maxTags: 8, maxLive: 50 });
     expect(await publicDemo(page)).toEqual({ enabled: false });
 });
+
+test('a demo a visitor starts shows in the usage banner and the accounts table, Live and then Expired', async ({ page }) => {
+    await ownerSignIn(page, '/access?tab=demo');
+    const usage = page.getByRole('region', { name: 'Demo usage' });
+    const tile = (label: string) => usage.locator('div', { has: page.getByText(label, { exact: true }) }).last().locator('dd');
+    await expect(tile('Started, last 24 hours')).toHaveText(/^\d[\d,]*$/);
+    const startsBefore = Number((await tile('Started, last 24 hours').textContent())!.replace(/,/g, ''));
+
+    // A visitor starts a demo (the API, as the /demo page calls it) and adds one word.
+    await setDemoEnabled(true);
+    const started = await page.request.post(`${API_URL}/api/demo`, {
+        data: { uiLanguage: 'English', languages: ['Estonian', 'English'] },
+    });
+    expect(started.status()).toBe(201);
+    const demo = (await started.json()) as { id: string; token: string };
+    startedDemoIds.push(demo.id);
+    const word = await page.request.post(`${API_URL}/api/words`, {
+        headers: { Authorization: `Bearer ${demo.token}` },
+        data: {
+            partOfSpeech: 'Noun',
+            translations: [
+                { language: 'English', cases: [{ caseName: 'singularEN', word: 'window' }] },
+                { language: 'Estonian', cases: [{ caseName: 'singularNimetavEE', word: 'aken' }] },
+            ],
+            tags: [],
+        },
+    });
+    expect(word.ok()).toBe(true);
+
+    await page.reload();
+    await expect(tile('Started, last 24 hours')).toHaveText(String(startsBefore + 1));
+    const accounts = page.getByRole('region', { name: /^Demo accounts/ });
+    // The newest demo is the first row: live, its two languages, 1 word added of its cap (40, saved above).
+    const first = accounts.getByRole('row').nth(1);
+    await expect(first.getByRole('cell').nth(0)).toHaveText('Live');
+    await expect(first.getByRole('cell').nth(3)).toHaveText('Estonian, English');
+    await expect(first.getByRole('cell').nth(4)).toHaveText('English');
+    await expect(first.getByRole('cell').nth(5)).toHaveText('1 / 40');
+
+    // Its time is over: the row stays, as Expired, until the nightly purge.
+    await expireDemoSession(demo.id);
+    await page.reload();
+    await expect(accounts.getByRole('row').nth(1).getByRole('cell').nth(0)).toHaveText('Expired');
+});
+

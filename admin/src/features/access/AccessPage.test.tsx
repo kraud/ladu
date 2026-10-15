@@ -4,7 +4,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { server } from '@/test/msw/server';
 import { renderApp } from '@/test/renderApp';
-import { accessHandlers, makeAccess, makeAllowed, makeInvite, type AccessWrite } from '@/test/access';
+import { accessHandlers, makeAccess, makeAllowed, makeDemoStats, makeDemoUser, makeInvite, type AccessWrite } from '@/test/access';
 import { SIGN_OUT_PHRASE } from '@/features/access/types';
 import { parseEmails } from '@/features/access/pages/AccessPage';
 import type { AccessState } from '@/features/access/types';
@@ -944,3 +944,106 @@ describe('the demo', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 });
+
+describe('the demo usage and accounts (D19, D20)', () => {
+    const openDemo = () => renderApp({ initialEntry: '/access?tab=demo', role: 'owner' });
+    const usage = async () => within(await screen.findByRole('region', { name: 'Demo usage' }));
+    const accounts = async () => within(await screen.findByRole('region', { name: /Demo accounts/ }));
+    const tile = (scope: ReturnType<typeof within>, label: string) => scope.getByText(label).closest('div') as HTMLElement;
+
+    it('shows the starts, what visitors do, the refusals and the languages', async () => {
+        const stats = makeDemoStats({
+            starts: { last24h: 3, last7d: 12, last30d: 40, total: 1234 },
+            runningNow: 2,
+            engagement: { demos: 40, avgWordsAdded: 2.5, avgTagsAdded: 0.3, avgTranslationsPractised: 7, addedAWord: 30 },
+            caps: { wordCapDemos: 40, reachedWordCap: 4, tagCapDemos: 20, reachedTagCap: 0 },
+            refusals: { demo_disabled: 1, demo_rate_limited: 5, demo_busy: 2, demo_unavailable: 0 },
+            languages: [
+                { language: 'Spanish', count: 30 },
+                { language: 'English', count: 20 },
+            ],
+            uiLanguages: [{ language: 'English', count: 40 }],
+        });
+        server.use(...accessHandlers({ current: makeAccess() }, [], { stats }));
+        await openDemo();
+        const banner = await usage();
+
+        await waitFor(() => expect(tile(banner, 'Started, all time')).toHaveTextContent('1,234'));
+        expect(tile(banner, 'Started, last 24 hours')).toHaveTextContent('3');
+        expect(tile(banner, 'Live now')).toHaveTextContent('2');
+        expect(banner.getByText(/demos started in the last 30 days: 40/)).toBeInTheDocument();
+        expect(tile(banner, 'Words added per demo')).toHaveTextContent('2.5');
+        expect(tile(banner, 'Added at least one word')).toHaveTextContent('75%30 of 40 demos');
+        expect(tile(banner, 'Reached the word cap')).toHaveTextContent('10%4 of 40 demos with a word cap');
+        expect(tile(banner, 'Reached the tag cap')).toHaveTextContent('0%0 of 20 demos with a tag cap');
+
+        const refusals = within(banner.getByLabelText('Refused starts'));
+        expect(refusals.getByText('Too many from one network').nextSibling).toHaveTextContent('5');
+        expect(refusals.getByText('All live demos in use').nextSibling).toHaveTextContent('2');
+
+        expect(banner.getByRole('img', { name: 'Spanish: 30 demos, 75% of all' })).toBeInTheDocument();
+        expect(banner.getByRole('img', { name: 'English: 40 demos, 100% of all' })).toBeInTheDocument();
+    });
+
+    it('lists the demo accounts with their status, languages and what each one added against its cap', async () => {
+        const users = {
+            total: 2,
+            rows: [
+                makeDemoUser({ id: 'a', status: 'live', languages: ['German', 'Estonian'], uiLanguage: 'German', wordsAdded: 3, maxWords: 30, tagsAdded: 1, maxTags: 5, configsAdded: 2, translationsPractised: 9 }),
+                makeDemoUser({ id: 'b', status: 'expired', wordsAdded: null, tagsAdded: null, configsAdded: null, translationsPractised: null, maxWords: null, maxTags: null }),
+            ],
+        };
+        server.use(...accessHandlers({ current: makeAccess() }, [], { users }));
+        await openDemo();
+        const table = await accounts();
+
+        expect(await table.findByRole('heading', { name: 'Demo accounts (2)' })).toBeInTheDocument();
+        const [live, expired] = table.getAllByRole('row').slice(1);
+        expect(within(live!).getAllByRole('cell').map((c) => c.textContent)).toEqual([
+            'Live',
+            expect.any(String),
+            expect.any(String),
+            'German, Estonian',
+            'German',
+            '3 / 30',
+            '1 / 5',
+            '2',
+            '9',
+        ]);
+        // A demo from before the start log: no counts.
+        expect(within(expired!).getAllByRole('cell').map((c) => c.textContent)).toEqual([
+            'Expired',
+            expect.any(String),
+            expect.any(String),
+            'English, German',
+            'English',
+            '—',
+            '—',
+            '—',
+            '—',
+        ]);
+        expect(table.queryByText(/Only the newest/)).not.toBeInTheDocument();
+    });
+
+    it('says when only the newest demos are shown, and when there is none', async () => {
+        server.use(...accessHandlers({ current: makeAccess() }, [], { users: { total: 250, rows: [makeDemoUser()] } }));
+        await openDemo();
+        expect(await (await accounts()).findByText(/Only the newest 200 are shown/)).toBeInTheDocument();
+    });
+
+    it('shows the empty states', async () => {
+        server.use(...accessHandlers({ current: makeAccess() }));
+        await openDemo();
+        expect(await (await accounts()).findByText('There is no demo account on the database.')).toBeInTheDocument();
+        expect((await usage()).getAllByText('No demo yet.')).toHaveLength(2);
+    });
+
+    it('shows an error when the numbers cannot load, and the settings still work', async () => {
+        server.use(...accessHandlers({ current: makeAccess() }));
+        server.use(http.get('/api/admin/access/demo/stats', () => HttpResponse.json({ message: 'Boom' }, { status: 500 })));
+        await openDemo();
+        expect(await (await usage()).findByRole('alert')).toHaveTextContent('Boom');
+        expect(screen.getByRole('region', { name: 'Demo' }).querySelector('#demo-durationMinutes')).toBeInTheDocument();
+    });
+});
+
