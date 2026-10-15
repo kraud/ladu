@@ -123,13 +123,23 @@ export const accessSettings = pgTable(
         registrationNote:  varchar('registration_note', { length: 300 }).notNull().default(''),
         loginMode:         varchar('login_mode', { length: 16 }).notNull().default('open'),
         loginNote:         varchar('login_note', { length: 300 }).notNull().default(''),
-        updatedAt:         timestamp('updated_at').defaultNow().notNull(),
+        // The demo gate (demo-access.md D2): independent of the two gates above,
+        // off by default. The duration and caps apply to demos started after a change (D7).
+        demoEnabled:          boolean('demo_enabled').notNull().default(false),
+        demoDurationMinutes:  integer('demo_duration_minutes').notNull().default(15),
+        demoMaxWords:         integer('demo_max_words').notNull().default(30),
+        demoMaxTags:          integer('demo_max_tags').notNull().default(5),
+        updatedAt:        timestamp('updated_at').defaultNow().notNull(),
         updatedByStaffId:  uuid('updated_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
     },
     () => [
         check('access_settings_single_row', sql`id = 1`),
         check('access_settings_registration_mode_check', sql`registration_mode IN ('open', 'closed', 'limited')`),
         check('access_settings_login_mode_check', sql`login_mode IN ('open', 'closed', 'limited')`),
+        // The upper bounds stop a typo from making long-lived or large anonymous accounts.
+        check('access_settings_demo_duration_check', sql`demo_duration_minutes BETWEEN 1 AND 1440`),
+        check('access_settings_demo_max_words_check', sql`demo_max_words BETWEEN 0 AND 500`),
+        check('access_settings_demo_max_tags_check', sql`demo_max_tags BETWEEN 0 AND 50`),
     ],
 );
 
@@ -185,8 +195,21 @@ export const users = pgTable('users', {
     // (lib/terms.ts). NULL for accounts that existed before the Terms page.
     termsAcceptedAt:  timestamp('terms_accepted_at'),
     termsVersion:     varchar('terms_version', { length: 16 }),
+    // --- Demo access (.context/plans/demo-access.md) ---
+    // `isDemo` with `demoExpiresAt` NULL is the template (the clone source; it
+    // never signs in and is never purged). With `demoExpiresAt` set, the row is
+    // a live demo session: `protect` refuses it after that instant and the
+    // nightly purge deletes it. The two limits are absolute caps (seed + the
+    // configured maximum), frozen when the demo starts. All NULL for normal users.
+    isDemo:           boolean('is_demo').notNull().default(false),
+    demoExpiresAt:    timestamp('demo_expires_at'),
+    demoWordLimit:    integer('demo_word_limit'),
+    demoTagLimit:     integer('demo_tag_limit'),
     ...timestamps,
-});
+}, (table) => [
+    // Serves the count of live demos and the purge. Normal users are not in it.
+    index('users_demo_expires_idx').on(table.demoExpiresAt).where(sql`${table.isDemo}`),
+]);
 
 // ---------------------------------------------------------------------------
 // USER_BADGES

@@ -190,6 +190,13 @@
       "when": 1791672509164,
       "tag": "0026_lexeme_translations_prefix_index",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1792053017044,
+      "tag": "0027_demo_access",
+      "breakpoints": true
     }
   ]
 }
