@@ -62,7 +62,8 @@
     "subResetRequest": "Enter the email on your account and we'll send you a reset link.",
     "subResetSet": "Choose something you haven't used before — your reset link is valid for 30 minutes.",
     "subVerify": "One click on the link, and your shelf is ready.",
-    "subNotFound": "This page isn't on the shelf — but everything else is."
+    "subNotFound": "This page isn't on the shelf — but everything else is.",
+    "home": "Ladu home"
   },
   "login": {
     "title": "Sign in to Ladu",
@@ -116,7 +117,9 @@
     "notRegistered": "You don't have an account?",
     "forgotPassword": "Forgot your password?",
     "createAccount": "Create an account",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "notSureYet": "Not sure yet?",
+    "tryDemo": "Try the demo"
   },
   "formLabels": {
     "name": "Name",

@@ -62,7 +62,8 @@
     "subResetRequest": "Ingresa el correo de tu cuenta y te enviaremos un enlace para restablecerla.",
     "subResetSet": "Elige algo que no hayas usado antes — tu enlace de restablecimiento es válido por 30 minutos.",
     "subVerify": "Un clic en el enlace y tu estante estará listo.",
-    "subNotFound": "Esta página no está en el estante — pero todo lo demás sí."
+    "subNotFound": "Esta página no está en el estante — pero todo lo demás sí.",
+    "home": "Inicio de Ladu"
   },
   "login": {
     "title": "Inicia sesión en Ladu",
@@ -116,7 +117,9 @@
     "notRegistered": "¿No tienes una cuenta?",
     "forgotPassword": "¿Olvidaste tu contraseña?",
     "createAccount": "Crear una cuenta",
-    "signIn": "Iniciar sesión"
+    "signIn": "Iniciar sesión",
+    "notSureYet": "¿Todavía no estás seguro?",
+    "tryDemo": "Prueba la demo"
   },
   "formLabels": {
     "name": "Nombre",

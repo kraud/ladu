@@ -62,7 +62,8 @@
     "subResetRequest": "Sisesta oma konto e-post ja saadame sulle lähtestamise lingi.",
     "subResetSet": "Vali midagi, mida sa varem kasutanud pole — link kehtib 30 minutit.",
     "subVerify": "Üks klõps lingil ja sinu riiul on valmis.",
-    "subNotFound": "Seda lehte riiulil ei ole — aga kõik muu on."
+    "subNotFound": "Seda lehte riiulil ei ole — aga kõik muu on.",
+    "home": "Ladu avaleht"
   },
   "login": {
     "title": "Logi sisse Ladusse",
@@ -116,7 +117,9 @@
     "notRegistered": "Kas sul pole kontot?",
     "forgotPassword": "Unustasid parooli?",
     "createAccount": "Loo konto",
-    "signIn": "Logi sisse"
+    "signIn": "Logi sisse",
+    "notSureYet": "Pole veel kindel?",
+    "tryDemo": "Proovi demot"
   },
   "formLabels": {
     "name": "Nimi",

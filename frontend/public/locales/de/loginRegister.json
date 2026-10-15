@@ -62,7 +62,8 @@
     "subResetRequest": "Gib die E-Mail deines Kontos ein und wir senden dir einen Link zum Zurücksetzen.",
     "subResetSet": "Wähle etwas, das du noch nicht verwendet hast — dein Link ist 30 Minuten gültig.",
     "subVerify": "Ein Klick auf den Link, und dein Regal ist bereit.",
-    "subNotFound": "Diese Seite ist nicht im Regal — aber alles andere schon."
+    "subNotFound": "Diese Seite ist nicht im Regal — aber alles andere schon.",
+    "home": "Ladu Startseite"
   },
   "login": {
     "title": "Bei Ladu anmelden",
@@ -116,7 +117,9 @@
     "notRegistered": "Sie haben noch kein Konto?",
     "forgotPassword": "Passwort vergessen?",
     "createAccount": "Konto erstellen",
-    "signIn": "Anmelden"
+    "signIn": "Anmelden",
+    "notSureYet": "Noch unsicher?",
+    "tryDemo": "Probiere die Demo aus"
   },
   "formLabels": {
     "name": "Name",

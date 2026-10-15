@@ -54,7 +54,12 @@ const startHandler = (answer: () => Response = () => HttpResponse.json(demoAnswe
     return bodies;
 };
 
-/** Picks languages on the start screen by their tile names ("English", "Deutsch"…), in this order. */
+/** Step 1 of the start screen → step 2 (the languages). */
+const getStarted = async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(await screen.findByRole('button', { name: 'Get started' }));
+};
+
+/** Picks languages on step 2 of the start screen by their tile names ("English", "Deutsch"…), in this order. */
 const pickLanguages = async (user: ReturnType<typeof userEvent.setup>, ...names: string[]) => {
     for (const name of names) await user.click(await screen.findByRole('button', { name }));
 };
@@ -66,7 +71,7 @@ describe('/demo — the demo is off', () => {
         await renderApp({ initialEntry: '/demo' }); // the base handlers answer: demo off
         expect(await screen.findByRole('heading', { name: 'The demo is off' })).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Create an account' })).toHaveAttribute('href', '/register');
-        expect(screen.queryByRole('button', { name: /start the demo/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Get started' })).not.toBeInTheDocument();
     });
 
     it('acts as off when the status call fails', async () => {
@@ -77,15 +82,40 @@ describe('/demo — the demo is off', () => {
 });
 
 describe('/demo — the start screen', () => {
-    it('shows the start button and the Terms note with both links', async () => {
+    it('step 1 describes the demo; "Get started" opens step 2 with the languages, Start and the Terms note', async () => {
         demoOn();
+        const user = userEvent.setup();
         await renderApp({ initialEntry: '/demo' });
-        expect(await screen.findByRole('button', { name: 'Start the demo' })).toBeInTheDocument();
-        expect(screen.getByRole('heading', { name: 'Try the demo' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'Try the demo' })).toBeInTheDocument();
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Get started' })).toBeEnabled());
+        expect(screen.queryByRole('button', { name: 'English' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Start' })).not.toBeInTheDocument();
+        expect(screen.queryByText(/logs you out/)).not.toBeInTheDocument();
+
+        await getStarted(user);
+        expect(screen.getByRole('heading', { name: 'Which languages do you use?' })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'Try the demo' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'English' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument();
         expect(screen.getByText(/By starting the demo/)).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Terms' })).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Privacy Policy' })).toBeInTheDocument();
-        expect(screen.queryByText(/logs you out/)).not.toBeInTheDocument();
+    });
+
+    it('the arrow before the step-2 title goes back to step 1 and keeps the picks', async () => {
+        demoOn();
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/demo' });
+        await getStarted(user);
+        await pickLanguages(user, 'English', 'Español');
+
+        await user.click(screen.getByRole('button', { name: 'Back' }));
+        expect(screen.getByRole('heading', { name: 'Try the demo' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Start' })).not.toBeInTheDocument();
+
+        await getStarted(user);
+        expect(screen.getByText('2 languages selected')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Start' })).toBeEnabled();
     });
 
     it('enables Start only with 2 or more languages picked (D16)', async () => {
@@ -93,7 +123,8 @@ describe('/demo — the start screen', () => {
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/demo' });
 
-        const startButton = await screen.findByRole('button', { name: 'Start the demo' });
+        await getStarted(user);
+        const startButton = await screen.findByRole('button', { name: 'Start' });
         await waitFor(() => expect(screen.getByRole('button', { name: 'English' })).toBeInTheDocument());
         expect(startButton).toBeDisabled();
         expect(screen.getByText('Select at least two languages')).toBeInTheDocument();
@@ -117,9 +148,10 @@ describe('/demo — the start screen', () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/demo' });
 
+        await getStarted(user);
         await pickLanguages(user, 'Eesti', 'English');
         expect(bodies).toEqual([]);
-        await user.click(screen.getByRole('button', { name: 'Start the demo' }));
+        await user.click(screen.getByRole('button', { name: 'Start' }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
         expect(bodies).toEqual([{ uiLanguage: 'English', languages: ['Estonian', 'English'] }]);
@@ -135,8 +167,9 @@ describe('/demo — the start screen', () => {
         const { router } = await renderApp({ initialEntry: '/demo', session: normalSession });
 
         expect(await screen.findByText('You are logged in. Starting the demo logs you out of your account.')).toBeInTheDocument();
+        await getStarted(user);
         await pickLanguages(user, 'English', 'Español');
-        await user.click(await screen.findByRole('button', { name: 'Log out and start the demo' }));
+        await user.click(await screen.findByRole('button', { name: 'Log out and start' }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/'));
         expect(useAuthStore.getState().user).toMatchObject({ id: 'demo-1', isDemo: true });
@@ -152,7 +185,7 @@ describe('/demo — the start screen', () => {
     it('shows the start screen, with no log-out warning, for a demo that has ended', async () => {
         demoOn();
         await renderApp({ initialEntry: '/demo', session: { ...demoAnswer(), demoExpiresAt: inMinutes(-1) } });
-        expect(await screen.findByRole('button', { name: 'Start the demo' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Get started' })).toBeInTheDocument();
         expect(screen.queryByText(/logs you out/)).not.toBeInTheDocument();
     });
 
@@ -168,8 +201,9 @@ describe('/demo — the start screen', () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/demo' });
 
+        await getStarted(user);
         await pickLanguages(user, 'English', 'Español');
-        await user.click(await screen.findByRole('button', { name: 'Start the demo' }));
+        await user.click(await screen.findByRole('button', { name: 'Start' }));
         expect(await screen.findByRole('alert')).toHaveTextContent(message);
         expect(router.state.location.pathname).toBe('/demo');
         expect(useAuthStore.getState().user).toBeNull();
@@ -188,8 +222,9 @@ describe('/demo — the transition screen (D18)', () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/demo' });
 
+        await getStarted(user);
         await pickLanguages(user, 'English', 'Español');
-        await user.click(screen.getByRole('button', { name: 'Start the demo' }));
+        await user.click(screen.getByRole('button', { name: 'Start' }));
 
         const layer = await screen.findByRole('status', { name: 'Starting the demo' });
         expect(layer.querySelector('img')).toHaveAttribute('src', '/brand/Ladu_inside_bubble_outline.svg');
@@ -221,8 +256,9 @@ describe('/demo — the transition screen (D18)', () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/demo' });
 
+        await getStarted(user);
         await pickLanguages(user, 'English', 'Español');
-        await user.click(screen.getByRole('button', { name: 'Start the demo' }));
+        await user.click(screen.getByRole('button', { name: 'Start' }));
         await screen.findByRole('status', { name: 'Starting the demo' });
         await new Promise((resolve) => setTimeout(resolve, 100)); // every line is shown by now
         expect(router.state.location.pathname).toBe('/demo');
@@ -239,8 +275,9 @@ describe('/demo — the transition screen (D18)', () => {
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/demo' });
 
+        await getStarted(user);
         await pickLanguages(user, 'English', 'Español');
-        await user.click(screen.getByRole('button', { name: 'Start the demo' }));
+        await user.click(screen.getByRole('button', { name: 'Start' }));
         expect(await screen.findByRole('alert')).toHaveTextContent('Too many demos are running.');
         expect(screen.queryByRole('status', { name: 'Starting the demo' })).not.toBeInTheDocument();
         expect(router.state.location.pathname).toBe('/demo');

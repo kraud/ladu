@@ -395,6 +395,21 @@
   .auth-foot a:hover {
     color: var(--accent);
   }
+  /* The register screen: "Already registered?", a short line, then the smaller demo hint. */
+  .auth-foot-sep {
+    width: 48px;
+    margin: 12px auto;
+    border: 0;
+    border-top: 1px solid var(--border);
+  }
+  .auth-foot-small {
+    font-size: 12.5px;
+  }
+  /* The logo is a link to the landing page; the link keeps the image's own size. */
+  .auth-brand-link {
+    display: inline-flex;
+    border-radius: var(--radius-md);
+  }
   /* The Terms / Privacy sentence under "Create account" (TermsNote). */
   .terms-note {
     margin-top: 12px;
