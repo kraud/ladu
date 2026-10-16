@@ -36,10 +36,10 @@
   "almostDone": "Almost done",
   "welcome": {
     "title": "Welcome to Ladu — let's build your first dictionary",
-    "text": "Answer a few short questions and Ladu adds words in your languages, so you can start practising straight away. It takes about a minute, and you can skip anything you like.",
+    "text": "Answer a few short questions and Ladu adds words in your languages, so you can start practising straight away. It takes about a minute.",
     "items": {
       "languages": {
-        "title": "Pick your languages",
+        "title": "Pick the languages to include",
         "text": "Two or more — you can add more later."
       },
       "levels": {
@@ -47,14 +47,14 @@
         "text": "A rough guess is perfectly fine."
       },
       "topics": {
-        "title": "Choose what interests you",
-        "text": "Ladu fills your first words around it."
+        "title": "Choose your interests",
+        "text": "We make a selection of words related to them."
       }
     }
   },
   "languages": {
-    "title": "Which languages do you use?",
-    "hint": "Pick 2 or more. Ladu adds words in these languages.",
+    "title": "Which languages do you want us to use?",
+    "hint": "We'll include translations in every language you select here in the words we create for you. You need to select at least two.",
     "countLow": "Select at least two languages",
     "countOk_one": "1 language selected",
     "countOk_other": "{{count}} languages selected",
@@ -74,7 +74,7 @@
   },
   "topics": {
     "title": "What interests you?",
-    "hint": "Pick 3 to 6 topics. Ladu adds words for them.",
+    "hint": "We'll add a mix of words related to the terms you pick here.",
     "countLow": "Pick {{min}} to {{max}} topics ({{count}} picked)",
     "countOk": "{{count}} of {{max}} topics picked",
     "names": {

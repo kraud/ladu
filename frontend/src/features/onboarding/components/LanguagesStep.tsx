@@ -1,17 +1,20 @@
 import { useTranslation } from 'react-i18next';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { LanguageTiles } from '@/components/common/LanguageTiles';
-import { languageByLabel } from '@/lib/language';
+import { UI_LANGUAGES, languageByLabel } from '@/lib/language';
 import { StepHeading } from './StepHeading';
 
 /** Step 1 (D8): the account's languages and native language, filled in; the user confirms or changes them. */
 export function LanguagesStep({
     languages,
+    options,
     nativeLanguage,
     onLanguages,
     onNative,
 }: {
     languages: string[];
+    /** The languages the user chose at registration: the only ones shown. */
+    options: string[];
     nativeLanguage: string | null;
     onLanguages: (next: string[]) => void;
     onNative: (next: string | null) => void;
@@ -25,6 +28,7 @@ export function LanguagesStep({
             <section className="mt-5" aria-label={t('onboarding:languages.title')}>
                 <LanguageTiles
                     value={languages}
+                    options={UI_LANGUAGES.filter((lang) => options.includes(lang.label))}
                     onChange={(next) => {
                         onLanguages(next);
                         if (nativeLanguage && !next.includes(nativeLanguage)) onNative(null);

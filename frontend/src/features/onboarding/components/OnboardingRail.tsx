@@ -2,6 +2,8 @@ import { BookOpenTextIcon, CheckIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { BrandLogo } from '@/components/common/BrandLogo';
 import { FlagIcon } from '@/components/common/FlagIcon';
+import { LanguageSelector } from '@/components/layout/LanguageSelector';
+import { ThemeSelector } from '@/components/layout/ThemeSelector';
 import { languageByLabel } from '@/lib/language';
 import { STEP_META } from '../steps';
 import type { TopicId } from '../types';
@@ -116,6 +118,11 @@ export function OnboardingRail({
                         </div>
                     </dl>
                 </section>
+
+                <div className="ob-lang">
+                    <LanguageSelector />
+                    <ThemeSelector />
+                </div>
             </div>
         </aside>
     );

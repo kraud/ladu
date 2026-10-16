@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { BrandLogo } from '@/components/common/BrandLogo';
+import { LanguageSelector } from '@/components/layout/LanguageSelector';
+import { ThemeSelector } from '@/components/layout/ThemeSelector';
 import { Button } from '@/components/ui/button';
 import { STEP_META } from '../steps';
 import { OnboardingRail, type OnboardingSummary } from './OnboardingRail';
@@ -60,7 +62,10 @@ export function OnboardingShell({
                     <div className="ob-mobilebar">
                         <div className="ob-mobilebar-top">
                             <BrandLogo variant="wordmark" height={22} title="Ladu" />
-                            <span className="ob-mobilebar-step">{eyebrow}</span>
+                            <div className="ob-lang">
+                                <LanguageSelector />
+                                <ThemeSelector />
+                            </div>
                         </div>
                         <div className="ob-mobilebar-progress" aria-hidden="true">
                             <span style={{ width: `${progress}%` }} />

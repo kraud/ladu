@@ -36,10 +36,10 @@
   "almostDone": "Casi listo",
   "welcome": {
     "title": "Te damos la bienvenida a Ladu: creemos tu primer diccionario",
-    "text": "Responde unas pocas preguntas y Ladu añade palabras en tus idiomas, para que puedas practicar enseguida. Tarda un minuto y puedes omitir lo que quieras.",
+    "text": "Responde unas pocas preguntas y Ladu añade palabras en tus idiomas, para que puedas practicar enseguida. Tarda un minuto.",
     "items": {
       "languages": {
-        "title": "Elige tus idiomas",
+        "title": "Elige los idiomas que incluir",
         "text": "Dos o más; puedes añadir más después."
       },
       "levels": {
@@ -47,14 +47,14 @@
         "text": "Una estimación aproximada basta."
       },
       "topics": {
-        "title": "Elige qué te interesa",
-        "text": "Ladu llena tus primeras palabras en torno a ello."
+        "title": "Elige tus intereses",
+        "text": "Hacemos una selección de palabras relacionadas con ellos."
       }
     }
   },
   "languages": {
-    "title": "¿Qué idiomas usas?",
-    "hint": "Elige 2 o más. Ladu añade palabras en estos idiomas.",
+    "title": "¿Qué idiomas quieres que usemos?",
+    "hint": "Incluiremos traducciones en cada idioma que elijas aquí en las palabras que creamos para ti. Debes elegir al menos dos.",
     "countLow": "Elige al menos dos idiomas",
     "countOk_one": "1 idioma elegido",
     "countOk_other": "{{count}} idiomas elegidos",
@@ -74,7 +74,7 @@
   },
   "topics": {
     "title": "¿Qué temas te interesan?",
-    "hint": "Elige de 3 a 6 temas. Ladu añade palabras sobre ellos.",
+    "hint": "Añadiremos una mezcla de palabras relacionadas con los temas que elijas aquí.",
     "countLow": "Elige de {{min}} a {{max}} temas ({{count}} elegidos)",
     "countOk": "{{count}} de {{max}} temas elegidos",
     "names": {

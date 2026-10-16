@@ -36,10 +36,10 @@
   "almostDone": "Peaaegu valmis",
   "welcome": {
     "title": "Tere tulemast Ladusse – loome sinu esimese sõnastiku",
-    "text": "Vasta mõnele lühikesele küsimusele ja Ladu lisab sõnu sinu keeltes, et saaksid kohe harjutama hakata. See võtab umbes minuti ja võid kõik vahele jätta.",
+    "text": "Vasta mõnele lühikesele küsimusele ja Ladu lisab sõnu sinu keeltes, et saaksid kohe harjutama hakata. See võtab umbes minuti.",
     "items": {
       "languages": {
-        "title": "Vali oma keeled",
+        "title": "Vali keeled, mida kaasata",
         "text": "Kaks või rohkem – hiljem saad lisada veel."
       },
       "levels": {
@@ -47,14 +47,14 @@
         "text": "Ligikaudne hinnang sobib."
       },
       "topics": {
-        "title": "Vali, mis sind huvitab",
-        "text": "Ladu täidab sinu esimesed sõnad selle ümber."
+        "title": "Vali oma huvid",
+        "text": "Valime nende kohta sõnu."
       }
     }
   },
   "languages": {
-    "title": "Milliseid keeli sa kasutad?",
-    "hint": "Vali 2 või rohkem. Ladu lisab sõnu nendes keeltes.",
+    "title": "Milliseid keeli peaksime kasutama?",
+    "hint": "Lisame sinu jaoks loodud sõnadele tõlked igas keeles, mille siin valid. Vali vähemalt kaks.",
     "countLow": "Vali vähemalt kaks keelt",
     "countOk_one": "1 keel valitud",
     "countOk_other": "{{count}} keelt valitud",
@@ -74,7 +74,7 @@
   },
   "topics": {
     "title": "Mis sind huvitab?",
-    "hint": "Vali 3 kuni 6 teemat. Ladu lisab nende kohta sõnu.",
+    "hint": "Lisame segu sõnu, mis on seotud siin valitud teemadega.",
     "countLow": "Vali {{min}} kuni {{max}} teemat ({{count}} valitud)",
     "countOk": "{{count}} / {{max}} teemat valitud",
     "names": {

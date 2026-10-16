@@ -35,6 +35,8 @@ export function OnboardingPage() {
     const create = useCreateOnboarding();
 
     const [step, setStep] = useState<Step>(0);
+    // The languages from registration: the only ones the first question offers. Fixed at mount, so a saved change does not shrink the list.
+    const [registeredLanguages] = useState<string[]>(user?.languages ?? []);
     const [languages, setLanguages] = useState<string[]>(user?.languages ?? []);
     const [nativeLanguage, setNativeLanguage] = useState<string | null>(
         user?.nativeLanguage && user.languages.includes(user.nativeLanguage) ? user.nativeLanguage : null,
@@ -140,6 +142,7 @@ export function OnboardingPage() {
             {step === 1 && (
                 <LanguagesStep
                     languages={languages}
+                    options={registeredLanguages}
                     nativeLanguage={nativeLanguage}
                     onLanguages={setLanguages}
                     onNative={setNativeLanguage}

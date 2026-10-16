@@ -7,7 +7,7 @@ import { wordKeys } from '@/features/words/keys';
 import { useAuthStore } from '@/stores/authStore';
 import * as onboardingApi from './api';
 import { saveOnboardingResult } from './resultCard';
-import type { OnboardingChoice } from './types';
+import type { CreateOnboardingRequest, OnboardingChoice } from './types';
 
 /**
  * Skip the onboarding: the account starts empty (D6) and the dashboard opens. If the server says the
@@ -43,6 +43,9 @@ export function useCapacity(choice: OnboardingChoice, enabled: boolean) {
     });
 }
 
+/** How long the "Almost done" screen shows at least, so the user can read it. Tests set `minMs` to 0. */
+export const buildTiming = { minMs: 3000 };
+
 /**
  * Create the words and tags. The new words, tags and counts change what the other pages show, so
  * their queries are read again; the account is `done`, and the dashboard opens (D7).
@@ -53,7 +56,14 @@ export function useCreateOnboarding() {
     const setStatus = useAuthStore((s) => s.setOnboardingStatus);
 
     return useMutation({
-        mutationFn: onboardingApi.createOnboarding,
+        // The request and the minimum display time run together: a fast server does not shorten the screen, a slow one does not add to it.
+        mutationFn: async (request: CreateOnboardingRequest) => {
+            const [result] = await Promise.all([
+                onboardingApi.createOnboarding(request),
+                new Promise((resolve) => setTimeout(resolve, buildTiming.minMs)),
+            ]);
+            return result;
+        },
         onSuccess: async (result) => {
             const userId = useAuthStore.getState().user?.id;
             if (userId) saveOnboardingResult(userId, result);

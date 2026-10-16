@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Check } from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
-import { UI_LANGUAGES } from '@/lib/language';
+import { UI_LANGUAGES, type UiLanguage } from '@/lib/language';
 import { coverageForLanguage } from '@/features/words/form-engine/configs/coverage';
 import type { Lang } from '@/ts/enums';
 
@@ -16,9 +16,12 @@ import type { Lang } from '@/ts/enums';
 export function LanguageTiles({
     value,
     onChange,
+    options = UI_LANGUAGES,
 }: {
     value: string[];
     onChange: (next: string[]) => void;
+    /** The languages shown (default: all supported ones). */
+    options?: readonly UiLanguage[];
 }) {
     const { t } = useTranslation();
 
@@ -28,7 +31,7 @@ export function LanguageTiles({
 
     return (
         <div className="lang-tiles" role="group" aria-label={t('loginRegister:register.languagesLabel')}>
-            {UI_LANGUAGES.map((lang) => {
+            {options.map((lang) => {
                 const pressed = value.includes(lang.label);
                 const coverage = coverageForLanguage(lang.label as Lang);
                 const posId = `lang-tile-pos-${lang.key}`;

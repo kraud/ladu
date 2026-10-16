@@ -36,10 +36,10 @@
   "almostDone": "Fast fertig",
   "welcome": {
     "title": "Willkommen bei Ladu – bauen wir dein erstes Wörterbuch",
-    "text": "Beantworte ein paar kurze Fragen, und Ladu fügt Wörter in deinen Sprachen hinzu. So kannst du sofort üben. Es dauert etwa eine Minute, und du kannst alles überspringen.",
+    "text": "Beantworte ein paar kurze Fragen, und Ladu fügt Wörter in deinen Sprachen hinzu. So kannst du sofort üben. Es dauert etwa eine Minute.",
     "items": {
       "languages": {
-        "title": "Wähle deine Sprachen",
+        "title": "Wähle die Sprachen aus",
         "text": "Zwei oder mehr – später kannst du weitere hinzufügen."
       },
       "levels": {
@@ -47,14 +47,14 @@
         "text": "Eine grobe Einschätzung genügt."
       },
       "topics": {
-        "title": "Wähle, was dich interessiert",
-        "text": "Ladu füllt deine ersten Wörter passend dazu."
+        "title": "Wähle deine Interessen",
+        "text": "Wir treffen eine Auswahl an Wörtern dazu."
       }
     }
   },
   "languages": {
-    "title": "Welche Sprachen nutzt du?",
-    "hint": "Wähle 2 oder mehr. Ladu fügt Wörter in diesen Sprachen hinzu.",
+    "title": "Welche Sprachen sollen wir verwenden?",
+    "hint": "Die Wörter, die wir für dich erstellen, enthalten Übersetzungen in jeder Sprache, die du hier wählst. Du musst mindestens zwei wählen.",
     "countLow": "Wähle mindestens zwei Sprachen",
     "countOk_one": "1 Sprache gewählt",
     "countOk_other": "{{count}} Sprachen gewählt",
@@ -74,7 +74,7 @@
   },
   "topics": {
     "title": "Was interessiert dich?",
-    "hint": "Wähle 3 bis 6 Themen. Ladu fügt Wörter dazu hinzu.",
+    "hint": "Wir fügen eine Auswahl an Wörtern hinzu, die zu den Themen passen, die du hier wählst.",
     "countLow": "Wähle {{min}} bis {{max}} Themen ({{count}} gewählt)",
     "countOk": "{{count}} von {{max}} Themen gewählt",
     "names": {

@@ -1,51 +1,27 @@
 /* ============================================================
-   Onboarding (MOCKUPS/onboarding.html): a framed two-column shell
-   — a brand/progress rail on the left, the step panel on the right.
-   Under 900px the rail turns into a sticky top bar.
+   Onboarding (MOCKUPS/onboarding.html): the same full-screen layout as
+   the auth screens — a brand/progress rail on the left, the step panel
+   on the right in an inset tinted panel. Under 900px the rail turns
+   into a sticky top bar.
    ============================================================ */
 
 @layer components {
   .ob-wrap {
     min-height: 100dvh;
-    display: grid;
-    place-items: center;
-    padding: clamp(16px, 3vw, 32px);
+    background: var(--surface);
   }
   .ob-shell {
-    width: 100%;
-    max-width: 1180px;
-    height: min(820px, calc(100dvh - clamp(32px, 6vw, 64px)));
+    min-height: 100dvh;
     display: grid;
-    grid-template-columns: minmax(320px, 40%) 1fr;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    box-shadow:
-      0 24px 64px rgb(20 18 14 / 0.09),
-      0 2px 6px rgb(20 18 14 / 0.04);
+    grid-template-columns: minmax(380px, 40%) 1fr;
   }
 
   /* ─── rail ─────────────────────────────────────────────────── */
   .ob-rail {
     position: relative;
-    overflow: hidden;
-    padding: 30px 30px 26px;
-    background:
-      radial-gradient(120% 80% at 0% 0%, color-mix(in oklch, var(--accent) 10%, transparent), transparent 60%),
-      color-mix(in oklch, var(--accent) 5%, var(--bg));
-    border-right: 1px solid var(--border);
-  }
-  .ob-rail::after {
-    content: '';
-    position: absolute;
-    right: -70px;
-    bottom: -70px;
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    border: 26px solid color-mix(in oklch, var(--accent) 8%, transparent);
-    pointer-events: none;
+    padding: 40px 44px 36px;
+    height: 100dvh;
+    overflow-y: auto;
   }
   .ob-rail-inner {
     position: relative;
@@ -54,6 +30,12 @@
     flex-direction: column;
     gap: 26px;
     height: 100%;
+  }
+  .ob-lang {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
   .ob-rail-tag {
     font-size: 13px;
@@ -116,7 +98,6 @@
   }
 
   .ob-summary {
-    margin-top: auto;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -171,7 +152,11 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    background: var(--surface);
+    margin: 20px;
+    border-radius: 20px;
+    height: calc(100dvh - 40px);
+    /* srgb, not oklch: same reason as .auth-panel. */
+    background: color-mix(in srgb, var(--fg) 4%, var(--bg));
   }
   .ob-panel-head {
     display: flex;
@@ -232,7 +217,6 @@
     gap: 12px;
     padding: 16px clamp(24px, 3vw, 44px);
     border-top: 1px solid var(--border);
-    background: var(--surface);
   }
 
   /* welcome */
@@ -442,7 +426,7 @@
     width: 0;
     background: var(--accent);
     border-radius: 999px;
-    animation: ob-build 1.7s ease forwards;
+    animation: ob-build 3s ease forwards;
   }
   @keyframes ob-build {
     to {
@@ -453,8 +437,12 @@
   /* dashboard result card (after Create) */
   .ob-banner {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 14px 18px;
+    grid-template-columns: 1fr auto auto;
+    grid-template-areas:
+      'head practise close'
+      'chips chips chips';
+    align-items: center;
+    gap: 14px 12px;
     padding: 16px 18px;
     border: 1px solid var(--accent-soft2);
     border-radius: var(--radius-lg);
@@ -470,8 +458,17 @@
     color: var(--muted);
     margin-top: 3px;
   }
+  .ob-banner-head {
+    grid-area: head;
+  }
+  .ob-banner-practise {
+    grid-area: practise;
+  }
+  .ob-banner-close {
+    grid-area: close;
+  }
   .ob-banner-chips {
-    grid-column: 1 / -1;
+    grid-area: chips;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -484,38 +481,26 @@
     padding: 0 12px;
     border-radius: 999px;
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 1px solid var(--accent-soft2);
     font-size: 12.5px;
-    color: var(--fg);
+    color: var(--accent-strong);
   }
   .ob-banner-chip:hover {
-    border-color: var(--fg-soft2);
+    border-color: var(--accent);
+  }
+  .ob-banner-chip svg {
+    color: var(--accent);
+    flex: none;
   }
   .ob-banner-chip .c-num {
     font-family: var(--font-mono);
-    color: var(--muted);
-  }
-  .ob-banner-side {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 10px;
+    color: var(--accent);
   }
 }
 
 @media (max-width: 900px) {
-  .ob-wrap {
-    padding: 0;
-    place-items: stretch;
-  }
   .ob-shell {
-    max-width: none;
-    height: auto;
-    min-height: 100dvh;
-    grid-template-columns: 1fr;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+    grid-template-columns: minmax(0, 1fr);
   }
   .ob-rail {
     display: none;
@@ -537,13 +522,6 @@
     height: 52px;
     padding: 0 18px;
   }
-  .ob-mobilebar-step {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
   .ob-mobilebar-progress {
     height: 3px;
     background: var(--fg-soft2);
@@ -560,7 +538,11 @@
     color: var(--muted);
   }
   .ob-panel {
+    margin: 0;
+    border-radius: 0;
+    height: auto;
     min-height: calc(100dvh - 52px);
+    background: transparent;
   }
   .ob-content {
     overflow: visible;
@@ -571,14 +553,17 @@
   .ob-foot {
     position: sticky;
     bottom: 0;
+    background: var(--bg);
   }
   .ob-banner {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'head close'
+      'chips chips'
+      'practise practise';
+    align-items: start;
   }
-  .ob-banner-side {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+  .ob-banner-practise {
     width: 100%;
   }
 }

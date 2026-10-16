@@ -1,4 +1,4 @@
-import { XIcon } from '@phosphor-icons/react';
+import { TagIcon, XIcon } from '@phosphor-icons/react';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { buttonVariants } from '@/components/ui/button';
@@ -21,26 +21,25 @@ export function ResultCard() {
 
     return (
         <section className="ob-banner" aria-label={t('onboarding:result.label')}>
-            <div>
+            <div className="ob-banner-head">
                 <h2 className="ob-banner-title">{t('onboarding:result.title', { words: result.words, topics })}</h2>
                 <p className="ob-banner-sub">{t('onboarding:result.text')}</p>
             </div>
-            <div className="ob-banner-side">
-                <button
-                    type="button"
-                    className="icon-btn"
-                    aria-label={t('common:buttons.close')}
-                    onClick={dismissOnboardingResult}
-                >
-                    <XIcon size={15} />
-                </button>
-                <Link to="/practice" className={buttonVariants({ size: 'sm' })}>
-                    {t('onboarding:result.practise')}
-                </Link>
-            </div>
+            <Link to="/practice" className={buttonVariants({ size: 'sm', className: 'ob-banner-practise' })}>
+                {t('onboarding:result.practise')}
+            </Link>
+            <button
+                type="button"
+                className="icon-btn ob-banner-close"
+                aria-label={t('common:buttons.close')}
+                onClick={dismissOnboardingResult}
+            >
+                <XIcon size={15} />
+            </button>
             <div className="ob-banner-chips">
                 {result.tags.map((tag) => (
                     <Link key={tag.id} to="/tag/$tagId" params={{ tagId: tag.id }} className="ob-banner-chip">
+                        <TagIcon size={14} weight="bold" aria-hidden="true" />
                         {tag.label} <span className="c-num">· {tag.words}</span>
                     </Link>
                 ))}

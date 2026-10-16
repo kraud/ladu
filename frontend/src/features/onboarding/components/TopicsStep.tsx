@@ -1,9 +1,45 @@
-import { CheckIcon } from '@phosphor-icons/react';
+import {
+    AirplaneTiltIcon,
+    BriefcaseIcon,
+    CalendarBlankIcon,
+    CheckIcon,
+    CloudSunIcon,
+    DeviceMobileIcon,
+    ForkKnifeIcon,
+    HeartbeatIcon,
+    HouseLineIcon,
+    PawPrintIcon,
+    PlantIcon,
+    RulerIcon,
+    SmileyIcon,
+    SoccerBallIcon,
+    TShirtIcon,
+    UsersThreeIcon,
+    type Icon,
+} from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { MAX_TOPICS, MIN_TOPICS, TOPIC_IDS, type TopicId } from '../types';
 import { StepHeading } from './StepHeading';
 
-/** Step 3 (D15): pick 3 to 6 topics. Once 6 are picked, the others wait until one is removed. */
+const TOPIC_ICONS: Record<TopicId, Icon> = {
+    clothing: TShirtIcon,
+    food_drink: ForkKnifeIcon,
+    animals: PawPrintIcon,
+    plants_nature: PlantIcon,
+    weather: CloudSunIcon,
+    body_health: HeartbeatIcon,
+    technology_media: DeviceMobileIcon,
+    home_living: HouseLineIcon,
+    travel_transport: AirplaneTiltIcon,
+    sports_hobbies: SoccerBallIcon,
+    work_money: BriefcaseIcon,
+    numbers_measures: RulerIcon,
+    time_calendar: CalendarBlankIcon,
+    feelings: SmileyIcon,
+    people_family: UsersThreeIcon,
+};
+
+/** Step 3 (D15): pick 3 to 6 topics. Each chip has a topic icon that the check replaces in the same place, so the chips do not change size. Once 6 are picked, the others wait until one is removed. */
 export function TopicsStep({ value, onChange }: { value: TopicId[]; onChange: (next: TopicId[]) => void }) {
     const { t } = useTranslation();
     const enough = value.length >= MIN_TOPICS;
@@ -18,6 +54,7 @@ export function TopicsStep({ value, onChange }: { value: TopicId[]; onChange: (n
             <div className="ob-topics" role="group" aria-label={t('onboarding:topics.title')}>
                 {TOPIC_IDS.map((topic) => {
                     const pressed = value.includes(topic);
+                    const TopicIcon = TOPIC_ICONS[topic];
                     return (
                         <button
                             key={topic}
@@ -27,8 +64,9 @@ export function TopicsStep({ value, onChange }: { value: TopicId[]; onChange: (n
                             disabled={!pressed && value.length >= MAX_TOPICS}
                             onClick={() => toggle(topic)}
                         >
-                            <span className="chip-check" aria-hidden="true">
-                                <CheckIcon size={15} weight="bold" />
+                            <span className="chip-lead" aria-hidden="true">
+                                <TopicIcon size={17} className="chip-icon" />
+                                <CheckIcon size={17} weight="bold" className="chip-check" />
                             </span>
                             {t(`onboarding:topics.names.${topic}`)}
                         </button>

@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
 import { makeMetricsHandlers } from '@/test/msw/metricsHandlers';
 import { makeAccessHandlers } from '@/test/msw/accessHandlers';
+import { buildTiming } from './hooks';
 import { saveOnboardingResult } from './resultCard';
 import { renderApp } from '@/test/render';
 import { OPEN_ACCESS } from '@/features/access/types';
@@ -14,6 +15,10 @@ import de from '../../../public/locales/de/onboarding.json';
 import ee from '../../../public/locales/ee/onboarding.json';
 import en from '../../../public/locales/en/onboarding.json';
 import es from '../../../public/locales/es/onboarding.json';
+
+beforeEach(() => {
+    buildTiming.minMs = 0;
+});
 
 const pendingSession = { id: 'u1', email: 'a@x.com', token: futureToken(), onboardingStatus: 'pending' };
 
@@ -210,6 +215,39 @@ describe('/onboarding steps', () => {
         expect(screen.getByRole('button', { name: en.skip })).toBeDisabled();
         expect(screen.queryByRole('button', { name: en.next })).not.toBeInTheDocument();
         await waitFor(() => expect(useAuthStore.getState().user?.onboardingStatus).toBe('done'));
+    });
+
+    it('keeps the building screen for the minimum time, even when the server is fast', async () => {
+        setup();
+        buildTiming.minMs = 400;
+        await renderApp({ initialEntry: '/', session });
+        await toTopics();
+        for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
+        await click(en.next);
+        await click('Add 100 words');
+        expect(await screen.findByRole('heading', { name: en.building.title })).toBeInTheDocument();
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        expect(screen.getByRole('heading', { name: en.building.title })).toBeInTheDocument();
+        expect(useAuthStore.getState().user?.onboardingStatus).toBe('pending');
+        await waitFor(() => expect(useAuthStore.getState().user?.onboardingStatus).toBe('done'));
+    });
+
+    it('offers only the languages from registration, all selected', async () => {
+        setup();
+        await renderApp({ initialEntry: '/', session });
+        await click(en.start);
+        await screen.findByRole('heading', { name: en.languages.title });
+        const tiles = Array.from(document.querySelectorAll('.lang-tile'));
+        expect(tiles.map((tile) => tile.getAttribute('aria-label'))).toEqual(['English', 'Español']);
+        expect(tiles.every((tile) => tile.getAttribute('aria-pressed') === 'true')).toBe(true);
+    });
+
+    it('has the language and theme switches in the rail', async () => {
+        setup();
+        await renderApp({ initialEntry: '/', session });
+        await click(en.start);
+        const rail = await screen.findByRole('complementary', { name: en.rail.label });
+        expect(within(rail).getAllByRole('button').length).toBeGreaterThanOrEqual(2);
     });
 
     it('shows an error and stays when Create fails', async () => {
