@@ -7,8 +7,8 @@ committed `pool.tsv`). **First review pass done by Claude on 2026-10-16** (698 k
 changes listed in `backend/scripts/onboarding/first-review.md`, kept for reference until the
 feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
 **Slice 3 in progress (planned 2026-10-16 as 3a–3d):** 3a built (precomputed forms), 3b built
-(onboarding status on the account). Decisions D1–D23 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
-D14–D19 during Slice 2, D20–D23 at the start of Slice 3). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
+(onboarding status on the account), 3c built (selection, validation, tag names). Decisions D1–D25 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
+D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
 
 ## What this is (plain-language overview)
@@ -58,6 +58,8 @@ frequency band. The server only reads that pool.
 | D21. Who sees onboarding | **New accounts only** (email and Google signup, after the release) get `onboarding_status = 'pending'`. Existing accounts and demo accounts have NULL and never see it. |
 | D22. Core share | **20 %** of the count is core vocabulary of the user's band (50 → 10 core + 40 topic); when the picked topics run out, more core fills the gap (D16). |
 | D23. Tags | One **Private** tag per picked topic and one for core vocabulary, named in the user's **UI language at creation time** (a 4-language name table in the backend). The user can rename or delete them like any tag. |
+| D24. Wider fill rule | D16 continues: topics of the band → core of the band → topics of the next band → core of the next band → topics of the band below → core of the band below. Core of the band stays before the next band's topics (user decision, Review log S3-2). |
+| D25. Under 50 words | When a choice can deliver fewer than 50 words, the app offers what is there: the slider minimum becomes the capacity and the hint explains it; the server then accepts any step of 10 up to the capacity (`checkCount`). |
 | D10. Pool | The server never reads `word-lists/` (git-ignored, developer machine only). A script builds a committed pool file from the lists; a human reviews it. Vulgar, offensive and derogatory senses are removed when the lists and the pool are built, not at lexicon ingest (autocomplete keeps them). |
 
 ### Topics (D2, D3, D11)
@@ -131,7 +133,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | 0 ✅ | **Word lists.** `backend/scripts/lexicon/word-lists.ts` → `word-lists/en/<pos>.tsv` (lemma, rank, page_topics, sense_domains, supersenses). | Lists rebuilt; coverage measured. |
 | 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
 | 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
-| 3 (3a ✅ 3b ✅) | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
+| 3 (3a ✅ 3b ✅ 3c ✅) | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
 | 4 | **Frontend.** `/onboarding` flow, first-login redirect, skip, summary on the dashboard. Translated UI strings (EN/ES/DE/EE). | Vitest + Playwright `onboarding.spec.ts` green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
@@ -143,7 +145,9 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 4. Where signup sets `languages` / `nativeLanguage` today (check in Slice 3), and what OAuth signups have.
 5. ~~Pool file location and format~~ — decided 2026-10-16: D17.
 6. The slider steps and the threshold texts (D14): fix in Slice 4.
-7. What the slider shows when the pool can deliver fewer than 50 words for a choice (D18): fix in Slice 3/4.
+7. ~~What the slider shows under 50 words~~ — decided 2026-10-16: D25.
+8. Review the Spanish, German and Estonian topic names in `services/onboarding/labels.ts` (and the
+   same names in the app's translations, Slice 4).
 
 ## Notes for Slice 3 (from the first pool review)
 
@@ -224,6 +228,32 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 - Jest: registration stores `pending`; login answers `pending`, and `null` for an older account; `/me`
   and the profile update return it; Google signup stores and returns `pending`; a demo start answers
   `null`. Full suite green (3,245).
+
+## Slice 3c — what was built (2026-10-16)
+
+- `services/onboarding/select.ts`: `selectConcepts(pool, forms, choice, count)` and `capacity()`.
+  Per learning language a generator gives candidates in the D16/D24 order and keeps the D22 core
+  share on the picks it really makes; the languages take turns (one concept each), a language that
+  runs out leaves its share to the others; no concept twice, no two concepts with the same words in
+  the user's languages. Deterministic (by rank). `learningLanguages()` = account languages − native.
+- `services/onboarding/validate.ts`: `validateChoice` (a level for exactly the learning languages,
+  3–6 unique topic ids, not `core`), `validateCreate` (+ count 10–150, steps of 10), `checkCount`
+  (count ≤ capacity; ≥ 50 unless the capacity is smaller, D25).
+- `services/onboarding/labels.ts`: `TOPIC_LABELS` (15 topics + core, 4 UI languages) and
+  `topicLabel()`. **The Spanish, German and Estonian names need a review by the user.**
+- Jest: `tests/unit/onboardingSelect.test.js` (31 tests: synthetic pools for every rule; the
+  committed pool fills 150 for a common choice; the smallest topics reach ≥ 50 at every level).
+- Measured on the committed pool (one learning language, every topic triple, every level): minimum
+  capacity 80 (advanced Estonian); English/Spanish/German beginner and intermediate reach 150 for
+  every triple. Before D24 the minimum was 30.
+
+## Review log — Slice 3c (2026-10-16)
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| S3-1 | Moderate | With D16 as written, most choices were capped below 150 (one learning language: 396–455 of 455 topic triples) and advanced Estonian could reach only 30, under the slider minimum. | D24 widened fill rule (min 80); D25 for any remaining case under 50 (user decisions). |
+| S3-2 | Minor | Because core of the band comes before the next band's topics, large onboardings get more core than 20 % (150 words: 60 core = 40 %). | Kept on purpose: the words stay at the user's level (user decision). |
+| S3-3 | Minor | The selection is deterministic: users with the same choice get the same words. | Accepted for v1 (testable); shuffling within a band can come later. |
 
 ## Review log — Slice 2 (2026-10-16)
 
