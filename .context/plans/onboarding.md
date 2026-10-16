@@ -7,16 +7,15 @@ committed `pool.tsv`). **First review pass done by Claude on 2026-10-16** (698 k
 changes listed in `backend/scripts/onboarding/first-review.md`, kept for reference until the
 feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
 **Slice 3 done on 2026-10-16 (3a–3d):** precomputed forms, the onboarding status on the account,
-the selection service, and the three routes (see "Slice 3d — what was built"). **Slice 4 in progress
-(planned 2026-10-16 as 4a–4e):** 4a–4d built.
+the selection service, and the three routes (see "Slice 3d — what was built"). **Slice 4 done on 2026-10-17
+(4a–4e):** the e2e gate is green.
 
-**Resume here (2026-10-16):** next is **4e** (see the Slices table): Playwright `e2e/onboarding-gate.spec.ts`
-(turns the switch on, registers, walks Welcome → steps → Create → dashboard card; also Skip) and a full
-green e2e run (check the e2e traps in memory first). 4d is built (see "Slice 4d — what was built"). Only open item 8
-is still open (see "Open items"). The UI redesign (`MOCKUPS/onboarding.html`) is built (see "Slice 4d+ — redesign"): the Playwright spec follows the new markup (levels are `radio`s, there is no Back on the languages step). Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
-D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the
-start of Slice 4). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
-the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
+**Resume here (2026-10-17):** the build is done; only open item 8 is open (review the ES/DE/EE texts, see "Open items").
+Next: the user reviews and commits, then the rollout (turn the switch on per environment; see the infrastructure guide, file 02).
+Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1, D14–D19 during Slice 2,
+D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the start of Slice 4). The second opinion
+(`onboarding-blueprint-proposal.md`) was reviewed against the data and the code; the findings and their
+resolutions are in "Review log (2026-10-16)" at the end.
 
 ## What this is (plain-language overview)
 
@@ -144,7 +143,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
 | 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
 | 3 ✅ | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
-| 4 (4a–4d ✅) | **Frontend**, in five steps. **4a** the admin switch (D26): migration 0031, `onboarding` in the public and admin access answers, `PUT /api/admin/access/onboarding`, 403 `onboarding_disabled` on the routes, the admin Access → Onboarding tab with the counts by status. **4b** `onboardingStatus` in the session, the redirect (only while the switch is on), `/onboarding` full screen (D27) with Welcome and Skip. **4c** the steps (languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading screen. **4d** the dashboard card (D28), the strings in EN/ES/DE/EE, Vitest. **4e** Playwright `onboarding-gate.spec.ts` and a full green e2e run. | Jest / Vitest green after each step; 4e: Playwright green. |
+| 4 (4a–4e ✅) | **Frontend**, in five steps. **4a** the admin switch (D26): migration 0031, `onboarding` in the public and admin access answers, `PUT /api/admin/access/onboarding`, 403 `onboarding_disabled` on the routes, the admin Access → Onboarding tab with the counts by status. **4b** `onboardingStatus` in the session, the redirect (only while the switch is on), `/onboarding` full screen (D27) with Welcome and Skip. **4c** the steps (languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading screen. **4d** the dashboard card (D28), the strings in EN/ES/DE/EE, Vitest. **4e** Playwright `onboarding-gate.spec.ts` and a full green e2e run (done 2026-10-17). | Jest / Vitest green after each step; 4e: Playwright green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
 ## Open items (decide during the slices)
@@ -361,6 +360,37 @@ Layout and style only; same behaviour, same routes. Source: `MOCKUPS/onboarding.
 - New strings in `onboarding.json` (EN/ES/DE/EE): rail, steps, summary, welcome items, building, `count.unit`. Removed `creating` and `count.value`. **Review the ES/DE/EE text (open item 8).**
 - Differences from the mockup, on purpose: no "done" screen (Create goes to the dashboard card, D7/D28); the slider range follows the pool (D18), not 20–250; no Back on the first question (as in the mockup); "Run setup again" on a skipped dashboard is not built (the status cannot return to `pending`).
 - Tests: 3 new in `onboarding.test.tsx`, 1 in `segmented-toggle.test.tsx`. Full Vitest 1,864 green; typecheck clean.
+
+## Slice 4d++ — review changes (2026-10-16/17)
+
+After the user reviewed the redesign: same layout as the auth screens (full screen, rail with the language and
+theme switches, inset panel); from 1700px wide the first framed-card layout returns; bigger rail logo and the
+"Your choices so far:" card at the bottom of the rail; topic icons (Phosphor) that the check replaces in place;
+Languages step shows only the registration languages, all selected; Welcome texts and a new auth motto; the
+building screen shows at least 3 s (`buildTiming.minMs`, 0 in Vitest); banner tag icons and the new banner
+layout; a confirmation dialog on Skip (`skipDialog.*` strings). Vitest 1,868 green.
+
+## Slice 4e — what was built (2026-10-17)
+
+- `e2e/tests/onboarding-gate.spec.ts`, a `-gate` spec (the switch is global state; its own project, after
+  the others). Three tests, serial:
+  1. Switch off: a `pending` account signs in and lands on the dashboard; `POST /api/onboarding/capacity`
+     answers 403 `onboarding_disabled`; nothing is created.
+  2. Switch on: sign in → `/onboarding` (no app header; language and theme switches in the rail) → Welcome →
+     Languages (only the 2 registration languages; native language) → Levels (Next off until the level is
+     set) → Interests (3 to 6) → Word count → Create. The building screen shows for 2.9 s or more, then the
+     dashboard card. The spec reads the database: status `done`, the word count, every word tagged, 4 tags
+     (3 topics + core). The card links to a tag and to practice, stays after a reload, goes when closed, and
+     a `done` account is not sent back to the flow.
+  3. Skip: the dialog opens; "Continue setup" changes nothing; "Skip setup" gives status `skipped`, no
+     words, no tags, no card.
+- `fixtures/db.ts`: `setOnboardingEnabled`, `setOnboardingPending` (`seedUser` rows have no status; the
+  app sets `pending` at signup), `getOnboardingState`.
+- `fixtures/global-setup.ts` (new, set in `playwright.config.ts`): turns the onboarding switch **off** at the
+  start of every run. Reason: a local database often has it on for manual tests, and then every spec that
+  signs in a new account lands on `/onboarding`. The gate spec turns it on and off again. **After a run the
+  switch stays off in the local database; turn it on again in the admin panel for manual tests.**
+- Result: `npm run test:e2e` green, 149 passed (1.9 min).
 
 ## Review log — Slice 3c (2026-10-16)
 

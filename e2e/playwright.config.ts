@@ -50,6 +50,8 @@ const gateProjects = gateSpecs.map((file, i) => ({
 
 export default defineConfig({
     testDir: './tests',
+    // Turns the onboarding switch off before the run (fixtures/global-setup.ts).
+    globalSetup: './fixtures/global-setup.ts',
     // deployed-smoke.spec.ts targets a real deployed environment (real
     // BASE_URL, smoke-account credentials, EXPECTED_SHA) via its own
     // playwright.deploy.config.ts — this config's testDir would otherwise

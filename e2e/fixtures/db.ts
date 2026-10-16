@@ -554,3 +554,42 @@ export async function deleteDemoSessions(userIds: string[]): Promise<void> {
 export async function setDemoCaps(caps: { maxWords: number; maxTags: number }): Promise<void> {
     await getPool().query(`UPDATE access_settings SET demo_max_words = $1, demo_max_tags = $2 WHERE id = 1`, [caps.maxWords, caps.maxTags]);
 }
+
+/**
+ * The onboarding switch (onboarding.md D26) lives on the same global `access_settings` row as the gates, so
+ * only the `*-gate.spec.ts` specs may turn it on. `global-setup.ts` and the gate spec put it back off.
+ */
+export async function setOnboardingEnabled(enabled: boolean): Promise<void> {
+    await getPool().query(`UPDATE access_settings SET onboarding_enabled = $1 WHERE id = 1`, [enabled]);
+}
+
+/** `seedUser` rows have no onboarding status (the app sets `pending` at signup), so a spec asks for it here. */
+export async function setOnboardingPending(email: string): Promise<void> {
+    await getPool().query(`UPDATE users SET onboarding_status = 'pending' WHERE lower(email) = $1`, [email.toLowerCase()]);
+}
+
+export interface OnboardingState {
+    status: string | null;
+    words: number;
+    /** The tag labels of the account, sorted. */
+    tags: string[];
+    /** How many words are linked to a tag. */
+    taggedWords: number;
+}
+
+/** What onboarding left on an account: its status, its words and its tags. */
+export async function getOnboardingState(email: string): Promise<OnboardingState> {
+    const { rows } = await getPool().query<{ id: string; status: string | null }>(
+        `SELECT id, onboarding_status AS status FROM users WHERE lower(email) = $1`,
+        [email.toLowerCase()],
+    );
+    if (!rows[0]) throw new Error(`no user found for ${email}`);
+    const { id, status } = rows[0];
+    const words = await getPool().query(`SELECT count(*)::int AS n FROM words WHERE user_id = $1`, [id]);
+    const tags = await getPool().query<{ label: string }>(`SELECT label FROM tags WHERE author_id = $1 ORDER BY label`, [id]);
+    const tagged = await getPool().query(
+        `SELECT count(DISTINCT tw.word_id)::int AS n FROM tag_words tw JOIN tags t ON t.id = tw.tag_id WHERE t.author_id = $1`,
+        [id],
+    );
+    return { status, words: words.rows[0].n, tags: tags.rows.map((r) => r.label), taggedWords: tagged.rows[0].n };
+}
