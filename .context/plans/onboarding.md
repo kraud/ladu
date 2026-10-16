@@ -1,8 +1,9 @@
 # Plan: First-login onboarding (topics + level → pre-filled words)
 
 Status: **draft, planned on 2026-10-16.** **Slice 0 done** (word lists with rank, Wiktionary
-topics and WordNet supersenses; commits on 2026-10-15/16). Decisions D1–D10 are confirmed with the
-user on 2026-10-16. The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
+topics and WordNet supersenses; commits on 2026-10-15/16). **Slice 1 done on 2026-10-16** (topic
+map; see "Slice 1 — what was built"). Decisions D1–D13 are confirmed with the user on 2026-10-16
+(D11–D13 during Slice 1). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
 
 ## What this is (plain-language overview)
@@ -39,30 +40,37 @@ frequency band. The server only reads that pool.
 | D7. End of the flow | The flow ends on the **dashboard**, not in a practice session. |
 | D8. Languages step | Shows `users.languages` and `users.nativeLanguage` (`backend/src/db/schema.ts:173`, `:179`) already filled in; the user confirms or changes them. No new language concept. |
 | D9. Translation gaps | A concept is only used when the hub has words in **at least 2** of the user's languages; concepts with all of them come first. There is no "needs translation" badge and no community/AI lookup. |
+| D11. Verb topics | Verbs get a topic **only through WordNet verb anchors** (eat, drink, cook, travel, drive, fly, play, compete, dress, wear, buy, sell, pay, work, sleep, heal, rain, feel…). No direct verb supersense: `verb.possession` alone put have/get/take into Work & Money. All other verbs are Core vocabulary. |
+| D12. Which sense decides | Only the **first** WordNet sense of a noun or verb decides its topic (a second sense put "person" into Body & Health). Anchors are checked before direct supersenses; between topics, the order of `TOPICS` decides (doctor: Body & Health before Work & Money). |
+| D13. Restricted words | A word is left out of onboarding when the **first** normal sense of its first Wiktionary entry is tagged vulgar, offensive, derogatory or slur, or when it is in a short manual blocklist (ass, bitch, dick…: harmless first sense, risky in a starter set). A tag on any sense flagged mother, dog, milk and apple. |
 | D10. Pool | The server never reads `word-lists/` (git-ignored, developer machine only). A script builds a committed pool file from the lists; a human reviews it. Vulgar, offensive and derogatory senses are removed when the lists and the pool are built, not at lexicon ingest (autocomplete keeps them). |
 
-### Topics (D2, D3)
+### Topics (D2, D3, D11)
 
-| Topic | Supersenses (direct) | Hypernym anchors / page-topic allowlist (draft, fixed in Slice 1) |
+The map is code: `backend/scripts/lexicon/onboarding-topics.ts`. This table is a summary.
+
+| Topic | Supersenses (direct, nouns only) | Hypernym anchors (nouns, verbs) / page-topic allowlist (adjectives, adverbs) |
 |---|---|---|
-| Food & Drink | `noun.food`, `verb.consumption` | adj: Taste, Smell |
+| Clothing | — | clothing, footwear, jewelry; v: dress, wear; adj: Clothing |
+| Food & Drink | `noun.food` | v: eat, drink, cook; adj: Taste, Drinking |
 | Animals | `noun.animal` | |
-| Plants & Nature | `noun.plant`, `noun.object` | landforms; adj: Colors |
-| Weather | `noun.phenomenon`, `verb.weather` | adj: Weather, Temperature |
-| Body & Health | `noun.body`, `verb.body` | illness, medicine, health professional |
-| People & Family | `noun.person` | relative, kin; `noun.group`: family |
-| Feelings | `noun.feeling`, `verb.emotion` | adj: Emotions |
-| Time & Calendar | `noun.time` | adv/adj: Time |
-| Home & Living | — | furniture, room, building, household appliance, container, kitchen utensil |
-| Clothing | — | clothing, garment, footwear, jewelry |
-| Travel & Transport | `noun.location`, `verb.motion` | vehicle, conveyance, way/road, travel |
-| Technology & Media | — | device, electronic equipment, computer, communication medium, publication |
-| Work & Money | `noun.possession`, `verb.possession` | occupation, worker, organization, money |
-| Sports & Hobbies | `verb.competition` | sport, game, musical instrument, music |
-| Numbers & Measures | `noun.quantity` | unit of measurement, number |
+| Plants & Nature | `noun.plant` | geological formation, body of water, celestial body |
+| Weather | — | atmospheric phenomenon; v: rain, snow, precipitate; adj: Temperature, Weather |
+| Body & Health | `noun.body` | illness, injury, medicine, medical care, health professional; v: sleep, heal, cure, treat |
+| Technology & Media | — | electronic equipment, computer, software, medium, publication |
+| Home & Living | — | housing, room, furniture, home appliance, tableware, kitchen utensil, bedding |
+| Travel & Transport | — | conveyance, road, travel, city, country; v: travel, drive, fly, ride; adj/adv: Directions |
+| Sports & Hobbies | — | sport, game, athlete, musical instrument, music; v: play, compete |
+| Work & Money | `noun.possession` | professional, occupation, workplace, money; v: buy, sell, pay, work; adj: Wealth, Occupations |
+| Numbers & Measures | — | digit, unit of measurement |
+| Time & Calendar | `noun.time` | adj/adv: Time, Days of the week |
+| Feelings | `noun.feeling` | v: feel (an emotion); adj: Emotions, Fear, Love, Sadness |
+| People & Family | `noun.person` | relative, family; adj: Personality, Appearance |
 
-`noun.person` and `noun.location` hold some generic words ("guy", "place", "side"); the review in
-Slice 2 removes them from the pool.
+`noun.location`, `noun.object` and `noun.phenomenon` are anchor-only: as direct groups they held
+hell/left/side, must/agent and result/effect. Anchors left out as too noisy: device (guy, gun, key),
+worker (captain, general), drug (wine, beer), organization (house, family, party), diversion (show,
+doctor), the general "go/move" verb (206 verbs). Colors and sizes have no topic: core vocabulary.
 
 ### Level bands (D4, draft — tuned in Slice 2 with the coverage report)
 
@@ -119,6 +127,31 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 3. Tag names: in the UI language of the user at creation time, or fixed per topic.
 4. Where signup sets `languages` / `nativeLanguage` today (check in Slice 3), and what OAuth signups have.
 5. Pool file location and format (precedent: `backend/scripts/demo-template/data.json`, checked by Jest).
+
+## Slice 1 — what was built (2026-10-16)
+
+- `backend/scripts/lexicon/onboarding-topics.ts`: the topic map (D2, D3, D11–D13), the level bands
+  and `topicFor()`. Unit test: `backend/tests/unit/onboardingTopics.test.js` (15 tests).
+- `word-lists.ts` adds the columns `pos_order` (position of the part of speech on the Wiktionary
+  page), `restricted` (D13), `given_name` (the page is in a Wiktionary given-name category) and
+  `topic`. It reads WordNet first and stops at once if an anchor id is not a sense of its label.
+  It writes `word-lists/topic-report.md` (words per topic × band, with examples).
+- Known noise, left for the pool review (Slice 2): homographs that took another word's rank
+  (stole, entire, doe, glad, mum, won, em; the verb "can" → Food from "to can food"), given names
+  (tom, ben, henry, anna), generic `noun.person` words (sir, guy, god). Neither `pos_order` nor
+  `given_name` can filter alone: "need"/"use" (verbs) are second on their page; "rose" is a name.
+- Beginner band is thin for Technology & Media and Sports & Hobbies (subtitle frequencies).
+
+## Review log — Slice 1 (2026-10-16)
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| S1-1 | Moderate | The restricted flag on any sense left out 1,377 words (mother, dog, milk, apple); on the first 2 senses it still caught girl and funny. | D13: first sense of the first entry + manual blocklist (451 words left out; a few false positives such as "cancer", "fat" are left for the Slice 2 review). |
+| S1-2 | Moderate | A second WordNet sense decided when the first had no topic ("person" → Body & Health). | D12: only the first sense decides. |
+| S1-3 | Moderate | Direct verb supersenses put core verbs into topics (have/get/take → Work, go/stop → Travel, need/use → Food, better/face/fire → Sports). | D11: verbs only through anchors (user decision). |
+| S1-4 | Moderate | Homographs and given names take high ranks (stole, doe, tom, henry). | `given_name` and `pos_order` columns for the review; Slice 2 human review. |
+| S1-5 | Minor | The page topic Hair put the adverb "down" into Body & Health. | Removed from the allowlist. |
+| S1-6 | Minor | `noun.location` / `noun.object` / `noun.phenomenon` were noisy as direct groups. | Anchor-only (see the topics table). |
 
 ## Review log (2026-10-16)
 

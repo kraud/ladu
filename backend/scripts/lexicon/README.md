@@ -39,9 +39,15 @@ npx tsx scripts/lexicon/word-lists.ts   # ~5 min: newest lexicon-en file + raw d
 ```
 
 One TSV per part of speech with the English lemmas that have a frequency rank (~37k), their
-rank, their Wiktionary topics and their WordNet supersenses (`english-wordnet-2025.xml.gz`, from
-`download.ts`). The columns and their limits are described at the top of the script. Run it
-again after each re-ingest.
+rank, their Wiktionary topics, their WordNet supersenses (`english-wordnet-2025.xml.gz`, from
+`download.ts`) and their onboarding topic. The columns and their limits are described at the top
+of the script. Run it again after each re-ingest.
+
+The topic map is `onboarding-topics.ts` (supersenses, WordNet hypernym anchors, an adjective
+page-topic allowlist, the restricted words, the level bands); its unit test is
+`tests/unit/onboardingTopics.test.js`. The script fails at once if an anchor id is not a sense of
+its label in the WordNet edition. It also writes `word-lists/topic-report.md`: words per topic and
+level band, with examples, for the review (`.context/plans/onboarding.md`).
 
 Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
 `EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).
