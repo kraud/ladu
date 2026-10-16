@@ -9,6 +9,27 @@ beforeEach(() => {
     useAuthStore.getState().clearSession();
 });
 
+describe('toSessionUser — onboarding status', () => {
+    const base = { id: 'u1', email: 'a@x.com' };
+
+    it('keeps a known status', () => {
+        expect(toSessionUser({ ...base, onboardingStatus: 'pending' }).onboardingStatus).toBe('pending');
+        expect(toSessionUser({ ...base, onboardingStatus: 'skipped' }).onboardingStatus).toBe('skipped');
+    });
+
+    it('drops a missing, null or unknown status (no onboarding)', () => {
+        expect(toSessionUser(base)).not.toHaveProperty('onboardingStatus');
+        expect(toSessionUser({ ...base, onboardingStatus: null })).not.toHaveProperty('onboardingStatus');
+        expect(toSessionUser({ ...base, onboardingStatus: 'other' })).not.toHaveProperty('onboardingStatus');
+    });
+
+    it('setOnboardingStatus changes only the status of the open session', () => {
+        useAuthStore.getState().setSession({ ...base, onboardingStatus: 'pending' }, futureToken());
+        useAuthStore.getState().setOnboardingStatus('skipped');
+        expect(useAuthStore.getState().user).toMatchObject({ id: 'u1', onboardingStatus: 'skipped' });
+    });
+});
+
 describe('toSessionUser — normalizes every backend shape', () => {
     it('login shape: nativeLanguage key omitted', () => {
         const raw: RawUser = {

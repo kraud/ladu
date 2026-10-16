@@ -8,15 +8,12 @@ changes listed in `backend/scripts/onboarding/first-review.md`, kept for referen
 feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
 **Slice 3 done on 2026-10-16 (3a–3d):** precomputed forms, the onboarding status on the account,
 the selection service, and the three routes (see "Slice 3d — what was built"). **Slice 4 in progress
-(planned 2026-10-16 as 4a–4e):** 4a built (the admin switch).
+(planned 2026-10-16 as 4a–4e):** 4a and 4b built.
 
-**Resume here (2026-10-16):** next is **4b** (see the Slices table): `onboardingStatus` in the
-app session (`frontend/src/stores/authStore.ts`: `SessionUser`, `RawUser`, `toSessionUser`; a session
-saved before the field reads as "no onboarding"), `onboarding.enabled` from `GET /api/access`
-(`frontend/src/features/access`), the redirect in `_protected.beforeLoad` (`frontend/src/app/router.tsx`)
-only when `pending` AND the switch is on, and a full-screen `/onboarding` route (D27, outside the
-app shell) with Welcome + Skip (`POST /api/onboarding/skip`, then the session gets `skipped`).
-Before 4b, the user fixes the Jest `socket hang up` flake in a separate session. Open items 2–4, 6
+**Resume here (2026-10-16):** next is **4c** (see the Slices table): the steps inside `/onboarding`
+(languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading
+screen. 4b is built (see "Slice 4b — what was built"). The Jest `socket hang up` flake is fixed.
+Open items 2–4, 6
 and 8 are still open (see "Open items"). Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
 D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the
 start of Slice 4). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
@@ -148,7 +145,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
 | 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
 | 3 ✅ | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
-| 4 (4a ✅) | **Frontend**, in five steps. **4a** the admin switch (D26): migration 0031, `onboarding` in the public and admin access answers, `PUT /api/admin/access/onboarding`, 403 `onboarding_disabled` on the routes, the admin Access → Onboarding tab with the counts by status. **4b** `onboardingStatus` in the session, the redirect (only while the switch is on), `/onboarding` full screen (D27) with Welcome and Skip. **4c** the steps (languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading screen. **4d** the dashboard card (D28), the strings in EN/ES/DE/EE, Vitest. **4e** Playwright `onboarding-gate.spec.ts` and a full green e2e run. | Jest / Vitest green after each step; 4e: Playwright green. |
+| 4 (4a ✅ 4b ✅) | **Frontend**, in five steps. **4a** the admin switch (D26): migration 0031, `onboarding` in the public and admin access answers, `PUT /api/admin/access/onboarding`, 403 `onboarding_disabled` on the routes, the admin Access → Onboarding tab with the counts by status. **4b** `onboardingStatus` in the session, the redirect (only while the switch is on), `/onboarding` full screen (D27) with Welcome and Skip. **4c** the steps (languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading screen. **4d** the dashboard card (D28), the strings in EN/ES/DE/EE, Vitest. **4e** Playwright `onboarding-gate.spec.ts` and a full green e2e run. | Jest / Vitest green after each step; 4e: Playwright green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
 ## Open items (decide during the slices)
@@ -305,6 +302,23 @@ answer **409 `onboarding_not_pending`** when the account is not `pending`. Error
   suite turns the switch on), the exact public shape in `accessGateRegistration.test.js`; Vitest
   (admin) 3 new tests on the Onboarding tab. Full Jest 3,296 green, admin Vitest 308 green, admin
   typecheck and lint clean.
+
+## Slice 4b — what was built (2026-10-16)
+
+- `stores/authStore.ts`: `onboardingStatus` in `SessionUser` / `RawUser` (the key exists only for a
+  known status, so an older session reads as "no onboarding"); action `setOnboardingStatus`.
+- `features/access`: `onboarding: { enabled }` in `AccessStatus`; `OPEN_ACCESS` has it off.
+- `features/onboarding/gate.ts`: `mustOnboard()` = status `pending` AND the switch on (reads the
+  cached access query; a failed call reads as "no", so the user is never trapped).
+- `app/router.tsx`: `_protected.beforeLoad` redirects to `/onboarding` when `mustOnboard()`; the new
+  top-level `/onboarding` route (no app shell, D27) sends anyone else to `/` and a visitor to `/login`.
+- `features/onboarding`: `OnboardingPage` (logo, Skip, welcome text), `useSkipOnboarding`
+  (`POST /api/onboarding/skip`; on success the session gets `skipped` and `/` opens; a 403/409 also
+  opens `/`), namespace `onboarding` in EN/ES/DE/EE. **The ES/DE/EE texts need a review by the user.**
+- Tests: `onboarding.test.tsx` (welcome without header, Skip, Skip error, locale keys),
+  `router.test.tsx` (+7 redirect cases), `authStore.test.ts` (+3). `test/setup.ts` clears the app-wide
+  query client after each test. Full Vitest 1,850 green; typecheck clean.
+- The welcome has no Start button yet: the first step arrives in 4c.
 
 ## Review log — Slice 3c (2026-10-16)
 

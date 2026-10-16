@@ -19,6 +19,7 @@ const status = (mode: 'open' | 'closed' | 'limited', note = ''): AccessStatus =>
     registration: { mode, note },
     login: { mode: 'open', note: '' },
     demo: { enabled: false },
+    onboarding: { enabled: false },
 });
 
 const CLOSED_TEXT = 'Sign-ups are closed for now. Please check back later.';

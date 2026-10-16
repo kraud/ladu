@@ -43,7 +43,15 @@ export interface SessionUser {
     /** The demo's absolute word and tag caps (seed + configured maximum); null for a normal account. */
     demoWordLimit?: number | null;
     demoTagLimit?: number | null;
+    /**
+     * First-login onboarding (onboarding.md D21): `pending` sends the user to `/onboarding` while the
+     * admin switch is on. Optional and `null` for an old account, and for a session saved before the
+     * field existed: both read as "no onboarding".
+     */
+    onboardingStatus?: OnboardingStatus | null;
 }
+
+export type OnboardingStatus = 'pending' | 'done' | 'skipped';
 
 /**
  * Every raw user object the backend can hand us:
@@ -71,6 +79,7 @@ export interface RawUser {
     demoExpiresAt?: string | null;
     demoWordLimit?: number | null;
     demoTagLimit?: number | null;
+    onboardingStatus?: string | null;
     token?: string;
 }
 
@@ -84,11 +93,17 @@ interface AuthState {
      */
     setSession: (raw: RawUser, token?: string) => void;
     clearSession: () => void;
+    /** Change only the onboarding status of the open session (after Skip or Create). */
+    setOnboardingStatus: (status: OnboardingStatus) => void;
 }
 
 type PersistedAuth = Pick<AuthState, 'user' | 'token'>;
 
 const STORAGE_KEY = 'ladu.session';
+
+function isOnboardingStatus(value: unknown): value is OnboardingStatus {
+    return value === 'pending' || value === 'done' || value === 'skipped';
+}
 
 /** Collapse any backend user shape into the one shape the app consumes. */
 export function toSessionUser(raw: RawUser): SessionUser {
@@ -101,6 +116,8 @@ export function toSessionUser(raw: RawUser): SessionUser {
         uiLanguage: raw.uiLanguage ?? 'English',
         theme: isTheme(raw.theme) ? raw.theme : null,
         nativeLanguage: raw.nativeLanguage ?? null,
+        // Only an account with a status carries the key, so an older account keeps its shape.
+        ...(isOnboardingStatus(raw.onboardingStatus) ? { onboardingStatus: raw.onboardingStatus } : {}),
         // `users.verified` is nullable. A missing flag on a getMe refresh must
         // not log the user out — login/verify already gate the unverified path
         // (Phase 1 decision 1), so treat only an explicit `false` as unverified.
@@ -172,6 +189,10 @@ export const useAuthStore = create<AuthState>()(
                 });
             },
             clearSession: () => set({ user: null, token: null }),
+            setOnboardingStatus: (status) => {
+                const user = get().user;
+                if (user) set({ user: { ...user, onboardingStatus: status } });
+            },
         }),
         {
             name: STORAGE_KEY,

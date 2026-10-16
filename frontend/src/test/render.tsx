@@ -21,6 +21,7 @@ import demo from '../../public/locales/en/demo.json';
 import friendship from '../../public/locales/en/friendship.json';
 import loginRegister from '../../public/locales/en/loginRegister.json';
 import notifications from '../../public/locales/en/notifications.json';
+import onboarding from '../../public/locales/en/onboarding.json';
 import practice from '../../public/locales/en/practice.json';
 import review from '../../public/locales/en/review.json';
 import tags from '../../public/locales/en/tags.json';
@@ -36,6 +37,7 @@ const enResources = {
     friendship,
     loginRegister,
     notifications,
+    onboarding,
     practice,
     review,
     tags,
