@@ -1,8 +1,71 @@
 {
   "skip": "Überspringen",
   "skipping": "Wird übersprungen …",
+  "next": "Weiter",
+  "back": "Zurück",
+  "start": "Los geht’s",
+  "saving": "Wird gespeichert …",
+  "retry": "Erneut versuchen",
+  "creating": "Deine Wörter werden hinzugefügt …",
+  "progress": "Schritt {{step}} von {{total}}",
   "welcome": {
     "title": "Willkommen bei Ladu",
     "text": "Beantworte ein paar Fragen, und Ladu fügt Wörter in deinen Sprachen hinzu. So kannst du sofort üben. Du kannst das überspringen und mit einem leeren Wörterbuch beginnen."
+  },
+  "languages": {
+    "title": "Welche Sprachen nutzt du?",
+    "hint": "Wähle 2 oder mehr. Ladu fügt Wörter in diesen Sprachen hinzu.",
+    "countLow": "Wähle mindestens zwei Sprachen",
+    "countOk_one": "1 Sprache gewählt",
+    "countOk_other": "{{count}} Sprachen gewählt",
+    "nativeTitle": "Deine Muttersprache",
+    "nativeNone": "Keine",
+    "nativeHint": "Ladu fügt Wörter zum Lernen in deinen anderen Sprachen hinzu. Wähle „Keine“, um alle zu lernen."
+  },
+  "levels": {
+    "title": "Was ist dein Niveau?",
+    "hint": "Wähle ein Niveau für jede Sprache. Eine Schätzung genügt.",
+    "beginner": "Anfänger",
+    "beginnerHint": "Die häufigsten Wörter.",
+    "intermediate": "Mittelstufe",
+    "intermediateHint": "Häufige Wörter und einige seltenere.",
+    "advanced": "Fortgeschritten",
+    "advancedHint": "Seltenere Wörter."
+  },
+  "topics": {
+    "title": "Was interessiert dich?",
+    "hint": "Wähle 3 bis 6 Themen. Ladu fügt Wörter dazu hinzu.",
+    "countLow": "Wähle {{min}} bis {{max}} Themen ({{count}} gewählt)",
+    "countOk": "{{count}} von {{max}} Themen gewählt",
+    "names": {
+      "clothing": "Kleidung",
+      "food_drink": "Essen und Trinken",
+      "animals": "Tiere",
+      "plants_nature": "Pflanzen und Natur",
+      "weather": "Wetter",
+      "body_health": "Körper und Gesundheit",
+      "technology_media": "Technik und Medien",
+      "home_living": "Haus und Wohnen",
+      "travel_transport": "Reisen und Verkehr",
+      "sports_hobbies": "Sport und Hobbys",
+      "work_money": "Arbeit und Geld",
+      "numbers_measures": "Zahlen und Maße",
+      "time_calendar": "Zeit und Kalender",
+      "feelings": "Gefühle",
+      "people_family": "Menschen und Familie"
+    }
+  },
+  "count": {
+    "title": "Wie viele Wörter?",
+    "hint": "Du kannst später Wörter hinzufügen oder entfernen.",
+    "value": "{{count}} Wörter",
+    "hintSmall": "Ein kleiner Anfang. Gut zum Ausprobieren von Ladu.",
+    "hintMedium": "Ein guter Start für deine ersten Übungen.",
+    "hintLarge": "Ab mehr als 100 Wörtern kommt mehr allgemeiner Wortschatz dazu.",
+    "capacity": "Mit diesen Niveaus und Themen können wir bis zu {{count}} Wörter hinzufügen.",
+    "capacityLow": "Mit diesen Niveaus und Themen können wir nur {{count}} Wörter hinzufügen. Wähle andere Themen oder Niveaus für mehr.",
+    "none": "Mit diesen Niveaus und Themen können wir keine Wörter hinzufügen. Geh zurück und ändere sie.",
+    "loading": "Die Wörter werden geprüft …",
+    "create": "{{count}} Wörter hinzufügen"
   }
 }

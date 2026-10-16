@@ -1,8 +1,71 @@
 {
   "skip": "Jäta vahele",
   "skipping": "Jätan vahele…",
+  "next": "Edasi",
+  "back": "Tagasi",
+  "start": "Alusta",
+  "saving": "Salvestan…",
+  "retry": "Proovi uuesti",
+  "creating": "Lisan sinu sõnu…",
+  "progress": "Samm {{step}} / {{total}}",
   "welcome": {
     "title": "Tere tulemast Ladusse",
     "text": "Vasta mõnele küsimusele ja Ladu lisab sõnu sinu keeltes, et saaksid kohe harjutama hakata. Võid selle vahele jätta ja alustada tühja sõnastikuga."
+  },
+  "languages": {
+    "title": "Milliseid keeli sa kasutad?",
+    "hint": "Vali 2 või rohkem. Ladu lisab sõnu nendes keeltes.",
+    "countLow": "Vali vähemalt kaks keelt",
+    "countOk_one": "1 keel valitud",
+    "countOk_other": "{{count}} keelt valitud",
+    "nativeTitle": "Sinu emakeel",
+    "nativeNone": "Puudub",
+    "nativeHint": "Ladu lisab õppimiseks sõnu sinu teistes keeltes. Vali „Puudub“, et õppida kõiki."
+  },
+  "levels": {
+    "title": "Mis on sinu tase?",
+    "hint": "Vali iga keele jaoks üks tase. Ligikaudne hinnang sobib.",
+    "beginner": "Algaja",
+    "beginnerHint": "Kõige sagedasemad sõnad.",
+    "intermediate": "Kesktase",
+    "intermediateHint": "Sagedased sõnad ja mõned harvemad.",
+    "advanced": "Edasijõudnu",
+    "advancedHint": "Harvemad sõnad."
+  },
+  "topics": {
+    "title": "Mis sind huvitab?",
+    "hint": "Vali 3 kuni 6 teemat. Ladu lisab nende kohta sõnu.",
+    "countLow": "Vali {{min}} kuni {{max}} teemat ({{count}} valitud)",
+    "countOk": "{{count}} / {{max}} teemat valitud",
+    "names": {
+      "clothing": "Riided",
+      "food_drink": "Toit ja jook",
+      "animals": "Loomad",
+      "plants_nature": "Taimed ja loodus",
+      "weather": "Ilm",
+      "body_health": "Keha ja tervis",
+      "technology_media": "Tehnoloogia ja meedia",
+      "home_living": "Kodu ja elamine",
+      "travel_transport": "Reisimine ja transport",
+      "sports_hobbies": "Sport ja hobid",
+      "work_money": "Töö ja raha",
+      "numbers_measures": "Arvud ja mõõdud",
+      "time_calendar": "Aeg ja kalender",
+      "feelings": "Tunded",
+      "people_family": "Inimesed ja perekond"
+    }
+  },
+  "count": {
+    "title": "Mitu sõna?",
+    "hint": "Sõnu saab hiljem lisada ja eemaldada.",
+    "value": "{{count}} sõna",
+    "hintSmall": "Väike algus. Hea Ladu proovimiseks.",
+    "hintMedium": "Hea algus esimesteks harjutuskordadeks.",
+    "hintLarge": "Üle 100 sõna korral lisandub rohkem üldsõnavara.",
+    "capacity": "Nende tasemete ja teemadega saame lisada kuni {{count}} sõna.",
+    "capacityLow": "Nende tasemete ja teemadega saame lisada ainult {{count}} sõna. Rohkema jaoks vali muid teemasid või tasemeid.",
+    "none": "Nende tasemete ja teemadega ei saa me sõnu lisada. Mine tagasi ja muuda neid.",
+    "loading": "Kontrollin sõnu…",
+    "create": "Lisa {{count}} sõna"
   }
 }

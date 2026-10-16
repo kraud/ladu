@@ -1,8 +1,71 @@
 {
   "skip": "Skip",
   "skipping": "Skipping…",
+  "next": "Next",
+  "back": "Back",
+  "start": "Start",
+  "saving": "Saving…",
+  "retry": "Try again",
+  "creating": "Adding your words…",
+  "progress": "Step {{step}} of {{total}}",
   "welcome": {
     "title": "Welcome to Ladu",
     "text": "Answer a few questions and Ladu adds words in your languages, so you can start to practise at once. You can skip this and start with an empty dictionary."
+  },
+  "languages": {
+    "title": "Which languages do you use?",
+    "hint": "Pick 2 or more. Ladu adds words in these languages.",
+    "countLow": "Select at least two languages",
+    "countOk_one": "1 language selected",
+    "countOk_other": "{{count}} languages selected",
+    "nativeTitle": "Your native language",
+    "nativeNone": "None",
+    "nativeHint": "Ladu adds words to learn in your other languages. Choose “None” to learn all of them."
+  },
+  "levels": {
+    "title": "What is your level?",
+    "hint": "Choose one level for each language. A guess is fine.",
+    "beginner": "Beginner",
+    "beginnerHint": "The most common words.",
+    "intermediate": "Intermediate",
+    "intermediateHint": "Common words and some less common ones.",
+    "advanced": "Advanced",
+    "advancedHint": "Less common words."
+  },
+  "topics": {
+    "title": "What interests you?",
+    "hint": "Pick 3 to 6 topics. Ladu adds words for them.",
+    "countLow": "Pick {{min}} to {{max}} topics ({{count}} picked)",
+    "countOk": "{{count}} of {{max}} topics picked",
+    "names": {
+      "clothing": "Clothing",
+      "food_drink": "Food & drink",
+      "animals": "Animals",
+      "plants_nature": "Plants & nature",
+      "weather": "Weather",
+      "body_health": "Body & health",
+      "technology_media": "Technology & media",
+      "home_living": "Home & living",
+      "travel_transport": "Travel & transport",
+      "sports_hobbies": "Sports & hobbies",
+      "work_money": "Work & money",
+      "numbers_measures": "Numbers & measures",
+      "time_calendar": "Time & calendar",
+      "feelings": "Feelings",
+      "people_family": "People & family"
+    }
+  },
+  "count": {
+    "title": "How many words?",
+    "hint": "You can add or remove words later.",
+    "value": "{{count}} words",
+    "hintSmall": "A small start. Good to try Ladu.",
+    "hintMedium": "A good start for your first practice sessions.",
+    "hintLarge": "Above 100 words, more general vocabulary is added.",
+    "capacity": "With these levels and topics, we can add up to {{count}} words.",
+    "capacityLow": "With these levels and topics, we can add only {{count}} words. Pick other topics or levels to add more.",
+    "none": "With these levels and topics, we cannot add words. Go back and change them.",
+    "loading": "Checking the words…",
+    "create": "Add {{count}} words"
   }
 }

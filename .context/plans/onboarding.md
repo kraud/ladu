@@ -8,12 +8,13 @@ changes listed in `backend/scripts/onboarding/first-review.md`, kept for referen
 feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
 **Slice 3 done on 2026-10-16 (3a–3d):** precomputed forms, the onboarding status on the account,
 the selection service, and the three routes (see "Slice 3d — what was built"). **Slice 4 in progress
-(planned 2026-10-16 as 4a–4e):** 4a and 4b built.
+(planned 2026-10-16 as 4a–4e):** 4a, 4b and 4c built.
 
-**Resume here (2026-10-16):** next is **4c** (see the Slices table): the steps inside `/onboarding`
-(languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading
-screen. 4b is built (see "Slice 4b — what was built"). The Jest `socket hang up` flake is fixed.
-Open items 2–4, 6
+**Resume here (2026-10-16):** next is **4d** (see the Slices table): the dashboard card (D28: "N words
+added in M topics", one link per new tag, "Start practising", close button, per browser) and a review of
+the strings in EN/ES/DE/EE. `useCreateOnboarding` (`frontend/src/features/onboarding/hooks.ts`) gets the
+create answer (`words`, `tags`) in `onSuccess`: 4d must store it for the card. 4c is built (see "Slice 4c —
+what was built"). Open items 2–4, 6
 and 8 are still open (see "Open items"). Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
 D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the
 start of Slice 4). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
@@ -145,7 +146,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
 | 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
 | 3 ✅ | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
-| 4 (4a ✅ 4b ✅) | **Frontend**, in five steps. **4a** the admin switch (D26): migration 0031, `onboarding` in the public and admin access answers, `PUT /api/admin/access/onboarding`, 403 `onboarding_disabled` on the routes, the admin Access → Onboarding tab with the counts by status. **4b** `onboardingStatus` in the session, the redirect (only while the switch is on), `/onboarding` full screen (D27) with Welcome and Skip. **4c** the steps (languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading screen. **4d** the dashboard card (D28), the strings in EN/ES/DE/EE, Vitest. **4e** Playwright `onboarding-gate.spec.ts` and a full green e2e run. | Jest / Vitest green after each step; 4e: Playwright green. |
+| 4 (4a ✅ 4b ✅ 4c ✅) | **Frontend**, in five steps. **4a** the admin switch (D26): migration 0031, `onboarding` in the public and admin access answers, `PUT /api/admin/access/onboarding`, 403 `onboarding_disabled` on the routes, the admin Access → Onboarding tab with the counts by status. **4b** `onboardingStatus` in the session, the redirect (only while the switch is on), `/onboarding` full screen (D27) with Welcome and Skip. **4c** the steps (languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading screen. **4d** the dashboard card (D28), the strings in EN/ES/DE/EE, Vitest. **4e** Playwright `onboarding-gate.spec.ts` and a full green e2e run. | Jest / Vitest green after each step; 4e: Playwright green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
 ## Open items (decide during the slices)
@@ -319,6 +320,25 @@ answer **409 `onboarding_not_pending`** when the account is not `pending`. Error
   `router.test.tsx` (+7 redirect cases), `authStore.test.ts` (+3). `test/setup.ts` clears the app-wide
   query client after each test. Full Vitest 1,850 green; typecheck clean.
 - The welcome has no Start button yet: the first step arrives in 4c.
+
+## Slice 4c — what was built (2026-10-16)
+
+- `/onboarding` has five screens in `pages/OnboardingPage.tsx`: Welcome (Start), then "Step N of 4":
+  **languages** (`LanguageTiles` + a native-language chip row with "None"; ≥ 2 languages), **levels**
+  (Beginner / Intermediate / Advanced for each learning language = languages − native), **topics**
+  (chips; 3–6, the rest wait at 6), **count** (range input, then Create). Back on every step, Skip always.
+- Languages are the only answer saved early: `PUT /users/updateUser` on Next when they changed (the
+  server reads them from the account, D8). All other answers stay in the page until Create.
+- Count step: `useCapacity` calls `POST /onboarding/capacity` when it opens; range = 50 to the capacity
+  (D18); under 50 there is no slider and the capacity is the count (D25); capacity 0 blocks Create.
+  Hint text changes at 70 and 100 words; a second hint shows the cap when it is under 150.
+- Create: loading screen, then `setOnboardingStatus('done')`, the word / tag / metrics queries are
+  invalidated, the dashboard opens. A 403/409 also opens the dashboard; other errors show a banner.
+- Files: `types.ts`, `learning.ts`, `api.ts`, `hooks.ts`, `components/{Languages,Levels,Topics,Count}Step.tsx`,
+  `locales/*/onboarding.json` (topic names equal `services/onboarding/labels.ts`).
+- Tests: 6 new in `onboarding.test.tsx` (full walk, step gates and the 6-topic stop, profile save,
+  capacity cap, D25, Create error). Full Vitest 1,856 green; typecheck and lint clean. Not yet seen in a
+  real browser.
 
 ## Review log — Slice 3c (2026-10-16)
 
