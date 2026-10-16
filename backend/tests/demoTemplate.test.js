@@ -1,7 +1,7 @@
 // Demo access, Slice 2 step 2: the template data file, the template seed, and the copy into each
 // new demo (id maps, array remap, date shift). See .context/plans/demo-access.md.
 const { randomUUID } = require('crypto');
-const request = require('supertest');
+const request = require('./request');
 const { and, eq, inArray } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');

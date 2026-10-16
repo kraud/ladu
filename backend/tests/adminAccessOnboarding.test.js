@@ -1,6 +1,6 @@
 // The onboarding switch (onboarding.md D26): the owner's admin API, its audit row, the counts by
 // status, and `onboarding.enabled` in the public `GET /api/access`.
-const request = require('supertest');
+const request = require('./request');
 const { eq } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');

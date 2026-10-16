@@ -23,7 +23,7 @@
 // jest.mock hoisting never applies to it).
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
-const request = require('supertest');
+const request = require('./request');
 const app = require('../app');
 const testDb = require('./db');
 const { pool, db } = require('../src/db');

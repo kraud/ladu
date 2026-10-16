@@ -8,7 +8,7 @@ jest.mock('../lib/accountEmails', () => {
 });
 const { issueVerificationEmail } = require('../lib/accountEmails');
 
-const request = require('supertest');
+const request = require('./request');
 const { eq } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');

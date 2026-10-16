@@ -1,7 +1,7 @@
 // Access gates, PR 1: the owner's admin API (settings and invites). See .context/plans/access-gates.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
-const request = require('supertest');
+const request = require('./request');
 const bcrypt = require('bcryptjs');
 const { eq } = require('drizzle-orm');
 const app = require('../app');

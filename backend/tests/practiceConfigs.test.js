@@ -12,7 +12,7 @@
 
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
-const request = require('supertest');
+const request = require('./request');
 const app = require('../app');
 const testDb = require('./db');
 const { pool } = require('../src/db');

@@ -3,7 +3,7 @@
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 const sendMail = require('../utils/sendEmail');
 
-const request = require('supertest');
+const request = require('./request');
 const bcrypt = require('bcryptjs');
 const { and, eq } = require('drizzle-orm');
 const app = require('../app');

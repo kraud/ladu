@@ -5,7 +5,7 @@
  */
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
-const request = require('supertest');
+const request = require('./request');
 const { eq, inArray } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');

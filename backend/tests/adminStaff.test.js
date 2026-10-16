@@ -1,7 +1,7 @@
 // Admin dashboard slice 8 — staff management (owner only).
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
-const request = require('supertest');
+const request = require('./request');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { eq } = require('drizzle-orm');

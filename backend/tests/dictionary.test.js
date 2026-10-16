@@ -5,7 +5,7 @@
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const path = require('path');
-const request = require('supertest');
+const request = require('./request');
 const app = require('../app');
 const db = require('./db');
 const { pool } = require('../src/db');

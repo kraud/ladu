@@ -3,7 +3,7 @@
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const express = require('express');
-const request = require('supertest');
+const request = require('./request');
 const jwt = require('jsonwebtoken');
 const { eq } = require('drizzle-orm');
 const app = require('../app');

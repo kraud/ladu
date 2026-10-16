@@ -1,6 +1,6 @@
 // Demo access, Slice 1: `POST /api/demo` (the gate, the per-IP limit, the live cap, the new demo
 // account and its seed) and the demo session in `protect`. See .context/plans/demo-access.md.
-const request = require('supertest');
+const request = require('./request');
 const bcrypt = require('bcryptjs');
 const { eq, ne } = require('drizzle-orm');
 const app = require('../app');

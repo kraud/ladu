@@ -13,7 +13,7 @@ jest.mock('../lib/oauth/discovery', () => ({
 }));
 const { jwtVerify } = require('jose');
 
-const request = require('supertest');
+const request = require('./request');
 const bcrypt = require('bcryptjs');
 const { eq } = require('drizzle-orm');
 const app = require('../app');
