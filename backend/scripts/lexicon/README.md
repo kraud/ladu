@@ -49,6 +49,14 @@ page-topic allowlist, the restricted words, the level bands); its unit test is
 its label in the WordNet edition. It also writes `word-lists/topic-report.md`: words per topic and
 level band, with examples, for the review (`.context/plans/onboarding.md`).
 
+```sh
+npx tsx scripts/lexicon/onboarding-pool.ts [--force]   # ~2 s: word lists + translations → onboarding pool
+```
+
+Writes `word-lists/pool-candidates.tsv` and, only when it does not exist yet (or with `--force`,
+which discards the review), the committed `scripts/onboarding/pool.tsv`. See
+`scripts/onboarding/README.md` for the review.
+
 Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
 `EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).
 

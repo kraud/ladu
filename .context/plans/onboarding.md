@@ -2,8 +2,9 @@
 
 Status: **draft, planned on 2026-10-16.** **Slice 0 done** (word lists with rank, Wiktionary
 topics and WordNet supersenses; commits on 2026-10-15/16). **Slice 1 done on 2026-10-16** (topic
-map; see "Slice 1 — what was built"). Decisions D1–D13 are confirmed with the user on 2026-10-16
-(D11–D13 during Slice 1). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
+map; see "Slice 1 — what was built"). **Slice 2 built on 2026-10-16** (pool generator, parser,
+committed `pool.tsv`); **the human review of `pool.tsv` is still open**. Decisions D1–D17 are
+confirmed with the user on 2026-10-16 (D11–D13 during Slice 1, D14–D17 during Slice 2). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
 
 ## What this is (plain-language overview)
@@ -43,6 +44,10 @@ frequency band. The server only reads that pool.
 | D11. Verb topics | Verbs get a topic **only through WordNet verb anchors** (eat, drink, cook, travel, drive, fly, play, compete, dress, wear, buy, sell, pay, work, sleep, heal, rain, feel…). No direct verb supersense: `verb.possession` alone put have/get/take into Work & Money. All other verbs are Core vocabulary. |
 | D12. Which sense decides | Only the **first** WordNet sense of a noun or verb decides its topic (a second sense put "person" into Body & Health). Anchors are checked before direct supersenses; between topics, the order of `TOPICS` decides (doctor: Body & Health before Work & Money). |
 | D13. Restricted words | A word is left out of onboarding when the **first** normal sense of its first Wiktionary entry is tagged vulgar, offensive, derogatory or slur, or when it is in a short manual blocklist (ass, bitch, dick…: harmless first sense, risky in a starter set). A tag on any sense flagged mother, dog, milk and apple. |
+| D14. Word count | The user chooses how many words onboarding creates: a **slider from 50 to 150** in steps, with a short text under it that changes at thresholds (e.g. "Above 100 words, more general vocabulary is added", D16). |
+| D15. Topic count | The user picks **3 to 6 topics**. |
+| D16. Fill rule | Words come in this order until the count is reached: picked-topic concepts of the user's band → core concepts of that band → picked-topic concepts of the next band up. Per language (D5), then merged. |
+| D17. Pool file | `backend/scripts/onboarding/pool.tsv` (TSV, one concept per line; precedent `scripts/demo-template/data.json`; the Docker image already copies `scripts/`). 20 concepts per topic × band, 100 core concepts per band. Status `keep` (used), `check` (the generator found a flag, not used until set to `keep`), `drop`. The generator never overwrites the reviewed file without `--force`. |
 | D10. Pool | The server never reads `word-lists/` (git-ignored, developer machine only). A script builds a committed pool file from the lists; a human reviews it. Vulgar, offensive and derogatory senses are removed when the lists and the pool are built, not at lexicon ingest (autocomplete keeps them). |
 
 ### Topics (D2, D3, D11)
@@ -72,7 +77,7 @@ hell/left/side, must/agent and result/effect. Anchors left out as too noisy: dev
 worker (captain, general), drug (wine, beer), organization (house, family, party), diversion (show,
 doctor), the general "go/move" verb (206 verbs). Colors and sizes have no topic: core vocabulary.
 
-### Level bands (D4, draft — tuned in Slice 2 with the coverage report)
+### Level bands (D4)
 
 | Level | Frequency rank |
 |---|---|
@@ -103,30 +108,31 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
    **Skip** (D6) → empty account → dashboard.
 2. **Languages**: the account's languages and native language, filled in (D8). At least 2.
 3. **Level**: one Beginner / Intermediate / Advanced choice per language (D4).
-4. **Topics**: a grid of the 15 topics; the user picks some (the number is fixed in the plan
-   review, see "Open items").
-5. **Create**: the server picks concepts (D5, D9), creates the Words with all forms and one tag
-   per picked topic (+ Core vocabulary), then the app opens the **dashboard** (D7) with a short
-   summary ("24 words added in 3 topics").
+4. **Topics**: a grid of the 15 topics; the user picks 3 to 6 (D15).
+5. **How many words**: a slider from 50 to 150 with threshold texts (D14).
+6. **Create**: the server picks concepts (D5, D9, D16), creates the Words with all forms and one
+   tag per picked topic (+ Core vocabulary), then the app opens the **dashboard** (D7) with a
+   short summary ("60 words added in 4 topics").
 
 ## Slices (one at a time; each ends with something runnable)
 
 | # | Slice | Ends with |
 |---|---|---|
 | 0 ✅ | **Word lists.** `backend/scripts/lexicon/word-lists.ts` → `word-lists/en/<pos>.tsv` (lemma, rank, page_topics, sense_domains, supersenses). | Lists rebuilt; coverage measured. |
-| 1 | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
-| 2 | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
+| 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
+| 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
 | 3 | **Backend.** A `users` column for the onboarding state (pending / done / skipped), `POST /api/onboarding` (languages, levels, topics) and skip. It creates the Words, translations, forms and tags through the same services as the app. Excludes demo accounts. | Jest green. |
 | 4 | **Frontend.** `/onboarding` flow, first-login redirect, skip, summary on the dashboard. Translated UI strings (EN/ES/DE/EE). | Vitest + Playwright `onboarding.spec.ts` green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
 ## Open items (decide during the slices)
 
-1. How many topics can the user pick, and how many words onboarding creates in total (the demo uses 30).
+1. ~~How many topics, how many words~~ — decided 2026-10-16: D14, D15.
 2. Which accounts see onboarding: only accounts created after the release, or also existing empty accounts.
 3. Tag names: in the UI language of the user at creation time, or fixed per topic.
 4. Where signup sets `languages` / `nativeLanguage` today (check in Slice 3), and what OAuth signups have.
-5. Pool file location and format (precedent: `backend/scripts/demo-template/data.json`, checked by Jest).
+5. ~~Pool file location and format~~ — decided 2026-10-16: D17.
+6. The slider steps and the threshold texts (D14): fix in Slice 4.
 
 ## Slice 1 — what was built (2026-10-16)
 
@@ -141,6 +147,34 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
   (tom, ben, henry, anna), generic `noun.person` words (sir, guy, god). Neither `pos_order` nor
   `given_name` can filter alone: "need"/"use" (verbs) are second on their page; "rose" is a name.
 - Beginner band is thin for Technology & Media and Sports & Hobbies (subtitle frequencies).
+
+## Slice 2 — what was built (2026-10-16)
+
+- `backend/scripts/lexicon/onboarding-pool.ts`: reads the word lists, the newest translation file
+  and the ES/DE/ET lexicon files; writes `word-lists/pool-candidates.tsv` and, the first time,
+  `backend/scripts/onboarding/pool.tsv` (1,110 concepts). Runs in about 2 seconds.
+  - Sense: the first Wiktionary sense (entry, then sense order) with a usable ES/DE/ET word.
+  - Word per language: the first with only grammar tags; else a regional one (flag
+    `<lang>:regional`); never rare, dated, slang, vulgar or dialect words. Gender from the hub.
+  - Flags (status `check`): `sense:<e.s>` (not the first sense), `pos_order:<n>`, `given_name`,
+    `es:/de:not_in_lexicon` (the draft lookup may still fill it from the library; Estonian is
+    filled online by Ekilex, so it is not flagged).
+- `backend/lib/onboardingPool.ts`: the columns, statuses, `parsePool()` / `readPool()` (Slice 3 uses them).
+- `backend/scripts/onboarding/README.md`: how to review, the columns, the attribution (CC BY-SA 4.0).
+- Jest: `tests/unit/onboardingPool.test.js` checks every line of the committed file (status, topic,
+  band, part of speech, rank, English + ≥1 other language, gender values, unique ids) and the parser.
+- Numbers: Spanish 1,032 / German 1,035 / Estonian 627 of 1,110 concepts; 614 have all three.
+  Flags: `pos_order` 262, `de:not_in_lexicon` 81, `es:not_in_lexicon` 76, `sense` 16, regional 3.
+  Short cells (fewer than 20 usable concepts): Technology beginner 6, Sports beginner 8, Weather
+  intermediate 5, Clothing and Weather beginner 13 — the fill rule (D16) covers them.
+
+## Review log — Slice 2 (2026-10-16)
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| S2-1 | Moderate | A user-chosen count up to 150 (D14) cannot be filled from 20 concepts per topic cell when few topics are picked; some cells have fewer than 10. | D16 fill rule (user decision); core cell raised to 100 per band. |
+| S2-2 | Moderate | The topic (WordNet first sense) and the translation (Wiktionary first sense) can describe different meanings without any flag: verb "can" is in Food & Drink (WordNet: "to can food") but translates as poder; "tea" translates as "hoja de té" (the leaves). | Human review of `pool.tsv` (D10). No data rule can catch it. |
+| S2-3 | Minor | Estonian is present in only 56% of the concepts. | Expected (D9); concepts without Estonian still serve users without Estonian or with 2+ other languages. |
 
 ## Review log — Slice 1 (2026-10-16)
 
