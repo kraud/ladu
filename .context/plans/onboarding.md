@@ -3,8 +3,10 @@
 Status: **draft, planned on 2026-10-16.** **Slice 0 done** (word lists with rank, Wiktionary
 topics and WordNet supersenses; commits on 2026-10-15/16). **Slice 1 done on 2026-10-16** (topic
 map; see "Slice 1 — what was built"). **Slice 2 built on 2026-10-16** (pool generator, parser,
-committed `pool.tsv`); **the human review of `pool.tsv` is still open**. Decisions D1–D17 are
-confirmed with the user on 2026-10-16 (D11–D13 during Slice 1, D14–D17 during Slice 2). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
+committed `pool.tsv`). **First review pass done by Claude on 2026-10-16** (698 keep, 412 drop;
+changes listed in `backend/scripts/onboarding/first-review.md`); **the user's confirmation is
+open**. Decisions D1–D19 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
+D14–D19 during Slice 2). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
 
 ## What this is (plain-language overview)
@@ -48,6 +50,8 @@ frequency band. The server only reads that pool.
 | D15. Topic count | The user picks **3 to 6 topics**. |
 | D16. Fill rule | Words come in this order until the count is reached: picked-topic concepts of the user's band → core concepts of that band → picked-topic concepts of the next band up. Per language (D5), then merged. |
 | D17. Pool file | `backend/scripts/onboarding/pool.tsv` (TSV, one concept per line; precedent `scripts/demo-template/data.json`; the Docker image already copies `scripts/`). 20 concepts per topic × band, 100 core concepts per band. Status `keep` (used), `check` (the generator found a flag, not used until set to `keep`), `drop`. The generator never overwrites the reviewed file without `--force`. |
+| D18. Slider cap | The slider's maximum depends on the pool: for the chosen languages, levels and topics, the server counts the concepts that the fill rule (D16) can deliver and rounds **down to a multiple of 10** (109 → 100). A hint near the slider says "With these levels and topics, we can add up to N words." Chosen over topping up the pool (see "To evaluate after release"). |
+| D19. Spanish variety | Pool words are **neutral where possible** (used in Spain and Latin America: automóvil, refrigerador, suéter); where no neutral word exists, the Spain word (ordenador, zumo, pendiente). |
 | D10. Pool | The server never reads `word-lists/` (git-ignored, developer machine only). A script builds a committed pool file from the lists; a human reviews it. Vulgar, offensive and derogatory senses are removed when the lists and the pool are built, not at lexicon ingest (autocomplete keeps them). |
 
 ### Topics (D2, D3, D11)
@@ -133,6 +137,24 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 4. Where signup sets `languages` / `nativeLanguage` today (check in Slice 3), and what OAuth signups have.
 5. ~~Pool file location and format~~ — decided 2026-10-16: D17.
 6. The slider steps and the threshold texts (D14): fix in Slice 4.
+7. What the slider shows when the pool can deliver fewer than 50 words for a choice (D18): fix in Slice 3/4.
+
+## Notes for Slice 3 (from the first pool review)
+
+- Two concepts can have the same words in every language (couch / sofa → el sofá, das Sofa):
+  skip a concept whose words equal those of a Word already created in the same run.
+- Some nouns are plural with no gender (Leute, vacaciones, celos): the draft lookup must accept an
+  empty gender for a noun.
+- The capacity count for D18 needs a small route (or a field in the onboarding options answer) that
+  applies D5 + D16 to the pool for the current choice.
+
+## To evaluate after release
+
+- **D18 vs. topping up the pool.** Watch how often the cap is below 150 and how users react (for
+  example, the maximum count chosen against the maximum offered). If small caps are common or
+  confusing, revert D18 and top up the pool instead: a `--top-up` option on `onboarding-pool.ts`
+  that appends the next candidates by rank, as `check` lines, to every cell under its target
+  (20 keep per topic × band, 100 core per band), followed by a review round.
 
 ## Slice 1 — what was built (2026-10-16)
 
@@ -175,6 +197,9 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | S2-1 | Moderate | A user-chosen count up to 150 (D14) cannot be filled from 20 concepts per topic cell when few topics are picked; some cells have fewer than 10. | D16 fill rule (user decision); core cell raised to 100 per band. |
 | S2-2 | Moderate | The topic (WordNet first sense) and the translation (Wiktionary first sense) can describe different meanings without any flag: verb "can" is in Food & Drink (WordNet: "to can food") but translates as poder; "tea" translates as "hoja de té" (the leaves). | Human review of `pool.tsv` (D10). No data rule can catch it. |
 | S2-3 | Minor | Estonian is present in only 56% of the concepts. | Expected (D9); concepts without Estonian still serve users without Estonian or with 2+ other languages. |
+| S2-4 | Moderate | After the first review, some cells are small (Technology beginner 5, Sports beginner 6, Weather intermediate 4): a beginner with Sports + Technology + Weather can get about 109 concepts, less than the slider's 150. | D18: the slider maximum follows the pool (user decision); topping up is recorded under "To evaluate after release". |
+| S2-5 | Minor | The first review chose Spain words where Spain and Latin America differ. | D19: neutral where possible, else Spain (user decision); 10 lines changed. |
+| S2-6 | Minor | Identical translations in two concepts (couch/sofa); plural nouns with no gender. | "Notes for Slice 3". |
 
 ## Review log — Slice 1 (2026-10-16)
 

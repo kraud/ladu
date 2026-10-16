@@ -35,6 +35,12 @@ Open the file in a spreadsheet (tab-separated, UTF-8) or an editor. For each lin
 Then run `npm test -- onboardingPool` from `backend/`: the test checks every line and names
 the id of a wrong one.
 
+`first-review.md` lists the changes of the first review pass (2026-10-16). Delete it when the
+review is confirmed.
+
+Spanish words are neutral where possible (used in Spain and Latin America); where no neutral word
+exists, the Spain word (decision D19 in the plan).
+
 ## Attribution
 
 Derived from English Wiktionary (https://en.wiktionary.org) via kaikki.org / Wiktextract,
