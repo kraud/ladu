@@ -4,9 +4,10 @@ Status: **draft, planned on 2026-10-16.** **Slice 0 done** (word lists with rank
 topics and WordNet supersenses; commits on 2026-10-15/16). **Slice 1 done on 2026-10-16** (topic
 map; see "Slice 1 — what was built"). **Slice 2 built on 2026-10-16** (pool generator, parser,
 committed `pool.tsv`). **First review pass done by Claude on 2026-10-16** (698 keep, 412 drop;
-changes listed in `backend/scripts/onboarding/first-review.md`); **the user's confirmation is
-open**. Decisions D1–D19 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
-D14–D19 during Slice 2). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
+changes listed in `backend/scripts/onboarding/first-review.md`, kept for reference until the
+feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
+**Slice 3 in progress (planned 2026-10-16 as 3a–3d):** 3a built (precomputed forms). Decisions D1–D23 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
+D14–D19 during Slice 2, D20–D23 at the start of Slice 3). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
 
 ## What this is (plain-language overview)
@@ -52,6 +53,10 @@ frequency band. The server only reads that pool.
 | D17. Pool file | `backend/scripts/onboarding/pool.tsv` (TSV, one concept per line; precedent `scripts/demo-template/data.json`; the Docker image already copies `scripts/`). 20 concepts per topic × band, 100 core concepts per band. Status `keep` (used), `check` (the generator found a flag, not used until set to `keep`), `drop`. The generator never overwrites the reviewed file without `--force`. |
 | D18. Slider cap | The slider's maximum depends on the pool: for the chosen languages, levels and topics, the server counts the concepts that the fill rule (D16) can deliver and rounds **down to a multiple of 10** (109 → 100). A hint near the slider says "With these levels and topics, we can add up to N words." Chosen over topping up the pool (see "To evaluate after release"). |
 | D19. Spanish variety | Pool words are **neutral where possible** (used in Spain and Latin America: automóvil, refrigerador, suéter); where no neutral word exists, the Spain word (ordenador, zumo, pendiente). |
+| D20. Precomputed forms | The forms of every `keep` concept are looked up **once, on a developer machine** (`scripts/lexicon/onboarding-forms.ts`: the draft lookup = local lexicon + Ekilex) and committed as `scripts/onboarding/pool-forms.json`. Onboarding makes **no lookups at runtime** (Estonian would need 80+ Ekilex calls for 150 words). A translation is kept only if its lookup found it and it has the key cases of the word list; a missing noun gender is taken from the pool. Re-run after every `pool.tsv` edit (Jest fails while they disagree). |
+| D21. Who sees onboarding | **New accounts only** (email and Google signup, after the release) get `onboarding_status = 'pending'`. Existing accounts and demo accounts have NULL and never see it. |
+| D22. Core share | **20 %** of the count is core vocabulary of the user's band (50 → 10 core + 40 topic); when the picked topics run out, more core fills the gap (D16). |
+| D23. Tags | One **Private** tag per picked topic and one for core vocabulary, named in the user's **UI language at creation time** (a 4-language name table in the backend). The user can rename or delete them like any tag. |
 | D10. Pool | The server never reads `word-lists/` (git-ignored, developer machine only). A script builds a committed pool file from the lists; a human reviews it. Vulgar, offensive and derogatory senses are removed when the lists and the pool are built, not at lexicon ingest (autocomplete keeps them). |
 
 ### Topics (D2, D3, D11)
@@ -125,7 +130,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | 0 ✅ | **Word lists.** `backend/scripts/lexicon/word-lists.ts` → `word-lists/en/<pos>.tsv` (lemma, rank, page_topics, sense_domains, supersenses). | Lists rebuilt; coverage measured. |
 | 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
 | 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
-| 3 | **Backend.** A `users` column for the onboarding state (pending / done / skipped), `POST /api/onboarding` (languages, levels, topics) and skip. It creates the Words, translations, forms and tags through the same services as the app. Excludes demo accounts. | Jest green. |
+| 3 (3a ✅) | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
 | 4 | **Frontend.** `/onboarding` flow, first-login redirect, skip, summary on the dashboard. Translated UI strings (EN/ES/DE/EE). | Vitest + Playwright `onboarding.spec.ts` green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
@@ -143,8 +148,8 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 
 - Two concepts can have the same words in every language (couch / sofa → el sofá, das Sofa):
   skip a concept whose words equal those of a Word already created in the same run.
-- Some nouns are plural with no gender (Leute, vacaciones, celos): the draft lookup must accept an
-  empty gender for a noun.
+- ~~Some nouns are plural with no gender~~ — handled by D20: a translation without its key cases
+  (including the gender) is not in `pool-forms.json`.
 - The capacity count for D18 needs a small route (or a field in the onboarding options answer) that
   applies D5 + D16 to the pool for the current choice.
 
@@ -189,6 +194,19 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
   Flags: `pos_order` 262, `de:not_in_lexicon` 81, `es:not_in_lexicon` 76, `sense` 16, regional 3.
   Short cells (fewer than 20 usable concepts): Technology beginner 6, Sports beginner 8, Weather
   intermediate 5, Clothing and Weather beginner 13 — the fill rule (D16) covers them.
+
+## Slice 3a — what was built (2026-10-16)
+
+- `scripts/lexicon/onboarding-forms.ts`: runs the draft lookup for the 698 `keep` concepts (4 in
+  parallel; about 13 s against the dev database with the full lexicon and Ekilex) and writes
+  `scripts/onboarding/pool-forms.json` (~680 KB, one concept per line).
+- `lib/onboardingPool.ts`: `KEY_CASES` / `hasKeyCases()` (the cases the word list shows per language
+  and part of speech, as `getRequiredFieldsData` in wordController), `readForms()`.
+- 26 translations are left out (multi-word or nominalised entries the lexicon does not have: "a la
+  derecha", "heute Abend", "Schwimmen", "sich sorgen"; "Leute" has no gender). Every concept keeps
+  at least 2 languages. These can be improved in `pool.tsv` later.
+- Jest: `onboardingPool.test.js` also checks that the forms file has exactly the `keep` concepts, the
+  same words as `pool.tsv` and the key cases of every translation.
 
 ## Review log — Slice 2 (2026-10-16)
 

@@ -32,11 +32,13 @@ Open the file in a spreadsheet (tab-separated, UTF-8) or an editor. For each lin
    empty it. A line needs English and at least one other language.
 3. For a `check` line, read `flags`, then set `keep` or `drop`.
 
-Then run `npm test -- onboardingPool` from `backend/`: the test checks every line and names
-the id of a wrong one.
+Then, from `backend/`, run `npx tsx scripts/lexicon/onboarding-forms.ts` (it rebuilds
+`pool-forms.json`, the precomputed forms; it needs the dev database with the lexicon and the Ekilex
+key) and `npm test -- onboardingPool`: the test checks every line, names the id of a wrong one, and
+fails while `pool-forms.json` does not match `pool.tsv`.
 
-`first-review.md` lists the changes of the first review pass (2026-10-16). Delete it when the
-review is confirmed.
+`first-review.md` lists the changes of the first review pass (2026-10-16), kept for reference.
+Delete it before the onboarding feature is merged.
 
 Spanish words are neutral where possible (used in Spain and Latin America); where no neutral word
 exists, the Spain word (decision D19 in the plan).

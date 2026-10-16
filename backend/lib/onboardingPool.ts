@@ -74,3 +74,48 @@ export function parsePool(text: string): PoolConcept[] {
 export function readPool(file: string = POOL_FILE): PoolConcept[] {
     return parsePool(fs.readFileSync(file, 'utf8'));
 }
+
+// --- Precomputed forms (Slice 3a, decision D20) ---------------------------------------------------
+
+export const FORMS_FILE = path.resolve(__dirname, '../scripts/onboarding/pool-forms.json');
+
+/**
+ * The cases a translation must have to be saved: the ones the word list shows for that language and
+ * part of speech (wordController `getRequiredFieldsData`). A Spanish adjective needs one of its two.
+ */
+export const KEY_CASES: Record<string, Record<string, string[][]>> = {
+    Noun: {
+        English: [['singularEN']], Spanish: [['genderES'], ['singularES']],
+        German: [['genderDE'], ['singularNominativDE']], Estonian: [['singularNimetavEE']],
+    },
+    Verb: {
+        English: [['simplePresent1sEN']], Spanish: [['infinitiveNonFiniteSimpleES']],
+        German: [['infinitiveDE']], Estonian: [['infinitiveMaEE']],
+    },
+    Adjective: {
+        English: [['positiveEN']], Spanish: [['maleSingularES', 'neutralSingularES']],
+        German: [['positiveDE']], Estonian: [['algvorreEE']],
+    },
+    Adverb: {
+        English: [['adverbEN']], Spanish: [['adverbES']], German: [['adverbDE']], Estonian: [['adverbEE']],
+    },
+};
+
+/** True when `cases` has every key case of the language and part of speech (one of each group). */
+export function hasKeyCases(partOfSpeech: string, language: string, cases: Record<string, string>): boolean {
+    const groups = KEY_CASES[partOfSpeech]?.[language];
+    return !!groups && groups.every((group) => group.some((caseName) => !!cases[caseName]));
+}
+
+/** One concept's precomputed translations: language → the pool word and its cases. */
+export type ConceptForms = Record<string, { word: string; cases: Record<string, string> }>;
+
+export interface FormsFile {
+    format: 'ladu-onboarding-forms/1';
+    generatedAt: string;
+    concepts: Record<string, ConceptForms>;
+}
+
+export function readForms(file: string = FORMS_FILE): FormsFile {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+}

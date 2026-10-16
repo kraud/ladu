@@ -57,6 +57,13 @@ Writes `word-lists/pool-candidates.tsv` and, only when it does not exist yet (or
 which discards the review), the committed `scripts/onboarding/pool.tsv`. See
 `scripts/onboarding/README.md` for the review.
 
+```sh
+npx tsx scripts/lexicon/onboarding-forms.ts   # ~15 s: the forms of every keep concept → scripts/onboarding/pool-forms.json
+```
+
+Runs the draft lookup (DATABASE_URL lexicon + Ekilex) for the onboarding pool. Run it after every
+edit of `pool.tsv`; onboarding reads the result and makes no lookups at runtime.
+
 Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
 `EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).
 

@@ -2,7 +2,7 @@
 
 The first pass over all 1,110 lines. Result: 698 `keep`, 412 `drop`, 0 `check`. Lines not listed
 here were already `keep` and were left as they were. Please confirm or change these decisions in
-`pool.tsv`; delete this file when the review is done (the plan keeps the summary).
+`pool.tsv`. Kept for reference; delete it before the onboarding feature is merged.
 
 Kinds of change: wrong Wiktionary sense (tea → the leaves, orange → the tree, train → of a dress),
 homographs and names (stole, tom, john, won, em), regional or slang words (buey, piola, mosco),
