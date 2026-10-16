@@ -8,7 +8,16 @@ changes listed in `backend/scripts/onboarding/first-review.md`, kept for referen
 feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
 **Slice 3 done on 2026-10-16 (3a–3d):** precomputed forms, the onboarding status on the account,
 the selection service, and the three routes (see "Slice 3d — what was built"). **Slice 4 in progress
-(planned 2026-10-16 as 4a–4e):** 4a built (the admin switch). Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
+(planned 2026-10-16 as 4a–4e):** 4a built (the admin switch).
+
+**Resume here (2026-10-16):** next is **4b** (see the Slices table): `onboardingStatus` in the
+app session (`frontend/src/stores/authStore.ts`: `SessionUser`, `RawUser`, `toSessionUser`; a session
+saved before the field reads as "no onboarding"), `onboarding.enabled` from `GET /api/access`
+(`frontend/src/features/access`), the redirect in `_protected.beforeLoad` (`frontend/src/app/router.tsx`)
+only when `pending` AND the switch is on, and a full-screen `/onboarding` route (D27, outside the
+app shell) with Welcome + Skip (`POST /api/onboarding/skip`, then the session gets `skipped`).
+Before 4b, the user fixes the Jest `socket hang up` flake in a separate session. Open items 2–4, 6
+and 8 are still open (see "Open items"). Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
 D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the
 start of Slice 4). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
