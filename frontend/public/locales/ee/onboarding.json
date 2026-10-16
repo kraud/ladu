@@ -1,6 +1,12 @@
 {
   "skip": "Jäta vahele",
   "skipping": "Jätan vahele…",
+  "skipDialog": {
+    "title": "Kas jätad seadistuse vahele?",
+    "text": "Kui jätad vahele, ei lisa Ladu ühtegi sõna ega Tagi. Sinu sõnade loend ja Tagide loend on algul tühjad. Sõnu saad ise lisada igal ajal.",
+    "confirm": "Jäta vahele",
+    "cancel": "Jätka seadistamist"
+  },
   "next": "Edasi",
   "back": "Tagasi",
   "start": "Alusta",

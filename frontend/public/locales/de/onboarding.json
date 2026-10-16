@@ -1,6 +1,12 @@
 {
   "skip": "Überspringen",
   "skipping": "Wird übersprungen …",
+  "skipDialog": {
+    "title": "Einrichtung überspringen?",
+    "text": "Wenn du überspringst, fügt Ladu keine Wörter und keine Tags hinzu. Deine Wörterliste und deine Tag-Liste sind dann leer. Du kannst jederzeit selbst Wörter hinzufügen.",
+    "confirm": "Überspringen",
+    "cancel": "Weiter einrichten"
+  },
   "next": "Weiter",
   "back": "Zurück",
   "start": "Los geht’s",

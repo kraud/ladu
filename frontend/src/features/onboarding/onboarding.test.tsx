@@ -45,9 +45,29 @@ describe('/onboarding (welcome + skip)', () => {
         );
         await renderApp({ initialEntry: '/', session: pendingSession });
         await userEvent.click(await screen.findByRole('button', { name: en.skip }));
+        await userEvent.click(await screen.findByRole('button', { name: en.skipDialog.confirm }));
         await waitFor(() => expect(useAuthStore.getState().user?.onboardingStatus).toBe('skipped'));
         expect(called).toBe(1);
         await waitFor(() => expect(screen.queryByRole('heading', { name: WELCOME_TITLE })).not.toBeInTheDocument());
+    });
+
+    it('asks for confirmation before it skips, and does nothing when the user continues', async () => {
+        let called = 0;
+        server.use(
+            ...makeAccessHandlers({ ...OPEN_ACCESS, onboarding: { enabled: true } }),
+            http.post('*/api/onboarding/skip', () => {
+                called += 1;
+                return HttpResponse.json({ onboardingStatus: 'skipped' });
+            }),
+        );
+        await renderApp({ initialEntry: '/', session: pendingSession });
+        await userEvent.click(await screen.findByRole('button', { name: en.skip }));
+        const dialog = await screen.findByRole('alertdialog');
+        expect(within(dialog).getByText(en.skipDialog.text)).toBeInTheDocument();
+        await userEvent.click(within(dialog).getByRole('button', { name: en.skipDialog.cancel }));
+        await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
+        expect(called).toBe(0);
+        expect(useAuthStore.getState().user?.onboardingStatus).toBe('pending');
     });
 
     it('stays on the page and shows an error when Skip fails', async () => {
@@ -57,6 +77,7 @@ describe('/onboarding (welcome + skip)', () => {
         );
         await renderApp({ initialEntry: '/', session: pendingSession });
         await userEvent.click(await screen.findByRole('button', { name: en.skip }));
+        await userEvent.click(await screen.findByRole('button', { name: en.skipDialog.confirm }));
         expect(await screen.findByRole('alert')).toBeInTheDocument();
         expect(useAuthStore.getState().user?.onboardingStatus).toBe('pending');
     });

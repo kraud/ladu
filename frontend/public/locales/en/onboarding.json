@@ -1,6 +1,12 @@
 {
   "skip": "Skip",
   "skipping": "Skipping…",
+  "skipDialog": {
+    "title": "Skip the setup?",
+    "text": "If you skip, Ladu does not add any words or tags. Your word list and tag list start empty. You can add words yourself at any time.",
+    "confirm": "Skip setup",
+    "cancel": "Continue setup"
+  },
   "next": "Next",
   "back": "Back",
   "start": "Start",

@@ -1,6 +1,12 @@
 {
   "skip": "Omitir",
   "skipping": "Omitiendo…",
+  "skipDialog": {
+    "title": "¿Omitir la configuración?",
+    "text": "Si omites este paso, Ladu no añade ninguna palabra ni ningún Tag. Tu lista de palabras y tu lista de Tags empiezan vacías. Puedes añadir palabras en cualquier momento.",
+    "confirm": "Omitir",
+    "cancel": "Seguir con la configuración"
+  },
   "next": "Siguiente",
   "back": "Atrás",
   "start": "Empezar",

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { getApiErrorCode } from '@/api/types';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { Button } from '@/components/ui/button';
 import { useUpdateProfile } from '@/features/auth/hooks';
@@ -35,6 +36,7 @@ export function OnboardingPage() {
     const create = useCreateOnboarding();
 
     const [step, setStep] = useState<Step>(0);
+    const [confirmSkip, setConfirmSkip] = useState(false);
     // The languages from registration: the only ones the first question offers. Fixed at mount, so a saved change does not shrink the list.
     const [registeredLanguages] = useState<string[]>(user?.languages ?? []);
     const [languages, setLanguages] = useState<string[]>(user?.languages ?? []);
@@ -121,7 +123,7 @@ export function OnboardingPage() {
             summary={summary}
             skip={{
                 label: skip.isPending ? t('onboarding:skipping') : t('onboarding:skip'),
-                onClick: () => skip.mutate(),
+                onClick: () => setConfirmSkip(true),
                 disabled: busy,
             }}
             back={step > 1 ? { label: t('onboarding:back'), onClick: () => setStep((step - 1) as Step), disabled: busy } : undefined}
@@ -171,6 +173,17 @@ export function OnboardingPage() {
                     {t('common:errors.somethingWrong')}
                 </p>
             )}
+
+            <ConfirmDialog
+                open={confirmSkip}
+                onOpenChange={setConfirmSkip}
+                title={t('onboarding:skipDialog.title')}
+                description={t('onboarding:skipDialog.text')}
+                confirmLabel={t('onboarding:skipDialog.confirm')}
+                cancelLabel={t('onboarding:skipDialog.cancel')}
+                destructive={false}
+                onConfirm={() => skip.mutate()}
+            />
         </OnboardingShell>
     );
 }
