@@ -132,6 +132,9 @@ export const accessSettings = pgTable(
         // The most demos that may be live at one time (not expired). Bounds load and storage
         // against many visitors or many IPs; slots free up as demos end.
         demoMaxLive:          integer('demo_max_live').notNull().default(200),
+        // The first-login onboarding (onboarding.md D26): off by default. New accounts are marked
+        // `pending` either way; the app opens /onboarding and the routes work only while this is on.
+        onboardingEnabled:    boolean('onboarding_enabled').notNull().default(false),
         updatedAt:        timestamp('updated_at').defaultNow().notNull(),
         updatedByStaffId:  uuid('updated_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
     },

@@ -218,6 +218,13 @@
       "when": 1792148778016,
       "tag": "0030_onboarding_status",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1792154353771,
+      "tag": "0031_onboarding_switch",
+      "breakpoints": true
     }
   ]
 }

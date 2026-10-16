@@ -26,6 +26,11 @@ export async function saveDemo(body: DemoSettings & { reason?: string }): Promis
     return data;
 }
 
+export async function saveOnboarding(body: { enabled: boolean; reason?: string }): Promise<AccessState> {
+    const { data } = await apiClient.put<AccessState>('/admin/access/onboarding', body);
+    return data;
+}
+
 export async function fetchDemoUsers(): Promise<DemoUsers> {
     const { data } = await apiClient.get<DemoUsers>('/admin/access/demo/users');
     return data;

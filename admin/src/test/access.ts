@@ -57,6 +57,8 @@ export function makeAccess(overrides: Partial<AccessState> = {}): AccessState {
         registration: { mode: 'open', note: '' },
         login: { mode: 'open', note: '' },
         demo: { enabled: false, durationMinutes: 15, maxWords: 30, maxTags: 5, maxLive: 200 },
+        onboarding: { enabled: false },
+        onboardingCounts: { pending: 0, done: 0, skipped: 0 },
         updatedAt: null,
         updatedBy: null,
         invites,
@@ -105,6 +107,17 @@ export function accessHandlers(
         http.get('/api/admin/access/demo/stats', () => HttpResponse.json(demo.stats ?? makeDemoStats())),
         putGate('registration'),
         putGate('login'),
+        http.put('/api/admin/access/onboarding', async ({ request }) => {
+            const body = (await request.json()) as { enabled: boolean; reason?: string };
+            writes.push({ method: 'PUT', path: '/api/admin/access/onboarding', body });
+            state.current = withCounts({
+                ...state.current,
+                onboarding: { enabled: body.enabled },
+                updatedAt: '2026-10-02T09:00:00.000Z',
+                updatedBy: 'Sam Staff',
+            });
+            return HttpResponse.json(state.current);
+        }),
         http.put('/api/admin/access/demo', async ({ request }) => {
             const body = (await request.json()) as Record<string, unknown> & DemoSettings;
             writes.push({ method: 'PUT', path: '/api/admin/access/demo', body });

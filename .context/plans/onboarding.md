@@ -7,8 +7,10 @@ committed `pool.tsv`). **First review pass done by Claude on 2026-10-16** (698 k
 changes listed in `backend/scripts/onboarding/first-review.md`, kept for reference until the
 feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
 **Slice 3 done on 2026-10-16 (3a–3d):** precomputed forms, the onboarding status on the account,
-the selection service, and the three routes (see "Slice 3d — what was built"). Next: Slice 4 (frontend). Decisions D1–D25 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
-D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
+the selection service, and the three routes (see "Slice 3d — what was built"). **Slice 4 in progress
+(planned 2026-10-16 as 4a–4e):** 4a built (the admin switch). Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
+D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the
+start of Slice 4). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
 
 ## What this is (plain-language overview)
@@ -60,6 +62,9 @@ frequency band. The server only reads that pool.
 | D23. Tags | One **Private** tag per picked topic and one for core vocabulary, named in the user's **UI language at creation time** (a 4-language name table in the backend). The user can rename or delete them like any tag. |
 | D24. Wider fill rule | D16 continues: topics of the band → core of the band → topics of the next band → core of the next band → topics of the band below → core of the band below. Core of the band stays before the next band's topics (user decision, Review log S3-2). |
 | D25. Under 50 words | When a choice can deliver fewer than 50 words, the app offers what is there: the slider minimum becomes the capacity and the hint explains it; the server then accepts any step of 10 up to the capacity (`checkCount`). |
+| D26. Admin switch | An **Onboarding** on/off switch in the admin Access page (`access_settings.onboarding_enabled`, off by default; audit `access.onboarding_configure`). New accounts are `pending` either way; the app opens `/onboarding` and the routes work (else 403 `onboarding_disabled`) only while it is on. A rollout switch (no deploy), and it keeps the 27 e2e specs that register accounts on their path: the onboarding e2e spec is a `-gate` spec that turns it on. |
+| D27. Layout | The onboarding is **full screen, without the app header**: logo, a progress line ("Step 2 of 5"), the question, Back / Next, and Skip in the corner. |
+| D28. Result | After Create, the dashboard shows a **dismissible card**: "N words added in M topics", one link per new tag, a "Start practising" link, a close button (stays until closed, per browser). |
 | D10. Pool | The server never reads `word-lists/` (git-ignored, developer machine only). A script builds a committed pool file from the lists; a human reviews it. Vulgar, offensive and derogatory senses are removed when the lists and the pool are built, not at lexicon ingest (autocomplete keeps them). |
 
 ### Topics (D2, D3, D11)
@@ -134,7 +139,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
 | 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
 | 3 ✅ | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
-| 4 | **Frontend.** `/onboarding` flow, first-login redirect, skip, summary on the dashboard. Translated UI strings (EN/ES/DE/EE). | Vitest + Playwright `onboarding.spec.ts` green. |
+| 4 (4a ✅) | **Frontend**, in five steps. **4a** the admin switch (D26): migration 0031, `onboarding` in the public and admin access answers, `PUT /api/admin/access/onboarding`, 403 `onboarding_disabled` on the routes, the admin Access → Onboarding tab with the counts by status. **4b** `onboardingStatus` in the session, the redirect (only while the switch is on), `/onboarding` full screen (D27) with Welcome and Skip. **4c** the steps (languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading screen. **4d** the dashboard card (D28), the strings in EN/ES/DE/EE, Vitest. **4e** Playwright `onboarding-gate.spec.ts` and a full green e2e run. | Jest / Vitest green after each step; 4e: Playwright green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
 ## Open items (decide during the slices)
@@ -273,6 +278,24 @@ answer **409 `onboarding_not_pending`** when the account is not `pending`. Error
   counts of rows, Spanish tag names + label suffix, German capitals, 150 words × 4 languages in
   ~0.8 s, double submit in parallel → one 201 + one 409, count rules, D25 with a small pool, skip).
   Full suite green (3,290).
+
+## Slice 4a — what was built (2026-10-16)
+
+- Migration `0031_onboarding_switch.sql`: `access_settings.onboarding_enabled boolean NOT NULL DEFAULT false`.
+- `lib/accessGate.getAccessSettings` returns `onboarding: { enabled }`; the public `GET /api/access`
+  and the admin `GET /api/admin/access` include it. The admin answer also has
+  `onboardingCounts: { pending, done, skipped }` (accounts with a status).
+- `PUT /api/admin/access/onboarding` `{ enabled, reason? }` (owner, `access.manage`): one audit row
+  `access.onboarding_configure` (`{ from: { enabled }, to: { enabled } }`) per real change.
+- The three `/api/onboarding` routes answer 403 `onboarding_disabled` while the switch is off
+  (checked after the demo refusal, before the 409 for a non-pending account).
+- Admin app: Access → **Onboarding** tab (`?tab=onboarding`) with the On/Off control, the counts,
+  Save and a confirmation with an optional reason, like the Demo tab.
+- Infrastructure guide (02): a section on the onboarding status and the switch.
+- Tests: Jest `adminAccessOnboarding.test.js` (5), `onboarding.test.js` (+1: 403 while off; the
+  suite turns the switch on), the exact public shape in `accessGateRegistration.test.js`; Vitest
+  (admin) 3 new tests on the Onboarding tab. Full Jest 3,296 green, admin Vitest 308 green, admin
+  typecheck and lint clean.
 
 ## Review log — Slice 3c (2026-10-16)
 

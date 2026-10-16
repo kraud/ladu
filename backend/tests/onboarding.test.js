@@ -10,14 +10,17 @@ const { eq, inArray } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');
-const { users, words, translations, translationCases, tags, tagWords } = require('../src/db/schema');
+const { users, words, translations, translationCases, tags, tagWords, accessSettings } = require('../src/db/schema');
 const { generateToken } = require('../controllers/userController');
 const { setOnboardingData } = require('../services/onboardingService');
 
 beforeAll(() => testDb.connectDB());
+const setSwitch = (onboardingEnabled) => db.update(accessSettings).set({ onboardingEnabled }).where(eq(accessSettings.id, 1));
+
 beforeEach(async () => {
     await testDb.clearDB();
     setOnboardingData(null);
+    await setSwitch(true); // D26: off by default; these tests need it on
 });
 afterAll(async () => {
     setOnboardingData(null);
@@ -42,6 +45,17 @@ const choice = { levels: { Spanish: 'beginner' }, topics: ['food_drink', 'animal
 describe('access', () => {
     it('needs a session', async () => {
         expect((await request(app).post('/api/onboarding/capacity').send(choice)).statusCode).toBe(401);
+    });
+
+    it('answers 403 onboarding_disabled while the admin switch is off (D26)', async () => {
+        const user = await newUser();
+        await setSwitch(false);
+        for (const path of ['/api/onboarding/capacity', '/api/onboarding', '/api/onboarding/skip']) {
+            const res = await request(app).post(path).set(auth(user)).send({ ...choice, count: 50 });
+            expect(res.statusCode).toBe(403);
+            expect(res.body.code).toBe('onboarding_disabled');
+        }
+        expect(await statusOf(user.id)).toBe('pending');
     });
 
     it('answers 409 to an account that is not pending (older accounts: NULL)', async () => {

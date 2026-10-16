@@ -1047,3 +1047,47 @@ describe('the demo usage and accounts (D19, D20)', () => {
     });
 });
 
+
+describe('the onboarding switch (onboarding.md D26)', () => {
+    const onboarding = () => within(screen.getByRole('region', { name: 'Onboarding' }));
+    const onboardingLoaded = () => screen.findByRole('region', { name: 'Onboarding' });
+
+    it('has its own tab, reachable from the other tabs', async () => {
+        setup();
+        const user = userEvent.setup();
+        const { router } = await open();
+
+        await registrationLoaded();
+        await user.click(screen.getByRole('link', { name: 'Onboarding' }));
+        await onboardingLoaded();
+        expect(router.state.location.search).toEqual({ tab: 'onboarding' });
+    });
+
+    it('shows the saved state and the accounts by status; Save is off until it changes', async () => {
+        setup(makeAccess({ onboarding: { enabled: false }, onboardingCounts: { pending: 4, done: 2, skipped: 1 } }));
+        await renderApp({ initialEntry: '/access?tab=onboarding', role: 'owner' });
+
+        await onboardingLoaded();
+        expect(onboarding().getByRole('button', { name: 'Off' })).toHaveAttribute('aria-pressed', 'true');
+        expect(onboarding().getByText(/Accounts:/)).toHaveTextContent('Accounts: 4 waiting, 2 finished, 1 skipped.');
+        expect(onboarding().getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    it('turns it on after a confirmation that says who will see it, with the reason', async () => {
+        const { writes } = setup(makeAccess({ onboardingCounts: { pending: 4, done: 0, skipped: 0 } }));
+        const user = userEvent.setup();
+        await renderApp({ initialEntry: '/access?tab=onboarding', role: 'owner' });
+
+        await onboardingLoaded();
+        await user.click(onboarding().getByRole('button', { name: 'On' }));
+        await user.click(onboarding().getByRole('button', { name: 'Save' }));
+        const dialog = within(await screen.findByRole('dialog'));
+        expect(dialog.getByText(/4 waiting accounts will see the onboarding/)).toBeInTheDocument();
+        await user.type(dialog.getByLabelText(/Reason/), 'pool reviewed');
+        await user.click(dialog.getByRole('button', { name: 'Confirm' }));
+
+        expect(await screen.findByRole('status')).toHaveTextContent('The onboarding is now on.');
+        expect(writes[0]).toEqual({ method: 'PUT', path: '/api/admin/access/onboarding', body: { enabled: true, reason: 'pool reviewed' } });
+        expect(onboarding().getByRole('button', { name: 'On' })).toHaveAttribute('aria-pressed', 'true');
+    });
+});
