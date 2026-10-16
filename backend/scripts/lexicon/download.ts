@@ -18,7 +18,7 @@ const { pipeline }: typeof import('stream/promises') = require('stream/promises'
 const { execFileSync }: typeof import('child_process') = require('child_process');
 const {
     DATA_DIR, LANG_CODES, KAIKKI_RAW_URL, KAIKKI_RAW_FILE, MANIFEST_FILE, frequencyUrl, frequencyFile,
-    EESTHETIC_URL, EESTHETIC_ZIP, EESTHETIC_DIR, PIKHOF_URL, PIKHOF_FILE,
+    EESTHETIC_URL, EESTHETIC_ZIP, EESTHETIC_DIR, PIKHOF_URL, PIKHOF_FILE, WORDNET_URL, WORDNET_FILE,
 }: typeof import('./common') = require('./common');
 
 interface ManifestEntry {
@@ -69,6 +69,7 @@ async function main(): Promise<void> {
         execFileSync('unzip', ['-o', '-q', EESTHETIC_ZIP, '-d', EESTHETIC_DIR]);
         console.log(`unzipped ${EESTHETIC_DIR}`);
     }
+    await download(WORDNET_URL, WORDNET_FILE, manifest);
     await download(KAIKKI_RAW_URL, KAIKKI_RAW_FILE, manifest);
 }
 

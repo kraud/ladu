@@ -39,8 +39,9 @@ npx tsx scripts/lexicon/word-lists.ts   # ~5 min: newest lexicon-en file + raw d
 ```
 
 One TSV per part of speech with the English lemmas that have a frequency rank (~37k), their
-rank and their Wiktionary topics. The columns and their limits are described at the top of the
-script. Run it again after each re-ingest.
+rank, their Wiktionary topics and their WordNet supersenses (`english-wordnet-2025.xml.gz`, from
+`download.ts`). The columns and their limits are described at the top of the script. Run it
+again after each re-ingest.
 
 Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
 `EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).
@@ -80,6 +81,7 @@ The selector tables themselves live in `backend/lib/lexicon/selectors/<lang>.ts`
 | `frequency-<lang>.txt` | `hermitdave/FrequencyWords`, `content/2018/<lang>/<lang>_50k.txt` (OpenSubtitles 2018) | CC BY-SA 4.0 (content), MIT (code) |
 | `pikhof-est_words_160k.tsv` | `KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex`, `data/est_words_160k.tsv` | CC BY-SA 4.0 |
 | `eesthetic/` (from `eesthetic-v1.0.5.zip`) | Eesthetic v1.0.5, Zenodo record 14069724 | CC BY 4.0 |
+| `english-wordnet-2025.xml.gz` | Open English WordNet 2025 (`globalwordnet/english-wordnet` release) | CC BY 4.0 + Princeton WordNet licence (attribute both) |
 
 `.data/manifest.json` records the URL, the `Last-Modified` header and the download time of
 each file. A report must name the version it measured.
