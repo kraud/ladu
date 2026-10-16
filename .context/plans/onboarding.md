@@ -6,8 +6,8 @@ map; see "Slice 1 — what was built"). **Slice 2 built on 2026-10-16** (pool ge
 committed `pool.tsv`). **First review pass done by Claude on 2026-10-16** (698 keep, 412 drop;
 changes listed in `backend/scripts/onboarding/first-review.md`, kept for reference until the
 feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
-**Slice 3 in progress (planned 2026-10-16 as 3a–3d):** 3a built (precomputed forms), 3b built
-(onboarding status on the account), 3c built (selection, validation, tag names). Decisions D1–D25 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
+**Slice 3 done on 2026-10-16 (3a–3d):** precomputed forms, the onboarding status on the account,
+the selection service, and the three routes (see "Slice 3d — what was built"). Next: Slice 4 (frontend). Decisions D1–D25 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
 D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
 
@@ -133,7 +133,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | 0 ✅ | **Word lists.** `backend/scripts/lexicon/word-lists.ts` → `word-lists/en/<pos>.tsv` (lemma, rank, page_topics, sense_domains, supersenses). | Lists rebuilt; coverage measured. |
 | 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
 | 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
-| 3 (3a ✅ 3b ✅ 3c ✅) | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
+| 3 ✅ | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
 | 4 | **Frontend.** `/onboarding` flow, first-login redirect, skip, summary on the dashboard. Translated UI strings (EN/ES/DE/EE). | Vitest + Playwright `onboarding.spec.ts` green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
@@ -246,6 +246,33 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 - Measured on the committed pool (one learning language, every topic triple, every level): minimum
   capacity 80 (advanced Estonian); English/Spanish/German beginner and intermediate reach 150 for
   every triple. Before D24 the minimum was 30.
+
+## Slice 3d — what was built (2026-10-16)
+
+All three routes need a session (`protect`), refuse a demo account (403, `assertNotDemo`) and
+answer **409 `onboarding_not_pending`** when the account is not `pending`. Errors: 400 with `code`.
+
+| Route | Body | Answer |
+|---|---|---|
+| `POST /api/onboarding/capacity` | `{ levels, topics }` | 200 `{ capacity }` (multiple of 10, ≤ 150; D18) |
+| `POST /api/onboarding` | `{ levels, topics, count }` | 201 `{ words, tags: [{ id, label, topic, words }] }` |
+| `POST /api/onboarding/skip` | — | 200 `{ onboardingStatus: 'skipped' }` (D6) |
+
+- `levels`: one level for each learning language of the account (account languages − native);
+  `topics`: 3–6 topic ids; `count`: 10–150 in steps of 10, checked against the capacity
+  (`count_over_capacity`; under 50 only when the capacity is under 50, D25). The languages are the
+  account's (D8): the app saves them through the profile route first.
+- `controllers/onboardingController.ts`, `routes/onboardingRoutes.js` (mounted at `/api/onboarding`),
+  `services/onboardingService.ts`: the pool and the forms are read once (`setOnboardingData` replaces
+  them in tests). `createOnboarding` runs in one transaction: it locks the user row (`FOR UPDATE`),
+  checks `pending`, creates one Private tag per picked topic that got words + core (D23; "Label (2)"
+  when the user already has the label, as tag clones do), the Words (newest first = first chosen),
+  translations (German noun forms capitalised, as `setWord` does) and cases (inserted in chunks of
+  5,000 rows: 150 words × 4 languages pass Postgres's parameter limit), the tag links, and sets `done`.
+- Jest: `tests/onboarding.test.js` (13 tests: access, 409, demo 403, capacity, validation, create with
+  counts of rows, Spanish tag names + label suffix, German capitals, 150 words × 4 languages in
+  ~0.8 s, double submit in parallel → one 201 + one 409, count rules, D25 with a small pool, skip).
+  Full suite green (3,290).
 
 ## Review log — Slice 3c (2026-10-16)
 

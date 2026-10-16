@@ -66,6 +66,7 @@ app.use('/api/tag-shares', require('./routes/tagShareRoutes'))
 app.use('/api/dictionary', require('./routes/dictionaryRoutes'))
 app.use('/api/exercises', require('./routes/exerciseRoutes'))
 app.use('/api/practice', require('./routes/practiceRoutes'))
+app.use('/api/onboarding', require('./routes/onboardingRoutes'))
 app.use('/api/admin', require('./routes/admin'))
 
 // Must come after every route (needs to see thrown errors) and before
