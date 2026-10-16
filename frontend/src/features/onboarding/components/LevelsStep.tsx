@@ -1,7 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { FlagIcon } from '@/components/common/FlagIcon';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { languageByLabel } from '@/lib/language';
 import { LEVELS, type Level } from '../types';
+import { StepHeading } from './StepHeading';
 
 /** Step 2 (D4): one level per learning language. */
 export function LevelsStep({
@@ -16,32 +18,32 @@ export function LevelsStep({
     const { t } = useTranslation();
 
     return (
-        <div className="flex flex-col gap-4">
-            {languages.map((label) => {
-                const lang = languageByLabel(label);
-                return (
-                    <section key={label} className="flex flex-col gap-2" aria-label={lang?.native ?? label}>
-                        <h2 className="flex items-center gap-2 font-semibold">
-                            {lang && <FlagIcon lang={lang.key} width={24} height={17} className="rounded-[3px]" />}
-                            {lang?.native ?? label}
-                        </h2>
-                        <div className="flex flex-wrap gap-2" role="group">
-                            {LEVELS.map((level) => (
-                                <button
-                                    key={level}
-                                    type="button"
-                                    className="chip"
-                                    aria-pressed={value[label] === level}
-                                    onClick={() => onChange({ ...value, [label]: level })}
-                                >
-                                    {t(`onboarding:levels.${level}`)}
-                                </button>
-                            ))}
-                        </div>
-                        {value[label] && <span className="hint">{t(`onboarding:levels.${value[label]}Hint`)}</span>}
-                    </section>
-                );
-            })}
-        </div>
+        <>
+            <StepHeading title={t('onboarding:levels.title')} subtitle={t('onboarding:levels.hint')} />
+            <div className="ob-levels">
+                {languages.map((label) => {
+                    const lang = languageByLabel(label);
+                    const name = lang?.native ?? label;
+                    return (
+                        <section key={label} className="ob-level-row" aria-label={name}>
+                            <h2 className="ob-level-lang">
+                                {lang && <FlagIcon lang={lang.key} width={22} height={16} />}
+                                <b>{name}</b>
+                            </h2>
+                            <SegmentedToggle
+                                aria-label={name}
+                                allowDeselect={false}
+                                value={value[label]}
+                                onValueChange={(level) => onChange({ ...value, [label]: level as Level })}
+                                options={LEVELS.map((level) => ({ value: level, label: t(`onboarding:levels.${level}`) }))}
+                            />
+                            <p className="ob-level-desc min-h-[1.2em]">
+                                {value[label] && t(`onboarding:levels.${value[label]}Hint`)}
+                            </p>
+                        </section>
+                    );
+                })}
+            </div>
+        </>
     );
 }

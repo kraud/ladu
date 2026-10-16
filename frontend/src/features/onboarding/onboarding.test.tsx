@@ -90,10 +90,12 @@ describe('/onboarding steps', () => {
 
     const click = async (name: string | RegExp) => userEvent.click(await screen.findByRole('button', { name }));
 
+    const clickLevel = async (name: string) => userEvent.click(await screen.findByRole('radio', { name }));
+
     async function toTopics() {
         await click(en.start);
         await click(en.next);
-        await click(en.levels.beginner);
+        await clickLevel(en.levels.beginner);
         await click(en.next);
     }
 
@@ -103,7 +105,7 @@ describe('/onboarding steps', () => {
         await toTopics();
         for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
         await click(en.next);
-        expect(await screen.findByText('100 words')).toBeInTheDocument();
+        expect(await screen.findByRole('status')).toHaveTextContent('100 words');
         await click('Add 100 words');
         await waitFor(() => expect(useAuthStore.getState().user?.onboardingStatus).toBe('done'));
         expect(calls.profile).toHaveLength(0);
@@ -117,7 +119,7 @@ describe('/onboarding steps', () => {
         await click(en.start);
         await click(en.next);
         expect(screen.getByRole('button', { name: en.next })).toBeDisabled();
-        await click(en.levels.advanced);
+        await clickLevel(en.levels.advanced);
         await click(en.next);
         const ids = Object.keys(en.topics.names) as (keyof typeof en.topics.names)[];
         for (const id of ids.slice(0, 2)) await click(en.topics.names[id]);
@@ -157,9 +159,57 @@ describe('/onboarding steps', () => {
         await toTopics();
         for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
         await click(en.next);
-        expect(await screen.findByText('30 words')).toBeInTheDocument();
+        expect(await screen.findByRole('status')).toHaveTextContent('30 words');
         expect(screen.queryByRole('slider')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Add 30 words' })).toBeEnabled();
+    });
+
+    it('marks the current step in the rail and fills the summary with the answers', async () => {
+        setup();
+        await renderApp({ initialEntry: '/', session });
+        await click(en.start);
+        const rail = await screen.findByRole('complementary', { name: en.rail.label });
+        const steps = within(rail).getAllByRole('listitem');
+        expect(steps[0]).toHaveAttribute('aria-current', 'step');
+        expect(within(rail).getByText('Español')).toBeInTheDocument();
+        expect(within(rail).getAllByText('English')).toHaveLength(2); // a language and the native one
+        await click(en.next);
+        await clickLevel(en.levels.beginner);
+        await click(en.next);
+        expect(steps[0]).toHaveClass('done');
+        expect(within(rail).getAllByRole('listitem')[2]).toHaveAttribute('aria-current', 'step');
+        await click(en.topics.names.clothing);
+        expect(within(rail).getByText(en.topics.names.clothing)).toBeInTheDocument();
+    });
+
+    it('has no Back on the first question, and goes back from the others', async () => {
+        setup();
+        await renderApp({ initialEntry: '/', session });
+        await click(en.start);
+        await screen.findByRole('heading', { name: en.languages.title });
+        expect(screen.queryByRole('button', { name: en.back })).not.toBeInTheDocument();
+        await click(en.next);
+        await click(en.back);
+        expect(await screen.findByRole('heading', { name: en.languages.title })).toBeInTheDocument();
+    });
+
+    it('shows the building screen, without Skip or Next, while Create runs', async () => {
+        setup();
+        server.use(
+            http.post('*/api/onboarding', async () => {
+                await new Promise((resolve) => setTimeout(resolve, 150));
+                return HttpResponse.json({ words: 60, tags: [] }, { status: 201 });
+            }),
+        );
+        await renderApp({ initialEntry: '/', session });
+        await toTopics();
+        for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
+        await click(en.next);
+        await click('Add 100 words');
+        expect(await screen.findByRole('heading', { name: en.building.title })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: en.skip })).toBeDisabled();
+        expect(screen.queryByRole('button', { name: en.next })).not.toBeInTheDocument();
+        await waitFor(() => expect(useAuthStore.getState().user?.onboardingStatus).toBe('done'));
     });
 
     it('shows an error and stays when Create fails', async () => {
@@ -235,7 +285,7 @@ describe('dashboard result card (Slice 4d)', () => {
         });
         await userEvent.click(await screen.findByRole('button', { name: en.start }));
         await userEvent.click(await screen.findByRole('button', { name: en.next }));
-        await userEvent.click(await screen.findByRole('button', { name: en.levels.beginner }));
+        await userEvent.click(await screen.findByRole('radio', { name: en.levels.beginner }));
         await userEvent.click(await screen.findByRole('button', { name: en.next }));
         for (const id of ['clothing', 'animals', 'weather'] as const) {
             await userEvent.click(await screen.findByRole('button', { name: en.topics.names[id] }));

@@ -6,11 +6,51 @@
   "start": "Start",
   "saving": "Saving…",
   "retry": "Try again",
-  "creating": "Adding your words…",
   "progress": "Step {{step}} of {{total}}",
+  "rail": {
+    "label": "Setup progress",
+    "tagline": "A few quick questions and we'll fill your first word list.",
+    "steps": "Setup steps"
+  },
+  "steps": {
+    "languages": "Languages",
+    "levels": "Your level",
+    "topics": "Interests",
+    "count": "Word count"
+  },
+  "summary": {
+    "title": "Your dictionary so far",
+    "languages": "Languages",
+    "native": "Native",
+    "interests": "Interests",
+    "words": "Words",
+    "none": "None yet",
+    "notSet": "Not set",
+    "languagesCount_one": "{{count}} language",
+    "languagesCount_other": "{{count}} languages",
+    "topicsCount_one": "{{count}} topic",
+    "topicsCount_other": "{{count}} topics",
+    "wordsCount": "{{count}} words"
+  },
+  "welcomeEyebrow": "Welcome",
+  "almostDone": "Almost done",
   "welcome": {
-    "title": "Welcome to Ladu",
-    "text": "Answer a few questions and Ladu adds words in your languages, so you can start to practise at once. You can skip this and start with an empty dictionary."
+    "title": "Welcome to Ladu — let's build your first dictionary",
+    "text": "Answer a few short questions and Ladu adds words in your languages, so you can start practising straight away. It takes about a minute, and you can skip anything you like.",
+    "items": {
+      "languages": {
+        "title": "Pick your languages",
+        "text": "Two or more — you can add more later."
+      },
+      "levels": {
+        "title": "Tell us your level",
+        "text": "A rough guess is perfectly fine."
+      },
+      "topics": {
+        "title": "Choose what interests you",
+        "text": "Ladu fills your first words around it."
+      }
+    }
   },
   "languages": {
     "title": "Which languages do you use?",
@@ -58,7 +98,6 @@
   "count": {
     "title": "How many words?",
     "hint": "You can add or remove words later.",
-    "value": "{{count}} words",
     "hintSmall": "A small start. Good to try Ladu.",
     "hintMedium": "A good start for your first practice sessions.",
     "hintLarge": "Above 100 words, more general vocabulary is added.",
@@ -66,12 +105,17 @@
     "capacityLow": "With these levels and topics, we can add only {{count}} words. Pick other topics or levels to add more.",
     "none": "With these levels and topics, we cannot add words. Go back and change them.",
     "loading": "Checking the words…",
-    "create": "Add {{count}} words"
+    "create": "Add {{count}} words",
+    "unit": "words"
   },
   "result": {
     "label": "Your new words",
     "title": "{{words}} words added in {{topics}} topics",
     "text": "Each topic has its own tag. You can rename or delete the tags like any other tag.",
     "practise": "Start practising"
+  },
+  "building": {
+    "title": "Building your dictionary…",
+    "text": "Adding {{words}} words across {{topics}} topics."
   }
 }

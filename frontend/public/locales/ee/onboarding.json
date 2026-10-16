@@ -6,11 +6,51 @@
   "start": "Alusta",
   "saving": "Salvestan…",
   "retry": "Proovi uuesti",
-  "creating": "Lisan sinu sõnu…",
   "progress": "Samm {{step}} / {{total}}",
+  "rail": {
+    "label": "Seadistuse edenemine",
+    "tagline": "Mõni kiire küsimus ja täidame sinu esimese sõnaloendi.",
+    "steps": "Seadistuse sammud"
+  },
+  "steps": {
+    "languages": "Keeled",
+    "levels": "Sinu tase",
+    "topics": "Huvid",
+    "count": "Sõnade arv"
+  },
+  "summary": {
+    "title": "Sinu sõnastik siiani",
+    "languages": "Keeled",
+    "native": "Emakeel",
+    "interests": "Huvid",
+    "words": "Sõnad",
+    "none": "Veel pole",
+    "notSet": "Määramata",
+    "languagesCount_one": "{{count}} keel",
+    "languagesCount_other": "{{count}} keelt",
+    "topicsCount_one": "{{count}} teema",
+    "topicsCount_other": "{{count}} teemat",
+    "wordsCount": "{{count}} sõna"
+  },
+  "welcomeEyebrow": "Tere tulemast",
+  "almostDone": "Peaaegu valmis",
   "welcome": {
-    "title": "Tere tulemast Ladusse",
-    "text": "Vasta mõnele küsimusele ja Ladu lisab sõnu sinu keeltes, et saaksid kohe harjutama hakata. Võid selle vahele jätta ja alustada tühja sõnastikuga."
+    "title": "Tere tulemast Ladusse – loome sinu esimese sõnastiku",
+    "text": "Vasta mõnele lühikesele küsimusele ja Ladu lisab sõnu sinu keeltes, et saaksid kohe harjutama hakata. See võtab umbes minuti ja võid kõik vahele jätta.",
+    "items": {
+      "languages": {
+        "title": "Vali oma keeled",
+        "text": "Kaks või rohkem – hiljem saad lisada veel."
+      },
+      "levels": {
+        "title": "Ütle meile oma tase",
+        "text": "Ligikaudne hinnang sobib."
+      },
+      "topics": {
+        "title": "Vali, mis sind huvitab",
+        "text": "Ladu täidab sinu esimesed sõnad selle ümber."
+      }
+    }
   },
   "languages": {
     "title": "Milliseid keeli sa kasutad?",
@@ -58,7 +98,6 @@
   "count": {
     "title": "Mitu sõna?",
     "hint": "Sõnu saab hiljem lisada ja eemaldada.",
-    "value": "{{count}} sõna",
     "hintSmall": "Väike algus. Hea Ladu proovimiseks.",
     "hintMedium": "Hea algus esimesteks harjutuskordadeks.",
     "hintLarge": "Üle 100 sõna korral lisandub rohkem üldsõnavara.",
@@ -66,12 +105,17 @@
     "capacityLow": "Nende tasemete ja teemadega saame lisada ainult {{count}} sõna. Rohkema jaoks vali muid teemasid või tasemeid.",
     "none": "Nende tasemete ja teemadega ei saa me sõnu lisada. Mine tagasi ja muuda neid.",
     "loading": "Kontrollin sõnu…",
-    "create": "Lisa {{count}} sõna"
+    "create": "Lisa {{count}} sõna",
+    "unit": "sõna"
   },
   "result": {
     "label": "Sinu uued sõnad",
     "title": "{{words}} sõna lisatud {{topics}} teemasse",
     "text": "Igal teemal on oma tag. Tage saab ümber nimetada või kustutada nagu iga teist tagi.",
     "practise": "Alusta harjutamist"
+  },
+  "building": {
+    "title": "Loon sinu sõnastikku…",
+    "text": "Lisan {{words}} sõna {{topics}} teemasse."
   }
 }

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { MAX_WORDS, WORDS_STEP } from '../types';
 import { sliderRange } from '../learning';
+import { StepHeading } from './StepHeading';
 
 /** The text under the slider changes at thresholds (D14, D16). */
 export function countHintKey(count: number): string {
@@ -22,38 +23,48 @@ export function CountStep({
     const { t } = useTranslation();
     const range = sliderRange(capacity);
 
-    if (!range) {
-        return (
-            <p className="banner warning" role="status">
-                {t('onboarding:count.none')}
-            </p>
-        );
-    }
-
     return (
-        <div className="flex flex-col gap-3">
-            <p className="text-3xl font-semibold" aria-live="polite">
-                {t('onboarding:count.value', { count: value })}
-            </p>
-            {range.min < range.max && (
-                <input
-                    type="range"
-                    aria-label={t('onboarding:count.title')}
-                    min={range.min}
-                    max={range.max}
-                    step={WORDS_STEP}
-                    value={value}
-                    onChange={(event) => onChange(Number(event.target.value))}
-                />
+        <>
+            <StepHeading title={t('onboarding:count.title')} subtitle={t('onboarding:count.hint')} />
+            {!range ? (
+                <p className="banner warning mt-5" role="status">
+                    {t('onboarding:count.none')}
+                </p>
+            ) : (
+                <>
+                    <div className="ob-numline" role="status">
+                        <span className="ob-num">{value}</span>{' '}
+                        <span className="ob-num-unit">{t('onboarding:count.unit')}</span>
+                    </div>
+                    {range.min < range.max && (
+                        <>
+                            <input
+                                type="range"
+                                className="ob-range"
+                                aria-label={t('onboarding:count.title')}
+                                aria-valuetext={`${value} ${t('onboarding:count.unit')}`}
+                                min={range.min}
+                                max={range.max}
+                                step={WORDS_STEP}
+                                value={value}
+                                onChange={(event) => onChange(Number(event.target.value))}
+                            />
+                            <div className="ob-range-scale" aria-hidden="true">
+                                <span>{range.min}</span>
+                                <span>{range.max}</span>
+                            </div>
+                        </>
+                    )}
+                    <p className="ob-hint">{t(countHintKey(value))}</p>
+                    {capacity < MAX_WORDS && (
+                        <p className="ob-hint">
+                            {capacity < 50
+                                ? t('onboarding:count.capacityLow', { count: capacity })
+                                : t('onboarding:count.capacity', { count: capacity })}
+                        </p>
+                    )}
+                </>
             )}
-            <span className="hint">{t(countHintKey(value))}</span>
-            {capacity < MAX_WORDS && (
-                <span className="hint">
-                    {capacity < 50
-                        ? t('onboarding:count.capacityLow', { count: capacity })
-                        : t('onboarding:count.capacity', { count: capacity })}
-                </span>
-            )}
-        </div>
+        </>
     );
 }

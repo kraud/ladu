@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { FlagIcon } from '@/components/common/FlagIcon';
 import { LanguageTiles } from '@/components/common/LanguageTiles';
 import { languageByLabel } from '@/lib/language';
+import { StepHeading } from './StepHeading';
 
 /** Step 1 (D8): the account's languages and native language, filled in; the user confirms or changes them. */
 export function LanguagesStep({
@@ -15,10 +17,12 @@ export function LanguagesStep({
     onNative: (next: string | null) => void;
 }) {
     const { t } = useTranslation();
+    const enough = languages.length >= 2;
 
     return (
-        <div className="flex flex-col gap-5">
-            <section className="flex flex-col gap-2" aria-label={t('onboarding:languages.title')}>
+        <>
+            <StepHeading title={t('onboarding:languages.title')} subtitle={t('onboarding:languages.hint')} />
+            <section className="mt-5" aria-label={t('onboarding:languages.title')}>
                 <LanguageTiles
                     value={languages}
                     onChange={(next) => {
@@ -26,16 +30,16 @@ export function LanguagesStep({
                         if (nativeLanguage && !next.includes(nativeLanguage)) onNative(null);
                     }}
                 />
-                <span className="hint" aria-live="polite">
-                    {languages.length < 2
-                        ? t('onboarding:languages.countLow')
-                        : t('onboarding:languages.countOk', { count: languages.length })}
-                </span>
+                <p className={enough ? 'ob-count ok' : 'ob-count'} aria-live="polite">
+                    {enough
+                        ? t('onboarding:languages.countOk', { count: languages.length })
+                        : t('onboarding:languages.countLow')}
+                </p>
             </section>
 
-            <section className="flex flex-col gap-2" aria-label={t('onboarding:languages.nativeTitle')}>
-                <h2 className="font-semibold">{t('onboarding:languages.nativeTitle')}</h2>
-                <div className="flex flex-wrap gap-2" role="group">
+            <section className="ob-native" aria-label={t('onboarding:languages.nativeTitle')}>
+                <h2 className="ob-native-label">{t('onboarding:languages.nativeTitle')}</h2>
+                <div className="mt-2.5 flex flex-wrap gap-1.5" role="group" aria-label={t('onboarding:languages.nativeTitle')}>
                     <button type="button" className="chip" aria-pressed={nativeLanguage === null} onClick={() => onNative(null)}>
                         {t('onboarding:languages.nativeNone')}
                     </button>
@@ -47,12 +51,13 @@ export function LanguagesStep({
                             aria-pressed={nativeLanguage === label}
                             onClick={() => onNative(label)}
                         >
+                            <FlagIcon lang={label} width={16} height={12} />
                             {languageByLabel(label)?.native ?? label}
                         </button>
                     ))}
                 </div>
-                <span className="hint">{t('onboarding:languages.nativeHint')}</span>
+                <p className="ob-hint">{t('onboarding:languages.nativeHint')}</p>
             </section>
-        </div>
+        </>
     );
 }

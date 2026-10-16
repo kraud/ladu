@@ -13,8 +13,7 @@ the selection service, and the three routes (see "Slice 3d — what was built").
 **Resume here (2026-10-16):** next is **4e** (see the Slices table): Playwright `e2e/onboarding-gate.spec.ts`
 (turns the switch on, registers, walks Welcome → steps → Create → dashboard card; also Skip) and a full
 green e2e run (check the e2e traps in memory first). 4d is built (see "Slice 4d — what was built"). Only open item 8
-is still open (see "Open items"). A UI improvement round (layout and style only, same behaviour) may
-happen before 4e: the Playwright spec then follows the new markup. Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
+is still open (see "Open items"). The UI redesign (`MOCKUPS/onboarding.html`) is built (see "Slice 4d+ — redesign"): the Playwright spec follows the new markup (levels are `radio`s, there is no Back on the languages step). Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
 D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the
 start of Slice 4). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
@@ -352,6 +351,16 @@ answer **409 `onboarding_not_pending`** when the account is not `pending`. Error
   app). **The ES/DE/EE onboarding texts (4b–4d) still need the user's review** (open item 8).
 - Tests: 4 new in `onboarding.test.tsx` (card content and links, stays after reload and goes on close,
   other account, Create → card). Full Vitest green; typecheck and lint clean.
+
+## Slice 4d+ — redesign (2026-10-16)
+
+Layout and style only; same behaviour, same routes. Source: `MOCKUPS/onboarding.html`.
+- `styles/onboarding.css` (new): the framed two-column shell, rail, stepper, summary, mobile bar (under 900px), step styles, result banner.
+- `components/OnboardingShell` (frame, Skip, Back / Next), `OnboardingRail` (stepper + live summary), `WelcomeStep`, `BuildingStep`, `StepHeading` (takes focus on each screen). The steps keep their logic and only change markup.
+- Reused: `LanguageTiles`, `FlagIcon`, `BrandLogo`, `Button`, `.chip`. `SegmentedToggle` now takes 2 or more options (`--segments`); the levels use it (so they are `radio`s). New `.chip-lg` (topics, with a check).
+- New strings in `onboarding.json` (EN/ES/DE/EE): rail, steps, summary, welcome items, building, `count.unit`. Removed `creating` and `count.value`. **Review the ES/DE/EE text (open item 8).**
+- Differences from the mockup, on purpose: no "done" screen (Create goes to the dashboard card, D7/D28); the slider range follows the pool (D18), not 20–250; no Back on the first question (as in the mockup); "Run setup again" on a skipped dashboard is not built (the status cannot return to `pending`).
+- Tests: 3 new in `onboarding.test.tsx`, 1 in `segmented-toggle.test.tsx`. Full Vitest 1,864 green; typecheck clean.
 
 ## Review log — Slice 3c (2026-10-16)
 
