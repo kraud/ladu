@@ -139,6 +139,7 @@ const serializeUser = (user: Partial<UserRow>) => ({
   verified: user.verified,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
+  onboardingStatus: user.onboardingStatus ?? null,
   ...demoFields(user),
 });
 
@@ -165,6 +166,8 @@ const serializeLoginUser = (user: UserRow) => ({
     user.nativeLanguage === null ? undefined : user.nativeLanguage,
   token: generateToken(user),
   verified: user.verified,
+  // onboarding.md D21: 'pending' makes the app open /onboarding after this login.
+  onboardingStatus: user.onboardingStatus ?? null,
   ...demoFields(user),
 });
 
@@ -299,6 +302,7 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
           theme: themeResult.theme,
           nativeLanguage: null,
           verified: false,
+          onboardingStatus: "pending", // onboarding.md D21: new accounts only
           ...termsAcceptance(),
         } satisfies NewUserRow)
         .returning();
@@ -514,6 +518,7 @@ const updateUser = asyncHandler(async (req: any, res: any) => {
       demoExpiresAt: users.demoExpiresAt,
       demoWordLimit: users.demoWordLimit,
       demoTagLimit: users.demoTagLimit,
+      onboardingStatus: users.onboardingStatus,
     });
 
   res.status(200).json(serializeUser(updatedUser));

@@ -1,0 +1,2 @@
+ALTER TABLE "users" ADD COLUMN "onboarding_status" varchar(16);--> statement-breakpoint
+ALTER TABLE "users" ADD CONSTRAINT "users_onboarding_status_check" CHECK (onboarding_status IN ('pending', 'done', 'skipped'));

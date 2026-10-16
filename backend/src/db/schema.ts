@@ -209,10 +209,15 @@ export const users = pgTable('users', {
     demoExpiresAt:    timestamp('demo_expires_at'),
     demoWordLimit:    integer('demo_word_limit'),
     demoTagLimit:     integer('demo_tag_limit'),
+    // --- First-login onboarding (.context/plans/onboarding.md, D21) ---
+    // 'pending' for accounts created since the feature (email and Google signup): the app opens
+    // /onboarding. 'done' / 'skipped' afterwards. NULL (older, demo and template accounts): never shown.
+    onboardingStatus: varchar('onboarding_status', { length: 16 }),
     ...timestamps,
 }, (table) => [
     // Serves the count of live demos and the purge. Normal users are not in it.
     index('users_demo_expires_idx').on(table.demoExpiresAt).where(sql`${table.isDemo}`),
+    check('users_onboarding_status_check', sql`onboarding_status IN ('pending', 'done', 'skipped')`),
 ]);
 
 // ---------------------------------------------------------------------------

@@ -36,6 +36,8 @@ const userColumnsWithoutPassword = {
     demoExpiresAt: users.demoExpiresAt,
     demoWordLimit: users.demoWordLimit,
     demoTagLimit: users.demoTagLimit,
+    // First-login onboarding (onboarding.md D21): `GET /me` returns it; the onboarding routes check it.
+    onboardingStatus: users.onboardingStatus,
 };
 
 // `last_seen_at` is refreshed at most this often per user, so an active user

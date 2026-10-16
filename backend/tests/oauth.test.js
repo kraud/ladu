@@ -257,6 +257,19 @@ describe('POST /api/auth/signup/complete', () => {
         expect(user.termsAcceptedAt).toBeInstanceOf(Date);
     });
 
+    it('marks the new account for the first-login onboarding and returns the status (onboarding.md D21)', async () => {
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            username: 'newuser',
+            languages: ['English', 'Spanish'],
+        });
+        expect(res.statusCode).toBe(201);
+        expect(res.body.onboardingStatus).toBe('pending');
+
+        const [user] = await db.select().from(users).where(eq(users.email, 'newuser@example.com'));
+        expect(user.onboardingStatus).toBe('pending');
+    });
+
     it('creates a password-less, verified account plus exactly one oauth_identities row, and returns a session token', async () => {
         const res = await request(app).post('/api/auth/signup/complete').send({
             ticket: validTicket(),

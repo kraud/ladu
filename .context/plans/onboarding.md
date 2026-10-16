@@ -6,7 +6,8 @@ map; see "Slice 1 — what was built"). **Slice 2 built on 2026-10-16** (pool ge
 committed `pool.tsv`). **First review pass done by Claude on 2026-10-16** (698 keep, 412 drop;
 changes listed in `backend/scripts/onboarding/first-review.md`, kept for reference until the
 feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
-**Slice 3 in progress (planned 2026-10-16 as 3a–3d):** 3a built (precomputed forms). Decisions D1–D23 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
+**Slice 3 in progress (planned 2026-10-16 as 3a–3d):** 3a built (precomputed forms), 3b built
+(onboarding status on the account). Decisions D1–D23 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
 D14–D19 during Slice 2, D20–D23 at the start of Slice 3). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
 
@@ -130,7 +131,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | 0 ✅ | **Word lists.** `backend/scripts/lexicon/word-lists.ts` → `word-lists/en/<pos>.tsv` (lemma, rank, page_topics, sense_domains, supersenses). | Lists rebuilt; coverage measured. |
 | 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
 | 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
-| 3 (3a ✅) | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
+| 3 (3a ✅ 3b ✅) | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
 | 4 | **Frontend.** `/onboarding` flow, first-login redirect, skip, summary on the dashboard. Translated UI strings (EN/ES/DE/EE). | Vitest + Playwright `onboarding.spec.ts` green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
@@ -207,6 +208,22 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
   at least 2 languages. These can be improved in `pool.tsv` later.
 - Jest: `onboardingPool.test.js` also checks that the forms file has exactly the `keep` concepts, the
   same words as `pool.tsv` and the key cases of every translation.
+
+## Slice 3b — what was built (2026-10-16)
+
+- Migration `0030_onboarding_status.sql`: `users.onboarding_status varchar(16)`, NULL by default, with
+  the CHECK `users_onboarding_status_check` (`pending` / `done` / `skipped`). Existing, demo and
+  template accounts stay NULL (D21).
+- Email registration (`userController.registerUser`) and Google signup
+  (`oauthController` signup/complete) set `pending`.
+- `onboardingStatus` is in the login answer (`serializeLoginUser`: email login, Google login, demo
+  start), in `serializeUser` (`/me` via `req.user`, verify, profile update) and in the `protect`
+  column list (`req.user`, needed by the 3d routes). The profile update's `returning` list has it, so
+  a profile save keeps it in the app session. Not in `userColumnsWithoutPassword` (the user search
+  returns other users with that list).
+- Jest: registration stores `pending`; login answers `pending`, and `null` for an older account; `/me`
+  and the profile update return it; Google signup stores and returns `pending`; a demo start answers
+  `null`. Full suite green (3,245).
 
 ## Review log — Slice 2 (2026-10-16)
 

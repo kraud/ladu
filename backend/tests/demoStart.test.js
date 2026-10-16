@@ -76,6 +76,8 @@ describe('POST /api/demo — the new demo account', () => {
             languages: ['German', 'English', 'Spanish', 'Estonian'],
             demoWordLimit: SEED_COUNTS.words + 30,
             demoTagLimit: SEED_COUNTS.tags + 5,
+            // A demo never sees the onboarding (onboarding.md D21).
+            onboardingStatus: null,
         });
         expect(body.username).toMatch(/^demo-[0-9a-f-]{36}$/);
         expect(body.email).toMatch(/^demo\+[0-9a-f-]{36}@ladu\.invalid$/);

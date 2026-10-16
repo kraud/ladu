@@ -123,6 +123,12 @@ describe('POST /api/users - Registration', () => {
         expect(user.termsAcceptedAt.getTime()).toBeLessThanOrEqual(Date.now() + 1000);
     });
 
+    it('marks a new account for the first-login onboarding (onboarding.md D21)', async () => {
+        await registerUser();
+        const user = await findUserByEmail('test@example.com');
+        expect(user.onboardingStatus).toBe('pending');
+    });
+
     it('creates a Token document for email verification', async () => {
         await registerUser();
 
@@ -322,6 +328,16 @@ describe('POST /api/users/login - Login', () => {
         expect(res.body).toHaveProperty('username', 'testuser');
     });
 
+    it('returns the onboarding status: pending for a new account, null for an older one (D21)', async () => {
+        const login = () => request(app).post('/api/users/login').send({ email: 'test@example.com', password: 'password123' });
+        expect((await login()).body.onboardingStatus).toBe('pending');
+
+        await db.update(users).set({ onboardingStatus: null }).where(eq(users.email, 'test@example.com'));
+        const res = await login();
+        expect(res.statusCode).toBe(200);
+        expect(res.body.onboardingStatus).toBeNull();
+    });
+
     it('fails with wrong password', async () => {
         const res = await request(app)
             .post('/api/users/login')
@@ -494,6 +510,7 @@ describe('GET /api/users/me - Profile', () => {
         expect(res.body).toHaveProperty('email', 'test@example.com');
         expect(res.body).toHaveProperty('name', 'Test User');
         expect(res.body).toHaveProperty('theme', null);
+        expect(res.body).toHaveProperty('onboardingStatus', 'pending');
         expect(res.body).not.toHaveProperty('password');
         expect(res.body).not.toHaveProperty('passwordTokens');
     });
@@ -548,6 +565,8 @@ describe('PUT /api/users/updateUser - Update Profile', () => {
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('name', 'Updated Name');
         expect(res.body).toHaveProperty('id', userId);
+        // The app stores this answer as its session: it must keep the onboarding status (D21).
+        expect(res.body).toHaveProperty('onboardingStatus', 'pending');
         expect(res.body).not.toHaveProperty('_id');
         expect(res.body).not.toHaveProperty('password');
         expect(res.body).not.toHaveProperty('passwordTokens');
