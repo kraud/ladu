@@ -44,6 +44,10 @@ export interface AccessState {
     registration: { mode: AccessMode; note: string };
     login: { mode: AccessMode; note: string };
     demo: DemoSettings;
+    /** The first-login onboarding switch (onboarding.md D26). Independent of the gates above. */
+    onboarding: { enabled: boolean };
+    /** Accounts by onboarding status; accounts without one (older, demo) are not counted. */
+    onboardingCounts: { pending: number; done: number; skipped: number };
     /** One row holds every gate, so this is the last change to any of them. */
     updatedAt: string | null;
     updatedBy: string | null;

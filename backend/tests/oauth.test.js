@@ -5,7 +5,7 @@ const sendMail = require('../utils/sendEmail');
 
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const request = require('supertest');
+const request = require('./request');
 const { eq } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');
@@ -255,6 +255,19 @@ describe('POST /api/auth/signup/complete', () => {
         const [user] = await db.select().from(users).where(eq(users.email, 'newuser@example.com'));
         expect(user.termsVersion).toBe(TERMS_VERSION);
         expect(user.termsAcceptedAt).toBeInstanceOf(Date);
+    });
+
+    it('marks the new account for the first-login onboarding and returns the status (onboarding.md D21)', async () => {
+        const res = await request(app).post('/api/auth/signup/complete').send({
+            ticket: validTicket(),
+            username: 'newuser',
+            languages: ['English', 'Spanish'],
+        });
+        expect(res.statusCode).toBe(201);
+        expect(res.body.onboardingStatus).toBe('pending');
+
+        const [user] = await db.select().from(users).where(eq(users.email, 'newuser@example.com'));
+        expect(user.onboardingStatus).toBe('pending');
     });
 
     it('creates a password-less, verified account plus exactly one oauth_identities row, and returns a session token', async () => {

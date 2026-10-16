@@ -9,7 +9,7 @@ const asyncHandler = require('express-async-handler');
 const { db }: typeof import('../../src/db') = require('../../src/db');
 const { accessSettings, registrationInvites, loginAllowedUsers, staffAccounts, users, auditLog }: typeof import('../../src/db/schema') =
   require('../../src/db/schema');
-const { and, desc, eq, inArray, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
+const { and, desc, eq, inArray, isNotNull, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 const { HttpError }: typeof import('../../lib/httpError') = require('../../lib/httpError');
 const { readReason, withStatus }: typeof import('../../lib/adminRequest') = require('../../lib/adminRequest');
 const { getAccessSettings, normalizeInviteEmail, DEMO_BOUNDS }: typeof import('../../lib/accessGate') = require('../../lib/accessGate');
@@ -73,6 +73,7 @@ const loadAccess = async () => {
     registration: { mode: settings.registrationMode, note: settings.registrationNote },
     login: { mode: settings.loginMode, note: settings.loginNote },
     demo: settings.demo,
+    onboarding: settings.onboarding,
     // One row of settings holds every gate, so this is the last change to any of them.
     updatedAt: row?.updatedAt ?? null,
     updatedBy: row?.staffName ?? null,
@@ -81,7 +82,20 @@ const loadAccess = async () => {
     loginAllowed,
     // `liveDemos`: demos running now, to compare with `demo.maxLive`.
     counts: { invites: invites.length, loginAllowed: loginAllowed.length, liveDemos: await countLiveDemos() },
+    // Accounts by onboarding status (onboarding.md D26; demo accounts never have one). For the
+    // evaluation of the slider cap after the release ("To evaluate after release").
+    onboardingCounts: await onboardingCounts(),
   };
+};
+
+const onboardingCounts = async (): Promise<{ pending: number; done: number; skipped: number }> => {
+  const rows = await db
+    .select({ status: users.onboardingStatus, count: sql<number>`count(*)::int` })
+    .from(users)
+    .where(isNotNull(users.onboardingStatus))
+    .groupBy(users.onboardingStatus);
+  const count = (status: string) => rows.find((row: { status: string | null }) => row.status === status)?.count ?? 0;
+  return { pending: count('pending'), done: count('done'), skipped: count('skipped') };
 };
 
 /** `GET /api/admin/access` */
@@ -216,6 +230,40 @@ const setDemo = asyncHandler(async (req: any, res: any) => {
         targetId: 'demo',
         reason: reason || null,
         metadata: { from: previous, to: next },
+      });
+    });
+  });
+
+  res.json(await loadAccess());
+});
+
+/**
+ * `PUT /api/admin/access/onboarding` — `{ enabled, reason? }`. One audit row
+ * `access.onboarding_configure` with the old and the new value (onboarding.md D26). Accounts that
+ * signed up while it was off are `pending` too: they see the onboarding at their next visit.
+ */
+const setOnboarding = asyncHandler(async (req: any, res: any) => {
+  await withStatus(res, async () => {
+    const body = req.body ?? {};
+    const reason = readReason(body);
+    if (typeof body.enabled !== 'boolean') throw new HttpError(400, 'Enabled must be true or false');
+
+    await db.transaction(async (tx) => {
+      const [current] = await tx.select().from(accessSettings).where(eq(accessSettings.id, 1)).for('update');
+      if (!current) throw new HttpError(500, 'The access settings row is missing');
+      if (current.onboardingEnabled === body.enabled) return; // nothing to write, nothing to log
+
+      await tx
+        .update(accessSettings)
+        .set({ onboardingEnabled: body.enabled, updatedAt: new Date(), updatedByStaffId: req.staff.id })
+        .where(eq(accessSettings.id, 1));
+      await tx.insert(auditLog).values({
+        staffId: req.staff.id,
+        action: 'access.onboarding_configure',
+        targetType: 'access',
+        targetId: 'onboarding',
+        reason: reason || null,
+        metadata: { from: { enabled: current.onboardingEnabled }, to: { enabled: body.enabled } },
       });
     });
   });
@@ -561,6 +609,7 @@ export = {
   setRegistration,
   setLogin,
   setDemo,
+  setOnboarding,
   getDemoUsers,
   getDemoStats,
   addInvites,

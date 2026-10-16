@@ -203,6 +203,25 @@ Local dev and test databases load the same way (`node scripts/lexicon/load.js <f
 language, and `translations-en-fixture.jsonl` with the translations of 11 English words) are
 enough for tests and e2e (`npm run lexicon:load:fixture -w backend`).
 
+## First-login onboarding (`users.onboarding_status`)
+
+New accounts (email and Google signup) can get words automatically at their first login
+(`.context/plans/onboarding.md`). It is **off by default** in every environment. The owner turns
+it on in the admin panel: **Access → Onboarding** (`/access?tab=onboarding`). Nothing to deploy.
+
+- **The status:** `users.onboarding_status` is `pending` for every account created since migration
+  0030, also while the switch is off; `done` or `skipped` afterwards; NULL for older accounts, demo
+  accounts and the demo template (they never see it). The admin tab counts the accounts by status.
+- **The switch:** `access_settings.onboarding_enabled` (migration 0031). While it is off, the app does
+  not open `/onboarding` and the `/api/onboarding` routes answer 403 `onboarding_disabled`. Each
+  change writes the audit row `access.onboarding_configure`.
+- **What the user sees:** a `pending` account goes to the full-screen `/onboarding` after login (only
+  while the switch is on). After Create, the dashboard shows a card with the result; the app keeps it
+  in the browser (`localStorage`, key `ladu.onboardingResult`) until the user closes it.
+- **The words** come from the committed pool `backend/scripts/onboarding/pool.tsv` and its
+  precomputed forms `pool-forms.json`, both in the backend image. No lexicon lookup and no Ekilex
+  call at runtime, so nothing to seed per environment.
+
 ## Demo accounts (`users.is_demo`)
 
 The "Try the demo" button makes a throwaway account (`.context/plans/demo-access.md`). It is off

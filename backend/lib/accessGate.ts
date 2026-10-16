@@ -21,6 +21,8 @@ export interface AccessSettings {
   loginNote: string;
   /** The demo gate (demo-access.md). Independent of the two gates above. */
   demo: DemoSettings;
+  /** The first-login onboarding (onboarding.md D26). Independent of the gates above. */
+  onboarding: { enabled: boolean };
 }
 
 export interface DemoSettings {
@@ -89,6 +91,8 @@ export const getAccessSettings = async (executor: GateExecutor = db): Promise<Ac
       maxTags: row?.demoMaxTags ?? 5,
       maxLive: row?.demoMaxLive ?? 200,
     },
+    // Without the row, the onboarding is off (onboarding.md D26).
+    onboarding: { enabled: row?.onboardingEnabled ?? false },
   };
 };
 

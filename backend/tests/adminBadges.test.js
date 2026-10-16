@@ -2,7 +2,7 @@
 // on the admin user detail. See .context/plans/verified-badges.md.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
-const request = require('supertest');
+const request = require('./request');
 const bcrypt = require('bcryptjs');
 const { eq } = require('drizzle-orm');
 const app = require('../app');

@@ -18,6 +18,8 @@ One spec file per phase: `tests/phase-1-auth.spec.ts`, `tests/phase-2-noun-crud.
 `tests/phase-5-practice.spec.ts`, `tests/phase-5-5-saved-practice.spec.ts`, …
 `tests/smoke.spec.ts` is the Phase 0 harness check. The two practice specs share helpers in `fixtures/practice.ts`
 (register + verify through the API, seed nouns, sign in, answer cards).
+`tests/onboarding-gate.spec.ts` is the first-login onboarding gate (`.context/plans/onboarding.md`, Slice 4e): it turns the
+onboarding switch on, walks the flow, and checks Skip.
 `tests/autocomplete-a-dictionary-route.spec.ts` is the autocomplete Slice A gate
 (`.context/plans/autocomplete-data-source-strategy.md`).
 
@@ -50,6 +52,13 @@ worker opens a real Chromium window you can watch.
 Playwright starts `npm run dev -w backend` and `npm run dev -w frontend` itself
 (see `playwright.config.ts` → `webServer`). If you already have `npm run dev`
 running, it reuses those servers locally.
+
+## Global setup
+
+`fixtures/global-setup.ts` runs once before every run and turns the **onboarding switch off** in the local
+database. While it is on, each spec that signs in a new account would land on `/onboarding`. Only
+`onboarding-gate.spec.ts` turns it on, and it turns it off again. So after an e2e run the switch is off: turn
+it on again in the admin panel (Access → Onboarding) if you want to try the flow by hand.
 
 ## Stub servers
 

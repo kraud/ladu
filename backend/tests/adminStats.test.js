@@ -1,7 +1,7 @@
 // Admin dashboard slice 9 — GET /api/admin/stats (aggregates only, users.read).
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
-const request = require('supertest');
+const request = require('./request');
 const app = require('../app');
 const testDb = require('./db');
 const { db, pool } = require('../src/db');

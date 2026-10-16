@@ -1,7 +1,7 @@
 // Demo access, Slice 2 step 3: the purge of expired demos, demo accounts left out of the admin
 // list, the statistics and user search, and `totalTags` in the user metrics (D9).
 // See .context/plans/demo-access.md.
-const request = require('supertest');
+const request = require('./request');
 const { eq } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');

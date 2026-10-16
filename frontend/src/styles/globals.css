@@ -268,6 +268,46 @@
     font-weight: 600;
   }
 
+  /* Large chip (onboarding topics): taller, with a topic icon that the check replaces when pressed. */
+  .chip-lg {
+    height: 40px;
+    padding: 0 16px;
+    border-width: 1.5px;
+    font-size: 13.5px;
+    color: var(--fg);
+  }
+  .chip-lg .chip-lead {
+    position: relative;
+    width: 17px;
+    height: 17px;
+    flex: none;
+  }
+  .chip-lg .chip-lead svg {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.12s ease;
+  }
+  .chip-lg .chip-icon {
+    color: var(--muted);
+  }
+  .chip-lg .chip-check {
+    color: var(--accent);
+    opacity: 0;
+  }
+  .chip-lg[aria-pressed='true'] {
+    border-color: var(--accent);
+  }
+  .chip-lg[aria-pressed='true'] .chip-icon {
+    opacity: 0;
+  }
+  .chip-lg[aria-pressed='true'] .chip-check {
+    opacity: 1;
+  }
+  .chip:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
   /* ─── alert banner (unverified etc.) ────────────────────────── */
   .banner {
     display: flex;
@@ -1068,7 +1108,7 @@
     top: 3px;
     bottom: 3px;
     left: 3px;
-    width: calc(50% - 3px);
+    width: calc((100% - 6px) / var(--segments, 2));
     border-radius: 999px;
     background: var(--surface);
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);

@@ -5,9 +5,10 @@
  *   root
  *   ├── _public     (pathless layout, no header)   → login, register, verify, reset,
  *   │                                                 demo, demo/ended
- *   └── _protected  (pathless layout, AppShell)    → dashboard, addWord, word,
- *                                                     words, practice, account,
- *                                                     notifications, tag
+ *   ├── _protected  (pathless layout, AppShell)    → dashboard, addWord, word,
+ *   │                                                 words, practice, account,
+ *   │                                                 notifications, tag
+ *   └── /onboarding (full screen, no shell)        → first-login onboarding (onboarding.md D27)
  *
  * `_protected.beforeLoad` is the single centralised auth gate (fixes the old
  * app's per-page guards and its four unguarded pages). Most leaves below it
@@ -37,6 +38,8 @@ import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
 import { OAuthCallbackPage } from '@/features/auth/pages/OAuthCallbackPage';
 import { DemoPage } from '@/features/demo/pages/DemoPage';
 import { DemoEndedPage } from '@/features/demo/pages/DemoEndedPage';
+import { mustOnboard } from '@/features/onboarding/gate';
+import { OnboardingPage } from '@/features/onboarding/pages/OnboardingPage';
 import { DashboardPage } from '@/features/metrics/pages/DashboardPage';
 import { AccountPage } from '@/features/account/pages/AccountPage';
 import { AddWordPage } from '@/features/words/pages/AddWordPage';
@@ -133,13 +136,34 @@ const demoEndedRoute = createRoute({
 const protectedLayoutRoute = createRoute({
     getParentRoute: () => rootRoute,
     id: '_protected',
-    beforeLoad: ({ location }) => {
+    beforeLoad: async ({ location }) => {
         const { token } = authStore.getState();
         if (isTokenExpired(token)) {
             throw redirect({ to: '/login', search: { redirect: location.href } });
         }
+        // A new account goes through the onboarding first (only while the admin switch is on).
+        if (await mustOnboard()) {
+            throw redirect({ to: '/onboarding' });
+        }
     },
     component: ProtectedLayout,
+});
+
+// First-login onboarding: needs a session, but has no app shell (D27). It is only for a `pending`
+// account while the switch is on; anyone else who types the address goes to the dashboard.
+const onboardingRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/onboarding',
+    beforeLoad: async ({ location }) => {
+        const { token } = authStore.getState();
+        if (isTokenExpired(token)) {
+            throw redirect({ to: '/login', search: { redirect: location.href } });
+        }
+        if (!(await mustOnboard())) {
+            throw redirect({ to: '/' });
+        }
+    },
+    component: OnboardingPage,
 });
 
 const dashboardRoute = createRoute({
@@ -250,6 +274,7 @@ const routeTree = rootRoute.addChildren([
         tagsRoute,
         tagRoute,
     ]),
+    onboardingRoute,
 ]);
 
 export function createAppRouter(history?: RouterHistory) {

@@ -97,6 +97,8 @@ export interface AuthUser {
     theme?: Theme | null;
     nativeLanguage?: string | null;
     verified: boolean;
+    /** First-login onboarding (onboarding.md D21): `pending` for a new account; null / absent for an older one. */
+    onboardingStatus?: 'pending' | 'done' | 'skipped' | null;
     /** Demo access (demo-access.md): set on every login-shaped answer; false / null for a normal account. */
     isDemo?: boolean;
     demoExpiresAt?: string | null;

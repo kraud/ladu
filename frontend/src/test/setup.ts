@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { server } from './msw/server';
+import { queryClient } from '@/app/query-client';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
 import { restoreViewport } from './viewport';
@@ -44,6 +45,8 @@ afterEach(() => {
     restoreViewport();
     server.resetHandlers();
     cleanup();
+    // The router guards read the app-wide client (onboarding switch): nothing may leak between tests.
+    queryClient.clear();
     useAuthStore.getState().clearSession();
     try {
         localStorage.clear();

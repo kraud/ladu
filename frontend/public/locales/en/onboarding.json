@@ -1,0 +1,127 @@
+{
+  "skip": "Skip",
+  "skipping": "Skipping…",
+  "skipDialog": {
+    "title": "Skip the setup?",
+    "text": "If you skip, Ladu does not add any words or tags. Your word list and tag list start empty. You can add words yourself at any time.",
+    "confirm": "Skip setup",
+    "cancel": "Continue setup"
+  },
+  "next": "Next",
+  "back": "Back",
+  "start": "Start",
+  "saving": "Saving…",
+  "retry": "Try again",
+  "progress": "Step {{step}} of {{total}}",
+  "rail": {
+    "label": "Setup progress",
+    "tagline": "A few quick questions and we'll fill your first word list.",
+    "steps": "Setup steps"
+  },
+  "steps": {
+    "languages": "Languages",
+    "levels": "Your level",
+    "topics": "Interests",
+    "count": "Word count"
+  },
+  "summary": {
+    "title": "Your choices so far:",
+    "languages": "Languages",
+    "native": "Native",
+    "interests": "Interests",
+    "words": "Words",
+    "none": "None yet",
+    "notSet": "Not set",
+    "languagesCount_one": "{{count}} language",
+    "languagesCount_other": "{{count}} languages",
+    "topicsCount_one": "{{count}} topic",
+    "topicsCount_other": "{{count}} topics",
+    "wordsCount": "{{count}} words"
+  },
+  "welcomeEyebrow": "Welcome",
+  "almostDone": "Almost done",
+  "welcome": {
+    "title": "Welcome to Ladu\nlet's create your first Words and Tags.",
+    "text": "Answer a few short questions and we'll automatically add words with translations in all your languages, so you can start practicing straight away. It takes about a minute.",
+    "items": {
+      "languages": {
+        "title": "Pick the languages to include",
+        "text": "Two or more — you can add more later."
+      },
+      "levels": {
+        "title": "Tell us your level",
+        "text": "A rough guess is perfectly fine."
+      },
+      "topics": {
+        "title": "Choose your interests",
+        "text": "We make a selection of words related to them."
+      }
+    }
+  },
+  "languages": {
+    "title": "Which languages do you want us to use?",
+    "hint": "We'll include translations in every language you select here in the words we create for you. You need to select at least two.",
+    "countLow": "Select at least two languages",
+    "countOk_one": "1 language selected",
+    "countOk_other": "{{count}} languages selected",
+    "nativeTitle": "Your native language",
+    "nativeNone": "None",
+    "nativeHint": "Ladu adds words to learn in your other languages. Choose “None” to learn all of them."
+  },
+  "levels": {
+    "title": "What is your level?",
+    "hint": "Choose one level for each language. A guess is fine.",
+    "beginner": "Beginner",
+    "beginnerHint": "The most common words.",
+    "intermediate": "Intermediate",
+    "intermediateHint": "Common words and some less common ones.",
+    "advanced": "Advanced",
+    "advancedHint": "Less common words."
+  },
+  "topics": {
+    "title": "What interests you?",
+    "hint": "We'll add a mix of words related to the terms you pick here.",
+    "countLow": "Pick {{min}} to {{max}} topics ({{count}} picked)",
+    "countOk": "{{count}} of {{max}} topics picked",
+    "names": {
+      "clothing": "Clothing",
+      "food_drink": "Food & drink",
+      "animals": "Animals",
+      "plants_nature": "Plants & nature",
+      "weather": "Weather",
+      "body_health": "Body & health",
+      "technology_media": "Technology & media",
+      "home_living": "Home & living",
+      "travel_transport": "Travel & transport",
+      "sports_hobbies": "Sports & hobbies",
+      "work_money": "Work & money",
+      "numbers_measures": "Numbers & measures",
+      "time_calendar": "Time & calendar",
+      "feelings": "Feelings",
+      "people_family": "People & family"
+    }
+  },
+  "count": {
+    "title": "How many words?",
+    "hint": "You can add or remove words later.",
+    "hintSmall": "A small start. Good to try Ladu.",
+    "hintMedium": "A good start for your first practice sessions.",
+    "hintLarge": "Above 100 words, more general vocabulary is added.",
+    "capacity": "With these levels and topics, we can add up to {{count}} words.",
+    "capacityLow": "With these levels and topics, we can add only {{count}} words. Pick other topics or levels to add more.",
+    "none": "With these levels and topics, we cannot add words. Go back and change them.",
+    "loading": "Checking the words…",
+    "create": "Add {{count}} words",
+    "unit": "words"
+  },
+  "result": {
+    "label": "Your new words",
+    "title": "{{words}} words added in {{topics}} topics",
+    "text": "Each topic has its own tag. You can rename or delete the tags like any other tag.",
+    "practise": "Start practising"
+  },
+  "building": {
+    "title": "Building your dictionary…",
+    "text": "Adding {{words}} words across {{topics}} topics."
+  }
+}

@@ -15,6 +15,7 @@ import {
     useSendInvite,
     useSaveDemo,
     useSaveGate,
+    useSaveOnboarding,
     useSignOutEveryone,
 } from '@/features/access/hooks';
 import {
@@ -91,7 +92,7 @@ export function AccessPage() {
                 {data?.updatedAt && (
                     <p className="text-sm text-muted-foreground">
                         Last changed {formatDateTime(data.updatedAt)}
-                        {data.updatedBy ? ` by ${data.updatedBy}` : ''} (registration, login or demo).
+                        {data.updatedBy ? ` by ${data.updatedBy}` : ''} (registration, login, demo or onboarding).
                     </p>
                 )}
             </div>
@@ -116,6 +117,14 @@ export function AccessPage() {
                 </Link>
                 <Link id="access-demo-tab" to="/access" search={{ tab: 'demo' }} className={tabClass(tab === 'demo')}>
                     Demo
+                </Link>
+                <Link
+                    id="access-onboarding-tab"
+                    to="/access"
+                    search={{ tab: 'onboarding' }}
+                    className={tabClass(tab === 'onboarding')}
+                >
+                    Onboarding
                 </Link>
             </nav>
 
@@ -162,6 +171,112 @@ export function AccessPage() {
                     />
                     <DemoActivity />
                 </section>
+            )}
+
+            {data && tab === 'onboarding' && (
+                <section aria-labelledby="access-onboarding-tab" className="flex flex-col gap-4">
+                    <OnboardingCard
+                        key={`onboarding|${data.onboarding.enabled}`}
+                        saved={data.onboarding.enabled}
+                        counts={data.onboardingCounts}
+                        onDone={setNotice}
+                    />
+                </section>
+            )}
+        </div>
+    );
+}
+
+/** The first-login onboarding switch (onboarding.md D26). */
+function OnboardingCard({
+    saved,
+    counts,
+    onDone,
+}: {
+    saved: boolean;
+    counts: AccessState['onboardingCounts'];
+    onDone: (message: string) => void;
+}) {
+    const [enabled, setEnabled] = useState(saved);
+    const [confirming, setConfirming] = useState(false);
+    const [reason, setReason] = useState('');
+    const save = useSaveOnboarding();
+
+    const submit = () =>
+        save.mutate(
+            { enabled, reason: reason.trim() || undefined },
+            {
+                onSuccess: () => {
+                    setConfirming(false);
+                    onDone(`The onboarding is now ${enabled ? 'on' : 'off'}.`);
+                },
+            },
+        );
+
+    return (
+        <div className="flex flex-col gap-4 rounded-lg border bg-card p-4">
+            <p className="text-sm text-muted-foreground">
+                A short flow at the first login of a new account: the learner picks levels and topics, and the app adds words from the
+                reviewed pool. Every account created since the feature is marked as waiting for it, also while this is off. Older accounts
+                and demo accounts never see it.
+            </p>
+
+            <div className="flex flex-col gap-2">
+                <SegmentedControl
+                    label="Onboarding"
+                    value={enabled ? 'on' : 'off'}
+                    options={[
+                        { value: 'off', label: 'Off' },
+                        { value: 'on', label: 'On' },
+                    ]}
+                    onChange={(next) => {
+                        setEnabled(next === 'on');
+                        save.reset();
+                    }}
+                />
+                <p className="text-sm text-muted-foreground">
+                    {enabled
+                        ? 'New accounts see the onboarding at their next visit, until they finish or skip it.'
+                        : 'Nobody sees the onboarding. New accounts start with an empty dictionary.'}
+                </p>
+                <p className="text-sm">
+                    Accounts: <span className="font-semibold">{counts.pending}</span> waiting,{' '}
+                    <span className="font-semibold">{counts.done}</span> finished, <span className="font-semibold">{counts.skipped}</span>{' '}
+                    skipped.
+                </p>
+            </div>
+
+            <div>
+                <Button disabled={enabled === saved} onClick={() => setConfirming(true)}>
+                    Save
+                </Button>
+            </div>
+
+            {confirming && (
+                <FormDialog
+                    title={enabled ? 'Turn the onboarding on?' : 'Turn the onboarding off?'}
+                    description={
+                        enabled
+                            ? `${counts.pending} waiting accounts will see the onboarding at their next visit, and every new account after them.`
+                            : 'Nobody will see the onboarding. Accounts that did not finish it keep waiting until it is on again.'
+                    }
+                    submitLabel="Confirm"
+                    canSubmit
+                    pending={save.isPending}
+                    error={save.error}
+                    onSubmit={submit}
+                    onClose={() => {
+                        setConfirming(false);
+                        save.reset();
+                    }}
+                >
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="onboarding-reason">
+                            Reason <span className="font-normal text-muted-foreground">(optional)</span>
+                        </Label>
+                        <Textarea id="onboarding-reason" value={reason} maxLength={MAX_REASON_LENGTH} onChange={(e) => setReason(e.target.value)} />
+                    </div>
+                </FormDialog>
             )}
         </div>
     );

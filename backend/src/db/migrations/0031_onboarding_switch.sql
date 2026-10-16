@@ -1,0 +1,1 @@
+ALTER TABLE "access_settings" ADD COLUMN "onboarding_enabled" boolean DEFAULT false NOT NULL;

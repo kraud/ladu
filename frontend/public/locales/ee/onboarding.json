@@ -1,0 +1,127 @@
+{
+  "skip": "Jäta vahele",
+  "skipping": "Jätan vahele…",
+  "skipDialog": {
+    "title": "Kas jätad seadistuse vahele?",
+    "text": "Kui jätad vahele, ei lisa Ladu ühtegi sõna ega Tagi. Sinu sõnade loend ja Tagide loend on algul tühjad. Sõnu saad ise lisada igal ajal.",
+    "confirm": "Jäta vahele",
+    "cancel": "Jätka seadistamist"
+  },
+  "next": "Edasi",
+  "back": "Tagasi",
+  "start": "Alusta",
+  "saving": "Salvestan…",
+  "retry": "Proovi uuesti",
+  "progress": "Samm {{step}} / {{total}}",
+  "rail": {
+    "label": "Seadistuse edenemine",
+    "tagline": "Mõni kiire küsimus ja täidame sinu esimese sõnaloendi.",
+    "steps": "Seadistuse sammud"
+  },
+  "steps": {
+    "languages": "Keeled",
+    "levels": "Sinu tase",
+    "topics": "Huvid",
+    "count": "Sõnade arv"
+  },
+  "summary": {
+    "title": "Sinu valikud siiani:",
+    "languages": "Keeled",
+    "native": "Emakeel",
+    "interests": "Huvid",
+    "words": "Sõnad",
+    "none": "Veel pole",
+    "notSet": "Määramata",
+    "languagesCount_one": "{{count}} keel",
+    "languagesCount_other": "{{count}} keelt",
+    "topicsCount_one": "{{count}} teema",
+    "topicsCount_other": "{{count}} teemat",
+    "wordsCount": "{{count}} sõna"
+  },
+  "welcomeEyebrow": "Tere tulemast",
+  "almostDone": "Peaaegu valmis",
+  "welcome": {
+    "title": "Tere tulemast Ladusse\nloome sinu esimesed sõnad ja Tags.",
+    "text": "Vasta mõnele lühikesele küsimusele ja me lisame automaatselt sõnu tõlgetega kõigis sinu keeltes, et saaksid kohe harjutama hakata. See võtab umbes minuti.",
+    "items": {
+      "languages": {
+        "title": "Vali keeled, mida kaasata",
+        "text": "Kaks või rohkem – hiljem saad lisada veel."
+      },
+      "levels": {
+        "title": "Ütle meile oma tase",
+        "text": "Ligikaudne hinnang sobib."
+      },
+      "topics": {
+        "title": "Vali oma huvid",
+        "text": "Valime nende kohta sõnu."
+      }
+    }
+  },
+  "languages": {
+    "title": "Milliseid keeli peaksime kasutama?",
+    "hint": "Lisame sinu jaoks loodud sõnadele tõlked igas keeles, mille siin valid. Vali vähemalt kaks.",
+    "countLow": "Vali vähemalt kaks keelt",
+    "countOk_one": "1 keel valitud",
+    "countOk_other": "{{count}} keelt valitud",
+    "nativeTitle": "Sinu emakeel",
+    "nativeNone": "Puudub",
+    "nativeHint": "Ladu lisab õppimiseks sõnu sinu teistes keeltes. Vali „Puudub“, et õppida kõiki."
+  },
+  "levels": {
+    "title": "Mis on sinu tase?",
+    "hint": "Vali iga keele jaoks üks tase. Ligikaudne hinnang sobib.",
+    "beginner": "Algaja",
+    "beginnerHint": "Kõige sagedasemad sõnad.",
+    "intermediate": "Kesktase",
+    "intermediateHint": "Sagedased sõnad ja mõned harvemad.",
+    "advanced": "Edasijõudnu",
+    "advancedHint": "Harvemad sõnad."
+  },
+  "topics": {
+    "title": "Mis sind huvitab?",
+    "hint": "Lisame segu sõnu, mis on seotud siin valitud teemadega.",
+    "countLow": "Vali {{min}} kuni {{max}} teemat ({{count}} valitud)",
+    "countOk": "{{count}} / {{max}} teemat valitud",
+    "names": {
+      "clothing": "Riided",
+      "food_drink": "Toit ja jook",
+      "animals": "Loomad",
+      "plants_nature": "Taimed ja loodus",
+      "weather": "Ilm",
+      "body_health": "Keha ja tervis",
+      "technology_media": "Tehnoloogia ja meedia",
+      "home_living": "Kodu ja elamine",
+      "travel_transport": "Reisimine ja transport",
+      "sports_hobbies": "Sport ja hobid",
+      "work_money": "Töö ja raha",
+      "numbers_measures": "Arvud ja mõõdud",
+      "time_calendar": "Aeg ja kalender",
+      "feelings": "Tunded",
+      "people_family": "Inimesed ja perekond"
+    }
+  },
+  "count": {
+    "title": "Mitu sõna?",
+    "hint": "Sõnu saab hiljem lisada ja eemaldada.",
+    "hintSmall": "Väike algus. Hea Ladu proovimiseks.",
+    "hintMedium": "Hea algus esimesteks harjutuskordadeks.",
+    "hintLarge": "Üle 100 sõna korral lisandub rohkem üldsõnavara.",
+    "capacity": "Nende tasemete ja teemadega saame lisada kuni {{count}} sõna.",
+    "capacityLow": "Nende tasemete ja teemadega saame lisada ainult {{count}} sõna. Rohkema jaoks vali muid teemasid või tasemeid.",
+    "none": "Nende tasemete ja teemadega ei saa me sõnu lisada. Mine tagasi ja muuda neid.",
+    "loading": "Kontrollin sõnu…",
+    "create": "Lisa {{count}} sõna",
+    "unit": "sõna"
+  },
+  "result": {
+    "label": "Sinu uued sõnad",
+    "title": "{{words}} sõna lisatud {{topics}} teemasse",
+    "text": "Igal teemal on oma tag. Tage saab ümber nimetada või kustutada nagu iga teist tagi.",
+    "practise": "Alusta harjutamist"
+  },
+  "building": {
+    "title": "Loon sinu sõnastikku…",
+    "text": "Lisan {{words}} sõna {{topics}} teemasse."
+  }
+}

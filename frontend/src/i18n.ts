@@ -33,6 +33,7 @@ i18n
             'friendship',
             'loginRegister',
             'notifications',
+            'onboarding',
             'practice',
             'review',
             'tags',

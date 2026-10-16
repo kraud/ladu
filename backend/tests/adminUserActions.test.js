@@ -2,7 +2,7 @@
 // See .context/plans/admin-dashboard.md §3.
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
-const request = require('supertest');
+const request = require('./request');
 const bcrypt = require('bcryptjs');
 const { eq } = require('drizzle-orm');
 const app = require('../app');

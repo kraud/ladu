@@ -36,4 +36,12 @@ describe('SegmentedToggle', () => {
         await userEvent.click(screen.getByRole('radio', { name: 'B' }));
         expect(onValueChange).toHaveBeenCalledWith('b');
     });
+
+    it('works with three options: the thumb is a third wide and moves by whole segments', () => {
+        const three = [...OPTIONS, { value: 'c', label: 'C' }];
+        render(<SegmentedToggle value="c" onValueChange={vi.fn()} options={three} />);
+        const group = screen.getByRole('radiogroup');
+        expect(group.style.getPropertyValue('--segments')).toBe('3');
+        expect(group.querySelector<HTMLElement>('.segmented-toggle-thumb')?.style.transform).toBe('translateX(200%)');
+    });
 });

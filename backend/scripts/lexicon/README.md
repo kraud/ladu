@@ -32,6 +32,38 @@ The translation file goes through the same `load.js` (its header format, `ladu-t
 selects the `lexeme_translations` table) and the same Ansible playbook. A load replaces every
 translation row.
 
+## Word lists for onboarding (repo-root `word-lists/`, git-ignored)
+
+```sh
+npx tsx scripts/lexicon/word-lists.ts   # ~5 min: newest lexicon-en file + raw dump → word-lists/en/<pos>.tsv
+```
+
+One TSV per part of speech with the English lemmas that have a frequency rank (~37k), their
+rank, their Wiktionary topics, their WordNet supersenses (`english-wordnet-2025.xml.gz`, from
+`download.ts`) and their onboarding topic. The columns and their limits are described at the top
+of the script. Run it again after each re-ingest.
+
+The topic map is `onboarding-topics.ts` (supersenses, WordNet hypernym anchors, an adjective
+page-topic allowlist, the restricted words, the level bands); its unit test is
+`tests/unit/onboardingTopics.test.js`. The script fails at once if an anchor id is not a sense of
+its label in the WordNet edition. It also writes `word-lists/topic-report.md`: words per topic and
+level band, with examples, for the review (`.context/plans/onboarding.md`).
+
+```sh
+npx tsx scripts/lexicon/onboarding-pool.ts [--force]   # ~2 s: word lists + translations → onboarding pool
+```
+
+Writes `word-lists/pool-candidates.tsv` and, only when it does not exist yet (or with `--force`,
+which discards the review), the committed `scripts/onboarding/pool.tsv`. See
+`scripts/onboarding/README.md` for the review.
+
+```sh
+npx tsx scripts/lexicon/onboarding-forms.ts   # ~15 s: the forms of every keep concept → scripts/onboarding/pool-forms.json
+```
+
+Runs the draft lookup (DATABASE_URL lexicon + Ekilex) for the onboarding pool. Run it after every
+edit of `pool.tsv`; onboarding reads the result and makes no lookups at runtime.
+
 Estonian lookups that the lexicon cannot answer go online to the Ekilex API, which needs
 `EKILEX_API_KEY` in the repo-root `.env` (see `.dev-context/infrastructure-guide/06-secrets-and-access.md`).
 
@@ -70,6 +102,7 @@ The selector tables themselves live in `backend/lib/lexicon/selectors/<lang>.ts`
 | `frequency-<lang>.txt` | `hermitdave/FrequencyWords`, `content/2018/<lang>/<lang>_50k.txt` (OpenSubtitles 2018) | CC BY-SA 4.0 (content), MIT (code) |
 | `pikhof-est_words_160k.tsv` | `KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex`, `data/est_words_160k.tsv` | CC BY-SA 4.0 |
 | `eesthetic/` (from `eesthetic-v1.0.5.zip`) | Eesthetic v1.0.5, Zenodo record 14069724 | CC BY 4.0 |
+| `english-wordnet-2025.xml.gz` | Open English WordNet 2025 (`globalwordnet/english-wordnet` release) | CC BY 4.0 + Princeton WordNet licence (attribute both) |
 
 `.data/manifest.json` records the URL, the `Last-Modified` header and the download time of
 each file. A report must name the version it measured.

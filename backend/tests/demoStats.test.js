@@ -1,6 +1,6 @@
 // Demo access, Slice 5: the demo start log, the refusal counter, the purge's final counts, and the
 // admin endpoints for the demo users table and the usage banner (demo-access.md D19, D20).
-const request = require('supertest');
+const request = require('./request');
 const { eq } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');

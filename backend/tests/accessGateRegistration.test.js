@@ -8,7 +8,7 @@ jest.mock('../lib/accountEmails', () => {
 });
 const { issueVerificationEmail } = require('../lib/accountEmails');
 
-const request = require('supertest');
+const request = require('./request');
 const { eq } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');
@@ -62,7 +62,7 @@ describe('the settings row', () => {
 });
 
 describe('GET /api/access', () => {
-    it('is public, never cached, and shows only the modes, the notes and whether the demo is on', async () => {
+    it('is public, never cached, and shows only the modes, the notes and whether the demo and the onboarding are on', async () => {
         await setMode('limited', 'Back at 14:00 UTC');
         await invite('secret@example.com');
 
@@ -73,6 +73,7 @@ describe('GET /api/access', () => {
             registration: { mode: 'limited', note: 'Back at 14:00 UTC' },
             login: { mode: 'open', note: '' },
             demo: { enabled: false },
+            onboarding: { enabled: false },
         });
         expect(JSON.stringify(res.body)).not.toContain('secret@example.com');
     });

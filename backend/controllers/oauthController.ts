@@ -438,6 +438,7 @@ const signupComplete = asyncHandler(async (req: any, res: any) => {
           // Google already verified the address — the standard registration
           // flow's confirmation email is deliberately skipped (Decisions).
           verified: true,
+          onboardingStatus: "pending", // onboarding.md D21: new accounts only
           ...termsAcceptance(),
         })
         .returning();

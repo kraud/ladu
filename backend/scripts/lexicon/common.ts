@@ -79,6 +79,10 @@ export const EESTHETIC_DIR = path.join(DATA_DIR, 'eesthetic');
 export const PIKHOF_URL = 'https://raw.githubusercontent.com/KristjanPikhof/Estonian-Wordlist-Enriched-Ekilex/main/data/est_words_160k.tsv';
 export const PIKHOF_FILE = path.join(DATA_DIR, 'pikhof-est_words_160k.tsv');
 
+/** Open English WordNet 2025 (CC BY 4.0 + Princeton WordNet licence): supersenses for the word lists. */
+export const WORDNET_URL = 'https://github.com/globalwordnet/english-wordnet/releases/download/2025-edition/english-wordnet-2025.xml.gz';
+export const WORDNET_FILE = path.join(DATA_DIR, 'english-wordnet-2025.xml.gz');
+
 export const frequencyUrl =(lang: LangCode): string =>
     `https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/${lang}/${lang}_50k.txt`;
 export const frequencyFile = (lang: LangCode): string => path.join(DATA_DIR, `frequency-${lang}.txt`);

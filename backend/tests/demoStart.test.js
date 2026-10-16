@@ -1,6 +1,6 @@
 // Demo access, Slice 1: `POST /api/demo` (the gate, the per-IP limit, the live cap, the new demo
 // account and its seed) and the demo session in `protect`. See .context/plans/demo-access.md.
-const request = require('supertest');
+const request = require('./request');
 const bcrypt = require('bcryptjs');
 const { eq, ne } = require('drizzle-orm');
 const app = require('../app');
@@ -76,6 +76,8 @@ describe('POST /api/demo — the new demo account', () => {
             languages: ['German', 'English', 'Spanish', 'Estonian'],
             demoWordLimit: SEED_COUNTS.words + 30,
             demoTagLimit: SEED_COUNTS.tags + 5,
+            // A demo never sees the onboarding (onboarding.md D21).
+            onboardingStatus: null,
         });
         expect(body.username).toMatch(/^demo-[0-9a-f-]{36}$/);
         expect(body.email).toMatch(/^demo\+[0-9a-f-]{36}@ladu\.invalid$/);

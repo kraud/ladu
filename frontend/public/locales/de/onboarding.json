@@ -1,0 +1,127 @@
+{
+  "skip": "Überspringen",
+  "skipping": "Wird übersprungen …",
+  "skipDialog": {
+    "title": "Einrichtung überspringen?",
+    "text": "Wenn du überspringst, fügt Ladu keine Wörter und keine Tags hinzu. Deine Wörterliste und deine Tag-Liste sind dann leer. Du kannst jederzeit selbst Wörter hinzufügen.",
+    "confirm": "Überspringen",
+    "cancel": "Weiter einrichten"
+  },
+  "next": "Weiter",
+  "back": "Zurück",
+  "start": "Los geht’s",
+  "saving": "Wird gespeichert …",
+  "retry": "Erneut versuchen",
+  "progress": "Schritt {{step}} von {{total}}",
+  "rail": {
+    "label": "Fortschritt der Einrichtung",
+    "tagline": "Ein paar kurze Fragen, dann füllen wir deine erste Wortliste.",
+    "steps": "Schritte der Einrichtung"
+  },
+  "steps": {
+    "languages": "Sprachen",
+    "levels": "Dein Niveau",
+    "topics": "Interessen",
+    "count": "Wortanzahl"
+  },
+  "summary": {
+    "title": "Deine Auswahl bisher:",
+    "languages": "Sprachen",
+    "native": "Muttersprache",
+    "interests": "Interessen",
+    "words": "Wörter",
+    "none": "Noch keine",
+    "notSet": "Nicht festgelegt",
+    "languagesCount_one": "{{count}} Sprache",
+    "languagesCount_other": "{{count}} Sprachen",
+    "topicsCount_one": "{{count}} Thema",
+    "topicsCount_other": "{{count}} Themen",
+    "wordsCount": "{{count}} Wörter"
+  },
+  "welcomeEyebrow": "Willkommen",
+  "almostDone": "Fast fertig",
+  "welcome": {
+    "title": "Willkommen bei Ladu\nerstellen wir deine ersten Wörter und Tags.",
+    "text": "Beantworte ein paar kurze Fragen, und wir fügen automatisch Wörter mit Übersetzungen in all deinen Sprachen hinzu. So kannst du sofort üben. Es dauert etwa eine Minute.",
+    "items": {
+      "languages": {
+        "title": "Wähle die Sprachen aus",
+        "text": "Zwei oder mehr – später kannst du weitere hinzufügen."
+      },
+      "levels": {
+        "title": "Sag uns dein Niveau",
+        "text": "Eine grobe Einschätzung genügt."
+      },
+      "topics": {
+        "title": "Wähle deine Interessen",
+        "text": "Wir treffen eine Auswahl an Wörtern dazu."
+      }
+    }
+  },
+  "languages": {
+    "title": "Welche Sprachen sollen wir verwenden?",
+    "hint": "Die Wörter, die wir für dich erstellen, enthalten Übersetzungen in jeder Sprache, die du hier wählst. Du musst mindestens zwei wählen.",
+    "countLow": "Wähle mindestens zwei Sprachen",
+    "countOk_one": "1 Sprache gewählt",
+    "countOk_other": "{{count}} Sprachen gewählt",
+    "nativeTitle": "Deine Muttersprache",
+    "nativeNone": "Keine",
+    "nativeHint": "Ladu fügt Wörter zum Lernen in deinen anderen Sprachen hinzu. Wähle „Keine“, um alle zu lernen."
+  },
+  "levels": {
+    "title": "Was ist dein Niveau?",
+    "hint": "Wähle ein Niveau für jede Sprache. Eine Schätzung genügt.",
+    "beginner": "Anfänger",
+    "beginnerHint": "Die häufigsten Wörter.",
+    "intermediate": "Mittelstufe",
+    "intermediateHint": "Häufige Wörter und einige seltenere.",
+    "advanced": "Fortgeschritten",
+    "advancedHint": "Seltenere Wörter."
+  },
+  "topics": {
+    "title": "Was interessiert dich?",
+    "hint": "Wir fügen eine Auswahl an Wörtern hinzu, die zu den Themen passen, die du hier wählst.",
+    "countLow": "Wähle {{min}} bis {{max}} Themen ({{count}} gewählt)",
+    "countOk": "{{count}} von {{max}} Themen gewählt",
+    "names": {
+      "clothing": "Kleidung",
+      "food_drink": "Essen und Trinken",
+      "animals": "Tiere",
+      "plants_nature": "Pflanzen und Natur",
+      "weather": "Wetter",
+      "body_health": "Körper und Gesundheit",
+      "technology_media": "Technik und Medien",
+      "home_living": "Haus und Wohnen",
+      "travel_transport": "Reisen und Verkehr",
+      "sports_hobbies": "Sport und Hobbys",
+      "work_money": "Arbeit und Geld",
+      "numbers_measures": "Zahlen und Maße",
+      "time_calendar": "Zeit und Kalender",
+      "feelings": "Gefühle",
+      "people_family": "Menschen und Familie"
+    }
+  },
+  "count": {
+    "title": "Wie viele Wörter?",
+    "hint": "Du kannst später Wörter hinzufügen oder entfernen.",
+    "hintSmall": "Ein kleiner Anfang. Gut zum Ausprobieren von Ladu.",
+    "hintMedium": "Ein guter Start für deine ersten Übungen.",
+    "hintLarge": "Ab mehr als 100 Wörtern kommt mehr allgemeiner Wortschatz dazu.",
+    "capacity": "Mit diesen Niveaus und Themen können wir bis zu {{count}} Wörter hinzufügen.",
+    "capacityLow": "Mit diesen Niveaus und Themen können wir nur {{count}} Wörter hinzufügen. Wähle andere Themen oder Niveaus für mehr.",
+    "none": "Mit diesen Niveaus und Themen können wir keine Wörter hinzufügen. Geh zurück und ändere sie.",
+    "loading": "Die Wörter werden geprüft …",
+    "create": "{{count}} Wörter hinzufügen",
+    "unit": "Wörter"
+  },
+  "result": {
+    "label": "Deine neuen Wörter",
+    "title": "{{words}} Wörter in {{topics}} Themen hinzugefügt",
+    "text": "Jedes Thema hat einen eigenen Tag. Du kannst die Tags wie jeden anderen Tag umbenennen oder löschen.",
+    "practise": "Mit dem Üben beginnen"
+  },
+  "building": {
+    "title": "Dein Wörterbuch wird erstellt …",
+    "text": "{{words}} Wörter in {{topics}} Themen werden hinzugefügt."
+  }
+}

@@ -15,7 +15,7 @@ export interface SegmentedToggleProps {
     /** The active option's value, or `''`/`null`/`undefined` when neither option is selected. */
     value: string | null | undefined;
     onValueChange: (value: string) => void;
-    /** Exactly two options — see the component doc comment below. */
+    /** Two or more options; the thumb and the segments share the width equally. */
     options: SegmentedToggleOption[];
     /**
      * Whether clicking the already-active option clears the value. Defaults
@@ -31,7 +31,7 @@ export interface SegmentedToggleProps {
 }
 
 /**
- * A two-option pill toggle that shows both choices at once — an alternative
+ * A pill toggle that shows all its choices at once (two or more) — an alternative
  * to `Select` for a binary field (German verb's `auxiliaryVerb`: haben/sein),
  * styled after the ported mockup `.chip`/`.switch` pill aesthetic (light
  * muted track, sliding highlight). Edit-mode only: `FieldRenderer`'s own
@@ -48,7 +48,13 @@ const SegmentedToggle = React.forwardRef<HTMLDivElement, SegmentedToggleProps>(
         const activeIndex = options.findIndex((option) => option.value === value);
 
         return (
-            <div ref={ref} role="radiogroup" aria-label={ariaLabel} className={cn('segmented-toggle', className)}>
+            <div
+                ref={ref}
+                role="radiogroup"
+                aria-label={ariaLabel}
+                className={cn('segmented-toggle', className)}
+                style={{ '--segments': options.length } as React.CSSProperties}
+            >
                 <span
                     aria-hidden="true"
                     className="segmented-toggle-thumb"

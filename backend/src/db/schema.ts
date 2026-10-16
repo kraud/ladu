@@ -132,6 +132,9 @@ export const accessSettings = pgTable(
         // The most demos that may be live at one time (not expired). Bounds load and storage
         // against many visitors or many IPs; slots free up as demos end.
         demoMaxLive:          integer('demo_max_live').notNull().default(200),
+        // The first-login onboarding (onboarding.md D26): off by default. New accounts are marked
+        // `pending` either way; the app opens /onboarding and the routes work only while this is on.
+        onboardingEnabled:    boolean('onboarding_enabled').notNull().default(false),
         updatedAt:        timestamp('updated_at').defaultNow().notNull(),
         updatedByStaffId:  uuid('updated_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
     },
@@ -209,10 +212,15 @@ export const users = pgTable('users', {
     demoExpiresAt:    timestamp('demo_expires_at'),
     demoWordLimit:    integer('demo_word_limit'),
     demoTagLimit:     integer('demo_tag_limit'),
+    // --- First-login onboarding (.context/plans/onboarding.md, D21) ---
+    // 'pending' for accounts created since the feature (email and Google signup): the app opens
+    // /onboarding. 'done' / 'skipped' afterwards. NULL (older, demo and template accounts): never shown.
+    onboardingStatus: varchar('onboarding_status', { length: 16 }),
     ...timestamps,
 }, (table) => [
     // Serves the count of live demos and the purge. Normal users are not in it.
     index('users_demo_expires_idx').on(table.demoExpiresAt).where(sql`${table.isDemo}`),
+    check('users_onboarding_status_check', sql`onboarding_status IN ('pending', 'done', 'skipped')`),
 ]);
 
 // ---------------------------------------------------------------------------

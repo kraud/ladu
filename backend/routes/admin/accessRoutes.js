@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const {
-    getAccess, setRegistration, setLogin, setDemo, getDemoUsers, getDemoStats, addInvites, removeInvite, sendInvite,
+    getAccess, setRegistration, setLogin, setDemo, setOnboarding, getDemoUsers, getDemoStats, addInvites, removeInvite, sendInvite,
     allowLogin, disallowLoginMany, disallowLogin, signOutEveryone,
 } = require('../../controllers/admin/accessController.ts')
 const { requireStaff } = require('../../middleware/staffAuth.ts')
@@ -13,6 +13,7 @@ router.put('/login', requireStaff('access.manage'), setLogin)
 router.put('/demo', requireStaff('access.manage'), setDemo)
 router.get('/demo/users', requireStaff('access.manage'), getDemoUsers)
 router.get('/demo/stats', requireStaff('access.manage'), getDemoStats)
+router.put('/onboarding', requireStaff('access.manage'), setOnboarding)
 router.post('/invites', requireStaff('access.manage'), addInvites)
 router.delete('/invites/:id', requireStaff('access.manage'), removeInvite)
 router.post('/invites/:id/send', requireStaff('access.manage'), sendInvite)

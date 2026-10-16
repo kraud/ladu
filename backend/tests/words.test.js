@@ -21,7 +21,7 @@
 jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue());
 
 const crypto = require('crypto');
-const request = require('supertest');
+const request = require('./request');
 const { eq, inArray, sql } = require('drizzle-orm');
 const app = require('../app');
 const testDb = require('./db');
