@@ -19,7 +19,7 @@
     "count": "Wortanzahl"
   },
   "summary": {
-    "title": "Dein Wörterbuch bisher",
+    "title": "Deine Auswahl bisher:",
     "languages": "Sprachen",
     "native": "Muttersprache",
     "interests": "Interessen",
@@ -35,8 +35,8 @@
   "welcomeEyebrow": "Willkommen",
   "almostDone": "Fast fertig",
   "welcome": {
-    "title": "Willkommen bei Ladu – bauen wir dein erstes Wörterbuch",
-    "text": "Beantworte ein paar kurze Fragen, und Ladu fügt Wörter in deinen Sprachen hinzu. So kannst du sofort üben. Es dauert etwa eine Minute.",
+    "title": "Willkommen bei Ladu\nerstellen wir deine ersten Wörter und Tags.",
+    "text": "Beantworte ein paar kurze Fragen, und wir fügen automatisch Wörter mit Übersetzungen in all deinen Sprachen hinzu. So kannst du sofort üben. Es dauert etwa eine Minute.",
     "items": {
       "languages": {
         "title": "Wähle die Sprachen aus",

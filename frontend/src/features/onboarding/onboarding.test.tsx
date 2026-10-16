@@ -20,13 +20,16 @@ beforeEach(() => {
     buildTiming.minMs = 0;
 });
 
+/** The title has a line break in it, so the name is matched with `\s+`. */
+const WELCOME_TITLE = /Welcome to Ladu\s+let's create your first Words and Tags\./;
+
 const pendingSession = { id: 'u1', email: 'a@x.com', token: futureToken(), onboardingStatus: 'pending' };
 
 describe('/onboarding (welcome + skip)', () => {
     it('shows the welcome full screen, without the app header', async () => {
         server.use(...makeAccessHandlers({ ...OPEN_ACCESS, onboarding: { enabled: true } }));
         await renderApp({ initialEntry: '/', session: pendingSession });
-        expect(await screen.findByRole('heading', { name: en.welcome.title })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: WELCOME_TITLE })).toBeInTheDocument();
         expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     });
 
@@ -44,7 +47,7 @@ describe('/onboarding (welcome + skip)', () => {
         await userEvent.click(await screen.findByRole('button', { name: en.skip }));
         await waitFor(() => expect(useAuthStore.getState().user?.onboardingStatus).toBe('skipped'));
         expect(called).toBe(1);
-        await waitFor(() => expect(screen.queryByRole('heading', { name: en.welcome.title })).not.toBeInTheDocument());
+        await waitFor(() => expect(screen.queryByRole('heading', { name: WELCOME_TITLE })).not.toBeInTheDocument());
     });
 
     it('stays on the page and shows an error when Skip fails', async () => {

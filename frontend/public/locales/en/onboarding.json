@@ -19,7 +19,7 @@
     "count": "Word count"
   },
   "summary": {
-    "title": "Your dictionary so far",
+    "title": "Your choices so far:",
     "languages": "Languages",
     "native": "Native",
     "interests": "Interests",
@@ -35,8 +35,8 @@
   "welcomeEyebrow": "Welcome",
   "almostDone": "Almost done",
   "welcome": {
-    "title": "Welcome to Ladu — let's build your first dictionary",
-    "text": "Answer a few short questions and Ladu adds words in your languages, so you can start practising straight away. It takes about a minute.",
+    "title": "Welcome to Ladu\nlet's create your first Words and Tags.",
+    "text": "Answer a few short questions and we'll automatically add words with translations in all your languages, so you can start practicing straight away. It takes about a minute.",
     "items": {
       "languages": {
         "title": "Pick the languages to include",

@@ -19,7 +19,7 @@
     "count": "Sõnade arv"
   },
   "summary": {
-    "title": "Sinu sõnastik siiani",
+    "title": "Sinu valikud siiani:",
     "languages": "Keeled",
     "native": "Emakeel",
     "interests": "Huvid",
@@ -35,8 +35,8 @@
   "welcomeEyebrow": "Tere tulemast",
   "almostDone": "Peaaegu valmis",
   "welcome": {
-    "title": "Tere tulemast Ladusse – loome sinu esimese sõnastiku",
-    "text": "Vasta mõnele lühikesele küsimusele ja Ladu lisab sõnu sinu keeltes, et saaksid kohe harjutama hakata. See võtab umbes minuti.",
+    "title": "Tere tulemast Ladusse\nloome sinu esimesed sõnad ja Tags.",
+    "text": "Vasta mõnele lühikesele küsimusele ja me lisame automaatselt sõnu tõlgetega kõigis sinu keeltes, et saaksid kohe harjutama hakata. See võtab umbes minuti.",
     "items": {
       "languages": {
         "title": "Vali keeled, mida kaasata",

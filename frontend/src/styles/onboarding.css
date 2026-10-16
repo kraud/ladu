@@ -32,7 +32,6 @@
     height: 100%;
   }
   .ob-lang {
-    margin-top: auto;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -98,6 +97,7 @@
   }
 
   .ob-summary {
+    margin-top: auto;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -190,6 +190,7 @@
     letter-spacing: -0.015em;
     font-weight: 600;
     margin-top: 12px;
+    white-space: pre-line;
   }
   .ob-title:focus-visible {
     outline: 2px solid var(--accent);
@@ -495,6 +496,57 @@
   .ob-banner-chip .c-num {
     font-family: var(--font-mono);
     color: var(--accent);
+  }
+}
+
+/* Large desktops: the content would sit small in the corner of each side, so the screens go back to
+   one framed card, centred on the page (the first onboarding layout). Smaller screens keep the
+   full-screen, auth-style layout. 1700px is the same step the auth screens use. */
+@media (min-width: 1700px) {
+  .ob-wrap {
+    display: grid;
+    place-items: center;
+    padding: 32px;
+    background: none;
+  }
+  .ob-shell {
+    width: 100%;
+    max-width: 1180px;
+    min-height: 0;
+    height: min(820px, calc(100dvh - 64px));
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow:
+      0 24px 64px rgb(20 18 14 / 0.09),
+      0 2px 6px rgb(20 18 14 / 0.04);
+  }
+  .ob-rail {
+    height: auto;
+    padding: 30px 30px 26px;
+    background:
+      radial-gradient(120% 80% at 0% 0%, color-mix(in oklch, var(--accent) 10%, transparent), transparent 60%),
+      color-mix(in oklch, var(--accent) 5%, var(--bg));
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .ob-rail::after {
+    content: '';
+    position: absolute;
+    right: -70px;
+    bottom: -70px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    border: 26px solid color-mix(in oklch, var(--accent) 8%, transparent);
+    pointer-events: none;
+  }
+  .ob-panel {
+    margin: 0;
+    height: auto;
+    border-radius: 0;
+    background: var(--surface);
   }
 }
 

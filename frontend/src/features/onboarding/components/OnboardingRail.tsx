@@ -46,7 +46,7 @@ export function OnboardingRail({
         <aside className="ob-rail" aria-label={t('onboarding:rail.label')}>
             <div className="ob-rail-inner">
                 <div>
-                    <BrandLogo variant="wordmark" height={24} title="Ladu" />
+                    <BrandLogo variant="wordmark" height={64} title="Ladu" />
                     <p className="ob-rail-tag">{t('onboarding:rail.tagline')}</p>
                 </div>
 

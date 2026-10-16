@@ -19,7 +19,7 @@
     "count": "Número de palabras"
   },
   "summary": {
-    "title": "Tu diccionario hasta ahora",
+    "title": "Tus elecciones hasta ahora:",
     "languages": "Idiomas",
     "native": "Materna",
     "interests": "Intereses",
@@ -35,8 +35,8 @@
   "welcomeEyebrow": "Bienvenida",
   "almostDone": "Casi listo",
   "welcome": {
-    "title": "Te damos la bienvenida a Ladu: creemos tu primer diccionario",
-    "text": "Responde unas pocas preguntas y Ladu añade palabras en tus idiomas, para que puedas practicar enseguida. Tarda un minuto.",
+    "title": "Te damos la bienvenida a Ladu\ncreemos tus primeras palabras y Tags.",
+    "text": "Responde unas pocas preguntas y añadiremos automáticamente palabras con traducciones en todos tus idiomas, para que puedas practicar enseguida. Tarda un minuto.",
     "items": {
       "languages": {
         "title": "Elige los idiomas que incluir",
