@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { screen, waitFor, within } from '@testing-library/react';
+import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
 import { makeMetricsHandlers } from '@/test/msw/metricsHandlers';
 import { makeAccessHandlers } from '@/test/msw/accessHandlers';
+import { saveOnboardingResult } from './resultCard';
 import { renderApp } from '@/test/render';
 import { OPEN_ACCESS } from '@/features/access/types';
 import { useAuthStore } from '@/stores/authStore';
@@ -171,6 +172,77 @@ describe('/onboarding steps', () => {
         await click('Add 100 words');
         expect(await screen.findByRole('alert')).toBeInTheDocument();
         expect(useAuthStore.getState().user?.onboardingStatus).toBe('pending');
+    });
+});
+
+describe('dashboard result card (Slice 4d)', () => {
+    const tags = [
+        { id: 't1', label: 'Clothing', topic: 'clothing', words: 20 },
+        { id: 't2', label: 'Animals', topic: 'animals', words: 20 },
+        { id: 't3', label: 'Weather', topic: 'weather', words: 20 },
+        { id: 't4', label: 'Core vocabulary', topic: 'core', words: 10 },
+    ];
+    const session = { id: 'u1', email: 'a@x.com', token: futureToken(), onboardingStatus: 'done' };
+
+    function setup() {
+        server.use(...makeAccessHandlers(), ...makeMetricsHandlers().handlers);
+    }
+
+    it('shows words, topics (not the core tag), a link per tag and a way to practise', async () => {
+        setup();
+        saveOnboardingResult('u1', { words: 70, tags });
+        await renderApp({ initialEntry: '/', session });
+        expect(await screen.findByText('70 words added in 3 topics')).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Clothing · 20' })).toHaveAttribute('href', '/tag/t1');
+        expect(screen.getByRole('link', { name: 'Core vocabulary · 10' })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: en.result.practise })).toHaveAttribute('href', '/practice');
+    });
+
+    it('stays after a reload and goes when the user closes it', async () => {
+        setup();
+        saveOnboardingResult('u1', { words: 70, tags });
+        await renderApp({ initialEntry: '/', session });
+        await screen.findByText('70 words added in 3 topics');
+        cleanup();
+        await renderApp({ initialEntry: '/', session });
+        await userEvent.click(await screen.findByRole('button', { name: 'Close' }));
+        expect(screen.queryByText('70 words added in 3 topics')).not.toBeInTheDocument();
+        cleanup();
+        await renderApp({ initialEntry: '/', session });
+        await screen.findByText(/Welcome/);
+        expect(screen.queryByText('70 words added in 3 topics')).not.toBeInTheDocument();
+    });
+
+    it('is not shown to another account on the same browser', async () => {
+        setup();
+        saveOnboardingResult('someone-else', { words: 70, tags });
+        await renderApp({ initialEntry: '/', session });
+        await screen.findByText(/Welcome/);
+        expect(screen.queryByText('70 words added in 3 topics')).not.toBeInTheDocument();
+    });
+
+    it('Create stores the answer, so the dashboard shows the card', async () => {
+        const created = { words: 60, tags: [{ id: 't9', label: 'Ropa', topic: 'clothing', words: 60 }] };
+        server.use(
+            ...makeAccessHandlers({ ...OPEN_ACCESS, onboarding: { enabled: true } }),
+            ...makeMetricsHandlers().handlers,
+            http.post('*/api/onboarding/capacity', () => HttpResponse.json({ capacity: 150 })),
+            http.post('*/api/onboarding', () => HttpResponse.json(created, { status: 201 })),
+        );
+        await renderApp({
+            initialEntry: '/',
+            session: { ...session, onboardingStatus: 'pending', languages: ['English', 'Spanish'], nativeLanguage: 'English' },
+        });
+        await userEvent.click(await screen.findByRole('button', { name: en.start }));
+        await userEvent.click(await screen.findByRole('button', { name: en.next }));
+        await userEvent.click(await screen.findByRole('button', { name: en.levels.beginner }));
+        await userEvent.click(await screen.findByRole('button', { name: en.next }));
+        for (const id of ['clothing', 'animals', 'weather'] as const) {
+            await userEvent.click(await screen.findByRole('button', { name: en.topics.names[id] }));
+        }
+        await userEvent.click(await screen.findByRole('button', { name: en.next }));
+        await userEvent.click(await screen.findByRole('button', { name: 'Add 100 words' }));
+        expect(await screen.findByText('60 words added in 1 topics')).toBeInTheDocument();
     });
 });
 

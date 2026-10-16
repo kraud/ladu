@@ -8,13 +8,11 @@ changes listed in `backend/scripts/onboarding/first-review.md`, kept for referen
 feature is merged — delete it then); confirmed and committed by the user on 2026-10-16.
 **Slice 3 done on 2026-10-16 (3a–3d):** precomputed forms, the onboarding status on the account,
 the selection service, and the three routes (see "Slice 3d — what was built"). **Slice 4 in progress
-(planned 2026-10-16 as 4a–4e):** 4a, 4b and 4c built.
+(planned 2026-10-16 as 4a–4e):** 4a–4d built.
 
-**Resume here (2026-10-16):** next is **4d** (see the Slices table): the dashboard card (D28: "N words
-added in M topics", one link per new tag, "Start practising", close button, per browser) and a review of
-the strings in EN/ES/DE/EE. `useCreateOnboarding` (`frontend/src/features/onboarding/hooks.ts`) gets the
-create answer (`words`, `tags`) in `onSuccess`: 4d must store it for the card. 4c is built (see "Slice 4c —
-what was built"). Open items 2–4, 6
+**Resume here (2026-10-16):** next is **4e** (see the Slices table): Playwright `e2e/onboarding-gate.spec.ts`
+(turns the switch on, registers, walks Welcome → steps → Create → dashboard card; also Skip) and a full
+green e2e run (check the e2e traps in memory first). 4d is built (see "Slice 4d — what was built"). Open items 2–4, 6
 and 8 are still open (see "Open items"). Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
 D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the
 start of Slice 4). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
@@ -146,7 +144,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 | 1 ✅ | **Topic map.** A committed map file (supersense → topic, hypernym anchors, adjective/adverb page-topic allowlist). `word-lists.ts` adds a `topic` column and removes vulgar/offensive/derogatory senses. It prints words per topic per band. | Coverage table per topic × band, reviewed with the user. |
 | 2 (built, review open) | **Onboarding pool.** A script picks candidate concepts per topic × band (English lemma + part of speech + hub sense), keeps the ones with ≥2 languages in the hub, and writes a committed pool file with attribution. The user reviews and edits it. A Jest test checks the file against the app's enums. | Committed, reviewed pool. |
 | 3 ✅ | **Backend**, in four steps. **3a** precomputed forms (`onboarding-forms.ts` → `pool-forms.json`, D20). **3b** migration `users.onboarding_status` (pending / done / skipped / NULL), `pending` at email and Google signup (D21), the field in the login and `/me` answers. **3c** the selection service (D5, D9, D16, D22; topics in turn; no duplicate words) and the topic tag names (D23), unit tests. **3d** `POST /api/onboarding/capacity` (D18), `POST /api/onboarding`, `POST /api/onboarding/skip`; one transaction; demo accounts refused. | Jest green after each step. |
-| 4 (4a ✅ 4b ✅ 4c ✅) | **Frontend**, in five steps. **4a** the admin switch (D26): migration 0031, `onboarding` in the public and admin access answers, `PUT /api/admin/access/onboarding`, 403 `onboarding_disabled` on the routes, the admin Access → Onboarding tab with the counts by status. **4b** `onboardingStatus` in the session, the redirect (only while the switch is on), `/onboarding` full screen (D27) with Welcome and Skip. **4c** the steps (languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading screen. **4d** the dashboard card (D28), the strings in EN/ES/DE/EE, Vitest. **4e** Playwright `onboarding-gate.spec.ts` and a full green e2e run. | Jest / Vitest green after each step; 4e: Playwright green. |
+| 4 (4a–4d ✅) | **Frontend**, in five steps. **4a** the admin switch (D26): migration 0031, `onboarding` in the public and admin access answers, `PUT /api/admin/access/onboarding`, 403 `onboarding_disabled` on the routes, the admin Access → Onboarding tab with the counts by status. **4b** `onboardingStatus` in the session, the redirect (only while the switch is on), `/onboarding` full screen (D27) with Welcome and Skip. **4c** the steps (languages, levels, topics, count slider with the capacity hint, D18/D25) and Create with a loading screen. **4d** the dashboard card (D28), the strings in EN/ES/DE/EE, Vitest. **4e** Playwright `onboarding-gate.spec.ts` and a full green e2e run. | Jest / Vitest green after each step; 4e: Playwright green. |
 | later | Placement test (D4); CEFR-J level column; more languages in the hub. | — |
 
 ## Open items (decide during the slices)
@@ -339,6 +337,20 @@ answer **409 `onboarding_not_pending`** when the account is not `pending`. Error
 - Tests: 6 new in `onboarding.test.tsx` (full walk, step gates and the 6-topic stop, profile save,
   capacity cap, D25, Create error). Full Vitest 1,856 green; typecheck and lint clean. Not yet seen in a
   real browser.
+
+## Slice 4d — what was built (2026-10-16)
+
+- `features/onboarding/resultCard.ts`: the create answer (`words`, `tags`) with the account id, kept in
+  `localStorage` under `ladu.onboardingResult` (per browser, D28); `saveOnboardingResult`,
+  `dismissOnboardingResult`, `useOnboardingResult(userId)` (another account on the same browser sees nothing).
+  `useCreateOnboarding` saves it on success.
+- `components/ResultCard.tsx`, shown first on the dashboard: "N words added in M topics" (M = tags
+  except core), one chip link per tag (`/tag/$tagId`, with its word count), a "Start practising" link
+  to `/practice`, a close button. It stays until closed.
+- Strings: `result.*` in `onboarding.json` (EN/ES/DE/EE; Estonian and German say "tag", as the rest of the
+  app). **The ES/DE/EE onboarding texts (4b–4d) still need the user's review** (open item 8).
+- Tests: 4 new in `onboarding.test.tsx` (card content and links, stays after reload and goes on close,
+  other account, Create → card). Full Vitest green; typecheck and lint clean.
 
 ## Review log — Slice 3c (2026-10-16)
 

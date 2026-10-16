@@ -6,6 +6,7 @@ import { tagKeys } from '@/features/tags/keys';
 import { wordKeys } from '@/features/words/keys';
 import { useAuthStore } from '@/stores/authStore';
 import * as onboardingApi from './api';
+import { saveOnboardingResult } from './resultCard';
 import type { OnboardingChoice } from './types';
 
 /**
@@ -53,7 +54,9 @@ export function useCreateOnboarding() {
 
     return useMutation({
         mutationFn: onboardingApi.createOnboarding,
-        onSuccess: async () => {
+        onSuccess: async (result) => {
+            const userId = useAuthStore.getState().user?.id;
+            if (userId) saveOnboardingResult(userId, result);
             setStatus('done');
             await Promise.all([
                 queryClient.invalidateQueries({ queryKey: wordKeys.all }),

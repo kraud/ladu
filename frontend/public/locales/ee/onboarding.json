@@ -67,5 +67,11 @@
     "none": "Nende tasemete ja teemadega ei saa me sõnu lisada. Mine tagasi ja muuda neid.",
     "loading": "Kontrollin sõnu…",
     "create": "Lisa {{count}} sõna"
+  },
+  "result": {
+    "label": "Sinu uued sõnad",
+    "title": "{{words}} sõna lisatud {{topics}} teemasse",
+    "text": "Igal teemal on oma tag. Tage saab ümber nimetada või kustutada nagu iga teist tagi.",
+    "practise": "Alusta harjutamist"
   }
 }

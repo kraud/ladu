@@ -67,5 +67,11 @@
     "none": "Con estos niveles y temas, no podemos añadir palabras. Vuelve atrás y cámbialos.",
     "loading": "Comprobando las palabras…",
     "create": "Añadir {{count}} palabras"
+  },
+  "result": {
+    "label": "Tus palabras nuevas",
+    "title": "{{words}} palabras añadidas en {{topics}} temas",
+    "text": "Cada tema tiene su propia etiqueta. Puedes cambiar el nombre de las etiquetas o borrarlas como cualquier otra etiqueta.",
+    "practise": "Empezar a practicar"
   }
 }

@@ -67,5 +67,11 @@
     "none": "Mit diesen Niveaus und Themen können wir keine Wörter hinzufügen. Geh zurück und ändere sie.",
     "loading": "Die Wörter werden geprüft …",
     "create": "{{count}} Wörter hinzufügen"
+  },
+  "result": {
+    "label": "Deine neuen Wörter",
+    "title": "{{words}} Wörter in {{topics}} Themen hinzugefügt",
+    "text": "Jedes Thema hat einen eigenen Tag. Du kannst die Tags wie jeden anderen Tag umbenennen oder löschen.",
+    "practise": "Mit dem Üben beginnen"
   }
 }

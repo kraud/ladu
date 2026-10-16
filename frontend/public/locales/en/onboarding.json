@@ -67,5 +67,11 @@
     "none": "With these levels and topics, we cannot add words. Go back and change them.",
     "loading": "Checking the words…",
     "create": "Add {{count}} words"
+  },
+  "result": {
+    "label": "Your new words",
+    "title": "{{words}} words added in {{topics}} topics",
+    "text": "Each topic has its own tag. You can rename or delete the tags like any other tag.",
+    "practise": "Start practising"
   }
 }
