@@ -1,6 +1,6 @@
 # Plan: First-login onboarding (topics + level → pre-filled words)
 
-Status: **draft, planned on 2026-10-16.** **Slice 0 done** (word lists with rank, Wiktionary
+Status: **in progress; planned on 2026-10-16.** **Slice 0 done** (word lists with rank, Wiktionary
 topics and WordNet supersenses; commits on 2026-10-15/16). **Slice 1 done on 2026-10-16** (topic
 map; see "Slice 1 — what was built"). **Slice 2 built on 2026-10-16** (pool generator, parser,
 committed `pool.tsv`). **First review pass done by Claude on 2026-10-16** (698 keep, 412 drop;
@@ -12,8 +12,9 @@ the selection service, and the three routes (see "Slice 3d — what was built").
 
 **Resume here (2026-10-16):** next is **4e** (see the Slices table): Playwright `e2e/onboarding-gate.spec.ts`
 (turns the switch on, registers, walks Welcome → steps → Create → dashboard card; also Skip) and a full
-green e2e run (check the e2e traps in memory first). 4d is built (see "Slice 4d — what was built"). Open items 2–4, 6
-and 8 are still open (see "Open items"). Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
+green e2e run (check the e2e traps in memory first). 4d is built (see "Slice 4d — what was built"). Only open item 8
+is still open (see "Open items"). A UI improvement round (layout and style only, same behaviour) may
+happen before 4e: the Playwright spec then follows the new markup. Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1,
 D14–D19 during Slice 2, D20–D23 at the start of Slice 3, D24–D25 during Slice 3c, D26–D28 at the
 start of Slice 4). The second opinion (`onboarding-blueprint-proposal.md`) was reviewed against
 the data and the code; the findings and their resolutions are in "Review log (2026-10-16)" at the end.
@@ -68,7 +69,7 @@ frequency band. The server only reads that pool.
 | D24. Wider fill rule | D16 continues: topics of the band → core of the band → topics of the next band → core of the next band → topics of the band below → core of the band below. Core of the band stays before the next band's topics (user decision, Review log S3-2). |
 | D25. Under 50 words | When a choice can deliver fewer than 50 words, the app offers what is there: the slider minimum becomes the capacity and the hint explains it; the server then accepts any step of 10 up to the capacity (`checkCount`). |
 | D26. Admin switch | An **Onboarding** on/off switch in the admin Access page (`access_settings.onboarding_enabled`, off by default; audit `access.onboarding_configure`). New accounts are `pending` either way; the app opens `/onboarding` and the routes work (else 403 `onboarding_disabled`) only while it is on. A rollout switch (no deploy), and it keeps the 27 e2e specs that register accounts on their path: the onboarding e2e spec is a `-gate` spec that turns it on. |
-| D27. Layout | The onboarding is **full screen, without the app header**: logo, a progress line ("Step 2 of 5"), the question, Back / Next, and Skip in the corner. |
+| D27. Layout | The onboarding is **full screen, without the app header**: logo, a progress line ("Step 2 of 4"; the welcome is not counted), the question, Back / Next, and Skip in the corner. |
 | D28. Result | After Create, the dashboard shows a **dismissible card**: "N words added in M topics", one link per new tag, a "Start practising" link, a close button (stays until closed, per browser). |
 | D10. Pool | The server never reads `word-lists/` (git-ignored, developer machine only). A script builds a committed pool file from the lists; a human reviews it. Vulgar, offensive and derogatory senses are removed when the lists and the pool are built, not at lexicon ingest (autocomplete keeps them). |
 
@@ -150,11 +151,11 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
 ## Open items (decide during the slices)
 
 1. ~~How many topics, how many words~~ — decided 2026-10-16: D14, D15.
-2. Which accounts see onboarding: only accounts created after the release, or also existing empty accounts.
-3. Tag names: in the UI language of the user at creation time, or fixed per topic.
-4. Where signup sets `languages` / `nativeLanguage` today (check in Slice 3), and what OAuth signups have.
+2. ~~Which accounts see onboarding~~ — decided 2026-10-16: D21 (new accounts only).
+3. ~~Tag names~~ — decided 2026-10-16: D23 (UI language at creation time).
+4. ~~Where signup sets `languages` / `nativeLanguage`~~ — checked in Slice 4: email and Google signup both require the languages (at least 2); the native language is optional and the onboarding's first step can set it.
 5. ~~Pool file location and format~~ — decided 2026-10-16: D17.
-6. The slider steps and the threshold texts (D14): fix in Slice 4.
+6. ~~The slider steps and the threshold texts (D14)~~ — fixed in Slice 4c: steps of 10; texts change above 70 and above 100 words.
 7. ~~What the slider shows under 50 words~~ — decided 2026-10-16: D25.
 8. Review the Spanish, German and Estonian topic names in `services/onboarding/labels.ts` (and the
    same names in the app's translations, Slice 4).

@@ -215,6 +215,9 @@ it on in the admin panel: **Access → Onboarding** (`/access?tab=onboarding`). 
 - **The switch:** `access_settings.onboarding_enabled` (migration 0031). While it is off, the app does
   not open `/onboarding` and the `/api/onboarding` routes answer 403 `onboarding_disabled`. Each
   change writes the audit row `access.onboarding_configure`.
+- **What the user sees:** a `pending` account goes to the full-screen `/onboarding` after login (only
+  while the switch is on). After Create, the dashboard shows a card with the result; the app keeps it
+  in the browser (`localStorage`, key `ladu.onboardingResult`) until the user closes it.
 - **The words** come from the committed pool `backend/scripts/onboarding/pool.tsv` and its
   precomputed forms `pool-forms.json`, both in the backend image. No lexicon lookup and no Ekilex
   call at runtime, so nothing to seed per environment.
