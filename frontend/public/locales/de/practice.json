@@ -167,7 +167,8 @@
     "next": "Weiter",
     "seeResults": "Ergebnisse ansehen",
     "answerAll": "Beantworten Sie alle Übungen, um die Ergebnisse zu sehen.",
-    "check": "Prüfen"
+    "check": "Prüfen",
+    "dontKnow": "Ich weiß es nicht"
   },
   "card": {
     "answerLabel": "Ihre Antwort",

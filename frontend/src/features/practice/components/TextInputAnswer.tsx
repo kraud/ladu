@@ -16,6 +16,7 @@ export function TextInputAnswer({
     placeholder,
     given,
     onSubmit,
+    onGiveUp,
 }: {
     /** The personal pronoun of a verb form, shown as a prefix inside the field. */
     pronoun?: string;
@@ -24,6 +25,8 @@ export function TextInputAnswer({
     /** The stored answer of an answered card; `undefined` while it is open. */
     given?: string;
     onSubmit: (typed: string) => void;
+    /** The user does not know the answer: the card is marked wrong and the right answer is shown. */
+    onGiveUp: () => void;
 }) {
     const { t } = useTranslation();
     const answered = given !== undefined;
@@ -72,9 +75,14 @@ export function TextInputAnswer({
                 />
             </div>
             {!answered && (
-                <Button type="submit" disabled={!canSubmit}>
-                    {t('practice:session.check')}
-                </Button>
+                <>
+                    <Button type="button" variant="outline" onClick={onGiveUp}>
+                        {t('practice:session.dontKnow')}
+                    </Button>
+                    <Button type="submit" disabled={!canSubmit}>
+                        {t('practice:session.check')}
+                    </Button>
+                </>
             )}
         </form>
     );

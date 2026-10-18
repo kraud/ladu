@@ -167,7 +167,8 @@
     "next": "Järgmine",
     "seeResults": "Vaata tulemusi",
     "answerAll": "Vasta kõigile harjutustele, et näha tulemusi.",
-    "check": "Kontrolli"
+    "check": "Kontrolli",
+    "dontKnow": "Ma ei tea"
   },
   "card": {
     "answerLabel": "Sinu vastus",

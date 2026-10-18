@@ -94,6 +94,7 @@ export function ExerciseCard({
                         placeholder={target?.kind === 'property' ? placeholderFor(t, target.category) : undefined}
                         given={answer?.given}
                         onSubmit={(typed) => onAnswer(evaluateTextInput(typed, expected.value, strictness), typed)}
+                        onGiveUp={() => onAnswer('wrong', '')}
                     />
                 )}
             </section>

@@ -93,6 +93,19 @@ describe('SessionView — typed answers', () => {
         expect(screen.getByRole('button', { name: 'Next' })).toHaveFocus();
     });
 
+    it("marks the answer wrong and shows the right one when the user presses \"I don't know\"", async () => {
+        const fake = await open([makeExercise()]);
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByRole('button', { name: "I don't know" }));
+
+        expect(await screen.findByText('Wrong', { selector: 'b' })).toBeInTheDocument();
+        expect(screen.getByText('Correct answer: casa')).toBeInTheDocument();
+        await screen.findByText('Saved');
+        expect(fake.state.answers).toEqual([{ translationId: 'tr-es-1', caseName: 'singularES', result: 'wrong' }]);
+        expect(screen.queryByRole('button', { name: "I don't know" })).not.toBeInTheDocument();
+    });
+
     it('sends only one save when Enter is pressed twice', async () => {
         const fake = await open([makeExercise()]);
         const user = userEvent.setup();
