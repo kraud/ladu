@@ -13,6 +13,7 @@ const { db, pool } = require('../src/db');
 const { users, words, translations, translationCases, tags, tagWords, accessSettings } = require('../src/db/schema');
 const { generateToken } = require('../controllers/userController');
 const { setOnboardingData } = require('../services/onboardingService');
+const { TOPICS } = require('../scripts/lexicon/onboarding-topics');
 
 beforeAll(() => testDb.connectDB());
 const setSwitch = (onboardingEnabled) => db.update(accessSettings).set({ onboardingEnabled }).where(eq(accessSettings.id, 1));
@@ -40,7 +41,7 @@ const newUser = async (overrides = {}) => {
 const auth = (user) => ({ Authorization: `Bearer ${user.token}` });
 const statusOf = async (id) => (await db.select({ s: users.onboardingStatus }).from(users).where(eq(users.id, id)))[0].s;
 
-const choice = { levels: { Spanish: 'beginner' }, topics: ['food_drink', 'animals', 'feelings'] };
+const choice = { levels: { Spanish: 'beginner' }, topics: ['food_drink', 'animals', 'feelings', 'weather'] };
 
 describe('access', () => {
     it('needs a session', async () => {
@@ -87,13 +88,15 @@ describe('POST /api/onboarding/capacity', () => {
         expect(res.body.capacity).toBeLessThanOrEqual(150);
     });
 
-    it('validates against the account: a level for each learning language, 3–6 topics', async () => {
+    it('validates against the account: a level for each learning language, at least 4 topics', async () => {
         const user = await newUser();
         const noLevel = await request(app).post('/api/onboarding/capacity').set(auth(user)).send({ ...choice, levels: {} });
         expect(noLevel.statusCode).toBe(400);
         expect(noLevel.body.code).toBe('invalid_levels');
-        const twoTopics = await request(app).post('/api/onboarding/capacity').set(auth(user)).send({ ...choice, topics: ['animals', 'weather'] });
+        const twoTopics = await request(app).post('/api/onboarding/capacity').set(auth(user)).send({ ...choice, topics: ['animals', 'weather', 'feelings'] });
         expect(twoTopics.body.code).toBe('invalid_topics');
+        const all = await request(app).post('/api/onboarding/capacity').set(auth(user)).send({ ...choice, topics: TOPICS.map((t) => t.id) });
+        expect(all.statusCode).toBe(200); // no maximum: all 15 topics
     });
 });
 
@@ -104,9 +107,10 @@ describe('POST /api/onboarding', () => {
         expect(res.statusCode).toBe(201);
         expect(res.body.words).toBe(50);
         expect(res.body.tags.map((t) => [t.topic, t.label])).toEqual([
-            ['food_drink', 'Food & drink'], ['animals', 'Animals'], ['feelings', 'Feelings'], ['core', 'Core vocabulary'],
+            ['food_drink', 'Food & drink'], ['animals', 'Animals'], ['feelings', 'Feelings'], ['weather', 'Weather'], ['core', 'Core vocabulary'],
         ]);
-        expect(res.body.tags.reduce((sum, t) => sum + t.words, 0)).toBe(50);
+        // A concept with two topics is counted in both tags (the 2026-10 pool refresh).
+        expect(res.body.tags.reduce((sum, t) => sum + t.words, 0)).toBeGreaterThanOrEqual(50);
 
         const created = await db.select().from(words).where(eq(words.userId, user.id));
         expect(created).toHaveLength(50);
@@ -116,7 +120,8 @@ describe('POST /api/onboarding', () => {
         const cases = await db.select().from(translationCases).where(inArray(translationCases.translationId, rows.map((r) => r.id)));
         expect(new Set(cases.map((c) => c.translationId)).size).toBe(100);
         const links = await db.select().from(tagWords).where(inArray(tagWords.wordId, wordIds));
-        expect(links).toHaveLength(50);
+        expect(new Set(links.map((l) => l.wordId)).size).toBe(50); // every word has a tag
+        expect(links).toHaveLength(res.body.tags.reduce((sum, t) => sum + t.words, 0));
         const tagRows = await db.select().from(tags).where(eq(tags.authorId, user.id));
         expect(tagRows.every((t) => t.visibility === 'Private')).toBe(true);
         expect(await statusOf(user.id)).toBe('done');
@@ -131,7 +136,7 @@ describe('POST /api/onboarding', () => {
         await db.insert(tags).values({ authorId: user.id, label: 'animales', visibility: 'Private' });
         const res = await request(app).post('/api/onboarding').set(auth(user)).send({ ...choice, count: 50 });
         expect(res.statusCode).toBe(201);
-        expect(res.body.tags.map((t) => t.label)).toEqual(['Comida y bebida', 'Animales (2)', 'Sentimientos', 'Vocabulario básico']);
+        expect(res.body.tags.map((t) => t.label)).toEqual(['Comida y bebida', 'Animales (2)', 'Sentimientos', 'Clima', 'Vocabulario básico']);
     });
 
     it('capitalises German noun forms, as the word form does', async () => {
@@ -182,8 +187,8 @@ describe('POST /api/onboarding', () => {
         const SMALL = 45;
         beforeEach(() => {
             const pool = Array.from({ length: SMALL }, (_, i) => ({
-                status: 'keep', id: `noun:w${i}`, topic: ['food_drink', 'animals', 'feelings'][i % 3], band: 'beginner',
-                partOfSpeech: 'Noun', rank: i + 1, sense: '', flags: [],
+                status: 'keep', id: `noun:w${i}`, topic: ['food_drink', 'animals', 'feelings'][i % 3], topics: [['food_drink', 'animals', 'feelings'][i % 3]], band: 'beginner',
+                partOfSpeech: 'Noun', rank: i + 1, sense: '', senseKey: '0.0', flags: [],
                 words: { English: { word: `w${i}`, gender: null }, Spanish: { word: `p${i}`, gender: 'el' } },
             }));
             const forms = Object.fromEntries(pool.map((c) => [c.id, {
@@ -206,6 +211,54 @@ describe('POST /api/onboarding', () => {
             expect(ok.statusCode).toBe(201);
             expect(ok.body.words).toBe(30);
         });
+    });
+});
+
+describe('a concept with two topics', () => {
+    // fish: animals + food_drink; run: sports_hobbies + core; the rest have one topic.
+    const concept = (id, topic, topics, rank) => ({
+        status: 'keep', id, topic, topics, band: 'beginner', partOfSpeech: 'Noun', rank, sense: '', senseKey: '0.0', flags: [],
+        words: { English: { word: id, gender: null }, Spanish: { word: `${id}-es`, gender: 'el' } },
+    });
+    beforeEach(() => {
+        const pool = [
+            concept('fish', 'animals', ['animals', 'food_drink'], 1),
+            concept('cow', 'animals', ['animals'], 2),
+            concept('bread', 'food_drink', ['food_drink'], 3),
+            concept('joy', 'feelings', ['feelings'], 4),
+            concept('rain', 'weather', ['weather'], 5),
+            concept('run', 'sports_hobbies', ['sports_hobbies', 'core'], 6),
+            concept('car', 'travel_transport', ['travel_transport'], 7),
+            concept('jam', 'food_drink', ['food_drink'], 8),
+            concept('tea', 'food_drink', ['food_drink'], 9),
+            concept('sad', 'feelings', ['feelings'], 10),
+            concept('sun', 'weather', ['weather'], 11),
+        ];
+        const forms = Object.fromEntries(pool.map((c) => [c.id, {
+            English: { word: c.id, cases: { singularEN: c.id } },
+            Spanish: { word: `${c.id}-es`, cases: { genderES: 'el', singularES: `${c.id}-es` } },
+        }]));
+        setOnboardingData({ pool, forms });
+    });
+
+    it('gets a tag link for each of its topics whose tag exists, and the tag counts include it', async () => {
+        const user = await newUser();
+        const res = await request(app).post('/api/onboarding').set(auth(user)).send({ ...choice, count: 10 });
+        expect(res.statusCode).toBe(201);
+        // food_drink, animals, feelings, weather are picked; `run` is eligible through core; `car` is not.
+        expect(res.body.words).toBe(10); // the whole capacity of this small pool (D25)
+        const counts = Object.fromEntries(res.body.tags.map((t) => [t.topic, t.words]));
+        expect(counts).toEqual({ food_drink: 4, animals: 2, feelings: 2, weather: 2, core: 1 });
+
+        const created = await db.select({ id: words.id, partOfSpeech: words.partOfSpeech }).from(words).where(eq(words.userId, user.id));
+        const links = await db.select().from(tagWords).where(inArray(tagWords.wordId, created.map((w) => w.id)));
+        expect(links).toHaveLength(11); // 10 words, fish twice; run has core only (sports_hobbies is not picked)
+        const tagIds = Object.fromEntries(res.body.tags.map((t) => [t.topic, t.id]));
+        const fishWord = (await db.select({ wordId: translationCases.translationId }).from(translationCases).where(eq(translationCases.word, 'fish')))[0];
+        expect(fishWord).toBeDefined();
+        const fishTranslation = (await db.select().from(translations).where(eq(translations.id, fishWord.wordId)))[0];
+        const fishTags = links.filter((l) => l.wordId === fishTranslation.wordId).map((l) => l.tagId).sort();
+        expect(fishTags).toEqual([tagIds.animals, tagIds.food_drink].sort());
     });
 });
 

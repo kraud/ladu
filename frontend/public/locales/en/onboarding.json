@@ -81,8 +81,9 @@
   "topics": {
     "title": "What interests you?",
     "hint": "We'll add a mix of words related to the terms you pick here.",
-    "countLow": "Pick {{min}} to {{max}} topics ({{count}} picked)",
-    "countOk": "{{count}} of {{max}} topics picked",
+    "countLow": "Pick at least {{min}} topics ({{count}} picked)",
+    "countOk_one": "{{count}} topic picked",
+    "countOk_other": "{{count}} topics picked",
     "names": {
       "clothing": "Clothing",
       "food_drink": "Food & drink",
@@ -95,7 +96,7 @@
       "travel_transport": "Travel & transport",
       "sports_hobbies": "Sports & hobbies",
       "work_money": "Work & money",
-      "numbers_measures": "Numbers & measures",
+      "numbers_measures": "Measures & quantities",
       "time_calendar": "Time & calendar",
       "feelings": "Feelings",
       "people_family": "People & family"

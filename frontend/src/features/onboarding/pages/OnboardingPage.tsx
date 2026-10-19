@@ -16,7 +16,7 @@ import { TopicsStep } from '../components/TopicsStep';
 import { WelcomeStep } from '../components/WelcomeStep';
 import { useCapacity, useCreateOnboarding, useSkipOnboarding } from '../hooks';
 import { learningLanguages, sliderRange } from '../learning';
-import { MAX_TOPICS, MIN_TOPICS, type Level, type TopicId } from '../types';
+import { MIN_TOPICS, type Level, type TopicId } from '../types';
 
 /** 0 = welcome; 1 languages, 2 levels, 3 topics, 4 count (the last step has Create). */
 type Step = 0 | 1 | 2 | 3 | 4;
@@ -64,7 +64,7 @@ export function OnboardingPage() {
         step === 0 ||
         (step === 1 && languages.length >= 2) ||
         (step === 2 && learning.every((l) => levels[l])) ||
-        (step === 3 && topics.length >= MIN_TOPICS && topics.length <= MAX_TOPICS) ||
+        (step === 3 && topics.length >= MIN_TOPICS) ||
         (step === 4 && range !== null);
 
     function next() {

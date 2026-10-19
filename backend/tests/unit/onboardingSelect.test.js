@@ -15,9 +15,9 @@ const { TOPICS } = require('../../scripts/lexicon/onboarding-topics');
 const ALL = ['English', 'Spanish', 'German', 'Estonian'];
 
 /** A pool concept + its forms. `langs` = the languages with a word (and forms unless `noForms`). */
-const make = (id, { topic = 'food_drink', band = 'beginner', rank = 100, pos = 'Noun', langs = ALL, status = 'keep', noForms = [], word } = {}) => ({
+const make = (id, { topic = 'food_drink', topics = [topic], band = 'beginner', rank = 100, pos = 'Noun', langs = ALL, status = 'keep', noForms = [], word } = {}) => ({
     concept: {
-        status, id, topic, band, partOfSpeech: pos, rank, sense: '', flags: [],
+        status, id, topic, topics, band, partOfSpeech: pos, rank, sense: '', senseKey: '0.0', flags: [],
         words: Object.fromEntries(langs.map((l) => [l, { word: word ? word(l) : `${id}-${l}`, gender: null }])),
     },
     forms: Object.fromEntries(langs.filter((l) => !noForms.includes(l)).map((l) => [l, { word: word ? word(l) : `${id}-${l}`, cases: { [`case${l}`]: `${id}-${l}` } }])),
@@ -68,12 +68,42 @@ describe('selectConcepts — which concepts count', () => {
         const { pool, forms } = build(make('a', { noForms: ['German'] }));
         const [selected] = selectConcepts(pool, forms, choice({ languages: ['Spanish', 'German', 'English'], levels: { Spanish: 'beginner', German: 'beginner' } }), 1);
         expect(selected).toEqual({
-            id: 'a', topic: 'food_drink', partOfSpeech: 'Noun',
+            id: 'a', topic: 'food_drink', topics: ['food_drink'], partOfSpeech: 'Noun',
             translations: [
                 { language: 'Spanish', cases: [{ caseName: 'caseSpanish', word: 'a-Spanish' }] },
                 { language: 'English', cases: [{ caseName: 'caseEnglish', word: 'a-English' }] },
             ],
         });
+    });
+});
+
+describe('selectConcepts — a concept with two topics', () => {
+    it('is eligible when any of its topics is picked, and keeps all its topics', () => {
+        const { pool, forms } = build(
+            make('fish', { rank: 1, topic: 'animals', topics: ['animals', 'food_drink'] }),
+            make('car', { rank: 2, topic: 'travel_transport' }),
+        );
+        for (const topic of ['animals', 'food_drink']) {
+            const selected = selectConcepts(pool, forms, choice({ topics: [topic] }), 10);
+            expect(ids(selected)).toEqual(['fish']);
+            expect(selected[0]).toMatchObject({ topic: 'animals', topics: ['animals', 'food_drink'] });
+        }
+        expect(selectConcepts(pool, forms, choice({ topics: ['feelings'] }), 10)).toEqual([]);
+    });
+
+    it('is eligible through core when core is its second topic, and counts as core', () => {
+        const { pool, forms } = build(
+            make('run', { rank: 1, topic: 'sports_hobbies', topics: ['sports_hobbies', 'core'] }),
+            ...many('f', 8, { rankFrom: 10 }),
+        );
+        const selected = selectConcepts(pool, forms, choice({ topics: ['food_drink'] }), 5);
+        // The core share (D22) asks for the first core pick at the third pick: run, though its primary topic is not picked.
+        expect(ids(selected)).toEqual(['f1', 'f2', 'run', 'f3', 'f4']);
+    });
+
+    it('is taken once even when two of its topics are picked', () => {
+        const { pool, forms } = build(make('fish', { rank: 1, topic: 'animals', topics: ['animals', 'food_drink'] }));
+        expect(ids(selectConcepts(pool, forms, choice({ topics: ['animals', 'food_drink', 'feelings'] }), 10))).toEqual(['fish']);
     });
 });
 
@@ -175,21 +205,21 @@ describe('capacity (D18)', () => {
 
 describe('validateChoice / validateCreate / checkCount', () => {
     const account = { languages: ['English', 'Spanish', 'German'], nativeLanguage: 'English' };
-    const body = { levels: { Spanish: 'beginner', German: 'advanced' }, topics: ['food_drink', 'animals', 'feelings'] };
+    const body = { levels: { Spanish: 'beginner', German: 'advanced' }, topics: ['food_drink', 'animals', 'feelings', 'weather'] };
 
-    it('accepts a level for each learning language and 3 to 6 topics', () => {
+    it('accepts a level for each learning language and at least 4 topics, up to all 15', () => {
         expect(validateChoice(body, account)).toEqual({ ok: true, value: body });
-        expect(validateChoice({ ...body, topics: TOPICS.slice(0, 6).map((t) => t.id) }, account).ok).toBe(true);
+        expect(validateChoice({ ...body, topics: TOPICS.map((t) => t.id) }, account).ok).toBe(true);
+        expect(TOPICS).toHaveLength(15);
     });
 
     it.each([
         ['a missing learning language', { ...body, levels: { Spanish: 'beginner' } }, 'invalid_levels'],
         ['a level for the native language', { ...body, levels: { ...body.levels, English: 'beginner' } }, 'invalid_levels'],
         ['an unknown level', { ...body, levels: { Spanish: 'expert', German: 'advanced' } }, 'invalid_levels'],
-        ['2 topics', { ...body, topics: ['food_drink', 'animals'] }, 'invalid_topics'],
-        ['7 topics', { ...body, topics: TOPICS.slice(0, 7).map((t) => t.id) }, 'invalid_topics'],
-        ['a repeated topic', { ...body, topics: ['food_drink', 'food_drink', 'animals'] }, 'invalid_topics'],
-        ['"core" as a topic', { ...body, topics: ['food_drink', 'animals', 'core'] }, 'invalid_topics'],
+        ['3 topics', { ...body, topics: ['food_drink', 'animals', 'feelings'] }, 'invalid_topics'],
+        ['a repeated topic', { ...body, topics: ['food_drink', 'food_drink', 'animals', 'feelings'] }, 'invalid_topics'],
+        ['"core" as a topic', { ...body, topics: ['food_drink', 'animals', 'feelings', 'core'] }, 'invalid_topics'],
         ['no body', null, 'invalid_body'],
     ])('refuses %s', (_, request, code) => {
         expect(validateChoice(request, account)).toMatchObject({ ok: false, code });
@@ -219,6 +249,7 @@ describe('topic tag names (D23)', () => {
 
     it('uses the UI language, English when it is not set or unknown', () => {
         expect(topicLabel('animals', 'German')).toBe('Tiere');
+        expect(topicLabel('numbers_measures', 'English')).toBe('Measures & quantities');
         expect(topicLabel('animals', null)).toBe('Animals');
         expect(topicLabel('core', 'Klingon')).toBe('Core vocabulary');
     });
@@ -229,7 +260,7 @@ describe('the committed pool', () => {
     const forms = readForms().concepts;
 
     const common = choice({ languages: ['English', 'Spanish', 'German'], levels: { Spanish: 'beginner', German: 'intermediate' } });
-    const coreOf = (selected) => selected.filter((s) => s.topic === 'core').length;
+    const coreOf = (selected) => selected.filter((s) => s.topics.includes('core')).length;
 
     it('keeps the 20 % core share while the topics last (50 words → 10 core)', () => {
         expect(coreOf(selectConcepts(pool, forms, common, 50))).toBe(10);
@@ -247,7 +278,7 @@ describe('the committed pool', () => {
     it('reaches at least 50 words for the smallest topics at every level (measured minimum: 80)', () => {
         for (const level of ['beginner', 'intermediate', 'advanced']) {
             for (const learn of ['Spanish', 'German', 'Estonian']) {
-                const c = choice({ languages: ['English', learn], levels: { [learn]: level }, topics: ['weather', 'technology_media', 'work_money'] });
+                const c = choice({ languages: ['English', learn], levels: { [learn]: level }, topics: ['weather', 'technology_media', 'work_money', 'numbers_measures'] });
                 expect(capacity(pool, forms, c)).toBeGreaterThanOrEqual(50);
             }
         }

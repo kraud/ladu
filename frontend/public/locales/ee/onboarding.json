@@ -81,8 +81,9 @@
   "topics": {
     "title": "Mis sind huvitab?",
     "hint": "Lisame segu sõnu, mis on seotud siin valitud teemadega.",
-    "countLow": "Vali {{min}} kuni {{max}} teemat ({{count}} valitud)",
-    "countOk": "{{count}} / {{max}} teemat valitud",
+    "countLow": "Vali vähemalt {{min}} teemat ({{count}} valitud)",
+    "countOk_one": "{{count}} teema valitud",
+    "countOk_other": "{{count}} teemat valitud",
     "names": {
       "clothing": "Riided",
       "food_drink": "Toit ja jook",
@@ -95,7 +96,7 @@
       "travel_transport": "Reisimine ja transport",
       "sports_hobbies": "Sport ja hobid",
       "work_money": "Töö ja raha",
-      "numbers_measures": "Arvud ja mõõdud",
+      "numbers_measures": "Mõõdud ja kogused",
       "time_calendar": "Aeg ja kalender",
       "feelings": "Tunded",
       "people_family": "Inimesed ja perekond"

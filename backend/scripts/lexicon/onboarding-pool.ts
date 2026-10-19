@@ -16,7 +16,22 @@
  * Output: word-lists/pool-candidates.tsv (always), and the committed, hand-reviewed
  * scripts/onboarding/pool.tsv only when it does not exist yet, or with --force (it discards the review).
  *
- *   cd backend && npx tsx scripts/lexicon/onboarding-pool.ts [--force]
+ * Explicit entry list (2026-10 refresh, Q7 of .context/onboarding-words-resolutions.md): with
+ * `--entries <file>` the candidates are the lines of a TSV instead of the word lists, so a word that
+ * has no word-list row (or a rank above the bands) can still be sourced. Columns:
+ *
+ *   lemma <TAB> pos <TAB> topics <TAB> band [<TAB> rank]
+ *
+ * `topics` is comma-separated (the first one is the primary topic; `core` is a topic), `band` is
+ * beginner | intermediate | advanced (never derived from the rank), `rank` is optional (empty = 0).
+ * The list is validated first (topics, band, part of speech, no repeated lemma + part of speech) and
+ * the run stops on an error. Entries that are already in pool.tsv are listed and skipped: the reviewed
+ * translations are never replaced, only new entries get a candidate line (the sense is the first one
+ * with a usable word; edit `sense_key` / the words by hand when it is wrong). Each line is written to
+ * word-lists/pool-candidates.tsv. An entry list never writes pool.tsv (not even with `--force`, which
+ * would replace the reviewed file with only the new lines): review the new lines and copy them in.
+ *
+ *   cd backend && npx tsx scripts/lexicon/onboarding-pool.ts [--force] [--entries <file>]
  */
 
 const fs: typeof import('fs') = require('fs');
@@ -24,7 +39,7 @@ const path: typeof import('path') = require('path');
 const zlib: typeof import('zlib') = require('zlib');
 const { DATA_DIR, readLines }: typeof import('./common') = require('./common');
 const { TOPICS, LEVEL_BANDS }: typeof import('./onboarding-topics') = require('./onboarding-topics');
-const { POOL_FILE, POOL_COLUMNS, CORE_TOPIC }: typeof import('../../lib/onboardingPool') = require('../../lib/onboardingPool');
+const { POOL_FILE, POOL_COLUMNS, POOL_TOPICS, POOL_BANDS, POOL_PARTS_OF_SPEECH, CORE_TOPIC, readPool }: typeof import('../../lib/onboardingPool') = require('../../lib/onboardingPool');
 
 const WORD_LISTS_DIR = path.join(__dirname, '..', '..', '..', 'word-lists');
 const PER_TOPIC_CELL = 20;
@@ -41,7 +56,7 @@ const NEVER_TAGS = new Set([
 ]);
 
 interface Candidate {
-    lemma: string; partOfSpeech: string; rank: number; topic: string; band: string;
+    lemma: string; partOfSpeech: string; rank: number; topic: string; topics: string[]; band: string;
     posOrder: number | null; givenName: boolean;
 }
 interface HubRow { entryOrder: number; senseOrder: number; sense: string; language: string; word: string; wordOrder: number; gender: string | null; tags: string[] }
@@ -63,12 +78,37 @@ function readCandidates(): Candidate[] {
             // Core nouns and verbs without a WordNet sense are mostly junk ("it", "what", "made").
             if (!row.topic && (partOfSpeech === 'Noun' || partOfSpeech === 'Verb') && !row.supersenses) continue;
             candidates.push({
-                lemma: row.lemma, partOfSpeech, rank, topic: row.topic || CORE_TOPIC, band,
+                lemma: row.lemma, partOfSpeech, rank, topic: row.topic || CORE_TOPIC, topics: [row.topic || CORE_TOPIC], band,
                 posOrder: row.pos_order === '' ? null : Number(row.pos_order), givenName: row.given_name === 'yes',
             });
         }
     }
     return candidates.sort((a, b) => a.rank - b.rank || a.lemma.localeCompare(b.lemma));
+}
+
+/** Reads and validates an explicit entry list (see the header). Throws with every problem found. */
+function readEntries(file: string): Candidate[] {
+    const [header, ...lines] = fs.readFileSync(file, 'utf8').split('\n').filter((line) => line.trim() !== '');
+    if (!header.startsWith('lemma\tpos\ttopics\tband')) throw new Error(`${file}: the header must start with lemma, pos, topics, band`);
+    const errors: string[] = [];
+    const seen = new Set<string>();
+    const entries: Candidate[] = [];
+    lines.forEach((line, index) => {
+        const [lemma, pos, topicList, band, rank = ''] = line.split('\t').map((cell) => cell.trim());
+        const where = `line ${index + 2} (${lemma})`;
+        const topics = (topicList ?? '').split(',').map((topic) => topic.trim()).filter(Boolean);
+        if (!lemma) errors.push(`${where}: empty lemma`);
+        if (!POOL_PARTS_OF_SPEECH.includes(pos)) errors.push(`${where}: unknown part of speech "${pos}"`);
+        if (!topics.length || topics.some((topic) => !POOL_TOPICS.includes(topic))) errors.push(`${where}: unknown topic in "${topicList}"`);
+        if (new Set(topics).size !== topics.length) errors.push(`${where}: repeated topic in "${topicList}"`);
+        if (!(POOL_BANDS as readonly string[]).includes(band)) errors.push(`${where}: unknown band "${band}"`);
+        if (rank !== '' && !/^\d+$/.test(rank)) errors.push(`${where}: rank "${rank}" is not a number`);
+        if (seen.has(`${pos}|${lemma}`)) errors.push(`${where}: repeated ${pos} ${lemma}`);
+        seen.add(`${pos}|${lemma}`);
+        entries.push({ lemma, partOfSpeech: pos, rank: Number(rank || 0), topic: topics[0], topics, band, posOrder: null, givenName: false });
+    });
+    if (errors.length) throw new Error(`${file}:\n  ${errors.join('\n  ')}`);
+    return entries;
 }
 
 function newestOut(pattern: RegExp): string {
@@ -149,9 +189,9 @@ function poolLine(candidate: Candidate, rows: HubRow[], lexicons: Map<string, Se
         return [
             flags.length ? 'check' : 'keep',
             `${candidate.partOfSpeech.toLowerCase()}:${candidate.lemma}`,
-            candidate.topic, candidate.band, candidate.partOfSpeech, String(candidate.rank), candidate.lemma,
+            candidate.topic, candidate.topics.join(','), candidate.band, candidate.partOfSpeech, String(candidate.rank), candidate.lemma,
             cell('Spanish', 'word'), cell('Spanish', 'gender'), cell('German', 'word'), cell('German', 'gender'), cell('Estonian', 'word'),
-            senseRows[0].sense.replace(/\s+/g, ' '), flags.join(' '),
+            senseRows[0].sense.replace(/\s+/g, ' '), senseKey, flags.join(' '),
         ];
     }
     return null;
@@ -159,12 +199,29 @@ function poolLine(candidate: Candidate, rows: HubRow[], lexicons: Map<string, Se
 
 async function main(): Promise<void> {
     const force = process.argv.includes('--force');
-    const candidates = readCandidates();
+    const entriesAt = process.argv.indexOf('--entries');
+    const entriesFile = entriesAt >= 0 ? process.argv[entriesAt + 1] : null;
+    if (entriesAt >= 0 && !entriesFile) throw new Error('--entries needs a file');
+    const explicit = entriesFile ? readEntries(path.resolve(entriesFile)) : null;
+    const candidates = explicit ?? readCandidates();
     const [hub, lexicons] = await Promise.all([readHub(candidates), readLexicons()]);
 
     const lines: string[][] = [];
     const report: string[] = [];
-    for (const topic of [...TOPICS.map((t) => t.id), CORE_TOPIC]) {
+    if (explicit) {
+        // Entries already in the reviewed pool keep their reviewed words: only new ones get a line.
+        const reviewed = new Set(fs.existsSync(POOL_FILE) ? readPool().map((concept) => concept.id) : []);
+        const skipped: string[] = [];
+        const noRow: string[] = [];
+        for (const candidate of explicit) {
+            const id = `${candidate.partOfSpeech.toLowerCase()}:${candidate.lemma}`;
+            if (reviewed.has(id)) { skipped.push(id); continue; }
+            const line = poolLine(candidate, hub.get(`${candidate.partOfSpeech}|${candidate.lemma}`) ?? [], lexicons);
+            if (line) lines.push(line); else noRow.push(id);
+        }
+        report.push(`${explicit.length} entries: ${lines.length} new candidate lines, ${skipped.length} already in pool.tsv (kept as reviewed)`);
+        if (noRow.length) report.push(`no usable translation row (check the hub spelling): ${noRow.join(' ')}`);
+    } else for (const topic of [...TOPICS.map((t) => t.id), CORE_TOPIC]) {
         const counts = LEVEL_BANDS.map(({ level }) => {
             const size = topic === CORE_TOPIC ? PER_CORE_CELL : PER_TOPIC_CELL;
             const cell: string[][] = [];
@@ -185,7 +242,10 @@ async function main(): Promise<void> {
     fs.writeFileSync(candidatesFile, text);
     console.log(report.join('\n'));
     console.log(`${lines.length} concepts → ${path.relative(process.cwd(), candidatesFile)}`);
-    if (fs.existsSync(POOL_FILE) && !force) {
+    if (explicit) {
+        // --force would replace the reviewed file with only the new lines, so an entry list never writes it.
+        console.log(`${path.relative(process.cwd(), POOL_FILE)} not changed (an entry list only writes the candidates file: review the new lines, then copy them in).`);
+    } else if (fs.existsSync(POOL_FILE) && !force) {
         console.log(`${path.relative(process.cwd(), POOL_FILE)} exists (reviewed): not changed. --force replaces it.`);
     } else {
         fs.mkdirSync(path.dirname(POOL_FILE), { recursive: true });

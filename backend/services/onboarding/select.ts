@@ -13,7 +13,9 @@
  * - The languages take turns, one concept each, until the count is reached; a language that has
  *   nothing left leaves its share to the others. A concept, or a concept with the same words in
  *   the user's languages as one already taken (couch / sofa), is never taken twice.
- * - Deterministic: the same choice gives the same concepts.
+ * - A concept can have more than one topic (pool `topics`). It is eligible when one of its topics is
+ *   picked or is 'core'; it counts as core when 'core' is one of its topics. Deterministic: the same
+ *   choice gives the same concepts.
  */
 
 import type { ConceptForms, PoolConcept } from '../../lib/onboardingPool';
@@ -39,8 +41,10 @@ export interface OnboardingChoice {
 
 export interface SelectedConcept {
     id: string;
-    /** The tag the Word gets: a topic id or 'core'. */
+    /** The primary topic: a topic id or 'core'. */
     topic: string;
+    /** Every topic of the concept (primary included): the Word gets a tag for each one the user picked, and for 'core'. */
+    topics: string[];
     partOfSpeech: string;
     translations: { language: string; cases: { caseName: string; word: string }[] }[];
 }
@@ -57,6 +61,8 @@ const interleave = <T>(lists: T[][]): T[] => {
     }
     return out;
 };
+
+const isCore = (concept: PoolConcept): boolean => concept.topics.includes(CORE_TOPIC);
 
 const byRank = (a: PoolConcept, b: PoolConcept): number => a.rank - b.rank || a.id.localeCompare(b.id);
 
@@ -76,11 +82,11 @@ function* candidatesFor(
     const nextBand = bands[band + 1];
     const forLanguage = eligible.filter((concept) => concept.words[language]).sort(byRank);
     const topicsOf = (bandName: string | undefined) =>
-        bandName ? interleave(topics.map((topic) => forLanguage.filter((c) => c.topic === topic && c.band === bandName))) : [];
+        bandName ? interleave(topics.map((topic) => forLanguage.filter((c) => c.topics.includes(topic) && c.band === bandName))) : [];
 
     const topicQueue = topicsOf(level);
     const coreOf = (bandName: string | undefined) =>
-        bandName ? forLanguage.filter((concept) => concept.topic === CORE_TOPIC && concept.band === bandName) : [];
+        bandName ? forLanguage.filter((concept) => isCore(concept) && concept.band === bandName) : [];
     const coreQueue = coreOf(level);
     // D24: after the band, the next band up, then the band below (easier words, still useful revision).
     const nextQueue = [...topicsOf(nextBand), ...coreOf(nextBand), ...topicsOf(bands[band - 1]), ...coreOf(bands[band - 1])];
@@ -101,7 +107,7 @@ function* candidatesFor(
             : take(topicQueue) ?? take(coreQueue) ?? take(nextQueue);
         if (!concept) return;
         picked++;
-        if (concept.topic === CORE_TOPIC) core++;
+        if (isCore(concept)) core++;
         yield concept;
     }
 }
@@ -126,7 +132,7 @@ export function selectConcepts(
         );
         if (Object.keys(words).length >= 2) usable.set(concept.id, { ...concept, words });
     }
-    const eligible = [...usable.values()].filter((c) => c.topic === CORE_TOPIC || choice.topics.includes(c.topic));
+    const eligible = [...usable.values()].filter((c) => isCore(c) || c.topics.some((topic) => choice.topics.includes(topic)));
 
     const takenIds = new Set<string>();
     const takenWords = new Set<string>();
@@ -158,6 +164,7 @@ export function selectConcepts(
     return selected.map((concept) => ({
         id: concept.id,
         topic: concept.topic,
+        topics: concept.topics,
         partOfSpeech: concept.partOfSpeech,
         translations: choice.languages
             .filter((language) => concept.words[language])

@@ -132,17 +132,17 @@ describe('/onboarding steps', () => {
         const calls = setup();
         await renderApp({ initialEntry: '/', session });
         await toTopics();
-        for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
+        for (const id of ['clothing', 'animals', 'weather', 'feelings']) await click(en.topics.names[id as keyof typeof en.topics.names]);
         await click(en.next);
         expect(await screen.findByRole('status')).toHaveTextContent('100 words');
         await click('Add 100 words');
         await waitFor(() => expect(useAuthStore.getState().user?.onboardingStatus).toBe('done'));
         expect(calls.profile).toHaveLength(0);
-        expect(calls.capacity).toEqual([{ levels: { Spanish: 'beginner' }, topics: ['clothing', 'animals', 'weather'] }]);
-        expect(calls.create).toEqual([{ levels: { Spanish: 'beginner' }, topics: ['clothing', 'animals', 'weather'], count: 100 }]);
+        expect(calls.capacity).toEqual([{ levels: { Spanish: 'beginner' }, topics: ['clothing', 'animals', 'weather', 'feelings'] }]);
+        expect(calls.create).toEqual([{ levels: { Spanish: 'beginner' }, topics: ['clothing', 'animals', 'weather', 'feelings'], count: 100 }]);
     });
 
-    it('keeps Next off until the step is complete, and stops at 6 topics', async () => {
+    it('keeps Next off until the step is complete; needs 4 topics and has no maximum', async () => {
         setup();
         await renderApp({ initialEntry: '/', session });
         await click(en.start);
@@ -151,11 +151,16 @@ describe('/onboarding steps', () => {
         await clickLevel(en.levels.advanced);
         await click(en.next);
         const ids = Object.keys(en.topics.names) as (keyof typeof en.topics.names)[];
-        for (const id of ids.slice(0, 2)) await click(en.topics.names[id]);
+        for (const id of ids.slice(0, 3)) await click(en.topics.names[id]);
         expect(screen.getByRole('button', { name: en.next })).toBeDisabled();
-        for (const id of ids.slice(2, 6)) await click(en.topics.names[id]);
+        await click(en.topics.names[ids[3]]);
         expect(screen.getByRole('button', { name: en.next })).toBeEnabled();
-        expect(screen.getByRole('button', { name: en.topics.names[ids[6]] })).toBeDisabled();
+        // No maximum: all 15 topics can be picked.
+        for (const id of ids.slice(4)) await click(en.topics.names[id]);
+        expect(ids).toHaveLength(15);
+        expect(screen.getByRole('button', { name: en.next })).toBeEnabled();
+        for (const id of ids) expect(screen.getByRole('button', { name: en.topics.names[id] })).toBeEnabled();
+        expect(screen.getByText('15 topics picked')).toBeInTheDocument();
     });
 
     it('saves a changed native language before the levels step, and asks a level for the new language', async () => {
@@ -174,7 +179,7 @@ describe('/onboarding steps', () => {
         setup(110);
         await renderApp({ initialEntry: '/', session });
         await toTopics();
-        for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
+        for (const id of ['clothing', 'animals', 'weather', 'feelings']) await click(en.topics.names[id as keyof typeof en.topics.names]);
         await click(en.next);
         const slider = await screen.findByRole('slider');
         expect(slider).toHaveAttribute('max', '110');
@@ -186,7 +191,7 @@ describe('/onboarding steps', () => {
         setup(30);
         await renderApp({ initialEntry: '/', session });
         await toTopics();
-        for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
+        for (const id of ['clothing', 'animals', 'weather', 'feelings']) await click(en.topics.names[id as keyof typeof en.topics.names]);
         await click(en.next);
         expect(await screen.findByRole('status')).toHaveTextContent('30 words');
         expect(screen.queryByRole('slider')).not.toBeInTheDocument();
@@ -232,7 +237,7 @@ describe('/onboarding steps', () => {
         );
         await renderApp({ initialEntry: '/', session });
         await toTopics();
-        for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
+        for (const id of ['clothing', 'animals', 'weather', 'feelings']) await click(en.topics.names[id as keyof typeof en.topics.names]);
         await click(en.next);
         await click('Add 100 words');
         expect(await screen.findByRole('heading', { name: en.building.title })).toBeInTheDocument();
@@ -246,7 +251,7 @@ describe('/onboarding steps', () => {
         buildTiming.minMs = 400;
         await renderApp({ initialEntry: '/', session });
         await toTopics();
-        for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
+        for (const id of ['clothing', 'animals', 'weather', 'feelings']) await click(en.topics.names[id as keyof typeof en.topics.names]);
         await click(en.next);
         await click('Add 100 words');
         expect(await screen.findByRole('heading', { name: en.building.title })).toBeInTheDocument();
@@ -279,7 +284,7 @@ describe('/onboarding steps', () => {
         server.use(http.post('*/api/onboarding', () => HttpResponse.json({ message: 'x' }, { status: 500 })));
         await renderApp({ initialEntry: '/', session });
         await toTopics();
-        for (const id of ['clothing', 'animals', 'weather']) await click(en.topics.names[id as keyof typeof en.topics.names]);
+        for (const id of ['clothing', 'animals', 'weather', 'feelings']) await click(en.topics.names[id as keyof typeof en.topics.names]);
         await click(en.next);
         await click('Add 100 words');
         expect(await screen.findByRole('alert')).toBeInTheDocument();
@@ -349,7 +354,7 @@ describe('dashboard result card (Slice 4d)', () => {
         await userEvent.click(await screen.findByRole('button', { name: en.next }));
         await userEvent.click(await screen.findByRole('radio', { name: en.levels.beginner }));
         await userEvent.click(await screen.findByRole('button', { name: en.next }));
-        for (const id of ['clothing', 'animals', 'weather'] as const) {
+        for (const id of ['clothing', 'animals', 'weather', 'feelings'] as const) {
             await userEvent.click(await screen.findByRole('button', { name: en.topics.names[id] }));
         }
         await userEvent.click(await screen.findByRole('button', { name: en.next }));

@@ -16,7 +16,7 @@ export const TOPIC_LABELS: Record<string, Record<string, string>> = {
     travel_transport: { English: 'Travel & transport', Spanish: 'Viajes y transporte', German: 'Reisen und Verkehr', Estonian: 'Reisimine ja transport' },
     sports_hobbies: { English: 'Sports & hobbies', Spanish: 'Deportes y aficiones', German: 'Sport und Hobbys', Estonian: 'Sport ja hobid' },
     work_money: { English: 'Work & money', Spanish: 'Trabajo y dinero', German: 'Arbeit und Geld', Estonian: 'Töö ja raha' },
-    numbers_measures: { English: 'Numbers & measures', Spanish: 'Números y medidas', German: 'Zahlen und Maße', Estonian: 'Arvud ja mõõdud' },
+    numbers_measures: { English: 'Measures & quantities', Spanish: 'Medidas y cantidades', German: 'Maße und Mengen', Estonian: 'Mõõdud ja kogused' },
     time_calendar: { English: 'Time & calendar', Spanish: 'Tiempo y calendario', German: 'Zeit und Kalender', Estonian: 'Aeg ja kalender' },
     feelings: { English: 'Feelings', Spanish: 'Sentimientos', German: 'Gefühle', Estonian: 'Tunded' },
     people_family: { English: 'People & family', Spanish: 'Personas y familia', German: 'Menschen und Familie', Estonian: 'Inimesed ja perekond' },

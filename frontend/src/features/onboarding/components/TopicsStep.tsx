@@ -18,7 +18,7 @@ import {
     type Icon,
 } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
-import { MAX_TOPICS, MIN_TOPICS, TOPIC_IDS, type TopicId } from '../types';
+import { MIN_TOPICS, TOPIC_IDS, type TopicId } from '../types';
 import { StepHeading } from './StepHeading';
 
 const TOPIC_ICONS: Record<TopicId, Icon> = {
@@ -39,7 +39,7 @@ const TOPIC_ICONS: Record<TopicId, Icon> = {
     people_family: UsersThreeIcon,
 };
 
-/** Step 3 (D15): pick 3 to 6 topics. Each chip has a topic icon that the check replaces in the same place, so the chips do not change size. Once 6 are picked, the others wait until one is removed. */
+/** Step 3 (D15): pick at least 4 topics, no maximum. Each chip has a topic icon that the check replaces in the same place, so the chips do not change size. */
 export function TopicsStep({ value, onChange }: { value: TopicId[]; onChange: (next: TopicId[]) => void }) {
     const { t } = useTranslation();
     const enough = value.length >= MIN_TOPICS;
@@ -61,7 +61,6 @@ export function TopicsStep({ value, onChange }: { value: TopicId[]; onChange: (n
                             type="button"
                             className="chip chip-lg"
                             aria-pressed={pressed}
-                            disabled={!pressed && value.length >= MAX_TOPICS}
                             onClick={() => toggle(topic)}
                         >
                             <span className="chip-lead" aria-hidden="true">
@@ -75,8 +74,8 @@ export function TopicsStep({ value, onChange }: { value: TopicId[]; onChange: (n
             </div>
             <p className={enough ? 'ob-count ok' : 'ob-count'} aria-live="polite">
                 {enough
-                    ? t('onboarding:topics.countOk', { count: value.length, max: MAX_TOPICS })
-                    : t('onboarding:topics.countLow', { min: MIN_TOPICS, max: MAX_TOPICS, count: value.length })}
+                    ? t('onboarding:topics.countOk', { count: value.length })
+                    : t('onboarding:topics.countLow', { min: MIN_TOPICS, count: value.length })}
             </p>
         </>
     );

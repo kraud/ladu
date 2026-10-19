@@ -1,6 +1,6 @@
 /**
  * Request validation for the onboarding routes (pure, no Express, no DB).
- * Spec: .context/plans/onboarding.md — D4, D14, D15 (Slice 3c).
+ * Spec: .context/plans/onboarding.md — D4, D14, D15 (Slice 3c; topic limits changed 2026-10).
  *
  * The languages are not part of the request: they are the account's (D8; the app changes them
  * through the profile route first). A level is needed for every learning language and nothing else.
@@ -12,9 +12,8 @@ import { learningLanguages, MAX_WORDS, MIN_WORDS, WORDS_STEP } from './select';
 const { TOPICS }: typeof import('../../scripts/lexicon/onboarding-topics') = require('../../scripts/lexicon/onboarding-topics');
 const { POOL_BANDS }: typeof import('../../lib/onboardingPool') = require('../../lib/onboardingPool');
 
-/** D15. */
-export const MIN_TOPICS = 3;
-export const MAX_TOPICS = 6;
+/** D15, changed in the 2026-10 pool refresh: at least 4 topics, no maximum (all 15 can be picked). */
+export const MIN_TOPICS = 4;
 
 export interface ChoiceRequest {
     levels: Record<string, string>;
@@ -49,9 +48,7 @@ export function validateChoice(
         return fail('invalid_topics', 'topics must be a list of topic ids');
     }
     if (new Set(topics).size !== topics.length) return fail('invalid_topics', 'topics must not repeat');
-    if (topics.length < MIN_TOPICS || topics.length > MAX_TOPICS) {
-        return fail('invalid_topics', `Pick ${MIN_TOPICS} to ${MAX_TOPICS} topics`);
-    }
+    if (topics.length < MIN_TOPICS) return fail('invalid_topics', `Pick at least ${MIN_TOPICS} topics`);
 
     return { ok: true, value: { levels: levels as Record<string, string>, topics: topics as string[] } };
 }

@@ -81,8 +81,9 @@
   "topics": {
     "title": "¿Qué temas te interesan?",
     "hint": "Añadiremos una mezcla de palabras relacionadas con los temas que elijas aquí.",
-    "countLow": "Elige de {{min}} a {{max}} temas ({{count}} elegidos)",
-    "countOk": "{{count}} de {{max}} temas elegidos",
+    "countLow": "Elige al menos {{min}} temas ({{count}} elegidos)",
+    "countOk_one": "{{count}} tema elegido",
+    "countOk_other": "{{count}} temas elegidos",
     "names": {
       "clothing": "Ropa",
       "food_drink": "Comida y bebida",
@@ -95,7 +96,7 @@
       "travel_transport": "Viajes y transporte",
       "sports_hobbies": "Deportes y aficiones",
       "work_money": "Trabajo y dinero",
-      "numbers_measures": "Números y medidas",
+      "numbers_measures": "Medidas y cantidades",
       "time_calendar": "Tiempo y calendario",
       "feelings": "Sentimientos",
       "people_family": "Personas y familia"

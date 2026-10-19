@@ -46,3 +46,4 @@ backend/scripts/lexicon/.data/
 
 # simplified autocomplete word lists (rebuilt by backend/scripts/lexicon/word-lists.ts)
 word-lists/
+.other/

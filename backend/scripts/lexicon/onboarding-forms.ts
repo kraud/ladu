@@ -14,7 +14,7 @@
 
 const fs: typeof import('fs') = require('fs');
 const path: typeof import('path') = require('path');
-const { readPool, hasKeyCases, FORMS_FILE }: typeof import('../../lib/onboardingPool') = require('../../lib/onboardingPool');
+const { readPool, hasKeyCases, pluralOnlyCases, PLURAL_ONLY_NOUNS_EN, FORMS_FILE }: typeof import('../../lib/onboardingPool') = require('../../lib/onboardingPool');
 const { draft }: typeof import('../../services/dictionary/draft') = require('../../services/dictionary/draft');
 const { pool: dbPool }: typeof import('../../src/db') = require('../../src/db');
 type ConceptForms = import('../../lib/onboardingPool').ConceptForms;
@@ -42,7 +42,13 @@ async function main(): Promise<void> {
                 // as the "Start from a word" form fills it from the draft.
                 const genderCase = GENDER_CASE[result.language];
                 if (concept.partOfSpeech === 'Noun' && genderCase && !cases[genderCase] && result.gender) cases[genderCase] = result.gender;
-                const usable = (result.status === 'found' || result.status === 'partial') && hasKeyCases(concept.partOfSpeech, result.language, cases);
+                // A plural-only English noun has no lexicon entry: its forms are built from the word.
+                if (concept.partOfSpeech === 'Noun' && result.language === 'English' && result.status === 'not-found'
+                    && PLURAL_ONLY_NOUNS_EN.includes(result.word.toLowerCase())) {
+                    entry[result.language] = { word: result.word, cases: pluralOnlyCases(result.word) };
+                    continue;
+                }
+                const usable = (result.status === 'found' || result.status === 'partial') && hasKeyCases(concept.partOfSpeech, result.language, cases, result.word);
                 if (usable) entry[result.language] = { word: result.word, cases };
                 else missing.push(`${concept.id} ${result.language} "${result.word}" (${result.status})`);
             }
