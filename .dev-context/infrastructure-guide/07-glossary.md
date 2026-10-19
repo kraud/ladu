@@ -284,6 +284,16 @@ CI, checking every installed package for known CVEs.
 **CVE (Common Vulnerabilities and Exposures)** — a standardized identifier
 for a publicly known security vulnerability (e.g. `CVE-2026-27145`).
 
+**Captcha** — a test that tells a human from a script. Ladu uses one on the demo start, the
+sign-up form and the password reset request. See [Captcha (Turnstile)](02-environments-and-databases.md#captcha-turnstile).
+
+**Turnstile** — Cloudflare's free captcha. It has no image puzzles. In **managed** mode, Cloudflare
+decides if a visitor sees only a short check or also a checkbox. It uses two keys: a public **site
+key** (shows the widget) and a private **secret key** (lets the backend check the token).
+
+**Token (Turnstile)** — the one-time ticket that the widget gives the page. The backend sends it
+to Cloudflare's `siteverify` address. It works once, and it ends after 5 minutes.
+
 ### Observability
 
 **Sentry** — an error-tracking service. The app reports exceptions to it

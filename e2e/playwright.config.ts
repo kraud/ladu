@@ -121,6 +121,12 @@ export default defineConfig({
                 // Every e2e demo start comes from one IP (demo-access.md Review log S1-1). With a reused local
                 // `npm run dev` this value does not apply, so the demo spec starts at most 5 demos (the default).
                 DEMO_STARTS_PER_IP: '1000',
+                // Cloudflare's Turnstile TEST keys: the widget always passes, and so does the server check. Only
+                // `captcha-gate.spec.ts` turns the switch on. The check calls Cloudflare's real `siteverify`, so that
+                // spec needs internet. Like the Ekilex values, a TURNSTILE_* value in the repo-root .env wins over these:
+                // a real secret key there would refuse the test token, so leave the keys out of .env when you run e2e.
+                TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
+                TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.

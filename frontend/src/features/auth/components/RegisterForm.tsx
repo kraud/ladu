@@ -211,8 +211,6 @@ export function RegisterForm({ oauthSlot }: { oauthSlot?: ReactNode }) {
                             )}
                         />
 
-                        {captcha.widget}
-
                         <div className="step-actions">
                             <span className="hint grow">
                                 {languages.length === 0
@@ -235,6 +233,8 @@ export function RegisterForm({ oauthSlot }: { oauthSlot?: ReactNode }) {
                                 )}
                             </Button>
                         </div>
+                        {/* Its own row under the buttons: 16px above, and 16px below (4px here + the Terms note's 12px). */}
+                        {captcha.widget && <div className="mt-4 mb-1">{captcha.widget}</div>}
                         <TermsNote />
                     </section>
                 )}

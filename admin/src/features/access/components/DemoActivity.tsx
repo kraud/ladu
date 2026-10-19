@@ -26,6 +26,7 @@ const REFUSALS: { code: DemoRefusalCode; label: string }[] = [
     { code: 'demo_rate_limited', label: 'Too many from one network' },
     { code: 'demo_disabled', label: 'Demo off' },
     { code: 'demo_unavailable', label: 'No demo template' },
+    { code: 'captcha_failed', label: 'Failed human check' },
 ];
 
 const average = (value: number) => value.toLocaleString('en-GB', { maximumFractionDigits: 1 });

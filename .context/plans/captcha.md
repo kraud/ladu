@@ -1,7 +1,7 @@
 # Plan: Captcha (Cloudflare Turnstile) on demo, registration and password reset
 
 Status: **approved on 2026-10-19. Slice 1 built on 2026-10-19** (backend: see "Slice 1 — what was built").
-**Slice 2 built on 2026-10-19** (learner frontend: see "Slice 2 — what was built"). Next: Slice 3 (admin switch, e2e, docs).
+**Slice 2 built on 2026-10-19** (learner frontend: see "Slice 2 — what was built"). **Slice 3 built on 2026-10-19** (admin switch, e2e, docs: see "Slice 3 — what was built"). Open items: see "Open items".
 
 ## Context
 
@@ -132,6 +132,18 @@ Slice 1 start (known values: site `1x00000000000000000000AA`, secret
 - Docs: this plan's "what was built" notes; infrastructure guide (secrets file and file 02):
   where the keys live, how to create the widget in the Cloudflare dashboard (managed mode,
   hostnames = staging + production domains), how to turn the switch on per environment.
+
+#### Slice 3 — what was built
+
+- Admin: a **Captcha** tab on the Access page (`CaptchaCard`, `useSaveCaptcha`, `saveCaptcha`; the tab value `captcha` in `search.ts`). Save is off when the keys are not set; a "keys are not set" warning shows. The Demo tab's refusal list has a "Failed human check" row (`captcha_failed`). Vitest: 5 new tests for the card, 1 changed.
+- e2e: `setCaptchaEnabled` in `fixtures/db.ts`; `global-setup.ts` turns the switch off before every run; the backend gets Cloudflare's test keys in `playwright.config.ts`; new `captcha-gate.spec.ts` (6 tests: access answer, demo start, sign-up, password reset, direct API calls without a token, switch off). The spec calls the real Cloudflare (the widget and `siteverify`), so it needs internet. Turnstile draws its iframe in a closed shadow root, so the spec checks the app's own `captcha-widget` box, not the iframe.
+- Docs: infrastructure guide, `02` (new "Captcha (Cloudflare Turnstile)" section with the steps per environment and the test keys), `06` (the two secrets), `07` (glossary).
+
+## Open items
+
+1. Review the ES/DE/EE texts (`common:captcha.*`).
+2. Create the real widgets in Cloudflare (staging and production), add the GitHub Environment secrets, deploy, turn the switch on in the admin panel (guide `02`, "Turn it on for one environment"). Not done yet.
+3. Estonian: Turnstile has no Estonian widget text (the widget uses `auto`).
 
 ## Out of scope (note for later)
 

@@ -563,6 +563,15 @@ export async function setOnboardingEnabled(enabled: boolean): Promise<void> {
     await getPool().query(`UPDATE access_settings SET onboarding_enabled = $1 WHERE id = 1`, [enabled]);
 }
 
+/**
+ * The captcha switch (captcha.md C2) is global state too. While it is on, every demo start, sign-up and
+ * password-reset request needs a Turnstile token, which breaks each spec that does one of them. So only
+ * `captcha-gate.spec.ts` turns it on; `global-setup.ts` and that spec put it back off.
+ */
+export async function setCaptchaEnabled(enabled: boolean): Promise<void> {
+    await getPool().query(`UPDATE access_settings SET captcha_enabled = $1 WHERE id = 1`, [enabled]);
+}
+
 /** `seedUser` rows have no onboarding status (the app sets `pending` at signup), so a spec asks for it here. */
 export async function setOnboardingPending(email: string): Promise<void> {
     await getPool().query(`UPDATE users SET onboarding_status = 'pending' WHERE lower(email) = $1`, [email.toLowerCase()]);

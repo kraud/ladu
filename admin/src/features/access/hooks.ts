@@ -9,6 +9,7 @@ import {
     fetchDemoUsers,
     removeInvite,
     saveDemo,
+    saveCaptcha,
     saveOnboarding,
     saveGate,
     sendInvite,
@@ -73,6 +74,11 @@ export function useSaveDemo() {
 export function useSaveOnboarding() {
     const store = useStoreAnswer();
     return useMutation({ mutationFn: saveOnboarding, onSuccess: store });
+}
+
+export function useSaveCaptcha() {
+    const store = useStoreAnswer();
+    return useMutation({ mutationFn: saveCaptcha, onSuccess: store });
 }
 
 export function useAddInvites() {

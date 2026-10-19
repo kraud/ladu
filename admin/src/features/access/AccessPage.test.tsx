@@ -957,7 +957,7 @@ describe('the demo usage and accounts (D19, D20)', () => {
             runningNow: 2,
             engagement: { demos: 40, avgWordsAdded: 2.5, avgTagsAdded: 0.3, avgTranslationsPractised: 7, addedAWord: 30 },
             caps: { wordCapDemos: 40, reachedWordCap: 4, tagCapDemos: 20, reachedTagCap: 0 },
-            refusals: { demo_disabled: 1, demo_rate_limited: 5, demo_busy: 2, demo_unavailable: 0 },
+            refusals: { demo_disabled: 1, demo_rate_limited: 5, demo_busy: 2, demo_unavailable: 0, captcha_failed: 9 },
             languages: [
                 { language: 'Spanish', count: 30 },
                 { language: 'English', count: 20 },
@@ -980,6 +980,7 @@ describe('the demo usage and accounts (D19, D20)', () => {
         const refusals = within(banner.getByLabelText('Refused starts'));
         expect(refusals.getByText('Too many from one network').nextSibling).toHaveTextContent('5');
         expect(refusals.getByText('All live demos in use').nextSibling).toHaveTextContent('2');
+        expect(refusals.getByText('Failed human check').nextSibling).toHaveTextContent('9');
 
         expect(banner.getByRole('img', { name: 'Spanish: 30 demos, 75% of all' })).toBeInTheDocument();
         expect(banner.getByRole('img', { name: 'English: 40 demos, 100% of all' })).toBeInTheDocument();
@@ -1089,5 +1090,76 @@ describe('the onboarding switch (onboarding.md D26)', () => {
         expect(await screen.findByRole('status')).toHaveTextContent('The onboarding is now on.');
         expect(writes[0]).toEqual({ method: 'PUT', path: '/api/admin/access/onboarding', body: { enabled: true, reason: 'pool reviewed' } });
         expect(onboarding().getByRole('button', { name: 'On' })).toHaveAttribute('aria-pressed', 'true');
+    });
+});
+
+describe('the captcha switch (captcha.md C2, C3)', () => {
+    const captcha = () => within(screen.getByRole('region', { name: 'Captcha' }));
+    const captchaLoaded = () => screen.findByRole('region', { name: 'Captcha' });
+    const openCaptcha = () => renderApp({ initialEntry: '/access?tab=captcha', role: 'owner' });
+
+    it('has its own tab, reachable from the other tabs', async () => {
+        setup();
+        const user = userEvent.setup();
+        const { router } = await open();
+
+        await registrationLoaded();
+        await user.click(screen.getByRole('link', { name: 'Captcha' }));
+        await captchaLoaded();
+        expect(router.state.location.search).toEqual({ tab: 'captcha' });
+    });
+
+    it('shows the saved state; Save is off until it changes', async () => {
+        setup(makeAccess({ captcha: { enabled: false, configured: true } }));
+        await openCaptcha();
+
+        await captchaLoaded();
+        expect(captcha().getByRole('button', { name: 'Off' })).toHaveAttribute('aria-pressed', 'true');
+        expect(captcha().getByRole('button', { name: 'Save' })).toBeDisabled();
+        expect(captcha().queryByText(/keys are not set/)).not.toBeInTheDocument();
+    });
+
+    it('turns it on after a confirmation, with the reason', async () => {
+        const { writes } = setup();
+        const user = userEvent.setup();
+        await openCaptcha();
+
+        await captchaLoaded();
+        await user.click(captcha().getByRole('button', { name: 'On' }));
+        await user.click(captcha().getByRole('button', { name: 'Save' }));
+        const dialog = within(await screen.findByRole('dialog'));
+        await user.type(dialog.getByLabelText(/Reason/), 'bots on the demo');
+        await user.click(dialog.getByRole('button', { name: 'Confirm' }));
+
+        expect(await screen.findByRole('status')).toHaveTextContent('The captcha is now on.');
+        expect(writes[0]).toEqual({ method: 'PUT', path: '/api/admin/access/captcha', body: { enabled: true, reason: 'bots on the demo' } });
+        expect(captcha().getByRole('button', { name: 'On' })).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('warns when the server has no keys, and cannot be saved as on', async () => {
+        const { writes } = setup(makeAccess({ captcha: { enabled: false, configured: false } }));
+        const user = userEvent.setup();
+        await openCaptcha();
+
+        await captchaLoaded();
+        expect(captcha().getByText(/keys are not set on the server/)).toBeInTheDocument();
+        await user.click(captcha().getByRole('button', { name: 'On' }));
+        expect(captcha().getByRole('button', { name: 'Save' })).toBeDisabled();
+        expect(writes).toHaveLength(0);
+    });
+
+    it('lets the owner turn it off when it is on but the keys went away', async () => {
+        const { writes } = setup(makeAccess({ captcha: { enabled: true, configured: false } }));
+        const user = userEvent.setup();
+        await openCaptcha();
+
+        await captchaLoaded();
+        expect(captcha().getByText(/so the check is skipped now/)).toBeInTheDocument();
+        await user.click(captcha().getByRole('button', { name: 'Off' }));
+        await user.click(captcha().getByRole('button', { name: 'Save' }));
+        await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Confirm' }));
+
+        expect(await screen.findByRole('status')).toHaveTextContent('The captcha is now off.');
+        expect(writes[0]).toEqual({ method: 'PUT', path: '/api/admin/access/captcha', body: { enabled: false } });
     });
 });

@@ -31,6 +31,11 @@ export async function saveOnboarding(body: { enabled: boolean; reason?: string }
     return data;
 }
 
+export async function saveCaptcha(body: { enabled: boolean; reason?: string }): Promise<AccessState> {
+    const { data } = await apiClient.put<AccessState>('/admin/access/captcha', body);
+    return data;
+}
+
 export async function fetchDemoUsers(): Promise<DemoUsers> {
     const { data } = await apiClient.get<DemoUsers>('/admin/access/demo/users');
     return data;

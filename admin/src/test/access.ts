@@ -25,7 +25,7 @@ export function makeDemoStats(overrides: Partial<DemoStats> = {}): DemoStats {
         engagement: { demos: 0, avgWordsAdded: 0, avgTagsAdded: 0, avgTranslationsPractised: 0, addedAWord: 0 },
         caps: { wordCapDemos: 0, reachedWordCap: 0, tagCapDemos: 0, reachedTagCap: 0 },
         refusalWindowDays: 7,
-        refusals: { demo_disabled: 0, demo_rate_limited: 0, demo_busy: 0, demo_unavailable: 0 },
+        refusals: { demo_disabled: 0, demo_rate_limited: 0, demo_busy: 0, demo_unavailable: 0, captcha_failed: 0 },
         languages: [],
         uiLanguages: [],
         ...overrides,
@@ -59,6 +59,7 @@ export function makeAccess(overrides: Partial<AccessState> = {}): AccessState {
         demo: { enabled: false, durationMinutes: 15, maxWords: 30, maxTags: 5, maxLive: 200 },
         onboarding: { enabled: false },
         onboardingCounts: { pending: 0, done: 0, skipped: 0 },
+        captcha: { enabled: false, configured: true },
         updatedAt: null,
         updatedBy: null,
         invites,
@@ -113,6 +114,17 @@ export function accessHandlers(
             state.current = withCounts({
                 ...state.current,
                 onboarding: { enabled: body.enabled },
+                updatedAt: '2026-10-02T09:00:00.000Z',
+                updatedBy: 'Sam Staff',
+            });
+            return HttpResponse.json(state.current);
+        }),
+        http.put('/api/admin/access/captcha', async ({ request }) => {
+            const body = (await request.json()) as { enabled: boolean; reason?: string };
+            writes.push({ method: 'PUT', path: '/api/admin/access/captcha', body });
+            state.current = withCounts({
+                ...state.current,
+                captcha: { enabled: body.enabled, configured: state.current.captcha.configured },
                 updatedAt: '2026-10-02T09:00:00.000Z',
                 updatedBy: 'Sam Staff',
             });

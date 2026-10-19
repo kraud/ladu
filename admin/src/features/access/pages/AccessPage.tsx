@@ -15,6 +15,7 @@ import {
     useSendInvite,
     useSaveDemo,
     useSaveGate,
+    useSaveCaptcha,
     useSaveOnboarding,
     useSignOutEveryone,
 } from '@/features/access/hooks';
@@ -92,7 +93,7 @@ export function AccessPage() {
                 {data?.updatedAt && (
                     <p className="text-sm text-muted-foreground">
                         Last changed {formatDateTime(data.updatedAt)}
-                        {data.updatedBy ? ` by ${data.updatedBy}` : ''} (registration, login, demo or onboarding).
+                        {data.updatedBy ? ` by ${data.updatedBy}` : ''} (registration, login, demo, onboarding or captcha).
                     </p>
                 )}
             </div>
@@ -125,6 +126,14 @@ export function AccessPage() {
                     className={tabClass(tab === 'onboarding')}
                 >
                     Onboarding
+                </Link>
+                <Link
+                    id="access-captcha-tab"
+                    to="/access"
+                    search={{ tab: 'captcha' }}
+                    className={tabClass(tab === 'captcha')}
+                >
+                    Captcha
                 </Link>
             </nav>
 
@@ -182,6 +191,109 @@ export function AccessPage() {
                         onDone={setNotice}
                     />
                 </section>
+            )}
+
+            {data && tab === 'captcha' && (
+                <section aria-labelledby="access-captcha-tab" className="flex flex-col gap-4">
+                    <CaptchaCard
+                        key={`captcha|${data.captcha.enabled}|${data.captcha.configured}`}
+                        saved={data.captcha.enabled}
+                        configured={data.captcha.configured}
+                        onDone={setNotice}
+                    />
+                </section>
+            )}
+        </div>
+    );
+}
+
+/**
+ * The human check (Cloudflare Turnstile) on demo start, registration and password reset (captcha.md C2, C3).
+ * It cannot go on while the server has no keys; the server refuses it too.
+ */
+function CaptchaCard({ saved, configured, onDone }: { saved: boolean; configured: boolean; onDone: (message: string) => void }) {
+    const [enabled, setEnabled] = useState(saved);
+    const [confirming, setConfirming] = useState(false);
+    const [reason, setReason] = useState('');
+    const save = useSaveCaptcha();
+
+    const submit = () =>
+        save.mutate(
+            { enabled, reason: reason.trim() || undefined },
+            {
+                onSuccess: () => {
+                    setConfirming(false);
+                    onDone(`The captcha is now ${enabled ? 'on' : 'off'}.`);
+                },
+            },
+        );
+
+    return (
+        <div className="flex flex-col gap-4 rounded-lg border bg-card p-4">
+            <p className="text-sm text-muted-foreground">
+                A Cloudflare Turnstile check on the demo start, the sign-up form and the password reset request. Most visitors see only a
+                short check. The change works at once. Refused checks on the demo show on the Demo tab.
+            </p>
+
+            {!configured && (
+                <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+                    The Turnstile keys are not set on the server{saved ? ', so the check is skipped now' : ''}. Set TURNSTILE_SITE_KEY and
+                    TURNSTILE_SECRET_KEY before you turn it on.
+                </p>
+            )}
+
+            <div className="flex flex-col gap-2">
+                <SegmentedControl
+                    label="Captcha"
+                    value={enabled ? 'on' : 'off'}
+                    options={[
+                        { value: 'off', label: 'Off' },
+                        { value: 'on', label: 'On' },
+                    ]}
+                    onChange={(next) => {
+                        setEnabled(next === 'on');
+                        save.reset();
+                    }}
+                />
+                <p className="text-sm text-muted-foreground">
+                    {enabled
+                        ? 'Visitors must pass the check to start a demo, sign up or ask for a password reset.'
+                        : 'No check. Anybody can start a demo, sign up or ask for a password reset.'}
+                </p>
+            </div>
+
+            <div>
+                {/* The server refuses "on" without keys too (400 captcha_not_configured). */}
+                <Button disabled={enabled === saved || (enabled && !configured)} onClick={() => setConfirming(true)}>
+                    Save
+                </Button>
+            </div>
+
+            {confirming && (
+                <FormDialog
+                    title={enabled ? 'Turn the captcha on?' : 'Turn the captcha off?'}
+                    description={
+                        enabled
+                            ? 'Visitors will have to pass the check on the demo, sign-up and password reset forms.'
+                            : 'The demo, sign-up and password reset forms will have no check.'
+                    }
+                    submitLabel="Confirm"
+                    canSubmit
+                    pending={save.isPending}
+                    error={save.error}
+                    onSubmit={submit}
+                    onClose={() => {
+                        setConfirming(false);
+                        save.reset();
+                    }}
+                >
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="captcha-reason">
+                            Reason <span className="font-normal text-muted-foreground">(optional)</span>
+                        </Label>
+                        <Textarea id="captcha-reason" value={reason} maxLength={MAX_REASON_LENGTH} onChange={(e) => setReason(e.target.value)} />
+                    </div>
+                </FormDialog>
             )}
         </div>
     );

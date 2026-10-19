@@ -48,6 +48,8 @@ export interface AccessState {
     onboarding: { enabled: boolean };
     /** Accounts by onboarding status; accounts without one (older, demo) are not counted. */
     onboardingCounts: { pending: number; done: number; skipped: number };
+    /** The Turnstile captcha switch (captcha.md C2). `configured`: both keys are set on the server. */
+    captcha: { enabled: boolean; configured: boolean };
     /** One row holds every gate, so this is the last change to any of them. */
     updatedAt: string | null;
     updatedBy: string | null;
@@ -144,7 +146,7 @@ export interface DemoUsers {
 
 export const DEMO_USERS_LIMIT = 200;
 
-export type DemoRefusalCode = 'demo_disabled' | 'demo_rate_limited' | 'demo_busy' | 'demo_unavailable';
+export type DemoRefusalCode = 'demo_disabled' | 'demo_rate_limited' | 'demo_busy' | 'demo_unavailable' | 'captcha_failed';
 
 /** `GET /api/admin/access/demo/stats` (D20). */
 export interface DemoStats {
