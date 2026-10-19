@@ -422,13 +422,23 @@ export async function countAuditByEmail(action: string, email: string): Promise<
     return rows[0]?.n ?? 0;
 }
 
-/** Best-effort teardown of what a gate spec made: the invites, and the staff-less `access.invite_used` audit rows. */
+/** The access requests (access-requests.md) saved for this email: one kind for each row, oldest first. */
+export async function getAccessRequestKinds(email: string): Promise<string[]> {
+    const { rows } = await getPool().query<{ kind: string }>(`SELECT kind FROM access_requests WHERE email = lower($1) ORDER BY created_at`, [email]);
+    return rows.map((r) => r.kind);
+}
+
+/** Best-effort teardown of what a gate spec made: the invites, the access requests, and the staff-less audit rows (`access.invite_used`, `access.request_create`). */
 export async function deleteAccessTestData(emails: string[]): Promise<void> {
     if (emails.length === 0) return;
     try {
         const lowered = emails.map((e) => e.toLowerCase());
         await getPool().query(`DELETE FROM registration_invites WHERE email = ANY($1::text[])`, [lowered]);
-        await getPool().query(`DELETE FROM audit_log WHERE action = 'access.invite_used' AND metadata->>'email' = ANY($1::text[])`, [lowered]);
+        await getPool().query(`DELETE FROM access_requests WHERE email = ANY($1::text[])`, [lowered]);
+        await getPool().query(
+            `DELETE FROM audit_log WHERE action IN ('access.invite_used', 'access.request_create') AND metadata->>'email' = ANY($1::text[])`,
+            [lowered],
+        );
     } catch (error) {
         console.warn('[e2e] access cleanup failed:', (error as Error).message);
     }

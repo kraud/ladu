@@ -127,6 +127,9 @@ export default defineConfig({
                 // a real secret key there would refuse the test token, so leave the keys out of .env when you run e2e.
                 TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
                 TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
+                // Empty: an access request is saved, but no email goes to the team (access-requests.md R5). If the
+                // repo-root .env sets ACCESS_REQUEST_EMAIL, that value wins, and a run sends real mail to that address.
+                ACCESS_REQUEST_EMAIL: '',
             },
             // Backend mounts `GET /` -> 200 JSON (backend/app.js) — used purely
             // as a readiness probe.

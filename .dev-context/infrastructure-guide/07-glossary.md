@@ -294,6 +294,11 @@ key** (shows the widget) and a private **secret key** (lets the backend check th
 **Token (Turnstile)** — the one-time ticket that the widget gives the page. The backend sends it
 to Cloudflare's `siteverify` address. It works once, and it ends after 5 minutes.
 
+**Access request** — a person's ask for access, made on the public `/request` page while the
+registration or login gate is limited or closed. It waits on the **Access requests** table in the
+admin panel until the owner approves it (it moves to the invite list or the allowed accounts) or
+removes it. See [the troubleshooting playbook](05-troubleshooting-playbook.md).
+
 ### Observability
 
 **Sentry** — an error-tracking service. The app reports exceptions to it

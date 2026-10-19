@@ -145,6 +145,10 @@ Slice 1 start (known values: site `1x00000000000000000000AA`, secret
 2. Create the real widgets in Cloudflare (staging and production), add the GitHub Environment secrets, deploy, turn the switch on in the admin panel (guide `02`, "Turn it on for one environment"). Not done yet.
 3. Estonian: Turnstile has no Estonian widget text (the widget uses `auto`).
 
+## Later addition
+
+The public request-access route (`POST /api/access/request`, `.context/plans/access-requests.md`) uses the same check with the action `access_request`. Unlike registration and password reset, it **refuses** when Cloudflare cannot be reached (503 `captcha_unavailable`): that route sends an email to the team.
+
 ## Out of scope (note for later)
 
 - Move the demo per-IP limit from memory to the database (useful with or without the captcha).

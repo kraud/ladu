@@ -1,6 +1,6 @@
 # Plan: Access requests ("Request access" on the login and register pages)
 
-Status: **planned on 2026-10-19. Slices 1 (backend), 2 (learner app) and 3 (admin app) built on 2026-10-19** (see "what was built"). Slice 4 not built. D1, D2 and D3 confirmed with the user on 2026-10-19 (the recommended option for each). D4, D5 and D6 follow the request or are still open: see "Decisions to confirm".
+Status: **planned on 2026-10-19. All four slices built on 2026-10-19** (see "what was built"). Open items: see "Open items". D1, D2 and D3 confirmed with the user on 2026-10-19 (the recommended option for each). D4, D5 and D6 follow the request or are still open: see "Decisions to confirm".
 
 ## Context
 
@@ -162,6 +162,20 @@ Each slice ends with something runnable, and starts with a plain-language overvi
 - Test fixtures (`admin/src/test/access.ts`): `requests` and counts in `makeAccess`, `makeRequest`, `makeLoginRequest`, and fake handlers for the three new endpoints.
 - Tests: `AccessRequests.test.tsx` (16). Full admin suite green; eslint clean.
 - Like the invite list, the new send button shows no "sent" mark after a reload: the server keeps only the audit row.
+
+### Slice 4 — what was built
+
+- `e2e/tests/access-request-gate.spec.ts` (6 tests, serial, its own Playwright project like the other `-gate` specs): (1) registration limited: the button on `/register`, `/request` with the box empty, a request, the row and the audit row; (2) a repeat request, a bad email, and the useless cases answer the same 202 or a clear 400, with no extra rows; (3) the owner approves in the admin panel with a confirm, the email is on the invite list, and a real sign-up works; (4) registration closed: the button stays, the request is saved, and Remove drops it with no list change; (5) login limited: `/request?account=true` with the box ticked, approve, the account signs in, and "Send email" works; (6) with both gates open the route answers 409 `access_not_needed` and the buttons are gone.
+- `e2e/fixtures/db.ts`: `getAccessRequestKinds`, and the teardown also deletes `access_requests` and `access.request_create` audit rows. `playwright.config.ts`: `ACCESS_REQUEST_EMAIL` is empty for the backend.
+- Docs: infrastructure guide `05` (the requests table, Approve and Remove, audit rows), `06` (`ACCESS_REQUEST_EMAIL`), `07` (glossary); `access-gates.md` and `captcha.md` have a pointer; `e2e/README.md`.
+- The captcha on `/request` is covered by Jest and Vitest. The e2e keeps the captcha switch off.
+
+## Open items
+
+1. Create the GitHub Environment secret `ACCESS_REQUEST_EMAIL` for staging and production (`contact@ladu.com.ar`).
+2. Review the ES, DE and EE texts: the `request` block in `loginRegister.json` and the "you can sign in" email strings in `emailStrings.js`.
+3. D6: check the wording of `landing/privacy.html` (requests hold emails of people who are not users yet).
+4. Try the flow on staging before production: set a gate to limited, request, approve, and check the team email arrives.
 
 ## Decisions to confirm
 
