@@ -16,7 +16,7 @@ const { getAccessSettings }: typeof import("./accessGate") = require("./accessGa
 const { HttpError }: typeof import("./httpError") = require("./httpError");
 
 /** The `action` each widget sends. The token is only good for the route that it was made for (C8). */
-export type CaptchaAction = "demo" | "register" | "password_reset";
+export type CaptchaAction = "demo" | "register" | "password_reset" | "access_request";
 
 export const CAPTCHA_CODE = {
   failed: "captcha_failed",

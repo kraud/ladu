@@ -11,6 +11,7 @@ const { eq } = require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
 const { accessSettings, registrationInvites, loginAllowedUsers, auditLog } = require("../src/db/schema");
 const { HttpError }: typeof import("./httpError") = require("./httpError");
+const { clearAccessRequests }: typeof import("./accessRequests") = require("./accessRequests");
 
 export type AccessMode = "open" | "closed" | "limited";
 
@@ -134,6 +135,8 @@ export const assertRegistrationAllowed = async (email: string): Promise<AccessMo
  */
 export const consumeInvite = async (tx: GateExecutor, email: string, mode: AccessMode): Promise<void> => {
   const normalized = normalizeInviteEmail(email);
+  // The person registers, so a request to register has no use any more (access-requests.md).
+  await clearAccessRequests(tx, "registration", [normalized]);
   const [taken] = await tx
     .delete(registrationInvites)
     .where(eq(registrationInvites.email, normalized))

@@ -161,6 +161,24 @@ export const registrationInvites = pgTable('registration_invites', {
     createdByStaffId: uuid('created_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
 });
 
+// People who asked for access from the public /request page while a gate is limited or
+// closed (.context/plans/access-requests.md). `kind` says which list the owner would add
+// them to: 'registration' (invite list) or 'login' (allowed accounts). Stored lowercase.
+// The row goes at approval, at removal, and when the person gets access by any other path.
+export const accessRequests = pgTable(
+    'access_requests',
+    {
+        id:        uuid('id').primaryKey().defaultRandom(),
+        email:     varchar('email', { length: 255 }).notNull(),
+        kind:      varchar('kind', { length: 20 }).notNull(),
+        createdAt: timestamp('created_at').defaultNow().notNull(),
+    },
+    (table) => [
+        uniqueIndex('access_requests_email_kind_unique').on(table.email, table.kind),
+        check('access_requests_kind_check', sql`kind IN ('registration', 'login')`),
+    ],
+);
+
 // ===========================================================================
 // USERS
 // Mapped from: backend/models/userModel.js

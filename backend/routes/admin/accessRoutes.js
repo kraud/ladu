@@ -3,6 +3,7 @@ const router = express.Router()
 const {
     getAccess, setRegistration, setLogin, setDemo, setOnboarding, setCaptcha, getDemoUsers, getDemoStats, addInvites, removeInvite, sendInvite,
     allowLogin, disallowLoginMany, disallowLogin, signOutEveryone,
+    approveRequest, removeRequest, sendLoginAllowed,
 } = require('../../controllers/admin/accessController.ts')
 const { requireStaff } = require('../../middleware/staffAuth.ts')
 
@@ -22,6 +23,9 @@ router.post('/login-allowed', requireStaff('access.manage'), allowLogin)
 // A bulk remove is a POST, because a DELETE with a long list of ids has no safe place to put them.
 router.post('/login-allowed/remove', requireStaff('access.manage'), disallowLoginMany)
 router.delete('/login-allowed/:userId', requireStaff('access.manage'), disallowLogin)
+router.post('/login-allowed/:userId/send', requireStaff('access.manage'), sendLoginAllowed)
+router.post('/requests/:id/approve', requireStaff('access.manage'), approveRequest)
+router.delete('/requests/:id', requireStaff('access.manage'), removeRequest)
 router.post('/sign-out-everyone', requireStaff('access.manage'), signOutEveryone)
 
 module.exports = router

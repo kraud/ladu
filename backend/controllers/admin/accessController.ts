@@ -7,13 +7,14 @@
  */
 const asyncHandler = require('express-async-handler');
 const { db }: typeof import('../../src/db') = require('../../src/db');
-const { accessSettings, registrationInvites, loginAllowedUsers, staffAccounts, users, auditLog }: typeof import('../../src/db/schema') =
+const { accessSettings, registrationInvites, loginAllowedUsers, accessRequests, staffAccounts, users, auditLog }: typeof import('../../src/db/schema') =
   require('../../src/db/schema');
 const { and, desc, eq, inArray, isNotNull, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 const { HttpError }: typeof import('../../lib/httpError') = require('../../lib/httpError');
 const { readReason, withStatus }: typeof import('../../lib/adminRequest') = require('../../lib/adminRequest');
 const { getAccessSettings, normalizeInviteEmail, DEMO_BOUNDS }: typeof import('../../lib/accessGate') = require('../../lib/accessGate');
 const { captchaKeys, CaptchaError }: typeof import('../../lib/captcha') = require('../../lib/captcha');
+const { clearAccessRequests }: typeof import('../../lib/accessRequests') = require('../../lib/accessRequests');
 const { countLiveDemos }: typeof import('../../lib/demo') = require('../../lib/demo');
 const { listDemoUsers, demoUsageStats }: typeof import('../../lib/demoStats') = require('../../lib/demoStats');
 const { isUuid }: typeof import('../userController') = require('../userController');
@@ -70,6 +71,38 @@ const loadAccess = async () => {
     status: deletedAt ? ('deleted' as const) : bannedAt ? ('banned' as const) : ('active' as const),
   }));
 
+  // Requests from the public /request page (access-requests.md). A `login` request carries the
+  // account that has the same email, so the page can tell "no account found" (Approve is off).
+  const requestRows = await db
+    .select({
+      id: accessRequests.id,
+      email: accessRequests.email,
+      kind: accessRequests.kind,
+      createdAt: accessRequests.createdAt,
+      userId: users.id,
+      userName: users.name,
+      bannedAt: users.bannedAt,
+      deletedAt: users.deletedAt,
+    })
+    .from(accessRequests)
+    .leftJoin(users, sql`lower(${users.email}) = ${accessRequests.email}`)
+    .orderBy(desc(accessRequests.createdAt), desc(accessRequests.id));
+  const requests = {
+    registration: requestRows
+      .filter((r: { kind: string }) => r.kind === 'registration')
+      .map(({ id, email, createdAt }: { id: string; email: string; createdAt: Date }) => ({ id, email, createdAt })),
+    login: requestRows
+      .filter((r: { kind: string }) => r.kind === 'login')
+      .map((r: any) => ({
+        id: r.id,
+        email: r.email,
+        createdAt: r.createdAt,
+        account: r.userId
+          ? { userId: r.userId, name: r.userName, status: r.deletedAt ? ('deleted' as const) : r.bannedAt ? ('banned' as const) : ('active' as const) }
+          : null,
+      })),
+  };
+
   return {
     registration: { mode: settings.registrationMode, note: settings.registrationNote },
     login: { mode: settings.loginMode, note: settings.loginNote },
@@ -83,8 +116,15 @@ const loadAccess = async () => {
     // `addedBy` is null when the staff account that added it was removed.
     invites,
     loginAllowed,
+    requests,
     // `liveDemos`: demos running now, to compare with `demo.maxLive`.
-    counts: { invites: invites.length, loginAllowed: loginAllowed.length, liveDemos: await countLiveDemos() },
+    counts: {
+      invites: invites.length,
+      loginAllowed: loginAllowed.length,
+      requestsRegistration: requests.registration.length,
+      requestsLogin: requests.login.length,
+      liveDemos: await countLiveDemos(),
+    },
     // Accounts by onboarding status (onboarding.md D26; demo accounts never have one). For the
     // evaluation of the slider cap after the release ("To evaluate after release").
     onboardingCounts: await onboardingCounts(),
@@ -537,6 +577,9 @@ const allowLogin = asyncHandler(async (req: any, res: any) => {
       const insertedIds = new Set(inserted.map((r) => r.userId));
       for (const u of toAdd) if (!insertedIds.has(u.id)) skipped.push({ value: u.email, reason: 'already_allowed' });
 
+      // They have access now, so a request to sign in has no use any more.
+      await clearAccessRequests(tx, 'login', toAdd.map((u) => u.email.toLowerCase()));
+
       const newlyAdded = toAdd.filter((u) => insertedIds.has(u.id));
       if (newlyAdded.length > 0) {
         await tx.insert(auditLog).values(
@@ -614,6 +657,138 @@ const disallowLogin = asyncHandler(async (req: any, res: any) => {
 });
 
 /**
+ * `POST /api/admin/access/requests/:id/approve` — `{ reason? }`. Moves a request to the real list,
+ * in one transaction: `registration` adds the email to the invite list (no email is sent; the
+ * invite's own send button does that), `login` adds the account to the allowed accounts. The
+ * request row goes. It works while the gate is `closed` too: the entry waits for `limited`.
+ */
+const approveRequest = asyncHandler(async (req: any, res: any) => {
+  await withStatus(res, async () => {
+    const { id } = req.params;
+    if (!isUuid(id)) throw new HttpError(404, 'Request not found');
+    const reason = readReason(req.body);
+
+    await db.transaction(async (tx) => {
+      const [request] = await tx.select().from(accessRequests).where(eq(accessRequests.id, id)).for('update').limit(1);
+      if (!request) throw new HttpError(404, 'Request not found');
+
+      const [account] = await tx
+        .select({ id: users.id, email: users.email, deletedAt: users.deletedAt })
+        .from(users)
+        .where(sql`lower(${users.email}) = ${request.email}`)
+        .limit(1);
+
+      if (request.kind === 'registration') {
+        if (account) throw new HttpError(409, 'This email already has an account, so an invite is not needed');
+        await tx
+          .insert(registrationInvites)
+          .values({ email: request.email, createdByStaffId: req.staff.id })
+          .onConflictDoNothing();
+      } else {
+        if (!account || account.deletedAt) throw new HttpError(409, 'No active account has this email, so it cannot be allowed to sign in');
+        const [added] = await tx
+          .insert(loginAllowedUsers)
+          .values({ userId: account.id, addedByStaffId: req.staff.id })
+          .onConflictDoNothing()
+          .returning({ userId: loginAllowedUsers.userId });
+        // The same row as a direct add, so it also shows in the user's history.
+        if (added) {
+          await tx.insert(auditLog).values({
+            staffId: req.staff.id,
+            action: 'access.login_allow',
+            targetType: 'user',
+            targetId: account.id,
+            reason: reason || null,
+            metadata: { email: account.email },
+          });
+        }
+      }
+
+      await tx.delete(accessRequests).where(eq(accessRequests.id, id));
+      await tx.insert(auditLog).values({
+        staffId: req.staff.id,
+        action: 'access.request_approve',
+        targetType: 'access_request',
+        targetId: id,
+        reason: reason || null,
+        metadata: { email: request.email, kind: request.kind },
+      });
+    });
+  });
+
+  res.json(await loadAccess());
+});
+
+/** `DELETE /api/admin/access/requests/:id` — `{ reason? }`. Removes a request without approving it. */
+const removeRequest = asyncHandler(async (req: any, res: any) => {
+  await withStatus(res, async () => {
+    const { id } = req.params;
+    if (!isUuid(id)) throw new HttpError(404, 'Request not found');
+    const reason = readReason(req.body);
+
+    await db.transaction(async (tx) => {
+      const [removed] = await tx.delete(accessRequests).where(eq(accessRequests.id, id)).returning();
+      if (!removed) throw new HttpError(404, 'Request not found');
+      await tx.insert(auditLog).values({
+        staffId: req.staff.id,
+        action: 'access.request_remove',
+        targetType: 'access_request',
+        targetId: id,
+        reason: reason || null,
+        metadata: { email: removed.email, kind: removed.kind },
+      });
+    });
+  });
+
+  res.json(await loadAccess());
+});
+
+/**
+ * `POST /api/admin/access/login-allowed/:userId/send` — `{ reason? }`. Emails the account that it
+ * can sign in now, in the account's saved language (English when none). Like `sendInvite`: the
+ * audit row records that the email was handed to the mail provider, the row stays on the list,
+ * and it can be sent again. 404 when the account is not on the list, or is deleted or banned.
+ */
+const sendLoginAllowed = asyncHandler(async (req: any, res: any) => {
+  const account = await withStatus(res, async () => {
+    const { userId } = req.params;
+    if (!isUuid(userId)) throw new HttpError(404, 'This account is not on the allowed list');
+    const reason = readReason(req.body);
+
+    return db.transaction(async (tx) => {
+      const [row] = await tx
+        .select({ id: users.id, name: users.name, email: users.email, uiLanguage: users.uiLanguage, bannedAt: users.bannedAt, deletedAt: users.deletedAt })
+        .from(loginAllowedUsers)
+        .innerJoin(users, eq(users.id, loginAllowedUsers.userId))
+        .where(eq(loginAllowedUsers.userId, userId))
+        .limit(1);
+      if (!row || row.deletedAt || row.bannedAt) throw new HttpError(404, 'This account is not on the allowed list');
+
+      await tx.insert(auditLog).values({
+        staffId: req.staff.id,
+        action: 'access.login_allowed_send',
+        targetType: 'user',
+        targetId: row.id,
+        reason: reason || null,
+        metadata: { email: row.email },
+      });
+      return row;
+    });
+  });
+
+  // After the commit, like the invite email: nothing is sent for a rollback.
+  await sendMail({
+    email: account.email,
+    name: account.name,
+    url: `${process.env.BASE_URL}/login`,
+    type: 'loginAllowed',
+    language: account.uiLanguage ?? 'English',
+  }).catch((error: unknown) => console.error('Failed to send login-allowed email:', error));
+
+  res.json({ sent: true, email: account.email });
+});
+
+/**
  * `POST /api/admin/access/sign-out-everyone` — `{ confirm: "SIGN OUT EVERYONE", reason }`.
  *
  * One statement raises `users.token_version` for every account. `protect` compares the `tv` in
@@ -661,4 +836,7 @@ export = {
   disallowLoginMany,
   disallowLogin,
   signOutEveryone,
+  approveRequest,
+  removeRequest,
+  sendLoginAllowed,
 };

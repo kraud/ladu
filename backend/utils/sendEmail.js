@@ -2,6 +2,8 @@ const nodemailer = require("nodemailer")
 const resetPassword = require("./resources/resetPassword")
 const verifyEmail = require("./resources/verifyEmail");
 const registrationInvite = require("./resources/registrationInvite");
+const loginAllowed = require("./resources/loginAllowed");
+const accessRequest = require("./resources/accessRequest");
 const { stringsFor } = require("./resources/emailStrings");
 
 // `emailData.type` selects both the template and its localized subject
@@ -32,6 +34,19 @@ function getEmailContent(emailData) {
                 html: registrationInvite.getHtmlComponent(emailData),
                 text: registrationInvite.getTextComponent(emailData),
                 attachments: registrationInvite.getAttachments()
+            }
+        case "loginAllowed":
+            return {
+                subject: s.subjectLoginAllowed,
+                html: loginAllowed.getHtmlComponent(emailData),
+                text: loginAllowed.getTextComponent(emailData),
+                attachments: loginAllowed.getAttachments()
+            }
+        case "accessRequest":
+            return {
+                subject: accessRequest.subjectFor(emailData.kind),
+                html: accessRequest.getHtmlComponent(emailData),
+                text: accessRequest.getTextComponent(emailData)
             }
     }
 }

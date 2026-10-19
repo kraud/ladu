@@ -45,6 +45,16 @@ const STRINGS = {
     ignoreInvite: "Did not expect this email? You can safely ignore it — nothing will happen.",
 
     footerNoteInvite: "You received this email because the Ladu team invited this address to register. Replies to this address are not monitored.",
+
+    preheaderLoginAllowed: "You can sign in to Ladu now",
+    eyebrowLoginAllowed: "Ladu · Access",
+    subjectLoginAllowed: "You can sign in to Ladu now",
+    titleLoginAllowed: "You can sign in now",
+    bodyLoginAllowed:
+      "Sign-in to Ladu was limited. The Ladu team has now allowed your account to sign in. Use your usual email and password.",
+    ctaLoginAllowed: "Sign in to Ladu",
+    ignoreLoginAllowed: "Did not ask for access? You can safely ignore this email — nothing will change.",
+    footerNoteLoginAllowed: "You received this email because the Ladu team allowed your account to sign in. Replies to this address are not monitored.",
     footerTagline: "Multilingual vocabulary builder",
     footerNote: "You received this email because of activity on your Ladu account. Replies to this address are not monitored.",
   },
@@ -81,6 +91,16 @@ const STRINGS = {
     ignoreInvite: "¿No esperabas este correo? Puedes ignorarlo sin problema — no pasará nada.",
 
     footerNoteInvite: "Recibiste este correo porque el equipo de Ladu invitó a esta dirección a registrarse. Las respuestas a esta dirección no se supervisan.",
+
+    preheaderLoginAllowed: "Ya puedes iniciar sesión en Ladu",
+    eyebrowLoginAllowed: "Ladu · Acceso",
+    subjectLoginAllowed: "Ya puedes iniciar sesión en Ladu",
+    titleLoginAllowed: "Ya puedes iniciar sesión",
+    bodyLoginAllowed:
+      "El inicio de sesión en Ladu estaba limitado. El equipo de Ladu ya permitió que tu cuenta inicie sesión. Usa tu correo y tu contraseña de siempre.",
+    ctaLoginAllowed: "Iniciar sesión en Ladu",
+    ignoreLoginAllowed: "¿No pediste acceso? Puedes ignorar este correo sin problema — no cambiará nada.",
+    footerNoteLoginAllowed: "Recibiste este correo porque el equipo de Ladu permitió que tu cuenta inicie sesión. Las respuestas a esta dirección no se supervisan.",
     footerTagline: "Constructor de vocabulario multilingüe",
     footerNote: "Recibiste este correo por actividad en tu cuenta de Ladu. Las respuestas a esta dirección no se supervisan.",
   },
@@ -117,6 +137,16 @@ const STRINGS = {
     ignoreInvite: "Diese E-Mail unerwartet erhalten? Du kannst sie einfach ignorieren — es passiert nichts.",
 
     footerNoteInvite: "Du hast diese E-Mail erhalten, weil das Ladu-Team diese Adresse zur Registrierung eingeladen hat. Antworten an diese Adresse werden nicht gelesen.",
+
+    preheaderLoginAllowed: "Du kannst dich jetzt bei Ladu anmelden",
+    eyebrowLoginAllowed: "Ladu · Zugang",
+    subjectLoginAllowed: "Du kannst dich jetzt bei Ladu anmelden",
+    titleLoginAllowed: "Du kannst dich jetzt anmelden",
+    bodyLoginAllowed:
+      "Die Anmeldung bei Ladu war eingeschränkt. Das Ladu-Team hat deinem Konto jetzt die Anmeldung erlaubt. Nutze deine gewohnte E-Mail-Adresse und dein Passwort.",
+    ctaLoginAllowed: "Bei Ladu anmelden",
+    ignoreLoginAllowed: "Du hast keinen Zugang angefragt? Du kannst diese E-Mail einfach ignorieren — es ändert sich nichts.",
+    footerNoteLoginAllowed: "Du hast diese E-Mail erhalten, weil das Ladu-Team deinem Konto die Anmeldung erlaubt hat. Antworten an diese Adresse werden nicht gelesen.",
     footerTagline: "Mehrsprachiger Wortschatz-Aufbau",
     footerNote: "Du hast diese E-Mail aufgrund einer Aktivität in deinem Ladu-Konto erhalten. Antworten an diese Adresse werden nicht überwacht.",
   },
@@ -153,6 +183,16 @@ const STRINGS = {
     ignoreInvite: "Ei oodanud seda kirja? Võid selle rahulikult tähelepanuta jätta — midagi ei juhtu.",
 
     footerNoteInvite: "Said selle kirja, sest Ladu meeskond kutsus selle aadressi registreeruma. Sellele aadressile saadetud vastuseid ei jälgita.",
+
+    preheaderLoginAllowed: "Saad nüüd Ladusse sisse logida",
+    eyebrowLoginAllowed: "Ladu · Ligipääs",
+    subjectLoginAllowed: "Saad nüüd Ladusse sisse logida",
+    titleLoginAllowed: "Saad nüüd sisse logida",
+    bodyLoginAllowed:
+      "Ladusse sisselogimine oli piiratud. Ladu meeskond on nüüd sinu kontole sisselogimise lubanud. Kasuta oma tavalist e-posti aadressi ja parooli.",
+    ctaLoginAllowed: "Logi Ladusse sisse",
+    ignoreLoginAllowed: "Ei palunud ligipääsu? Võid selle kirja rahulikult tähelepanuta jätta — midagi ei muutu.",
+    footerNoteLoginAllowed: "Said selle kirja, sest Ladu meeskond lubas sinu kontol sisse logida. Sellele aadressile saadetud vastuseid ei jälgita.",
     footerTagline: "Mitmekeelse sõnavara looja",
     footerNote: "Said selle e-kirja oma Ladu konto tegevuse tõttu. Sellele aadressile vastamist ei jälgita.",
   },
