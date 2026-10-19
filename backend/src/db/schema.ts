@@ -135,6 +135,8 @@ export const accessSettings = pgTable(
         // The first-login onboarding (onboarding.md D26): off by default. New accounts are marked
         // `pending` either way; the app opens /onboarding and the routes work only while this is on.
         onboardingEnabled:    boolean('onboarding_enabled').notNull().default(false),
+        // The Turnstile captcha on demo start, registration and password reset (captcha.md C2): off by default.
+        captchaEnabled:       boolean('captcha_enabled').notNull().default(false),
         updatedAt:        timestamp('updated_at').defaultNow().notNull(),
         updatedByStaffId:  uuid('updated_by_staff_id').references(() => staffAccounts.id, { onDelete: 'set null' }),
     },

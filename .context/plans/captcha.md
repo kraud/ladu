@@ -1,6 +1,7 @@
 # Plan: Captcha (Cloudflare Turnstile) on demo, registration and password reset
 
-Status: **approved on 2026-10-19; Slice 1 not started.**
+Status: **approved on 2026-10-19. Slice 1 built on 2026-10-19** (backend: see "Slice 1 — what was built").
+Next: Slice 2 (learner frontend).
 
 ## Context
 
@@ -79,6 +80,16 @@ Slice 1 start (known values: site `1x00000000000000000000AA`, secret
   (mock `global.fetch`: pass, fail, wrong action, timeout → demo 503 / register passes, switch off
   → no call, keys missing → no call) and `backend/tests/adminAccessCaptcha.test.js` (switch, audit,
   `captcha_not_configured`). Existing tests stay green because the switch is off by default.
+
+#### Slice 1 — what was built
+
+- Migration `0032_captcha_switch.sql`; `captcha.enabled` in `getAccessSettings`.
+- `backend/lib/captcha.ts` (`assertCaptcha`, `verifyCaptcha`, `captchaKeys`, `CaptchaError`). Test keys answer with no `action`, so a missing `action` in the answer is accepted; a real widget always sets one.
+- Wired in `createDemo` (before the IP limit), `registerUser` and `requestPasswordReset`. `countRefusal` now counts any `HttpError` with a counted code; `captcha_failed` is a counted refusal.
+- `GET /api/access` sends `captcha: { enabled, siteKey }` only when the switch is on AND both keys are set. Admin: `PUT /api/admin/access/captcha`, and `captcha: { enabled, configured }` in the admin answer.
+- Deploy: both keys in `deploy.yml` (staging + production) and `app.env.example`. A missing GitHub secret gives an empty value = off.
+- Tests: `captcha.test.js`, `adminAccessCaptcha.test.js`; two older tests got the new field.
+- **For Slice 3:** the admin `DemoRefusalCode` type and the `DemoActivity` table (`admin/src/features/access/`) need a `captcha_failed` row.
 
 ### Slice 2 — Learner frontend (widget on three forms)
 

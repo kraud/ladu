@@ -27,6 +27,7 @@ const { issueVerificationEmail, issuePasswordResetEmail }: typeof import("../lib
 const { accountBlock, recordLogin }: typeof import("../lib/accountAccess") = require("../lib/accountAccess");
 const { assertRegistrationAllowed, consumeInvite, enforceLoginGate, getLoginBlock }: typeof import("../lib/accessGate") = require("../lib/accessGate");
 const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
+const { assertCaptcha }: typeof import("../lib/captcha") = require("../lib/captcha");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
 const { assertNotDemo }: typeof import("../lib/demo") = require("../lib/demo");
 const { assertNamesAllowed }: typeof import("../lib/reservedNames") = require("../lib/reservedNames");
@@ -211,6 +212,16 @@ const publicUserResponse = (user: UserRow) => ({
   verified: user.verified,
 });
 
+/** `assertCaptcha` for the routes that go on when Cloudflare is down: puts the refusal status on `res`. */
+const assertCaptchaWithStatus = async (req: any, res: any, action: "register" | "password_reset") => {
+  try {
+    await assertCaptcha(req, action, { onUnreachable: "allow" });
+  } catch (error) {
+    if (error instanceof HttpError) res.status(error.status);
+    throw error;
+  }
+};
+
 const registerUser = asyncHandler(async (req: any, res: any) => {
   const { name, email, username, password, languages, uiLanguage, theme } =
     req.body;
@@ -246,6 +257,10 @@ const registerUser = asyncHandler(async (req: any, res: any) => {
     res.status(400);
     throw new Error("Invalid theme selection");
   }
+
+  // The captcha (captcha.md C9) comes after the cheap input checks and before any database work.
+  // If Cloudflare cannot be reached, sign-up goes on (C6).
+  await assertCaptchaWithStatus(req, res, "register");
 
   // The access gate (access-gates.md) comes BEFORE the "already in use" checks, so a
   // closed or limited gate never reveals which emails have an account.
@@ -682,6 +697,9 @@ const PASSWORD_RESET_REQUEST_MESSAGE =
   "If that email address belongs to a registered account, we have sent it a link to reset the password.";
 
 const requestPasswordReset = asyncHandler(async (req: any, res: any) => {
+  // First, so the answer is the same for every email (captcha.md C9). Goes on if Cloudflare is down (C6).
+  await assertCaptchaWithStatus(req, res, "password_reset");
+
   const email = req.body.email;
 
   // Password reset starts from email because users may not know their id.

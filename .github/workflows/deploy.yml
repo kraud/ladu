@@ -127,6 +127,8 @@ jobs:
           ADMIN_LINKS=${{ secrets.ADMIN_LINKS }}
           BASE_URL=${{ secrets.BASE_URL }}
           EKILEX_API_KEY=${{ secrets.EKILEX_API_KEY }}
+          TURNSTILE_SITE_KEY=${{ secrets.TURNSTILE_SITE_KEY }}
+          TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           EMAIL_HOST=${{ secrets.EMAIL_HOST }}
           EMAIL_PORT=${{ secrets.EMAIL_PORT }}
           EMAIL_SECURE=${{ secrets.EMAIL_SECURE }}
@@ -217,6 +219,8 @@ jobs:
           ADMIN_LINKS=${{ secrets.ADMIN_LINKS }}
           BASE_URL=${{ secrets.BASE_URL }}
           EKILEX_API_KEY=${{ secrets.EKILEX_API_KEY }}
+          TURNSTILE_SITE_KEY=${{ secrets.TURNSTILE_SITE_KEY }}
+          TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
           EMAIL_HOST=${{ secrets.EMAIL_HOST }}
           EMAIL_PORT=${{ secrets.EMAIL_PORT }}
           EMAIL_SECURE=${{ secrets.EMAIL_SECURE }}

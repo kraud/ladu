@@ -13,6 +13,7 @@ const { and, desc, eq, inArray, isNotNull, sql }: typeof import('drizzle-orm') =
 const { HttpError }: typeof import('../../lib/httpError') = require('../../lib/httpError');
 const { readReason, withStatus }: typeof import('../../lib/adminRequest') = require('../../lib/adminRequest');
 const { getAccessSettings, normalizeInviteEmail, DEMO_BOUNDS }: typeof import('../../lib/accessGate') = require('../../lib/accessGate');
+const { captchaKeys, CaptchaError }: typeof import('../../lib/captcha') = require('../../lib/captcha');
 const { countLiveDemos }: typeof import('../../lib/demo') = require('../../lib/demo');
 const { listDemoUsers, demoUsageStats }: typeof import('../../lib/demoStats') = require('../../lib/demoStats');
 const { isUuid }: typeof import('../userController') = require('../userController');
@@ -74,6 +75,8 @@ const loadAccess = async () => {
     login: { mode: settings.loginMode, note: settings.loginNote },
     demo: settings.demo,
     onboarding: settings.onboarding,
+    // `configured`: both Turnstile keys are in the server's env. The switch cannot go on without them.
+    captcha: { enabled: settings.captcha.enabled, configured: captchaKeys() !== null },
     // One row of settings holds every gate, so this is the last change to any of them.
     updatedAt: row?.updatedAt ?? null,
     updatedBy: row?.staffName ?? null,
@@ -264,6 +267,44 @@ const setOnboarding = asyncHandler(async (req: any, res: any) => {
         targetId: 'onboarding',
         reason: reason || null,
         metadata: { from: { enabled: current.onboardingEnabled }, to: { enabled: body.enabled } },
+      });
+    });
+  });
+
+  res.json(await loadAccess());
+});
+
+/**
+ * `PUT /api/admin/access/captcha` — `{ enabled: boolean, reason? }`. Turns the Turnstile captcha on
+ * demo start, registration and password reset on or off (captcha.md C2). It cannot go on while a
+ * key is missing (400 `captcha_not_configured`). Audit row `access.captcha_configure` with the old
+ * and the new value; setting the value it already has writes nothing.
+ */
+const setCaptcha = asyncHandler(async (req: any, res: any) => {
+  await withStatus(res, async () => {
+    const body = req.body ?? {};
+    const reason = readReason(body);
+    if (typeof body.enabled !== 'boolean') throw new HttpError(400, 'Enabled must be true or false');
+    if (body.enabled && !captchaKeys()) {
+      throw new CaptchaError(400, 'captcha_not_configured', 'Set the Turnstile site key and secret key on the server first');
+    }
+
+    await db.transaction(async (tx) => {
+      const [current] = await tx.select().from(accessSettings).where(eq(accessSettings.id, 1)).for('update');
+      if (!current) throw new HttpError(500, 'The access settings row is missing');
+      if (current.captchaEnabled === body.enabled) return; // nothing to write, nothing to log
+
+      await tx
+        .update(accessSettings)
+        .set({ captchaEnabled: body.enabled, updatedAt: new Date(), updatedByStaffId: req.staff.id })
+        .where(eq(accessSettings.id, 1));
+      await tx.insert(auditLog).values({
+        staffId: req.staff.id,
+        action: 'access.captcha_configure',
+        targetType: 'access',
+        targetId: 'captcha',
+        reason: reason || null,
+        metadata: { from: { enabled: current.captchaEnabled }, to: { enabled: body.enabled } },
       });
     });
   });
@@ -610,6 +651,7 @@ export = {
   setLogin,
   setDemo,
   setOnboarding,
+  setCaptcha,
   getDemoUsers,
   getDemoStats,
   addInvites,

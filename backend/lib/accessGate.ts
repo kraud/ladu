@@ -23,6 +23,8 @@ export interface AccessSettings {
   demo: DemoSettings;
   /** The first-login onboarding (onboarding.md D26). Independent of the gates above. */
   onboarding: { enabled: boolean };
+  /** The Turnstile captcha on demo start, registration and password reset (captcha.md C2). */
+  captcha: { enabled: boolean };
 }
 
 export interface DemoSettings {
@@ -93,6 +95,8 @@ export const getAccessSettings = async (executor: GateExecutor = db): Promise<Ac
     },
     // Without the row, the onboarding is off (onboarding.md D26).
     onboarding: { enabled: row?.onboardingEnabled ?? false },
+    // Without the row, the captcha is off (captcha.md C2).
+    captcha: { enabled: row?.captchaEnabled ?? false },
   };
 };
 
