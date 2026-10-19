@@ -62,6 +62,27 @@ export async function sendInvite(id: string): Promise<{ sent: true; email: strin
     return data;
 }
 
+/** Moves a request to the real list (invite list or allowed accounts). Sends no email. */
+export async function approveRequest(body: { id: string; reason?: string }): Promise<AccessState> {
+    const { data } = await apiClient.post<AccessState>(`/admin/access/requests/${encodeURIComponent(body.id)}/approve`, { reason: body.reason });
+    return data;
+}
+
+/** Removes a request without approving it. */
+export async function removeRequest(body: { id: string; reason?: string }): Promise<AccessState> {
+    const { data } = await apiClient.delete<AccessState>(`/admin/access/requests/${encodeURIComponent(body.id)}`, { data: { reason: body.reason } });
+    return data;
+}
+
+/** Emails an allowed account that it can sign in now. The account stays on the list. */
+export async function sendLoginAllowed(body: { userId: string; reason?: string }): Promise<{ sent: true; email: string }> {
+    const { data } = await apiClient.post<{ sent: true; email: string }>(
+        `/admin/access/login-allowed/${encodeURIComponent(body.userId)}/send`,
+        { reason: body.reason },
+    );
+    return data;
+}
+
 export async function allowLogin(body: { userIds?: string[]; emails?: string[]; reason?: string }): Promise<AllowLoginResult> {
     const { data } = await apiClient.post<AllowLoginResult>('/admin/access/login-allowed', body);
     return data;

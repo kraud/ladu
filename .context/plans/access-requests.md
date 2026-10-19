@@ -1,6 +1,6 @@
 # Plan: Access requests ("Request access" on the login and register pages)
 
-Status: **planned on 2026-10-19. Slice 1 (backend) and Slice 2 (learner app) built on 2026-10-19** (see "what was built"). Slices 3 and 4 not built. D1, D2 and D3 confirmed with the user on 2026-10-19 (the recommended option for each). D4, D5 and D6 follow the request or are still open: see "Decisions to confirm".
+Status: **planned on 2026-10-19. Slices 1 (backend), 2 (learner app) and 3 (admin app) built on 2026-10-19** (see "what was built"). Slice 4 not built. D1, D2 and D3 confirmed with the user on 2026-10-19 (the recommended option for each). D4, D5 and D6 follow the request or are still open: see "Decisions to confirm".
 
 ## Context
 
@@ -152,6 +152,16 @@ Each slice ends with something runnable, and starts with a plain-language overvi
 - Strings: a `request` block in the four `loginRegister.json` files (**ES, DE and EE are drafts for a native speaker**).
 - Tests: `features/access/access-request.test.tsx` (14). Full frontend suite green (139 files, 1898 tests); eslint clean.
 - Not done here: the page has no own e2e yet (Slice 4).
+
+### Slice 3 — what was built
+
+- `admin/src/features/access/components/RequestsCard.tsx`: the "Access requests" card, one component for both kinds. Under the invite list (Registration tab) and under the allowed accounts (Login tab). Columns: email, account (login only: name and status, or "No account found"), requested, actions. **Approve** and **Remove** each open a confirm dialog; Approve says that no email is sent. Approve is off for a login request with no account or a deleted one (a `title` says why). A closed gate adds a note that an approved email takes effect when the gate is limited.
+- `components/ConfirmDialog.tsx`: a small confirm dialog with an optional reason (on `FormDialog`). The reason is sent only when typed.
+- `AccessPage.tsx`: the card in both tabs; on each allowed account a **Send email** button (confirm dialog, optional reason; "Send again" after a send in this visit; off for a banned or deleted account).
+- `types.ts`, `api.ts`, `hooks.ts`: `requests` and the two counts in the state; `approveRequest`, `removeRequest`, `sendLoginAllowed` and their hooks (approve also refreshes the users list).
+- Test fixtures (`admin/src/test/access.ts`): `requests` and counts in `makeAccess`, `makeRequest`, `makeLoginRequest`, and fake handlers for the three new endpoints.
+- Tests: `AccessRequests.test.tsx` (16). Full admin suite green; eslint clean.
+- Like the invite list, the new send button shows no "sent" mark after a reload: the server keeps only the audit row.
 
 ## Decisions to confirm
 

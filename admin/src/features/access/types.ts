@@ -19,6 +19,18 @@ export interface AllowedAccount {
     addedBy: string | null;
 }
 
+/** A request from the public /request page (access-requests.md), waiting for the owner. */
+export interface AccessRequest {
+    id: string;
+    email: string;
+    createdAt: string;
+}
+
+/** A `login` request carries the account with the same email; `null` when none exists (Approve is off). */
+export interface LoginRequest extends AccessRequest {
+    account: { userId: string; name: string; status: 'active' | 'banned' | 'deleted' } | null;
+}
+
 export type GateName = 'registration' | 'login';
 
 /** The demo gate and its caps (demo-access.md). Independent of the registration and login gates. */
@@ -55,8 +67,10 @@ export interface AccessState {
     updatedBy: string | null;
     invites: Invite[];
     loginAllowed: AllowedAccount[];
+    /** Requests from the public /request page, by the list that approval adds them to. */
+    requests: { registration: AccessRequest[]; login: LoginRequest[] };
     /** `liveDemos`: demos running now (not expired), to compare with `demo.maxLive`. */
-    counts: { invites: number; loginAllowed: number; liveDemos: number };
+    counts: { invites: number; loginAllowed: number; requestsRegistration: number; requestsLogin: number; liveDemos: number };
 }
 
 export type SkipReason = 'invalid' | 'duplicate_in_request' | 'already_listed' | 'has_account';

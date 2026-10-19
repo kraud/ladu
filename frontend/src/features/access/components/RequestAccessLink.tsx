@@ -16,7 +16,7 @@ export function RequestAccessLink({ gate, mode }: { gate: 'registration' | 'logi
         <Link
             to="/request"
             search={{ account: gate === 'login' ? true : undefined }}
-            className={buttonVariants({ variant: 'secondary', className: 'mb-4 w-full' })}
+            className={buttonVariants({ className: 'mb-4 w-full' })}
         >
             {t('loginRegister:request.button')}
         </Link>

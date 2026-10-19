@@ -1,8 +1,33 @@
 import { http, HttpResponse } from 'msw';
-import type { AccessMode, AccessState, AllowedAccount, DemoSettings, DemoStats, DemoUserRow, DemoUsers, Invite } from '@/features/access/types';
+import type {
+    AccessMode,
+    AccessRequest,
+    AccessState,
+    AllowedAccount,
+    DemoSettings,
+    DemoStats,
+    DemoUserRow,
+    DemoUsers,
+    Invite,
+    LoginRequest,
+} from '@/features/access/types';
 
 export function makeInvite(overrides: Partial<Invite> = {}): Invite {
     return { id: 'invite-1', email: 'friend@example.test', createdAt: '2026-10-01T08:00:00.000Z', addedBy: 'Sam Staff', ...overrides };
+}
+
+export function makeRequest(overrides: Partial<AccessRequest> = {}): AccessRequest {
+    return { id: 'request-1', email: 'newcomer@example.test', createdAt: '2026-10-03T08:00:00.000Z', ...overrides };
+}
+
+export function makeLoginRequest(overrides: Partial<LoginRequest> = {}): LoginRequest {
+    return {
+        id: 'login-request-1',
+        email: 'kaja@example.com',
+        createdAt: '2026-10-03T08:00:00.000Z',
+        account: { userId: 'u1', name: 'Kaja Tamm', status: 'active' },
+        ...overrides,
+    };
 }
 
 export function makeAllowed(overrides: Partial<AllowedAccount> = {}): AllowedAccount {
@@ -64,7 +89,8 @@ export function makeAccess(overrides: Partial<AccessState> = {}): AccessState {
         updatedBy: null,
         invites,
         loginAllowed,
-        counts: { invites: invites.length, loginAllowed: loginAllowed.length, liveDemos: 0 },
+        requests: { registration: [], login: [] },
+        counts: { invites: invites.length, loginAllowed: loginAllowed.length, requestsRegistration: 0, requestsLogin: 0, liveDemos: 0 },
         ...overrides,
     };
 }
@@ -86,7 +112,13 @@ export function accessHandlers(
 ) {
     const withCounts = (next: AccessState): AccessState => ({
         ...next,
-        counts: { ...next.counts, invites: next.invites.length, loginAllowed: next.loginAllowed.length },
+        counts: {
+            ...next.counts,
+            invites: next.invites.length,
+            loginAllowed: next.loginAllowed.length,
+            requestsRegistration: next.requests.registration.length,
+            requestsLogin: next.requests.login.length,
+        },
     });
     const putGate = (gate: 'registration' | 'login') =>
         http.put(`/api/admin/access/${gate}`, async ({ request }) => {
@@ -158,6 +190,43 @@ export function accessHandlers(
             writes.push({ method: 'DELETE', path: `/api/admin/access/invites/${String(params.id)}`, body: {} });
             state.current = withCounts({ ...state.current, invites: state.current.invites.filter((i) => i.id !== params.id) });
             return HttpResponse.json(state.current);
+        }),
+        http.post('/api/admin/access/requests/:id/approve', async ({ params, request }) => {
+            const body = (await request.json()) as Record<string, unknown>;
+            writes.push({ method: 'POST', path: `/api/admin/access/requests/${String(params.id)}/approve`, body });
+            const { registration, login } = state.current.requests;
+            const reg = registration.find((r) => r.id === params.id);
+            const log = login.find((r) => r.id === params.id);
+            if (!reg && !log) return HttpResponse.json({ message: 'Request not found' }, { status: 404 });
+            state.current = withCounts({
+                ...state.current,
+                requests: { registration: registration.filter((r) => r.id !== params.id), login: login.filter((r) => r.id !== params.id) },
+                invites: reg
+                    ? [makeInvite({ id: `invite-from-${reg.id}`, email: reg.email }), ...state.current.invites]
+                    : state.current.invites,
+                loginAllowed:
+                    log?.account
+                        ? [makeAllowed({ userId: log.account.userId, name: log.account.name, email: log.email }), ...state.current.loginAllowed]
+                        : state.current.loginAllowed,
+            });
+            return HttpResponse.json(state.current);
+        }),
+        http.delete('/api/admin/access/requests/:id', async ({ params, request }) => {
+            const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+            writes.push({ method: 'DELETE', path: `/api/admin/access/requests/${String(params.id)}`, body });
+            const { registration, login } = state.current.requests;
+            state.current = withCounts({
+                ...state.current,
+                requests: { registration: registration.filter((r) => r.id !== params.id), login: login.filter((r) => r.id !== params.id) },
+            });
+            return HttpResponse.json(state.current);
+        }),
+        http.post('/api/admin/access/login-allowed/:userId/send', async ({ params, request }) => {
+            const body = (await request.json()) as Record<string, unknown>;
+            writes.push({ method: 'POST', path: `/api/admin/access/login-allowed/${String(params.userId)}/send`, body });
+            const account = state.current.loginAllowed.find((a) => a.userId === params.userId);
+            if (!account) return HttpResponse.json({ message: 'This account is not on the allowed list' }, { status: 404 });
+            return HttpResponse.json({ sent: true, email: account.email });
         }),
         http.post('/api/admin/access/login-allowed/remove', async ({ request }) => {
             const body = (await request.json()) as { userIds: string[] };
