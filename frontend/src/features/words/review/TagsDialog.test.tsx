@@ -39,7 +39,7 @@ function setUp() {
 describe('TagsDialog', () => {
     it('lists the tags and offers no Edit button for a word that is not the user\'s own', () => {
         setUp();
-        renderWithProviders(<TagsDialog wordId="w1" tags={[kitchen, garage]} canEdit={false} onClose={vi.fn()} />, {
+        renderWithProviders(<TagsDialog wordId="w1" tags={[kitchen, garage]} canEdit={false} filteredTagIds={[]} onFilter={vi.fn()} onOpenTag={vi.fn()} onClose={vi.fn()} />, {
             session: SESSION,
         });
         expect(screen.getByText('Kitchen')).toBeInTheDocument();
@@ -50,14 +50,14 @@ describe('TagsDialog', () => {
 
     it('says so when the word has no tags', () => {
         setUp();
-        renderWithProviders(<TagsDialog wordId="w1" tags={[]} canEdit onClose={vi.fn()} />, { session: SESSION });
+        renderWithProviders(<TagsDialog wordId="w1" tags={[]} canEdit filteredTagIds={[]} onFilter={vi.fn()} onOpenTag={vi.fn()} onClose={vi.fn()} />, { session: SESSION });
         expect(screen.getByText('This word has no tags.')).toBeInTheDocument();
     });
 
     it('Edit shows the × and the add box; Cancel goes back to display mode', async () => {
         setUp();
         const user = userEvent.setup();
-        renderWithProviders(<TagsDialog wordId="w1" tags={[kitchen]} canEdit onClose={vi.fn()} />, { session: SESSION });
+        renderWithProviders(<TagsDialog wordId="w1" tags={[kitchen]} canEdit filteredTagIds={[]} onFilter={vi.fn()} onOpenTag={vi.fn()} onClose={vi.fn()} />, { session: SESSION });
 
         await user.click(screen.getByRole('button', { name: 'Edit' }));
         expect(screen.getByRole('button', { name: 'Remove tag Kitchen' })).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe('TagsDialog', () => {
         const fake = setUp();
         const onClose = vi.fn();
         const user = userEvent.setup();
-        renderWithProviders(<TagsDialog wordId="w1" tags={[kitchen]} canEdit onClose={onClose} />, { session: SESSION });
+        renderWithProviders(<TagsDialog wordId="w1" tags={[kitchen]} canEdit filteredTagIds={[]} onFilter={vi.fn()} onOpenTag={vi.fn()} onClose={onClose} />, { session: SESSION });
 
         await user.click(screen.getByRole('button', { name: 'Edit' }));
         await user.click(screen.getByPlaceholderText('Search tags to add…'));
@@ -86,5 +86,34 @@ describe('TagsDialog', () => {
                 expect.objectContaining({ path: '/tags/links', body: { tagIds: ['tag-3'], wordIds: ['w1'] } }),
             ]),
         );
+    });
+
+    it('the funnel button filters by the tag, the arrow button opens it', async () => {
+        setUp();
+        const onFilter = vi.fn();
+        const onOpenTag = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<TagsDialog wordId="w1" tags={[kitchen]} canEdit={false} filteredTagIds={[]} onFilter={onFilter} onOpenTag={onOpenTag} onClose={vi.fn()} />, { session: SESSION });
+
+        await user.click(screen.getByRole('button', { name: 'Filter words by tag Kitchen' }));
+        await user.click(screen.getByRole('button', { name: 'Open tag Kitchen' }));
+
+        expect(onFilter).toHaveBeenCalledWith('tag-1');
+        expect(onOpenTag).toHaveBeenCalledWith('tag-1');
+
+        onOpenTag.mockClear();
+        await user.click(screen.getByRole('button', { name: 'Kitchen' }));
+        expect(onOpenTag).toHaveBeenCalledWith('tag-1');
+    });
+
+    it('a tag that the table already filters by shows the funnel-x button', async () => {
+        setUp();
+        const onFilter = vi.fn();
+        const user = userEvent.setup();
+        renderWithProviders(<TagsDialog wordId="w1" tags={[kitchen, garage]} canEdit={false} filteredTagIds={['tag-1']} onFilter={onFilter} onOpenTag={vi.fn()} onClose={vi.fn()} />, { session: SESSION });
+
+        expect(screen.getByRole('button', { name: 'Filter words by tag Garage' })).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Remove tag Kitchen from the filter' }));
+        expect(onFilter).toHaveBeenCalledWith('tag-1');
     });
 });

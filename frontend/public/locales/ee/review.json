@@ -134,6 +134,9 @@
     "restore": "Jäta silt {{label}}",
     "saved": "Sildid uuendatud",
     "by": "autor {{username}}",
-    "words": "{{count}} sõna"
+    "words": "{{count}} sõna",
+    "filter": "Filtreeri sõnu sildi {{label}} järgi",
+    "unfilter": "Eemalda silt {{label}} filtrist",
+    "open": "Ava silt {{label}}"
   }
 }
