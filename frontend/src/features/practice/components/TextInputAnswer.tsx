@@ -45,7 +45,7 @@ export function TextInputAnswer({
     return (
         <form
             noValidate
-            className="flex items-stretch gap-2"
+            className="flex flex-col items-stretch gap-3"
             onSubmit={(event) => {
                 event.preventDefault();
                 if (canSubmit) onSubmit(typed);
@@ -75,14 +75,14 @@ export function TextInputAnswer({
                 />
             </div>
             {!answered && (
-                <>
-                    <Button type="button" variant="outline" onClick={onGiveUp}>
-                        {t('practice:session.dontKnow')}
-                    </Button>
-                    <Button type="submit" disabled={!canSubmit}>
+                <div className="flex flex-row-reverse gap-2">
+                    <Button type="submit" disabled={!canSubmit} className="flex-1">
                         {t('practice:session.check')}
                     </Button>
-                </>
+                    <Button type="button" variant="outline" onClick={onGiveUp} className="flex-1">
+                        {t('practice:session.dontKnow')}
+                    </Button>
+                </div>
             )}
         </form>
     );
