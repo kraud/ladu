@@ -56,6 +56,11 @@
   "errors": {
     "somethingWrong": "Algo salió mal. Intentalo de nuevo."
   },
+  "captcha": {
+    "failed": "La comprobación de que eres una persona ha fallado. Inténtalo de nuevo.",
+    "unavailable": "La comprobación no está disponible ahora. Inténtalo más tarde.",
+    "loadError": "No se pudo cargar la comprobación. Desactiva el bloqueador de anuncios o inténtalo más tarde."
+  },
   "buttons": {
     "apply": "Aplicar",
     "delete": "Eliminar",

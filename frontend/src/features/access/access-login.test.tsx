@@ -21,6 +21,7 @@ const status = (mode: AccessMode, note = ''): AccessStatus => ({
     login: { mode, note },
     demo: { enabled: false },
     onboarding: { enabled: false },
+    captcha: { enabled: false },
 });
 
 const CLOSED_TEXT = 'Sign-in is closed for now. Please check back later.';

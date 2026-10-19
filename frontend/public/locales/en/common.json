@@ -56,6 +56,11 @@
   "errors": {
     "somethingWrong": "Something went wrong, try again."
   },
+  "captcha": {
+    "failed": "The human check failed. Try again.",
+    "unavailable": "The human check is not available now. Try again later.",
+    "loadError": "The human check could not load. Turn off your ad blocker or try again later."
+  },
   "buttons": {
     "apply": "Apply",
     "delete": "Delete",

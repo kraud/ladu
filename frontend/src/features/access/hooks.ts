@@ -20,11 +20,18 @@ export function useAccess(): AccessStatus {
     return data ?? OPEN_ACCESS;
 }
 
-const GATE_CODES = new Set(['registration_closed', 'registration_not_invited', 'login_closed', 'login_not_allowed']);
+// The captcha codes are here too: the owner may have turned the switch on since the page loaded, and the form needs the widget.
+const GATE_CODES = new Set([
+    'registration_closed',
+    'registration_not_invited',
+    'login_closed',
+    'login_not_allowed',
+    'captcha_failed',
+]);
 
 /**
  * A gate refused the request, so the state changed since the page loaded: read it again, so
- * the banner and the form match. Call it from a mutation's `onError` (registration and login codes).
+ * the banner and the form match. Call it from a mutation's `onError` (registration, login and captcha codes).
  */
 export function refreshAccessOnGateError(queryClient: QueryClient, error: unknown): void {
     const code = getApiErrorCode(error);

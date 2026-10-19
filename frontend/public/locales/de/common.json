@@ -56,6 +56,11 @@
   "errors": {
     "somethingWrong": "Etwas ist schiefgelaufen. Versuchen Sie es erneut."
   },
+  "captcha": {
+    "failed": "Die Prüfung „Mensch oder Bot“ ist fehlgeschlagen. Versuche es erneut.",
+    "unavailable": "Die Prüfung ist gerade nicht verfügbar. Versuche es später erneut.",
+    "loadError": "Die Prüfung konnte nicht geladen werden. Schalte den Werbeblocker aus oder versuche es später erneut."
+  },
   "buttons": {
     "apply": "Anwenden",
     "delete": "Löschen",

@@ -1,7 +1,7 @@
 # Plan: Captcha (Cloudflare Turnstile) on demo, registration and password reset
 
 Status: **approved on 2026-10-19. Slice 1 built on 2026-10-19** (backend: see "Slice 1 — what was built").
-Next: Slice 2 (learner frontend).
+**Slice 2 built on 2026-10-19** (learner frontend: see "Slice 2 — what was built"). Next: Slice 3 (admin switch, e2e, docs).
 
 ## Context
 
@@ -106,6 +106,15 @@ Slice 1 start (known values: site `1x00000000000000000000AA`, secret
 - Strings in EN/ES/DE/EE: the two errors and a short hint ("Checking that you are human…").
 - Vitest: the component (script load mocked), each form sends the token and blocks submit with no
   token, resets after an error.
+
+#### Slice 2 — what was built
+
+- `frontend/src/features/captcha/`: `turnstile.ts` (script loader, typed API, `turnstileLanguage`), `CaptchaWidget.tsx` (draws the widget, redraws on a new theme or language, `resetKey` asks for a new token), `useCaptcha.tsx` (reads `captcha` from `GET /api/access`; gives `widget`, `token`, `ready`, `reset`).
+- Wired into `DemoPage` (step 2), `RegisterForm` (step 2) and the request mode of `ResetPasswordForm` (the forgot-password form is on `/resetPassword`, not in `LoginForm`). The submit button waits for a token; `{ onError: captcha.reset }` asks for a new one after any refusal.
+- `captcha_failed` also makes the app read `GET /api/access` again (the owner may have turned the switch on since the page loaded).
+- Strings: `common:captcha.{failed,unavailable,loadError}` in EN/ES/DE/EE (ES/DE/EE need a native review).
+- **Estonian:** Turnstile has no Estonian widget text. The widget uses `auto` for Estonian (browser language if supported, else English). Our own messages are translated.
+- Tests: `captcha.test.tsx` (7), `turnstile.test.ts` (3). Full frontend suite green (138 files, 1884 tests).
 
 ### Slice 3 — Admin switch, e2e, docs
 

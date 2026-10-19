@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { LanguageTiles } from '@/components/common/LanguageTiles';
+import { useCaptcha } from '@/features/captcha/useCaptcha';
 import { useRegister } from '../hooks';
 import { buildRegisterSchema, type RegisterValues } from '../schemas';
 import { labelByI18nCode } from '@/lib/language';
@@ -35,6 +36,7 @@ const STEP1_FIELDS = ['name', 'username', 'email', 'password', 'password2'] as c
 export function RegisterForm({ oauthSlot }: { oauthSlot?: ReactNode }) {
     const { t, i18n } = useTranslation();
     const register = useRegister();
+    const captcha = useCaptcha('register');
     const schema = useMemo(() => buildRegisterSchema(t), [t]);
     const [step, setStep] = useState<1 | 2>(1);
 
@@ -61,15 +63,20 @@ export function RegisterForm({ oauthSlot }: { oauthSlot?: ReactNode }) {
                 onSubmit={form.handleSubmit(
                     ({ name, username, email, password, languages: langs }) => {
                         // `password2` is enforced by the schema and never sent.
-                        register.mutate({
-                            name,
-                            username,
-                            email,
-                            password,
-                            languages: langs,
-                            uiLanguage: labelByI18nCode(i18n.language),
-                            theme: themeForRequest(),
-                        });
+                        register.mutate(
+                            {
+                                name,
+                                username,
+                                email,
+                                password,
+                                languages: langs,
+                                uiLanguage: labelByI18nCode(i18n.language),
+                                theme: themeForRequest(),
+                                captchaToken: captcha.token,
+                            },
+                            // A token works once: ask for a new one after a refusal.
+                            { onError: captcha.reset },
+                        );
                     },
                     // Belt-and-braces: if a step-1 field is somehow still invalid
                     // when step 2 submits, bounce back instead of leaving the
@@ -204,6 +211,8 @@ export function RegisterForm({ oauthSlot }: { oauthSlot?: ReactNode }) {
                             )}
                         />
 
+                        {captcha.widget}
+
                         <div className="step-actions">
                             <span className="hint grow">
                                 {languages.length === 0
@@ -215,7 +224,7 @@ export function RegisterForm({ oauthSlot }: { oauthSlot?: ReactNode }) {
                             <Button type="button" variant="secondary" onClick={() => setStep(1)}>
                                 {t('loginRegister:register.back')}
                             </Button>
-                            <Button type="submit" disabled={pending || !form.formState.isValid}>
+                            <Button type="submit" disabled={pending || !form.formState.isValid || !captcha.ready}>
                                 {pending ? (
                                     <>
                                         <span className="spinner" />
