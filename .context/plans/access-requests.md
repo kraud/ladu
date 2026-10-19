@@ -1,6 +1,6 @@
 # Plan: Access requests ("Request access" on the login and register pages)
 
-Status: **planned on 2026-10-19. Slice 1 (backend) built on 2026-10-19** (see "Slice 1 — what was built"). Slices 2 to 4 not built. D1, D2 and D3 confirmed with the user on 2026-10-19 (the recommended option for each). D4, D5 and D6 follow the request or are still open: see "Decisions to confirm".
+Status: **planned on 2026-10-19. Slice 1 (backend) and Slice 2 (learner app) built on 2026-10-19** (see "what was built"). Slices 3 and 4 not built. D1, D2 and D3 confirmed with the user on 2026-10-19 (the recommended option for each). D4, D5 and D6 follow the request or are still open: see "Decisions to confirm".
 
 ## Context
 
@@ -141,6 +141,17 @@ Each slice ends with something runnable, and starts with a plain-language overvi
 - Email: `utils/resources/accessRequest.js` (team, English), `utils/resources/loginAllowed.js` (account, 4 languages; the strings are in `emailStrings.js`, **ES/DE/EE are drafts for a native speaker**), both wired in `utils/sendEmail.js`.
 - Deploy: `ACCESS_REQUEST_EMAIL` in `deploy/env/app.env.example` and in both `.env` blocks of `.github/workflows/deploy.yml`. **The GitHub Environment secret `ACCESS_REQUEST_EMAIL` must be created for staging and production** (value: the team address). A missing secret gives an empty value = no team email.
 - Tests: `accessRequest.test.js` (29) and `adminAccessRequests.test.js` (20). Mutation-checked: without the "useless request" check the 5 silent-skip tests fail; without the request delete in approve, 3 tests fail.
+
+### Slice 2 — what was built
+
+- Route `/request` (`app/router.tsx`, public layout). Search `?account=true` ticks the box; the search type is `{ account?: boolean }`.
+- `features/auth/pages/RequestAccessPage.tsx` and `components/RequestAccessForm.tsx` (React Hook Form + yup, `buildRequestAccessSchema` in `schemas.ts`). The button is off until the email is valid, and until the captcha has a token. After a send, the page shows one "Request received" message.
+- The form reads both gates. When the gate of the ticked kind is open, it shows "This is open now" with a link (sign in or create an account) and keeps the button off. The server's 409 `access_not_needed` shows the same text as a toast, and makes the app read the gate state again.
+- `features/access/components/RequestAccessLink.tsx`: the button under the banner on `LoginPage` and `RegisterPage`, outside the disabled fieldset, nothing when the gate is open. On `/login` it links to `/request?account=true`.
+- `features/access/`: `requestAccess` (api), `useRequestAccess` (hook), `RequestAccessBody` (type); `access_not_needed` is in `GATE_CODES` and in `features/auth/errors.ts`. New captcha action `access_request` in `features/captcha/turnstile.ts`.
+- Strings: a `request` block in the four `loginRegister.json` files (**ES, DE and EE are drafts for a native speaker**).
+- Tests: `features/access/access-request.test.tsx` (14). Full frontend suite green (139 files, 1898 tests); eslint clean.
+- Not done here: the page has no own e2e yet (Slice 4).
 
 ## Decisions to confirm
 

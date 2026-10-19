@@ -1,6 +1,7 @@
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { AccessBanner } from '@/features/access/components/AccessBanner';
+import { RequestAccessLink } from '@/features/access/components/RequestAccessLink';
 import { useAccess } from '@/features/access/hooks';
 import { AuthLayout } from '../components/AuthLayout';
 import { LoginForm } from '../components/LoginForm';
@@ -29,6 +30,7 @@ export function LoginPage() {
             }
         >
             <AccessBanner gate="login" status={login} />
+            <RequestAccessLink gate="login" mode={login.mode} />
             <fieldset disabled={closed} className="m-0 min-w-0 border-0 p-0">
                 <LoginForm redirectTo={redirect ?? '/'} />
             </fieldset>

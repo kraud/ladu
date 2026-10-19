@@ -5,7 +5,7 @@
  */
 const SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
 
-export type CaptchaAction = 'demo' | 'register' | 'password_reset';
+export type CaptchaAction = 'demo' | 'register' | 'password_reset' | 'access_request';
 
 /** The options of `turnstile.render` that Ladu sets (names as in Cloudflare's widget configuration). */
 export interface TurnstileRenderOptions {

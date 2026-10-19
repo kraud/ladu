@@ -1,8 +1,11 @@
-import { useQuery, type QueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import { getApiErrorCode } from '@/api/types';
 import * as accessApi from './api';
 import { accessKeys } from './keys';
-import { OPEN_ACCESS, type AccessStatus } from './types';
+import { authErrorKey } from '@/features/auth/errors';
+import { OPEN_ACCESS, type AccessStatus, type RequestAccessBody } from './types';
 
 /**
  * The state of the registration and login gates, for the banners. The server always enforces
@@ -27,6 +30,8 @@ const GATE_CODES = new Set([
     'login_closed',
     'login_not_allowed',
     'captcha_failed',
+    // The owner opened the gate since the page loaded: the request page shows "open" instead of the form.
+    'access_not_needed',
 ]);
 
 /**
@@ -41,4 +46,21 @@ export function refreshAccessOnGateError(queryClient: QueryClient, error: unknow
 /** Read the gate state again (a banner may be out of date). */
 export function refreshAccess(queryClient: QueryClient): void {
     void queryClient.invalidateQueries({ queryKey: accessKeys.all });
+}
+
+/**
+ * The request-access form (access-requests.md). No success toast: the page replaces the form with
+ * its own message. A refusal shows a toast, and reads the gate state again when a gate code came back.
+ */
+export function useRequestAccess() {
+    const { t } = useTranslation();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (body: RequestAccessBody) => accessApi.requestAccess(body),
+        onError: (error) => {
+            toast.error(t(authErrorKey(error)));
+            refreshAccessOnGateError(queryClient, error);
+        },
+    });
 }
