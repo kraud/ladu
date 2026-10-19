@@ -140,3 +140,50 @@ describe('single-language generation', () => {
         expect(out.filter((e) => !e.multiLang)).toHaveLength(1);
     });
 });
+
+describe('native-language hint', () => {
+    const trio = () =>
+        word('w2', 'Noun', {
+            English: { singularEN: 'house', pluralEN: 'houses' },
+            Spanish: { singularES: 'casa', pluralES: 'casas', genderES: 'la' },
+            German: { singularNominativDE: 'Haus', pluralNominativDE: 'Häuser', genderDE: 'das' },
+        });
+
+    it('gives the native form of the same slot when native is not in the pair', () => {
+        const out = gen(trio(), { languages: ['English', 'Spanish'], hintLanguage: 'German' });
+        expect(out).toHaveLength(2);
+        const singular = out.find((e) => e.matchingTranslations.itemA.case.startsWith('singular'));
+        const plural = out.find((e) => e.matchingTranslations.itemA.case.startsWith('plural'));
+        expect(singular.hint).toEqual({ language: 'German', value: 'Haus' });
+        expect(plural.hint).toEqual({ language: 'German', value: 'Häuser' });
+    });
+
+    it('falls back to the base form, marked approximate, when the exact case is missing', () => {
+        const w = word('w3', 'Noun', {
+            English: { singularEN: 'house', pluralEN: 'houses' },
+            Spanish: { singularES: 'casa', pluralES: 'casas' },
+            German: { singularNominativDE: 'Haus' },
+        });
+        const out = gen(w, { languages: ['English', 'Spanish'], hintLanguage: 'German' });
+        const singular = out.find((e) => e.matchingTranslations.itemA.case.startsWith('singular'));
+        const plural = out.find((e) => e.matchingTranslations.itemA.case.startsWith('plural'));
+        expect(singular.hint).toEqual({ language: 'German', value: 'Haus' });
+        expect(plural.hint).toEqual({ language: 'German', value: 'Haus', approximate: true });
+    });
+
+    it('gives no hint when native is one of the pair', () => {
+        const out = gen(trio(), { languages: ['English', 'Spanish'], hintLanguage: 'English' });
+        expect(out.every((e) => e.hint === undefined)).toBe(true);
+    });
+
+    it('gives no hint when the word has no native translation', () => {
+        const out = gen(house(), { languages: ['English', 'Spanish'], hintLanguage: 'German' });
+        expect(out.every((e) => e.hint === undefined)).toBe(true);
+    });
+
+    it('gives the native headword on a drill', () => {
+        const out = gen(trio(), { languages: ['Spanish'], multiLang: 'Single-Language', type: 'Multiple-Choice', hintLanguage: 'English' });
+        expect(out).toHaveLength(1);
+        expect(out[0].hint).toEqual({ language: 'English', value: 'house' });
+    });
+});

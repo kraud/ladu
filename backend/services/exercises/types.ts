@@ -61,6 +61,14 @@ export interface ExerciseItem {
     otherValues?: string[];
 }
 
+/** The word in the user's native language, shown on request while answering. */
+export interface ExerciseHint {
+    language: string;
+    value: string;
+    /** The exact case is missing in the native translation: `value` is its base form. */
+    approximate?: boolean;
+}
+
 /** An exercise before scoring. */
 export interface RawExercise {
     partOfSpeech: string;
@@ -70,6 +78,7 @@ export interface RawExercise {
         itemA: ExerciseItem;
         itemB: ExerciseItem;
     };
+    hint?: ExerciseHint;
 }
 
 /** An exercise after selection: carries the answer-side knowledge and performance. */
@@ -87,4 +96,6 @@ export interface ExerciseParams {
     wordSelection: WordSelection;
     difficultyMC?: number;
     nativeLanguage?: string;
+    /** The user's native language, for the hint. Unlike `nativeLanguage` it is set even when native is not excluded. */
+    hintLanguage?: string;
 }

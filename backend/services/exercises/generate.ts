@@ -7,8 +7,38 @@ import { MULTI_LANGUAGE, SINGLE_LANGUAGE } from './catalogue';
 import { shuffle } from './rng';
 import type {
     CardType, CardTypeParam, ExerciseItem, ExerciseWord, Language, LanguageMode,
-    PartOfSpeech, RawExercise, Rng,
+    ExerciseHint, PartOfSpeech, RawExercise, Rng,
 } from './types';
+
+/**
+ * The native-language form shown as a hint: the value of `caseName` in the user's native translation.
+ * When that exact case is missing, the base form (`baseCase`) stands in and the hint is marked `approximate`.
+ */
+function nativeHint(
+    word: ExerciseWord,
+    hintLanguage: string | undefined,
+    caseName: string | undefined,
+    baseCase: string | undefined,
+): ExerciseHint | undefined {
+    if (!hintLanguage) return undefined;
+    const cases = word.translations.find((t) => t.language === hintLanguage)?.cases ?? [];
+    const valueOf = (name: string | undefined) => {
+        const value = name ? cases.find((c) => c.caseName === name)?.word : undefined;
+        return value?.trim() ? value : undefined;
+    };
+    const exact = valueOf(caseName);
+    if (exact) return { language: hintLanguage, value: exact };
+    const base = valueOf(baseCase);
+    return base ? { language: hintLanguage, value: base, approximate: true } : undefined;
+}
+
+/** For a drill (one language): the native form of the word's first slot (singular nominative, 1st person singular present). */
+function headwordCase(word: ExerciseWord, hintLanguage: string): string | undefined {
+    const catalogue = MULTI_LANGUAGE[word.partOfSpeech as PartOfSpeech];
+    const firstGroup = catalogue && Object.values(catalogue)[0];
+    const firstSlot = firstGroup && Object.values(firstGroup)[0];
+    return firstSlot?.[hintLanguage as Language];
+}
 
 const CARD_TYPES: CardType[] = ['Multiple-Choice', 'Text-Input'];
 
@@ -25,6 +55,7 @@ function multiLanguageExercises(
     word: ExerciseWord,
     type: CardTypeParam,
     rng: Rng,
+    hintLanguage?: string,
 ): RawExercise[] {
     const catalogue = MULTI_LANGUAGE[word.partOfSpeech as PartOfSpeech];
     if (!catalogue) return [];
@@ -48,7 +79,10 @@ function multiLanguageExercises(
                 const itemA: ExerciseItem = { language: langA, case: caseA, value: valueA.word };
                 const itemB: ExerciseItem = { language: langB, case: caseB, value: valueB.word, translationId: transB?.id };
                 if (resolved === 'Multiple-Choice') itemB.otherValues = [];
-                out.push({ partOfSpeech: word.partOfSpeech, type: resolved, multiLang: true, matchingTranslations: { itemA, itemB } });
+                const hint = hintLanguage === langA || hintLanguage === langB
+                    ? undefined
+                    : nativeHint(word, hintLanguage, byLanguage[hintLanguage as Language], hintLanguage && headwordCase(word, hintLanguage));
+                out.push({ partOfSpeech: word.partOfSpeech, type: resolved, multiLang: true, matchingTranslations: { itemA, itemB }, ...(hint && { hint }) });
             }
         }
     }
@@ -60,6 +94,7 @@ function singleLanguageExercises(
     word: ExerciseWord,
     type: CardTypeParam,
     nativeLanguage: string,
+    hintLanguage?: string,
 ): RawExercise[] {
     const catalogue = SINGLE_LANGUAGE[word.partOfSpeech as PartOfSpeech];
     if (!catalogue) return [];
@@ -78,11 +113,15 @@ function singleLanguageExercises(
                 if (!question || !correct) continue;
                 const itemB: ExerciseItem = { language, case: drill.correctValue, value: correct.word, translationId: translation?.id };
                 if (cardType === 'Multiple-Choice') itemB.otherValues = drill.otherValues ?? [];
+                const hint = hintLanguage === language
+                    ? undefined
+                    : nativeHint(word, hintLanguage, hintLanguage && headwordCase(word, hintLanguage), undefined);
                 out.push({
                     partOfSpeech: word.partOfSpeech,
                     type: cardType,
                     multiLang: false,
                     matchingTranslations: { itemA: { language, case: drill.questionWord, value: question.word }, itemB },
+                    ...(hint && { hint }),
                 });
             }
         }
@@ -96,7 +135,7 @@ function singleLanguageExercises(
  */
 export function generateExercisesForWord(
     word: ExerciseWord,
-    opts: { languages: string[]; type: CardTypeParam; multiLang: LanguageMode; nativeLanguage?: string },
+    opts: { languages: string[]; type: CardTypeParam; multiLang: LanguageMode; nativeLanguage?: string; hintLanguage?: string },
     rng: Rng,
 ): RawExercise[] {
     const available = word.translations.map((t) => t.language);
@@ -105,13 +144,13 @@ export function generateExercisesForWord(
 
     switch (opts.multiLang) {
         case 'Multi-Language':
-            return multiLanguageExercises(valid, word, opts.type, rng);
+            return multiLanguageExercises(valid, word, opts.type, rng, opts.hintLanguage);
         case 'Single-Language':
-            return singleLanguageExercises(valid, word, opts.type, native);
+            return singleLanguageExercises(valid, word, opts.type, native, opts.hintLanguage);
         case 'Random':
             return [
-                ...multiLanguageExercises(valid, word, opts.type, rng),
-                ...singleLanguageExercises(valid, word, opts.type, native),
+                ...multiLanguageExercises(valid, word, opts.type, rng, opts.hintLanguage),
+                ...singleLanguageExercises(valid, word, opts.type, native, opts.hintLanguage),
             ];
         default:
             return [];

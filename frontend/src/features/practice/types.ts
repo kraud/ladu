@@ -53,6 +53,14 @@ export interface ExerciseSide {
     value: string;
 }
 
+/** The word in the user's native language. Only on exercises where native is not in the pair. */
+export interface ExerciseHint {
+    language: Lang;
+    value: string;
+    /** The exact case is missing in the native translation: `value` is its base form. */
+    approximate?: boolean;
+}
+
 export interface CaseStat {
     caseName: string;
     /** Last up to 4 answers, oldest first. */
@@ -84,6 +92,7 @@ export interface Exercise {
     answer: ExerciseSide;
     /** Multiple-Choice only. Answer included, no duplicates. */
     options?: string[];
+    hint?: ExerciseHint;
     performance: PerformanceSummary | null;
 }
 

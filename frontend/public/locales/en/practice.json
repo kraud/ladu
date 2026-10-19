@@ -171,6 +171,12 @@
     "dontKnow": "I don't know"
   },
   "card": {
+    "hint": {
+      "show": "Hint",
+      "hide": "Hide hint",
+      "unavailable": "No hint available",
+      "approximate": "The hint shows the base form, not the exact form being asked."
+    },
     "answerLabel": "Your answer",
     "answerPlaceholder": "Your answer…",
     "chooseAnswer": "Choose the answer",

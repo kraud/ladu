@@ -4,7 +4,7 @@
  */
 
 import { shuffle } from './rng';
-import type { CardType, Modifier, Rng, ScoredExercise, TranslationPerformance } from './types';
+import type { CardType, ExerciseHint, Modifier, Rng, ScoredExercise, TranslationPerformance } from './types';
 
 export interface PerformanceSummary {
     translationId: string;
@@ -24,6 +24,8 @@ export interface ExerciseDto {
     answer: { language: string; caseName: string; value: string };
     /** Multiple-Choice only. Answer included, no duplicates. */
     options?: string[];
+    /** The word in the user's native language. Absent when native is in the pair or the word has no such translation. */
+    hint?: ExerciseHint;
     performance: PerformanceSummary | null;
 }
 
@@ -88,6 +90,7 @@ export function toExerciseDto(exercise: ScoredExercise, index: number, rng: Rng)
         answer: { language: itemB.language, caseName: itemB.case, value: itemB.value },
         performance: exercise.performance ? toPerformanceSummary(exercise.performance) : null,
     };
+    if (exercise.hint) dto.hint = exercise.hint;
     if (exercise.type === 'Multiple-Choice') dto.options = buildOptions(exercise, rng);
     return dto;
 }

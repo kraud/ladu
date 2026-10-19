@@ -171,6 +171,12 @@
     "dontKnow": "No lo sé"
   },
   "card": {
+    "hint": {
+      "show": "Pista",
+      "hide": "Ocultar pista",
+      "unavailable": "No hay pista disponible",
+      "approximate": "La pista muestra la forma base, no la forma exacta que se pregunta."
+    },
     "answerLabel": "Tu respuesta",
     "answerPlaceholder": "Tu respuesta…",
     "chooseAnswer": "Elige la respuesta",
