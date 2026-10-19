@@ -38,7 +38,13 @@ export const DEMO_REFUSAL_WINDOW_DAYS = 7;
 export const DEMO_USERS_LIMIT = 200;
 
 /** The refusals that are counted: the ones a visitor can meet when the request itself is valid. */
-export const COUNTED_REFUSALS = ["demo_disabled", "demo_rate_limited", "demo_busy", "demo_unavailable"] as const;
+export const COUNTED_REFUSALS = [
+  "demo_disabled",
+  "demo_rate_limited",
+  "demo_busy",
+  "demo_unavailable",
+  "captcha_failed",
+] as const;
 export type CountedRefusal = (typeof COUNTED_REFUSALS)[number];
 
 export const isCountedRefusal = (code: unknown): code is CountedRefusal =>

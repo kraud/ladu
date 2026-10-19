@@ -35,6 +35,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { RegisterPage } from '@/features/auth/pages/RegisterPage';
 import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage';
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
+import { RequestAccessPage } from '@/features/auth/pages/RequestAccessPage';
 import { OAuthCallbackPage } from '@/features/auth/pages/OAuthCallbackPage';
 import { DemoPage } from '@/features/demo/pages/DemoPage';
 import { DemoEndedPage } from '@/features/demo/pages/DemoEndedPage';
@@ -98,6 +99,17 @@ const registerRoute = createRoute({
     getParentRoute: () => publicLayoutRoute,
     path: '/register',
     component: RegisterPage,
+});
+
+// Request access (access-requests.md): a visitor asks for access while a gate is limited or closed.
+// `?account=true` (from the login page) ticks "I have an account".
+const requestRoute = createRoute({
+    getParentRoute: () => publicLayoutRoute,
+    path: '/request',
+    validateSearch: (search: Record<string, unknown>): { account?: boolean } => ({
+        account: search.account === true || search.account === 'true' ? true : undefined,
+    }),
+    component: RequestAccessPage,
 });
 
 const verifyRoute = createRoute({
@@ -256,6 +268,7 @@ const routeTree = rootRoute.addChildren([
     publicLayoutRoute.addChildren([
         loginRoute,
         registerRoute,
+        requestRoute,
         verifyRoute,
         resetPasswordRoute,
         oauthCallbackRoute,

@@ -9,6 +9,8 @@ export interface StartDemoRequest {
     languages: string[];
     /** Sent only when the visitor chose a theme on this browser. */
     theme?: Theme;
+    /** The Turnstile token, while the captcha is on (captcha.md). Works for this one request only. */
+    captchaToken?: string;
 }
 
 /** `POST /api/demo` → 201: a login-shaped answer with a token and the demo fields. */

@@ -3,7 +3,8 @@
  * account with sample data and answers like a login, so the app opens a session at once.
  *
  * Checks, in this order: the demo gate (403 `demo_disabled`), the language choice (400
- * `demo_invalid_languages`, D16), the per-IP limit (429 `demo_rate_limited`), the live-demo cap
+ * `demo_invalid_languages`, D16), the captcha (400 `captcha_failed`, 503 `captcha_unavailable`;
+ * captcha.md C9), the per-IP limit (429 `demo_rate_limited`), the live-demo cap
  * (503 `demo_busy`). The sample data is a copy of the
  * template user (`lib/demoTemplate.ts`); with no template, 503 `demo_unavailable` and nothing is kept. The cap check and the insert run under
  * one advisory lock, so parallel starts cannot pass the cap together. The duration and the word/tag
@@ -18,6 +19,8 @@ const { getAccessSettings }: typeof import("../lib/accessGate") = require("../li
 const { countLiveDemos, DemoError, DEMO_CODE, takeDemoStart }: typeof import("../lib/demo") = require("../lib/demo");
 const { cloneDemoTemplate }: typeof import("../lib/demoTemplate") = require("../lib/demoTemplate");
 const { isCountedRefusal, recordDemoRefusal, recordDemoStart }: typeof import("../lib/demoStats") = require("../lib/demoStats");
+const { assertCaptcha }: typeof import("../lib/captcha") = require("../lib/captcha");
+const { HttpError }: typeof import("../lib/httpError") = require("../lib/httpError");
 const { termsAcceptance }: typeof import("../lib/terms") = require("../lib/terms");
 const { withStatus }: typeof import("../lib/adminRequest") = require("../lib/adminRequest");
 const { serializeLoginUser, isSupportedLanguage, normalizeLanguageSelection, parseThemeInput }: typeof import("./userController") =
@@ -40,8 +43,9 @@ const countRefusal = async <T>(start: () => Promise<T>): Promise<T> => {
   try {
     return await start();
   } catch (error) {
-    if (error instanceof DemoError && isCountedRefusal(error.apiCode)) {
-      await recordDemoRefusal(error.apiCode).catch((e: unknown) => console.error("Could not count a demo refusal:", e));
+    const code = (error as { apiCode?: unknown }).apiCode;
+    if (error instanceof HttpError && isCountedRefusal(code)) {
+      await recordDemoRefusal(code).catch((e: unknown) => console.error("Could not count a demo refusal:", e));
     }
     throw error;
   }
@@ -67,6 +71,9 @@ const createDemo = async (req: any) => {
   const nativeLanguage = languages.includes(uiLanguage) ? uiLanguage : languages[0];
   const themeResult = parseThemeInput(req.body?.theme);
   const theme = themeResult.ok ? themeResult.theme : null;
+  // The captcha comes before the IP limit: a bot must not use up a real visitor's starts. The demo
+  // refuses when Cloudflare cannot be reached (captcha.md C6).
+  await assertCaptcha(req, "demo", { onUnreachable: "refuse" });
   // A bad request does not use one of the visitor's starts: the limit comes after the checks above.
   if (!takeDemoStart(req.ip ?? "unknown")) {
     throw new DemoError(429, DEMO_CODE.rateLimited, "Too many demos from this network. Try again later.");

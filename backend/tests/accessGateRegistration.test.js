@@ -62,7 +62,7 @@ describe('the settings row', () => {
 });
 
 describe('GET /api/access', () => {
-    it('is public, never cached, and shows only the modes, the notes and whether the demo and the onboarding are on', async () => {
+    it('is public, never cached, and shows only the modes, the notes and whether the demo, the onboarding and the captcha are on', async () => {
         await setMode('limited', 'Back at 14:00 UTC');
         await invite('secret@example.com');
 
@@ -74,6 +74,7 @@ describe('GET /api/access', () => {
             login: { mode: 'open', note: '' },
             demo: { enabled: false },
             onboarding: { enabled: false },
+            captcha: { enabled: false },
         });
         expect(JSON.stringify(res.body)).not.toContain('secret@example.com');
     });

@@ -13,8 +13,10 @@ import {
     useDisallowLogin,
     useRemoveInvite,
     useSendInvite,
+    useSendLoginAllowed,
     useSaveDemo,
     useSaveGate,
+    useSaveCaptcha,
     useSaveOnboarding,
     useSignOutEveryone,
 } from '@/features/access/hooks';
@@ -36,6 +38,8 @@ import {
 import { FormDialog } from '@/features/staff/components/StaffDialogs';
 import { StatusBadge } from '@/features/users/components/StatusBadge';
 import { DemoActivity } from '@/features/access/components/DemoActivity';
+import { ConfirmDialog } from '@/features/access/components/ConfirmDialog';
+import { RequestsCard } from '@/features/access/components/RequestsCard';
 import { formatDateTime, NONE } from '@/features/users/format';
 
 const MAX_REASON_LENGTH = 500;
@@ -92,7 +96,7 @@ export function AccessPage() {
                 {data?.updatedAt && (
                     <p className="text-sm text-muted-foreground">
                         Last changed {formatDateTime(data.updatedAt)}
-                        {data.updatedBy ? ` by ${data.updatedBy}` : ''} (registration, login, demo or onboarding).
+                        {data.updatedBy ? ` by ${data.updatedBy}` : ''} (registration, login, demo, onboarding or captcha).
                     </p>
                 )}
             </div>
@@ -126,6 +130,14 @@ export function AccessPage() {
                 >
                     Onboarding
                 </Link>
+                <Link
+                    id="access-captcha-tab"
+                    to="/access"
+                    search={{ tab: 'captcha' }}
+                    className={tabClass(tab === 'captcha')}
+                >
+                    Captcha
+                </Link>
             </nav>
 
             {notice && (
@@ -150,6 +162,7 @@ export function AccessPage() {
                     {/* The key resets the draft when the saved state changes (after a save). */}
                     <GateCard key={`registration|${data.registration.mode}|${data.registration.note}`} gate="registration" state={data} onDone={setNotice} />
                     <InvitesCard state={data} onDone={setNotice} />
+                    <RequestsCard gate="registration" mode={data.registration.mode} requests={data.requests.registration} onDone={setNotice} />
                 </section>
             )}
 
@@ -157,6 +170,7 @@ export function AccessPage() {
                 <section aria-labelledby="access-login-tab" className="flex flex-col gap-4">
                     <GateCard key={`login|${data.login.mode}|${data.login.note}`} gate="login" state={data} onDone={setNotice} />
                     <AllowedCard state={data} onDone={setNotice} />
+                    <RequestsCard gate="login" mode={data.login.mode} requests={data.requests.login} onDone={setNotice} />
                     <SignOutCard onDone={setNotice} />
                 </section>
             )}
@@ -182,6 +196,109 @@ export function AccessPage() {
                         onDone={setNotice}
                     />
                 </section>
+            )}
+
+            {data && tab === 'captcha' && (
+                <section aria-labelledby="access-captcha-tab" className="flex flex-col gap-4">
+                    <CaptchaCard
+                        key={`captcha|${data.captcha.enabled}|${data.captcha.configured}`}
+                        saved={data.captcha.enabled}
+                        configured={data.captcha.configured}
+                        onDone={setNotice}
+                    />
+                </section>
+            )}
+        </div>
+    );
+}
+
+/**
+ * The human check (Cloudflare Turnstile) on demo start, registration and password reset (captcha.md C2, C3).
+ * It cannot go on while the server has no keys; the server refuses it too.
+ */
+function CaptchaCard({ saved, configured, onDone }: { saved: boolean; configured: boolean; onDone: (message: string) => void }) {
+    const [enabled, setEnabled] = useState(saved);
+    const [confirming, setConfirming] = useState(false);
+    const [reason, setReason] = useState('');
+    const save = useSaveCaptcha();
+
+    const submit = () =>
+        save.mutate(
+            { enabled, reason: reason.trim() || undefined },
+            {
+                onSuccess: () => {
+                    setConfirming(false);
+                    onDone(`The captcha is now ${enabled ? 'on' : 'off'}.`);
+                },
+            },
+        );
+
+    return (
+        <div className="flex flex-col gap-4 rounded-lg border bg-card p-4">
+            <p className="text-sm text-muted-foreground">
+                A Cloudflare Turnstile check on the demo start, the sign-up form and the password reset request. Most visitors see only a
+                short check. The change works at once. Refused checks on the demo show on the Demo tab.
+            </p>
+
+            {!configured && (
+                <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+                    The Turnstile keys are not set on the server{saved ? ', so the check is skipped now' : ''}. Set TURNSTILE_SITE_KEY and
+                    TURNSTILE_SECRET_KEY before you turn it on.
+                </p>
+            )}
+
+            <div className="flex flex-col gap-2">
+                <SegmentedControl
+                    label="Captcha"
+                    value={enabled ? 'on' : 'off'}
+                    options={[
+                        { value: 'off', label: 'Off' },
+                        { value: 'on', label: 'On' },
+                    ]}
+                    onChange={(next) => {
+                        setEnabled(next === 'on');
+                        save.reset();
+                    }}
+                />
+                <p className="text-sm text-muted-foreground">
+                    {enabled
+                        ? 'Visitors must pass the check to start a demo, sign up or ask for a password reset.'
+                        : 'No check. Anybody can start a demo, sign up or ask for a password reset.'}
+                </p>
+            </div>
+
+            <div>
+                {/* The server refuses "on" without keys too (400 captcha_not_configured). */}
+                <Button disabled={enabled === saved || (enabled && !configured)} onClick={() => setConfirming(true)}>
+                    Save
+                </Button>
+            </div>
+
+            {confirming && (
+                <FormDialog
+                    title={enabled ? 'Turn the captcha on?' : 'Turn the captcha off?'}
+                    description={
+                        enabled
+                            ? 'Visitors will have to pass the check on the demo, sign-up and password reset forms.'
+                            : 'The demo, sign-up and password reset forms will have no check.'
+                    }
+                    submitLabel="Confirm"
+                    canSubmit
+                    pending={save.isPending}
+                    error={save.error}
+                    onSubmit={submit}
+                    onClose={() => {
+                        setConfirming(false);
+                        save.reset();
+                    }}
+                >
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="captcha-reason">
+                            Reason <span className="font-normal text-muted-foreground">(optional)</span>
+                        </Label>
+                        <Textarea id="captcha-reason" value={reason} maxLength={MAX_REASON_LENGTH} onChange={(e) => setReason(e.target.value)} />
+                    </div>
+                </FormDialog>
             )}
         </div>
     );
@@ -738,6 +855,10 @@ function AllowedCard({ state, onDone }: { state: AccessState; onDone: (message: 
     const [result, setResult] = useState<AllowLoginResult | null>(null);
     const add = useAllowLogin();
     const remove = useDisallowLogin();
+    const send = useSendLoginAllowed();
+    // The account whose "you can sign in" email waits for a confirm, and the ones that got it in this visit.
+    const [toSend, setToSend] = useState<{ userId: string; email: string } | null>(null);
+    const [sentIds, setSentIds] = useState<ReadonlySet<string>>(new Set());
 
     const emails = parseEmails(text);
     const tooMany = emails.length > MAX_EMAILS_PER_REQUEST;
@@ -848,7 +969,16 @@ function AllowedCard({ state, onDone }: { state: AccessState; onDone: (message: 
                                 </td>
                                 <td className="px-3 py-2">{account.addedBy ?? NONE}</td>
                                 <td className="px-3 py-2 whitespace-nowrap">{formatDateTime(account.addedAt)}</td>
-                                <td className="px-3 py-2">
+                                <td className="flex gap-2 px-3 py-2">
+                                    <Button
+                                        size="xs"
+                                        variant="outline"
+                                        aria-label={`Send email to ${account.email}`}
+                                        disabled={account.status !== 'active'}
+                                        onClick={() => setToSend({ userId: account.userId, email: account.email })}
+                                    >
+                                        {sentIds.has(account.userId) ? 'Send again' : 'Send email'}
+                                    </Button>
                                     <Button
                                         size="xs"
                                         variant="outline"
@@ -868,6 +998,32 @@ function AllowedCard({ state, onDone }: { state: AccessState; onDone: (message: 
                     </tbody>
                 </table>
             </div>
+
+            {toSend && (
+                <ConfirmDialog
+                    title="Send the sign-in email?"
+                    description={`Email ${toSend.email} to say that this account can sign in now. The account stays on the allowed list, and you can send it again.`}
+                    submitLabel="Send email"
+                    pending={send.isPending}
+                    error={send.error}
+                    onConfirm={(reason) =>
+                        send.mutate(
+                            { userId: toSend.userId, reason },
+                            {
+                                onSuccess: () => {
+                                    setSentIds((previous) => new Set(previous).add(toSend.userId));
+                                    setToSend(null);
+                                    onDone(`Sign-in email sent to ${toSend.email}.`);
+                                },
+                            },
+                        )
+                    }
+                    onClose={() => {
+                        setToSend(null);
+                        send.reset();
+                    }}
+                />
+            )}
         </section>
     );
 }

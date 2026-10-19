@@ -11,6 +11,7 @@ const { eq } = require("drizzle-orm");
 const { db }: typeof import("../src/db") = require("../src/db");
 const { accessSettings, registrationInvites, loginAllowedUsers, auditLog } = require("../src/db/schema");
 const { HttpError }: typeof import("./httpError") = require("./httpError");
+const { clearAccessRequests }: typeof import("./accessRequests") = require("./accessRequests");
 
 export type AccessMode = "open" | "closed" | "limited";
 
@@ -23,6 +24,8 @@ export interface AccessSettings {
   demo: DemoSettings;
   /** The first-login onboarding (onboarding.md D26). Independent of the gates above. */
   onboarding: { enabled: boolean };
+  /** The Turnstile captcha on demo start, registration and password reset (captcha.md C2). */
+  captcha: { enabled: boolean };
 }
 
 export interface DemoSettings {
@@ -93,6 +96,8 @@ export const getAccessSettings = async (executor: GateExecutor = db): Promise<Ac
     },
     // Without the row, the onboarding is off (onboarding.md D26).
     onboarding: { enabled: row?.onboardingEnabled ?? false },
+    // Without the row, the captcha is off (captcha.md C2).
+    captcha: { enabled: row?.captchaEnabled ?? false },
   };
 };
 
@@ -130,6 +135,8 @@ export const assertRegistrationAllowed = async (email: string): Promise<AccessMo
  */
 export const consumeInvite = async (tx: GateExecutor, email: string, mode: AccessMode): Promise<void> => {
   const normalized = normalizeInviteEmail(email);
+  // The person registers, so a request to register has no use any more (access-requests.md).
+  await clearAccessRequests(tx, "registration", [normalized]);
   const [taken] = await tx
     .delete(registrationInvites)
     .where(eq(registrationInvites.email, normalized))

@@ -134,6 +134,9 @@
     "restore": "Conservar la etiqueta {{label}}",
     "saved": "Etiquetas actualizadas",
     "by": "de {{username}}",
-    "words": "{{count}} palabras"
+    "words": "{{count}} palabras",
+    "filter": "Filtrar palabras por la etiqueta {{label}}",
+    "unfilter": "Quitar la etiqueta {{label}} del filtro",
+    "open": "Abrir la etiqueta {{label}}"
   }
 }

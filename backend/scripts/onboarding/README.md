@@ -14,16 +14,28 @@ always written to the git-ignored `word-lists/pool-candidates.tsv` for compariso
 |---|---|
 | `status` | `keep` (used), `check` (the script found something to look at; not used until you set `keep`), `drop` (never used) |
 | `id` | `<part of speech>:<English lemma>`, unique |
-| `topic` | an id from `scripts/lexicon/onboarding-topics.ts`, or `core` (no topic) |
-| `band` | `beginner`, `intermediate` or `advanced` |
+| `topic` | the primary topic: an id from `scripts/lexicon/onboarding-topics.ts`, or `core` (no topic) |
+| `topics` | every topic of the concept, comma-separated, with the primary one in it (`food_drink,animals`). A Word gets one tag for each of its topics that the user picked, and `core` always gets its tag |
+| `band` | `beginner`, `intermediate` or `advanced` (set by hand, not from the rank) |
 | `pos` | `Noun`, `Verb`, `Adjective` or `Adverb` |
 | `rank` | frequency rank of the English word (1 = most common) |
 | `en`, `es`, `de`, `et` | the word in each language; empty = no word (the language is skipped for that concept) |
 | `es_gender`, `de_gender` | noun gender: `el`, `la`, `el/la` / `der`, `die`, `das`; empty for other parts of speech |
 | `sense` | the Wiktionary sense label the translations come from |
+| `sense_key` | `<entry order>.<sense order>` of that sense in the translation hub, or `manual` (words typed by hand, no hub sense). Keeps a rebuild deterministic |
 | `flags` | why a line is `check`: `sense:<entry>.<sense>` (not the first sense), `pos_order:<n>` (not the first part of speech on the page: maybe a homograph), `given_name`, `<lang>:regional`, `<lang>:not_in_lexicon` |
 
 ## How to review
+
+The 2026-10 refresh replaced the first pool with the reviewed one (583 concepts; the decisions are in
+`.context/onboarding-words-resolutions.md`). The topic `numbers_measures` now holds measures and
+quantities only (label "Measures & quantities"); numerals are not in the pool. Five English nouns
+exist only as a plural (`clothes`, `pants`, `news`, `data`, `stairs`): `onboarding-forms.ts` builds
+their English forms from the word (`lib/onboardingPool.ts` `PLURAL_ONLY_NOUNS_EN`).
+
+To add words from an explicit list instead of the word lists, run
+`npx tsx scripts/lexicon/onboarding-pool.ts --entries <file>` (columns and rules: the header of that
+script). It never changes this file: it writes the new candidates to `word-lists/pool-candidates.tsv`.
 
 Open the file in a spreadsheet (tab-separated, UTF-8) or an editor. For each line:
 

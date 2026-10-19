@@ -86,7 +86,8 @@ export const createOnboarding = async (account: OnboardingAccount, request: Choi
         if (row?.status !== 'pending') return { ok: false, code: 'not_pending' } as const;
 
         // Tags: the picked topics in the user's order, then core; only the ones that got words (D23).
-        const topicsUsed = [...request.topics, 'core'].filter((topic) => selected.some((concept) => concept.topic === topic));
+        // A concept with two topics is in both (the 2026-10 pool refresh).
+        const topicsUsed = [...request.topics, 'core'].filter((topic) => selected.some((concept) => concept.topics.includes(topic)));
         const existing = await tx.select({ label: tags.label }).from(tags).where(eq(tags.authorId, account.id));
         const used = new Set<string>(existing.map((tag: { label: string }) => tag.label.toLowerCase()));
         const createdTags = topicsUsed.length
@@ -125,7 +126,13 @@ export const createOnboarding = async (account: OnboardingAccount, request: Choi
                 await tx.insert(translationCases).values(caseRows.slice(start, start + CASE_ROWS_PER_INSERT));
             }
 
-            await tx.insert(tagWords).values(selected.map((concept, i) => ({ tagId: tagIdByTopic.get(concept.topic)!, wordId: wordRows[i].id })));
+            // One link for every concept/topic pair whose tag exists (a topic the user did not pick has none).
+            const tagLinks = selected.flatMap((concept, i) =>
+                concept.topics.flatMap((topic) => {
+                    const tagId = tagIdByTopic.get(topic);
+                    return tagId ? [{ tagId, wordId: wordRows[i].id }] : [];
+                }));
+            if (tagLinks.length) await tx.insert(tagWords).values(tagLinks);
         }
 
         await tx.update(users).set({ onboardingStatus: 'done', updatedAt: new Date() }).where(eq(users.id, account.id));
@@ -137,7 +144,7 @@ export const createOnboarding = async (account: OnboardingAccount, request: Choi
                 id: createdTags[i].id,
                 label: createdTags[i].label,
                 topic,
-                words: selected.filter((concept) => concept.topic === topic).length,
+                words: selected.filter((concept) => concept.topics.includes(topic)).length,
             })),
         } as const;
     });

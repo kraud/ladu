@@ -2,9 +2,16 @@ import { getApiErrorCode } from '@/api/types';
 
 const KNOWN = new Set(['demo_disabled', 'demo_busy', 'demo_rate_limited', 'demo_unavailable', 'demo_invalid_languages']);
 
+/** The captcha refusals share their text with the sign-up forms (captcha.md C7). */
+const CAPTCHA_KEYS: Record<string, string> = {
+    captcha_failed: 'common:captcha.failed',
+    captcha_unavailable: 'common:captcha.unavailable',
+};
+
 /** The translation key for a failed demo start: one per server code, else a generic line. */
 export function demoErrorKey(error: unknown): string {
     const code = getApiErrorCode(error);
+    if (code && code in CAPTCHA_KEYS) return CAPTCHA_KEYS[code];
     return code && KNOWN.has(code) ? `demo:errors.${code}` : 'demo:errors.generic';
 }
 

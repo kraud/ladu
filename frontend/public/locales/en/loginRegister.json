@@ -54,6 +54,19 @@
     "emailVerifiedNoSignIn": "Your email is verified. Sign-in is not open to this account right now. Please check back later.",
     "accountCreatedNoSignIn": "Your account is created. Sign-in is not open to this account right now. Please check back later."
   },
+  "request": {
+    "button": "Request access",
+    "title": "Request access",
+    "blurb": "Access to Ladu is limited right now. Leave your email and the team will review your request.",
+    "intro": "Access to Ladu is limited right now. Give your email and the team will review your request.",
+    "hasAccount": "I already have an account",
+    "hasAccountHint": "Tick this to ask for permission to sign in. Leave it empty to ask for permission to register.",
+    "submit": "Request access",
+    "submitting": "Sending…",
+    "sentTitle": "Request received",
+    "sentBody": "Thank you. The team will review your request. If it is approved, you will hear from us at the email that you gave.",
+    "notNeeded": "This is open now, so you do not need to ask."
+  },
   "brand": {
     "tagline": "Your words, your languages, one place.",
     "supportedLanguages": "Supported in-app languages",

@@ -5,6 +5,8 @@ Status: planned on 2026-10-01. **PR 1 (`admin-registration-gate`) is built and m
 1. `admin-registration-gate` (the settings, the banner machinery, and the registration gate)
 2. `admin-login-gate` (the login gate, the allowed-accounts list, the bulk selection, and the "sign everyone out" panic button)
 
+**Follow-up:** `.context/plans/access-requests.md` adds a "Request access" page for visitors who meet a limited or closed gate. A request goes on its own list and the owner approves it into the invite list or the allowed accounts.
+
 ## How to start (read this first in a new session)
 
 1. Read `CLAUDE.md` and `.context/README.md`. Follow the working rules: one small slice, an overview in plain language **before** any file changes, ask before assuming, docs and tests with the code, a green Playwright run at the end. The user runs `git commit` and creates branches; you only draft messages and names.

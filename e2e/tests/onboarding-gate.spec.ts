@@ -114,12 +114,13 @@ test('the switch is on: the flow creates tagged words and the dashboard shows th
     await page.getByRole('radio', { name: 'Beginner' }).click();
     await page.getByRole('button', { name: 'Next' }).click();
 
-    // 3 Interests: 3 to 6 topics.
+    // 3 Interests: at least 4 topics, no maximum.
     await expect(page.getByRole('heading', { name: 'What interests you?' })).toBeVisible();
     await page.getByRole('button', { name: 'Clothing' }).click();
     await page.getByRole('button', { name: 'Animals' }).click();
-    await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
     await page.getByRole('button', { name: 'Weather' }).click();
+    await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
+    await page.getByRole('button', { name: 'Feelings' }).click();
     await expect(rail.getByText('Weather')).toBeVisible(); // the summary follows the answers
     await page.getByRole('button', { name: 'Next' }).click();
 
@@ -138,15 +139,15 @@ test('the switch is on: the flow creates tagged words and the dashboard shows th
     await expect(card).toBeVisible({ timeout: 20_000 });
     expect(Date.now() - started).toBeGreaterThanOrEqual(2_900);
     await expect(page).toHaveURL(/\/$/);
-    await expect(card.getByText(`${words} words added in 3 topics`)).toBeVisible();
+    await expect(card.getByText(`${words} words added in 4 topics`)).toBeVisible();
 
     // The database: the account is done, with the words, one tag for each topic and the core tag.
     const state = await getOnboardingState(flowEmail);
     expect(state.status).toBe('done');
     expect(state.words).toBe(words);
     expect(state.taggedWords).toBe(words);
-    expect(state.tags).toHaveLength(4);
-    for (const label of ['Clothing', 'Animals', 'Weather', 'Core vocabulary']) {
+    expect(state.tags).toHaveLength(5);
+    for (const label of ['Clothing', 'Animals', 'Weather', 'Feelings', 'Core vocabulary']) {
         expect(state.tags.some((tag) => tag.startsWith(label))).toBe(true);
     }
 

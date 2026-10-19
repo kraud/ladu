@@ -10,6 +10,10 @@ feature is merged — delete it then); confirmed and committed by the user on 20
 the selection service, and the three routes (see "Slice 3d — what was built"). **Slice 4 done on 2026-10-17
 (4a–4e):** the e2e gate is green.
 
+**Pool refresh (2026-10-19):** the reviewed 583-concept pool is now the runtime pool; a concept can have
+several topics; the topic limits are 4 minimum and no maximum (D15 changed). Decisions and the applied
+record: `.context/onboarding-words-resolutions.md`; see "Review log — Pool refresh" at the end.
+
 **Resume here (2026-10-17):** the build is done; only open item 8 is open (review the ES/DE/EE texts, see "Open items").
 Next: the user reviews and commits, then the rollout (turn the switch on per environment; see the infrastructure guide, file 02).
 Decisions D1–D28 are confirmed with the user on 2026-10-16 (D11–D13 during Slice 1, D14–D19 during Slice 2,
@@ -55,7 +59,7 @@ frequency band. The server only reads that pool.
 | D12. Which sense decides | Only the **first** WordNet sense of a noun or verb decides its topic (a second sense put "person" into Body & Health). Anchors are checked before direct supersenses; between topics, the order of `TOPICS` decides (doctor: Body & Health before Work & Money). |
 | D13. Restricted words | A word is left out of onboarding when the **first** normal sense of its first Wiktionary entry is tagged vulgar, offensive, derogatory or slur, or when it is in a short manual blocklist (ass, bitch, dick…: harmless first sense, risky in a starter set). A tag on any sense flagged mother, dog, milk and apple. |
 | D14. Word count | The user chooses how many words onboarding creates: a **slider from 50 to 150** in steps, with a short text under it that changes at thresholds (e.g. "Above 100 words, more general vocabulary is added", D16). |
-| D15. Topic count | The user picks **3 to 6 topics**. |
+| D15. Topic count | ~~The user picks 3 to 6 topics.~~ Changed 2026-10-19 (pool refresh): **at least 4 topics, no maximum** (all 15 can be picked). |
 | D16. Fill rule | Words come in this order until the count is reached: picked-topic concepts of the user's band → core concepts of that band → picked-topic concepts of the next band up. Per language (D5), then merged. |
 | D17. Pool file | `backend/scripts/onboarding/pool.tsv` (TSV, one concept per line; precedent `scripts/demo-template/data.json`; the Docker image already copies `scripts/`). 20 concepts per topic × band, 100 core concepts per band. Status `keep` (used), `check` (the generator found a flag, not used until set to `keep`), `drop`. The generator never overwrites the reviewed file without `--force`. |
 | D18. Slider cap | The slider's maximum depends on the pool: for the chosen languages, levels and topics, the server counts the concepts that the fill rule (D16) can deliver and rounds **down to a multiple of 10** (109 → 100). A hint near the slider says "With these levels and topics, we can add up to N words." Chosen over topping up the pool (see "To evaluate after release"). |
@@ -129,7 +133,7 @@ Limits: the rank comes from film subtitles and belongs to the spelling, not the 
    **Skip** (D6) → empty account → dashboard.
 2. **Languages**: the account's languages and native language, filled in (D8). At least 2.
 3. **Level**: one Beginner / Intermediate / Advanced choice per language (D4).
-4. **Topics**: a grid of the 15 topics; the user picks 3 to 6 (D15).
+4. **Topics**: a grid of the 15 topics; the user picks at least 4 (D15).
 5. **How many words**: a slider from 50 to 150 with threshold texts (D14).
 6. **Create**: the server picks concepts (D5, D9, D16), creates the Words with all forms and one
    tag per picked topic (+ Core vocabulary), then the app opens the **dashboard** (D7) with a
@@ -440,3 +444,16 @@ Review of `onboarding-blueprint-proposal.md` (second opinion) against the data a
 | m1 | Minor | Filtering vulgar words "during ingestion" would also remove them from autocomplete. | D10: filter only when building the lists and the pool. |
 | m2 | Minor | `noun.tops` is spelled `noun.Tops`. | Not used (dropped with `science_ideas`). |
 | m3 | Minor | The number of created words is not given. | Open item 1. |
+
+## Review log — Pool refresh (2026-10-19)
+
+Source of the decisions: `.context/onboarding-words-questionnaire.md` (the answers) and
+`.context/onboarding-words-resolutions.md` (the decisions and what was applied).
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| PR-1 | Moderate | The new pool has 14 concepts with two topics; the old model had one topic for each concept. | `topics` column and `PoolConcept.topics`; eligible when any topic is picked or is `core`; one tag link for each topic whose tag exists; tag counts include the concept in each topic. |
+| PR-2 | Moderate | The five plural-only English nouns are not in the English lexicon as nouns (the draft lookup answers `not-found`), so a key case alone could not fix them. | Forms built from the word in `onboarding-forms.ts`; `hasKeyCases` accepts `pluralEN` for those five words only. |
+| PR-3 | Minor | The review file writes bands with a capital letter. | Lower-cased when copied to `pool.tsv`; the parser refuses any other band. |
+| PR-4 | Minor | A concept with `core` in `topics` counts as core, so the core share can pass 20 % (4 topics, 100 words: 36 % core). | Accepted: it is the same effect as S3-2 (the words stay at the user's level) and the tag is correct. |
+| PR-5 | Minor | `numbers_measures` keeps its id; only the label changes. | Label "Measures & quantities" in the backend and the 4 app locales (ES/DE/EE wording to review). |

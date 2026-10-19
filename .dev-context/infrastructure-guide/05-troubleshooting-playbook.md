@@ -291,6 +291,31 @@ Things to know about the login gate:
 If a person says "I cannot sign in", look at the Login state first, then at the
 Allowed accounts table or at the user's own page (section "Sign-in access").
 
+**People who ask for access.** When a gate is limited or closed, the register and
+login pages show a "Request access" button. It opens `/request`, where the person
+types an email and says if they already have an account. The request goes on the
+**Access requests** table: under the invite list (Registration tab) for a person
+with no account, and under the allowed accounts (Login tab) for a person with one.
+The team also gets one email for each new request, at the address in
+`ACCESS_REQUEST_EMAIL`.
+
+- **Approve** (with a confirm dialog) adds the email to the invite list, or the
+  account to the allowed accounts. It sends **no** email. Send the invite with
+  "Send invite" on the invite list, or the sign-in notice with "Send email" on the
+  allowed accounts, when you are ready.
+- **Remove** drops a request and adds nothing to a list.
+- Approve works while the gate is closed too: the entry waits until the gate is
+  limited.
+- A login request for an email with no account is never saved: the page gives the
+  same answer for every email, so it never shows which emails have an account.
+- A request goes by itself when the person registers, or when you add the account
+  to the allowed accounts another way.
+- Audit rows: `access.request_create` (no staff member), `access.request_approve`,
+  `access.request_remove`, `access.login_allowed_send`.
+- No email at the team address? Check that `ACCESS_REQUEST_EMAIL` is set in
+  `/opt/ladu/<env>/.env`. Without it the request is still saved and shows in the
+  admin panel, and the backend writes one log warning per start.
+
 **If the admin panel does not work**, open both gates with one line of SQL in a
 `psql` shell (see `02-environments-and-databases.md`):
 

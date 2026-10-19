@@ -2,16 +2,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     addInvites,
     allowLogin,
+    approveRequest,
     disallowLogin,
     disallowLoginMany,
     fetchAccess,
     fetchDemoStats,
     fetchDemoUsers,
     removeInvite,
+    removeRequest,
     saveDemo,
+    saveCaptcha,
     saveOnboarding,
     saveGate,
     sendInvite,
+    sendLoginAllowed,
     signOutEveryone,
 } from '@/features/access/api';
 import type { AccessMode, AccessState, GateName } from '@/features/access/types';
@@ -75,6 +79,11 @@ export function useSaveOnboarding() {
     return useMutation({ mutationFn: saveOnboarding, onSuccess: store });
 }
 
+export function useSaveCaptcha() {
+    const store = useStoreAnswer();
+    return useMutation({ mutationFn: saveCaptcha, onSuccess: store });
+}
+
 export function useAddInvites() {
     const store = useStoreAnswer();
     return useMutation({ mutationFn: addInvites, onSuccess: store });
@@ -90,6 +99,26 @@ export function useSendInvite() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: sendInvite,
+        onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['audit'] }),
+    });
+}
+
+/** Approving can add an account to the allowed list, so the users list goes stale too. */
+export function useApproveRequest() {
+    const store = useStoreLoginAnswer();
+    return useMutation({ mutationFn: approveRequest, onSuccess: store });
+}
+
+export function useRemoveRequest() {
+    const store = useStoreAnswer();
+    return useMutation({ mutationFn: removeRequest, onSuccess: store });
+}
+
+/** Changes no state on the page; the send writes an audit row, so only the audit list goes stale. */
+export function useSendLoginAllowed() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: sendLoginAllowed,
         onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['audit'] }),
     });
 }

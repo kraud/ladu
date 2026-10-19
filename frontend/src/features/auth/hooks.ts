@@ -107,6 +107,7 @@ export function useVerifyEmail() {
 export function useRequestReset() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (body: RequestResetRequest) => authApi.requestPasswordReset(body),
@@ -114,7 +115,10 @@ export function useRequestReset() {
             toast.success(t('loginRegister:toastMessages.resetEmailRequested'));
             void navigate({ to: '/login' });
         },
-        onError: (error) => toast.error(t(authErrorKey(error))),
+        onError: (error) => {
+            toast.error(t(authErrorKey(error)));
+            refreshAccessOnGateError(queryClient, error);
+        },
     });
 }
 

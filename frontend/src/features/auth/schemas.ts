@@ -114,6 +114,15 @@ export function buildResetRequestSchema(t: TranslateFn): yup.ObjectSchema<ResetR
     return yup.object({ email: emailField(t) });
 }
 
+export interface RequestAccessValues {
+    email: string;
+    hasAccount: boolean;
+}
+
+export function buildRequestAccessSchema(t: TranslateFn): yup.ObjectSchema<RequestAccessValues> {
+    return yup.object({ email: emailField(t), hasAccount: yup.boolean().required() });
+}
+
 export interface ResetSetValues {
     password: string;
     password2: string;

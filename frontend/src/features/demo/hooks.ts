@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import * as accessApi from '@/features/access/api';
+import { refreshAccessOnGateError } from '@/features/access/hooks';
 import { accessKeys } from '@/features/access/keys';
 import { useAuthStore } from '@/stores/authStore';
 import { useUiStore } from '@/stores/uiStore';
@@ -61,7 +62,11 @@ export function useStartDemo() {
             await navigate({ to: '/' });
             setTransition('leaving');
         },
-        onError: () => setTransition('idle'),
+        onError: (error) => {
+            setTransition('idle');
+            // The captcha switch may have changed since the page loaded: the form needs the widget.
+            refreshAccessOnGateError(queryClient, error);
+        },
     });
 }
 

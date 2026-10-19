@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import { caseLabel, describeCase, pronounFor } from '@/lib/cases';
@@ -9,6 +10,7 @@ import type { GivenAnswer } from '../session';
 import type { AnswerResult, Exercise, StrictnessTI } from '../types';
 import { AnswerFeedback } from './AnswerFeedback';
 import { ChoiceAnswer } from './ChoiceAnswer';
+import { HintButton, HintRow } from './HintToggle';
 import { PerformanceIndicator } from './PerformanceIndicator';
 import { TextInputAnswer } from './TextInputAnswer';
 
@@ -38,6 +40,7 @@ export function ExerciseCard({
     onRetry: () => void;
 }) {
     const { t } = useTranslation();
+    const [hintOpen, setHintOpen] = useState(false);
     const { prompt, answer: expected, partOfSpeech } = exercise;
 
     const promptPronoun = pronounFor(partOfSpeech, prompt.caseName);
@@ -68,18 +71,26 @@ export function ExerciseCard({
             </section>
 
             <section className="flex flex-col gap-3">
-                {question ? (
-                    <span className="text-sm font-medium">{question}</span>
-                ) : (
-                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <FlagIcon lang={expected.language} />
-                        {languageName(expected.language)}
-                        <span aria-hidden>·</span>
-                        {t(partOfSpeechLabelKey(partOfSpeech))}
-                        <span aria-hidden>·</span>
-                        {caseLabel(t, partOfSpeech, expected.caseName)}
-                    </span>
-                )}
+                <div className="flex items-center justify-between gap-3">
+                    {question ? (
+                        <span className="text-sm font-medium">{question}</span>
+                    ) : (
+                        <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <FlagIcon lang={expected.language} />
+                            {languageName(expected.language)}
+                            <span aria-hidden>·</span>
+                            {t(partOfSpeechLabelKey(partOfSpeech))}
+                            <span aria-hidden>·</span>
+                            {caseLabel(t, partOfSpeech, expected.caseName)}
+                        </span>
+                    )}
+                    <HintButton
+                        available={!!exercise.hint}
+                        open={hintOpen}
+                        onToggle={() => setHintOpen((open) => !open)}
+                    />
+                </div>
+                {exercise.hint && hintOpen && <HintRow hint={exercise.hint} />}
 
                 {exercise.type === 'Multiple-Choice' && exercise.options ? (
                     <ChoiceAnswer
@@ -94,6 +105,7 @@ export function ExerciseCard({
                         placeholder={target?.kind === 'property' ? placeholderFor(t, target.category) : undefined}
                         given={answer?.given}
                         onSubmit={(typed) => onAnswer(evaluateTextInput(typed, expected.value, strictness), typed)}
+                        onGiveUp={() => onAnswer('wrong', '')}
                     />
                 )}
             </section>

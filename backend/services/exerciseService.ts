@@ -245,6 +245,7 @@ export async function generateExercises(
         wordSelection: request.wordSelection,
         difficultyMC: request.difficultyMC,
         nativeLanguage: request.excludeNative ? viewer.nativeLanguage ?? undefined : undefined,
+        hintLanguage: viewer.nativeLanguage ?? undefined,
     };
 
     const ranked = await rankCandidateWords(viewer, request, now);

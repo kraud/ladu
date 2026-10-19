@@ -275,7 +275,7 @@ describe('GET /api/admin/access/demo/stats (D20)', () => {
         await recordDemoRefusal('demo_busy', daysAgo(7)); // outside the window
         const { body } = await adminGet(await ownerToken(), 'stats');
         expect(body.refusalWindowDays).toBe(7);
-        expect(body.refusals).toEqual({ demo_disabled: 0, demo_rate_limited: 1, demo_busy: 2, demo_unavailable: 0 });
+        expect(body.refusals).toEqual({ demo_disabled: 0, demo_rate_limited: 1, demo_busy: 2, demo_unavailable: 0, captcha_failed: 0 });
     });
 
     it('answers with zeros when there is no demo yet', async () => {

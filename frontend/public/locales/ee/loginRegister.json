@@ -54,6 +54,19 @@
     "emailVerifiedNoSignIn": "Sinu e-post on kinnitatud. See konto ei saa praegu sisse logida. Proovi hiljem uuesti.",
     "accountCreatedNoSignIn": "Sinu konto on loodud. See konto ei saa praegu sisse logida. Proovi hiljem uuesti."
   },
+  "request": {
+    "button": "Taotle ligipääsu",
+    "title": "Taotle ligipääsu",
+    "blurb": "Ladu ligipääs on praegu piiratud. Jäta oma e-posti aadress ja meeskond vaatab su taotluse üle.",
+    "intro": "Ligipääs Ladule on praegu piiratud. Sisesta oma e-posti aadress ja meeskond vaatab su taotluse üle.",
+    "hasAccount": "Mul on juba konto",
+    "hasAccountHint": "Märgi see, et paluda luba sisse logida. Jäta tühjaks, et paluda luba registreeruda.",
+    "submit": "Taotle ligipääsu",
+    "submitting": "Saadan…",
+    "sentTitle": "Taotlus kätte saadud",
+    "sentBody": "Aitäh. Meeskond vaatab su taotluse üle. Kui see kiidetakse heaks, saad meist teada sinu antud e-posti aadressil.",
+    "notNeeded": "See on praegu avatud, seega ei pea sa taotlema."
+  },
   "brand": {
     "tagline": "Sinu sõnad, sinu keeled, üks koht.",
     "supportedLanguages": "Rakenduses toetatud keeled",

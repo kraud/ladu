@@ -114,6 +114,11 @@ export function ReviewPage() {
     const [tagsTarget, setTagsTarget] = useState<string | null>(null);
     const handleOpenTags = useCallback((wordId: string) => setTagsTarget(wordId), []);
     const closeTagsDialog = useCallback(() => setTagsTarget(null), []);
+    function handleToggleTagFilter(tagId: string) {
+        const current = search.tag ?? [];
+        const next = current.includes(tagId) ? current.filter((id) => id !== tagId) : [...current, tagId];
+        updateSearch({ tag: next.length > 0 ? next : undefined });
+    }
     const tagsRow = tagsTarget ? rows.find((row) => row.id === tagsTarget) : undefined;
 
     // Any real change of filter, sort or page size goes back to page 1, unless `keepPage` says it is not about
@@ -352,6 +357,9 @@ export function ReviewPage() {
                     wordId={tagsRow.id}
                     tags={tagsRow.tags}
                     canEdit={tagsRow.user === userId}
+                    filteredTagIds={search.tag ?? []}
+                    onFilter={handleToggleTagFilter}
+                    onOpenTag={(tagId) => void navigate({ to: '/tag/$tagId', params: { tagId } })}
                     onClose={closeTagsDialog}
                 />
             )}

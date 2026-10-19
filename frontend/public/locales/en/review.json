@@ -134,6 +134,9 @@
     "restore": "Keep tag {{label}}",
     "saved": "Tags updated",
     "by": "by {{username}}",
-    "words": "{{count}} words"
+    "words": "{{count}} words",
+    "filter": "Filter words by tag {{label}}",
+    "unfilter": "Remove tag {{label}} from the filter",
+    "open": "Open tag {{label}}"
   }
 }

@@ -222,6 +222,57 @@ it on in the admin panel: **Access → Onboarding** (`/access?tab=onboarding`). 
   precomputed forms `pool-forms.json`, both in the backend image. No lexicon lookup and no Ekilex
   call at runtime, so nothing to seed per environment.
 
+## Captcha (Cloudflare Turnstile) {#captcha-turnstile}
+
+A human check protects the three forms that anybody on the internet can use: the demo start, the
+sign-up form and the password reset request (`.context/plans/captcha.md`). Cloudflare Turnstile
+runs the check. Most visitors see a short check and a "Success" mark. Cloudflare shows a checkbox
+only to visitors that it does not trust. It is **off by default** in every environment.
+
+The switch is in the admin panel: **Access → Captcha** (`/access?tab=captcha`). It works at once.
+Each change writes the audit row `access.captcha_configure`.
+
+- **The two keys.** Turnstile gives a **site key** (public) and a **secret key** (private). The
+  site key shows the widget in the browser. The secret key lets the backend ask Cloudflare if a
+  token is good. Both are environment variables of the backend: `TURNSTILE_SITE_KEY` and
+  `TURNSTILE_SECRET_KEY`. The app does not need a build argument: it reads the site key from
+  `GET /api/access`, so one web image works for staging and production.
+- **When the check runs.** Only while the switch is on **and** both keys are set. If a key is
+  missing, the check is skipped (and the backend logs one warning). Nobody is locked out. The
+  admin page shows "keys are not set", and the server refuses to turn the switch on (400
+  `captcha_not_configured`).
+- **When Cloudflare is down.** The demo start answers 503 `captcha_unavailable`. Sign-up and
+  password reset go on, and the backend sends a warning to Sentry. A token that Cloudflare
+  refuses always gives 400 `captcha_failed`.
+- **Where to see bot pressure.** The refused checks on the demo count as "Failed human check" in
+  **Access → Demo**.
+
+### Turn it on for one environment
+
+1. In the Cloudflare dashboard, open **Turnstile** and add a widget. Use the **Managed** widget
+   mode. Add the domain of that environment as the hostname (`staging.ladu.com.ar` or
+   `app.ladu.com.ar`). The dashboard names can change: check them in the Cloudflare docs.
+2. Copy the site key and the secret key.
+3. In GitHub, open the **Environment** (`staging` or `production`) and add the secrets
+   `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`.
+4. Deploy. The deploy workflow writes both keys into `/opt/ladu/<env>/.env`. A secret that you
+   did not set becomes an empty value, and an empty value counts as "not set".
+5. In the admin panel, open **Access → Captcha**. The warning "keys are not set" must be gone.
+   Set the switch to **On** and confirm.
+6. Test: open the demo, the sign-up form and the forgot-password form in a normal window and in a
+   private window. Each shows the widget, and the button works after the check.
+
+To turn it off, set the switch to **Off**. No deploy is needed.
+
+### Test keys
+
+Cloudflare publishes **test keys** that always pass: site key `1x00000000000000000000AA`, secret
+key `1x0000000000000000000000000000000AA`. The e2e config sets them for the backend
+(`e2e/playwright.config.ts`). The check calls the real Cloudflare `siteverify` address, so
+`captcha-gate.spec.ts` needs internet. **Do not put `TURNSTILE_*` keys in the repo-root `.env`
+when you run e2e:** a value in `.env` wins over the e2e config, and a real secret key refuses the
+test token.
+
 ## Demo accounts (`users.is_demo`)
 
 The "Try the demo" button makes a throwaway account (`.context/plans/demo-access.md`). It is off

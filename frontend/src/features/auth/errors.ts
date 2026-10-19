@@ -28,6 +28,11 @@ const CODE_TO_KEY: Record<string, string> = {
     username_reserved: 'loginRegister:apiErrors.usernameReserved',
     name_reserved: 'loginRegister:apiErrors.nameReserved',
     google_name_reserved: 'loginRegister:apiErrors.googleNameReserved',
+    // The Turnstile captcha (captcha.md C7): a failed check, or Cloudflare down (the demo only).
+    captcha_failed: 'common:captcha.failed',
+    captcha_unavailable: 'common:captcha.unavailable',
+    // The request-access form (access-requests.md): the gate for that kind is open, so no request is needed.
+    access_not_needed: 'loginRegister:request.notNeeded',
     // Demo access (D10): an action a demo account may not take. The UI hides these; this is the fallback.
     demo_restricted: 'demo:errors.demo_restricted',
 };

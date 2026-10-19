@@ -1,0 +1,1 @@
+ALTER TABLE "access_settings" ADD COLUMN "captcha_enabled" boolean DEFAULT false NOT NULL;

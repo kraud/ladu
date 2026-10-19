@@ -123,6 +123,7 @@ const clearDB = async () => {
             ops_events,
             user_activity_days,
             registration_invites,
+            access_requests,
             login_allowed_users,
             access_settings,
             lexemes,

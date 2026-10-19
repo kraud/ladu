@@ -19,6 +19,18 @@ export interface AllowedAccount {
     addedBy: string | null;
 }
 
+/** A request from the public /request page (access-requests.md), waiting for the owner. */
+export interface AccessRequest {
+    id: string;
+    email: string;
+    createdAt: string;
+}
+
+/** A `login` request carries the account with the same email; `null` when none exists (Approve is off). */
+export interface LoginRequest extends AccessRequest {
+    account: { userId: string; name: string; status: 'active' | 'banned' | 'deleted' } | null;
+}
+
 export type GateName = 'registration' | 'login';
 
 /** The demo gate and its caps (demo-access.md). Independent of the registration and login gates. */
@@ -48,13 +60,17 @@ export interface AccessState {
     onboarding: { enabled: boolean };
     /** Accounts by onboarding status; accounts without one (older, demo) are not counted. */
     onboardingCounts: { pending: number; done: number; skipped: number };
+    /** The Turnstile captcha switch (captcha.md C2). `configured`: both keys are set on the server. */
+    captcha: { enabled: boolean; configured: boolean };
     /** One row holds every gate, so this is the last change to any of them. */
     updatedAt: string | null;
     updatedBy: string | null;
     invites: Invite[];
     loginAllowed: AllowedAccount[];
+    /** Requests from the public /request page, by the list that approval adds them to. */
+    requests: { registration: AccessRequest[]; login: LoginRequest[] };
     /** `liveDemos`: demos running now (not expired), to compare with `demo.maxLive`. */
-    counts: { invites: number; loginAllowed: number; liveDemos: number };
+    counts: { invites: number; loginAllowed: number; requestsRegistration: number; requestsLogin: number; liveDemos: number };
 }
 
 export type SkipReason = 'invalid' | 'duplicate_in_request' | 'already_listed' | 'has_account';
@@ -144,7 +160,7 @@ export interface DemoUsers {
 
 export const DEMO_USERS_LIMIT = 200;
 
-export type DemoRefusalCode = 'demo_disabled' | 'demo_rate_limited' | 'demo_busy' | 'demo_unavailable';
+export type DemoRefusalCode = 'demo_disabled' | 'demo_rate_limited' | 'demo_busy' | 'demo_unavailable' | 'captcha_failed';
 
 /** `GET /api/admin/access/demo/stats` (D20). */
 export interface DemoStats {

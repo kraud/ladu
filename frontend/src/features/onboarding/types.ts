@@ -22,9 +22,8 @@ export type TopicId = (typeof TOPIC_IDS)[number];
 export const LEVELS = ['beginner', 'intermediate', 'advanced'] as const;
 export type Level = (typeof LEVELS)[number];
 
-/** D15, D14. */
-export const MIN_TOPICS = 3;
-export const MAX_TOPICS = 6;
+/** D15 (changed in the 2026-10 pool refresh: at least 4 topics, no maximum) and D14. */
+export const MIN_TOPICS = 4;
 export const MIN_WORDS = 50;
 export const MAX_WORDS = 150;
 export const WORDS_STEP = 10;

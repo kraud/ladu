@@ -167,9 +167,16 @@
     "next": "Järgmine",
     "seeResults": "Vaata tulemusi",
     "answerAll": "Vasta kõigile harjutustele, et näha tulemusi.",
-    "check": "Kontrolli"
+    "check": "Kontrolli",
+    "dontKnow": "Ma ei tea"
   },
   "card": {
+    "hint": {
+      "show": "Vihje",
+      "hide": "Peida vihje",
+      "unavailable": "Vihjet pole saadaval",
+      "approximate": "Vihje näitab algvormi, mitte täpselt küsitud vormi."
+    },
     "answerLabel": "Sinu vastus",
     "answerPlaceholder": "Sinu vastus…",
     "chooseAnswer": "Vali vastus",

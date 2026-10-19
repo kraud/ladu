@@ -54,6 +54,19 @@
     "emailVerifiedNoSignIn": "Tu correo electrónico está verificado. Por ahora, esta cuenta no puede iniciar sesión. Vuelve a intentarlo más tarde.",
     "accountCreatedNoSignIn": "Tu cuenta está creada. Por ahora, esta cuenta no puede iniciar sesión. Vuelve a intentarlo más tarde."
   },
+  "request": {
+    "button": "Solicitar acceso",
+    "title": "Solicitar acceso",
+    "blurb": "El acceso a Ladu está limitado por ahora. Deja tu correo y el equipo revisará tu solicitud.",
+    "intro": "El acceso a Ladu está limitado por ahora. Escribe tu correo electrónico y el equipo revisará tu solicitud.",
+    "hasAccount": "Ya tengo una cuenta",
+    "hasAccountHint": "Marca esta casilla para pedir permiso para iniciar sesión. Déjala vacía para pedir permiso para registrarte.",
+    "submit": "Solicitar acceso",
+    "submitting": "Enviando…",
+    "sentTitle": "Solicitud recibida",
+    "sentBody": "Gracias. El equipo revisará tu solicitud. Si la aprueba, recibirás noticias en el correo que indicaste.",
+    "notNeeded": "Esto está abierto ahora, así que no necesitas pedir acceso."
+  },
   "brand": {
     "tagline": "Tus palabras, tus idiomas, un solo lugar.",
     "supportedLanguages": "Idiomas disponibles en la app",

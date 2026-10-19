@@ -31,6 +31,11 @@ export async function saveOnboarding(body: { enabled: boolean; reason?: string }
     return data;
 }
 
+export async function saveCaptcha(body: { enabled: boolean; reason?: string }): Promise<AccessState> {
+    const { data } = await apiClient.put<AccessState>('/admin/access/captcha', body);
+    return data;
+}
+
 export async function fetchDemoUsers(): Promise<DemoUsers> {
     const { data } = await apiClient.get<DemoUsers>('/admin/access/demo/users');
     return data;
@@ -54,6 +59,27 @@ export async function removeInvite(id: string): Promise<AccessState> {
 /** Emails the invited address that it can register now. The invite stays on the list. */
 export async function sendInvite(id: string): Promise<{ sent: true; email: string }> {
     const { data } = await apiClient.post<{ sent: true; email: string }>(`/admin/access/invites/${encodeURIComponent(id)}/send`, {});
+    return data;
+}
+
+/** Moves a request to the real list (invite list or allowed accounts). Sends no email. */
+export async function approveRequest(body: { id: string; reason?: string }): Promise<AccessState> {
+    const { data } = await apiClient.post<AccessState>(`/admin/access/requests/${encodeURIComponent(body.id)}/approve`, { reason: body.reason });
+    return data;
+}
+
+/** Removes a request without approving it. */
+export async function removeRequest(body: { id: string; reason?: string }): Promise<AccessState> {
+    const { data } = await apiClient.delete<AccessState>(`/admin/access/requests/${encodeURIComponent(body.id)}`, { data: { reason: body.reason } });
+    return data;
+}
+
+/** Emails an allowed account that it can sign in now. The account stays on the list. */
+export async function sendLoginAllowed(body: { userId: string; reason?: string }): Promise<{ sent: true; email: string }> {
+    const { data } = await apiClient.post<{ sent: true; email: string }>(
+        `/admin/access/login-allowed/${encodeURIComponent(body.userId)}/send`,
+        { reason: body.reason },
+    );
     return data;
 }
 

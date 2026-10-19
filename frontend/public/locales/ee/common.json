@@ -56,6 +56,11 @@
   "errors": {
     "somethingWrong": "Midagi läks valesti, proovige uuesti."
   },
+  "captcha": {
+    "failed": "Inimkontroll ebaõnnestus. Proovi uuesti.",
+    "unavailable": "Inimkontroll pole praegu saadaval. Proovi hiljem uuesti.",
+    "loadError": "Inimkontrolli ei saanud laadida. Lülita reklaamiblokeerija välja või proovi hiljem uuesti."
+  },
   "buttons": {
     "apply": "Rakenda",
     "delete": "Kustuta",

@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { AccessBanner } from '@/features/access/components/AccessBanner';
+import { RequestAccessLink } from '@/features/access/components/RequestAccessLink';
 import { useAccess } from '@/features/access/hooks';
 import { AuthLayout } from '../components/AuthLayout';
 import { RegisterForm } from '../components/RegisterForm';
@@ -33,6 +34,7 @@ export function RegisterPage() {
             }
         >
             <AccessBanner gate="registration" status={registration} />
+            <RequestAccessLink gate="registration" mode={registration.mode} />
             <fieldset disabled={closed} className="m-0 min-w-0 border-0 p-0">
                 <RegisterForm oauthSlot={<OAuthButtons disabled={closed} separator="below" />} />
             </fieldset>

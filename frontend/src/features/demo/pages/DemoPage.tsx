@@ -4,6 +4,7 @@ import { Link, Navigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { LanguageTiles } from '@/components/common/LanguageTiles';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { useCaptcha } from '@/features/captcha/useCaptcha';
 import { AuthLayout } from '@/features/auth/components/AuthLayout';
 import { TermsNote } from '@/features/auth/components/TermsNote';
 import { isTokenExpired } from '@/lib/jwt';
@@ -30,6 +31,7 @@ export function DemoPage() {
     const { t, i18n } = useTranslation();
     const status = useDemoStatus();
     const start = useStartDemo();
+    const captcha = useCaptcha('demo');
     const user = useAuthStore((s) => s.user);
     const token = useAuthStore((s) => s.token);
     const [step, setStep] = useState<1 | 2>(1);
@@ -103,6 +105,8 @@ export function DemoPage() {
                     </span>
                 </section>
 
+                {captcha.widget}
+
                 {start.isError && (
                     <p className="banner warning" role="alert">
                         {t(demoErrorKey(start.error))}
@@ -111,9 +115,18 @@ export function DemoPage() {
 
                 <Button
                     className="w-full"
-                    disabled={start.isPending || !enoughLanguages}
+                    disabled={start.isPending || !enoughLanguages || !captcha.ready}
                     onClick={() =>
-                        start.mutate({ uiLanguage: labelByI18nCode(i18n.language), languages, theme: themeForRequest() })
+                        start.mutate(
+                            {
+                                uiLanguage: labelByI18nCode(i18n.language),
+                                languages,
+                                theme: themeForRequest(),
+                                captchaToken: captcha.token,
+                            },
+                            // A token works once: ask for a new one after a refusal.
+                            { onError: captcha.reset },
+                        )
                     }
                 >
                     {start.isPending

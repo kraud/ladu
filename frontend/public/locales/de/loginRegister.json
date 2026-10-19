@@ -54,6 +54,19 @@
     "emailVerifiedNoSignIn": "Deine E-Mail ist bestätigt. Dieses Konto kann sich derzeit nicht anmelden. Bitte versuche es später noch einmal.",
     "accountCreatedNoSignIn": "Dein Konto ist erstellt. Dieses Konto kann sich derzeit nicht anmelden. Bitte versuche es später noch einmal."
   },
+  "request": {
+    "button": "Zugang anfragen",
+    "title": "Zugang anfragen",
+    "blurb": "Der Zugang zu Ladu ist derzeit eingeschränkt. Gib deine E-Mail-Adresse an, das Team prüft deine Anfrage.",
+    "intro": "Der Zugang zu Ladu ist derzeit eingeschränkt. Gib deine E-Mail-Adresse an, und das Team prüft deine Anfrage.",
+    "hasAccount": "Ich habe bereits ein Konto",
+    "hasAccountHint": "Hake dies an, um die Erlaubnis zur Anmeldung anzufragen. Lass es leer, um die Erlaubnis zur Registrierung anzufragen.",
+    "submit": "Zugang anfragen",
+    "submitting": "Wird gesendet…",
+    "sentTitle": "Anfrage erhalten",
+    "sentBody": "Danke. Das Team prüft deine Anfrage. Wenn sie genehmigt wird, hörst du von uns unter der angegebenen E-Mail-Adresse.",
+    "notNeeded": "Das ist jetzt offen, du musst also nicht anfragen."
+  },
   "brand": {
     "tagline": "Deine Wörter, deine Sprachen, ein Ort.",
     "supportedLanguages": "In der App verfügbare Sprachen",

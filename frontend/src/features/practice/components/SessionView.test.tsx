@@ -93,6 +93,52 @@ describe('SessionView — typed answers', () => {
         expect(screen.getByRole('button', { name: 'Next' })).toHaveFocus();
     });
 
+    it("marks the answer wrong and shows the right one when the user presses \"I don't know\"", async () => {
+        const fake = await open([makeExercise()]);
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByRole('button', { name: "I don't know" }));
+
+        expect(await screen.findByText('Wrong', { selector: 'b' })).toBeInTheDocument();
+        expect(screen.getByText('Correct answer: casa')).toBeInTheDocument();
+        await screen.findByText('Saved');
+        expect(fake.state.answers).toEqual([{ translationId: 'tr-es-1', caseName: 'singularES', result: 'wrong' }]);
+        expect(screen.queryByRole('button', { name: "I don't know" })).not.toBeInTheDocument();
+    });
+
+    it('shows the native-language hint row only when the button is pressed, also after the answer', async () => {
+        await open([makeExercise({ hint: { language: 'German' as never, value: 'Haus' } })]);
+        const user = userEvent.setup();
+
+        expect(await screen.findByRole('button', { name: 'Hint' })).toBeInTheDocument();
+        expect(screen.queryByTestId('hint-row')).not.toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Hint' }));
+        expect(screen.getByTestId('hint-row')).toHaveTextContent('Deutsch:Haus');
+        await user.click(screen.getByRole('button', { name: 'Hide hint' }));
+        expect(screen.queryByTestId('hint-row')).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: "I don't know" }));
+        expect(screen.queryByTestId('hint-row')).not.toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Hint' }));
+        expect(screen.getByTestId('hint-row')).toHaveTextContent('Deutsch:Haus');
+    });
+
+    it('marks a base-form hint with an asterisk and a note', async () => {
+        await open([makeExercise({ hint: { language: 'German' as never, value: 'Haus', approximate: true } })]);
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByRole('button', { name: 'Hint' }));
+        expect(screen.getByTestId('hint-asterisk')).toBeInTheDocument();
+        expect(screen.getByText(/not the exact form being asked/)).toBeInTheDocument();
+    });
+
+    it('disables the hint button and says so when the exercise has no hint', async () => {
+        await open([makeExercise()]);
+
+        expect(await screen.findByRole('button', { name: 'No hint available' })).toBeDisabled();
+        expect(screen.queryByTestId('hint-row')).not.toBeInTheDocument();
+    });
+
     it('sends only one save when Enter is pressed twice', async () => {
         const fake = await open([makeExercise()]);
         const user = userEvent.setup();

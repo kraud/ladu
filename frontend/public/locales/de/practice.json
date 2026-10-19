@@ -167,9 +167,16 @@
     "next": "Weiter",
     "seeResults": "Ergebnisse ansehen",
     "answerAll": "Beantworten Sie alle Übungen, um die Ergebnisse zu sehen.",
-    "check": "Prüfen"
+    "check": "Prüfen",
+    "dontKnow": "Ich weiß es nicht"
   },
   "card": {
+    "hint": {
+      "show": "Hinweis",
+      "hide": "Hinweis ausblenden",
+      "unavailable": "Kein Hinweis verfügbar",
+      "approximate": "Der Hinweis zeigt die Grundform, nicht die genau gefragte Form."
+    },
     "answerLabel": "Ihre Antwort",
     "answerPlaceholder": "Ihre Antwort…",
     "chooseAnswer": "Wählen Sie die Antwort",

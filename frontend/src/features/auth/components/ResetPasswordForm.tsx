@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useCaptcha } from '@/features/captcha/useCaptcha';
 import { useRequestReset, useSetPassword } from '../hooks';
 import {
     buildResetRequestSchema,
@@ -32,6 +33,7 @@ export function ResetPasswordForm(
 function RequestResetForm() {
     const { t } = useTranslation();
     const requestReset = useRequestReset();
+    const captcha = useCaptcha('password_reset');
     const schema = useMemo(() => buildResetRequestSchema(t), [t]);
 
     const form = useForm<ResetRequestValues>({
@@ -44,7 +46,10 @@ function RequestResetForm() {
             <form
                 noValidate
                 className="flex flex-col gap-4"
-                onSubmit={form.handleSubmit((values) => requestReset.mutate(values))}
+                onSubmit={form.handleSubmit((values) =>
+                    // A token works once: ask for a new one after a refusal.
+                    requestReset.mutate({ ...values, captchaToken: captcha.token }, { onError: captcha.reset }),
+                )}
             >
                 <FormField
                     control={form.control}
@@ -64,7 +69,8 @@ function RequestResetForm() {
                         </FormItem>
                     )}
                 />
-                <Button type="submit" className="mt-1 w-full" disabled={requestReset.isPending}>
+                {captcha.widget}
+                <Button type="submit" className="mt-1 w-full" disabled={requestReset.isPending || !captcha.ready}>
                     {requestReset.isPending ? (
                         <>
                             <span className="spinner" />

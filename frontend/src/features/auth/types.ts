@@ -40,6 +40,8 @@ export interface RegisterRequest {
     uiLanguage: string;
     /** The theme chosen on the register screen, if any; stored on the new row. */
     theme?: Theme;
+    /** The Turnstile token, while the captcha is on (captcha.md). Works for this one request only. */
+    captchaToken?: string;
 }
 
 /** `GET /api/users/:userId/verify/:tokenId` path params. */
@@ -51,6 +53,8 @@ export interface VerifyEmailParams {
 /** `POST /api/users/requestPasswordReset` body. */
 export interface RequestResetRequest {
     email: string;
+    /** The Turnstile token, while the captcha is on (captcha.md). Works for this one request only. */
+    captchaToken?: string;
 }
 
 /**

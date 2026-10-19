@@ -14,6 +14,11 @@ export interface AccessStatus {
     demo: { enabled: boolean };
     /** The onboarding switch (onboarding.md D26). While off, no account is sent to `/onboarding`. */
     onboarding: { enabled: boolean };
+    /**
+     * The Turnstile captcha on demo start, registration and password reset (captcha.md C4). The site key
+     * comes only while the check is really on (switch on AND both keys set on the server).
+     */
+    captcha: { enabled: false } | { enabled: true; siteKey: string };
 }
 
 /**
@@ -25,4 +30,14 @@ export const OPEN_ACCESS: AccessStatus = {
     login: { mode: 'open', note: '' },
     demo: { enabled: false },
     onboarding: { enabled: false },
+    // Reads as off for the same reason: a form never waits for a widget the server does not ask for.
+    captcha: { enabled: false },
 };
+
+/** `POST /api/access/request` body (access-requests.md). `hasAccount` sets the list: sign-in (true) or registration (false). */
+export interface RequestAccessBody {
+    email: string;
+    hasAccount: boolean;
+    /** The Turnstile token, while the captcha is on (captcha.md). Works for this one request only. */
+    captchaToken?: string;
+}

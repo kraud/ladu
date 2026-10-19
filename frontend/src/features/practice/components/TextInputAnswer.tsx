@@ -16,6 +16,7 @@ export function TextInputAnswer({
     placeholder,
     given,
     onSubmit,
+    onGiveUp,
 }: {
     /** The personal pronoun of a verb form, shown as a prefix inside the field. */
     pronoun?: string;
@@ -24,6 +25,8 @@ export function TextInputAnswer({
     /** The stored answer of an answered card; `undefined` while it is open. */
     given?: string;
     onSubmit: (typed: string) => void;
+    /** The user does not know the answer: the card is marked wrong and the right answer is shown. */
+    onGiveUp: () => void;
 }) {
     const { t } = useTranslation();
     const answered = given !== undefined;
@@ -42,7 +45,7 @@ export function TextInputAnswer({
     return (
         <form
             noValidate
-            className="flex items-stretch gap-2"
+            className="flex flex-col items-stretch gap-3"
             onSubmit={(event) => {
                 event.preventDefault();
                 if (canSubmit) onSubmit(typed);
@@ -72,9 +75,14 @@ export function TextInputAnswer({
                 />
             </div>
             {!answered && (
-                <Button type="submit" disabled={!canSubmit}>
-                    {t('practice:session.check')}
-                </Button>
+                <div className="flex flex-row-reverse gap-2">
+                    <Button type="submit" disabled={!canSubmit} className="flex-1">
+                        {t('practice:session.check')}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={onGiveUp} className="flex-1">
+                        {t('practice:session.dontKnow')}
+                    </Button>
+                </div>
             )}
         </form>
     );
