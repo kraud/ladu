@@ -198,7 +198,7 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         // Sign in — the choice rode along on the login request and is now on the row.
         await page.getByLabel(/correo electrónico/i).fill(primary.email);
-        await page.getByLabel(/contraseña/i).fill(primary.password);
+        await page.getByLabel(/^contraseña/i).fill(primary.password);
         await page.getByRole('button', { name: /iniciar sesión/i }).click();
 
         await expect(page.getByRole('heading', { name: /Bienvenido, Kai Rebane/ })).toBeVisible();
