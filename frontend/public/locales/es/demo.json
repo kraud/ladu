@@ -1,8 +1,27 @@
 {
   "start": {
-    "blurb": "Prueba Ladu sin una cuenta.",
-    "title": "Prueba la demo",
-    "intro": "La demo abre Ladu con palabras, etiquetas y una práctica de ejemplo. Dura unos minutos. Cuando termina, se borran todos tus cambios.",
+    "blurb": "Prueba la demo: una estantería con palabras, etiquetas y ejercicios de ejemplo, sin necesidad de cuenta.",
+    "kicker": "Demo",
+    "kickerNote": "no hace falta cuenta",
+    "title": "La plataforma completa, lista para probar.",
+    "lead": "Entra en una cuenta de Ladu de ejemplo. Palabras en cuatro idiomas, etiquetas que ya las agrupan y una práctica lista para empezar, <strong>sin registro ni configuración</strong>.",
+    "insideTitle": "Dentro de la demo",
+    "insideMeta": "Sin configuración",
+    "features": {
+      "words": {
+        "title": "Cada palabra, de cuatro maneras.",
+        "text": "Lee la misma palabra en English, Deutsch, Español y Eesti."
+      },
+      "tags": {
+        "title": "Las etiquetas ordenan por ti.",
+        "text": "Capítulo 1, Cocina, Preparar el examen y más, ya aplicadas."
+      },
+      "practice": {
+        "title": "Práctica ya configurada.",
+        "text": "Responde una serie corta de ejercicios creada con tus palabras de ejemplo."
+      }
+    },
+    "resetNote": "Lleva unos minutos · nada de lo que cambies se guarda",
     "getStarted": "Comenzar",
     "back": "Volver",
     "languagesTitle": "¿Qué idiomas usas?",
@@ -20,6 +39,7 @@
     "signIn": "Iniciar sesión"
   },
   "off": {
+    "kicker": "Demo no disponible por ahora",
     "title": "La demo está desactivada",
     "text": "La demo no está disponible ahora. Puedes crear una cuenta gratuita.",
     "createAccount": "Crear una cuenta"

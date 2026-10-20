@@ -1,8 +1,27 @@
 {
   "start": {
-    "blurb": "Proovi Ladu ilma kontota.",
-    "title": "Proovi demot",
-    "intro": "Demo avab Ladu näidissõnade, tagide ja harjutuse seadistusega. See kestab mõne minuti. Kui see lõpeb, kustutatakse kõik sinu muudatused.",
+    "blurb": "Proovi demot: täis riiul näidissõnu, silte ja harjutusi, ilma kontota.",
+    "kicker": "Demo",
+    "kickerNote": "kontot pole vaja",
+    "title": "Kogu platvorm, valmis proovimiseks.",
+    "lead": "Astu näidis-Ladu kontole. Sõnad neljas keeles, sildid, mis neid juba rühmitavad, ja harjutuskomplekt, mis ootab – <strong>ilma registreerumise ja seadistamiseta</strong>.",
+    "insideTitle": "Demo sees",
+    "insideMeta": "Seadistamist pole vaja",
+    "features": {
+      "words": {
+        "title": "Iga sõna neljas keeles.",
+        "text": "Loe sama sõna keeltes English, Deutsch, Español ja Eesti."
+      },
+      "tags": {
+        "title": "Sildid sorteerivad sinu eest.",
+        "text": "Peatükk 1, Köök, Eksamiks valmistumine ja veel – juba lisatud."
+      },
+      "practice": {
+        "title": "Harjutus on juba seadistatud.",
+        "text": "Vasta lühikesele harjutuste komplektile, mis on tehtud sinu näidissõnadest."
+      }
+    },
+    "resetNote": "Võtab paar minutit · miski, mida muudad, ei salvestu",
     "getStarted": "Hakkame pihta",
     "back": "Tagasi",
     "languagesTitle": "Milliseid keeli sa kasutad?",
@@ -20,6 +39,7 @@
     "signIn": "Logi sisse"
   },
   "off": {
+    "kicker": "Demo pole praegu saadaval",
     "title": "Demo on välja lülitatud",
     "text": "Demo pole praegu saadaval. Selle asemel saad luua tasuta konto.",
     "createAccount": "Loo konto"

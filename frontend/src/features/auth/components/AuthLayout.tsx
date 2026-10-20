@@ -30,6 +30,7 @@ export function AuthLayout({
     themeToggle = showLanguageSelector ? <PublicThemeToggle /> : null,
     title,
     subtitle,
+    wide = false,
     children,
     links,
 }: {
@@ -38,6 +39,8 @@ export function AuthLayout({
     themeToggle?: ReactNode;
     title?: string;
     subtitle?: string;
+    /** A wider form column (640px, not 360px), for a screen that shows more than a form (`/demo`, step 1). */
+    wide?: boolean;
     children: ReactNode;
     links?: ReactNode;
 }) {
@@ -81,7 +84,7 @@ export function AuthLayout({
             </aside>
 
             <main className="auth-panel">
-                <div className="auth-form">
+                <div className={wide ? 'auth-form auth-form-wide' : 'auth-form'}>
                     {(title || subtitle) && (
                         <div className="form-head">
                             {title && <h1 className="h2">{title}</h1>}

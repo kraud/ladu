@@ -94,7 +94,7 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         // Log in again through the real form against the now-verified row.
         await page.getByLabel('Email').fill(primary.email);
-        await page.getByLabel('Password').fill(primary.password);
+        await page.getByLabel('Password', { exact: true }).fill(primary.password);
         await page.getByRole('button', { name: 'Sign in' }).click();
         await expect(page.getByRole('heading', { name: /Welcome, Kai Rebane/ })).toBeVisible();
 
@@ -140,7 +140,7 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         await page.goto('/login');
         await page.getByLabel('Email').fill(email);
-        await page.getByLabel('Password').fill('password123');
+        await page.getByLabel('Password', { exact: true }).fill('password123');
         await page.getByRole('button', { name: 'Sign in' }).click();
 
         await expect(
@@ -198,7 +198,7 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         // Sign in — the choice rode along on the login request and is now on the row.
         await page.getByLabel(/correo electrónico/i).fill(primary.email);
-        await page.getByLabel(/contraseña/i).fill(primary.password);
+        await page.getByLabel(/^contraseña/i).fill(primary.password);
         await page.getByRole('button', { name: /iniciar sesión/i }).click();
 
         await expect(page.getByRole('heading', { name: /Bienvenido, Kai Rebane/ })).toBeVisible();

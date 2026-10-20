@@ -38,7 +38,7 @@ const strings = (value: unknown, prefix = ''): [string, string][] =>
 
 // The files began as English drafts. A string that is still the English one shows English to a
 // visitor who chose another language. "Demo" is the same word in all four languages.
-const SAME_IN_EVERY_LANGUAGE = new Set(['badge.demo']);
+const SAME_IN_EVERY_LANGUAGE = new Set(['badge.demo', 'start.kicker']);
 
 describe.each([
     ['es', es],

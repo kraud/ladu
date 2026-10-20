@@ -116,7 +116,7 @@ test.describe.serial('Phase 3.5 — Dashboard + user metrics', () => {
     test('renders real metrics, drives every chart control, and refreshes after a word is added', async ({ page }) => {
         await page.goto('/login');
         await page.getByLabel('Email').fill(owner.email);
-        await page.getByLabel('Password').fill(owner.password);
+        await page.getByLabel('Password', { exact: true }).fill(owner.password);
         await page.getByRole('button', { name: 'Sign in' }).click();
         await expect(page.getByRole('heading', { level: 1, name: /Welcome, Kai Rebane/ })).toBeVisible();
 
@@ -223,7 +223,7 @@ test.describe.serial('Phase 3.5 — Dashboard + user metrics', () => {
 
         await page.goto('/login');
         await page.getByLabel('Email').fill(fresh.email);
-        await page.getByLabel('Password').fill(fresh.password);
+        await page.getByLabel('Password', { exact: true }).fill(fresh.password);
         await page.getByRole('button', { name: 'Sign in' }).click();
         await expect(page.getByRole('heading', { level: 1, name: /Welcome, Kai Rebane/ })).toBeVisible();
 

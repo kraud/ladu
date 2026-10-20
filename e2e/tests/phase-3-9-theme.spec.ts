@@ -63,7 +63,7 @@ const html = (page: Page) => page.locator('html');
 
 async function signIn(page: Page, account: Account): Promise<void> {
     await page.getByLabel('Email').fill(account.email);
-    await page.getByLabel('Password').fill(account.password);
+    await page.getByLabel('Password', { exact: true }).fill(account.password);
     await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page).toHaveURL('/');
     await expect(page.getByRole('heading', { name: /Welcome, Theme Tester/ })).toBeVisible();

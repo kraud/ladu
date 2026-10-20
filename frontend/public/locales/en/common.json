@@ -71,6 +71,8 @@
     "cancel": "Cancel",
     "return": "Return",
     "close": "Close",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "clear": "Clear",
     "remove": "Remove",
     "reset": "Reset",

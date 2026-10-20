@@ -119,14 +119,14 @@ test('the demo is off: /demo says so and offers sign-up, and the server refuses 
 test('a visitor starts a demo, sees the seed, adds a word, and the demo ends on the server', async ({ page }) => {
     await setDemoEnabled(true);
     await page.goto('/demo');
-    await expect(page.getByRole('heading', { name: 'Try the demo' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'The whole platform, ready to try.' })).toBeVisible();
     await expect(page.getByText(/logs you out/)).toHaveCount(0);
     // Step 2 (the languages, Start and the Terms note): the back arrow returns to step 1.
     await page.getByRole('button', { name: 'Get started' }).click();
     await expect(page.getByRole('heading', { name: 'Which languages do you use?' })).toBeVisible();
     await expect(page.getByText(/By starting the demo/)).toBeVisible();
     await page.getByRole('button', { name: 'Back' }).click();
-    await expect(page.getByRole('heading', { name: 'Try the demo' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'The whole platform, ready to try.' })).toBeVisible();
 
     const demo = await startDemo(page);
 
@@ -174,7 +174,7 @@ test('a signed-in user is warned that the demo logs them out, and the demo repla
     await setDemoEnabled(true);
     await page.goto('/login');
     await page.getByLabel('Email').fill(learnerEmail);
-    await page.getByLabel('Password').fill(LEARNER_PASSWORD);
+    await page.getByLabel('Password', { exact: true }).fill(LEARNER_PASSWORD);
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page).toHaveURL(/\/$/);
 

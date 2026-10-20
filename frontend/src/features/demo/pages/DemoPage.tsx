@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeftIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, ArrowRightIcon, ClockIcon } from '@phosphor-icons/react';
 import { Link, Navigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { LanguageTiles } from '@/components/common/LanguageTiles';
@@ -11,6 +11,7 @@ import { isTokenExpired } from '@/lib/jwt';
 import { labelByI18nCode } from '@/lib/language';
 import { themeForRequest } from '@/lib/theme';
 import { useAuthStore } from '@/stores/authStore';
+import { DemoIntro } from '../components/DemoIntro';
 import { demoErrorKey } from '../errors';
 import { useDemoStatus, useStartDemo } from '../hooks';
 import { isLiveDemo } from '../session';
@@ -21,7 +22,7 @@ import { isLiveDemo } from '../session';
  * session open, it warns that the demo logs the visitor out. A demo that is still running opens
  * the app at once. When the demo is off, it says so and points to sign-up.
  *
- * Two steps. Step 1 describes the demo ("Get started"); it has room for a longer description later.
+ * Two steps. Step 1 describes the demo (`DemoIntro`: the three things inside it) with "Get started".
  * Step 2 picks the languages, with the registration tiles (D16): Start waits for 2 or more, and the
  * demo account gets them in the order picked. The arrow before the step-2 title goes back to step 1
  * and keeps the picks. The log-out warning is on step 1; the Terms note and the errors are on step 2,
@@ -50,29 +51,41 @@ export function DemoPage() {
 
     if (status === 'off') {
         return (
-            <AuthLayout blurb={t('demo:start.blurb')} title={t('demo:off.title')} links={links}>
-                <p className="mb-4">{t('demo:off.text')}</p>
-                <Link to="/register" className={buttonVariants({ className: 'w-full' })}>
-                    {t('demo:off.createAccount')}
-                </Link>
+            <AuthLayout blurb={t('demo:start.blurb')} links={links} wide>
+                <DemoIntro off />
+
+                <div className="demo-cta">
+                    <div className="demo-off-note" role="status">
+                        <h2>{t('demo:off.title')}</h2>
+                        <p>{t('demo:off.text')}</p>
+                    </div>
+                    <Link to="/register" className={buttonVariants({ className: 'demo-start' })}>
+                        {t('demo:off.createAccount')}
+                    </Link>
+                </div>
             </AuthLayout>
         );
     }
 
     if (step === 1) {
         return (
-            <AuthLayout blurb={t('demo:start.blurb')} title={t('demo:start.title')} links={links}>
-                <div className="flex flex-col gap-4">
-                    <p>{t('demo:start.intro')}</p>
+            <AuthLayout blurb={t('demo:start.blurb')} links={links} wide>
+                <DemoIntro />
 
+                <div className="demo-cta">
                     {signedIn && (
-                        <p className="banner warning" role="status">
+                        <p className="banner warning mb-3" role="status">
                             {t('demo:start.logoutWarning')}
                         </p>
                     )}
 
-                    <Button className="w-full" disabled={status === 'loading'} onClick={() => setStep(2)}>
+                    <p className="demo-reset">
+                        <ClockIcon size={13} aria-hidden="true" />
+                        {t('demo:start.resetNote')}
+                    </p>
+                    <Button className="demo-start" disabled={status === 'loading'} onClick={() => setStep(2)}>
                         {status === 'loading' ? t('demo:start.loading') : t('demo:start.getStarted')}
+                        {status !== 'loading' && <ArrowRightIcon size={15} weight="bold" aria-hidden="true" />}
                     </Button>
                 </div>
             </AuthLayout>
