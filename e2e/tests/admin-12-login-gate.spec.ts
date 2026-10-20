@@ -83,7 +83,7 @@ test.afterAll(async () => {
 async function staffSignIn(page: Page, role: string, goTo: string) {
     await page.goto(`${ADMIN_URL}${goTo}`);
     await page.getByLabel('Email').fill(staffEmail(role));
-    await page.getByLabel('Password').fill(STAFF_PASSWORD);
+    await page.getByLabel('Password', { exact: true }).fill(STAFF_PASSWORD);
     await page.getByRole('button', { name: 'Sign in' }).click();
 }
 
@@ -160,7 +160,7 @@ test('closed: every new sign-in is refused, an open session keeps working, staff
     await expect(page.getByRole('status')).toContainText('Sign-in is closed for now. Please check back later.');
     await expect(page.getByRole('status')).toContainText('E2E login note');
     await expect(page.getByLabel('Email')).toBeDisabled();
-    await expect(page.getByLabel('Password')).toBeDisabled();
+    await expect(page.getByLabel('Password', { exact: true })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeDisabled();
 

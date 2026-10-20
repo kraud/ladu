@@ -72,7 +72,7 @@ test.describe.serial('Phase 2 — noun create / view', () => {
     }) => {
         await page.goto('/login');
         await page.getByLabel('Email').fill(owner.email);
-        await page.getByLabel('Password').fill(owner.password);
+        await page.getByLabel('Password', { exact: true }).fill(owner.password);
         await page.getByRole('button', { name: 'Sign in' }).click();
         await expect(page.getByRole('heading', { name: /Welcome, Kai Rebane/ })).toBeVisible();
 
@@ -145,7 +145,7 @@ test.describe.serial('Phase 2 — noun create / view', () => {
 
         await page.goto('/login');
         await page.getByLabel('Email').fill(other.email);
-        await page.getByLabel('Password').fill(other.password);
+        await page.getByLabel('Password', { exact: true }).fill(other.password);
         await page.getByRole('button', { name: 'Sign in' }).click();
         await expect(page).toHaveURL('/');
 

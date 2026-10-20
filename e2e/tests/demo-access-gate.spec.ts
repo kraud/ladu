@@ -174,7 +174,7 @@ test('a signed-in user is warned that the demo logs them out, and the demo repla
     await setDemoEnabled(true);
     await page.goto('/login');
     await page.getByLabel('Email').fill(learnerEmail);
-    await page.getByLabel('Password').fill(LEARNER_PASSWORD);
+    await page.getByLabel('Password', { exact: true }).fill(LEARNER_PASSWORD);
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page).toHaveURL(/\/$/);
 

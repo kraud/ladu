@@ -60,7 +60,7 @@ test.describe.serial('Admin dashboard — health (slice 6)', () => {
     test('a viewer opens the page from the header and sees the real deployment state', async ({ page }) => {
         await page.goto(`${ADMIN_URL}/login`);
         await page.getByLabel('Email').fill(viewerEmail);
-        await page.getByLabel('Password').fill(PASSWORD);
+        await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
         await page.getByRole('button', { name: 'Sign in' }).click();
 
         await page.getByRole('link', { name: 'Health' }).click();

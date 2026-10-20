@@ -43,7 +43,7 @@ test.describe('OAuth Phase 1 — schema + login guard', () => {
 
         await page.goto('/login');
         await page.getByLabel('Email').fill(email);
-        await page.getByLabel('Password').fill('anything at all');
+        await page.getByLabel('Password', { exact: true }).fill('anything at all');
         await page.getByRole('button', { name: 'Sign in' }).click();
 
         await expect(
@@ -73,7 +73,7 @@ test.describe('OAuth Phase 1 — schema + login guard', () => {
 
         await page.goto('/login');
         await page.getByLabel('Email').fill(email);
-        await page.getByLabel('Password').fill('wrong password');
+        await page.getByLabel('Password', { exact: true }).fill('wrong password');
         await page.getByRole('button', { name: 'Sign in' }).click();
 
         await expect(page.getByText('Invalid email or password.')).toBeVisible();

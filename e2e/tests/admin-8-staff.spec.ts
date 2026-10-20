@@ -43,7 +43,7 @@ test.afterAll(async () => {
 async function signIn(page: Page, email: string, password: string, goTo = '/') {
     await page.goto(`${ADMIN_URL}${goTo}`);
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password').fill(password);
+    await page.getByLabel('Password', { exact: true }).fill(password);
     await page.getByRole('button', { name: 'Sign in' }).click();
 }
 
@@ -156,7 +156,7 @@ test.describe('Admin dashboard — staff and audit (slice 8)', () => {
         await other.reload();
         await expect(other).toHaveURL(/\/login/);
         await other.getByLabel('Email').fill(HIRE);
-        await other.getByLabel('Password').fill(HIRE_OWN_PASSWORD);
+        await other.getByLabel('Password', { exact: true }).fill(HIRE_OWN_PASSWORD);
         await other.getByRole('button', { name: 'Sign in' }).click();
         await expect(other.getByRole('alert')).toHaveText('Invalid credentials');
 
@@ -164,7 +164,7 @@ test.describe('Admin dashboard — staff and audit (slice 8)', () => {
         await staffRow(page, HIRE_NAME).getByRole('button', { name: 'Enable' }).click();
         await dialog.getByRole('button', { name: 'Enable account' }).click();
         await expect(staffRow(page, HIRE_NAME)).toContainText('Active');
-        await other.getByLabel('Password').fill(HIRE_OWN_PASSWORD);
+        await other.getByLabel('Password', { exact: true }).fill(HIRE_OWN_PASSWORD);
         await other.getByRole('button', { name: 'Sign in' }).click();
         await expect(other).toHaveURL(`${ADMIN_URL}/`);
 
@@ -177,10 +177,10 @@ test.describe('Admin dashboard — staff and audit (slice 8)', () => {
         await other.reload();
         await expect(other).toHaveURL(/\/login/);
         await other.getByLabel('Email').fill(HIRE);
-        await other.getByLabel('Password').fill(HIRE_OWN_PASSWORD);
+        await other.getByLabel('Password', { exact: true }).fill(HIRE_OWN_PASSWORD);
         await other.getByRole('button', { name: 'Sign in' }).click();
         await expect(other.getByRole('alert')).toHaveText('Invalid credentials');
-        await other.getByLabel('Password').fill(HIRE_RESET_PASSWORD);
+        await other.getByLabel('Password', { exact: true }).fill(HIRE_RESET_PASSWORD);
         await other.getByRole('button', { name: 'Sign in' }).click();
         await expect(other).toHaveURL(`${ADMIN_URL}/account/password`);
         await other.context().close();

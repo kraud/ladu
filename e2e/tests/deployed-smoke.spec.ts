@@ -88,7 +88,7 @@ test.describe.serial('Post-deploy smoke', () => {
     test('logs in, creates a word, and deletes it', async ({ page, request, baseURL }) => {
         await page.goto('/login');
         await page.getByLabel('Email').fill(SMOKE_EMAIL);
-        await page.getByLabel('Password').fill(SMOKE_PASSWORD);
+        await page.getByLabel('Password', { exact: true }).fill(SMOKE_PASSWORD);
         await page.getByRole('button', { name: 'Sign in' }).click();
         try {
             await expect(page.getByRole('heading', { name: /Welcome, Smoke Test/ })).toBeVisible();

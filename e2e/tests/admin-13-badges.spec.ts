@@ -95,7 +95,7 @@ test.afterAll(async () => {
 async function staffSignIn(page: Page, role: 'owner' | 'admin', goTo: string) {
     await page.goto(`${ADMIN_URL}${goTo}`);
     await page.getByLabel('Email').fill(staffEmail(role));
-    await page.getByLabel('Password').fill(STAFF_PASSWORD);
+    await page.getByLabel('Password', { exact: true }).fill(STAFF_PASSWORD);
     await page.getByRole('button', { name: 'Sign in' }).click();
 }
 

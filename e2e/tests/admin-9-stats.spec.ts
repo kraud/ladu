@@ -96,7 +96,7 @@ test.describe('Admin dashboard — overview statistics (slice 9)', () => {
     test('a viewer sees exactly the rows this spec added, in tiles, charts and the language list', async ({ page }) => {
         await page.goto(`${ADMIN_URL}/login`);
         await page.getByLabel('Email').fill(viewerEmail);
-        await page.getByLabel('Password').fill(PASSWORD);
+        await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
         await page.getByRole('button', { name: 'Sign in' }).click();
 
         // The home page is the overview, for every role.

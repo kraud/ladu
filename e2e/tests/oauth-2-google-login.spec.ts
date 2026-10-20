@@ -73,7 +73,7 @@ test.describe('OAuth Phase 2 — Google sign-in', () => {
         await expect(page).toHaveURL(/\/login/);
 
         await page.getByLabel('Email').fill(email);
-        await page.getByLabel('Password').fill('password123');
+        await page.getByLabel('Password', { exact: true }).fill('password123');
         await page.getByRole('button', { name: 'Sign in' }).click();
         await expect(page.getByRole('heading', { name: /Welcome, Password Still Works/ })).toBeVisible();
     });
