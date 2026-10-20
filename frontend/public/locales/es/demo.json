@@ -39,6 +39,7 @@
     "signIn": "Iniciar sesión"
   },
   "off": {
+    "kicker": "Demo no disponible por ahora",
     "title": "La demo está desactivada",
     "text": "La demo no está disponible ahora. Puedes crear una cuenta gratuita.",
     "createAccount": "Crear una cuenta"

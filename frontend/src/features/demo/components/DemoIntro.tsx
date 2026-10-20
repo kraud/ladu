@@ -8,16 +8,24 @@ import { TagChip } from '@/components/common/TagChip';
  * title, the lead and the three feature cards. The three small pictures are decorative samples (the
  * words and tags are examples of what the demo account holds), so they are hidden from screen readers
  * and their text is not translated. The call to action is the page's job (`DemoPage`).
+ *
+ * `off` is the same screen while the demo is switched off: one red-dot label, and the card in grayscale.
  */
-export function DemoIntro() {
+export function DemoIntro({ off = false }: { off?: boolean }) {
     const { t } = useTranslation();
 
     return (
-        <div className="demo-intro">
+        <div className={off ? 'demo-intro demo-intro-off' : 'demo-intro'}>
             <p className="demo-kicker">
                 <span className="demo-dot" aria-hidden="true" />
-                {t('demo:start.kicker')} <span className="demo-slash" aria-hidden="true">/</span>{' '}
-                {t('demo:start.kickerNote')}
+                {off ? (
+                    t('demo:off.kicker')
+                ) : (
+                    <>
+                        {t('demo:start.kicker')} <span className="demo-slash" aria-hidden="true">/</span>{' '}
+                        {t('demo:start.kickerNote')}
+                    </>
+                )}
             </p>
 
             <h1 className="demo-title">{t('demo:start.title')}</h1>

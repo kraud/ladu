@@ -51,11 +51,18 @@ export function DemoPage() {
 
     if (status === 'off') {
         return (
-            <AuthLayout blurb={t('demo:start.blurb')} title={t('demo:off.title')} links={links}>
-                <p className="mb-4">{t('demo:off.text')}</p>
-                <Link to="/register" className={buttonVariants({ className: 'w-full' })}>
-                    {t('demo:off.createAccount')}
-                </Link>
+            <AuthLayout blurb={t('demo:start.blurb')} links={links} wide>
+                <DemoIntro off />
+
+                <div className="demo-cta">
+                    <div className="demo-off-note" role="status">
+                        <h2>{t('demo:off.title')}</h2>
+                        <p>{t('demo:off.text')}</p>
+                    </div>
+                    <Link to="/register" className={buttonVariants({ className: 'demo-start' })}>
+                        {t('demo:off.createAccount')}
+                    </Link>
+                </div>
             </AuthLayout>
         );
     }

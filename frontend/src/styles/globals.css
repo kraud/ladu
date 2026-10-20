@@ -434,6 +434,26 @@
     background: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-soft);
   }
+  /* The demo is off: a red dot, and the card without colour. */
+  .demo-intro-off .demo-dot {
+    background: var(--danger);
+    box-shadow: 0 0 0 3px var(--danger-soft);
+  }
+  .demo-intro-off .demo-inside {
+    filter: grayscale(1);
+  }
+  .demo-off-note {
+    text-align: center;
+  }
+  .demo-off-note h2 {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .demo-off-note p {
+    margin-top: 2px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
   .demo-slash {
     color: var(--border);
   }

@@ -39,6 +39,7 @@
     "signIn": "Logi sisse"
   },
   "off": {
+    "kicker": "Demo pole praegu saadaval",
     "title": "Demo on välja lülitatud",
     "text": "Demo pole praegu saadaval. Selle asemel saad luua tasuta konto.",
     "createAccount": "Loo konto"

@@ -39,6 +39,7 @@
     "signIn": "Anmelden"
   },
   "off": {
+    "kicker": "Demo derzeit nicht verfügbar",
     "title": "Die Demo ist aus",
     "text": "Die Demo ist gerade nicht verfügbar. Du kannst stattdessen ein kostenloses Konto erstellen.",
     "createAccount": "Konto erstellen"

@@ -39,6 +39,7 @@
     "signIn": "Sign in"
   },
   "off": {
+    "kicker": "Demo currently not available",
     "title": "The demo is off",
     "text": "The demo is not available now. You can create a free account instead.",
     "createAccount": "Create an account"
