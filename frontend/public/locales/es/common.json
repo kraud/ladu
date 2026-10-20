@@ -71,6 +71,8 @@
     "cancel": "Cancelar",
     "return": "Volver",
     "close": "Cerrar",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
     "clear": "Borrar",
     "remove": "Remover",
     "reset": "Restablecer",

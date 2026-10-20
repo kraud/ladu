@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { decodeJwtPayload } from '@/lib/jwt';
 import { AuthLayout } from './AuthLayout';
@@ -56,7 +56,7 @@ export function OAuthLinkForm({ ticket }: { ticket: string }) {
                                         {t('loginRegister:formLabels.password')} <span className="req">*</span>
                                     </FormLabel>
                                     <FormControl>
-                                        <Input type="password" autoComplete="current-password" {...field} />
+                                        <PasswordInput autoComplete="current-password" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

@@ -4,6 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useCaptcha } from '@/features/captcha/useCaptcha';
 import { useRequestReset, useSetPassword } from '../hooks';
@@ -114,7 +115,7 @@ function SetPasswordForm({ userId, tokenId }: { userId: string; tokenId: string 
                                 {t('loginRegister:formLabels.newPassword')} <span className="req">*</span>
                             </FormLabel>
                             <FormControl>
-                                <Input type="password" autoComplete="new-password" {...field} />
+                                <PasswordInput autoComplete="new-password" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -130,7 +131,7 @@ function SetPasswordForm({ userId, tokenId }: { userId: string; tokenId: string 
                                 <span className="req">*</span>
                             </FormLabel>
                             <FormControl>
-                                <Input type="password" autoComplete="new-password" {...field} />
+                                <PasswordInput autoComplete="new-password" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

@@ -71,6 +71,8 @@
     "cancel": "Tühista",
     "return": "Tagasi",
     "close": "Sulgeda",
+    "showPassword": "Näita parooli",
+    "hidePassword": "Peida parool",
     "clear": "Tühjenda",
     "remove": "Eemalda",
     "reset": "Lähtesta",

@@ -79,6 +79,18 @@ function Placeholder({ title, note }: { title: string; note?: string }) {
 
 const rootRoute = createRootRoute();
 
+/**
+ * Guard for the sign-in screens (login, register, request access): someone with a valid session
+ * has no use for them, so they go to the dashboard. `/demo` is left open on purpose (a signed-in
+ * user can try the demo), and so are the emailed-link pages (verify, reset password) and the
+ * OAuth callback, which must work whatever the session state is.
+ */
+function redirectIfSignedIn() {
+    if (!isTokenExpired(authStore.getState().token)) {
+        throw redirect({ to: '/' });
+    }
+}
+
 // ── Public ─────────────────────────────────────────────────────────────────
 const publicLayoutRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -89,6 +101,7 @@ const publicLayoutRoute = createRoute({
 const loginRoute = createRoute({
     getParentRoute: () => publicLayoutRoute,
     path: '/login',
+    beforeLoad: redirectIfSignedIn,
     validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
         redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
     }),
@@ -98,6 +111,7 @@ const loginRoute = createRoute({
 const registerRoute = createRoute({
     getParentRoute: () => publicLayoutRoute,
     path: '/register',
+    beforeLoad: redirectIfSignedIn,
     component: RegisterPage,
 });
 
@@ -106,6 +120,7 @@ const registerRoute = createRoute({
 const requestRoute = createRoute({
     getParentRoute: () => publicLayoutRoute,
     path: '/request',
+    beforeLoad: redirectIfSignedIn,
     validateSearch: (search: Record<string, unknown>): { account?: boolean } => ({
         account: search.account === true || search.account === 'true' ? true : undefined,
     }),

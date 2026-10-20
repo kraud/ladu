@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useLogin } from '../hooks';
 import { buildLoginSchema, type LoginValues } from '../schemas';
@@ -66,8 +67,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
                         <FormItem>
                             <FormLabel>{t('loginRegister:formLabels.password')}</FormLabel>
                             <FormControl>
-                                <Input
-                                    type="password"
+                                <PasswordInput
                                     autoComplete="current-password"
                                     placeholder="••••••••"
                                     {...field}

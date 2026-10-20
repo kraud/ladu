@@ -51,6 +51,26 @@ describe('_protected.beforeLoad guard', () => {
     });
 });
 
+describe('sign-in screens for a signed-in user', () => {
+    it.each(['/login', '/register', '/request'])('sends a signed-in user from %s to the dashboard', async (path) => {
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com' }, futureToken());
+        const router = await loadAt(path);
+        expect(router.state.location.pathname).toBe('/');
+    });
+
+    it('keeps /demo open for a signed-in user', async () => {
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com' }, futureToken());
+        const router = await loadAt('/demo');
+        expect(router.state.location.pathname).toBe('/demo');
+    });
+
+    it('lets a visitor with an expired token open /login', async () => {
+        useAuthStore.getState().setSession({ id: 'u1', email: 'a@x.com' }, expiredToken());
+        const router = await loadAt('/login');
+        expect(router.state.location.pathname).toBe('/login');
+    });
+});
+
 describe('onboarding redirect', () => {
     const onboardingOn = { ...OPEN_ACCESS, onboarding: { enabled: true } };
     const signIn = (onboardingStatus?: string) =>
