@@ -1,8 +1,27 @@
 {
   "start": {
-    "blurb": "Try Ladu without an account.",
-    "title": "Try the demo",
-    "intro": "The demo opens Ladu with sample words, tags and a practice setup. It lasts a few minutes. When it ends, all your changes are deleted.",
+    "blurb": "Take the demo for a spin: a stocked shelf of sample words, tags and exercises, with no account attached.",
+    "kicker": "Demo",
+    "kickerNote": "no account needed",
+    "title": "The whole platform, ready to try.",
+    "lead": "Step into a sample Ladu account. Words in four languages, tags that already group them, and a practice set waiting to run — <strong>no sign-up, no setup</strong>.",
+    "insideTitle": "Inside the demo",
+    "insideMeta": "No setup required",
+    "features": {
+      "words": {
+        "title": "Every word, four ways.",
+        "text": "Read the same word across English, Deutsch, Español and Eesti."
+      },
+      "tags": {
+        "title": "Tags do the sorting.",
+        "text": "Chapter 1, Kitchen, Exam prep and more — already applied."
+      },
+      "practice": {
+        "title": "Practice, already configured.",
+        "text": "Answer a short exercise set built from your sample words."
+      }
+    },
+    "resetNote": "Takes a few minutes · nothing you change is saved",
     "getStarted": "Get started",
     "back": "Back",
     "languagesTitle": "Which languages do you use?",

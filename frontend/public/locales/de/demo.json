@@ -1,8 +1,27 @@
 {
   "start": {
-    "blurb": "Teste Ladu ohne Konto.",
-    "title": "Demo ausprobieren",
-    "intro": "Die Demo öffnet Ladu mit Beispielwörtern, Tags und einer Übungseinstellung. Sie dauert ein paar Minuten. Danach werden alle deine Änderungen gelöscht.",
+    "blurb": "Probiere die Demo aus: ein gut gefülltes Regal mit Beispielwörtern, Tags und Übungen, ganz ohne Konto.",
+    "kicker": "Demo",
+    "kickerNote": "kein Konto nötig",
+    "title": "Die ganze Plattform, bereit zum Ausprobieren.",
+    "lead": "Tritt in ein Beispielkonto von Ladu ein. Wörter in vier Sprachen, Tags, die sie schon gruppieren, und ein Übungsset, das auf dich wartet – <strong>ohne Anmeldung, ohne Einrichtung</strong>.",
+    "insideTitle": "In der Demo",
+    "insideMeta": "Keine Einrichtung nötig",
+    "features": {
+      "words": {
+        "title": "Jedes Wort in vier Sprachen.",
+        "text": "Lies dasselbe Wort auf English, Deutsch, Español und Eesti."
+      },
+      "tags": {
+        "title": "Tags sortieren für dich.",
+        "text": "Kapitel 1, Küche, Prüfungsvorbereitung und mehr – schon zugewiesen."
+      },
+      "practice": {
+        "title": "Übung, schon eingerichtet.",
+        "text": "Beantworte eine kurze Übungsreihe aus deinen Beispielwörtern."
+      }
+    },
+    "resetNote": "Dauert ein paar Minuten · nichts, was du änderst, wird gespeichert",
     "getStarted": "Los geht's",
     "back": "Zurück",
     "languagesTitle": "Welche Sprachen nutzt du?",

@@ -86,7 +86,7 @@ describe('/demo — the start screen', () => {
         demoOn();
         const user = userEvent.setup();
         await renderApp({ initialEntry: '/demo' });
-        expect(await screen.findByRole('heading', { name: 'Try the demo' })).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'The whole platform, ready to try.' })).toBeInTheDocument();
         await waitFor(() => expect(screen.getByRole('button', { name: 'Get started' })).toBeEnabled());
         expect(screen.queryByRole('button', { name: 'English' })).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Start' })).not.toBeInTheDocument();
@@ -94,7 +94,7 @@ describe('/demo — the start screen', () => {
 
         await getStarted(user);
         expect(screen.getByRole('heading', { name: 'Which languages do you use?' })).toBeInTheDocument();
-        expect(screen.queryByRole('heading', { name: 'Try the demo' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'The whole platform, ready to try.' })).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'English' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument();
         expect(screen.getByText(/By starting the demo/)).toBeInTheDocument();
@@ -110,7 +110,7 @@ describe('/demo — the start screen', () => {
         await pickLanguages(user, 'English', 'Español');
 
         await user.click(screen.getByRole('button', { name: 'Back' }));
-        expect(screen.getByRole('heading', { name: 'Try the demo' })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'The whole platform, ready to try.' })).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Start' })).not.toBeInTheDocument();
 
         await getStarted(user);
