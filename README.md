@@ -26,6 +26,10 @@
   <a href="#-roadmap">Roadmap</a>
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/words.png" alt="The Ladu word table: one row for each word, one column for each language" width="860" />
+</p>
+
 ---
 
 ## 🌍 What is Ladu?
@@ -57,7 +61,28 @@ Your older languages get no practice, so they fade.
 > A Word needs translations in at least **two** languages.
 
 > [!NOTE]
-> This repository is the **v2 rebuild** of Ladu. The backend came from the first version. The frontend is a new build on a modern stack.
+> This repository is the **v2 rebuild** of Ladu. Most of the backend came from the first version, and it might require further optimization. The frontend is a new build on a modern stack, based on the layout and design used on the initial implementation.
+
+## 📸 A quick look
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="docs/screenshots/autocomplete.png" alt="Autocomplete: type a word and Ladu suggests its meanings" />
+      <br /><sub><b>Fast entry.</b> Type a word in any language. Ladu suggests meanings and fills the other languages.</sub>
+    </td>
+    <td width="50%">
+      <img src="docs/screenshots/practice.png" alt="A practice card with instant feedback and a knowledge indicator" />
+      <br /><sub><b>Practice across languages.</b> Here, an English verb form is tested in Estonian. Ladu tracks what you know.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <img src="docs/screenshots/dashboard.png" alt="The dashboard with word counts and charts" />
+      <br /><sub><b>Dashboard.</b> See your vocabulary by language and part of speech, and how it grows.</sub>
+    </td>
+  </tr>
+</table>
 
 ## ✨ Features
 
