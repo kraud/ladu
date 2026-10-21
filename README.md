@@ -47,14 +47,14 @@ Your older languages get no practice, so they fade.
 - Ladu uses this data to build **practice between any two of your languages**, not only "native ↔ target".
 
 ```text
-              ┌──────────────────────────────┐
-              │   Word  ·  "to dance"  ·  Verb │
-              └──────────────┬───────────────┘
-        ┌───────────┬────────┴───┬────────────┐
-        ▼           ▼            ▼            ▼
-      🇬🇧 EN        🇪🇸 ES        🇩🇪 DE        🇪🇪 EE
-      dance        bailar       tanzen       tantsima
-      + forms      + forms      + forms      + forms
+          ┌──────────────────────────────┐
+          │   Word · "to dance" · Verb   │
+          └───────────────┬──────────────┘
+    ┌─────────────┬───────┴─────┬─────────────┐
+    ▼             ▼             ▼             ▼
+    🇬🇧 EN         🇪🇸 ES         🇩🇪 DE         🇪🇪 EE
+    dance         bailar        tanzen        tantsima
+    + forms       + forms       + forms       + forms
 ```
 
 > **Supported languages:** English, Spanish, German, Estonian.
