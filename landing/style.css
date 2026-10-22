@@ -394,6 +394,13 @@ h1 {
     box-shadow: 0 12px 18px -14px rgb(0 0 0 / 0.3);
 }
 
+/* The badge of the part of speech: the look of the tag card's badges (.tag-badge), on a row of its own. */
+.pos {
+    display: flex;
+    width: fit-content;
+    margin-bottom: 1.8cqw;
+}
+
 .bubble ul {
     list-style: none;
     margin: 0;
