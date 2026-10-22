@@ -38,7 +38,7 @@
             heading: 'Keep all your languages alive.',
             leadA: 'Ladu is a vocabulary manager for people who speak more than one language.',
             leadB: 'Save each word once, with its translations in every language you know.',
-            leadC: 'Then practise them together.',
+            leadC: 'Then practice them together.',
             exerciseCard: 'Example exercise',
             leadD: 'Group words into tags. Keep them private or share them.',
             tagCard: 'Example tags',
@@ -53,6 +53,8 @@
             signIn: 'Sign in',
             tryDemo: 'Try the demo',
             card: 'Example word: dance, in four languages',
+            /* the part of speech on the badge above the rows of the word card (as in the app's common.json) */
+            pos: { verb: 'Verb', noun: 'Noun', adj: 'Adjective', adv: 'Adverb' },
             privacy: 'Privacy',
             terms: 'Terms',
             credits: 'Credits',
@@ -93,6 +95,8 @@
             signIn: 'Iniciar sesión',
             tryDemo: 'Probar la demo',
             card: 'Palabra de ejemplo: «dance», en cuatro idiomas',
+            /* the part of speech on the badge above the rows of the word card (as in the app's common.json) */
+            pos: { verb: 'Verbo', noun: 'Sustantivo', adj: 'Adjetivo', adv: 'Adverbio' },
             privacy: 'Privacidad',
             terms: 'Términos',
             credits: 'Créditos',
@@ -133,6 +137,8 @@
             signIn: 'Anmelden',
             tryDemo: 'Demo ausprobieren',
             card: 'Beispielwort: „dance“ in vier Sprachen',
+            /* the part of speech on the badge above the rows of the word card (as in the app's common.json) */
+            pos: { verb: 'Verb', noun: 'Substantiv', adj: 'Adjektiv', adv: 'Adverb' },
             privacy: 'Datenschutz',
             terms: 'Nutzungsbedingungen',
             credits: 'Danksagungen',
@@ -173,6 +179,8 @@
             signIn: 'Logi sisse',
             tryDemo: 'Proovi demot',
             card: 'Näitesõna: „dance“ neljas keeles',
+            /* the part of speech on the badge above the rows of the word card (as in the app's common.json) */
+            pos: { verb: 'Tegusõna', noun: 'Nimisõna', adj: 'Omadussõna', adv: 'Määrsõna' },
             privacy: 'Privaatsus',
             terms: 'Kasutustingimused',
             credits: 'Autorid ja litsentsid',
@@ -277,6 +285,8 @@
                     if (text !== undefined) el.setAttribute(parts[0], text);
                 });
         });
+
+        document.querySelectorAll('[data-pos]').forEach(showPos);
     }
 
     /* The address of `path` in the app, with the visitor's choices: ?lng always,
@@ -487,10 +497,10 @@
        examples: they are not translated into the interface language. Visitors who asked for less
        motion get the first word and no rolling; a hidden tab skips the turn. */
     var WORDS = [
-        { en: 'dance', es: 'bailar', de: 'tanzen', ee: 'tantsima' },
-        { en: 'house', es: 'casa', de: 'Haus', ee: 'maja', gender: { es: 'la', de: 'das' } },
-        { en: 'pretty', es: 'bonito', de: 'hübsch', ee: 'ilus' },
-        { en: 'very', es: 'muy', de: 'sehr', ee: 'väga' },
+        { pos: 'verb', en: 'dance', es: 'bailar', de: 'tanzen', ee: 'tantsima' },
+        { pos: 'noun', en: 'house', es: 'casa', de: 'Haus', ee: 'maja', gender: { es: 'la', de: 'das' } },
+        { pos: 'adj', en: 'pretty', es: 'bonito', de: 'hübsch', ee: 'ilus' },
+        { pos: 'adv', en: 'very', es: 'muy', de: 'sehr', ee: 'väga' },
     ];
     var ROLL_MS = 5000;
     /* true: all four rows change at the same moment. false: one row after the other, a short delay apart. */
@@ -683,6 +693,17 @@
         }
     }
 
+    /* The part of speech on the badge above the rows, in the interface language. The key stays on the element
+       (data-pos), so a change of language can write it again. */
+    function setPos(el, index) {
+        el.setAttribute('data-pos', WORDS[index].pos);
+        showPos(el);
+    }
+
+    function showPos(el) {
+        el.querySelector('.pos-text').textContent = STRINGS[language].pos[el.getAttribute('data-pos')] || '';
+    }
+
     /* Desktop: the three previews share one place and take turns, each for its first three states (FEATURE_STEPS
        beats; the fourth is not shown, so a turn is shorter), while its part of the hint on the left is highlighted.
        On the phone all three are always shown, all change on every beat, and they show all four states. */
@@ -717,6 +738,7 @@
     function rollWords() {
         var terms = document.querySelectorAll('[data-term]');
         if (!terms.length) return;
+        var pos = document.querySelector('[data-pos]');
         var stage = document.querySelector('[data-exercise]');
         var tagStage = document.querySelector('[data-tags]');
         var parts = document.querySelectorAll('[data-feat]');
@@ -741,6 +763,7 @@
                 terms.forEach(function (el) {
                     setTerm(el, 0);
                 });
+                if (pos) setPos(pos, 0);
                 if (stage) setExercise(stage, 0);
                 if (tagStage) setTags(tagStage, 0);
                 /* The preview that comes in jumps to below with no transition, then settles. */
@@ -763,6 +786,7 @@
                 return;
             }
 
+            if (pos) roll(pos, function () { setPos(pos, index); });
             terms.forEach(function (el, row) {
                 window.setTimeout(function () {
                     roll(el, function () {

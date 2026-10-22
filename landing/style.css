@@ -165,19 +165,36 @@ main {
 
 .hero {
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 4rem;
+    width: 100%;
+    /* The text column is as wide as its widest line (the title is on one row, so a longer language makes it grow);
+       the display keeps its width. The pair is centred, so the gap between them does not change. */
+    grid-template-columns: max-content minmax(0, 26rem);
+    justify-content: center;
+    gap: 3rem;
     align-items: center;
     padding-block: 3rem 4rem;
+}
+
+/* On a narrower window the two columns share the row in proportion, so the display is not squeezed. */
+@media (min-width: 52.01rem) and (max-width: 74rem) {
+    .hero {
+        grid-template-columns: 1.615fr 1fr;
+    }
 }
 
 h1 {
     margin: 0 0 1.25rem;
     font-family: var(--font-display);
-    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-size: clamp(1.9rem, 4.4vw, 3rem);
     font-weight: 600;
     line-height: 1.08;
     letter-spacing: -0.01em;
+}
+
+/* The title stays on one row; its size follows the window until the page stops growing. */
+.hero-title h1 {
+    font-size: clamp(1.6rem, 3.1vw, 2.4rem);
+    white-space: nowrap;
 }
 
 .lead {
@@ -362,47 +379,29 @@ h1 {
     visibility: visible;
 }
 
-/* The example word: one concept, four languages, each with its own colour, inside the logo's message
-   bubble (brand/Ladu_bubble_outline.svg, drawn from the paths of Ladu_title_with_icon.svg). The bubble
-   keeps the shape's proportions (66 : 62); the rows sit inside its body, above the tail. Everything inside
-   is sized in `cqw` (a hundredth of the bubble's width), so the rows fill the bubble at any size.
-   The surface fill and the accent outline are masks of two brand files with the same path (the outline is a
-   thin stroke of it, the surface its fill), so both follow the theme and meet exactly. */
+/* The example word: one concept, four languages, each with its own colour, in a flat card like the exercise and the
+   tag card. Everything inside is sized in `cqw` (a hundredth of the card's width), so the rows fill the card at any size. */
 .bubble {
     position: relative;
     container-type: inline-size;
     width: 100%;
     max-width: 28rem;
     justify-self: center;
-    aspect-ratio: 66 / 62;
-    filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.12));
-}
-
-.bubble::before,
-.bubble::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    -webkit-mask: center / 100% 100% no-repeat;
-    mask: center / 100% 100% no-repeat;
-}
-
-.bubble::before {
+    padding: 4cqw 4.5cqw;
     background: var(--surface);
-    -webkit-mask-image: url('/brand/Ladu_bubble_surface.svg');
-    mask-image: url('/brand/Ladu_bubble_surface.svg');
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 18px -14px rgb(0 0 0 / 0.3);
 }
 
-.bubble::after {
-    background: var(--accent);
-    -webkit-mask-image: url('/brand/Ladu_bubble_outline.svg');
-    mask-image: url('/brand/Ladu_bubble_outline.svg');
+/* The badge of the part of speech: the look of the tag card's badges (.tag-badge), on a row of its own. */
+.pos {
+    display: flex;
+    width: fit-content;
+    margin-bottom: 1.8cqw;
 }
 
 .bubble ul {
-    position: absolute;
-    inset: 9% 8% 21% 8%;
-    z-index: 1;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -599,6 +598,10 @@ h1 {
         padding: 1.4rem 1.5rem 1.25rem;
     }
 
+    .hero .bubble {
+        padding: 1.4rem 1.5rem;
+    }
+
     .hero .tagcard {
         padding: 1.4rem 1.5rem;
     }
@@ -654,9 +657,28 @@ h1 {
     }
 }
 
-/* Phone-only parts of the hero; the desktop does not show them. */
+/* The logo above the title. The desktop home page has it here and not in the header; the phone sizes it again. */
 .hero-mark {
+    display: block;
+    width: min(100%, 21rem);
+    height: auto;
+    margin-bottom: 1.5rem;
+}
+
+.home .brand {
     display: none;
+}
+
+/* The home page is wider than the other pages, so the right column keeps its old width (about 26rem) next to the
+   wider left column. */
+.home .site-header,
+.home main,
+.home .site-footer {
+    max-width: 74rem;
+}
+
+.home .login {
+    margin-left: auto;
 }
 
 .site-footer {
@@ -1238,6 +1260,7 @@ main.legal {
         display: block;
         width: min(78%, 17rem);
         height: auto;
+        margin-bottom: 0;
     }
 
     /* One line, whatever the width: the size follows the window (about 5.4vw fits 30 letters). */
@@ -1417,4 +1440,50 @@ main.legal {
     font: inherit;
     font-weight: 600;
     cursor: pointer;
+}
+
+/* A large window (100rem, 1600px, and up; a 14-inch laptop is about 1512px wide): the logo inside the bubble replaces
+   the wordmark above the title, and the page, the text and the previews are bigger to use the room. Smaller windows
+   and the phone keep the wordmark. */
+.hero-mark-b {
+    display: none;
+}
+
+@media (min-width: 100rem) {
+    .hero-mark {
+        display: none;
+    }
+
+    .hero-mark-b {
+        display: block;
+        width: 16rem;
+        height: auto;
+        margin-bottom: 1.75rem;
+    }
+
+    .home .site-header,
+    .home main,
+    .home .site-footer {
+        max-width: 90rem;
+    }
+
+    .hero {
+        grid-template-columns: max-content minmax(0, 33rem);
+        gap: 4rem;
+    }
+
+    .hero-title h1 {
+        font-size: 3rem;
+    }
+
+    .lead {
+        max-width: 40rem;
+        font-size: 1.3rem;
+    }
+
+    .bubble,
+    .exercise,
+    .tagcard {
+        max-width: 33rem;
+    }
 }
