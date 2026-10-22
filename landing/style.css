@@ -166,10 +166,20 @@ main {
 .hero {
     display: grid;
     width: 100%;
-    grid-template-columns: 1.615fr 1fr;
+    /* The text column is as wide as its widest line (the title is on one row, so a longer language makes it grow);
+       the display keeps its width. The pair is centred, so the gap between them does not change. */
+    grid-template-columns: max-content minmax(0, 26rem);
+    justify-content: center;
     gap: 3rem;
     align-items: center;
     padding-block: 3rem 4rem;
+}
+
+/* On a narrower window the two columns share the row in proportion, so the display is not squeezed. */
+@media (min-width: 52.01rem) and (max-width: 74rem) {
+    .hero {
+        grid-template-columns: 1.615fr 1fr;
+    }
 }
 
 h1 {
