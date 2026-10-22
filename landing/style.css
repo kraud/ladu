@@ -1441,3 +1441,49 @@ main.legal {
     font-weight: 600;
     cursor: pointer;
 }
+
+/* A large window (100rem, 1600px, and up; a 14-inch laptop is about 1512px wide): the logo inside the bubble replaces
+   the wordmark above the title, and the page, the text and the previews are bigger to use the room. Smaller windows
+   and the phone keep the wordmark. */
+.hero-mark-b {
+    display: none;
+}
+
+@media (min-width: 100rem) {
+    .hero-mark {
+        display: none;
+    }
+
+    .hero-mark-b {
+        display: block;
+        width: 16rem;
+        height: auto;
+        margin-bottom: 1.75rem;
+    }
+
+    .home .site-header,
+    .home main,
+    .home .site-footer {
+        max-width: 90rem;
+    }
+
+    .hero {
+        grid-template-columns: max-content minmax(0, 33rem);
+        gap: 4rem;
+    }
+
+    .hero-title h1 {
+        font-size: 3rem;
+    }
+
+    .lead {
+        max-width: 40rem;
+        font-size: 1.3rem;
+    }
+
+    .bubble,
+    .exercise,
+    .tagcard {
+        max-width: 33rem;
+    }
+}
