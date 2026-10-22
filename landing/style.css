@@ -379,47 +379,22 @@ h1 {
     visibility: visible;
 }
 
-/* The example word: one concept, four languages, each with its own colour, inside the logo's message
-   bubble (brand/Ladu_bubble_outline.svg, drawn from the paths of Ladu_title_with_icon.svg). The bubble
-   keeps the shape's proportions (66 : 62); the rows sit inside its body, above the tail. Everything inside
-   is sized in `cqw` (a hundredth of the bubble's width), so the rows fill the bubble at any size.
-   The surface fill and the accent outline are masks of two brand files with the same path (the outline is a
-   thin stroke of it, the surface its fill), so both follow the theme and meet exactly. */
+/* The example word: one concept, four languages, each with its own colour, in a flat card like the exercise and the
+   tag card. Everything inside is sized in `cqw` (a hundredth of the card's width), so the rows fill the card at any size. */
 .bubble {
     position: relative;
     container-type: inline-size;
     width: 100%;
     max-width: 28rem;
     justify-self: center;
-    aspect-ratio: 66 / 62;
-    filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.12));
-}
-
-.bubble::before,
-.bubble::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    -webkit-mask: center / 100% 100% no-repeat;
-    mask: center / 100% 100% no-repeat;
-}
-
-.bubble::before {
+    padding: 4cqw 4.5cqw;
     background: var(--surface);
-    -webkit-mask-image: url('/brand/Ladu_bubble_surface.svg');
-    mask-image: url('/brand/Ladu_bubble_surface.svg');
-}
-
-.bubble::after {
-    background: var(--accent);
-    -webkit-mask-image: url('/brand/Ladu_bubble_outline.svg');
-    mask-image: url('/brand/Ladu_bubble_outline.svg');
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 18px -14px rgb(0 0 0 / 0.3);
 }
 
 .bubble ul {
-    position: absolute;
-    inset: 9% 8% 21% 8%;
-    z-index: 1;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -614,6 +589,10 @@ h1 {
     /* A card's own padding cannot use its own `cqw` (it counts the window here), so it is in rem. */
     .hero .exercise {
         padding: 1.4rem 1.5rem 1.25rem;
+    }
+
+    .hero .bubble {
+        padding: 1.4rem 1.5rem;
     }
 
     .hero .tagcard {
