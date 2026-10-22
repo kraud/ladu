@@ -38,7 +38,7 @@
             heading: 'Keep all your languages alive.',
             leadA: 'Ladu is a vocabulary manager for people who speak more than one language.',
             leadB: 'Save each word once, with its translations in every language you know.',
-            leadC: 'Then practise them together.',
+            leadC: 'Then practice them together.',
             exerciseCard: 'Example exercise',
             leadD: 'Group words into tags. Keep them private or share them.',
             tagCard: 'Example tags',
