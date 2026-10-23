@@ -41,6 +41,25 @@ import { SenseTypeAhead } from './SenseTypeAhead';
 /** The parts of speech a draft can be made for (the translation table covers these four). */
 const DRAFT_PARTS_OF_SPEECH = [PartOfSpeech.noun, PartOfSpeech.verb, PartOfSpeech.adjective, PartOfSpeech.adverb];
 
+/** The last chosen language, kept per browser: a convenience, so every access is wrapped. */
+export const REMEMBERED_LANGUAGE_KEY = 'ladu.startFromWord.language';
+
+function loadRememberedLanguage(): string | null {
+    try {
+        return localStorage.getItem(REMEMBERED_LANGUAGE_KEY);
+    } catch {
+        return null;
+    }
+}
+
+function rememberLanguage(language: string): void {
+    try {
+        localStorage.setItem(REMEMBERED_LANGUAGE_KEY, language);
+    } catch {
+        /* storage unavailable or full: the next visit starts from the UI language */
+    }
+}
+
 export function StartFromWord({
     onDraft,
     header,
@@ -60,8 +79,14 @@ export function StartFromWord({
         return own.length > 0 ? own : UI_LANGUAGES;
     }, [user?.languages]);
 
+    // The last chosen language if the account still has it, else the UI language.
     const [language, setLanguage] = useState<string>(
-        () => (accountLanguages.find((l) => l.label === user?.uiLanguage) ?? accountLanguages[0]).label,
+        () =>
+            (
+                accountLanguages.find((l) => l.label === loadRememberedLanguage()) ??
+                accountLanguages.find((l) => l.label === user?.uiLanguage) ??
+                accountLanguages[0]
+            ).label,
     );
     const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeech | 'Any'>('Any');
     const [text, setText] = useState('');
@@ -113,7 +138,12 @@ export function StartFromWord({
                     </div>
                 </div>
                 <div className={isMobile ? 'grid grid-cols-2 gap-3' : 'flex items-center gap-3'}>
-                    <Select<string> value={language} onValueChange={(value) => value && setLanguage(value)}>
+                    <Select<string> value={language} onValueChange={(value) => {
+                            if (!value) return;
+                            setLanguage(value);
+                            rememberLanguage(value);
+                        }}
+                    >
                         <SelectTrigger
                             aria-label={t('wordRelated:startFromWord.languageLabel')}
                             data-testid="start-language"
@@ -160,6 +190,7 @@ export function StartFromWord({
                             language={entry.label as Lang}
                             partOfSpeech={partOfSpeech}
                             partsOfSpeech={DRAFT_PARTS_OF_SPEECH}
+                            accountLanguages={accountLanguages.map((l) => l.label)}
                             value={text}
                             onValueChange={setText}
                             onPick={(suggestion) => {

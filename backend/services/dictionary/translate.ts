@@ -188,6 +188,8 @@ export interface SenseSuggestion {
     /** Wiktionary's label for the sense; may be empty. */
     sense: string;
     key: SenseKey;
+    /** The languages the sense has a word in, in TRANSLATE_LANGUAGES order. English is always there: it is the hub. */
+    languages: Language[];
 }
 
 /**
@@ -258,10 +260,32 @@ export async function senseSuggestions(
                 english: row.englishLemma,
                 sense: row.sense,
                 key: { englishLemma: row.englishLemma, entryOrder: row.entryOrder, senseOrder: row.senseOrder },
+                languages: ['English'],
             });
         }
     }
-    return [...bySense.values()].slice(0, limit);
+    const listed = [...bySense.values()].slice(0, limit);
+    await addCoveredLanguages(listed);
+    return listed;
+}
+
+/** Fills `languages` of the listed senses: one query for the languages that have a word in any of them. */
+async function addCoveredLanguages(suggestions: SenseSuggestion[]): Promise<void> {
+    if (suggestions.length === 0) return;
+    const t = lexemeTranslations;
+    const rows = await db
+        .selectDistinct({ partOfSpeech: t.partOfSpeech, englishLemma: t.englishLemma, entryOrder: t.entryOrder, senseOrder: t.senseOrder, language: t.language })
+        .from(t)
+        .where(inArray(t.englishSearchKey, [...new Set(suggestions.map((s) => searchKey(s.english)))]));
+    const covered = new Map<string, Set<string>>();
+    for (const row of rows) {
+        const id = `${row.partOfSpeech}\u0000${senseId(row)}`;
+        covered.set(id, (covered.get(id) ?? new Set()).add(row.language));
+    }
+    for (const s of suggestions) {
+        const has = covered.get(`${s.partOfSpeech}\u0000${senseId(s.key)}`);
+        s.languages = TRANSLATE_LANGUAGES.filter((language) => language === 'English' || has?.has(language));
+    }
 }
 
 /** One sense with the words of the asked languages only (a key is absent when the language was not asked). */

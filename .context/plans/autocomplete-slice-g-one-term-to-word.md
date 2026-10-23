@@ -307,6 +307,17 @@ the stored value. Every input of a form is the same width. Display-only mode is 
 `FieldRenderer.test.tsx` (2) and the e2e spec `field-affixes.spec.ts`, which measures the box widths in a
 browser (German adjective: Comparative vs "am" Superlative; German verb: every person input).
 
+### Remembered language and covered-language flags (2026-10-23, user feedback)
+
+- The language select remembers the last choice in `localStorage` (`ladu.startFromWord.language`),
+  per browser. A saved language that is not on the account, or not a language, is ignored: the UI
+  language is the fallback. The part of speech is not remembered.
+- Each sense suggestion has `languages`: the languages the sense has a word in, in the fixed language
+  order (English always: it is the hub). The backend adds it with one extra query for the listed
+  senses (`addCoveredLanguages` in `translate.ts`). The frontend (`coveredLanguages.ts`) keeps only the
+  account languages, leaves out the start language, and shows up to 4 flags at the end of the line,
+  then a "+N" badge. Tests: `dictionary.test.js`, `coveredLanguages.test.ts`, `StartFromWord.test.tsx`.
+
 ## 5. Decisions (proposed — number after approval)
 
 | # | Proposal |

@@ -106,7 +106,7 @@ const translate = asyncHandler(async (req: any, res: any) => {
 // @route   GET /api/dictionary/translate/:fromLanguage?prefix=<text>&partOfSpeech=Any|Noun|Verb|Adjective|Adverb
 //          &limit=<1..20, default 10>  (fromLanguage: the language of the typed text; partOfSpeech default Any)
 // @access  Private
-// @returns 200 { suggestions: [{ word, partOfSpeech, gender?, english, sense, key: { englishLemma, entryOrder, senseOrder } }] }
+// @returns 200 { suggestions: [{ word, partOfSpeech, gender?, english, sense, key: { englishLemma, entryOrder, senseOrder }, languages: [<language the sense has a word in>] }] }
 //          400 an unknown language or part of speech, a prefix shorter than 2 or longer than 100, or a bad limit
 const suggestSenses = asyncHandler(async (req: any, res: any) => {
     const { fromLanguage } = req.params;

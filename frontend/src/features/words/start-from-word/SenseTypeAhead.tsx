@@ -9,18 +9,21 @@
  * language). A line: the word (with its article) and the meaning ("bank — financial institution").
  * While the part of speech select says "Any" the lines are grouped by part of speech: a small heading
  * per group and a separator line between groups (the groups follow the order of the select), both in the
- * accent colour so the groups stand out in a long list. The list
+ * accent colour so the groups stand out in a long list. A line ends with the flags of the other account
+ * languages the sense covers (up to 4, then a "+N" badge; toned down so they do not draw the eye). The list
  * closes on a pick, Escape, Tab and a click outside.
  */
 import { Fragment, useId, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Autocomplete } from '@base-ui/react/autocomplete';
+import { FlagIcon } from '@/components/common/FlagIcon';
 import { Input } from '@/components/ui/input';
 import { MIN_PREFIX_LENGTH, useSenseSuggestions } from '@/features/autocomplete/hooks';
 import type { SenseSuggestion } from '@/features/autocomplete/types';
 import { useDebouncedCallback } from '@/lib/useDebouncedCallback';
 import { partOfSpeechLabelKey } from '@/lib/words';
 import type { Lang, PartOfSpeech } from '@/ts/enums';
+import { coveredLanguages } from './coveredLanguages';
 
 const SUGGEST_DEBOUNCE_MS = 150;
 
@@ -55,6 +58,7 @@ export function SenseTypeAhead({
     label,
     placeholder,
     partsOfSpeech,
+    accountLanguages,
 }: {
     language: Lang;
     partOfSpeech: PartOfSpeech | 'Any';
@@ -65,6 +69,8 @@ export function SenseTypeAhead({
     placeholder: string;
     /** The parts of speech, in the order of the groups. */
     partsOfSpeech: readonly string[];
+    /** The languages of the account: the flags of a line cover only these. */
+    accountLanguages: readonly string[];
 }) {
     const { t } = useTranslation();
     const inputId = useId();
@@ -81,7 +87,9 @@ export function SenseTypeAhead({
     const grouped = partOfSpeech === 'Any';
     const groups = useMemo(() => (grouped ? groupByPartOfSpeech(items, partsOfSpeech) : []), [grouped, items, partsOfSpeech]);
 
-    const renderItem = (item: SenseSuggestion) => (
+    const renderItem = (item: SenseSuggestion) => {
+        const { shown, more } = coveredLanguages(item.languages, language, accountLanguages);
+        return (
         <Autocomplete.Item
             key={itemId(item)}
             value={item}
@@ -89,19 +97,30 @@ export function SenseTypeAhead({
                 setOpen(false);
                 onPick(item);
             }}
-            className="flex cursor-default flex-col gap-0.5 rounded-md px-2.5 py-1.5 text-sm outline-hidden select-none data-highlighted:bg-(--hover)"
+            className="flex cursor-default items-center gap-2 rounded-md px-2.5 py-1.5 text-sm outline-hidden select-none data-highlighted:bg-(--hover)"
         >
-            <span className="flex items-baseline gap-1.5">
-                {item.gender && (
-                    <>
-                        <span className="text-muted-foreground">{item.gender}</span>{' '}
-                    </>
-                )}
-                <span className="font-medium">{item.word}</span>
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="flex items-baseline gap-1.5">
+                    {item.gender && (
+                        <>
+                            <span className="text-muted-foreground">{item.gender}</span>{' '}
+                        </>
+                    )}
+                    <span className="font-medium">{item.word}</span>
+                </span>
+                {meaningOf(item, language) && <span className="text-xs text-muted-foreground">{meaningOf(item, language)}</span>}
             </span>
-            {meaningOf(item, language) && <span className="text-xs text-muted-foreground">{meaningOf(item, language)}</span>}
+            {shown.length > 0 && (
+                <span data-testid="sense-languages" aria-hidden className="flex shrink-0 items-center gap-1">
+                    {shown.map((covered) => (
+                        <FlagIcon key={covered} lang={covered} width={14} height={14} className="opacity-80 saturate-75" />
+                    ))}
+                    {more > 0 && <span className="rounded-full bg-(--hover) px-1.5 text-xs text-muted-foreground">+{more}</span>}
+                </span>
+            )}
         </Autocomplete.Item>
-    );
+        );
+    };
 
     const renderGroup = (group: Group, index: number) => (
         <Fragment key={group.value}>

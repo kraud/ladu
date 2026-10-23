@@ -39,7 +39,7 @@ describe('AddWordPage', () => {
     it('shows "Start from a word" above the part-of-speech list; a draft opens the form with one filled card per language, ready to save', async () => {
         const fake = makeStartFromWordHandlers({
             suggestions: {
-                English: [{ word: 'bank', partOfSpeech: 'Noun', english: 'bank', sense: 'financial institution', key: { englishLemma: 'bank', entryOrder: 0, senseOrder: 0 } }],
+                English: [{ word: 'bank', partOfSpeech: 'Noun', english: 'bank', sense: 'financial institution', key: { englishLemma: 'bank', entryOrder: 0, senseOrder: 0 }, languages: ['English', 'Spanish'] }],
             },
             senses: {
                 'bank|0|0': { sense: { english: 'bank', sense: 'financial institution', words: { English: [{ word: 'bank' }], Spanish: [{ word: 'banco', gender: 'el' }] } } },
