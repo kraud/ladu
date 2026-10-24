@@ -21,6 +21,10 @@ RUN npm run build
 
 FROM caddy:alpine
 
+# Alpine package fixes reach caddy:alpine later than they reach the Alpine mirror, so the
+# scan would fail on a fixed OS package (for example brotli-libs, 2026-10-24). Upgrade them here.
+RUN apk upgrade --no-cache
+
 COPY index.html privacy.html terms.html credits.html impressum.html style.css app.js region.js favicon.svg robots.txt /srv/
 COPY brand/ /srv/brand/
 COPY flags/ /srv/flags/
