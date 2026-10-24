@@ -154,7 +154,16 @@ describe('Spanish adjective and adverb selectors', () => {
     });
 
     test('an adverb takes its comparative and has no forms otherwise', () => {
-        expect(adverb('bien').comparativeES).toBe('mejor');
+        expect(adverb('bien')).toMatchObject({ gradableES: 'Gradable', comparativeES: 'mejor' });
+        expect(adverb('bien').periphrasticComparativeES).toBeUndefined();
+        // No degree form: the radio stays empty, because the lexicon does not prove "Non-gradable".
         expect(adverb('rápidamente')).toEqual({ adverbES: 'rápidamente' });
+    });
+
+    test('a "más" comparative is sent as the box, without the phrase; the superlative stays as it is', () => {
+        const pronto = { word: 'pronto', pos: 'adv', forms: [{ form: 'más pronto', tags: ['comparative'] }, { form: 'prontísimo', tags: ['superlative'] }] };
+        expect(Object.fromEntries(selectCases(pronto, ADVERB_SELECTORS_ES))).toEqual({
+            gradableES: 'Gradable', adverbES: 'pronto', superlativeES: 'prontísimo', periphrasticComparativeES: 'true',
+        });
     });
 });

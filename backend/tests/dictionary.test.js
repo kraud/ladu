@@ -288,7 +288,7 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         const res = await lookup(`Estonian/Adverb/kiiresti`);
         expect(res.statusCode).toBe(200);
         expect(res.body.status).toBe('found');
-        expect(casesOf(res.body)).toEqual({ adverbEE: 'kiiresti', comparativeEE: 'kiiremini', periphrasticSuperlativeEE: 'true' });
+        expect(casesOf(res.body)).toEqual({ gradableEE: 'Gradable', adverbEE: 'kiiresti', comparativeEE: 'kiiremini', periphrasticSuperlativeEE: 'true' });
         expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
             'https://ekilex.test/api/word/ids/kiiresti/eki/est',
             'https://ekilex.test/api/paradigm/details/31',
@@ -416,7 +416,7 @@ describe('adjectives and adverbs (Slice H2: the lexicon alone, a miss is not-fou
     it('English: an adjective takes -er/-est or more/most, an adverb the same', async () => {
         expect(casesOf((await lookup('English/Adjective/big')).body)).toEqual({ positiveEN: 'big', comparativeEN: 'bigger', superlativeEN: 'biggest' });
         expect(casesOf((await lookup('English/Adjective/beautiful')).body).comparativeEN).toBe('more beautiful');
-        expect(casesOf((await lookup('English/Adverb/quickly')).body)).toEqual({ adverbEN: 'quickly', comparativeEN: 'more quickly', superlativeEN: 'most quickly' });
+        expect(casesOf((await lookup('English/Adverb/quickly')).body)).toEqual({ gradableEN: 'Gradable', adverbEN: 'quickly', periphrasticEN: 'true' });
     });
 
     it('English: a homograph stub does not hide the main sense ("good")', async () => {
@@ -443,9 +443,9 @@ describe('adjectives and adverbs (Slice H2: the lexicon alone, a miss is not-fou
         expect(casesOf((await lookup('German/Adjective/lila')).body)).toEqual({ positiveDE: 'lila' });
     });
 
-    it('German: an adverb is Gradable when it has a comparative, else Non-gradable', async () => {
+    it('German: an adverb is Gradable when it has a comparative, else the radio is left empty', async () => {
         expect(casesOf((await lookup('German/Adverb/oft')).body)).toMatchObject({ gradableDE: 'Gradable', comparativeDE: 'öfter', superlativeDE: 'öftesten' });
-        expect(casesOf((await lookup('German/Adverb/hier')).body)).toEqual({ gradableDE: 'Non-gradable', adverbDE: 'hier' });
+        expect(casesOf((await lookup('German/Adverb/hier')).body)).toEqual({ adverbDE: 'hier' });
     });
 
     it('a word not in the lexicon is not-found: there is no library to guess with', async () => {

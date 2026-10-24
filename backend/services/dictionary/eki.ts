@@ -23,7 +23,8 @@
  *   groups `komp` and `superl`. Decision D27: "kõige …" is the normal superlative of an adverb
  *   ("kõige paremini"; the one-word "parimini" is rare), so when any "kõige …" form is listed the
  *   flag `periphrasticSuperlativeEE` is "true" and no superlative is sent. Only when none is
- *   listed does a one-word superlative fill `superlativeEE` (flag "false"). No relations: nothing.
+ *   listed does a one-word superlative fill `superlativeEE` (flag "false"). Any degree form also sends
+ *   `gradableEE: "Gradable"`. No relations: nothing, not even the radio (no proof of "Non-gradable").
  * - Several forms for one code ("häid", "heasid"): the first listed (D19).
  * - Translations (Slice F2, D22): `estonianEquivalents` reads the Estonian words of the meanings
  *   that list the query word in its own language. It fills the Estonian gap of the translate route.
@@ -164,9 +165,12 @@ export function adverbComparisonCases(details: WordDetails): [string, string][] 
 
 export function transformAdverb(paradigm: Paradigm | undefined, details: WordDetails = {}): LookupResult {
     if (!paradigm) return NOT_FOUND;
+    const comparison = adverbComparisonCases(details);
     return found(toCases([
+        // Gradable only when a degree form exists: no relation does not prove a non-gradable adverb.
+        ...(comparison.length > 0 ? ([['gradableEE', 'Gradable']] as [string, string][]) : []),
         ['adverbEE', formOf(paradigm, 'ID')],
-        ...adverbComparisonCases(details),
+        ...comparison,
     ]));
 }
 

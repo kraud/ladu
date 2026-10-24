@@ -92,16 +92,16 @@ Effect of Q9 on the Estonian form: today the Estonian derived superlative ("kõi
 
 **Files:** `backend/lib/lexicon/selectors/{en,es}.ts`, the Estonian adverb lookup (Ekilex, `ingest-et.ts` side), `backend/tests/unit/lexiconSelectors*.test.js`, `backend/tests/dictionary.test.js`, `e2e/tests/autocomplete-g-adjectives-adverbs.spec.ts`.
 
-German today: a comparative in the lexicon gives "Gradable"; no comparative gives "Non-gradable" (D24). That rule is safe for German only because the lexicon is complete for it.
+German before this change: a comparative in the lexicon gave "Gradable"; no comparative gave "Non-gradable" (D24).
 
 For the other languages, a missing comparative does **not** prove "Non-gradable". The lexicon has degree forms for about 53% of EN adverbs, 1.5% of ES adverbs, and EE has none (`autocomplete-coverage-report.md`).
 
-Proposed rule (recommended): if the lexicon returns a comparative or a superlative, set "Gradable". If it returns none, leave the radio empty and let the user choose. Only German keeps its "Non-gradable" rule.
+Proposed rule (recommended): if the lexicon returns a comparative or a superlative, set "Gradable". If it returns none, leave the radio empty and let the user choose. **Changed by the user on 2026-10-24: German follows the same rule.** No language fills "Non-gradable" automatically.
 
 Prefix rule (decision Q6). For each language, the autocomplete:
-- EN: when the comparative starts with "more " and the superlative with "most " and both end with the adverb, it sends no comparative and no superlative, and sets `periphrasticEN = true`. The lexicon already finds these forms in `degreeEN` (`selectors/en.ts`, function `usesMore`). The selector must stop returning the phrase and return the flag.
+- EN: when a regex finds the comparative `^more\s+<adverb>$` and the superlative `^most\s+<adverb>$` (case-insensitive), it sends no comparative and no superlative, and sets `periphrasticEN = true`. The lexicon already finds these forms in `degreeEN` (`selectors/en.ts`, function `usesMore`). The selector must stop returning the phrase and return the flag.
 - ES: when the comparative is "más " + the adverb, it sends no comparative and sets `periphrasticComparativeES = true`. "mejor" and "peor" stay as typed text. The superlative is sent as it is.
-- DE: it strips "am " from the superlative (already done, D25).
+- DE: it strips "am " from the superlative (already done, D25). It no longer sets "Non-gradable".
 - EE: it already sends `periphrasticSuperlativeEE` (`services/dictionary/eki.ts`).
 - A mixed or unknown shape (for example "more X" with a one-word superlative): the checkbox stays off and the fields hold the typed text.
 

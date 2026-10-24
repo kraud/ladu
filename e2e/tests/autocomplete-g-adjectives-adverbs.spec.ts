@@ -10,13 +10,13 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *
  *  1. German adjective "gut": comparative "besser", superlative "besten" (stored without "am"; the
  *     form shows "am" in front of the field).
- *  2. German adverb "oft" is Gradable and fills all degrees; "hier" is Non-gradable.
+ *  2. German adverb "oft" is Gradable and fills all degrees; "hier" has no degree form, so the radio is left to the user.
  *  3. Spanish adjective: "rojo" fills the M/F cells; a Neutral word ("feliz") typed on the M/F
  *     branch switches the card to Neutral; a pick from the list works too.
- *  4. English: "beautiful" picked from the list gets "more beautiful"; the adverb "quickly" gets
- *     "more quickly".
+ *  4. English: "beautiful" picked from the list gets "more beautiful"; the adverb "quickly" is
+ *     Gradable and checks the "Uses more / most" box, so the form derives "more quickly".
  *  5. Estonian adverb (new in H4, Ekilex stub): "kiiresti" fills the comparative and checks the
- *     "no one-word superlative" box (D27), so the superlative reads "kõige kiiremini"; a conjunction
+ *     "no one-word superlative" box (D27) and the Gradable radio, so the superlative reads "kõige kiiremini"; a conjunction
  *     ("ja") is not found. The word is saved with an English adverb and shows after a reload.
  *
  * Only the Estonian adverb is saved: the subject of the others is the fill.
@@ -62,17 +62,18 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
         await expect(page.getByText('am', { exact: true })).toBeVisible();
     });
 
-    test('German adverb: "oft" is Gradable with all degrees; "hier" is Non-gradable', async ({ page }) => {
+    test('German adverb: "oft" is Gradable with all degrees; "hier" leaves the radio to the user', async ({ page }) => {
         await openCard(page, /Adverb/, 'Deutsch');
         await typeAndFill(page, 'Adverb', 'oft');
         await expect(page.getByRole('radio', { name: 'Gradable', exact: true })).toBeChecked();
         await expect(page.getByLabel('Comparative', { exact: true })).toHaveValue('öfter');
         await expect(page.getByLabel('Superlative', { exact: true })).toHaveValue('öftesten');
 
-        // Another word on the same card: the Non-gradable branch hides the degrees.
+        // Another word on the same card: "hier" has no degree form, so the lookup does not prove it is
+        // non-gradable. The user picks Non-gradable, and that branch hides the degrees.
         await page.getByLabel('Adverb', { exact: true }).fill('hier');
         await clickUseValues(page);
-        await expect(page.getByRole('radio', { name: 'Non-gradable', exact: true })).toBeChecked();
+        await page.getByRole('radio', { name: 'Non-gradable', exact: true }).click();
         await expect(page.getByLabel('Comparative', { exact: true })).toHaveCount(0);
     });
 
@@ -115,7 +116,11 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
 
         await openCard(page, /Adverb/, 'English');
         await typeAndFill(page, 'Adverb', 'quickly');
-        await expect(page.getByLabel('Comparative', { exact: true })).toHaveValue('more quickly');
+        // "more quickly" is not typed: the "Uses more / most" box is checked and derives both forms.
+        await expect(page.getByRole('radio', { name: 'Gradable', exact: true })).toBeChecked();
+        await expect(page.getByRole('checkbox', { name: /Uses more \/ most/ })).toBeChecked();
+        await expect(page.getByTestId('derived-comparative')).toHaveValue('more quickly');
+        await expect(page.getByTestId('derived-superlative')).toHaveValue('most quickly');
     });
 
     test('Estonian adverb: the comparative fills, the "kõige" box is checked, a conjunction is not found, and the word saves', async ({ page }) => {
@@ -126,12 +131,14 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
         await page.getByLabel('Adverb', { exact: true }).fill('kiiresti');
         await clickUseValues(page);
         await expect(page.getByLabel('Comparative', { exact: true })).toHaveValue('kiiremini');
+        await expect(page.getByRole('radio', { name: 'Gradable', exact: true })).toBeChecked();
         await expect(page.getByRole('checkbox', { name: /No one-word superlative/ })).toBeChecked();
         await expect(page.getByTestId('derived-superlative')).toHaveValue('kõige kiiremini');
 
-        // A second translation, then save.
+        // A second translation (its radio is required, and no lookup runs here), then save.
         await page.getByRole('button', { name: 'English' }).click();
         await page.getByLabel('Adverb', { exact: true }).last().fill('quickly');
+        await page.getByRole('radio', { name: 'Non-gradable', exact: true }).last().click();
         await page.getByRole('button', { name: 'Save' }).click();
         await expect(page.getByText('Word was created successfully')).toBeVisible();
         await page.getByRole('button', { name: 'Click here to see the new word' }).click();

@@ -122,10 +122,23 @@ export const ADJECTIVE_SELECTORS_ES: CaseSelector[] = [
     { kind: 'property', caseName: 'femalePluralES', extract: whenGendered(row(['feminine', 'plural'], ['masculine'])) },
 ];
 
+/**
+ * Adverbs (gradable-radio plan, decisions Q6, Q8). "más pronto" is not typed: the form's "Uses más" box
+ * derives it, so the selectors send the box and no comparative. "mejor" and "peor" stay as text. The
+ * superlative is always sent as it is. "Gradable" only when a degree form exists (Q2).
+ */
+const comparativeES = (entry: LexiconEntry) => selectForm(entry, { kind: 'form', caseName: '', tags: ['comparative'] });
+const superlativeES = (entry: LexiconEntry) => selectForm(entry, { kind: 'form', caseName: '', tags: ['superlative'] });
+const escapeRegex = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** "más pronto": the prefix, then the adverb itself (so the form can derive the phrase without loss). */
+const usesMas = (entry: LexiconEntry): boolean => new RegExp(`^más\\s+${escapeRegex(entry.word)}$`, 'i').test(comparativeES(entry) ?? '');
+
 export const ADVERB_SELECTORS_ES: CaseSelector[] = [
+    { kind: 'property', caseName: 'gradableES', extract: (entry) => (comparativeES(entry) || superlativeES(entry) ? 'Gradable' : undefined) },
     { kind: 'property', caseName: 'adverbES', extract: (entry) => entry.word },
-    { kind: 'form', caseName: 'comparativeES', tags: ['comparative'] },
+    { kind: 'property', caseName: 'comparativeES', extract: (entry) => (usesMas(entry) ? undefined : comparativeES(entry)) },
     { kind: 'form', caseName: 'superlativeES', tags: ['superlative'] },
+    { kind: 'property', caseName: 'periphrasticComparativeES', extract: (entry) => (usesMas(entry) ? 'true' : undefined) },
 ];
 
 export const NOUN_SELECTORS_ES: CaseSelector[] = [

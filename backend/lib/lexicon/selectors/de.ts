@@ -159,9 +159,13 @@ export const NOUN_SELECTORS_DE: CaseSelector[] = [
 const COMPARATIVE_DE = { tags: ['comparative'] };
 const SUPERLATIVE_DE = { tags: ['superlative'], removeWords: ['am'] };
 
-/** A German adverb with a comparative is gradable ("oft → öfter"); one without is not ("hier"). */
-function gradableDE(entry: LexiconEntry): string {
-    return selectForm(entry, { kind: 'form', caseName: '', ...COMPARATIVE_DE }) ? 'Gradable' : 'Non-gradable';
+/**
+ * A German adverb with a comparative or a superlative is gradable ("oft → öfter"). One without ("hier") gets no value:
+ * a missing comparative does not prove it, so the radio stays empty, like in EN, ES and EE.
+ */
+function gradableDE(entry: LexiconEntry): string | undefined {
+    const hasDegree = [COMPARATIVE_DE, SUPERLATIVE_DE].some((degree) => selectForm(entry, { kind: 'form', caseName: '', ...degree }));
+    return hasDegree ? 'Gradable' : undefined;
 }
 
 export const ADJECTIVE_SELECTORS_DE: CaseSelector[] = [

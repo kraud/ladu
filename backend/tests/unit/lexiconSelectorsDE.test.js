@@ -192,7 +192,7 @@ describe('German adjective and adverb selectors', () => {
         expect(adverb('oft')).toEqual({ gradableDE: 'Gradable', adverbDE: 'oft', comparativeDE: 'öfter', superlativeDE: 'öftesten' });
     });
 
-    test('an adverb without degrees is non-gradable', () => {
-        expect(adverb('hier')).toEqual({ gradableDE: 'Non-gradable', adverbDE: 'hier' });
+    test('an adverb without degrees gets no radio value: the lexicon does not prove it is non-gradable', () => {
+        expect(adverb('hier')).toEqual({ adverbDE: 'hier' });
     });
 });

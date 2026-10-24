@@ -80,7 +80,26 @@ describe('English adjective and adverb selectors', () => {
     });
 
     test('an adverb in -ly takes "more", another adverb takes -er', () => {
-        expect(adverb('quickly')).toEqual({ adverbEN: 'quickly', comparativeEN: 'more quickly', superlativeEN: 'most quickly' });
-        expect(adverb('fast')).toEqual({ adverbEN: 'fast', comparativeEN: 'faster', superlativeEN: 'fastest' });
+        // "more quickly / most quickly" is derived by the form's "Uses more / most" box, so only the box is sent.
+        expect(adverb('quickly')).toEqual({ gradableEN: 'Gradable', adverbEN: 'quickly', periphrasticEN: 'true' });
+        expect(adverb('fast')).toEqual({ gradableEN: 'Gradable', adverbEN: 'fast', comparativeEN: 'faster', superlativeEN: 'fastest' });
+    });
+
+    test('a "more" comparative with a one-word superlative keeps the typed text and leaves the box off', () => {
+        const mixed = { word: 'early', pos: 'adv', forms: [{ form: 'more early', tags: ['comparative'] }, { form: 'earliest', tags: ['superlative'] }] };
+        expect(Object.fromEntries(selectCases(mixed, ADVERB_SELECTORS_EN))).toEqual({
+            gradableEN: 'Gradable', adverbEN: 'early', comparativeEN: 'more early', superlativeEN: 'earliest',
+        });
+    });
+
+    test('the "more / most" check ignores case and spacing, but needs the adverb itself after the prefix', () => {
+        const spaced = { word: 'slowly', pos: 'adv', forms: [{ form: 'More  slowly', tags: ['comparative'] }, { form: 'most slowly', tags: ['superlative'] }] };
+        expect(Object.fromEntries(selectCases(spaced, ADVERB_SELECTORS_EN))).toMatchObject({ periphrasticEN: 'true' });
+        const other = { word: 'well', pos: 'adv', forms: [{ form: 'more wellness', tags: ['comparative'] }, { form: 'most well', tags: ['superlative'] }] };
+        expect(Object.fromEntries(selectCases(other, ADVERB_SELECTORS_EN)).periphrasticEN).toBeUndefined();
+    });
+
+    test('an adverb with no degree form gets no radio value: the lexicon does not prove it is non-gradable', () => {
+        expect(Object.fromEntries(selectCases({ word: 'sometimes', pos: 'adv', forms: [] }, ADVERB_SELECTORS_EN))).toEqual({ adverbEN: 'sometimes' });
     });
 });
