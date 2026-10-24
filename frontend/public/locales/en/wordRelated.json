@@ -292,26 +292,33 @@
     "adverb": {
       "errors": {
         "formEN": {
-          "adverbRequired": "Adverb is required"
+          "adverbRequired": "Adverb is required",
+          "gradableRequired": "'Gradable' selection is required"
         },
         "formES": {
-          "adverbRequired": "Adverb is required"
+          "adverbRequired": "Adverb is required",
+          "gradableRequired": "'Gradable' selection is required"
         },
         "formDE": {
           "adverbRequired": "Adverb is required",
           "gradableRequired": "'Gradable' selection is required"
         },
         "formEE": {
-          "adverbRequired": "Adverb is required"
+          "adverbRequired": "Adverb is required",
+          "gradableRequired": "'Gradable' selection is required"
         }
       },
       "fields": {
         "adverbEN": "Adverb",
         "comparativeEN": "Comparative",
         "superlativeEN": "Superlative",
+        "gradableEN": "Gradable",
+        "periphrasticEN": "Uses more / most",
         "adverbES": "Adverb",
         "comparativeES": "Comparative",
         "superlativeES": "Superlative",
+        "gradableES": "Gradable",
+        "periphrasticComparativeES": "Uses más",
         "gradableDE": "Gradable",
         "adverbDE": "Adverb",
         "comparativeDE": "Comparative",
@@ -319,6 +326,7 @@
         "adverbEE": "Adverb",
         "comparativeEE": "Comparative",
         "superlativeEE": "Superlative",
+        "gradableEE": "Gradable",
         "periphrasticSuperlativeEE": "No one-word superlative (kõige + comparative)"
       }
     },

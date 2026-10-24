@@ -22,9 +22,6 @@ describe('expectedCaseCount — plain configs (no visibleWhen)', () => {
         [PartOfSpeech.adjective, 'EN', 3],
         [PartOfSpeech.adjective, 'DE', 3],
         [PartOfSpeech.adjective, 'EE', 8],
-        [PartOfSpeech.adverb, 'EE', 3],
-        [PartOfSpeech.adverb, 'EN', 3],
-        [PartOfSpeech.adverb, 'ES', 3],
     ])('%s / %s -> %i', (pos, lang, expected) => {
         expect(expectedCaseCount(pos, lang)).toBe(expected);
     });
@@ -39,9 +36,12 @@ describe('expectedCaseCount — branching configs collapse to the largest branch
         expect(expectedCaseCount(PartOfSpeech.adjective, 'ES')).toBe(4);
     });
 
-    it('German adverb: 2 unconditioned (gradable, adverb) + max(Gradable=2, Non-gradable=0)', () => {
-        expect(expectedCaseCount(PartOfSpeech.adverb, 'DE')).toBe(4);
-    });
+    it.each<LangKey>(['EN', 'ES', 'DE', 'EE'])(
+        'adverb %s: 2 unconditioned (gradable, adverb) + max(Gradable=2, Non-gradable=0); the periphrastic checkbox is a property, not a case',
+        (lang) => {
+            expect(expectedCaseCount(PartOfSpeech.adverb, lang)).toBe(4);
+        }
+    );
 });
 
 describe('expectedCaseCount — no config at all', () => {

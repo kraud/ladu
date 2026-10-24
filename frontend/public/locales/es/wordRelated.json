@@ -292,26 +292,33 @@
     "adverb": {
       "errors": {
         "formEN": {
-          "adverbRequired": "El adverbio es obligatorio"
+          "adverbRequired": "El adverbio es obligatorio",
+          "gradableRequired": "La selección de 'gradual' es obligatoria"
         },
         "formES": {
-          "adverbRequired": "El adverbio es obligatorio"
+          "adverbRequired": "El adverbio es obligatorio",
+          "gradableRequired": "La selección de 'gradual' es obligatoria"
         },
         "formDE": {
           "adverbRequired": "El adverbio es obligatorio",
           "gradableRequired": "La selección de 'gradual' es obligatoria"
         },
         "formEE": {
-          "adverbRequired": "El adverbio es obligatorio"
+          "adverbRequired": "El adverbio es obligatorio",
+          "gradableRequired": "La selección de 'gradual' es obligatoria"
         }
       },
       "fields": {
         "adverbEN": "Adverbio",
         "comparativeEN": "Comparativo",
         "superlativeEN": "Superlativo",
+        "gradableEN": "Graduable",
+        "periphrasticEN": "Usa more / most",
         "adverbES": "Adverbio",
         "comparativeES": "Comparativo",
         "superlativeES": "Superlativo",
+        "gradableES": "Graduable",
+        "periphrasticComparativeES": "Usa más",
         "gradableDE": "Graduable",
         "adverbDE": "Adverbio",
         "comparativeDE": "Comparativo",
@@ -319,6 +326,7 @@
         "adverbEE": "Adverbio",
         "comparativeEE": "Comparativo",
         "superlativeEE": "Superlativo",
+        "gradableEE": "Graduable",
         "periphrasticSuperlativeEE": "Sin superlativo de una sola palabra (kõige + comparativo)"
       }
     },

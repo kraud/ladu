@@ -292,26 +292,33 @@
     "adverb": {
       "errors": {
         "formEN": {
-          "adverbRequired": "Määrsõna on kohustuslik"
+          "adverbRequired": "Määrsõna on kohustuslik",
+          "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         },
         "formES": {
-          "adverbRequired": "Määrsõna on kohustuslik"
+          "adverbRequired": "Määrsõna on kohustuslik",
+          "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         },
         "formDE": {
           "adverbRequired": "Määrsõna on kohustuslik",
           "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         },
         "formEE": {
-          "adverbRequired": "Määrsõna on kohustuslik"
+          "adverbRequired": "Määrsõna on kohustuslik",
+          "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         }
       },
       "fields": {
         "adverbEN": "Määrsõna",
         "comparativeEN": "Keskvõrre",
         "superlativeEN": "Ülivõrre",
+        "gradableEN": "Astestatav",
+        "periphrasticEN": "Kasutab sõnu more / most",
         "adverbES": "Määrsõna",
         "comparativeES": "Keskvõrre",
         "superlativeES": "Ülivõrre",
+        "gradableES": "Astestatav",
+        "periphrasticComparativeES": "Kasutab sõna más",
         "gradableDE": "Astestatav",
         "adverbDE": "Määrsõna",
         "comparativeDE": "Keskvõrre",
@@ -319,6 +326,7 @@
         "adverbEE": "Määrsõna",
         "comparativeEE": "Keskvõrre",
         "superlativeEE": "Ülivõrre",
+        "gradableEE": "Astestatav",
         "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)"
       }
     },

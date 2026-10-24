@@ -292,26 +292,33 @@
     "adverb": {
       "errors": {
         "formEN": {
-          "adverbRequired": "Das Adverb ist erforderlich"
+          "adverbRequired": "Das Adverb ist erforderlich",
+          "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         },
         "formES": {
-          "adverbRequired": "Das Adverb ist erforderlich"
+          "adverbRequired": "Das Adverb ist erforderlich",
+          "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         },
         "formDE": {
           "adverbRequired": "Das Adverb ist erforderlich",
           "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         },
         "formEE": {
-          "adverbRequired": "Das Adverb ist erforderlich"
+          "adverbRequired": "Das Adverb ist erforderlich",
+          "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         }
       },
       "fields": {
         "adverbEN": "Adverb",
         "comparativeEN": "Komparativ",
         "superlativeEN": "Superlativ",
+        "gradableEN": "Steigerbar",
+        "periphrasticEN": "Mit more / most",
         "adverbES": "Adverb",
         "comparativeES": "Komparativ",
         "superlativeES": "Superlativ",
+        "gradableES": "Steigerbar",
+        "periphrasticComparativeES": "Mit más",
         "gradableDE": "Steigerbar",
         "adverbDE": "Adverb",
         "comparativeDE": "Komparativ",
@@ -319,6 +326,7 @@
         "adverbEE": "Adverb",
         "comparativeEE": "Komparativ",
         "superlativeEE": "Superlativ",
+        "gradableEE": "Steigerbar",
         "periphrasticSuperlativeEE": "Kein einteiliger Superlativ (kõige + Komparativ)"
       }
     },

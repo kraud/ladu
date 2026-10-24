@@ -7,6 +7,7 @@ import { server } from '@/test/msw/server';
 import { renderWithProviders } from '@/test/render';
 import { mockMobileViewport } from '@/test/viewport';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
+import { getFormConfig } from './configs';
 import type { CaseName, FieldConfig } from './configs/types';
 import {
     casesToFieldValues,
@@ -480,6 +481,36 @@ describe('TranslationCard — Adverb', () => {
         expect(screen.getByLabelText('Comparative')).toBeInTheDocument();
         expect(screen.getByLabelText('Superlative')).toBeInTheDocument();
         expect(screen.getByRole('checkbox', { name: /No one-word superlative/ })).toBeInTheDocument();
+    });
+
+    it.each([
+        [Lang.EN, /Uses more \/ most/],
+        [Lang.ES, /Uses más/],
+        [Lang.EE, /No one-word superlative/],
+    ])('%s: the Non-gradable radio hides the degree fields and the checkbox', async (lang, checkbox) => {
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={lang} pos={PartOfSpeech.adverb} />);
+
+        expect(screen.getByLabelText('Comparative')).toBeInTheDocument();
+        expect(screen.getByRole('checkbox', { name: checkbox })).toBeInTheDocument();
+
+        await user.click(screen.getByRole('radio', { name: 'Non-gradable' }));
+        expect(screen.queryByLabelText('Comparative')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('Superlative')).not.toBeInTheDocument();
+        expect(screen.queryByRole('checkbox', { name: checkbox })).not.toBeInTheDocument();
+        expect(screen.getByLabelText('Adverb')).toBeInTheDocument();
+    });
+
+    it('English: the "more / most" box shows read-only "more" and "most" + the adverb', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<TranslationCard lang={Lang.EN} pos={PartOfSpeech.adverb} />);
+
+        await user.type(screen.getByLabelText('Adverb'), 'usually');
+        await user.click(screen.getByRole('checkbox', { name: /Uses more \/ most/ }));
+
+        expect(screen.getByTestId('derived-comparative')).toHaveValue('more usually');
+        expect(screen.getByTestId('derived-superlative')).toHaveValue('most usually');
+        expect(screen.getByTestId('derived-comparative')).toHaveAttribute('readonly');
     });
 
     it('a part of speech with no form engine shows the "not available yet" card', () => {
@@ -958,6 +989,83 @@ describe('fieldsToCases', () => {
         it('hydrates the checkbox from a stored "true", and leaves it unchecked otherwise', () => {
             expect(casesToFieldValues(fields, [{ caseName: CASE_NAME, word: 'true' }]).periphrasticSuperlative).toBe(true);
             expect(casesToFieldValues(fields, []).periphrasticSuperlative).toBe(false);
+        });
+    });
+
+    describe('adverb periphrastic checkboxes store the derived text next to the flag (Q9)', () => {
+        const fieldsOf = (lang: Lang) => getFormConfig(PartOfSpeech.adverb, lang)!.fields;
+
+        it('English: "more " + adverb and "most " + adverb are saved with the flag', () => {
+            const values = { gradable: 'Gradable', adverb: 'Usually', comparative: 'leftover', superlative: '', periphrastic: true };
+            expect(fieldsToCases(fieldsOf(Lang.EN), values)).toEqual([
+                { caseName: 'gradableEN', word: 'Gradable' },
+                { caseName: 'adverbEN', word: 'usually' },
+                { caseName: 'comparativeEN', word: 'more usually' },
+                { caseName: 'superlativeEN', word: 'most usually' },
+                { caseName: 'periphrasticEN', word: 'true' },
+            ]);
+        });
+
+        it('English: the typed forms are saved while the flag is off', () => {
+            const values = { gradable: 'Gradable', adverb: 'fast', comparative: 'faster', superlative: 'fastest', periphrastic: false };
+            expect(fieldsToCases(fieldsOf(Lang.EN), values)).toEqual([
+                { caseName: 'gradableEN', word: 'Gradable' },
+                { caseName: 'adverbEN', word: 'fast' },
+                { caseName: 'comparativeEN', word: 'faster' },
+                { caseName: 'superlativeEN', word: 'fastest' },
+            ]);
+        });
+
+        it('Spanish: only the comparative is derived ("más "); the superlative stays typed', () => {
+            const values = { gradable: 'Gradable', adverb: 'pronto', comparative: '', superlative: 'prontísimo', periphrasticComparative: true };
+            expect(fieldsToCases(fieldsOf(Lang.ES), values)).toEqual([
+                { caseName: 'gradableES', word: 'Gradable' },
+                { caseName: 'adverbES', word: 'pronto' },
+                { caseName: 'comparativeES', word: 'más pronto' },
+                { caseName: 'superlativeES', word: 'prontísimo' },
+                { caseName: 'periphrasticComparativeES', word: 'true' },
+            ]);
+        });
+
+        it('Estonian: "kõige " + comparative is saved with the flag', () => {
+            const values = { gradable: 'Gradable', adverb: 'kiiresti', comparative: 'kiiremini', superlative: '', periphrasticSuperlative: true };
+            expect(fieldsToCases(fieldsOf(Lang.EE), values)).toEqual([
+                { caseName: 'gradableEE', word: 'Gradable' },
+                { caseName: 'adverbEE', word: 'kiiresti' },
+                { caseName: 'comparativeEE', word: 'kiiremini' },
+                { caseName: 'superlativeEE', word: 'kõige kiiremini' },
+                { caseName: 'periphrasticSuperlativeEE', word: 'true' },
+            ]);
+        });
+
+        it('nothing derived is saved from a blank source', () => {
+            const values = { gradable: 'Gradable', adverb: '', comparative: '', superlative: '', periphrastic: true };
+            expect(fieldsToCases(fieldsOf(Lang.EN), values)).toEqual([
+                { caseName: 'gradableEN', word: 'Gradable' },
+                { caseName: 'periphrasticEN', word: 'true' },
+            ]);
+        });
+
+        it('"Non-gradable" saves only the radio and the adverb, whatever the hidden fields hold', () => {
+            const values = { gradable: 'Non-gradable', adverb: 'ayer', comparative: 'x', superlative: 'y', periphrasticComparative: true };
+            expect(fieldsToCases(fieldsOf(Lang.ES), values)).toEqual([
+                { caseName: 'gradableES', word: 'Non-gradable' },
+                { caseName: 'adverbES', word: 'ayer' },
+            ]);
+        });
+
+        it('a stored derived text is not loaded into the field, so unchecking the flag starts from an empty field', () => {
+            const values = casesToFieldValues(fieldsOf(Lang.EN), [
+                { caseName: 'adverbEN' as CaseName, word: 'usually' },
+                { caseName: 'comparativeEN' as CaseName, word: 'more usually' },
+                { caseName: 'periphrasticEN' as CaseName, word: 'true' },
+            ]);
+            expect(values).toMatchObject({ adverb: 'usually', comparative: '', superlative: '', periphrastic: true });
+        });
+
+        it('a typed form is loaded as it is', () => {
+            const values = casesToFieldValues(fieldsOf(Lang.EN), [{ caseName: 'comparativeEN' as CaseName, word: 'faster' }]);
+            expect(values).toMatchObject({ comparative: 'faster', periphrastic: false });
         });
     });
 

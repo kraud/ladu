@@ -420,7 +420,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
           not(ilike(translationCases.caseName, "gender%")),
           not(ilike(translationCases.caseName, "gradable%")),
           not(ilike(translationCases.caseName, "reflexiv%")),
-          not(ilike(translationCases.caseName, "periphrasticSuperlative%")),
+          not(ilike(translationCases.caseName, "periphrastic%")),
         ),
       );
     conditions.push(inArray(words.id, matchingWordIds));
@@ -1078,7 +1078,7 @@ const filterWordByAnyTranslation = asyncHandler(async (req: any, res: any) => {
         not(ilike(translationCases.caseName, "gender%")),
         not(ilike(translationCases.caseName, "gradable%")),
         not(ilike(translationCases.caseName, "reflexiv%")),
-        not(ilike(translationCases.caseName, "periphrasticSuperlative%")),
+        not(ilike(translationCases.caseName, "periphrastic%")),
         or(
           eq(words.userId, req.user.id),
           wordsFromFollowedTags.length > 0

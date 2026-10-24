@@ -46,11 +46,17 @@ export enum AdverbCases {
     adverbEN = "adverbEN",
     comparativeEN = "comparativeEN",
     superlativeEN = "superlativeEN",
+    gradableEN = "gradableEN",
+    /** Stored checkbox: the comparative is "more " + adverb and the superlative "most " + adverb. */
+    periphrasticEN = "periphrasticEN",
 
     // SPANISH
     adverbES = "adverbES",
     comparativeES = "comparativeES",
     superlativeES = "superlativeES",
+    gradableES = "gradableES",
+    /** Stored checkbox: the comparative is "más " + adverb. */
+    periphrasticComparativeES = "periphrasticComparativeES",
 
     // GERMAN
     gradableDE = "gradableDE",
@@ -62,6 +68,7 @@ export enum AdverbCases {
     adverbEE = "adverbEE",
     comparativeEE = "comparativeEE",
     superlativeEE = "superlativeEE",
+    gradableEE = "gradableEE",
     /** Stored checkbox, same case name as the adjective's (D20, D27). */
     periphrasticSuperlativeEE = "periphrasticSuperlativeEE",
 }

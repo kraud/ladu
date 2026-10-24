@@ -1,14 +1,14 @@
 /**
  * Adverb form configs — EN, ES, DE as in the old app; Estonian is new (Slice H4, decision D27).
- * The old app's `getAdverbForm()` router had no `Lang.EE` branch. The Estonian form copies the
- * adjective's superlative design (D20): an optional one-word superlative, or the stored
- * "no one-word superlative" checkbox, with which the field shows "kõige " + the comparative.
+ * Every language has the required "Gradable / Non-gradable" radio (German from the start; EN, ES and
+ * EE since the gradable-radio plan, decision Q1): an adverb with no degrees is complete, not unfinished.
  *
- * German's `comparative`/`superlative` are visible by default and hidden
- * only once `gradable` is explicitly set to `"Non-gradable"` — the one
- * `visibleWhen` in this phase that needs `invert` rather than a positive
- * match, since every other branch in the engine so far shows fields only
- * once a sibling matches, never by default.
+ * The `comparative`/`superlative` fields are visible by default and hidden only once `gradable` is
+ * explicitly set to `"Non-gradable"` — the one `visibleWhen` that needs `invert` rather than a positive
+ * match, since every other branch in the engine shows fields only once a sibling matches.
+ *
+ * A periphrastic checkbox (EN "more / most", ES "más", EE "kõige") locks the field it derives and fills
+ * it with the prefix + the base word. The derived text is stored together with the checkbox (decision Q9).
  */
 import { AdverbCases, Lang, PartOfSpeech } from '@/ts/enums';
 import type { FieldConfig, FieldDerivation, FieldLayout, FieldVisibility, RadioOption, TranslationFormConfig } from './types';
@@ -45,15 +45,48 @@ function degreeField(
     };
 }
 
+const GRADABLE_OPTIONS: RadioOption[] = [
+    { value: 'Gradable', label: 'Gradable' },
+    { value: 'Non-gradable', label: 'Non-gradable' },
+];
+
+/** The required radio every adverb form opens with. */
+function gradableRadio(suffix: string, caseName: AdverbCases): FieldConfig {
+    return {
+        kind: 'radio',
+        name: 'gradable',
+        caseName,
+        labelKey: labelKey(caseName),
+        required: true,
+        requiredMessageKey: adverbErrorKey(suffix, 'gradableRequired'),
+        invalidMessageKey: adverbErrorKey(suffix, 'gradableRequired'),
+        options: GRADABLE_OPTIONS,
+    };
+}
+
+// Visible unless the user explicitly picked "Non-gradable" — shown by default, including on a brand-new blank card.
+const hiddenWhenNonGradable: FieldVisibility = { field: 'gradable', equals: 'Non-gradable', invert: true };
+
+function periphrasticCheckbox(name: string, caseName: AdverbCases): FieldConfig {
+    return { kind: 'checkbox', name, caseName, labelKey: labelKey(caseName), required: false, visibleWhen: hiddenWhenNonGradable };
+}
+
+/** A degree field that, while `checkbox` is on, shows `prefix` + `fromField` (read-only) and saves that text. */
+function derivedFrom(checkbox: string, prefix: string, fromField: string): FieldDerivation {
+    return { when: { field: checkbox, equals: true }, prefix, fromField, store: true };
+}
+
 function buildEnConfig(): TranslationFormConfig {
     const suffix = 'EN';
     return {
         pos: PartOfSpeech.adverb,
         lang: Lang.EN,
         fields: [
+            gradableRadio(suffix, AdverbCases.gradableEN),
             degreeField(AdverbCases.adverbEN, 'adverb', true, adverbErrorKey(suffix, 'adverbRequired')),
-            degreeField(AdverbCases.comparativeEN, 'comparative', false),
-            degreeField(AdverbCases.superlativeEN, 'superlative', false),
+            degreeField(AdverbCases.comparativeEN, 'comparative', false, undefined, hiddenWhenNonGradable, undefined, derivedFrom('periphrastic', 'more ', 'adverb')),
+            degreeField(AdverbCases.superlativeEN, 'superlative', false, undefined, hiddenWhenNonGradable, undefined, derivedFrom('periphrastic', 'most ', 'adverb')),
+            periphrasticCheckbox('periphrastic', AdverbCases.periphrasticEN),
         ],
     };
 }
@@ -64,38 +97,23 @@ function buildEsConfig(): TranslationFormConfig {
         pos: PartOfSpeech.adverb,
         lang: Lang.ES,
         fields: [
+            gradableRadio(suffix, AdverbCases.gradableES),
             degreeField(AdverbCases.adverbES, 'adverb', true, adverbErrorKey(suffix, 'adverbRequired')),
-            degreeField(AdverbCases.comparativeES, 'comparative', false),
-            degreeField(AdverbCases.superlativeES, 'superlative', false),
+            degreeField(AdverbCases.comparativeES, 'comparative', false, undefined, hiddenWhenNonGradable, undefined, derivedFrom('periphrasticComparative', 'más ', 'adverb')),
+            // Always typed: "prontísimo" has no prefix (decision Q8).
+            degreeField(AdverbCases.superlativeES, 'superlative', false, undefined, hiddenWhenNonGradable),
+            periphrasticCheckbox('periphrasticComparative', AdverbCases.periphrasticComparativeES),
         ],
     };
 }
 
-const GRADABLE_OPTIONS: RadioOption[] = [
-    { value: 'Gradable', label: 'Gradable' },
-    { value: 'Non-gradable', label: 'Non-gradable' },
-];
-
 function buildDeConfig(): TranslationFormConfig {
     const suffix = 'DE';
-    const gradable: FieldConfig = {
-        kind: 'radio',
-        name: 'gradable',
-        caseName: AdverbCases.gradableDE,
-        labelKey: labelKey(AdverbCases.gradableDE),
-        required: true,
-        requiredMessageKey: adverbErrorKey(suffix, 'gradableRequired'),
-        invalidMessageKey: adverbErrorKey(suffix, 'gradableRequired'),
-        options: GRADABLE_OPTIONS,
-    };
-    // Visible unless the user explicitly picked "Non-gradable" — shown by default, including on a brand-new blank card.
-    const hiddenWhenNonGradable: FieldVisibility = { field: 'gradable', equals: 'Non-gradable', invert: true };
-
     return {
         pos: PartOfSpeech.adverb,
         lang: Lang.DE,
         fields: [
-            gradable,
+            gradableRadio(suffix, AdverbCases.gradableDE),
             degreeField(AdverbCases.adverbDE, 'adverb', true, adverbErrorKey(suffix, 'adverbRequired')),
             degreeField(AdverbCases.comparativeDE, 'comparative', false, undefined, hiddenWhenNonGradable),
             // D25: stored without "am"; the form shows it.
@@ -110,21 +128,12 @@ function buildEeConfig(): TranslationFormConfig {
         pos: PartOfSpeech.adverb,
         lang: Lang.EE,
         fields: [
+            gradableRadio(suffix, AdverbCases.gradableEE),
             degreeField(AdverbCases.adverbEE, 'adverb', true, adverbErrorKey(suffix, 'adverbRequired'), undefined, { row: 'degree', column: 'Positive' }),
-            degreeField(AdverbCases.comparativeEE, 'comparative', false, undefined, undefined, { row: 'degree', column: 'Comparative' }),
-            // With `periphrasticSuperlative` checked the field shows "kõige " + the comparative, read-only, not stored (D20, D27).
-            degreeField(AdverbCases.superlativeEE, 'superlative', false, undefined, undefined, { row: 'degree', column: 'Superlative' }, {
-                when: { field: 'periphrasticSuperlative', equals: true },
-                prefix: 'kõige ',
-                fromField: 'comparative',
-            }),
-            {
-                kind: 'checkbox',
-                name: 'periphrasticSuperlative',
-                caseName: AdverbCases.periphrasticSuperlativeEE,
-                labelKey: labelKey(AdverbCases.periphrasticSuperlativeEE),
-                required: false,
-            },
+            degreeField(AdverbCases.comparativeEE, 'comparative', false, undefined, hiddenWhenNonGradable, { row: 'degree', column: 'Comparative' }),
+            // With `periphrasticSuperlative` checked the field shows "kõige " + the comparative, read-only, and saves that text (D20, D27, Q9).
+            degreeField(AdverbCases.superlativeEE, 'superlative', false, undefined, hiddenWhenNonGradable, { row: 'degree', column: 'Superlative' }, derivedFrom('periphrasticSuperlative', 'kõige ', 'comparative')),
+            periphrasticCheckbox('periphrasticSuperlative', AdverbCases.periphrasticSuperlativeEE),
         ],
     };
 }

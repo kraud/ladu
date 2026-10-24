@@ -121,6 +121,6 @@ export const SINGLE_LANGUAGE: Partial<Record<PartOfSpeech, SingleLanguageCatalog
 };
 
 /** Case-name prefixes that describe a property (gender, regularity…), not a written form. */
-const PROPERTY_PREFIXES = ['gender', 'gradable', 'regularity', 'auxVerb', 'caseType', 'prefix'];
+const PROPERTY_PREFIXES = ['gender', 'gradable', 'regularity', 'auxVerb', 'caseType', 'prefix', 'periphrastic'];
 export const isPropertyCase = (caseName: string): boolean =>
     PROPERTY_PREFIXES.some((prefix) => caseName.startsWith(prefix));

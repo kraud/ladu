@@ -12,7 +12,7 @@ Goal: the adverb form has the same "Gradable / Non-gradable" radio in all four l
 
 ## Progress
 
-- [ ] Slice 1 — Form engine: new case names, labels, radio in EN, ES and EE configs
+- [x] Slice 1 — Form engine: new case names, labels, radio in EN, ES and EE configs (2026-10-24)
 - [ ] Slice 2 — Autocomplete: fill the radio where the lexicon data is reliable
 - [ ] Slice 3 — Onboarding pool and demo template: add the radio value
 - [ ] Slice 4 — Docs, e2e spec, review of ES/DE/EE strings
@@ -134,7 +134,7 @@ Prefix rule (decision Q6). For each language, the autocomplete:
 | # | Severity | Finding | Resolution |
 |---|---|---|---|
 | 1 | Moderate | Old EN, ES and EE adverbs have no radio value. A required radio blocks the next save and lowers the completion ring. | Accepted by the user (Q2). Tell the user in the slice 1 overview. |
-| 3 | Moderate | The exercise code does not know the metadata cases `periphrastic*`. `isPropertyCase` (`catalogue.ts:124`) lists `gender`, `gradable`, `regularity`, `auxVerb`, `caseType`, `prefix`. So `periphrasticSuperlativeEE` ("true"/"false") may be used as a written form in distractors (`distractors.ts:17`). | Fix in slice 1 for the old and the new case names. Add a regression test. Not yet confirmed with a running exercise. |
+| 3 | Moderate (fixed in slice 1, with unit test `exercisesCatalogue.test.js`) | The exercise code does not know the metadata cases `periphrastic*`. `isPropertyCase` (`catalogue.ts:124`) lists `gender`, `gradable`, `regularity`, `auxVerb`, `caseType`, `prefix`. So `periphrasticSuperlativeEE` ("true"/"false") may be used as a written form in distractors (`distractors.ts:17`). | Fix in slice 1 for the old and the new case names. Add a regression test. Not yet confirmed with a running exercise. |
 | 4 | Moderate | A derived form that is not stored ("kõige X") is not visible to practice, search, or the word table. | Resolved by Q9: the derived text is stored, together with the checkbox. |
-| 5 | Moderate | Estonian does not store the derived superlative today. Q9 asks for stored text and a stored checkbox in every language. | Proposed: slice 1 changes the Estonian rule to store "kõige X" too. Old Estonian words stay as they are (Q2). The user confirms. |
+| 5 | Moderate | Estonian does not store the derived superlative today. Q9 asks for stored text and a stored checkbox in every language. | Confirmed by the user and done in slice 1 (`store: true` on the Estonian rule). Old Estonian words stay as they are (Q2). |
 | 2 | Moderate | A missing comparative in the lexicon does not prove "Non-gradable" for EN, ES and EE. | Slice 2 proposes "Gradable only when a degree form exists". The user confirms before slice 2. |

@@ -198,18 +198,29 @@ interface FieldConfigBase {
 /**
  * While `when` matches, a text field is replaced by read-only text: `prefix` + the current value
  * of the sibling field `fromField` (Estonian adjective superlative: "kõige " + the comparative,
- * decision D20). While derived, the field is not validated and not stored — like a hidden field.
+ * decision D20). While derived, the field is not validated and not typed — like a hidden field.
+ * By default it is not stored either; with `store` the derived text is saved with the word, next to
+ * the checkbox that drives it (adverbs, decision Q9: the text is searchable and practicable).
  */
 export interface FieldDerivation {
     when: FieldVisibility;
     prefix: string;
     fromField: string;
+    store?: boolean;
 }
 
 /** True while `field` shows derived text instead of its own input (see `FieldDerivation`). */
 export function isDerived(field: FieldConfig, values: Record<string, unknown>): boolean {
     const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
     return derivation !== undefined && matchesVisibility(derivation.when, values[derivation.when.field]);
+}
+
+/** The text a `store` derivation saves: `prefix` + the source field, or `undefined` while the source is blank (nothing to save). */
+export function derivedStoredWord(field: FieldConfig, values: Record<string, unknown>): string | undefined {
+    const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
+    if (!derivation?.store || !isDerived(field, values)) return undefined;
+    const source = String(values[derivation.fromField] ?? '').trim();
+    return source === '' ? undefined : `${derivation.prefix}${source}`;
 }
 
 export interface TextFieldConfig extends FieldConfigBase {

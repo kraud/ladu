@@ -51,7 +51,7 @@ import type { DraftTranslation, Suggestion } from '@/features/autocomplete/types
 import { AutocompleteRow, applyLookup, type PickedEntry } from './AutocompleteRow';
 import type { TypeAheadConfig } from './TypeAheadInput';
 import { buildYupSchema } from './buildYupSchema';
-import { isDerived, isStoredCheckbox, matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
+import { derivedStoredWord, isDerived, isStoredCheckbox, matchesVisibility, type FieldConfig, type FieldGroup } from './configs/types';
 import { getFormConfig } from './configs';
 import { capitalizeFirst } from './fieldLayout';
 import { FieldRenderer } from './FieldRenderer';
@@ -159,7 +159,7 @@ export interface TranslationCardProps {
  * depends on doesn't currently equal the configured value); a field marked
  * `persisted: false` (form-only, e.g. Estonian `searchInEnglish`, Spanish
  * adjective `gender`); a text field currently showing derived text
- * (`derivedWhen`, Estonian "kõige …" superlative); an unchecked or unstored
+ * (`derivedWhen`, Estonian "kõige …" superlative — saved as its derived text when `store` is set); an unchecked or unstored
  * `checkbox` (a stored one is saved as "true" — `isStoredCheckbox`, D20); and
  * finally, any field whose resulting word is blank.
  *
@@ -172,7 +172,12 @@ export function fieldsToCases(fields: FieldConfig[], values: Record<string, unkn
     for (const field of fields) {
         if (field.persisted === false) continue;
         if (field.visibleWhen && !matchesVisibility(field.visibleWhen, values[field.visibleWhen.field])) continue;
-        if (isDerived(field, values)) continue;
+        if (isDerived(field, values)) {
+            // A derivation with `store` saves its derived text (adverbs, Q9); any other is shown only.
+            const derived = derivedStoredWord(field, values);
+            if (derived !== undefined) cases.push({ caseName: field.caseName!, word: derived.toLowerCase() });
+            continue;
+        }
         if (field.kind === 'checkbox') {
             if (isStoredCheckbox(field) && values[field.name] === true) cases.push({ caseName: field.caseName!, word: 'true' });
             continue;
@@ -202,7 +207,7 @@ export function fieldsToCases(fields: FieldConfig[], values: Record<string, unkn
  */
 export function casesToFieldValues(fields: FieldConfig[], cases: WordItem[] | undefined): Record<string, unknown> {
     const byCaseName = new Map((cases ?? []).map((item) => [item.caseName, item.word]));
-    return Object.fromEntries(
+    const values = Object.fromEntries(
         fields.map((field) => {
             if (field.kind === 'checkbox') return [field.name, isStoredCheckbox(field) && byCaseName.get(field.caseName!) === 'true'];
             if (!field.caseName) return [field.name, '']; // a case-less radio has nothing to hydrate from
@@ -210,6 +215,12 @@ export function casesToFieldValues(fields: FieldConfig[], cases: WordItem[] | un
             return [field.name, byCaseName.get(field.caseName) ?? ''];
         })
     );
+    // A stored derived text is shown from the checkbox + its source, so the field itself starts empty:
+    // unchecking the box must not leave "more usually" behind as typed text.
+    for (const field of fields) {
+        if (field.kind === 'text' && field.derivedWhen?.store && isDerived(field, values)) values[field.name] = '';
+    }
+    return values;
 }
 
 /**
