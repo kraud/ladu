@@ -319,7 +319,8 @@ default rule (no consumer in this slice needed `pattern`). One engine addition, 
 user before implementation:
 
 - **`FieldVisibility` gained `invert?: boolean`** — German adverb's `comparative`/`superlative` are
-  visible by default and hidden only once `gradable` is explicitly set to `"Non-gradable"`, the
+  visible by default and hidden only once `gradable` is explicitly set to `"Non-gradable"` (since
+  2026-10-24 this holds for EN, ES and EE adverbs too — see `adverb-gradable-radio.md`), the
   first `visibleWhen` consumer that isn't a positive "show when equals" match. A new
   `matchesVisibility(visibility, value)` helper (`configs/types.ts`) centralizes the equals/invert
   comparison so `buildYupSchema.ts`, `FieldRenderer.tsx` and `TranslationCard.tsx`'s

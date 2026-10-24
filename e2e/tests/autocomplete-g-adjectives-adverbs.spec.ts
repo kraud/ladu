@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { clickUseValues } from '../fixtures/autocomplete';
+import { clickUseValues, closeTypeAheadList } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
 import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
 
@@ -18,6 +18,8 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *  5. Estonian adverb (new in H4, Ekilex stub): "kiiresti" fills the comparative and checks the
  *     "no one-word superlative" box (D27) and the Gradable radio, so the superlative reads "kõige kiiremini"; a conjunction
  *     ("ja") is not found. The word is saved with an English adverb and shows after a reload.
+ *
+ *  6. English, Spanish and Estonian adverbs: the "Non-gradable" radio hides the degree fields and the box.
  *
  * Only the Estonian adverb is saved: the subject of the others is the fill.
  */
@@ -69,10 +71,13 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
         await expect(page.getByLabel('Comparative', { exact: true })).toHaveValue('öfter');
         await expect(page.getByLabel('Superlative', { exact: true })).toHaveValue('öftesten');
 
-        // Another word on the same card: "hier" has no degree form, so the lookup does not prove it is
-        // non-gradable. The user picks Non-gradable, and that branch hides the degrees.
-        await page.getByLabel('Adverb', { exact: true }).fill('hier');
-        await clickUseValues(page);
+        // A new card: "hier" has no degree form, so the lookup has nothing to add to the typed word and does not
+        // prove it is non-gradable. Neither radio is set; the user picks Non-gradable, and that hides the degrees.
+        await openCard(page, /Adverb/, 'Deutsch');
+        await page.getByLabel('Adverb', { exact: true }).pressSequentially('hier');
+        await closeTypeAheadList(page);
+        await expect(page.getByRole('radio', { name: 'Gradable', exact: true })).not.toBeChecked();
+        await expect(page.getByRole('radio', { name: 'Non-gradable', exact: true })).not.toBeChecked();
         await page.getByRole('radio', { name: 'Non-gradable', exact: true }).click();
         await expect(page.getByLabel('Comparative', { exact: true })).toHaveCount(0);
     });
@@ -118,9 +123,23 @@ test.describe.serial('Autocomplete — adjectives and adverbs (Slice H3)', () =>
         await typeAndFill(page, 'Adverb', 'quickly');
         // "more quickly" is not typed: the "Uses more / most" box is checked and derives both forms.
         await expect(page.getByRole('radio', { name: 'Gradable', exact: true })).toBeChecked();
-        await expect(page.getByRole('checkbox', { name: /Uses more \/ most/ })).toBeChecked();
+        await expect(page.getByRole('checkbox', { name: /Uses "more" \/ "most"/ })).toBeChecked();
         await expect(page.getByTestId('derived-comparative')).toHaveValue('more quickly');
         await expect(page.getByTestId('derived-superlative')).toHaveValue('most quickly');
+    });
+
+    test('English, Spanish, Estonian adverb: "Non-gradable" hides the degree fields and the box, and the word is complete (gradable-radio plan)', async ({ page }) => {
+        for (const [language, box] of [['English', /Uses "more" \/ "most"/], ['Español', /Uses "más"/], ['Eesti', /No one-word superlative/]] as const) {
+            await openCard(page, /Adverb/, language);
+            await page.getByLabel('Adverb', { exact: true }).fill('test');
+            await expect(page.getByLabel('Comparative', { exact: true })).toBeVisible();
+            await expect(page.getByRole('checkbox', { name: box })).toBeVisible();
+
+            await page.getByRole('radio', { name: 'Non-gradable', exact: true }).click();
+            await expect(page.getByLabel('Comparative', { exact: true })).toHaveCount(0);
+            await expect(page.getByLabel('Superlative', { exact: true })).toHaveCount(0);
+            await expect(page.getByRole('checkbox', { name: box })).toHaveCount(0);
+        }
     });
 
     test('Estonian adverb: the comparative fills, the "kõige" box is checked, a conjunction is not found, and the word saves', async ({ page }) => {

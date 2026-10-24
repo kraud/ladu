@@ -484,8 +484,8 @@ describe('TranslationCard — Adverb', () => {
     });
 
     it.each([
-        [Lang.EN, /Uses more \/ most/],
-        [Lang.ES, /Uses más/],
+        [Lang.EN, /Uses "more" \/ "most"/],
+        [Lang.ES, /Uses "más"/],
         [Lang.EE, /No one-word superlative/],
     ])('%s: the Non-gradable radio hides the degree fields and the checkbox', async (lang, checkbox) => {
         const user = userEvent.setup();
@@ -506,7 +506,7 @@ describe('TranslationCard — Adverb', () => {
         renderWithProviders(<TranslationCard lang={Lang.EN} pos={PartOfSpeech.adverb} />);
 
         await user.type(screen.getByLabelText('Adverb'), 'usually');
-        await user.click(screen.getByRole('checkbox', { name: /Uses more \/ most/ }));
+        await user.click(screen.getByRole('checkbox', { name: /Uses "more" \/ "most"/ }));
 
         expect(screen.getByTestId('derived-comparative')).toHaveValue('more usually');
         expect(screen.getByTestId('derived-superlative')).toHaveValue('most usually');

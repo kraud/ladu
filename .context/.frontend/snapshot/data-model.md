@@ -73,6 +73,12 @@ enum AdverbCases {
 }
 ```
 
+> **v2 (2026-10-24, plan `plans/adverb-gradable-radio.md`):** the old app has the list above. In v2 the enum also holds
+> `gradableEN`, `gradableES`, `gradableEE` (the required "Gradable / Non-gradable" radio, now in all four languages),
+> the stored checkboxes `periphrasticEN` ("more / most"), `periphrasticComparativeES` ("más") and
+> `periphrasticSuperlativeEE` ("kõige"), and the Estonian `adverbEE`, `comparativeEE`, `superlativeEE`.
+> The backend treats every case that starts with `gradable` or `periphrastic` as a property, not a written form.
+
 ### 1.6 VerbCases (all four languages; each key is a `caseName`)
 Verbatim, grouped:
 
