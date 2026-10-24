@@ -5,7 +5,7 @@
  * Plan: .context/plans/onboarding.md, Slices 2 and 3a.
  */
 const {
-    readPool, parsePool, readForms, hasKeyCases, pluralOnlyCases, PLURAL_ONLY_NOUNS_EN,
+    readPool, parsePool, readForms, hasKeyCases, pluralOnlyCases, adverbPoolCases, PLURAL_ONLY_NOUNS_EN,
     POOL_COLUMNS, POOL_STATUSES, POOL_TOPICS, POOL_BANDS, POOL_PARTS_OF_SPEECH, POOL_GENDERS,
 } = require('../../lib/onboardingPool');
 
@@ -103,6 +103,48 @@ describe('scripts/onboarding/pool-forms.json', () => {
             expect(word).toBe(concept.words[language]?.word);
             expect(hasKeyCases(concept.partOfSpeech, language, cases, word)).toBe(true);
         }
+    });
+});
+
+describe('pool-forms.json adverbs', () => {
+    const SUFFIX = { English: 'EN', Spanish: 'ES', German: 'DE', Estonian: 'EE' };
+    const adverbs = Object.entries(readForms().concepts).filter(([id]) => id.startsWith('adverb:'));
+
+    it.each(adverbs)('%s: every language has the radio value (gradable-radio plan, Q2)', (_id, concept) => {
+        for (const [language, { cases }] of Object.entries(concept)) {
+            const suffix = SUFFIX[language];
+            const degrees = !!cases[`comparative${suffix}`] || !!cases[`superlative${suffix}`];
+            expect(cases[`gradable${suffix}`]).toBe(degrees ? 'Gradable' : 'Non-gradable');
+        }
+    });
+});
+
+describe('adverbPoolCases', () => {
+    it('an adverb with no degrees is Non-gradable, in every language', () => {
+        expect(adverbPoolCases('English', { adverbEN: 'now' })).toEqual({ adverbEN: 'now', gradableEN: 'Non-gradable' });
+        expect(adverbPoolCases('Spanish', { adverbES: 'ayer' })).toEqual({ adverbES: 'ayer', gradableES: 'Non-gradable' });
+        expect(adverbPoolCases('German', { adverbDE: 'heute' })).toEqual({ adverbDE: 'heute', gradableDE: 'Non-gradable' });
+        expect(adverbPoolCases('Estonian', { adverbEE: 'täna' })).toEqual({ adverbEE: 'täna', gradableEE: 'Non-gradable' });
+    });
+
+    it('a comparative or a superlative makes it Gradable', () => {
+        expect(adverbPoolCases('English', { adverbEN: 'soon', comparativeEN: 'sooner', superlativeEN: 'soonest' }).gradableEN).toBe('Gradable');
+        expect(adverbPoolCases('German', { adverbDE: 'bald', superlativeDE: 'baldigsten' }).gradableDE).toBe('Gradable');
+    });
+
+    it('builds the phrase of the "more / most" box again, so the saved word holds the box and the text (Q9)', () => {
+        expect(adverbPoolCases('English', { adverbEN: 'usually', periphrasticEN: 'true' })).toEqual({
+            adverbEN: 'usually', periphrasticEN: 'true', comparativeEN: 'more usually', superlativeEN: 'most usually', gradableEN: 'Gradable',
+        });
+    });
+
+    it('builds "más" for Spanish and "kõige" for Estonian, and keeps a typed form', () => {
+        expect(adverbPoolCases('Spanish', { adverbES: 'pronto', periphrasticComparativeES: 'true', superlativeES: 'prontísimo' })).toEqual({
+            adverbES: 'pronto', periphrasticComparativeES: 'true', superlativeES: 'prontísimo', comparativeES: 'más pronto', gradableES: 'Gradable',
+        });
+        expect(adverbPoolCases('Estonian', { adverbEE: 'varsti', comparativeEE: 'varem', periphrasticSuperlativeEE: 'true' })).toEqual({
+            adverbEE: 'varsti', comparativeEE: 'varem', periphrasticSuperlativeEE: 'true', superlativeEE: 'kõige varem', gradableEE: 'Gradable',
+        });
     });
 });
 

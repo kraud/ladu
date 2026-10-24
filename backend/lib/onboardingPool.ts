@@ -138,6 +138,37 @@ export const PLURAL_ONLY_NOUNS_EN: readonly string[] = ['clothes', 'pants', 'new
  */
 export const pluralOnlyCases = (word: string): Record<string, string> => ({ singularEN: word, pluralEN: word });
 
+const LANGUAGE_SUFFIX: Record<string, string> = { English: 'EN', Spanish: 'ES', German: 'DE', Estonian: 'EE' };
+
+/**
+ * The cases of a pool adverb as the saved word needs them (gradable-radio plan, slice 3). The pool is
+ * saved without the form, so this does what the form does:
+ * - The lookup sends the "more / most" (EN), "más" (ES) and "kõige" (EE) boxes without the phrase.
+ *   A saved word holds the box and the full text (decision Q9), so the phrase is built again.
+ * - The required radio: "Gradable" when a comparative or a superlative exists, else "Non-gradable".
+ *   The pool is short and reviewed by a person, so a missing degree is safe to read this way. The
+ *   autocomplete does not do this (a missing degree form proves nothing there).
+ */
+export function adverbPoolCases(language: string, cases: Record<string, string>): Record<string, string> {
+    const suffix = LANGUAGE_SUFFIX[language];
+    if (!suffix) return { ...cases };
+    const word = cases[`adverb${suffix}`];
+    const result = { ...cases };
+    if (language === 'English' && result.periphrasticEN === 'true' && word) {
+        result.comparativeEN ??= `more ${word}`;
+        result.superlativeEN ??= `most ${word}`;
+    }
+    if (language === 'Spanish' && result.periphrasticComparativeES === 'true' && word) {
+        result.comparativeES ??= `más ${word}`;
+    }
+    if (language === 'Estonian' && result.periphrasticSuperlativeEE === 'true' && result.comparativeEE) {
+        result.superlativeEE ??= `kõige ${result.comparativeEE}`;
+    }
+    const gradable = !!result[`comparative${suffix}`] || !!result[`superlative${suffix}`];
+    result[`gradable${suffix}`] = gradable ? 'Gradable' : 'Non-gradable';
+    return result;
+}
+
 /**
  * True when `cases` has every key case of the language and part of speech (one of each group).
  * A plural-only English noun (PLURAL_ONLY_NOUNS_EN, needs `word`) may have `pluralEN` instead of

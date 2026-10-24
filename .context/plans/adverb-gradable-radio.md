@@ -14,7 +14,7 @@ Goal: the adverb form has the same "Gradable / Non-gradable" radio in all four l
 
 - [x] Slice 1 — Form engine: new case names, labels, radio in EN, ES and EE configs (2026-10-24)
 - [ ] Slice 2 — Autocomplete: fill the radio where the lexicon data is reliable
-- [ ] Slice 3 — Onboarding pool and demo template: add the radio value
+- [x] Slice 3 — Onboarding pool and demo template: add the radio value (2026-10-24; open: the user reviews the 10 pool entries)
 - [ ] Slice 4 — Docs, e2e spec, review of ES/DE/EE strings
 
 ## Context
@@ -115,13 +115,22 @@ Prefix rule (decision Q6). For each language, the autocomplete:
 - Do not edit `pool-forms.json` by hand. Change the script and rebuild (needs the dev database with the lexicon and the Ekilex key).
 - Demo template: add the value by hand to the 2 adverbs. Then reseed the demo template per environment, as the demo rollout needs anyway (see the demo rollout memory).
 
-**Ask the user** to review the 10 pool entries after the rebuild.
+**Done 2026-10-24.** `adverbPoolCases` (`lib/onboardingPool.ts`) adds the radio and also builds the phrase of the periphrastic boxes again ("more usually"), because the lookup sends the box without the phrase and Q9 says a saved word holds both. The demo template got the same values; German "schnell" and Spanish "rápidamente" were set by hand (the lexicon has no degree row for them, but both are gradable).
+
+**Ask the user** to review the 10 pool entries after the rebuild. Known doubtful: ES "usualmente", DE "gewöhnlich" and EE "varsti" come out Non-gradable because the sources list no degree form.
 
 ## Slice 4 — Docs, e2e and string review
 
 - Update `.context/.frontend/snapshot/forms-adjectives-adverbs.md` and `data-model.md` (the new case names), and the notes in `phase-3-forms-autocomplete-review.md` that say German is the only gradable adverb.
 - Add an e2e spec step: pick "Non-gradable" in EN, ES and EE, and check that the degree fields disappear. `npm run test:e2e` must be green.
 - The user reviews the new ES, DE and EE strings (the error messages for the required radio).
+
+## After the plan is done, before or at the merge to main
+
+Reminders from slices 2 and 3. Do not forget them. Remind the user when the plan is ready to merge.
+
+- [ ] **Rebuild and load the lexicon** in staging and production for English, Spanish and German. The selectors run at ingest time, so the new adverb values (radio, "more/most", "más") reach the autocomplete only after the rebuild. Local dev was done on 2026-10-24. Use `ingest.ts <lang>` and `load.js` (VPS: `docker exec backend-<env> node scripts/lexicon/load.js /tmp/<file>`).
+- [ ] **Reseed the demo template** per environment, so the 2 demo adverbs get their new values. The demo rollout needs this anyway.
 
 ## Verification
 
