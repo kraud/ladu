@@ -6,12 +6,13 @@
   "userInfoCards": {
     "totalWords": "Kokku sõnu",
     "totalTranslations": "Kokku tõlkeid",
-    "incompleteWords": "Puudulikud sõnad",
-    "noLanguages": "Lisa oma keeled",
+    "unpracticedWords": "Harjutamata sõnad",
+    "practicedMeter": "Harjutatud tõlked",
+    "noWordsYet": "Lisa sõnu, et harjutamist jälgida",
     "sub": {
       "wordsThisMonth": "+{{count}} sel kuul",
       "perWordAverage": "{{value}} sõna kohta keskmiselt",
-      "incompleteShare": "{{value}}% puudulik"
+      "practicedShare": "{{value}}% tõlgetest harjutatud ({{done}}/{{total}})"
     }
   },
   "charts": {

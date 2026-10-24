@@ -6,12 +6,13 @@
   "userInfoCards": {
     "totalWords": "Total de palabras",
     "totalTranslations": "Total de traducciones",
-    "incompleteWords": "Palabras incompletas",
-    "noLanguages": "Agrega tus idiomas",
+    "unpracticedWords": "Palabras sin practicar",
+    "practicedMeter": "Traducciones practicadas",
+    "noWordsYet": "Agrega palabras para seguir tu práctica",
     "sub": {
       "wordsThisMonth": "+{{count}} este mes",
       "perWordAverage": "{{value}} por palabra en promedio",
-      "incompleteShare": "{{value}}% incompleto"
+      "practicedShare": "{{value}}% de las traducciones practicadas ({{done}}/{{total}})"
     }
   },
   "charts": {

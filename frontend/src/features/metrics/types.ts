@@ -51,13 +51,18 @@ export interface WordsPerMonthRow {
 
 /**
  * The full response. A fresh account returns `totalWords: 0`,
- * `incompleteWordsCount: 0`, and every array empty (never omitted).
+ * the practice counts at 0, and every array empty (never omitted).
  */
 export interface BasicUserMetricsBE {
     totalWords: number;
     /** The account's own tags (demo-access.md D9: the demo's "tags left"). */
     totalTags: number;
-    incompleteWordsCount: number;
+    /** Words (own and followed, as practice sees them) where no case has an answer yet. */
+    unpracticedWordsCount: number;
+    /** Translations of those words that can be practiced (they store a case). */
+    translationsInPractice: number;
+    /** Of those, the translations with at least one answered case. */
+    practicedTranslations: number;
     translationsPerLanguage: TranslationsPerLanguageRow[];
     translationsPerLanguageAndPOS: TranslationsPerLanguageAndPosRow[];
     wordsPerPOS: WordsPerPosRow[];

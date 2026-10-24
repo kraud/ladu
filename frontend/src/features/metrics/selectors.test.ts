@@ -7,10 +7,10 @@ import {
     barSeriesByMonth,
     CREATABLE_POS,
     earliestWordsPerMonthLabel,
-    incompletePercent,
     monthLabel,
     monthsOfHistory,
     pieSeries,
+    practicedPercent,
     totalTranslations,
     translationsPerWord,
     worstSegment,
@@ -21,7 +21,9 @@ import {
 const EMPTY: BasicUserMetricsBE = {
     totalWords: 0,
     totalTags: 0,
-    incompleteWordsCount: 0,
+    unpracticedWordsCount: 0,
+    translationsInPractice: 0,
+    practicedTranslations: 0,
     translationsPerLanguage: [],
     translationsPerLanguageAndPOS: [],
     wordsPerPOS: [],
@@ -31,7 +33,9 @@ const EMPTY: BasicUserMetricsBE = {
 const POPULATED: BasicUserMetricsBE = {
     totalWords: 10,
     totalTags: 0,
-    incompleteWordsCount: 3,
+    unpracticedWordsCount: 3,
+    translationsInPractice: 40,
+    practicedTranslations: 30,
     translationsPerLanguage: [
         { language: 'English', count: 10, type: 'language' },
         { language: 'Spanish', count: 7, type: 'language' },
@@ -90,13 +94,20 @@ describe('translationsPerWord', () => {
     });
 });
 
-describe('incompletePercent', () => {
-    it('rounds incompleteWordsCount / totalWords to a percentage', () => {
-        expect(incompletePercent(POPULATED)).toBe(30);
+describe('practicedPercent', () => {
+    it('rounds practicedTranslations / translationsInPractice to a percentage', () => {
+        expect(practicedPercent(POPULATED)).toBe(75);
+        expect(practicedPercent({ ...POPULATED, translationsInPractice: 3, practicedTranslations: 1 })).toBe(33);
+    });
+
+    it('below 1% it has one decimal and is never 0 while a case is practiced', () => {
+        expect(practicedPercent({ ...POPULATED, translationsInPractice: 5738, practicedTranslations: 23 })).toBe(0.4);
+        expect(practicedPercent({ ...POPULATED, translationsInPractice: 100000, practicedTranslations: 1 })).toBe(0.1);
+        expect(practicedPercent({ ...POPULATED, translationsInPractice: 100, practicedTranslations: 0 })).toBe(0);
     });
 
     it('is 0 on a fresh account, not NaN', () => {
-        expect(incompletePercent(EMPTY)).toBe(0);
+        expect(practicedPercent(EMPTY)).toBe(0);
     });
 });
 

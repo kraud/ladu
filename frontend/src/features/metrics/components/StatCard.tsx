@@ -9,16 +9,21 @@ interface StatCardProps {
     sub?: ReactNode;
     /** Renders a filled `.meter` bar between the number and `sub` (0-100, clamped). */
     meterPercent?: number;
-    /** Amber number + amber meter fill — the incomplete-words card. */
+    /** Accessible name of the meter, when it measures something other than `label`. */
+    meterLabel?: string;
+    /** Amber number + amber meter fill (not used by the dashboard cards now). */
     warn?: boolean;
 }
+
+/** Fill width in percent: clamped to 0-100, and at least 2% while there is progress, so a small share is still visible. */
+const meterWidth = (percent: number) => (percent <= 0 ? 0 : Math.min(100, Math.max(2, percent)));
 
 /**
  * One `dash-grid` stat tile: a big number, a label, and either a text
  * sub-line or a percent meter. Pure presentation — `UserInfoPanel` derives
  * every value via `selectors.ts` and owns the loading/data split.
  */
-export function StatCard({ value, label, sub, meterPercent, warn }: StatCardProps) {
+export function StatCard({ value, label, sub, meterPercent, meterLabel, warn }: StatCardProps) {
     return (
         <div className={cn('card stat-card', warn && 'warn')}>
             <div className="s-num num">{value}</div>
@@ -27,12 +32,12 @@ export function StatCard({ value, label, sub, meterPercent, warn }: StatCardProp
                 <div
                     className="meter"
                     role="progressbar"
-                    aria-label={label}
-                    aria-valuenow={Math.round(meterPercent)}
+                    aria-label={meterLabel ?? label}
+                    aria-valuenow={meterPercent}
                     aria-valuemin={0}
                     aria-valuemax={100}
                 >
-                    <span style={{ width: `${Math.min(100, Math.max(0, meterPercent))}%` }} />
+                    <span style={{ width: `${meterWidth(meterPercent)}%` }} />
                 </div>
             )}
             {sub && <div className="s-sub">{sub}</div>}

@@ -104,14 +104,14 @@ frontend/src/
 │   │   ├── types.ts             # BasicUserMetricsBE + the five row shapes (mind `label` vs `language` on
 │   │   │                        #   translationsPerLanguageAndPOS)
 │   │   ├── selectors.ts         # pure, fully unit-tested: totalTranslations, wordsAddedThisMonth,
-│   │   │                        #   translationsPerWord, incompletePercent, pieSeries, worstSegment,
+│   │   │                        #   translationsPerWord, practicedPercent, pieSeries, worstSegment,
 │   │   │                        #   barSeriesByMonth/byLanguage (12-month window + zero-fill), availableBarMonthRanges
 │   │   ├── components/
 │   │   │   ├── WelcomeBanner.tsx    # rotating EN/ES/DE/EE greeting alongside the `<h1>` welcome heading
 │   │   │   ├── StatCard.tsx         # one stat tile: number + label + either a sub-line or a `.meter` (both,
-│   │   │   │                        #   for the incomplete-words card — count on top, meter, share below)
-│   │   │   ├── UserInfoPanel.tsx    # the 3 StatCards; incomplete-card reads `authStore.user.languages`
-│   │   │   │                        #   (not the metrics payload) to tell "0% incomplete" from "can't compute" (D10)
+│   │   │   │                        #   for the unpracticed-words card — count on top, meter, share below)
+│   │   │   ├── UserInfoPanel.tsx    # the 3 StatCards; the third shows the unpracticed words and the
+│   │   │   │                        #   % of cases practiced, or an empty card with an add-words link (no cases)
 │   │   │   ├── MetricsPanel.tsx     # both chart blocks + all 3 toggles (local state, D4) + the month-range
 │   │   │   │                        #   `Select`; loading/error/empty gates; both worst-segment `useNavigate()`
 │   │   │   │                        #   cases (D7)
