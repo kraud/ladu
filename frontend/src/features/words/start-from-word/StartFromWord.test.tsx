@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { SenseResponse, SenseSuggestion } from '@/features/autocomplete/types';
@@ -17,14 +17,17 @@ const SESSION = {
 const BANK_MONEY: SenseSuggestion = {
     word: 'banco', partOfSpeech: 'Noun', gender: 'el', english: 'bank', sense: 'financial institution',
     key: { englishLemma: 'bank', entryOrder: 0, senseOrder: 0 },
+    languages: ['English', 'Spanish', 'German', 'Estonian'],
 };
 const BANK_SEAT: SenseSuggestion = {
     word: 'banco', partOfSpeech: 'Noun', gender: 'el', english: 'bench', sense: 'seat',
     key: { englishLemma: 'bench', entryOrder: 0, senseOrder: 0 },
+    languages: ['English', 'Spanish'],
 };
 const BANK_VERB: SenseSuggestion = {
     word: 'bancar', partOfSpeech: 'Verb', english: 'bank', sense: 'to deposit',
     key: { englishLemma: 'bank', entryOrder: 1, senseOrder: 0 },
+    languages: ['English', 'Spanish', 'Estonian'],
 };
 
 const BANK_SENSE: SenseResponse = {
@@ -79,6 +82,29 @@ describe('StartFromWord — the section', () => {
         await user.click(screen.getByTestId('start-language'));
         await screen.findAllByRole('option');
         expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['EN', 'ES', 'DE']); // no Estonian: not on the account
+    });
+
+    it('remembers the last chosen language for the next visit', async () => {
+        const first = setup();
+        await first.user.click(screen.getByTestId('start-language'));
+        await first.user.click(await screen.findByRole('option', { name: 'DE' }));
+        expect(screen.getByTestId('start-language')).toHaveTextContent('DE');
+        cleanup();
+
+        setup();
+        expect(screen.getByTestId('start-language')).toHaveTextContent('DE');
+    });
+
+    it('does not use a remembered language that is not on the account', () => {
+        localStorage.setItem('ladu.startFromWord.language', 'Estonian');
+        setup();
+        expect(screen.getByTestId('start-language')).toHaveTextContent('ES'); // the UI language
+    });
+
+    it('does not use a remembered value that is not a language', () => {
+        localStorage.setItem('ladu.startFromWord.language', 'not a language');
+        setup();
+        expect(screen.getByTestId('start-language')).toHaveTextContent('ES');
     });
 
     it('the heading has the sparkle icon in an accent-coloured left column, and the title and hint in the right one', () => {
@@ -145,6 +171,18 @@ describe('StartFromWord — the section', () => {
         expect(list.querySelectorAll('.h-px')).toHaveLength(1); // the separator is decorative: no role to query
         expect(options[0]).not.toHaveTextContent('Noun');
         expect(fake.suggestionRequests.at(-1)).toEqual({ language: 'Spanish', prefix: 'ban', partOfSpeech: 'Any' });
+    });
+
+    it('each line shows the flags of the other account languages the sense covers; the start language and Estonian (not on the account) are left out', async () => {
+        const { user } = setup();
+        await user.type(screen.getByTestId('start-word-input'), 'ban');
+        await screen.findAllByRole('option');
+        const flags = (index: number) =>
+            Array.from(screen.getAllByRole('option')[index].querySelectorAll('[data-testid="sense-languages"] img')).map((img) => img.getAttribute('src'));
+        expect(flags(0)).toEqual(['/GB.svg', '/DE.svg']); // bank / financial institution: EN, ES (start), DE, EE (not on the account)
+        expect(flags(1)).toEqual(['/GB.svg']); // bench / seat
+        expect(screen.getAllByRole('option')[0].querySelector('[data-testid="sense-languages"] img')).toHaveClass('opacity-80', 'saturate-75'); // toned down
+        expect(screen.queryByText(/^\+\d/)).not.toBeInTheDocument();
     });
 
     it('a chosen part of speech limits the list and shows no group headings', async () => {

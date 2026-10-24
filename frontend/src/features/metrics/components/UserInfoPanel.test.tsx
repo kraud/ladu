@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { renderApp } from '@/test/render';
 import { server } from '@/test/msw/server';
@@ -25,7 +25,9 @@ function session(languages: string[]) {
 const populated: BasicUserMetricsBE = {
     totalWords: 10,
     totalTags: 0,
-    incompleteWordsCount: 3,
+    unpracticedWordsCount: 3,
+    translationsInPractice: 40,
+    practicedTranslations: 30,
     translationsPerLanguage: [
         { language: 'English', count: 10, type: 'language' },
         { language: 'German', count: 5, type: 'language' },
@@ -64,20 +66,42 @@ describe('UserInfoPanel (via DashboardPage)', () => {
         expect(stats().getByText('Total words')).toBeInTheDocument();
         expect(stats().getByText('15')).toBeInTheDocument(); // totalTranslations = 10 + 5
         expect(stats().getByText('Total translations')).toBeInTheDocument();
-        expect(stats().getByText('3')).toBeInTheDocument(); // incompleteWordsCount
-        expect(stats().getByText('30% incomplete')).toBeInTheDocument(); // 3 / 10
-        const meter = stats().getByRole('progressbar', { name: 'Incomplete words' });
-        expect(meter).toHaveAttribute('aria-valuenow', '30');
+        expect(stats().getByText('3')).toBeInTheDocument(); // unpracticedWordsCount
+        expect(stats().getByText('Unpracticed words')).toBeInTheDocument();
+        expect(stats().getByText('75% of translations practiced (30/40)')).toBeInTheDocument();
+        const meter = stats().getByRole('progressbar', { name: 'Translations practiced' });
+        expect(meter).toHaveAttribute('aria-valuenow', '75');
     });
 
-    it('shows "—" and an add-languages link for a language-less account (D10)', async () => {
-        const fake = makeMetricsHandlers({ ...populated, incompleteWordsCount: 0 });
+    it('shows an empty card with a link to add words when there are no translations to practice', async () => {
+        const fake = makeMetricsHandlers({ ...populated, totalWords: 0, unpracticedWordsCount: 0, translationsInPractice: 0, practicedTranslations: 0 });
         server.use(...fake.handlers);
 
-        await renderApp({ initialEntry: '/', session: session([]) });
+        const { container } = await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
 
-        await waitFor(() => expect(screen.getByText('—')).toBeInTheDocument());
-        expect(screen.queryByRole('progressbar', { name: 'Incomplete words' })).not.toBeInTheDocument();
-        expect(screen.getByRole('link', { name: 'Add your languages' })).toHaveAttribute('href', '/user');
+        const stats = () => within(container.querySelector('.stat-stack') as HTMLElement);
+        await waitFor(() => expect(stats().getByText('Unpracticed words')).toBeInTheDocument());
+        expect(stats().getByText('—')).toBeInTheDocument();
+        expect(stats().queryByRole('progressbar')).not.toBeInTheDocument();
+        expect(stats().getByRole('link', { name: 'Add words to track your practice' })).toHaveAttribute('href', '/addWord');
+    });
+
+    it('a small share shows one decimal and the counts, so it never reads as 0%', async () => {
+        server.use(...makeMetricsHandlers({ ...populated, translationsInPractice: 5738, practicedTranslations: 23 }).handlers);
+
+        const { container } = await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
+
+        const stats = () => within(container.querySelector('.stat-stack') as HTMLElement);
+        await waitFor(() => expect(stats().getByText('0.4% of translations practiced (23/5738)')).toBeInTheDocument());
+        expect(stats().getByRole('progressbar', { name: 'Translations practiced' })).toHaveAttribute('aria-valuenow', '0.4');
+    });
+
+    it('does not depend on the account languages (the old incomplete-words rule did)', async () => {
+        server.use(...makeMetricsHandlers(populated).handlers);
+
+        const { container } = await renderApp({ initialEntry: '/', session: session([]) });
+
+        const stats = () => within(container.querySelector('.stat-stack') as HTMLElement);
+        await waitFor(() => expect(stats().getByText('75% of translations practiced (30/40)')).toBeInTheDocument());
     });
 });

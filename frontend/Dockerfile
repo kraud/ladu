@@ -36,6 +36,10 @@ RUN npm run build -w frontend
 
 FROM caddy:alpine AS runtime
 
+# Alpine package fixes reach caddy:alpine later than they reach the Alpine mirror, so the
+# scan would fail on a fixed OS package (for example brotli-libs, 2026-10-24). Upgrade them here.
+RUN apk upgrade --no-cache
+
 COPY --from=build /app/frontend/dist /srv
 COPY frontend/Caddyfile /etc/caddy/Caddyfile
 

@@ -1,24 +1,21 @@
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '@/stores/authStore';
 import { useUserMetrics } from '../hooks';
-import { incompletePercent, totalTranslations, translationsPerWord, wordsAddedThisMonth } from '../selectors';
+import { practicedPercent, totalTranslations, translationsPerWord, wordsAddedThisMonth } from '../selectors';
 import { QuickActions } from './QuickActions';
 import { StatCard, StatCardSkeleton } from './StatCard';
 
 /**
  * The `dash-grid`'s left column: three `StatCard`s over `useUserMetrics()`.
- * The incomplete-words card reads `user.languages` from `authStore` (not the
- * metrics response) to tell "genuinely 0% incomplete" apart from "the
- * endpoint can't compute this without languages" (D10 — `getUserMetrics`
- * returns `incompleteWordsCount: 0` unconditionally for a language-less
- * account, which would otherwise render as a false 0%).
+ * The third card counts the unpracticed words (no case with an answer yet) and its meter shows the
+ * share of translations practiced at least once. Both cover the words practice sees: own and followed. An
+ * account with no translations to practice (no words, or no stored cases) gets an empty card with a link to add words:
+ * a "0" and an empty meter would say nothing there.
  *
  * Under the cards, on a desktop, `QuickActions` (random practice, new word); the phone menu has them there.
  */
 export function UserInfoPanel() {
     const { t } = useTranslation('dashboard');
-    const hasLanguages = useAuthStore((s) => (s.user?.languages.length ?? 0) > 0);
     const { data: metrics, isPending } = useUserMetrics();
 
     if (isPending || !metrics) {
@@ -32,7 +29,7 @@ export function UserInfoPanel() {
         );
     }
 
-    const percent = incompletePercent(metrics);
+    const percent = practicedPercent(metrics);
 
     return (
         <div className="stat-stack">
@@ -46,19 +43,21 @@ export function UserInfoPanel() {
                 label={t('userInfoCards.totalTranslations')}
                 sub={t('userInfoCards.sub.perWordAverage', { value: translationsPerWord(metrics).toFixed(1) })}
             />
-            <StatCard
-                warn
-                value={hasLanguages ? String(metrics.incompleteWordsCount) : '—'}
-                label={t('userInfoCards.incompleteWords')}
-                meterPercent={hasLanguages ? percent : undefined}
-                sub={
-                    hasLanguages ? (
-                        t('userInfoCards.sub.incompleteShare', { value: percent })
-                    ) : (
-                        <Link to="/user">{t('userInfoCards.noLanguages')}</Link>
-                    )
-                }
-            />
+            {metrics.translationsInPractice === 0 ? (
+                <StatCard
+                    value="—"
+                    label={t('userInfoCards.unpracticedWords')}
+                    sub={<Link to="/addWord/{-$partOfSpeech}">{t('userInfoCards.noWordsYet')}</Link>}
+                />
+            ) : (
+                <StatCard
+                    value={String(metrics.unpracticedWordsCount)}
+                    label={t('userInfoCards.unpracticedWords')}
+                    meterPercent={percent}
+                    meterLabel={t('userInfoCards.practicedMeter')}
+                    sub={t('userInfoCards.sub.practicedShare', { value: percent, done: metrics.practicedTranslations, total: metrics.translationsInPractice })}
+                />
+            )}
             <QuickActions />
         </div>
     );

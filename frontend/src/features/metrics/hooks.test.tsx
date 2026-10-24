@@ -23,7 +23,9 @@ function setup() {
 const populated: BasicUserMetricsBE = {
     totalWords: 4,
     totalTags: 0,
-    incompleteWordsCount: 1,
+    unpracticedWordsCount: 1,
+    translationsInPractice: 8,
+    practicedTranslations: 2,
     translationsPerLanguage: [{ language: 'English', count: 4, type: 'language' }],
     translationsPerLanguageAndPOS: [
         { label: 'English', type: 'language', partOfSpeech: PartOfSpeech.noun, count: 4 },

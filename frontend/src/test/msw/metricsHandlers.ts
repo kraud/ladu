@@ -11,7 +11,9 @@ import type { BasicUserMetricsBE } from '@/features/metrics/types';
 export const EMPTY_METRICS: BasicUserMetricsBE = {
     totalWords: 0,
     totalTags: 0,
-    incompleteWordsCount: 0,
+    unpracticedWordsCount: 0,
+    translationsInPractice: 0,
+    practicedTranslations: 0,
     translationsPerLanguage: [],
     translationsPerLanguageAndPOS: [],
     wordsPerPOS: [],

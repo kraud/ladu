@@ -35,7 +35,9 @@ function session(languages: string[]) {
 const POPULATED: BasicUserMetricsBE = {
     totalWords: 12,
     totalTags: 0,
-    incompleteWordsCount: 2,
+    unpracticedWordsCount: 2,
+    translationsInPractice: 24,
+    practicedTranslations: 6,
     translationsPerLanguage: [
         { language: 'English', count: 12, type: 'language' },
         { language: 'German', count: 6, type: 'language' },
@@ -189,8 +191,8 @@ describe('DashboardPage — quick actions', () => {
             expect(button.firstElementChild?.querySelector('svg')).not.toBeNull();
             expect(button.firstElementChild).toHaveClass('text-(--accent)');
         }
-        // Under the last stat card: after the incomplete-words card in the same column.
-        const incomplete = (await screen.findByText('Incomplete words')).closest('.stat-card')!;
+        // Under the last stat card: after the unpracticed-words card in the same column.
+        const incomplete = (await screen.findByText('Unpracticed words')).closest('.stat-card')!;
         expect(incomplete.parentElement).toContainElement(random.parentElement as HTMLElement);
         expect(incomplete.compareDocumentPosition(random) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
@@ -200,7 +202,7 @@ describe('DashboardPage — quick actions', () => {
         server.use(...makeMetricsHandlers(POPULATED).handlers);
         await renderApp({ initialEntry: '/', session: session(['English', 'German']) });
 
-        await screen.findByText('Incomplete words');
+        await screen.findByText('Unpracticed words');
         expect(quick('Random practice')).not.toBeInTheDocument();
         expect(quick('New word')).not.toBeInTheDocument();
     });

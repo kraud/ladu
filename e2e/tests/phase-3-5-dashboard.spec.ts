@@ -99,7 +99,7 @@ test.describe.serial('Phase 3.5 — Dashboard + user metrics', () => {
             t('Spanish', 'correr', 'infinitiveNonFiniteSimpleES'),
         ]);
         await createWord(request, token, 'Noun', [t('English', 'cat', 'singularEN'), t('Spanish', 'gato', 'singularES')]);
-        // Incomplete: English + German, missing the account's Spanish.
+        // English + German, missing the account's Spanish (still a word with two stored cases).
         await createWord(request, token, 'Noun', [
             t('English', 'dog', 'singularEN'),
             t('German', 'Hund', 'singularNominativDE'),
@@ -124,16 +124,17 @@ test.describe.serial('Phase 3.5 — Dashboard + user metrics', () => {
         await expect(page.getByRole('img', { name: 'Distribution of word types' })).toBeVisible();
 
         // --- stat cards ---
+        // Scoped by card: the counts can repeat (4 words, 4 unpracticed words).
         const stats = page.locator('.stat-stack');
-        await expect(stats.getByText('4', { exact: true })).toBeVisible(); // totalWords
-        await expect(stats.getByText('Total words')).toBeVisible();
-        await expect(stats.getByText('+3 this month')).toBeVisible(); // 1 of 4 words backdated
-        await expect(stats.getByText('8', { exact: true })).toBeVisible(); // totalTranslations
-        await expect(stats.getByText('Total translations')).toBeVisible();
-        await expect(stats.getByText('2.0 per word average')).toBeVisible();
-        await expect(stats.getByText('1', { exact: true })).toBeVisible(); // incompleteWordsCount
-        await expect(stats.getByText('25% incomplete')).toBeVisible();
-        await expect(page.getByRole('progressbar', { name: 'Incomplete words' })).toHaveAttribute('aria-valuenow', '25');
+        const card = (label: string) => stats.locator('.stat-card', { hasText: label });
+        await expect(card('Total words').locator('.s-num')).toHaveText('4'); // totalWords
+        await expect(card('Total words')).toContainText('+3 this month'); // 1 of 4 words backdated
+        await expect(card('Total translations').locator('.s-num')).toHaveText('8'); // totalTranslations
+        await expect(card('Total translations')).toContainText('2.0 per word average');
+        // Nothing practiced yet: every word is unpracticed, 0 of the 8 translations are practiced.
+        await expect(card('Unpracticed words').locator('.s-num')).toHaveText('4');
+        await expect(card('Unpracticed words')).toContainText('0% of translations practiced (0/8)');
+        await expect(page.getByRole('progressbar', { name: 'Translations practiced' })).toHaveAttribute('aria-valuenow', '0');
 
         // --- pie: word-type mode, worst segment links to /addWord/<pos> ---
         const pieLegend = page.locator('.pie-legend');
@@ -211,11 +212,10 @@ test.describe.serial('Phase 3.5 — Dashboard + user metrics', () => {
 
         await page.goto('/');
         await expect(page.getByRole('img', { name: 'Distribution of word types' })).toBeVisible();
-        const refreshedStats = page.locator('.stat-stack');
-        await expect(refreshedStats.getByText('5', { exact: true })).toBeVisible(); // totalWords
-        await expect(refreshedStats.getByText('10', { exact: true })).toBeVisible(); // totalTranslations (House/Casa adds EN+ES)
-        await expect(refreshedStats.getByText('1', { exact: true })).toBeVisible(); // incompleteWordsCount unchanged — the new word is complete
-        await expect(refreshedStats.getByText('20% incomplete')).toBeVisible();
+        const refreshedCard = (label: string) => page.locator('.stat-stack .stat-card', { hasText: label });
+        await expect(refreshedCard('Total words').locator('.s-num')).toHaveText('5'); // totalWords
+        await expect(refreshedCard('Total translations').locator('.s-num')).toHaveText('10'); // totalTranslations (House/Casa adds EN+ES)
+        await expect(refreshedCard('Unpracticed words').locator('.s-num')).toHaveText('5'); // the new word is unpracticed too
     });
 
     test('a fresh account shows the empty state over placeholder charts', async ({ page, request }) => {
@@ -237,5 +237,10 @@ test.describe.serial('Phase 3.5 — Dashboard + user metrics', () => {
 
         const stats = page.locator('.stat-stack');
         await expect(stats.getByText('0', { exact: true }).first()).toBeVisible();
+        // No translations to practice: the unpracticed card is an empty placeholder with a link, and has no meter.
+        const unpracticed = stats.locator('.stat-card', { hasText: 'Unpracticed words' });
+        await expect(unpracticed.locator('.s-num')).toHaveText('—');
+        await expect(unpracticed.getByRole('link', { name: 'Add words to track your practice' })).toBeVisible();
+        await expect(unpracticed.getByRole('progressbar')).toHaveCount(0);
     });
 });

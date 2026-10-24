@@ -24,6 +24,20 @@ describe('StatCard', () => {
         expect((meter.firstElementChild as HTMLElement).style.width).toBe('100%');
     });
 
+    it('names the meter after meterLabel when it is given', () => {
+        render(<StatCard value="3" label="Unpracticed words" meterPercent={75} meterLabel="Cases practiced" />);
+
+        expect(screen.getByRole('progressbar', { name: 'Cases practiced' })).toHaveAttribute('aria-valuenow', '75');
+    });
+
+    it('keeps a small share visible: at least 2% wide while there is progress, empty at 0', () => {
+        const { container, rerender } = render(<StatCard value="3" label="Words" meterPercent={0.4} />);
+        expect(container.querySelector('.meter > span')).toHaveStyle({ width: '2%' });
+
+        rerender(<StatCard value="3" label="Words" meterPercent={0} />);
+        expect(container.querySelector('.meter > span')).toHaveStyle({ width: '0%' });
+    });
+
     it('applies the warn modifier class', () => {
         const { container } = render(<StatCard value="9%" label="Incomplete words" meterPercent={9} warn />);
         expect(container.querySelector('.stat-card.warn')).toBeInTheDocument();

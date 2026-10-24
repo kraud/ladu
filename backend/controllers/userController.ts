@@ -799,13 +799,14 @@ const getBasicUserMetrics = asyncHandler(async (req: any, res: any) => {
   try {
     const metrics = await calculateBasicUserMetrics({
       id: req.user.id,
-      languages: req.user.languages,
     });
 
     res.status(200).json({
       totalWords: metrics?.totalWords || 0,
       totalTags: metrics?.totalTags || 0,
-      incompleteWordsCount: metrics?.incompleteWordsCount || 0,
+      unpracticedWordsCount: metrics?.unpracticedWordsCount || 0,
+      translationsInPractice: metrics?.translationsInPractice || 0,
+      practicedTranslations: metrics?.practicedTranslations || 0,
       translationsPerLanguage: metrics?.translationsPerLanguage || [],
       translationsPerLanguageAndPOS:
         metrics?.translationsPerLanguageAndPOS || [],

@@ -76,17 +76,15 @@ export function translationsPerWord(metrics: BasicUserMetricsBE): number {
 }
 
 /**
- * `incompleteWordsCount` as a percentage of `totalWords`, rounded. `0` on a
- * fresh account. Note this does NOT decide the "language-less account" (D10)
- * display — `metricController.ts` returns `incompleteWordsCount: 0`
- * unconditionally when `user.languages` is empty, which is indistinguishable
- * from "genuinely complete" at this layer. The caller (`UserInfoPanel`,
- * Slice 3) checks the account's own language count (from `authStore`, not
- * this response) to choose between this percentage and the "—" state.
+ * `practicedTranslations` as a percentage of `translationsInPractice`: a whole number, except below 1%, where it has
+ * one decimal and is never 0 while a case is practiced (23 of 5738 is 0.4%, not 0%). `0` when there
+ * are no translations to practice (a fresh account); `UserInfoPanel` shows an empty card in that case instead.
  */
-export function incompletePercent(metrics: BasicUserMetricsBE): number {
-    if (metrics.totalWords === 0) return 0;
-    return Math.round((metrics.incompleteWordsCount / metrics.totalWords) * 100);
+export function practicedPercent(metrics: BasicUserMetricsBE): number {
+    if (metrics.translationsInPractice === 0 || metrics.practicedTranslations === 0) return 0;
+    const exact = (metrics.practicedTranslations / metrics.translationsInPractice) * 100;
+    if (exact < 1) return Math.max(0.1, Math.round(exact * 10) / 10);
+    return Math.round(exact);
 }
 
 /** One pie slice: a stable key (PoS enum value or language label) plus its count. */

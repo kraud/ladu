@@ -67,6 +67,8 @@ export interface SenseSuggestion {
     /** Wiktionary's label for the sense; may be empty. */
     sense: string;
     key: SenseKey;
+    /** The languages the sense has a word in (English always: it is the hub). */
+    languages: string[];
 }
 
 export interface SenseSuggestionsResponse {

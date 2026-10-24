@@ -112,7 +112,7 @@ per `.context/README.md`'s spec-authority table.
   | `translationsPerLanguage` | `{language, count, type:"language"}[]` | translations | key is `language` |
   | `translationsPerLanguageAndPOS` | `{label, type:"language", partOfSpeech, count}[]` | translations | key is **`label`**, not `language` |
   | `wordsPerMonth` | `{label:"YYYY-MM", partOfSpeech, count}[]` | words | **no language dimension**; multiple rows share one label; unbounded, gaps absent |
-  | `incompleteWordsCount` | `number` | words | word missing any of `user.languages`; **always 0 when `user.languages` is empty** (`:139`) |
+  | ~~`incompleteWordsCount`~~ | | | replaced 2026-10-23, see "Change: unpracticed words" at the end of this file |
 - No total-translations scalar exists — it is `sum(translationsPerLanguage[].count)`.
 - **Zero Jest coverage today.** Confirmed by grep across `backend/tests/`.
 - Two latent semantics worth pinning with a test rather than "fixing": a word with *zero*
@@ -350,3 +350,30 @@ same pattern as Phase 3's `setTimerTriggerFunction` gate note).
 - **`SegmentedToggle` change touching Phase 3 forms.** Mitigation: `allowDeselect` defaults to
   `true`, so every existing call site keeps its current behaviour; the form-engine tests are the
   regression check.
+
+## Change: unpracticed words (2026-10-23, user feedback; bar changed 2026-10-24)
+
+The third stat card no longer counts incomplete words (D10 and the `userInfoCards.noLanguages` link are gone with it).
+
+- **Backend.** `incompleteWordsCount` is replaced by `unpracticedWordsCount`, `translationsInPractice` and
+  `practicedTranslations` (`calculatePracticeCoverage` in `metricController.ts`). The scope is the one practice
+  uses: own words plus words of followed tags the user can still see, without a followed word the user
+  has an own copy of. (`totalWords` and the charts stay "own words" only.)
+  - A case is *practiced* when the user's `exercise_performance_cases` row for it (same translation,
+    same case name) has a non-empty `record`. An answer for a case the word no longer stores does not count.
+  - A *translation* (one language of a word) is practiced when at least one of its stored
+    `translation_cases` is practiced; it counts once, however many cases are. A translation with no
+    stored case cannot be practiced and is not counted. Example: 2 words with 4 translations each, one
+    case practiced in each of 2 languages, is 2/8.
+  - A word is *unpracticed* when none of its translations is practiced.
+- **Frontend.** The card shows the unpracticed count; the meter shows `practicedPercent` (practiced
+  translations / all translations), named "Translations practiced" for assistive technology (`StatCard`
+  `meterLabel`). The label ends with the counts, "(2/8)". Below 1% the percentage has one decimal and is
+  never 0 while a translation is practiced; the bar is at least 2% wide while there is progress.
+  With `translationsInPractice === 0` the card is a placeholder: "—" and a link to add words, no meter.
+  The card is no longer amber (`warn` stays in `StatCard`, unused).
+- **History.** The first version of the bar counted cases (practiced cases / all cases). It was changed
+  to translations because a translation is the unit the user sees and adds.
+- **Tests.** `metrics.test.js` (coverage and scope), `selectors.test.ts`, `UserInfoPanel.test.tsx`,
+  `StatCard.test.tsx`, and `phase-3-5-dashboard.spec.ts` (card-scoped locators: the counts can repeat).
+- **Open.** ES, DE and EE texts (`userInfoCards.*` in `dashboard.json`) need a native review.

@@ -737,7 +737,18 @@ describe('sense type-ahead (Slice G, G1: GET /api/dictionary/translate/:fromLang
         expect(res.body.suggestions[0]).toEqual({
             word: 'lake', partOfSpeech: 'Noun', english: 'lake', sense: 'body of water',
             key: { englishLemma: 'lake', entryOrder: 0, senseOrder: 0 },
+            languages: ['English', 'Spanish', 'German', 'Estonian'],
         });
+    });
+
+    it('each line lists the languages its sense covers (English is the hub, so always), in the fixed language order', async () => {
+        const [lake] = (await senses('German?prefix=See&partOfSpeech=Noun')).body.suggestions.filter((s) => s.english === 'lake');
+        expect(lake.languages).toEqual(['English', 'Spanish', 'German', 'Estonian']);
+        const all = (await senses('English?prefix=ba')).body.suggestions;
+        for (const suggestion of all) {
+            expect(suggestion.languages[0]).toBe('English');
+            expect(new Set(suggestion.languages).size).toBe(suggestion.languages.length);
+        }
     });
 
     it('from German: the prefix is matched in German only, and the noun gender comes with the word', async () => {
