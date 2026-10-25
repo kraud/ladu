@@ -2,15 +2,15 @@ import type { Lang, PartOfSpeech } from '@/ts/enums';
 import { PartOfSpeech as PoS } from '@/ts/enums';
 import { ADJECTIVE_CONFIGS } from './adjectives';
 import { ADVERB_CONFIGS } from './adverbs';
+import { CONJUNCTION_CONFIGS } from './conjunctions';
 import { NOUN_CONFIGS } from './nouns';
 import { VERB_CONFIGS } from './verbs';
 import type { TranslationFormConfig } from './types';
 
 /**
- * `(PartOfSpeech, Lang) -> TranslationFormConfig`. All four parts of speech
- * Phase 3 models ship. Adverb has no Estonian config at all (matching the old
- * app's own missing route), so that combination falls through to `undefined`
- * — `TranslationCard` already renders its "language not available" fallback.
+ * `(PartOfSpeech, Lang) -> TranslationFormConfig`. A part of speech or language
+ * with no config falls through to `undefined` — `TranslationCard` already
+ * renders its "language not available" fallback.
  */
 export function getFormConfig(pos: PartOfSpeech, lang: Lang): TranslationFormConfig | undefined {
     if (pos === PoS.noun) {
@@ -24,6 +24,9 @@ export function getFormConfig(pos: PartOfSpeech, lang: Lang): TranslationFormCon
     }
     if (pos === PoS.adverb) {
         return ADVERB_CONFIGS[lang];
+    }
+    if (pos === PoS.conjunction) {
+        return CONJUNCTION_CONFIGS[lang];
     }
     return undefined;
 }

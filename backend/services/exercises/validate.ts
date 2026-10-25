@@ -7,7 +7,7 @@
 import type { CardTypeParam, LanguageMode, Modifier, WordSelection } from './types';
 
 export const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'] as const;
-export const PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb'] as const;
+export const PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb', 'Conjunction'] as const;
 export const CARD_TYPE_PARAMS: CardTypeParam[] = ['Multiple-Choice', 'Text-Input', 'Random'];
 export const LANGUAGE_MODES: LanguageMode[] = ['Multi-Language', 'Single-Language', 'Random'];
 export const WORD_SELECTIONS: WordSelection[] = ['Exercise-Performance', 'Random'];

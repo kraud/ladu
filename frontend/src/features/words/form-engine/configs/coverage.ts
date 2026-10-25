@@ -1,15 +1,17 @@
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import { ADJECTIVE_CONFIGS } from './adjectives';
 import { ADVERB_CONFIGS } from './adverbs';
+import { CONJUNCTION_CONFIGS } from './conjunctions';
 import { NOUN_CONFIGS } from './nouns';
 import { VERB_CONFIGS } from './verbs';
 
-/** All four parts of speech, in registration/tile display order. */
+/** The parts of speech with a form config, in registration/tile display order. */
 const ALL_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.noun,
     PartOfSpeech.verb,
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
+    PartOfSpeech.conjunction,
 ];
 
 const CONFIGS_BY_POS: Record<PartOfSpeech, Partial<Record<Lang, unknown>>> = {
@@ -17,11 +19,10 @@ const CONFIGS_BY_POS: Record<PartOfSpeech, Partial<Record<Lang, unknown>>> = {
     [PartOfSpeech.verb]: VERB_CONFIGS,
     [PartOfSpeech.adjective]: ADJECTIVE_CONFIGS,
     [PartOfSpeech.adverb]: ADVERB_CONFIGS,
-    // The remaining PartOfSpeech members have no form engine at all (Phase 3
-    // only models noun/verb/adjective/adverb) — every language covers none
+    // The remaining PartOfSpeech members have no form engine at all — every language covers none
     // of them, so they never appear in a tile's coverage line.
+    [PartOfSpeech.conjunction]: CONJUNCTION_CONFIGS,
     [PartOfSpeech.preposition]: {},
-    [PartOfSpeech.conjunction]: {},
     [PartOfSpeech.pronoun]: {},
     [PartOfSpeech.interjection]: {},
     [PartOfSpeech.properNoun]: {},
@@ -35,7 +36,7 @@ const CONFIGS_BY_POS: Record<PartOfSpeech, Partial<Record<Lang, unknown>>> = {
  * data instead of hardcoded copy — a language without a config for a part of
  * speech lists fewer (Estonian listed three before the adverb form of Slice H4).
  *
- * Reads the four PoS config maps directly (not `getFormConfig` in
+ * Reads the PoS config maps directly (not `getFormConfig` in
  * `./index`) to avoid a circular import with that barrel file.
  */
 export function coverageForLanguage(lang: Lang): PartOfSpeech[] {

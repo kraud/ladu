@@ -23,12 +23,13 @@ import type { TagSummary } from '@/features/tags/types';
 import type { WordOwner } from '@/features/words/types';
 import { posAbbrKey } from './columns';
 
-/** The four shipped parts of speech, matching `PartOfSpeechSelector`'s `SHIPPED_POS`. */
+/** The shipped parts of speech, matching `PartOfSpeechSelector`'s `SHIPPED_POS`. */
 const SHIPPED_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.noun,
     PartOfSpeech.verb,
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
+    PartOfSpeech.conjunction,
 ];
 
 const OWNER_OPTIONS: readonly WordOwner[] = ['me', 'others'];

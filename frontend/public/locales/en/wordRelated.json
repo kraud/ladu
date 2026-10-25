@@ -116,8 +116,12 @@
         "examples": [""]
       },
       "conjunction": {
-        "info":  "You'll know it when you see it.",
-        "examples": [""]
+        "info": "Conjunctions join words, phrases or clauses. Coordinating conjunctions join equal parts (and, but, or). Subordinating conjunctions start a dependent clause (because, although, if). Some conjunctions work in pairs (neither … nor).",
+        "examples": [
+          "I like tea *and* coffee.",
+          "She stayed home *because* she was ill.",
+          "He speaks *neither* French *nor* Italian."
+        ]
       },
       "interjection": {
         "info":  "You'll know it when you see it.",
@@ -328,6 +332,49 @@
         "superlativeEE": "Superlative",
         "gradableEE": "Gradable",
         "periphrasticSuperlativeEE": "No one-word superlative (kõige + comparative)"
+      }
+    },
+    "conjunction": {
+      "errors": {
+        "formEN": {
+          "conjunctionRequired": "Conjunction is required",
+          "typeRequired": "'Type' selection is required",
+          "secondPartRequired": "Second part is required"
+        },
+        "formES": {
+          "conjunctionRequired": "Conjunction is required",
+          "typeRequired": "'Type' selection is required",
+          "secondPartRequired": "Second part is required"
+        },
+        "formDE": {
+          "conjunctionRequired": "Conjunction is required",
+          "typeRequired": "'Type' selection is required",
+          "secondPartRequired": "Second part is required"
+        },
+        "formEE": {
+          "conjunctionRequired": "Conjunction is required",
+          "typeRequired": "'Type' selection is required",
+          "secondPartRequired": "Second part is required"
+        }
+      },
+      "fields": {
+        "conjunctionEN": "Conjunction",
+        "conjunctionTypeEN": "Type",
+        "correlativeEN": "Paired (e.g. neither … nor)",
+        "secondPartEN": "Second part",
+        "conjunctionES": "Conjunction",
+        "conjunctionTypeES": "Type",
+        "correlativeES": "Paired (e.g. neither … nor)",
+        "secondPartES": "Second part",
+        "moodES": "Verb mood",
+        "conjunctionDE": "Conjunction",
+        "conjunctionTypeDE": "Type",
+        "correlativeDE": "Paired (e.g. neither … nor)",
+        "secondPartDE": "Second part",
+        "conjunctionEE": "Conjunction",
+        "conjunctionTypeEE": "Type",
+        "correlativeEE": "Paired (e.g. neither … nor)",
+        "secondPartEE": "Second part"
       }
     },
     "verb": {

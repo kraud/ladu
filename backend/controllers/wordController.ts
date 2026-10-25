@@ -39,6 +39,11 @@ const {
   decodeSortCursor,
 }: typeof import("../lib/wordSort") = require("../lib/wordSort");
 const { translationAverage }: typeof import("../services/exercises/knowledge") = require("../services/exercises/knowledge");
+const { PROPERTY_PREFIXES }: typeof import("../services/exercises/catalogue") = require("../services/exercises/catalogue");
+
+/** Search conditions that skip the property rows (gender, gradable, mood…): only written forms match a query. */
+const writtenFormOnly = () =>
+  PROPERTY_PREFIXES.map((prefix) => not(ilike(translationCases.caseName, `${prefix}%`)));
 
 const {
   and,
@@ -169,6 +174,23 @@ const getRequiredFieldsData = (
         default:
           console.warn(
             `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Adverb"`,
+          );
+          return {};
+      }
+    }
+    case "Conjunction": {
+      switch (translation.language) {
+        case "English":
+          return { dataEN: findByCaseName("conjunctionEN")! };
+        case "Spanish":
+          return { dataES: findByCaseName("conjunctionES")! };
+        case "German":
+          return { dataDE: findByCaseName("conjunctionDE")! };
+        case "Estonian":
+          return { dataEE: findByCaseName("conjunctionEE")! };
+        default:
+          console.warn(
+            `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Conjunction"`,
           );
           return {};
       }
@@ -409,7 +431,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
   const q: string | undefined = req.query.q;
   if (q) {
     // Same matching rule as GET /api/words/searchWord: substring match on any
-    // stored case word, excluding gender/gradable/reflexive*/periphrasticSuperlative metadata rows.
+    // stored case word, excluding the property rows (`PROPERTY_PREFIXES`).
     const matchingWordIds = db
       .select({ id: translations.wordId })
       .from(translationCases)
@@ -417,10 +439,7 @@ const getWordsSimplified = asyncHandler(async (req: any, res: any) => {
       .where(
         and(
           ilike(translationCases.word, `%${q}%`),
-          not(ilike(translationCases.caseName, "gender%")),
-          not(ilike(translationCases.caseName, "gradable%")),
-          not(ilike(translationCases.caseName, "reflexiv%")),
-          not(ilike(translationCases.caseName, "periphrastic%")),
+          ...writtenFormOnly(),
         ),
       );
     conditions.push(inArray(words.id, matchingWordIds));
@@ -1056,7 +1075,7 @@ const filterWordByAnyTranslation = asyncHandler(async (req: any, res: any) => {
   );
 
   // Find all translation_cases rows that match the search query (case-insensitive),
-  // excluding gender/gradable metadata fields.  Each distinct match produces one
+  // excluding the property rows (`PROPERTY_PREFIXES`).  Each distinct match produces one
   // search result entry (even if multiple cases in the same word match).
   const matchingCaseRows = await db
     .select({
@@ -1075,10 +1094,7 @@ const filterWordByAnyTranslation = asyncHandler(async (req: any, res: any) => {
     .where(
       and(
         ilike(translationCases.word, `%${query}%`),
-        not(ilike(translationCases.caseName, "gender%")),
-        not(ilike(translationCases.caseName, "gradable%")),
-        not(ilike(translationCases.caseName, "reflexiv%")),
-        not(ilike(translationCases.caseName, "periphrastic%")),
+        ...writtenFormOnly(),
         or(
           eq(words.userId, req.user.id),
           wordsFromFollowedTags.length > 0

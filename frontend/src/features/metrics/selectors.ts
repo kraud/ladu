@@ -23,12 +23,13 @@ import { PartOfSpeech } from '@/ts/enums';
 import { UI_LANGUAGES } from '@/lib/language';
 import type { BasicUserMetricsBE } from './types';
 
-/** The only 4 parts of speech the form engine can create (`data-model.md`, `word-cases-data.md`). */
+/** The only parts of speech the form engine can create (`data-model.md`, `word-cases-data.md`). */
 export const CREATABLE_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.noun,
     PartOfSpeech.verb,
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
+    PartOfSpeech.conjunction,
 ];
 
 /** Sum of `translationsPerLanguage[].count` — `getUserMetrics` has no such scalar directly. */

@@ -116,8 +116,12 @@
         "examples": [""]
       },
       "conjunction": {
-        "info": "Lo sabrás cuando lo veas.",
-        "examples": [""]
+        "info": "Las conjunciones unen palabras, grupos de palabras u oraciones. Las coordinantes unen partes del mismo nivel (y, pero, o). Las subordinantes introducen una oración dependiente (porque, aunque, si). Algunas conjunciones van en pareja (ni … ni).",
+        "examples": [
+          "Me gusta el té *y* el café.",
+          "Se quedó en casa *porque* estaba enferma.",
+          "No habla *ni* francés *ni* italiano."
+        ]
       },
       "interjection": {
         "info": "Lo sabrás cuando lo veas.",
@@ -328,6 +332,49 @@
         "superlativeEE": "Superlativo",
         "gradableEE": "Graduable",
         "periphrasticSuperlativeEE": "Sin superlativo de una sola palabra (kõige + comparativo)"
+      }
+    },
+    "conjunction": {
+      "errors": {
+        "formEN": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeRequired": "La selección de 'tipo' es obligatoria",
+          "secondPartRequired": "La segunda parte es obligatoria"
+        },
+        "formES": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeRequired": "La selección de 'tipo' es obligatoria",
+          "secondPartRequired": "La segunda parte es obligatoria"
+        },
+        "formDE": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeRequired": "La selección de 'tipo' es obligatoria",
+          "secondPartRequired": "La segunda parte es obligatoria"
+        },
+        "formEE": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeRequired": "La selección de 'tipo' es obligatoria",
+          "secondPartRequired": "La segunda parte es obligatoria"
+        }
+      },
+      "fields": {
+        "conjunctionEN": "Conjunción",
+        "conjunctionTypeEN": "Tipo",
+        "correlativeEN": "En pareja (p. ej. ni … ni)",
+        "secondPartEN": "Segunda parte",
+        "conjunctionES": "Conjunción",
+        "conjunctionTypeES": "Tipo",
+        "correlativeES": "En pareja (p. ej. ni … ni)",
+        "secondPartES": "Segunda parte",
+        "moodES": "Modo del verbo",
+        "conjunctionDE": "Conjunción",
+        "conjunctionTypeDE": "Tipo",
+        "correlativeDE": "En pareja (p. ej. ni … ni)",
+        "secondPartDE": "Segunda parte",
+        "conjunctionEE": "Conjunción",
+        "conjunctionTypeEE": "Tipo",
+        "correlativeEE": "En pareja (p. ej. ni … ni)",
+        "secondPartEE": "Segunda parte"
       }
     },
     "verb": {

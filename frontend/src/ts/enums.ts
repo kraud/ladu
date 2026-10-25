@@ -73,6 +73,36 @@ export enum AdverbCases {
     periphrasticSuperlativeEE = "periphrasticSuperlativeEE",
 }
 
+export enum ConjunctionCases {
+    // ENGLISH
+    conjunctionEN = "conjunctionEN",
+    /** Property: "Coordinating" or "Subordinating". */
+    conjunctionTypeEN = "conjunctionTypeEN",
+    /** Stored checkbox: the conjunction has a second part (neither ... nor). */
+    correlativeEN = "correlativeEN",
+    secondPartEN = "secondPartEN",
+
+    // SPANISH
+    conjunctionES = "conjunctionES",
+    conjunctionTypeES = "conjunctionTypeES",
+    correlativeES = "correlativeES",
+    secondPartES = "secondPartES",
+    /** Property: the verb mood the subordinate clause takes. */
+    moodES = "moodES",
+
+    // GERMAN
+    conjunctionDE = "conjunctionDE",
+    conjunctionTypeDE = "conjunctionTypeDE",
+    correlativeDE = "correlativeDE",
+    secondPartDE = "secondPartDE",
+
+    // ESTONIAN
+    conjunctionEE = "conjunctionEE",
+    conjunctionTypeEE = "conjunctionTypeEE",
+    correlativeEE = "correlativeEE",
+    secondPartEE = "secondPartEE",
+}
+
 export enum AdjectiveCases {
     // ENGLISH
     positiveEN = "positiveEN",

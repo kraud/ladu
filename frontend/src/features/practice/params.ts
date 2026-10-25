@@ -13,12 +13,13 @@ export const DEFAULT_AMOUNT = 10;
 /** The only parts of speech that produce exercises today (catalogue parity, D1). */
 export const PARTS_OF_SPEECH_WITH_EXERCISES: readonly PartOfSpeech[] = [PartOfSpeech.noun, PartOfSpeech.verb];
 
-/** The four the parameters screen offers. */
+/** The word types the parameters screen offers. */
 export const SELECTABLE_PARTS_OF_SPEECH: readonly PartOfSpeech[] = [
     PartOfSpeech.noun,
     PartOfSpeech.verb,
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
+    PartOfSpeech.conjunction,
 ];
 
 const KNOWN_LANGUAGES = new Set<string>(Object.values(Lang));
@@ -86,7 +87,7 @@ export function relevantSettings(
     };
 }
 
-/** True when no chosen part of speech can give an exercise (only adjectives and/or adverbs). */
+/** True when no chosen part of speech can give an exercise (only adjectives, adverbs and/or conjunctions). */
 export function onlyPartsWithoutExercises(partsOfSpeech: readonly PartOfSpeech[]): boolean {
     return (
         partsOfSpeech.length > 0 &&

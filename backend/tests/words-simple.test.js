@@ -118,6 +118,42 @@ describe('GET /api/words/simple - row shape', () => {
         expect(row.dataEE).toBe('kiire');
     });
 
+    it('extracts the primary case per language for a Conjunction, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Conjunction',
+            translations: [
+                {
+                    language: 'German',
+                    cases: [
+                        { word: 'weder', caseName: 'conjunctionDE' },
+                        { word: 'Coordinating', caseName: 'conjunctionTypeDE' },
+                        { word: 'true', caseName: 'correlativeDE' },
+                        { word: 'noch', caseName: 'secondPartDE' },
+                    ],
+                },
+                {
+                    language: 'Spanish',
+                    cases: [
+                        { word: 'ni', caseName: 'conjunctionES' },
+                        { word: 'Subordinating', caseName: 'conjunctionTypeES' },
+                        { word: 'Subjunctive', caseName: 'moodES' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const list = await request(app).get('/api/words/simple').set('Authorization', `Bearer ${token}`);
+        const row = list.body.items.find((w) => w.id === res.body.id);
+        expect(row.dataDE).toBe('weder');
+        expect(row.dataES).toBe('ni');
+
+        const search = async (q) => (await request(app).get(`/api/words/simple?q=${q}`).set('Authorization', `Bearer ${token}`)).body.items;
+        expect(await search('noch')).toHaveLength(1); // the second part is a written form
+        expect(await search('Coordinating')).toHaveLength(0); // the type is a property
+        expect(await search('Subjunctive')).toHaveLength(0); // the mood is a property
+    });
+
     it('extracts the primary case per language for an Adverb', async () => {
         const res = await create(token, {
             partOfSpeech: 'Adverb',

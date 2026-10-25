@@ -13,6 +13,7 @@ const POS_COLOR_VAR: Partial<Record<PartOfSpeech, string>> = {
     [PartOfSpeech.verb]: 'var(--lang-es)',
     [PartOfSpeech.adjective]: 'var(--warning)',
     [PartOfSpeech.adverb]: 'var(--lang-gb)',
+    [PartOfSpeech.conjunction]: 'var(--lang-ee)',
 };
 
 /** `CREATABLE_POS` -> a CSS colour (`var(...)`) reference. Unknown/uncreatable PoS fall back to `--accent`. */

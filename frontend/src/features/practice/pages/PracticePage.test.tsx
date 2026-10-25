@@ -136,17 +136,18 @@ describe('PracticePage — set-up', () => {
         expect(screen.getByText(/Your account has one language/)).toBeInTheDocument();
     });
 
-    it('always says that adjectives and adverbs have no exercises yet, and cannot pick them', async () => {
+    it('always says that adjectives, adverbs and conjunctions have no exercises yet, and cannot pick them', async () => {
         setUp();
         const user = userEvent.setup();
         const { router } = await renderApp({ initialEntry: '/practice', session: SESSION });
         await openNewConfigurationTab();
 
-        expect(await screen.findByText('Adjectives and adverbs have no exercises yet.')).toBeInTheDocument();
+        expect(await screen.findByText('Adjectives, adverbs and conjunctions have no exercises yet.')).toBeInTheDocument();
         const adjective = screen.getByRole('button', { name: 'Adjective' });
         expect(adjective).toBeDisabled();
         expect(screen.getByRole('button', { name: 'Adverb' })).toBeDisabled();
-        expect(adjective.parentElement).toHaveAttribute('title', 'Adjectives and adverbs have no exercises yet.');
+        expect(screen.getByRole('button', { name: 'Conjunction' })).toBeDisabled();
+        expect(adjective.parentElement).toHaveAttribute('title', 'Adjectives, adverbs and conjunctions have no exercises yet.');
 
         await user.click(adjective);
         expect(adjective).toHaveAttribute('aria-pressed', 'false');

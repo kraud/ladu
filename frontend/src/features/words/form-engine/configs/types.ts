@@ -1,7 +1,7 @@
-import type { AdjectiveCases, AdverbCases, Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
+import type { AdjectiveCases, AdverbCases, ConjunctionCases, Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 
-/** Every case-name enum a `FieldConfig` can point at, across all four parts of speech. */
-export type CaseName = NounCases | VerbCases | AdjectiveCases | AdverbCases;
+/** Every case-name enum a `FieldConfig` can point at, across all parts of speech with a form. */
+export type CaseName = NounCases | VerbCases | AdjectiveCases | AdverbCases | ConjunctionCases;
 
 export type FieldKind = 'text' | 'radio' | 'checkbox' | 'select' | 'multi-select' | 'toggle';
 

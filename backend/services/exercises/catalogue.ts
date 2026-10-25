@@ -120,7 +120,23 @@ export const SINGLE_LANGUAGE: Partial<Record<PartOfSpeech, SingleLanguageCatalog
     Verb: verbDrills,
 };
 
-/** Case-name prefixes that describe a property (gender, regularity…), not a written form. */
-const PROPERTY_PREFIXES = ['gender', 'gradable', 'regularity', 'auxVerb', 'caseType', 'prefix', 'periphrastic'];
+/**
+ * Case-name prefixes that describe a property (gender, regularity…), not a written form.
+ * The one list: exercises and the word search both read it. A written-form case name must not
+ * start with any of these (guide: `.context/guides/add-part-of-speech.md`, section 3).
+ */
+export const PROPERTY_PREFIXES = [
+    'gender',
+    'gradable',
+    'regularity',
+    'auxVerb',
+    'caseType',
+    'prefix',
+    'periphrastic',
+    'reflexiv',
+    'conjunctionType',
+    'correlative',
+    'mood',
+];
 export const isPropertyCase = (caseName: string): boolean =>
     PROPERTY_PREFIXES.some((prefix) => caseName.startsWith(prefix));

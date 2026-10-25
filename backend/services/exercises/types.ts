@@ -7,7 +7,7 @@
  */
 
 export type Language = 'English' | 'Spanish' | 'German' | 'Estonian';
-export type PartOfSpeech = 'Noun' | 'Verb' | 'Adjective' | 'Adverb';
+export type PartOfSpeech = 'Noun' | 'Verb' | 'Adjective' | 'Adverb' | 'Conjunction';
 export type CardType = 'Multiple-Choice' | 'Text-Input';
 export type CardTypeParam = CardType | 'Random';
 export type LanguageMode = 'Multi-Language' | 'Single-Language' | 'Random';

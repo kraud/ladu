@@ -116,8 +116,12 @@
         "examples": [""]
       },
       "conjunction": {
-        "info": "Tead, kui näed.",
-        "examples": [""]
+        "info": "Sidesõnad ühendavad sõnu, sõnarühmi või lauseid. Rinnastavad sidesõnad ühendavad võrdseid osi (ja, aga, või). Alistavad sidesõnad alustavad kõrvallauset (sest, kuigi, kui). Mõned sidesõnad esinevad paarina (nii … kui ka).",
+        "examples": [
+          "Mulle meeldib tee *ja* kohv.",
+          "Ta jäi koju, *sest* ta oli haige.",
+          "Ta ei räägi *ega* prantsuse *ega* itaalia keelt."
+        ]
       },
       "interjection": {
         "info": "Tead, kui näed.",
@@ -328,6 +332,49 @@
         "superlativeEE": "Ülivõrre",
         "gradableEE": "Astestatav",
         "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)"
+      }
+    },
+    "conjunction": {
+      "errors": {
+        "formEN": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeRequired": "'Tüübi' valik on kohustuslik",
+          "secondPartRequired": "Teine osa on kohustuslik"
+        },
+        "formES": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeRequired": "'Tüübi' valik on kohustuslik",
+          "secondPartRequired": "Teine osa on kohustuslik"
+        },
+        "formDE": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeRequired": "'Tüübi' valik on kohustuslik",
+          "secondPartRequired": "Teine osa on kohustuslik"
+        },
+        "formEE": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeRequired": "'Tüübi' valik on kohustuslik",
+          "secondPartRequired": "Teine osa on kohustuslik"
+        }
+      },
+      "fields": {
+        "conjunctionEN": "Sidesõna",
+        "conjunctionTypeEN": "Tüüp",
+        "correlativeEN": "Kaheosaline (nt nii … kui ka)",
+        "secondPartEN": "Teine osa",
+        "conjunctionES": "Sidesõna",
+        "conjunctionTypeES": "Tüüp",
+        "correlativeES": "Kaheosaline (nt nii … kui ka)",
+        "secondPartES": "Teine osa",
+        "moodES": "Verbi kõneviis",
+        "conjunctionDE": "Sidesõna",
+        "conjunctionTypeDE": "Tüüp",
+        "correlativeDE": "Kaheosaline (nt nii … kui ka)",
+        "secondPartDE": "Teine osa",
+        "conjunctionEE": "Sidesõna",
+        "conjunctionTypeEE": "Tüüp",
+        "correlativeEE": "Kaheosaline (nt nii … kui ka)",
+        "secondPartEE": "Teine osa"
       }
     },
     "verb": {

@@ -1,6 +1,6 @@
 # Plan: Conjunctions and prepositions in Ladu (+ a reusable "add a part of speech" guide)
 
-Status: plan agreed on 2026-10-24. Slice 0 done. Slice 1 next.
+Status: plan agreed on 2026-10-24. Slices 0 and 1 done. Slice 2 next.
 
 ## How to start (read this first in a new session)
 
@@ -11,7 +11,7 @@ Status: plan agreed on 2026-10-24. Slice 0 done. Slice 1 next.
 ## Progress
 
 - [x] Slice 0 (2026-10-24) — Docs: the process guide, this plan file, the README index
-- [ ] Slice 1 — Conjunction form (frontend + backend property rules)
+- [x] Slice 1 (2026-10-25) — Conjunction form (frontend + backend property rules). Open: no browser check yet; the e2e spec in slice 4 covers it
 - [ ] Slice 2 — Preposition form
 - [ ] Slice 3 — Autocomplete (lemma, and the properties that are clear)
 - [ ] Slice 4 — e2e spec, snapshot docs, review of ES/DE/EE strings
@@ -20,7 +20,9 @@ Status: plan agreed on 2026-10-24. Slice 0 done. Slice 1 next.
 
 | # | Severity | Finding | Resolution |
 |---|---|---|---|
-| - | - | None yet. | - |
+| 1 | Moderate | The two search filters in `wordController.ts` skipped only 4 prefixes (`gender`, `gradable`, `reflexiv`, `periphrastic`). The exercise list had 7 and no `reflexiv`. Two lists would drift with each new PoS. | Fixed in slice 1: one exported `PROPERTY_PREFIXES` (`catalogue.ts`), read by `isPropertyCase` and by `writtenFormOnly()` in the controller. |
+| 2 | Moderate (behaviour change) | The one list is wider than the old search filters. A word search no longer matches the property values `regularity`, `auxVerb`, `caseType` and `prefix` (for example, searching "haben" no longer finds a verb through its auxiliary). | Accepted: these are properties, not written forms. Tell the user. Covered by the new `words-simple` test for conjunction properties. |
+| 3 | Minor | `reflexiv` was missing from the exercise property list. | Added to `PROPERTY_PREFIXES`. |
 
 ## Context
 

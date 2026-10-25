@@ -116,8 +116,12 @@
         "examples": [""]
       },
       "conjunction": {
-        "info": "Du wirst es wissen, wenn du es siehst.",
-        "examples": [""]
+        "info": "Konjunktionen verbinden Wörter, Wortgruppen oder Sätze. Nebenordnende Konjunktionen verbinden gleichwertige Teile (und, aber, oder). Unterordnende Konjunktionen leiten einen Nebensatz ein (weil, obwohl, wenn). Manche Konjunktionen stehen paarweise (weder … noch).",
+        "examples": [
+          "Ich mag Tee *und* Kaffee.",
+          "Sie blieb zu Hause, *weil* sie krank war.",
+          "Er spricht *weder* Französisch *noch* Italienisch."
+        ]
       },
       "interjection": {
         "info": "Du wirst es wissen, wenn du es siehst.",
@@ -328,6 +332,49 @@
         "superlativeEE": "Superlativ",
         "gradableEE": "Steigerbar",
         "periphrasticSuperlativeEE": "Kein einteiliger Superlativ (kõige + Komparativ)"
+      }
+    },
+    "conjunction": {
+      "errors": {
+        "formEN": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeRequired": "Die Auswahl des 'Typs' ist erforderlich",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
+        },
+        "formES": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeRequired": "Die Auswahl des 'Typs' ist erforderlich",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
+        },
+        "formDE": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeRequired": "Die Auswahl des 'Typs' ist erforderlich",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
+        },
+        "formEE": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeRequired": "Die Auswahl des 'Typs' ist erforderlich",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
+        }
+      },
+      "fields": {
+        "conjunctionEN": "Konjunktion",
+        "conjunctionTypeEN": "Typ",
+        "correlativeEN": "Zweiteilig (z. B. weder … noch)",
+        "secondPartEN": "Zweiter Teil",
+        "conjunctionES": "Konjunktion",
+        "conjunctionTypeES": "Typ",
+        "correlativeES": "Zweiteilig (z. B. weder … noch)",
+        "secondPartES": "Zweiter Teil",
+        "moodES": "Verbmodus",
+        "conjunctionDE": "Konjunktion",
+        "conjunctionTypeDE": "Typ",
+        "correlativeDE": "Zweiteilig (z. B. weder … noch)",
+        "secondPartDE": "Zweiter Teil",
+        "conjunctionEE": "Konjunktion",
+        "conjunctionTypeEE": "Typ",
+        "correlativeEE": "Zweiteilig (z. B. weder … noch)",
+        "secondPartEE": "Zweiter Teil"
       }
     },
     "verb": {
