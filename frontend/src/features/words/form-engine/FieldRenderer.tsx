@@ -289,7 +289,11 @@ export function FieldRenderer({
                         <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} />
                             <FormControl>
-                                <RadioGroup value={rhf.value ?? ''} onValueChange={rhf.onChange}>
+                                <RadioGroup
+                                    value={rhf.value ?? ''}
+                                    onValueChange={rhf.onChange}
+                                    className={field.optionsLayout === 'column' ? 'flex-col flex-nowrap gap-1.5' : undefined}
+                                >
                                     {field.options.map((option) => (
                                         <label
                                             key={option.value}
@@ -382,7 +386,12 @@ export function FieldRenderer({
                         <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} />
                             <FormControl>
-                                <div className="flex flex-row flex-wrap gap-x-4 gap-y-1.5">
+                                <div
+                                    className={cn(
+                                        'flex gap-y-1.5',
+                                        field.optionsLayout === 'column' ? 'flex-col' : 'flex-row flex-wrap gap-x-4'
+                                    )}
+                                >
                                     {field.options.map((option) => (
                                         <label key={option.value} className="flex items-center gap-1.5 text-sm">
                                             <Checkbox

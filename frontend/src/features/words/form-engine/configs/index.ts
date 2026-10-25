@@ -45,6 +45,7 @@ export type {
     FieldPattern,
     FieldVisibility,
     MultiSelectFieldConfig,
+    OptionsLayout,
     RadioFieldConfig,
     RadioOption,
     SelectFieldConfig,

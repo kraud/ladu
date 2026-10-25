@@ -22,27 +22,27 @@ describe('getFormConfig(Preposition, lang)', () => {
         expect(config(lang).fields.map((f) => f.name)).toEqual(['preposition', 'position']);
     });
 
-    it('German: word, position, governed cases, then the contractions', () => {
+    it('German: word, the contractions, then position and governed cases', () => {
         expect(config(Lang.DE).fields.map((f) => f.name)).toEqual([
             'preposition',
-            'position',
-            'governedCase',
             'contracts',
             'withDem',
             'withDer',
             'withDas',
+            'position',
+            'governedCase',
         ]);
     });
 
-    it('Estonian: word, position, a case per position, then the series', () => {
+    it('Estonian: word, the series, then position and a case per position', () => {
         expect(config(Lang.EE).fields.map((f) => f.name)).toEqual([
             'preposition',
-            'position',
-            'governedCasePre',
-            'governedCasePost',
             'spatialSeries',
             'directionTo',
             'directionFrom',
+            'position',
+            'governedCasePre',
+            'governedCasePost',
         ]);
     });
 
@@ -68,6 +68,28 @@ describe('getFormConfig(Preposition, lang)', () => {
             expect.arrayContaining(['withDem', 'withDer', 'withDas'])
         );
         expect(isStoredCheckbox(fields.find((f) => f.name === 'contracts')!)).toBe(true);
+    });
+
+    it('German: position and governed cases are listed in a column; the other languages keep the row', () => {
+        const optionsLayout = (lang: Lang, name: string) => {
+            const field = config(lang).fields.find((f) => f.name === name);
+            return field?.kind === 'radio' || field?.kind === 'multi-select' ? field.optionsLayout : undefined;
+        };
+        expect(optionsLayout(Lang.DE, 'position')).toBe('column');
+        expect(optionsLayout(Lang.DE, 'governedCase')).toBe('column');
+        for (const lang of [Lang.EN, Lang.ES, Lang.EE]) expect(optionsLayout(lang, 'position')).toBeUndefined();
+    });
+
+    it('the revealed forms of German and Estonian share one row that never stacks or scrolls', () => {
+        for (const [lang, names] of [
+            [Lang.DE, ['withDem', 'withDer', 'withDas']],
+            [Lang.EE, ['directionTo', 'directionFrom']],
+        ] as const) {
+            const layouts = names.map((name) => config(lang).fields.find((f) => f.name === name)?.layout);
+            expect(new Set(layouts.map((l) => l?.row)).size).toBe(1);
+            expect(new Set(layouts.map((l) => l?.block)).size).toBe(1);
+            expect(layouts.every((l) => l?.fitRow === true)).toBe(true);
+        }
     });
 
     it('German: the governed cases encode to the verb-case letters and back, in the order A, D, G', () => {

@@ -18,6 +18,16 @@ function textField(name: string, overrides: Partial<Pick<TextFieldConfig, 'layou
 }
 
 describe('buildLayoutItems', () => {
+    it('fitRow keeps the block on one row on a phone: it clears the stacking and wrapping flags', () => {
+        const dem = textField('dem', { layout: { row: 'forms', column: 'dem', fitRow: true, stackOnMobile: true } });
+        const der = textField('der', { layout: { row: 'forms', column: 'der', fullRowOnMobile: true } });
+        const [item] = buildLayoutItems([dem, der]);
+
+        expect(item).toMatchObject({ kind: 'grid', fitsRow: true });
+        expect(item.kind === 'grid' && item.stackOnMobile).toBeUndefined();
+        expect(item.kind === 'grid' && item.wrapsOnMobile).toBeUndefined();
+    });
+
     it('renders a field with no layout as a standalone item, unchanged order', () => {
         const fields = [textField('regularity'), textField('singular')];
         const items = buildLayoutItems(fields);

@@ -61,6 +61,8 @@ export interface GridLayoutItem {
     stackOnMobile?: boolean;
     /** Set when any field in the block takes a whole row on a phone (`FieldLayout.fullRowOnMobile`): the block then wraps 2-up instead of scrolling. */
     wrapsOnMobile?: boolean;
+    /** Set when any field in the block asks to keep all its columns in one row on a phone (`FieldLayout.fitRow`). */
+    fitsRow?: boolean;
 }
 
 export type LayoutItem = SingleLayoutItem | GridLayoutItem;
@@ -96,11 +98,14 @@ function buildGrid(fields: FieldConfig[]): Omit<GridLayoutItem, 'kind' | 'index'
     const cells = rows.map((row) => columns.map((column) => byPosition.get(`${row}\u0000${column}`)));
     const columnHeadings = columnHeadingByColumn.size > 0 ? columns.map((column) => columnHeadingByColumn.get(column)) : undefined;
 
-    const stackOnMobile = fields.some((field) => field.layout?.stackOnMobile) || undefined;
+    const fitsRow = fields.some((field) => field.layout?.fitRow) || undefined;
 
-    const wrapsOnMobile = fields.some((field) => field.layout?.fullRowOnMobile) || undefined;
+    // `fitRow` wins: a row that always fits never stacks or wraps.
+    const stackOnMobile = (!fitsRow && fields.some((field) => field.layout?.stackOnMobile)) || undefined;
 
-    return { fields, rows, columns, cells, columnHeadings, stackOnMobile, wrapsOnMobile };
+    const wrapsOnMobile = (!fitsRow && fields.some((field) => field.layout?.fullRowOnMobile)) || undefined;
+
+    return { fields, rows, columns, cells, columnHeadings, stackOnMobile, wrapsOnMobile, fitsRow };
 }
 
 /** `fields` must already be filtered to what will actually render (see file header). */

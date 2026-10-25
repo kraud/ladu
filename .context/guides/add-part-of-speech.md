@@ -32,6 +32,8 @@ Compare the result with the examples in `.other/` (the word list the user suppli
 | A field that exists only in one branch | `visibleWhen` (use `invert` to show by default) | `hiddenWhenNonGradable` |
 | A field that the form fills from another | `derivedWhen` with `store: true` | "more " + adverb |
 | Fields side by side | `layout` (`row`, `column`) | Estonian degree row |
+| Options listed one under the other | `optionsLayout: 'column'` on a `radio` or `multi-select` (default: a row that wraps, so a phone shows a column anyway) | German preposition position and cases |
+| A short row that must stay one row on a phone | `layout.fitRow: true` (equal columns, no scroll, no stacking) | German contractions, Estonian direction forms |
 
 Rules:
 

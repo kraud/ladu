@@ -531,11 +531,13 @@ export function TranslationCard({
                                     // Only rows with a mandatory field use it (every autocomplete trigger is
                                     // mandatory); an optional row's cells are `self-start`, so a message
                                     // that takes its own line there cannot push a neighbour's input down.
-                                    <GridScroller scrolls={!stacked(item) && !wrapped(item) && item.columns.length > visibleColumns}>
+                                    <GridScroller scrolls={!item.fitsRow && !stacked(item) && !wrapped(item) && item.columns.length > visibleColumns}>
                                     <div
                                         className={cn('grid items-end gap-x-4', displayOnly && isMobile ? 'gap-y-2' : 'gap-y-3')}
                                         style={
-                                            stacked(item)
+                                            item.fitsRow
+                                                ? { gridTemplateColumns: `repeat(${item.columns.length}, minmax(0, 1fr))` }
+                                                : stacked(item)
                                                 ? { gridTemplateColumns: 'minmax(0, 1fr)' }
                                                 : wrapped(item)
                                                   ? { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }

@@ -294,6 +294,39 @@ describe('FieldRenderer', () => {
         });
     });
 
+    describe('optionsLayout', () => {
+        const radioWith = (optionsLayout?: 'row' | 'column'): FieldConfig => ({
+            kind: 'radio',
+            name: 'position',
+            caseName: radioField.caseName!,
+            labelKey: 'position',
+            required: false,
+            options: [
+                { value: 'a', label: 'Option A' },
+                { value: 'b', label: 'Option B' },
+            ],
+            optionsLayout,
+        });
+        const multiWith = (optionsLayout?: 'row' | 'column'): FieldConfig => ({ ...(multiSelectField as Extract<FieldConfig, { kind: 'multi-select' }>), optionsLayout });
+
+        it('a radio lists its options in a column on request, and keeps the wrapping row by default', () => {
+            const { unmount } = renderWithProviders(<Harness field={radioWith('column')} />);
+            expect(screen.getByRole('radiogroup')).toHaveClass('flex-col');
+            unmount();
+            renderWithProviders(<Harness field={radioWith()} />);
+            expect(screen.getByRole('radiogroup')).not.toHaveClass('flex-col');
+            expect(screen.getByRole('radiogroup')).toHaveClass('flex-wrap');
+        });
+
+        it('a multi-select lists its checkboxes in a column on request, and keeps the wrapping row by default', () => {
+            const { container, unmount } = renderWithProviders(<Harness field={multiWith('column')} />);
+            expect(container.querySelector('.flex-col')).not.toBeNull();
+            unmount();
+            const second = renderWithProviders(<Harness field={multiWith()} />);
+            expect(second.container.querySelector('.flex-row.flex-wrap')).not.toBeNull();
+        });
+    });
+
     describe('toggle field', () => {
         it('renders both options at once and lets the user pick one', async () => {
             const user = userEvent.setup();

@@ -87,7 +87,20 @@ export interface FieldLayout {
      * German verb's infinitive, which sits above its auxiliary verb and prefix.
      */
     fullRowOnMobile?: boolean;
+    /**
+     * The block's columns always share one row, equal in width, on a phone too — no sideways scroll,
+     * no stacking. For a short row of two or three cells (the German contractions zum / zur / ins).
+     * Any field in the block may set it; it wins over `stackOnMobile` and `fullRowOnMobile`.
+     */
+    fitRow?: boolean;
 }
+
+/**
+ * How the options of a `radio` or `multi-select` are listed: `row` (the default) puts them side by
+ * side and wraps when the box is narrow, so on a phone they fall into a column by themselves;
+ * `column` always lists them one under the other, on every screen.
+ */
+export type OptionsLayout = 'row' | 'column';
 
 /**
  * An extra `.matches()` layered on top of a text field's base rules (Spanish
@@ -238,6 +251,7 @@ export interface TextFieldConfig extends FieldConfigBase {
 export interface RadioFieldConfig extends FieldConfigBase {
     kind: 'radio';
     options: RadioOption[];
+    optionsLayout?: OptionsLayout;
     /**
      * Which option an autocomplete result stands for, when the radio has no `caseName` of its own
      * (Spanish adjective gender: the result has the neutral cases → "Neutral", the male cases → "M/F").
@@ -271,6 +285,7 @@ export interface MultiSelectFieldConfig extends FieldConfigBase {
     kind: 'multi-select';
     caseName: CaseName;
     options: RadioOption[];
+    optionsLayout?: OptionsLayout;
     /** Selected option values -> the single persisted case string (German verb cases: `['accusativeDE','genitiveDE'] -> "AG"`). */
     encode: (selected: string[]) => string;
     /** The persisted case string -> selected option values — `encode`'s inverse, used to hydrate the checkbox group from a stored word. */

@@ -4,16 +4,17 @@
  * (decision Q6: learners often do not know the position or the case).
  *
  * - All languages: a position radio ("Before the noun" / "After the noun" / "Before or after the noun").
- * - German: the cases the noun takes (multi-select, stored like the verb cases) and the article
- *   contractions (zu + dem = zum), shown while the "Contracts with the article" box is on.
- * - Estonian: most adpositions follow the noun, so the case of the noun is asked per position, and a
- *   "where to / where / where from" series (sisse : sees : seest) can be added.
+ * - German: the article contractions (zu + dem = zum), shown under the word while the "Contracts with
+ *   the article" box is on; then the position and the cases the noun takes (multi-select, stored like
+ *   the verb cases), both listed in a column.
+ * - Estonian: a "where to / where / where from" series (sisse : sees : seest) can be added under the word;
+ *   most adpositions follow the noun, so the case of the noun is asked per position.
  *
  * Position, cases and the two boxes are properties of the word (prefixes in `PROPERTY_PREFIXES` on
  * the backend); the contraction and direction fields are written forms.
  */
 import { Lang, PartOfSpeech, PrepositionCases, VerbCaseTypeDE } from '@/ts/enums';
-import type { FieldConfig, FieldVisibility, RadioOption, TranslationFormConfig } from './types';
+import type { FieldConfig, FieldVisibility, OptionsLayout, RadioOption, TranslationFormConfig } from './types';
 
 function labelKey(key: string): string {
     return `wordRelated:wordForm.preposition.fields.${key}`;
@@ -45,7 +46,12 @@ function wordField(suffix: string, caseName: PrepositionCases): FieldConfig {
     };
 }
 
-function positionRadio(suffix: string, caseName: PrepositionCases, layout?: FieldConfig['layout']): FieldConfig {
+function positionRadio(
+    suffix: string,
+    caseName: PrepositionCases,
+    layout?: FieldConfig['layout'],
+    optionsLayout?: OptionsLayout
+): FieldConfig {
     return {
         kind: 'radio',
         name: 'position',
@@ -54,6 +60,7 @@ function positionRadio(suffix: string, caseName: PrepositionCases, layout?: Fiel
         required: false,
         invalidMessageKey: prepositionErrorKey(suffix, 'positionInvalid'),
         options: POSITION_OPTIONS,
+        optionsLayout,
         layout,
     };
 }
@@ -113,7 +120,7 @@ function revealBox(name: string, caseName: PrepositionCases): FieldConfig {
     return { kind: 'checkbox', name, caseName, labelKey: labelKey(caseName), required: false };
 }
 
-/** An optional written form, shown while `box` is on, in a row of its own (`stackOnMobile`: no sideways scroll for three cells). */
+/** An optional written form, shown while `box` is on. The forms of one block share a single row, on a phone too (`fitRow`). */
 function revealedForm(name: string, caseName: PrepositionCases, box: string, block: string, column: string): FieldConfig {
     return {
         kind: 'text',
@@ -123,7 +130,7 @@ function revealedForm(name: string, caseName: PrepositionCases, box: string, blo
         required: false,
         lowercase: true,
         visibleWhen: { field: box, equals: true },
-        layout: { row: 'forms', column, block, stackOnMobile: true },
+        layout: { row: 'forms', column, block, fitRow: true },
     };
 }
 
@@ -149,8 +156,13 @@ function buildDeConfig(): TranslationFormConfig {
         lang: Lang.DE,
         fields: [
             wordField('DE', PrepositionCases.prepositionDE),
-            // Row: the position beside the governed cases.
-            positionRadio('DE', PrepositionCases.positionDE, { row: 'meta', column: 'position', block: 'metaDE' }),
+            // The box and the three forms it reveals sit right under the word; the forms share one row.
+            revealBox('contracts', PrepositionCases.contractsDE),
+            revealedForm('withDem', PrepositionCases.withDemDE, 'contracts', 'contractionsDE', 'dem'),
+            revealedForm('withDer', PrepositionCases.withDerDE, 'contracts', 'contractionsDE', 'der'),
+            revealedForm('withDas', PrepositionCases.withDasDE, 'contracts', 'contractionsDE', 'das'),
+            // Row: the position beside the governed cases, both listed in a column.
+            positionRadio('DE', PrepositionCases.positionDE, { row: 'meta', column: 'position', block: 'metaDE' }, 'column'),
             {
                 kind: 'multi-select',
                 name: 'governedCase',
@@ -158,14 +170,11 @@ function buildDeConfig(): TranslationFormConfig {
                 labelKey: labelKey(PrepositionCases.governedCaseDE),
                 required: false,
                 options: CASE_OPTIONS_DE,
+                optionsLayout: 'column',
                 encode: encodeCasesDE,
                 decode: decodeCasesDE,
                 layout: { row: 'meta', column: 'governedCase', block: 'metaDE' },
             },
-            revealBox('contracts', PrepositionCases.contractsDE),
-            revealedForm('withDem', PrepositionCases.withDemDE, 'contracts', 'contractionsDE', 'dem'),
-            revealedForm('withDer', PrepositionCases.withDerDE, 'contracts', 'contractionsDE', 'der'),
-            revealedForm('withDas', PrepositionCases.withDasDE, 'contracts', 'contractionsDE', 'das'),
         ],
     };
 }
@@ -176,12 +185,13 @@ function buildEeConfig(): TranslationFormConfig {
         lang: Lang.EE,
         fields: [
             wordField('EE', PrepositionCases.prepositionEE),
-            positionRadio('EE', PrepositionCases.positionEE),
-            caseSelectEE('governedCasePre', PrepositionCases.governedCasePreEE, notAfter, 'pre'),
-            caseSelectEE('governedCasePost', PrepositionCases.governedCasePostEE, notBefore, 'post'),
+            // The box and the two forms it reveals sit right under the word; the forms share one row (50-50).
             revealBox('spatialSeries', PrepositionCases.spatialSeriesEE),
             revealedForm('directionTo', PrepositionCases.directionToEE, 'spatialSeries', 'seriesEE', 'to'),
             revealedForm('directionFrom', PrepositionCases.directionFromEE, 'spatialSeries', 'seriesEE', 'from'),
+            positionRadio('EE', PrepositionCases.positionEE),
+            caseSelectEE('governedCasePre', PrepositionCases.governedCasePreEE, notAfter, 'pre'),
+            caseSelectEE('governedCasePost', PrepositionCases.governedCasePostEE, notBefore, 'post'),
         ],
     };
 }
