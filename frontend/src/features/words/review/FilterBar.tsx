@@ -30,6 +30,7 @@ const SHIPPED_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
     PartOfSpeech.conjunction,
+    PartOfSpeech.preposition,
 ];
 
 const OWNER_OPTIONS: readonly WordOwner[] = ['me', 'others'];

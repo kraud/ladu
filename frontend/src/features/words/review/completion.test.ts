@@ -45,12 +45,12 @@ describe('expectedCaseCount — branching configs collapse to the largest branch
 });
 
 describe('expectedCaseCount — no config at all', () => {
-    it('a part of speech with no form engine (Estonian preposition) returns 0', () => {
-        expect(expectedCaseCount(PartOfSpeech.preposition, 'EE')).toBe(0);
+    it('a part of speech with no form engine (Estonian pronoun) returns 0', () => {
+        expect(expectedCaseCount(PartOfSpeech.pronoun, 'EE')).toBe(0);
     });
 
     it('an unshipped part of speech returns 0 for every language', () => {
-        expect(expectedCaseCount(PartOfSpeech.preposition, 'EN')).toBe(0);
+        expect(expectedCaseCount(PartOfSpeech.pronoun, 'EN')).toBe(0);
     });
 });
 

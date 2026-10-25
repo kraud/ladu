@@ -112,8 +112,12 @@
         ]
       },
       "preposition": {
-        "info":  "You'll know it when you see it.",
-        "examples": [""]
+        "info": "Prepositions show how a noun relates to another word: place, time, cause or direction. In German, a preposition decides the case of the noun after it. Estonian mostly uses postpositions, which stand after the noun.",
+        "examples": [
+          "The book is *on* the table.",
+          "We met *after* the lesson.",
+          "She stayed home *because of* the rain."
+        ]
       },
       "conjunction": {
         "info": "Conjunctions join words, phrases or clauses. Coordinating conjunctions join equal parts (and, but, or). Subordinating conjunctions start a dependent clause (because, although, if). Some conjunctions work in pairs (neither … nor).",
@@ -375,6 +379,46 @@
         "conjunctionTypeEE": "Type",
         "correlativeEE": "Paired (e.g. neither … nor)",
         "secondPartEE": "Second part"
+      }
+    },
+    "preposition": {
+      "errors": {
+        "formEN": {
+          "prepositionRequired": "Preposition is required",
+          "positionInvalid": "That is not an option"
+        },
+        "formES": {
+          "prepositionRequired": "Preposition is required",
+          "positionInvalid": "That is not an option"
+        },
+        "formDE": {
+          "prepositionRequired": "Preposition is required",
+          "positionInvalid": "That is not an option"
+        },
+        "formEE": {
+          "prepositionRequired": "Preposition is required",
+          "positionInvalid": "That is not an option"
+        }
+      },
+      "fields": {
+        "prepositionEN": "Preposition",
+        "positionEN": "Position",
+        "prepositionES": "Preposition",
+        "positionES": "Position",
+        "prepositionDE": "Preposition",
+        "positionDE": "Position",
+        "governedCaseDE": "Case(s) of the noun",
+        "contractsDE": "Contracts with the article",
+        "withDemDE": "With “dem” (e.g. zum)",
+        "withDerDE": "With “der” (e.g. zur)",
+        "withDasDE": "With “das” (e.g. ins)",
+        "prepositionEE": "Preposition",
+        "positionEE": "Position",
+        "governedCasePreEE": "Case of the noun (word before it)",
+        "governedCasePostEE": "Case of the noun (word after it)",
+        "spatialSeriesEE": "Has a where-to / where-from series",
+        "directionToEE": "Where to (e.g. sisse)",
+        "directionFromEE": "Where from (e.g. seest)"
       }
     },
     "verb": {

@@ -3,6 +3,7 @@ import { ADJECTIVE_CONFIGS } from './adjectives';
 import { ADVERB_CONFIGS } from './adverbs';
 import { CONJUNCTION_CONFIGS } from './conjunctions';
 import { NOUN_CONFIGS } from './nouns';
+import { PREPOSITION_CONFIGS } from './prepositions';
 import { VERB_CONFIGS } from './verbs';
 
 /** The parts of speech with a form config, in registration/tile display order. */
@@ -12,6 +13,7 @@ const ALL_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
     PartOfSpeech.conjunction,
+    PartOfSpeech.preposition,
 ];
 
 const CONFIGS_BY_POS: Record<PartOfSpeech, Partial<Record<Lang, unknown>>> = {
@@ -22,7 +24,7 @@ const CONFIGS_BY_POS: Record<PartOfSpeech, Partial<Record<Lang, unknown>>> = {
     // The remaining PartOfSpeech members have no form engine at all — every language covers none
     // of them, so they never appear in a tile's coverage line.
     [PartOfSpeech.conjunction]: CONJUNCTION_CONFIGS,
-    [PartOfSpeech.preposition]: {},
+    [PartOfSpeech.preposition]: PREPOSITION_CONFIGS,
     [PartOfSpeech.pronoun]: {},
     [PartOfSpeech.interjection]: {},
     [PartOfSpeech.properNoun]: {},

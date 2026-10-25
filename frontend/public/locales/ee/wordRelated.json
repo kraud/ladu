@@ -112,8 +112,12 @@
         ]
       },
       "preposition": {
-        "info": "Tead, kui näed.",
-        "examples": [""]
+        "info": "Kaassõnad näitavad, kuidas nimisõna on seotud teise sõnaga: koht, aeg, põhjus või suund. Saksa keeles määrab eessõna järgneva nimisõna käände. Eesti keeles on enamik kaassõnu tagasõnad, mis seisavad nimisõna järel.",
+        "examples": [
+          "Raamat on laua *peal*.",
+          "Kohtusime *pärast* tundi.",
+          "Ta jäi vihma *tõttu* koju."
+        ]
       },
       "conjunction": {
         "info": "Sidesõnad ühendavad sõnu, sõnarühmi või lauseid. Rinnastavad sidesõnad ühendavad võrdseid osi (ja, aga, või). Alistavad sidesõnad alustavad kõrvallauset (sest, kuigi, kui). Mõned sidesõnad esinevad paarina (nii … kui ka).",
@@ -375,6 +379,46 @@
         "conjunctionTypeEE": "Tüüp",
         "correlativeEE": "Kaheosaline (nt nii … kui ka)",
         "secondPartEE": "Teine osa"
+      }
+    },
+    "preposition": {
+      "errors": {
+        "formEN": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        },
+        "formES": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        },
+        "formDE": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        },
+        "formEE": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        }
+      },
+      "fields": {
+        "prepositionEN": "Kaassõna",
+        "positionEN": "Asukoht",
+        "prepositionES": "Kaassõna",
+        "positionES": "Asukoht",
+        "prepositionDE": "Kaassõna",
+        "positionDE": "Asukoht",
+        "governedCaseDE": "Nimisõna kääne(d)",
+        "contractsDE": "Sulandub artikliga",
+        "withDemDE": "Artikliga „dem“ (nt zum)",
+        "withDerDE": "Artikliga „der“ (nt zur)",
+        "withDasDE": "Artikliga „das“ (nt ins)",
+        "prepositionEE": "Kaassõna",
+        "positionEE": "Asukoht",
+        "governedCasePreEE": "Nimisõna kääne (sõna on ees)",
+        "governedCasePostEE": "Nimisõna kääne (sõna on järel)",
+        "spatialSeriesEE": "On sisse- / seest-rida",
+        "directionToEE": "Kuhu (nt sisse)",
+        "directionFromEE": "Kust (nt seest)"
       }
     },
     "verb": {

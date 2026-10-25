@@ -11,6 +11,7 @@ describe('coverageForLanguage', () => {
                 PartOfSpeech.adjective,
                 PartOfSpeech.adverb,
                 PartOfSpeech.conjunction,
+                PartOfSpeech.preposition,
             ]);
         }
     });

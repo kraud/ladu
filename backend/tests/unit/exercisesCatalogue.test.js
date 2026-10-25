@@ -11,6 +11,16 @@ describe('isPropertyCase', () => {
         (caseName) => expect(isPropertyCase(caseName)).toBe(true)
     );
 
+    it.each(['positionEN', 'positionDE', 'governedCaseDE', 'governedCasePreEE', 'governedCasePostEE', 'spatialSeriesEE', 'contractsDE'])(
+        '%s is a property, not a written form',
+        (caseName) => expect(isPropertyCase(caseName)).toBe(true)
+    );
+
+    it.each(['prepositionEN', 'prepositionDE', 'withDemDE', 'withDerDE', 'withDasDE', 'directionToEE', 'directionFromEE', 'positiveEN', 'positiveDE'])(
+        '%s is a written form',
+        (caseName) => expect(isPropertyCase(caseName)).toBe(false)
+    );
+
     it.each(['adverbEN', 'comparativeEN', 'superlativeEE', 'conjunctionEN', 'conjunctionDE', 'secondPartDE', 'secondPartEE'])(
         '%s is a written form',
         (caseName) => expect(isPropertyCase(caseName)).toBe(false)

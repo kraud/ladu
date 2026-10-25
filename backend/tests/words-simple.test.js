@@ -154,6 +154,47 @@ describe('GET /api/words/simple - row shape', () => {
         expect(await search('Subjunctive')).toHaveLength(0); // the mood is a property
     });
 
+    it('extracts the primary case per language for a Preposition, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Preposition',
+            translations: [
+                {
+                    language: 'German',
+                    cases: [
+                        { word: 'wegen', caseName: 'prepositionDE' },
+                        { word: 'Before the noun', caseName: 'positionDE' },
+                        { word: 'G', caseName: 'governedCaseDE' },
+                        { word: 'true', caseName: 'contractsDE' },
+                        { word: 'zum', caseName: 'withDemDE' },
+                    ],
+                },
+                {
+                    language: 'Estonian',
+                    cases: [
+                        { word: 'sees', caseName: 'prepositionEE' },
+                        { word: 'After the noun', caseName: 'positionEE' },
+                        { word: 'Genitive', caseName: 'governedCasePostEE' },
+                        { word: 'true', caseName: 'spatialSeriesEE' },
+                        { word: 'sisse', caseName: 'directionToEE' },
+                        { word: 'seest', caseName: 'directionFromEE' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const list = await request(app).get('/api/words/simple').set('Authorization', `Bearer ${token}`);
+        const row = list.body.items.find((w) => w.id === res.body.id);
+        expect(row.dataDE).toBe('wegen');
+        expect(row.dataEE).toBe('sees');
+
+        const search = async (q) => (await request(app).get(`/api/words/simple?q=${q}`).set('Authorization', `Bearer ${token}`)).body.items;
+        expect(await search('zum')).toHaveLength(1); // a contraction is a written form
+        expect(await search('seest')).toHaveLength(1); // so is a direction form
+        expect(await search('Genitive')).toHaveLength(0); // the governed case is a property
+        expect(await search('Before')).toHaveLength(0); // the position is a property
+    });
+
     it('extracts the primary case per language for an Adverb', async () => {
         const res = await create(token, {
             partOfSpeech: 'Adverb',

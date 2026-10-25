@@ -46,9 +46,9 @@ describe('LanguageTiles', () => {
         renderWithProviders(<Harness onChange={vi.fn()} />);
 
         const english = screen.getByRole('button', { name: 'English' });
-        expect(english).toHaveAccessibleDescription('noun · verb · adjective · adverb · conjunction');
+        expect(english).toHaveAccessibleDescription('noun · verb · adjective · adverb · conjunction · preposition');
 
         const estonian = screen.getByRole('button', { name: 'Eesti' });
-        expect(estonian).toHaveAccessibleDescription('noun · verb · adjective · adverb · conjunction');
+        expect(estonian).toHaveAccessibleDescription('noun · verb · adjective · adverb · conjunction · preposition');
     });
 });

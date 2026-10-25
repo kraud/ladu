@@ -514,7 +514,7 @@ describe('TranslationCard — Adverb', () => {
     });
 
     it('a part of speech with no form engine shows the "not available yet" card', () => {
-        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.preposition} />);
+        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.pronoun} />);
         expect(screen.getByText('That language is not available yet')).toBeInTheDocument();
     });
 });

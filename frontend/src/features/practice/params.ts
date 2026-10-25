@@ -20,6 +20,7 @@ export const SELECTABLE_PARTS_OF_SPEECH: readonly PartOfSpeech[] = [
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
     PartOfSpeech.conjunction,
+    PartOfSpeech.preposition,
 ];
 
 const KNOWN_LANGUAGES = new Set<string>(Object.values(Lang));
@@ -87,7 +88,7 @@ export function relevantSettings(
     };
 }
 
-/** True when no chosen part of speech can give an exercise (only adjectives, adverbs and/or conjunctions). */
+/** True when no chosen part of speech can give an exercise (only adjectives, adverbs, conjunctions and/or prepositions). */
 export function onlyPartsWithoutExercises(partsOfSpeech: readonly PartOfSpeech[]): boolean {
     return (
         partsOfSpeech.length > 0 &&

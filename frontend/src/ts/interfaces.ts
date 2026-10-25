@@ -1,4 +1,4 @@
-import {AdjectiveCases, AdverbCases, ConjunctionCases, Lang, NounCases, PartOfSpeech, VerbCases} from "./enums";
+import {AdjectiveCases, AdverbCases, ConjunctionCases, Lang, NounCases, PartOfSpeech, PrepositionCases, VerbCases} from "./enums";
 
 export interface WordData {
     translations: TranslationItem[],
@@ -27,7 +27,7 @@ export type InternalStatus = {
 
 export interface WordItem {
     word: string,
-    caseName: NounCases | AdjectiveCases | AdverbCases | ConjunctionCases | VerbCases, // the type on noun stored in "word" property
+    caseName: NounCases | AdjectiveCases | AdverbCases | ConjunctionCases | PrepositionCases | VerbCases, // the type on noun stored in "word" property
 }
 
 export type SearchResult = {
@@ -202,12 +202,12 @@ export type TextInput = {
     matchingTranslations : {
         itemA: {
             language: Lang,
-            case: NounCases | VerbCases | AdverbCases | AdjectiveCases | ConjunctionCases,
+            case: NounCases | VerbCases | AdverbCases | AdjectiveCases | ConjunctionCases | PrepositionCases,
             value: string,
         },
         itemB: {
             language: Lang,
-            case: NounCases | VerbCases | AdverbCases | AdjectiveCases | ConjunctionCases,
+            case: NounCases | VerbCases | AdverbCases | AdjectiveCases | ConjunctionCases | PrepositionCases,
             value: string,
             translationId: any
         }
@@ -219,12 +219,12 @@ export type MultipleChoice = {
     matchingTranslations : {
         itemA: {
             language: Lang,
-            case: NounCases | VerbCases | AdverbCases | AdjectiveCases | ConjunctionCases,
+            case: NounCases | VerbCases | AdverbCases | AdjectiveCases | ConjunctionCases | PrepositionCases,
             value: string,
         },
         itemB: {
             language: Lang,
-            case: NounCases | VerbCases | AdverbCases | AdjectiveCases | ConjunctionCases,
+            case: NounCases | VerbCases | AdverbCases | AdjectiveCases | ConjunctionCases | PrepositionCases,
             value: string,
             otherValues: string[],
             translationId: any

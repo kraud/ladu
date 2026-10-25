@@ -6,7 +6,7 @@ import { PartOfSpeech } from '@/ts/enums';
 import { PartOfSpeechSelector } from './PartOfSpeechSelector';
 
 describe('PartOfSpeechSelector', () => {
-    it('enables Noun, Verb, Adjective, Adverb and Conjunction; the rest are disabled with the missing-implementation caption', () => {
+    it('enables Noun, Verb, Adjective, Adverb, Conjunction and Preposition; the rest are disabled with the missing-implementation caption', () => {
         renderWithProviders(<PartOfSpeechSelector value={undefined} onChange={vi.fn()} />);
 
         // Base UI's radio renders as `<span role="radio">`, not a native
@@ -17,8 +17,9 @@ describe('PartOfSpeechSelector', () => {
         expect(screen.getByRole('radio', { name: /Adjective/ })).not.toHaveAttribute('aria-disabled', 'true');
         expect(screen.getByRole('radio', { name: /Adverb/ })).not.toHaveAttribute('aria-disabled', 'true');
         expect(screen.getByRole('radio', { name: /Conjunction/ })).not.toHaveAttribute('aria-disabled', 'true');
-        expect(screen.getByRole('radio', { name: /Preposition/ })).toHaveAttribute('aria-disabled', 'true');
-        expect(screen.getAllByText("This part of speech is not implemented yet, we're sorry!")).toHaveLength(5);
+        expect(screen.getByRole('radio', { name: /Preposition/ })).not.toHaveAttribute('aria-disabled', 'true');
+        expect(screen.getByRole('radio', { name: /Pronoun/ })).toHaveAttribute('aria-disabled', 'true');
+        expect(screen.getAllByText("This part of speech is not implemented yet, we're sorry!")).toHaveLength(4);
     });
 
     it('calls onChange with Noun when picked', async () => {

@@ -195,6 +195,23 @@ const getRequiredFieldsData = (
           return {};
       }
     }
+    case "Preposition": {
+      switch (translation.language) {
+        case "English":
+          return { dataEN: findByCaseName("prepositionEN")! };
+        case "Spanish":
+          return { dataES: findByCaseName("prepositionES")! };
+        case "German":
+          return { dataDE: findByCaseName("prepositionDE")! };
+        case "Estonian":
+          return { dataEE: findByCaseName("prepositionEE")! };
+        default:
+          console.warn(
+            `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Preposition"`,
+          );
+          return {};
+      }
+    }
     case "Adjective": {
       switch (translation.language) {
         case "English":

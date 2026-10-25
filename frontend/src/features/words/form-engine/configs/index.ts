@@ -4,6 +4,7 @@ import { ADJECTIVE_CONFIGS } from './adjectives';
 import { ADVERB_CONFIGS } from './adverbs';
 import { CONJUNCTION_CONFIGS } from './conjunctions';
 import { NOUN_CONFIGS } from './nouns';
+import { PREPOSITION_CONFIGS } from './prepositions';
 import { VERB_CONFIGS } from './verbs';
 import type { TranslationFormConfig } from './types';
 
@@ -27,6 +28,9 @@ export function getFormConfig(pos: PartOfSpeech, lang: Lang): TranslationFormCon
     }
     if (pos === PoS.conjunction) {
         return CONJUNCTION_CONFIGS[lang];
+    }
+    if (pos === PoS.preposition) {
+        return PREPOSITION_CONFIGS[lang];
     }
     return undefined;
 }

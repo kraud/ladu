@@ -1,6 +1,6 @@
 # Plan: Conjunctions and prepositions in Ladu (+ a reusable "add a part of speech" guide)
 
-Status: plan agreed on 2026-10-24. Slices 0 and 1 done. Slice 2 next.
+Status: plan agreed on 2026-10-24. Slices 0, 1 and 2 done. Slice 3 next.
 
 ## How to start (read this first in a new session)
 
@@ -12,7 +12,7 @@ Status: plan agreed on 2026-10-24. Slices 0 and 1 done. Slice 2 next.
 
 - [x] Slice 0 (2026-10-24) — Docs: the process guide, this plan file, the README index
 - [x] Slice 1 (2026-10-25) — Conjunction form (frontend + backend property rules). Open: no browser check yet; the e2e spec in slice 4 covers it
-- [ ] Slice 2 — Preposition form
+- [x] Slice 2 (2026-10-25) — Preposition form. Open: the user reviews the Estonian case list and the new strings; no browser check yet
 - [ ] Slice 3 — Autocomplete (lemma, and the properties that are clear)
 - [ ] Slice 4 — e2e spec, snapshot docs, review of ES/DE/EE strings
 
@@ -22,6 +22,9 @@ Status: plan agreed on 2026-10-24. Slices 0 and 1 done. Slice 2 next.
 |---|---|---|---|
 | 1 | Moderate | The two search filters in `wordController.ts` skipped only 4 prefixes (`gender`, `gradable`, `reflexiv`, `periphrastic`). The exercise list had 7 and no `reflexiv`. Two lists would drift with each new PoS. | Fixed in slice 1: one exported `PROPERTY_PREFIXES` (`catalogue.ts`), read by `isPropertyCase` and by `writtenFormOnly()` in the controller. |
 | 2 | Moderate (behaviour change) | The one list is wider than the old search filters. A word search no longer matches the property values `regularity`, `auxVerb`, `caseType` and `prefix` (for example, searching "haben" no longer finds a verb through its auxiliary). | Accepted: these are properties, not written forms. Tell the user. Covered by the new `words-simple` test for conjunction properties. |
+| 4 | Minor | The plan named the Estonian direction cases `latEE` / `ablEE`. The names say little. | Renamed `directionToEE` / `directionFromEE` in slice 2. |
+| 5 | Moderate | The Estonian governed-case list (Genitive, Partitive, Elative, Allative, Comitative, Terminative, Abessive) comes from search results (University of Tartu course pages, EKI), not from a full grammar check. A user cannot enter a case that is not in the list. | Open: the user or slice 4 checks the list against the EKI grammar. Adding a value is a one-line change in `configs/prepositions.ts`. |
+| 6 | Minor | The completion ring counts every visible non-checkbox field, so the optional position and the case selects raise the ring's denominator (same as the optional conjunction type). | Accepted; same behaviour as the German adverb radio. |
 | 3 | Minor | `reflexiv` was missing from the exercise property list. | Added to `PROPERTY_PREFIXES`. |
 
 ## Context
@@ -65,11 +68,11 @@ Why: German word order follows from the type (subordinating → verb at the end;
 | Field | EN | ES | DE | EE | Kind |
 |---|---|---|---|---|---|
 | word (`preposition{L}`) | ✓ | ✓ | ✓ | ✓ | text, required |
-| position (`position{L}`): Before the noun / After the noun / Both | ✓ | ✓ | ✓ | ✓ | radio, required (Q3: EN "ago", "notwithstanding") |
+| position (`position{L}`): Before the noun / After the noun / Before or after the noun | ✓ | ✓ | ✓ | ✓ | radio, **optional** (Q3: EN "ago", "notwithstanding"; Q6) |
 | governed case DE (`governedCaseDE`): Accusative, Dative, Genitive | – | – | ✓ | – | multi-select (two-way = A+D, laut = G+D) |
 | governed case EE, before the noun (`governedCasePreEE`) | – | – | – | ✓ | select (Genitive, Partitive, Elative, Comitative, Terminative, Abessive, other) — visible for Before/Both |
 | governed case EE, after the noun (`governedCasePostEE`) | – | – | – | ✓ | select, same options — visible for After/Both |
-| spatial series EE (`spatialSeriesEE` checkbox + `latEE` / `ablEE` text): where to / where from | – | – | – | ✓ | checkbox reveals two fields in a row with the main word (sees) in the middle |
+| spatial series EE (`spatialSeriesEE` checkbox + `directionToEE` / `directionFromEE` text): where to / where from | – | – | – | ✓ | checkbox reveals two fields in a row with the main word (sees) in the middle |
 | DE contractions: checkbox `contractsDE` ("Contracts with the article") reveals `withDemDE` (zum, im, am, vom, beim), `withDerDE` (zur), `withDasDE` (ins, ans, aufs) | – | – | ✓ | – | checkbox + 3 optional text fields in one row (Q3) |
 
 EN and ES prepositions do not govern a case on the noun (ES *a+el = al*, *de+el = del* is a general rule, not per word). ES needs no extra field.
@@ -80,6 +83,7 @@ EN and ES prepositions do not govern a case on the noun (ES *a+el = al*, *de+el 
 - **Q2.** ~~The conjunction type radio is required in all four languages.~~ **Changed 2026-10-25 (Q5):** the type radio is optional. Learners often do not know the type. A re-click clears it.
 - **Q3.** Preposition extras: the EE spatial series, the DE article contractions, and the position radio in **all four** languages.
 - **Q5 (2026-10-25).** Conjunction layout, in all four languages: the word and the second part share row 1; the type radio and the "Paired" checkbox share row 2; the Spanish mood select has row 3. The mood still shows only for "Subordinating". Done in `configs/conjunctions.ts` (grid `layout`: rows `word`, `meta`, `mood`; columns `first`, `second`). The error key `typeRequired` became `typeInvalid`.
+- **Q6 (2026-10-25).** The preposition position radio is optional in all four languages (same reason as Q5). The Estonian case selects show unless the position rules them out, so they stay usable while the position is empty.
 - **Q4.** Scope: slices 0–4 (guide, two forms, autocomplete, e2e). Exercises, onboarding pool and demo template are deferred.
 
 Open, to confirm in the slice overview (not blocking): ES *al/del* is the only Spanish contraction; no field (a general rule). Contraction fields are written forms, not properties — only `contracts*` goes to `PROPERTY_PREFIXES`.
@@ -102,7 +106,7 @@ Open, to confirm in the slice overview (not blocking): ES *al/del* is the only S
 - Property cases: **refactor once** so one list rules everything — export `PROPERTY_PREFIXES` from `services/exercises/catalogue.ts:124` and build the `not ilike` filters in `wordController.ts:412-424` and `:1059-1082` from it. Add `conjunctionType`, `correlative`, `mood`. Regression test: `secondPart*` is a written form, `conjunctionType*` is a property.
 - Tests: config field lists, live show/hide (paired → second part; subordinating → ES mood), required checks, a backend round trip of a "weder – noch" word. Update `PartOfSpeechSelector.test.tsx:19`, `completion.test.ts:48-53`, `coverage.test.ts`.
 
-**Slice 2 — Preposition form.** Same pattern with `PrepositionCases` and `configs/prepositions.ts`. German `governedCase` reuses the `multi-select` + `encode`/`decode` of `verbs.ts:283-308`. Position radio in all four languages. EE position drives the two case selects; EE spatial checkbox reveals the row (`layout`, like the EE adverb degree row). DE contractions checkbox reveals the three-field row. Property prefixes: `position`, `governedCase`, `spatialSeries`, `contracts`. Check that `withDem*`, `lat*`, `abl*` start with no property prefix. Estonian PoS label "Kaassõna" in `ee/common.json`.
+**Slice 2 — Preposition form.** Same pattern with `PrepositionCases` and `configs/prepositions.ts`. German `governedCase` reuses the `multi-select` + `encode`/`decode` of `verbs.ts:283-308`. Position radio in all four languages. EE position drives the two case selects; EE spatial checkbox reveals the row (`layout`, like the EE adverb degree row). DE contractions checkbox reveals the three-field row. Property prefixes: `position`, `governedCase`, `spatialSeries`, `contracts`. Check that `withDem*`, `direction*` start with no property prefix (done; `positiveEN` is not a property either, covered by a test). Estonian PoS label "Kaassõna" in `ee/common.json`.
 
 **Slice 3 — Autocomplete (lemma only + a few properties).** Lexicon has lemmas only (`autocomplete-coverage-report.md:334-369`: DE 99 prep / 67 conj, EN 143/70, ES 39/32).
 - `scripts/lexicon/ingest.ts:31-34,137`: selectors for `prep`/`conj` in `selectors/{en,es,de}.ts`, add to `keepLemmaOnly`. `registry.ts:39-71`: lexicon adapters. `lib/lexicon/translations.ts:13` `TRANSLATION_POS` + `prep`/`conj` so "Start from a word" works; `services/dictionary/translate.ts:31`.
@@ -134,6 +138,10 @@ Also link it from `CLAUDE.md` working rules? — no: link from `.context/README.
 - Manual: `npm run dev`, add each test word from `.other/other-words-temp.md` on `/addWord`.
 - e2e: `npm run test:e2e`; before it, no orphan backend on :5001 and no closed access gate.
 - Do not pipe test commands through `tail`/`head`.
+
+## Deferred ideas (another PR, not this one; agreed with the user 2026-10-25)
+
+- **Modal verbs.** The verb forms store modal verbs (German können, müssen, dürfen, sollen, wollen, mögen; English can, must, should, may) as ordinary verbs. They have no modal marker (checked 2026-10-25). Idea: a "Modal verb" checkbox on the verb forms (a stored property, so it needs a `PROPERTY_PREFIXES` entry), and fields for what the form cannot say today: German takes a bare infinitive and uses the double infinitive in the perfect ("ich habe gehen können"); English modals are defective (no infinitive, no "-s", missing tenses). Check Estonian (võima, tohtima, pidama, saama, tahtma) in the EKI grammar first. Also: **pre-add the modal verbs** to the account of a user who uses German or English, like the onboarding pool does (`.context/plans/onboarding.md`). Needs its own plan: research per language, field decisions, pool content.
 
 ## Before merge
 

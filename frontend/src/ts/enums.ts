@@ -103,6 +103,40 @@ export enum ConjunctionCases {
     secondPartEE = "secondPartEE",
 }
 
+export enum PrepositionCases {
+    // ENGLISH
+    prepositionEN = "prepositionEN",
+    /** Property: "Before the noun", "After the noun" or "Before or after the noun". */
+    positionEN = "positionEN",
+
+    // SPANISH
+    prepositionES = "prepositionES",
+    positionES = "positionES",
+
+    // GERMAN
+    prepositionDE = "prepositionDE",
+    positionDE = "positionDE",
+    /** Property: the cases the noun takes, encoded like the verb cases ("D", "AD", "GD"). */
+    governedCaseDE = "governedCaseDE",
+    /** Stored checkbox: the preposition contracts with the article (zu + dem = zum). */
+    contractsDE = "contractsDE",
+    withDemDE = "withDemDE",
+    withDerDE = "withDerDE",
+    withDasDE = "withDasDE",
+
+    // ESTONIAN (adpositions: mostly after the noun)
+    prepositionEE = "prepositionEE",
+    positionEE = "positionEE",
+    /** Property: the case of the noun when the word stands before it. */
+    governedCasePreEE = "governedCasePreEE",
+    /** Property: the case of the noun when the word stands after it. */
+    governedCasePostEE = "governedCasePostEE",
+    /** Stored checkbox: the word has a where-to / where / where-from series (sisse : sees : seest). */
+    spatialSeriesEE = "spatialSeriesEE",
+    directionToEE = "directionToEE",
+    directionFromEE = "directionFromEE",
+}
+
 export enum AdjectiveCases {
     // ENGLISH
     positiveEN = "positiveEN",

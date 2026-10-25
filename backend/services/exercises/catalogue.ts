@@ -137,6 +137,10 @@ export const PROPERTY_PREFIXES = [
     'conjunctionType',
     'correlative',
     'mood',
+    'position', // not 'positiveEN' (adjective): the prefix is the whole word "position"
+    'governedCase',
+    'spatialSeries',
+    'contracts',
 ];
 export const isPropertyCase = (caseName: string): boolean =>
     PROPERTY_PREFIXES.some((prefix) => caseName.startsWith(prefix));

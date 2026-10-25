@@ -23,10 +23,10 @@ const LANGUAGE_BY_KEY: Record<string, string> = {
 
 /** The main case names of each language, over all parts of speech. A case name belongs to one part of speech only. */
 const MAIN_CASE_NAMES: Record<string, string[]> = {
-  English: ["singularEN", "adverbEN", "conjunctionEN", "positiveEN", "simplePresent1sEN"],
-  Spanish: ["singularES", "adverbES", "conjunctionES", "maleSingularES", "neutralSingularES", "infinitiveNonFiniteSimpleES"],
-  German: ["singularNominativDE", "adverbDE", "conjunctionDE", "positiveDE", "infinitiveDE"],
-  Estonian: ["singularNimetavEE", "algvorreEE", "adverbEE", "conjunctionEE", "infinitiveMaEE"],
+  English: ["singularEN", "adverbEN", "conjunctionEN", "prepositionEN", "positiveEN", "simplePresent1sEN"],
+  Spanish: ["singularES", "adverbES", "conjunctionES", "prepositionES", "maleSingularES", "neutralSingularES", "infinitiveNonFiniteSimpleES"],
+  German: ["singularNominativDE", "adverbDE", "conjunctionDE", "prepositionDE", "positiveDE", "infinitiveDE"],
+  Estonian: ["singularNimetavEE", "algvorreEE", "adverbEE", "conjunctionEE", "prepositionEE", "infinitiveMaEE"],
 };
 
 export type SortDirection = "asc" | "desc";

@@ -30,6 +30,7 @@ export const CREATABLE_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
     PartOfSpeech.conjunction,
+    PartOfSpeech.preposition,
 ];
 
 /** Sum of `translationsPerLanguage[].count` — `getUserMetrics` has no such scalar directly. */

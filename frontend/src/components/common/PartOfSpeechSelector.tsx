@@ -17,13 +17,14 @@ const ALL_POS = [
     PartOfSpeech.numerals,
 ];
 
-/** Parts of speech the form engine ships against — the remaining five render disabled. */
+/** Parts of speech the form engine ships against — the remaining four render disabled. */
 const SHIPPED_POS: readonly PartOfSpeech[] = [
     PartOfSpeech.noun,
     PartOfSpeech.verb,
     PartOfSpeech.adjective,
     PartOfSpeech.adverb,
     PartOfSpeech.conjunction,
+    PartOfSpeech.preposition,
 ];
 
 const POS_DESCRIPTION_KEY: Record<PartOfSpeech, string> = {
@@ -41,8 +42,8 @@ const POS_DESCRIPTION_KEY: Record<PartOfSpeech, string> = {
 
 /**
  * The `WordForm` create-mode gate: pick a part of speech before any
- * translation card renders. Noun, Verb, Adjective, Adverb and Conjunction are
- * selectable — the remaining five render as disabled radio cards captioned
+ * translation card renders. Noun, Verb, Adjective, Adverb, Conjunction and Preposition are
+ * selectable — the remaining four render as disabled radio cards captioned
  * with `missingImplementationPoS`, so the full inventory stays visible.
  *
  * Renders no heading of its own (D37) — `AddWordPage` owns the single

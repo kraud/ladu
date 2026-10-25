@@ -112,8 +112,12 @@
         ]
       },
       "preposition": {
-        "info": "Lo sabrás cuando lo veas.",
-        "examples": [""]
+        "info": "Las preposiciones muestran la relación de un sustantivo con otra palabra: lugar, tiempo, causa o dirección. En alemán, la preposición decide el caso del sustantivo que la sigue. El estonio usa sobre todo posposiciones, que van detrás del sustantivo.",
+        "examples": [
+          "El libro está *sobre* la mesa.",
+          "Nos vimos *después de* la clase.",
+          "Se quedó en casa *a causa de* la lluvia."
+        ]
       },
       "conjunction": {
         "info": "Las conjunciones unen palabras, grupos de palabras u oraciones. Las coordinantes unen partes del mismo nivel (y, pero, o). Las subordinantes introducen una oración dependiente (porque, aunque, si). Algunas conjunciones van en pareja (ni … ni).",
@@ -375,6 +379,46 @@
         "conjunctionTypeEE": "Tipo",
         "correlativeEE": "En pareja (p. ej. ni … ni)",
         "secondPartEE": "Segunda parte"
+      }
+    },
+    "preposition": {
+      "errors": {
+        "formEN": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        },
+        "formES": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        },
+        "formDE": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        },
+        "formEE": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        }
+      },
+      "fields": {
+        "prepositionEN": "Preposición",
+        "positionEN": "Posición",
+        "prepositionES": "Preposición",
+        "positionES": "Posición",
+        "prepositionDE": "Preposición",
+        "positionDE": "Posición",
+        "governedCaseDE": "Caso(s) del sustantivo",
+        "contractsDE": "Se contrae con el artículo",
+        "withDemDE": "Con «dem» (p. ej. zum)",
+        "withDerDE": "Con «der» (p. ej. zur)",
+        "withDasDE": "Con «das» (p. ej. ins)",
+        "prepositionEE": "Preposición",
+        "positionEE": "Posición",
+        "governedCasePreEE": "Caso del sustantivo (palabra delante)",
+        "governedCasePostEE": "Caso del sustantivo (palabra detrás)",
+        "spatialSeriesEE": "Tiene serie de destino / origen",
+        "directionToEE": "Hacia dónde (p. ej. sisse)",
+        "directionFromEE": "Desde dónde (p. ej. seest)"
       }
     },
     "verb": {

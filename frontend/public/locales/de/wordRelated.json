@@ -112,8 +112,12 @@
         ]
       },
       "preposition": {
-        "info": "Du wirst es wissen, wenn du es siehst.",
-        "examples": [""]
+        "info": "Präpositionen zeigen, wie ein Nomen zu einem anderen Wort steht: Ort, Zeit, Grund oder Richtung. Im Deutschen bestimmt die Präposition den Fall des folgenden Nomens. Das Estnische verwendet meist Postpositionen, die hinter dem Nomen stehen.",
+        "examples": [
+          "Das Buch liegt *auf* dem Tisch.",
+          "Wir trafen uns *nach* dem Unterricht.",
+          "Sie blieb *wegen* des Regens zu Hause."
+        ]
       },
       "conjunction": {
         "info": "Konjunktionen verbinden Wörter, Wortgruppen oder Sätze. Nebenordnende Konjunktionen verbinden gleichwertige Teile (und, aber, oder). Unterordnende Konjunktionen leiten einen Nebensatz ein (weil, obwohl, wenn). Manche Konjunktionen stehen paarweise (weder … noch).",
@@ -375,6 +379,46 @@
         "conjunctionTypeEE": "Typ",
         "correlativeEE": "Zweiteilig (z. B. weder … noch)",
         "secondPartEE": "Zweiter Teil"
+      }
+    },
+    "preposition": {
+      "errors": {
+        "formEN": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        },
+        "formES": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        },
+        "formDE": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        },
+        "formEE": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        }
+      },
+      "fields": {
+        "prepositionEN": "Präposition",
+        "positionEN": "Stellung",
+        "prepositionES": "Präposition",
+        "positionES": "Stellung",
+        "prepositionDE": "Präposition",
+        "positionDE": "Stellung",
+        "governedCaseDE": "Fall/Fälle des Nomens",
+        "contractsDE": "Verschmilzt mit dem Artikel",
+        "withDemDE": "Mit „dem“ (z. B. zum)",
+        "withDerDE": "Mit „der“ (z. B. zur)",
+        "withDasDE": "Mit „das“ (z. B. ins)",
+        "prepositionEE": "Präposition",
+        "positionEE": "Stellung",
+        "governedCasePreEE": "Fall des Nomens (Wort davor)",
+        "governedCasePostEE": "Fall des Nomens (Wort danach)",
+        "spatialSeriesEE": "Hat eine Wohin- / Woher-Reihe",
+        "directionToEE": "Wohin (z. B. sisse)",
+        "directionFromEE": "Woher (z. B. seest)"
       }
     },
     "verb": {

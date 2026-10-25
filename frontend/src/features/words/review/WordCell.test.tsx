@@ -146,7 +146,7 @@ describe('WordCell — translation stored', () => {
     it('renders no ring at all when there is no form config for this (pos, language)', () => {
         // A part of speech with no form engine at all (the Estonian adverb got one in Slice H4).
         const row = baseRow({
-            partOfSpeech: PartOfSpeech.preposition,
+            partOfSpeech: PartOfSpeech.pronoun,
             dataEE: 'kiiresti',
             registeredCasesEE: 1,
             storedLanguages: ['Estonian'],
