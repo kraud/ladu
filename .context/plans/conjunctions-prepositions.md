@@ -1,6 +1,6 @@
 # Plan: Conjunctions and prepositions in Ladu (+ a reusable "add a part of speech" guide)
 
-Status: plan agreed on 2026-10-24. Slices 0, 1, 2 and 3a done. Slice 3b next.
+Status: plan agreed on 2026-10-24. Slices 0, 1, 2, 3a and 3b done. Slice 3c next.
 
 ## How to start (read this first in a new session)
 
@@ -15,7 +15,7 @@ Status: plan agreed on 2026-10-24. Slices 0, 1, 2 and 3a done. Slice 3b next.
 - [x] Slice 2 (2026-10-25) — Preposition form. Open: the user reviews the Estonian case list and the new strings; no browser check yet
 - [x] Slice 3 research (2026-10-25) — see "Slice 3 research results"; decisions Q8–Q10
 - [x] Slice 3a (2026-10-25) — Estonian: Ekilex adapter for Conjunction and Preposition (word, position, governed case). Open: the Estonian e2e stub gets `kuigi` and `pärast` in slice 4
-- [ ] Slice 3b — DE/EN/ES lexicon: keep categories in `extract.ts`, selectors for `conj`/`prep`/`postp`, re-extract, re-ingest, re-load (local)
+- [x] Slice 3b (2026-10-25) — DE/EN/ES lexicon: `extract.ts` keeps categories, selectors for `conj`/`prep`/`postp`, `prep` + `postp` merged into one row, re-extracted, re-ingested, re-loaded locally. Staging and production still need the reload (see "Before merge")
 - [ ] Slice 3c — Translations (`conj`/`prep` in the translation file) and "Start from a word" for both parts of speech
 - [ ] Slice 4 — e2e spec, snapshot docs, review of ES/DE/EE strings
 
@@ -30,6 +30,9 @@ Status: plan agreed on 2026-10-24. Slices 0, 1, 2 and 3a done. Slice 3b next.
 | 6 | Minor | The completion ring counts every visible non-checkbox field, so the optional position and the case selects raise the ring's denominator (same as the optional conjunction type). | Accepted; same behaviour as the German adverb radio. |
 | 7 | Moderate | A live check of the 3a adapter (2026-10-25) shows a lexeme that carries both codes (`postp` + `prep`) and one government gives the same case to both positions. "peale" returns Genitive before and after the noun, but the grammar has the partitive before the noun ("peale sööki") and the genitive after it ("laua peale"). Wiktionary lists the two as separate entries (peale: prep partitive, postp elative; the elative there is also doubtful). "üle" has the same shape. | Accepted for 3a: a wrong case before the noun is a suggestion the user can change, and the rule is documented in `eki.ts`. Better data needs a second source. Review with the user; a possible fix is to drop the case for a both-codes lexeme and fill it only from single-position lexemes. |
 | 8 | Minor | Two Ekilex government values have no option in the Estonian case select: adessive ("millel") and ablative ("millelt"), plus the nominative ("mis"). They fill nothing. | Open: add Adessive and Ablative to `CASE_OPTIONS_EE` if the user wants them (one line each, plus the mapping in `eki.ts`). |
+| 9 | Moderate (fixed in slice 3b, test in `AutocompleteRow.test.tsx`) | `applyLookup` applied radios first, so the fields a radio shows were filled in the same pass, but a checkbox that shows fields ("Paired" shows the second part; "Contracts with the article" shows the three forms) was applied in field order. The hidden field was skipped, and the lookup filled the box but not the field. | Checkboxes that other fields depend on (`visibleWhen`) are now applied first, like the radios (`lookedUpToggles`). |
+| 10 | Minor | "weil" carries both a coordinating and a subordinating category (the second is for an obsolete sense), so it gets no type. The most common German conjunction stays empty. | Accepted (Q8: fill only when the data is clear). A curated list would fix it; the user declined it in Q8. |
+| 11 | Minor | The EN lexicon holds noise entries that Wiktionary lists as conjunction or preposition ("an", "de"). They are real Wiktionary entries and a lookup needs the exact word, so they do no harm, but the type-ahead may show them. | Accepted for now; check the type-ahead in slice 3c. |
 | 3 | Minor | `reflexiv` was missing from the exercise property list. | Added to `PROPERTY_PREFIXES`. |
 
 ## Context
@@ -197,4 +200,4 @@ Method: one pass over the raw Wiktionary dump (`raw-wiktextract-data.jsonl.gz`, 
 
 ## Before merge
 
-- Reload the EN/ES/DE lexicon per environment after slice 3 (same reminder as the adverb plan).
+- Reload the EN/ES/DE lexicon per environment after slice 3b (same reminder as the adverb plan): `ingest.ts <lang>`, then `load.js` (VPS: `docker exec backend-<env> node scripts/lexicon/load.js /tmp/<file>`). The conjunction and preposition rows reach the autocomplete only after the reload. The adverb plan has the same reload step: do both in one go. Local dev was done on 2026-10-25.

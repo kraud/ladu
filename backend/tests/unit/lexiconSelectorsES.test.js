@@ -4,7 +4,7 @@
  * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0c.
  */
 const { selectCases } = require('../../lib/lexicon/select');
-const { NOUN_SELECTORS_ES, VERB_SELECTORS_ES, ADJECTIVE_SELECTORS_ES, ADVERB_SELECTORS_ES } = require('../../lib/lexicon/selectors/es');
+const { NOUN_SELECTORS_ES, VERB_SELECTORS_ES, ADJECTIVE_SELECTORS_ES, ADVERB_SELECTORS_ES, CONJUNCTION_SELECTORS_ES, PREPOSITION_SELECTORS_ES } = require('../../lib/lexicon/selectors/es');
 const { entries } = require('./fixtures/lexicon-es.json');
 
 const entry = (word) => entries.find((e) => e.word === word);
@@ -165,5 +165,19 @@ describe('Spanish adjective and adverb selectors', () => {
         expect(Object.fromEntries(selectCases(pronto, ADVERB_SELECTORS_ES))).toEqual({
             gradableES: 'Gradable', adverbES: 'pronto', superlativeES: 'prontísimo', periphrasticComparativeES: 'true',
         });
+    });
+});
+
+describe('Spanish conjunction and preposition selectors', () => {
+    const find = (word, pos) => entries.find((e) => e.word === word && e.pos === pos);
+    const conjunction = (word) => Object.fromEntries(selectCases(find(word, 'conj'), CONJUNCTION_SELECTORS_ES));
+
+    test('a marked conjunction gets the type; an unmarked one ("porque") gets the word only', () => {
+        expect(conjunction('para que')).toEqual({ conjunctionES: 'para que', conjunctionTypeES: 'Subordinating' });
+        expect(conjunction('porque')).toEqual({ conjunctionES: 'porque' });
+    });
+
+    test('a preposition gets the word and "Before the noun" (Spanish prepositions govern no case)', () => {
+        expect(Object.fromEntries(selectCases(find('de', 'prep'), PREPOSITION_SELECTORS_ES))).toEqual({ prepositionES: 'de', positionES: 'Before the noun' });
     });
 });

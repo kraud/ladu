@@ -18850,6 +18850,529 @@
     },
     {}
    ]
+  },
+  {
+   "word": "weil",
+   "pos": "conj",
+   "senses": [
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    },
+    {
+     "tags": [
+      "archaic",
+      "obsolete"
+     ],
+     "categories": [
+      "German terms with archaic senses",
+      "German terms with obsolete senses"
+     ]
+    }
+   ],
+   "categories": [
+    "German conjunctions",
+    "German coordinating conjunctions",
+    "German entries with incorrect language header",
+    "German lemmas",
+    "German subordinating conjunctions",
+    "German terms derived from Middle High German",
+    "German terms derived from Old High German",
+    "German terms derived from Proto-Germanic",
+    "German terms derived from Proto-West Germanic",
+    "German terms inherited from Middle High German",
+    "German terms inherited from Old High German",
+    "German terms inherited from Proto-Germanic",
+    "German terms inherited from Proto-West Germanic",
+    "Pages with 1 entry",
+    "Pages with entries",
+    "Rhymes:German/aɪ̯l",
+    "Rhymes:German/aɪ̯l/1 syllable"
+   ]
+  },
+  {
+   "word": "weder",
+   "pos": "conj",
+   "senses": [
+    {
+     "categories": [
+      "German conjunctions",
+      "German entries with incorrect language header",
+      "German lemmas",
+      "German terms derived from Old High German",
+      "German terms derived from Proto-Germanic",
+      "German terms derived from Proto-West Germanic",
+      "German terms inherited from Old High German",
+      "German terms inherited from Proto-Germanic",
+      "German terms inherited from Proto-West Germanic",
+      "German terms with usage examples",
+      "Pages with 9 entries",
+      "Pages with entries"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "und",
+   "pos": "conj",
+   "forms": [
+    {
+     "form": "unnd",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "unnt",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "unt",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "vnd",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "vnnd",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "vnnt",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "vnt",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "u.",
+     "tags": [
+      "alternative",
+      "abbreviation"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "German terms with quotations",
+      "German terms with usage examples",
+      "Requests for translations of German quotations"
+     ]
+    },
+    {
+     "tags": [
+      "colloquial"
+     ],
+     "categories": [
+      "German colloquialisms",
+      "German terms with usage examples"
+     ]
+    }
+   ],
+   "categories": [
+    "German conjunctions",
+    "German coordinating conjunctions",
+    "German entries with etymon",
+    "German entries with incorrect language header",
+    "German interjections",
+    "German lemmas",
+    "German terms derived from Middle High German",
+    "German terms derived from Old High German",
+    "German terms derived from Proto-Germanic",
+    "German terms derived from Proto-Indo-European",
+    "German terms derived from the Proto-Indo-European root *h₂ent-",
+    "German terms inherited from Middle High German",
+    "German terms inherited from Old High German",
+    "German terms inherited from Proto-Germanic",
+    "German terms inherited from Proto-Indo-European",
+    "Old Saxon conjunctions",
+    "Old Saxon entries with incorrect language header",
+    "Old Saxon lemmas",
+    "Old Saxon prepositions",
+    "Pages using etymon with no ID",
+    "Pages with 11 entries",
+    "Pages with entries",
+    "Pages with etymon",
+    "Pages with inline etymon for redlinks"
+   ]
+  },
+  {
+   "word": "sowohl ... als auch",
+   "pos": "conj",
+   "senses": [
+    {
+     "categories": [
+      "German conjunctions",
+      "German coordinating conjunctions",
+      "German entries with incorrect language header",
+      "German lemmas",
+      "German multiword terms",
+      "German terms spelled with .",
+      "German terms with usage examples",
+      "Pages with 1 entry",
+      "Pages with entries"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "wegen",
+   "pos": "prep",
+   "senses": [
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with quotations"
+     ]
+    }
+   ],
+   "categories": [
+    "German entries with incorrect language header",
+    "German lemmas",
+    "German prepositions",
+    "German prepositions governing the dative",
+    "German prepositions governing the genitive",
+    "German terms derived from Middle High German",
+    "German terms inherited from Middle High German",
+    "Pages with 7 entries",
+    "Pages with entries"
+   ]
+  },
+  {
+   "word": "in",
+   "pos": "prep",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "l-self",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "in",
+     "tags": [
+      "prepositional"
+     ]
+    },
+    {
+     "form": "worin",
+     "tags": [
+      "error-unrecognized-form"
+     ]
+    },
+    {
+     "form": "darin",
+     "tags": [
+      "error-unrecognized-form"
+     ]
+    },
+    {
+     "form": "hierin",
+     "tags": [
+      "error-unrecognized-form"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    }
+   ],
+   "categories": [
+    "German adjectives",
+    "German entries referencing pages with etymology sections missing etymons",
+    "German entries with etymon",
+    "German entries with incorrect language header",
+    "German lemmas",
+    "German prepositions",
+    "German terms borrowed from English",
+    "German terms derived from English",
+    "German terms derived from Middle English",
+    "German terms derived from Middle High German",
+    "German terms derived from Old English",
+    "German terms derived from Old High German",
+    "German terms derived from Proto-Germanic",
+    "German terms derived from Proto-Indo-European",
+    "German terms derived from Proto-West Germanic",
+    "German terms derived from the Proto-Indo-European word *h₁én",
+    "German terms inherited from Middle High German",
+    "German terms inherited from Old High German",
+    "German terms inherited from Proto-Germanic",
+    "German terms inherited from Proto-Indo-European",
+    "German terms inherited from Proto-West Germanic",
+    "German uncomparable adjectives",
+    "Pages using etymon with no ID",
+    "Pages using invalid parameters when calling Template:de-pronadv-table",
+    "Pages with 74 entries",
+    "Pages with entries",
+    "Pages with etymon",
+    "Pages with inline etymon for redlinks",
+    "zom:Buildings"
+   ]
+  },
+  {
+   "word": "nach",
+   "pos": "prep",
+   "forms": [
+    {
+     "form": "no-table-tags",
+     "tags": [
+      "table-tags"
+     ]
+    },
+    {
+     "form": "l-self",
+     "tags": [
+      "inflection-template"
+     ]
+    },
+    {
+     "form": "nach",
+     "tags": [
+      "prepositional"
+     ]
+    },
+    {
+     "form": "wonach",
+     "tags": [
+      "error-unrecognized-form"
+     ]
+    },
+    {
+     "form": "danach",
+     "tags": [
+      "error-unrecognized-form"
+     ]
+    },
+    {
+     "form": "hiernach",
+     "tags": [
+      "error-unrecognized-form"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with quotations",
+      "German terms with usage examples",
+      "Requests for translations of German quotations",
+      "Requests for translations of German usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with collocations",
+      "German terms with quotations"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with collocations",
+      "German terms with quotations"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with collocations",
+      "German terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "German terms with collocations",
+      "German terms with usage examples"
+     ]
+    }
+   ],
+   "categories": [
+    "German adverbs",
+    "German entries with etymon",
+    "German entries with incorrect language header",
+    "German lemmas",
+    "German postpositions",
+    "German postpositions governing the dative",
+    "German prepositions",
+    "German prepositions governing the dative",
+    "German terms derived from Middle High German",
+    "German terms derived from Old High German",
+    "German terms derived from Proto-Germanic",
+    "German terms derived from Proto-Indo-European",
+    "German terms derived from Proto-West Germanic",
+    "German terms derived from the Proto-Indo-European root *h₂neḱ-",
+    "German terms inherited from Middle High German",
+    "German terms inherited from Old High German",
+    "German terms inherited from Proto-Germanic",
+    "German terms inherited from Proto-West Germanic",
+    "Pages using etymon with no ID",
+    "Pages with 6 entries",
+    "Pages with entries",
+    "Pages with etymon",
+    "Pages with inline etymon for redlinks"
+   ]
+  },
+  {
+   "word": "nach",
+   "pos": "postp",
+   "senses": [
+    {
+     "categories": [
+      "German terms with usage examples"
+     ]
+    }
+   ],
+   "categories": [
+    "German adverbs",
+    "German entries with etymon",
+    "German entries with incorrect language header",
+    "German lemmas",
+    "German postpositions",
+    "German postpositions governing the dative",
+    "German prepositions",
+    "German prepositions governing the dative",
+    "German terms derived from Middle High German",
+    "German terms derived from Old High German",
+    "German terms derived from Proto-Germanic",
+    "German terms derived from Proto-Indo-European",
+    "German terms derived from Proto-West Germanic",
+    "German terms derived from the Proto-Indo-European root *h₂neḱ-",
+    "German terms inherited from Middle High German",
+    "German terms inherited from Old High German",
+    "German terms inherited from Proto-Germanic",
+    "German terms inherited from Proto-West Germanic",
+    "Pages using etymon with no ID",
+    "Pages with 6 entries",
+    "Pages with entries",
+    "Pages with etymon",
+    "Pages with inline etymon for redlinks"
+   ]
+  },
+  {
+   "word": "zufolge",
+   "pos": "prep",
+   "senses": [
+    {}
+   ],
+   "categories": [
+    "German entries with incorrect language header",
+    "German lemmas",
+    "German postpositions",
+    "German postpositions governing the dative",
+    "German prepositions",
+    "German prepositions governing the genitive",
+    "German terms prefixed with zu-",
+    "German terms with non-redundant non-automated sortkeys",
+    "Pages with 1 entry",
+    "Pages with entries"
+   ]
+  },
+  {
+   "word": "zufolge",
+   "pos": "postp",
+   "senses": [
+    {
+     "categories": [
+      "German terms with quotations"
+     ]
+    }
+   ],
+   "categories": [
+    "German entries with incorrect language header",
+    "German lemmas",
+    "German postpositions",
+    "German postpositions governing the dative",
+    "German prepositions",
+    "German prepositions governing the genitive",
+    "German terms prefixed with zu-",
+    "German terms with non-redundant non-automated sortkeys",
+    "Pages with 1 entry",
+    "Pages with entries"
+   ]
+  },
+  {
+   "word": "dank",
+   "pos": "prep",
+   "senses": [
+    {
+     "categories": [
+      "German entries with incorrect language header",
+      "German lemmas",
+      "German prepositions",
+      "German prepositions governing the dative",
+      "German prepositions governing the genitive",
+      "German terms with usage examples",
+      "Pages with 6 entries",
+      "Pages with entries",
+      "Rhymes:German/aŋk",
+      "Rhymes:German/aŋk/1 syllable"
+     ]
+    }
+   ]
   }
  ]
 }

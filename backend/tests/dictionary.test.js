@@ -535,6 +535,44 @@ describe('adjectives and adverbs (Slice H2: the lexicon alone, a miss is not-fou
         expect(casesOf(res.body)).toEqual({ adverbES: 'rápidamente' });
     });
 
+    describe('conjunctions and prepositions (slice 3b)', () => {
+        it('German: a pair headword fills the first part, the box and the second part; the type only when Wiktionary marks it', async () => {
+            expect(casesOf((await lookup(`German/Conjunction/${encodeURIComponent('sowohl ... als auch')}`)).body)).toEqual({
+                conjunctionDE: 'sowohl', conjunctionTypeDE: 'Coordinating', correlativeDE: 'true', secondPartDE: 'als auch',
+            });
+            expect(casesOf((await lookup('German/Conjunction/und')).body)).toEqual({ conjunctionDE: 'und', conjunctionTypeDE: 'Coordinating' });
+            // "weil" is marked both coordinating and subordinating (an obsolete sense): no type. "weder" has no marker.
+            expect(casesOf((await lookup('German/Conjunction/weil')).body)).toEqual({ conjunctionDE: 'weil' });
+            expect(casesOf((await lookup('German/Conjunction/weder')).body)).toEqual({ conjunctionDE: 'weder' });
+        });
+
+        it('German: "nach" is one row, before or after the noun; "wegen" governs the dative and the genitive; "in" has no case', async () => {
+            expect(casesOf((await lookup('German/Preposition/nach')).body)).toEqual({ prepositionDE: 'nach', positionDE: 'Before or after the noun', governedCaseDE: 'D' });
+            expect(casesOf((await lookup('German/Preposition/wegen')).body)).toEqual({ prepositionDE: 'wegen', positionDE: 'Before the noun', governedCaseDE: 'DG' });
+            expect(casesOf((await lookup('German/Preposition/in')).body)).toEqual({ prepositionDE: 'in', positionDE: 'Before the noun' });
+        });
+
+        it('English: a marked conjunction gets its type, a pair is split, and "ago" is a postposition', async () => {
+            expect(casesOf((await lookup('English/Conjunction/because')).body)).toEqual({ conjunctionEN: 'because', conjunctionTypeEN: 'Subordinating' });
+            expect(casesOf((await lookup(`English/Conjunction/${encodeURIComponent('neither … nor')}`)).body)).toEqual({
+                conjunctionEN: 'neither', correlativeEN: 'true', secondPartEN: 'nor',
+            });
+            expect(casesOf((await lookup('English/Preposition/ago')).body)).toEqual({ prepositionEN: 'ago', positionEN: 'After the noun' });
+        });
+
+        it('Spanish: "para que" is marked subordinating, "porque" is not marked, and a preposition gets its position', async () => {
+            expect(casesOf((await lookup('Spanish/Conjunction/para%20que')).body)).toEqual({ conjunctionES: 'para que', conjunctionTypeES: 'Subordinating' });
+            expect(casesOf((await lookup('Spanish/Conjunction/porque')).body)).toEqual({ conjunctionES: 'porque' });
+            expect(casesOf((await lookup('Spanish/Preposition/de')).body)).toEqual({ prepositionES: 'de', positionES: 'Before the noun' });
+        });
+
+        it('a word of the other part of speech is not-found, and so is an unknown word', async () => {
+            expect((await lookup('German/Conjunction/wegen')).body).toEqual({ status: 'not-found', cases: [] });
+            expect((await lookup('German/Preposition/und')).body).toEqual({ status: 'not-found', cases: [] });
+            expect((await lookup('English/Conjunction/zorplate')).body).toEqual({ status: 'not-found', cases: [] });
+        });
+    });
+
     it('German: the superlative has no "am" (D25), and an adjective that cannot be compared keeps the base word', async () => {
         expect(casesOf((await lookup('German/Adjective/gut')).body)).toEqual({ positiveDE: 'gut', komparativDE: 'besser', superlativDE: 'besten' });
         expect(casesOf((await lookup('German/Adjective/lila')).body)).toEqual({ positiveDE: 'lila' });
@@ -1091,7 +1129,7 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
 
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
-        expect((await lookup('English/Preposition/in')).statusCode).toBe(400);
+        expect((await lookup('English/Pronoun/it')).statusCode).toBe(400);
         expect((await lookup('Estonian/Pronoun/see')).statusCode).toBe(400);
         expect((await lookup('Klingon/Verb/x')).statusCode).toBe(400);
     });

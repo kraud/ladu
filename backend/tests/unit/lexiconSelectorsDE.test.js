@@ -4,10 +4,10 @@
  * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0b.
  */
 const { selectCases, selectForm } = require('../../lib/lexicon/select');
-const { NOUN_SELECTORS_DE, VERB_SELECTORS_DE, ADJECTIVE_SELECTORS_DE, ADVERB_SELECTORS_DE } = require('../../lib/lexicon/selectors/de');
+const { NOUN_SELECTORS_DE, VERB_SELECTORS_DE, ADJECTIVE_SELECTORS_DE, ADVERB_SELECTORS_DE, CONJUNCTION_SELECTORS_DE, PREPOSITION_SELECTORS_DE } = require('../../lib/lexicon/selectors/de');
 const { entries } = require('./fixtures/lexicon-de.json');
 
-const entry = (word) => entries.find((e) => e.word === word);
+const entry = (word, pos) => entries.find((e) => e.word === word && (!pos || e.pos === pos));
 const verb = (word) => Object.fromEntries(selectCases(entry(word), VERB_SELECTORS_DE));
 const noun = (word) => Object.fromEntries(selectCases(entry(word), NOUN_SELECTORS_DE));
 const adjective = (word) => Object.fromEntries(selectCases(entry(word), ADJECTIVE_SELECTORS_DE));
@@ -194,5 +194,52 @@ describe('German adjective and adverb selectors', () => {
 
     test('an adverb without degrees gets no radio value: the lexicon does not prove it is non-gradable', () => {
         expect(adverb('hier')).toEqual({ adverbDE: 'hier' });
+    });
+});
+
+describe('German conjunction selectors', () => {
+    const conjunction = (word) => Object.fromEntries(selectCases(entry(word, 'conj'), CONJUNCTION_SELECTORS_DE));
+
+    test('a conjunction Wiktionary marks as coordinating gets the type', () => {
+        expect(conjunction('und')).toEqual({ conjunctionDE: 'und', conjunctionTypeDE: 'Coordinating' });
+    });
+
+    test('an unmarked conjunction gets the word only: a missing marker proves nothing', () => {
+        expect(conjunction('weder')).toEqual({ conjunctionDE: 'weder' });
+    });
+
+    test('a conjunction marked both coordinating and subordinating ("weil") gets no type', () => {
+        expect(conjunction('weil')).toEqual({ conjunctionDE: 'weil' });
+    });
+
+    test('a headword with an ellipsis is a pair: the first part, the box and the second part', () => {
+        expect(conjunction('sowohl ... als auch')).toEqual({
+            conjunctionDE: 'sowohl',
+            conjunctionTypeDE: 'Coordinating',
+            correlativeDE: 'true',
+            secondPartDE: 'als auch',
+        });
+    });
+});
+
+describe('German preposition selectors', () => {
+    const preposition = (word, pos) => Object.fromEntries(selectCases(entry(word, pos), PREPOSITION_SELECTORS_DE));
+
+    test('a preposition: the word, "Before the noun", and the cases its categories name (order A, D, G)', () => {
+        expect(preposition('wegen', 'prep')).toEqual({ prepositionDE: 'wegen', positionDE: 'Before the noun', governedCaseDE: 'DG' });
+        expect(preposition('dank', 'prep')).toEqual({ prepositionDE: 'dank', positionDE: 'Before the noun', governedCaseDE: 'DG' });
+    });
+
+    test('a preposition with no case category ("in") gets the word and the position only', () => {
+        expect(preposition('in', 'prep')).toEqual({ prepositionDE: 'in', positionDE: 'Before the noun' });
+    });
+
+    test('a postposition entry reads the "postpositions governing" categories and gets "After the noun"', () => {
+        expect(preposition('nach', 'postp')).toEqual({ prepositionDE: 'nach', positionDE: 'After the noun', governedCaseDE: 'D' });
+    });
+
+    test('the two entries of one word read their own category list ("zufolge": genitive before, dative after)', () => {
+        expect(preposition('zufolge', 'prep')).toEqual({ prepositionDE: 'zufolge', positionDE: 'Before the noun', governedCaseDE: 'G' });
+        expect(preposition('zufolge', 'postp')).toEqual({ prepositionDE: 'zufolge', positionDE: 'After the noun', governedCaseDE: 'D' });
     });
 });

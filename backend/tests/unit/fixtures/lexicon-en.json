@@ -1776,6 +1776,979 @@
     {},
     {}
    ]
+  },
+  {
+   "word": "because",
+   "pos": "conj",
+   "forms": [
+    {
+     "form": "bycause",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "becos",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "'cause",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "cause",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "cos",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "cuz",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "coz",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "'cos",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "'cuz",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "'coz",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "b/c",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "bc",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "bcos",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "bcoz",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "bcs",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "bcz",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "bcus",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "∵",
+     "tags": [
+      "alternative"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "tags": [
+      "obsolete"
+     ],
+     "categories": [
+      "English terms with obsolete senses",
+      "English terms with quotations"
+     ]
+    }
+   ],
+   "categories": [
+    "American Sign Language terms in nonstandard scripts",
+    "English adverbs",
+    "English conjunctions",
+    "English entries with etymology trees",
+    "English entries with etymon",
+    "English entries with incorrect language header",
+    "English interjections",
+    "English lemmas",
+    "English prepositions",
+    "English subordinating conjunctions",
+    "English terms derived from Latin",
+    "English terms derived from Middle English",
+    "English terms derived from Old English",
+    "English terms derived from Old French",
+    "English terms derived from Old Latin",
+    "English terms derived from Proto-Germanic",
+    "English terms derived from Proto-Indo-European",
+    "English terms derived from Proto-Italic",
+    "English terms derived from Proto-West Germanic",
+    "English terms derived from the Proto-Indo-European root *h₁ep-",
+    "English terms derived from the Proto-Indo-European word *h₁épi",
+    "English terms inherited from Middle English",
+    "English uncomparable adverbs",
+    "Entries with translation boxes",
+    "Pages using etymon with no ID",
+    "Pages with 2 entries",
+    "Pages with entries",
+    "Pages with etymology trees",
+    "Pages with etymon",
+    "Pages with inline etymon for redlinks",
+    "Rhymes:English/ɒz",
+    "Rhymes:English/ɒz/2 syllables",
+    "Rhymes:English/ɔːs",
+    "Rhymes:English/ɔːs/2 syllables",
+    "Rhymes:English/ɔːz",
+    "Rhymes:English/ɔːz/2 syllables",
+    "Rhymes:English/ʌz",
+    "Rhymes:English/ʌz/2 syllables",
+    "Terms with Abkhaz translations",
+    "Terms with Afrikaans translations",
+    "Terms with Albanian translations",
+    "Terms with American Sign Language translations",
+    "Terms with Ancient Greek translations",
+    "Terms with Arabic translations",
+    "Terms with Aramaic translations",
+    "Terms with Armenian translations",
+    "Terms with Aromanian translations",
+    "Terms with Assyrian Neo-Aramaic translations",
+    "Terms with Asturian translations",
+    "Terms with Azerbaijani translations",
+    "Terms with Bashkir translations",
+    "Terms with Belarusian translations",
+    "Terms with Bengali translations",
+    "Terms with Breton translations",
+    "Terms with Bulgarian translations",
+    "Terms with Burmese translations",
+    "Terms with Cantonese translations",
+    "Terms with Carpathian Rusyn translations",
+    "Terms with Catalan translations",
+    "Terms with Central Kurdish translations",
+    "Terms with Chichewa translations",
+    "Terms with Crimean Tatar translations",
+    "Terms with Czech translations",
+    "Terms with Danish translations",
+    "Terms with Dungan translations",
+    "Terms with Dutch translations",
+    "Terms with Eastern Mari translations",
+    "Terms with Egyptian Arabic translations",
+    "Terms with Egyptian translations",
+    "Terms with Esperanto translations",
+    "Terms with Estonian translations",
+    "Terms with Ewe translations",
+    "Terms with Faroese translations",
+    "Terms with Finnish translations",
+    "Terms with French translations",
+    "Terms with Galician translations",
+    "Terms with Georgian translations",
+    "Terms with German translations",
+    "Terms with Greek translations",
+    "Terms with Haitian Creole translations",
+    "Terms with Hakka translations",
+    "Terms with Hawaiian translations",
+    "Terms with Hebrew translations",
+    "Terms with Hijazi Arabic translations",
+    "Terms with Hindi translations",
+    "Terms with Hokkien translations",
+    "Terms with Hungarian translations",
+    "Terms with Icelandic translations",
+    "Terms with Ido translations",
+    "Terms with Indonesian translations",
+    "Terms with Interlingua translations",
+    "Terms with Iranian Persian translations",
+    "Terms with Iraqi Arabic translations",
+    "Terms with Irish translations",
+    "Terms with Italian translations",
+    "Terms with Jamaican Creole translations",
+    "Terms with Japanese translations",
+    "Terms with K'iche' translations",
+    "Terms with Kabyle translations",
+    "Terms with Kaqchikel translations",
+    "Terms with Kashubian translations",
+    "Terms with Kazakh translations",
+    "Terms with Khiamniungan Naga translations",
+    "Terms with Khmer translations",
+    "Terms with Konkani translations",
+    "Terms with Korean translations",
+    "Terms with Kumyk translations",
+    "Terms with Kyrgyz translations",
+    "Terms with Ladin translations",
+    "Terms with Lao translations",
+    "Terms with Latin translations",
+    "Terms with Latvian translations",
+    "Terms with Lithuanian translations",
+    "Terms with Livonian translations",
+    "Terms with Low German translations",
+    "Terms with Lower Sorbian translations",
+    "Terms with Luxembourgish translations",
+    "Terms with Macedonian translations",
+    "Terms with Malay translations",
+    "Terms with Maltese translations",
+    "Terms with Manchu translations",
+    "Terms with Mandarin translations",
+    "Terms with Maore Comorian translations",
+    "Terms with Mbya Guarani translations",
+    "Terms with Mongolian translations",
+    "Terms with Moroccan Arabic translations",
+    "Terms with Mwani translations",
+    "Terms with Māori translations",
+    "Terms with Navajo translations",
+    "Terms with Neapolitan translations",
+    "Terms with Nepali translations",
+    "Terms with Norman translations",
+    "Terms with North Levantine Arabic translations",
+    "Terms with Northern Kurdish translations",
+    "Terms with Norwegian Bokmål translations",
+    "Terms with Norwegian Nynorsk translations",
+    "Terms with Occitan translations",
+    "Terms with Old Church Slavonic translations",
+    "Terms with Old English translations",
+    "Terms with Old Irish translations",
+    "Terms with Old Polish translations",
+    "Terms with Ottoman Turkish translations",
+    "Terms with Pannonian Rusyn translations",
+    "Terms with Pashto translations",
+    "Terms with Persian translations",
+    "Terms with Pitjantjatjara translations",
+    "Terms with Pohnpeian translations",
+    "Terms with Polish translations",
+    "Terms with Portuguese translations",
+    "Terms with Romani translations",
+    "Terms with Romanian translations",
+    "Terms with Romansh translations",
+    "Terms with Russian translations",
+    "Terms with Sanskrit translations",
+    "Terms with Scottish Gaelic translations",
+    "Terms with Serbo-Croatian translations",
+    "Terms with Slovak translations",
+    "Terms with Slovene translations",
+    "Terms with South Levantine Arabic translations",
+    "Terms with Spanish translations",
+    "Terms with Sranan Tongo translations",
+    "Terms with Swahili translations",
+    "Terms with Swedish translations",
+    "Terms with Tagalog translations",
+    "Terms with Tajik translations",
+    "Terms with Talysh translations",
+    "Terms with Tamil translations",
+    "Terms with Tatar translations",
+    "Terms with Thai translations",
+    "Terms with Tibetan translations",
+    "Terms with Tunisian Arabic translations",
+    "Terms with Turkish translations",
+    "Terms with Turkmen translations",
+    "Terms with Ukrainian translations",
+    "Terms with Urdu translations",
+    "Terms with Uyghur translations",
+    "Terms with Uzbek translations",
+    "Terms with Venetan translations",
+    "Terms with Vietnamese translations",
+    "Terms with Walloon translations",
+    "Terms with Welsh translations",
+    "Terms with West Frisian translations",
+    "Terms with Wolof translations",
+    "Terms with Yemeni Arabic translations",
+    "Terms with Yiddish translations",
+    "Terms with Zealandic translations",
+    "Terms with Zhuang translations",
+    "Tunisian Arabic links with redundant target parameters"
+   ]
+  },
+  {
+   "word": "neither … nor",
+   "pos": "conj",
+   "forms": [
+    {
+     "form": "nor … nor",
+     "tags": [
+      "alternative"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "English conjunctions",
+      "English entries with incorrect language header",
+      "English lemmas",
+      "English multiword terms",
+      "English terms with quotations",
+      "English translation hubs",
+      "Entries with translation boxes",
+      "Pages with 1 entry",
+      "Pages with entries",
+      "Requests for date",
+      "Requests for date in English entries",
+      "Terms with Ancient Greek translations",
+      "Terms with Arabic translations",
+      "Terms with Belarusian translations",
+      "Terms with Bulgarian translations",
+      "Terms with Czech translations",
+      "Terms with Danish translations",
+      "Terms with Dutch translations",
+      "Terms with Esperanto translations",
+      "Terms with Estonian translations",
+      "Terms with Finnish translations",
+      "Terms with French translations",
+      "Terms with German translations",
+      "Terms with Hungarian translations",
+      "Terms with Icelandic translations",
+      "Terms with Italian translations",
+      "Terms with Japanese translations",
+      "Terms with Korean translations",
+      "Terms with Latin translations",
+      "Terms with Lithuanian translations",
+      "Terms with Macedonian translations",
+      "Terms with Mandarin translations",
+      "Terms with Norwegian Bokmål translations",
+      "Terms with Norwegian Nynorsk translations",
+      "Terms with Pannonian Rusyn translations",
+      "Terms with Polish translations",
+      "Terms with Portuguese translations",
+      "Terms with Romanian translations",
+      "Terms with Russian translations",
+      "Terms with Slovak translations",
+      "Terms with Spanish translations",
+      "Terms with Swedish translations",
+      "Terms with Turkish translations",
+      "Terms with Ukrainian translations"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "although",
+   "pos": "conj",
+   "forms": [
+    {
+     "form": "altho",
+     "tags": [
+      "alternative",
+      "nonstandard"
+     ]
+    },
+    {
+     "form": "altho'",
+     "tags": [
+      "alternative",
+      "nonstandard"
+     ]
+    },
+    {
+     "form": "allthough",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    }
+   ],
+   "categories": [
+    "English compound terms",
+    "English conjunctions",
+    "English entries referencing pages with etymology sections missing etymons",
+    "English entries with etymology trees",
+    "English entries with etymon",
+    "English entries with incorrect language header",
+    "English lemmas",
+    "English subordinating conjunctions",
+    "English terms derived from Middle English",
+    "English terms derived from Old English",
+    "English terms derived from Proto-Germanic",
+    "English terms derived from Proto-Indo-European",
+    "English terms derived from Proto-West Germanic",
+    "English terms derived from the Proto-Indo-European root *h₂el- (all)",
+    "English terms derived from the Proto-Indo-European word *to-",
+    "English terms inherited from Middle English",
+    "English terms inherited from Old English",
+    "Entries with translation boxes",
+    "Pages using etymon with no ID",
+    "Pages with 1 entry",
+    "Pages with entries",
+    "Pages with etymology trees",
+    "Pages with etymon",
+    "Pages with inline etymon for redlinks",
+    "Requests for review of Esperanto translations",
+    "Requests for review of Ido translations",
+    "Requests for review of Interlingua translations",
+    "Requests for review of Japanese translations",
+    "Rhymes:English/əʊ",
+    "Rhymes:English/əʊ/2 syllables",
+    "Terms with Ancient Greek translations",
+    "Terms with Arabic translations",
+    "Terms with Armenian translations",
+    "Terms with Azerbaijani translations",
+    "Terms with Bashkir translations",
+    "Terms with Belarusian translations",
+    "Terms with Bulgarian translations",
+    "Terms with Cantonese translations",
+    "Terms with Catalan translations",
+    "Terms with Central Kurdish translations",
+    "Terms with Chichewa translations",
+    "Terms with Cornish translations",
+    "Terms with Czech translations",
+    "Terms with Danish translations",
+    "Terms with Dutch translations",
+    "Terms with Esperanto translations",
+    "Terms with Finnish translations",
+    "Terms with French translations",
+    "Terms with Galician translations",
+    "Terms with Georgian translations",
+    "Terms with German translations",
+    "Terms with Greek translations",
+    "Terms with Hebrew translations",
+    "Terms with Hindi translations",
+    "Terms with Hokkien translations",
+    "Terms with Hungarian translations",
+    "Terms with Icelandic translations",
+    "Terms with Ido translations",
+    "Terms with Indonesian translations",
+    "Terms with Ingrian translations",
+    "Terms with Interlingua translations",
+    "Terms with Iranian Persian translations",
+    "Terms with Irish translations",
+    "Terms with Italian translations",
+    "Terms with Japanese translations",
+    "Terms with Javanese translations",
+    "Terms with K'iche' translations",
+    "Terms with Kabuverdianu translations",
+    "Terms with Khmer translations",
+    "Terms with Korean translations",
+    "Terms with Latin translations",
+    "Terms with Macedonian translations",
+    "Terms with Malay translations",
+    "Terms with Maltese translations",
+    "Terms with Manchu translations",
+    "Terms with Mandarin translations",
+    "Terms with Māori translations",
+    "Terms with Navajo translations",
+    "Terms with Northern Kurdish translations",
+    "Terms with Norwegian Bokmål translations",
+    "Terms with Norwegian Nynorsk translations",
+    "Terms with Ojibwe translations",
+    "Terms with Old English translations",
+    "Terms with Old Norse translations",
+    "Terms with Persian translations",
+    "Terms with Polish translations",
+    "Terms with Portuguese translations",
+    "Terms with Romanian translations",
+    "Terms with Russian translations",
+    "Terms with Scots translations",
+    "Terms with Serbo-Croatian translations",
+    "Terms with Slovak translations",
+    "Terms with Slovene translations",
+    "Terms with Spanish translations",
+    "Terms with Swahili translations",
+    "Terms with Swedish translations",
+    "Terms with Thai translations",
+    "Terms with Turkish translations",
+    "Terms with Ukrainian translations",
+    "Terms with Urdu translations",
+    "Terms with Vietnamese translations",
+    "Terms with Welsh translations",
+    "Terms with Yiddish translations"
+   ]
+  },
+  {
+   "word": "in",
+   "pos": "prep",
+   "forms": [
+    {
+     "form": "i'",
+     "tags": [
+      "alternative",
+      "colloquial",
+      "poetic"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with quotations"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples",
+      "en:Grammar",
+      "en:Phonetics"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with collocations",
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples",
+      "Quotation templates to be cleaned"
+     ]
+    },
+    {
+     "categories": [
+      "English terms with usage examples"
+     ]
+    }
+   ],
+   "categories": [
+    "English 2-letter words",
+    "English adjectives",
+    "English adverbs",
+    "English countable nouns",
+    "English entries with etymon",
+    "English entries with incorrect language header",
+    "English indeclinable nouns",
+    "English lemmas",
+    "English movement adverbs",
+    "English nouns",
+    "English nouns with irregular plurals",
+    "English position adverbs",
+    "English prepositions",
+    "English terms derived from Middle English",
+    "English terms derived from Old English",
+    "English terms derived from Proto-Germanic",
+    "English terms derived from Proto-Indo-European",
+    "English terms derived from Proto-West Germanic",
+    "English terms derived from the Proto-Indo-European word *h₁en",
+    "English terms derived from the Proto-Indo-European word *h₁én",
+    "English terms inherited from Middle English",
+    "English terms inherited from Old English",
+    "English terms inherited from Proto-Germanic",
+    "English terms inherited from Proto-Indo-European",
+    "English terms inherited from Proto-West Germanic",
+    "English terms with homophones",
+    "English uncomparable adverbs",
+    "English verbs",
+    "Pages with 74 entries",
+    "Pages with entries",
+    "Pages with etymon",
+    "Rhymes:English/ɪn",
+    "Rhymes:English/ɪn/1 syllable",
+    "Terms with Acehnese translations",
+    "Terms with Albanian translations",
+    "Terms with Alviri-Vidari translations",
+    "Terms with Ancient Greek translations",
+    "Terms with Arabic translations",
+    "Terms with Aragonese translations",
+    "Terms with Aramaic translations",
+    "Terms with Armenian translations",
+    "Terms with Aromanian translations",
+    "Terms with Assamese translations",
+    "Terms with Azerbaijani translations",
+    "Terms with Belarusian translations",
+    "Terms with Belizean Creole translations",
+    "Terms with Bengali translations",
+    "Terms with Bulgarian translations",
+    "Terms with Burmese translations",
+    "Terms with Catalan translations",
+    "Terms with Central Kurdish translations",
+    "Terms with Chamicuro translations",
+    "Terms with Cherokee translations",
+    "Terms with Classical Syriac translations",
+    "Terms with Czech translations",
+    "Terms with Dalmatian translations",
+    "Terms with Danish translations",
+    "Terms with Dutch translations",
+    "Terms with East Central German translations",
+    "Terms with Egyptian translations",
+    "Terms with Esperanto translations",
+    "Terms with Estonian translations",
+    "Terms with Faroese translations",
+    "Terms with Finnish translations",
+    "Terms with French translations",
+    "Terms with Friulian translations",
+    "Terms with Galician translations",
+    "Terms with Georgian translations",
+    "Terms with German translations",
+    "Terms with Greek translations",
+    "Terms with Gujarati translations",
+    "Terms with Haitian Creole translations",
+    "Terms with Hausa translations",
+    "Terms with Hebrew translations",
+    "Terms with Hindi translations",
+    "Terms with Hungarian translations",
+    "Terms with Icelandic translations",
+    "Terms with Ido translations",
+    "Terms with Indonesian translations",
+    "Terms with Irish translations",
+    "Terms with Italian translations",
+    "Terms with Japanese translations",
+    "Terms with Jarai translations",
+    "Terms with Javanese translations",
+    "Terms with Kashubian translations",
+    "Terms with Kazakh translations",
+    "Terms with Khmer translations",
+    "Terms with Kikuyu translations",
+    "Terms with Korean translations",
+    "Terms with Laboya translations",
+    "Terms with Ladin translations",
+    "Terms with Lao translations",
+    "Terms with Latin translations",
+    "Terms with Livonian translations",
+    "Terms with Lower Sorbian translations",
+    "Terms with Macedonian translations",
+    "Terms with Maguindanao translations",
+    "Terms with Malay translations",
+    "Terms with Mandarin translations",
+    "Terms with Maranao translations",
+    "Terms with Mongolian translations",
+    "Terms with Moroccan Arabic translations",
+    "Terms with Navajo translations",
+    "Terms with Neapolitan translations",
+    "Terms with Ngazidja Comorian translations",
+    "Terms with Norman translations",
+    "Terms with Northern Kurdish translations",
+    "Terms with Norwegian Bokmål translations",
+    "Terms with Norwegian Nynorsk translations",
+    "Terms with Norwegian translations",
+    "Terms with Occitan translations",
+    "Terms with Old English translations",
+    "Terms with Pashto translations",
+    "Terms with Persian translations",
+    "Terms with Pohnpeian translations",
+    "Terms with Polish translations",
+    "Terms with Portuguese translations",
+    "Terms with Rapa Nui translations",
+    "Terms with Romanian translations",
+    "Terms with Russian translations",
+    "Terms with Scots translations",
+    "Terms with Scottish Gaelic translations",
+    "Terms with Serbo-Croatian translations",
+    "Terms with Sindhi translations",
+    "Terms with Slovak translations",
+    "Terms with Slovene translations",
+    "Terms with Spanish translations",
+    "Terms with Sundanese translations",
+    "Terms with Swahili translations",
+    "Terms with Swedish translations",
+    "Terms with Sylheti translations",
+    "Terms with Tagalog translations",
+    "Terms with Tajik translations",
+    "Terms with Tamil translations",
+    "Terms with Tashelhit translations",
+    "Terms with Tausug translations",
+    "Terms with Telugu translations",
+    "Terms with Thai translations",
+    "Terms with Tibetan translations",
+    "Terms with Tocharian B translations",
+    "Terms with Tok Pisin translations",
+    "Terms with Tunisian Arabic translations",
+    "Terms with Turkish translations",
+    "Terms with Ukrainian translations",
+    "Terms with Upper Sorbian translations",
+    "Terms with Urdu translations",
+    "Terms with Uzbek translations",
+    "Terms with Venetan translations",
+    "Terms with Vietnamese translations",
+    "Terms with Võro translations",
+    "Terms with Walloon translations",
+    "Terms with Welsh translations",
+    "Terms with Zealandic translations",
+    "Tunisian Arabic links with redundant target parameters",
+    "zom:Buildings"
+   ]
+  },
+  {
+   "word": "ago",
+   "pos": "postp",
+   "forms": [
+    {
+     "form": "agoe",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "agon",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "agone",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "ygo",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    },
+    {
+     "form": "ygoe",
+     "tags": [
+      "alternative",
+      "obsolete"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "English terms with quotations",
+      "English terms with usage examples"
+     ]
+    }
+   ],
+   "categories": [
+    "English 3-letter words",
+    "English adjectives",
+    "English entries with etymology trees",
+    "English entries with etymon",
+    "English entries with incorrect language header",
+    "English lemmas",
+    "English postpositions",
+    "English terms derived from Middle English",
+    "English terms derived from Old English",
+    "English terms derived from Proto-Germanic",
+    "English terms derived from Proto-Indo-European",
+    "English terms derived from Proto-West Germanic",
+    "English terms derived from the Proto-Indo-European root *ǵʰeh₁-",
+    "English terms derived from the Proto-Indo-European word *h₂ew",
+    "English terms derived from the Proto-Indo-European word *úd",
+    "English terms inherited from Middle English",
+    "English terms inherited from Old English",
+    "English terms inherited from Proto-West Germanic",
+    "English terms prefixed with a-",
+    "English uncomparable adjectives",
+    "Entries with translation boxes",
+    "Pages using etymon with no ID",
+    "Pages with 20 entries",
+    "Pages with entries",
+    "Pages with etymology trees",
+    "Pages with etymon",
+    "Rhymes:English/əʊ",
+    "Rhymes:English/əʊ/2 syllables",
+    "Terms with Albanian translations",
+    "Terms with Arabic translations",
+    "Terms with Armenian translations",
+    "Terms with Asturian translations",
+    "Terms with Azerbaijani translations",
+    "Terms with Bashkir translations",
+    "Terms with Basque translations",
+    "Terms with Belarusian translations",
+    "Terms with Bulgarian translations",
+    "Terms with Cantonese translations",
+    "Terms with Catalan translations",
+    "Terms with Cornish translations",
+    "Terms with Czech translations",
+    "Terms with Danish translations",
+    "Terms with Dutch translations",
+    "Terms with Egyptian Arabic translations",
+    "Terms with Esperanto translations",
+    "Terms with Estonian translations",
+    "Terms with Finnish translations",
+    "Terms with French translations",
+    "Terms with Galician translations",
+    "Terms with Georgian translations",
+    "Terms with German translations",
+    "Terms with Greek translations",
+    "Terms with Haitian Creole translations",
+    "Terms with Hebrew translations",
+    "Terms with Hindi translations",
+    "Terms with Hungarian translations",
+    "Terms with Icelandic translations",
+    "Terms with Indonesian translations",
+    "Terms with Ingrian translations",
+    "Terms with Irish translations",
+    "Terms with Italian translations",
+    "Terms with Japanese translations",
+    "Terms with Khmer translations",
+    "Terms with Korean translations",
+    "Terms with Ladino translations",
+    "Terms with Lao translations",
+    "Terms with Latin translations",
+    "Terms with Latvian translations",
+    "Terms with Lower Sorbian translations",
+    "Terms with Malay translations",
+    "Terms with Malayalam translations",
+    "Terms with Maltese translations",
+    "Terms with Mandarin translations",
+    "Terms with Mongolian translations",
+    "Terms with Norwegian Bokmål translations",
+    "Terms with Norwegian Nynorsk translations",
+    "Terms with Occitan translations",
+    "Terms with Old English translations",
+    "Terms with Persian translations",
+    "Terms with Polish translations",
+    "Terms with Portuguese translations",
+    "Terms with Romanian translations",
+    "Terms with Russian translations",
+    "Terms with Scots translations",
+    "Terms with Scottish Gaelic translations",
+    "Terms with Serbo-Croatian translations",
+    "Terms with Slovak translations",
+    "Terms with Slovene translations",
+    "Terms with Spanish translations",
+    "Terms with Swedish translations",
+    "Terms with Thai translations",
+    "Terms with Tibetan translations",
+    "Terms with Turkish translations",
+    "Terms with Ukrainian translations",
+    "Terms with Uzbek translations",
+    "Terms with Vietnamese translations",
+    "Terms with Welsh translations",
+    "Terms with West Frisian translations",
+    "en:Time",
+    "yo:Body parts"
+   ]
   }
  ]
 }

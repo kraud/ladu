@@ -16,6 +16,7 @@
 
 import type { CaseSelector, FormSelector, LexiconEntry } from '../select';
 const { selectForm }: typeof import('../select') = require('../select');
+const { conjunctionSelectors, prepositionSelectors }: typeof import('./functionWords') = require('./functionWords');
 
 /**
  * `class` alternations that only change the SPELLING (buscar → busqué, llegar → llegué) or only add
@@ -164,3 +165,7 @@ export const VERB_SELECTORS_ES: CaseSelector[] = [
     ...tense('imperative', ['imperative'], PERSONS.filter(([slot]) => slot === '2s'), ['formal']),
     ...tense('imperative', ['imperative'], PERSONS.filter(([slot]) => slot !== '1s' && slot !== '2s')),
 ];
+
+/** Conjunctions and adpositions (conjunctions-and-prepositions plan, slice 3b); see selectors/functionWords.ts. */
+export const CONJUNCTION_SELECTORS_ES: CaseSelector[] = conjunctionSelectors('ES');
+export const PREPOSITION_SELECTORS_ES: CaseSelector[] = prepositionSelectors('ES'); // Spanish prepositions govern no case

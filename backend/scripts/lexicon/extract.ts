@@ -8,6 +8,9 @@
  *
  * Kept fields: word, pos, tags, forms (form + tags), senses (tags, form_of words, first
  * gloss), and translations for English entries only (Slice 0 step 0e measures them).
+ * Conjunctions and adpositions (`conj`, `prep`, `postp`) also keep `categories`, on the entry and on
+ * each sense: that is where Wiktionary says "German prepositions governing the dative" or
+ * "German subordinating conjunctions" (conjunctions-and-prepositions plan, slice 3b).
  *
  *   cd backend && npx tsx scripts/lexicon/extract.ts
  */
@@ -20,7 +23,11 @@ type LangCode = import('./common').LangCode;
 
 const LANG_PREFILTER = /"lang_code":\s*"(en|es|de|et)"/;
 
+/** The kaikki parts of speech whose `categories` the selectors read. Kept only for these: the field is large. */
+const KEEP_CATEGORIES_FOR = new Set(['conj', 'prep', 'postp']);
+
 function trim(entry: any): object {
+    const withCategories = KEEP_CATEGORIES_FOR.has(entry.pos);
     const trimmed: any = {
         word: entry.word,
         pos: entry.pos,
@@ -30,7 +37,9 @@ function trim(entry: any): object {
             tags: s.tags,
             form_of: s.form_of?.map((f: any) => f.word),
             gloss: s.glosses?.[0],
+            ...(withCategories ? { categories: s.categories } : {}),
         })),
+        ...(withCategories ? { categories: entry.categories } : {}),
     };
     if (entry.lang_code === 'en' && entry.translations) {
         trimmed.translations = entry.translations

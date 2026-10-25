@@ -37,6 +37,9 @@ export const AUTOCOMPLETE_REGISTRY: Partial<Record<Lang, Partial<Record<PartOfSp
         // Slice H3: adjectives and adverbs come from the lexicon only (no library behind them).
         [PartOfSpeech.adjective]: { queryFieldName: 'positive' },
         [PartOfSpeech.adverb]: { queryFieldName: 'adverb' },
+        // Slice 3b of the conjunctions-and-prepositions plan: the lexicon only.
+        [PartOfSpeech.conjunction]: { queryFieldName: 'conjunction' },
+        [PartOfSpeech.preposition]: { queryFieldName: 'preposition' },
         // English has no stored infinitive case — `simplePresent1s` doubles as the query (D#: see Outcome).
         [PartOfSpeech.verb]: { queryFieldName: 'simplePresent1s' },
         // Slice C2: English nouns from the lexicon (the plural); no library behind them.
@@ -47,12 +50,16 @@ export const AUTOCOMPLETE_REGISTRY: Partial<Record<Lang, Partial<Record<PartOfSp
         // (M/F) or the neutral singular (Neutral), whichever the card shows.
         [PartOfSpeech.adjective]: { queryFieldName: 'maleSingular', alternativeQueryFieldNames: ['neutralSingular'] },
         [PartOfSpeech.adverb]: { queryFieldName: 'adverb' },
+        [PartOfSpeech.conjunction]: { queryFieldName: 'conjunction' },
+        [PartOfSpeech.preposition]: { queryFieldName: 'preposition' },
         [PartOfSpeech.verb]: { queryFieldName: 'infinitiveNonFiniteSimple' },
         [PartOfSpeech.noun]: { queryFieldName: 'singular' },
     },
     [Lang.DE]: {
         [PartOfSpeech.adjective]: { queryFieldName: 'positive' },
         [PartOfSpeech.adverb]: { queryFieldName: 'adverb' },
+        [PartOfSpeech.conjunction]: { queryFieldName: 'conjunction' },
+        [PartOfSpeech.preposition]: { queryFieldName: 'preposition' },
         [PartOfSpeech.verb]: { queryFieldName: 'infinitive' },
         [PartOfSpeech.noun]: { queryFieldName: 'singularNominativ' },
     },

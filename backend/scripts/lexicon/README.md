@@ -11,14 +11,14 @@ The scripts run on a developer machine, never on the VPS.
 ```sh
 cd backend
 npx tsx scripts/lexicon/download.ts   # ~3 GB download; skips files that exist (--force to refresh)
-npx tsx scripts/lexicon/extract.ts    # streams the dump once → kaikki-<lang>.jsonl (en, es, de, et)
+npx tsx scripts/lexicon/extract.ts    # streams the dump once → kaikki-<lang>.jsonl (en, es, de, et); keeps `categories` for conj/prep/postp entries
 npx tsx scripts/lexicon/sample.ts     # frequency list → ranked lemmas per part of speech → sample-<lang>.json
 ```
 
 ## Building and loading the lexicon (Slice B)
 
 ```sh
-npx tsx scripts/lexicon/ingest.ts de              # → .data/out/lexicon-de-<kaikki date>.jsonl.gz (nouns, verbs, adjectives, adverbs; de ~3.5 MB / 88k, es ~3.3 MB / 109k, en ~13 MB / 611k lexemes)
+npx tsx scripts/lexicon/ingest.ts de              # → .data/out/lexicon-de-<kaikki date>.jsonl.gz (nouns, verbs, adjectives, adverbs, conjunctions, prepositions; de ~3.5 MB / 88k, es ~3.3 MB / 109k, en ~13 MB / 611k lexemes)
 node scripts/lexicon/load.js <file>               # replaces that language's rows in the DATABASE_URL database, in one transaction
 node scripts/lexicon/load.js <file> --if-empty    # only if the language has no rows yet (test / e2e databases). It checks per LANGUAGE: a local
                                                     # database that has old German rows skips a new fixture — run load.js without the flag there.

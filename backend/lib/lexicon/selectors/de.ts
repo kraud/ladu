@@ -12,6 +12,7 @@
 
 import type { CaseSelector, FormSelector, LexiconEntry } from '../select';
 const { selectForm, senseTags }: typeof import('../select') = require('../select');
+const { conjunctionSelectors, prepositionSelectors, governedCaseDE}: typeof import('./functionWords') = require('./functionWords');
 
 const GENDER_ARTICLE: Record<string, string> = { masculine: 'der', feminine: 'die', neuter: 'das' };
 
@@ -201,4 +202,11 @@ export const VERB_SELECTORS_DE: CaseSelector[] = [
     ...tense('indicativePerfect', ['perfect', 'multiword-construction'], COMPOUND),
     ...tense('indicativeSimpleFuture', ['future-i', 'multiword-construction'], COMPOUND),
     ...tense('indicativeSimplePast', ['preterite'], SIMPLE),
+];
+
+/** Conjunctions and adpositions (conjunctions-and-prepositions plan, slice 3b); see selectors/functionWords.ts. */
+export const CONJUNCTION_SELECTORS_DE: CaseSelector[] = conjunctionSelectors('DE');
+export const PREPOSITION_SELECTORS_DE: CaseSelector[] = [
+    ...prepositionSelectors('DE'),
+    { kind: 'property', caseName: 'governedCaseDE', extract: governedCaseDE },
 ];

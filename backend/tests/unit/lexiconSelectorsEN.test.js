@@ -4,7 +4,7 @@
  * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0c.
  */
 const { selectCases } = require('../../lib/lexicon/select');
-const { NOUN_SELECTORS_EN, VERB_SELECTORS_EN, ADJECTIVE_SELECTORS_EN, ADVERB_SELECTORS_EN } = require('../../lib/lexicon/selectors/en');
+const { NOUN_SELECTORS_EN, VERB_SELECTORS_EN, ADJECTIVE_SELECTORS_EN, ADVERB_SELECTORS_EN, CONJUNCTION_SELECTORS_EN, PREPOSITION_SELECTORS_EN } = require('../../lib/lexicon/selectors/en');
 const { entries } = require('./fixtures/lexicon-en.json');
 
 const entry = (word) => entries.find((e) => e.word === word);
@@ -101,5 +101,25 @@ describe('English adjective and adverb selectors', () => {
 
     test('an adverb with no degree form gets no radio value: the lexicon does not prove it is non-gradable', () => {
         expect(Object.fromEntries(selectCases({ word: 'sometimes', pos: 'adv', forms: [] }, ADVERB_SELECTORS_EN))).toEqual({ adverbEN: 'sometimes' });
+    });
+});
+
+describe('English conjunction and preposition selectors', () => {
+    const find = (word, pos) => entries.find((e) => e.word === word && e.pos === pos);
+    const conjunction = (word) => Object.fromEntries(selectCases(find(word, 'conj'), CONJUNCTION_SELECTORS_EN));
+    const preposition = (word, pos = 'prep') => Object.fromEntries(selectCases(find(word, pos), PREPOSITION_SELECTORS_EN));
+
+    test('a conjunction Wiktionary marks as subordinating gets the type', () => {
+        expect(conjunction('because')).toEqual({ conjunctionEN: 'because', conjunctionTypeEN: 'Subordinating' });
+        expect(conjunction('although')).toEqual({ conjunctionEN: 'although', conjunctionTypeEN: 'Subordinating' });
+    });
+
+    test('"neither … nor" (an ellipsis headword) fills the first part, the box and the second part, but no type', () => {
+        expect(conjunction('neither … nor')).toEqual({ conjunctionEN: 'neither', correlativeEN: 'true', secondPartEN: 'nor' });
+    });
+
+    test('a preposition gets the word and "Before the noun"; an English postposition ("ago") gets "After the noun"', () => {
+        expect(preposition('in')).toEqual({ prepositionEN: 'in', positionEN: 'Before the noun' });
+        expect(preposition('ago', 'postp')).toEqual({ prepositionEN: 'ago', positionEN: 'After the noun' });
     });
 });

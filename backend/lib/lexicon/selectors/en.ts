@@ -11,6 +11,7 @@
 
 import type { CaseSelector, FormSelector, LexiconEntry } from '../select';
 const { selectForm, senseTags }: typeof import('../select') = require('../select');
+const { conjunctionSelectors, prepositionSelectors }: typeof import('./functionWords') = require('./functionWords');
 
 const NOT_FINITE = ['participle', 'subjunctive', 'imperative', 'infinitive'];
 
@@ -116,4 +117,9 @@ export const VERB_SELECTORS_EN: CaseSelector[] = [
     ...SLOTS.map(([slot, tags]) => past(slot, tags)),
     ...SLOTS.map(([slot]) => bareVerb(`simpleFuture${slot}EN`)),
     ...SLOTS.map(([slot]) => bareVerb(`simpleConditional${slot}EN`)),
+];
+
+/** Conjunctions and adpositions (conjunctions-and-prepositions plan, slice 3b); see selectors/functionWords.ts. */
+export const CONJUNCTION_SELECTORS_EN: CaseSelector[] = conjunctionSelectors('EN');
+export const PREPOSITION_SELECTORS_EN: CaseSelector[] = [...prepositionSelectors('EN')
 ];

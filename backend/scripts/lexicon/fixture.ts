@@ -21,7 +21,9 @@ async function main(): Promise<void> {
         const key = `${entry.word}|${entry.pos}`;
         if (!wanted.has(key) || wanted.get(key) !== null) continue;
         if (!(entry.senses ?? []).some((sense: any) => !sense.form_of)) continue;
-        wanted.set(key, { ...entry, senses: entry.senses.map((sense: any) => ({ tags: sense.tags })), translations: undefined });
+        // Senses are reduced to their tags; conjunctions and adpositions also keep the sense categories (extract.ts).
+        const keepCategories = ['conj', 'prep', 'postp'].includes(entry.pos);
+        wanted.set(key, { ...entry, senses: entry.senses.map((sense: any) => ({ tags: sense.tags, ...(keepCategories && sense.categories ? { categories: sense.categories } : {}) })), translations: undefined });
     }
 
     const missing = [...wanted].filter(([, entry]) => entry === null).map(([key]) => key);

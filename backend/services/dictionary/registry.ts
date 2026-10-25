@@ -44,6 +44,9 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         // Slice H2: no library exists for adjectives and adverbs, so the lexicon alone (a miss is not-found).
         Adjective: lexiconAdapter('English', 'Adjective'),
         Adverb: lexiconAdapter('English', 'Adverb'),
+        // Slice 3b of the conjunctions-and-prepositions plan: the lexicon alone, like adjectives and adverbs.
+        Conjunction: lexiconAdapter('English', 'Conjunction'),
+        Preposition: lexiconAdapter('English', 'Preposition'),
     },
     // Slice C1: the same chain as German.
     Spanish: {
@@ -51,6 +54,8 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Noun: lexiconFirst(lexiconAdapter('Spanish', 'Noun'), generators.spanishNoun),
         Adjective: lexiconAdapter('Spanish', 'Adjective'),
         Adverb: lexiconAdapter('Spanish', 'Adverb'),
+        Conjunction: lexiconAdapter('Spanish', 'Conjunction'),
+        Preposition: lexiconAdapter('Spanish', 'Preposition'),
     },
     // Slice B2: the local lexicon first, the library as a `partial` fallback.
     German: {
@@ -58,6 +63,8 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Noun: lexiconFirst(lexiconAdapter('German', 'Noun'), generators.germanNoun),
         Adjective: lexiconAdapter('German', 'Adjective'),
         Adverb: lexiconAdapter('German', 'Adverb'),
+        Conjunction: lexiconAdapter('German', 'Conjunction'),
+        Preposition: lexiconAdapter('German', 'Preposition'),
     },
     // Slice D2: Eesthetic in the lexicon first, then Ekilex — a real dictionary, so its answers stay
     // `found`. Adjectives: Eesthetic has (almost) none, so Ekilex only.
