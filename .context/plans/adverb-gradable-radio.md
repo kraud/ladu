@@ -125,9 +125,9 @@ Prefix rule (decision Q6). For each language, the autocomplete:
 - Add an e2e spec step: pick "Non-gradable" in EN, ES and EE, and check that the degree fields disappear. `npm run test:e2e` must be green.
 - The user reviews the new ES, DE and EE strings (the error messages for the required radio).
 
-## After the plan is done, before or at the merge to main
+## Before or at the merge of the branch to main (the branch gets more features after this plan)
 
-Reminders from slices 2 and 3. Do not forget them. Remind the user when the plan is ready to merge.
+Reminders from slices 2 and 3. Do not forget them. Remind the user when the branch is ready to merge.
 
 - [ ] **Rebuild and load the lexicon** in staging and production for English, Spanish and German. The selectors run at ingest time, so the new adverb values (radio, "more/most", "más") reach the autocomplete only after the rebuild. Local dev was done on 2026-10-24. Use `ingest.ts <lang>` and `load.js` (VPS: `docker exec backend-<env> node scripts/lexicon/load.js /tmp/<file>`).
 - [ ] **Reseed the demo template** per environment, so the 2 demo adverbs get their new values. The demo rollout needs this anyway.

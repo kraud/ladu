@@ -1,0 +1,135 @@
+# Plan: Conjunctions and prepositions in Ladu (+ a reusable "add a part of speech" guide)
+
+Status: plan agreed on 2026-10-24. Slice 0 done. Slice 1 next.
+
+## How to start (read this first in a new session)
+
+1. Read `CLAUDE.md` and `.context/README.md`. Follow the working rules: one small slice at a time, a plain-language overview **before** any file change, ask before assuming, docs and tests with the code. The user runs `git commit` themselves. Suggest a commit message after each slice.
+2. Read `.context/guides/add-part-of-speech.md`. It is the checklist for this work.
+3. Do the slices in order. After each slice: run its checks, tick the **Progress** list with the date, and suggest a commit message.
+
+## Progress
+
+- [x] Slice 0 (2026-10-24) — Docs: the process guide, this plan file, the README index
+- [ ] Slice 1 — Conjunction form (frontend + backend property rules)
+- [ ] Slice 2 — Preposition form
+- [ ] Slice 3 — Autocomplete (lemma, and the properties that are clear)
+- [ ] Slice 4 — e2e spec, snapshot docs, review of ES/DE/EE strings
+
+## Review log
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| - | - | None yet. | - |
+
+## Context
+
+`.other/other-words-temp.md` lists words that the form engine cannot store today: 9 conjunctions (weil, wenn, obwohl, sondern, denn, sowohl, weder, weder–noch, entweder–oder) and 4 prepositions (nach, wegen, zufolge, laut). The user wants forms for these two parts of speech (PoS) in EN, ES, DE and EE. Indefinite pronouns are out of scope.
+
+The user also wants a process document, so that the next new PoS (or a new field such as the adverb radio) starts from a checklist and not from scratch.
+
+Facts checked in the code (2026-10-24):
+- `PartOfSpeech.preposition` and `.conjunction` already exist (`frontend/src/ts/enums.ts:498-499`), with labels and table abbreviations in all four locales. The /addWord selector shows them as disabled (`PartOfSpeechSelector.tsx:21-26`, `SHIPPED_POS`).
+- `words.part_of_speech` is `varchar` (`backend/src/db/schema.ts:367`). **No migration.**
+- The form engine already has every field kind we need: `text`, `radio`, `checkbox`, `select`, `multi-select` (with `encode`/`decode`, used by German verb cases `verbs.ts:283-308`), `toggle`, `visibleWhen` (+`invert`), `derivedWhen`, `layout`.
+- No exercises exist for adjectives and adverbs either (`catalogue.ts:76-121`). The new PoS follow that: stored, searchable, counted in stats, no exercise yet.
+
+## Research result (with sources)
+
+### Is the "applies to Estonian too" assumption correct?
+
+- **Conjunctions (sidesõnad): yes.** Estonian has coordinating (ja, ning, aga, kuid, ega, või, vaid) and subordinating (et, sest, kuna, kui, kuigi, ehkki, kuni) conjunctions, and correlative pairs (nii … kui ka, ega … ega, kas … või, mitte … vaid). They do not inflect. (EKI teatmik "Sõnaliigid"; UD Estonian SCONJ/CCONJ.) Difference: Estonian has no fixed verb-final rule like German and no mood choice like Spanish.
+- **Prepositions: only partly.** Estonian uses **adpositions (kaassõnad)**. Most are **postpositions** (laua all, maja sees, tunni pärast). Prepositions are few (enne, keset, piki, ilma, kuni). Some are both, and then the case changes with the position: *pärast sööki* (prep + partitive) / *kolme tunni pärast* (postp + genitive); also mööda, üle, ümber, läbi. Many spatial adpositions have a **three-form series**: where to / where / where from (*sisse : sees : seest*, *alla : all : alt*, *ette : ees : eest*). (EKI teatmik; Taskutark "Kaassõnad"; EKI käsiraamat.)
+- So the PoS stays `Preposition` in the code, but the Estonian label is "Kaassõna" and the Estonian form has a position radio. German also has a few postpositions (zufolge, gegenüber; entlang both), so German gets the same radio.
+
+### Fields per language (recommended)
+
+Common rule: one required text field for the word itself. Multi-word entries are allowed ("because of", "a causa de", "con tal de que").
+
+**Conjunction**
+
+| Field | EN | ES | DE | EE | Kind |
+|---|---|---|---|---|---|
+| word (`conjunction{L}`) | ✓ | ✓ | ✓ | ✓ | text, required |
+| type (`conjunctionType{L}`): Coordinating / Subordinating | ✓ | ✓ | ✓ | ✓ | radio, required |
+| paired (`correlative{L}`) | ✓ | ✓ | ✓ | ✓ | checkbox |
+| second part (`secondPart{L}`): nor / ni / noch / ega | ✓ | ✓ | ✓ | ✓ | text, visible when paired is on, required then |
+| mood (`mood ES`): Indicative / Subjunctive / Depends on meaning | – | ✓ | – | – | select, visible when Subordinating |
+
+Why: German word order follows from the type (subordinating → verb at the end; coordinating → no change; *denn* is coordinating), so DE needs no extra field — the form shows a short hint. Spanish *para que* always takes the subjunctive, *cuando/aunque* depend on meaning, *porque* takes the indicative. EN and EE have no grammatical effect to record.
+
+**Preposition (adposition)**
+
+| Field | EN | ES | DE | EE | Kind |
+|---|---|---|---|---|---|
+| word (`preposition{L}`) | ✓ | ✓ | ✓ | ✓ | text, required |
+| position (`position{L}`): Before the noun / After the noun / Both | ✓ | ✓ | ✓ | ✓ | radio, required (Q3: EN "ago", "notwithstanding") |
+| governed case DE (`governedCaseDE`): Accusative, Dative, Genitive | – | – | ✓ | – | multi-select (two-way = A+D, laut = G+D) |
+| governed case EE, before the noun (`governedCasePreEE`) | – | – | – | ✓ | select (Genitive, Partitive, Elative, Comitative, Terminative, Abessive, other) — visible for Before/Both |
+| governed case EE, after the noun (`governedCasePostEE`) | – | – | – | ✓ | select, same options — visible for After/Both |
+| spatial series EE (`spatialSeriesEE` checkbox + `latEE` / `ablEE` text): where to / where from | – | – | – | ✓ | checkbox reveals two fields in a row with the main word (sees) in the middle |
+| DE contractions: checkbox `contractsDE` ("Contracts with the article") reveals `withDemDE` (zum, im, am, vom, beim), `withDerDE` (zur), `withDasDE` (ins, ans, aufs) | – | – | ✓ | – | checkbox + 3 optional text fields in one row (Q3) |
+
+EN and ES prepositions do not govern a case on the noun (ES *a+el = al*, *de+el = del* is a general rule, not per word). ES needs no extra field.
+
+## Decisions from the user (2026-10-24)
+
+- **Q1.** Paired conjunctions: a "Paired" checkbox reveals a required "second part" field ("weder" + "noch").
+- **Q2.** The conjunction type radio is required in all four languages.
+- **Q3.** Preposition extras: the EE spatial series, the DE article contractions, and the position radio in **all four** languages.
+- **Q4.** Scope: slices 0–4 (guide, two forms, autocomplete, e2e). Exercises, onboarding pool and demo template are deferred.
+
+Open, to confirm in the slice overview (not blocking): ES *al/del* is the only Spanish contraction; no field (a general rule). Contraction fields are written forms, not properties — only `contracts*` goes to `PROPERTY_PREFIXES`.
+
+## Approach
+
+### Slices (one at a time; each ends runnable, tested, with a suggested commit message)
+
+**Slice 0 — Docs first: the process guide and the plan file.**
+- New `.context/guides/add-part-of-speech.md`: the reusable checklist (see "Process guide" below).
+- New `.context/plans/conjunctions-prepositions.md`: this plan, with Progress list, decisions Q1…, review log table (same shape as `adverb-gradable-radio.md`).
+- Add both to the spec index in `.context/README.md`.
+
+**Slice 1 — Conjunction form (frontend + backend property rules).**
+- `frontend/src/ts/enums.ts`: new `ConjunctionCases` enum (`<role><LANG>` naming, like `AdverbCases:44-74`). Add it to `CaseName` (`configs/types.ts:4`) and the five hand-written unions in `ts/interfaces.ts`.
+- New `configs/conjunctions.ts` + test, built like `configs/adverbs.ts` (helpers `labelKey`, `errorKey`, one builder per language). Register in `configs/index.ts` (`getFormConfig`) and `configs/coverage.ts` (`ALL_POS`, `CONFIGS_BY_POS:23-24`).
+- Ship the PoS: `PartOfSpeechSelector.tsx` `SHIPPED_POS`, `review/FilterBar.tsx:26-32`, `metrics/selectors.ts:26-32` `CREATABLE_POS`, `chartColors.ts:11-16`, `practice/params.ts:17-22` (selectable, no exercises — reuse `onlyPartsWithoutExercises`), `StartFromWord.tsx:42` only when autocomplete exists.
+- Locales (4 files): `wordForm.conjunction.{fields,errors.form{EN,ES,DE,EE}}`, real copy for `partOfSpeechSelector.description.conjunction`, `practice.json:83,89` wording.
+- Backend: `wordController.ts:127-219` `getRequiredFieldsData` (primary case per language); `lib/wordSort.ts:26-29`; `services/exercises/validate.ts:10` + `types.ts:10`.
+- Property cases: **refactor once** so one list rules everything — export `PROPERTY_PREFIXES` from `services/exercises/catalogue.ts:124` and build the `not ilike` filters in `wordController.ts:412-424` and `:1059-1082` from it. Add `conjunctionType`, `correlative`, `mood`. Regression test: `secondPart*` is a written form, `conjunctionType*` is a property.
+- Tests: config field lists, live show/hide (paired → second part; subordinating → ES mood), required checks, a backend round trip of a "weder – noch" word. Update `PartOfSpeechSelector.test.tsx:19`, `completion.test.ts:48-53`, `coverage.test.ts`.
+
+**Slice 2 — Preposition form.** Same pattern with `PrepositionCases` and `configs/prepositions.ts`. German `governedCase` reuses the `multi-select` + `encode`/`decode` of `verbs.ts:283-308`. Position radio in all four languages. EE position drives the two case selects; EE spatial checkbox reveals the row (`layout`, like the EE adverb degree row). DE contractions checkbox reveals the three-field row. Property prefixes: `position`, `governedCase`, `spatialSeries`, `contracts`. Check that `withDem*`, `lat*`, `abl*` start with no property prefix. Estonian PoS label "Kaassõna" in `ee/common.json`.
+
+**Slice 3 — Autocomplete (lemma only + a few properties).** Lexicon has lemmas only (`autocomplete-coverage-report.md:334-369`: DE 99 prep / 67 conj, EN 143/70, ES 39/32).
+- `scripts/lexicon/ingest.ts:31-34,137`: selectors for `prep`/`conj` in `selectors/{en,es,de}.ts`, add to `keepLemmaOnly`. `registry.ts:39-71`: lexicon adapters. `lib/lexicon/translations.ts:13` `TRANSLATION_POS` + `prep`/`conj` so "Start from a word" works; `services/dictionary/translate.ts:31`.
+- German governed case from kaikki tags/senses ("with dative") — verify in the data first; fill only when the tag is clear.
+- Estonian via Ekilex (`services/dictionary/eki.ts:242-251`): verify the Ekilex PoS codes for conjunction / pre- / postposition before coding; fill the position radio from them. Update `tests/dictionary.test.js:301` (`ja` is no longer "not found" for Conjunction).
+- `AUTOCOMPLETE_REGISTRY` (`autocomplete/transforms.ts:35-68`), `StartFromWord.tsx:42`.
+
+**Slice 4 — e2e + string review.** One spec `e2e/tests/conjunctions-prepositions.spec.ts`: add "weder – noch / neither – nor / ni – ni / ega – ega", add "wegen / because of / a causa de / pärast", check the hidden/visible fields, check the word in `/words`. `npm run test:e2e` green. Update `.context/.frontend/snapshot/data-model.md` and a new `snapshot/forms-conjunctions-prepositions.md`. The user reviews ES/DE/EE strings.
+
+Out of scope (recorded in the plan as deferred): exercises for these PoS, onboarding pool (WordNet has no conj/prep, `word-lists.ts:47`), demo template, indefinite pronouns.
+
+### Process guide — `.context/guides/add-part-of-speech.md`
+
+Content (STE100 style):
+1. **Research template** per language: what does the word change in the sentence (case, word order, mood)? Does it inflect? Paired forms? Position? Sources to use (EKI, Duden, RAE, Wiktionary) and to avoid (AI learning sites).
+2. **Decide the fields**: rules — one required text field for the word; a property is a radio/select/checkbox; a dependent field uses `visibleWhen`; a derived field uses `derivedWhen` + `store`; ask the user about every required radio (it changes completion of old words).
+3. **Naming rules**: `<role><LANG>`; a property case name must start with a prefix in `PROPERTY_PREFIXES`; a written-form case name must not start with one (startsWith trap: `prefix…`).
+4. **Touchpoint checklist** (frontend, backend, lexicon, locales, docs, tests, e2e) — the file lists from this plan, with what to change.
+5. **What needs no change** (DB varchar, metrics, tags, admin) so nobody searches again.
+6. **Rollout reminders** (lexicon reload per env, demo reseed).
+Also link it from `CLAUDE.md` working rules? — no: link from `.context/README.md` only.
+
+## Verification
+
+- Frontend: `npm test -w frontend` and the typecheck/build (`npm run build`).
+- Backend: `npm test` (catalogue property test, word round trip, dictionary). Tests use `require('./request')`.
+- Manual: `npm run dev`, add each test word from `.other/other-words-temp.md` on `/addWord`.
+- e2e: `npm run test:e2e`; before it, no orphan backend on :5001 and no closed access gate.
+- Do not pipe test commands through `tail`/`head`.
+
+## Before merge
+
+- Reload the EN/ES/DE lexicon per environment after slice 3 (same reminder as the adverb plan).
