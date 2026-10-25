@@ -7,7 +7,7 @@
  * few fixed words; any other word has no entry, which the backend reports as `not-found`:
  *   GET /api/word/ids/{word}/eki/est   → [wordId]
  *   GET /api/paradigm/details/{wordId} → [{ wordClass, paradigmForms: [{ morphCode, value }] }]
- *   GET /api/word/details/{wordId}     → { lexemes: [{ pos }], wordRelationDetails: { level1WordRelationGroups } }
+ *   GET /api/word/details/{wordId}     → { lexemes: [{ pos, governments }], wordRelationDetails: { level1WordRelationGroups } }
  *                                         (part of speech + comparison relations komp/superl, decision D20)
  *   GET /api/meaning/search/{word}     → { results: [{ meaningWords: [{ wordValue, lang }] }] }
  * The `ekilex-api-key` header is not checked.
@@ -43,9 +43,14 @@ const WORDS: Record<string, [number, Paradigm]> = {
     // Slice G (draft with an Ekilex Estonian word): "lakk" is the Estonian word of the English noun "lake"
     // in the meaning below. Forms written by hand for the test, not copied from Ekilex.
     lakk: [108, { wordClass: 'noomen', paradigmForms: forms({ SgN: 'lakk', PlN: 'lakid', SgG: 'laki', PlG: 'lakkide', SgP: 'lakki', PlP: 'lakke', SgAdt: 'lakki' }) }],
+    // Conjunctions and adpositions (conjunctions-and-prepositions plan, slice 3a): word class "muutumatu", one form `ID`.
+    // The part-of-speech codes and the governments (question words) are Ekilex's real ones: see DETAILS.
+    kuigi: [109, { wordClass: 'muutumatu', paradigmForms: forms({ ID: 'kuigi' }) }],
+    sest: [110, { wordClass: 'muutumatu', paradigmForms: forms({ ID: 'sest' }) }],
+    pärast: [111, { wordClass: 'muutumatu', paradigmForms: forms({ ID: 'pärast' }) }],
     jooksma: [201, { wordClass: 'verb', paradigmForms: forms({ Sup: 'jooksma', Inf: 'joosta', IndPrSg1: 'jooksen', IndIpfSg1: 'jooksin', PtsPtPs: 'jooksnud' }) }],
 };
-type Details = { lexemes: { pos: { code: string }[] }[]; wordRelationDetails?: { level1WordRelationGroups: { groupTypeCode: string; members: { wordValue: string }[] }[] } };
+type Details = { lexemes: { pos: { code: string }[]; governments?: { value: string }[] }[]; wordRelationDetails?: { level1WordRelationGroups: { groupTypeCode: string; members: { wordValue: string }[] }[] } };
 const relations = (groups: Record<string, string[]>) => ({
     level1WordRelationGroups: Object.entries(groups).map(([groupTypeCode, words]) => ({ groupTypeCode, members: words.map((wordValue) => ({ wordValue })) })),
 });
@@ -59,6 +64,10 @@ const DETAILS: Record<number, Details> = {
     106: { lexemes: [{ pos: [{ code: 'adv' }] }] },
     107: { lexemes: [{ pos: [{ code: 'konj' }] }] },
     108: { lexemes: [{ pos: [{ code: 's' }] }] },
+    109: { lexemes: [{ pos: [{ code: 'adv' }] }, { pos: [{ code: 'konj' }] }] },
+    110: { lexemes: [{ pos: [{ code: 'konj' }] }] },
+    // "pärast": a postposition with the genitive ("mille") and a preposition with the partitive ("keda/mida").
+    111: { lexemes: [{ pos: [{ code: 'postp' }], governments: [{ value: 'mille' }] }, { pos: [{ code: 'prep' }], governments: [{ value: 'keda/mida' }] }, { pos: [{ code: 'adv' }] }] },
 };
 /**
  * English word → meanings, each with its Estonian words (for "search in English"). Since step F3 the

@@ -1,6 +1,6 @@
 # Plan: Conjunctions and prepositions in Ladu (+ a reusable "add a part of speech" guide)
 
-Status: plan agreed on 2026-10-24. Slices 0, 1, 2, 3a, 3b and 3c done. Slice 4 next.
+Status: plan agreed on 2026-10-24. All slices done (2026-10-25). Open: the user's review of the strings (see "Open at the end"), review-log items #5, #7 and #8, and the per-environment reload ("Before merge").
 
 ## How to start (read this first in a new session)
 
@@ -17,7 +17,7 @@ Status: plan agreed on 2026-10-24. Slices 0, 1, 2, 3a, 3b and 3c done. Slice 4 n
 - [x] Slice 3a (2026-10-25) — Estonian: Ekilex adapter for Conjunction and Preposition (word, position, governed case). Open: the Estonian e2e stub gets `kuigi` and `pärast` in slice 4
 - [x] Slice 3b (2026-10-25) — DE/EN/ES lexicon: `extract.ts` keeps categories, selectors for `conj`/`prep`/`postp`, `prep` + `postp` merged into one row, re-extracted, re-ingested, re-loaded locally. Staging and production still need the reload (see "Before merge")
 - [x] Slice 3c (2026-10-25) — Translations (`conj`/`prep`/`postp` in the translation file: 483 conjunction and 1,190 preposition rows), the translate/senses/sense/draft routes, the "Start from a word" part-of-speech list, and a pair split for ellipsis words. Staging and production need the translation file loaded too (see "Before merge")
-- [ ] Slice 4 — e2e spec, snapshot docs, review of ES/DE/EE strings
+- [x] Slice 4 (2026-10-25) — e2e spec `autocomplete-i-conjunctions-prepositions.spec.ts` (6 tests), the Ekilex stub words, snapshot docs (`forms-conjunctions-prepositions.md`, `data-model.md`), the string table. Full `npm run test:e2e`: 168 passed, 0 failed. Open: the user reviews `conjunctions-prepositions-strings.md`
 
 ## Review log
 
@@ -194,6 +194,12 @@ Method: one pass over the raw Wiktionary dump (`raw-wiktextract-data.jsonl.gz`, 
 | mood (ES) | – | – | none in the data | – |
 
 **Cost.** `extract.ts` must keep `categories` for these parts of speech (a re-extract of the 3 GB dump, about 2 minutes, then re-ingest and re-load per language). Estonian needs a live Ekilex adapter (no file). The translation file needs the `conj` and `prep` entries so "Start from a word" works.
+
+## Open at the end (2026-10-25)
+
+- [ ] The user reviews the ES, DE and EE strings: `conjunctions-prepositions-strings.md` (one table, all four languages side by side).
+- [ ] Review-log #5: check the Estonian case list against the EKI grammar. #7: decide whether a lexeme with both codes (`prep` + `postp`) keeps its case for both positions ("peale"). #8: add Adessive and Ablative to the Estonian case select, or not.
+- [ ] Before the merge to main: reload the EN/ES/DE lexicon and the translation file per environment (see "Before merge").
 
 ## Deferred ideas (another PR, not this one; agreed with the user 2026-10-25)
 
