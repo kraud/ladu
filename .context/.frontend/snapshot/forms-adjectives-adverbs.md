@@ -2,6 +2,16 @@
 
 Transcribed verbatim from the old React form components. Every form hydrates via `currentTranslationData.cases` (effect push-up), has a `currentCases` effect mapping field state → `WordItem[]` (each `.word` lowercased with `.toLowerCase()`), and renders through `TextInputFormWithHook` / `RadioGroupFormHook`. Each schema is resolved via `yupResolver(schema)` with `mode: "all"` (validates on every change, no submit).
 
+> **v2 differences (2026-10-24, plan `plans/adverb-gradable-radio.md`).** This file transcribes the **old** app. In v2:
+> - All four adverb forms start with the required "Gradable / Non-gradable" radio (`gradableEN/ES/DE/EE`). "Non-gradable" hides the comparative, the superlative and the checkbox. An old word without a value must get one before it can be saved.
+> - EN has the box `Uses "more" / "most"` (`periphrasticEN`): the comparative shows "more " + adverb and the superlative "most " + adverb, read-only.
+> - ES has the box `Uses "más"` (`periphrasticComparativeES`): the comparative shows "más " + adverb. The superlative is always typed.
+> - EE has the box "kõige" (`periphrasticSuperlativeEE`): the superlative shows "kõige " + comparative.
+> - A box stores `"true"`, **and** the derived text is stored too (`store: true` on the derivation), so search and practice see it.
+> - DE is unchanged: the fixed "am" adornment, and the superlative is stored without "am".
+> - Estonian adverbs exist (Slice H4); the "NO Estonian adverb form" notes below are about the old app.
+> - Autocomplete: "Gradable" only when a degree form exists. A missing form leaves the radio empty, in every language.
+
 Routing (`frontend/src/components/forms/WordFormSelector.tsx`) is keyed on `PartOfSpeech` then `Lang`:
 
 - `getPartOfSpeechForm()` (lines 33–52): `noun` → `getNounForm()`, `adjective` → `getAdjectiveForm()`, `adverb` → `getAdverbForm()`, `verb` → `getVerbForm()`, else `wordFormSelector.partOfSpeechNotAvailable`.

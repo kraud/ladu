@@ -4,7 +4,7 @@
  * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0c.
  */
 const { selectCases } = require('../../lib/lexicon/select');
-const { NOUN_SELECTORS_EN, VERB_SELECTORS_EN, ADJECTIVE_SELECTORS_EN, ADVERB_SELECTORS_EN } = require('../../lib/lexicon/selectors/en');
+const { NOUN_SELECTORS_EN, VERB_SELECTORS_EN, ADJECTIVE_SELECTORS_EN, ADVERB_SELECTORS_EN, CONJUNCTION_SELECTORS_EN, PREPOSITION_SELECTORS_EN } = require('../../lib/lexicon/selectors/en');
 const { entries } = require('./fixtures/lexicon-en.json');
 
 const entry = (word) => entries.find((e) => e.word === word);
@@ -80,7 +80,46 @@ describe('English adjective and adverb selectors', () => {
     });
 
     test('an adverb in -ly takes "more", another adverb takes -er', () => {
-        expect(adverb('quickly')).toEqual({ adverbEN: 'quickly', comparativeEN: 'more quickly', superlativeEN: 'most quickly' });
-        expect(adverb('fast')).toEqual({ adverbEN: 'fast', comparativeEN: 'faster', superlativeEN: 'fastest' });
+        // "more quickly / most quickly" is derived by the form's "Uses more / most" box, so only the box is sent.
+        expect(adverb('quickly')).toEqual({ gradableEN: 'Gradable', adverbEN: 'quickly', periphrasticEN: 'true' });
+        expect(adverb('fast')).toEqual({ gradableEN: 'Gradable', adverbEN: 'fast', comparativeEN: 'faster', superlativeEN: 'fastest' });
+    });
+
+    test('a "more" comparative with a one-word superlative keeps the typed text and leaves the box off', () => {
+        const mixed = { word: 'early', pos: 'adv', forms: [{ form: 'more early', tags: ['comparative'] }, { form: 'earliest', tags: ['superlative'] }] };
+        expect(Object.fromEntries(selectCases(mixed, ADVERB_SELECTORS_EN))).toEqual({
+            gradableEN: 'Gradable', adverbEN: 'early', comparativeEN: 'more early', superlativeEN: 'earliest',
+        });
+    });
+
+    test('the "more / most" check ignores case and spacing, but needs the adverb itself after the prefix', () => {
+        const spaced = { word: 'slowly', pos: 'adv', forms: [{ form: 'More  slowly', tags: ['comparative'] }, { form: 'most slowly', tags: ['superlative'] }] };
+        expect(Object.fromEntries(selectCases(spaced, ADVERB_SELECTORS_EN))).toMatchObject({ periphrasticEN: 'true' });
+        const other = { word: 'well', pos: 'adv', forms: [{ form: 'more wellness', tags: ['comparative'] }, { form: 'most well', tags: ['superlative'] }] };
+        expect(Object.fromEntries(selectCases(other, ADVERB_SELECTORS_EN)).periphrasticEN).toBeUndefined();
+    });
+
+    test('an adverb with no degree form gets no radio value: the lexicon does not prove it is non-gradable', () => {
+        expect(Object.fromEntries(selectCases({ word: 'sometimes', pos: 'adv', forms: [] }, ADVERB_SELECTORS_EN))).toEqual({ adverbEN: 'sometimes' });
+    });
+});
+
+describe('English conjunction and preposition selectors', () => {
+    const find = (word, pos) => entries.find((e) => e.word === word && e.pos === pos);
+    const conjunction = (word) => Object.fromEntries(selectCases(find(word, 'conj'), CONJUNCTION_SELECTORS_EN));
+    const preposition = (word, pos = 'prep') => Object.fromEntries(selectCases(find(word, pos), PREPOSITION_SELECTORS_EN));
+
+    test('a conjunction Wiktionary marks as subordinating gets the type', () => {
+        expect(conjunction('because')).toEqual({ conjunctionEN: 'because', conjunctionTypeEN: 'Subordinating' });
+        expect(conjunction('although')).toEqual({ conjunctionEN: 'although', conjunctionTypeEN: 'Subordinating' });
+    });
+
+    test('"neither … nor" (an ellipsis headword) fills the first part, the box and the second part, but no type', () => {
+        expect(conjunction('neither … nor')).toEqual({ conjunctionEN: 'neither', correlativeEN: 'true', secondPartEN: 'nor' });
+    });
+
+    test('a preposition gets the word and "Before the noun"; an English postposition ("ago") gets "After the noun"', () => {
+        expect(preposition('in')).toEqual({ prepositionEN: 'in', positionEN: 'Before the noun' });
+        expect(preposition('ago', 'postp')).toEqual({ prepositionEN: 'ago', positionEN: 'After the noun' });
     });
 });

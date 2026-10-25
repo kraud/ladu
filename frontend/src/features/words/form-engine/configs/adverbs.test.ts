@@ -1,8 +1,8 @@
 /**
  * Regression test: the config-driven field lists must equal the old
  * `AdverbForm{EN,ES,DE}` field lists transcribed verbatim in
- * `.context/.frontend/snapshot/forms-adjectives-adverbs.md`. The Estonian
- * adverb form is new (Slice H4) and is pinned here directly.
+ * `.context/.frontend/snapshot/forms-adjectives-adverbs.md`, plus the gradable radio and the
+ * periphrastic checkboxes added later. The Estonian adverb form is new (Slice H4) and is pinned here directly.
  */
 import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';
@@ -17,30 +17,50 @@ function visibleNames(fields: FieldConfig[], values: Record<string, unknown>): s
 }
 
 describe('getFormConfig(Adverb, lang) — old field-list parity', () => {
-    it('English: adverb*, comparative, superlative', () => {
+    it('English: gradable*, adverb*, comparative and superlative derived from the adverb while the stored checkbox is checked', () => {
         const config = getFormConfig(PartOfSpeech.adverb, Lang.EN)!;
-        expect(config.fields.map((f) => f.name)).toEqual(['adverb', 'comparative', 'superlative']);
+        expect(config.fields.map((f) => f.name)).toEqual(['gradable', 'adverb', 'comparative', 'superlative', 'periphrastic']);
+        expect(config.fields.find((f) => f.name === 'gradable')?.required).toBe(true);
         expect(config.fields.find((f) => f.name === 'adverb')?.required).toBe(true);
-        expect(config.fields.filter((f) => f.name !== 'adverb').every((f) => !f.required)).toBe(true);
+        expect(config.fields.filter((f) => ['comparative', 'superlative', 'periphrastic'].includes(f.name)).every((f) => !f.required)).toBe(true);
+        const derivation = (name: string) => {
+            const field = config.fields.find((f) => f.name === name);
+            return field?.kind === 'text' ? field.derivedWhen : undefined;
+        };
+        expect(derivation('comparative')).toEqual({ when: { field: 'periphrastic', equals: true }, prefix: 'more ', fromField: 'adverb', store: true });
+        expect(derivation('superlative')).toEqual({ when: { field: 'periphrastic', equals: true }, prefix: 'most ', fromField: 'adverb', store: true });
+        expect(isStoredCheckbox(config.fields.find((f) => f.name === 'periphrastic')!)).toBe(true);
     });
 
-    it('Spanish: adverb*, comparative, superlative', () => {
+    it('Spanish: gradable*, adverb*, a comparative derived from the adverb ("más"), a superlative that is always typed', () => {
         const config = getFormConfig(PartOfSpeech.adverb, Lang.ES)!;
-        expect(config.fields.map((f) => f.name)).toEqual(['adverb', 'comparative', 'superlative']);
+        expect(config.fields.map((f) => f.name)).toEqual(['gradable', 'adverb', 'comparative', 'superlative', 'periphrasticComparative']);
+        expect(config.fields.find((f) => f.name === 'gradable')?.required).toBe(true);
         expect(config.fields.find((f) => f.name === 'adverb')?.required).toBe(true);
-        expect(config.fields.filter((f) => f.name !== 'adverb').every((f) => !f.required)).toBe(true);
+        const comparative = config.fields.find((f) => f.name === 'comparative');
+        expect(comparative?.kind === 'text' && comparative.derivedWhen).toEqual({
+            when: { field: 'periphrasticComparative', equals: true },
+            prefix: 'más ',
+            fromField: 'adverb',
+            store: true,
+        });
+        const superlative = config.fields.find((f) => f.name === 'superlative');
+        expect(superlative?.kind === 'text' && superlative.derivedWhen).toBeUndefined();
+        expect(isStoredCheckbox(config.fields.find((f) => f.name === 'periphrasticComparative')!)).toBe(true);
     });
 
-    it('Estonian (new, H4): adverb*, comparative, a superlative derived from it while the stored checkbox is checked (D27)', () => {
+    it('Estonian (new, H4): gradable*, adverb*, comparative, a superlative derived and stored while the stored checkbox is checked (D27, Q9)', () => {
         const config = getFormConfig(PartOfSpeech.adverb, Lang.EE)!;
-        expect(config.fields.map((f) => f.name)).toEqual(['adverb', 'comparative', 'superlative', 'periphrasticSuperlative']);
+        expect(config.fields.map((f) => f.name)).toEqual(['gradable', 'adverb', 'comparative', 'superlative', 'periphrasticSuperlative']);
+        expect(config.fields.find((f) => f.name === 'gradable')?.required).toBe(true);
         expect(config.fields.find((f) => f.name === 'adverb')?.required).toBe(true);
-        expect(config.fields.filter((f) => f.name !== 'adverb').every((f) => !f.required)).toBe(true);
+        expect(config.fields.filter((f) => !['gradable', 'adverb'].includes(f.name)).every((f) => !f.required)).toBe(true);
         const superlative = config.fields.find((f) => f.name === 'superlative');
         expect(superlative?.kind === 'text' && superlative.derivedWhen).toEqual({
             when: { field: 'periphrasticSuperlative', equals: true },
             prefix: 'kõige ',
             fromField: 'comparative',
+            store: true,
         });
         expect(isStoredCheckbox(config.fields.find((f) => f.name === 'periphrasticSuperlative')!)).toBe(true);
     });
@@ -50,32 +70,31 @@ describe('getFormConfig(Adverb, lang) — old field-list parity', () => {
         expect(superlative?.adornment).toEqual({ text: 'am' });
     });
 
-    describe('German — gradable-branched visibility', () => {
-        const config = getFormConfig(PartOfSpeech.adverb, Lang.DE)!;
+    describe.each([
+        [Lang.EN, ['periphrastic']],
+        [Lang.ES, ['periphrasticComparative']],
+        [Lang.DE, []],
+        [Lang.EE, ['periphrasticSuperlative']],
+    ])('%s — gradable-branched visibility', (lang, checkbox) => {
+        const config = getFormConfig(PartOfSpeech.adverb, lang)!;
+        const all = ['gradable', 'adverb', 'comparative', 'superlative', ...checkbox];
 
-        it('the full config carries gradable*, adverb*, comparative, superlative', () => {
-            expect(config.fields.map((f) => f.name)).toEqual(['gradable', 'adverb', 'comparative', 'superlative']);
-            expect(config.fields.find((f) => f.name === 'gradable')?.required).toBe(true);
-            expect(config.fields.find((f) => f.name === 'adverb')?.required).toBe(true);
-            expect(config.fields.filter((f) => f.name === 'comparative' || f.name === 'superlative').every((f) => !f.required)).toBe(true);
+        it('everything is visible by default, before gradable is picked', () => {
+            expect(visibleNames(config.fields, { gradable: '' })).toEqual(all);
         });
 
-        it('comparative/superlative are visible by default, before gradable is picked', () => {
-            expect(visibleNames(config.fields, { gradable: '' })).toEqual(['gradable', 'adverb', 'comparative', 'superlative']);
+        it('everything stays visible once "Gradable" is picked', () => {
+            expect(visibleNames(config.fields, { gradable: 'Gradable' })).toEqual(all);
         });
 
-        it('comparative/superlative stay visible once "Gradable" is picked', () => {
-            expect(visibleNames(config.fields, { gradable: 'Gradable' })).toEqual(['gradable', 'adverb', 'comparative', 'superlative']);
-        });
-
-        it('comparative/superlative are hidden once "Non-gradable" is picked', () => {
+        it('only the radio and the adverb stay once "Non-gradable" is picked', () => {
             expect(visibleNames(config.fields, { gradable: 'Non-gradable' })).toEqual(['gradable', 'adverb']);
         });
     });
 
     it('every field.caseName is field.name + the language suffix', () => {
         const suffixes: Record<Lang, string> = { [Lang.EN]: 'EN', [Lang.ES]: 'ES', [Lang.DE]: 'DE', [Lang.EE]: 'EE' };
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
             const config = getFormConfig(PartOfSpeech.adverb, lang)!;
             for (const field of config.fields) {
                 expect(field.caseName).toBe(`${field.name}${suffixes[lang]}`);

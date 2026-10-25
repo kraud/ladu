@@ -23071,6 +23071,191 @@
    "senses": [
     {}
    ]
+  },
+  {
+   "word": "porque",
+   "pos": "conj",
+   "forms": [
+    {
+     "form": "xq",
+     "tags": [
+      "alternative",
+      "Internet"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "Pages using etymon with no ID",
+      "Pages with 4 entries",
+      "Pages with entries",
+      "Pages with etymology trees",
+      "Pages with etymon",
+      "Requests for translations of Spanish quotations",
+      "Rhymes:Spanish/oɾke",
+      "Rhymes:Spanish/oɾke/2 syllables",
+      "Spanish 2-syllable words",
+      "Spanish compound terms",
+      "Spanish conjunctions",
+      "Spanish entries with etymology texts",
+      "Spanish entries with etymology trees",
+      "Spanish entries with etymon",
+      "Spanish entries with incorrect language header",
+      "Spanish lemmas",
+      "Spanish terms derived from the Proto-Indo-European root *kʷ-",
+      "Spanish terms derived from the Proto-Indo-European root *per- (before)",
+      "Spanish terms derived from the Proto-Indo-European root *per- (fare)",
+      "Spanish terms derived from the Proto-Indo-European word *kʷís",
+      "Spanish terms with IPA pronunciation",
+      "Spanish terms with audio pronunciation",
+      "Spanish terms with quotations",
+      "Spanish terms with usage examples"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "para que",
+   "pos": "conj",
+   "senses": [
+    {
+     "categories": [
+      "Pages with 2 entries",
+      "Pages with entries",
+      "Requests for translations of Spanish quotations",
+      "Spanish conjunctions",
+      "Spanish entries with incorrect language header",
+      "Spanish lemmas",
+      "Spanish multiword terms",
+      "Spanish subordinating conjunctions",
+      "Spanish terms with IPA pronunciation",
+      "Spanish terms with quotations",
+      "Spanish terms with usage examples"
+     ]
+    }
+   ]
+  },
+  {
+   "word": "de",
+   "pos": "prep",
+   "forms": [
+    {
+     "form": "d'",
+     "tags": [
+      "alternative"
+     ]
+    },
+    {
+     "form": "d",
+     "tags": [
+      "alternative"
+     ]
+    }
+   ],
+   "senses": [
+    {
+     "categories": [
+      "Requests for translations of Spanish quotations",
+      "Spanish terms with quotations",
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish colloquialisms",
+      "Spanish terms with usage examples"
+     ]
+    },
+    {
+     "categories": [
+      "Spanish terms with usage examples"
+     ]
+    }
+   ],
+   "categories": [
+    "Pages with 106 entries",
+    "Pages with entries",
+    "Pages with etymology trees",
+    "Pages with etymon",
+    "Rhymes:Spanish/e",
+    "Rhymes:Spanish/e/1 syllable",
+    "Spanish 1-syllable words",
+    "Spanish entries with etymology texts",
+    "Spanish entries with etymology trees",
+    "Spanish entries with etymon",
+    "Spanish entries with incorrect language header",
+    "Spanish lemmas",
+    "Spanish prepositions",
+    "Spanish terms derived from Latin",
+    "Spanish terms derived from Old Spanish",
+    "Spanish terms derived from Proto-Indo-European",
+    "Spanish terms derived from Proto-Italic",
+    "Spanish terms derived from the Proto-Indo-European word *de",
+    "Spanish terms derived from the Proto-Indo-European word *déh₁",
+    "Spanish terms inherited from Latin",
+    "Spanish terms inherited from Old Spanish",
+    "Spanish terms inherited from Proto-Indo-European",
+    "Spanish terms inherited from Proto-Italic",
+    "Spanish terms with IPA pronunciation",
+    "Spanish terms with audio pronunciation",
+    "Spanish terms with homophones"
+   ]
   }
  ]
 }

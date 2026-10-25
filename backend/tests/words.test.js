@@ -511,6 +511,30 @@ describe('GET /api/words/searchWord - Search', () => {
         expect((await search('quejarse')).length).toBe(1);
     });
 
+    it('saves the gradable radio and the periphrastic checkbox of EN, ES and EE adverbs, and does not search them', async () => {
+        const create = await request(app).post('/api/words').set('Authorization', `Bearer ${token}`).send({
+            partOfSpeech: 'Adverb',
+            translations: [
+                { language: 'English', cases: [{ word: 'Gradable', caseName: 'gradableEN' }, { word: 'usually', caseName: 'adverbEN' }, { word: 'more usually', caseName: 'comparativeEN' }, { word: 'most usually', caseName: 'superlativeEN' }, { word: 'true', caseName: 'periphrasticEN' }] },
+                { language: 'Spanish', cases: [{ word: 'Non-gradable', caseName: 'gradableES' }, { word: 'ayer', caseName: 'adverbES' }] },
+                { language: 'Estonian', cases: [{ word: 'Gradable', caseName: 'gradableEE' }, { word: 'kiiresti', caseName: 'adverbEE' }, { word: 'kiiremini', caseName: 'comparativeEE' }, { word: 'kõige kiiremini', caseName: 'superlativeEE' }, { word: 'true', caseName: 'periphrasticSuperlativeEE' }] },
+            ],
+            tagIds: [],
+        });
+        expect(create.statusCode).toBe(200);
+        const casesOf = (body, language) => body.translations.find((tr) => tr.language === language).cases;
+        const wordOf = (cases, caseName) => cases.find((c) => c.caseName === caseName).word;
+        expect(wordOf(casesOf(create.body, 'English'), 'gradableEN')).toBe('Gradable');
+        expect(wordOf(casesOf(create.body, 'English'), 'periphrasticEN')).toBe('true');
+        expect(wordOf(casesOf(create.body, 'Spanish'), 'gradableES')).toBe('Non-gradable');
+        expect(wordOf(casesOf(create.body, 'Estonian'), 'gradableEE')).toBe('Gradable');
+
+        const search = async (query) => (await request(app).get(`/api/words/searchWord?query=${query}`).set('Authorization', `Bearer ${token}`)).body;
+        expect(await search('gradable')).toEqual([]);
+        expect(await search('true')).toEqual([]);
+        expect((await search('more usually')).length).toBe(1);
+    });
+
     it('returns empty for non-matching query', async () => {
         const res = await request(app)
             .get('/api/words/searchWord?query=xyznonexistent')

@@ -16,6 +16,9 @@ const esAdjectiveFields = getFormConfig(PartOfSpeech.adjective, Lang.ES)!.fields
 const deAdverbFields = getFormConfig(PartOfSpeech.adverb, Lang.DE)!.fields;
 const deVerbFields = getFormConfig(PartOfSpeech.verb, Lang.DE)!.fields;
 const eeVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EE)!.fields;
+const eePrepositionFields = getFormConfig(PartOfSpeech.preposition, Lang.EE)!.fields;
+const dePrepositionFields = getFormConfig(PartOfSpeech.preposition, Lang.DE)!.fields;
+const deConjunctionFields = getFormConfig(PartOfSpeech.conjunction, Lang.DE)!.fields;
 
 function Harness({
     lang,
@@ -39,7 +42,7 @@ function Harness({
 describe('AutocompleteRow', () => {
     it('renders nothing for a (language, PoS) pair with no lookup endpoint', () => {
         const { container } = renderWithProviders(
-            <Harness lang={Lang.EN} pos={PartOfSpeech.preposition} fields={[]} defaultValues={{}} />
+            <Harness lang={Lang.EN} pos={PartOfSpeech.pronoun} fields={[]} defaultValues={{}} />
         );
         expect(container).toBeEmptyDOMElement();
     });
@@ -377,6 +380,86 @@ describe('AutocompleteRow', () => {
             // The pronoun-case radio was hidden by "Not reflexive"; the lookup shows it first, then fills it.
             expect(screen.getByLabelText('reflexiveCase-probe')).toHaveValue('Both');
             expect(screen.getByLabelText('verbCases-probe')).toHaveValue('accusativeDE');
+        });
+
+        it('an Estonian preposition: the lookup sets the position first, so the case selects it shows are filled, even after "After the noun" was chosen', async () => {
+            const user = userEvent.setup();
+            const fake = makeAutocompleteHandlers({
+                estonianPreposition: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'prepositionEE', word: 'pärast' },
+                        { caseName: 'positionEE', word: 'Before or after the noun' },
+                        { caseName: 'governedCasePreEE', word: 'Partitive' },
+                        { caseName: 'governedCasePostEE', word: 'Genitive' },
+                    ],
+                },
+            });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe
+                    lang={Lang.EE}
+                    pos={PartOfSpeech.preposition}
+                    fields={eePrepositionFields}
+                    defaultValues={{ preposition: 'pärast', position: 'After the noun' }}
+                    names={['position', 'governedCasePre', 'governedCasePost']}
+                />
+            );
+
+            await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+            expect(fake.requests[0]).toMatchObject({ path: 'Estonian/Preposition', query: 'pärast' });
+            expect(screen.getByLabelText('position-probe')).toHaveValue('Before or after the noun');
+            expect(screen.getByLabelText('governedCasePre-probe')).toHaveValue('Partitive');
+            expect(screen.getByLabelText('governedCasePost-probe')).toHaveValue('Genitive');
+        });
+
+        it('a German preposition: the lookup fills the position radio and the governed cases (multi-select, "DG" = dative and genitive)', async () => {
+            const user = userEvent.setup();
+            const fake = makeAutocompleteHandlers({
+                germanPreposition: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'prepositionDE', word: 'wegen' },
+                        { caseName: 'positionDE', word: 'Before the noun' },
+                        { caseName: 'governedCaseDE', word: 'DG' },
+                    ],
+                },
+            });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe lang={Lang.DE} pos={PartOfSpeech.preposition} fields={dePrepositionFields} defaultValues={{ preposition: 'wegen' }} names={['position', 'governedCase']} />
+            );
+
+            await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+            expect(screen.getByLabelText('position-probe')).toHaveValue('Before the noun');
+            expect(screen.getByLabelText('governedCase-probe')).toHaveValue('dativeDE,genitiveDE');
+        });
+
+        it('a German pair conjunction: the lookup ticks "Paired" and fills the second part, which that box shows', async () => {
+            const user = userEvent.setup();
+            const fake = makeAutocompleteHandlers({
+                germanConjunction: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'conjunctionDE', word: 'sowohl' },
+                        { caseName: 'conjunctionTypeDE', word: 'Coordinating' },
+                        { caseName: 'correlativeDE', word: 'true' },
+                        { caseName: 'secondPartDE', word: 'als auch' },
+                    ],
+                },
+            });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe lang={Lang.DE} pos={PartOfSpeech.conjunction} fields={deConjunctionFields} defaultValues={{ conjunction: 'sowohl ... als auch' }} names={['conjunctionType', 'correlative', 'secondPart']} />
+            );
+
+            await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+            expect(screen.getByLabelText('conjunctionType-probe')).toHaveValue('Coordinating');
+            expect(screen.getByLabelText('correlative-probe')).toHaveValue('true');
+            expect(screen.getByLabelText('secondPart-probe')).toHaveValue('als auch');
         });
 
         it('German adverb: the lookup sets Gradable first, so comparative and superlative are filled even after Non-gradable was chosen', async () => {

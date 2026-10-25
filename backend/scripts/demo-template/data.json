@@ -385,16 +385,30 @@
       ],
       "translations": {
         "English": {
-          "adverbEN": "quickly"
+          "gradableEN": "Gradable",
+          "adverbEN": "quickly",
+          "comparativeEN": "more quickly",
+          "superlativeEN": "most quickly",
+          "periphrasticEN": "true"
         },
         "Spanish": {
-          "adverbES": "rápidamente"
+          "gradableES": "Gradable",
+          "adverbES": "rápidamente",
+          "comparativeES": "más rápidamente",
+          "periphrasticComparativeES": "true"
         },
         "German": {
-          "adverbDE": "schnell"
+          "gradableDE": "Gradable",
+          "adverbDE": "schnell",
+          "comparativeDE": "schneller",
+          "superlativeDE": "schnellsten"
         },
         "Estonian": {
-          "adverbEE": "kiiresti"
+          "gradableEE": "Gradable",
+          "adverbEE": "kiiresti",
+          "comparativeEE": "kiiremini",
+          "superlativeEE": "kõige kiiremini",
+          "periphrasticSuperlativeEE": "true"
         }
       }
     },
@@ -407,16 +421,28 @@
       ],
       "translations": {
         "English": {
-          "adverbEN": "often"
+          "gradableEN": "Gradable",
+          "adverbEN": "often",
+          "comparativeEN": "more often",
+          "superlativeEN": "most often",
+          "periphrasticEN": "true"
         },
         "Spanish": {
+          "gradableES": "Non-gradable",
           "adverbES": "a menudo"
         },
         "German": {
-          "adverbDE": "oft"
+          "gradableDE": "Gradable",
+          "adverbDE": "oft",
+          "comparativeDE": "öfter",
+          "superlativeDE": "öftesten"
         },
         "Estonian": {
-          "adverbEE": "sageli"
+          "gradableEE": "Gradable",
+          "adverbEE": "sageli",
+          "comparativeEE": "sagedamini",
+          "superlativeEE": "kõige sagedamini",
+          "periphrasticSuperlativeEE": "true"
         }
       }
     }

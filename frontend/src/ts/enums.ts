@@ -46,11 +46,17 @@ export enum AdverbCases {
     adverbEN = "adverbEN",
     comparativeEN = "comparativeEN",
     superlativeEN = "superlativeEN",
+    gradableEN = "gradableEN",
+    /** Stored checkbox: the comparative is "more " + adverb and the superlative "most " + adverb. */
+    periphrasticEN = "periphrasticEN",
 
     // SPANISH
     adverbES = "adverbES",
     comparativeES = "comparativeES",
     superlativeES = "superlativeES",
+    gradableES = "gradableES",
+    /** Stored checkbox: the comparative is "más " + adverb. */
+    periphrasticComparativeES = "periphrasticComparativeES",
 
     // GERMAN
     gradableDE = "gradableDE",
@@ -62,8 +68,73 @@ export enum AdverbCases {
     adverbEE = "adverbEE",
     comparativeEE = "comparativeEE",
     superlativeEE = "superlativeEE",
+    gradableEE = "gradableEE",
     /** Stored checkbox, same case name as the adjective's (D20, D27). */
     periphrasticSuperlativeEE = "periphrasticSuperlativeEE",
+}
+
+export enum ConjunctionCases {
+    // ENGLISH
+    conjunctionEN = "conjunctionEN",
+    /** Property: "Coordinating" or "Subordinating". */
+    conjunctionTypeEN = "conjunctionTypeEN",
+    /** Stored checkbox: the conjunction has a second part (neither ... nor). */
+    correlativeEN = "correlativeEN",
+    secondPartEN = "secondPartEN",
+
+    // SPANISH
+    conjunctionES = "conjunctionES",
+    conjunctionTypeES = "conjunctionTypeES",
+    correlativeES = "correlativeES",
+    secondPartES = "secondPartES",
+    /** Property: the verb mood the subordinate clause takes. */
+    moodES = "moodES",
+
+    // GERMAN
+    conjunctionDE = "conjunctionDE",
+    conjunctionTypeDE = "conjunctionTypeDE",
+    correlativeDE = "correlativeDE",
+    secondPartDE = "secondPartDE",
+
+    // ESTONIAN
+    conjunctionEE = "conjunctionEE",
+    conjunctionTypeEE = "conjunctionTypeEE",
+    correlativeEE = "correlativeEE",
+    secondPartEE = "secondPartEE",
+}
+
+export enum PrepositionCases {
+    // ENGLISH
+    prepositionEN = "prepositionEN",
+    /** Property: "Before the noun", "After the noun" or "Before or after the noun". */
+    positionEN = "positionEN",
+
+    // SPANISH
+    prepositionES = "prepositionES",
+    positionES = "positionES",
+
+    // GERMAN
+    prepositionDE = "prepositionDE",
+    positionDE = "positionDE",
+    /** Property: the cases the noun takes, encoded like the verb cases ("D", "AD", "GD"). */
+    governedCaseDE = "governedCaseDE",
+    /** Stored checkbox: the preposition contracts with the article (zu + dem = zum). */
+    contractsDE = "contractsDE",
+    withDemDE = "withDemDE",
+    withDerDE = "withDerDE",
+    withDasDE = "withDasDE",
+
+    // ESTONIAN (adpositions: mostly after the noun)
+    prepositionEE = "prepositionEE",
+    positionEE = "positionEE",
+    /** Property: the case of the noun when the word stands before it. */
+    governedCasePreEE = "governedCasePreEE",
+    /** Property: the case of the noun when the word stands after it. */
+    governedCasePostEE = "governedCasePostEE",
+    /** Stored checkbox: the word has a where-to / where / where-from series (sisse : sees : seest). */
+    spatialSeriesEE = "spatialSeriesEE",
+    directionToEE = "directionToEE",
+    directionFromEE = "directionFromEE",
 }
 
 export enum AdjectiveCases {

@@ -112,12 +112,20 @@
         ]
       },
       "preposition": {
-        "info": "Du wirst es wissen, wenn du es siehst.",
-        "examples": [""]
+        "info": "Präpositionen zeigen, wie ein Nomen zu einem anderen Wort steht: Ort, Zeit, Grund oder Richtung. Im Deutschen bestimmt die Präposition den Fall des folgenden Nomens. Das Estnische verwendet meist Postpositionen, die hinter dem Nomen stehen.",
+        "examples": [
+          "Das Buch liegt *auf* dem Tisch.",
+          "Wir trafen uns *nach* dem Unterricht.",
+          "Sie blieb *wegen* des Regens zu Hause."
+        ]
       },
       "conjunction": {
-        "info": "Du wirst es wissen, wenn du es siehst.",
-        "examples": [""]
+        "info": "Konjunktionen verbinden Wörter, Wortgruppen oder Sätze. Nebenordnende Konjunktionen verbinden gleichwertige Teile (und, aber, oder). Unterordnende Konjunktionen leiten einen Nebensatz ein (weil, obwohl, wenn). Manche Konjunktionen stehen paarweise (weder … noch).",
+        "examples": [
+          "Ich mag Tee *und* Kaffee.",
+          "Sie blieb zu Hause, *weil* sie krank war.",
+          "Er spricht *weder* Französisch *noch* Italienisch."
+        ]
       },
       "interjection": {
         "info": "Du wirst es wissen, wenn du es siehst.",
@@ -292,26 +300,33 @@
     "adverb": {
       "errors": {
         "formEN": {
-          "adverbRequired": "Das Adverb ist erforderlich"
+          "adverbRequired": "Das Adverb ist erforderlich",
+          "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         },
         "formES": {
-          "adverbRequired": "Das Adverb ist erforderlich"
+          "adverbRequired": "Das Adverb ist erforderlich",
+          "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         },
         "formDE": {
           "adverbRequired": "Das Adverb ist erforderlich",
           "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         },
         "formEE": {
-          "adverbRequired": "Das Adverb ist erforderlich"
+          "adverbRequired": "Das Adverb ist erforderlich",
+          "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         }
       },
       "fields": {
         "adverbEN": "Adverb",
         "comparativeEN": "Komparativ",
         "superlativeEN": "Superlativ",
+        "gradableEN": "Steigerbar",
+        "periphrasticEN": "Mit \"more\" / \"most\"",
         "adverbES": "Adverb",
         "comparativeES": "Komparativ",
         "superlativeES": "Superlativ",
+        "gradableES": "Steigerbar",
+        "periphrasticComparativeES": "Mit \"más\"",
         "gradableDE": "Steigerbar",
         "adverbDE": "Adverb",
         "comparativeDE": "Komparativ",
@@ -319,7 +334,91 @@
         "adverbEE": "Adverb",
         "comparativeEE": "Komparativ",
         "superlativeEE": "Superlativ",
+        "gradableEE": "Steigerbar",
         "periphrasticSuperlativeEE": "Kein einteiliger Superlativ (kõige + Komparativ)"
+      }
+    },
+    "conjunction": {
+      "errors": {
+        "formEN": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
+        },
+        "formES": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
+        },
+        "formDE": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
+        },
+        "formEE": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
+        }
+      },
+      "fields": {
+        "conjunctionEN": "Konjunktion",
+        "conjunctionTypeEN": "Typ",
+        "correlativeEN": "Zweiteilig (z. B. weder … noch)",
+        "secondPartEN": "Zweiter Teil",
+        "conjunctionES": "Konjunktion",
+        "conjunctionTypeES": "Typ",
+        "correlativeES": "Zweiteilig (z. B. weder … noch)",
+        "secondPartES": "Zweiter Teil",
+        "moodES": "Verbmodus",
+        "conjunctionDE": "Konjunktion",
+        "conjunctionTypeDE": "Typ",
+        "correlativeDE": "Zweiteilig (z. B. weder … noch)",
+        "secondPartDE": "Zweiter Teil",
+        "conjunctionEE": "Konjunktion",
+        "conjunctionTypeEE": "Typ",
+        "correlativeEE": "Zweiteilig (z. B. weder … noch)",
+        "secondPartEE": "Zweiter Teil"
+      }
+    },
+    "preposition": {
+      "errors": {
+        "formEN": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        },
+        "formES": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        },
+        "formDE": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        },
+        "formEE": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        }
+      },
+      "fields": {
+        "prepositionEN": "Präposition",
+        "positionEN": "Stellung",
+        "prepositionES": "Präposition",
+        "positionES": "Stellung",
+        "prepositionDE": "Präposition",
+        "positionDE": "Stellung",
+        "governedCaseDE": "Fall/Fälle des Nomens",
+        "contractsDE": "Verschmilzt mit dem Artikel",
+        "withDemDE": "Mit „dem“ (z. B. zum)",
+        "withDerDE": "Mit „der“ (z. B. zur)",
+        "withDasDE": "Mit „das“ (z. B. ins)",
+        "prepositionEE": "Präposition",
+        "positionEE": "Stellung",
+        "governedCasePreEE": "Fall des Nomens (Wort davor)",
+        "governedCasePostEE": "Fall des Nomens (Wort danach)",
+        "spatialSeriesEE": "Hat eine Wohin- / Woher-Reihe",
+        "directionToEE": "Wohin (z. B. sisse)",
+        "directionFromEE": "Woher (z. B. seest)"
       }
     },
     "verb": {

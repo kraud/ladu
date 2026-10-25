@@ -20,18 +20,26 @@ describe('getAutocompleteEndpoint — coverage table', () => {
                 'English/Noun',
                 'English/Adjective',
                 'English/Adverb',
+                'English/Conjunction',
+                'English/Preposition',
                 'Spanish/Verb',
                 'Spanish/Noun',
                 'Spanish/Adjective',
                 'Spanish/Adverb',
+                'Spanish/Conjunction',
+                'Spanish/Preposition',
                 'German/Verb',
                 'German/Noun',
                 'German/Adjective',
                 'German/Adverb',
+                'German/Conjunction',
+                'German/Preposition',
                 'Estonian/Verb',
                 'Estonian/Noun',
                 'Estonian/Adjective',
                 'Estonian/Adverb',
+                'Estonian/Conjunction',
+                'Estonian/Preposition',
             ].sort()
         );
     });
@@ -44,10 +52,10 @@ describe('getAutocompleteEndpoint — coverage table', () => {
     });
 });
 
-describe('the query field of each adjective and adverb card (Slice H3)', () => {
+describe('the query field of each adjective, adverb, conjunction and preposition card (Slice H3, conjunctions plan)', () => {
     it('every registered query field is a text field of that card', () => {
         for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
-            for (const pos of [PartOfSpeech.adjective, PartOfSpeech.adverb]) {
+            for (const pos of [PartOfSpeech.adjective, PartOfSpeech.adverb, PartOfSpeech.conjunction, PartOfSpeech.preposition]) {
                 const endpoint = getAutocompleteEndpoint(lang, pos)!;
                 const fields = getFormConfig(pos, lang)!.fields;
                 for (const name of [endpoint.queryFieldName, ...(endpoint.alternativeQueryFieldNames ?? [])]) {

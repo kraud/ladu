@@ -63,6 +63,22 @@ describe('the template data file (scripts/demo-template/data.json)', () => {
         for (const tag of word.tags) expect(tagKeys).toContain(tag);
     });
 
+    it('gives every adverb its Gradable / Non-gradable radio, and the full text next to a periphrastic box (gradable-radio plan, Q1, Q9)', () => {
+        const adverbs = data.words.filter((w) => w.partOfSpeech === 'Adverb');
+        expect(adverbs.length).toBeGreaterThan(0);
+        for (const word of adverbs) {
+            for (const [language, forms] of Object.entries(word.translations)) {
+                const suffix = SUFFIX[language];
+                expect(['Gradable', 'Non-gradable']).toContain(forms[`gradable${suffix}`]);
+                const degrees = !!forms[`comparative${suffix}`] || !!forms[`superlative${suffix}`];
+                expect(forms[`gradable${suffix}`] === 'Gradable').toBe(degrees);
+                if (forms.periphrasticEN) expect(forms.comparativeEN).toBe(`more ${forms.adverbEN}`);
+                if (forms.periphrasticComparativeES) expect(forms.comparativeES).toBe(`más ${forms.adverbES}`);
+                if (forms.periphrasticSuperlativeEE) expect(forms.superlativeEE).toBe(`kõige ${forms.comparativeEE}`);
+            }
+        }
+    });
+
     it('has practice configs that the app accepts, and that name existing words and tags', () => {
         expect(data.practiceConfigs.length).toBeGreaterThan(0);
         for (const config of data.practiceConfigs) {

@@ -145,6 +145,22 @@ function lookedUpRadios(fields: FieldConfig[], data: AutocompleteResult): Record
 }
 
 /**
+ * The checkboxes the lookup decides AND other fields hang on (`visibleWhen`): the German preposition's
+ * "Contracts with the article", the conjunction's "Paired". Like the radios, they are read first, so the
+ * fields they show (the contraction forms, the second part) are filled in the same pass.
+ */
+function lookedUpToggles(fields: FieldConfig[], data: AutocompleteResult): Record<string, boolean> {
+    const drivers = new Set(fields.flatMap((field) => (field.visibleWhen ? [field.visibleWhen.field] : [])));
+    const toggles: Record<string, boolean> = {};
+    for (const field of fields) {
+        if (field.kind !== 'checkbox' || !field.caseName || !drivers.has(field.name)) continue;
+        const looked = data.cases.get(field.caseName);
+        if (looked !== undefined) toggles[field.name] = looked === 'true';
+    }
+    return toggles;
+}
+
+/**
  * True once every case the lookup found is already sitting in the form —
  * i.e. clicking the fill button would change nothing. A field the lookup has
  * no opinion on, or one currently hidden by its own `visibleWhen` (the other
@@ -158,7 +174,7 @@ function valuesMatchLookup(
 ): boolean {
     if (!data) return false;
     const radios = lookedUpRadios(fields, data);
-    const afterFill = { ...values, ...radios };
+    const afterFill = { ...values, ...radios, ...lookedUpToggles(fields, data) };
     return fields.every((field) => {
         // A radio without a case (Spanish adjective gender) still has to show the branch the lookup stands for.
         if (!field.caseName) return field.kind !== 'radio' || radios[field.name] === undefined || values[field.name] === radios[field.name];
@@ -180,12 +196,14 @@ export function applyLookup(
     values: Record<string, unknown>,
     setValue: UseFormSetValue<FieldValues>
 ): void {
-    // The branch radios first, so the fields they show are filled in this same pass.
+    // The branch radios and the checkboxes that show fields come first, so those fields are filled in this same pass.
     const radios = lookedUpRadios(fields, data);
     for (const [name, value] of Object.entries(radios)) setValue(name, value, { shouldDirty: true, shouldValidate: true });
-    const afterRadios = { ...values, ...radios };
+    const toggles = lookedUpToggles(fields, data);
+    for (const [name, value] of Object.entries(toggles)) setValue(name, value, { shouldDirty: true, shouldValidate: true });
+    const afterRadios = { ...values, ...radios, ...toggles };
     for (const field of fields) {
-        if (!field.caseName || field.name in radios) continue;
+        if (!field.caseName || field.name in radios || field.name in toggles) continue;
         const looked = data.cases.get(field.caseName);
         if (looked === undefined) continue;
         if (field.visibleWhen && !matchesVisibility(field.visibleWhen, afterRadios[field.visibleWhen.field])) continue;

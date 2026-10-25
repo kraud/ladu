@@ -112,12 +112,14 @@ describe('practicedPercent', () => {
 });
 
 describe('pieSeries', () => {
-    it('zero-fills all 4 creatable parts of speech in canonical order', () => {
+    it('zero-fills all 6 creatable parts of speech in canonical order', () => {
         expect(pieSeries(POPULATED, 'words')).toEqual([
             { key: PartOfSpeech.noun, count: 4 },
             { key: PartOfSpeech.verb, count: 6 },
             { key: PartOfSpeech.adjective, count: 0 },
             { key: PartOfSpeech.adverb, count: 0 },
+            { key: PartOfSpeech.conjunction, count: 0 },
+            { key: PartOfSpeech.preposition, count: 0 },
         ]);
     });
 
@@ -176,6 +178,8 @@ describe('barSeriesByMonth', () => {
             { pos: PartOfSpeech.verb, count: 2 },
             { pos: PartOfSpeech.adjective, count: 0 },
             { pos: PartOfSpeech.adverb, count: 0 },
+            { pos: PartOfSpeech.conjunction, count: 0 },
+            { pos: PartOfSpeech.preposition, count: 0 },
         ]);
     });
 
@@ -244,6 +248,8 @@ describe('barSeriesByLanguage', () => {
             { pos: PartOfSpeech.verb, count: 6 },
             { pos: PartOfSpeech.adjective, count: 0 },
             { pos: PartOfSpeech.adverb, count: 0 },
+            { pos: PartOfSpeech.conjunction, count: 0 },
+            { pos: PartOfSpeech.preposition, count: 0 },
         ]);
     });
 

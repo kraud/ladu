@@ -112,12 +112,20 @@
         ]
       },
       "preposition": {
-        "info": "Lo sabrás cuando lo veas.",
-        "examples": [""]
+        "info": "Las preposiciones muestran la relación de un sustantivo con otra palabra: lugar, tiempo, causa o dirección. En alemán, la preposición decide el caso del sustantivo que la sigue. El estonio usa sobre todo posposiciones, que van detrás del sustantivo.",
+        "examples": [
+          "El libro está *sobre* la mesa.",
+          "Nos vimos *después de* la clase.",
+          "Se quedó en casa *a causa de* la lluvia."
+        ]
       },
       "conjunction": {
-        "info": "Lo sabrás cuando lo veas.",
-        "examples": [""]
+        "info": "Las conjunciones unen palabras, grupos de palabras u oraciones. Las coordinantes unen partes del mismo nivel (y, pero, o). Las subordinantes introducen una oración dependiente (porque, aunque, si). Algunas conjunciones van en pareja (ni … ni).",
+        "examples": [
+          "Me gusta el té *y* el café.",
+          "Se quedó en casa *porque* estaba enferma.",
+          "No habla *ni* francés *ni* italiano."
+        ]
       },
       "interjection": {
         "info": "Lo sabrás cuando lo veas.",
@@ -292,26 +300,33 @@
     "adverb": {
       "errors": {
         "formEN": {
-          "adverbRequired": "El adverbio es obligatorio"
+          "adverbRequired": "El adverbio es obligatorio",
+          "gradableRequired": "La selección de 'gradual' es obligatoria"
         },
         "formES": {
-          "adverbRequired": "El adverbio es obligatorio"
+          "adverbRequired": "El adverbio es obligatorio",
+          "gradableRequired": "La selección de 'gradual' es obligatoria"
         },
         "formDE": {
           "adverbRequired": "El adverbio es obligatorio",
           "gradableRequired": "La selección de 'gradual' es obligatoria"
         },
         "formEE": {
-          "adverbRequired": "El adverbio es obligatorio"
+          "adverbRequired": "El adverbio es obligatorio",
+          "gradableRequired": "La selección de 'gradual' es obligatoria"
         }
       },
       "fields": {
         "adverbEN": "Adverbio",
         "comparativeEN": "Comparativo",
         "superlativeEN": "Superlativo",
+        "gradableEN": "Graduable",
+        "periphrasticEN": "Usa \"more\" / \"most\"",
         "adverbES": "Adverbio",
         "comparativeES": "Comparativo",
         "superlativeES": "Superlativo",
+        "gradableES": "Graduable",
+        "periphrasticComparativeES": "Usa \"más\"",
         "gradableDE": "Graduable",
         "adverbDE": "Adverbio",
         "comparativeDE": "Comparativo",
@@ -319,7 +334,91 @@
         "adverbEE": "Adverbio",
         "comparativeEE": "Comparativo",
         "superlativeEE": "Superlativo",
+        "gradableEE": "Graduable",
         "periphrasticSuperlativeEE": "Sin superlativo de una sola palabra (kõige + comparativo)"
+      }
+    },
+    "conjunction": {
+      "errors": {
+        "formEN": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeInvalid": "Esa no es una opción",
+          "secondPartRequired": "La segunda parte es obligatoria"
+        },
+        "formES": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeInvalid": "Esa no es una opción",
+          "secondPartRequired": "La segunda parte es obligatoria"
+        },
+        "formDE": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeInvalid": "Esa no es una opción",
+          "secondPartRequired": "La segunda parte es obligatoria"
+        },
+        "formEE": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeInvalid": "Esa no es una opción",
+          "secondPartRequired": "La segunda parte es obligatoria"
+        }
+      },
+      "fields": {
+        "conjunctionEN": "Conjunción",
+        "conjunctionTypeEN": "Tipo",
+        "correlativeEN": "En pareja (p. ej. ni … ni)",
+        "secondPartEN": "Segunda parte",
+        "conjunctionES": "Conjunción",
+        "conjunctionTypeES": "Tipo",
+        "correlativeES": "En pareja (p. ej. ni … ni)",
+        "secondPartES": "Segunda parte",
+        "moodES": "Modo del verbo",
+        "conjunctionDE": "Conjunción",
+        "conjunctionTypeDE": "Tipo",
+        "correlativeDE": "En pareja (p. ej. ni … ni)",
+        "secondPartDE": "Segunda parte",
+        "conjunctionEE": "Conjunción",
+        "conjunctionTypeEE": "Tipo",
+        "correlativeEE": "En pareja (p. ej. ni … ni)",
+        "secondPartEE": "Segunda parte"
+      }
+    },
+    "preposition": {
+      "errors": {
+        "formEN": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        },
+        "formES": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        },
+        "formDE": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        },
+        "formEE": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        }
+      },
+      "fields": {
+        "prepositionEN": "Preposición",
+        "positionEN": "Posición",
+        "prepositionES": "Preposición",
+        "positionES": "Posición",
+        "prepositionDE": "Preposición",
+        "positionDE": "Posición",
+        "governedCaseDE": "Caso(s) del sustantivo",
+        "contractsDE": "Se contrae con el artículo",
+        "withDemDE": "Con «dem» (p. ej. zum)",
+        "withDerDE": "Con «der» (p. ej. zur)",
+        "withDasDE": "Con «das» (p. ej. ins)",
+        "prepositionEE": "Preposición",
+        "positionEE": "Posición",
+        "governedCasePreEE": "Caso del sustantivo (palabra delante)",
+        "governedCasePostEE": "Caso del sustantivo (palabra detrás)",
+        "spatialSeriesEE": "Tiene serie de destino / origen",
+        "directionToEE": "Hacia dónde (p. ej. sisse)",
+        "directionFromEE": "Desde dónde (p. ej. seest)"
       }
     },
     "verb": {

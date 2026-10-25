@@ -21,6 +21,7 @@ const fs: typeof import('fs') = require('fs');
 const path: typeof import('path') = require('path');
 const { DATA_DIR, MANIFEST_FILE, POS_MAP, kaikkiFile, sampleFile, readLines, writeLexiconFile }: typeof import('./common') = require('./common');
 const { selectCases }: typeof import('../../lib/lexicon/select') = require('../../lib/lexicon/select');
+const { mergeAdpositionRows }: typeof import('../../lib/lexicon/adpositions') = require('../../lib/lexicon/adpositions');
 const de: typeof import('../../lib/lexicon/selectors/de') = require('../../lib/lexicon/selectors/de');
 const es: typeof import('../../lib/lexicon/selectors/es') = require('../../lib/lexicon/selectors/es');
 const en: typeof import('../../lib/lexicon/selectors/en') = require('../../lib/lexicon/selectors/en');
@@ -29,9 +30,9 @@ type CaseSelector = import('../../lib/lexicon/select').CaseSelector;
 
 /** Languages the ingest supports so far. Estonian comes from other sources (Slice D). */
 const LANGUAGES: Partial<Record<LangCode, { language: string; selectors: Record<string, CaseSelector[]> }>> = {
-    de: { language: 'German', selectors: { noun: de.NOUN_SELECTORS_DE, verb: de.VERB_SELECTORS_DE, adj: de.ADJECTIVE_SELECTORS_DE, adv: de.ADVERB_SELECTORS_DE } },
-    es: { language: 'Spanish', selectors: { noun: es.NOUN_SELECTORS_ES, verb: es.VERB_SELECTORS_ES, adj: es.ADJECTIVE_SELECTORS_ES, adv: es.ADVERB_SELECTORS_ES } },
-    en: { language: 'English', selectors: { noun: en.NOUN_SELECTORS_EN, verb: en.VERB_SELECTORS_EN, adj: en.ADJECTIVE_SELECTORS_EN, adv: en.ADVERB_SELECTORS_EN } },
+    de: { language: 'German', selectors: { noun: de.NOUN_SELECTORS_DE, verb: de.VERB_SELECTORS_DE, adj: de.ADJECTIVE_SELECTORS_DE, adv: de.ADVERB_SELECTORS_DE, conj: de.CONJUNCTION_SELECTORS_DE, prep: de.PREPOSITION_SELECTORS_DE, postp: de.PREPOSITION_SELECTORS_DE } },
+    es: { language: 'Spanish', selectors: { noun: es.NOUN_SELECTORS_ES, verb: es.VERB_SELECTORS_ES, adj: es.ADJECTIVE_SELECTORS_ES, adv: es.ADVERB_SELECTORS_ES, conj: es.CONJUNCTION_SELECTORS_ES, prep: es.PREPOSITION_SELECTORS_ES, postp: es.PREPOSITION_SELECTORS_ES } },
+    en: { language: 'English', selectors: { noun: en.NOUN_SELECTORS_EN, verb: en.VERB_SELECTORS_EN, adj: en.ADJECTIVE_SELECTORS_EN, adv: en.ADVERB_SELECTORS_EN, conj: en.CONJUNCTION_SELECTORS_EN, prep: en.PREPOSITION_SELECTORS_EN, postp: en.PREPOSITION_SELECTORS_EN } },
 };
 
 /**
@@ -49,6 +50,10 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'waschen|verb', 'geben|verb', 'nehmen|verb', 'denken|verb', 'vorstellen|verb',
         // "lila": no forms at all (D24); "oft"/"gern": adverbs with a comparative; "hier": gradable = no.
         'gut|adj', 'schön|adj', 'groß|adj', 'lila|adj', 'oft|adv', 'gern|adv', 'hier|adv',
+        // Conjunctions and adpositions: "und": marked coordinating; "weil": marked both, so no type; "weder"/"obwohl": unmarked;
+        // "sowohl ... als auch": a pair; "nach"/"zufolge": a preposition and a postposition (one row); "in": no case category.
+        'und|conj', 'weil|conj', 'weder|conj', 'obwohl|conj', 'sowohl ... als auch|conj',
+        'wegen|prep', 'nach|prep', 'zufolge|prep', 'an|prep', 'in|prep',
     ],
     // "leche"/"crisis": genders the old library got wrong; "estudiante": both genders (el/la);
     // "sentir"/"venir"/"oír": verbs the old library conjugated wrongly; "quejarse": reflexive (D8).
@@ -60,6 +65,8 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'lavar|verb',
         // "rojo": M/F; "feliz"/"grande": Neutral (one shape for both genders); "rápidamente": no forms (D24).
         'rojo|adj', 'feliz|adj', 'grande|adj', 'bonito|adj', 'bien|adv', 'rápidamente|adv', 'mucho|adv',
+        // "para que": marked subordinating; "porque"/"aunque": unmarked; prepositions govern no case.
+        'para que|conj', 'porque|conj', 'aunque|conj', 'de|prep', 'en|prep',
     ],
     // "can"/"will": modals the old library got wrong ("caned"); "child"/"sheep"/"mouse": irregular plurals.
     en: [
@@ -67,6 +74,8 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'run|verb', 'walk|verb', 'bake|verb', 'be|verb', 'go|verb', 'can|verb', 'will|verb', 'swim|verb', 'cry|verb',
         // "beautiful"/"unique"/"quickly": "more …" forms; "big"/"fast": plain -er/-est.
         'big|adj', 'good|adj', 'beautiful|adj', 'unique|adj', 'happy|adj', 'quickly|adv', 'fast|adv', 'well|adv',
+        // "because"/"although": marked subordinating; "neither … nor": a pair; "ago": a postposition.
+        'because|conj', 'although|conj', 'neither … nor|conj', 'in|prep', 'ago|prep',
     ],
 };
 const FIXTURE_TOP_N = 20;
@@ -134,7 +143,8 @@ async function main(): Promise<void> {
 
         const forms = Object.fromEntries(selectCases(entry, selectors));
         // Adjectives and adverbs with no forms beyond the lemma stay (D24): "lila", "rápidamente", "hier".
-        const keepLemmaOnly = entry.pos === 'adj' || entry.pos === 'adv';
+        // So do conjunctions and adpositions: most have only the word itself.
+        const keepLemmaOnly = ['adj', 'adv', 'conj', 'prep', 'postp'].includes(entry.pos);
         if (!keepLemmaOnly && !Object.keys(forms).some((caseName) => !lemmaCopies(selectors).has(caseName))) {
             skippedEmpty++;
             continue;
@@ -149,17 +159,26 @@ async function main(): Promise<void> {
         rows.push({ partOfSpeech, lemma: entry.word, frequencyRank: ranks.get(lemmaKey) ?? null, entryOrder, forms });
     }
 
-    let output = rows;
+    // "nach" is a preposition entry and a postposition entry: one row, "Before or after the noun".
+    const merged = mergeAdpositionRows(rows);
+    const entryOrders = new Map<string, number>();
+    for (const row of merged) {
+        const lemmaKey = `${row.partOfSpeech}|${row.lemma}`;
+        row.entryOrder = entryOrders.get(lemmaKey) ?? 0;
+        entryOrders.set(lemmaKey, row.entryOrder + 1);
+    }
+
+    let output = merged;
     if (fixture) {
         const wanted = new Set((FIXTURE_WORDS[lang] ?? []).map((pair) => {
             const [word, pos] = pair.split('|');
             return `${POS_MAP[pos]}|${word}`;
         }));
-        rows.filter((row) => row.partOfSpeech === 'Verb' && row.frequencyRank !== null)
+        merged.filter((row) => row.partOfSpeech === 'Verb' && row.frequencyRank !== null)
             .sort((a, b) => a.frequencyRank! - b.frequencyRank!)
             .slice(0, FIXTURE_TOP_N)
             .forEach((row) => wanted.add(`${row.partOfSpeech}|${row.lemma}`));
-        output = rows.filter((row) => wanted.has(`${row.partOfSpeech}|${row.lemma}`));
+        output = merged.filter((row) => wanted.has(`${row.partOfSpeech}|${row.lemma}`));
     }
 
     const file = fixture

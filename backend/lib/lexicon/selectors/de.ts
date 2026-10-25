@@ -12,6 +12,7 @@
 
 import type { CaseSelector, FormSelector, LexiconEntry } from '../select';
 const { selectForm, senseTags }: typeof import('../select') = require('../select');
+const { conjunctionSelectors, prepositionSelectors, governedCaseDE}: typeof import('./functionWords') = require('./functionWords');
 
 const GENDER_ARTICLE: Record<string, string> = { masculine: 'der', feminine: 'die', neuter: 'das' };
 
@@ -159,9 +160,13 @@ export const NOUN_SELECTORS_DE: CaseSelector[] = [
 const COMPARATIVE_DE = { tags: ['comparative'] };
 const SUPERLATIVE_DE = { tags: ['superlative'], removeWords: ['am'] };
 
-/** A German adverb with a comparative is gradable ("oft → öfter"); one without is not ("hier"). */
-function gradableDE(entry: LexiconEntry): string {
-    return selectForm(entry, { kind: 'form', caseName: '', ...COMPARATIVE_DE }) ? 'Gradable' : 'Non-gradable';
+/**
+ * A German adverb with a comparative or a superlative is gradable ("oft → öfter"). One without ("hier") gets no value:
+ * a missing comparative does not prove it, so the radio stays empty, like in EN, ES and EE.
+ */
+function gradableDE(entry: LexiconEntry): string | undefined {
+    const hasDegree = [COMPARATIVE_DE, SUPERLATIVE_DE].some((degree) => selectForm(entry, { kind: 'form', caseName: '', ...degree }));
+    return hasDegree ? 'Gradable' : undefined;
 }
 
 export const ADJECTIVE_SELECTORS_DE: CaseSelector[] = [
@@ -197,4 +202,11 @@ export const VERB_SELECTORS_DE: CaseSelector[] = [
     ...tense('indicativePerfect', ['perfect', 'multiword-construction'], COMPOUND),
     ...tense('indicativeSimpleFuture', ['future-i', 'multiword-construction'], COMPOUND),
     ...tense('indicativeSimplePast', ['preterite'], SIMPLE),
+];
+
+/** Conjunctions and adpositions (conjunctions-and-prepositions plan, slice 3b); see selectors/functionWords.ts. */
+export const CONJUNCTION_SELECTORS_DE: CaseSelector[] = conjunctionSelectors('DE');
+export const PREPOSITION_SELECTORS_DE: CaseSelector[] = [
+    ...prepositionSelectors('DE'),
+    { kind: 'property', caseName: 'governedCaseDE', extract: governedCaseDE },
 ];

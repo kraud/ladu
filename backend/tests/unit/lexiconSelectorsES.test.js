@@ -4,7 +4,7 @@
  * Plan: .context/plans/autocomplete-data-source-strategy.md, Slice 0 step 0c.
  */
 const { selectCases } = require('../../lib/lexicon/select');
-const { NOUN_SELECTORS_ES, VERB_SELECTORS_ES, ADJECTIVE_SELECTORS_ES, ADVERB_SELECTORS_ES } = require('../../lib/lexicon/selectors/es');
+const { NOUN_SELECTORS_ES, VERB_SELECTORS_ES, ADJECTIVE_SELECTORS_ES, ADVERB_SELECTORS_ES, CONJUNCTION_SELECTORS_ES, PREPOSITION_SELECTORS_ES } = require('../../lib/lexicon/selectors/es');
 const { entries } = require('./fixtures/lexicon-es.json');
 
 const entry = (word) => entries.find((e) => e.word === word);
@@ -154,7 +154,30 @@ describe('Spanish adjective and adverb selectors', () => {
     });
 
     test('an adverb takes its comparative and has no forms otherwise', () => {
-        expect(adverb('bien').comparativeES).toBe('mejor');
+        expect(adverb('bien')).toMatchObject({ gradableES: 'Gradable', comparativeES: 'mejor' });
+        expect(adverb('bien').periphrasticComparativeES).toBeUndefined();
+        // No degree form: the radio stays empty, because the lexicon does not prove "Non-gradable".
         expect(adverb('rápidamente')).toEqual({ adverbES: 'rápidamente' });
+    });
+
+    test('a "más" comparative is sent as the box, without the phrase; the superlative stays as it is', () => {
+        const pronto = { word: 'pronto', pos: 'adv', forms: [{ form: 'más pronto', tags: ['comparative'] }, { form: 'prontísimo', tags: ['superlative'] }] };
+        expect(Object.fromEntries(selectCases(pronto, ADVERB_SELECTORS_ES))).toEqual({
+            gradableES: 'Gradable', adverbES: 'pronto', superlativeES: 'prontísimo', periphrasticComparativeES: 'true',
+        });
+    });
+});
+
+describe('Spanish conjunction and preposition selectors', () => {
+    const find = (word, pos) => entries.find((e) => e.word === word && e.pos === pos);
+    const conjunction = (word) => Object.fromEntries(selectCases(find(word, 'conj'), CONJUNCTION_SELECTORS_ES));
+
+    test('a marked conjunction gets the type; an unmarked one ("porque") gets the word only', () => {
+        expect(conjunction('para que')).toEqual({ conjunctionES: 'para que', conjunctionTypeES: 'Subordinating' });
+        expect(conjunction('porque')).toEqual({ conjunctionES: 'porque' });
+    });
+
+    test('a preposition gets the word and "Before the noun" (Spanish prepositions govern no case)', () => {
+        expect(Object.fromEntries(selectCases(find('de', 'prep'), PREPOSITION_SELECTORS_ES))).toEqual({ prepositionES: 'de', positionES: 'Before the noun' });
     });
 });

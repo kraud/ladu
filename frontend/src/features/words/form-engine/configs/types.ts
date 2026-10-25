@@ -1,7 +1,7 @@
-import type { AdjectiveCases, AdverbCases, Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
+import type { AdjectiveCases, AdverbCases, ConjunctionCases, Lang, NounCases, PartOfSpeech, PrepositionCases, VerbCases } from '@/ts/enums';
 
-/** Every case-name enum a `FieldConfig` can point at, across all four parts of speech. */
-export type CaseName = NounCases | VerbCases | AdjectiveCases | AdverbCases;
+/** Every case-name enum a `FieldConfig` can point at, across all parts of speech with a form. */
+export type CaseName = NounCases | VerbCases | AdjectiveCases | AdverbCases | ConjunctionCases | PrepositionCases;
 
 export type FieldKind = 'text' | 'radio' | 'checkbox' | 'select' | 'multi-select' | 'toggle';
 
@@ -87,7 +87,20 @@ export interface FieldLayout {
      * German verb's infinitive, which sits above its auxiliary verb and prefix.
      */
     fullRowOnMobile?: boolean;
+    /**
+     * The block's columns always share one row, equal in width, on a phone too — no sideways scroll,
+     * no stacking. For a short row of two or three cells (the German contractions zum / zur / ins).
+     * Any field in the block may set it; it wins over `stackOnMobile` and `fullRowOnMobile`.
+     */
+    fitRow?: boolean;
 }
+
+/**
+ * How the options of a `radio` or `multi-select` are listed: `row` (the default) puts them side by
+ * side and wraps when the box is narrow, so on a phone they fall into a column by themselves;
+ * `column` always lists them one under the other, on every screen.
+ */
+export type OptionsLayout = 'row' | 'column';
 
 /**
  * An extra `.matches()` layered on top of a text field's base rules (Spanish
@@ -198,18 +211,29 @@ interface FieldConfigBase {
 /**
  * While `when` matches, a text field is replaced by read-only text: `prefix` + the current value
  * of the sibling field `fromField` (Estonian adjective superlative: "kõige " + the comparative,
- * decision D20). While derived, the field is not validated and not stored — like a hidden field.
+ * decision D20). While derived, the field is not validated and not typed — like a hidden field.
+ * By default it is not stored either; with `store` the derived text is saved with the word, next to
+ * the checkbox that drives it (adverbs, decision Q9: the text is searchable and practicable).
  */
 export interface FieldDerivation {
     when: FieldVisibility;
     prefix: string;
     fromField: string;
+    store?: boolean;
 }
 
 /** True while `field` shows derived text instead of its own input (see `FieldDerivation`). */
 export function isDerived(field: FieldConfig, values: Record<string, unknown>): boolean {
     const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
     return derivation !== undefined && matchesVisibility(derivation.when, values[derivation.when.field]);
+}
+
+/** The text a `store` derivation saves: `prefix` + the source field, or `undefined` while the source is blank (nothing to save). */
+export function derivedStoredWord(field: FieldConfig, values: Record<string, unknown>): string | undefined {
+    const derivation = field.kind === 'text' ? field.derivedWhen : undefined;
+    if (!derivation?.store || !isDerived(field, values)) return undefined;
+    const source = String(values[derivation.fromField] ?? '').trim();
+    return source === '' ? undefined : `${derivation.prefix}${source}`;
 }
 
 export interface TextFieldConfig extends FieldConfigBase {
@@ -227,6 +251,7 @@ export interface TextFieldConfig extends FieldConfigBase {
 export interface RadioFieldConfig extends FieldConfigBase {
     kind: 'radio';
     options: RadioOption[];
+    optionsLayout?: OptionsLayout;
     /**
      * Which option an autocomplete result stands for, when the radio has no `caseName` of its own
      * (Spanish adjective gender: the result has the neutral cases → "Neutral", the male cases → "M/F").
@@ -260,6 +285,7 @@ export interface MultiSelectFieldConfig extends FieldConfigBase {
     kind: 'multi-select';
     caseName: CaseName;
     options: RadioOption[];
+    optionsLayout?: OptionsLayout;
     /** Selected option values -> the single persisted case string (German verb cases: `['accusativeDE','genitiveDE'] -> "AG"`). */
     encode: (selected: string[]) => string;
     /** The persisted case string -> selected option values — `encode`'s inverse, used to hydrate the checkbox group from a stored word. */

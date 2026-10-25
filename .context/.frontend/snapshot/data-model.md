@@ -14,7 +14,9 @@ enum PartOfSpeech {
   interjection = "Interjection", properNoun = "Proper noun", numerals = "Numerals",
 }
 ```
-The app actually implements forms for 4 PoS: **noun, verb, adjective, adverb**. The other 6 values exist for display/filter completeness only.
+The old app implements forms for 4 PoS: **noun, verb, adjective, adverb**. The other 6 values exist for display/filter completeness only.
+
+> **v2 (2026-10-25, plan `plans/conjunctions-prepositions.md`):** **conjunction** and **preposition** have forms too (`ConjunctionCases`, `PrepositionCases`, section 1.5b). Pronoun, interjection, proper noun and numerals are still display-only.
 
 ### 1.2 Lang
 ```ts
@@ -72,6 +74,38 @@ enum AdverbCases {
   // NB! no Estonian adverb cases — the EE adverb form does not exist
 }
 ```
+
+> **v2 (2026-10-24, plan `plans/adverb-gradable-radio.md`):** the old app has the list above. In v2 the enum also holds
+> `gradableEN`, `gradableES`, `gradableEE` (the required "Gradable / Non-gradable" radio, now in all four languages),
+> the stored checkboxes `periphrasticEN` ("more / most"), `periphrasticComparativeES` ("más") and
+> `periphrasticSuperlativeEE` ("kõige"), and the Estonian `adverbEE`, `comparativeEE`, `superlativeEE`.
+> The backend treats every case that starts with `gradable` or `periphrastic` as a property, not a written form.
+
+### 1.5b ConjunctionCases and PrepositionCases (v2 only; no old-app source)
+
+```ts
+enum ConjunctionCases {            // every key is <role><LANG>; LANG = EN, ES, DE, EE
+  conjunctionXX,                   // the word ("weil"; for a pair the first part: "weder")
+  conjunctionTypeXX,               // property: "Coordinating" | "Subordinating" (optional)
+  correlativeXX,                   // property, stored checkbox: "true" when the conjunction has a second part
+  secondPartXX,                    // written form, the second part of a pair ("noch")
+  moodES,                          // property, Spanish only: "Indicative" | "Subjunctive" | "Depends on meaning"
+}
+enum PrepositionCases {
+  prepositionXX,                   // the word ("wegen")
+  positionXX,                      // property: "Before the noun" | "After the noun" | "Before or after the noun" (optional)
+  governedCaseDE,                  // property: "A", "D", "G" letters in that order ("DG" = dative and genitive)
+  contractsDE, withDemDE, withDerDE, withDasDE,        // stored checkbox + three written forms (zum, zur, ins)
+  governedCasePreEE, governedCasePostEE,               // property: "Genitive", "Partitive", "Elative", ...
+  spatialSeriesEE, directionToEE, directionFromEE,     // stored checkbox + two written forms (sisse / seest)
+}
+```
+
+The backend treats a case as a property (not a written form: search and exercises skip it) when its name starts with a
+prefix of `PROPERTY_PREFIXES` in `backend/services/exercises/catalogue.ts`: `gender`, `gradable`, `regularity`,
+`auxVerb`, `caseType`, `prefix`, `periphrastic`, `reflexiv`, `conjunctionType`, `correlative`, `mood`, `position`,
+`governedCase`, `spatialSeries`, `contracts`. A written-form name must not start with one of them (`positiveEN` is
+not a `position...` case). Field lists, order and rules: `forms-conjunctions-prepositions.md`.
 
 ### 1.6 VerbCases (all four languages; each key is a `caseName`)
 Verbatim, grouped:
@@ -155,7 +189,7 @@ interface WordDataBE {               // backend shape (persisted)
 type TranslationItem = { language: Lang, cases: WordItem[] } & InternalStatus
 interface WordItem {
   word: string,
-  caseName: NounCases | AdjectiveCases | AdverbCases | VerbCases,  // which slot "word" fills
+  caseName: NounCases | AdjectiveCases | AdverbCases | VerbCases,  // which slot "word" fills (v2 adds ConjunctionCases | PrepositionCases)
 }
 type InternalStatus = {              // form-only, NOT persisted
   completionState?: boolean,

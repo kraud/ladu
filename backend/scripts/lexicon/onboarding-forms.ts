@@ -14,7 +14,7 @@
 
 const fs: typeof import('fs') = require('fs');
 const path: typeof import('path') = require('path');
-const { readPool, hasKeyCases, pluralOnlyCases, PLURAL_ONLY_NOUNS_EN, FORMS_FILE }: typeof import('../../lib/onboardingPool') = require('../../lib/onboardingPool');
+const { readPool, hasKeyCases, pluralOnlyCases, adverbPoolCases, PLURAL_ONLY_NOUNS_EN, FORMS_FILE }: typeof import('../../lib/onboardingPool') = require('../../lib/onboardingPool');
 const { draft }: typeof import('../../services/dictionary/draft') = require('../../services/dictionary/draft');
 const { pool: dbPool }: typeof import('../../src/db') = require('../../src/db');
 type ConceptForms = import('../../lib/onboardingPool').ConceptForms;
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
                     continue;
                 }
                 const usable = (result.status === 'found' || result.status === 'partial') && hasKeyCases(concept.partOfSpeech, result.language, cases, result.word);
-                if (usable) entry[result.language] = { word: result.word, cases };
+                if (usable) entry[result.language] = { word: result.word, cases: concept.partOfSpeech === 'Adverb' ? adverbPoolCases(result.language, cases) : cases };
                 else missing.push(`${concept.id} ${result.language} "${result.word}" (${result.status})`);
             }
             forms[concept.id] = entry;

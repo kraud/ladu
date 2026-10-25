@@ -18,6 +18,7 @@ export const POS_MAP: Record<string, string> = {
     adj: 'Adjective',
     adv: 'Adverb',
     prep: 'Preposition',
+    postp: 'Preposition', // a postposition is a preposition row with the position "After the noun" (ingest.ts merges both)
     conj: 'Conjunction',
     pron: 'Pronoun',
     intj: 'Interjection',

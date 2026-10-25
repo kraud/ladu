@@ -1,4 +1,48 @@
 {"format":"ladu-translations/1","language":"English","source":"kaikki","licence":"CC BY-SA 4.0","sourceVersion":"2026-10-03","attribution":"Derived from English Wiktionary (https://en.wiktionary.org) via kaikki.org / Wiktextract, CC BY-SA 4.0."}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"Estonian","word":"sees","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"Estonian","word":"-s","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"contained by","senseOrder":0,"language":"Spanish","word":"dentro de","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"Estonian","word":"-s","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"Spanish","word":"dentro de","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"surrounded by","senseOrder":1,"language":"Spanish","word":"adentro de","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"part or member of","senseOrder":2,"language":"German","word":"von","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"part or member of","senseOrder":2,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"German","word":"unter","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"German","word":"in","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"German","word":"im","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"German","word":"während","wordOrder":3,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"during (a period of time)","senseOrder":3,"language":"Spanish","word":"durante","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"within (a certain elapsed time)","senseOrder":4,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"within (a certain elapsed time)","senseOrder":4,"language":"Spanish","word":"dentro de","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"after (a period of time)","senseOrder":5,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"after (a period of time)","senseOrder":5,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"into, towards","senseOrder":6,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"into, towards","senseOrder":6,"language":"Spanish","word":"a","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"into, towards","senseOrder":6,"language":"Spanish","word":"hacia","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"into, towards","senseOrder":6,"language":"Spanish","word":"para","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating a state","senseOrder":7,"language":"German","word":"in","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating a state","senseOrder":7,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating language, script, or tone","senseOrder":8,"language":"German","word":"auf","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"indicating language, script, or tone","senseOrder":8,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"in","partOfSpeech":"Preposition","entryOrder":0,"sense":"wearing","senseOrder":9,"language":"Spanish","word":"en","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Estonian","word":"kuna","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Estonian","word":"seepärast","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Estonian","word":"sest","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"German","word":"weil","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"German","word":"denn","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"German","word":"da","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Spanish","word":"porque","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Spanish","word":"ya que","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Spanish","word":"por cuanto","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Spanish","word":"pues","wordOrder":3,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Spanish","word":"ca","wordOrder":4,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"by or for the cause that; on this account that; for the reason that","senseOrder":0,"language":"Spanish","word":"car","wordOrder":5,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"as known because; as inferred because; as determined because","senseOrder":1,"language":"German","word":"denn","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"as known because; as inferred because; as determined because","senseOrder":1,"language":"Spanish","word":"ya que","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"because","partOfSpeech":"Conjunction","entryOrder":0,"sense":"as known because; as inferred because; as determined because","senseOrder":1,"language":"Spanish","word":"por cuanto","wordOrder":1,"gender":null,"tags":[]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"institution","senseOrder":0,"language":"Estonian","word":"pank","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"institution","senseOrder":0,"language":"German","word":"Bank","wordOrder":0,"gender":"die","tags":["feminine"]}
 {"englishLemma":"bank","partOfSpeech":"Noun","entryOrder":0,"sense":"institution","senseOrder":0,"language":"Spanish","word":"banca","wordOrder":0,"gender":"la","tags":["feminine"]}
@@ -35,6 +79,27 @@
 {"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"adult","senseOrder":1,"language":"German","word":"groß","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"adult","senseOrder":1,"language":"Spanish","word":"mayor","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"big","partOfSpeech":"Adjective","entryOrder":0,"sense":"adult","senseOrder":1,"language":"Spanish","word":"adulto","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"Estonian","word":"pärast","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"German","word":"nach","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"Spanish","word":"después de","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"Spanish","word":"tras","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"subsequently; following in time; later than","senseOrder":0,"language":"Spanish","word":"en pos de","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"behind","senseOrder":1,"language":"German","word":"hinter","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"behind","senseOrder":1,"language":"Spanish","word":"detrás de","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"behind","senseOrder":1,"language":"Spanish","word":"tras","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in pursuit of, seeking","senseOrder":2,"language":"German","word":"hinter","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in pursuit of, seeking","senseOrder":2,"language":"Spanish","word":"tras","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in pursuit of, seeking","senseOrder":2,"language":"Spanish","word":"detrás de","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in pursuit of, seeking","senseOrder":2,"language":"Spanish","word":"en pos de","wordOrder":2,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in allusion to, in imitation of; following or referencing","senseOrder":3,"language":"German","word":"nach","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in allusion to, in imitation of; following or referencing","senseOrder":3,"language":"Spanish","word":"por","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"next in importance or rank","senseOrder":4,"language":"German","word":"nach","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"next in importance or rank","senseOrder":4,"language":"Spanish","word":"después de","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"as a result of","senseOrder":5,"language":"German","word":"wegen","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"as a result of","senseOrder":5,"language":"Spanish","word":"debido a","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"as a result of","senseOrder":5,"language":"Spanish","word":"por causa de","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in spite of","senseOrder":6,"language":"German","word":"trotz","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"after","partOfSpeech":"Preposition","entryOrder":0,"sense":"in spite of","senseOrder":6,"language":"Spanish","word":"a pesar de","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"Estonian","word":"sööma","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"German","word":"essen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"eat","partOfSpeech":"Verb","entryOrder":0,"sense":"to ingest — see also consume, ingest","senseOrder":0,"language":"German","word":"fressen","wordOrder":1,"gender":null,"tags":[]}
@@ -166,6 +231,12 @@
 {"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"Spanish","word":"mar","wordOrder":0,"gender":"el/la","tags":["feminine","masculine"]}
 {"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"Spanish","word":"ponto","wordOrder":1,"gender":"el","tags":["masculine","poetic"]}
 {"englishLemma":"sea","partOfSpeech":"Noun","entryOrder":0,"sense":"body of water","senseOrder":0,"language":"Spanish","word":"piélago","wordOrder":2,"gender":"el","tags":["masculine"]}
+{"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"Estonian","word":"tagasi","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"German","word":"vor","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"German","word":"her","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"Spanish","word":"hace","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"Spanish","word":"atrás","wordOrder":1,"gender":null,"tags":[]}
+{"englishLemma":"ago","partOfSpeech":"Preposition","entryOrder":0,"sense":"past; gone by; since","senseOrder":0,"language":"Spanish","word":"ha","wordOrder":2,"gender":null,"tags":[]}
 {"englishLemma":"dance","partOfSpeech":"Verb","entryOrder":0,"sense":"move rhythmically to music","senseOrder":0,"language":"Estonian","word":"tantsima","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"dance","partOfSpeech":"Verb","entryOrder":0,"sense":"move rhythmically to music","senseOrder":0,"language":"German","word":"tanzen","wordOrder":0,"gender":null,"tags":[]}
 {"englishLemma":"dance","partOfSpeech":"Verb","entryOrder":0,"sense":"move rhythmically to music","senseOrder":0,"language":"Spanish","word":"bailar","wordOrder":0,"gender":null,"tags":[]}
@@ -203,3 +274,6 @@
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"serving of water","senseOrder":4,"language":"German","word":"Wasser","wordOrder":0,"gender":"das","tags":["neuter"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"serving of water","senseOrder":4,"language":"Spanish","word":"[un] agua","wordOrder":0,"gender":"la","tags":["feminine"]}
 {"englishLemma":"water","partOfSpeech":"Noun","entryOrder":0,"sense":"medical: fluids in the body, especially when causing swelling — see also humor","senseOrder":5,"language":"Spanish","word":"fluidos corporales","wordOrder":0,"gender":"el","tags":["masculine","plural"]}
+{"englishLemma":"neither … nor","partOfSpeech":"Conjunction","entryOrder":0,"sense":"used for showing that something is not true of two or more people, things, actions, qualities, or ideas","senseOrder":0,"language":"Estonian","word":"ei … ega","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"neither … nor","partOfSpeech":"Conjunction","entryOrder":0,"sense":"used for showing that something is not true of two or more people, things, actions, qualities, or ideas","senseOrder":0,"language":"German","word":"weder … noch","wordOrder":0,"gender":null,"tags":[]}
+{"englishLemma":"neither … nor","partOfSpeech":"Conjunction","entryOrder":0,"sense":"used for showing that something is not true of two or more people, things, actions, qualities, or ideas","senseOrder":0,"language":"Spanish","word":"ni … ni","wordOrder":0,"gender":null,"tags":[]}

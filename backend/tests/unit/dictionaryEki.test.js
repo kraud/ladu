@@ -93,7 +93,7 @@ describe('comparisonCases (D20)', () => {
 describe('transformAdverb and adverbComparisonCases (Slice H4, D27)', () => {
     const adverb = paradigm('muutumatu', [['ID', 'kiiresti']]);
 
-    it('the adverb is the one form `ID`; with no relations nothing else is sent', () => {
+    it('the adverb is the one form `ID`; with no relations nothing else is sent, not even the radio (no proof of "Non-gradable")', () => {
         expect(casesOf(transformAdverb(adverb))).toEqual({ adverbEE: 'kiiresti' });
         expect(transformAdverb(undefined)).toEqual({ status: 'not-found', cases: [] });
     });
@@ -102,7 +102,7 @@ describe('transformAdverb and adverbComparisonCases (Slice H4, D27)', () => {
         const details = relations({ komp: ['kiiremini'], superl: ['kõige kiiremini', 'kiireimini'] });
         expect(adverbComparisonCases(details)).toEqual([['comparativeEE', 'kiiremini'], ['periphrasticSuperlativeEE', 'true']]);
         expect(casesOf(transformAdverb(adverb, details))).toEqual({
-            adverbEE: 'kiiresti', comparativeEE: 'kiiremini', periphrasticSuperlativeEE: 'true',
+            gradableEE: 'Gradable', adverbEE: 'kiiresti', comparativeEE: 'kiiremini', periphrasticSuperlativeEE: 'true',
         });
     });
 

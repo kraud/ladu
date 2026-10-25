@@ -16,8 +16,10 @@ export interface LexiconEntry {
     word: string;
     pos: string;
     tags?: string[];
+    /** Conjunctions and adpositions only (extract.ts keeps them for `conj`, `prep`, `postp`). */
+    categories?: string[];
     forms?: { form: string; tags?: string[] }[];
-    senses?: { tags?: string[]; form_of?: string[]; gloss?: string }[];
+    senses?: { tags?: string[]; form_of?: string[]; gloss?: string; categories?: string[] }[];
 }
 
 export interface FormSelector {

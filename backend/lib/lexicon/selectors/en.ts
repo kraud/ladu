@@ -11,6 +11,7 @@
 
 import type { CaseSelector, FormSelector, LexiconEntry } from '../select';
 const { selectForm, senseTags }: typeof import('../select') = require('../select');
+const { conjunctionSelectors, prepositionSelectors }: typeof import('./functionWords') = require('./functionWords');
 
 const NOT_FINITE = ['participle', 'subjunctive', 'imperative', 'infinitive'];
 
@@ -81,10 +82,28 @@ export const ADJECTIVE_SELECTORS_EN: CaseSelector[] = [
     { kind: 'property', caseName: 'superlativeEN', extract: degreeEN('superlative') },
 ];
 
+/**
+ * Adverbs (gradable-radio plan, decision Q6). "more quickly / most quickly" is not typed: the form's
+ * "Uses more / most" box derives both words, so the selectors send the box and no phrase. A mixed
+ * shape (a "more" comparative with a one-word superlative, or only one of the two) keeps the typed text.
+ * "Gradable" only when a degree form exists: a missing form does not prove a non-gradable adverb (Q2).
+ */
+const comparativeEN = degreeEN('comparative');
+const superlativeEN = degreeEN('superlative');
+const escapeRegex = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** "more quickly" / "most quickly": the prefix, then the adverb itself (so the form can derive the phrase without loss). */
+const periphrasticForm = (prefix: 'more' | 'most', word: string): RegExp => new RegExp(`^${prefix}\\s+${escapeRegex(word)}$`, 'i');
+const usesMoreMost = (entry: LexiconEntry): boolean =>
+    periphrasticForm('more', entry.word).test(comparativeEN(entry) ?? '') && periphrasticForm('most', entry.word).test(superlativeEN(entry) ?? '');
+const unlessMoreMost = (extract: (entry: LexiconEntry) => string | undefined) =>
+    (entry: LexiconEntry) => (usesMoreMost(entry) ? undefined : extract(entry));
+
 export const ADVERB_SELECTORS_EN: CaseSelector[] = [
+    { kind: 'property', caseName: 'gradableEN', extract: (entry) => (comparativeEN(entry) || superlativeEN(entry) ? 'Gradable' : undefined) },
     { kind: 'property', caseName: 'adverbEN', extract: (entry) => entry.word },
-    { kind: 'property', caseName: 'comparativeEN', extract: degreeEN('comparative') },
-    { kind: 'property', caseName: 'superlativeEN', extract: degreeEN('superlative') },
+    { kind: 'property', caseName: 'comparativeEN', extract: unlessMoreMost(comparativeEN) },
+    { kind: 'property', caseName: 'superlativeEN', extract: unlessMoreMost(superlativeEN) },
+    { kind: 'property', caseName: 'periphrasticEN', extract: (entry) => (usesMoreMost(entry) ? 'true' : undefined) },
 ];
 
 export const NOUN_SELECTORS_EN: CaseSelector[] = [
@@ -98,4 +117,9 @@ export const VERB_SELECTORS_EN: CaseSelector[] = [
     ...SLOTS.map(([slot, tags]) => past(slot, tags)),
     ...SLOTS.map(([slot]) => bareVerb(`simpleFuture${slot}EN`)),
     ...SLOTS.map(([slot]) => bareVerb(`simpleConditional${slot}EN`)),
+];
+
+/** Conjunctions and adpositions (conjunctions-and-prepositions plan, slice 3b); see selectors/functionWords.ts. */
+export const CONJUNCTION_SELECTORS_EN: CaseSelector[] = conjunctionSelectors('EN');
+export const PREPOSITION_SELECTORS_EN: CaseSelector[] = [...prepositionSelectors('EN')
 ];

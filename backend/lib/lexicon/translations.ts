@@ -9,8 +9,14 @@
 /** Target languages: the kaikki code → the app's value. English is the hub, never a target. */
 export const TRANSLATION_LANGUAGES: Record<string, string> = { es: 'Spanish', de: 'German', et: 'Estonian' };
 
-/** kaikki part of speech → the app's value. Nouns, verbs, adjectives and adverbs (D22). */
-export const TRANSLATION_POS: Record<string, string> = { noun: 'Noun', verb: 'Verb', adj: 'Adjective', adv: 'Adverb' };
+/**
+ * kaikki part of speech → the app's value. Nouns, verbs, adjectives and adverbs (D22); conjunctions
+ * and prepositions since the conjunctions-and-prepositions plan (slice 3c). A postposition is a
+ * "Preposition" too, as in the lexicon (`POS_MAP` in scripts/lexicon/common.ts).
+ */
+export const TRANSLATION_POS: Record<string, string> = {
+    noun: 'Noun', verb: 'Verb', adj: 'Adjective', adv: 'Adverb', conj: 'Conjunction', prep: 'Preposition', postp: 'Preposition',
+};
 
 const MAX_WORD_LENGTH = 100; // the dictionary routes refuse longer queries
 

@@ -12,7 +12,8 @@ const generators: typeof import('./generators') = require('./generators');
 const eki: typeof import('./eki') = require('./eki');
 const { lexiconAdapter, lexiconFirst }: typeof import('./lexicon') = require('./lexicon');
 const { firstEstonianVerb }: typeof import('./translate') = require('./translate');
-const { NOT_FOUND }: typeof import('./types') = require('./types');
+const { NOT_FOUND, toCases }: typeof import('./types') = require('./types');
+const { pairParts }: typeof import('../../lib/lexicon/selectors/functionWords') = require('../../lib/lexicon/selectors/functionWords');
 
 export const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'] as const;
 export const PARTS_OF_SPEECH = [
@@ -36,6 +37,21 @@ function withSearchInEnglish(lookup: DictionaryAdapter): DictionaryAdapter {
     };
 }
 
+/**
+ * Conjunction lookups (conjunctions-and-prepositions plan, slice 3c). The translation table lists a pair as
+ * "weder … noch" (an ellipsis), but the lexicon stores the first word alone. When the lookup finds nothing and the text
+ * is a pair, the pair is split by rule: the first part, the "Paired" box and the second part. The answer is
+ * `partial` (a rule-based guess, the type is unknown), as with the libraries behind the other lookups.
+ */
+function withPairSplit(lookup: DictionaryAdapter, code: string): DictionaryAdapter {
+    return async (query, options) => {
+        const result = await lookup(query, options);
+        const parts = pairParts(query);
+        if (result.status !== 'not-found' || parts.length !== 2) return result;
+        return { status: 'partial', cases: toCases([[`conjunction${code}`, parts[0]], [`correlative${code}`, 'true'], [`secondPart${code}`, parts[1]]]) };
+    };
+}
+
 const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, DictionaryAdapter>>>> = {
     // Slice C2: verbs use the chain; nouns have no library, so the lexicon alone (a miss is not-found).
     English: {
@@ -44,6 +60,9 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         // Slice H2: no library exists for adjectives and adverbs, so the lexicon alone (a miss is not-found).
         Adjective: lexiconAdapter('English', 'Adjective'),
         Adverb: lexiconAdapter('English', 'Adverb'),
+        // Slice 3b of the conjunctions-and-prepositions plan: the lexicon alone, like adjectives and adverbs.
+        Conjunction: withPairSplit(lexiconAdapter('English', 'Conjunction'), 'EN'),
+        Preposition: lexiconAdapter('English', 'Preposition'),
     },
     // Slice C1: the same chain as German.
     Spanish: {
@@ -51,6 +70,8 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Noun: lexiconFirst(lexiconAdapter('Spanish', 'Noun'), generators.spanishNoun),
         Adjective: lexiconAdapter('Spanish', 'Adjective'),
         Adverb: lexiconAdapter('Spanish', 'Adverb'),
+        Conjunction: withPairSplit(lexiconAdapter('Spanish', 'Conjunction'), 'ES'),
+        Preposition: lexiconAdapter('Spanish', 'Preposition'),
     },
     // Slice B2: the local lexicon first, the library as a `partial` fallback.
     German: {
@@ -58,6 +79,8 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Noun: lexiconFirst(lexiconAdapter('German', 'Noun'), generators.germanNoun),
         Adjective: lexiconAdapter('German', 'Adjective'),
         Adverb: lexiconAdapter('German', 'Adverb'),
+        Conjunction: withPairSplit(lexiconAdapter('German', 'Conjunction'), 'DE'),
+        Preposition: lexiconAdapter('German', 'Preposition'),
     },
     // Slice D2: Eesthetic in the lexicon first, then Ekilex — a real dictionary, so its answers stay
     // `found`. Adjectives: Eesthetic has (almost) none, so Ekilex only.
@@ -67,6 +90,9 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Adjective: eki.estonianAdjective,
         // Slice H4: Ekilex only, like the adjective (Eesthetic has no adverbs).
         Adverb: eki.estonianAdverb,
+        // Slice 3a of the conjunctions-and-prepositions plan: Ekilex only (Eesthetic has no function words).
+        Conjunction: withPairSplit(eki.estonianConjunction, 'EE'),
+        Preposition: eki.estonianPreposition,
     },
 };
 

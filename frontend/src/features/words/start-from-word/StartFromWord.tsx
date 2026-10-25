@@ -38,8 +38,15 @@ import { Lang, PartOfSpeech } from '@/ts/enums';
 import { SensePreview } from './SensePreview';
 import { SenseTypeAhead } from './SenseTypeAhead';
 
-/** The parts of speech a draft can be made for (the translation table covers these four). */
-const DRAFT_PARTS_OF_SPEECH = [PartOfSpeech.noun, PartOfSpeech.verb, PartOfSpeech.adjective, PartOfSpeech.adverb];
+/** The parts of speech a draft can be made for (the translation table covers these six). */
+const DRAFT_PARTS_OF_SPEECH = [
+    PartOfSpeech.noun,
+    PartOfSpeech.verb,
+    PartOfSpeech.adjective,
+    PartOfSpeech.adverb,
+    PartOfSpeech.conjunction,
+    PartOfSpeech.preposition,
+];
 
 /** The last chosen language, kept per browser: a convenience, so every access is wrapped. */
 export const REMEMBERED_LANGUAGE_KEY = 'ladu.startFromWord.language';

@@ -112,12 +112,20 @@
         ]
       },
       "preposition": {
-        "info": "Tead, kui näed.",
-        "examples": [""]
+        "info": "Kaassõnad näitavad, kuidas nimisõna on seotud teise sõnaga: koht, aeg, põhjus või suund. Saksa keeles määrab eessõna järgneva nimisõna käände. Eesti keeles on enamik kaassõnu tagasõnad, mis seisavad nimisõna järel.",
+        "examples": [
+          "Raamat on laua *peal*.",
+          "Kohtusime *pärast* tundi.",
+          "Ta jäi vihma *tõttu* koju."
+        ]
       },
       "conjunction": {
-        "info": "Tead, kui näed.",
-        "examples": [""]
+        "info": "Sidesõnad ühendavad sõnu, sõnarühmi või lauseid. Rinnastavad sidesõnad ühendavad võrdseid osi (ja, aga, või). Alistavad sidesõnad alustavad kõrvallauset (sest, kuigi, kui). Mõned sidesõnad esinevad paarina (nii … kui ka).",
+        "examples": [
+          "Mulle meeldib tee *ja* kohv.",
+          "Ta jäi koju, *sest* ta oli haige.",
+          "Ta ei räägi *ega* prantsuse *ega* itaalia keelt."
+        ]
       },
       "interjection": {
         "info": "Tead, kui näed.",
@@ -292,26 +300,33 @@
     "adverb": {
       "errors": {
         "formEN": {
-          "adverbRequired": "Määrsõna on kohustuslik"
+          "adverbRequired": "Määrsõna on kohustuslik",
+          "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         },
         "formES": {
-          "adverbRequired": "Määrsõna on kohustuslik"
+          "adverbRequired": "Määrsõna on kohustuslik",
+          "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         },
         "formDE": {
           "adverbRequired": "Määrsõna on kohustuslik",
           "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         },
         "formEE": {
-          "adverbRequired": "Määrsõna on kohustuslik"
+          "adverbRequired": "Määrsõna on kohustuslik",
+          "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         }
       },
       "fields": {
         "adverbEN": "Määrsõna",
         "comparativeEN": "Keskvõrre",
         "superlativeEN": "Ülivõrre",
+        "gradableEN": "Astestatav",
+        "periphrasticEN": "Kasutab sõnu \"more\" / \"most\"",
         "adverbES": "Määrsõna",
         "comparativeES": "Keskvõrre",
         "superlativeES": "Ülivõrre",
+        "gradableES": "Astestatav",
+        "periphrasticComparativeES": "Kasutab sõna \"más\"",
         "gradableDE": "Astestatav",
         "adverbDE": "Määrsõna",
         "comparativeDE": "Keskvõrre",
@@ -319,7 +334,91 @@
         "adverbEE": "Määrsõna",
         "comparativeEE": "Keskvõrre",
         "superlativeEE": "Ülivõrre",
+        "gradableEE": "Astestatav",
         "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)"
+      }
+    },
+    "conjunction": {
+      "errors": {
+        "formEN": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeInvalid": "See pole valik",
+          "secondPartRequired": "Teine osa on kohustuslik"
+        },
+        "formES": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeInvalid": "See pole valik",
+          "secondPartRequired": "Teine osa on kohustuslik"
+        },
+        "formDE": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeInvalid": "See pole valik",
+          "secondPartRequired": "Teine osa on kohustuslik"
+        },
+        "formEE": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeInvalid": "See pole valik",
+          "secondPartRequired": "Teine osa on kohustuslik"
+        }
+      },
+      "fields": {
+        "conjunctionEN": "Sidesõna",
+        "conjunctionTypeEN": "Tüüp",
+        "correlativeEN": "Kaheosaline (nt nii … kui ka)",
+        "secondPartEN": "Teine osa",
+        "conjunctionES": "Sidesõna",
+        "conjunctionTypeES": "Tüüp",
+        "correlativeES": "Kaheosaline (nt nii … kui ka)",
+        "secondPartES": "Teine osa",
+        "moodES": "Verbi kõneviis",
+        "conjunctionDE": "Sidesõna",
+        "conjunctionTypeDE": "Tüüp",
+        "correlativeDE": "Kaheosaline (nt nii … kui ka)",
+        "secondPartDE": "Teine osa",
+        "conjunctionEE": "Sidesõna",
+        "conjunctionTypeEE": "Tüüp",
+        "correlativeEE": "Kaheosaline (nt nii … kui ka)",
+        "secondPartEE": "Teine osa"
+      }
+    },
+    "preposition": {
+      "errors": {
+        "formEN": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        },
+        "formES": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        },
+        "formDE": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        },
+        "formEE": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        }
+      },
+      "fields": {
+        "prepositionEN": "Kaassõna",
+        "positionEN": "Asukoht",
+        "prepositionES": "Kaassõna",
+        "positionES": "Asukoht",
+        "prepositionDE": "Kaassõna",
+        "positionDE": "Asukoht",
+        "governedCaseDE": "Nimisõna kääne(d)",
+        "contractsDE": "Sulandub artikliga",
+        "withDemDE": "Artikliga „dem“ (nt zum)",
+        "withDerDE": "Artikliga „der“ (nt zur)",
+        "withDasDE": "Artikliga „das“ (nt ins)",
+        "prepositionEE": "Kaassõna",
+        "positionEE": "Asukoht",
+        "governedCasePreEE": "Nimisõna kääne (sõna on ees)",
+        "governedCasePostEE": "Nimisõna kääne (sõna on järel)",
+        "spatialSeriesEE": "On sisse- / seest-rida",
+        "directionToEE": "Kuhu (nt sisse)",
+        "directionFromEE": "Kust (nt seest)"
       }
     },
     "verb": {

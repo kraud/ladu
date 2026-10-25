@@ -207,6 +207,14 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         // Adverbs (Slice H4): "muutumatu", one form `ID`. "ja" is a conjunction (also "muutumatu").
         kiiresti: [31, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'kiiresti']]) }],
         ja: [32, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'ja']]) }],
+        // Conjunctions and adpositions (conjunctions-prepositions plan, slice 3a): all "muutumatu", one form `ID`.
+        kuigi: [33, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'kuigi']]) }],
+        pärast: [41, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'pärast']]) }],
+        enne: [42, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'enne']]) }],
+        sees: [43, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'sees']]) }],
+        peale: [44, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'peale']]) }],
+        kohta: [45, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'kohta']]) }],
+        koos: [46, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'koos']]) }],
         jooksma: [21, { wordClass: 'verb', paradigmForms: forms([['Sup', 'jooksma'], ['Inf', 'joosta']]) }],
     };
     /** word id → `api/word/details` (part of speech + comparison relations, D20). */
@@ -217,6 +225,17 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         13: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: { level1WordRelationGroups: [group('komp', ['toredam']), group('superl', ['kõige toredam'])] } },
         31: { lexemes: [{ pos: [{ code: 'adv' }] }], wordRelationDetails: { level1WordRelationGroups: [group('komp', ['kiiremini']), group('superl', ['kõige kiiremini', 'kiireimini'])] } },
         32: { lexemes: [{ pos: [{ code: 'konj' }] }] },
+        33: { lexemes: [{ pos: [{ code: 'adv' }] }, { pos: [{ code: 'konj' }] }] },
+        // Real Ekilex shape: a government is a question word ("mille" = genitive, "mida" = partitive, "kelle/mille" = either spelling).
+        41: { lexemes: [{ pos: [{ code: 'postp' }], governments: [{ value: 'mille' }] }, { pos: [{ code: 'prep' }], governments: [{ value: 'keda/mida' }] }, { pos: [{ code: 'adv' }] }, { pos: [{ code: 'postp' }], governments: [{ value: 'kelle/mille' }] }] },
+        42: { lexemes: [{ pos: [{ code: 'prep' }, { code: 'adv' }], governments: [{ value: 'keda/mida' }] }] },
+        43: { lexemes: [{ pos: [{ code: 'postp' }], governments: [{ value: 'kelle/mille' }] }] },
+        // One lexeme with both codes: the position is "before or after", and its case counts for both.
+        44: { lexemes: [{ pos: [{ code: 'postp' }, { code: 'prep' }], governments: [{ value: 'mille' }] }] },
+        // A question word the form has no case for ("mis ajast"): the position is filled, the cases are not.
+        45: { lexemes: [{ pos: [{ code: 'postp' }], governments: [{ value: 'mis ajast' }] }] },
+        // An adposition with no government at all.
+        46: { lexemes: [{ pos: [{ code: 'postp' }, { code: 'prep' }] }] },
     };
     /** A fake Ekilex: answers by path, like e2e/fixtures/eki-stub/server.ts. */
     function fakeEkilex({ ok = true } = {}) {
@@ -288,7 +307,7 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         const res = await lookup(`Estonian/Adverb/kiiresti`);
         expect(res.statusCode).toBe(200);
         expect(res.body.status).toBe('found');
-        expect(casesOf(res.body)).toEqual({ adverbEE: 'kiiresti', comparativeEE: 'kiiremini', periphrasticSuperlativeEE: 'true' });
+        expect(casesOf(res.body)).toEqual({ gradableEE: 'Gradable', adverbEE: 'kiiresti', comparativeEE: 'kiiremini', periphrasticSuperlativeEE: 'true' });
         expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
             'https://ekilex.test/api/word/ids/kiiresti/eki/est',
             'https://ekilex.test/api/paradigm/details/31',
@@ -300,6 +319,84 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         fakeEkilex();
         expect((await lookup('Estonian/Adverb/ja')).body).toEqual({ status: 'not-found', cases: [] });
         expect((await lookup(`Estonian/Adverb/${encodeURIComponent('õun')}`)).body).toEqual({ status: 'not-found', cases: [] });
+    });
+
+    describe('conjunctions and adpositions (slice 3a, 3 calls: ids, paradigm, details)', () => {
+        it('a conjunction: the word itself, found through the part-of-speech code "konj"', async () => {
+            const fetchMock = fakeEkilex();
+            const res = await lookup('Estonian/Conjunction/kuigi');
+            expect(res.body).toEqual({ status: 'found', cases: [{ caseName: 'conjunctionEE', word: 'kuigi' }] });
+            expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+                'https://ekilex.test/api/word/ids/kuigi/eki/est',
+                'https://ekilex.test/api/paradigm/details/33',
+                'https://ekilex.test/api/word/details/33',
+            ]);
+        });
+
+        it('an adverb, a noun and an unknown word typed into the conjunction form are not-found', async () => {
+            fakeEkilex();
+            for (const word of ['kiiresti', encodeURIComponent('õun'), 'zorplate']) {
+                expect((await lookup(`Estonian/Conjunction/${word}`)).body).toEqual({ status: 'not-found', cases: [] });
+            }
+        });
+
+        it('"pärast": a preposition with the partitive and a postposition with the genitive fill the position and both cases', async () => {
+            fakeEkilex();
+            const res = await lookup(`Estonian/Preposition/${encodeURIComponent('pärast')}`);
+            expect(res.body.status).toBe('found');
+            expect(casesOf(res.body)).toEqual({
+                prepositionEE: 'pärast',
+                positionEE: 'Before or after the noun',
+                governedCasePreEE: 'Partitive',
+                governedCasePostEE: 'Genitive',
+            });
+        });
+
+        it('a preposition only: position "Before the noun" and the case of the noun before it', async () => {
+            fakeEkilex();
+            expect(casesOf((await lookup('Estonian/Preposition/enne')).body)).toEqual({
+                prepositionEE: 'enne',
+                positionEE: 'Before the noun',
+                governedCasePreEE: 'Partitive',
+            });
+        });
+
+        it('a postposition only: position "After the noun" and the case of the noun before it', async () => {
+            fakeEkilex();
+            expect(casesOf((await lookup('Estonian/Preposition/sees')).body)).toEqual({
+                prepositionEE: 'sees',
+                positionEE: 'After the noun',
+                governedCasePostEE: 'Genitive',
+            });
+        });
+
+        it('one lexeme with both codes: "Before or after", and its case for both positions', async () => {
+            fakeEkilex();
+            expect(casesOf((await lookup('Estonian/Preposition/peale')).body)).toEqual({
+                prepositionEE: 'peale',
+                positionEE: 'Before or after the noun',
+                governedCasePreEE: 'Genitive',
+                governedCasePostEE: 'Genitive',
+            });
+        });
+
+        it('a question word with no case in the form, or no government at all, fills the position and no case', async () => {
+            fakeEkilex();
+            expect(casesOf((await lookup('Estonian/Preposition/kohta')).body)).toEqual({ prepositionEE: 'kohta', positionEE: 'After the noun' });
+            expect(casesOf((await lookup('Estonian/Preposition/koos')).body)).toEqual({ prepositionEE: 'koos', positionEE: 'Before or after the noun' });
+        });
+
+        it('a conjunction, an adverb and a noun typed into the preposition form are not-found', async () => {
+            fakeEkilex();
+            for (const word of ['ja', 'kiiresti', encodeURIComponent('õun')]) {
+                expect((await lookup(`Estonian/Preposition/${word}`)).body).toEqual({ status: 'not-found', cases: [] });
+            }
+        });
+
+        it('a failing Ekilex is a 502, not "not-found"', async () => {
+            fakeEkilex({ ok: false });
+            expect((await lookup('Estonian/Preposition/enne')).statusCode).toBe(502);
+        });
     });
 
     it('a noun typed into the adjective form is not-found (the part-of-speech check, D20)', async () => {
@@ -416,7 +513,7 @@ describe('adjectives and adverbs (Slice H2: the lexicon alone, a miss is not-fou
     it('English: an adjective takes -er/-est or more/most, an adverb the same', async () => {
         expect(casesOf((await lookup('English/Adjective/big')).body)).toEqual({ positiveEN: 'big', comparativeEN: 'bigger', superlativeEN: 'biggest' });
         expect(casesOf((await lookup('English/Adjective/beautiful')).body).comparativeEN).toBe('more beautiful');
-        expect(casesOf((await lookup('English/Adverb/quickly')).body)).toEqual({ adverbEN: 'quickly', comparativeEN: 'more quickly', superlativeEN: 'most quickly' });
+        expect(casesOf((await lookup('English/Adverb/quickly')).body)).toEqual({ gradableEN: 'Gradable', adverbEN: 'quickly', periphrasticEN: 'true' });
     });
 
     it('English: a homograph stub does not hide the main sense ("good")', async () => {
@@ -438,14 +535,52 @@ describe('adjectives and adverbs (Slice H2: the lexicon alone, a miss is not-fou
         expect(casesOf(res.body)).toEqual({ adverbES: 'rápidamente' });
     });
 
+    describe('conjunctions and prepositions (slice 3b)', () => {
+        it('German: a pair headword fills the first part, the box and the second part; the type only when Wiktionary marks it', async () => {
+            expect(casesOf((await lookup(`German/Conjunction/${encodeURIComponent('sowohl ... als auch')}`)).body)).toEqual({
+                conjunctionDE: 'sowohl', conjunctionTypeDE: 'Coordinating', correlativeDE: 'true', secondPartDE: 'als auch',
+            });
+            expect(casesOf((await lookup('German/Conjunction/und')).body)).toEqual({ conjunctionDE: 'und', conjunctionTypeDE: 'Coordinating' });
+            // "weil" is marked both coordinating and subordinating (an obsolete sense): no type. "weder" has no marker.
+            expect(casesOf((await lookup('German/Conjunction/weil')).body)).toEqual({ conjunctionDE: 'weil' });
+            expect(casesOf((await lookup('German/Conjunction/weder')).body)).toEqual({ conjunctionDE: 'weder' });
+        });
+
+        it('German: "nach" is one row, before or after the noun; "wegen" governs the dative and the genitive; "in" has no case', async () => {
+            expect(casesOf((await lookup('German/Preposition/nach')).body)).toEqual({ prepositionDE: 'nach', positionDE: 'Before or after the noun', governedCaseDE: 'D' });
+            expect(casesOf((await lookup('German/Preposition/wegen')).body)).toEqual({ prepositionDE: 'wegen', positionDE: 'Before the noun', governedCaseDE: 'DG' });
+            expect(casesOf((await lookup('German/Preposition/in')).body)).toEqual({ prepositionDE: 'in', positionDE: 'Before the noun' });
+        });
+
+        it('English: a marked conjunction gets its type, a pair is split, and "ago" is a postposition', async () => {
+            expect(casesOf((await lookup('English/Conjunction/because')).body)).toEqual({ conjunctionEN: 'because', conjunctionTypeEN: 'Subordinating' });
+            expect(casesOf((await lookup(`English/Conjunction/${encodeURIComponent('neither … nor')}`)).body)).toEqual({
+                conjunctionEN: 'neither', correlativeEN: 'true', secondPartEN: 'nor',
+            });
+            expect(casesOf((await lookup('English/Preposition/ago')).body)).toEqual({ prepositionEN: 'ago', positionEN: 'After the noun' });
+        });
+
+        it('Spanish: "para que" is marked subordinating, "porque" is not marked, and a preposition gets its position', async () => {
+            expect(casesOf((await lookup('Spanish/Conjunction/para%20que')).body)).toEqual({ conjunctionES: 'para que', conjunctionTypeES: 'Subordinating' });
+            expect(casesOf((await lookup('Spanish/Conjunction/porque')).body)).toEqual({ conjunctionES: 'porque' });
+            expect(casesOf((await lookup('Spanish/Preposition/de')).body)).toEqual({ prepositionES: 'de', positionES: 'Before the noun' });
+        });
+
+        it('a word of the other part of speech is not-found, and so is an unknown word', async () => {
+            expect((await lookup('German/Conjunction/wegen')).body).toEqual({ status: 'not-found', cases: [] });
+            expect((await lookup('German/Preposition/und')).body).toEqual({ status: 'not-found', cases: [] });
+            expect((await lookup('English/Conjunction/zorplate')).body).toEqual({ status: 'not-found', cases: [] });
+        });
+    });
+
     it('German: the superlative has no "am" (D25), and an adjective that cannot be compared keeps the base word', async () => {
         expect(casesOf((await lookup('German/Adjective/gut')).body)).toEqual({ positiveDE: 'gut', komparativDE: 'besser', superlativDE: 'besten' });
         expect(casesOf((await lookup('German/Adjective/lila')).body)).toEqual({ positiveDE: 'lila' });
     });
 
-    it('German: an adverb is Gradable when it has a comparative, else Non-gradable', async () => {
+    it('German: an adverb is Gradable when it has a comparative, else the radio is left empty', async () => {
         expect(casesOf((await lookup('German/Adverb/oft')).body)).toMatchObject({ gradableDE: 'Gradable', comparativeDE: 'öfter', superlativeDE: 'öftesten' });
-        expect(casesOf((await lookup('German/Adverb/hier')).body)).toEqual({ gradableDE: 'Non-gradable', adverbDE: 'hier' });
+        expect(casesOf((await lookup('German/Adverb/hier')).body)).toEqual({ adverbDE: 'hier' });
     });
 
     it('a word not in the lexicon is not-found: there is no library to guess with', async () => {
@@ -558,7 +693,7 @@ describe('type-ahead suggestions (Slice E: GET /api/dictionary/:language/:partOf
     });
 
     it('400 for a pair without a dictionary, a prefix under 2 characters or a bad limit', async () => {
-        expect((await suggest('Estonian/Preposition?prefix=ka')).statusCode).toBe(400);
+        expect((await suggest('Estonian/Pronoun?prefix=ka')).statusCode).toBe(400);
         expect((await suggest('German/Verb?prefix=s')).statusCode).toBe(400);
         expect((await suggest('German/Verb')).statusCode).toBe(400);
         expect((await suggest('German/Verb?prefix=se&limit=0')).statusCode).toBe(400);
@@ -644,6 +779,26 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
         expect(res.body.ekilex).toBeUndefined();
     });
 
+    it('conjunctions and prepositions (slice 3c): from English, from German and from Estonian', async () => {
+        const [because] = (await translate('English/Conjunction/because')).body.senses;
+        expect(because.english).toBe('because');
+        expect(words(because.words.German)).toEqual(expect.arrayContaining(['weil', 'denn']));
+        expect(words(because.words.Spanish)).toContain('porque');
+        expect(words(because.words.Estonian)).toContain('sest');
+        // The reverse lookup reaches the same English word.
+        expect((await translate('German/Conjunction/weil')).body.senses.map((s) => s.english)).toContain('because');
+        expect((await translate(`Estonian/Preposition/${encodeURIComponent('pärast')}`)).body.senses.map((s) => s.english)).toContain('after');
+        const [after] = (await translate('English/Preposition/after')).body.senses;
+        expect(words(after.words.German)).toContain('nach');
+        expect(words(after.words.Spanish)).toEqual(expect.arrayContaining(['después de', 'tras']));
+    });
+
+    it('a pair keeps its ellipsis in the translation words ("neither … nor")', async () => {
+        const [pair] = (await translate(`English/Conjunction/${encodeURIComponent('neither … nor')}`)).body.senses;
+        expect(words(pair.words.German)).toEqual(['weder … noch']);
+        expect(words(pair.words.Spanish)).toEqual(['ni … ni']);
+    });
+
     it('from German: "See" belongs to two English words (lake: der See, sea: die See)', async () => {
         const res = await translate('German/Noun/see');
         const byEnglish = Object.fromEntries(res.body.senses.map((s) => [s.english, words(s.words.German)]));
@@ -713,7 +868,7 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
 
     it('400 for an unknown language or part of speech, or a bad query; 401 without a token', async () => {
         expect((await translate('Klingon/Noun/lake')).statusCode).toBe(400);
-        expect((await translate('English/Preposition/in')).statusCode).toBe(400);
+        expect((await translate('English/Pronoun/it')).statusCode).toBe(400);
         expect((await translate(`English/Noun/${'a'.repeat(101)}`)).statusCode).toBe(400);
         expect((await translate('English/Noun/%20')).statusCode).toBe(400);
         expect((await request(app).get('/api/dictionary/translate/English/Noun/lake')).statusCode).toBe(401);
@@ -790,7 +945,7 @@ describe('sense type-ahead (Slice G, G1: GET /api/dictionary/translate/:fromLang
 
     it('400 for an unknown language or part of speech, a bad prefix or limit; 401 without a token', async () => {
         expect((await senses('Klingon?prefix=la')).statusCode).toBe(400);
-        expect((await senses('English?prefix=la&partOfSpeech=Preposition')).statusCode).toBe(400);
+        expect((await senses('English?prefix=la&partOfSpeech=Pronoun')).statusCode).toBe(400);
         expect((await senses('English')).statusCode).toBe(400);
         expect((await senses('English?prefix=a')).statusCode).toBe(400);
         expect((await senses(`English?prefix=${'a'.repeat(101)}`)).statusCode).toBe(400);
@@ -887,7 +1042,7 @@ describe('one sense with its words (Slice G, G2: GET /api/dictionary/translate/s
     it('404 for a key that matches no sense; 400 for a bad part of speech, language or number; 401 without a token', async () => {
         expect((await sense('Noun', 'english=lake&entry=0&sense=99')).statusCode).toBe(404);
         expect((await sense('Verb', 'english=lake&entry=0&sense=0')).statusCode).toBe(404);
-        expect((await sense('Preposition', 'english=lake&entry=0&sense=0')).statusCode).toBe(400);
+        expect((await sense('Pronoun', 'english=lake&entry=0&sense=0')).statusCode).toBe(400);
         expect((await sense('Noun', 'english=lake&entry=0&sense=0&languages=Klingon')).statusCode).toBe(400);
         expect((await sense('Noun', 'english=&entry=0&sense=0')).statusCode).toBe(400);
         expect((await sense('Noun', 'entry=0&sense=0')).statusCode).toBe(400);
@@ -971,6 +1126,64 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
         expect(res.body.translations[0].cases.length).toBeGreaterThan(0);
     });
 
+    describe('conjunctions and prepositions (slice 3c)', () => {
+        /** A fake Ekilex that knows "sest" as a conjunction and "pärast" as a preposition and a postposition. */
+        function fakeEkilex() {
+            global.fetch = jest.fn(async (url) => {
+                const path = decodeURIComponent(new URL(url).pathname);
+                const json = (body) => ({ ok: true, status: 200, json: async () => body });
+                const known = { sest: [1, [{ code: 'konj' }], []], pärast: [2, [{ code: 'prep' }], [{ value: 'keda/mida' }]] };
+                let match;
+                if ((match = /^\/api\/word\/ids\/(.+)\/eki\/est$/.exec(path))) return json(known[match[1]] ? [known[match[1]][0]] : []);
+                if ((match = /^\/api\/paradigm\/details\/(\d+)$/.exec(path))) {
+                    const word = Object.keys(known).find((key) => known[key][0] === Number(match[1]));
+                    return json([{ wordClass: 'muutumatu', paradigmForms: [{ morphCode: 'ID', value: word }] }]);
+                }
+                if ((match = /^\/api\/word\/details\/(\d+)$/.exec(path))) {
+                    const entry = Object.values(known).find(([id]) => id === Number(match[1]));
+                    return json({ lexemes: [{ pos: entry[1], governments: entry[2] }] });
+                }
+                return json({});
+            });
+        }
+
+        it('one call fills every language: the lexicon words and the Estonian Ekilex word', async () => {
+            fakeEkilex();
+            const res = await draft({
+                partOfSpeech: 'Preposition',
+                picks: [{ language: 'German', word: 'nach' }, { language: 'Spanish', word: 'de' }, { language: 'English', word: 'in' }, { language: 'Estonian', word: 'pärast' }],
+            });
+            expect(res.statusCode).toBe(200);
+            expect(res.body.translations.map((t) => [t.language, t.status])).toEqual([['German', 'found'], ['Spanish', 'found'], ['English', 'found'], ['Estonian', 'found']]);
+            expect(casesOf(res.body.translations[0])).toEqual({ prepositionDE: 'nach', positionDE: 'Before or after the noun', governedCaseDE: 'D' });
+            expect(casesOf(res.body.translations[3])).toEqual({ prepositionEE: 'pärast', positionEE: 'Before the noun', governedCasePreEE: 'Partitive' });
+        });
+
+        it('a conjunction draft: a marked type is filled, an unknown word is not-found', async () => {
+            fakeEkilex();
+            const res = await draft({
+                partOfSpeech: 'Conjunction',
+                picks: [{ language: 'German', word: 'und' }, { language: 'English', word: 'because' }, { language: 'Spanish', word: 'zorplate' }, { language: 'Estonian', word: 'sest' }],
+            });
+            expect(res.body.translations.map((t) => t.status)).toEqual(['found', 'found', 'not-found', 'found']);
+            expect(casesOf(res.body.translations[0])).toEqual({ conjunctionDE: 'und', conjunctionTypeDE: 'Coordinating' });
+            expect(casesOf(res.body.translations[3])).toEqual({ conjunctionEE: 'sest' });
+        });
+
+        it('a pair from the translation table ("weder … noch") that the lexicon does not store is split by rule: partial', async () => {
+            fakeEkilex();
+            const res = await draft({
+                partOfSpeech: 'Conjunction',
+                picks: [{ language: 'German', word: 'weder … noch' }, { language: 'Spanish', word: 'ni ... ni' }, { language: 'English', word: 'neither … nor' }, { language: 'Estonian', word: 'ei … ega' }],
+            });
+            expect(res.body.translations.map((t) => t.status)).toEqual(['partial', 'partial', 'found', 'partial']);
+            expect(casesOf(res.body.translations[0])).toEqual({ conjunctionDE: 'weder', correlativeDE: 'true', secondPartDE: 'noch' });
+            expect(casesOf(res.body.translations[1])).toEqual({ conjunctionES: 'ni', correlativeES: 'true', secondPartES: 'ni' });
+            expect(casesOf(res.body.translations[2])).toEqual({ conjunctionEN: 'neither', correlativeEN: 'true', secondPartEN: 'nor' });
+            expect(casesOf(res.body.translations[3])).toEqual({ conjunctionEE: 'ei', correlativeEE: 'true', secondPartEE: 'ega' });
+        });
+    });
+
     it('works for the other parts of speech too (a verb)', async () => {
         const res = await draft({ partOfSpeech: 'Verb', picks: [{ language: 'Spanish', word: 'bailar' }, { language: 'Estonian', word: 'tantsima' }] });
         expect(res.body.translations.map((t) => t.status)).toEqual(['found', 'found']);
@@ -978,7 +1191,7 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
 
     it('400 for a bad part of speech, language, repeated language, word or number of picks; 401 without a token', async () => {
         const ok = { language: 'German', word: 'Haus' };
-        expect((await draft({ partOfSpeech: 'Preposition', picks: [ok] })).statusCode).toBe(400);
+        expect((await draft({ partOfSpeech: 'Pronoun', picks: [ok] })).statusCode).toBe(400);
         expect((await draft({ partOfSpeech: 'Noun', picks: [] })).statusCode).toBe(400);
         expect((await draft({ partOfSpeech: 'Noun' })).statusCode).toBe(400);
         expect((await draft({ partOfSpeech: 'Noun', picks: [{ ...ok, language: 'Klingon' }] })).statusCode).toBe(400);
@@ -994,8 +1207,8 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
 
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
-        expect((await lookup('English/Preposition/in')).statusCode).toBe(400);
-        expect((await lookup('Estonian/Preposition/kaudu')).statusCode).toBe(400);
+        expect((await lookup('English/Pronoun/it')).statusCode).toBe(400);
+        expect((await lookup('Estonian/Pronoun/see')).statusCode).toBe(400);
         expect((await lookup('Klingon/Verb/x')).statusCode).toBe(400);
     });
 

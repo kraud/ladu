@@ -86,3 +86,28 @@ describe('translationRows', () => {
         expect(translationRows({ word: 'lake', pos: 'noun' }, 0)).toEqual([]);
     });
 });
+
+describe('translationRows: conjunctions and prepositions (conjunctions-and-prepositions plan, slice 3c)', () => {
+    const translations = [
+        { lang: 'de', word: 'weil', sense: 'for the reason that' },
+        { lang: 'es', word: 'porque', sense: 'for the reason that' },
+        { lang: 'et', word: 'sest', sense: 'for the reason that' },
+    ];
+
+    it('a conjunction gets part of speech "Conjunction"', () => {
+        const rows = translationRows({ word: 'because', pos: 'conj', translations }, 0);
+        expect(rows.map((r) => [r.partOfSpeech, r.language, r.word])).toEqual([
+            ['Conjunction', 'German', 'weil'], ['Conjunction', 'Spanish', 'porque'], ['Conjunction', 'Estonian', 'sest'],
+        ]);
+    });
+
+    it('a preposition and a postposition both get part of speech "Preposition"', () => {
+        expect(translationRows({ word: 'in', pos: 'prep', translations: [{ lang: 'de', word: 'in', sense: 'inside' }] }, 0)[0].partOfSpeech).toBe('Preposition');
+        expect(translationRows({ word: 'ago', pos: 'postp', translations: [{ lang: 'de', word: 'vor', sense: 'in the past' }] }, 0)[0].partOfSpeech).toBe('Preposition');
+    });
+
+    it('a pair headword keeps its translations with the ellipsis as the target word', () => {
+        const rows = translationRows({ word: 'neither … nor', pos: 'conj', translations: [{ lang: 'de', word: 'weder … noch', sense: '' }] }, 0);
+        expect(rows.map((r) => r.word)).toEqual(['weder … noch']);
+    });
+});

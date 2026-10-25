@@ -263,10 +263,67 @@ describe('FieldRenderer', () => {
             expect(screen.getByRole('combobox')).toHaveTextContent('sein');
         });
 
+        it('an optional select shows a dash while empty and can be cleared with the dash item', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<Harness field={{ ...selectField, required: false }} />);
+
+            expect(screen.getByRole('combobox')).toHaveTextContent('—');
+
+            await user.click(screen.getByRole('combobox'));
+            await user.click(await screen.findByRole('option', { name: 'sein' }));
+            expect(screen.getByRole('combobox')).toHaveTextContent('sein');
+
+            await user.click(screen.getByRole('combobox'));
+            await user.click(await screen.findByRole('option', { name: '—' }));
+            expect(screen.getByRole('combobox')).toHaveTextContent('—');
+        });
+
+        it('a required select has no dash item', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<Harness field={selectField} />);
+
+            await user.click(screen.getByRole('combobox'));
+            expect(await screen.findByRole('option', { name: 'sein' })).toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: '—' })).not.toBeInTheDocument();
+        });
+
         it('displayOnly: shows the matched option label as static text', () => {
             renderWithProviders(<Harness field={selectField} displayOnly value="haben" />);
             expect(screen.getByText('haben')).toBeInTheDocument();
             expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('optionsLayout', () => {
+        const radioWith = (optionsLayout?: 'row' | 'column'): FieldConfig => ({
+            kind: 'radio',
+            name: 'position',
+            caseName: radioField.caseName!,
+            labelKey: 'position',
+            required: false,
+            options: [
+                { value: 'a', label: 'Option A' },
+                { value: 'b', label: 'Option B' },
+            ],
+            optionsLayout,
+        });
+        const multiWith = (optionsLayout?: 'row' | 'column'): FieldConfig => ({ ...(multiSelectField as Extract<FieldConfig, { kind: 'multi-select' }>), optionsLayout });
+
+        it('a radio lists its options in a column on request, and keeps the wrapping row by default', () => {
+            const { unmount } = renderWithProviders(<Harness field={radioWith('column')} />);
+            expect(screen.getByRole('radiogroup')).toHaveClass('flex-col');
+            unmount();
+            renderWithProviders(<Harness field={radioWith()} />);
+            expect(screen.getByRole('radiogroup')).not.toHaveClass('flex-col');
+            expect(screen.getByRole('radiogroup')).toHaveClass('flex-wrap');
+        });
+
+        it('a multi-select lists its checkboxes in a column on request, and keeps the wrapping row by default', () => {
+            const { container, unmount } = renderWithProviders(<Harness field={multiWith('column')} />);
+            expect(container.querySelector('.flex-col')).not.toBeNull();
+            unmount();
+            const second = renderWithProviders(<Harness field={multiWith()} />);
+            expect(second.container.querySelector('.flex-row.flex-wrap')).not.toBeNull();
         });
     });
 

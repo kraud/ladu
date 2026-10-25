@@ -28,7 +28,7 @@ const { estonianEquivalents }: typeof import('./eki') = require('./eki');
 const { escapeLike }: typeof import('./lexicon') = require('./lexicon');
 
 export const TRANSLATE_LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'] as const;
-export const TRANSLATE_PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb'] as const;
+export const TRANSLATE_PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb', 'Conjunction', 'Preposition'] as const;
 type Language = (typeof TRANSLATE_LANGUAGES)[number];
 
 /** Senses returned at most; a common word ("run", "set") has dozens. */
@@ -194,7 +194,7 @@ export interface SenseSuggestion {
 
 /**
  * The sense type-ahead (Slice G, step G1): words of `fromLanguage` that start with `prefix`, one
- * line per sense. `partOfSpeech` is one of TRANSLATE_PARTS_OF_SPEECH, or 'Any' for all four.
+ * line per sense. `partOfSpeech` is one of TRANSLATE_PARTS_OF_SPEECH, or 'Any' for all of them.
  * The prefix is matched only against `fromLanguage` (for English: the English entry words).
  *
  * Order of the words: frequency rank (`lexemes`, unranked last), shorter, alphabetical — as the
