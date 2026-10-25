@@ -129,8 +129,8 @@ Prefix rule (decision Q6). For each language, the autocomplete:
 
 Reminders from slices 2 and 3. Do not forget them. Remind the user when the branch is ready to merge.
 
-- [ ] **Rebuild and load the lexicon** in staging and production for English, Spanish and German. The selectors run at ingest time, so the new adverb values (radio, "more/most", "más") reach the autocomplete only after the rebuild. Local dev was done on 2026-10-24. Use `ingest.ts <lang>` and `load.js` (VPS: `docker exec backend-<env> node scripts/lexicon/load.js /tmp/<file>`).
-- [ ] **Reseed the demo template** per environment, so the 2 demo adverbs get their new values. The demo rollout needs this anyway.
+- [x] **Rebuild and load the lexicon** in staging and production for English, Spanish and German. The selectors run at ingest time, so the new adverb values (radio, "more/most", "más") reach the autocomplete only after the rebuild. Local dev was done on 2026-10-24. Done on 2026-10-25 with Ansible, together with the conjunction and preposition reload (runbook in `conjunctions-prepositions.md`). Use `ingest.ts <lang>` and `load.js` (VPS: `docker exec backend-<env> node scripts/lexicon/load.js /tmp/<file>`).
+- [x] **Reseed the demo template** per environment, so the 2 demo adverbs get their new values. The demo rollout needs this anyway. Done 2026-10-25 with `--reset` in staging and production (14 words, 5 tags in both).
 
 ## Verification
 

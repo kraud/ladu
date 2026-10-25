@@ -1,6 +1,6 @@
 # Plan: Conjunctions and prepositions in Ladu (+ a reusable "add a part of speech" guide)
 
-Status: plan agreed on 2026-10-24. All slices done (2026-10-25). Open: the user's review of the strings (see "Open at the end"), review-log items #5, #7 and #8, and the per-environment reload ("Before merge").
+Status: plan agreed on 2026-10-24. All slices done (2026-10-25). Open: the user's review of the strings (see "Open at the end"), review-log items #5, #7 and #8, and the per-environment reload ("Rollout runbook").
 
 ## How to start (read this first in a new session)
 
@@ -15,8 +15,8 @@ Status: plan agreed on 2026-10-24. All slices done (2026-10-25). Open: the user'
 - [x] Slice 2 (2026-10-25) — Preposition form. Open: the user reviews the Estonian case list and the new strings; no browser check yet
 - [x] Slice 3 research (2026-10-25) — see "Slice 3 research results"; decisions Q8–Q10
 - [x] Slice 3a (2026-10-25) — Estonian: Ekilex adapter for Conjunction and Preposition (word, position, governed case). Open: the Estonian e2e stub gets `kuigi` and `pärast` in slice 4
-- [x] Slice 3b (2026-10-25) — DE/EN/ES lexicon: `extract.ts` keeps categories, selectors for `conj`/`prep`/`postp`, `prep` + `postp` merged into one row, re-extracted, re-ingested, re-loaded locally. Staging and production still need the reload (see "Before merge")
-- [x] Slice 3c (2026-10-25) — Translations (`conj`/`prep`/`postp` in the translation file: 483 conjunction and 1,190 preposition rows), the translate/senses/sense/draft routes, the "Start from a word" part-of-speech list, and a pair split for ellipsis words. Staging and production need the translation file loaded too (see "Before merge")
+- [x] Slice 3b (2026-10-25) — DE/EN/ES lexicon: `extract.ts` keeps categories, selectors for `conj`/`prep`/`postp`, `prep` + `postp` merged into one row, re-extracted, re-ingested, re-loaded locally. Staging and production still need the reload (see "Rollout runbook")
+- [x] Slice 3c (2026-10-25) — Translations (`conj`/`prep`/`postp` in the translation file: 483 conjunction and 1,190 preposition rows), the translate/senses/sense/draft routes, the "Start from a word" part-of-speech list, and a pair split for ellipsis words. Staging and production need the translation file loaded too (see "Rollout runbook")
 - [x] Slice 4 (2026-10-25) — e2e spec `autocomplete-i-conjunctions-prepositions.spec.ts` (6 tests), the Ekilex stub words, snapshot docs (`forms-conjunctions-prepositions.md`, `data-model.md`), the string table. Full `npm run test:e2e`: 168 passed, 0 failed. Open: the user reviews `conjunctions-prepositions-strings.md`
 
 ## Review log
@@ -199,12 +199,64 @@ Method: one pass over the raw Wiktionary dump (`raw-wiktextract-data.jsonl.gz`, 
 
 - [ ] The user reviews the ES, DE and EE strings: `conjunctions-prepositions-strings.md` (one table, all four languages side by side).
 - [ ] Review-log #5: check the Estonian case list against the EKI grammar. #7: decide whether a lexeme with both codes (`prep` + `postp`) keeps its case for both positions ("peale"). #8: add Adessive and Ablative to the Estonian case select, or not.
-- [ ] Before the merge to main: reload the EN/ES/DE lexicon and the translation file per environment (see "Before merge").
+- [x] After the last merge to main (PR #109): reload the EN/ES/DE lexicon and the translation file per environment (see "Rollout runbook"). Done by the user with Ansible: staging, checked, then production, checked. Safety copy `/opt/ladu/lexicon.before-conj-prep` made first; every load and every count matched.
+- [x] Delete the safety copy on the VPS a few days after production works (runbook step 6). Done 2026-10-25.
 
 ## Deferred ideas (another PR, not this one; agreed with the user 2026-10-25)
 
 - **Modal verbs.** The verb forms store modal verbs (German können, müssen, dürfen, sollen, wollen, mögen; English can, must, should, may) as ordinary verbs. They have no modal marker (checked 2026-10-25). Idea: a "Modal verb" checkbox on the verb forms (a stored property, so it needs a `PROPERTY_PREFIXES` entry), and fields for what the form cannot say today: German takes a bare infinitive and uses the double infinitive in the perfect ("ich habe gehen können"); English modals are defective (no infinitive, no "-s", missing tenses). Check Estonian (võima, tohtima, pidama, saama, tahtma) in the EKI grammar first. Also: **pre-add the modal verbs** to the account of a user who uses German or English, like the onboarding pool does (`.context/plans/onboarding.md`). Needs its own plan: research per language, field decisions, pool content.
 
-## Before merge
+## Rollout runbook (reload of the reference data; written 2026-10-25)
 
-- Reload the EN/ES/DE lexicon per environment after slice 3b (same reminder as the adverb plan): `ingest.ts <lang>`, then `load.js` (and `ingest-translations.ts` + `load.js` for the translation file; VPS: `docker exec backend-<env> node scripts/lexicon/load.js /tmp/<file>`). The conjunction and preposition rows reach the autocomplete only after the reload. The adverb plan has the same reload step: do both in one go. Local dev was done on 2026-10-25.
+**Status: done (staging and production), with the checks of steps 4 and 5 passed. Step 6 (delete the safety copy) is done too, 2026-10-25.**
+
+**What and why.** The conjunction and preposition rows (DE, EN, ES), the translation rows for both parts of speech, and the adverb values of the adverb plan exist only in the local database. Staging and production get them only through `deploy/ansible/lexicon.yml`. The data is reference data (tables `lexemes` and `lexeme_translations`); no user data changes. Estonian needs no reload (the Eesthetic file did not change, and Ekilex is live).
+
+**When.** Once, right after the LAST merge of this branch to `main` has reached staging and production (the merge deploys both by itself, guide 03). Not before: the translation rows list conjunctions and prepositions under "Any type", and the old backend answers 400 when a user picks one. After the merge and before the reload, the lookups say "Sorry, we don't know this word" for the new parts of speech, which is harmless. If a later feature of the branch changes a selector, `extract.ts` or the translation rows, rebuild first (below).
+
+**1. Rebuild, only if a lexicon-related file changed after 2026-10-25** (from `backend/`):
+
+```bash
+npx tsx scripts/lexicon/extract.ts                 # only if extract.ts changed (about 2 minutes)
+npx tsx scripts/lexicon/ingest.ts de && npx tsx scripts/lexicon/ingest.ts es && npx tsx scripts/lexicon/ingest.ts en
+npx tsx scripts/lexicon/ingest-translations.ts
+```
+
+Files built on 2026-10-25 are ready in `backend/scripts/lexicon/.data/out/`: `lexicon-{de,es,en}-2026-10-03.jsonl.gz` (3.5, 3.3, 13.2 MB) and `translations-en-2026-10-03.jsonl.gz` (5.7 MB). The date in the name is the Wiktionary dump date, so the names do not change.
+
+**2. Safety copy on the VPS (optional).** The copy overwrites the files of the same name in `/opt/ladu/lexicon/`, which a database restore reloads. The new files are a superset, so a restore still works, but the old content is gone. To keep it: `cp -a /opt/ladu/lexicon /opt/ladu/lexicon.before-conj-prep` on the VPS.
+
+**3. Staging first** (from `deploy/ansible/`; one command per file; each copies the file, then runs `load.js` in `backend-staging` in one transaction):
+
+```bash
+ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/lexicon-de-2026-10-03.jsonl.gz -e '{"lexicon_environments": ["staging"]}'
+ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/lexicon-es-2026-10-03.jsonl.gz -e '{"lexicon_environments": ["staging"]}'
+ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/lexicon-en-2026-10-03.jsonl.gz -e '{"lexicon_environments": ["staging"]}'
+ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/translations-en-2026-10-03.jsonl.gz -e '{"lexicon_environments": ["staging"]}'
+```
+
+**4. Check staging** (SQL shell as in guide 02, "Check what is loaded"):
+
+```sql
+SELECT language, part_of_speech, count(*) FROM lexemes
+ WHERE part_of_speech IN ('Conjunction', 'Preposition') GROUP BY 1, 2 ORDER BY 1, 2;
+SELECT part_of_speech, count(*) FROM lexeme_translations
+ WHERE part_of_speech IN ('Conjunction', 'Preposition') GROUP BY 1;
+```
+
+Expected (the 2026-10-25 build): German 117 conjunctions and 194 prepositions; Spanish 169 and 261; English 375 and 880; translations 483 conjunction rows and 1,190 preposition rows. Then, at `staging.ladu.com.ar`, try the examples: `nach`, `wegen`, `sowohl ... als auch`, `weil` (no type), `weder … noch` (partial), English `because` and `neither … nor`, Spanish `para que`, and Estonian `pärast` (Ekilex, needs no load). In "Start from a word", pick Conjunction and type `because`. Also check an adverb: German `oft` (Gradable, from the adverb plan).
+
+**5. Production**: the same four commands with `-e '{"lexicon_environments": ["prod"]}'` (or without the restriction, which loads staging again and then prod). Repeat the SQL and one or two lookups on `ladu.com.ar`.
+
+**6. Delete the safety copy, a few days after production works** (it is about 26 MB and nothing deletes it by itself):
+
+```bash
+ansible vps -b -m ansible.builtin.file -a "path=/opt/ladu/lexicon.before-conj-prep state=absent"   # from deploy/ansible/
+```
+
+The safety copy in step 2 is made with `ansible vps -b -m ansible.builtin.command -a "cp -a /opt/ladu/lexicon /opt/ladu/lexicon.before-conj-prep creates=/opt/ladu/lexicon.before-conj-prep"`.
+
+**Cautions.** A load replaces a language (a translation load replaces all translations) in one transaction: a failed load changes nothing, and the old rows stay. Space: a reload keeps the old rows until autovacuum frees them (guide 02). The whole reload is the same for the adverb plan: its first reload step is done by this run.
+
+**Separate, from the adverb plan (done 2026-10-25):** the demo template was reseeded per environment with `seed-demo-template.js --reset`. Not part of this runbook.
+
