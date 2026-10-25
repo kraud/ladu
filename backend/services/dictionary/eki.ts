@@ -25,6 +25,17 @@
  *   flag `periphrasticSuperlativeEE` is "true" and no superlative is sent. Only when none is
  *   listed does a one-word superlative fill `superlativeEE` (flag "false"). Any degree form also sends
  *   `gradableEE: "Gradable"`. No relations: nothing, not even the radio (no proof of "Non-gradable").
+ * - Conjunctions and adpositions (conjunctions-and-prepositions plan, slice 3a, 3 calls): also
+ *   "muutumatu" with one form `ID`. The part-of-speech codes of `api/word/details/{id}` are `konj`
+ *   (conjunction), `prep` and `postp` (a lexeme can carry both). Ekilex gives a conjunction no type.
+ *   An adposition's `governments` are question words: "mille" / "kelle/mille" = genitive, "mida" /
+ *   "keda/mida" = partitive, "millest" = elative, and so on (`CASE_OF_QUESTION_WORD`). Position and
+ *   cases per word, over all its adposition lexemes: prep only = "Before the noun", postp only =
+ *   "After the noun", both = "Before or after the noun". The case before the noun comes from the
+ *   `prep` lexemes, the case after it from the `postp` ones; a lexeme with both codes counts for
+ *   both positions, but only where no single-position lexeme gives a case. Several cases for one
+ *   position: the most frequent, ties to the first listed. A question word without a case in the
+ *   form ("mis ajast", "millel") leaves the case empty, and so does no government at all.
  * - Several forms for one code ("häid", "heasid"): the first listed (D19).
  * - Translations (Slice F2, D22): `estonianEquivalents` reads the Estonian words of the meanings
  *   that list the query word in its own language. It fills the Estonian gap of the translate route.
@@ -50,7 +61,7 @@ export interface ParadigmForm { morphCode: string; value: string; questionable?:
 export interface Paradigm { wordClass?: string; paradigmForms?: ParadigmForm[] }
 /** The parts of `api/word/details/{id}` the adjective adapter reads. */
 export interface WordDetails {
-    lexemes?: { pos?: { code: string }[] }[];
+    lexemes?: { pos?: { code: string }[]; governments?: { value?: string }[] }[];
     wordRelationDetails?: { level1WordRelationGroups?: { groupTypeCode: string; members?: { wordValue: string }[] }[] };
 }
 interface MeaningSearch { results?: { meaningWords?: { wordValue: string; lang: string }[] }[] }
@@ -248,5 +259,96 @@ export const estonianAdverb: DictionaryAdapter = async (query) => {
     const details = await get<WordDetails>(`api/word/details/${match.id}`);
     const isAdverb = (details.lexemes ?? []).some((lexeme) => (lexeme.pos ?? []).some((pos) => pos.code === 'adv'));
     return isAdverb ? transformAdverb(match.paradigm, details) : NOT_FOUND;
+};
+/** The position values of the preposition form's radio (`configs/prepositions.ts` in the frontend uses the same words). */
+const BEFORE_THE_NOUN = 'Before the noun';
+const AFTER_THE_NOUN = 'After the noun';
+const BEFORE_OR_AFTER = 'Before or after the noun';
+
+/** Ekilex's question words for a government -> the case option of the Estonian preposition form (inanimate and animate spelling). */
+const CASE_OF_QUESTION_WORD: Record<string, string> = {
+    mille: 'Genitive', kelle: 'Genitive',
+    mida: 'Partitive', keda: 'Partitive',
+    millest: 'Elative', kellest: 'Elative',
+    millele: 'Allative', kellele: 'Allative',
+    millega: 'Comitative', kellega: 'Comitative',
+    milleni: 'Terminative', kelleni: 'Terminative',
+    milleta: 'Abessive', kelleta: 'Abessive',
+};
+
+/** The case of one lexeme's governments ("kelle/mille", "keda/mida"): the first question word with a case in the form. */
+function governedCaseOf(lexeme: NonNullable<WordDetails['lexemes']>[number]): string | undefined {
+    for (const government of lexeme.governments ?? []) {
+        for (const word of (government.value ?? '').split('/')) {
+            const governed = CASE_OF_QUESTION_WORD[word.trim().toLowerCase()];
+            if (governed) return governed;
+        }
+    }
+    return undefined;
+}
+
+/** The most frequent value; a tie goes to the first listed. */
+function mostFrequent(values: string[]): string | undefined {
+    const counts = new Map<string, number>(); // insertion order = first-listed order
+    for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
+    let best: string | undefined;
+    for (const [value, count] of counts) if (best === undefined || count > counts.get(best)!) best = value;
+    return best;
+}
+
+const hasPos = (details: WordDetails, ...codes: string[]): boolean =>
+    (details.lexemes ?? []).some((lexeme) => (lexeme.pos ?? []).some((pos) => codes.includes(pos.code)));
+
+export function transformConjunction(paradigm: Paradigm | undefined, details: WordDetails = {}): LookupResult {
+    if (!paradigm || !hasPos(details, 'konj')) return NOT_FOUND;
+    return found(toCases([['conjunctionEE', formOf(paradigm, 'ID')]]));
+}
+
+export function transformPreposition(paradigm: Paradigm | undefined, details: WordDetails = {}): LookupResult {
+    if (!paradigm) return NOT_FOUND;
+    const adpositions = (details.lexemes ?? [])
+        .map((lexeme) => {
+            const codes = (lexeme.pos ?? []).map((pos) => pos.code);
+            return { before: codes.includes('prep'), after: codes.includes('postp'), governed: governedCaseOf(lexeme) };
+        })
+        .filter((lexeme) => lexeme.before || lexeme.after);
+    if (adpositions.length === 0) return NOT_FOUND;
+
+    const before = adpositions.some((lexeme) => lexeme.before);
+    const after = adpositions.some((lexeme) => lexeme.after);
+    // A single-position lexeme speaks for its position; a lexeme with both codes only fills what is left.
+    const governedAt = (side: 'before' | 'after'): string | undefined => {
+        const other = side === 'before' ? 'after' : 'before';
+        const cases = (lexemes: typeof adpositions) => lexemes.map((lexeme) => lexeme.governed).filter((governed): governed is string => !!governed);
+        return mostFrequent(cases(adpositions.filter((lexeme) => lexeme[side] && !lexeme[other]))) ?? mostFrequent(cases(adpositions.filter((lexeme) => lexeme[side] && lexeme[other])));
+    };
+    return found(toCases([
+        ['prepositionEE', formOf(paradigm, 'ID')],
+        ['positionEE', before && after ? BEFORE_OR_AFTER : before ? BEFORE_THE_NOUN : AFTER_THE_NOUN],
+        ['governedCasePreEE', (before && governedAt('before')) || ''],
+        ['governedCasePostEE', (after && governedAt('after')) || ''],
+    ]));
+}
+
+/** The first "muutumatu" homonym (up to `MAX_HOMONYMS`) whose part-of-speech codes `accepts`, with its paradigm and details. */
+async function indeclinableWith(word: string, accepts: (details: WordDetails) => boolean): Promise<{ paradigm: Paradigm; details: WordDetails } | undefined> {
+    const ids = await get<number[]>(`api/word/ids/${encodeURIComponent(word)}/eki/est`);
+    for (const id of (Array.isArray(ids) ? ids : []).slice(0, MAX_HOMONYMS)) {
+        const paradigms = await get<Paradigm[]>(`api/paradigm/details/${id}`);
+        const paradigm = (Array.isArray(paradigms) ? paradigms : []).find((p) => p.wordClass === 'muutumatu');
+        if (!paradigm) continue;
+        const details = await get<WordDetails>(`api/word/details/${id}`);
+        if (accepts(details)) return { paradigm, details };
+    }
+    return undefined;
+}
+
+export const estonianConjunction: DictionaryAdapter = async (query) => {
+    const match = await indeclinableWith(query, (details) => hasPos(details, 'konj'));
+    return match ? transformConjunction(match.paradigm, match.details) : NOT_FOUND;
+};
+export const estonianPreposition: DictionaryAdapter = async (query) => {
+    const match = await indeclinableWith(query, (details) => hasPos(details, 'prep', 'postp'));
+    return match ? transformPreposition(match.paradigm, match.details) : NOT_FOUND;
 };
 export const estonianVerb: DictionaryAdapter = async (query) => transformVerb((await paradigmOf(query, 'verb'))?.paradigm);

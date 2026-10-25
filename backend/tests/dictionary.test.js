@@ -207,6 +207,14 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         // Adverbs (Slice H4): "muutumatu", one form `ID`. "ja" is a conjunction (also "muutumatu").
         kiiresti: [31, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'kiiresti']]) }],
         ja: [32, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'ja']]) }],
+        // Conjunctions and adpositions (conjunctions-prepositions plan, slice 3a): all "muutumatu", one form `ID`.
+        kuigi: [33, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'kuigi']]) }],
+        pärast: [41, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'pärast']]) }],
+        enne: [42, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'enne']]) }],
+        sees: [43, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'sees']]) }],
+        peale: [44, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'peale']]) }],
+        kohta: [45, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'kohta']]) }],
+        koos: [46, { wordClass: 'muutumatu', paradigmForms: forms([['ID', 'koos']]) }],
         jooksma: [21, { wordClass: 'verb', paradigmForms: forms([['Sup', 'jooksma'], ['Inf', 'joosta']]) }],
     };
     /** word id → `api/word/details` (part of speech + comparison relations, D20). */
@@ -217,6 +225,17 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         13: { lexemes: [{ pos: [{ code: 'adj' }] }], wordRelationDetails: { level1WordRelationGroups: [group('komp', ['toredam']), group('superl', ['kõige toredam'])] } },
         31: { lexemes: [{ pos: [{ code: 'adv' }] }], wordRelationDetails: { level1WordRelationGroups: [group('komp', ['kiiremini']), group('superl', ['kõige kiiremini', 'kiireimini'])] } },
         32: { lexemes: [{ pos: [{ code: 'konj' }] }] },
+        33: { lexemes: [{ pos: [{ code: 'adv' }] }, { pos: [{ code: 'konj' }] }] },
+        // Real Ekilex shape: a government is a question word ("mille" = genitive, "mida" = partitive, "kelle/mille" = either spelling).
+        41: { lexemes: [{ pos: [{ code: 'postp' }], governments: [{ value: 'mille' }] }, { pos: [{ code: 'prep' }], governments: [{ value: 'keda/mida' }] }, { pos: [{ code: 'adv' }] }, { pos: [{ code: 'postp' }], governments: [{ value: 'kelle/mille' }] }] },
+        42: { lexemes: [{ pos: [{ code: 'prep' }, { code: 'adv' }], governments: [{ value: 'keda/mida' }] }] },
+        43: { lexemes: [{ pos: [{ code: 'postp' }], governments: [{ value: 'kelle/mille' }] }] },
+        // One lexeme with both codes: the position is "before or after", and its case counts for both.
+        44: { lexemes: [{ pos: [{ code: 'postp' }, { code: 'prep' }], governments: [{ value: 'mille' }] }] },
+        // A question word the form has no case for ("mis ajast"): the position is filled, the cases are not.
+        45: { lexemes: [{ pos: [{ code: 'postp' }], governments: [{ value: 'mis ajast' }] }] },
+        // An adposition with no government at all.
+        46: { lexemes: [{ pos: [{ code: 'postp' }, { code: 'prep' }] }] },
     };
     /** A fake Ekilex: answers by path, like e2e/fixtures/eki-stub/server.ts. */
     function fakeEkilex({ ok = true } = {}) {
@@ -300,6 +319,84 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         fakeEkilex();
         expect((await lookup('Estonian/Adverb/ja')).body).toEqual({ status: 'not-found', cases: [] });
         expect((await lookup(`Estonian/Adverb/${encodeURIComponent('õun')}`)).body).toEqual({ status: 'not-found', cases: [] });
+    });
+
+    describe('conjunctions and adpositions (slice 3a, 3 calls: ids, paradigm, details)', () => {
+        it('a conjunction: the word itself, found through the part-of-speech code "konj"', async () => {
+            const fetchMock = fakeEkilex();
+            const res = await lookup('Estonian/Conjunction/kuigi');
+            expect(res.body).toEqual({ status: 'found', cases: [{ caseName: 'conjunctionEE', word: 'kuigi' }] });
+            expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+                'https://ekilex.test/api/word/ids/kuigi/eki/est',
+                'https://ekilex.test/api/paradigm/details/33',
+                'https://ekilex.test/api/word/details/33',
+            ]);
+        });
+
+        it('an adverb, a noun and an unknown word typed into the conjunction form are not-found', async () => {
+            fakeEkilex();
+            for (const word of ['kiiresti', encodeURIComponent('õun'), 'zorplate']) {
+                expect((await lookup(`Estonian/Conjunction/${word}`)).body).toEqual({ status: 'not-found', cases: [] });
+            }
+        });
+
+        it('"pärast": a preposition with the partitive and a postposition with the genitive fill the position and both cases', async () => {
+            fakeEkilex();
+            const res = await lookup(`Estonian/Preposition/${encodeURIComponent('pärast')}`);
+            expect(res.body.status).toBe('found');
+            expect(casesOf(res.body)).toEqual({
+                prepositionEE: 'pärast',
+                positionEE: 'Before or after the noun',
+                governedCasePreEE: 'Partitive',
+                governedCasePostEE: 'Genitive',
+            });
+        });
+
+        it('a preposition only: position "Before the noun" and the case of the noun before it', async () => {
+            fakeEkilex();
+            expect(casesOf((await lookup('Estonian/Preposition/enne')).body)).toEqual({
+                prepositionEE: 'enne',
+                positionEE: 'Before the noun',
+                governedCasePreEE: 'Partitive',
+            });
+        });
+
+        it('a postposition only: position "After the noun" and the case of the noun before it', async () => {
+            fakeEkilex();
+            expect(casesOf((await lookup('Estonian/Preposition/sees')).body)).toEqual({
+                prepositionEE: 'sees',
+                positionEE: 'After the noun',
+                governedCasePostEE: 'Genitive',
+            });
+        });
+
+        it('one lexeme with both codes: "Before or after", and its case for both positions', async () => {
+            fakeEkilex();
+            expect(casesOf((await lookup('Estonian/Preposition/peale')).body)).toEqual({
+                prepositionEE: 'peale',
+                positionEE: 'Before or after the noun',
+                governedCasePreEE: 'Genitive',
+                governedCasePostEE: 'Genitive',
+            });
+        });
+
+        it('a question word with no case in the form, or no government at all, fills the position and no case', async () => {
+            fakeEkilex();
+            expect(casesOf((await lookup('Estonian/Preposition/kohta')).body)).toEqual({ prepositionEE: 'kohta', positionEE: 'After the noun' });
+            expect(casesOf((await lookup('Estonian/Preposition/koos')).body)).toEqual({ prepositionEE: 'koos', positionEE: 'Before or after the noun' });
+        });
+
+        it('a conjunction, an adverb and a noun typed into the preposition form are not-found', async () => {
+            fakeEkilex();
+            for (const word of ['ja', 'kiiresti', encodeURIComponent('õun')]) {
+                expect((await lookup(`Estonian/Preposition/${word}`)).body).toEqual({ status: 'not-found', cases: [] });
+            }
+        });
+
+        it('a failing Ekilex is a 502, not "not-found"', async () => {
+            fakeEkilex({ ok: false });
+            expect((await lookup('Estonian/Preposition/enne')).statusCode).toBe(502);
+        });
     });
 
     it('a noun typed into the adjective form is not-found (the part-of-speech check, D20)', async () => {
@@ -558,7 +655,7 @@ describe('type-ahead suggestions (Slice E: GET /api/dictionary/:language/:partOf
     });
 
     it('400 for a pair without a dictionary, a prefix under 2 characters or a bad limit', async () => {
-        expect((await suggest('Estonian/Preposition?prefix=ka')).statusCode).toBe(400);
+        expect((await suggest('Estonian/Pronoun?prefix=ka')).statusCode).toBe(400);
         expect((await suggest('German/Verb?prefix=s')).statusCode).toBe(400);
         expect((await suggest('German/Verb')).statusCode).toBe(400);
         expect((await suggest('German/Verb?prefix=se&limit=0')).statusCode).toBe(400);
@@ -995,7 +1092,7 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
 describe('validation and access', () => {
     it('400 for a language and part of speech without a dictionary', async () => {
         expect((await lookup('English/Preposition/in')).statusCode).toBe(400);
-        expect((await lookup('Estonian/Preposition/kaudu')).statusCode).toBe(400);
+        expect((await lookup('Estonian/Pronoun/see')).statusCode).toBe(400);
         expect((await lookup('Klingon/Verb/x')).statusCode).toBe(400);
     });
 

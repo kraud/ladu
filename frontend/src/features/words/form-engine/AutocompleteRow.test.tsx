@@ -16,6 +16,7 @@ const esAdjectiveFields = getFormConfig(PartOfSpeech.adjective, Lang.ES)!.fields
 const deAdverbFields = getFormConfig(PartOfSpeech.adverb, Lang.DE)!.fields;
 const deVerbFields = getFormConfig(PartOfSpeech.verb, Lang.DE)!.fields;
 const eeVerbFields = getFormConfig(PartOfSpeech.verb, Lang.EE)!.fields;
+const eePrepositionFields = getFormConfig(PartOfSpeech.preposition, Lang.EE)!.fields;
 
 function Harness({
     lang,
@@ -39,7 +40,7 @@ function Harness({
 describe('AutocompleteRow', () => {
     it('renders nothing for a (language, PoS) pair with no lookup endpoint', () => {
         const { container } = renderWithProviders(
-            <Harness lang={Lang.EN} pos={PartOfSpeech.preposition} fields={[]} defaultValues={{}} />
+            <Harness lang={Lang.EN} pos={PartOfSpeech.pronoun} fields={[]} defaultValues={{}} />
         );
         expect(container).toBeEmptyDOMElement();
     });
@@ -377,6 +378,38 @@ describe('AutocompleteRow', () => {
             // The pronoun-case radio was hidden by "Not reflexive"; the lookup shows it first, then fills it.
             expect(screen.getByLabelText('reflexiveCase-probe')).toHaveValue('Both');
             expect(screen.getByLabelText('verbCases-probe')).toHaveValue('accusativeDE');
+        });
+
+        it('an Estonian preposition: the lookup sets the position first, so the case selects it shows are filled, even after "After the noun" was chosen', async () => {
+            const user = userEvent.setup();
+            const fake = makeAutocompleteHandlers({
+                estonianPreposition: {
+                    status: 'found',
+                    cases: [
+                        { caseName: 'prepositionEE', word: 'pärast' },
+                        { caseName: 'positionEE', word: 'Before or after the noun' },
+                        { caseName: 'governedCasePreEE', word: 'Partitive' },
+                        { caseName: 'governedCasePostEE', word: 'Genitive' },
+                    ],
+                },
+            });
+            server.use(...fake.handlers);
+            renderWithProviders(
+                <Probe
+                    lang={Lang.EE}
+                    pos={PartOfSpeech.preposition}
+                    fields={eePrepositionFields}
+                    defaultValues={{ preposition: 'pärast', position: 'After the noun' }}
+                    names={['position', 'governedCasePre', 'governedCasePost']}
+                />
+            );
+
+            await user.click(await screen.findByRole('button', { name: /use autocomplete values/i }, { timeout: 2000 }));
+
+            expect(fake.requests[0]).toMatchObject({ path: 'Estonian/Preposition', query: 'pärast' });
+            expect(screen.getByLabelText('position-probe')).toHaveValue('Before or after the noun');
+            expect(screen.getByLabelText('governedCasePre-probe')).toHaveValue('Partitive');
+            expect(screen.getByLabelText('governedCasePost-probe')).toHaveValue('Genitive');
         });
 
         it('German adverb: the lookup sets Gradable first, so comparative and superlative are filled even after Non-gradable was chosen', async () => {

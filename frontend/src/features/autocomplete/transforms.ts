@@ -64,6 +64,9 @@ export const AUTOCOMPLETE_REGISTRY: Partial<Record<Lang, Partial<Record<PartOfSp
         [PartOfSpeech.adjective]: { queryFieldName: 'algvorre' },
         // Slice H4: Ekilex only, like the adjective; no type-ahead list (no local lexicon for it).
         [PartOfSpeech.adverb]: { queryFieldName: 'adverb' },
+        // Slice 3a of the conjunctions-and-prepositions plan: Ekilex only, no type-ahead list.
+        [PartOfSpeech.conjunction]: { queryFieldName: 'conjunction' },
+        [PartOfSpeech.preposition]: { queryFieldName: 'preposition' },
     },
 };
 

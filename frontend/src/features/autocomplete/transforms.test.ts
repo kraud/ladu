@@ -32,6 +32,8 @@ describe('getAutocompleteEndpoint — coverage table', () => {
                 'Estonian/Noun',
                 'Estonian/Adjective',
                 'Estonian/Adverb',
+                'Estonian/Conjunction',
+                'Estonian/Preposition',
             ].sort()
         );
     });

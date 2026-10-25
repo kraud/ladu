@@ -1,6 +1,6 @@
 # Plan: Conjunctions and prepositions in Ladu (+ a reusable "add a part of speech" guide)
 
-Status: plan agreed on 2026-10-24. Slices 0, 1 and 2 done. Slice 3 next.
+Status: plan agreed on 2026-10-24. Slices 0, 1, 2 and 3a done. Slice 3b next.
 
 ## How to start (read this first in a new session)
 
@@ -14,7 +14,7 @@ Status: plan agreed on 2026-10-24. Slices 0, 1 and 2 done. Slice 3 next.
 - [x] Slice 1 (2026-10-25) — Conjunction form (frontend + backend property rules). Open: no browser check yet; the e2e spec in slice 4 covers it
 - [x] Slice 2 (2026-10-25) — Preposition form. Open: the user reviews the Estonian case list and the new strings; no browser check yet
 - [x] Slice 3 research (2026-10-25) — see "Slice 3 research results"; decisions Q8–Q10
-- [ ] Slice 3a — Estonian: Ekilex adapter for Conjunction and Preposition (word, position, governed case)
+- [x] Slice 3a (2026-10-25) — Estonian: Ekilex adapter for Conjunction and Preposition (word, position, governed case). Open: the Estonian e2e stub gets `kuigi` and `pärast` in slice 4
 - [ ] Slice 3b — DE/EN/ES lexicon: keep categories in `extract.ts`, selectors for `conj`/`prep`/`postp`, re-extract, re-ingest, re-load (local)
 - [ ] Slice 3c — Translations (`conj`/`prep` in the translation file) and "Start from a word" for both parts of speech
 - [ ] Slice 4 — e2e spec, snapshot docs, review of ES/DE/EE strings
@@ -28,6 +28,8 @@ Status: plan agreed on 2026-10-24. Slices 0, 1 and 2 done. Slice 3 next.
 | 4 | Minor | The plan named the Estonian direction cases `latEE` / `ablEE`. The names say little. | Renamed `directionToEE` / `directionFromEE` in slice 2. |
 | 5 | Moderate | The Estonian governed-case list (Genitive, Partitive, Elative, Allative, Comitative, Terminative, Abessive) comes from search results (University of Tartu course pages, EKI), not from a full grammar check. A user cannot enter a case that is not in the list. | Open: the user or slice 4 checks the list against the EKI grammar. Adding a value is a one-line change in `configs/prepositions.ts`. |
 | 6 | Minor | The completion ring counts every visible non-checkbox field, so the optional position and the case selects raise the ring's denominator (same as the optional conjunction type). | Accepted; same behaviour as the German adverb radio. |
+| 7 | Moderate | A live check of the 3a adapter (2026-10-25) shows a lexeme that carries both codes (`postp` + `prep`) and one government gives the same case to both positions. "peale" returns Genitive before and after the noun, but the grammar has the partitive before the noun ("peale sööki") and the genitive after it ("laua peale"). Wiktionary lists the two as separate entries (peale: prep partitive, postp elative; the elative there is also doubtful). "üle" has the same shape. | Accepted for 3a: a wrong case before the noun is a suggestion the user can change, and the rule is documented in `eki.ts`. Better data needs a second source. Review with the user; a possible fix is to drop the case for a both-codes lexeme and fill it only from single-position lexemes. |
+| 8 | Minor | Two Ekilex government values have no option in the Estonian case select: adessive ("millel") and ablative ("millelt"), plus the nominative ("mis"). They fill nothing. | Open: add Adessive and Ablative to `CASE_OPTIONS_EE` if the user wants them (one line each, plus the mapping in `eki.ts`). |
 | 3 | Minor | `reflexiv` was missing from the exercise property list. | Added to `PROPERTY_PREFIXES`. |
 
 ## Context

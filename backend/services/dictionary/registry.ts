@@ -67,6 +67,9 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Adjective: eki.estonianAdjective,
         // Slice H4: Ekilex only, like the adjective (Eesthetic has no adverbs).
         Adverb: eki.estonianAdverb,
+        // Slice 3a of the conjunctions-and-prepositions plan: Ekilex only (Eesthetic has no function words).
+        Conjunction: eki.estonianConjunction,
+        Preposition: eki.estonianPreposition,
     },
 };
 
