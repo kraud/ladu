@@ -13,7 +13,10 @@ Status: plan agreed on 2026-10-24. Slices 0, 1 and 2 done. Slice 3 next.
 - [x] Slice 0 (2026-10-24) — Docs: the process guide, this plan file, the README index
 - [x] Slice 1 (2026-10-25) — Conjunction form (frontend + backend property rules). Open: no browser check yet; the e2e spec in slice 4 covers it
 - [x] Slice 2 (2026-10-25) — Preposition form. Open: the user reviews the Estonian case list and the new strings; no browser check yet
-- [ ] Slice 3 — Autocomplete (lemma, and the properties that are clear)
+- [x] Slice 3 research (2026-10-25) — see "Slice 3 research results"; decisions Q8–Q10
+- [ ] Slice 3a — Estonian: Ekilex adapter for Conjunction and Preposition (word, position, governed case)
+- [ ] Slice 3b — DE/EN/ES lexicon: keep categories in `extract.ts`, selectors for `conj`/`prep`/`postp`, re-extract, re-ingest, re-load (local)
+- [ ] Slice 3c — Translations (`conj`/`prep` in the translation file) and "Start from a word" for both parts of speech
 - [ ] Slice 4 — e2e spec, snapshot docs, review of ES/DE/EE strings
 
 ## Review log
@@ -85,6 +88,9 @@ EN and ES prepositions do not govern a case on the noun (ES *a+el = al*, *de+el 
 - **Q5 (2026-10-25).** Conjunction layout, in all four languages: the word and the second part share row 1; the type radio and the "Paired" checkbox share row 2; the Spanish mood select has row 3. The mood still shows only for "Subordinating". Done in `configs/conjunctions.ts` (grid `layout`: rows `word`, `meta`, `mood`; columns `first`, `second`). The error key `typeRequired` became `typeInvalid`.
 - **Q6 (2026-10-25).** The preposition position radio is optional in all four languages (same reason as Q5). The Estonian case selects show unless the position rules them out, so they stay usable while the position is empty.
 - **Q7 (2026-10-25).** Form engine: `optionsLayout` (`row` or `column`) on radio and multi-select fields, and `layout.fitRow` for a row that stays one row on a phone. German preposition: the contractions box and its three forms (one row) sit under the word; position and cases follow, listed in a column. Estonian: the series box and the two direction forms (50-50) sit under the word; then position and the case selects.
+- **Q8 (2026-10-25).** Conjunction type from the data: fill only when Wiktionary marks it (category or sense tag). No curated list, no guess.
+- **Q9 (2026-10-25).** Pairs: fill "Paired" and "Second part" only from a headword with an ellipsis ("sowohl ... als auch", "neither … nor"). A slash is not a pair marker.
+- **Q10 (2026-10-25).** Slice 3 is split: 3a Estonian (Ekilex), 3b DE/EN/ES lexicon, 3c translations and "Start from a word".
 - **Q4.** Scope: slices 0–4 (guide, two forms, autocomplete, e2e). Exercises, onboarding pool and demo template are deferred.
 
 Open, to confirm in the slice overview (not blocking): ES *al/del* is the only Spanish contraction; no field (a general rule). Contraction fields are written forms, not properties — only `contracts*` goes to `PROPERTY_PREFIXES`.
@@ -139,6 +145,49 @@ Also link it from `CLAUDE.md` working rules? — no: link from `.context/README.
 - Manual: `npm run dev`, add each test word from `.other/other-words-temp.md` on `/addWord`.
 - e2e: `npm run test:e2e`; before it, no orphan backend on :5001 and no closed access gate.
 - Do not pipe test commands through `tail`/`head`.
+
+## Slice 3 research results (2026-10-25)
+
+Method: one pass over the raw Wiktionary dump (`raw-wiktextract-data.jsonl.gz`, `conj`, `prep`, `postp`, `prep_phrase`, `circumpos` entries of de/en/es/et, with the categories, tags and header templates that `extract.ts` drops), plus a read-only probe of Ekilex for six Estonian words. "Frequent" means the lemma is in the first 5,000 lines of the frequency list of its language.
+
+**Entries in the dump**
+
+| | conj | prep | postp |
+|---|---|---|---|
+| DE | 117 | 189 | 19 |
+| EN | 380 | 882 | 3 |
+| ES | 172 | 263 | – |
+| ET (Wiktionary) | 21 | 16 | 56 |
+
+**1. Conjunction type (coordinating / subordinating): the data rarely says it.** Wiktionary marks it through a category ("German subordinating conjunctions") or a sense tag. Marked among the frequent conjunctions: DE 20 of 56, EN 20 of 65, ES 1 of 28, ET 0 of 19. The marked ones are right, but common words are missing: DE obwohl, denn, weder, während, nachdem; ES porque, aunque, pero, y. Ekilex has no sub-type for `konj` either. A missing marker is not proof of anything. Result: a fill from the data would be correct but sparse (about a third in DE and EN, almost none in ES and ET).
+
+**2. Paired conjunctions: the user's idea works only for the ellipsis, and only for 5 entries.**
+- A headword with an ellipsis ("…" or "...") is a reliable pair: DE "sowohl ... als auch"; EN "neither … nor", "either … or", "both … and", "not only … but also". ES and ET have none.
+- A slash is **not** a pair marker. The slash entries are alternative writings: "and/or", "y/o", "und/oder", "b/c".
+- The usual way Wiktionary stores a pair is the first word alone, with the partner only in the gloss text: DE weder "neither (only with noch)", entweder "either (only with oder)", ES tanto "both ... and (introduces the first of two linked elements)", EN neither "Not either (used with nor)". The gloss wording is free text, so a parser would be brittle.
+- Result: fill "Paired" and "Second part" only from an ellipsis headword. Everything else stays manual.
+
+**3. German governed case: reliable.** 173 of 189 DE prepositions carry a category "German prepositions governing the dative / accusative / genitive". Among the 55 frequent ones, 50 are marked. Unmarked: in, auf (two-way prepositions, which is a known gap), ob and abbreviations. Both cases show as two categories (an, unter, vor = accusative + dative). Note: `wegen`, `trotz`, `während` come as genitive + dative, which matches the usage but is wider than a textbook "genitive". EN and ES prepositions govern no case.
+
+**4. Position.** Wiktionary lists German adpositions under `prep`, `postp` or both: 175 prep only, 8 postp only, 11 both (nach, über, gegenüber, entlang, gemäß, zufolge ...). Both = "Before or after the noun" (this fits the user's example "nach"). EN has 3 postpositions (ago, apart, notwithstanding-type words). ES has none.
+
+**5. Estonian: Ekilex is much better than Wiktionary.**
+- Wiktionary (`et`) states the case only in 16 of 72 adposition entries ("Governs the genitive"), and misses common words (pärast, eest, jaoks, kohta).
+- Ekilex word details give `pos` codes `konj`, `prep`, `postp`, and a `governments` list per lexeme with a question word: "mille" / "kelle/mille" = genitive, "mida" / "keda/mida" = partitive (other question words stand for the other cases).
+- Probe: pärast = postp "mille" + prep "keda/mida"; enne = prep "mida"; üle = prep "mille" + postp "mille"; sest, kuigi, ega = `konj` with no sub-type. This reproduces the textbook rule (pärast sööki, partitive, before the noun; kolme tunni pärast, genitive, after it) and fills both Estonian case selects and the position.
+
+**What this means for the build**
+
+| Field | DE | EN | ES | ET |
+|---|---|---|---|---|
+| word (lemma) | yes | yes | yes | yes (Ekilex `konj`/`prep`/`postp`) |
+| position | yes (prep / postp) | yes (3 words) | – | yes (Ekilex pos) |
+| governed case | yes (categories) | – | – | yes (Ekilex governments) |
+| conjunction type | sparse (about a third) | sparse (about a third) | almost none | none |
+| paired + second part | ellipsis headwords only | ellipsis headwords only | – | – |
+| mood (ES) | – | – | none in the data | – |
+
+**Cost.** `extract.ts` must keep `categories` for these parts of speech (a re-extract of the 3 GB dump, about 2 minutes, then re-ingest and re-load per language). Estonian needs a live Ekilex adapter (no file). The translation file needs the `conj` and `prep` entries so "Start from a word" works.
 
 ## Deferred ideas (another PR, not this one; agreed with the user 2026-10-25)
 
