@@ -1,7 +1,7 @@
 /**
  * Builds the versioned translation file (autocomplete-data-source-strategy.md Slice F, decision
  * D22) from the English Wiktionary entries: every `translations[]` item into Spanish, German or
- * Estonian, for nouns, verbs, adjectives and adverbs (lib/lexicon/translations.ts). Runs on a
+ * Estonian, for nouns, verbs, adjectives, adverbs, conjunctions and prepositions (lib/lexicon/translations.ts). Runs on a
  * developer machine only, after download.ts and extract.ts (which keep `translations` for English).
  *
  * `entryOrder` numbers the English entries per lemma and part of speech in source order
@@ -28,6 +28,9 @@ type TranslationFileRow = import('../../lib/lexicon/translations').TranslationFi
 const FIXTURE_WORDS = [
     'lake|noun', 'sea|noun', 'house|noun', 'bank|noun', 'dog|noun', 'water|noun',
     'run|verb', 'dance|verb', 'eat|verb', 'big|adj', 'quickly|adv',
+    // Conjunctions and prepositions (slice 3c): "because": a conjunction with several senses; "neither … nor": a pair;
+    // "in" and "after": prepositions; "ago": a postposition.
+    'because|conj', 'neither … nor|conj', 'in|prep', 'after|prep', 'ago|postp',
 ];
 
 const ATTRIBUTION = 'Derived from English Wiktionary (https://en.wiktionary.org) via kaikki.org / Wiktextract, CC BY-SA 4.0.';

@@ -1,6 +1,6 @@
 # Plan: Conjunctions and prepositions in Ladu (+ a reusable "add a part of speech" guide)
 
-Status: plan agreed on 2026-10-24. Slices 0, 1, 2, 3a and 3b done. Slice 3c next.
+Status: plan agreed on 2026-10-24. Slices 0, 1, 2, 3a, 3b and 3c done. Slice 4 next.
 
 ## How to start (read this first in a new session)
 
@@ -16,7 +16,7 @@ Status: plan agreed on 2026-10-24. Slices 0, 1, 2, 3a and 3b done. Slice 3c next
 - [x] Slice 3 research (2026-10-25) — see "Slice 3 research results"; decisions Q8–Q10
 - [x] Slice 3a (2026-10-25) — Estonian: Ekilex adapter for Conjunction and Preposition (word, position, governed case). Open: the Estonian e2e stub gets `kuigi` and `pärast` in slice 4
 - [x] Slice 3b (2026-10-25) — DE/EN/ES lexicon: `extract.ts` keeps categories, selectors for `conj`/`prep`/`postp`, `prep` + `postp` merged into one row, re-extracted, re-ingested, re-loaded locally. Staging and production still need the reload (see "Before merge")
-- [ ] Slice 3c — Translations (`conj`/`prep` in the translation file) and "Start from a word" for both parts of speech
+- [x] Slice 3c (2026-10-25) — Translations (`conj`/`prep`/`postp` in the translation file: 483 conjunction and 1,190 preposition rows), the translate/senses/sense/draft routes, the "Start from a word" part-of-speech list, and a pair split for ellipsis words. Staging and production need the translation file loaded too (see "Before merge")
 - [ ] Slice 4 — e2e spec, snapshot docs, review of ES/DE/EE strings
 
 ## Review log
@@ -32,7 +32,7 @@ Status: plan agreed on 2026-10-24. Slices 0, 1, 2, 3a and 3b done. Slice 3c next
 | 8 | Minor | Two Ekilex government values have no option in the Estonian case select: adessive ("millel") and ablative ("millelt"), plus the nominative ("mis"). They fill nothing. | Open: add Adessive and Ablative to `CASE_OPTIONS_EE` if the user wants them (one line each, plus the mapping in `eki.ts`). |
 | 9 | Moderate (fixed in slice 3b, test in `AutocompleteRow.test.tsx`) | `applyLookup` applied radios first, so the fields a radio shows were filled in the same pass, but a checkbox that shows fields ("Paired" shows the second part; "Contracts with the article" shows the three forms) was applied in field order. The hidden field was skipped, and the lookup filled the box but not the field. | Checkboxes that other fields depend on (`visibleWhen`) are now applied first, like the radios (`lookedUpToggles`). |
 | 10 | Minor | "weil" carries both a coordinating and a subordinating category (the second is for an obsolete sense), so it gets no type. The most common German conjunction stays empty. | Accepted (Q8: fill only when the data is clear). A curated list would fix it; the user declined it in Q8. |
-| 11 | Minor | The EN lexicon holds noise entries that Wiktionary lists as conjunction or preposition ("an", "de"). They are real Wiktionary entries and a lookup needs the exact word, so they do no harm, but the type-ahead may show them. | Accepted for now; check the type-ahead in slice 3c. |
+| 11 | Minor | The EN lexicon holds noise entries that Wiktionary lists as conjunction or preposition ("an", "de"). They are real Wiktionary entries and a lookup needs the exact word, so they do no harm, but the type-ahead may show them. | Checked in slice 3c: the word type-ahead orders by frequency, so common words come first; the noise shows at low ranks. One visible case: English "an" as a conjunction (rank 81, Wiktionary lists it as dialect "if"). Accepted. The sense type-ahead reads the translation table, which has no such noise. |
 | 3 | Minor | `reflexiv` was missing from the exercise property list. | Added to `PROPERTY_PREFIXES`. |
 
 ## Context
@@ -96,6 +96,7 @@ EN and ES prepositions do not govern a case on the noun (ES *a+el = al*, *de+el 
 - **Q8 (2026-10-25).** Conjunction type from the data: fill only when Wiktionary marks it (category or sense tag). No curated list, no guess.
 - **Q9 (2026-10-25).** Pairs: fill "Paired" and "Second part" only from a headword with an ellipsis ("sowohl ... als auch", "neither … nor"). A slash is not a pair marker.
 - **Q10 (2026-10-25).** Slice 3 is split: 3a Estonian (Ekilex), 3b DE/EN/ES lexicon, 3c translations and "Start from a word".
+- **Q11 (2026-10-25).** The translation table writes a pair with an ellipsis ("weder … noch"), but the lexicon stores "weder" alone. A conjunction lookup that finds nothing, for a text that is a pair, is split by rule (first part, "Paired", second part) and answers `partial`. Same marker as Q9; it applies to typed text and to draft picks, in all four languages (`withPairSplit` in `registry.ts`).
 - **Q4.** Scope: slices 0–4 (guide, two forms, autocomplete, e2e). Exercises, onboarding pool and demo template are deferred.
 
 Open, to confirm in the slice overview (not blocking): ES *al/del* is the only Spanish contraction; no field (a general rule). Contraction fields are written forms, not properties — only `contracts*` goes to `PROPERTY_PREFIXES`.
@@ -200,4 +201,4 @@ Method: one pass over the raw Wiktionary dump (`raw-wiktextract-data.jsonl.gz`, 
 
 ## Before merge
 
-- Reload the EN/ES/DE lexicon per environment after slice 3b (same reminder as the adverb plan): `ingest.ts <lang>`, then `load.js` (VPS: `docker exec backend-<env> node scripts/lexicon/load.js /tmp/<file>`). The conjunction and preposition rows reach the autocomplete only after the reload. The adverb plan has the same reload step: do both in one go. Local dev was done on 2026-10-25.
+- Reload the EN/ES/DE lexicon per environment after slice 3b (same reminder as the adverb plan): `ingest.ts <lang>`, then `load.js` (and `ingest-translations.ts` + `load.js` for the translation file; VPS: `docker exec backend-<env> node scripts/lexicon/load.js /tmp/<file>`). The conjunction and preposition rows reach the autocomplete only after the reload. The adverb plan has the same reload step: do both in one go. Local dev was done on 2026-10-25.

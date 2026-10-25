@@ -82,7 +82,7 @@ const suggest = asyncHandler(async (req: any, res: any) => {
 // @desc    Translate one word (autocomplete-data-source-strategy.md Slice F, step F2): the senses it
 //          belongs to and, per sense, the words in all four languages (services/dictionary/translate.ts).
 // @route   GET /api/dictionary/translate/:fromLanguage/:partOfSpeech/:query
-//          fromLanguage: English | Spanish | German | Estonian; partOfSpeech: Noun | Verb | Adjective | Adverb
+//          fromLanguage: English | Spanish | German | Estonian; partOfSpeech: Noun | Verb | Adjective | Adverb | Conjunction | Preposition
 // @access  Private
 // @returns 200 { senses: [{ english, sense, words: { English, Spanish, German, Estonian: [{ word, gender? }] } }],
 //               ekilex?: { estonian: [{ word }] } | { unavailable: true } }   (ekilex: only when no sense has Estonian)
@@ -103,7 +103,7 @@ const translate = asyncHandler(async (req: any, res: any) => {
 
 // @desc    The sense type-ahead (autocomplete-data-source-strategy.md Slice G, step G1): words of the start
 //          language that start with the typed text, one line per sense, from the translation table.
-// @route   GET /api/dictionary/translate/:fromLanguage?prefix=<text>&partOfSpeech=Any|Noun|Verb|Adjective|Adverb
+// @route   GET /api/dictionary/translate/:fromLanguage?prefix=<text>&partOfSpeech=Any|Noun|Verb|Adjective|Adverb|Conjunction|Preposition
 //          &limit=<1..20, default 10>  (fromLanguage: the language of the typed text; partOfSpeech default Any)
 // @access  Private
 // @returns 200 { suggestions: [{ word, partOfSpeech, gender?, english, sense, key: { englishLemma, entryOrder, senseOrder }, languages: [<language the sense has a word in>] }] }

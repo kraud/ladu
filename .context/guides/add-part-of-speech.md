@@ -79,7 +79,10 @@ Tick each item in the plan. The file paths are from 2026-10-24. Check them again
 - [ ] `backend/scripts/lexicon/ingest.ts`: selectors for the Wiktionary PoS codes (`prep`, `conj`). Add to `keepLemmaOnly` when the data has no forms.
 - [ ] `backend/lib/lexicon/selectors/{en,es,de}.ts`: one selector set per PoS.
 - [ ] `backend/services/dictionary/registry.ts`: one adapter per language.
-- [ ] `backend/lib/lexicon/translations.ts` (`TRANSLATION_POS`) and `services/dictionary/translate.ts`: so "Start from a word" works.
+- [ ] `backend/lib/lexicon/translations.ts` (`TRANSLATION_POS`) and `services/dictionary/translate.ts` (`TRANSLATE_PARTS_OF_SPEECH`): so the translate, senses, sense and draft routes accept the part of speech. Rebuild the translation file (`ingest-translations.ts` + `load.js`) and add words to its `FIXTURE_WORDS`.
+- [ ] `frontend/src/features/words/start-from-word/StartFromWord.tsx` (`DRAFT_PARTS_OF_SPEECH`): so the part-of-speech list of "Start from a word" offers it.
+- [ ] If a selector needs a field that `extract.ts` drops (the Wiktionary `categories` were one), keep it there for the parts of speech that need it, and re-run `extract.ts` (about 2 minutes). Keep the new field in the unit-test fixtures too: `fixture.ts` reduces senses to their tags.
+- [ ] A checkbox that shows other fields (`visibleWhen`) is applied first by the lookup (`lookedUpToggles` in `AutocompleteRow.tsx`); a new kind of driver field needs the same.
 - [ ] Estonian: `services/dictionary/eki.ts`. Check the Ekilex PoS codes in real data first.
 - [ ] Look at the real lexicon data before you write a selector. Fill a property only when the data is reliable. A missing value is not proof (see decision Q2 in the adverb plan).
 

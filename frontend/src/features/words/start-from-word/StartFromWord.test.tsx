@@ -155,6 +155,17 @@ describe('StartFromWord — the section', () => {
         expect(input).toHaveAttribute('placeholder', 'Type a word in German');
     });
 
+    it('offers Conjunction and Preposition in the part-of-speech list (conjunctions plan, slice 3c)', async () => {
+        const { user } = setup();
+        const input = screen.getByTestId('start-word-input');
+
+        await user.click(screen.getByTestId('start-pos'));
+        expect(await screen.findByRole('option', { name: 'Conjunction' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Preposition' })).toBeInTheDocument();
+        await user.click(screen.getByRole('option', { name: 'Preposition' }));
+        expect(input).toHaveAttribute('placeholder', 'Type the preposition in Spanish');
+    });
+
     it('lists the senses of the typed word in the chosen language, grouped by part of speech with a separator while "Any type"', async () => {
         const { user, fake } = setup();
         await user.type(screen.getByTestId('start-word-input'), 'ban');

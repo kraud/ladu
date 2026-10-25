@@ -36,7 +36,7 @@ function conjunctionType(entry: LexiconEntry): string | undefined {
 }
 
 /** "sowohl ... als auch" -> ["sowohl", "als auch"]; a headword without an ellipsis -> [headword]. */
-function pairParts(word: string): string[] {
+export function pairParts(word: string): string[] {
     const parts = word.split(/\s*(?:…|\.\.\.)\s*/).map((part) => part.trim()).filter(Boolean);
     return parts.length === 2 ? parts : [word.trim()];
 }

@@ -779,6 +779,26 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
         expect(res.body.ekilex).toBeUndefined();
     });
 
+    it('conjunctions and prepositions (slice 3c): from English, from German and from Estonian', async () => {
+        const [because] = (await translate('English/Conjunction/because')).body.senses;
+        expect(because.english).toBe('because');
+        expect(words(because.words.German)).toEqual(expect.arrayContaining(['weil', 'denn']));
+        expect(words(because.words.Spanish)).toContain('porque');
+        expect(words(because.words.Estonian)).toContain('sest');
+        // The reverse lookup reaches the same English word.
+        expect((await translate('German/Conjunction/weil')).body.senses.map((s) => s.english)).toContain('because');
+        expect((await translate(`Estonian/Preposition/${encodeURIComponent('pärast')}`)).body.senses.map((s) => s.english)).toContain('after');
+        const [after] = (await translate('English/Preposition/after')).body.senses;
+        expect(words(after.words.German)).toContain('nach');
+        expect(words(after.words.Spanish)).toEqual(expect.arrayContaining(['después de', 'tras']));
+    });
+
+    it('a pair keeps its ellipsis in the translation words ("neither … nor")', async () => {
+        const [pair] = (await translate(`English/Conjunction/${encodeURIComponent('neither … nor')}`)).body.senses;
+        expect(words(pair.words.German)).toEqual(['weder … noch']);
+        expect(words(pair.words.Spanish)).toEqual(['ni … ni']);
+    });
+
     it('from German: "See" belongs to two English words (lake: der See, sea: die See)', async () => {
         const res = await translate('German/Noun/see');
         const byEnglish = Object.fromEntries(res.body.senses.map((s) => [s.english, words(s.words.German)]));
@@ -848,7 +868,7 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
 
     it('400 for an unknown language or part of speech, or a bad query; 401 without a token', async () => {
         expect((await translate('Klingon/Noun/lake')).statusCode).toBe(400);
-        expect((await translate('English/Preposition/in')).statusCode).toBe(400);
+        expect((await translate('English/Pronoun/it')).statusCode).toBe(400);
         expect((await translate(`English/Noun/${'a'.repeat(101)}`)).statusCode).toBe(400);
         expect((await translate('English/Noun/%20')).statusCode).toBe(400);
         expect((await request(app).get('/api/dictionary/translate/English/Noun/lake')).statusCode).toBe(401);
@@ -925,7 +945,7 @@ describe('sense type-ahead (Slice G, G1: GET /api/dictionary/translate/:fromLang
 
     it('400 for an unknown language or part of speech, a bad prefix or limit; 401 without a token', async () => {
         expect((await senses('Klingon?prefix=la')).statusCode).toBe(400);
-        expect((await senses('English?prefix=la&partOfSpeech=Preposition')).statusCode).toBe(400);
+        expect((await senses('English?prefix=la&partOfSpeech=Pronoun')).statusCode).toBe(400);
         expect((await senses('English')).statusCode).toBe(400);
         expect((await senses('English?prefix=a')).statusCode).toBe(400);
         expect((await senses(`English?prefix=${'a'.repeat(101)}`)).statusCode).toBe(400);
@@ -1022,7 +1042,7 @@ describe('one sense with its words (Slice G, G2: GET /api/dictionary/translate/s
     it('404 for a key that matches no sense; 400 for a bad part of speech, language or number; 401 without a token', async () => {
         expect((await sense('Noun', 'english=lake&entry=0&sense=99')).statusCode).toBe(404);
         expect((await sense('Verb', 'english=lake&entry=0&sense=0')).statusCode).toBe(404);
-        expect((await sense('Preposition', 'english=lake&entry=0&sense=0')).statusCode).toBe(400);
+        expect((await sense('Pronoun', 'english=lake&entry=0&sense=0')).statusCode).toBe(400);
         expect((await sense('Noun', 'english=lake&entry=0&sense=0&languages=Klingon')).statusCode).toBe(400);
         expect((await sense('Noun', 'english=&entry=0&sense=0')).statusCode).toBe(400);
         expect((await sense('Noun', 'entry=0&sense=0')).statusCode).toBe(400);
@@ -1106,6 +1126,64 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
         expect(res.body.translations[0].cases.length).toBeGreaterThan(0);
     });
 
+    describe('conjunctions and prepositions (slice 3c)', () => {
+        /** A fake Ekilex that knows "sest" as a conjunction and "pärast" as a preposition and a postposition. */
+        function fakeEkilex() {
+            global.fetch = jest.fn(async (url) => {
+                const path = decodeURIComponent(new URL(url).pathname);
+                const json = (body) => ({ ok: true, status: 200, json: async () => body });
+                const known = { sest: [1, [{ code: 'konj' }], []], pärast: [2, [{ code: 'prep' }], [{ value: 'keda/mida' }]] };
+                let match;
+                if ((match = /^\/api\/word\/ids\/(.+)\/eki\/est$/.exec(path))) return json(known[match[1]] ? [known[match[1]][0]] : []);
+                if ((match = /^\/api\/paradigm\/details\/(\d+)$/.exec(path))) {
+                    const word = Object.keys(known).find((key) => known[key][0] === Number(match[1]));
+                    return json([{ wordClass: 'muutumatu', paradigmForms: [{ morphCode: 'ID', value: word }] }]);
+                }
+                if ((match = /^\/api\/word\/details\/(\d+)$/.exec(path))) {
+                    const entry = Object.values(known).find(([id]) => id === Number(match[1]));
+                    return json({ lexemes: [{ pos: entry[1], governments: entry[2] }] });
+                }
+                return json({});
+            });
+        }
+
+        it('one call fills every language: the lexicon words and the Estonian Ekilex word', async () => {
+            fakeEkilex();
+            const res = await draft({
+                partOfSpeech: 'Preposition',
+                picks: [{ language: 'German', word: 'nach' }, { language: 'Spanish', word: 'de' }, { language: 'English', word: 'in' }, { language: 'Estonian', word: 'pärast' }],
+            });
+            expect(res.statusCode).toBe(200);
+            expect(res.body.translations.map((t) => [t.language, t.status])).toEqual([['German', 'found'], ['Spanish', 'found'], ['English', 'found'], ['Estonian', 'found']]);
+            expect(casesOf(res.body.translations[0])).toEqual({ prepositionDE: 'nach', positionDE: 'Before or after the noun', governedCaseDE: 'D' });
+            expect(casesOf(res.body.translations[3])).toEqual({ prepositionEE: 'pärast', positionEE: 'Before the noun', governedCasePreEE: 'Partitive' });
+        });
+
+        it('a conjunction draft: a marked type is filled, an unknown word is not-found', async () => {
+            fakeEkilex();
+            const res = await draft({
+                partOfSpeech: 'Conjunction',
+                picks: [{ language: 'German', word: 'und' }, { language: 'English', word: 'because' }, { language: 'Spanish', word: 'zorplate' }, { language: 'Estonian', word: 'sest' }],
+            });
+            expect(res.body.translations.map((t) => t.status)).toEqual(['found', 'found', 'not-found', 'found']);
+            expect(casesOf(res.body.translations[0])).toEqual({ conjunctionDE: 'und', conjunctionTypeDE: 'Coordinating' });
+            expect(casesOf(res.body.translations[3])).toEqual({ conjunctionEE: 'sest' });
+        });
+
+        it('a pair from the translation table ("weder … noch") that the lexicon does not store is split by rule: partial', async () => {
+            fakeEkilex();
+            const res = await draft({
+                partOfSpeech: 'Conjunction',
+                picks: [{ language: 'German', word: 'weder … noch' }, { language: 'Spanish', word: 'ni ... ni' }, { language: 'English', word: 'neither … nor' }, { language: 'Estonian', word: 'ei … ega' }],
+            });
+            expect(res.body.translations.map((t) => t.status)).toEqual(['partial', 'partial', 'found', 'partial']);
+            expect(casesOf(res.body.translations[0])).toEqual({ conjunctionDE: 'weder', correlativeDE: 'true', secondPartDE: 'noch' });
+            expect(casesOf(res.body.translations[1])).toEqual({ conjunctionES: 'ni', correlativeES: 'true', secondPartES: 'ni' });
+            expect(casesOf(res.body.translations[2])).toEqual({ conjunctionEN: 'neither', correlativeEN: 'true', secondPartEN: 'nor' });
+            expect(casesOf(res.body.translations[3])).toEqual({ conjunctionEE: 'ei', correlativeEE: 'true', secondPartEE: 'ega' });
+        });
+    });
+
     it('works for the other parts of speech too (a verb)', async () => {
         const res = await draft({ partOfSpeech: 'Verb', picks: [{ language: 'Spanish', word: 'bailar' }, { language: 'Estonian', word: 'tantsima' }] });
         expect(res.body.translations.map((t) => t.status)).toEqual(['found', 'found']);
@@ -1113,7 +1191,7 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
 
     it('400 for a bad part of speech, language, repeated language, word or number of picks; 401 without a token', async () => {
         const ok = { language: 'German', word: 'Haus' };
-        expect((await draft({ partOfSpeech: 'Preposition', picks: [ok] })).statusCode).toBe(400);
+        expect((await draft({ partOfSpeech: 'Pronoun', picks: [ok] })).statusCode).toBe(400);
         expect((await draft({ partOfSpeech: 'Noun', picks: [] })).statusCode).toBe(400);
         expect((await draft({ partOfSpeech: 'Noun' })).statusCode).toBe(400);
         expect((await draft({ partOfSpeech: 'Noun', picks: [{ ...ok, language: 'Klingon' }] })).statusCode).toBe(400);
