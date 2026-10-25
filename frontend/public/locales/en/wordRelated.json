@@ -338,22 +338,22 @@
       "errors": {
         "formEN": {
           "conjunctionRequired": "Conjunction is required",
-          "typeRequired": "'Type' selection is required",
+          "typeInvalid": "That is not an option",
           "secondPartRequired": "Second part is required"
         },
         "formES": {
           "conjunctionRequired": "Conjunction is required",
-          "typeRequired": "'Type' selection is required",
+          "typeInvalid": "That is not an option",
           "secondPartRequired": "Second part is required"
         },
         "formDE": {
           "conjunctionRequired": "Conjunction is required",
-          "typeRequired": "'Type' selection is required",
+          "typeInvalid": "That is not an option",
           "secondPartRequired": "Second part is required"
         },
         "formEE": {
           "conjunctionRequired": "Conjunction is required",
-          "typeRequired": "'Type' selection is required",
+          "typeInvalid": "That is not an option",
           "secondPartRequired": "Second part is required"
         }
       },

@@ -91,6 +91,10 @@ function optionLabel(options: { value: string; label: string }[], value: unknown
     return options.find((option) => option.value === value)?.label ?? String(value ?? '');
 }
 
+/** The dash item that clears an optional select. The sentinel value never reaches the form state. */
+const NO_SELECTION = '__none__';
+const NO_SELECTION_LABEL = '—';
+
 /** A field's label plus its red required-marker — see the file header for why the marker is a sibling, not a child, of `FormLabel`. */
 function FieldLabelRow({ label, required, bold }: { label: string; required: boolean; bold?: boolean }) {
     return (
@@ -333,16 +337,27 @@ export function FieldRenderer({
                     );
                 }
 
+                // An optional select gets a first "none" item (a dash), so the user can clear it again and
+                // the trigger never looks blank. Required selects keep their options only.
                 if (field.kind === 'select') {
                     return (
                         <FormItem className={itemClass}>
                             <FieldLabelRow label={label} required={field.required} />
                             <FormControl>
-                                <Select value={rhf.value ?? ''} onValueChange={rhf.onChange}>
+                                <Select
+                                    value={rhf.value || (field.required ? '' : NO_SELECTION)}
+                                    onValueChange={(next) => rhf.onChange(next === NO_SELECTION ? '' : next)}
+                                    items={field.required ? field.options : [{ value: NO_SELECTION, label: NO_SELECTION_LABEL }, ...field.options]}
+                                >
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        {!field.required && (
+                                            <SelectItem value={NO_SELECTION} className="text-muted-foreground">
+                                                {NO_SELECTION_LABEL}
+                                            </SelectItem>
+                                        )}
                                         {field.options.map((option) => (
                                             <SelectItem key={option.value} value={option.value}>
                                                 {option.label}

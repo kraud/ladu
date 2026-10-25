@@ -53,7 +53,7 @@ Common rule: one required text field for the word itself. Multi-word entries are
 | Field | EN | ES | DE | EE | Kind |
 |---|---|---|---|---|---|
 | word (`conjunction{L}`) | ✓ | ✓ | ✓ | ✓ | text, required |
-| type (`conjunctionType{L}`): Coordinating / Subordinating | ✓ | ✓ | ✓ | ✓ | radio, required |
+| type (`conjunctionType{L}`): Coordinating / Subordinating | ✓ | ✓ | ✓ | ✓ | radio, **optional** (Q2 changed, Q5) |
 | paired (`correlative{L}`) | ✓ | ✓ | ✓ | ✓ | checkbox |
 | second part (`secondPart{L}`): nor / ni / noch / ega | ✓ | ✓ | ✓ | ✓ | text, visible when paired is on, required then |
 | mood (`mood ES`): Indicative / Subjunctive / Depends on meaning | – | ✓ | – | – | select, visible when Subordinating |
@@ -77,8 +77,9 @@ EN and ES prepositions do not govern a case on the noun (ES *a+el = al*, *de+el 
 ## Decisions from the user (2026-10-24)
 
 - **Q1.** Paired conjunctions: a "Paired" checkbox reveals a required "second part" field ("weder" + "noch").
-- **Q2.** The conjunction type radio is required in all four languages.
+- **Q2.** ~~The conjunction type radio is required in all four languages.~~ **Changed 2026-10-25 (Q5):** the type radio is optional. Learners often do not know the type. A re-click clears it.
 - **Q3.** Preposition extras: the EE spatial series, the DE article contractions, and the position radio in **all four** languages.
+- **Q5 (2026-10-25).** Conjunction layout, in all four languages: the word and the second part share row 1; the type radio and the "Paired" checkbox share row 2; the Spanish mood select has row 3. The mood still shows only for "Subordinating". Done in `configs/conjunctions.ts` (grid `layout`: rows `word`, `meta`, `mood`; columns `first`, `second`). The error key `typeRequired` became `typeInvalid`.
 - **Q4.** Scope: slices 0–4 (guide, two forms, autocomplete, e2e). Exercises, onboarding pool and demo template are deferred.
 
 Open, to confirm in the slice overview (not blocking): ES *al/del* is the only Spanish contraction; no field (a general rule). Contraction fields are written forms, not properties — only `contracts*` goes to `PROPERTY_PREFIXES`.
@@ -105,6 +106,8 @@ Open, to confirm in the slice overview (not blocking): ES *al/del* is the only S
 
 **Slice 3 — Autocomplete (lemma only + a few properties).** Lexicon has lemmas only (`autocomplete-coverage-report.md:334-369`: DE 99 prep / 67 conj, EN 143/70, ES 39/32).
 - `scripts/lexicon/ingest.ts:31-34,137`: selectors for `prep`/`conj` in `selectors/{en,es,de}.ts`, add to `keepLemmaOnly`. `registry.ts:39-71`: lexicon adapters. `lib/lexicon/translations.ts:13` `TRANSLATION_POS` + `prep`/`conj` so "Start from a word" works; `services/dictionary/translate.ts:31`.
+- **Research (user, 2026-10-25): can the data fill the conjunction type?** Check the lexicon data of each language (kaikki tags/categories for EN, ES, DE; Ekilex for EE: look for `coordinating` / `subordinating` or the Estonian terms `rinnastav` / `alistav` in tags, senses or categories). Fill the radio only when the data says it clearly. Leave it empty otherwise (a missing value is not proof; see the adverb plan, Q2).
+- **Research (user, 2026-10-25): can the data fill the "Paired" checkbox and the second part?** Check whether paired entries always have a separator between the two parts in the headword or the translation: a slash "/", an ellipsis "…" or "...", or a hyphen as in "weder-noch" in `.other/other-words-temp.md`. If the pattern is reliable, the autocomplete sets `correlative` and splits the entry into the word and `secondPart`. Count the real entries per language first (how many have the separator, how many false hits) and write the result in this plan before coding.
 - German governed case from kaikki tags/senses ("with dative") — verify in the data first; fill only when the tag is clear.
 - Estonian via Ekilex (`services/dictionary/eki.ts:242-251`): verify the Ekilex PoS codes for conjunction / pre- / postposition before coding; fill the position radio from them. Update `tests/dictionary.test.js:301` (`ja` is no longer "not found" for Conjunction).
 - `AUTOCOMPLETE_REGISTRY` (`autocomplete/transforms.ts:35-68`), `StartFromWord.tsx:42`.

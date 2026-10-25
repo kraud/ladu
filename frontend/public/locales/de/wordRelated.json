@@ -338,22 +338,22 @@
       "errors": {
         "formEN": {
           "conjunctionRequired": "Konjunktion ist erforderlich",
-          "typeRequired": "Die Auswahl des 'Typs' ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
           "secondPartRequired": "Der zweite Teil ist erforderlich"
         },
         "formES": {
           "conjunctionRequired": "Konjunktion ist erforderlich",
-          "typeRequired": "Die Auswahl des 'Typs' ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
           "secondPartRequired": "Der zweite Teil ist erforderlich"
         },
         "formDE": {
           "conjunctionRequired": "Konjunktion ist erforderlich",
-          "typeRequired": "Die Auswahl des 'Typs' ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
           "secondPartRequired": "Der zweite Teil ist erforderlich"
         },
         "formEE": {
           "conjunctionRequired": "Konjunktion ist erforderlich",
-          "typeRequired": "Die Auswahl des 'Typs' ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
           "secondPartRequired": "Der zweite Teil ist erforderlich"
         }
       },

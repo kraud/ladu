@@ -338,22 +338,22 @@
       "errors": {
         "formEN": {
           "conjunctionRequired": "La conjunción es obligatoria",
-          "typeRequired": "La selección de 'tipo' es obligatoria",
+          "typeInvalid": "Esa no es una opción",
           "secondPartRequired": "La segunda parte es obligatoria"
         },
         "formES": {
           "conjunctionRequired": "La conjunción es obligatoria",
-          "typeRequired": "La selección de 'tipo' es obligatoria",
+          "typeInvalid": "Esa no es una opción",
           "secondPartRequired": "La segunda parte es obligatoria"
         },
         "formDE": {
           "conjunctionRequired": "La conjunción es obligatoria",
-          "typeRequired": "La selección de 'tipo' es obligatoria",
+          "typeInvalid": "Esa no es una opción",
           "secondPartRequired": "La segunda parte es obligatoria"
         },
         "formEE": {
           "conjunctionRequired": "La conjunción es obligatoria",
-          "typeRequired": "La selección de 'tipo' es obligatoria",
+          "typeInvalid": "Esa no es una opción",
           "secondPartRequired": "La segunda parte es obligatoria"
         }
       },

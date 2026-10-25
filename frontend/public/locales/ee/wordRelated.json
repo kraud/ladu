@@ -338,22 +338,22 @@
       "errors": {
         "formEN": {
           "conjunctionRequired": "Sidesõna on kohustuslik",
-          "typeRequired": "'Tüübi' valik on kohustuslik",
+          "typeInvalid": "See pole valik",
           "secondPartRequired": "Teine osa on kohustuslik"
         },
         "formES": {
           "conjunctionRequired": "Sidesõna on kohustuslik",
-          "typeRequired": "'Tüübi' valik on kohustuslik",
+          "typeInvalid": "See pole valik",
           "secondPartRequired": "Teine osa on kohustuslik"
         },
         "formDE": {
           "conjunctionRequired": "Sidesõna on kohustuslik",
-          "typeRequired": "'Tüübi' valik on kohustuslik",
+          "typeInvalid": "See pole valik",
           "secondPartRequired": "Teine osa on kohustuslik"
         },
         "formEE": {
           "conjunctionRequired": "Sidesõna on kohustuslik",
-          "typeRequired": "'Tüübi' valik on kohustuslik",
+          "typeInvalid": "See pole valik",
           "secondPartRequired": "Teine osa on kohustuslik"
         }
       },

@@ -263,6 +263,30 @@ describe('FieldRenderer', () => {
             expect(screen.getByRole('combobox')).toHaveTextContent('sein');
         });
 
+        it('an optional select shows a dash while empty and can be cleared with the dash item', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<Harness field={{ ...selectField, required: false }} />);
+
+            expect(screen.getByRole('combobox')).toHaveTextContent('—');
+
+            await user.click(screen.getByRole('combobox'));
+            await user.click(await screen.findByRole('option', { name: 'sein' }));
+            expect(screen.getByRole('combobox')).toHaveTextContent('sein');
+
+            await user.click(screen.getByRole('combobox'));
+            await user.click(await screen.findByRole('option', { name: '—' }));
+            expect(screen.getByRole('combobox')).toHaveTextContent('—');
+        });
+
+        it('a required select has no dash item', async () => {
+            const user = userEvent.setup();
+            renderWithProviders(<Harness field={selectField} />);
+
+            await user.click(screen.getByRole('combobox'));
+            expect(await screen.findByRole('option', { name: 'sein' })).toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: '—' })).not.toBeInTheDocument();
+        });
+
         it('displayOnly: shows the matched option label as static text', () => {
             renderWithProviders(<Harness field={selectField} displayOnly value="haben" />);
             expect(screen.getByText('haben')).toBeInTheDocument();
