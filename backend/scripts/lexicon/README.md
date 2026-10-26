@@ -11,7 +11,7 @@ The scripts run on a developer machine, never on the VPS.
 ```sh
 cd backend
 npx tsx scripts/lexicon/download.ts   # ~3 GB download; skips files that exist (--force to refresh)
-npx tsx scripts/lexicon/extract.ts    # streams the dump once → kaikki-<lang>.jsonl (en, es, de, et); keeps `categories` for conj/prep/postp entries
+npx tsx scripts/lexicon/extract.ts    # streams the dump once → kaikki-<lang>.jsonl (en, es, de, et, fr: `LANG_CODES` in common.ts); keeps `categories` for conj/prep/postp entries
 npx tsx scripts/lexicon/sample.ts     # frequency list → ranked lemmas per part of speech → sample-<lang>.json
 ```
 
@@ -23,7 +23,7 @@ node scripts/lexicon/load.js <file>               # replaces that language's row
 node scripts/lexicon/load.js <file> --if-empty    # only if the language has no rows yet (test / e2e databases). It checks per LANGUAGE: a local
                                                     # database that has old German rows skips a new fixture — run load.js without the flag there.
 npx tsx scripts/lexicon/ingest.ts de --fixture    # rewrites the committed test fixture, fixtures/lexicon-de-fixture.jsonl
-npx tsx scripts/lexicon/ingest.ts es|en [--fixture]   # the same for Spanish and English (Wiktionary)
+npx tsx scripts/lexicon/ingest.ts es|en|fr [--fixture]   # the same for Spanish, English and French (Wiktionary). French has no verbs yet (language-french.md, slice 9b)
 npx tsx scripts/lexicon/ingest-et.ts [--fixture]  # Estonian from Eesthetic (not Wiktionary) → lexicon-et-eesthetic-v1.0.5.jsonl.gz
 npx tsx scripts/lexicon/ingest-translations.ts [--fixture]   # Slice F: English translations[] → translations-en-<date>.jsonl.gz (~5 MB, ~300k rows)
 ```

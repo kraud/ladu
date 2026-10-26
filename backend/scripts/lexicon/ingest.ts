@@ -25,14 +25,19 @@ const { mergeAdpositionRows }: typeof import('../../lib/lexicon/adpositions') = 
 const de: typeof import('../../lib/lexicon/selectors/de') = require('../../lib/lexicon/selectors/de');
 const es: typeof import('../../lib/lexicon/selectors/es') = require('../../lib/lexicon/selectors/es');
 const en: typeof import('../../lib/lexicon/selectors/en') = require('../../lib/lexicon/selectors/en');
+const fr: typeof import('../../lib/lexicon/selectors/fr') = require('../../lib/lexicon/selectors/fr');
 type LangCode = import('./common').LangCode;
 type CaseSelector = import('../../lib/lexicon/select').CaseSelector;
 
-/** Languages the ingest supports so far. Estonian comes from other sources (Slice D). */
+/**
+ * Languages the ingest supports so far. Estonian comes from other sources (Slice D). French has no verb table yet
+ * (language-french.md, slice 9b): a French verb entry has no selectors, so it is skipped.
+ */
 const LANGUAGES: Partial<Record<LangCode, { language: string; selectors: Record<string, CaseSelector[]> }>> = {
     de: { language: 'German', selectors: { noun: de.NOUN_SELECTORS_DE, verb: de.VERB_SELECTORS_DE, adj: de.ADJECTIVE_SELECTORS_DE, adv: de.ADVERB_SELECTORS_DE, conj: de.CONJUNCTION_SELECTORS_DE, prep: de.PREPOSITION_SELECTORS_DE, postp: de.PREPOSITION_SELECTORS_DE } },
     es: { language: 'Spanish', selectors: { noun: es.NOUN_SELECTORS_ES, verb: es.VERB_SELECTORS_ES, adj: es.ADJECTIVE_SELECTORS_ES, adv: es.ADVERB_SELECTORS_ES, conj: es.CONJUNCTION_SELECTORS_ES, prep: es.PREPOSITION_SELECTORS_ES, postp: es.PREPOSITION_SELECTORS_ES } },
     en: { language: 'English', selectors: { noun: en.NOUN_SELECTORS_EN, verb: en.VERB_SELECTORS_EN, adj: en.ADJECTIVE_SELECTORS_EN, adv: en.ADVERB_SELECTORS_EN, conj: en.CONJUNCTION_SELECTORS_EN, prep: en.PREPOSITION_SELECTORS_EN, postp: en.PREPOSITION_SELECTORS_EN } },
+    fr: { language: 'French', selectors: { noun: fr.NOUN_SELECTORS_FR, adj: fr.ADJECTIVE_SELECTORS_FR, adv: fr.ADVERB_SELECTORS_FR, conj: fr.CONJUNCTION_SELECTORS_FR, prep: fr.PREPOSITION_SELECTORS_FR, postp: fr.PREPOSITION_SELECTORS_FR } },
 };
 
 /**
@@ -76,6 +81,15 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'big|adj', 'good|adj', 'beautiful|adj', 'unique|adj', 'happy|adj', 'quickly|adv', 'fast|adv', 'well|adv',
         // "because"/"although": marked subordinating; "neither … nor": a pair; "ago": a postposition.
         'because|conj', 'although|conj', 'neither … nor|conj', 'in|prep', 'ago|prep',
+    ],
+    // "cheval"/"œil"/"travail": irregular plurals; "enfant": both genders (le/la); "souris": invariable; "gens": plural only.
+    // "beau": the vowel form "bel"; "facile": one shape for both genders; "marron": invariable; "bon": the irregular comparative.
+    // "bien": the irregular degrees; "vite": no degree rows. "parce que"/"ni … ni": a conjunction and a pair; "pendant": a preposition.
+    fr: [
+        'maison|noun', 'cheval|noun', 'œil|noun', 'travail|noun', 'enfant|noun', 'souris|noun', 'gens|noun', 'homme|noun', 'ville|noun', 'livre|noun',
+        'grand|adj', 'beau|adj', 'facile|adj', 'marron|adj', 'bon|adj', 'heureux|adj',
+        'bien|adv', 'vite|adv', 'beaucoup|adv',
+        'parce que|conj', 'et|conj', 'ni … ni|conj', 'dans|prep', 'pendant|prep',
     ],
 };
 const FIXTURE_TOP_N = 20;

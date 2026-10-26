@@ -65,7 +65,7 @@ Verified in slice 1 of the French plan (2026-10-26). The language set lives in *
 
 These lists stay explicit **on purpose** (a language joins them when its data exists). Edit them in the slice named:
 
-- [ ] `scripts/lexicon/common.ts` (`LANG_CODES`: the languages of the lexicon pipeline), `extract.ts` (prefilter regex at line 24, translation targets at line 46), `ingest.ts` (`LANGUAGES`, `FIXTURE_WORDS`). Slice 9 for French.
+- [ ] `scripts/lexicon/common.ts` (`LANG_CODES`: the languages of the lexicon pipeline), `ingest.ts` (`LANGUAGES`, `FIXTURE_WORDS`). `extract.ts` builds its prefilter regex and its translation targets from `LANG_CODES`, so it needs no edit. Slices 9a and 9b for French.
 - [ ] `scripts/lexicon/onboarding-pool.ts` (`LANGUAGES`) and the pool columns in `lib/onboardingPool.ts`. Slice 11.
 - [ ] `scripts/seed-pagination-words.ts`, `scripts/bench-exercises.ts`: developer scripts with their own language lists. Optional.
 - [ ] `tests/unit/languages.test.js` checks the table against the frontend `Lang` enum. If it fails, the two lists differ.
@@ -114,12 +114,16 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 
 ### Lexicon and autocomplete (only when the plan includes autocomplete)
 
-- [ ] Coverage research first: re-extract the language from the dump and measure each part of speech (template: `.context/plans/autocomplete-coverage-report.md`). `(unverified)`
-- [ ] `backend/scripts/lexicon/common.ts` (language codes, frequency list URL), `extract.ts` (prefilter regex, translation targets), `ingest.ts` (`LANGUAGES`, `FIXTURE_WORDS`), `load.js` (`LANGUAGES`, `TRANSLATION_TARGETS`). `(unverified)`
-- [ ] `backend/lib/lexicon/selectors/<code>.ts`, its unit test and fixture (`tests/unit/lexiconSelectors<SUFFIX>.test.js`). `(unverified)`
-- [ ] `services/dictionary/registry.ts`: one adapter per part of speech. `(unverified)`
-- [ ] `frontend/src/features/autocomplete/transforms.ts` (`AUTOCOMPLETE_REGISTRY`) and `StartFromWord`. `(unverified)`
-- [ ] Licence: add the source to `.context/licence-study.md` and to `landing/credits.html`. `(unverified)`
+- [x] Coverage research first (French slice 8): re-extract the language from the dump and measure each part of speech with draft selectors (template: `.context/plans/autocomplete-coverage-report.md`; the French results are in `.context/plans/language-french.md`, "Slice 8 results"). Read a few real entries by hand: a high fill rate does not prove the values are right (the research found dual-auxiliary verbs that way).
+- [x] `backend/scripts/lexicon/common.ts`: add the code to `LANG_CODES`. `download.ts` then fetches the frequency list (`fr_50k` exists for French; check the URL for another language) and records it in the manifest. `extract.ts` needs no edit. Run the whole `extract.ts` again (about 10 minutes; it rewrites every `kaikki-<code>.jsonl`), then `sample.ts`.
+- [x] `backend/lib/lexicon/selectors/<code>.ts` (one table per part of speech; the conjunction and preposition tables are `conjunctionSelectors(SUFFIX)` and `prepositionSelectors(SUFFIX)` from `functionWords.ts`), its unit test (`tests/unit/lexiconSelectors<SUFFIX>.test.js`) and the fixture of real entries (`npx tsx scripts/lexicon/fixture.ts <code> 'word|pos' …` → `tests/unit/fixtures/lexicon-<code>.json`).
+- [x] `scripts/lexicon/ingest.ts`: the `LANGUAGES` row (a part of speech with no table is skipped) and `FIXTURE_WORDS`. Then `ingest.ts <code>`, `ingest.ts <code> --fixture` and `ingest-translations.ts [--fixture]` (the translation file has a fixed name per kaikki date: the rebuild overwrites the old file). `load.js` reads `lib/languages.ts`: no edit.
+- [x] `lib/lexicon/translations.ts` (`GENDERS`: the article of a translated noun, and a "both genders" rule) and `services/dictionary/lexicon.ts` (`GENDER_CASE`: which case holds the gender, for the homograph choice).
+- [x] `services/dictionary/registry.ts`: one adapter per part of speech (`lexiconAdapter` alone when no library exists; `withPairSplit` for conjunctions).
+- [x] `frontend/src/features/autocomplete/transforms.ts` (`AUTOCOMPLETE_REGISTRY`: the RHF field name that holds the query, per part of speech) and its test, which pins the list of pairs. `StartFromWord` reads the language table: no edit.
+- [x] `controllers/dictionaryController.ts` `MAX_PICKS`: a draft has one pick per language. It was a hard-coded 4 and answered 400 for a fifth language (found in French slice 9a).
+- [x] Licence: the Wiktionary source and CC BY-SA 4.0 are the same for every language, so `.context/licence-study.md` needs no row. `landing/credits.html` lists the languages of the word forms: add the new one.
+- [x] Backend tests that name the language as an example of "no data" (`dictionary.test.js`: translate and type-ahead lists) change when the language gets data.
 - [ ] Fixture for CI and e2e: `lexicon-<code>-fixture.jsonl`, `backend/package.json` (`lexicon:load:fixture`), `e2e/playwright.config.ts`, `.github/workflows/ci.yml`. `(unverified)`
 
 ### Onboarding and demo (only when the plan includes them)

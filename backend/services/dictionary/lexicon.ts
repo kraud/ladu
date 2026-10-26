@@ -33,7 +33,7 @@ function fullEntries<T extends Row>(rows: T[]): T[] {
 
 const mainSense = <T extends Row>(rows: T[]): T => rows.reduce((a, b) => (b.entryOrder < a.entryOrder ? b : a));
 
-const GENDER_CASE: Record<string, string> = { German: 'genderDE', Spanish: 'genderES' };
+const GENDER_CASE: Record<string, string> = { German: 'genderDE', Spanish: 'genderES', French: 'genderFR' };
 
 /**
  * The D15 choice, narrowed by a noun gender (Slice G): of the non-stub rows, those whose article

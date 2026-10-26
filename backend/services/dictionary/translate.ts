@@ -1,11 +1,11 @@
 /**
  * The translate lookup (autocomplete-data-source-strategy.md Slice F, step F2; decision D22):
- * one word in any of the four languages → the senses it belongs to → for each sense, the words in
+ * one word in any of the languages → the senses it belongs to → for each sense, the words in
  * every language. Reads `lexeme_translations` (English Wiktionary translation tables).
  *
  * English is the hub. From English: the senses of that English word. From another language
  * (reverse lookup): the English senses that list the word, then the other words of those senses.
- * Every sense lists all four languages (the English word too), an empty list where the data has
+ * Every sense lists every language (the English word too), an empty list where the data has
  * none: no language is "primary" (design commandment 4).
  *
  * Order of the senses:

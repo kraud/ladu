@@ -1,0 +1,27 @@
+{"format":"ladu-lexicon/1","language":"French","source":"kaikki","licence":"CC BY-SA 4.0","sourceVersion":"2026-10-03","attribution":"Derived from English Wiktionary (https://en.wiktionary.org) via kaikki.org / Wiktextract, CC BY-SA 4.0. Frequency ranks from FrequencyWords (github.com/hermitdave/FrequencyWords), CC BY-SA 4.0."}
+{"partOfSpeech":"Noun","lemma":"livre","frequencyRank":668,"entryOrder":0,"forms":{"genderFR":"le","singularFR":"livre","pluralFR":"livres"}}
+{"partOfSpeech":"Noun","lemma":"livre","frequencyRank":668,"entryOrder":1,"forms":{"genderFR":"la","singularFR":"livre","pluralFR":"livres"}}
+{"partOfSpeech":"Adverb","lemma":"bien","frequencyRank":37,"entryOrder":0,"forms":{"gradableFR":"Gradable","adverbFR":"bien","comparativeFR":"mieux"}}
+{"partOfSpeech":"Noun","lemma":"œil","frequencyRank":363,"entryOrder":0,"forms":{"genderFR":"le","singularFR":"œil","pluralFR":"yeux"}}
+{"partOfSpeech":"Conjunction","lemma":"et","frequencyRank":13,"entryOrder":0,"forms":{"conjunctionFR":"et","conjunctionTypeFR":"Coordinating"}}
+{"partOfSpeech":"Noun","lemma":"cheval","frequencyRank":1070,"entryOrder":0,"forms":{"genderFR":"le","singularFR":"cheval","pluralFR":"chevaux"}}
+{"partOfSpeech":"Noun","lemma":"maison","frequencyRank":2338,"entryOrder":0,"forms":{"genderFR":"la","singularFR":"maison","pluralFR":"maisons"}}
+{"partOfSpeech":"Preposition","lemma":"dans","frequencyRank":33,"entryOrder":0,"forms":{"prepositionFR":"dans","positionFR":"Before the noun"}}
+{"partOfSpeech":"Adjective","lemma":"beau","frequencyRank":402,"entryOrder":0,"forms":{"maleSingularFR":"beau","femaleSingularFR":"belle","malePluralFR":"beaux","femalePluralFR":"belles","vowelFormFR":"bel","hasVowelFormFR":"true"}}
+{"partOfSpeech":"Adjective","lemma":"bon","frequencyRank":93,"entryOrder":0,"forms":{"maleSingularFR":"bon","femaleSingularFR":"bonne","malePluralFR":"bons","femalePluralFR":"bonnes","comparativeFR":"meilleur"}}
+{"partOfSpeech":"Preposition","lemma":"pendant","frequencyRank":262,"entryOrder":0,"forms":{"prepositionFR":"pendant","positionFR":"Before the noun"}}
+{"partOfSpeech":"Adjective","lemma":"facile","frequencyRank":533,"entryOrder":0,"forms":{"maleSingularFR":"facile","femaleSingularFR":"facile","malePluralFR":"faciles","femalePluralFR":"faciles"}}
+{"partOfSpeech":"Adverb","lemma":"vite","frequencyRank":253,"entryOrder":0,"forms":{"adverbFR":"vite"}}
+{"partOfSpeech":"Conjunction","lemma":"parce que","frequencyRank":null,"entryOrder":0,"forms":{"conjunctionFR":"parce que","conjunctionTypeFR":"Subordinating"}}
+{"partOfSpeech":"Adjective","lemma":"heureux","frequencyRank":539,"entryOrder":0,"forms":{"maleSingularFR":"heureux","femaleSingularFR":"heureuse","malePluralFR":"heureux","femalePluralFR":"heureuses"}}
+{"partOfSpeech":"Adverb","lemma":"beaucoup","frequencyRank":170,"entryOrder":0,"forms":{"adverbFR":"beaucoup"}}
+{"partOfSpeech":"Adjective","lemma":"grand","frequencyRank":270,"entryOrder":0,"forms":{"maleSingularFR":"grand","femaleSingularFR":"grande","malePluralFR":"grands","femalePluralFR":"grandes"}}
+{"partOfSpeech":"Noun","lemma":"ville","frequencyRank":332,"entryOrder":0,"forms":{"genderFR":"la","singularFR":"ville","pluralFR":"villes"}}
+{"partOfSpeech":"Noun","lemma":"gens","frequencyRank":181,"entryOrder":0,"forms":{"genderFR":"le","singularFR":"gens"}}
+{"partOfSpeech":"Noun","lemma":"enfant","frequencyRank":258,"entryOrder":0,"forms":{"genderFR":"le/la","singularFR":"enfant","pluralFR":"enfants"}}
+{"partOfSpeech":"Adjective","lemma":"marron","frequencyRank":6909,"entryOrder":0,"forms":{"maleSingularFR":"marron","femaleSingularFR":"marron","malePluralFR":"marron","femalePluralFR":"marron"}}
+{"partOfSpeech":"Adjective","lemma":"marron","frequencyRank":6909,"entryOrder":1,"forms":{"maleSingularFR":"marron","femaleSingularFR":"marronne","malePluralFR":"marrons","femalePluralFR":"marronnes"}}
+{"partOfSpeech":"Noun","lemma":"travail","frequencyRank":242,"entryOrder":0,"forms":{"genderFR":"le","singularFR":"travail","pluralFR":"travaux"}}
+{"partOfSpeech":"Noun","lemma":"homme","frequencyRank":157,"entryOrder":0,"forms":{"genderFR":"le","singularFR":"homme","pluralFR":"hommes"}}
+{"partOfSpeech":"Noun","lemma":"souris","frequencyRank":2087,"entryOrder":0,"forms":{"genderFR":"la","singularFR":"souris","pluralFR":"souris"}}
+{"partOfSpeech":"Noun","lemma":"souris","frequencyRank":2087,"entryOrder":1,"forms":{"genderFR":"le","singularFR":"souris","pluralFR":"souris"}}

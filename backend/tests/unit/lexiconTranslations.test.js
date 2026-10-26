@@ -13,6 +13,13 @@ describe('translationGender', () => {
         expect(translationGender('German', ['plural'])).toBeNull();
     });
 
+    it('French: le / la, both → "le/la"; neuter → null', () => {
+        expect(translationGender('French', ['masculine'])).toBe('le');
+        expect(translationGender('French', ['feminine'])).toBe('la');
+        expect(translationGender('French', ['feminine', 'masculine'])).toBe('le/la');
+        expect(translationGender('French', ['neuter'])).toBeNull();
+    });
+
     it('Spanish: el / la, both → "el/la"; neuter → null', () => {
         expect(translationGender('Spanish', ['masculine'])).toBe('el');
         expect(translationGender('Spanish', ['feminine'])).toBe('la');
@@ -52,6 +59,16 @@ describe('translationRows', () => {
             englishLemma: 'lake', partOfSpeech: 'Noun', entryOrder: 2, sense: 'body of water', senseOrder: 0,
             language: 'German', word: 'See', wordOrder: 0, gender: 'der', tags: ['masculine'],
         });
+    });
+
+    it('French is a target: a noun keeps its gender as le / la, a verb has none', () => {
+        const rows = translationRows({ word: 'lake', pos: 'noun', translations: [
+            { lang: 'fr', word: 'lac', tags: ['masculine'], sense: 'body of water' },
+            { lang: 'fr', word: 'étang', tags: ['masculine'], sense: 'body of water' },
+        ] }, 0);
+        expect(rows.map((r) => [r.language, r.word, r.gender])).toEqual([['French', 'lac', 'le'], ['French', 'étang', 'le']]);
+        const verb = translationRows({ word: 'run', pos: 'verb', translations: [{ lang: 'fr', word: 'courir', sense: 'move fast' }] }, 0);
+        expect(verb.map((r) => [r.language, r.word, r.gender])).toEqual([['French', 'courir', null]]);
     });
 
     it('numbers the words per sense and language, in source order', () => {

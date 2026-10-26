@@ -69,6 +69,15 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Conjunction: withPairSplit(lexiconAdapter('German', 'Conjunction'), 'DE'),
         Preposition: lexiconAdapter('German', 'Preposition'),
     },
+    // French slice 9a (language-french.md): the lexicon alone, like English adjectives: no library exists, so a miss is
+    // not-found. Verbs come in slice 9b.
+    French: {
+        Noun: lexiconAdapter('French', 'Noun'),
+        Adjective: lexiconAdapter('French', 'Adjective'),
+        Adverb: lexiconAdapter('French', 'Adverb'),
+        Conjunction: withPairSplit(lexiconAdapter('French', 'Conjunction'), 'FR'),
+        Preposition: lexiconAdapter('French', 'Preposition'),
+    },
     // Slice D2: Eesthetic in the lexicon first, then Ekilex — a real dictionary, so its answers stay
     // `found`. Adjectives: Eesthetic has (almost) none, so Ekilex only.
     Estonian: {
