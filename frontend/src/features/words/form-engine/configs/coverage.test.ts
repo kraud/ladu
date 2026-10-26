@@ -15,4 +15,8 @@ describe('coverageForLanguage', () => {
             ]);
         }
     });
+
+    it('lists only the parts of speech French has so far (nouns and adjectives, slice 4)', () => {
+        expect(coverageForLanguage(Lang.FR)).toEqual([PartOfSpeech.noun, PartOfSpeech.adjective]);
+    });
 });

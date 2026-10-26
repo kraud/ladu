@@ -195,6 +195,68 @@ describe('GET /api/words/simple - row shape', () => {
         expect(await search('Before')).toHaveLength(0); // the position is a property
     });
 
+    it('extracts the headline word, gender and case count of a French Noun, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Noun',
+            translations: [
+                t('English', 'horse', 'singularEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'le', caseName: 'genderFR' },
+                        { word: 'irregular', caseName: 'regularityFR' },
+                        { word: 'cheval', caseName: 'singularFR' },
+                        { word: 'chevaux', caseName: 'pluralFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('cheval');
+        expect(row.genderFR).toBe('le');
+        expect(row.registeredCasesFR).toBe(4);
+        expect(row.dataEN).toBe('horse');
+
+        expect((await get('q=chevaux')).body.items).toHaveLength(1); // the plural is a written form
+        expect((await get('q=irregular')).body.items).toHaveLength(0); // the regularity is a property
+        expect((await get('gender=le')).body.items).toHaveLength(1); // the gender filter reads genderFR
+        expect((await get('gender=la')).body.items).toHaveLength(0);
+    });
+
+    it('extracts the headline word of a French Adjective, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Adjective',
+            translations: [
+                t('English', 'beautiful', 'positiveEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'beau', caseName: 'maleSingularFR' },
+                        { word: 'belle', caseName: 'femaleSingularFR' },
+                        { word: 'plus beau', caseName: 'comparativeFR' },
+                        { word: 'true', caseName: 'periphrasticFR' },
+                        { word: 'true', caseName: 'hasVowelFormFR' },
+                        { word: 'bel', caseName: 'vowelFormFR' },
+                        { word: 'Before the noun', caseName: 'positionFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('beau');
+        expect(row.registeredCasesFR).toBe(7);
+
+        expect((await get('q=bel')).body.items).toHaveLength(1); // the vowel form is a written form
+        expect((await get('q=Before')).body.items).toHaveLength(0); // the position is a property
+        expect((await get('q=true')).body.items).toHaveLength(0); // the two boxes are properties
+    });
+
     it('extracts the primary case per language for an Adverb', async () => {
         const res = await create(token, {
             partOfSpeech: 'Adverb',
@@ -736,6 +798,22 @@ describe('GET /api/words/simple - sort by language', () => {
         const res = await get('sort=EE&dir=asc');
         const estonian = res.body.items.map((w) => (w.dataEE?.word ?? w.dataEE));
         expect(estonian).toEqual(['banaan', 'dattel', 'kala', 'kirss', 'õun']);
+    });
+
+    it('sorts by French, on the singular of a noun', async () => {
+        for (const fr of ['zèbre', 'arbre', 'maison']) {
+            await create(token, {
+                partOfSpeech: 'Noun',
+                translations: [
+                    t('English', `${fr}-en`, 'singularEN'),
+                    { language: 'French', cases: [{ word: 'le', caseName: 'genderFR' }, { word: fr, caseName: 'singularFR' }] },
+                ],
+            });
+        }
+        const res = await get('sort=FR&dir=asc');
+        expect(res.statusCode).toBe(200);
+        const french = res.body.items.map((w) => w.dataFR).filter((d) => d !== undefined && d !== null);
+        expect(french).toEqual(['arbre', 'maison', 'zèbre']);
     });
 
     it('rejects an unknown language, an unknown direction and a cursor of the other kind', async () => {

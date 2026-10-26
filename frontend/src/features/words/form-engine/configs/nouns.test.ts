@@ -64,8 +64,20 @@ describe('getFormConfig(Noun, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => f.name !== 'singularNimetav').every((f) => !f.required)).toBe(true);
     });
 
+    it('French: gender (le / la / le/la), regularity, singular*, plural', () => {
+        const config = getFormConfig(PartOfSpeech.noun, Lang.FR)!;
+        expect(config.fields.map((f) => f.name)).toEqual(['gender', 'regularity', 'singular', 'plural']);
+        expect(config.fields.find((f) => f.name === 'gender')?.required).toBe(true);
+        expect(config.fields.find((f) => f.name === 'singular')?.required).toBe(true);
+        expect(config.fields.find((f) => f.name === 'plural')?.required).toBe(false);
+        const gender = config.fields.find((f) => f.name === 'gender');
+        expect(gender?.kind === 'radio' && gender.options.map((o) => o.value)).toEqual(['le', 'la', 'le/la']);
+        // French nouns are written in lower case (only German capitalises).
+        expect(config.fields.find((f) => f.name === 'singular')).toMatchObject({ lowercase: true });
+    });
+
     it('every field.caseName is field.name + the language suffix', () => {
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR]) {
             const config = getFormConfig(PartOfSpeech.noun, lang)!;
             for (const field of config.fields) {
                 expect(field.caseName).toBe(`${field.name}${LANG_SUFFIX[lang]}`);

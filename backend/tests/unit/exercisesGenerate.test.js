@@ -78,6 +78,19 @@ describe('multi-language generation', () => {
         expect(gen(w, { languages: ['English', 'Spanish'] })).toHaveLength(5);
     });
 
+    it('pairs a French noun with an English one, singular and plural', () => {
+        const w = word('h', 'Noun', {
+            English: { singularEN: 'horse', pluralEN: 'horses' },
+            French: { singularFR: 'cheval', pluralFR: 'chevaux', genderFR: 'le' },
+        });
+        const out = gen(w, { languages: ['English', 'French'] });
+        expect(out).toHaveLength(2); // one exercise per slot, direction at random
+        const allowed = new Set(['pluralEN>pluralFR', 'pluralFR>pluralEN', 'singularEN>singularFR', 'singularFR>singularEN']);
+        for (const e of out) expect(allowed.has(cases(e))).toBe(true);
+        expect(out.filter((e) => cases(e).includes('singular'))).toHaveLength(1);
+        expect(out.filter((e) => cases(e).includes('plural'))).toHaveLength(1);
+    });
+
     it('gives nothing for adjectives and adverbs', () => {
         for (const pos of ['Adjective', 'Adverb']) {
             const w = word('a', pos, { English: { singularEN: 'x' }, Spanish: { singularES: 'y' } });
@@ -105,6 +118,15 @@ describe('single-language generation', () => {
         expect(e.matchingTranslations.itemA).toEqual({ language: 'Spanish', case: 'singularES', value: 'casa' });
         expect(e.matchingTranslations.itemB).toEqual({
             language: 'Spanish', case: 'genderES', value: 'la', translationId: 'n-Spanish', otherValues: ['el', 'la', 'el/la'],
+        });
+    });
+
+    it('builds the French gender drill with its fixed options (language-french.md, slice 4)', () => {
+        const frenchNoun = word('f', 'Noun', { French: { singularFR: 'cheval', genderFR: 'le' } });
+        const [e] = gen(frenchNoun, { languages: ['French'], multiLang: 'Single-Language', type: 'Multiple-Choice' });
+        expect(e.matchingTranslations.itemA).toEqual({ language: 'French', case: 'singularFR', value: 'cheval' });
+        expect(e.matchingTranslations.itemB).toEqual({
+            language: 'French', case: 'genderFR', value: 'le', translationId: 'f-French', otherValues: ['le', 'la', 'le/la'],
         });
     });
 

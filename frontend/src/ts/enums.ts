@@ -39,6 +39,12 @@ export enum NounCases {
     pluralOsastavEE = "pluralOsastavEE",
 
     shortFormEE = "shortFormEE",
+
+    // FRENCH
+    regularityFR = "regularityFR",
+    genderFR = "genderFR",
+    singularFR = "singularFR",
+    pluralFR = "pluralFR",
 }
 
 export enum AdverbCases {
@@ -173,6 +179,20 @@ export enum AdjectiveCases {
 
     singularOsastavEE = "singularOsastavEE",
     pluralOsastavEE = "pluralOsastavEE",
+
+    // FRENCH
+    maleSingularFR = "maleSingularFR",
+    malePluralFR = "malePluralFR",
+    femaleSingularFR = "femaleSingularFR",
+    femalePluralFR = "femalePluralFR",
+    comparativeFR = "comparativeFR",
+    /** Stored checkbox: the comparative is "plus " + the masculine singular. */
+    periphrasticFR = "periphrasticFR",
+    /** Stored checkbox: the adjective has a special masculine form before a vowel (beau → bel). */
+    hasVowelFormFR = "hasVowelFormFR",
+    vowelFormFR = "vowelFormFR",
+    /** Property: where the adjective stands (before / after the noun, or either). */
+    positionFR = "positionFR",
 }
 
 export enum VerbCases {
@@ -536,6 +556,12 @@ export enum GenderDE {
     M = "der", // MALE
     F = "die", // FEMALE
     N = "das" // NEUTRAL
+}
+
+export enum GenderFR {
+    M = "le", // MALE
+    F = "la", // FEMALE
+    N = "le/la" // BOTH (nouns used with either article: le/la collègue)
 }
 
 export enum GenderES {

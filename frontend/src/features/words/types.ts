@@ -144,9 +144,10 @@ export interface WordSimpleBE extends SimpleHeadlineFields, SimpleCaseCountField
     updatedAt: string;
     /** Full `Lang` labels ("German"), not keys — the authoritative "has a translation" signal. */
     storedLanguages: string[];
-    /** Nouns only; only DE/ES carry a gendered case at all. */
+    /** Nouns only; only DE/ES/FR carry a gendered case at all. */
     genderES?: string;
     genderDE?: string;
+    genderFR?: string;
 }
 
 /**

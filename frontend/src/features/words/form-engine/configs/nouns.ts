@@ -2,13 +2,13 @@
  * Noun form configs, one per language, derived from the `WordCasesData.Noun`
  * registry (`ts/wordCasesDataByPoS.ts`) plus two structural fields the
  * registry does not carry at all: `regularity` (all four languages) and
- * `gender` (ES/DE — anchored on the registry's own gender rows).
+ * `gender` (ES/DE/FR — anchored on the registry's own gender rows).
  *
  * Field order and the regression test both key off `forms-nouns.md`:
  * [gender if present] -> regularity -> the remaining registry rows in
  * registry order (singular/plural pairs, then EE's `shortForm`).
  */
-import { DeclensionNoun, GenderDE, GenderES, Lang, NounCases, PartOfSpeech, Plurality, VerbRegularity } from '@/ts/enums';
+import { DeclensionNoun, GenderDE, GenderES, GenderFR, Lang, NounCases, PartOfSpeech, Plurality, VerbRegularity } from '@/ts/enums';
 import { NounPropertyCategories, WordCasesData, type NounCasesData } from '@/ts/wordCasesDataByPoS';
 import { LANG_SUFFIX } from '@/lib/language';
 import type { FieldConfig, RadioFieldConfig, TextFieldConfig, TranslationFormConfig } from './types';
@@ -16,6 +16,7 @@ import type { FieldConfig, RadioFieldConfig, TextFieldConfig, TranslationFormCon
 const GENDER_OPTIONS: Partial<Record<Lang, RadioFieldConfig['options']>> = {
     [Lang.ES]: Object.values(GenderES).map((value) => ({ value, label: value })),
     [Lang.DE]: Object.values(GenderDE).map((value) => ({ value, label: value })),
+    [Lang.FR]: Object.values(GenderFR).map((value) => ({ value, label: value })),
 };
 
 const REGULARITY_OPTIONS: RadioFieldConfig['options'] = Object.values(VerbRegularity).map((value) => ({
@@ -108,4 +109,5 @@ export const NOUN_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> = {
     [Lang.ES]: buildNounConfig(Lang.ES),
     [Lang.DE]: buildNounConfig(Lang.DE),
     [Lang.EE]: buildNounConfig(Lang.EE),
+    [Lang.FR]: buildNounConfig(Lang.FR),
 };

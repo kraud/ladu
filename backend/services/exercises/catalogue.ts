@@ -25,7 +25,7 @@ export type SingleLanguageCatalogue = Record<Language, Record<CardType, Drill[]>
 
 const nouns: MultiLanguageCatalogue = {
     singular: {
-        nominative: { English: 'singularEN', Spanish: 'singularES', German: 'singularNominativDE', Estonian: 'singularNimetavEE' },
+        nominative: { English: 'singularEN', Spanish: 'singularES', German: 'singularNominativDE', Estonian: 'singularNimetavEE', French: 'singularFR' },
         accusative: { German: 'singularAkkusativDE', Estonian: 'singularOsastavEE' },
         genitive: { German: 'singularGenitivDE', Estonian: 'singularOmastavEE' },
         dative: { German: 'singularDativDE' },
@@ -33,7 +33,7 @@ const nouns: MultiLanguageCatalogue = {
         // is not always feminine in German).
     },
     plural: {
-        nominative: { English: 'pluralEN', Spanish: 'pluralES', German: 'pluralNominativDE', Estonian: 'pluralNimetavEE' },
+        nominative: { English: 'pluralEN', Spanish: 'pluralES', German: 'pluralNominativDE', Estonian: 'pluralNimetavEE', French: 'pluralFR' },
         accusative: { German: 'pluralAkkusativDE', Estonian: 'pluralOsastavEE' },
         genitive: { German: 'pluralGenitivDE', Estonian: 'pluralOmastavEE' },
         dative: { German: 'pluralDativDE' },
@@ -94,7 +94,10 @@ const nounDrills: SingleLanguageCatalogue = {
         'Text-Input': [{ questionWord: 'singularNimetavEE', correctValue: 'shortFormEE' }],
     },
     English: noDrills,
-    French: noDrills,
+    French: {
+        'Multiple-Choice': [{ questionWord: 'singularFR', correctValue: 'genderFR', otherValues: ['le', 'la', 'le/la'] }],
+        'Text-Input': [],
+    },
 };
 
 const verbDrills: SingleLanguageCatalogue = {
@@ -143,6 +146,7 @@ export const PROPERTY_PREFIXES = [
     'governedCase',
     'spatialSeries',
     'contracts',
+    'hasVowelForm', // French adjective: the checkbox that shows the vowel form (beau → bel)
 ];
 export const isPropertyCase = (caseName: string): boolean =>
     PROPERTY_PREFIXES.some((prefix) => caseName.startsWith(prefix));

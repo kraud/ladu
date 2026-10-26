@@ -346,7 +346,7 @@ export function TranslationCard({
                     form.setValue(name, draft.word, fill);
                 }
             }
-            const gender = config.fields.find((field) => field.caseName === NounCases.genderDE || field.caseName === NounCases.genderES);
+            const gender = config.fields.find((field) => field.caseName === NounCases.genderDE || field.caseName === NounCases.genderES || field.caseName === NounCases.genderFR);
             if (draft.gender && gender?.kind === 'radio' && gender.options.some((option) => option.value === draft.gender)) {
                 form.setValue(gender.name, draft.gender, fill);
             }

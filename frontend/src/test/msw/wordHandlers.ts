@@ -86,6 +86,8 @@ function headlineFields(
                         ...only('genderDE', find('genderDE')),
                         ...only('dataDE', find('singularNominativDE')),
                     };
+                case 'French':
+                    return { ...only('genderFR', find('genderFR')), ...only('dataFR', find('singularFR')) };
                 default:
                     return {};
             }
@@ -112,6 +114,8 @@ function headlineFields(
                     return only('dataDE', find('positiveDE'));
                 case 'Estonian':
                     return only('dataEE', find('algvorreEE'));
+                case 'French':
+                    return only('dataFR', find('maleSingularFR'));
                 default:
                     return {};
             }

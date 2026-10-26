@@ -222,6 +222,11 @@
           "searchInEnglishLabel": "Otsi nimisõna inglise keeles",
           "searchInEnglishWarning": "Ettevaatust, see ei tööta kõigi nimisõnade puhul! Vajadusel proovi eesti keeles.",
           "regularityRequired": "See pole valik"
+        },
+        "formFR": {
+          "singularFormRequired": "'Ainsuse' vorm on kohustuslik",
+          "genderRequired": "'Soo' valik on kohustuslik",
+          "regularityRequired": "See pole valik"
         }
       },
       "fields": {
@@ -249,7 +254,11 @@
         "pluralOmastavEE": "Mitmus omastav",
         "singularOsastavEE": "Ainsus osastav",
         "pluralOsastavEE": "Mitmus osastav",
-        "shortFormEE": "Lühike sisseütlev"
+        "shortFormEE": "Lühike sisseütlev",
+        "regularityFR": "Reeglipärasus",
+        "genderFR": "Sugu",
+        "singularFR": "Ainsus",
+        "pluralFR": "Mitmus"
       }
     },
     "adjective": {
@@ -271,6 +280,12 @@
           "algvorreFormRequired": "Algvõrre on kohustuslik",
           "keskvorreFormRequired": "Keskvõrre on kohustuslik",
           "ulivorreFormRequired": "Ülivõrre on kohustuslik"
+        },
+        "formFR": {
+          "singularMasculineDegreeRequired": "Meessoo ainsusvorm on kohustuslik",
+          "singularFemaleDegreeRequired": "Naissoo ainsusvorm on kohustuslik",
+          "vowelFormRequired": "Vokaali ees olev kuju on kohustuslik",
+          "positionInvalid": "See pole valik"
         }
       },
       "fields": {
@@ -295,7 +310,16 @@
         "singularOmastavEE": "Ainsus omastav",
         "pluralOmastavEE": "Mitmus omastav",
         "singularOsastavEE": "Ainsus osastav",
-        "pluralOsastavEE": "Mitmus osastav"
+        "pluralOsastavEE": "Mitmus osastav",
+        "maleSingularFR": "Meessoo ainsus",
+        "malePluralFR": "Meessoo mitmus",
+        "femaleSingularFR": "Naissoo ainsus",
+        "femalePluralFR": "Naissoo mitmus",
+        "comparativeFR": "Keskvõrre",
+        "periphrasticFR": "Kasutab sõna „plus“ (plus + omadussõna)",
+        "hasVowelFormFR": "Omab vokaali ees erikuju (nt beau → bel)",
+        "vowelFormFR": "Vokaali ees olev kuju",
+        "positionFR": "Asukoht"
       }
     },
     "adverb": {

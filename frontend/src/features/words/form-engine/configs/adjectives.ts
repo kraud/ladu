@@ -155,9 +155,72 @@ function buildEeConfig(): TranslationFormConfig {
     };
 }
 
+// ---- French: agreement grid (like Spanish M/F), the comparative with "plus", a vowel form, the position ----
+const BEFORE_THE_NOUN = 'Before the noun';
+const POSITION_OPTIONS: RadioOption[] = [
+    { value: BEFORE_THE_NOUN, label: BEFORE_THE_NOUN },
+    { value: 'After the noun', label: 'After the noun' },
+    { value: 'Before or after the noun', label: 'Before or after the noun' },
+];
+
+/**
+ * French adjectives (language-french.md, slice 4). The four agreement forms share two rows like the
+ * Spanish M/F branch: only the singulars are required (the feminine is what a learner must know), the
+ * plurals stay optional. French forms the superlative from the comparative (le / la / les + comparative),
+ * so there is no separate superlative field. With "Uses «plus»" on, the comparative shows and saves
+ * "plus " + the masculine singular. The box "Has a form before a vowel" shows that form (beau → bel).
+ * The position is an optional property.
+ */
+function buildFrConfig(): TranslationFormConfig {
+    const suffix = 'FR';
+    const singularColumn = 'Singular';
+    const pluralColumn = 'Plural';
+    return {
+        pos: PartOfSpeech.adjective,
+        lang: Lang.FR,
+        fields: [
+            degreeField(AdjectiveCases.maleSingularFR, 'maleSingular', true, adjectiveErrorKey(suffix, 'singularMasculineDegreeRequired'), undefined, { row: 'male', column: singularColumn }),
+            degreeField(AdjectiveCases.malePluralFR, 'malePlural', false, undefined, undefined, { row: 'male', column: pluralColumn }),
+            degreeField(AdjectiveCases.femaleSingularFR, 'femaleSingular', true, adjectiveErrorKey(suffix, 'singularFemaleDegreeRequired'), undefined, { row: 'female', column: singularColumn }),
+            degreeField(AdjectiveCases.femalePluralFR, 'femalePlural', false, undefined, undefined, { row: 'female', column: pluralColumn }),
+            degreeField(AdjectiveCases.comparativeFR, 'comparative', false, undefined, undefined, undefined, {
+                when: { field: 'periphrastic', equals: true },
+                prefix: 'plus ',
+                fromField: 'maleSingular',
+                store: true,
+            }),
+            {
+                kind: 'checkbox',
+                name: 'periphrastic',
+                caseName: AdjectiveCases.periphrasticFR,
+                labelKey: labelKey(AdjectiveCases.periphrasticFR),
+                required: false,
+            },
+            {
+                kind: 'checkbox',
+                name: 'hasVowelForm',
+                caseName: AdjectiveCases.hasVowelFormFR,
+                labelKey: labelKey(AdjectiveCases.hasVowelFormFR),
+                required: false,
+            },
+            degreeField(AdjectiveCases.vowelFormFR, 'vowelForm', true, adjectiveErrorKey(suffix, 'vowelFormRequired'), { field: 'hasVowelForm', equals: true }),
+            {
+                kind: 'radio',
+                name: 'position',
+                caseName: AdjectiveCases.positionFR,
+                labelKey: labelKey(AdjectiveCases.positionFR),
+                required: false,
+                invalidMessageKey: adjectiveErrorKey(suffix, 'positionInvalid'),
+                options: POSITION_OPTIONS,
+            },
+        ],
+    };
+}
+
 export const ADJECTIVE_CONFIGS: Partial<Record<Lang, TranslationFormConfig>> = {
     [Lang.EN]: buildEnConfig(),
     [Lang.ES]: buildEsConfig(),
     [Lang.DE]: buildDeConfig(),
     [Lang.EE]: buildEeConfig(),
+    [Lang.FR]: buildFrConfig(),
 };

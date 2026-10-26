@@ -30,6 +30,7 @@ const {
 const { getWordsIdFromFollowedTagsByUserId } = require("./tagController.ts");
 const { capitalizeGermanNouns }: typeof import("../lib/germanNouns") = require("../lib/germanNouns");
 const { assertDemoRoom }: typeof import("../lib/demo") = require("../lib/demo");
+const { LANGUAGE_SUFFIX }: typeof import("../lib/languages") = require("../lib/languages");
 const {
   parseSort,
   sortKeyExpression,
@@ -154,6 +155,11 @@ const getRequiredFieldsData = (
             genderDE: findByCaseName("genderDE")!,
             dataDE: findByCaseName("singularNominativDE")!,
           };
+        case "French":
+          return {
+            genderFR: findByCaseName("genderFR")!,
+            dataFR: findByCaseName("singularFR")!,
+          };
         default:
           console.warn(
             `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Noun"`,
@@ -225,6 +231,8 @@ const getRequiredFieldsData = (
           return { dataDE: findByCaseName("positiveDE")! };
         case "Estonian":
           return { dataEE: findByCaseName("algvorreEE")! };
+        case "French":
+          return { dataFR: findByCaseName("maleSingularFR")! };
         default:
           console.warn(
             `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Adjective"`,
@@ -262,13 +270,8 @@ const getRequiredFieldsData = (
  * (e.g. "Estonian" → "registeredCasesEE").  Mirrors old `getFieldName()`.
  */
 const languageToFieldName = (language: string): string => {
-  const map: Record<string, string> = {
-    Estonian: "registeredCasesEE",
-    English: "registeredCasesEN",
-    Spanish: "registeredCasesES",
-    German: "registeredCasesDE",
-  };
-  return map[language] || "";
+  const suffix = (LANGUAGE_SUFFIX as Record<string, string>)[language];
+  return suffix ? `registeredCases${suffix}` : "";
 };
 
 /**

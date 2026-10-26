@@ -112,6 +112,26 @@ export const WordCasesData: WordCasesDataByPoS = {
             declination: DeclensionNoun.nominative,
         },
         {
+            caseName: NounCases.genderFR,
+            language: Lang.FR,
+            isNounProperty: true,
+            nounPropertyCategory: NounPropertyCategories.gender,
+        },
+        {
+            caseName: NounCases.singularFR,
+            language: Lang.FR,
+            isNounProperty: false,
+            plurality: Plurality.S,
+            declination: DeclensionNoun.nominative,
+        },
+        {
+            caseName: NounCases.pluralFR,
+            language: Lang.FR,
+            isNounProperty: false,
+            plurality: Plurality.P,
+            declination: DeclensionNoun.nominative,
+        },
+        {
             caseName: NounCases.genderDE,
             language: Lang.DE,
             isNounProperty: true,

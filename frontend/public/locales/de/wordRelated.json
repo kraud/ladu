@@ -222,6 +222,11 @@
           "searchInEnglishLabel": "Suche nach Substantiven auf Englisch",
           "searchInEnglishWarning": "Vorsicht, das funktioniert nicht für alle Substantive! Versuchen Sie es bei Bedarf auf Estnisch.",
           "regularityRequired": "Das ist keine Option"
+        },
+        "formFR": {
+          "singularFormRequired": "'Singular'-Form ist erforderlich",
+          "genderRequired": "Die Auswahl des 'Geschlechts' ist erforderlich",
+          "regularityRequired": "Das ist keine Option"
         }
       },
       "fields": {
@@ -249,7 +254,11 @@
         "pluralOmastavEE": "Plural Genitiv",
         "singularOsastavEE": "Singular Partitiv",
         "pluralOsastavEE": "Plural Partitiv",
-        "shortFormEE": "Kurzer Illativ"
+        "shortFormEE": "Kurzer Illativ",
+        "regularityFR": "Regelmäßigkeit",
+        "genderFR": "Geschlecht",
+        "singularFR": "Singular",
+        "pluralFR": "Plural"
       }
     },
     "adjective": {
@@ -271,6 +280,12 @@
           "algvorreFormRequired": "Positivform ist erforderlich",
           "keskvorreFormRequired": "Komparativform ist erforderlich",
           "ulivorreFormRequired": "Superlativform ist erforderlich"
+        },
+        "formFR": {
+          "singularMasculineDegreeRequired": "Maskuline Singularform ist erforderlich",
+          "singularFemaleDegreeRequired": "Feminine Singularform ist erforderlich",
+          "vowelFormRequired": "Die Form vor Vokal ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
         }
       },
       "fields": {
@@ -295,7 +310,16 @@
         "singularOmastavEE": "Singular Genitiv",
         "pluralOmastavEE": "Plural Genitiv",
         "singularOsastavEE": "Singular Partitiv",
-        "pluralOsastavEE": "Plural Partitiv"
+        "pluralOsastavEE": "Plural Partitiv",
+        "maleSingularFR": "Maskulinum Singular",
+        "malePluralFR": "Maskulinum Plural",
+        "femaleSingularFR": "Femininum Singular",
+        "femalePluralFR": "Femininum Plural",
+        "comparativeFR": "Komparativ",
+        "periphrasticFR": "Mit „plus“ (plus + Adjektiv)",
+        "hasVowelFormFR": "Hat eine Form vor Vokal (z. B. beau → bel)",
+        "vowelFormFR": "Form vor Vokal",
+        "positionFR": "Stellung"
       }
     },
     "adverb": {

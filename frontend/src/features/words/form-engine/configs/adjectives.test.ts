@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { AdjectiveCases, Lang, PartOfSpeech } from '@/ts/enums';
-import { isStoredCheckbox, matchesVisibility, type FieldConfig } from './types';
+import { derivedStoredWord, isDerived, isStoredCheckbox, matchesVisibility, type FieldConfig } from './types';
 import { getFormConfig } from './index';
 import { LANG_SUFFIX } from '@/lib/language';
 
@@ -154,8 +154,64 @@ describe('getFormConfig(Adjective, lang) — old field-list parity', () => {
         });
     });
 
+    describe('French (language-french.md, slice 4)', () => {
+        const fields = () => getFormConfig(PartOfSpeech.adjective, Lang.FR)!.fields;
+        const named = (name: string) => fields().find((f) => f.name === name);
+
+        it('maleSingular*, malePlural, femaleSingular*, femalePlural, comparative, "plus" box, vowel box, vowel form*, position', () => {
+            expect(fields().map((f) => f.name)).toEqual([
+                'maleSingular', 'malePlural', 'femaleSingular', 'femalePlural', 'comparative', 'periphrastic', 'hasVowelForm', 'vowelForm', 'position',
+            ]);
+            // Only the singulars are required, like the Spanish M/F branch; the vowel form is required only while it shows.
+            expect(fields().filter((f) => f.required).map((f) => f.name)).toEqual(['maleSingular', 'femaleSingular', 'vowelForm']);
+        });
+
+        it('has no separate superlative: French builds it from the comparative', () => {
+            expect(fields().some((f) => (f.caseName ?? '').toLowerCase().startsWith('superlative'))).toBe(false);
+        });
+
+        it('layout pairs singular/plural on one row, one row per gender', () => {
+            expect(named('maleSingular')?.layout).toEqual({ row: 'male', column: 'Singular' });
+            expect(named('malePlural')?.layout).toEqual({ row: 'male', column: 'Plural' });
+            expect(named('femaleSingular')?.layout).toEqual({ row: 'female', column: 'Singular' });
+            expect(named('femalePlural')?.layout).toEqual({ row: 'female', column: 'Plural' });
+        });
+
+        it('comparative: with the "plus" box on it shows and saves "plus " + the masculine singular', () => {
+            const comparative = named('comparative');
+            expect(comparative?.kind === 'text' && comparative.derivedWhen).toEqual({
+                when: { field: 'periphrastic', equals: true },
+                prefix: 'plus ',
+                fromField: 'maleSingular',
+                store: true,
+            });
+            const flag = named('periphrastic');
+            expect(flag).toMatchObject({ kind: 'checkbox', caseName: AdjectiveCases.periphrasticFR });
+            expect(flag && isStoredCheckbox(flag)).toBe(true);
+            const comparativeField = comparative!;
+            expect(isDerived(comparativeField, { periphrastic: true })).toBe(true);
+            expect(isDerived(comparativeField, { periphrastic: false })).toBe(false);
+            expect(derivedStoredWord(comparativeField, { periphrastic: true, maleSingular: 'grand' })).toBe('plus grand');
+            expect(derivedStoredWord(comparativeField, { periphrastic: false, maleSingular: 'bon' })).toBeUndefined();
+        });
+
+        it('the vowel form shows only while its box is on', () => {
+            expect(visibleNames(fields(), { hasVowelForm: false })).not.toContain('vowelForm');
+            expect(visibleNames(fields(), { hasVowelForm: true })).toContain('vowelForm');
+            expect(named('hasVowelForm')).toMatchObject({ kind: 'checkbox', caseName: AdjectiveCases.hasVowelFormFR });
+        });
+
+        it('the position is an optional radio with the three positions', () => {
+            const position = named('position');
+            expect(position).toMatchObject({ kind: 'radio', required: false, caseName: AdjectiveCases.positionFR });
+            expect(position?.kind === 'radio' && position.options.map((o) => o.value)).toEqual([
+                'Before the noun', 'After the noun', 'Before or after the noun',
+            ]);
+        });
+    });
+
     it('every field.caseName is field.name + the language suffix, except persisted:false fields', () => {
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR]) {
             const config = getFormConfig(PartOfSpeech.adjective, lang)!;
             for (const field of config.fields) {
                 if (field.persisted === false) continue;

@@ -10,6 +10,7 @@ import { genderValue, hasTranslation, headlineWord, registeredCases } from './ro
 const GENDER_CLASS: Record<string, string> = {
     der: 'gender-m',
     el: 'gender-m',
+    le: 'gender-m',
     die: 'gender-f',
     la: 'gender-f',
     das: 'gender-n',

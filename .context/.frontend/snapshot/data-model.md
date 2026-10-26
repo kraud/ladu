@@ -20,9 +20,9 @@ The old app implements forms for 4 PoS: **noun, verb, adjective, adverb**. The o
 
 ### 1.2 Lang
 ```ts
-enum Lang { ES = "Spanish", EN = "English", DE = "German", EE = "Estonian" }
+enum Lang { ES = "Spanish", EN = "English", DE = "German", EE = "Estonian", FR = "French" }
 ```
-`Lang` is the canonical language key throughout (stored on `TranslationItem.language`, `WordItem.caseName` suffix, filters). Values are the display names; **keys** (`ES/EN/DE/EE`) are the wire values.
+`Lang` is the canonical language key throughout (stored on `TranslationItem.language`, `WordItem.caseName` suffix, filters). Values are the display names; **keys** (`ES/EN/DE/EE/FR`) are the wire values. French was added in 2026-10 (plan `plans/language-french.md`); its forms are in `forms-french.md`.
 
 ### 1.3 NounCases
 ```ts
@@ -43,6 +43,8 @@ enum NounCases {
   singularOmastavEE = "singularOmastavEE", pluralOmastavEE = "pluralOmastavEE",
   singularOsastavEE = "singularOsastavEE", pluralOsastavEE = "pluralOsastavEE",
   shortFormEE = "shortFormEE",
+  // FRENCH
+  regularityFR = "regularityFR", genderFR = "genderFR", singularFR = "singularFR", pluralFR = "pluralFR",
 }
 ```
 
@@ -62,6 +64,13 @@ enum AdjectiveCases {
   pluralNimetavEE = "pluralNimetavEE",          // NB! singularNimetav == algvorre
   singularOmastavEE = "singularOmastavEE", pluralOmastavEE = "pluralOmastavEE",
   singularOsastavEE = "singularOsastavEE", pluralOsastavEE = "pluralOsastavEE",
+  // FRENCH (no superlative: le / la / les + the comparative; see forms-french.md)
+  maleSingularFR = "maleSingularFR", malePluralFR = "malePluralFR",
+  femaleSingularFR = "femaleSingularFR", femalePluralFR = "femalePluralFR",
+  comparativeFR = "comparativeFR",
+  periphrasticFR = "periphrasticFR",            // stored checkbox: comparative = "plus " + male singular
+  hasVowelFormFR = "hasVowelFormFR", vowelFormFR = "vowelFormFR",   // checkbox + form (beau → bel)
+  positionFR = "positionFR",                    // property: before / after / either
 }
 ```
 
@@ -141,6 +150,7 @@ Verbatim, grouped:
 ```ts
 enum GenderDE { M = "der", F = "die", N = "das" }
 enum GenderES { M = "el", F = "la", N = "el/la" }
+enum GenderFR { M = "le", F = "la", N = "le/la" }
 enum AuxVerbDE { H = "haben", S = "sein", W = "werden" }
 enum Plurality { S = "Singular", P = "Plural" }
 enum DeclensionNoun { nominative, accusative, genitive, dative, partitive }

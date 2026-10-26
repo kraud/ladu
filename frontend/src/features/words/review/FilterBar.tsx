@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { GenderIntersexIcon, TagIcon, TextAaIcon, UserIcon } from '@phosphor-icons/react';
 import { FlagIcon } from '@/components/common/FlagIcon';
 import type { SidebarSection } from '@/components/layout/sidebar/SidebarLayout';
-import { GenderDE, GenderES, PartOfSpeech } from '@/ts/enums';
+import { GenderDE, GenderES, GenderFR, PartOfSpeech } from '@/ts/enums';
 import { partOfSpeechLabelKey } from '@/lib/words';
 import { TagCombobox } from '@/features/tags/components/TagCombobox';
 import type { TagSummary } from '@/features/tags/types';
@@ -43,9 +43,10 @@ const OWNER_OPTIONS: readonly WordOwner[] = ['me', 'others'];
  * future pass if it turns out to be wanted). Each chip toggles exactly one
  * stored case value.
  */
-const GENDER_BY_LANGUAGE: readonly { key: 'DE' | 'ES'; values: readonly string[] }[] = [
+const GENDER_BY_LANGUAGE: readonly { key: 'DE' | 'ES' | 'FR'; values: readonly string[] }[] = [
     { key: 'DE', values: [GenderDE.M, GenderDE.F, GenderDE.N] },
     { key: 'ES', values: [GenderES.M, GenderES.F, GenderES.N] },
+    { key: 'FR', values: [GenderFR.M, GenderFR.F, GenderFR.N] },
 ];
 
 export interface FilterBarProps {

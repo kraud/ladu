@@ -22,10 +22,11 @@ export function registeredCases(row: WordSimpleBE, key: LangKey): number {
     return row[`registeredCases${key}`] ?? 0;
 }
 
-/** Raw stored gender case word. Only German/Spanish nouns carry one. */
+/** Raw stored gender case word. Only German, Spanish and French nouns carry one. */
 export function genderValue(row: WordSimpleBE, key: LangKey): string | undefined {
     if (key === 'ES') return row.genderES;
     if (key === 'DE') return row.genderDE;
+    if (key === 'FR') return row.genderFR;
     return undefined;
 }
 

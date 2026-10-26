@@ -73,8 +73,8 @@ These lists stay explicit **on purpose** (a language joins them when its data ex
 ### Backend: language behaviour
 
 - [ ] `lib/wordSort.ts` `MAIN_CASE_NAMES`: the case names a `?sort=` reads. Its type is `Record<LanguageName, …>`, so the compiler asks for the entry.
-- [ ] `controllers/wordController.ts` `getRequiredFieldsData`: the required case for each part of speech. `(unverified)`
-- [ ] `services/exercises/catalogue.ts`: noun slots, verb tenses, single-language drills, `PROPERTY_PREFIXES`. `(unverified)`
+- [x] `controllers/wordController.ts` `getRequiredFieldsData`: add a `case "<Name>"` for each part of speech: the headline word (`data<SUFFIX>`) and, for nouns, the gender (`gender<SUFFIX>`). Without it the part of speech falls to `default` and logs a warning. `languageToFieldName` (the `registeredCases<SUFFIX>` field) reads the language table since slice 4; it was a hard-coded map that slice 1 missed, and without it the table shows no case count for the new language. Verified for French nouns and adjectives; the other parts of speech follow with their forms.
+- [x] `services/exercises/catalogue.ts`: noun slots (`singular`/`plural` nominative), single-language drills (`SingleLanguageCatalogue` is `Record<Language, …>`: use `noDrills` until the forms exist), `PROPERTY_PREFIXES` (a new property needs a prefix and two regression cases in `tests/unit/exercisesCatalogue.test.js`). Verb tenses come with the verb form. Verified for French nouns.
 - [x] `utils/resources/emailStrings.js`: a block for the new language, with the same keys as English (without it, emails fall back to English). `tests/email-templates.test.js` checks the keys and the language list.
 - [x] `services/onboarding/labels.ts`: topic tag names in the new language. They must equal `topics.names` in the frontend `onboarding.json`; `tests/unit/onboardingSelect.test.js` checks this for every language.
 - [x] Tests that pin the set. A test that uses the new language's name or code as its example of an *unknown* language fails: change the example (to `Klingon`, `XX`, `xx`). Found for French: `words-simple.test.js` (`sort=FR`), `exercisesSessionValidate.test.js`, `lexiconTranslations.test.js` (`fr` as a skipped language), frontend `lib/language.test.ts`, `lib/handoff.test.ts`, `practice/search.test.ts`. Tests that count languages: `metrics/selectors.test.ts`, `WelcomeBanner.test.tsx` (the greeting cycle has one step more), `AccountPage.test.tsx` and `e2e/tests/phase-1-auth.spec.ts` ("2 of 5 selected"), `dictionary.test.js` (the translate routes return an empty list for the new language until its data is loaded).
@@ -98,17 +98,17 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
   - Write a review sheet for a native speaker: `language-french-strings.md` is the model (decisions, glossary, where each text lives).
 - [x] A hard-coded count of languages is a bug. Found for French: `MAX_TRANSLATIONS = 4` in `CellDialog.tsx` and `useWordFormState.ts` (a word could never get a fifth translation). Now `MAX_TRANSLATIONS` in `lib/language.ts` (= the number of languages), and the message `review:cellDialog.maxTranslations` takes `{{max}}`. Search for `4`, `four` and `4 ` in strings when you add a language; the demo and landing texts say "four languages" until their data has the new language.
 - [x] The key blocks that every old locale needs: `common:languages.<name>` (the registration tiles and the language menus read it) and `wordRelated:startFromWord.inLanguage.<name>`, in each existing locale. Alphabetical in `languages`, in display order in `inLanguage`.
-- [ ] Review table: `review/row.ts`, `review/completion.ts`, `FilterBar.tsx` (gender filter), `WordCell.tsx` (gender chip class). `(unverified)`
+- [x] Gender in the words table (when the language has noun gender): `features/words/types.ts` (`gender<SUFFIX>?` on `WordSimpleBE`), `review/row.ts` (`genderValue`), `review/FilterBar.tsx` (`GENDER_BY_LANGUAGE`), `review/WordCell.tsx` (`GENDER_CLASS`: the article of the masculine → `gender-m`), `form-engine/TranslationCard.tsx` (the gender field a draft fills). Known limit: the gender filter holds the article, not the language, so "la" selects Spanish and French feminine nouns together.
 - [ ] `features/demo/components/DemoIntro.tsx` (hardcoded example row), `locales/*/demo.json` (the sentence that lists the languages). `(unverified)`
 
 ### Frontend: forms (per part of speech)
 
-- [ ] Case enums (`NounCases`, `VerbCases`, `AdjectiveCases`, `AdverbCases`, `ConjunctionCases`, `PrepositionCases`), then `configs/types.ts` (`CaseName`) and `ts/interfaces.ts` (five unions). `(unverified)`
-- [ ] `ts/wordCasesDataByPoS.ts`: registry rows (nouns and verbs only). `(unverified)`
-- [ ] One entry in each `configs/<pos>.ts` map, and its test. Verbs need a hand-written builder (tense headings, pronoun labels, adornments). `(unverified)`
-- [ ] Locales for the form: `wordForm.<pos>.fields` and `errors.form<SUFFIX>`, in all languages. `(unverified)`
+- [x] Case enums (`NounCases`, `AdjectiveCases` verified for French; `VerbCases`, `AdverbCases`, `ConjunctionCases`, `PrepositionCases` `(unverified)`) and the gender enum (`GenderFR`). `configs/types.ts` (`CaseName`) and `ts/interfaces.ts` list the enums, not their members: no edit for new members.
+- [x] `ts/wordCasesDataByPoS.ts`: registry rows (nouns and verbs only). The noun config is built from them; the regularity radio is not in the registry (the config adds it).
+- [x] One entry in each `configs/<pos>.ts` map, and its test. Nouns: add the gender options to `GENDER_OPTIONS` and the entry to `NOUN_CONFIGS`. Adjectives: a hand-written builder (French: the agreement grid like Spanish, the stored `plus` derivation like the English adverb, a box that shows a field like German contractions). Verbs need a hand-written builder (tense headings, pronoun labels, adornments) `(unverified)`. Also add the language to the `coverage.test.ts` expectation.
+- [x] Locales for the form: `wordForm.<pos>.fields` and `errors.form<SUFFIX>`, in **all** locales (the other locales show the labels of the new language's cards too). Copy the values from the closest language (French nouns from the `…ES` keys in each locale) and add the few new ones. A text-based insert tool is safer than a JSON round-trip, which reformats unrelated lines.
 - [ ] `lib/cases.ts` (`TENSE_BUCKET` for new tense names). `(unverified)`
-- [ ] Test mocks: `test/msw/authHandlers.ts`, `test/msw/wordHandlers.ts`. `(unverified)`
+- [x] Test mocks: `test/msw/wordHandlers.ts` (the headline word per part of speech). `authHandlers.ts` read the language list in slice 2.
 
 ### Lexicon and autocomplete (only when the plan includes autocomplete)
 

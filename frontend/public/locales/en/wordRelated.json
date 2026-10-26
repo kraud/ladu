@@ -222,6 +222,11 @@
           "searchInEnglishLabel": "Search noun in english",
           "searchInEnglishWarning": "Careful, this won't work for all nouns! If needed, try in Estonian.",
           "regularityRequired": "That is not an option"
+        },
+        "formFR": {
+          "singularFormRequired": "'Singular' form is required",
+          "genderRequired": "'Gender' selection is required",
+          "regularityRequired": "That is not an option"
         }
       },
       "fields": {
@@ -249,7 +254,11 @@
         "pluralOmastavEE": "Plural genitive",
         "singularOsastavEE": "Singular partitive",
         "pluralOsastavEE": "Plural partitive",
-        "shortFormEE": "Short illative"
+        "shortFormEE": "Short illative",
+        "regularityFR": "Regularity",
+        "genderFR": "Gender",
+        "singularFR": "Singular",
+        "pluralFR": "Plural"
       }
     },
     "adjective": {
@@ -271,6 +280,12 @@
           "algvorreFormRequired": "Positive degree is required",
           "keskvorreFormRequired": "Comparative degree is required",
           "ulivorreFormRequired": "Superlative degree is required"
+        },
+        "formFR": {
+          "singularMasculineDegreeRequired": "Masculine singular degree is required",
+          "singularFemaleDegreeRequired": "Female singular degree is required",
+          "vowelFormRequired": "The form before a vowel is required",
+          "positionInvalid": "That is not an option"
         }
       },
       "fields": {
@@ -295,7 +310,16 @@
         "singularOmastavEE": "Singular genitive",
         "pluralOmastavEE": "Plural genitive",
         "singularOsastavEE": "Singular partitive",
-        "pluralOsastavEE": "Plural partitive"
+        "pluralOsastavEE": "Plural partitive",
+        "maleSingularFR": "Male singular",
+        "malePluralFR": "Male plural",
+        "femaleSingularFR": "Female singular",
+        "femalePluralFR": "Female plural",
+        "comparativeFR": "Comparative",
+        "periphrasticFR": "Uses \"plus\" (plus + adjective)",
+        "hasVowelFormFR": "Has a form before a vowel (e.g. beau → bel)",
+        "vowelFormFR": "Form before a vowel",
+        "positionFR": "Position"
       }
     },
     "adverb": {

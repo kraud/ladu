@@ -30,9 +30,10 @@ const verbGroupedCategoriesMultiLanguage = MULTI_LANGUAGE.Verb;
 const nounGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Noun;
 const verbGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Verb;
 
-// The languages with exercises. French joins with its noun forms (language-french.md, slice 4):
+// The languages with exercise slots. French has its noun slots since slice 4, but no verb tenses before slice 5:
 // then use `LANGUAGE_NAMES` from lib/languages.ts again.
 const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
+const NOUN_LANGUAGES = [...LANGUAGES, 'French'];
 
 /**
  * Recursively walk a nested object and collect every "leaf" node.
@@ -94,7 +95,7 @@ describe('Multi-Language Case Mapping', () => {
             leaves.forEach(({ path, mapping }) => {
                 const caseName = path.join('.');
                 Object.keys(mapping).forEach(lang => {
-                    expect(LANGUAGES).toContain(lang);
+                    expect(NOUN_LANGUAGES).toContain(lang);
                     const value = mapping[lang];
                     expect(typeof value).toBe('string');
                     expect(value.length).toBeGreaterThan(0);
@@ -105,7 +106,7 @@ describe('Multi-Language Case Mapping', () => {
         // Spot-check: singular.nominative must have entries for all languages.
         it('maps at least nominative for every language in singular', () => {
             const nominative = nounGroupedCategoriesMultiLanguage.singular.nominative;
-            LANGUAGES.forEach(lang => {
+            NOUN_LANGUAGES.forEach(lang => {
                 expect(nominative).toHaveProperty(lang);
             });
         });
