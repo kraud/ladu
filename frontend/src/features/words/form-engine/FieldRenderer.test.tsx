@@ -18,9 +18,9 @@ const genderField = esConfig.fields.find((f) => f.name === 'gender')!;
 
 const checkboxField: FieldConfig = {
     kind: 'checkbox',
-    name: 'searchInEnglish',
+    name: 'periphrastic',
     caseName: radioField.caseName!,
-    labelKey: 'wordRelated:wordForm.noun.errors.formEE.searchInEnglishLabel',
+    labelKey: 'periphrastic',
     required: false,
 };
 

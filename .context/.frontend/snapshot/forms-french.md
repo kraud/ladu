@@ -56,7 +56,7 @@ The Indicatif only: présent, imparfait, passé composé, futur simple. Subjunct
 
 **Reflexive hint.** While the verb is "Always reflexive", each box shows me, te, se, nous, vous, se before the verb. In the passé composé it stands before the auxiliary: "me suis" + lavé (the German hint stands after it: "habe mich"). The hint writes the full pronoun: the elision before a vowel (m', t', s') is not shown. This is a limit for the teacher list.
 
-**Layout.** Three rows of two equal cells, on a desktop and on a phone (`layout.fitRow`), aligned at the top (`layout.alignTop`): infinitive and auxiliary; past and present participle; verb group and reflexivity. Each row has its own block key (`verb-meta1` …), so the rows do not merge. The tense grid is scrolled sideways on a phone, as for German.
+**Layout.** Three rows of two cells, aligned at the top (`layout.alignTop`): infinitive and auxiliary; past and present participle (both rows keep two equal cells on a phone: `layout.fitRow`); verb group and reflexivity (two radio groups: one row on a desktop, one under the other on a phone: `layout.stackOnMobile`; the same for Spanish regularity and reflexivity). Each row has its own block key (`verb-meta1` …), so the rows do not merge. The tense grid is scrolled sideways on a phone, as for German.
 
 **Practice** (`backend/services/exercises/catalogue.ts`). Present → `indicativePresent`, "past" → `indicativeImperfect` (the passé composé form is only a participle, so it would be too easy: review log M3), future → `indicativeSimpleFuture`. Drills: auxiliary (multiple choice, avoir / être), verb group (multiple choice), past participle (text input, from the infinitive).
 

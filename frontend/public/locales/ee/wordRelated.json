@@ -219,8 +219,6 @@
         },
         "formEE": {
           "singularFormRequired": "'Ainsuse nimetav' on kohustuslik",
-          "searchInEnglishLabel": "Otsi nimisõna inglise keeles",
-          "searchInEnglishWarning": "Ettevaatust, see ei tööta kõigi nimisõnade puhul! Vajadusel proovi eesti keeles.",
           "regularityRequired": "See pole valik"
         },
         "formFR": {
@@ -469,9 +467,7 @@
         "formEE": {
           "infinitiveMaRequired": "-ma infinitiiv on kohustuslik",
           "infinitiveMaNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-ma').",
-          "infinitiveDaRequired": "-da infinitiiv on kohustuslik",
-          "searchInEnglishLabel": "Otsi verbi inglise keeles",
-          "searchInEnglishWarning": "Olge ettevaatlik, see ei toimi kõigi verbidega! Vajadusel proovige eesti keeles."
+          "infinitiveDaRequired": "-da infinitiiv on kohustuslik"
         },
         "formFR": {
           "infinitiveRequired": "Infinitiiv on kohustuslik",

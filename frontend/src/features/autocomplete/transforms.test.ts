@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Lang, NounCases, PartOfSpeech, VerbCases } from '@/ts/enums';
 import { getFormConfig } from '@/features/words/form-engine/configs';
-import { activeQueryField, AUTOCOMPLETE_REGISTRY, getAutocompleteEndpoint, toAutocompleteResult } from './transforms';
+import { activeQueryField, getAutocompleteEndpoint, toAutocompleteResult } from './transforms';
 
 // The Estonian response transforms moved to the backend in Slice A
 // (backend/tests/unit/dictionaryEki.test.js); every pair now answers the same { status, cases }.
@@ -42,13 +42,6 @@ describe('getAutocompleteEndpoint — coverage table', () => {
                 'Estonian/Preposition',
             ].sort()
         );
-    });
-
-    it('EE verb is the only entry with an extraFieldName (searchInEnglish)', () => {
-        expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.verb]?.extraFieldName).toBe('searchInEnglish');
-        expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.noun]?.extraFieldName).toBeUndefined();
-        expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.adjective]?.extraFieldName).toBeUndefined();
-        expect(AUTOCOMPLETE_REGISTRY[Lang.EE]?.[PartOfSpeech.adverb]?.extraFieldName).toBeUndefined();
     });
 });
 

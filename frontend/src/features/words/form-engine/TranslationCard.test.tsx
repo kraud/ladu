@@ -421,21 +421,15 @@ describe('TranslationCard — Verb', () => {
         expect(screen.getByRole('radio', { name: 'haben' })).not.toBeChecked();
     });
 
-    it('mounts an Estonian verb card whose infinitiveMa pattern relaxes once searchInEnglish is checked', async () => {
+    it('mounts an Estonian verb card whose infinitiveMa must end in -ma', async () => {
         const user = userEvent.setup();
         renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.verb} />);
         expect(screen.getByText('Kindel')).toBeInTheDocument();
+        expect(screen.queryByRole('checkbox', { name: /english/i })).not.toBeInTheDocument();
 
         await user.type(screen.getByLabelText('-ma infinitive'), 'dance');
         await user.tab();
         expect(screen.getByText("Please input infinitive form (ends in '-ma').")).toBeInTheDocument();
-
-        await user.click(screen.getByRole('checkbox', { name: 'Search verb in english' }));
-        await user.click(screen.getByLabelText('-ma infinitive'));
-        await user.tab();
-        await waitFor(() =>
-            expect(screen.queryByText("Please input infinitive form (ends in '-ma').")).not.toBeInTheDocument(),
-        );
     });
 });
 
@@ -743,21 +737,6 @@ describe('TranslationCard — type-ahead list on the query field (Slice E, D21)'
         // The main sense (der) disagrees with the filled die: the button offers it.
         expect(await screen.findByRole('button', { name: 'Use autocomplete values' })).toBeInTheDocument();
     });
-
-    it('Estonian verb: no list while "Search verb in English" is checked', async () => {
-        const fake = makeAutocompleteHandlers({}, { suggestions: { estonianVerb: [{ entryId: DER_SEE.entryId, lemma: 'jooksma' }] } });
-        server.use(...fake.handlers);
-        const user = userEvent.setup();
-        renderWithProviders(<TranslationCard lang={Lang.EE} pos={PartOfSpeech.verb} />);
-
-        await user.click(screen.getByRole('checkbox', { name: 'Search verb in english' }));
-        await user.type(screen.getByLabelText('-ma infinitive'), 'jo');
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        expect(fake.suggestionRequests).toEqual([]);
-
-        await user.click(screen.getByRole('checkbox', { name: 'Search verb in english' }));
-        expect(await screen.findByRole('option', { name: 'jooksma' })).toBeInTheDocument();
-    });
 });
 
 describe('TranslationCard — Estonian adjective superlative (D20)', () => {
@@ -960,9 +939,9 @@ describe('fieldsToCases', () => {
         ]);
     });
 
-    it('drops a form-only checkbox (persisted: false, e.g. Estonian searchInEnglish)', () => {
-        const checkbox: FieldConfig = { kind: 'checkbox', name: 'searchInEnglish', labelKey: 'searchInEnglish', required: false, persisted: false };
-        expect(fieldsToCases([checkbox], { searchInEnglish: true })).toEqual([]);
+    it('drops a form-only checkbox (persisted: false)', () => {
+        const checkbox: FieldConfig = { kind: 'checkbox', name: 'formOnlyBox', labelKey: 'formOnlyBox', required: false, persisted: false };
+        expect(fieldsToCases([checkbox], { formOnlyBox: true })).toEqual([]);
     });
 
     describe('a stored checkbox and a derived text field (Estonian superlative, D20)', () => {
@@ -1180,7 +1159,7 @@ describe('fieldsHaveData', () => {
         persisted: false,
         options: [{ value: 'Neutral', label: 'Neutral' }],
     };
-    const checkbox: FieldConfig = { ...base, kind: 'checkbox', name: 'searchInEnglish', persisted: false };
+    const checkbox: FieldConfig = { ...base, kind: 'checkbox', name: 'formOnlyBox', persisted: false };
     const multi: FieldConfig = {
         ...base,
         kind: 'multi-select',
@@ -1201,8 +1180,8 @@ describe('fieldsHaveData', () => {
         expect(fieldsHaveData([multi], { verbCases: ['dativeDE'] })).toBe(true);
     });
 
-    it('ignores a form-only checkbox — a ticked "search in English" alone is not data', () => {
-        expect(fieldsHaveData([checkbox], { searchInEnglish: true })).toBe(false);
+    it('ignores a form-only checkbox — a ticked box that is never saved is not data', () => {
+        expect(fieldsHaveData([checkbox], { formOnlyBox: true })).toBe(false);
     });
 });
 

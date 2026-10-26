@@ -157,7 +157,7 @@ export interface TranslationCardProps {
  * `FieldConfig[]` + current RHF values -> the persisted `WordItem[]`.
  * Dropped, in order: a field hidden by its own `visibleWhen` (the sibling it
  * depends on doesn't currently equal the configured value); a field marked
- * `persisted: false` (form-only, e.g. Estonian `searchInEnglish`, Spanish
+ * `persisted: false` (form-only, e.g. the Spanish
  * adjective `gender`); a text field currently showing derived text
  * (`derivedWhen`, Estonian "kõige …" superlative — saved as its derived text when `store` is set); an unchecked or unstored
  * `checkbox` (a stored one is saved as "true" — `isStoredCheckbox`, D20); and
@@ -307,9 +307,8 @@ export function TranslationCard({
         const pickSuggestion = async ({ lemma, entryId }: Suggestion) => {
             form.setValue(activeQueryField(endpoint, config.fields, form.getValues()), lemma, { shouldDirty: true, shouldValidate: true });
             setPickedEntry({ lemma, entryId });
-            const extra = endpoint.extraFieldName ? Boolean(form.getValues(endpoint.extraFieldName)) : undefined;
             try {
-                const data = await queryClient.fetchQuery(lookupQueryOptions({ language: lang, pos, query: lemma, extra, entryId }));
+                const data = await queryClient.fetchQuery(lookupQueryOptions({ language: lang, pos, query: lemma, entryId }));
                 applyLookup(config.fields, data, form.getValues(), form.setValue);
             } catch {
                 // Nothing to fill; the footer row shows the failed lookup.
@@ -318,7 +317,6 @@ export function TranslationCard({
         return {
             lang,
             pos,
-            offWhenField: endpoint.extraFieldName,
             onPick: (suggestion) => void pickSuggestion(suggestion),
             onType: () => setPickedEntry(null),
         };

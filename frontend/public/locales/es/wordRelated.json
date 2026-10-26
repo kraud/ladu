@@ -219,8 +219,6 @@
         },
         "formEE": {
           "singularFormRequired": "'Singular nimetav' es obligatorio",
-          "searchInEnglishLabel": "Buscar el sustantivo en inglés",
-          "searchInEnglishWarning": "Cuidado, esto no funciona con todos los sustantivos. De ser necesario, pruebe buscar en estonio.",
           "regularityRequired": "Esa no es una opción"
         },
         "formFR": {
@@ -469,9 +467,7 @@
         "formEE": {
           "infinitiveMaRequired": "El infinitivo en -ma es obligatorio",
           "infinitiveMaNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-ma').",
-          "infinitiveDaRequired": "El infinitivo en -da es obligatorio",
-          "searchInEnglishLabel": "Buscar verbo en inglés",
-          "searchInEnglishWarning": "¡Cuidado, esto no funcionará para todos los verbos! Si es necesario, prueba en estonio."
+          "infinitiveDaRequired": "El infinitivo en -da es obligatorio"
         },
         "formFR": {
           "infinitiveRequired": "El infinitivo es obligatorio",

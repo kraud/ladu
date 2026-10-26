@@ -41,7 +41,6 @@ import {
 import { WordCasesData, type VerbCasesData, type VerbTenseData } from '@/ts/wordCasesDataByPoS';
 import { LANG_SUFFIX } from '@/lib/language';
 import type {
-    CheckboxFieldConfig,
     FieldAdornment,
     FieldConfig,
     FieldGroup,
@@ -74,7 +73,7 @@ function isTenseRow(row: VerbCasesData): row is VerbCasesData & VerbTenseData {
     return !row.isVerbProperty;
 }
 
-function regularityField(lang: Lang): FieldConfig {
+function regularityField(lang: Lang, layout?: FieldLayout): FieldConfig {
     const suffix = LANG_SUFFIX[lang];
     const caseName = VerbCases[`regularity${suffix}` as keyof typeof VerbCases];
     return {
@@ -85,6 +84,7 @@ function regularityField(lang: Lang): FieldConfig {
         required: false,
         invalidMessageKey: verbErrorKey(suffix, 'regularityRequired'),
         options: REGULARITY_OPTIONS,
+        layout,
     };
 }
 
@@ -106,13 +106,13 @@ const REFLEXIVITY_CASE_NAMES = { [Lang.DE]: VerbCases.reflexivityDE, [Lang.ES]: 
 
 function reflexivityField(lang: Lang.DE | Lang.ES | Lang.FR): FieldConfig {
     const caseName = REFLEXIVITY_CASE_NAMES[lang];
-    // German: one row with the pronoun-case radio. French: one row with the verb group. Spanish: a plain field under the regularity radio.
-    const layout: FieldLayout | undefined =
+    // German: one row with the pronoun-case radio. French: one row with the verb group. Spanish: one row with the regularity radio.
+    const layout: FieldLayout =
         lang === Lang.DE
             ? { row: 'meta3', column: 'reflexivity', block: 'verbMeta3' }
             : lang === Lang.FR
-              ? frMetaLayout('meta3', 'reflexivity')
-              : undefined;
+              ? radioPairLayout('meta3', 'reflexivity')
+              : radioPairLayout('radios', 'reflexivity');
     return {
         kind: 'radio',
         name: 'reflexivity',
@@ -136,6 +136,14 @@ function reflexiveCaseFieldDE(): FieldConfig {
         visibleWhen: { field: 'reflexivity', equals: REFLEXIVITY_NOT, invert: true },
         layout: { row: 'meta3', column: 'reflexiveCase', block: 'verbMeta3' },
     };
+}
+
+/**
+ * Two radio groups on one row on a desktop, one under the other on a phone (`stackOnMobile`): Spanish
+ * regularity + reflexivity, French verb group + reflexivity. Aligned at the top, so the labels line up.
+ */
+function radioPairLayout(row: string, column: string): FieldLayout {
+    return { row, column, block: `verb-${row}`, stackOnMobile: true, alignTop: true };
 }
 
 // Reflexive pronouns by person slot. Spanish 2pl is ustedes (D10), so "se". German 3P is "sich" too.
@@ -406,7 +414,7 @@ function buildEsConfig(): TranslationFormConfig {
             undefined,
             { row: 'nonFinite', column: 'participle', stackOnMobile: true }
         ),
-        regularityField(Lang.ES),
+        regularityField(Lang.ES, radioPairLayout('radios', 'regularity')),
         reflexivityField(Lang.ES),
     ];
 
@@ -499,14 +507,6 @@ function buildEeConfig(): TranslationFormConfig {
     const suffix = LANG_SUFFIX[Lang.EE];
     const tenseRows = WordCasesData.Verb.filter((row) => row.language === Lang.EE).filter(isTenseRow);
 
-    const searchInEnglish: CheckboxFieldConfig = {
-        kind: 'checkbox',
-        name: 'searchInEnglish',
-        labelKey: verbErrorKey(suffix, 'searchInEnglishLabel'),
-        required: false,
-        persisted: false,
-    };
-
     const infinitiveMa: TextFieldConfig = {
         kind: 'text',
         name: 'infinitiveMa',
@@ -518,13 +518,11 @@ function buildEeConfig(): TranslationFormConfig {
         pattern: {
             regex: /^(?!.*\d).*(ma)$/,
             messageKey: verbErrorKey(suffix, 'infinitiveMaNotMatching'),
-            relaxedWhen: { field: 'searchInEnglish', equals: true },
         },
         layout: { row: 'infinitives', column: 'ma' },
     };
 
     const fields: FieldConfig[] = [
-        searchInEnglish,
         infinitiveMa,
         requiredTextField(
             VerbCases.infinitiveDaEE,
@@ -606,7 +604,7 @@ function buildFrConfig(): TranslationFormConfig {
             required: false,
             invalidMessageKey: verbErrorKey(suffix, 'verbGroupInvalid'),
             options: VERB_GROUP_FR_OPTIONS,
-            layout: frMetaLayout('meta3', 'verbGroup'),
+            layout: radioPairLayout('meta3', 'verbGroup'),
         },
         reflexivityField(Lang.FR),
     ];

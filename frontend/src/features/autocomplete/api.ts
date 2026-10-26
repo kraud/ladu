@@ -17,18 +17,16 @@ import type {
 } from './types';
 
 /**
- * `searchInEnglish`: Estonian verb only — look the word up by its English meaning.
  * `entryId`: a type-ahead pick — the backend returns that exact entry (der See vs die See).
  */
 export async function lookupDictionary(
     language: Lang,
     pos: PartOfSpeech,
     query: string,
-    searchInEnglish?: boolean,
     entryId?: string
 ): Promise<DictionaryResponse> {
     const path = [language, pos, query].map(encodeURIComponent).join('/');
-    const params = { ...(searchInEnglish ? { searchInEnglish: true } : {}), ...(entryId ? { entry: entryId } : {}) };
+    const params = entryId ? { entry: entryId } : {};
     const { data } = await apiClient.get<DictionaryResponse>(`/dictionary/${path}`, {
         params: Object.keys(params).length > 0 ? params : undefined,
     });

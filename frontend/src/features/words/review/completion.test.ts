@@ -26,7 +26,7 @@ describe('expectedCaseCount — plain configs (no visibleWhen)', () => {
         expect(expectedCaseCount(pos, lang)).toBe(expected);
     });
 
-    it('Estonian verb: 22 fields minus the persisted:false searchInEnglish checkbox', () => {
+    it('Estonian verb: 21 fields', () => {
         expect(expectedCaseCount(PartOfSpeech.verb, 'EE')).toBe(21);
     });
 });

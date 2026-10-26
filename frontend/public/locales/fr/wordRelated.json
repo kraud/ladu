@@ -225,8 +225,6 @@
         },
         "formEE": {
           "singularFormRequired": "« Singulier nimetav » est requis",
-          "searchInEnglishLabel": "Rechercher le nom en anglais",
-          "searchInEnglishWarning": "Attention, cela ne fonctionnera pas pour tous les noms ! Si besoin, essaie en estonien.",
           "regularityRequired": "Ce n’est pas une option"
         },
         "formFR": {
@@ -475,9 +473,7 @@
         "formEE": {
           "infinitiveMaRequired": "L’infinitif en -ma est requis",
           "infinitiveMaNotMatching": "Saisis la forme de l’infinitif (se termine par « -ma »).",
-          "infinitiveDaRequired": "L’infinitif en -da est requis",
-          "searchInEnglishLabel": "Rechercher le verbe en anglais",
-          "searchInEnglishWarning": "Attention, cela ne fonctionnera pas pour tous les verbes ! Si besoin, essaie en estonien."
+          "infinitiveDaRequired": "L’infinitif en -da est requis"
         },
         "formFR": {
           "infinitiveRequired": "L’infinitif est requis",

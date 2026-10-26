@@ -199,10 +199,9 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
         expect(config.fields.filter((f) => f.name !== 'infinitive').every((f) => !f.required)).toBe(true);
     });
 
-    it('Estonian: searchInEnglish, -ma/-da infinitives, regularity, 3 tenses x 6 pronoun slots', () => {
+    it('Estonian: -ma/-da infinitives, regularity, 3 tenses x 6 pronoun slots (no "search in English" box)', () => {
         const config = getFormConfig(PartOfSpeech.verb, Lang.EE)!;
         expect(config.fields.map((f) => f.name)).toEqual([
-            'searchInEnglish',
             'infinitiveMa',
             'infinitiveDa',
             'regularity',
@@ -241,13 +240,6 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
                 expect(field.caseName).toBe(`${field.name}${LANG_SUFFIX[lang]}`);
             }
         }
-    });
-
-    it('searchInEnglish (EE) has no backing case and is dropped from persistence', () => {
-        const config = getFormConfig(PartOfSpeech.verb, Lang.EE)!;
-        const field = config.fields.find((f) => f.name === 'searchInEnglish')!;
-        expect(field.persisted).toBe(false);
-        expect(field.caseName).toBeUndefined();
     });
 
     it('every conjugation field carries a non-empty pronoun label', () => {
@@ -319,7 +311,6 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
             expect(infinitive.layout).toEqual({ row: 'nonFinite', column: 'infinitive', stackOnMobile: true });
             expect(gerund.layout).toEqual({ row: 'nonFinite', column: 'gerund', stackOnMobile: true });
             expect(participle.layout).toEqual({ row: 'nonFinite', column: 'participle', stackOnMobile: true });
-            expect(config.fields.find((f) => f.name === 'regularity')?.layout).toBeUndefined();
         });
 
         it('German: infinitive/auxiliaryVerb/prefix share one row; regularity/verbCases share a separate one', () => {
@@ -347,6 +338,16 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
             const da = config.fields.find((f) => f.name === 'infinitiveDa')!;
             expect(ma.layout).toEqual({ row: 'infinitives', column: 'ma' });
             expect(da.layout).toEqual({ row: 'infinitives', column: 'da' });
+        });
+
+        it('Spanish: regularity and reflexivity share one row on a desktop and stack on a phone (stackOnMobile)', () => {
+            const config = getFormConfig(PartOfSpeech.verb, Lang.ES)!;
+            const regularity = config.fields.find((f) => f.name === 'regularity')!;
+            const reflexivity = config.fields.find((f) => f.name === 'reflexivity')!;
+            expect(regularity.layout).toEqual({ row: 'radios', column: 'regularity', block: 'verb-radios', stackOnMobile: true, alignTop: true });
+            expect(reflexivity.layout).toEqual({ row: 'radios', column: 'reflexivity', block: 'verb-radios', stackOnMobile: true, alignTop: true });
+            // The infinitive / gerund / participle row before it is a block of its own.
+            expect(regularity.layout?.block).not.toBe(config.fields.find((f) => f.name === 'infinitiveNonFiniteSimple')!.layout?.block);
         });
 
         it('English: no property-row field carries a layout', () => {
@@ -436,15 +437,15 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
             expect(field('reflexiveCase')).toBeUndefined();
         });
 
-        it('three meta rows, each its own block and two equal cells on a phone (fitRow), aligned at the top', () => {
+        it('three meta rows, each its own block, aligned at the top: the first two keep two cells on a phone (fitRow), the radios stack there (stackOnMobile)', () => {
             const rows = [
-                ['infinitive', 'auxiliaryVerb', 'meta1'],
-                ['pastParticiple', 'presentParticiple', 'meta2'],
-                ['verbGroup', 'reflexivity', 'meta3'],
+                ['infinitive', 'auxiliaryVerb', 'meta1', { fitRow: true }],
+                ['pastParticiple', 'presentParticiple', 'meta2', { fitRow: true }],
+                ['verbGroup', 'reflexivity', 'meta3', { stackOnMobile: true }],
             ] as const;
-            for (const [first, second, row] of rows) {
-                expect(field(first).layout).toEqual({ row, column: first, block: `verb-${row}`, fitRow: true, alignTop: true });
-                expect(field(second).layout).toEqual({ row, column: second, block: `verb-${row}`, fitRow: true, alignTop: true });
+            for (const [first, second, row, mode] of rows) {
+                expect(field(first).layout).toEqual({ row, column: first, block: `verb-${row}`, alignTop: true, ...mode });
+                expect(field(second).layout).toEqual({ row, column: second, block: `verb-${row}`, alignTop: true, ...mode });
             }
             const blocks = new Set(rows.map(([first]) => field(first).layout?.block));
             expect(blocks.size).toBe(3);

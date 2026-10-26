@@ -231,7 +231,7 @@ test.describe.serial('French forms (slices 4 and 5: noun, adjective and verb)', 
         await expect(page.getByText('me', { exact: true })).toHaveCount(3);
     });
 
-    test('on a desktop and on a phone, the verb meta fields share three rows of two', async ({ page }) => {
+    test('on a desktop and on a phone, the first two verb meta rows keep two cells', async ({ page }) => {
         for (const viewport of [{ width: 1280, height: 800 }, { width: 375, height: 800 }]) {
             await page.setViewportSize(viewport);
             await openNewWord(page, /Verb/);
@@ -239,7 +239,6 @@ test.describe.serial('French forms (slices 4 and 5: noun, adjective and verb)', 
             for (const [first, second] of [
                 ['Infinitive', 'Auxiliary verb'],
                 ['Past participle', 'Present participle'],
-                ['Verb group', 'Reflexivity'],
             ]) {
                 const a = page.getByText(first, { exact: true }).last();
                 const b = page.getByText(second, { exact: true }).last();

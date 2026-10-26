@@ -20,7 +20,7 @@
  * then says so.
  */
 
-const { and, asc, eq, inArray, like, min, notLike, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
+const { and, asc, eq, inArray, like, min, sql }: typeof import('drizzle-orm') = require('drizzle-orm');
 const { db }: typeof import('../../src/db') = require('../../src/db');
 const { lexemes, lexemeTranslations }: typeof import('../../src/db/schema') = require('../../src/db/schema');
 const { searchKey }: typeof import('../../lib/lexicon/searchKey') = require('../../lib/lexicon/searchKey');
@@ -149,25 +149,6 @@ async function ekilexEstonian(word: string, language: string, partOfSpeech: stri
     } catch {
         return { unavailable: true };
     }
-}
-
-/**
- * Estonian "Search verb in English" (step F3, D22): the first English sense of `english` (Wiktionary
- * order: entry, sense, then the word's place in the sense) that has a one-word Estonian "-ma" verb,
- * and that verb ("run" → "jooksma"). undefined when the table has none; the caller then asks Ekilex.
- */
-export async function firstEstonianVerb(english: string): Promise<string | undefined> {
-    const t = lexemeTranslations;
-    const [row] = await db
-        .select({ word: t.word })
-        .from(t)
-        .where(and(
-            eq(t.partOfSpeech, 'Verb'), eq(t.englishSearchKey, searchKey(english)), eq(t.language, 'Estonian'),
-            like(t.word, '%ma'), notLike(t.word, '% %'),
-        ))
-        .orderBy(asc(t.entryOrder), asc(t.senseOrder), asc(t.wordOrder))
-        .limit(1);
-    return row?.word;
 }
 
 /** Senses listed per word in the sense type-ahead ("bank" has many); the rest are reached by typing more. */

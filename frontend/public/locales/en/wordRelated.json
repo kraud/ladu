@@ -219,8 +219,6 @@
         },
         "formEE": {
           "singularFormRequired": "'Singular nimetav' is required",
-          "searchInEnglishLabel": "Search noun in english",
-          "searchInEnglishWarning": "Careful, this won't work for all nouns! If needed, try in Estonian.",
           "regularityRequired": "That is not an option"
         },
         "formFR": {
@@ -469,9 +467,7 @@
         "formEE": {
           "infinitiveMaRequired": "-ma infinitive is required",
           "infinitiveMaNotMatching": "Please input infinitive form (ends in '-ma').",
-          "infinitiveDaRequired": "-da infinitive is required",
-          "searchInEnglishLabel": "Search verb in english",
-          "searchInEnglishWarning": "Careful, this won't work for all verbs! If needed, try in Estonian."
+          "infinitiveDaRequired": "-da infinitive is required"
         },
         "formFR": {
           "infinitiveRequired": "Infinitive is required",

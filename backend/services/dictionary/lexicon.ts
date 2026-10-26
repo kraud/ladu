@@ -117,8 +117,6 @@ export async function lexiconSuggestions(language: string, partOfSpeech: string,
  * - `fallback: 'guess'` (default): a rule-based library. Its answer is a guess, not a dictionary
  *   entry, so its `found` becomes `partial` — the form shows the "not fully sure" notice (D2).
  * - `fallback: 'dictionary'`: an online dictionary (Ekilex). Its `found` stays `found`.
- * A search by English word (`searchInEnglish`) never reaches here: registry.ts first turns the
- * English word into an Estonian verb (step F3).
  */
 export function lexiconFirst(
     lexicon: DictionaryAdapter,

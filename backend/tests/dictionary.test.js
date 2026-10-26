@@ -249,11 +249,6 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
                 return json(entry ? [entry[1]] : []);
             }
             if ((match = /^\/api\/word\/details\/(\d+)$/.exec(path))) return json(DETAILS[match[1]] ?? {});
-            if ((match = /^\/api\/meaning\/search\/(.+)$/.exec(path))) {
-                // Like the real answer for "run": "astuma" (to step) is listed first, "jooksma" is in more meanings.
-                const meaning = (...est) => ({ meaningWords: [...est.map((wordValue) => ({ wordValue, lang: 'est' })), { wordValue: 'run', lang: 'eng' }] });
-                return json({ results: match[1] === 'run' ? [meaning('astuma'), meaning('jooks', 'jooksma'), meaning('jooksma')] : [] });
-            }
             return json({});
         });
         return global.fetch;
@@ -410,13 +405,6 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
         expect((await lookup('Estonian/Noun/zorplata')).body).toEqual({ status: 'not-found', cases: [] });
     });
 
-    it('searchInEnglish takes the Estonian -ma verb found in the most meanings, then its paradigm', async () => {
-        const fetchMock = fakeEkilex();
-        const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
-        expect(casesOf(res.body)).toEqual({ infinitiveMaEE: 'jooksma', infinitiveDaEE: 'joosta' });
-        expect(fetchMock.mock.calls[0][0]).toBe('https://ekilex.test/api/meaning/search/run');
-    });
-
     it('uses https://ekilex.ee when EKILEX_API_URL is not set', async () => {
         const configured = process.env.EKILEX_API_URL;
         delete process.env.EKILEX_API_URL;
@@ -451,34 +439,6 @@ describe('Estonian (the Ekilex API, fetch replaced by a fake Ekilex)', () => {
             const res = await lookup(`Estonian/Noun/${encodeURIComponent('õun')}`);
             expect(res.body.status).toBe('found');
             expect(fetchMock).toHaveBeenCalled();
-        });
-
-        it('search in English, empty translation table: Ekilex picks the verb, the lexicon gives its forms (F3)', async () => {
-            const fetchMock = fakeEkilex();
-            const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
-            expect(res.body.status).toBe('found');
-            expect(casesOf(res.body)).toMatchObject({ infinitiveMaEE: 'jooksma', infinitiveDaEE: 'joosta', kindelPresent1sEE: 'jooksen' });
-            // Only the meaning search: "jooksma" is in the Estonian lexicon, so no paradigm call.
-            expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['https://ekilex.test/api/meaning/search/run']);
-        });
-
-        describe('and the translation table (step F3)', () => {
-            beforeEach(() => loadLexiconFile(pool, path.join(__dirname, '../scripts/lexicon/fixtures/translations-en-fixture.jsonl')));
-
-            it('search in English takes the verb from the table ("run" → "jooksma"): Ekilex is not asked', async () => {
-                const fetchMock = fakeEkilex();
-                const res = await lookup('Estonian/Verb/run?searchInEnglish=true');
-                expect(res.body.status).toBe('found');
-                expect(casesOf(res.body)).toMatchObject({ infinitiveMaEE: 'jooksma', infinitiveDaEE: 'joosta' });
-                expect(fetchMock).not.toHaveBeenCalled();
-            });
-
-            it('an English verb the table has no Estonian verb for goes to Ekilex', async () => {
-                const fetchMock = fakeEkilex();
-                const res = await lookup('Estonian/Verb/stroll?searchInEnglish=true');
-                expect(res.body).toEqual({ status: 'not-found', cases: [] });
-                expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['https://ekilex.test/api/meaning/search/stroll']);
-            });
         });
     });
 

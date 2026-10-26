@@ -32,8 +32,7 @@ export interface FieldGroup {
  * explicitly chosen). Hidden fields validate as optional and their value is
  * dropped on save (Spanish adjective's gender-driven field set, German
  * adverb's non-gradable branch). `equals` is `boolean` for a checkbox sibling
- * (Estonian's `searchInEnglish` relaxing `infinitiveMa`'s pattern), `string`
- * for a radio/select one.
+ * (the Spanish verb's `reflexive` box), `string` for a radio/select one.
  */
 export interface FieldVisibility {
     field: string;
@@ -116,13 +115,6 @@ export type OptionsLayout = 'row' | 'column';
 export interface FieldPattern {
     regex: RegExp;
     messageKey: string;
-    /**
-     * Skip the `.matches()` entirely while the named sibling field currently
-     * equals `equals` — the pattern still applies otherwise, and `required`
-     * is never affected (Estonian's `-ma` ending is optional once
-     * `searchInEnglish` is checked, but the field itself stays required).
-     */
-    relaxedWhen?: FieldVisibility;
 }
 
 /**

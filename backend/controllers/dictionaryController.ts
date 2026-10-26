@@ -28,7 +28,7 @@ function adapterOr400(res: any, language: string, partOfSpeech: string) {
 
 // @desc    Look up the case forms of one word
 // @route   GET /api/dictionary/:language/:partOfSpeech/:query
-//          ?searchInEnglish=true (Estonian verb) · ?entry=<id> (a type-ahead pick: that exact entry)
+//          ?entry=<id> (a type-ahead pick: that exact entry)
 // @access  Private
 // @returns 200 { status: 'found' | 'partial' | 'not-found', cases: [{ caseName, word }] }
 //          400 no dictionary for that language and part of speech, or a bad query; 502 upstream failure
@@ -47,7 +47,7 @@ const lookup = asyncHandler(async (req: any, res: any) => {
     }
 
     try {
-        const result = await adapter(word, { searchInEnglish: req.query.searchInEnglish === 'true', entryId: entry });
+        const result = await adapter(word, { entryId: entry });
         res.status(200).json(result);
     } catch (error) {
         if (error instanceof HttpError) res.status(error.status);

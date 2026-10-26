@@ -35,6 +35,7 @@ Compare the result with the examples in `.other/` (the word list the user suppli
 | Fields side by side | `layout` (`row`, `column`) | Estonian degree row |
 | Options listed one under the other | `optionsLayout: 'column'` on a `radio` or `multi-select` (default: a row that wraps, so a phone shows a column anyway) | German preposition position and cases |
 | A short row that must stay one row on a phone | `layout.fitRow: true` (equal columns, no scroll, no stacking) | German contractions, Estonian direction forms |
+| Two radio groups: one row on a desktop, one under the other on a phone | `layout.stackOnMobile: true` + `alignTop: true` | Verb regularity + reflexivity (ES), verb group + reflexivity (FR) |
 | A row of radio groups of different heights | `layout.alignTop: true` (cells align at the top, so the labels line up; the default is the bottom edge, which suits inputs) | Noun gender and regularity (ES, DE, FR) |
 
 Rules:

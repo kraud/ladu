@@ -219,8 +219,6 @@
         },
         "formEE": {
           "singularFormRequired": "'Singular Nimetav' ist erforderlich",
-          "searchInEnglishLabel": "Suche nach Substantiven auf Englisch",
-          "searchInEnglishWarning": "Vorsicht, das funktioniert nicht für alle Substantive! Versuchen Sie es bei Bedarf auf Estnisch.",
           "regularityRequired": "Das ist keine Option"
         },
         "formFR": {
@@ -469,9 +467,7 @@
         "formEE": {
           "infinitiveMaRequired": "-ma Infinitiv ist erforderlich",
           "infinitiveMaNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-ma').",
-          "infinitiveDaRequired": "-da Infinitiv ist erforderlich",
-          "searchInEnglishLabel": "Verb auf Englisch suchen",
-          "searchInEnglishWarning": "Vorsicht, das funktioniert nicht bei allen Verben! Falls nötig, versuchen Sie es auf Estnisch."
+          "infinitiveDaRequired": "-da Infinitiv ist erforderlich"
         },
         "formFR": {
           "infinitiveRequired": "Der Infinitiv ist erforderlich",

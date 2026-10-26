@@ -11,8 +11,7 @@ import type { DictionaryAdapter } from './types';
 const generators: typeof import('./generators') = require('./generators');
 const eki: typeof import('./eki') = require('./eki');
 const { lexiconAdapter, lexiconFirst }: typeof import('./lexicon') = require('./lexicon');
-const { firstEstonianVerb }: typeof import('./translate') = require('./translate');
-const { NOT_FOUND, toCases }: typeof import('./types') = require('./types');
+const { toCases }: typeof import('./types') = require('./types');
 const { pairParts }: typeof import('../../lib/lexicon/selectors/functionWords') = require('../../lib/lexicon/selectors/functionWords');
 
 const { LANGUAGE_NAMES }: typeof import('../../lib/languages') = require('../../lib/languages');
@@ -24,20 +23,6 @@ export const PARTS_OF_SPEECH = [
 
 type Language = import('../../lib/languages').LanguageName;
 type PartOfSpeech = (typeof PARTS_OF_SPEECH)[number];
-
-/**
- * Estonian verb, with "Search verb in English" (step F3, D22). The English word first becomes an
- * Estonian verb: from the local translation table (`firstEstonianVerb`), else from Ekilex (the
- * verb in the most meanings, as before F3). Then `lookup` runs on that verb as if the user had
- * typed it: the local lexicon, then Ekilex.
- */
-function withSearchInEnglish(lookup: DictionaryAdapter): DictionaryAdapter {
-    return async (query, options) => {
-        if (!options.searchInEnglish) return lookup(query, options);
-        const verb = (await firstEstonianVerb(query)) ?? (await eki.estonianVerbFor(query));
-        return verb ? lookup(verb, { ...options, searchInEnglish: false }) : NOT_FOUND;
-    };
-}
 
 /**
  * Conjunction lookups (conjunctions-and-prepositions plan, slice 3c). The translation table lists a pair as
@@ -87,7 +72,7 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
     // Slice D2: Eesthetic in the lexicon first, then Ekilex — a real dictionary, so its answers stay
     // `found`. Adjectives: Eesthetic has (almost) none, so Ekilex only.
     Estonian: {
-        Verb: withSearchInEnglish(lexiconFirst(lexiconAdapter('Estonian', 'Verb'), eki.estonianVerb, { fallbackIs: 'dictionary' })),
+        Verb: lexiconFirst(lexiconAdapter('Estonian', 'Verb'), eki.estonianVerb, { fallbackIs: 'dictionary' }),
         Noun: lexiconFirst(lexiconAdapter('Estonian', 'Noun'), eki.estonianNoun, { fallbackIs: 'dictionary' }),
         Adjective: eki.estonianAdjective,
         // Slice H4: Ekilex only, like the adjective (Eesthetic has no adverbs).
