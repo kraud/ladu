@@ -6,7 +6,7 @@ Write the plan file first. Copy the shape of `adverb-gradable-radio.md`: Progres
 
 ## 1. Research (before any code)
 
-Do this for **each** of EN, ES, DE and EE. Do not assume that a rule from one language is true in the others.
+Do this for **each** language that Ladu supports (EN, ES, DE and EE on 2026-10-24; the list grows, see `.context/guides/add-language.md`). Do not assume that a rule from one language is true in the others.
 
 For each word class, answer:
 
