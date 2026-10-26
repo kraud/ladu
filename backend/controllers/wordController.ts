@@ -177,6 +177,8 @@ const getRequiredFieldsData = (
           return { dataDE: findByCaseName("adverbDE")! };
         case "Estonian":
           return { dataEE: findByCaseName("adverbEE")! };
+        case "French":
+          return { dataFR: findByCaseName("adverbFR")! };
         default:
           console.warn(
             `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Adverb"`,
@@ -194,6 +196,8 @@ const getRequiredFieldsData = (
           return { dataDE: findByCaseName("conjunctionDE")! };
         case "Estonian":
           return { dataEE: findByCaseName("conjunctionEE")! };
+        case "French":
+          return { dataFR: findByCaseName("conjunctionFR")! };
         default:
           console.warn(
             `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Conjunction"`,
@@ -211,6 +215,8 @@ const getRequiredFieldsData = (
           return { dataDE: findByCaseName("prepositionDE")! };
         case "Estonian":
           return { dataEE: findByCaseName("prepositionEE")! };
+        case "French":
+          return { dataFR: findByCaseName("prepositionFR")! };
         default:
           console.warn(
             `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Preposition"`,

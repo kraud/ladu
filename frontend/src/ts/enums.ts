@@ -77,6 +77,14 @@ export enum AdverbCases {
     gradableEE = "gradableEE",
     /** Stored checkbox, same case name as the adjective's (D20, D27). */
     periphrasticSuperlativeEE = "periphrasticSuperlativeEE",
+
+    // FRENCH
+    adverbFR = "adverbFR",
+    comparativeFR = "comparativeFR",
+    superlativeFR = "superlativeFR",
+    gradableFR = "gradableFR",
+    /** Stored checkbox, same case name as the adjective's: the comparative is "plus " + adverb. */
+    periphrasticFR = "periphrasticFR",
 }
 
 export enum ConjunctionCases {
@@ -107,6 +115,14 @@ export enum ConjunctionCases {
     conjunctionTypeEE = "conjunctionTypeEE",
     correlativeEE = "correlativeEE",
     secondPartEE = "secondPartEE",
+
+    // FRENCH
+    conjunctionFR = "conjunctionFR",
+    conjunctionTypeFR = "conjunctionTypeFR",
+    correlativeFR = "correlativeFR",
+    secondPartFR = "secondPartFR",
+    /** Property: the verb mood the subordinate clause takes (subjunctive, indicative, conditional). */
+    moodFR = "moodFR",
 }
 
 export enum PrepositionCases {
@@ -141,6 +157,10 @@ export enum PrepositionCases {
     spatialSeriesEE = "spatialSeriesEE",
     directionToEE = "directionToEE",
     directionFromEE = "directionFromEE",
+
+    // FRENCH (no case on the noun; "durant" can follow it)
+    prepositionFR = "prepositionFR",
+    positionFR = "positionFR",
 }
 
 export enum AdjectiveCases {

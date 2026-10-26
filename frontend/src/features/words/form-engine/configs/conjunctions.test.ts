@@ -21,12 +21,12 @@ describe('getFormConfig(Conjunction, lang)', () => {
         expect(config.fields.map((f) => f.name)).toEqual(['conjunction', 'secondPart', 'conjunctionType', 'correlative']);
     });
 
-    it('Spanish: the same fields plus the verb mood', () => {
-        const config = getFormConfig(PartOfSpeech.conjunction, Lang.ES)!;
+    it.each([Lang.ES, Lang.FR])('%s: the same fields plus the verb mood', (lang) => {
+        const config = getFormConfig(PartOfSpeech.conjunction, lang)!;
         expect(config.fields.map((f) => f.name)).toEqual(['conjunction', 'secondPart', 'conjunctionType', 'correlative', 'mood']);
     });
 
-    it.each([Lang.EN, Lang.ES, Lang.DE, Lang.EE])('%s: only the word is required; the type is an optional radio; the box is stored and optional', (lang) => {
+    it.each([Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR])('%s: only the word is required; the type is an optional radio; the box is stored and optional', (lang) => {
         const config = getFormConfig(PartOfSpeech.conjunction, lang)!;
         const byName = (name: string) => config.fields.find((f) => f.name === name)!;
         expect(byName('conjunction').required).toBe(true);
@@ -41,6 +41,7 @@ describe('getFormConfig(Conjunction, lang)', () => {
         [Lang.ES, 'ES'],
         [Lang.DE, 'DE'],
         [Lang.EE, 'EE'],
+        [Lang.FR, 'FR'],
     ])('%s: every case name ends in the language code %s', (lang, code) => {
         const config = getFormConfig(PartOfSpeech.conjunction, lang)!;
         for (const field of config.fields) expect(field.caseName).toMatch(new RegExp(`${code}$`));
@@ -67,11 +68,20 @@ describe('getFormConfig(Conjunction, lang)', () => {
         expect(config.fields.find((f) => f.name === 'secondPart')?.required).toBe(true);
     });
 
-    it('the Spanish mood shows only for a subordinating conjunction and is optional', () => {
-        const config = getFormConfig(PartOfSpeech.conjunction, Lang.ES)!;
+    it.each([Lang.ES, Lang.FR])('%s: the mood shows only for a subordinating conjunction and is optional', (lang) => {
+        const config = getFormConfig(PartOfSpeech.conjunction, lang)!;
         expect(visibleNames(config.fields, {})).not.toContain('mood');
         expect(visibleNames(config.fields, { conjunctionType: 'Coordinating' })).not.toContain('mood');
         expect(visibleNames(config.fields, { conjunctionType: 'Subordinating' })).toContain('mood');
         expect(config.fields.find((f) => f.name === 'mood')?.required).toBe(false);
+    });
+
+    it('the mood options: Spanish has three; French adds the conditional (au cas où, quand bien même)', () => {
+        const options = (lang: Lang) => {
+            const mood = getFormConfig(PartOfSpeech.conjunction, lang)!.fields.find((f) => f.name === 'mood');
+            return mood?.kind === 'select' ? mood.options.map((o) => o.value) : [];
+        };
+        expect(options(Lang.ES)).toEqual(['Indicative', 'Subjunctive', 'Depends on meaning']);
+        expect(options(Lang.FR)).toEqual(['Indicative', 'Subjunctive', 'Conditional', 'Depends on meaning']);
     });
 });

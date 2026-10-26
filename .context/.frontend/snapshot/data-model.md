@@ -90,16 +90,21 @@ enum AdverbCases {
 > the stored checkboxes `periphrasticEN` ("more / most"), `periphrasticComparativeES` ("más") and
 > `periphrasticSuperlativeEE` ("kõige"), and the Estonian `adverbEE`, `comparativeEE`, `superlativeEE`.
 > The backend treats every case that starts with `gradable` or `periphrastic` as a property, not a written form.
+>
+> **French (2026-10-26, plan `plans/language-french.md` slice 6):** `adverbFR`, `comparativeFR`, `superlativeFR`,
+> `gradableFR` (required radio) and the stored checkbox `periphrasticFR` (comparative = "plus " + adverb; the
+> superlative is locked: "le " + the comparative). Same property rule. Fields and layout: `forms-french.md`.
 
 ### 1.5b ConjunctionCases and PrepositionCases (v2 only; no old-app source)
 
 ```ts
-enum ConjunctionCases {            // every key is <role><LANG>; LANG = EN, ES, DE, EE
+enum ConjunctionCases {            // every key is <role><LANG>; LANG = EN, ES, DE, EE, FR
   conjunctionXX,                   // the word ("weil"; for a pair the first part: "weder")
   conjunctionTypeXX,               // property: "Coordinating" | "Subordinating" (optional)
   correlativeXX,                   // property, stored checkbox: "true" when the conjunction has a second part
   secondPartXX,                    // written form, the second part of a pair ("noch")
   moodES,                          // property, Spanish only: "Indicative" | "Subjunctive" | "Depends on meaning"
+  moodFR,                          // property, French only: the same, plus "Conditional" (au cas où, quand bien même)
 }
 enum PrepositionCases {
   prepositionXX,                   // the word ("wegen")
@@ -108,13 +113,14 @@ enum PrepositionCases {
   contractsDE, withDemDE, withDerDE, withDasDE,        // stored checkbox + three written forms (zum, zur, ins)
   governedCasePreEE, governedCasePostEE,               // property: "Genitive", "Partitive", "Elative", ...
   spatialSeriesEE, directionToEE, directionFromEE,     // stored checkbox + two written forms (sisse / seest)
+  // French: prepositionFR and positionFR only ("durant" can follow the noun); au, aux, du, des are a general rule
 }
 ```
 
 The backend treats a case as a property (not a written form: search and exercises skip it) when its name starts with a
 prefix of `PROPERTY_PREFIXES` in `backend/services/exercises/catalogue.ts`: `gender`, `gradable`, `regularity`,
 `auxVerb`, `caseType`, `prefix`, `periphrastic`, `reflexiv`, `conjunctionType`, `correlative`, `mood`, `position`,
-`governedCase`, `spatialSeries`, `contracts`, `hasVowelForm` (French adjective), `verbGroup` (French verb). A written-form name must not start with one of them (`positiveEN` is
+`governedCase`, `spatialSeries`, `contracts`, `hasVowelForm` (French adjective), `verbGroup` (French verb). No new prefix came with the French adverb, conjunction and preposition: `gradableFR`, `periphrasticFR`, `conjunctionTypeFR`, `correlativeFR`, `moodFR` and `positionFR` start with an old one. A written-form name must not start with one of them (`positiveEN` is
 not a `position...` case). Field lists, order and rules: `forms-conjunctions-prepositions.md`.
 
 ### 1.6 VerbCases (all five languages; each key is a `caseName`)

@@ -339,6 +339,10 @@
         "formEE": {
           "adverbRequired": "Adverb is required",
           "gradableRequired": "'Gradable' selection is required"
+        },
+        "formFR": {
+          "adverbRequired": "Adverb is required",
+          "gradableRequired": "'Gradable' selection is required"
         }
       },
       "fields": {
@@ -360,7 +364,12 @@
         "comparativeEE": "Comparative",
         "superlativeEE": "Superlative",
         "gradableEE": "Gradable",
-        "periphrasticSuperlativeEE": "No one-word superlative (kõige + comparative)"
+        "periphrasticSuperlativeEE": "No one-word superlative (kõige + comparative)",
+        "adverbFR": "Adverb",
+        "comparativeFR": "Comparative",
+        "superlativeFR": "Superlative",
+        "gradableFR": "Gradable",
+        "periphrasticFR": "Uses \"plus\" (plus + adverb)"
       }
     },
     "conjunction": {
@@ -384,6 +393,11 @@
           "conjunctionRequired": "Conjunction is required",
           "typeInvalid": "That is not an option",
           "secondPartRequired": "Second part is required"
+        },
+        "formFR": {
+          "conjunctionRequired": "Conjunction is required",
+          "typeInvalid": "That is not an option",
+          "secondPartRequired": "Second part is required"
         }
       },
       "fields": {
@@ -403,7 +417,12 @@
         "conjunctionEE": "Conjunction",
         "conjunctionTypeEE": "Type",
         "correlativeEE": "Paired (e.g. neither … nor)",
-        "secondPartEE": "Second part"
+        "secondPartEE": "Second part",
+        "conjunctionFR": "Conjunction",
+        "conjunctionTypeFR": "Type",
+        "correlativeFR": "Paired (e.g. neither … nor)",
+        "secondPartFR": "Second part",
+        "moodFR": "Verb mood"
       }
     },
     "preposition": {
@@ -421,6 +440,10 @@
           "positionInvalid": "That is not an option"
         },
         "formEE": {
+          "prepositionRequired": "Preposition is required",
+          "positionInvalid": "That is not an option"
+        },
+        "formFR": {
           "prepositionRequired": "Preposition is required",
           "positionInvalid": "That is not an option"
         }
@@ -443,7 +466,9 @@
         "governedCasePostEE": "Case of the noun (word after it)",
         "spatialSeriesEE": "Has a where-to / where-from series",
         "directionToEE": "Where to (e.g. sisse)",
-        "directionFromEE": "Where from (e.g. seest)"
+        "directionFromEE": "Where from (e.g. seest)",
+        "prepositionFR": "Preposition",
+        "positionFR": "Position"
       }
     },
     "verb": {

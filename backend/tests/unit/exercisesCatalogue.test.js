@@ -43,6 +43,19 @@ describe('isPropertyCase', () => {
         'indicativePerfect1plFR', 'indicativeSimpleFuture3sFR',
     ])('%s is a written form', (caseName) => expect(isPropertyCase(caseName)).toBe(false));
 
+    // French adverb, conjunction and preposition (slice 6): the radios, the boxes, the mood and the position are properties;
+    // the headwords, the degrees and the second part are written forms. Two regression cases for the prefixes
+    // (`mood`, `position`, `periphrastic`, `gradable`, `correlative`, `conjunctionType`).
+    it.each(['gradableFR', 'periphrasticFR', 'conjunctionTypeFR', 'correlativeFR', 'moodFR', 'positionFR'])(
+        '%s is a property, not a written form',
+        (caseName) => expect(isPropertyCase(caseName)).toBe(true)
+    );
+
+    it.each(['adverbFR', 'comparativeFR', 'superlativeFR', 'conjunctionFR', 'secondPartFR', 'prepositionFR'])(
+        '%s is a written form',
+        (caseName) => expect(isPropertyCase(caseName)).toBe(false)
+    );
+
     it.each(['adverbEN', 'comparativeEN', 'superlativeEE', 'conjunctionEN', 'conjunctionDE', 'secondPartDE', 'secondPartEE'])(
         '%s is a written form',
         (caseName) => expect(isPropertyCase(caseName)).toBe(false)

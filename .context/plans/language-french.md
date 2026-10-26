@@ -1,6 +1,6 @@
 # Plan: Add French to Ladu (+ a reusable "add a language" guide)
 
-Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–5 done 2026-10-26 (slices 0–4 committed). Next: Slice 6 (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
+Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–6 done 2026-10-26 (slices 0–5 committed). Next: Slice 7 (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
 
 ## How to start (read this first in a new session)
 
@@ -8,11 +8,18 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–5 done 2026-10-26 (sli
 2. Read `.context/guides/add-part-of-speech.md`. It is the model for the new guide, and its checklist is used again for the French parts of speech.
 3. Do the slices in order. After each slice: run its checks, tick the **Progress** list with the date, add the touchpoints of the slice to `.context/guides/add-language.md`, and suggest a commit message.
 4. Branch: `new-language-french`.
-5. Then read "Resume here" below: it holds the state, the working rules and the slice 6 touchpoints.
+5. Then read "Resume here" below: it holds the state, the working rules and the next slice.
 
-## Resume here (updated 2026-10-26, session 2, after slice 5)
+## Resume here (updated 2026-10-26, session 3, after slice 6)
 
-**State.** Phase 0 and slices 0–5 are done. Slices 0–4 and the e2e side task are committed (last commit `5fe9ce8`). Slice 5 (verb form) is built and not yet committed. Gates after slice 5 and its follow-up (radio rows, EE box removed): backend 73 suites / 2886 tests, frontend 144 files / 2070 tests, full e2e 180 passed. **Next: slice 6, the adverb, conjunction and preposition forms** (`adverbs.ts` copy ES, `conjunctions.ts` one `buildConfig` call + mood, `prepositions.ts`; same steps as slices 4 and 5; `coverage.test.ts` French lists them).
+**State.** Phase 0 and slices 0–5 are done and **committed** (last commit `ba0ac79`). Slice 6 (adverb, conjunction and preposition forms) is built and **not yet committed**. All six parts of speech have a French form. Gates after slice 6: backend 73 suites / 2901 tests, frontend 144 files / 2084 tests, typecheck and lint of both tiers, full e2e 185 passed (beside a running `npm run dev`). **Next: slice 7, the forms e2e spec and the teacher review sheet.** Slice 7 is mostly done already: `language-french-forms.spec.ts` has one test or more per part of speech (14 tests), and `forms-french.md` and `data-model.md` are written. What is left: a practice-card step for French in the spec ("answer one practice card in French"), the teacher sheet `language-french-review.md` (one section per part of speech: fields, French labels, two filled examples, open questions), and the decision on M1 (does the merge wait for the teacher).
+
+**Changes of session 2 (still true).**
+- e2e has its own ports and database (see "Running e2e"). Do not stop the user's dev server.
+- The Estonian "Search verb in English" box and its logic are gone (user decision: one unified feature for all languages later). Do not re-add a per-language box.
+- A radio value may hold digits now (`buildYupSchema.ts`).
+- Layout options in use for radios: `stackOnMobile` + `alignTop` (two radio groups: one row on a desktop, stacked on a phone), `fitRow` + `alignTop` (two cells that stay on one row on a phone). See `add-part-of-speech.md` section 2.
+- The user asked for a plain-language overview and a confirmation of the design (with `AskUserQuestion`, recommended option first) before any file change. They answered "go with your recommendation" when an option was good. They commit themselves and often ask small follow-up changes after a slice: do them, test them in a real browser, and report.
 
 **How the user works (confirmed in session 1).**
 - One slice at a time. Start with a plain-language overview, then work. Auto mode is on, but ask before stopping anything the user started. Suggest a commit message after each step; the user commits.
@@ -25,13 +32,14 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–5 done 2026-10-26 (sli
 
 **Tools.** `.context/guides/tools/locale_insert.py`: adds members to a locale JSON as text (no reformatting) and has `french()` for the typography (`~` → no-break space, `'` → `’`). Use it for the new form strings, in **all five** `wordRelated.json` files. `frontend/src/lib/locales.test.ts` checks every locale file against English.
 
-**Slice 6 touchpoints** (the same steps as slices 4 and 5; check each with a search before you edit):
-- Frontend: `configs/adverbs.ts` (a French builder, copy the Spanish adverb: `adverbFR`, `gradableFR` radio, `comparativeFR`, `superlativeFR`, the "plus" / "le plus" checkbox with `derivedWhen`), `configs/conjunctions.ts` (one `buildConfig` call, plus `moodFR` like Spanish), `configs/prepositions.ts` (`prepositionFR` and `positionFR`); the enums `AdverbCases`, `ConjunctionCases`, `PrepositionCases` (French members); `coverage.test.ts` (French lists all six); `test/msw/wordHandlers.ts` (headline words); locales `wordForm.adverb|conjunction|preposition.fields` and errors in all five (`locale_insert.py`).
-- Backend: `wordController.ts` `getRequiredFieldsData` (`dataFR` for Adverb, Conjunction, Preposition); `lib/wordSort.ts` (check the main case names); tests in `words-simple.test.js`. The prefixes `gradable`, `mood`, `position`, `correlative` and `conjunctionType` exist: add two regression cases for the French names. Adverbs, conjunctions and prepositions have no exercises.
-- Docs: `forms-french.md`, `data-model.md`, the guide, this plan, `language-french-forms.spec.ts` (one test per part of speech).
-- Do not forget the lesson of slice 5: **run the form in a real browser** (e2e or screenshots). A unit test passed while the Save button stayed off (review log V1).
+**Slice 6 (done 2026-10-26): what was built.**
+- Design confirmed with the user (all three recommended): the adverb works like the French adjective ("plus" box, locked superlative "le " + comparative); the conjunction mood select has four values (conditional added); the preposition has the optional position radio and no field for au/aux/du/des.
+- Frontend: `AdverbCases`, `ConjunctionCases`, `PrepositionCases` (French members); `adverbs.ts` `buildFrConfig`; `conjunctions.ts` (one `buildConfig` call, `moodSelect(caseName, options)` shared by ES and FR, `MOOD_OPTIONS_FR`); `prepositions.ts` `buildFrConfig`; config tests; `coverage.test.ts` (French lists all six); `wordHandlers.ts` (adverb headline); locales in all five (`wordForm.adverb|conjunction|preposition.fields` and `errors.formFR`).
+- Backend: `getRequiredFieldsData` (`dataFR` for the three); `wordSort.ts` already had the names (only its comment changed); two property and written-form regression sets in `exercisesCatalogue.test.js`; three round-trip tests in `words-simple.test.js`. No new property prefix.
+- e2e: five new tests in `language-french-forms.spec.ts` (adverb with "plus"; irregular adverb and Non-gradable; adverb layout; conjunction pair and mood; preposition). Screenshots at 1280 and 375 px checked for the three forms.
+- Docs: `forms-french.md`, `data-model.md`, `add-language.md`, this plan.
 
-**Open questions for the French teacher** (all in the review log and in `language-french-strings.md`): M1 (the machine-made French interface), M2 (elision in the article), M3 (practice "past" is the imparfait), m1 (verb group instead of regularity; groups 1 and 2 regular, group 3 irregular), V3 (reflexive hint without elision: m', t', s'), V4 (participle typed twice), F1/F5 (comparative and superlative in the male singular only), F2 ("la" in the gender filter is shared with Spanish), F4 (position wording), and the ten decisions R1–R10 (tu, typography, "étiquette", "entraînement" …).
+**Open questions for the French teacher** (all in the review log and in `language-french-strings.md`): M1 (the machine-made French interface), M2 (elision in the article), M3 (practice "past" is the imparfait), m1 (verb group instead of regularity; groups 1 and 2 regular, group 3 irregular), V3 (reflexive hint without elision: m', t', s'), V4 (participle typed twice), F1/F5 (comparative and superlative in the male singular only), F2 ("la" in the gender filter is shared with Spanish), F4 (position wording), S6-1 to S6-3 (the conditional mood, the adverb degrees), and the ten decisions R1–R10 (tu, typography, "étiquette", "entraînement" …).
 
 **Later slices still need** (do not forget): the demo text "four languages" in five locales and the landing word card (slice 11); the French row in `DemoIntro.tsx` (slice 11); `controllers/demoController.ts` `ALL_LANGUAGES` gets French (slice 11); the onboarding pool columns (slice 11); the rollout runbook (slice 12).
 
@@ -51,7 +59,7 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–5 done 2026-10-26 (sli
 - [x] Slice 3 (2026-10-26) — French interface: 14 `fr` locale files (about 1,400 strings), `supportedLngs` and Turnstile `fr`, emails, onboarding topic names, landing page, the French line on the 404 page, the hard-coded limit of 4 translations per word (now one per language), parity tests with `fr`, e2e spec `language-french-interface.spec.ts`, review sheet `language-french-strings.md`. A new test `lib/locales.test.ts` compares all 14 files of every language with English (keys, placeholders, tags). Typecheck, lint, backend (73 suites, 2856 tests), frontend (144 files, 2046 tests), landing (48 tests), build and full e2e (170 passed) are green. Open: the native speaker reads `language-french-strings.md` (M1)
 - [x] Slice 4 (2026-10-26) — Noun and adjective forms: `NounCases`/`AdjectiveCases`/`GenderFR`, registry rows, noun config, French adjective builder, locales in all five languages, gender in the words table, backend headline fields and `registeredCasesFR`, exercise slots and gender drill, `hasVowelForm` property prefix, `forms-french.md`, e2e `language-french-forms.spec.ts`. Superlative as a locked field (review-log F1). Afterwards, at the user's request: gender and regularity on one row for ES/DE/FR nouns (`fitRow` + `alignTop`) and the locked French superlative; then the "plus" box above and the comparative and superlative on one row (desktop and phone). Typecheck, lint, backend (73 suites, 2872 tests), frontend (144 files, 2061 tests), build and full e2e are green
 - [x] Slice 5 (2026-10-26) — Verb form: `VerbCases` FR members, `TenseVerbFR`, `VerbMoodFR`, `AuxVerbFR`, `VerbGroupFR`, 5 property rows and 24 tense rows in the registry, `buildFrConfig` (infinitive, avoir/être toggle, two participles, verb group, reflexivity, Indicatif grid with the auxiliary before the passé composé boxes and the reflexive hint, "me suis" order via `beforeAuxiliary`), `TENSE_BUCKET` `Imperfect`, locales in all five (`wordForm.verb.fields`, `errors.formFR`, `practice:cases.property`), backend headline `infinitiveFR`, catalogue tenses and 3 drills, `verbGroup` prefix, tests, `forms-french.md`, e2e (3 tests). The e2e run found a form-engine bug (V1) that is fixed. Typecheck, lint, backend (73 suites, 2890 tests), frontend (144 files, 2077 tests), build and full e2e (179 passed, beside a running `npm run dev`) are green. Follow-up the same day, at the user's request: the Spanish verb regularity + reflexivity and the French verb group + reflexivity share one row on a desktop and stack on a phone (`stackOnMobile`); the Estonian verb "Search verb in English" box and its logic are removed (a unified feature for all languages comes later)
-- [ ] Slice 6 — Adverb, conjunction and preposition forms
+- [x] Slice 6 (2026-10-26) — Adverb, conjunction and preposition forms: enums, three French builders (adverb as the adjective with the "plus" box and a locked superlative; conjunction with a four-value mood select; preposition with the position radio), locales in all five, backend headline fields, regression tests, five e2e tests, `forms-french.md`, `data-model.md`. Screenshots at 1280 and 375 px checked. Typecheck, lint, backend (73 suites, 2901 tests), frontend (144 files, 2084 tests) and full e2e (185 passed) are green
 - [ ] Slice 7 — Forms e2e spec and the teacher review sheet
 - [ ] Slice 8 — Autocomplete research (coverage check)
 - [ ] Slice 9 — French lexicon and lookup
@@ -80,6 +88,11 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–5 done 2026-10-26 (sli
 | V2 | Minor (decision in slice 5) | In the passé composé the German engine puts the pronoun after the auxiliary ("habe mich"). French needs the opposite: "me suis" + lavé. | Fixed: new `reflexive.position: 'beforeAuxiliary'` (`types.ts`, `FieldRenderer.tsx`) with a test. |
 | V3 | Minor | The reflexive hint shows full pronouns (me, te, se); the French elision (m', t', s') before a vowel is not shown. The label "Je/J'" has both forms. | Accepted. Teacher question: show "me/m'"? |
 | V4 | Minor | Participles are typed in each passé composé box (so être agreement fits) and also in the optional `pastParticipleFR` field (so a drill can ask it). The two can differ. | Accepted, as for the German Perfekt. Later: fill the boxes from the participle field. |
+| S6-1 | Moderate (decision in slice 6, confirmed by the user) | The Spanish mood select has three values. French has a fourth rule: "au cas où", "quand (bien) même" and "alors même que" take the conditional (Le Robert, guide "Conjonctions de subordination"; the page returned 403 to a direct fetch, so the rule is from the search summary). Marking them "Depends on meaning" would be wrong. | Done: `MOOD_OPTIONS_FR` = Indicative / Subjunctive / Conditional / Depends on meaning. Teacher question: check the list against Grevisse (the conditional after "même si"?). |
+| S6-2 | Minor | The adverb superlative is stored with its article ("le mieux"), as for the adjective. The comparatives of *beaucoup* (plus) and *peu* (moins) are typed by hand with the box off; my sources named *bien → mieux → le mieux* only. | Accepted. Teacher question: are there other irregular adverb degrees to pre-fill? |
+| S6-3 | Minor | The "Paired" label shows its example in the interface language ("neither … nor" in English), as for the other languages; it is not a French example. | Accepted (same as ES, DE, EE). |
+| S6-4 | Minor | The position of *nonobstant* ("nonobstant appel") as a postposition is not confirmed by a source; *durant* is (Wiktionnaire: "trois heures durant"). The radio is optional, so no word is blocked. | Accepted. Teacher question with F4. |
+| S6-5 | Minor | The adverb reuses the placeholder key `wordRelated:wordForm.adjective.derivedFromComparative` ("Depends on the comparative"): it is the same sentence in all five locales. | Accepted: one string, not two copies. |
 
 ## Context
 
@@ -148,7 +161,7 @@ One slice at a time. Each slice starts with a plain-language overview, ends runn
 
 **Slice 5 — Verb form.** `VerbCases` FR, `TenseVerbFR`, `VerbMoodFR`, the `VerbTenseData` unions (`wordCasesDataByPoS.ts:46`), registry rows, `PRONOUN_LABELS[FR]`, `buildFrConfig` (avoir/être adornment, reflexive hint), `lib/cases.ts` `TENSE_BUCKET`, catalogue `VERB_TENSES` and drills, `PROPERTY_PREFIXES` `verbGroup` with a regression test.
 
-**Slice 6 — Adverb, conjunction and preposition forms.** `adverbs.ts` (copy ES), `conjunctions.ts` (one `buildConfig` call + mood), `prepositions.ts`.
+**Slice 6 — Adverb, conjunction and preposition forms.** Done 2026-10-26. `adverbs.ts` (the Spanish builder with the adjective's "plus" mechanism), `conjunctions.ts` (one `buildConfig` call + a mood select with the conditional), `prepositions.ts` (word + position).
 
 **Slice 7 — Forms e2e spec and the teacher sheet.** `e2e/tests/language-french-forms.spec.ts`: register with French, add a noun, a verb (with être) and an adjective, see them in `/words`, answer one practice card in French. Snapshot docs (`data-model.md`, `forms-*.md` French sections). `.context/plans/language-french-review.md` for the teacher: one section per PoS with each field, its French label, two example words filled in, and the open questions. Full `npm run test:e2e` green.
 

@@ -345,6 +345,10 @@
         "formEE": {
           "adverbRequired": "L’adverbe est requis",
           "gradableRequired": "La sélection « Gradable » est requise"
+        },
+        "formFR": {
+          "adverbRequired": "L’adverbe est requis",
+          "gradableRequired": "La sélection « Gradable » est requise"
         }
       },
       "fields": {
@@ -366,7 +370,12 @@
         "comparativeEE": "Comparatif",
         "superlativeEE": "Superlatif",
         "gradableEE": "Gradable",
-        "periphrasticSuperlativeEE": "Pas de superlatif en un mot (kõige + comparatif)"
+        "periphrasticSuperlativeEE": "Pas de superlatif en un mot (kõige + comparatif)",
+        "adverbFR": "Adverbe",
+        "comparativeFR": "Comparatif",
+        "superlativeFR": "Superlatif",
+        "gradableFR": "Gradable",
+        "periphrasticFR": "Utilise « plus » (plus + adverbe)"
       }
     },
     "conjunction": {
@@ -390,6 +399,11 @@
           "conjunctionRequired": "La conjonction est requise",
           "typeInvalid": "Ce n’est pas une option",
           "secondPartRequired": "La deuxième partie est requise"
+        },
+        "formFR": {
+          "conjunctionRequired": "La conjonction est requise",
+          "typeInvalid": "Ce n’est pas une option",
+          "secondPartRequired": "La deuxième partie est requise"
         }
       },
       "fields": {
@@ -409,7 +423,12 @@
         "conjunctionEE": "Conjonction",
         "conjunctionTypeEE": "Type",
         "correlativeEE": "En paire (p. ex. ni … ni)",
-        "secondPartEE": "Deuxième partie"
+        "secondPartEE": "Deuxième partie",
+        "conjunctionFR": "Conjonction",
+        "conjunctionTypeFR": "Type",
+        "correlativeFR": "En paire (p. ex. ni … ni)",
+        "secondPartFR": "Deuxième partie",
+        "moodFR": "Mode du verbe"
       }
     },
     "preposition": {
@@ -427,6 +446,10 @@
           "positionInvalid": "Ce n’est pas une option"
         },
         "formEE": {
+          "prepositionRequired": "La préposition est requise",
+          "positionInvalid": "Ce n’est pas une option"
+        },
+        "formFR": {
           "prepositionRequired": "La préposition est requise",
           "positionInvalid": "Ce n’est pas une option"
         }
@@ -449,7 +472,9 @@
         "governedCasePostEE": "Cas du nom (mot placé après)",
         "spatialSeriesEE": "A une série directionnelle (vers où / d’où)",
         "directionToEE": "Vers où (p. ex. sisse)",
-        "directionFromEE": "D’où (p. ex. seest)"
+        "directionFromEE": "D’où (p. ex. seest)",
+        "prepositionFR": "Préposition",
+        "positionFR": "Position"
       }
     },
     "verb": {

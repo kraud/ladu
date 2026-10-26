@@ -339,6 +339,10 @@
         "formEE": {
           "adverbRequired": "Määrsõna on kohustuslik",
           "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
+        },
+        "formFR": {
+          "adverbRequired": "Määrsõna on kohustuslik",
+          "gradableRequired": "'Määrsõna järkude' valik on kohustuslik"
         }
       },
       "fields": {
@@ -360,7 +364,12 @@
         "comparativeEE": "Keskvõrre",
         "superlativeEE": "Ülivõrre",
         "gradableEE": "Astestatav",
-        "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)"
+        "periphrasticSuperlativeEE": "Ühesõnalist ülivõrret pole (kõige + keskvõrre)",
+        "adverbFR": "Määrsõna",
+        "comparativeFR": "Keskvõrre",
+        "superlativeFR": "Ülivõrre",
+        "gradableFR": "Astestatav",
+        "periphrasticFR": "Kasutab sõna „plus“ (plus + määrsõna)"
       }
     },
     "conjunction": {
@@ -384,6 +393,11 @@
           "conjunctionRequired": "Sidesõna on kohustuslik",
           "typeInvalid": "See pole valik",
           "secondPartRequired": "Teine osa on kohustuslik"
+        },
+        "formFR": {
+          "conjunctionRequired": "Sidesõna on kohustuslik",
+          "typeInvalid": "See pole valik",
+          "secondPartRequired": "Teine osa on kohustuslik"
         }
       },
       "fields": {
@@ -403,7 +417,12 @@
         "conjunctionEE": "Sidesõna",
         "conjunctionTypeEE": "Tüüp",
         "correlativeEE": "Kaheosaline (nt nii … kui ka)",
-        "secondPartEE": "Teine osa"
+        "secondPartEE": "Teine osa",
+        "conjunctionFR": "Sidesõna",
+        "conjunctionTypeFR": "Tüüp",
+        "correlativeFR": "Kaheosaline (nt nii … kui ka)",
+        "secondPartFR": "Teine osa",
+        "moodFR": "Verbi kõneviis"
       }
     },
     "preposition": {
@@ -421,6 +440,10 @@
           "positionInvalid": "See pole valik"
         },
         "formEE": {
+          "prepositionRequired": "Kaassõna on kohustuslik",
+          "positionInvalid": "See pole valik"
+        },
+        "formFR": {
           "prepositionRequired": "Kaassõna on kohustuslik",
           "positionInvalid": "See pole valik"
         }
@@ -443,7 +466,9 @@
         "governedCasePostEE": "Nimisõna kääne (sõna on järel)",
         "spatialSeriesEE": "On sisse- / seest-rida",
         "directionToEE": "Kuhu (nt sisse)",
-        "directionFromEE": "Kust (nt seest)"
+        "directionFromEE": "Kust (nt seest)",
+        "prepositionFR": "Kaassõna",
+        "positionFR": "Asukoht"
       }
     },
     "verb": {

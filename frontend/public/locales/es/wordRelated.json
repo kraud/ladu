@@ -339,6 +339,10 @@
         "formEE": {
           "adverbRequired": "El adverbio es obligatorio",
           "gradableRequired": "La selección de 'gradual' es obligatoria"
+        },
+        "formFR": {
+          "adverbRequired": "El adverbio es obligatorio",
+          "gradableRequired": "La selección de 'gradual' es obligatoria"
         }
       },
       "fields": {
@@ -360,7 +364,12 @@
         "comparativeEE": "Comparativo",
         "superlativeEE": "Superlativo",
         "gradableEE": "Graduable",
-        "periphrasticSuperlativeEE": "Sin superlativo de una sola palabra (kõige + comparativo)"
+        "periphrasticSuperlativeEE": "Sin superlativo de una sola palabra (kõige + comparativo)",
+        "adverbFR": "Adverbio",
+        "comparativeFR": "Comparativo",
+        "superlativeFR": "Superlativo",
+        "gradableFR": "Graduable",
+        "periphrasticFR": "Usa \"plus\" (plus + adverbio)"
       }
     },
     "conjunction": {
@@ -384,6 +393,11 @@
           "conjunctionRequired": "La conjunción es obligatoria",
           "typeInvalid": "Esa no es una opción",
           "secondPartRequired": "La segunda parte es obligatoria"
+        },
+        "formFR": {
+          "conjunctionRequired": "La conjunción es obligatoria",
+          "typeInvalid": "Esa no es una opción",
+          "secondPartRequired": "La segunda parte es obligatoria"
         }
       },
       "fields": {
@@ -403,7 +417,12 @@
         "conjunctionEE": "Conjunción",
         "conjunctionTypeEE": "Tipo",
         "correlativeEE": "En pareja (p. ej. ni … ni)",
-        "secondPartEE": "Segunda parte"
+        "secondPartEE": "Segunda parte",
+        "conjunctionFR": "Conjunción",
+        "conjunctionTypeFR": "Tipo",
+        "correlativeFR": "En pareja (p. ej. ni … ni)",
+        "secondPartFR": "Segunda parte",
+        "moodFR": "Modo del verbo"
       }
     },
     "preposition": {
@@ -421,6 +440,10 @@
           "positionInvalid": "Esa no es una opción"
         },
         "formEE": {
+          "prepositionRequired": "La preposición es obligatoria",
+          "positionInvalid": "Esa no es una opción"
+        },
+        "formFR": {
           "prepositionRequired": "La preposición es obligatoria",
           "positionInvalid": "Esa no es una opción"
         }
@@ -443,7 +466,9 @@
         "governedCasePostEE": "Caso del sustantivo (palabra detrás)",
         "spatialSeriesEE": "Tiene serie de destino / origen",
         "directionToEE": "Hacia dónde (p. ej. sisse)",
-        "directionFromEE": "Desde dónde (p. ej. seest)"
+        "directionFromEE": "Desde dónde (p. ej. seest)",
+        "prepositionFR": "Preposición",
+        "positionFR": "Posición"
       }
     },
     "verb": {

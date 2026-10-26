@@ -339,6 +339,10 @@
         "formEE": {
           "adverbRequired": "Das Adverb ist erforderlich",
           "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
+        },
+        "formFR": {
+          "adverbRequired": "Das Adverb ist erforderlich",
+          "gradableRequired": "Die Auswahl von 'stufenfähig' ist erforderlich"
         }
       },
       "fields": {
@@ -360,7 +364,12 @@
         "comparativeEE": "Komparativ",
         "superlativeEE": "Superlativ",
         "gradableEE": "Steigerbar",
-        "periphrasticSuperlativeEE": "Kein einteiliger Superlativ (kõige + Komparativ)"
+        "periphrasticSuperlativeEE": "Kein einteiliger Superlativ (kõige + Komparativ)",
+        "adverbFR": "Adverb",
+        "comparativeFR": "Komparativ",
+        "superlativeFR": "Superlativ",
+        "gradableFR": "Steigerbar",
+        "periphrasticFR": "Mit „plus“ (plus + Adverb)"
       }
     },
     "conjunction": {
@@ -384,6 +393,11 @@
           "conjunctionRequired": "Konjunktion ist erforderlich",
           "typeInvalid": "Das ist keine Option",
           "secondPartRequired": "Der zweite Teil ist erforderlich"
+        },
+        "formFR": {
+          "conjunctionRequired": "Konjunktion ist erforderlich",
+          "typeInvalid": "Das ist keine Option",
+          "secondPartRequired": "Der zweite Teil ist erforderlich"
         }
       },
       "fields": {
@@ -403,7 +417,12 @@
         "conjunctionEE": "Konjunktion",
         "conjunctionTypeEE": "Typ",
         "correlativeEE": "Zweiteilig (z. B. weder … noch)",
-        "secondPartEE": "Zweiter Teil"
+        "secondPartEE": "Zweiter Teil",
+        "conjunctionFR": "Konjunktion",
+        "conjunctionTypeFR": "Typ",
+        "correlativeFR": "Zweiteilig (z. B. weder … noch)",
+        "secondPartFR": "Zweiter Teil",
+        "moodFR": "Verbmodus"
       }
     },
     "preposition": {
@@ -421,6 +440,10 @@
           "positionInvalid": "Das ist keine Option"
         },
         "formEE": {
+          "prepositionRequired": "Präposition ist erforderlich",
+          "positionInvalid": "Das ist keine Option"
+        },
+        "formFR": {
           "prepositionRequired": "Präposition ist erforderlich",
           "positionInvalid": "Das ist keine Option"
         }
@@ -443,7 +466,9 @@
         "governedCasePostEE": "Fall des Nomens (Wort danach)",
         "spatialSeriesEE": "Hat eine Wohin- / Woher-Reihe",
         "directionToEE": "Wohin (z. B. sisse)",
-        "directionFromEE": "Woher (z. B. seest)"
+        "directionFromEE": "Woher (z. B. seest)",
+        "prepositionFR": "Präposition",
+        "positionFR": "Stellung"
       }
     },
     "verb": {

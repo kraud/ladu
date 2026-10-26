@@ -296,6 +296,87 @@ describe('GET /api/words/simple - row shape', () => {
         expect((await get('q=être')).body.items).toHaveLength(0); // and the auxiliary
     });
 
+    it('extracts the headline word of a French Adverb, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Adverb',
+            translations: [
+                t('English', 'well', 'adverbEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'Gradable', caseName: 'gradableFR' },
+                        { word: 'bien', caseName: 'adverbFR' },
+                        { word: 'mieux', caseName: 'comparativeFR' },
+                        { word: 'le mieux', caseName: 'superlativeFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('bien');
+        expect(row.registeredCasesFR).toBe(4);
+
+        expect((await get('q=mieux')).body.items).toHaveLength(1); // the comparative and the superlative are written forms
+        expect((await get('q=Gradable')).body.items).toHaveLength(0); // the radio is a property
+    });
+
+    it('extracts the headline word of a French Conjunction, and search skips its property rows', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Conjunction',
+            translations: [
+                t('English', 'either', 'conjunctionEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'soit', caseName: 'conjunctionFR' },
+                        { word: 'Coordinating', caseName: 'conjunctionTypeFR' },
+                        { word: 'true', caseName: 'correlativeFR' },
+                        { word: 'soit', caseName: 'secondPartFR' },
+                        { word: 'Conditional', caseName: 'moodFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('soit');
+        expect(row.registeredCasesFR).toBe(5);
+
+        expect((await get('q=soit')).body.items).toHaveLength(1); // the headword and the second part are written forms
+        expect((await get('q=Coordinating')).body.items).toHaveLength(0); // the type is a property
+        expect((await get('q=Conditional')).body.items).toHaveLength(0); // the mood is a property
+    });
+
+    it('extracts the headline word of a French Preposition, and search skips its position', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Preposition',
+            translations: [
+                t('English', 'during', 'prepositionEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'durant', caseName: 'prepositionFR' },
+                        { word: 'Before or after the noun', caseName: 'positionFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('durant');
+        expect(row.registeredCasesFR).toBe(2);
+
+        expect((await get('q=durant')).body.items).toHaveLength(1);
+        expect((await get('q=after the noun')).body.items).toHaveLength(0); // the position is a property
+    });
+
     it('extracts the primary case per language for an Adverb', async () => {
         const res = await create(token, {
             partOfSpeech: 'Adverb',

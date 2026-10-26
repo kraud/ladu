@@ -101,6 +101,8 @@ function headlineFields(
                     return only('dataDE', find('adverbDE'));
                 case 'Estonian':
                     return only('dataEE', find('adverbEE'));
+                case 'French':
+                    return only('dataFR', find('adverbFR'));
                 default:
                     return {};
             }

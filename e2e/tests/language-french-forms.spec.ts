@@ -5,13 +5,17 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
 
 /**
  * French word forms (`.context/plans/language-french.md`). Slice 4: the noun and the adjective.
- * Slice 5: the verb. Slice 6 adds the adverb, the conjunction and the preposition to this file.
+ * Slice 5: the verb. Slice 6: the adverb, the conjunction and the preposition.
  *
  *  1. A French noun: gender (le / la), singular, plural. It saves and shows in the words table.
  *  2. A French adjective: the four agreement forms, the "plus" comparative (derived and stored), the
  *     vowel form behind its box (beau → bel), and the position.
  *  3. A French verb with être: the infinitive, the participles, the group, and the passé composé with the
  *     conjugated auxiliary before each box. A reflexive verb shows the pronoun before the auxiliary.
+ *  4. A French adverb: the "plus" box derives the comparative and the superlative; an irregular adverb
+ *     (bien → mieux → le mieux) is typed; "Non-gradable" hides the degrees.
+ *  5. A French conjunction: a pair (soit … soit) and the mood select with the conditional.
+ *  6. A French preposition: the word and the position ("durant" can follow the noun).
  *
  * No autocomplete runs for French yet (slices 8 to 10).
  */
@@ -37,7 +41,7 @@ async function saveAndOpen(page: Page): Promise<void> {
     await expect(page).toHaveURL(/\/word\/.+/);
 }
 
-test.describe.serial('French forms (slices 4 and 5: noun, adjective and verb)', () => {
+test.describe.serial('French forms (slices 4 to 6: noun, adjective, verb, adverb, conjunction and preposition)', () => {
     let user: Account;
 
     test.beforeAll(async ({ request }) => {
@@ -249,5 +253,140 @@ test.describe.serial('French forms (slices 4 and 5: noun, adjective and verb)', 
                 expect(boxB!.x, `${first} before ${second} at ${viewport.width}px`).toBeGreaterThan(boxA!.x + boxA!.width - 1);
             }
         }
+    });
+
+    test('an adverb with the "plus" box: the comparative and the superlative are derived, locked and saved', async ({ page }) => {
+        await openNewWord(page, /Adverb/);
+
+        await page.getByRole('button', { name: 'English' }).click();
+        await page.getByRole('radio', { name: 'Non-gradable', exact: true }).first().click();
+        await page.getByLabel('Adverb', { exact: true }).first().fill('quickly');
+        await closeTypeAheadList(page);
+
+        await page.getByRole('button', { name: 'Français' }).click();
+        // The radio and the word are required: nothing saves without them.
+        await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
+        await page.getByRole('radio', { name: 'Gradable', exact: true }).last().click();
+        await page.getByLabel('Adverb', { exact: true }).last().fill('vite');
+        await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+        await page.getByRole('checkbox', { name: /Uses "plus"/ }).click();
+        await expect(page.getByTestId('derived-comparative')).toHaveValue('plus vite');
+        await expect(page.getByTestId('derived-superlative')).toHaveValue('le plus vite');
+        await expect(page.getByTestId('derived-superlative')).toHaveJSProperty('readOnly', true);
+
+        await saveAndOpen(page);
+        await page.reload();
+        await expect(page.getByText('Detailed view: Adverb')).toBeVisible();
+        await expect(page.getByTestId('derived-comparative')).toHaveText('plus vite');
+        await expect(page.getByTestId('derived-superlative')).toHaveText('le plus vite');
+
+        await page.goto('/words');
+        await expect(page.getByRole('row', { name: /quickly/ })).toContainText('vite');
+    });
+
+    test('an irregular adverb is typed (bien → mieux): the superlative follows it; "Non-gradable" hides the degrees', async ({ page }) => {
+        await openNewWord(page, /Adverb/);
+        await page.getByRole('button', { name: 'Français' }).click();
+        const superlative = page.getByTestId('derived-superlative');
+        // Empty and locked, with a placeholder, while there is no comparative.
+        await expect(superlative).toHaveValue('');
+        await expect(superlative).toHaveAttribute('placeholder', 'Depends on the comparative');
+
+        await page.getByLabel('Adverb', { exact: true }).last().fill('bien');
+        await page.getByLabel('Comparative', { exact: true }).fill('mieux');
+        await expect(superlative).toHaveValue('le mieux');
+
+        // The degrees and the box go away for a non-gradable adverb, and the page keeps the word.
+        await page.getByRole('radio', { name: 'Non-gradable', exact: true }).last().click();
+        await expect(page.getByLabel('Comparative', { exact: true })).toHaveCount(0);
+        await expect(page.getByTestId('derived-superlative')).toHaveCount(0);
+        await expect(page.getByRole('checkbox', { name: /Uses "plus"/ })).toHaveCount(0);
+        await expect(page.getByLabel('Adverb', { exact: true }).last()).toHaveValue('bien');
+    });
+
+    test('the adverb "plus" box sits above the comparative and the superlative, which share one row on a desktop and on a phone', async ({ page }) => {
+        for (const viewport of [{ width: 1280, height: 800 }, { width: 375, height: 800 }]) {
+            await page.setViewportSize(viewport);
+            await openNewWord(page, /Adverb/);
+            await page.getByRole('button', { name: 'Français' }).click();
+            const box = page.getByRole('checkbox', { name: /Uses "plus"/ });
+            const comparative = page.getByLabel('Comparative', { exact: true });
+            const superlative = page.getByLabel('Superlative', { exact: true });
+            await expect(box).toBeVisible();
+            const [b, c, s] = [await box.boundingBox(), await comparative.boundingBox(), await superlative.boundingBox()];
+            expect(b!.y + b!.height, `box above the row at ${viewport.width}px`).toBeLessThanOrEqual(c!.y);
+            expect(Math.abs(c!.y - s!.y), `same row at ${viewport.width}px`).toBeLessThan(4);
+            expect(s!.x).toBeGreaterThan(c!.x + c!.width - 1); // side by side, not stacked
+        }
+    });
+
+    test('a conjunction pair (soit … soit) and a subordinating conjunction with the conditional mood', async ({ page }) => {
+        await openNewWord(page, /Conjunction/);
+
+        await page.getByRole('button', { name: 'English' }).click();
+        await page.getByLabel('Conjunction', { exact: true }).first().fill('either');
+        await closeTypeAheadList(page);
+
+        await page.getByRole('button', { name: 'Français' }).click();
+        await page.getByLabel('Conjunction', { exact: true }).last().fill('soit');
+        await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+        // The second part shows, and is required, only while "Paired" is on.
+        await expect(page.getByLabel('Second part', { exact: true })).toHaveCount(0);
+        await page.getByRole('checkbox', { name: /Paired/ }).last().click();
+        await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
+        await page.getByLabel('Second part', { exact: true }).last().fill('soit');
+        await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+        // The mood shows for a subordinating conjunction only, with the conditional as a fourth value.
+        const selects = await page.getByRole('combobox').count();
+        await page.getByRole('radio', { name: 'Subordinating', exact: true }).last().click();
+        await expect(page.getByRole('combobox')).toHaveCount(selects + 1);
+        const mood = page.getByRole('combobox').nth(selects);
+        await mood.click();
+        await expect(page.getByRole('option')).toHaveText(['—', 'Indicative', 'Subjunctive', 'Conditional', 'Depends on meaning']);
+        await page.getByRole('option', { name: 'Conditional' }).click();
+        await expect(mood).toContainText('Conditional');
+        await page.getByRole('radio', { name: 'Coordinating', exact: true }).last().click();
+        await expect(page.getByRole('combobox')).toHaveCount(selects);
+
+        await saveAndOpen(page);
+        await page.reload();
+        await expect(page.getByText('Detailed view: Conjunction')).toBeVisible();
+        await expect(page.getByText('soit', { exact: true }).first()).toBeVisible();
+
+        await page.goto('/words');
+        await expect(page.getByRole('row', { name: /either/ })).toContainText('soit');
+    });
+
+    test('a preposition: the word, and the position ("durant" can follow the noun)', async ({ page }) => {
+        await openNewWord(page, /Preposition/);
+
+        await page.getByRole('button', { name: 'English' }).click();
+        await page.getByLabel('Preposition', { exact: true }).first().fill('during');
+        await closeTypeAheadList(page);
+
+        await page.getByRole('button', { name: 'Français' }).click();
+        // Only the word is required; au, aux, du and des are a general rule for "à" and "de": no field for them.
+        await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
+        await page.getByLabel('Preposition', { exact: true }).last().fill('durant');
+        await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
+        await expect(page.getByLabel(/article/i)).toHaveCount(0);
+
+        await page.getByRole('radio', { name: 'Before or after the noun', exact: true }).last().click();
+        // A re-click clears an optional radio, as for the other languages.
+        await page.getByRole('radio', { name: 'Before or after the noun', exact: true }).last().click();
+        await expect(page.getByRole('radio', { name: 'Before or after the noun', exact: true }).last()).not.toBeChecked();
+        await page.getByRole('radio', { name: 'After the noun', exact: true }).last().click();
+
+        await saveAndOpen(page);
+        await page.reload();
+        await expect(page.getByText('Detailed view: Preposition')).toBeVisible();
+        await expect(page.getByText('durant', { exact: true })).toBeVisible();
+        await expect(page.getByText('After the noun', { exact: true })).toBeVisible();
+
+        await page.goto('/words');
+        await expect(page.getByRole('row', { name: /during/ })).toContainText('durant');
     });
 });

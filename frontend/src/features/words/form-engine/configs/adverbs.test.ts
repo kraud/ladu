@@ -5,9 +5,10 @@
  * periphrastic checkboxes added later. The Estonian adverb form is new (Slice H4) and is pinned here directly.
  */
 import { describe, expect, it } from 'vitest';
-import { Lang, PartOfSpeech } from '@/ts/enums';
-import { isStoredCheckbox, matchesVisibility, type FieldConfig } from './types';
+import { AdverbCases, Lang, PartOfSpeech } from '@/ts/enums';
+import { derivedStoredWord, isDerived, isStoredCheckbox, matchesVisibility, type FieldConfig } from './types';
 import { getFormConfig } from './index';
+import { casesToFieldValues, fieldsToCases } from '../TranslationCard';
 import { LANG_SUFFIX } from '@/lib/language';
 
 /** Field names that would actually render given these sibling values — the same filter `FieldRenderer` applies via `visibleWhen`. */
@@ -71,14 +72,79 @@ describe('getFormConfig(Adverb, lang) — old field-list parity', () => {
         expect(superlative?.adornment).toEqual({ text: 'am' });
     });
 
+    describe('French (language-french.md, slice 6)', () => {
+        const fields = () => getFormConfig(PartOfSpeech.adverb, Lang.FR)!.fields;
+        const named = (name: string) => fields().find((f) => f.name === name)!;
+
+        it('gradable*, adverb*, the "plus" box above the comparative and the superlative, which share one row', () => {
+            expect(fields().map((f) => f.name)).toEqual(['gradable', 'adverb', 'periphrastic', 'comparative', 'superlative']);
+            expect(fields().filter((f) => f.required).map((f) => f.name)).toEqual(['gradable', 'adverb']);
+            for (const name of ['comparative', 'superlative']) {
+                expect(named(name).layout).toMatchObject({ row: 'degree', block: 'frDegree', fitRow: true, alignTop: true });
+            }
+            expect(named('comparative').layout?.column).not.toBe(named('superlative').layout?.column);
+            expect(isStoredCheckbox(named('periphrastic'))).toBe(true);
+        });
+
+        it('comparative: with the "plus" box on it shows and saves "plus " + the adverb', () => {
+            const comparative = named('comparative');
+            expect(comparative.kind === 'text' && comparative.derivedWhen).toEqual({
+                when: { field: 'periphrastic', equals: true },
+                prefix: 'plus ',
+                fromField: 'adverb',
+                store: true,
+            });
+            expect(derivedStoredWord(comparative, { periphrastic: true, adverb: 'vite' })).toBe('plus vite');
+            expect(isDerived(comparative, { periphrastic: false })).toBe(false);
+        });
+
+        it('the superlative is always locked: "le " + the comparative, also the typed irregular one (bien → mieux → le mieux)', () => {
+            const superlative = named('superlative');
+            expect(isDerived(superlative, {})).toBe(true);
+            expect(derivedStoredWord(superlative, { periphrastic: true, adverb: 'vite', comparative: '' })).toBe('le plus vite');
+            expect(derivedStoredWord(superlative, { periphrastic: false, adverb: 'bien', comparative: 'mieux' })).toBe('le mieux');
+            expect(derivedStoredWord(superlative, { periphrastic: false, comparative: '' })).toBeUndefined();
+        });
+
+        it('the saved cases hold the box, the derived comparative and the derived superlative', () => {
+            const values = { gradable: 'Gradable', adverb: 'vite', periphrastic: true, comparative: '', superlative: '' };
+            expect(fieldsToCases(fields(), values)).toEqual([
+                { caseName: AdverbCases.gradableFR, word: 'Gradable' },
+                { caseName: AdverbCases.adverbFR, word: 'vite' },
+                { caseName: AdverbCases.periphrasticFR, word: 'true' },
+                { caseName: AdverbCases.comparativeFR, word: 'plus vite' },
+                { caseName: AdverbCases.superlativeFR, word: 'le plus vite' },
+            ]);
+            const irregular = { gradable: 'Gradable', adverb: 'bien', periphrastic: false, comparative: 'mieux', superlative: '' };
+            expect(fieldsToCases(fields(), irregular)).toEqual([
+                { caseName: AdverbCases.gradableFR, word: 'Gradable' },
+                { caseName: AdverbCases.adverbFR, word: 'bien' },
+                { caseName: AdverbCases.comparativeFR, word: 'mieux' },
+                { caseName: AdverbCases.superlativeFR, word: 'le mieux' },
+            ]);
+        });
+
+        it('a stored word starts with an empty superlative box: it is shown from the comparative', () => {
+            const values = casesToFieldValues(fields(), [
+                { caseName: AdverbCases.adverbFR, word: 'bien' },
+                { caseName: AdverbCases.comparativeFR, word: 'mieux' },
+                { caseName: AdverbCases.superlativeFR, word: 'le mieux' },
+            ]);
+            expect(values.superlative).toBe('');
+            expect(values.comparative).toBe('mieux');
+        });
+    });
+
     describe.each([
         [Lang.EN, ['periphrastic']],
         [Lang.ES, ['periphrasticComparative']],
         [Lang.DE, []],
         [Lang.EE, ['periphrasticSuperlative']],
+        [Lang.FR, ['periphrastic']],
     ])('%s — gradable-branched visibility', (lang, checkbox) => {
         const config = getFormConfig(PartOfSpeech.adverb, lang)!;
-        const all = ['gradable', 'adverb', 'comparative', 'superlative', ...checkbox];
+        // French lists the box before the degree row; the others list it last.
+        const all = lang === Lang.FR ? ['gradable', 'adverb', ...checkbox, 'comparative', 'superlative'] : ['gradable', 'adverb', 'comparative', 'superlative', ...checkbox];
 
         it('everything is visible by default, before gradable is picked', () => {
             expect(visibleNames(config.fields, { gradable: '' })).toEqual(all);
@@ -94,7 +160,7 @@ describe('getFormConfig(Adverb, lang) — old field-list parity', () => {
     });
 
     it('every field.caseName is field.name + the language suffix', () => {
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR]) {
             const config = getFormConfig(PartOfSpeech.adverb, lang)!;
             for (const field of config.fields) {
                 expect(field.caseName).toBe(`${field.name}${LANG_SUFFIX[lang]}`);

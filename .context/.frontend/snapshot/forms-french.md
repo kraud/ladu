@@ -2,7 +2,7 @@
 
 French has no form in the old app. This file is the spec of the v2 French forms (plan `plans/language-french.md`). Code: the French builder in each file of `frontend/src/features/words/form-engine/configs/`; tests next to them. The first design is by the assistant. A French teacher reviews it (the questions are in the plan, review log). Case names end in `FR`.
 
-Added so far: the noun and the adjective (slice 4) and the verb (slice 5). The adverb, conjunction and preposition (slice 6) are added here when they are built.
+Added so far: the noun and the adjective (slice 4), the verb (slice 5) and the adverb, conjunction and preposition (slice 6). All six parts of speech have a French form.
 
 ## Noun (`nouns.ts`, built from the `WordCasesData.Noun` rows)
 
@@ -61,3 +61,46 @@ The Indicatif only: présent, imparfait, passé composé, futur simple. Subjunct
 **Practice** (`backend/services/exercises/catalogue.ts`). Present → `indicativePresent`, "past" → `indicativeImperfect` (the passé composé form is only a participle, so it would be too easy: review log M3), future → `indicativeSimpleFuture`. Drills: auxiliary (multiple choice, avoir / être), verb group (multiple choice), past participle (text input, from the infinitive).
 
 Property prefixes: `auxVerb`, `reflexiv`, `verbGroup` (new). `pastParticipleFR`, `presentParticipleFR`, `infinitiveFR` and every tense form start with none of them, so search and exercises read them as written forms (regression test in `exercisesCatalogue.test.js`).
+
+## Adverb (`adverbs.ts`, `buildFrConfig`)
+
+The adverb copies the Spanish builder and takes the "plus" mechanism of the French adjective. Decision of 2026-10-26 (user confirmed the recommended option).
+
+| Field (form name) | Case name | Kind | Required | Notes |
+|---|---|---|---|---|
+| Gradable (`gradable`) | `gradableFR` | radio: Gradable / Non-gradable | yes | A property. First field, as in EN, ES, DE and EE. "Non-gradable" hides the box and both degree fields. |
+| Adverb (`adverb`) | `adverbFR` | text | yes | lowercase. Headline word of the word in the words table. |
+| Uses "plus" (`periphrastic`) | `periphrasticFR` | checkbox, stored as "true" | no | A property. Sits on the row above the degrees. Visible unless "Non-gradable". |
+| Comparative (`comparative`) | `comparativeFR` | text | no | While the box is on, it shows and saves `plus ` + the adverb (read-only): "plus vite". With the box off the user types the form: bien → mieux, beaucoup → plus. |
+| Superlative (`superlative`) | `superlativeFR` | text, always locked | no | Never typed. Shows and saves `le ` + the comparative: "le plus vite" while the box is on, "le mieux" after the typed comparative "mieux". Empty box with the placeholder "Depends on the comparative" while there is no comparative. A written form. |
+
+**Layout.** The comparative and the superlative share one row, two equal columns, also on a phone (`layout.fitRow`, `alignTop`, block `frDegree`): the same layout as the French adjective. Checked on screens at 1280 and 375 px.
+
+**Irregular degrees.** The form stores the superlative with its article ("le mieux"). It is the same limit as for the adjective (review log F5): the form does not store the agreement forms, which for an adverb do not exist anyway. Sources: Wiktionnaire "bien", "mieux"; CNRTL "mieux" (the comparative of *bien*; the superlative is *le mieux*).
+
+## Conjunction (`conjunctions.ts`, shared `buildConfig` + `moodSelect`)
+
+| Field (form name) | Case name | Kind | Required | Notes |
+|---|---|---|---|---|
+| Conjunction (`conjunction`) | `conjunctionFR` | text | yes | lowercase. Multi-word entries are allowed ("bien que", "parce que"). Row `word`, first cell. |
+| Second part (`secondPart`) | `secondPartFR` | text | yes, while shown | A written form. Shown while "Paired" is on. Row `word`, second cell. |
+| Type (`conjunctionType`) | `conjunctionTypeFR` | radio: Coordinating / Subordinating | no | A property. A re-click clears it. Row `meta`, first cell. |
+| Paired (`correlative`) | `correlativeFR` | checkbox, stored as "true" | no | A property. For ni … ni, soit … soit, tantôt … tantôt. Row `meta`, second cell. |
+| Verb mood (`mood`) | `moodFR` | select: Indicative / Subjunctive / **Conditional** / Depends on meaning | no | A property. Shown only for "Subordinating". Row `mood`. |
+
+**Why a fourth value.** The Spanish select has three. French needs the conditional: "au cas où", "quand (bien) même" and "alors même que" are followed by the conditional (Le Robert, guide "Conjonctions de subordination"). "Depends on meaning" covers "de sorte que" and "encore que" (indicative or subjunctive). *Bien que*, *quoique* take the subjunctive. *Après que* takes the indicative by rule. The options are English text in every interface language (review log F4).
+
+The first part of a pair and the second part are two fields, as in the other languages. French pairs have the same word twice (soit … soit): both boxes hold it.
+
+## Preposition (`prepositions.ts`, `buildFrConfig`)
+
+| Field (form name) | Case name | Kind | Required | Notes |
+|---|---|---|---|---|
+| Preposition (`preposition`) | `prepositionFR` | text | yes | lowercase. Multi-word entries are allowed ("à côté de", "grâce à"). Headline word. |
+| Position (`position`) | `positionFR` | radio: Before the noun / After the noun / Before or after the noun | no | A property. A re-click clears it. Almost all French prepositions stand before the noun; "durant" can follow it ("trois heures durant", Wiktionnaire). |
+
+**au / aux / du / des.** These are the article contractions of "à" and "de". They are a general rule, not a property of one word, so there is no field (the same as Spanish "al" and "del"; German has a field because the contraction depends on the preposition).
+
+The preposition governs no case on the noun. Which preposition a verb takes (penser à, parler de) is verb valency: a later feature (see the German valency note in the memory).
+
+Property prefixes: no new one. `gradableFR`, `periphrasticFR`, `conjunctionTypeFR`, `correlativeFR`, `moodFR` and `positionFR` start with an existing prefix. `adverbFR`, `comparativeFR`, `superlativeFR`, `conjunctionFR`, `secondPartFR` and `prepositionFR` start with none, so search reads them as written forms (regression test in `exercisesCatalogue.test.js`). Adverbs, conjunctions and prepositions have no exercises.
