@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type Page } from '@playwright/test';
 import {
     closePool,
@@ -31,7 +32,7 @@ const offEmail = `e2e-onb-${run}-off@ladu.test`;
 const flowEmail = `e2e-onb-${run}-flow@ladu.test`;
 const skipEmail = `e2e-onb-${run}-skip@ladu.test`;
 const emails = [offEmail, flowEmail, skipEmail];
-const API_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API_URL = E2E_API_URL;
 
 test.describe.configure({ mode: 'serial' });
 

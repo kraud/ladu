@@ -149,7 +149,7 @@ Also link it from `CLAUDE.md` working rules? — no: link from `.context/README.
 - Frontend: `npm test -w frontend` and the typecheck/build (`npm run build`).
 - Backend: `npm test` (catalogue property test, word round trip, dictionary). Tests use `require('./request')`.
 - Manual: `npm run dev`, add each test word from `.other/other-words-temp.md` on `/addWord`.
-- e2e: `npm run test:e2e`; before it, no orphan backend on :5001 and no closed access gate.
+- e2e: `npm run test:e2e` (own ports and own database since 2026-10-26; see `e2e/README.md`).
 - Do not pipe test commands through `tail`/`head`.
 
 ## Slice 3 research results (2026-10-25)

@@ -45,7 +45,7 @@ import {
  *  5. Privacy (API): a second account sees none of it, and gets 404 for every id.
  *
  * The prompt is read from the screen and the answer looked up in `TRANSLATION`, so the
- * run does not depend on which cards the server picks. Runs against `keelapp_v2_dev`;
+ * run does not depend on which cards the server picks. Runs against `keelapp_e2e`;
  * every account is deleted in `afterAll` (configurations and sessions cascade off `users`).
  */
 

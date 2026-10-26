@@ -114,8 +114,9 @@ is by merging. You cannot point staging at a feature branch.
 What you *do* have, in increasing order of "how close to real":
 
 1. **`npm run dev` locally** — fastest loop, what you'll use 95% of the time.
-2. **`npm run test:e2e`** — the same Playwright suite CI runs, against your
-   local stack, before you even push.
+2. **`npm run test:e2e`** — the same Playwright suite CI runs, against its own
+   local stack (own ports, own database `keelapp_e2e`), before you even push.
+   `npm run dev` can keep running.
 3. **The CI `e2e` job itself, automatically, on every PR** — this is your
    real safety net for "does this actually work end-to-end," and it runs
    before anyone (including you) has to decide whether to merge.

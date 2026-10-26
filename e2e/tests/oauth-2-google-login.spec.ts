@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect } from '@playwright/test';
 import { closePool, createLinkedOAuthUser, deleteUsersByEmail } from '../fixtures/db';
 import { routeGoogleStartTo } from '../fixtures/oauthRouting';
@@ -10,14 +11,14 @@ import { routeGoogleStartTo } from '../fixtures/oauthRouting';
  * issuer — see `fixtures/oauthRouting.ts` for how these specs control which
  * identity a click becomes.
  *
- * Runs against `keelapp_v2_dev`. Each run uses unique `e2e-*@ladu.test`
+ * Runs against `keelapp_e2e`. Each run uses unique `e2e-*@ladu.test`
  * emails and deletes them in `afterAll`. The suffix includes Playwright's
  * `parallelIndex` (unique per worker *process*) as well as a counter —
  * `Date.now()` alone can collide when two of this file's tests happen to
  * start in the same millisecond in different parallel workers.
  */
 
-const API_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API_URL = E2E_API_URL;
 const run = Date.now();
 let seq = 0;
 const uniqueEmail = (workerIndex: number) => `e2e-oauth2-${run}-w${workerIndex}-${++seq}@ladu.test`;

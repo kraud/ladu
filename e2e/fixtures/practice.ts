@@ -10,11 +10,12 @@
  * languages). So the spec always reads the prompt from the screen and looks the
  * answer up in `TRANSLATION`; it never assumes which card, or which direction, comes.
  */
+import { E2E_API_URL } from './env';
 import { randomUUID } from 'node:crypto';
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
 import { getVerifyToken } from './db';
 
-export const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+export const API = E2E_API_URL;
 
 export interface Account {
     name: string;

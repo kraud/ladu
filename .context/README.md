@@ -19,13 +19,13 @@ npm run build                # frontend production build
 npm run db:studio            # Drizzle Studio
 
 npm run e2e:install          # one-time: download Chromium for Playwright
-npm run test:e2e             # full-stack Playwright e2e suite (boots backend + frontend)
+npm run test:e2e             # full-stack Playwright e2e suite (own ports :5101/:5273/:5274 and own database keelapp_e2e: npm run dev can keep running)
                              # specs named *-gate.spec.ts change the access gates (global state): they run last, each in its own project, one after the other
 npm run test:e2e:headed      # same, in a visible browser window
 ```
 
-**e2e prerequisites:** `docker:up` + `db:migrate` + `backend/.env` (same as the
-backend Jest suite) plus `e2e:install` once. Details: [`e2e/README.md`](../e2e/README.md).
+**e2e prerequisites:** `docker:up` + the repo-root `.env` plus `e2e:install` once. The run creates and
+migrates its own database `keelapp_e2e`. Details: [`e2e/README.md`](../e2e/README.md).
 
 ---
 
@@ -93,7 +93,7 @@ Vite 5 · React 18 · **TypeScript 5 strict** (`noImplicitAny`, `noUnusedLocals/
 Node/Express (`.js` routes) → **TypeScript controllers loaded via `tsx`** · **Drizzle ORM on PostgreSQL** (`backend/src/db/schema.ts` is the source of truth) · JWT auth (`protect` middleware) · bcryptjs · Nodemailer · Jest + ts-jest + supertest (integration tests import `require('./request')`, never `supertest` directly: it keeps one server per test file — a server per request cycles macOS's ephemeral ports and causes random `socket hang up` failures in full runs) · drizzle-kit for migrations. Local DB via Docker Compose (Postgres 15: `keelapp_dev`, `keelapp_test`).
 
 ### e2e (`e2e/`) — full-stack tests
-Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playwright/test`) drives Chromium against the *real* backend (:5001) + frontend dev server (:5173) — `webServer` in `e2e/playwright.config.ts` boots both. One spec per phase (`e2e/tests/phase-N-*.spec.ts`); green run is a required per-phase gate (build plan §5/§6). Kept out of the `frontend` workspace so Playwright's Node config + browser binaries never touch the Vite build or FE dep tree. Interactive browser driving during a session comes from the `@playwright/mcp` server registered in `.mcp.json`. CI job deferred — local gate for now.
+Third npm workspace (alongside `backend/`, `frontend/`). **Playwright** (`@playwright/test`) drives Chromium against the *real* backend + frontend dev server on their own ports (:5101, :5273) and their own database (`keelapp_e2e`) — `webServer` in `e2e/playwright.config.ts` boots them (`e2e/fixtures/env.ts` holds the values). One spec per phase (`e2e/tests/phase-N-*.spec.ts`); green run is a required per-phase gate (build plan §5/§6). Kept out of the `frontend` workspace so Playwright's Node config + browser binaries never touch the Vite build or FE dep tree. Interactive browser driving during a session comes from the `@playwright/mcp` server registered in `.mcp.json`. CI job deferred — local gate for now.
 
 ---
 

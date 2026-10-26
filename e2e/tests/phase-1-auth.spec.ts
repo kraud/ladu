@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect } from '@playwright/test';
 import { closePool, deleteUsersByEmail, getUserTerms, getVerifyToken } from '../fixtures/db';
 
@@ -10,11 +11,11 @@ import { closePool, deleteUsersByEmail, getUserTerms, getVerifyToken } from '../
  * (unverified is blocked), the protected-route guard, and the public
  * UI-language selector persisting across reload and into the session.
  *
- * Runs against `keelapp_v2_dev`. Each run uses unique `e2e-*@ladu.test`
+ * Runs against `keelapp_e2e`. Each run uses unique `e2e-*@ladu.test`
  * emails and deletes them in `afterAll`.
  */
 
-const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API = E2E_API_URL;
 
 const run = Date.now();
 let seq = 0;

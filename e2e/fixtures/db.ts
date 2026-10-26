@@ -1,27 +1,16 @@
 /**
- * Direct read/write access to the **dev** database (`keelapp_v2_dev`) for the
- * e2e suite. The full stack runs against the dev DB (see `playwright.config.ts`),
+ * Direct read/write access to the **e2e** database (`keelapp_e2e`, see `fixtures/env.ts`) for the
+ * e2e suite. The full stack runs against that database (see `playwright.config.ts`),
  * and these tests need two things the UI can't give them:
  *
  *  - the email-verification token (there is no inbox — read it from `tokens`);
  *  - teardown of the accounts each run creates (unique `e2e-*@ladu.test` emails).
- *
- * `DATABASE_URL` comes from the repo-root `.env`, the same file the backend
- * loads. `cwd` is the `e2e/` workspace when Playwright runs, so `../.env`.
  */
-import { resolve } from 'node:path';
-import { config } from 'dotenv';
 import bcrypt from 'bcryptjs';
 import pg from 'pg';
+import { e2eDatabaseUrl } from './env';
 
-config({ path: resolve(process.cwd(), '../.env') });
-
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-    throw new Error(
-        'DATABASE_URL is not set. Run `npm run docker:up` and make sure the repo-root .env exists.',
-    );
-}
+const connectionString = e2eDatabaseUrl();
 
 // A lazy, re-creatable singleton, NOT a plain module-scope `pool` — Playwright
 // runs multiple `*.spec.ts` files inside the same worker process (guaranteed

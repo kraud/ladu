@@ -151,7 +151,6 @@ jobs:
       # server — no separate CI step needed.
       DATABASE_URL: postgresql://keelapp_user:keelapp_password@localhost:5432/keelapp_e2e
       JWT_SECRET: e2e_test_secret
-      BASE_URL: http://localhost:5173
       # sendMail (backend/utils/sendEmail.js) catches its own send errors and
       # never rejects, so registration/verification flows work without a real
       # mailbox — these just need to be set so nodemailer.createTransport

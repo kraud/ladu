@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type Page } from '@playwright/test';
 import {
     closePool,
@@ -26,7 +27,7 @@ import {
  * start of every run, and `afterAll` puts it back off.
  */
 
-const API_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API_URL = E2E_API_URL;
 const run = Date.now();
 const PASSWORD = 'a-good-password-1';
 const resetEmail = `e2e-captcha-${run}-reset@ladu.test`;

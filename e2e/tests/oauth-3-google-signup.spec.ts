@@ -14,7 +14,7 @@ import { routeGoogleStartTo } from '../fixtures/oauthRouting';
  * verification-token row at all (`registerUser` always creates one;
  * `signupComplete` never does).
  *
- * Runs against `keelapp_v2_dev`. Each run uses unique `e2e-*@ladu.test`
+ * Runs against `keelapp_e2e`. Each run uses unique `e2e-*@ladu.test`
  * emails and deletes them in `afterAll`.
  */
 

@@ -152,4 +152,4 @@ Write these in the plan:
 
 - Load the new lexicon file and the rebuilt translations file per environment (`deploy/ansible/lexicon.yml`): staging, SQL counts, then production. Runbook model: `conjunctions-prepositions.md`.
 - Reseed the demo template per environment when its data changed.
-- Run the e2e suite. Before it: no backend on :5001, no closed access gate in the local database.
+- Run the e2e suite (`npm run test:e2e`). It has its own ports and its own database: `npm run dev` can keep running.

@@ -30,10 +30,11 @@ Same as the backend Jest suite, plus a browser download:
 
 ```bash
 npm run docker:up        # local Postgres (host :5433)
-npm run db:migrate       # schema -> keelapp_v2_dev
-# backend/.env must exist (JWT secret, mail creds, DB URL)
+# the repo-root .env must exist (JWT secret, mail creds, DB URL)
 npm run e2e:install      # one-time: downloads Chromium
 ```
+
+No `db:migrate` step is needed. The run makes the e2e database and migrates it (see "Own ports, own database").
 
 ## Run
 
@@ -50,16 +51,33 @@ without `--headed` every run launches `chromium_headless_shell` — the UI windo
 renders the live trace, but no browser window ever opens. With `--headed`, each
 worker opens a real Chromium window you can watch.
 
-Playwright starts `npm run dev -w backend` and `npm run dev -w frontend` itself
-(see `playwright.config.ts` → `webServer`). If you already have `npm run dev`
-running, it reuses those servers locally.
+Playwright starts the backend, the app, the admin app and the two stubs itself
+(see `playwright.config.ts` → `webServer`). `npm run dev` can keep running: the
+suite does not use its ports or its database.
+
+## Own ports, own database
+
+`fixtures/env.ts` is the one place for these values. Each can be set from the outside.
+
+| What | Default | Variable | `npm run dev` uses |
+|------|---------|----------|--------------------|
+| API (backend) | `http://localhost:5101` | `E2E_API_URL` | :5001 |
+| App (Vite) | `http://localhost:5273` | `E2E_BASE_URL` | :5173 |
+| Admin app (Vite) | `http://localhost:5274` | `E2E_ADMIN_URL` | :5174 |
+| OIDC stub | `http://localhost:4500` | `OIDC_STUB_URL` | — |
+| Ekilex stub | `http://localhost:4501` | `EKI_STUB_URL` | — |
+| Database | `keelapp_e2e` (same server as `DATABASE_URL`) | `E2E_DATABASE_URL` | `keelapp_v2_dev` |
+
+- **The database.** The first command of the backend `webServer` (`fixtures/ensure-db.ts`) creates `keelapp_e2e` when it is missing. Then the run migrates it, loads the lexicon fixtures and seeds the demo template. The database name must contain `e2e`: the suite deletes rows, so it refuses any other name. CI already uses the name `keelapp_e2e`.
+- **The environment.** The backend loads the repo-root `.env` with `override: true`. The e2e servers set `LADU_KEEP_PROCESS_ENV=1`, which switches the override off. So the values in `playwright.config.ts` (port, database, stubs, Turnstile test keys) win over `.env`, and a real Ekilex or Turnstile key in `.env` does not matter.
+- **The Vite proxy.** The app and the admin app forward `/api` to `API_PROXY_TARGET` (default `http://localhost:5001`). The config sets it to the e2e backend.
+- **A stack left behind.** `reuseExistingServer` is on outside CI, so a stack started on purpose on the e2e ports is reused. A stack left over from a crashed run is reused too: stop it if a run behaves strangely (`lsof -nP -iTCP:5101 -sTCP:LISTEN`).
 
 ## Global setup
 
-`fixtures/global-setup.ts` runs once before every run and turns the **onboarding switch off** in the local
+`fixtures/global-setup.ts` runs once before every run and turns the **onboarding switch off** in the e2e
 database. While it is on, each spec that signs in a new account would land on `/onboarding`. Only
-`onboarding-gate.spec.ts` turns it on, and it turns it off again. So after an e2e run the switch is off: turn
-it on again in the admin panel (Access → Onboarding) if you want to try the flow by hand.
+`onboarding-gate.spec.ts` turns it on, and it turns it off again. The switches of your dev database are not touched.
 
 ## Stub servers
 
@@ -67,17 +85,12 @@ Two local stubs stand in for third-party services, so no spec depends on them:
 
 | Stub | Port | Stands in for | Used by |
 |------|------|---------------|---------|
-| `fixtures/oidc-stub/server.ts` (`npm run stub:oidc -w e2e`) | 4400 | Google sign-in (OIDC) | `oauth-*.spec.ts` |
-| `fixtures/eki-stub/server.ts` (`npm run stub:eki -w e2e`) | 4401 | the Ekilex API (Estonian dictionary) | `autocomplete-a-dictionary-route.spec.ts` |
+| `fixtures/oidc-stub/server.ts` (`npm run stub:oidc -w e2e`) | 4500 | Google sign-in (OIDC) | `oauth-*.spec.ts` |
+| `fixtures/eki-stub/server.ts` (`npm run stub:eki -w e2e`) | 4501 | the Ekilex API (Estonian dictionary) | `autocomplete-a-dictionary-route.spec.ts` |
 
-Playwright points the backend at them through env values in `playwright.config.ts`. Two
-local traps make the backend ignore those values:
-
-1. **The repo-root `.env` wins** (the backend loads it with `override: true`). So it must
-   not set `EKILEX_API_URL` or `OAUTH_ISSUER_GOOGLE`. (`EKILEX_API_URL` defaults to
-   `https://ekilex.ee` in code. `EKILEX_API_KEY` in `.env` is fine: the stub ignores it.)
-2. **A reused dev backend keeps its own environment.** Stop `npm run dev -w backend` before
-   a full run, so Playwright starts a backend with the stub values.
+Playwright points the backend at them through env values in `playwright.config.ts`. These
+values win over the repo-root `.env` (`LADU_KEEP_PROCESS_ENV`), and the e2e backend is never
+your dev backend. The stub ports come from the `*_STUB_URL` variables in "Own ports, own database".
 
 ## Playwright MCP
 
@@ -89,9 +102,9 @@ server and this suite are independent — specs run through `@playwright/test`.
 ## CI
 
 Wired as the `e2e` job in `.github/workflows/ci.yml`: a Postgres service
-container, `playwright install --with-deps chromium`, then `npm run test:e2e`.
-The webServer-spawned backend runs in dev mode and applies migrations itself
-at startup, so there's no separate migrate step. Dummy `EMAIL_*` values are
+container (database `keelapp_e2e`), `playwright install --with-deps chromium`, then `npm run test:e2e`.
+The `webServer` command runs the migrations, loads the lexicon fixtures and seeds
+the demo template before the backend starts, so there's no separate migrate step. Dummy `EMAIL_*` values are
 set — `sendMail` (`backend/utils/sendEmail.js`) catches its own send errors
 and never rejects, so registration/verification flows work without a real
 mailbox; `fixtures/db.ts` reads the verification token straight from the

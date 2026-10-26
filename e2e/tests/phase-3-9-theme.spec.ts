@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext, type Browser, type Page } from '@playwright/test';
 import { closePool, deleteUsersByEmail, getUserTheme, getVerifyToken } from '../fixtures/db';
 
@@ -21,11 +22,11 @@ import { closePool, deleteUsersByEmail, getUserTheme, getVerifyToken } from '../
  * The landing page itself (`landing/`) is a separate static site that this
  * suite does not serve; test 1 walks the link it produces.
  *
- * Runs against `keelapp_v2_dev`. Uses unique `e2e-*@ladu.test` emails and
+ * Runs against `keelapp_e2e`. Uses unique `e2e-*@ladu.test` emails and
  * deletes them in `afterAll`.
  */
 
-const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API = E2E_API_URL;
 
 const run = Date.now();
 let seq = 0;

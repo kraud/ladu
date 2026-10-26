@@ -42,7 +42,7 @@ import {
  *
  * The prompt is read from the screen and the answer looked up in `TRANSLATION`,
  * so the run does not depend on which cards the server picks. Runs against
- * `keelapp_v2_dev`; every account is deleted in `afterAll` (words, performances
+ * `keelapp_e2e`; every account is deleted in `afterAll` (words, performances
  * and saved practice cascade off `users`).
  */
 

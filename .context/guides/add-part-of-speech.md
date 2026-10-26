@@ -110,4 +110,4 @@ Write these in the plan, in a "Before or at the merge" section:
 
 - Reload the lexicon per environment (EN, ES, DE) when selectors changed. The selectors run at ingest time.
 - Reseed the demo template per environment when its data changed.
-- Run the e2e suite. Before it: no backend on :5001, no closed access gate in the local database.
+- Run the e2e suite (`npm run test:e2e`). It has its own ports and its own database: `npm run dev` can keep running.

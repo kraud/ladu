@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext } from '@playwright/test';
 import { backdateWordsCreatedAt, closePool, deleteUsersByEmail, getVerifyToken } from '../fixtures/db';
 
@@ -14,12 +15,12 @@ import { backdateWordsCreatedAt, closePool, deleteUsersByEmail, getVerifyToken }
  * first consumer of the `['metrics']` invalidation edge declared in Phase 2.
  * A second, fresh account proves the empty state.
  *
- * Runs against `keelapp_v2_dev`. Uses unique `e2e-*@ladu.test` emails and
+ * Runs against `keelapp_e2e`. Uses unique `e2e-*@ladu.test` emails and
  * deletes them in `afterAll` — `words`/`translations`/`cases` cascade off
  * the `users` row (`backend/src/db/schema.ts`).
  */
 
-const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API = E2E_API_URL;
 
 const run = Date.now();
 let seq = 0;

@@ -1,3 +1,4 @@
+import { EKI_STUB_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
 import { clickUseValues } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
@@ -17,11 +18,10 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *  4. "Search verb in English" (step F3): the translation table gives the Estonian verb ("run" →
  *     "jooksma"), so Ekilex is not asked; a word the table lacks ("zorp", made up) goes to Ekilex.
  *
- * Nothing is saved: the subject is the lookup. Needs the stub, so no other backend may be
- * running on :5001 (see e2e/README.md, "Stub servers").
+ * Nothing is saved: the subject is the lookup. Needs the stub: the e2e backend points at it
+ * (see e2e/README.md, "Stub servers").
  */
 
-const EKI_STUB_URL = process.env.EKI_STUB_URL ?? 'http://localhost:4401';
 
 test.afterAll(async () => {
     await deleteUsersByEmail(createdEmails);

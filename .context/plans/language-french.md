@@ -1,6 +1,6 @@
 # Plan: Add French to Ladu (+ a reusable "add a language" guide)
 
-Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–4 done and committed 2026-10-26. Next: Slice 5 (see "Resume here"). Side task (agreed with the user, not started): e2e on its own ports and its own database.
+Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–4 done and committed 2026-10-26. Next: Slice 5 (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
 
 ## How to start (read this first in a new session)
 
@@ -12,7 +12,7 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–4 done and committed 2
 
 ## Resume here (handoff written 2026-10-26, end of the first session)
 
-**State.** Phase 0 and slices 0–4 are done and committed on branch `new-language-french` (last commit `936d0b9`). The working tree was clean. Gates at that point: backend 73 suites / 2872 tests, frontend 144 files / 2062 tests, landing 48 tests, last full e2e 175 passed (one e2e test was added afterwards; the French specs, 8 tests, pass). **Next: slice 5, the verb form.** Side task (agreed, not started): e2e on its own ports and its own database.
+**State.** Phase 0 and slices 0–4 are done and committed on branch `new-language-french` (last commit `936d0b9`). The working tree was clean. Gates at that point: backend 73 suites / 2872 tests, frontend 144 files / 2062 tests, landing 48 tests, last full e2e 175 passed (one e2e test was added afterwards; the French specs, 8 tests, pass). **Next: slice 5, the verb form.** The side task (e2e on its own ports and database) was done at the start of session 2; see "Side task" below.
 
 **How the user works (confirmed in session 1).**
 - One slice at a time. Start with a plain-language overview, then work. Auto mode is on, but ask before stopping anything the user started. Suggest a commit message after each step; the user commits.
@@ -20,7 +20,7 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–4 done and committed 2
 - The user reviews the **real screens**, desktop and phone. They ask for compact rows: related fields on one row, also on a phone (`layout.fitRow`, `layout.alignTop`; see `add-part-of-speech.md` section 2). Take screenshots to check a layout (method below) before you report it.
 - Never pipe test or build commands through `tail` or `head` to read pass or fail. Write the output to a file in the scratchpad and read the exit code.
 
-**Running e2e.** `npm run test:e2e` needs :5001, :5173, :5174, :4400 and :4401 free. The user runs `npm run dev` and restarts it often. A running dev tree (or its leftover `nodemon`) blocks e2e and restarts the backend on every backend edit. Each time, ask the user (`AskUserQuestion`) and then stop the tree: kill `concurrently`, `nodemon`, the backend and Vite, and check the ports. The user has answered "stop it, run e2e" every time. The run takes about 2.5 minutes: run it in the background, output to a file, read the exit code. A French-only run (`cd e2e && npx playwright test tests/language-french-forms.spec.ts tests/language-french-interface.spec.ts`) can reuse a running dev server.
+**Running e2e.** Since 2026-10-26 `npm run test:e2e` has its own ports (:5101 API, :5273 app, :5274 admin, :4500 and :4501 stubs) and its own database `keelapp_e2e`. The user's `npm run dev` (:5001, :5173) can keep running: do not stop it. See `e2e/README.md`, "Own ports, own database". The run takes about 2.5 minutes: run it in the background, output to a file, read the exit code. A French-only run: `cd e2e && npx playwright test tests/language-french-forms.spec.ts tests/language-french-interface.spec.ts`.
 - To look at a layout: write a temporary spec `e2e/tests/zz-tmp-screens.spec.ts` that registers a user (`registerAndVerify`, `signIn` from `e2e/fixtures/practice.ts`), opens `/addWord`, clicks the part of speech and the language button, and calls `page.screenshot({ path })` into the scratchpad at 1280 and 375 px. Read the PNG. Delete the spec.
 
 **Tools.** `.context/guides/tools/locale_insert.py`: adds members to a locale JSON as text (no reformatting) and has `french()` for the typography (`~` → no-break space, `'` → `’`). Use it for the new form strings, in **all five** `wordRelated.json` files. `frontend/src/lib/locales.test.ts` checks every locale file against English.
@@ -35,11 +35,12 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–4 done and committed 2
 
 **Later slices still need** (do not forget): the demo text "four languages" in five locales and the landing word card (slice 11); the French row in `DemoIntro.tsx` (slice 11); `controllers/demoController.ts` `ALL_LANGUAGES` gets French (slice 11); the onboarding pool columns (slice 11); the rollout runbook (slice 12).
 
-**Side task: e2e on its own ports and its own database** (not part of the French plan; do it when the user says). Facts checked on 2026-10-26:
-- `e2e/playwright.config.ts` starts the backend with `npm run dev -w backend` (nodemon) on a fixed :5001 and Vite on :5173 (the admin app on :5174, two stubs on :4400 and :4401), with `reuseExistingServer: !CI`. A running dev backend is reused: it reads the repo `.env` (real Ekilex and Turnstile values), which breaks the stubs.
-- The config already reads `E2E_API_URL`, `E2E_BASE_URL`, `E2E_ADMIN_URL`, `OIDC_STUB_URL` and `EKI_STUB_URL`. Missing: a `PORT` for the e2e backend (`backend/api/index.js` reads `process.env.PORT`), and a variable for the Vite proxy target (hard-coded `http://localhost:5001` in `frontend/vite.config.ts`; the admin app has its own). Check the CORS origin list in `backend/app.js`.
-- The e2e suite runs on the **dev database** `keelapp_v2_dev` (a closed access gate left there breaks it). A separate database (for example `keelapp_e2e`, migrated by the e2e setup) removes that trap. Docker Compose has `keelapp_v2_dev` and the Jest test database.
-- Plan: own ports through env, own database, `fixtures/db.ts` and `global-setup.ts` read the same variables, docs (`e2e/README.md`, `.context/README.md`, the infrastructure guide 02/03), and check the CI job (`.github/workflows/ci.yml`) still works.
+**Side task: e2e on its own ports and its own database** (done 2026-10-26, session 2, not part of the French plan).
+- `e2e/fixtures/env.ts` holds the ports, the URLs and the database URL. The config, `fixtures/db.ts` and every spec read them from there.
+- `e2e/fixtures/ensure-db.ts` creates `keelapp_e2e` when it is missing (first command of the backend `webServer`). The name must contain `e2e`.
+- `LADU_KEEP_PROCESS_ENV=1` switches off the `override: true` of the `.env` load in `api/index.js`, `src/db/index.ts`, `scripts/migrate.js`, `scripts/seed-demo-template.js` and `scripts/lexicon/load.js`. Only the e2e servers set it.
+- `frontend/` and `admin/` Vite proxies read `API_PROXY_TARGET`. The CI `e2e` job no longer sets `BASE_URL`: the config sets it.
+- Docs changed: `e2e/README.md`, `.context/README.md`, both guides, the infrastructure guide (02, 03).
 
 ## Progress
 
@@ -68,7 +69,7 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–4 done and committed 2
 | S3-1 | Major (found in slice 3) | `MAX_TRANSLATIONS = 4` was hard-coded in `CellDialog.tsx:50` and `useWordFormState.ts:31`, and the message said "maximum of 4 translations". With a fifth language a word could never get its fifth translation. | Fixed: one `MAX_TRANSLATIONS` in `lib/language.ts` (= number of languages), message with `{{max}}` in all five locales. |
 | S3-2 | Minor | The overview of slice 3 promised "vous". The existing languages are informal (tú, du, imperative). | Decision R1 in `language-french-strings.md`: "tu", for one product voice. The teacher confirms. |
 | S3-3 | Minor | `supportedLngs` and Turnstile `fr` were planned for slice 2. A code in `supportedLngs` without files makes i18next request missing files. | Moved to slice 3, with the files. |
-| S3-4 | Minor | Running e2e needs :5001 and :5173 free; a running `npm run dev` (or its leftover `nodemon`) blocks it and restarts the backend on every backend edit. | Side task: e2e on its own ports and database (not part of the French plan). Until then: stop dev before e2e. |
+| S3-4 | Minor | Running e2e needs :5001 and :5173 free; a running `npm run dev` (or its leftover `nodemon`) blocks it and restarts the backend on every backend edit. | Fixed 2026-10-26 (side task): e2e has its own ports and its own database. `npm run dev` can keep running. |
 | F1 | Moderate (decision in slice 4, changed by the user the same day) | Slice 4 first built no superlative field: French forms it from the comparative. The user asked for it, locked like the Estonian "kõige" field, so a learner has the form to study and exercises can compare it with languages that have superlative forms. | Done: `superlativeFR` is always locked, shows and saves `le ` + the comparative (also through the locked comparative: "le plus beau"), and shows a placeholder while there is no comparative. New in the form engine: a derivation without `when`, `via` (a source that is itself derived) and `emptyPlaceholderKey`. |
 | F5 | Minor | The comparative and the superlative are stored in the male singular only. French agrees them (plus grande, les plus grands; meilleure). The form cannot store those. | Accepted: the positive's agreement forms are in the card. Teacher question: add the agreement forms later? |
 | F2 | Minor | The words-table gender filter holds the article, not the language: "la" selects Spanish and French feminine nouns together. | Accepted. A fix needs the case name in the filter (`genderFR=la`); not worth it for two languages. |
@@ -168,5 +169,5 @@ One slice at a time. Each slice starts with a plain-language overview, ends runn
 
 - Per slice: `npm test` (backend), `npm test -w frontend`, `npm run build`. Do not pipe them through `tail` or `head`.
 - Manual: `npm run dev`, register with French, add the example words of the slice on `/addWord`, switch the interface to Français.
-- e2e: `npm run test:e2e` at slices 1, 7, 10, 11 and 12. Before it: no backend on :5001 (no orphan nodemon tree), and no closed access gate in the local database.
+- e2e: `npm run test:e2e` at slices 1, 7, 10, 11 and 12. It has its own ports and database: `npm run dev` can keep running.
 - Lexicon: SQL counts per PoS for `language = 'French'` after the local load (slice 9).

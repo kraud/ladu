@@ -38,7 +38,7 @@ const path = require('path');
 const zlib = require('zlib');
 
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config({ path: path.resolve(__dirname, '../../../.env'), override: true });
+    require('dotenv').config({ path: path.resolve(__dirname, '../../../.env'), override: !process.env.LADU_KEEP_PROCESS_ENV });
 }
 
 const FORMAT = 'ladu-lexicon/1';

@@ -1,3 +1,4 @@
+import { E2E_API_URL } from '../fixtures/env';
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
 import { closePool, deleteUsersByEmail, getUserAccountShape, getVerifyToken } from '../fixtures/db';
 import { routeGoogleConnectTo, routeGoogleStartTo } from '../fixtures/oauthRouting';
@@ -14,11 +15,11 @@ import { routeGoogleConnectTo, routeGoogleStartTo } from '../fixtures/oauthRouti
  * not by a pre-emptively disabled button (the attempt has to reach the
  * backend for that message to mean anything).
  *
- * Runs against `keelapp_v2_dev`. Each run uses unique `e2e-*@ladu.test`
+ * Runs against `keelapp_e2e`. Each run uses unique `e2e-*@ladu.test`
  * emails and deletes them in `afterAll`.
  */
 
-const API_URL = process.env.E2E_API_URL ?? 'http://localhost:5001';
+const API_URL = E2E_API_URL;
 const run = Date.now();
 let seq = 0;
 const uniqueEmail = (workerIndex: number) => `e2e-oauth5-${run}-w${workerIndex}-${++seq}@ladu.test`;

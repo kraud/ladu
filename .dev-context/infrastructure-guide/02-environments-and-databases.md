@@ -9,6 +9,8 @@ purpose and — critically — none of them can see another's data.
 | 1 | Local dev | `keelapp_v2_dev` (Docker, port 5433) | Your laptop | Persistent, until you `docker compose down -v` |
 | 2 | Local test | `keelapp_test` | Your laptop, same Postgres container | Persistent, wiped/reseeded by test runs |
 | 3 | CI | `keelapp_test` / `keelapp_e2e` (fresh each time) | GitHub Actions runner | Only for the duration of one workflow run |
+
+(`npm run test:e2e` on your laptop also uses a database named `keelapp_e2e`, created in the same Postgres container. The run migrates it and fills it with the fixtures. It never touches `keelapp_v2_dev`.)
 | 4 | Staging | `ladu_staging` | The VPS | Persistent, but throwaway-safe |
 | 5 | Production | `ladu_prod` | The VPS | Persistent, **real user data** |
 
@@ -269,9 +271,8 @@ To turn it off, set the switch to **Off**. No deploy is needed.
 Cloudflare publishes **test keys** that always pass: site key `1x00000000000000000000AA`, secret
 key `1x0000000000000000000000000000000AA`. The e2e config sets them for the backend
 (`e2e/playwright.config.ts`). The check calls the real Cloudflare `siteverify` address, so
-`captcha-gate.spec.ts` needs internet. **Do not put `TURNSTILE_*` keys in the repo-root `.env`
-when you run e2e:** a value in `.env` wins over the e2e config, and a real secret key refuses the
-test token.
+`captcha-gate.spec.ts` needs internet. The e2e config wins over the `TURNSTILE_*` values in the
+repo-root `.env`, so real keys there do no harm.
 
 ## Demo accounts (`users.is_demo`)
 

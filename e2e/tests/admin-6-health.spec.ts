@@ -1,3 +1,4 @@
+import { E2E_ADMIN_URL, E2E_API_URL } from '../fixtures/env';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { test, expect, type Locator, type Page } from '@playwright/test';
@@ -22,7 +23,7 @@ import {
  * users, and the backup section shows the seeded rows.
  */
 
-const ADMIN_URL = process.env.E2E_ADMIN_URL ?? 'http://localhost:5174';
+const ADMIN_URL = E2E_ADMIN_URL;
 
 const run = Date.now();
 const PASSWORD = 'e2e-staff-password';
@@ -113,7 +114,7 @@ test.describe.serial('Admin dashboard — health (slice 6)', () => {
     });
 
     test('the API refuses a request without a staff token', async ({ request }) => {
-        const API = process.env.E2E_API_URL ?? 'http://localhost:5001';
+        const API = E2E_API_URL;
 
         expect((await request.get(`${API}/api/admin/health`)).status()).toBe(401);
         expect((await request.get(`${API}/api/admin/health`, { headers: { Authorization: 'Bearer not-a-token' } })).status()).toBe(401);

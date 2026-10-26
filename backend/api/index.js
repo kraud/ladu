@@ -15,7 +15,7 @@ const path = require('path');
 // In production, env vars are injected directly (Docker Compose env file);
 // there is no repo-root .env to load.
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true });
+    require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: !process.env.LADU_KEEP_PROCESS_ENV });
 }
 
 // Must run before `require('../app')` — Sentry's Express integration only
