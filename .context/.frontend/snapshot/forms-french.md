@@ -25,9 +25,9 @@ French nouns have no cases. The shape is the Spanish noun with a different set o
 | Male plural (`malePlural`) | `malePluralFR` | text | no | Row "male", column Plural. |
 | Female singular (`femaleSingular`) | `femaleSingularFR` | text | yes | The feminine is what a learner must know (grand → grande). Row "female". |
 | Female plural (`femalePlural`) | `femalePluralFR` | text | no | |
-| Comparative (`comparative`) | `comparativeFR` | text | no | While "Uses plus" is on, it shows and saves `plus ` + the male singular (read-only). Irregular ones (bon → meilleur) are typed with the box off. |
-| Superlative (`superlative`) | `superlativeFR` | text, always locked | no | Never typed. Shows and saves `le ` + the comparative: "le plus beau" while the box is on (the comparative is itself locked then), "le meilleur" for a typed comparative. Empty box with the placeholder "Depends on the comparative" while there is no comparative. A written form (searchable, usable in exercises). |
-| Uses "plus" (`periphrastic`) | `periphrasticFR` | checkbox, stored as "true" | no | A property. |
+| Uses "plus" (`periphrastic`) | `periphrasticFR` | checkbox, stored as "true" | no | A property. Sits on the row above the comparative and the superlative. |
+| Comparative (`comparative`) | `comparativeFR` | text | no | Shares one row with the superlative (two equal columns, also on a phone: `fitRow`). While "Uses plus" is on, it shows and saves `plus ` + the male singular (read-only). Irregular ones (bon → meilleur) are typed with the box off. |
+| Superlative (`superlative`) | `superlativeFR` | text, always locked | no | Never typed. Shows and saves `le ` + the comparative: "le plus beau" while the box is on (the comparative is itself locked then), "le meilleur" for a typed comparative. Second cell of the comparative's row. Empty box with the placeholder "Depends on the comparative" while there is no comparative. A written form (searchable, usable in exercises). |
 | Has a form before a vowel (`hasVowelForm`) | `hasVowelFormFR` | checkbox, stored as "true" | no | A property. Shows the next field (beau → bel, nouveau → nouvel, vieux → vieil). |
 | Form before a vowel (`vowelForm`) | `vowelFormFR` | text | yes, while shown | A written form. |
 | Position (`position`) | `positionFR` | radio: Before the noun / After the noun / Before or after the noun | no | A property. The meaning can change with the position (un grand homme, un homme grand). |

@@ -137,6 +137,22 @@ test.describe.serial('French forms (slice 4: noun and adjective)', () => {
         await expect(page.getByTestId('derived-superlative')).toHaveText('le plus beau');
     });
 
+    test('the "plus" box sits above the comparative and the superlative, which share one row on a desktop and on a phone', async ({ page }) => {
+        for (const viewport of [{ width: 1280, height: 800 }, { width: 375, height: 800 }]) {
+            await page.setViewportSize(viewport);
+            await openNewWord(page, /Adjective/);
+            await page.getByRole('button', { name: 'Français' }).click();
+            const box = page.getByRole('checkbox', { name: /Uses "plus"/ });
+            const comparative = page.getByLabel('Comparative (male singular)', { exact: true });
+            const superlative = page.getByLabel('Superlative (male singular)', { exact: true });
+            await expect(box).toBeVisible();
+            const [b, c, s] = [await box.boundingBox(), await comparative.boundingBox(), await superlative.boundingBox()];
+            expect(b!.y + b!.height, `box above the row at ${viewport.width}px`).toBeLessThanOrEqual(c!.y);
+            expect(Math.abs(c!.y - s!.y), `same row at ${viewport.width}px`).toBeLessThan(4);
+            expect(s!.x).toBeGreaterThan(c!.x + c!.width - 1); // side by side, not stacked
+        }
+    });
+
     test('the superlative is empty with a placeholder until there is a comparative; a typed comparative feeds it', async ({ page }) => {
         await openNewWord(page, /Adjective/);
         await page.getByRole('button', { name: 'Français' }).click();

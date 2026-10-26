@@ -167,8 +167,8 @@ const POSITION_OPTIONS: RadioOption[] = [
  * French adjectives (language-french.md, slice 4). The four agreement forms share two rows like the
  * Spanish M/F branch: only the singulars are required (the feminine is what a learner must know), the
  * plurals stay optional. The comparative and the superlative are one form each, in the masculine
- * singular (the citation form; French also agrees them: plus grande, les plus grands). With "Uses «plus»"
- * on, the comparative shows and saves "plus " + the masculine singular. The superlative is always locked: it
+ * singular (the citation form; French also agrees them: plus grande, les plus grands). They share one row
+ * (also on a phone), under the box "Uses «plus»": with it on, the comparative shows and saves "plus " + the masculine singular. The superlative is always locked: it
  * shows and saves "le " + the comparative, and an empty box with a placeholder while there is no comparative.
  * The box "Has a form before a vowel" shows that form (beau → bel). The position is an optional property.
  */
@@ -184,20 +184,6 @@ function buildFrConfig(): TranslationFormConfig {
             degreeField(AdjectiveCases.malePluralFR, 'malePlural', false, undefined, undefined, { row: 'male', column: pluralColumn }),
             degreeField(AdjectiveCases.femaleSingularFR, 'femaleSingular', true, adjectiveErrorKey(suffix, 'singularFemaleDegreeRequired'), undefined, { row: 'female', column: singularColumn }),
             degreeField(AdjectiveCases.femalePluralFR, 'femalePlural', false, undefined, undefined, { row: 'female', column: pluralColumn }),
-            degreeField(AdjectiveCases.comparativeFR, 'comparative', false, undefined, undefined, undefined, {
-                when: { field: 'periphrastic', equals: true },
-                prefix: 'plus ',
-                fromField: 'maleSingular',
-                store: true,
-            }),
-            // Never typed: "le " + the comparative ("le plus beau", or "le meilleur" when the comparative is typed).
-            degreeField(AdjectiveCases.superlativeFR, 'superlative', false, undefined, undefined, undefined, {
-                prefix: 'le ',
-                fromField: 'comparative',
-                via: { when: { field: 'periphrastic', equals: true }, prefix: 'plus ', fromField: 'maleSingular' },
-                store: true,
-                emptyPlaceholderKey: 'wordRelated:wordForm.adjective.derivedFromComparative',
-            }),
             {
                 kind: 'checkbox',
                 name: 'periphrastic',
@@ -205,6 +191,21 @@ function buildFrConfig(): TranslationFormConfig {
                 labelKey: labelKey(AdjectiveCases.periphrasticFR),
                 required: false,
             },
+            // The comparative and the superlative share one row, equal in width, on a phone too.
+            degreeField(AdjectiveCases.comparativeFR, 'comparative', false, undefined, undefined, { row: 'degree', column: 'comparative', block: 'frDegree', fitRow: true, alignTop: true }, {
+                when: { field: 'periphrastic', equals: true },
+                prefix: 'plus ',
+                fromField: 'maleSingular',
+                store: true,
+            }),
+            // Never typed: "le " + the comparative ("le plus beau", or "le meilleur" when the comparative is typed).
+            degreeField(AdjectiveCases.superlativeFR, 'superlative', false, undefined, undefined, { row: 'degree', column: 'superlative', block: 'frDegree', fitRow: true, alignTop: true }, {
+                prefix: 'le ',
+                fromField: 'comparative',
+                via: { when: { field: 'periphrastic', equals: true }, prefix: 'plus ', fromField: 'maleSingular' },
+                store: true,
+                emptyPlaceholderKey: 'wordRelated:wordForm.adjective.derivedFromComparative',
+            }),
             {
                 kind: 'checkbox',
                 name: 'hasVowelForm',

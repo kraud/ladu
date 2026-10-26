@@ -159,9 +159,9 @@ describe('getFormConfig(Adjective, lang) — old field-list parity', () => {
         const fields = () => getFormConfig(PartOfSpeech.adjective, Lang.FR)!.fields;
         const named = (name: string) => fields().find((f) => f.name === name);
 
-        it('maleSingular*, malePlural, femaleSingular*, femalePlural, comparative, superlative, "plus" box, vowel box, vowel form*, position', () => {
+        it('maleSingular*, malePlural, femaleSingular*, femalePlural, "plus" box, comparative, superlative, vowel box, vowel form*, position', () => {
             expect(fields().map((f) => f.name)).toEqual([
-                'maleSingular', 'malePlural', 'femaleSingular', 'femalePlural', 'comparative', 'superlative', 'periphrastic', 'hasVowelForm', 'vowelForm', 'position',
+                'maleSingular', 'malePlural', 'femaleSingular', 'femalePlural', 'periphrastic', 'comparative', 'superlative', 'hasVowelForm', 'vowelForm', 'position',
             ]);
             // Only the singulars are required, like the Spanish M/F branch; the vowel form is required only while it shows.
             expect(fields().filter((f) => f.required).map((f) => f.name)).toEqual(['maleSingular', 'femaleSingular', 'vowelForm']);
@@ -189,9 +189,9 @@ describe('getFormConfig(Adjective, lang) — old field-list parity', () => {
             expect(fieldsToCases(fields(), values)).toEqual([
                 { caseName: AdjectiveCases.maleSingularFR, word: 'beau' },
                 { caseName: AdjectiveCases.femaleSingularFR, word: 'belle' },
+                { caseName: AdjectiveCases.periphrasticFR, word: 'true' },
                 { caseName: AdjectiveCases.comparativeFR, word: 'plus beau' },
                 { caseName: AdjectiveCases.superlativeFR, word: 'le plus beau' },
-                { caseName: AdjectiveCases.periphrasticFR, word: 'true' },
             ]);
             const irregular = { ...values, maleSingular: 'bon', femaleSingular: 'bonne', periphrastic: false, comparative: 'meilleur' };
             expect(fieldsToCases(fields(), irregular)).toEqual([
@@ -217,6 +217,17 @@ describe('getFormConfig(Adjective, lang) — old field-list parity', () => {
             expect(named('malePlural')?.layout).toEqual({ row: 'male', column: 'Plural' });
             expect(named('femaleSingular')?.layout).toEqual({ row: 'female', column: 'Singular' });
             expect(named('femalePlural')?.layout).toEqual({ row: 'female', column: 'Plural' });
+        });
+
+        it('the "plus" box sits above the comparative and the superlative, which share one row (also on a phone)', () => {
+            const names = fields().map((f) => f.name);
+            expect(names.indexOf('periphrastic')).toBeLessThan(names.indexOf('comparative'));
+            expect(names.indexOf('comparative') + 1).toBe(names.indexOf('superlative'));
+            expect(named('periphrastic')?.layout).toBeUndefined();
+            for (const name of ['comparative', 'superlative']) {
+                expect(named(name)?.layout).toMatchObject({ row: 'degree', block: 'frDegree', fitRow: true });
+            }
+            expect(named('comparative')?.layout?.column).not.toBe(named('superlative')?.layout?.column);
         });
 
         it('comparative: with the "plus" box on it shows and saves "plus " + the masculine singular', () => {
