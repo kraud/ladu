@@ -40,7 +40,7 @@
     "german-words-dict": "^3.3.0",
     "jose": "^6.2.12",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^10.0.10",
+    "nodemailer": "^10.1.4",
     "pg": "^8.22.0",
     "rosaenlg-gender-es": "^4.3.0",
     "spanish-verbs": "^3.3.0",
