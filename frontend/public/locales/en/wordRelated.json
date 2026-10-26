@@ -472,6 +472,11 @@
           "infinitiveDaRequired": "-da infinitive is required",
           "searchInEnglishLabel": "Search verb in english",
           "searchInEnglishWarning": "Careful, this won't work for all verbs! If needed, try in Estonian."
+        },
+        "formFR": {
+          "infinitiveRequired": "Infinitive is required",
+          "infinitiveNotMatching": "Please input infinitive form (ends in '-er', '-ir' or '-re'; a reflexive verb may start with 'se ').",
+          "verbGroupInvalid": "That is not an option"
         }
       },
       "fields": {
@@ -490,7 +495,13 @@
         "prefixDE": "Prefix",
         "caseTypeDE": "Verb case",
         "infinitiveMaEE": "-ma infinitive",
-        "infinitiveDaEE": "-da infinitive"
+        "infinitiveDaEE": "-da infinitive",
+        "infinitiveFR": "Infinitive",
+        "verbGroupFR": "Verb group",
+        "auxVerbFR": "Auxiliary verb",
+        "reflexivityFR": "Reflexivity",
+        "pastParticipleFR": "Past participle",
+        "presentParticipleFR": "Present participle"
       }
     },
     "autocompleteTranslationButton": {

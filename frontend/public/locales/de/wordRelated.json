@@ -472,6 +472,11 @@
           "infinitiveDaRequired": "-da Infinitiv ist erforderlich",
           "searchInEnglishLabel": "Verb auf Englisch suchen",
           "searchInEnglishWarning": "Vorsicht, das funktioniert nicht bei allen Verben! Falls nötig, versuchen Sie es auf Estnisch."
+        },
+        "formFR": {
+          "infinitiveRequired": "Der Infinitiv ist erforderlich",
+          "infinitiveNotMatching": "Bitte geben Sie die Infinitivform ein (endet auf '-er', '-ir' oder '-re'; ein reflexives Verb kann mit 'se ' beginnen).",
+          "verbGroupInvalid": "Das ist keine Option"
         }
       },
       "fields": {
@@ -490,7 +495,13 @@
         "prefixDE": "Präfix",
         "caseTypeDE": "Kasus",
         "infinitiveMaEE": "-ma-Infinitiv",
-        "infinitiveDaEE": "-da-Infinitiv"
+        "infinitiveDaEE": "-da-Infinitiv",
+        "infinitiveFR": "Infinitiv",
+        "verbGroupFR": "Verbgruppe",
+        "auxVerbFR": "Hilfsverb",
+        "reflexivityFR": "Reflexivität",
+        "pastParticipleFR": "Partizip Perfekt",
+        "presentParticipleFR": "Partizip Präsens"
       }
     },
     "autocompleteTranslationButton": {

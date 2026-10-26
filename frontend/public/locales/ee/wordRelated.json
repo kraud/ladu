@@ -472,6 +472,11 @@
           "infinitiveDaRequired": "-da infinitiiv on kohustuslik",
           "searchInEnglishLabel": "Otsi verbi inglise keeles",
           "searchInEnglishWarning": "Olge ettevaatlik, see ei toimi kõigi verbidega! Vajadusel proovige eesti keeles."
+        },
+        "formFR": {
+          "infinitiveRequired": "Infinitiiv on kohustuslik",
+          "infinitiveNotMatching": "Palun sisestage infinitiivi vorm (lõpeb '-er', '-ir' või '-re'; enesekohane tegusõna võib alata sõnaga 'se ').",
+          "verbGroupInvalid": "See pole valik"
         }
       },
       "fields": {
@@ -490,7 +495,13 @@
         "prefixDE": "Eesliide",
         "caseTypeDE": "Tegusõna kääne",
         "infinitiveMaEE": "-ma infinitiiv",
-        "infinitiveDaEE": "-da infinitiiv"
+        "infinitiveDaEE": "-da infinitiiv",
+        "infinitiveFR": "Infinitiiv",
+        "verbGroupFR": "Tegusõnarühm",
+        "auxVerbFR": "Abitegusõna",
+        "reflexivityFR": "Refleksiivsus",
+        "pastParticipleFR": "Mineviku partitsiip",
+        "presentParticipleFR": "Oleviku partitsiip"
       }
     },
     "autocompleteTranslationButton": {

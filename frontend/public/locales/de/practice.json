@@ -318,7 +318,10 @@
       "Participle": "Partizip",
       "Auxiliary-Verb": "Hilfsverb",
       "Case-Type": "Kasustyp",
-      "Prefix": "Präfix"
+      "Prefix": "Präfix",
+      "Verb-Group": "Verbgruppe",
+      "Past-Participle": "Partizip Perfekt",
+      "Present-Participle": "Partizip Präsens"
     },
     "abbr": {
       "plurality": {
@@ -354,7 +357,10 @@
         "Participle": "Ptz.",
         "Auxiliary-Verb": "Hilfsv.",
         "Case-Type": "Kasust.",
-        "Prefix": "Präf."
+        "Prefix": "Präf.",
+        "Verb-Group": "Gruppe",
+        "Past-Participle": "Ptz. Perf.",
+        "Present-Participle": "Ptz. Präs."
       }
     }
   },

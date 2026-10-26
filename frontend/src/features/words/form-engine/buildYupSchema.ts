@@ -58,12 +58,10 @@ function radioFieldSchema(field: Extract<FieldConfig, { kind: 'radio' }>, t: Tra
         const message = t(field.requiredMessageKey ?? field.invalidMessageKey ?? NO_NUMBERS_KEY);
         return yup.string().required(message).oneOf(values, message);
     }
-    const noNumbers = t(NO_NUMBERS_KEY);
+    // Only the listed options (or empty) pass, so a digit rule on top would add nothing. It would also refuse an
+    // option that has a digit in it: the French verb groups "1er groupe", "2e groupe" and "3e groupe".
     const optionsPattern = new RegExp(`^(${values.map(escapeForRegExp).join('|')})?$`);
-    return yup
-        .string()
-        .matches(/^[^0-9]+$|^$/, noNumbers)
-        .matches(optionsPattern, t(field.invalidMessageKey ?? NO_NUMBERS_KEY));
+    return yup.string().matches(optionsPattern, t(field.invalidMessageKey ?? NO_NUMBERS_KEY));
 }
 
 /** Shared by `select` and `toggle` — both are a plain "one of these option values, or empty" field. */

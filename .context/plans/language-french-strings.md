@@ -48,6 +48,9 @@ Not in French yet: the legal pages (Terms, Privacy Policy, Legal notice) and the
 | noun, verb, adjective, adverb, conjunction, preposition | nom, verbe, adjectif, adverbe, conjonction, préposition | Table short forms: n., v., adj., adv., conj., prép. |
 | gender | genre | |
 | regularity | régularité | |
+| verb group | groupe du verbe | Slice 5. The values stored are "1er groupe", "2e groupe", "3e groupe". Replaces "régularité" for French verbs |
+| past / present participle | participe passé / participe présent | Slice 5 |
+| auxiliary verb | verbe auxiliaire | Slice 5. The toggle holds "avoir" and "être" |
 | reflexive verb | verbe pronominal | In "Cas du pronom réfléchi" the standard term "pronom réfléchi" is used |
 | mastered / revise | maîtrisé / à réviser | |
 | follow / unfollow / clone | suivre / ne plus suivre / cloner | |

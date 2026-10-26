@@ -114,10 +114,10 @@ enum PrepositionCases {
 The backend treats a case as a property (not a written form: search and exercises skip it) when its name starts with a
 prefix of `PROPERTY_PREFIXES` in `backend/services/exercises/catalogue.ts`: `gender`, `gradable`, `regularity`,
 `auxVerb`, `caseType`, `prefix`, `periphrastic`, `reflexiv`, `conjunctionType`, `correlative`, `mood`, `position`,
-`governedCase`, `spatialSeries`, `contracts`. A written-form name must not start with one of them (`positiveEN` is
+`governedCase`, `spatialSeries`, `contracts`, `hasVowelForm` (French adjective), `verbGroup` (French verb). A written-form name must not start with one of them (`positiveEN` is
 not a `position...` case). Field lists, order and rules: `forms-conjunctions-prepositions.md`.
 
-### 1.6 VerbCases (all four languages; each key is a `caseName`)
+### 1.6 VerbCases (all five languages; each key is a `caseName`)
 Verbatim, grouped:
 
 **English** (`*EN`): `regularityEN`; simple-present/past/future/conditional × `1s,2s,3s,1pl,3pl` (note: no `2pl` — English 2s/2pl merge); `progressivePPFCAllEN`, `perfectPPFCAllEN`, `perfectProgressivePPFCAllEN` (single all-pronoun rows).
@@ -127,6 +127,8 @@ Verbatim, grouped:
 **Estonian** (`*EE`): `regularityEE`; `infinitiveMaEE`, `infinitiveDaEE`; kindel present / simple-past / past-perfect × `1s,2s,3s,1pl,2pl,3pl`.
 
 **German** (`*DE`): `infinitiveDE`, `auxVerbDE`, `caseTypeDE`, `prefixDE`, `regularityDE`; indicative present / perfect / simple-future / simple-past × `1s,2s,3s,1pl,2pl,3pl`.
+
+**French** (`*FR`, v2 only, plan `plans/language-french.md` slice 5): `infinitiveFR`, `verbGroupFR` (replaces regularity), `auxVerbFR`, `reflexivityFR`, `pastParticipleFR`, `presentParticipleFR`; indicative present / imperfect / perfect (passé composé) / simple-future × `1s,2s,3s,1pl,2pl,3pl` (24 forms). Fields and rules: `forms-french.md`.
 
 > Full enumeration is mechanical (language × tense × pronoun) and reproducible from the source file; the schema/pronoun inventory below and `word-cases-data.md` enumerate every concrete instance. Do **not** hand-retype — copy `enums.ts` verbatim.
 
@@ -141,11 +143,14 @@ Verbatim, grouped:
 | `VerbMoodEN` | `indicativeEN`, `subjunctiveEN`, `imperativeEN`, `conditionalEN` | |
 | `VerbMoodES` | `indicativeES`, `subjunctiveES`, `imperativeES`, `conditionalES` | |
 | `VerbMoodEE` | `indicativeEE`, `subjunctiveEE`, `conditionalEE`, `jussiveEE` | |
+| `VerbMoodFR` | `indicativeFR` | v2 only. Only the indicative has forms; subjunctive, conditional and imperative come in a later round |
 | `VerbTensesIndicativeDE` | `presentDE`, `simplePastDE`, `presentPerfectDE`, `pastPerfectDE`, `simpleFutureDE`, `futurePerfectDE` | |
 | `TenseVerbEN` | `pastSimple, pastPerfect, pastContinuous, pastPerfectContinuous, presentSimple, presentPerfect, presentContinuous, presentPerfectContinuous, futureSimple, futurePerfect, futureContinuous, futurePerfectContinuous, conditionalSimple` | display labels "Past-Simple" etc. |
 | `TenseVerbES` | `present, imperfectPast, perfectSimplePast, future, conditional` | |
 | `TenseVerbDE` | `present, perfect, simpleFuture, simplePast` | |
 | `TenseVerbEE` | `present, simplePast, pastPerfect, conditionalPresent, indirectPresent, indirectPast, imperative` | |
+| `TenseVerbFR` | `present, imperfect, perfect, simpleFuture` | v2 only. Values `"Present"`, `"Imperfect"` (imparfait), `"Perfect"` (passé composé), `"Simple-Future"` (futur simple) |
+| `VerbGroupFR` | `first = "1er groupe"`, `second = "2e groupe"`, `third = "3e groupe"` | v2 only. -er verbs; -ir verbs with -issant; all the others |
 
 ### 1.8 Gender / plural / declension
 ```ts
@@ -153,6 +158,7 @@ enum GenderDE { M = "der", F = "die", N = "das" }
 enum GenderES { M = "el", F = "la", N = "el/la" }
 enum GenderFR { M = "le", F = "la", N = "le/la" }
 enum AuxVerbDE { H = "haben", S = "sein", W = "werden" }
+enum AuxVerbFR { A = "avoir", E = "être" }
 enum Plurality { S = "Singular", P = "Plural" }
 enum DeclensionNoun { nominative, accusative, genitive, dative, partitive }
 ```

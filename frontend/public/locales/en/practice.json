@@ -318,7 +318,10 @@
       "Participle": "Participle",
       "Auxiliary-Verb": "Auxiliary verb",
       "Case-Type": "Case type",
-      "Prefix": "Prefix"
+      "Prefix": "Prefix",
+      "Verb-Group": "Verb group",
+      "Past-Participle": "Past participle",
+      "Present-Participle": "Present participle"
     },
     "abbr": {
       "plurality": {
@@ -354,7 +357,10 @@
         "Participle": "ptcp.",
         "Auxiliary-Verb": "aux.",
         "Case-Type": "case t.",
-        "Prefix": "pref."
+        "Prefix": "pref.",
+        "Verb-Group": "group",
+        "Past-Participle": "past ptcp.",
+        "Present-Participle": "pres. ptcp."
       }
     }
   },

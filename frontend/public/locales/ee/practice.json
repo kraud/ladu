@@ -318,7 +318,10 @@
       "Participle": "Kesksõna",
       "Auxiliary-Verb": "Abiverb",
       "Case-Type": "Käände tüüp",
-      "Prefix": "Eesliide"
+      "Prefix": "Eesliide",
+      "Verb-Group": "Tegusõnarühm",
+      "Past-Participle": "Mineviku kesksõna",
+      "Present-Participle": "Oleviku kesksõna"
     },
     "abbr": {
       "plurality": {
@@ -354,7 +357,10 @@
         "Participle": "kesks.",
         "Auxiliary-Verb": "abiv.",
         "Case-Type": "käände t.",
-        "Prefix": "eesl."
+        "Prefix": "eesl.",
+        "Verb-Group": "rühm",
+        "Past-Participle": "min. kesks.",
+        "Present-Participle": "ol. kesks."
       }
     }
   },

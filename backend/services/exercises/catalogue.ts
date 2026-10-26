@@ -51,9 +51,10 @@ const PERSONS: Array<[slot: string, code: string]> = [
 
 // Case-name stem per language, per tense. A missing language has no such tense.
 const VERB_TENSES: Record<string, SlotByLanguage> = {
-    present: { English: 'simplePresent', Spanish: 'indicativePresent', German: 'indicativePresent', Estonian: 'kindelPresent' },
-    past: { English: 'simplePast', Spanish: 'indicativePerfectSimplePast', German: 'indicativeSimplePast', Estonian: 'kindelSimplePast' },
-    future: { English: 'simpleFuture', Spanish: 'indicativeFuture', German: 'indicativeSimpleFuture' },
+    present: { English: 'simplePresent', Spanish: 'indicativePresent', German: 'indicativePresent', Estonian: 'kindelPresent', French: 'indicativePresent' },
+    // French "past" is the imparfait: the passé composé form is only a participle, so it would be too easy (plan language-french.md, M3).
+    past: { English: 'simplePast', Spanish: 'indicativePerfectSimplePast', German: 'indicativeSimplePast', Estonian: 'kindelSimplePast', French: 'indicativeImperfect' },
+    future: { English: 'simpleFuture', Spanish: 'indicativeFuture', German: 'indicativeSimpleFuture', French: 'indicativeSimpleFuture' },
 };
 
 const verbs: MultiLanguageCatalogue = Object.fromEntries(
@@ -117,7 +118,13 @@ const verbDrills: SingleLanguageCatalogue = {
         'Text-Input': [],
     },
     Estonian: noDrills,
-    French: noDrills,
+    French: {
+        'Multiple-Choice': [
+            { questionWord: 'infinitiveFR', correctValue: 'auxVerbFR', otherValues: ['avoir', 'être'] },
+            { questionWord: 'infinitiveFR', correctValue: 'verbGroupFR', otherValues: ['1er groupe', '2e groupe', '3e groupe'] },
+        ],
+        'Text-Input': [{ questionWord: 'infinitiveFR', correctValue: 'pastParticipleFR' }],
+    },
 };
 
 export const SINGLE_LANGUAGE: Partial<Record<PartOfSpeech, SingleLanguageCatalogue>> = {
@@ -135,6 +142,7 @@ export const PROPERTY_PREFIXES = [
     'gradable',
     'regularity',
     'auxVerb',
+    'verbGroup', // French verb: the group radio (1er / 2e / 3e groupe) that replaces regularity
     'caseType',
     'prefix',
     'periphrastic',

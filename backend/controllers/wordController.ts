@@ -250,6 +250,8 @@ const getRequiredFieldsData = (
           return { dataEE: findByCaseName("infinitiveMaEE")! };
         case "German":
           return { dataDE: findByCaseName("infinitiveDE")! };
+        case "French":
+          return { dataFR: findByCaseName("infinitiveFR")! };
         default:
           console.warn(
             `getRequiredFieldsData: unrecognized language "${translation.language}" for part of speech "Verb"`,

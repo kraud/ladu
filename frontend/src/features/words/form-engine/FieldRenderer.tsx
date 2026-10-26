@@ -144,8 +144,9 @@ export function FieldRenderer({
     const pronoun = reflexivePronoun(field.reflexive, reflexiveOn, reflexiveCase);
     const pronounBefore = field.reflexive?.position === 'before' ? pronoun : undefined;
     const pronounAfter = field.reflexive?.position === 'after' ? pronoun : undefined;
-    /** What stands before the input: the auxiliary, then the pronoun ("habe mich"). */
-    const beforeText = [adornmentText, pronounBefore].filter(Boolean).join(' ');
+    const pronounFirst = field.reflexive?.position === 'beforeAuxiliary' ? pronoun : undefined;
+    /** What stands before the input: the auxiliary, then the pronoun ("habe mich"); or the pronoun first ("me suis"). */
+    const beforeText = [pronounFirst, adornmentText, pronounBefore].filter(Boolean).join(' ');
 
     // `derivedWhen` (D20): while it matches, the field is read-only text built from a sibling — the
     // Estonian superlative "kõige " + comparative. Same dummy-name trick as above when unused.

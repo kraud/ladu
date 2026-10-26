@@ -318,7 +318,10 @@
       "Participle": "Participio",
       "Auxiliary-Verb": "Verbo auxiliar",
       "Case-Type": "Tipo de caso",
-      "Prefix": "Prefijo"
+      "Prefix": "Prefijo",
+      "Verb-Group": "Grupo verbal",
+      "Past-Participle": "Participio pasado",
+      "Present-Participle": "Participio presente"
     },
     "abbr": {
       "plurality": {
@@ -354,7 +357,10 @@
         "Participle": "partic.",
         "Auxiliary-Verb": "aux.",
         "Case-Type": "tipo c.",
-        "Prefix": "pref."
+        "Prefix": "pref.",
+        "Verb-Group": "grupo",
+        "Past-Participle": "part. pas.",
+        "Present-Participle": "part. pres."
       }
     }
   },

@@ -5,11 +5,13 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
 
 /**
  * French word forms (`.context/plans/language-french.md`). Slice 4: the noun and the adjective.
- * Slices 5 and 6 add the verb, the adverb, the conjunction and the preposition to this file.
+ * Slice 5: the verb. Slice 6 adds the adverb, the conjunction and the preposition to this file.
  *
  *  1. A French noun: gender (le / la), singular, plural. It saves and shows in the words table.
  *  2. A French adjective: the four agreement forms, the "plus" comparative (derived and stored), the
  *     vowel form behind its box (beau → bel), and the position.
+ *  3. A French verb with être: the infinitive, the participles, the group, and the passé composé with the
+ *     conjugated auxiliary before each box. A reflexive verb shows the pronoun before the auxiliary.
  *
  * No autocomplete runs for French yet (slices 8 to 10).
  */
@@ -35,7 +37,7 @@ async function saveAndOpen(page: Page): Promise<void> {
     await expect(page).toHaveURL(/\/word\/.+/);
 }
 
-test.describe.serial('French forms (slice 4: noun and adjective)', () => {
+test.describe.serial('French forms (slices 4 and 5: noun, adjective and verb)', () => {
     let user: Account;
 
     test.beforeAll(async ({ request }) => {
@@ -164,5 +166,89 @@ test.describe.serial('French forms (slice 4: noun and adjective)', () => {
         await page.getByLabel('Male singular', { exact: true }).fill('bon');
         await page.getByLabel('Comparative (male singular)', { exact: true }).fill('meilleur');
         await expect(superlative).toHaveValue('le meilleur');
+    });
+
+    test('a verb with être: the infinitive is required; the passé composé shows the auxiliary before the participle', async ({ page }) => {
+        await openNewWord(page, /Verb/);
+
+        await page.getByRole('button', { name: 'English' }).click();
+        await page.locator('input[name="simplePresent1s"]').fill('go');
+        await closeTypeAheadList(page);
+
+        await page.getByRole('button', { name: 'Français' }).click();
+        // The infinitive is the only required French field.
+        await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
+        await page.getByLabel('Infinitive', { exact: true }).fill('aller');
+        await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+        // The verb group takes the place of the regularity radio (checked in verbs.test.ts: the English card has one).
+        await page.getByRole('radio', { name: '3e groupe', exact: true }).click();
+        await page.getByLabel('Past participle', { exact: true }).fill('allé');
+        await page.getByLabel('Present participle', { exact: true }).fill('allant');
+
+        // No auxiliary chosen yet: nothing stands before the participle boxes.
+        await expect(page.getByText('suis', { exact: true })).toHaveCount(0);
+        const auxiliary = page.getByRole('radiogroup', { name: 'Auxiliary verb' });
+        await auxiliary.getByRole('radio', { name: 'avoir' }).click();
+        await expect(page.getByText('ai', { exact: true })).toBeVisible();
+        await auxiliary.getByRole('radio', { name: 'être' }).click();
+        await expect(page.getByText('suis', { exact: true })).toBeVisible();
+        await expect(page.getByText('sommes', { exact: true })).toBeVisible();
+        await expect(page.getByText('ai', { exact: true })).toHaveCount(0);
+
+        await page.locator('input[name="indicativePresent1s"]').fill('vais');
+        await page.locator('input[name="indicativeImperfect1s"]').fill('allais');
+        await page.locator('input[name="indicativePerfect1s"]').fill('allé');
+        await page.locator('input[name="indicativePerfect1pl"]').fill('allés');
+        await page.locator('input[name="indicativeSimpleFuture1s"]').fill('irai');
+
+        await saveAndOpen(page);
+        await page.reload();
+        await expect(page.getByText('Detailed view: Verb')).toBeVisible();
+        await expect(page.getByText('aller', { exact: true })).toBeVisible();
+        // The view shows the auxiliary with the participle that was typed.
+        await expect(page.getByText('sommes allés')).toBeVisible();
+        await expect(page.getByText('irai', { exact: true })).toBeVisible();
+
+        await page.goto('/words');
+        const row = page.getByRole('row', { name: /go/ });
+        await expect(row).toContainText('aller');
+    });
+
+    test('a reflexive verb shows the pronoun before the verb, and before the auxiliary in the passé composé', async ({ page }) => {
+        await openNewWord(page, /Verb/);
+        await page.getByRole('button', { name: 'Français' }).click();
+        await page.getByLabel('Infinitive', { exact: true }).fill('se laver');
+        await page.getByRole('radiogroup', { name: 'Auxiliary verb' }).getByRole('radio', { name: 'être' }).click();
+
+        // Nothing until the verb is "always reflexive".
+        await expect(page.getByText('me suis', { exact: true })).toHaveCount(0);
+        await page.getByRole('radio', { name: 'Always reflexive', exact: true }).click();
+        await expect(page.getByText('me suis', { exact: true })).toBeVisible();
+        await expect(page.getByText('suis me')).toHaveCount(0);
+        await expect(page.getByText('nous sommes', { exact: true })).toBeVisible();
+        // Present, imparfait and futur simple: the pronoun alone, before the verb.
+        await expect(page.getByText('me', { exact: true })).toHaveCount(3);
+    });
+
+    test('on a desktop and on a phone, the verb meta fields share three rows of two', async ({ page }) => {
+        for (const viewport of [{ width: 1280, height: 800 }, { width: 375, height: 800 }]) {
+            await page.setViewportSize(viewport);
+            await openNewWord(page, /Verb/);
+            await page.getByRole('button', { name: 'Français' }).click();
+            for (const [first, second] of [
+                ['Infinitive', 'Auxiliary verb'],
+                ['Past participle', 'Present participle'],
+                ['Verb group', 'Reflexivity'],
+            ]) {
+                const a = page.getByText(first, { exact: true }).last();
+                const b = page.getByText(second, { exact: true }).last();
+                await expect(a).toBeVisible();
+                await expect(b).toBeVisible();
+                const [boxA, boxB] = [await a.boundingBox(), await b.boundingBox()];
+                expect(Math.abs(boxA!.y - boxB!.y), `${first} and ${second} at ${viewport.width}px`).toBeLessThan(4);
+                expect(boxB!.x, `${first} before ${second} at ${viewport.width}px`).toBeGreaterThan(boxA!.x + boxA!.width - 1);
+            }
+        }
     });
 });

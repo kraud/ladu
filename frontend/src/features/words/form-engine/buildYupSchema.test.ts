@@ -27,6 +27,33 @@ describe('buildYupSchema', () => {
         await expect(schema.validate({ regularity: '', singular: 'cat', plural: '' })).resolves.toBeTruthy();
     });
 
+    describe('an optional radio', () => {
+        const group: FieldConfig = {
+            kind: 'radio',
+            name: 'verbGroup',
+            caseName: CASE_NAME,
+            labelKey: 'verbGroup',
+            required: false,
+            invalidMessageKey: 'verbGroupInvalid',
+            options: [
+                { value: '1er groupe', label: '1er groupe' },
+                { value: '3e groupe', label: '3e groupe' },
+            ],
+        };
+
+        it('accepts an option that has a digit in it (the French verb groups), and an empty value', async () => {
+            const schema = buildYupSchema(configOf(group), t);
+            await expect(schema.validate({ verbGroup: '3e groupe' })).resolves.toBeTruthy();
+            await expect(schema.validate({ verbGroup: '' })).resolves.toBeTruthy();
+        });
+
+        it('rejects a value that is not one of the options, with the field message', async () => {
+            const schema = buildYupSchema(configOf(group), t);
+            await expect(schema.validate({ verbGroup: '4e groupe' })).rejects.toMatchObject({ message: 'verbGroupInvalid' });
+            await expect(schema.validate({ verbGroup: 'other' })).rejects.toMatchObject({ message: 'verbGroupInvalid' });
+        });
+    });
+
     it('rejects numbers in a text field (noNumbers)', async () => {
         const schema = buildYupSchema(getFormConfig(PartOfSpeech.noun, Lang.EN)!, t);
         await expect(schema.validate({ regularity: '', singular: 'cat3', plural: '' })).rejects.toMatchObject({

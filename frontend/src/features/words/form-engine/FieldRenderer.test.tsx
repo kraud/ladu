@@ -475,6 +475,24 @@ describe('FieldRenderer', () => {
             expect(screen.getByText('habe mich')).toBeInTheDocument();
         });
 
+        it('French passé composé: the pronoun stands before the auxiliary ("me suis"), not after it', () => {
+            renderWithProviders(
+                <MultiHarness
+                    fields={[
+                        radio('reflexivity'),
+                        person(
+                            'indicativePerfect1s',
+                            { accusative: 'me', position: 'beforeAuxiliary', on: { field: 'reflexivity', equals: 'Always reflexive' } },
+                            { watchField: 'auxiliaryVerb', values: { être: 'suis' } },
+                        ),
+                    ]}
+                    defaultValues={{ reflexivity: 'Always reflexive', auxiliaryVerb: 'être', indicativePerfect1s: '' }}
+                />,
+            );
+            expect(screen.getByText('me suis')).toBeInTheDocument();
+            expect(screen.queryByText('suis me')).not.toBeInTheDocument();
+        });
+
         it('German: the pronoun case comes from the reflexive-case radio: Accusative, Dative, Both (mich/mir)', () => {
             const fields = [radio('reflexivity'), radio('reflexiveCase'), person('indicativePresent1s', german('after'))];
             const shown = (reflexiveCase?: string) => {

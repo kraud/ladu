@@ -320,7 +320,10 @@
       "Participle": "Participe",
       "Auxiliary-Verb": "Verbe auxiliaire",
       "Case-Type": "Type de cas",
-      "Prefix": "Préfixe"
+      "Prefix": "Préfixe",
+      "Verb-Group": "Groupe du verbe",
+      "Past-Participle": "Participe passé",
+      "Present-Participle": "Participe présent"
     },
     "abbr": {
       "plurality": {
@@ -356,7 +359,10 @@
         "Participle": "part.",
         "Auxiliary-Verb": "aux.",
         "Case-Type": "t. de cas",
-        "Prefix": "préf."
+        "Prefix": "préf.",
+        "Verb-Group": "groupe",
+        "Past-Participle": "part. passé",
+        "Present-Participle": "part. prés."
       }
     }
   },

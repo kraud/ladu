@@ -2,7 +2,7 @@
 
 French has no form in the old app. This file is the spec of the v2 French forms (plan `plans/language-french.md`). Code: the French builder in each file of `frontend/src/features/words/form-engine/configs/`; tests next to them. The first design is by the assistant. A French teacher reviews it (the questions are in the plan, review log). Case names end in `FR`.
 
-Added so far: the noun and the adjective (slice 4). The verb (slice 5) and the adverb, conjunction and preposition (slice 6) are added here when they are built.
+Added so far: the noun and the adjective (slice 4) and the verb (slice 5). The adverb, conjunction and preposition (slice 6) are added here when they are built.
 
 ## Noun (`nouns.ts`, built from the `WordCasesData.Noun` rows)
 
@@ -35,3 +35,29 @@ French nouns have no cases. The shape is the Spanish noun with a different set o
 **One form for the comparative and the superlative.** Both are stored in the male singular, the citation form. French also agrees them with the noun: plus grande, les plus grands; la plus grande, les plus grands; meilleur, meilleure, meilleurs, meilleures. The form does not store those forms: the agreement forms of the positive are already in the card, and the others follow from them. This is a limit of the form, not a rule of French. The plan lists it as a question for the teacher (review log F1).
 
 Property prefixes (`backend/services/exercises/catalogue.ts`): `gender`, `regularity`, `periphrastic`, `position`, `hasVowelForm`. `vowelFormFR` starts with none of them, so search and exercises read it as a written form.
+
+## Verb (`verbs.ts`, `buildFrConfig`)
+
+The Indicatif only: présent, imparfait, passé composé, futur simple. Subjunctive, conditional, imperative and the passé simple are left to a later round (teacher question). The first design is by the assistant; the user confirmed it on 2026-10-26.
+
+| Field (form name) | Case name | Kind | Required | Notes |
+|---|---|---|---|---|
+| Infinitive (`infinitive`) | `infinitiveFR` | text | yes | lowercase. Must end in -er, -ir or -re, with no digit. "se laver" and "s'habiller" are valid. Headline word of the word in the words table. Row `meta1`, first cell. |
+| Auxiliary verb (`auxiliaryVerb`) | `auxVerbFR` | toggle: avoir / être | no | A property. Row `meta1`, second cell. Drives the auxiliary shown in the passé composé. |
+| Past participle (`pastParticiple`) | `pastParticipleFR` | text | no | A written form. Row `meta2`, first cell. A practice drill: infinitive → past participle. |
+| Present participle (`presentParticiple`) | `presentParticipleFR` | text | no | A written form. Row `meta2`, second cell. |
+| Verb group (`verbGroup`) | `verbGroupFR` | radio: 1er groupe / 2e groupe / 3e groupe | no | A property. Replaces the regular / irregular radio: groups 1 and 2 are the regular verbs, group 3 holds all the others. Row `meta3`, first cell. A practice drill. |
+| Reflexivity (`reflexivity`) | `reflexivityFR` | radio: Not reflexive / Always reflexive / Optionally reflexive | no | A property, the same options as Spanish and German. Row `meta3`, second cell. No pronoun-case radio: me, te, se are the same for the direct and the indirect object. |
+| Tense forms (`indicativePresent1s` …) | `indicative<Tense><Person>FR` | text | no | `<Tense>` = `Present`, `Imperfect`, `Perfect`, `SimpleFuture`. `<Person>` = `1s 2s 3s 1pl 2pl 3pl`. Group heading "Indicatif"; one column per tense (Présent, Imparfait, Passé composé, Futur simple); one row per person. |
+
+**Pronoun labels.** Je/J', Tu, Il/Elle/On, Nous, Vous, Ils/Elles. "Je/J'" because the passé composé shows "ai" after it (j'ai). The labels use tu and vous, as the plan says (decision R1). They are native terms, not translated.
+
+**Passé composé.** The conjugated auxiliary shows before each box, from the auxiliary toggle: ai, as, a, avons, avez, ont (avoir) or suis, es, est, sommes, êtes, sont (être). The user types the participle in each box. So the être agreement (allés, allée) can be stored. The auxiliary is a read-only hint: it is not saved in the box.
+
+**Reflexive hint.** While the verb is "Always reflexive", each box shows me, te, se, nous, vous, se before the verb. In the passé composé it stands before the auxiliary: "me suis" + lavé (the German hint stands after it: "habe mich"). The hint writes the full pronoun: the elision before a vowel (m', t', s') is not shown. This is a limit for the teacher list.
+
+**Layout.** Three rows of two equal cells, on a desktop and on a phone (`layout.fitRow`), aligned at the top (`layout.alignTop`): infinitive and auxiliary; past and present participle; verb group and reflexivity. Each row has its own block key (`verb-meta1` …), so the rows do not merge. The tense grid is scrolled sideways on a phone, as for German.
+
+**Practice** (`backend/services/exercises/catalogue.ts`). Present → `indicativePresent`, "past" → `indicativeImperfect` (the passé composé form is only a participle, so it would be too easy: review log M3), future → `indicativeSimpleFuture`. Drills: auxiliary (multiple choice, avoir / être), verb group (multiple choice), past participle (text input, from the infinitive).
+
+Property prefixes: `auxVerb`, `reflexiv`, `verbGroup` (new). `pastParticipleFR`, `presentParticipleFR`, `infinitiveFR` and every tense form start with none of them, so search and exercises read them as written forms (regression test in `exercisesCatalogue.test.js`).

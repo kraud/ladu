@@ -478,6 +478,11 @@
           "infinitiveDaRequired": "L’infinitif en -da est requis",
           "searchInEnglishLabel": "Rechercher le verbe en anglais",
           "searchInEnglishWarning": "Attention, cela ne fonctionnera pas pour tous les verbes ! Si besoin, essaie en estonien."
+        },
+        "formFR": {
+          "infinitiveRequired": "L’infinitif est requis",
+          "infinitiveNotMatching": "Saisis la forme de l’infinitif (se termine par « -er », « -ir » ou « -re » ; un verbe pronominal peut commencer par « se »).",
+          "verbGroupInvalid": "Ce n’est pas une option"
         }
       },
       "fields": {
@@ -496,7 +501,13 @@
         "prefixDE": "Préfixe",
         "caseTypeDE": "Cas du verbe",
         "infinitiveMaEE": "Infinitif en -ma",
-        "infinitiveDaEE": "Infinitif en -da"
+        "infinitiveDaEE": "Infinitif en -da",
+        "infinitiveFR": "Infinitif",
+        "verbGroupFR": "Groupe du verbe",
+        "auxVerbFR": "Verbe auxiliaire",
+        "reflexivityFR": "Réflexivité",
+        "pastParticipleFR": "Participe passé",
+        "presentParticipleFR": "Participe présent"
       }
     },
     "autocompleteTranslationButton": {

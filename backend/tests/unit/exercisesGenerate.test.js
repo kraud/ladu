@@ -24,6 +24,10 @@ describe('catalogue (A.5)', () => {
         expect(verbs.past.thirdPlural.Spanish).toBe('indicativePerfectSimplePast3plES');
         expect(verbs.future.firstPlural.German).toBe('indicativeSimpleFuture1plDE');
         expect(verbs.future.firstPlural.Estonian).toBeUndefined();
+        // French (slice 5): present, imparfait as "past", simple future. No 2nd person plural in any language.
+        expect(verbs.present.firstSingular.French).toBe('indicativePresent1sFR');
+        expect(verbs.past.thirdPlural.French).toBe('indicativeImperfect3plFR');
+        expect(verbs.future.firstPlural.French).toBe('indicativeSimpleFuture1plFR');
     });
 });
 
@@ -91,6 +95,22 @@ describe('multi-language generation', () => {
         expect(out.filter((e) => cases(e).includes('plural'))).toHaveLength(1);
     });
 
+    it('pairs a French verb with an English one in the present, the imparfait and the future (slice 5)', () => {
+        const persons = [['1s', 'I'], ['2s', 'you'], ['3s', 'he'], ['1pl', 'we'], ['3pl', 'they']];
+        const w = word('v', 'Verb', {
+            English: Object.fromEntries(persons.flatMap(([code]) => ['simplePresent', 'simplePast', 'simpleFuture'].map((t) => [`${t}${code}EN`, 'x']))),
+            French: Object.fromEntries(
+                persons.flatMap(([code]) => ['indicativePresent', 'indicativeImperfect', 'indicativeSimpleFuture'].map((t) => [`${t}${code}FR`, 'y'])),
+            ),
+        });
+        const out = gen(w, { languages: ['English', 'French'] });
+        expect(out).toHaveLength(15); // 3 tenses x 5 persons
+        const usedFrench = out.map((e) => [e.matchingTranslations.itemA, e.matchingTranslations.itemB].find((i) => i.language === 'French').case);
+        expect(usedFrench.filter((c) => c.startsWith('indicativeImperfect'))).toHaveLength(5);
+        // The passé composé is never asked: the form is only a participle.
+        expect(usedFrench.some((c) => c.startsWith('indicativePerfect'))).toBe(false);
+    });
+
     it('gives nothing for adjectives and adverbs', () => {
         for (const pos of ['Adjective', 'Adverb']) {
             const w = word('a', pos, { English: { singularEN: 'x' }, Spanish: { singularES: 'y' } });
@@ -127,6 +147,32 @@ describe('single-language generation', () => {
         expect(e.matchingTranslations.itemA).toEqual({ language: 'French', case: 'singularFR', value: 'cheval' });
         expect(e.matchingTranslations.itemB).toEqual({
             language: 'French', case: 'genderFR', value: 'le', translationId: 'f-French', otherValues: ['le', 'la', 'le/la'],
+        });
+    });
+
+    describe('French verb drills (slice 5)', () => {
+        const frenchVerb = () =>
+            word('v', 'Verb', { French: { infinitiveFR: 'aller', auxVerbFR: 'être', verbGroupFR: '3e groupe', pastParticipleFR: 'allé' } });
+
+        it('multiple choice: the auxiliary and the verb group, each with its fixed options', () => {
+            const out = gen(frenchVerb(), { languages: ['French'], multiLang: 'Single-Language', type: 'Multiple-Choice' });
+            expect(out.map((e) => e.matchingTranslations.itemB)).toEqual([
+                { language: 'French', case: 'auxVerbFR', value: 'être', translationId: 'v-French', otherValues: ['avoir', 'être'] },
+                { language: 'French', case: 'verbGroupFR', value: '3e groupe', translationId: 'v-French', otherValues: ['1er groupe', '2e groupe', '3e groupe'] },
+            ]);
+            expect(out.every((e) => e.matchingTranslations.itemA.case === 'infinitiveFR')).toBe(true);
+        });
+
+        it('text input: the past participle from the infinitive', () => {
+            const [e] = gen(frenchVerb(), { languages: ['French'], multiLang: 'Single-Language', type: 'Text-Input' });
+            expect(e.matchingTranslations.itemA).toEqual({ language: 'French', case: 'infinitiveFR', value: 'aller' });
+            expect(e.matchingTranslations.itemB).toMatchObject({ language: 'French', case: 'pastParticipleFR', value: 'allé' });
+        });
+
+        it('skips a drill whose answer is empty', () => {
+            const w = word('v', 'Verb', { French: { infinitiveFR: 'manger', auxVerbFR: 'avoir' } });
+            const out = gen(w, { languages: ['French'], multiLang: 'Single-Language', type: 'Multiple-Choice' });
+            expect(out.map((e) => e.matchingTranslations.itemB.case)).toEqual(['auxVerbFR']);
         });
     });
 

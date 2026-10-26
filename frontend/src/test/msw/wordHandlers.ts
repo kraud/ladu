@@ -129,6 +129,8 @@ function headlineFields(
                     return only('dataEE', find('infinitiveMaEE'));
                 case 'German':
                     return only('dataDE', find('infinitiveDE'));
+                case 'French':
+                    return only('dataFR', find('infinitiveFR'));
                 default:
                     return {};
             }

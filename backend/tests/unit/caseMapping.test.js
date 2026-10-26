@@ -30,10 +30,8 @@ const verbGroupedCategoriesMultiLanguage = MULTI_LANGUAGE.Verb;
 const nounGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Noun;
 const verbGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Verb;
 
-// The languages with exercise slots. French has its noun slots since slice 4, but no verb tenses before slice 5:
-// then use `LANGUAGE_NAMES` from lib/languages.ts again.
-const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
-const NOUN_LANGUAGES = [...LANGUAGES, 'French'];
+// The languages with exercise slots: every language of the table (French has had noun slots since slice 4, verb tenses since slice 5).
+const { LANGUAGE_NAMES } = require('../../lib/languages');
 
 /**
  * Recursively walk a nested object and collect every "leaf" node.
@@ -95,7 +93,7 @@ describe('Multi-Language Case Mapping', () => {
             leaves.forEach(({ path, mapping }) => {
                 const caseName = path.join('.');
                 Object.keys(mapping).forEach(lang => {
-                    expect(NOUN_LANGUAGES).toContain(lang);
+                    expect(LANGUAGE_NAMES).toContain(lang);
                     const value = mapping[lang];
                     expect(typeof value).toBe('string');
                     expect(value.length).toBeGreaterThan(0);
@@ -106,7 +104,7 @@ describe('Multi-Language Case Mapping', () => {
         // Spot-check: singular.nominative must have entries for all languages.
         it('maps at least nominative for every language in singular', () => {
             const nominative = nounGroupedCategoriesMultiLanguage.singular.nominative;
-            NOUN_LANGUAGES.forEach(lang => {
+            LANGUAGE_NAMES.forEach(lang => {
                 expect(nominative).toHaveProperty(lang);
             });
         });
@@ -156,6 +154,16 @@ describe('Multi-Language Case Mapping', () => {
             expect(entry).toHaveProperty('Spanish');
             expect(entry).toHaveProperty('German');
             expect(entry).toHaveProperty('Estonian');
+            expect(entry).toHaveProperty('French');
+        });
+
+        // French asks the imparfait for "past" (the passé composé form is only a participle: plan language-french.md, M3).
+        it('maps French to the indicative present, imparfait and simple future', () => {
+            const { present, past, future } = verbGroupedCategoriesMultiLanguage;
+            expect(present.firstSingular.French).toBe('indicativePresent1sFR');
+            expect(present.thirdPlural.French).toBe('indicativePresent3plFR');
+            expect(past.secondSingular.French).toBe('indicativeImperfect2sFR');
+            expect(future.firstPlural.French).toBe('indicativeSimpleFuture1plFR');
         });
 
         // Estonian has a synthetic past tense (preeteritum), so it participates
@@ -247,6 +255,14 @@ describe('Single-Language Case Mapping (Drills)', () => {
         const de = verbGroupedCategoriesSingleLanguage.German;
         expect(de['Multiple-Choice'][0].correctValue).toBe('auxVerbDE');
         expect(de['Multiple-Choice'][0].otherValues).toEqual(['haben', 'sein']);
+    });
+
+    it('French verb drills: auxiliary and verb group (multiple choice), past participle (text input)', () => {
+        const fr = verbGroupedCategoriesSingleLanguage.French;
+        expect(fr['Multiple-Choice'].map(d => d.correctValue)).toEqual(['auxVerbFR', 'verbGroupFR']);
+        expect(fr['Multiple-Choice'][0].otherValues).toEqual(['avoir', 'être']);
+        expect(fr['Multiple-Choice'][1].otherValues).toEqual(['1er groupe', '2e groupe', '3e groupe']);
+        expect(fr['Text-Input']).toEqual([{ questionWord: 'infinitiveFR', correctValue: 'pastParticipleFR' }]);
     });
 
     it('every multiple-choice drill has a fixed option list', () => {

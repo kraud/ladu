@@ -150,10 +150,11 @@ export interface FieldReflexive {
     /** The dative form; for "Dative" it replaces `accusative`, for "Both" it follows it ("mich/mir"). */
     dative?: string;
     /**
-     * `before` the input (Spanish "me" + lavo; German "habe mich" + gewaschen, after the auxiliary) or
-     * `after` it (German present and past: wasche + "mich").
+     * `before` the input (Spanish "me" + lavo; German "habe mich" + gewaschen, after the auxiliary),
+     * `after` it (German present and past: wasche + "mich"), or `beforeAuxiliary`: before the input and
+     * before its `adornment` too (French passé composé: "me suis" + lavé, not "suis me").
      */
-    position: 'before' | 'after';
+    position: 'before' | 'after' | 'beforeAuxiliary';
     /** The sibling field that switches the pronoun on, and the value it must have: Spanish checkbox `reflexive` = true, German radio `reflexivity` = "Always reflexive". */
     on: { field: string; equals: string | boolean };
     /** German: the sibling radio `reflexiveCase` ("Accusative", "Dative", "Both"). Without it the pronoun is `accusative`. */

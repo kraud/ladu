@@ -259,6 +259,43 @@ describe('GET /api/words/simple - row shape', () => {
         expect((await get('q=true')).body.items).toHaveLength(0); // the two boxes are properties
     });
 
+    it('extracts the headline word of a French Verb, and search reads the participles and the tenses but not the properties', async () => {
+        const res = await create(token, {
+            partOfSpeech: 'Verb',
+            translations: [
+                t('English', 'to go', 'simplePresent1sEN'),
+                {
+                    language: 'French',
+                    cases: [
+                        { word: 'aller', caseName: 'infinitiveFR' },
+                        { word: '3e groupe', caseName: 'verbGroupFR' },
+                        { word: 'être', caseName: 'auxVerbFR' },
+                        { word: 'Not reflexive', caseName: 'reflexivityFR' },
+                        { word: 'allé', caseName: 'pastParticipleFR' },
+                        { word: 'allant', caseName: 'presentParticipleFR' },
+                        { word: 'vais', caseName: 'indicativePresent1sFR' },
+                        { word: 'allais', caseName: 'indicativeImperfect1sFR' },
+                        { word: 'allés', caseName: 'indicativePerfect1plFR' },
+                        { word: 'irai', caseName: 'indicativeSimpleFuture1sFR' },
+                    ],
+                },
+            ],
+        });
+        expect(res.status).toBe(200);
+
+        const get = (query) => request(app).get(`/api/words/simple?${query}`).set('Authorization', `Bearer ${token}`);
+        const row = (await get('')).body.items.find((w) => w.id === res.body.id);
+        expect(row.dataFR).toBe('aller');
+        expect(row.registeredCasesFR).toBe(10);
+        expect(row.dataEN).toBe('to go');
+
+        expect((await get('q=allant')).body.items).toHaveLength(1); // the present participle is a written form
+        expect((await get('q=irai')).body.items).toHaveLength(1); // so is a tense form
+        expect((await get('q=groupe')).body.items).toHaveLength(0); // the verb group is a property
+        expect((await get('q=Not reflexive')).body.items).toHaveLength(0); // so is reflexivity
+        expect((await get('q=être')).body.items).toHaveLength(0); // and the auxiliary
+    });
+
     it('extracts the primary case per language for an Adverb', async () => {
         const res = await create(token, {
             partOfSpeech: 'Adverb',

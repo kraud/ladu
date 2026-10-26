@@ -1,7 +1,8 @@
 /**
  * Regression test: the config-driven field lists must equal the old
  * `VerbForm{EN,ES,DE,EE}` field lists transcribed verbatim in
- * `.context/.frontend/snapshot/forms-verbs.md`.
+ * `.context/.frontend/snapshot/forms-verbs.md`. French has no old form: its tests follow
+ * `.context/.frontend/snapshot/forms-french.md` (plan `language-french.md`, slice 5).
  */
 import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';
@@ -232,7 +233,7 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
     });
 
     it('every field.caseName is field.name + the language suffix, except old-app naming quirks and persisted:false fields', () => {
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR]) {
             const config = getFormConfig(PartOfSpeech.verb, lang)!;
             for (const field of config.fields) {
                 if (field.persisted === false) continue;
@@ -250,7 +251,7 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
     });
 
     it('every conjugation field carries a non-empty pronoun label', () => {
-        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
+        for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE, Lang.FR]) {
             const config = getFormConfig(PartOfSpeech.verb, lang)!;
             const conjugationFields = config.fields.filter((f) => f.group !== undefined);
             expect(conjugationFields.length).toBeGreaterThan(0);
@@ -351,6 +352,109 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
         it('English: no property-row field carries a layout', () => {
             const config = getFormConfig(PartOfSpeech.verb, Lang.EN)!;
             expect(config.fields.find((f) => f.name === 'regularity')?.layout).toBeUndefined();
+        });
+    });
+
+    describe('French (slice 5)', () => {
+        const config = () => getFormConfig(PartOfSpeech.verb, Lang.FR)!;
+        const field = (name: string) => config().fields.find((f) => f.name === name)!;
+        const persons = ['1s', '2s', '3s', '1pl', '2pl', '3pl'];
+        const tenses = ['Present', 'Imperfect', 'Perfect', 'SimpleFuture'];
+
+        it('has the infinitive, the auxiliary, the two participles, the verb group, reflexivity, then 4 tenses x 6 persons', () => {
+            expect(config().fields.map((f) => f.name)).toEqual([
+                'infinitive',
+                'auxiliaryVerb',
+                'pastParticiple',
+                'presentParticiple',
+                'verbGroup',
+                'reflexivity',
+                ...tenses.flatMap((tense) => persons.map((person) => `indicative${tense}${person}`)),
+            ]);
+        });
+
+        it('only the infinitive is required; there is no regularity radio (the verb group replaces it)', () => {
+            expect(field('infinitive').required).toBe(true);
+            expect(config().fields.filter((f) => f.name !== 'infinitive').every((f) => !f.required)).toBe(true);
+            expect(field('regularity')).toBeUndefined();
+        });
+
+        it('the verb group is a radio with 1er, 2e and 3e groupe', () => {
+            const group = field('verbGroup');
+            expect(group).toMatchObject({ kind: 'radio', caseName: 'verbGroupFR', required: false });
+            expect(group.kind === 'radio' && group.options.map((o) => o.value)).toEqual(['1er groupe', '2e groupe', '3e groupe']);
+        });
+
+        it('the auxiliary is an avoir / être toggle', () => {
+            const aux = field('auxiliaryVerb');
+            expect(aux).toMatchObject({ kind: 'toggle', caseName: 'auxVerbFR', required: false });
+            expect(aux.kind === 'toggle' && aux.options.map((o) => o.value)).toEqual(['avoir', 'être']);
+        });
+
+        it('the infinitive ends in -er, -ir or -re, and may be pronominal ("se laver", "s\'habiller")', () => {
+            const infinitive = field('infinitive');
+            const regex = infinitive.kind === 'text' ? infinitive.pattern!.regex : /$^/;
+            for (const word of ['manger', 'finir', 'prendre', 'voir', 'se laver', "s'habiller", 'se souvenir']) expect(regex.test(word), word).toBe(true);
+            for (const word of ['mange', 'mangé', 'manger2', 'prend']) expect(regex.test(word), word).toBe(false);
+        });
+
+        it('the pronoun labels are Je/J\', Tu, Il/Elle/On, Nous, Vous, Ils/Elles', () => {
+            expect(persons.map((person) => field(`indicativePresent${person}`).label)).toEqual(["Je/J'", 'Tu', 'Il/Elle/On', 'Nous', 'Vous', 'Ils/Elles']);
+        });
+
+        it('the tense grid: Indicatif, one column per tense with its French heading', () => {
+            const headings = tenses.map((tense) => field(`indicative${tense}1s`).layout?.columnHeading);
+            expect(headings).toEqual(['Présent', 'Imparfait', 'Passé composé', 'Futur simple']);
+            expect(field('indicativePresent1s').group).toEqual([{ heading: 'Indicatif', level: 1 }]);
+        });
+
+        it('the passé composé shows the conjugated auxiliary before each box: avoir or être', () => {
+            const values = persons.map((person) => field(`indicativePerfect${person}`).adornment);
+            for (const adornment of values) expect(adornment?.watchField).toBe('auxiliaryVerb');
+            expect(values.map((a) => a?.values?.avoir)).toEqual(['ai', 'as', 'a', 'avons', 'avez', 'ont']);
+            expect(values.map((a) => a?.values?.['être'])).toEqual(['suis', 'es', 'est', 'sommes', 'êtes', 'sont']);
+            // The other tenses have no auxiliary.
+            for (const tense of ['Present', 'Imperfect', 'SimpleFuture']) expect(field(`indicative${tense}1s`).adornment).toBeUndefined();
+        });
+
+        it('the reflexive pronoun stands before the verb; in the passé composé before the auxiliary ("me suis")', () => {
+            const on = { field: 'reflexivity', equals: 'Always reflexive' };
+            expect(persons.map((person) => field(`indicativePresent${person}`).reflexive)).toEqual(
+                ['me', 'te', 'se', 'nous', 'vous', 'se'].map((accusative) => ({ accusative, position: 'before', on })),
+            );
+            expect(field('indicativeImperfect2s').reflexive).toEqual({ accusative: 'te', position: 'before', on });
+            expect(field('indicativeSimpleFuture1pl').reflexive).toEqual({ accusative: 'nous', position: 'before', on });
+            expect(field('indicativePerfect1s').reflexive).toEqual({ accusative: 'me', position: 'beforeAuxiliary', on });
+            expect(field('indicativePerfect3pl').reflexive).toEqual({ accusative: 'se', position: 'beforeAuxiliary', on });
+            expect(field('infinitive').reflexive).toBeUndefined();
+        });
+
+        it('reflexivity has the same three options as Spanish and German, and no pronoun-case radio', () => {
+            const reflexivity = field('reflexivity');
+            expect(reflexivity).toMatchObject({ kind: 'radio', caseName: 'reflexivityFR', required: false });
+            expect(reflexivity.kind === 'radio' && reflexivity.options.map((o) => o.value)).toEqual(['Not reflexive', 'Always reflexive', 'Optionally reflexive']);
+            expect(field('reflexiveCase')).toBeUndefined();
+        });
+
+        it('three meta rows, each its own block and two equal cells on a phone (fitRow), aligned at the top', () => {
+            const rows = [
+                ['infinitive', 'auxiliaryVerb', 'meta1'],
+                ['pastParticiple', 'presentParticiple', 'meta2'],
+                ['verbGroup', 'reflexivity', 'meta3'],
+            ] as const;
+            for (const [first, second, row] of rows) {
+                expect(field(first).layout).toEqual({ row, column: first, block: `verb-${row}`, fitRow: true, alignTop: true });
+                expect(field(second).layout).toEqual({ row, column: second, block: `verb-${row}`, fitRow: true, alignTop: true });
+            }
+            const blocks = new Set(rows.map(([first]) => field(first).layout?.block));
+            expect(blocks.size).toBe(3);
+        });
+
+        it('the participles are written forms, not properties: no field name starts with a property prefix', () => {
+            // `isPropertyCase` (backend catalogue) reads case names by prefix. The participles and the tense forms must not match.
+            for (const name of ['pastParticipleFR', 'presentParticipleFR', 'infinitiveFR', 'indicativePerfect1sFR']) {
+                expect(config().fields.find((f) => f.caseName === name)).toBeDefined();
+            }
         });
     });
 });

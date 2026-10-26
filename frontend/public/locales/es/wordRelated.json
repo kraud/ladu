@@ -472,6 +472,11 @@
           "infinitiveDaRequired": "El infinitivo en -da es obligatorio",
           "searchInEnglishLabel": "Buscar verbo en inglés",
           "searchInEnglishWarning": "¡Cuidado, esto no funcionará para todos los verbos! Si es necesario, prueba en estonio."
+        },
+        "formFR": {
+          "infinitiveRequired": "El infinitivo es obligatorio",
+          "infinitiveNotMatching": "Por favor, introduzca la forma infinitiva (termina en '-er', '-ir' o '-re'; un verbo reflexivo puede empezar por 'se ').",
+          "verbGroupInvalid": "Esa no es una opción"
         }
       },
       "fields": {
@@ -490,7 +495,13 @@
         "prefixDE": "Prefijo",
         "caseTypeDE": "Caso verbal",
         "infinitiveMaEE": "Infinitivo en -ma",
-        "infinitiveDaEE": "Infinitivo en -da"
+        "infinitiveDaEE": "Infinitivo en -da",
+        "infinitiveFR": "Infinitivo",
+        "verbGroupFR": "Grupo verbal",
+        "auxVerbFR": "Verbo auxiliar",
+        "reflexivityFR": "Reflexividad",
+        "pastParticipleFR": "Participio pasado",
+        "presentParticipleFR": "Participio presente"
       }
     },
     "autocompleteTranslationButton": {

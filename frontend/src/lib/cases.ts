@@ -57,6 +57,8 @@ const TENSE_BUCKET: Record<string, 'present' | 'past' | 'future'> = {
     'Past-Simple': 'past',
     'Simple-Past': 'past',
     'Perfect-Simple-Past': 'past',
+    // French: the exercises ask the imparfait for "past" (the passé composé form is only a participle: review log M3).
+    Imperfect: 'past',
     Future: 'future',
     'Future-Simple': 'future',
     'Simple-Future': 'future',

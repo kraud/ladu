@@ -409,6 +409,43 @@ export enum VerbCases {
     indicativeSimplePast1plDE = 'indicativeSimplePast1plDE',
     indicativeSimplePast2plDE = 'indicativeSimplePast2plDE',
     indicativeSimplePast3plDE = 'indicativeSimplePast3plDE',
+
+    // FRENCH. Properties: the infinitive, the verb group (replaces regularity), the auxiliary, reflexivity
+    // and the two participles. Then the Indicatif: present, imparfait, passé composé, futur simple.
+    infinitiveFR = 'infinitiveFR',
+    verbGroupFR = 'verbGroupFR',
+    auxVerbFR = 'auxVerbFR',
+    reflexivityFR = 'reflexivityFR',
+    pastParticipleFR = 'pastParticipleFR',
+    presentParticipleFR = 'presentParticipleFR',
+    // Present
+    indicativePresent1sFR = 'indicativePresent1sFR',
+    indicativePresent2sFR = 'indicativePresent2sFR',
+    indicativePresent3sFR = 'indicativePresent3sFR',
+    indicativePresent1plFR = 'indicativePresent1plFR',
+    indicativePresent2plFR = 'indicativePresent2plFR',
+    indicativePresent3plFR = 'indicativePresent3plFR',
+    // Imperfect
+    indicativeImperfect1sFR = 'indicativeImperfect1sFR',
+    indicativeImperfect2sFR = 'indicativeImperfect2sFR',
+    indicativeImperfect3sFR = 'indicativeImperfect3sFR',
+    indicativeImperfect1plFR = 'indicativeImperfect1plFR',
+    indicativeImperfect2plFR = 'indicativeImperfect2plFR',
+    indicativeImperfect3plFR = 'indicativeImperfect3plFR',
+    // Perfect
+    indicativePerfect1sFR = 'indicativePerfect1sFR',
+    indicativePerfect2sFR = 'indicativePerfect2sFR',
+    indicativePerfect3sFR = 'indicativePerfect3sFR',
+    indicativePerfect1plFR = 'indicativePerfect1plFR',
+    indicativePerfect2plFR = 'indicativePerfect2plFR',
+    indicativePerfect3plFR = 'indicativePerfect3plFR',
+    // SimpleFuture
+    indicativeSimpleFuture1sFR = 'indicativeSimpleFuture1sFR',
+    indicativeSimpleFuture2sFR = 'indicativeSimpleFuture2sFR',
+    indicativeSimpleFuture3sFR = 'indicativeSimpleFuture3sFR',
+    indicativeSimpleFuture1plFR = 'indicativeSimpleFuture1plFR',
+    indicativeSimpleFuture2plFR = 'indicativeSimpleFuture2plFR',
+    indicativeSimpleFuture3plFR = 'indicativeSimpleFuture3plFR',
 }
 export enum VerbCaseTypeDE {
     accusativeDE = 'accusativeDE',
@@ -537,6 +574,11 @@ export enum VerbMoodEE {
     jussiveEE = 'jussive',
 }
 
+// French moods. Only the indicative has forms so far (subjunctive, conditional and imperative: a later round).
+export enum VerbMoodFR {
+    indicativeFR = 'indicative',
+}
+
 export enum VerbTensesIndicativeDE {
     presentDE = 'presentDE', // Präsens
     simplePastDE = 'simplePastDE', // Präteritum
@@ -576,6 +618,18 @@ export enum AuxVerbDE {
     H = "haben",
     S = "sein",
     W = "werden"
+}
+
+export enum AuxVerbFR {
+    A = "avoir",
+    E = "être"
+}
+
+/** The three groups of French verbs: -er (regular), -ir with -issant (regular), and all the others. */
+export enum VerbGroupFR {
+    first = "1er groupe",
+    second = "2e groupe",
+    third = "3e groupe"
 }
 
 export enum Plurality {
@@ -636,6 +690,13 @@ export enum TenseVerbDE {
     perfect = "Perfect",
     simpleFuture = "Simple-Future",
     simplePast = "Simple-Past", // Präteritum
+}
+
+export enum TenseVerbFR {
+    present = "Present",
+    imperfect = "Imperfect", // imparfait
+    perfect = "Perfect", // passé composé
+    simpleFuture = "Simple-Future", // futur simple
 }
 
 export enum TenseVerbEE {
