@@ -1,6 +1,6 @@
 # Plan: Add French to Ladu (+ a reusable "add a language" guide)
 
-Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–7 done 2026-10-26 (slices 0–6 committed). Next: Slice 8 (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
+Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–8 done 2026-10-26 (slices 0–7 committed; slice 8 is research only, this plan is its only file change). Next: Slice 9a (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
 
 ## How to start (read this first in a new session)
 
@@ -10,9 +10,11 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–7 done 2026-10-26 (sli
 4. Branch: `new-language-french`.
 5. Then read "Resume here" below: it holds the state, the working rules and the next slice.
 
-## Resume here (updated 2026-10-26, session 3, after slice 7)
+## Resume here (updated 2026-10-26, session 3, after slice 8)
 
-**State.** Phase 0 and slices 0–6 are done and **committed** (last commit `17fd53b`, the adverb, conjunction and preposition forms). Slice 7 is built and **not yet committed**: the French practice tests, three missing practice strings and the teacher sheet. Gates after slice 7: frontend 144 files / 2084 tests, typecheck and lint, full e2e 189 passed (beside a running `npm run dev`); the backend is unchanged since slice 6 (73 suites / 2901 tests). **Decision M1 (user, 2026-10-26): merge anyway, review later.** French goes live with the machine-made interface; the teacher reads `language-french-strings.md` and `language-french-review.md` afterwards, and each answer becomes a small follow-up. **Next: slice 8, the autocomplete research** (re-extract French from the raw dump, measure coverage per part of speech, write the results and the decisions in this plan **before any code**; ask the user, with the question tool, for each decision).
+**Slice 8 (done 2026-10-26, research only).** Results and decisions Q1–Q4 are in "Slice 8 results" below. **Next: slice 9a** (selectors `fr.ts` for nouns, adjectives, adverbs, conjunctions and prepositions; lexicon extract, load and lookup for those). Then slice 9b (verbs). Before slice 9a: give the plain-language overview and ask for a confirmation, as for every slice. The extract of French from the raw dump already exists on this machine (`backend/scripts/lexicon/.data/kaikki-fr.jsonl`, `translations-en-fr.jsonl`, `frequency-fr.txt`, `sample-fr.json`; all git-ignored). Slice 9a still has to put the French extract into `extract.ts` so that anyone can repeat it.
+
+**State before slice 8.** Phase 0 and slices 0–7 are done and **committed** (last commit `2acda19`, the French practice tests and the teacher sheet). Slice 7 contained the French practice tests, three missing practice strings and the teacher sheet. Gates after slice 7: frontend 144 files / 2084 tests, typecheck and lint, full e2e 189 passed (beside a running `npm run dev`); the backend is unchanged since slice 6 (73 suites / 2901 tests). **Decision M1 (user, 2026-10-26): merge anyway, review later.** French goes live with the machine-made interface; the teacher reads `language-french-strings.md` and `language-french-review.md` afterwards, and each answer becomes a small follow-up. **Next: slice 8, the autocomplete research** (re-extract French from the raw dump, measure coverage per part of speech, write the results and the decisions in this plan **before any code**; ask the user, with the question tool, for each decision).
 
 **Changes of session 2 (still true).**
 - e2e has its own ports and database (see "Running e2e"). Do not stop the user's dev server.
@@ -67,8 +69,9 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–7 done 2026-10-26 (sli
 - [x] Slice 5 (2026-10-26) — Verb form: `VerbCases` FR members, `TenseVerbFR`, `VerbMoodFR`, `AuxVerbFR`, `VerbGroupFR`, 5 property rows and 24 tense rows in the registry, `buildFrConfig` (infinitive, avoir/être toggle, two participles, verb group, reflexivity, Indicatif grid with the auxiliary before the passé composé boxes and the reflexive hint, "me suis" order via `beforeAuxiliary`), `TENSE_BUCKET` `Imperfect`, locales in all five (`wordForm.verb.fields`, `errors.formFR`, `practice:cases.property`), backend headline `infinitiveFR`, catalogue tenses and 3 drills, `verbGroup` prefix, tests, `forms-french.md`, e2e (3 tests). The e2e run found a form-engine bug (V1) that is fixed. Typecheck, lint, backend (73 suites, 2890 tests), frontend (144 files, 2077 tests), build and full e2e (179 passed, beside a running `npm run dev`) are green. Follow-up the same day, at the user's request: the Spanish verb regularity + reflexivity and the French verb group + reflexivity share one row on a desktop and stack on a phone (`stackOnMobile`); the Estonian verb "Search verb in English" box and its logic are removed (a unified feature for all languages comes later)
 - [x] Slice 6 (2026-10-26) — Adverb, conjunction and preposition forms: enums, three French builders (adverb as the adjective with the "plus" box and a locked superlative; conjunction with a four-value mood select; preposition with the position radio), locales in all five, backend headline fields, regression tests, five e2e tests, `forms-french.md`, `data-model.md`. Screenshots at 1280 and 375 px checked. Typecheck, lint, backend (73 suites, 2901 tests), frontend (144 files, 2084 tests) and full e2e (185 passed) are green
 - [x] Slice 7 (2026-10-26) — Practice with French in the e2e spec (nouns and a verb, in English, Spanish, German and French, cards read from the screen), the missing past-participle and verb-group practice strings in all five locales (S7-1), the teacher review sheet `language-french-review.md`, decision M1 (merge anyway, review later). Typecheck, lint, frontend (144 files, 2084 tests) and full e2e (189 passed) are green
-- [ ] Slice 8 — Autocomplete research (coverage check)
-- [ ] Slice 9 — French lexicon and lookup
+- [x] Slice 8 (2026-10-26) — Autocomplete research: French extracted from the raw dump, coverage measured with draft selectors on the top lemmas, translations and size measured, decisions Q1–Q4 taken (see "Slice 8 results"). No code changed
+- [ ] Slice 9a — French lexicon and lookup: nouns, adjectives, adverbs, conjunctions, prepositions
+- [ ] Slice 9b — French lexicon and lookup: verbs
 - [ ] Slice 10 — Autocomplete e2e spec
 - [ ] Slice 11 — Onboarding pool and demo template
 - [ ] Slice 12 — Close: finish the guide, rollout runbook, final e2e run
@@ -102,6 +105,56 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–7 done 2026-10-26 (sli
 | S7-1 | Minor (found in slice 7 by the practice test, fixed) | The French past-participle and verb-group drills had no task sentence (`practice:card.task`) and no placeholder, so the card read "Past participle" over a box that said "Your answer…". | Fixed: `Past-Participle` and `Verb-Group` in `card.task`, `Past-Participle` in `card.placeholder`, all five locales. The test pins the sentence and the placeholder. |
 | S7-2 | Minor | The practice card shows the label of the pronoun, "Je/J'", before the prompt and before the answer box ("Je/J' vais"). A card should read "je vais" or "j'ai". Elision needs a vowel / mute-h rule. | Accepted for the first version, like V3. Teacher question X2 in the review sheet. |
 | S7-3 | Minor | The set-up page remembers the last choice (languages, answer style). A test that opens it twice must set every chip, not only switch some off. | Recorded in the test helper (`keepLanguages` sets each chip). |
+| A1 | Moderate (slice 8) | 58 of 3,253 top verbs (1.8%) list both auxiliaries in two rows ("present indicative of avoir" and "être + past participle"): partir, sortir, tomber, passer, monter, rentrer. The first row gives *avoir* for partir and tomber. | **Decided Q1 (user): leave `auxVerbFR` empty for these verbs.** The field is optional. The passé composé cells still fill. |
+| A2 | Moderate (slice 8) | Wiktionary has no passé composé row per person, only "present indicative of avoir + past participle". Agreement with *être* (allés) is not in the data. | **Decided Q2 (user): write the masculine singular participle in all six boxes.** The learner adds the agreement. Teacher question V4 stays open. |
+| A3 | Minor (slice 8) | One entry holds the plain table and the pronominal table; pronominal rows carry the tag `reflexive` ("me lave"). 22 always-reflexive verbs have only the pronominal table, and their infinitive is "se souvenir". | Fixed in the selectors (slice 9b): skip `reflexive` rows when a plain table exists; strip "se " / "s'" from the infinitive and set "Always reflexive" when only the pronominal table exists. |
+| A4 | Minor (slice 8) | Wiktionary gives no verb group. The template name is always `fr-conj-auto`. | Derived by rule (slice 9b): `-er` → 1er (except aller → 3e); `-ir` with a present participle in `-issant` → 2e; all others → 3e. Right on every real verb among the first 40 (the noise entries get no group). Known miss: a few rare verbs (fleurir). |
+| A5 | Minor (slice 8) | No source for: adverb gradable and comparative (0.3%, only irregulars like bien → mieux), adjective comparative, superlative and vowel form (0.1%: bon → meilleur, beau → bel), conjunction type and mood, preposition position, adjective position, noun regularity. | Left empty; the learner fills them. "Gradable" is set only when a degree row exists (as in Spanish). |
+| A6 | Minor (slice 8) | `landing/credits.html:55` says "Dictionary word forms (English, German and Spanish)". | Add French (slice 9a). The licence is the same (CC BY-SA 4.0), and `fr_50k` (FrequencyWords) is CC BY-SA 4.0 too, so `licence-study.md` needs no new row. |
+| A7 | Minor (slice 8) | The French frequency list has noise (Mes, Dr, peut, voilà) and 26.8% of its words have no match (ES 19%, DE 25%). The top unmatched words are determiners (des, du, au), hyphenated questions (est-ce) and names. | Accepted, as for the other languages. Ladu has no determiner part of speech. |
+| Q3 | Decision (slice 8) | Which forms to store. | **Decided (user): only what the form uses**: present, imperfect, simple future, both participles, plus the properties. Conditional and subjunctive are not stored. A new tense later needs one rebuild and reload of the lexicon file. |
+| Q4 | Decision (slice 8) | Slice 9 touches many files. | **Decided (user): split** into 9a (nouns, adjectives, adverbs, function words) and 9b (verbs). |
+
+## Slice 8 results (autocomplete research, 2026-10-26)
+
+**Answer: go for all six parts of speech.** Wiktionary (kaikki) fills French as well as Spanish and German. Only the fields in review-log A5 have no source.
+
+**Method.** The raw dump (kaikki, Last-Modified 2026-10-03) was streamed once with a throw-away script. It wrote 120 MB of French entries (`kaikki-fr.jsonl`) and the 128,303 English → French translation rows of 77,020 English entries (`translations-en-fr.jsonl`). The sample is the top 5,000 lemmas per part of speech from `fr_50k` (hermitdave FrequencyWords 2018, downloaded 2026-10-26), mapped to lemmas with the logic of `sample.ts`. The fill rates come from **draft selectors** run with the real engine (`lib/lexicon/select.ts`). The drafts are throw-away; slices 9a and 9b write the real `selectors/fr.ts`. About 35 words were also read by hand (cheval, œil, travail, souris, aimer, finir, aller, être, avoir, venir, partir, appeler, beau, vieux, facile, marron, bon, bien …). All values were right except the partir auxiliary (A1).
+
+**Fill rates** (share of the sampled lemmas; "entry found" was 100% everywhere):
+
+| Part of speech | Lemmas | Fields |
+|---|---|---|
+| Noun | 5,000 | gender 99.6%, singular 100%, plural 95.9% (the rest are plural-only, uncountable, or noise such as *Mes*, *Dr*) |
+| Verb | 3,253 | infinitive 98.2%, group 98.1% (derived), auxiliary 97.5% (before A1), reflexivity 100%, past participle 97.5%, present participle 97.4%, present / imperfect / simple future 97.0–97.5% per person, passé composé (derived) 97.5%. 97.0% of verbs have all 18 cells, both participles and the auxiliary. |
+| Adjective | 3,990 | masculine singular 100%, feminine singular 99.4%, masculine plural 99.4%, feminine plural 99.5%, comparative / superlative / vowel form 0.1% each |
+| Adverb | 604 | the word 100%, comparative and superlative 0.3% |
+| Conjunction | 35 | the word 100% (no type, no mood) |
+| Preposition | 64 | the word 100% (no position) |
+
+Verb group of the 3,253 verbs, derived by rule: 1er 2,719, 2e 160, 3e 313, none 61 (noise). Auxiliary: avoir 3,050, être 41, both 58, none 104 (the 104 are mostly noise or always-reflexive verbs). Reflexivity: Not 3,160, Optionally 71, Always 22.
+
+**Shape of a French entry** (facts for the selectors):
+- Noun: gender is a sense tag (`masculine`, `feminine`, both → "le/la"). Plural is a form row `plural`; the feminine counterpart is a row `feminine` (chat → chatte), not needed. Invariable nouns have the sense tag `invariable` (souris → souris).
+- Verb: rows with the tags `indicative present|imperfect|future` + person (`first-person singular` …). Participles: `participle past`, `gerund participle present`. Placeholders are `-` (pleuvoir has no 1st or 2nd person). The passé composé is one row of text, "present indicative of avoir + past participle", tagged `perfect`, `multiword-construction`. Other rows with `multiword-construction` are text, not forms, and must be skipped. Some verbs also carry IPA rows with the same tags (`ɛm` next to `aime`). The spelling row comes first, so the first match is right (0 of 3,253 verbs gave IPA); still, slice 9b must keep the first match and test it.
+- Adjective: rows `feminine`, `masculine plural`, `feminine plural`. An adjective with one shape for both genders (facile, rouge) has a row `plural` only: fill the feminine singular from the lemma and both plurals from that row. Invariable adjectives (marron) have the sense tag `invariable`: all four cells are the lemma. `before-vowel masculine singular` is the vowel form (bel, nouvel, vieil). `comparative` and `superlative` rows exist only for irregular adjectives (bon → meilleur).
+- Adverb: `comparative` / `superlative` rows only for irregulars (bien → mieux, le mieux).
+- Conjunction and preposition: categories are only "French conjunctions" and "French prepositions". Wiktionary has no type, mood or position for French.
+
+**Translations** (top 5,000 English lemmas; same method as the report of slice 0):
+
+| | Noun | Verb | Adjective |
+|---|---|---|---|
+| English lemmas with a French translation | 70.7% | 55.0% | 57.8% |
+| (for comparison, Spanish / German) | 70.1% / 70.1% | 57.3% / 57.1% | — |
+
+Reverse (can French start a lookup): the share of the top French lemmas that appear as a French translation word of an English entry. Noun 90.3%, verb 78.2%, adjective 75.7%, adverb 74.7% (top 1,000: 92.4%, 87.2%, 82.7%). Spanish and German: nouns 91.8% / 91.9%, verbs 84.2% / 78.9%. So the plan of the English-hub lookup works for French.
+
+**Size.** 100,881 French lexemes (noun 53,990, adjective 19,195, verb 11,383, adverb 4,597, proper noun 10,086, others 1,630) and 481,337 forms before filtering (verbs 391,934, because of the moods the form does not use). With decision Q3 (store only what the form uses), the French file is close to Spanish: about 30 MB in layout B, no problem for the VPS.
+
+**Sources and licence.** English Wiktionary through kaikki.org (CC BY-SA 4.0): the same source and licence as EN, ES and DE. `fr_50k` of hermitdave FrequencyWords (CC BY-SA 4.0): already credited. Only the languages list on the credits page changes (A6).
+
+**What slice 9a / 9b must do with this** (the touchpoints are in the slice text below). For the lookup, the French frequency file name is `frequency-fr.txt`; `common.ts` `LANG_CODES` gets `'fr'`.
 
 ## Context
 
@@ -174,9 +227,11 @@ One slice at a time. Each slice starts with a plain-language overview, ends runn
 
 **Slice 7 — Forms e2e spec and the teacher sheet.** Done 2026-10-26 (see "Resume here"; the e2e tests of the forms were added in slices 4 to 6). `e2e/tests/language-french-forms.spec.ts`: register with French, add a noun, a verb (with être) and an adjective, see them in `/words`, answer one practice card in French. Snapshot docs (`data-model.md`, `forms-*.md` French sections). `.context/plans/language-french-review.md` for the teacher: one section per PoS with each field, its French label, two example words filled in, and the open questions. Full `npm run test:e2e` green.
 
-**Slice 8 — Autocomplete research.** Re-extract French from the raw dump. Measure coverage per PoS (template: `autocomplete-coverage-report.md` §4 and its appendices): lemmas, forms per verb tense and person, gender on nouns, adjective feminines, translation rows for `fr`. Add the licence (Wiktionary CC BY-SA, same as now) to `licence-study.md` and to the credits. Write the results and the decisions (Q…) in this plan before any code. Check whether a frequency list `fr_50k` exists (hermitdave).
+**Slice 8 — Autocomplete research.** Done 2026-10-26 (see "Slice 8 results"). The licence needed no new row in `licence-study.md`; the credits page needs French in its language list (slice 9a). `fr_50k` exists.
 
-**Slice 9 — French lexicon and lookup.** `common.ts` codes + frequency URL; `extract.ts` regex + translation target `fr`; `selectors/fr.ts` (per PoS, like `es.ts`) + `lexiconSelectorsFR.test.js` + fixture; `ingest.ts` `LANGUAGES` + `FIXTURE_WORDS`; `load.js`; `registry.ts` adapters; the gender → article map in `translations.ts`; the frontend `autocomplete/transforms.ts` registry; `StartFromWord`. Rebuild locally (extract about 2 minutes, then ingest, translations, load). It may split into 9a (nouns, adjectives, adverbs, function words) and 9b (verbs) when slice 8 shows the size.
+**Slice 9a — French lexicon and lookup: nouns, adjectives, adverbs, conjunctions, prepositions.** `common.ts` (`LANG_CODES` + `'fr'`, frequency URL; the file `frequency-fr.txt` exists); `extract.ts` (regex, and the translation target `fr`; the extract must stay repeatable); `selectors/fr.ts` per part of speech (like `es.ts`; rules in "Slice 8 results"; shared function-word selectors) + `lexiconSelectorsFR.test.js` + a fixture; `ingest.ts` `LANGUAGES` + `FIXTURE_WORDS`; `load.js`; `registry.ts` adapters; the gender → article map in `translations.ts`; the frontend `autocomplete/transforms.ts` registry; `StartFromWord`; the credits page (add French). Rebuild locally (extract about 5 minutes on this machine, then ingest, translations, load). Check with SQL counts per part of speech for `language = 'French'`.
+
+**Slice 9b — French lexicon and lookup: verbs.** The verb selectors, with decisions A1–A4, Q1–Q3: infinitive without "se "; group by rule; auxiliary from the text row, empty for the dual verbs; reflexivity; both participles; present, imperfect and simple future per person; passé composé boxes filled with the masculine singular participle; skip `reflexive` rows when a plain table exists; skip `multiword-construction` text rows. Test the 35 hand-checked verbs and a regression for the dual-auxiliary and always-reflexive verbs. Then rebuild, reload and count.
 
 **Slice 10 — Autocomplete e2e spec.** `lexicon-fr-fixture.jsonl` in `backend/package.json` (`lexicon:load:fixture`), `e2e/playwright.config.ts:93`, `ci.yml:150`. Spec `autocomplete-j-french-lexicon.spec.ts` (pattern: `autocomplete-c-spanish-lexicon`).
 
