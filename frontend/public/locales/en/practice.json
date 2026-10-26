@@ -186,13 +186,16 @@
       "Regularity": "Is this verb regular or irregular?",
       "Gerund": "What is the gerund of this verb?",
       "Participle": "What is the participle of this verb?",
-      "Auxiliary-Verb": "Which auxiliary verb does this verb use?"
+      "Auxiliary-Verb": "Which auxiliary verb does this verb use?",
+      "Past-Participle": "What is the past participle of this verb?",
+      "Verb-Group": "Which group does this verb belong to?"
     },
     "answerPlaceholderPronoun": "…",
     "placeholder": {
       "Participle": "Type the participle…",
       "Gerund": "Type the gerund…",
-      "Short-Form": "Type the short form…"
+      "Short-Form": "Type the short form…",
+      "Past-Participle": "Type the past participle…"
     }
   },
   "feedback": {

@@ -1,7 +1,19 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
 import { closeTypeAheadList } from '../fixtures/autocomplete';
 import { closePool, deleteUsersByEmail } from '../fixtures/db';
-import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtures/practice';
+import {
+    API,
+    authHeader,
+    configure,
+    createdEmails,
+    currentPrompt,
+    goOn,
+    loginForToken,
+    registerAndVerify,
+    signIn,
+    startSession,
+    type Account,
+} from '../fixtures/practice';
 
 /**
  * French word forms (`.context/plans/language-french.md`). Slice 4: the noun and the adjective.
@@ -16,6 +28,9 @@ import { createdEmails, registerAndVerify, signIn, type Account } from '../fixtu
  *     (bien → mieux → le mieux) is typed; "Non-gradable" hides the degrees.
  *  5. A French conjunction: a pair (soit … soit) and the mood select with the conditional.
  *  6. A French preposition: the word and the position ("durant" can follow the noun).
+ *  7. Practice with French (slice 7): words in English, Spanish, German and French. Cross-language cards
+ *     between French and Spanish, and between French and German, with no English card; the gender
+ *     drill of a noun; the tense card, the participle drill and the auxiliary / group drills of a verb.
  *
  * No autocomplete runs for French yet (slices 8 to 10).
  */
@@ -388,5 +403,204 @@ test.describe.serial('French forms (slices 4 to 6: noun, adjective, verb, adverb
 
         await page.goto('/words');
         await expect(page.getByRole('row', { name: /during/ })).toContainText('durant');
+    });
+});
+
+// ---- Practice with French (slice 7) -------------------------------------------------------------------------
+// The words are made through the API in four languages. A card shows its two languages and its prompt, so the
+// test reads them from the screen and looks the answer up: it does not depend on the direction the server picks.
+
+type NativeName = 'English' | 'Español' | 'Deutsch' | 'Français';
+type Forms = Record<NativeName, string>;
+const SIGNED_NAME: Record<string, NativeName> = { English: 'English', Spanish: 'Español', German: 'Deutsch', French: 'Français' };
+const ALL_LANGUAGES = ['English', 'Spanish', 'German', 'French'];
+
+const NOUNS: Array<{ forms: Forms; gender: string }> = [
+    { forms: { English: 'horse', Español: 'caballo', Deutsch: 'Pferd', Français: 'cheval' }, gender: 'le' },
+    { forms: { English: 'house', Español: 'casa', Deutsch: 'Haus', Français: 'maison' }, gender: 'la' },
+];
+
+/** The present and the past (1st person singular) of "to go". French "past" is the imparfait (review log M3). */
+const GO_PRESENT: Forms = { English: 'go', Español: 'voy', Deutsch: 'gehe', Français: 'vais' };
+const GO_PAST: Forms = { English: 'went', Español: 'fui', Deutsch: 'ging', Français: 'allais' };
+
+async function createWord(request: APIRequestContext, token: string, partOfSpeech: string, translations: unknown[]) {
+    const res = await request.post(`${API}/api/words`, { headers: authHeader(token), data: { partOfSpeech, translations } });
+    expect(res.ok()).toBeTruthy();
+}
+
+/** The language names on the open card: the prompt's and the answer's. */
+async function cardLanguages(page: Page): Promise<{ from: NativeName; to: NativeName }> {
+    const article = page.locator('article');
+    const name = async (index: number) => ((await article.locator('section').nth(index).locator('span').first().innerText()).split('·')[0] ?? '').trim() as NativeName;
+    return { from: await name(0), to: await name(1) };
+}
+
+/** The prompt of a verb card has the pronoun in its own span: the value is the last text node. */
+async function promptValue(page: Page): Promise<string> {
+    return ((await page.getByTestId('prompt').evaluate((el) => el.lastChild?.textContent ?? '')) as string).trim();
+}
+
+/** Selects exactly these languages in the set-up (the chips are toggles; the set-up remembers the last choice). */
+async function keepLanguages(page: Page, keep: NativeName[]): Promise<void> {
+    const group = page.getByRole('group', { name: 'Languages' });
+    for (const name of ['English', 'Español', 'Deutsch', 'Français'] as NativeName[]) {
+        const chip = group.getByRole('button', { name, exact: true });
+        if (((await chip.getAttribute('aria-pressed')) === 'true') !== keep.includes(name)) await chip.click();
+    }
+}
+
+/** Types the answer, sends it and checks that the card says "Correct". */
+async function typeCorrectAnswer(page: Page, answer: string): Promise<void> {
+    await page.getByLabel('Your answer').fill(answer);
+    await page.getByLabel('Your answer').press('Enter');
+    await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Correct' }).first()).toBeVisible();
+}
+
+test.describe.serial('French practice (slice 7)', () => {
+    let nounUser: Account;
+    let verbUser: Account;
+
+    test.beforeAll(async ({ request }) => {
+        nounUser = await registerAndVerify(request, 'Noémie Petit', ALL_LANGUAGES);
+        verbUser = await registerAndVerify(request, 'Hugo Bernard', ALL_LANGUAGES);
+        const nounToken = await loginForToken(request, nounUser);
+        for (const { forms, gender } of NOUNS) {
+            await createWord(request, nounToken, 'Noun', [
+                { language: 'English', cases: [{ caseName: 'singularEN', word: forms.English }] },
+                { language: 'Spanish', cases: [{ caseName: 'singularES', word: forms.Español }] },
+                { language: 'German', cases: [{ caseName: 'singularNominativDE', word: forms.Deutsch }] },
+                { language: 'French', cases: [{ caseName: 'singularFR', word: forms.Français }, { caseName: 'genderFR', word: gender }] },
+            ]);
+        }
+        const verbToken = await loginForToken(request, verbUser);
+        await createWord(request, verbToken, 'Verb', [
+            { language: 'English', cases: [{ caseName: 'simplePresent1sEN', word: GO_PRESENT.English }, { caseName: 'simplePast1sEN', word: GO_PAST.English }] },
+            {
+                language: 'Spanish',
+                cases: [
+                    { caseName: 'infinitiveNonFiniteSimpleES', word: 'ir' },
+                    { caseName: 'indicativePresent1sES', word: GO_PRESENT.Español },
+                    { caseName: 'indicativePerfectSimplePast1sES', word: GO_PAST.Español },
+                ],
+            },
+            {
+                language: 'German',
+                cases: [
+                    { caseName: 'infinitiveDE', word: 'gehen' },
+                    { caseName: 'indicativePresent1sDE', word: GO_PRESENT.Deutsch },
+                    { caseName: 'indicativeSimplePast1sDE', word: GO_PAST.Deutsch },
+                ],
+            },
+            {
+                language: 'French',
+                cases: [
+                    { caseName: 'infinitiveFR', word: 'aller' },
+                    { caseName: 'auxVerbFR', word: 'être' },
+                    { caseName: 'verbGroupFR', word: '3e groupe' },
+                    { caseName: 'pastParticipleFR', word: 'allé' },
+                    { caseName: 'indicativePresent1sFR', word: GO_PRESENT.Français },
+                    { caseName: 'indicativeImperfect1sFR', word: GO_PAST.Français },
+                ],
+            },
+        ]);
+    });
+
+    /** Answers `count` cross-language cards between the kept languages, from the screen. */
+    async function answerCrossLanguage(page: Page, kept: NativeName[], words: Forms[], count: number, valueOf: (page: Page) => Promise<string>) {
+        await page.goto('/practice');
+        await configure(page, { amount: count, answer: 'Type the answer', languages: 'Different languages' });
+        await keepLanguages(page, kept);
+        await startSession(page);
+        const seen = new Set<NativeName>();
+        for (let i = 0; i < count; i++) {
+            const { from, to } = await cardLanguages(page);
+            expect(kept, `card ${i + 1} is between the kept languages`).toEqual(expect.arrayContaining([from, to]));
+            seen.add(from);
+            seen.add(to);
+            const prompt = await valueOf(page);
+            const entry = words.find((forms) => forms[from] === prompt);
+            expect(entry, `"${prompt}" (${from}) is one of the seeded words`).toBeDefined();
+            await typeCorrectAnswer(page, entry![to]);
+            await goOn(page);
+        }
+        await expect(page.getByRole('heading', { name: 'Session results' })).toBeVisible();
+        await expect(page.getByTestId('score')).toHaveText(`${count} of ${count}`);
+        await page.getByRole('button', { name: 'Finish' }).click(); // leaves the results: the next session starts from the set-up
+        return seen;
+    }
+
+    test('nouns: cards between French and Spanish, and between French and German, with no English card', async ({ page }) => {
+        await signIn(page, nounUser);
+        const seen = await answerCrossLanguage(page, ['Français', 'Español'], NOUNS.map((n) => n.forms), 2, currentPrompt);
+        expect([...seen].sort()).toEqual(['Español', 'Français']);
+
+        const second = await answerCrossLanguage(page, ['Français', 'Deutsch'], NOUNS.map((n) => n.forms), 2, currentPrompt);
+        expect([...second].sort()).toEqual(['Deutsch', 'Français']);
+    });
+
+    test('nouns: the gender drill asks for the article (le, la, le/la) of a French noun', async ({ page }) => {
+        await signIn(page, nounUser);
+        await page.goto('/practice');
+        await configure(page, { amount: 2, answer: 'Choose the answer', languages: 'Same language' });
+        await keepLanguages(page, ['Français']);
+        await startSession(page);
+        for (let i = 0; i < 2; i++) {
+            const prompt = await currentPrompt(page);
+            const noun = NOUNS.find((n) => n.forms.Français === prompt);
+            expect(noun, `"${prompt}" is a seeded French noun`).toBeDefined();
+            await expect(page.getByText('What is the gender of this word?')).toBeVisible();
+            const choices = page.getByRole('group', { name: 'Choose the answer' });
+            await expect(choices.getByRole('button')).toHaveCount(3);
+            await choices.getByRole('button', { name: noun!.gender, exact: true }).click();
+            await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+            await expect(page.getByRole('status').filter({ hasText: 'Correct' }).first()).toBeVisible();
+            await goOn(page);
+        }
+        await expect(page.getByTestId('score')).toHaveText('2 of 2');
+    });
+
+    test('a verb: the present and the past (the imparfait) between French and German, and between French and Spanish', async ({ page }) => {
+        const verbForms = [GO_PRESENT, GO_PAST];
+        await signIn(page, verbUser);
+        const seen = await answerCrossLanguage(page, ['Français', 'Deutsch'], verbForms, 2, promptValue);
+        expect([...seen].sort()).toEqual(['Deutsch', 'Français']);
+        const second = await answerCrossLanguage(page, ['Français', 'Español'], verbForms, 2, promptValue);
+        expect([...second].sort()).toEqual(['Español', 'Français']);
+    });
+
+    test('a verb: the past participle is typed; the auxiliary and the group are chosen', async ({ page }) => {
+        await signIn(page, verbUser);
+        await page.goto('/practice');
+
+        await configure(page, { amount: 1, answer: 'Type the answer', languages: 'Same language' });
+        await keepLanguages(page, ['Français']);
+        await startSession(page);
+        expect(await currentPrompt(page)).toBe('aller');
+        await expect(page.getByText('What is the past participle of this verb?')).toBeVisible();
+        await expect(page.getByLabel('Your answer')).toHaveAttribute('placeholder', 'Type the past participle…');
+        await typeCorrectAnswer(page, 'allé');
+        await goOn(page);
+        await expect(page.getByTestId('score')).toHaveText('1 of 1');
+        await page.getByRole('button', { name: 'Finish' }).click();
+
+        await page.goto('/practice');
+        await configure(page, { amount: 1, answer: 'Choose the answer', languages: 'Same language' });
+        await keepLanguages(page, ['Français']);
+        await startSession(page);
+        // One of the two French multiple-choice drills: the auxiliary or the group.
+        const choices = page.getByRole('group', { name: 'Choose the answer' });
+        const asksAuxiliary = await page.getByText('Which auxiliary verb does this verb use?').isVisible();
+        if (asksAuxiliary) {
+            await expect(choices.getByRole('button')).toHaveCount(2);
+            await choices.getByRole('button', { name: 'être', exact: true }).click();
+        } else {
+            await expect(page.getByText('Which group does this verb belong to?')).toBeVisible();
+            await expect(choices.getByRole('button')).toHaveCount(3);
+            await choices.getByRole('button', { name: '3e groupe', exact: true }).click();
+        }
+        await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+        await expect(page.getByRole('status').filter({ hasText: 'Correct' }).first()).toBeVisible();
     });
 });

@@ -186,13 +186,16 @@
       "Regularity": "Kas see verb on regulaarne või ebaregulaarne?",
       "Gerund": "Mis on selle verbi gerundium?",
       "Participle": "Mis on selle verbi kesksõna?",
-      "Auxiliary-Verb": "Millist abiverbi see verb kasutab?"
+      "Auxiliary-Verb": "Millist abiverbi see verb kasutab?",
+      "Past-Participle": "Mis on selle verbi mineviku kesksõna?",
+      "Verb-Group": "Millisesse tegusõnarühma see verb kuulub?"
     },
     "answerPlaceholderPronoun": "…",
     "placeholder": {
       "Participle": "Kirjuta kesksõna…",
       "Gerund": "Kirjuta gerundium…",
-      "Short-Form": "Kirjuta lühivorm…"
+      "Short-Form": "Kirjuta lühivorm…",
+      "Past-Participle": "Kirjuta mineviku kesksõna…"
     }
   },
   "feedback": {

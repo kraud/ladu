@@ -186,13 +186,16 @@
       "Regularity": "¿Este verbo es regular o irregular?",
       "Gerund": "¿Cuál es el gerundio de este verbo?",
       "Participle": "¿Cuál es el participio de este verbo?",
-      "Auxiliary-Verb": "¿Qué verbo auxiliar usa este verbo?"
+      "Auxiliary-Verb": "¿Qué verbo auxiliar usa este verbo?",
+      "Past-Participle": "¿Cuál es el participio pasado de este verbo?",
+      "Verb-Group": "¿A qué grupo verbal pertenece este verbo?"
     },
     "answerPlaceholderPronoun": "…",
     "placeholder": {
       "Participle": "Escribe el participio…",
       "Gerund": "Escribe el gerundio…",
-      "Short-Form": "Escribe la forma corta…"
+      "Short-Form": "Escribe la forma corta…",
+      "Past-Participle": "Escribe el participio pasado…"
     }
   },
   "feedback": {

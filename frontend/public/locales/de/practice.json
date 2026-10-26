@@ -186,13 +186,16 @@
       "Regularity": "Ist dieses Verb regelmäßig oder unregelmäßig?",
       "Gerund": "Was ist das Gerundium dieses Verbs?",
       "Participle": "Was ist das Partizip dieses Verbs?",
-      "Auxiliary-Verb": "Welches Hilfsverb verwendet dieses Verb?"
+      "Auxiliary-Verb": "Welches Hilfsverb verwendet dieses Verb?",
+      "Past-Participle": "Was ist das Partizip Perfekt dieses Verbs?",
+      "Verb-Group": "Zu welcher Verbgruppe gehört dieses Verb?"
     },
     "answerPlaceholderPronoun": "…",
     "placeholder": {
       "Participle": "Partizip eingeben…",
       "Gerund": "Gerundium eingeben…",
-      "Short-Form": "Kurzform eingeben…"
+      "Short-Form": "Kurzform eingeben…",
+      "Past-Participle": "Partizip Perfekt eingeben…"
     }
   },
   "feedback": {

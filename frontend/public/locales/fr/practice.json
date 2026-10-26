@@ -188,13 +188,16 @@
       "Regularity": "Ce verbe est-il régulier ou irrégulier ?",
       "Gerund": "Quel est le gérondif de ce verbe ?",
       "Participle": "Quel est le participe de ce verbe ?",
-      "Auxiliary-Verb": "Quel verbe auxiliaire ce verbe utilise-t-il ?"
+      "Auxiliary-Verb": "Quel verbe auxiliaire ce verbe utilise-t-il ?",
+      "Past-Participle": "Quel est le participe passé de ce verbe ?",
+      "Verb-Group": "À quel groupe ce verbe appartient-il ?"
     },
     "answerPlaceholderPronoun": "…",
     "placeholder": {
       "Participle": "Saisis le participe…",
       "Gerund": "Saisis le gérondif…",
-      "Short-Form": "Saisis la forme courte…"
+      "Short-Form": "Saisis la forme courte…",
+      "Past-Participle": "Saisis le participe passé…"
     }
   },
   "feedback": {
