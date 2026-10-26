@@ -1,7 +1,7 @@
 /**
  * Builds the onboarding pool (.context/plans/onboarding.md, Slice 2; decisions D9, D16, D17).
  * Input: the word lists (word-lists.ts → word-lists/en/<pos>.tsv), the newest translation file
- * (.data/out/translations-en-<date>.jsonl.gz) and the ES/DE/ET lexicon files (for a flag only).
+ * (.data/out/translations-en-<date>.jsonl.gz) and the ES/DE/ET/FR lexicon files (for a flag only).
  *
  * Per topic × level band: the 20 most frequent candidates (not restricted) that have a usable
  * translation; per band, the 100 most frequent "core" candidates (no topic; nouns and verbs need a
@@ -31,7 +31,14 @@
  * word-lists/pool-candidates.tsv. An entry list never writes pool.tsv (not even with `--force`, which
  * would replace the reviewed file with only the new lines): review the new lines and copy them in.
  *
- *   cd backend && npx tsx scripts/lexicon/onboarding-pool.ts [--force] [--entries <file>]
+ * Adding French to the reviewed pool (French slice 11, one time): `--add-french` reads pool.tsv in its
+ * old layout (no `fr`, `fr_gender`), looks up the hub sense with the concept's own `sense` label for French (the sense numbers differ between languages),
+ * and writes the new layout over pool.tsv. A French word is kept only when it is a grammar-tag word (no
+ * regional tag) and is in the French lexicon; else the cell stays empty and the concept is listed in
+ * the report. A `manual` line gets the first sense with a French word. Nobody reviewed these words yet
+ * (decision M1 of .context/plans/language-french.md: the teacher reads them later).
+ *
+ *   cd backend && npx tsx scripts/lexicon/onboarding-pool.ts [--force] [--entries <file>] [--add-french]
  */
 
 const fs: typeof import('fs') = require('fs');
@@ -44,7 +51,7 @@ const { POOL_FILE, POOL_COLUMNS, POOL_TOPICS, POOL_BANDS, POOL_PARTS_OF_SPEECH, 
 const WORD_LISTS_DIR = path.join(__dirname, '..', '..', '..', 'word-lists');
 const PER_TOPIC_CELL = 20;
 const PER_CORE_CELL = 100;
-const LANGUAGES: [string, string][] = [['Spanish', 'es'], ['German', 'de'], ['Estonian', 'et']];
+const LANGUAGES: [string, string][] = [['Spanish', 'es'], ['German', 'de'], ['Estonian', 'et'], ['French', 'fr']];
 const GRAMMAR_TAGS = new Set([
     'masculine', 'feminine', 'neuter', 'common-gender', 'by-personal-gender', 'singular', 'plural',
     'reflexive', 'formal', 'informal', 'colloquial', 'noun', 'verb', 'adjective', 'adverb',
@@ -191,13 +198,65 @@ function poolLine(candidate: Candidate, rows: HubRow[], lexicons: Map<string, Se
             `${candidate.partOfSpeech.toLowerCase()}:${candidate.lemma}`,
             candidate.topic, candidate.topics.join(','), candidate.band, candidate.partOfSpeech, String(candidate.rank), candidate.lemma,
             cell('Spanish', 'word'), cell('Spanish', 'gender'), cell('German', 'word'), cell('German', 'gender'), cell('Estonian', 'word'),
+            cell('French', 'word'), cell('French', 'gender'),
             senseRows[0].sense.replace(/\s+/g, ' '), senseKey, flags.join(' '),
         ];
     }
     return null;
 }
 
+/** The one-time migration of the reviewed pool.tsv: adds the `fr` and `fr_gender` columns (see the header). */
+async function addFrench(): Promise<void> {
+    const oldHeader = POOL_COLUMNS.filter((column) => column !== 'fr' && column !== 'fr_gender');
+    const [header, ...rows] = fs.readFileSync(POOL_FILE, 'utf8').split('\n').filter((line) => line.trim() !== '');
+    if (header.split('\t').includes('fr')) throw new Error('pool.tsv already has the French columns');
+    if (header !== oldHeader.join('\t')) throw new Error(`pool.tsv: unexpected header "${header}"`);
+    const concepts = rows.map((row) => {
+        const cells = row.split('\t');
+        if (cells.length !== oldHeader.length) throw new Error(`pool.tsv: a line has ${cells.length} columns, expected ${oldHeader.length}: ${cells[1]}`);
+        return Object.fromEntries(oldHeader.map((column, i) => [column, cells[i]])) as Record<string, string>;
+    });
+    const candidates: Candidate[] = concepts.map((c) => ({
+        lemma: c.en, partOfSpeech: c.pos, rank: Number(c.rank), topic: c.topic, topics: [], band: c.band, posOrder: null, givenName: false,
+    }));
+    const [hub, lexicons] = await Promise.all([readHub(candidates), readLexicons()]);
+    const french = lexicons.get('French')!;
+
+    const filled: string[] = [];
+    const empty: string[] = [];
+    const out = concepts.map((concept) => {
+        const rows = (hub.get(`${concept.pos}|${concept.en}`) ?? []).filter((row) => row.language === 'French');
+        // The sense numbers are not shared between languages (the hub numbers the senses that have a word in
+        // that language), so the sense is found by its label, as the reviewer read it in `sense`.
+        const bySense = new Map<string, HubRow[]>();
+        for (const row of rows) {
+            const label = row.sense.replace(/\s+/g, ' ');
+            if (!bySense.has(label)) bySense.set(label, []);
+            bySense.get(label)!.push(row);
+        }
+        // A hand-typed concept ("manual") has no hub sense: it takes the first sense that has a word.
+        const senses = concept.sense_key === 'manual' ? [...bySense.values()] : [bySense.get(concept.sense) ?? []];
+        let word = '';
+        let gender = '';
+        for (const senseRows of senses) {
+            const pick = pickWord(senseRows);
+            if (!pick || pick.regional || !french.has(`${concept.pos}|${pick.row.word}`)) continue;
+            word = pick.row.word;
+            gender = concept.pos === 'Noun' ? pick.row.gender ?? '' : '';
+            break;
+        }
+        (word ? filled : empty).push(concept.id);
+        const cells = { ...concept, fr: word, fr_gender: gender };
+        return POOL_COLUMNS.map((column) => (cells as Record<string, string>)[column]).join('\t');
+    });
+    fs.writeFileSync(POOL_FILE, [POOL_COLUMNS.join('\t'), ...out].join('\n') + '\n');
+    console.log(`French words: ${filled.length} of ${concepts.length} concepts; ${empty.length} left empty (no hub word in the reviewed sense, a regional word, or not in the lexicon)`);
+    console.log(`left empty: ${empty.join(' ')}`);
+    console.log(`wrote ${path.relative(process.cwd(), POOL_FILE)}`);
+}
+
 async function main(): Promise<void> {
+    if (process.argv.includes('--add-french')) return addFrench();
     const force = process.argv.includes('--force');
     const entriesAt = process.argv.indexOf('--entries');
     const entriesFile = entriesAt >= 0 ? process.argv[entriesAt + 1] : null;

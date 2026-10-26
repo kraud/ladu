@@ -64,6 +64,10 @@ describe('the template data file (scripts/demo-template/data.json)', () => {
         for (const tag of word.tags) expect(tagKeys).toContain(tag);
     });
 
+    it('has every word in all five languages, so a demo of any language pair has words to practise (French: slice 11)', () => {
+        for (const word of data.words) expect({ key: word.key, languages: Object.keys(word.translations).sort() }).toEqual({ key: word.key, languages: [...LANGUAGES].sort() });
+    });
+
     it('gives every adverb its Gradable / Non-gradable radio, and the full text next to a periphrastic box (gradable-radio plan, Q1, Q9)', () => {
         const adverbs = data.words.filter((w) => w.partOfSpeech === 'Adverb');
         expect(adverbs.length).toBeGreaterThan(0);
@@ -76,6 +80,10 @@ describe('the template data file (scripts/demo-template/data.json)', () => {
                 if (forms.periphrasticEN) expect(forms.comparativeEN).toBe(`more ${forms.adverbEN}`);
                 if (forms.periphrasticComparativeES) expect(forms.comparativeES).toBe(`más ${forms.adverbES}`);
                 if (forms.periphrasticSuperlativeEE) expect(forms.superlativeEE).toBe(`kõige ${forms.comparativeEE}`);
+                if (forms.periphrasticFR) {
+                    expect(forms.comparativeFR).toBe(`plus ${forms.adverbFR}`);
+                    expect(forms.superlativeFR).toBe(`le ${forms.comparativeFR}`);
+                }
             }
         }
     });

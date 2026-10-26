@@ -9,22 +9,31 @@
  * it at runtime and makes no lookups. Run it again after every edit of pool.tsv; the Jest test
  * onboardingPool.test.js fails while the two files disagree.
  *
- *   cd backend && npx tsx scripts/lexicon/onboarding-forms.ts
+ * With `--language <name>` (for example `French`) only that language is looked up and merged into the
+ * existing file; the other languages and the other fields stay as they are. A new language needs no
+ * Ekilex key this way. Run the plain command for a full rebuild.
+ *
+ *   cd backend && npx tsx scripts/lexicon/onboarding-forms.ts [--language French]
  */
 
 const fs: typeof import('fs') = require('fs');
 const path: typeof import('path') = require('path');
-const { readPool, hasKeyCases, pluralOnlyCases, adverbPoolCases, PLURAL_ONLY_NOUNS_EN, FORMS_FILE }: typeof import('../../lib/onboardingPool') = require('../../lib/onboardingPool');
+const { readPool, readForms, hasKeyCases, pluralOnlyCases, adverbPoolCases, PLURAL_ONLY_NOUNS_EN, FORMS_FILE }: typeof import('../../lib/onboardingPool') = require('../../lib/onboardingPool');
 const { draft }: typeof import('../../services/dictionary/draft') = require('../../services/dictionary/draft');
 const { pool: dbPool }: typeof import('../../src/db') = require('../../src/db');
 type ConceptForms = import('../../lib/onboardingPool').ConceptForms;
 
 /** Concepts looked up at the same time (each one runs its languages in parallel). Polite to Ekilex. */
 const PARALLEL = 4;
-const GENDER_CASE: Record<string, string> = { Spanish: 'genderES', German: 'genderDE' };
+const GENDER_CASE: Record<string, string> = { Spanish: 'genderES', German: 'genderDE', French: 'genderFR' };
 
 async function main(): Promise<void> {
     const concepts = readPool().filter((concept) => concept.status === 'keep');
+    const languageAt = process.argv.indexOf('--language');
+    const onlyLanguage = languageAt >= 0 ? process.argv[languageAt + 1] : null;
+    if (languageAt >= 0 && !onlyLanguage) throw new Error('--language needs a language name');
+    // One language: start from the committed forms and replace only that language's entries.
+    const previous = onlyLanguage ? readForms().concepts : {};
     const forms: Record<string, ConceptForms> = {};
     const missing: string[] = [];
     const unusable: string[] = [];
@@ -33,9 +42,12 @@ async function main(): Promise<void> {
     const worker = async (): Promise<void> => {
         while (next < concepts.length) {
             const concept = concepts[next++];
-            const picks = Object.entries(concept.words).map(([language, { word, gender }]) => ({ language, word, ...(gender ? { gender } : {}) }));
-            const results = await draft(concept.partOfSpeech, picks);
-            const entry: ConceptForms = {};
+            const picks = Object.entries(concept.words)
+                .filter(([language]) => !onlyLanguage || language === onlyLanguage)
+                .map(([language, { word, gender }]) => ({ language, word, ...(gender ? { gender } : {}) }));
+            const results = picks.length ? await draft(concept.partOfSpeech, picks) : [];
+            const entry: ConceptForms = onlyLanguage ? { ...(previous[concept.id] ?? {}) } : {};
+            if (onlyLanguage) delete entry[onlyLanguage];
             for (const result of results) {
                 const cases = Object.fromEntries(result.cases.map((c) => [c.caseName, c.word]));
                 // A lexicon row may lack the gender ("Teller", "sartén"); the pool has the hub's gender,

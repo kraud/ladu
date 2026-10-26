@@ -4,13 +4,13 @@
     "kicker": "Démo",
     "kickerNote": "aucun compte nécessaire",
     "title": "Toute la plateforme, prête à essayer.",
-    "lead": "Entre dans un compte Ladu d’exemple. Des mots en quatre langues, des étiquettes qui les regroupent déjà et une série d’exercices prête à démarrer — <strong>sans inscription, sans configuration</strong>.",
+    "lead": "Entre dans un compte Ladu d’exemple. Des mots en cinq langues, des étiquettes qui les regroupent déjà et une série d’exercices prête à démarrer — <strong>sans inscription, sans configuration</strong>.",
     "insideTitle": "Dans la démo",
     "insideMeta": "Aucune configuration nécessaire",
     "features": {
       "words": {
-        "title": "Chaque mot, de quatre façons.",
-        "text": "Lis le même mot en English, Deutsch, Español et Eesti."
+        "title": "Chaque mot, de cinq façons.",
+        "text": "Lis le même mot en English, Deutsch, Español, Eesti et Français."
       },
       "tags": {
         "title": "Les étiquettes font le tri.",

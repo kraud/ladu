@@ -13,7 +13,7 @@ const { TOPICS } = require('../../scripts/lexicon/onboarding-topics');
 
 // --- Synthetic pool -----------------------------------------------------------------------------
 
-const ALL = ['English', 'Spanish', 'German', 'Estonian'];
+const ALL = ['English', 'Spanish', 'German', 'Estonian', 'French'];
 
 /** A pool concept + its forms. `langs` = the languages with a word (and forms unless `noForms`). */
 const make = (id, { topic = 'food_drink', topics = [topic], band = 'beginner', rank = 100, pos = 'Noun', langs = ALL, status = 'keep', noForms = [], word } = {}) => ({
@@ -290,10 +290,21 @@ describe('the committed pool', () => {
 
     it('reaches at least 50 words for the smallest topics at every level (measured minimum: 80)', () => {
         for (const level of ['beginner', 'intermediate', 'advanced']) {
-            for (const learn of ['Spanish', 'German', 'Estonian']) {
+            for (const learn of ['Spanish', 'German', 'Estonian', 'French']) {
                 const c = choice({ languages: ['English', learn], levels: { [learn]: level }, topics: ['weather', 'technology_media', 'work_money', 'numbers_measures'] });
                 expect(capacity(pool, forms, c)).toBeGreaterThanOrEqual(50);
             }
+        }
+    });
+
+    it('gives a French learner Words with English and French forms (French slice 11)', () => {
+        const french = choice({ languages: ['English', 'French'], levels: { French: 'beginner' }, topics: ['food_drink', 'animals', 'clothing'] });
+        const selected = selectConcepts(pool, forms, french, 40);
+        expect(selected).toHaveLength(40);
+        for (const s of selected) {
+            expect(s.translations.map((t) => t.language).sort()).toEqual(['English', 'French']);
+            const frenchCases = s.translations.find((t) => t.language === 'French').cases;
+            expect(frenchCases.some((c) => c.caseName.endsWith('FR'))).toBe(true);
         }
     });
 });

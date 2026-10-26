@@ -1,6 +1,6 @@
 # Plan: Add French to Ladu (+ a reusable "add a language" guide)
 
-Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–10 done 2026-10-26 (slices 0–9b committed; slice 10 is built, not yet committed). Next: Slice 11, onboarding pool and demo template (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
+Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–11 done 2026-10-26 (slices 0–10 committed; slice 11 is built, not yet committed). Next: Slice 12, close (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
 
 ## How to start (read this first in a new session)
 
@@ -10,9 +10,18 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–10 done 2026-10-26 (sl
 4. Branch: `new-language-french`.
 5. Then read "Resume here" below: it holds the state, the working rules and the next slice.
 
-## Resume here (updated 2026-10-26, session 4, after slice 10)
+## Resume here (updated 2026-10-26, session 4, after slice 11)
 
-**Slice 10 (done 2026-10-26, session 4; not yet committed).** The French fixture loads in the e2e backend and in CI. **Next: slice 11** (onboarding pool and demo template; see "Slice 11" and "Later slices still need" below). Give the plain-language overview and ask for a confirmation first.
+**Slice 11 (done 2026-10-26, session 4; not yet committed).** Onboarding and the demo have French. **Next: slice 12** (close: finish `add-language.md`, check it against `git diff main --stat`, the rollout runbook, a final full e2e run). Give the plain-language overview and ask for a confirmation first.
+- Decisions (user): the script picks the French pool words and the teacher reviews them later (like M1); French adverbs are Gradable only when a comparative exists (the existing rule).
+- Pool: `pool.tsv` has `fr` and `fr_gender` (558 of 583 concepts; 25 left empty, listed in the teacher sheet). Made by the new one-time `onboarding-pool.ts --add-french`. **Found on the way:** the hub numbers senses per language, so the pool's `sense_key` does not point at the same meaning in French ("party" gave "détachement"); the script matches the sense by its `sense` label. `pool-forms.json` got French through the new `onboarding-forms.ts --language French` (no other language changed: checked; 0 translations left out). `lib/onboardingPool.ts` has French columns, gender list and key cases. The 25 concepts without a French word still have at least 2 other languages.
+- Demo: `data.json` has French on all 14 words and in both saved configs; `ALL_LANGUAGES` has French; the "four languages" texts and the language-names line in `demo.json` (5 locales); the French row in `DemoIntro.tsx`; the landing word card (a French row, `--lang-fr`, five-language texts in 5 languages). Screens checked at 1280 and 375 px (landing) and 1280 px (/demo, which shows "demo is off" locally).
+- Tests: `onboardingPool.test.js` and `onboardingSelect.test.js` (French cases, a French learner gets 40 words), `demoStart.test.js` (five languages), `demoTemplate.test.js` (every word in all five languages; the French "plus" rule).
+- Gates: backend typecheck and lint, frontend typecheck and lint; backend 74 suites / 2947 tests; frontend 144 files / 2086 tests; landing 48 tests; full e2e **196 passed** (3.1 min).
+- **Not done:** no new e2e test. The e2e database keeps an older demo template ("already there"), so a French demo e2e needs a reseed with `--reset` first; the demo and onboarding French paths are covered by Jest. The local dev demo template is not reseeded yet; each environment needs `seed-demo-template.js --reset` at rollout.
+
+**Slice 10 (done 2026-10-26, session 4; committed).**
+**Slice 10 (done 2026-10-26, session 4; committed).** The French fixture loads in the e2e backend and in CI.
 - Built: `backend/package.json` `lexicon:load:fixture` (the French fixture, before the translations file); `e2e/playwright.config.ts` (comment only); `e2e/tests/autocomplete-j-french-lexicon.spec.ts`: 7 tests (cheval; aimer with group, auxiliary, both participles and four tenses; partir with an empty auxiliary; "se laver" through "laver"; beau with the vowel form; "parce que" type; a miss with the notice and no button). The user chose the lookup-only scope; start-from-word with a French draft stays covered by the backend route tests. `ci.yml` needs no edit (it starts the Playwright config, which runs the script). `.context/guides/add-language.md` updated.
 - **Side effect found by the full run:** once the e2e database holds French words, typing a whole French word opens the type-ahead list, and the list hides the page from the accessibility tree. The old French forms spec failed at the auxiliary radios (and 44 later tests did not run). Fixed: `closeTypeAheadList` after the six French words that are in the fixture (cheval, beau, bon, aller, vite, bien) in `language-french-forms.spec.ts`. Any new e2e that types a fixture word in a French card needs the same.
 - Gates: full e2e **196 passed** (2.6 min) on the third run. Run 1 failed on the issue above. Run 2 had one failure in `practice-change-configuration.spec.ts` (the name field got "Morning drillMorning drill (9)": a fill race under 6 workers); that spec passed 4 of 4 alone and the next full run was green. Not touched by this slice; treat as a flake. Backend and frontend unit tests were not rerun: this slice changes no backend or frontend source (only `package.json` script, a config comment, e2e specs and docs).
@@ -66,7 +75,7 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–10 done 2026-10-26 (sl
 
 **Open questions for the French teacher** (all in the review log, in `language-french-review.md` (forms and practice) and in `language-french-strings.md` (interface)): M1 (the machine-made French interface), M2 (elision in the article), M3 (practice "past" is the imparfait), m1 (verb group instead of regularity; groups 1 and 2 regular, group 3 irregular), V3 (reflexive hint without elision: m', t', s'), V4 (participle typed twice), F1/F5 (comparative and superlative in the male singular only), F2 ("la" in the gender filter is shared with Spanish), F4 (position wording), S6-1 to S6-3 (the conditional mood, the adverb degrees), S7-2 (the "Je/J'" label in practice), and the ten decisions R1–R10 (tu, typography, "étiquette", "entraînement" …).
 
-**Later slices still need** (do not forget): the demo text "four languages" in five locales and the landing word card (slice 11); the French row in `DemoIntro.tsx` (slice 11); `controllers/demoController.ts` `ALL_LANGUAGES` gets French (slice 11); the onboarding pool columns (slice 11); the rollout runbook (slice 12).
+**Later slices still need** (do not forget): the rollout runbook (slice 12). Slice 11 did the rest of the earlier list (demo text, landing card, `DemoIntro`, `ALL_LANGUAGES`, pool columns).
 
 **Side task: e2e on its own ports and its own database** (done 2026-10-26, session 2, not part of the French plan).
 - `e2e/fixtures/env.ts` holds the ports, the URLs and the database URL. The config, `fixtures/db.ts` and every spec read them from there.
@@ -90,7 +99,7 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–10 done 2026-10-26 (sl
 - [x] Slice 9a (2026-10-26) — French lexicon and lookup: nouns, adjectives, adverbs, conjunctions, prepositions. `selectors/fr.ts`, ingest, registry, gender map, frontend registry, credits page, fixtures, tests; lexicon and translations built and loaded into the dev database; draft route limit fixed (A8). Backend 74 suites / 2930 tests and frontend 144 files / 2086 tests green
 - [x] Slice 9b (2026-10-26) — French lexicon and lookup: verbs. Table-based verb selectors, `withPronominalFallback`, ingest, registry, frontend registry, fixtures, tests; French lexicon rebuilt and reloaded into the dev database. Typecheck and lint (both workspaces), backend 74 suites / 2945 tests and frontend 144 files / 2086 tests are green
 - [x] Slice 10 (2026-10-26) — Autocomplete e2e spec: `lexicon-fr-fixture.jsonl` added to `lexicon:load:fixture`, `autocomplete-j-french-lexicon.spec.ts` (7 tests: noun, verb, dual-auxiliary verb, "se laver", adjective, conjunction, a miss). Full e2e green (196 passed). The French fixture made `language-french-forms.spec.ts` fail (the type-ahead list hid the radios), fixed with `closeTypeAheadList`
-- [ ] Slice 11 — Onboarding pool and demo template
+- [x] Slice 11 (2026-10-26) — Onboarding pool and demo template: French pool words (`--add-french`, 558 of 583) and forms (`--language French`), demo template, `ALL_LANGUAGES`, the "four languages" texts, `DemoIntro` and the landing word card, teacher questions O1–O5. Typecheck, lint, backend (74 suites, 2947 tests), frontend (144 files, 2086 tests), landing (48 tests) and full e2e (196 passed) are green
 - [ ] Slice 12 — Close: finish the guide, rollout runbook, final e2e run
 
 ## Review log

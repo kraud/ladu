@@ -5,7 +5,7 @@
  *
  * One line = one concept: an English lemma and part of speech, its primary topic and the list of
  * all its topics ("core" = no topic; a concept can have a second topic and then gets both tags),
- * its level band, and one word per language (with the noun gender for German and Spanish). The
+ * its level band, and one word per language (with the noun gender for German, Spanish and French). The
  * words go through the same lookup as the "Start from a word" draft route to get their forms.
  * Decisions of the 2026-10 refresh: .context/onboarding-words-resolutions.md.
  */
@@ -16,7 +16,7 @@ const { TOPICS, LEVEL_BANDS }: typeof import('../scripts/lexicon/onboarding-topi
 
 export const POOL_FILE = path.resolve(__dirname, '../scripts/onboarding/pool.tsv');
 export const POOL_COLUMNS = [
-    'status', 'id', 'topic', 'topics', 'band', 'pos', 'rank', 'en', 'es', 'es_gender', 'de', 'de_gender', 'et', 'sense', 'sense_key', 'flags',
+    'status', 'id', 'topic', 'topics', 'band', 'pos', 'rank', 'en', 'es', 'es_gender', 'de', 'de_gender', 'et', 'fr', 'fr_gender', 'sense', 'sense_key', 'flags',
 ] as const;
 /** `keep`: used. `check`: the script found something to look at (see `flags`). `drop`: never used. */
 export const POOL_STATUSES = ['keep', 'check', 'drop'] as const;
@@ -24,7 +24,7 @@ export const CORE_TOPIC = 'core';
 export const POOL_TOPICS = [...TOPICS.map((topic) => topic.id), CORE_TOPIC];
 export const POOL_BANDS = LEVEL_BANDS.map((band) => band.level);
 export const POOL_PARTS_OF_SPEECH = ['Noun', 'Verb', 'Adjective', 'Adverb'];
-export const POOL_GENDERS: Record<'es' | 'de', string[]> = { es: ['el', 'la', 'el/la'], de: ['der', 'die', 'das'] };
+export const POOL_GENDERS: Record<'es' | 'de' | 'fr', string[]> = { es: ['el', 'la', 'el/la'], de: ['der', 'die', 'das'], fr: ['le', 'la', 'le/la'] };
 
 export type PoolStatus = (typeof POOL_STATUSES)[number];
 export interface PoolConcept {
@@ -46,7 +46,7 @@ export interface PoolConcept {
 }
 
 const LANGUAGE_COLUMNS: [string, string, string | null][] = [
-    ['English', 'en', null], ['Spanish', 'es', 'es_gender'], ['German', 'de', 'de_gender'], ['Estonian', 'et', null],
+    ['English', 'en', null], ['Spanish', 'es', 'es_gender'], ['German', 'de', 'de_gender'], ['Estonian', 'et', null], ['French', 'fr', 'fr_gender'],
 ];
 
 /**
@@ -78,6 +78,7 @@ export function parsePool(text: string): PoolConcept[] {
         if (!POOL_PARTS_OF_SPEECH.includes(cell.pos)) fail(`unknown part of speech "${cell.pos}"`);
         if (cell.es_gender && !POOL_GENDERS.es.includes(cell.es_gender)) fail(`unknown Spanish gender "${cell.es_gender}"`);
         if (cell.de_gender && !POOL_GENDERS.de.includes(cell.de_gender)) fail(`unknown German gender "${cell.de_gender}"`);
+        if (cell.fr_gender && !POOL_GENDERS.fr.includes(cell.fr_gender)) fail(`unknown French gender "${cell.fr_gender}"`);
         if (!(POOL_BANDS as readonly string[]).includes(cell.band)) throw new Error(`pool.tsv line ${index + 2}: unknown band "${cell.band}"`);
         if (!/^(\d+\.\d+|manual)$/.test(cell.sense_key)) throw new Error(`pool.tsv line ${index + 2}: sense_key "${cell.sense_key}" must be <entry>.<sense> or manual`);
         return {
@@ -112,17 +113,18 @@ export const KEY_CASES: Record<string, Record<string, string[][]>> = {
     Noun: {
         English: [['singularEN']], Spanish: [['genderES'], ['singularES']],
         German: [['genderDE'], ['singularNominativDE']], Estonian: [['singularNimetavEE']],
+        French: [['genderFR'], ['singularFR']],
     },
     Verb: {
         English: [['simplePresent1sEN']], Spanish: [['infinitiveNonFiniteSimpleES']],
-        German: [['infinitiveDE']], Estonian: [['infinitiveMaEE']],
+        German: [['infinitiveDE']], Estonian: [['infinitiveMaEE']], French: [['infinitiveFR']],
     },
     Adjective: {
         English: [['positiveEN']], Spanish: [['maleSingularES', 'neutralSingularES']],
-        German: [['positiveDE']], Estonian: [['algvorreEE']],
+        German: [['positiveDE']], Estonian: [['algvorreEE']], French: [['maleSingularFR']],
     },
     Adverb: {
-        English: [['adverbEN']], Spanish: [['adverbES']], German: [['adverbDE']], Estonian: [['adverbEE']],
+        English: [['adverbEN']], Spanish: [['adverbES']], German: [['adverbDE']], Estonian: [['adverbEE']], French: [['adverbFR']],
     },
 };
 

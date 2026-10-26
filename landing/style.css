@@ -21,6 +21,7 @@
     --lang-de: #42403c;
     --lang-es: #b8352f;
     --lang-ee: #2265a8;
+    --lang-fr: #6a3fa0;
 
     --ok: #1a8f4a; /* a right answer */
     --bad: #d6453d; /* a wrong answer */
@@ -49,6 +50,7 @@
     --lang-de: #b4b0a6;
     --lang-es: #ef7d76;
     --lang-ee: #6fb0ec;
+    --lang-fr: #b79af0;
 
     --ok: #4cc38a;
     --bad: #ef7d76;
@@ -73,6 +75,7 @@
         --lang-de: #b4b0a6;
         --lang-es: #ef7d76;
         --lang-ee: #6fb0ec;
+        --lang-fr: #b79af0;
 
         --ok: #4cc38a;
         --bad: #ef7d76;
@@ -425,6 +428,7 @@ h1 {
 .lang-es { --lang-color: var(--lang-es); }
 .lang-de { --lang-color: var(--lang-de); }
 .lang-ee { --lang-color: var(--lang-ee); }
+.lang-fr { --lang-color: var(--lang-fr); }
 
 /* The gender of a noun, a small badge at the end of its row (the Spanish and German words of the bubble, when the word
    is a noun: casa - la, Haus - das). app.js fills it and shows it. */

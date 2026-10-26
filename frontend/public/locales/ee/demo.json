@@ -4,13 +4,13 @@
     "kicker": "Demo",
     "kickerNote": "kontot pole vaja",
     "title": "Kogu platvorm, valmis proovimiseks.",
-    "lead": "Astu näidis-Ladu kontole. Sõnad neljas keeles, sildid, mis neid juba rühmitavad, ja harjutuskomplekt, mis ootab – <strong>ilma registreerumise ja seadistamiseta</strong>.",
+    "lead": "Astu näidis-Ladu kontole. Sõnad viies keeles, sildid, mis neid juba rühmitavad, ja harjutuskomplekt, mis ootab – <strong>ilma registreerumise ja seadistamiseta</strong>.",
     "insideTitle": "Demo sees",
     "insideMeta": "Seadistamist pole vaja",
     "features": {
       "words": {
-        "title": "Iga sõna neljas keeles.",
-        "text": "Loe sama sõna keeltes English, Deutsch, Español ja Eesti."
+        "title": "Iga sõna viies keeles.",
+        "text": "Loe sama sõna keeltes English, Deutsch, Español, Eesti ja Français."
       },
       "tags": {
         "title": "Sildid sorteerivad sinu eest.",

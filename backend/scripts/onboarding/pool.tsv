@@ -1,584 +1,584 @@
-status	id	topic	topics	band	pos	rank	en	es	es_gender	de	de_gender	et	sense	sense_key	flags
-keep	noun:coat	clothing	clothing	beginner	Noun	1855	coat	abrigo	el	Mantel	der	mantel	outer garment covering the upper torso and arms	0.0	
-keep	noun:dress	clothing	clothing	beginner	Noun	5066	dress	vestido	el	Kleid	das	kleit	item of clothing which both covers the upper part of the body and includes a skirt below the waist	0.0	
-keep	noun:hat	clothing	clothing	beginner	Noun	1410	hat	sombrero	el	Kappe	die	müts	a head covering	0.0	
-keep	noun:jacket	clothing	clothing	beginner	Noun	2076	jacket	chaqueta	la	Jacke	die	jakk	piece of clothing worn on the upper body outside a shirt or blouse	0.0	
-keep	noun:pants	clothing	clothing	beginner	Noun	1373	pants	pantalón	el	Hose	die	püksid	garment covering the body from the waist downwards	0.0	
-keep	noun:shirt	clothing	clothing	beginner	Noun	1611	shirt	camisa	la	Hemd	das	särk	article of clothing	0.0	
-keep	noun:shoe	clothing	clothing	beginner	Noun	1114	shoe	zapato	el	Schuh	der	king	protective covering for the foot	0.0	
-keep	noun:skirt	clothing	clothing	beginner	Noun	4890	skirt	falda	la	Rock	der	seelik	article of clothing	0.0	
-keep	noun:sock	clothing	clothing	beginner	Noun	3981	sock	calcetín	el	Socke	die	sokk	covering for the foot	0.0	es:manual
-keep	noun:suit	clothing	clothing	beginner	Noun	1215	suit	traje	el	Anzug	der	ülikond	set of clothes	0.0	
-keep	verb:wear	clothing	clothing	beginner	Verb	789	wear	llevar		tragen		kandma	to have on (clothes or accessories)	0.0	es:manual
-keep	adjective:new	core	clothing,core	beginner	Adjective	178	new	nuevo		neu		uus	recently made or created	0.0	
-keep	noun:boot	clothing	clothing	intermediate	Noun	4432	boot	bota	la	Stiefel	der	saabas	heavy shoe that covers part of the leg	0.0	
-keep	noun:belt	clothing	clothing	intermediate	Noun	2686	belt	cinturón	el	Gürtel	der	vöö	band worn around the waist	0.0	
-keep	noun:cap	clothing	clothing	intermediate	Noun	3050	cap	gorra	la	Mütze	die	kübar	head covering	0.0	et:ekilex
-keep	noun:clothes	clothing	clothing	intermediate	Noun	790	clothes	ropa	la	Kleidung	die	kehakate	apparel	0.0	de:manual
-keep	noun:glove	clothing	clothing	intermediate	Noun	3840	glove	guante	el	Handschuh	der	sõrmik	item of clothing	0.0	
-keep	noun:scarf	clothing	clothing	intermediate	Noun	6367	scarf	bufanda	la	Schal	der	sall	long garment worn around the neck	0.0	
-keep	noun:ring	clothing	clothing	intermediate	Noun	832	ring	anillo	el	Ring	der	rõngas	circumscribing object	0.0	
-keep	noun:pocket	clothing	clothing	intermediate	Noun	1916	pocket	bolsillo	el	Tasche	die	tasku	bag stitched to an item of clothing	0.0	
-keep	noun:zip	clothing	clothing	intermediate	Noun	6732	zip	cremallera	la	Reißverschluss	der	tõmblukk	fastener for clothing	manual	es:manual de:manual et:manual
-keep	noun:umbrella	clothing	clothing	intermediate	Noun	5827	umbrella	paraguas	el	Schirm	der	vihmavari	cloth-covered frame used for protection against rain or sun	0.0	
-keep	verb:fit	clothing	clothing	intermediate	Verb	1184	fit	ajustar		passen		klappima	to conform to in size and shape	0.2	es:manual et:ekilex
-keep	noun:apron	clothing	clothing	advanced	Noun	10063	apron	delantal	el	Schürze	die	põll	clothing	0.0	
-keep	noun:blouse	clothing	clothing	advanced	Noun	9129	blouse	blusa	la	Bluse	die	pluus	an outer garment, usually loose, that is similar to a shirt	0.0	et:ekilex
-keep	noun:diaper	clothing	clothing	advanced	Noun	9065	diaper	pañal	el	Windel	die	mähe	absorbent garment for waste material	0.0	
-keep	noun:jewellery	clothing	clothing	advanced	Noun	9234	jewellery	joyería	la	Schmuck	der	ehe	personal ornamentation	0.0	et:manual
-keep	noun:robe	clothing	clothing	advanced	Noun	7037	robe	bata	la	Robe	die	kleit	long, loose outer garment	0.0	
-keep	noun:slipper	clothing	clothing	advanced	Noun	8419	slipper	pantufla	la	Hausschuh	der	suss	low shoe usually worn indoors	0.1	de:manual
-keep	noun:stocking	clothing	clothing	advanced	Noun	10132	stocking	media	la	Strumpf	der	sukk	garment (for translations of "sock", see sock)	0.0	
-keep	verb:suit	clothing	clothing	advanced	Verb	2997	suit	dar la talla		passen		hakkama	to be appropriate or apt for	0.1	de:manual et:ekilex
-keep	verb:tie	clothing	clothing	advanced	Verb	1673	tie	atar		binden		siduma	to attach or fasten with string	0.0	et:ekilex
-keep	noun:vest	clothing	clothing	advanced	Noun	6771	vest	chaleco	el	Weste	die	vest	garment worn over a shirt	0.0	et:ekilex
-keep	noun:apple	food_drink	food_drink	beginner	Noun	2628	apple	manzana	la	Apfel	der	õun	fruit of Malus domestica	0.0	
-keep	noun:bread	food_drink	food_drink	beginner	Noun	1882	bread	pan	el	Brot	das	leib	baked dough made from cereals	0.0	
-keep	noun:breakfast	food_drink	food_drink	beginner	Noun	1276	breakfast	desayuno	el	Frühstück	das	hommikueine	first meal of the day	0.0	
-keep	noun:butter	food_drink	food_drink	beginner	Noun	3015	butter	mantequilla	la	Butter	die	või	soft foodstuff made from milk	0.0	
-keep	noun:chicken	food_drink	food_drink,animals	beginner	Noun	1224	chicken	pollo	el	Huhn	das	kana	bird	0.0	
-keep	noun:coffee	food_drink	food_drink	beginner	Noun	666	coffee	café	el	Kaffee	der	kohv	beverage	0.0	
-keep	noun:drink	food_drink	food_drink	beginner	Noun	398	drink	bebida	la	Getränk	das	jook	served beverage	0.0	es:manual
-keep	verb:drink	food_drink	food_drink	beginner	Verb	398	drink	beber		trinken		jooma	consume liquid through the mouth	0.0	
-keep	verb:eat	food_drink	food_drink	beginner	Verb	373	eat	comer		essen		sööma	to ingest — see also consume, ingest	0.0	
-keep	noun:egg	food_drink	food_drink	beginner	Noun	1877	egg	huevo	el	Ei	das	muna	approximately spherical or ellipsoidal body produced by birds, insects, reptiles, and other animals, housing the embryo within a membrane or shell during its development	0.0	
-keep	noun:fruit	food_drink	food_drink	beginner	Noun	2436	fruit	fruta	la	Frucht	die	puuvili	part of plant	0.0	
-keep	noun:meat	food_drink	food_drink	beginner	Noun	1503	meat	carne	la	Fleisch	das	liha	animal flesh used as food	0.0	
-keep	noun:milk	food_drink	food_drink	beginner	Noun	1473	milk	leche	la	Milch	die	piim	liquid	0.0	
-keep	noun:tea	food_drink	food_drink	beginner	Noun	928	tea	té	el	Tee	der	tee	drink made from leaves of tea plant	0.1	
-keep	noun:water	food_drink	food_drink	beginner	Noun	378	water	agua	la	Wasser	das	vesi	inorganic compound H₂O	0.0	
-keep	noun:beer	food_drink	food_drink	intermediate	Noun	1080	beer	cerveza	la	Bier	das	õlu	alcoholic drink made of malt	0.0	
-keep	noun:cheese	food_drink	food_drink	intermediate	Noun	1857	cheese	queso	el	Käse	der	juust	dairy product	0.0	
-keep	noun:fish	animals	food_drink,animals	beginner	Noun	888	fish	pez	el	Fisch	der	kala	vertebrate animal	0.0	
-keep	noun:juice	food_drink	food_drink	intermediate	Noun	2427	juice	zumo	el	Saft	der	mahl	liquid from a plant	0.0	
-keep	noun:meal	food_drink	food_drink	intermediate	Noun	2065	meal	comida	la	Mahlzeit	die	söök	food that is prepared and eaten	0.0	
-keep	noun:oil	food_drink	food_drink	intermediate	Noun	1571	oil	aceite	el	Öl	das	õli	liquid fat	0.0	
-keep	noun:orange	food_drink	food_drink	intermediate	Noun	2954	orange	naranjo	el	Apfelsinenbaum	der	apelsinipuu	tree	0.0	
-keep	noun:pepper	food_drink	food_drink	intermediate	Noun	4797	pepper	pimentero	el	Pfeffer	der	pipar	plant	0.0	
-keep	noun:rice	food_drink	food_drink	intermediate	Noun	2371	rice	arroz	el	Reis	der	riis	plants	0.0	
-keep	noun:salt	food_drink	food_drink	intermediate	Noun	2641	salt	sal	la	Salz	das	sool	sodium chloride	0.0	
-keep	noun:soup	food_drink	food_drink	intermediate	Noun	2125	soup	sopa	la	Suppe	die	supp	dish	0.0	
-keep	noun:sugar	food_drink	food_drink	intermediate	Noun	1804	sugar	azúcar	el/la	Zucker	der	suhkur	sucrose from sugar cane or sugar beet used to sweeten food and drink	0.0	es:manual
-keep	noun:vegetable	food_drink	food_drink	intermediate	Noun	5161	vegetable	verdura	la	Gemüse	das	köögivili	a plant raised for some edible part of it	0.0	
-keep	noun:wine	food_drink	food_drink	intermediate	Noun	1050	wine	vino	el	Wein	der	vein	alcoholic beverage made from grapes — see also port wine, chianti	0.0	
-keep	verb:cook	food_drink	food_drink	intermediate	Verb	1391	cook	cocinar		kochen		keetma	to prepare food for eating	0.0	
-keep	verb:bake	food_drink	food_drink	advanced	Verb	6799	bake	hornear		backen		küpsetama	to cook in an oven	0.0	
-keep	noun:beef	food_drink	food_drink	advanced	Noun	3173	beef	carne de res	la	Rindfleisch	das	veiseliha	meat	0.0	
-keep	noun:garlic	food_drink	food_drink	advanced	Noun	7206	garlic	ajo	el	Knoblauch	der	küüslauk	plant	0.0	
-keep	noun:ingredient	food_drink	food_drink	advanced	Noun	7076	ingredient	ingrediente	el	Zutat	die	koostisosa	substance present in a mixture	0.0	
-keep	noun:mushroom	food_drink	food_drink	advanced	Noun	7384	mushroom	seta	la	Pilz	der	seen	fruiting body of a fungus — see also fungus, champignon, fairy-ring champignon	0.0	
-keep	noun:pasta	food_drink	food_drink	advanced	Noun	6589	pasta	pasta	la	Nudel	die	pasta	dough	0.0	de:manual
-keep	noun:pork	food_drink	food_drink	advanced	Noun	3998	pork	cerdo	el	Schweinefleisch	das	sealiha	meat of a pig	0.0	
-keep	noun:recipe	food_drink	food_drink	advanced	Noun	5276	recipe	receta	la	Rezept	das	retsept	instructions for making or preparing food dishes	0.0	
-keep	noun:seafood	food_drink	food_drink	advanced	Noun	12150	seafood	marisco	el	Meeresfrüchte	die	mereannid	fish, shellfish, seaweed and other edible aquatic life	0.0	et:ekilex
-keep	noun:spice	food_drink	food_drink	advanced	Noun	7760	spice	especia	la	Würze	die	vürts	plant matter used to season or flavour food	0.0	
-keep	noun:taste	food_drink	food_drink	advanced	Noun	1252	taste	gusto	el	Geschmack	der	maitse	one of the sensations produced by the tongue	0.0	
-keep	verb:taste	food_drink	food_drink	advanced	Verb	1252	taste	gustar		kosten		maitsema	to sample the flavor of something	0.0	et:ekilex
-keep	noun:bird	animals	animals	beginner	Noun	1350	bird	pájaro	el	Vogel	der	lind	animal	0.0	
-keep	noun:cat	animals	animals	beginner	Noun	1041	cat	gato	el	Katze	die	kass	domestic species	0.0	
-keep	noun:cow	animals	animals	beginner	Noun	2377	cow	vaca	la	Kuh	die	lehm	adult female of species Bos taurus	0.0	
-keep	noun:dog	animals	animals	beginner	Noun	538	dog	perro	el	Hund	der	koer	animal	0.0	
-keep	noun:duck	animals	animals	beginner	Noun	2631	duck	pato	el	Ente	die	part	aquatic bird of the family Anatidae	1.0	
-keep	noun:horse	animals	animals	beginner	Noun	869	horse	caballo	el	Pferd	das	hobune	members of the species ''Equus ferus''	0.0	
-keep	noun:mouse	animals	animals	beginner	Noun	3361	mouse	ratón	el	Maus	die	hiir	rodent of the genus Mus	0.0	
-keep	noun:pig	animals	animals	beginner	Noun	1760	pig	cerdo	el	Schwein	das	siga	mammal of family Suidae	0.0	
-keep	noun:rabbit	animals	animals	beginner	Noun	3082	rabbit	conejo	el	Kaninchen	das	küülik	mammal	0.0	
-keep	noun:sheep	animals	animals	beginner	Noun	3064	sheep	carnero	el	Schaf	das	lammas	animal	0.0	
-keep	noun:zoo	animals	animals	beginner	Noun	4303	zoo	zoo	el	Zoo	der	loomaaed	park where live animals are exhibited	0.0	
-keep	noun:bear	animals	animals	intermediate	Noun	3948	bear	oso	el	Bär	der	karu	large mammal of family Ursidae	0.0	
-keep	noun:bee	animals	animals	intermediate	Noun	94	bee	abeja	la	Biene	die	mesilane	insect	0.0	
-keep	noun:butterfly	animals	animals	intermediate	Noun	5548	butterfly	mariposa	la	Schmetterling	der	liblikas	insect	0.0	
-keep	noun:elephant	animals	animals	intermediate	Noun	3774	elephant	elefante	el	Elefant	der	elevant	mammal	0.0	
-keep	noun:fly	animals	animals	intermediate	Noun	964	fly	mosco	el	Fliege	die	kahetiivaline	insect of the order Diptera	0.0	
-keep	noun:frog	animals	animals	intermediate	Noun	4891	frog	rana	la	Frosch	der	konn	amphibian	0.0	
-keep	noun:lion	animals	animals	intermediate	Noun	2889	lion	león	el	Löwe	der	lõvi	big cat Panthera leo	0.0	
-keep	noun:monkey	animals	animals	intermediate	Noun	2221	monkey	mono	el	Affe	der	pärdik	primate	0.0	
-keep	noun:snake	animals	animals	intermediate	Noun	2496	snake	serpiente	la	Schlange	die	madu	legless reptile	0.0	
-keep	noun:spider	animals	animals	intermediate	Noun	4300	spider	araña	la	Spinne	die	ämblik	arthropod	0.0	
-keep	noun:wolf	animals	animals	intermediate	Noun	2361	wolf	lobo	el	Wolf	der	susi	animal	0.0	
-keep	noun:eagle	animals	animals	advanced	Noun	4085	eagle	águila	la	Adler	der	kotkas	any of several large carnivorous birds in the family Accipitridae	0.0	
-keep	noun:feather	animals	animals	advanced	Noun	6136	feather	pluma	la	Feder	die	sulg	branching, hair-like structure that grows on the bodies of birds	0.0	
-keep	noun:fur	animals	animals	advanced	Noun	5435	fur	pelo	el	Fell	das	karvastik	hairy coat of a mammal, especially when fine, soft and thick	0.0	
-keep	noun:insect	animals	animals	advanced	Noun	6291	insect	insecto	el	Insekt	das	putukas	arthropod of class Insecta	0.0	
-keep	noun:owl	animals	animals	advanced	Noun	6938	owl	búho	el	Eule	die	öökull	bird	0.0	
-keep	noun:pet	animals	animals	advanced	Noun	3237	pet	mascota	la	Haustier	das	lemmikloom	an animal kept as a companion	0.0	
-keep	noun:shark	animals	animals	advanced	Noun	3643	shark	tiburón	el	Hai	der	hai	fish	0.0	
-keep	noun:tail	animals	animals	advanced	Noun	2607	tail	cola	la	Schwanz	der	saba	appendage of an animal — see also dock	0.0	
-keep	noun:turtle	animals	animals	advanced	Noun	4458	turtle	tortuga	la	Schildkröte	die	kilpkonn	land or marine reptile with a shell	0.0	
-keep	noun:whale	animals	animals	advanced	Noun	4930	whale	ballena	la	Wal	der	vaal	large sea mammal	0.0	
-keep	noun:beach	plants_nature	plants_nature	beginner	Noun	1378	beach	playa	la	Strand	der	rand	sandy shore	0.0	
-keep	noun:flower	plants_nature	plants_nature	beginner	Noun	1352	flower	flor	la	Blüte	die	lill	reproductive structure in angiosperms	0.0	
-keep	noun:forest	plants_nature	plants_nature	beginner	Noun	1875	forest	bosque	el	Wald	der	mets	dense collection of trees	0.0	
-keep	noun:island	plants_nature	plants_nature	beginner	Noun	1056	island	isla	la	Insel	die	saar	area of land completely surrounded by water	0.0	
-keep	noun:lake	plants_nature	plants_nature	beginner	Noun	1794	lake	lago	el	See	der	järv	body of water	0.0	
-keep	noun:mountain	plants_nature	plants_nature	beginner	Noun	1596	mountain	montaña	la	Berg	der	mägi	large mass of earth and rock	0.0	
-keep	noun:ocean	plants_nature	plants_nature	beginner	Noun	1942	ocean	océano	el	Weltmeer	das	ookean	one of the large bodies of water	0.0	
-keep	noun:plant	plants_nature	plants_nature	beginner	Noun	1959	plant	planta	la	Pflanze	die	taim	organism capable of photosynthesis	0.0	
-keep	noun:river	plants_nature	plants_nature	beginner	Noun	1124	river	río	el	Fluss	der	jõgi	large stream which drains a landmass	0.0	
-keep	noun:sea	plants_nature	plants_nature	beginner	Noun	902	sea	mar	el/la	Meer	das	meri	body of water	0.0	
-keep	noun:tree	plants_nature	plants_nature	beginner	Noun	1072	tree	árbol	el	Baum	der	puu	large woody plant	0.0	
-keep	noun:world	plants_nature	plants_nature	beginner	Noun	228	world	mundo	el	Welt	die	maailm	collective/subjective human experience	0.0	
-keep	noun:branch	plants_nature	plants_nature	intermediate	Noun	3905	branch	rama	la	Ast	der	oks	woody part of a tree arising from the trunk	0.0	
-keep	noun:bush	plants_nature	plants_nature	intermediate	Noun	3598	bush	arbusto	el	Strauch	der	põõsas	category of woody plant	0.0	
-keep	noun:coast	plants_nature	plants_nature	intermediate	Noun	2364	coast	costa	la	Küste	die	rand	edge of land meeting ocean, sea, gulf, bay	0.0	
-keep	noun:field	plants_nature	plants_nature	intermediate	Noun	1048	field	campo	el	Feld	das	väli	land area free of woodland, cities, and towns; open country	0.0	
-keep	noun:grass	plants_nature	plants_nature	intermediate	Noun	3043	grass	pasto	el	Gras	das	muru	ground cover plant	0.0	
-keep	noun:ground	plants_nature	plants_nature	intermediate	Noun	870	ground	suelo	el	Erde	die	maapind	surface of the Earth	0.0	et:ekilex
-keep	noun:leaf	plants_nature	plants_nature	intermediate	Noun	1432	leaf	hoja	la	Blatt	das	leht	part of a plant	0.0	
-keep	noun:moon	plants_nature	plants_nature	intermediate	Noun	1138	moon	luna	la	Mond	der	kuu	the natural satellite of planet Earth	0.0	
-keep	noun:sky	plants_nature	plants_nature	intermediate	Noun	1286	sky	cielo	el	Himmel	der	taevas	atmosphere above a given point, especially as visible from the surface of the Earth as the place where the sun, moon, stars, and clouds are seen	0.0	
-keep	noun:star	plants_nature	plants_nature	intermediate	Noun	901	star	estrella	la	Stern	der	täht	a celestial body appearing as a point of light on the clear night sky, whose position is relatively fixed with respect to each other	0.0	
-keep	noun:sun	weather	plants_nature,weather	beginner	Noun	842	sun	sol	el	Sonne	die	päike	a star, especially when seen as the centre of any single solar system	0.0	
-keep	noun:valley	plants_nature	plants_nature	intermediate	Noun	2587	valley	valle	el	Senke	die	org	elongated depression between hills or mountains	0.0	
-keep	noun:cave	plants_nature	plants_nature	advanced	Noun	3000	cave	cueva	la	Höhle	die	koobas	large, naturally occurring cavity formed underground	0.0	
-keep	noun:climate	weather	plants_nature,weather	advanced	Noun	5590	climate	clima	el	Klima	das	kliima	long-term atmospheric conditions	0.0	
-keep	noun:desert	plants_nature	plants_nature	advanced	Noun	2262	desert	desierto	el	Wüste	die	kõrb	barren area	0.0	
-keep	noun:dirt	plants_nature	plants_nature	advanced	Noun	2759	dirt	suciedad	la	Schmutz	der		unclean matter	0.0	et:missing check:2-target
-keep	noun:landscape	plants_nature	plants_nature	advanced	Noun	6161	landscape	paisaje	el	Landschaft	die	maastik	portion of land or territory	0.0	
-keep	noun:nature	plants_nature	plants_nature	advanced	Noun	1321	nature	naturaleza	la	Natur	die	loodus	the natural world and its order	0.0	
-keep	noun:root	plants_nature	plants_nature	advanced	Noun	4429	root	raíz	la	Wurzel	die	juur	part of a plant	0.0	
-keep	noun:seed	plants_nature	plants_nature	advanced	Noun	5314	seed	semilla	la	Samen	der	seeme	any small seed-like fruit	0.0	
-keep	noun:soil	plants_nature	plants_nature	advanced	Noun	4052	soil	suelo	el	Erde	die	muld	mixture of sand and organic material	0.0	
-keep	noun:stone	plants_nature	plants_nature	advanced	Noun	1364	stone	piedra	la	Stein	der	kivi	substance	0.0	
-keep	adjective:cold	weather	weather	beginner	Adjective	625	cold	frío		kalt		külm	having a low temperature	0.0	
-keep	adjective:hot	weather	weather	beginner	Adjective	547	hot	caliente		heiß		kuum	having a high temperature	0.0	
-keep	noun:rain	weather	weather	beginner	Noun	1358	rain	lluvia	la	Regen	der	vihm	condensed water from a cloud	0.0	
-keep	verb:rain	weather	weather	beginner	Verb	1358	rain	llover		regnen		sadama	of rain: to fall from the sky	0.0	
-keep	noun:snow	weather	weather	beginner	Noun	1792	snow	nieve	la	Schnee	der	lumi	partly frozen, crystalline state of water that falls from the atmosphere as precipitation in flakes; falling of such flakes; accumulation of them as a white layer	0.0	
-keep	adjective:warm	weather	weather	beginner	Adjective	1328	warm	cálido		warm		soe	having a temperature slightly higher than usual	0.0	
-keep	noun:wind	weather	weather	beginner	Noun	1088	wind	viento	el	Wind	der	tuul	movement of air	0.0	
-keep	noun:cloud	weather	weather	intermediate	Noun	3479	cloud	nube	la	Wolke	die	pilv	visible mass of water droplets suspended in the air	0.0	
-keep	noun:fog	weather	weather	intermediate	Noun	5705	fog	niebla	la	Nebel	der	udu	cloud that forms at a low altitude and obscures vision	0.0	
-keep	verb:freeze	weather	weather	intermediate	Verb	2493	freeze	congelar		einfrieren		külmama	to lower something's temperature to freezing point	0.1	es:manual et:ekilex
-keep	noun:ice	weather	weather	intermediate	Noun	951	ice	hielo	el	Eis	das	jää	water in frozen form	0.0	
-keep	noun:lightning	weather	weather	intermediate	Noun	3656	lightning	relámpago	el	Blitz	der	välk	flash of light	0.0	
-keep	noun:storm	weather	weather	intermediate	Noun	1865	storm	tormenta	la	Sturm	der	torm	disturbed state of the atmosphere causing destructive or unpleasant weather	0.0	
-keep	noun:temperature	weather	weather	intermediate	Noun	3188	temperature	temperatura	la	Temperatur	die	temperatuur	a measure of cold or heat	0.0	
-keep	noun:weather	weather	weather	intermediate	Noun	1773	weather	clima	el	Wetter	das	ilm	state of the atmosphere	0.0	es:manual
-keep	noun:breeze	weather	weather	advanced	Noun	5230	breeze	brisa	la	Brise	die	tuuleõhk	a light, gentle wind	0.0	
-keep	noun:degree	weather	weather	advanced	Noun	2932	degree	grado	el	Grad	der	kraad	unit of measurement of temperature	0.2	
-keep	noun:forecast	weather	weather	advanced	Noun	12580	forecast	pronóstico	el	Schätzung	die	ennustus	estimation of future condition	0.0	
-keep	noun:shade	weather	weather	advanced	Noun	6496	shade	sombra	la	Schatten	der	vari	darkness where light is blocked	0.0	et:ekilex
-keep	noun:thunder	weather	weather	advanced	Noun	2570	thunder	trueno	el	Donner	der	kõu	sound caused by lightning	0.0	
-keep	adjective:tropical	weather	weather	advanced	Adjective	8678	tropical	tropical		tropisch			of or pertaining to the tropics	0.0	et:missing check:2-target
-keep	noun:arm	body_health	body_health	beginner	Noun	1139	arm	brazo	el	Arm	der	käsivars	upper appendage from shoulder to wrist	0.0	
-keep	noun:body	body_health	body_health	beginner	Noun	423	body	cuerpo	el	Körper	der	keha	physical structure of a human or animal	0.0	
-keep	noun:doctor	body_health	body_health	beginner	Noun	371	doctor	doctor	el	Doktor	der	doktor	person who has attained a doctorate	0.0	et:ekilex
-keep	noun:eye	body_health	body_health	beginner	Noun	403	eye	ojo	el	Auge	das	silm	organ	0.0	
-keep	noun:face	body_health	body_health	beginner	Noun	347	face	cara	la	Gesicht	das	nägu	anatomy: front part of head	0.0	
-keep	noun:foot	body_health	body_health	beginner	Noun	702	foot	pie	el	Fuß	der	jalg	part of human body	0.0	
-keep	noun:hair	body_health	body_health	beginner	Noun	613	hair	pelo	el	Haar	das	karv	pigmented filament of keratin on the skin of humans and other mammals	0.0	
-keep	noun:hand	body_health	body_health	beginner	Noun	367	hand	mano	la	Hand	die	käsi	part of the fore limb	0.0	
-keep	noun:head	body_health	body_health	beginner	Noun	290	head	cabeza	la	Kopf	der	pea	part of the body	0.0	
-keep	noun:leg	body_health	body_health	beginner	Noun	1271	leg	pierna	la	Bein	das	jalg	lower limb from groin to ankle	0.0	
-keep	noun:mouth	body_health	body_health	beginner	Noun	771	mouth	boca	la	Mund	der	suu	the opening of a creature through which food is ingested — see also lip, face	0.0	
-keep	noun:nose	body_health	body_health	beginner	Noun	1305	nose	nariz	la	Nase	die	nina	protuberance on the face	0.0	
-keep	noun:tooth	body_health	body_health	beginner	Noun	1553	tooth	diente	el	Zahn	der	hammas	anatomy: tooth	0.0	
-keep	verb:walk	body_health	body_health	beginner	Verb	489	walk	caminar		gehen		kõndima	to move on the feet	0.0	
-keep	noun:back	body_health	body_health	intermediate	Noun	83	back	espalda	la	Rücken	der	selg	the rear of body	0.0	
-keep	noun:blood	body_health	body_health	intermediate	Noun	477	blood	sangre	la	Blut	das	veri	vital liquid flowing in human and animal bodies	0.0	
-keep	noun:bone	body_health	body_health	intermediate	Noun	2275	bone	hueso	el	Knochen	der	luu	material	0.0	
-keep	noun:ear	body_health	body_health	intermediate	Noun	1861	ear	oído	el	Ohr	das	kõrv	organ of hearing	0.0	
-keep	noun:finger	body_health	body_health	intermediate	Noun	1762	finger	dedo	el	Finger	der	sõrm	(anatomy) extremity of the hand	0.0	
-keep	noun:health	body_health	body_health	intermediate	Noun	1449	health	salud	la	Gesundheit	die	tervis	state of being free of physical or psychological disease, illness, or malfunction	0.0	
-keep	noun:heart	body_health	body_health	intermediate	Noun	359	heart	corazón	el	Herz	das	süda	an organ	0.0	
-keep	noun:hospital	body_health	body_health	intermediate	Noun	629	hospital	hospital	el	Krankenhaus	das	haigla	large medical facility	0.0	
-keep	noun:medicine	body_health	body_health	intermediate	Noun	1763	medicine	medicamento	el	Arznei	die	ravim	substance which promotes healing	0.0	
-keep	noun:neck	body_health	body_health	intermediate	Noun	1326	neck	cuello	el	Hals	der	kael	part of body connecting the head and the trunk	0.0	
-keep	noun:pain	body_health	body_health	intermediate	Noun	736	pain	dolor	el	Schmerz	der	valu	ache or bodily suffering	0.0	
-keep	noun:skin	body_health	body_health	intermediate	Noun	1375	skin	piel	la	Haut	die	nahk	outer protective layer of the body of a person or animal	0.0	
-keep	verb:sleep	body_health	body_health	intermediate	Verb	425	sleep	dormir		schlafen		magama	to rest in state of reduced consciousness	0.0	
-keep	noun:stomach	body_health	body_health	intermediate	Noun	1837	stomach	estómago	el	Magen	der	kõht	digestive organ	0.0	
-keep	noun:brain	body_health	body_health	advanced	Noun	924	brain	cerebro	el	Gehirn	das	aju	organ	0.0	
-keep	noun:breath	body_health	body_health	advanced	Noun	1497	breath	respiración	la	Atem	der		single act of breathing in and out	0.1	de:manual et:missing check:2-target
-keep	verb:cure	body_health	body_health	advanced	Verb	2421	cure	curar		kurieren		säilitama	to restore to health	0.0	et:ekilex
-keep	noun:disease	body_health	body_health	advanced	Noun	2139	disease	enfermedad	la	Krankheit	die	haigus	an abnormal condition of the body causing discomfort or dysfunction	0.0	
-keep	noun:injury	body_health	body_health	advanced	Noun	4014	injury	herida	la	Verletzung	die	vigastus	damage or violation	0.0	
-keep	noun:muscle	body_health	body_health	advanced	Noun	3912	muscle	músculo	el	Muskel	der	lihas	contractile tissue	0.0	
-keep	noun:nurse	body_health	body_health	advanced	Noun	1564	nurse	enfermero	el	Krankenschwester	die	õde	person trained to provide care for the sick	0.0	es:manual
-keep	noun:patient	body_health	body_health	advanced	Noun	1126	patient	paciente	el/la	Patient	der	patsient	someone who receives treatment from a doctor	0.0	
-keep	noun:shoulder	body_health	body_health	advanced	Noun	2523	shoulder	hombro	el	Schulter	die	õlg	joint between arm and torso	0.1	de:manual
-keep	noun:surgery	body_health	body_health	advanced	Noun	1730	surgery	operación	la	Chirurgie	die	kirurgia	procedure involving major incisions	0.0	et:ekilex
-keep	noun:treatment	body_health	body_health	advanced	Noun	2234	treatment	tratamiento	el	Behandlung	die	ravi	medical care for an illness or injury	0.1	de:manual et:ekilex
-keep	noun:wound	body_health	body_health	advanced	Noun	2129	wound	herida	la	Wunde	die	haav	injury	0.0	
-keep	verb:call	core	technology_media,core	intermediate	Verb	161	call	llamar		rufen		kutsuma	to request, summon, or beckon	0.0	
-keep	noun:computer	technology_media	technology_media	beginner	Noun	1099	computer	computador	el	Computer	der	arvuti	programmable electronic device	0.0	
-keep	noun:message	technology_media	technology_media	beginner	Noun	813	message	mensaje	el	Nachricht	die	sõnum	communication, concept or information conveyed	0.0	
-keep	noun:phone	technology_media	technology_media	beginner	Noun	333	phone	teléfono	el	Telefon	das	telefon	device for communication	manual	es:manual de:manual et:manual
-keep	noun:photograph	technology_media	technology_media	beginner	Noun	4531	photograph	fotografía	la	Photographie	die	foto	picture	0.0	
-keep	noun:radio	technology_media	technology_media	beginner	Noun	878	radio	radio	la	Radio	das	raadio	technology	0.0	
-keep	noun:screen	technology_media	technology_media	beginner	Noun	2533	screen	pantalla	la	Bildschirm	der	ekraan	viewing area of electronic output device	0.2	
-keep	noun:television	technology_media	technology_media	beginner	Noun	2090	television	televisión	la	Fernsehen	das	televisioon	medium	0.0	
-keep	noun:website	technology_media	technology_media	beginner	Noun	5356	website	sitio web	el	Website	die	veebisait	a collection of pages on the World Wide Web	0.0	
-keep	noun:app	technology_media	technology_media	intermediate	Noun	8494	app	aplicación	la	App	die	rakendus	small computer application	0.0	es:manual et:manual
-keep	noun:camera	technology_media	technology_media,sports_hobbies	intermediate	Noun	960	camera	cámara	la	Fotoapparat	der	fotoaparaat	still camera	0.0	
-keep	noun:email	technology_media	technology_media	intermediate	Noun	5521	email	correo electrónico	el	E-Mail	die	e-mail	system for sending messages and datas by means of computers connected together in a network	0.0	
-keep	noun:file	technology_media	technology_media	intermediate	Noun	1469	file	cartapacio	el	Akte	die	toimik	collection of papers	0.0	
-keep	noun:laptop	technology_media	technology_media	intermediate	Noun	5310	laptop	portátil	el	Laptop	der	sülearvuti	computing: a laptop computer	0.0	
-keep	noun:media	technology_media	technology_media	intermediate	Noun	2210	media	medios	el	Medium	das	meedia	means and institutions for publishing and broadcasting information	2.0	de:manual
-keep	noun:news	technology_media	technology_media	intermediate	Noun	522	news	noticia	la	Nachricht	die	uudis	new information of interest	0.0	de:manual
-keep	adjective:online	technology_media	technology_media	intermediate	Adjective	2728	online	conectado		online		sidus	connected to the Internet	0.2	es:manual et:ekilex
-keep	noun:password	technology_media	technology_media	intermediate	Noun	5410	password	contraseña	la	Passwort	das	salasõna	computing: string of characters known only to a user	0.1	de:manual
-keep	noun:video	technology_media	technology_media	intermediate	Noun	1280	video	vídeo	el	Video	das	video	television show, movie	0.0	
-keep	noun:data	technology_media	technology_media	advanced	Noun	2045	data	datos	el	Daten	das	andmed	information	1.0	
-keep	noun:device	technology_media	technology_media	advanced	Noun	2565	device	dispositivo	el	Gerät	das	seade	piece of equipment	0.0	
-keep	adjective:digital	technology_media	technology_media	advanced	Adjective	6322	digital	digital		digital		digitaalne	representing discrete values	0.1	de:manual et:ekilex
-keep	noun:network	technology_media	technology_media	advanced	Noun	2935	network	red	la	Netzwerk	das	võrk	multiple computers and other devices connected together	0.3	
-keep	noun:press	technology_media	technology_media	advanced	Noun	1155	press	prensa	la	Presse	die	press	printed media	0.1	
-keep	noun:printer	technology_media	technology_media	advanced	Noun	10919	printer	impresor	la	Drucker	der	printer	one who makes prints	0.0	et:ekilex
-keep	noun:security	technology_media	technology_media	advanced	Noun	781	security	seguridad	la	Sicherheit	die	ohutus	condition of not being threatened	0.0	
-keep	noun:software	technology_media	technology_media	advanced	Noun	6138	software	software	el	Software	die	tarkvara	encoded computer instructions	0.0	
-keep	noun:system	technology_media	technology_media	advanced	Noun	764	system	sistema	el	System	das	menetlus	group or set of related things that operate together as a complex whole	0.0	
-keep	noun:technology	technology_media	technology_media	advanced	Noun	2350	technology	tecnología	la	Technologie	die	tehnoloogia	the study of or a collection of techniques	0.0	
-keep	noun:apartment	home_living	home_living	beginner	Noun	1021	apartment	vivienda	la	Wohnung	die	korter	domicile occupying part of a building	0.0	
-keep	noun:bathroom	home_living	home_living	beginner	Noun	1308	bathroom	cuarto de baño	el	Badezimmer	das	vannituba	a room with a bathtub	0.0	
-keep	noun:bed	home_living	home_living	beginner	Noun	524	bed	cama	la	Bett	das	voodi	piece of furniture	0.0	
-keep	noun:bedroom	home_living	home_living	beginner	Noun	1965	bedroom	alcoba	el	Schlafzimmer	das	magamistuba	room in a house where a bed is kept for sleeping	0.0	
-keep	noun:chair	home_living	home_living	beginner	Noun	1590	chair	silla	la	Sessel	der	tool	furniture	0.0	
-keep	noun:door	home_living	home_living	beginner	Noun	297	door	puerta	la	Tür	die	uks	portal of entry into a building, room or vehicle	0.0	
-keep	noun:house	home_living	home_living	beginner	Noun	213	house	casa	la	Haus	das	maja	human abode	0.0	
-keep	noun:kitchen	home_living	home_living	beginner	Noun	1127	kitchen	cocina	la	Küche	die	köök	room	0.0	
-keep	noun:key	home_living	home_living	beginner	Noun	883	key	llave	la	Schlüssel	der	võti	device designed to open and close a lock	0.0	
-keep	noun:room	home_living	home_living	beginner	Noun	275	room	cuarto	el	Raum	der	tuba	division in a building	0.2	
-keep	noun:table	home_living	home_living	beginner	Noun	816	table	mesa	la	Tisch	der	laud	item of furniture	0.0	
-keep	noun:window	home_living	home_living	beginner	Noun	982	window	ventana	la	Fenster	das	aken	opening for light and air	0.0	
-keep	verb:live	core	home_living,core	intermediate	Verb	281	live	vivir		leben		elama	be alive	0.0	
-keep	verb:open	home_living	home_living	beginner	Verb	343	open	abrir		öffnen		avama	to make something accessible	0.0	
-keep	noun:balcony	home_living	home_living	intermediate	Noun	6016	balcony	balcón	el	Balkon	der	rõdu	structure extending from a building	0.0	
-keep	noun:building	home_living	home_living	intermediate	Noun	753	building	edificación	la	Bau	der	ehitamine	act or process of building	0.0	
-keep	verb:clean	home_living	home_living	intermediate	Verb	2395	clean	limpiar		reinigen		puhastama	(transitive) to remove dirt from a place or object	0.0	
-keep	noun:couch	home_living	home_living	intermediate	Noun	2823	couch	sofá	el	Sofa	das	diivan	furniture for seating of more than one person	0.0	
-keep	noun:floor	home_living	home_living	intermediate	Noun	827	floor	piso	el	Boden	der	põrand	bottom part of a room	0.0	
-keep	noun:furniture	home_living	home_living	intermediate	Noun	3634	furniture	muebles	el	Möbel	das	mööbel	large movable items	0.0	
-keep	noun:garden	home_living	home_living	intermediate	Noun	1757	garden	jardín	el	Garten	der	aed	piece of land outside with flowers and plants	0.0	
-keep	noun:heating	home_living	home_living	intermediate	Noun	8462	heating	calefacción	la	Heizung	die	küte	system	0.0	
-keep	noun:lamp	home_living	home_living	intermediate	Noun	4645	lamp	lámpara	la	Lampe	die	lamp	device producing light	0.0	
-keep	noun:mirror	home_living	home_living	intermediate	Noun	2208	mirror	espejo	el	Spiegel	der	peegel	smooth reflecting surface	0.0	
-keep	noun:roof	home_living	home_living	intermediate	Noun	1796	roof	tejado	el	Dach	das	katus	the cover at the top of a building	0.0	
-keep	noun:stairs	home_living	home_living	intermediate	Noun	2463	stairs	escalera	la	Treppe	die	trepp	contiguous set of steps	1.0	
-keep	noun:wall	home_living	home_living	intermediate	Noun	989	wall	muro	el	Wall	der	müür	defensive rampart	0.0	
-keep	verb:wash	home_living	home_living	intermediate	Verb	1635	wash	lavar		waschen		pesema	to clean with water — see also deterge	0.0	
-keep	noun:ceiling	home_living	home_living	advanced	Noun	5013	ceiling	techo	el	Decke	die	lagi	upper limit of room	0.0	
-keep	noun:rent	home_living	home_living	advanced	Noun	1900	rent	renta	la	Miete	die	rent	payment made by a tenant	0.0	
-keep	verb:rent	home_living	home_living	advanced	Verb	1900	rent	alquilar		mieten		laenutama	to occupy premises in exchange for rent	0.0	et:ekilex
-keep	noun:neighbour	people_family	people_family,home_living	intermediate	Noun	6250	neighbour	vecino	el	Nachbar	der	naaber	a person living on adjacent or nearby land	0.0	
-keep	noun:neighborhood	home_living	home_living	advanced	Noun	2163	neighborhood	vecindad	la	Nachbarschaft	die	naabrus	area near one's home	0.0	
-keep	noun:property	home_living	home_living	advanced	Noun	1717	property	propiedad	la	Eigentum	das	vara	something owned	0.0	
-keep	noun:sheet	home_living	home_living	advanced	Noun	4363	sheet	hoja	la	Blatt	das	leht	sheet of paper	0.0	
-keep	noun:shelf	home_living	home_living	advanced	Noun	6521	shelf	estante	el	Regal	das	riiul	structure	0.0	
-keep	noun:tool	home_living	home_living	advanced	Noun	3753	tool	herramienta	la	Gerät	das	tööriist	mechanical device intended to make a task easier	0.0	
-keep	noun:towel	home_living	home_living	advanced	Noun	6594	towel	toalla	la	Handtuch	das	rätik	cloth used for wiping	0.0	
-keep	noun:village	home_living	home_living	advanced	Noun	1046	village	aldea	la	Dorf	das	küla	a rural habitation of size between a hamlet and a town	0.0	
-keep	noun:bus	travel_transport	travel_transport	beginner	Noun	1103	bus	autobús	el	Bus	der	buss	vehicle	0.0	
-keep	noun:car	travel_transport	travel_transport	beginner	Noun	249	car	automóvil	el	Auto	das	auto	automobile, a vehicle steered by a driver	0.0	
-keep	noun:city	travel_transport	travel_transport	beginner	Noun	488	city	ciudad	la	Stadt	die	linn	large settlement	0.0	
-keep	noun:ticket	travel_transport	travel_transport	beginner	Noun	1639	ticket	entrada	la	Ticket	das	pilet	admission to entertainment	0.0	
-keep	noun:train	travel_transport	travel_transport	beginner	Noun	787	train	tren	el	Zug	der	rong	line of connected cars or carriages	0.1	
-keep	noun:trip	travel_transport	travel_transport	beginner	Noun	918	trip	viaje	el	Reise	die	retk	journey	0.0	
-keep	verb:visit	travel_transport	travel_transport	beginner	Verb	979	visit	visitar		besuchen		külastama	to go and meet (someone)	0.0	
-keep	noun:station	travel_transport	travel_transport	beginner	Noun	806	station	estación	la	Bahnhof	der	jaam	place where a vehicle may stop	0.0	
-keep	noun:stop	travel_transport	travel_transport	beginner	Noun	160	stop	parada	la	Haltestelle	die	peatus	place to get on and off mass transport	0.0	
-keep	noun:street	travel_transport	travel_transport	beginner	Noun	630	street	calle	la	Straße	die	tänav	paved part of road in a village or a town	0.0	
-keep	noun:map	travel_transport	travel_transport	beginner	Noun	2032	map	mapa	el	Landkarte	die	kaart	visual representation of an area	0.0	
-keep	noun:way	travel_transport	travel_transport	beginner	Noun	112	way	camino	el	Weg	der	tee	road, direction, path	0.0	
-keep	verb:go	core	travel_transport,core	beginner	Verb	47	go	ir		gehen		minema	to move through space (especially from one place to another)	0.0	
-keep	verb:travel	travel_transport	travel_transport	beginner	Verb	1548	travel	viajar		reisen		sõitma	be on a journey	0.0	
-keep	noun:airport	travel_transport	travel_transport	intermediate	Noun	1993	airport	aeropuerto	el	Flughafen	der	lennujaam	place designated for airplanes	0.0	
-keep	noun:bicycle	travel_transport	travel_transport	intermediate	Noun	5633	bicycle	bicicleta	la	Fahrrad	das	jalgratas	vehicle	0.0	
-keep	noun:border	travel_transport	travel_transport	intermediate	Noun	2629	border	frontera	la	Grenze	die	piir	the line or frontier area separating various territories	0.0	es:manual
-keep	noun:bridge	travel_transport	travel_transport	intermediate	Noun	1521	bridge	puente	el	Brücke	die	sild	construction or natural feature that spans a divide	0.0	
-keep	noun:flight	travel_transport	travel_transport	intermediate	Noun	1320	flight	vuelo	el	Flug	der	lend	act of flying	0.0	et:ekilex
-keep	noun:hotel	travel_transport	travel_transport	intermediate	Noun	792	hotel	hotel	el	Hotel	das	hotell	establishment providing accommodation	0.0	
-keep	noun:luggage	travel_transport	travel_transport	intermediate	Noun	4518	luggage	equipaje	el	Gepäck	das	pagas	traveller's containers	0.0	
-keep	noun:passport	travel_transport	travel_transport	intermediate	Noun	3506	passport	pasaporte	el	Reisepass	der	pass	official document for foreign travel	0.0	
-keep	noun:plane	travel_transport	travel_transport	intermediate	Noun	1064	plane	avión	el	Flugzeug	das	lennuk	airplane	2.0	de:manual
-keep	noun:route	travel_transport	travel_transport	intermediate	Noun	2475	route	ruta	la	Route	die	marsruut	course or way traveled	0.0	
-keep	noun:taxi	travel_transport	travel_transport	intermediate	Noun	2211	taxi	taxi	el	Taxi	das	takso	vehicle available for public hire	0.0	
-keep	noun:traffic	travel_transport	travel_transport	intermediate	Noun	2130	traffic	tráfico	el	Verkehr	der	liiklus	pedestrians or vehicles on roads or on the air	0.0	
-keep	noun:driver	travel_transport	travel_transport	intermediate	Noun	1356	driver	conductor	el	Treiber	der	autojuht	one who drives something, e.g. cattle	0.0	et:ekilex
-keep	adjective:fast	core	travel_transport,core	beginner	Adjective	624	fast	rápido		schnell		kiire	moving or capable of moving with great speed	0.3	es:manual et:ekilex
-keep	noun:arrival	travel_transport	travel_transport	advanced	Noun	4551	arrival	llegada	la	Ankunft	die	saabumine	act of arriving	0.0	
-keep	noun:customs	travel_transport	travel_transport	advanced	Noun	5664	customs	aduana	la	Zoll	der	toll	the duties or taxes imposed on imported or exported goods	0.0	
-keep	noun:departure	travel_transport	travel_transport	advanced	Noun	6969	departure	salida	la	Abfahrt	die	väljumine	the act of departing	0.0	
-keep	noun:destination	travel_transport	travel_transport	advanced	Noun	5078	destination	destinación	la	Bestimmung	die	siht	the act of destining or appointing	0.0	et:ekilex
-keep	noun:engine	travel_transport	travel_transport	advanced	Noun	1277	engine	motor	el	Motor	der	mootor	mechanical device	0.0	
-keep	adjective:foreign	travel_transport	travel_transport	advanced	Adjective	1909	foreign	extraño		fremd		välismaine	located outside one's own country or place	0.0	et:manual
-keep	noun:guide	travel_transport	travel_transport	advanced	Noun	2814	guide	guía	el	Reiseleiter	der	giid	someone who guides	0.0	
-keep	noun:passenger	travel_transport	travel_transport	advanced	Noun	4306	passenger	pasajero	el	Passagier	der	sõitja	one who rides or travels in a vehicle	0.0	
-keep	noun:platform	travel_transport	travel_transport	advanced	Noun	5327	platform	andén	el	Bahnsteig	der	perroon	travel: raised structure for passengers	0.3	es:manual
-keep	noun:transport	travel_transport	travel_transport	advanced	Noun	3644	transport	transporte	el	Beförderung	die	transport	act of transporting	0.0	et:ekilex
-keep	noun:vehicle	travel_transport	travel_transport	advanced	Noun	2263	vehicle	vehículo	el	Fahrzeug	das	sõiduk	conveyance	0.0	et:ekilex
-keep	noun:voyage	travel_transport	travel_transport	advanced	Noun	7042	voyage	viaje	el	Reise	die	sõit	long journey; especially by ship	0.0	et:ekilex
-keep	noun:game	sports_hobbies	sports_hobbies	beginner	Noun	456	game	juego	el	Spiel	das	mäng	playful activity that may be unstructured, amusement, pastime	0.0	
-keep	noun:music	sports_hobbies	sports_hobbies	beginner	Noun	366	music	música	la	Musik	die	muusika	sound, organized in time in a melodious way	0.0	
-keep	verb:play	sports_hobbies	sports_hobbies	beginner	Verb	334	play	jugar		spielen		mängima	act in a manner such that one has fun	0.0	
-keep	verb:run	sports_hobbies	sports_hobbies,core	beginner	Verb	322	run	correr		rennen		jooksma	to move quickly on two feet	0.0	
-keep	noun:song	sports_hobbies	sports_hobbies	beginner	Noun	679	song	canción	la	Lied	das	laul	music with words	0.0	
-keep	noun:sport	sports_hobbies	sports_hobbies	beginner	Noun	2593	sport	deporte	el	Sport	der	sport	any athletic activity that uses physical skills	0.0	
-keep	verb:swim	sports_hobbies	sports_hobbies	beginner	Verb	2225	swim	nadar		schwimmen		ujuma	move through water	0.0	
-keep	noun:team	sports_hobbies	sports_hobbies	beginner	Noun	516	team	equipo	el	Mannschaft	die	meeskond	group of people	0.1	
-keep	verb:win	sports_hobbies	sports_hobbies	beginner	Verb	163	win	ganar		gewinnen		võitma	transitive: achieve victory in	0.0	
-keep	noun:ball	sports_hobbies	sports_hobbies	beginner	Noun	880	ball	bola	la	Kugel	die	pall	solid or hollow sphere	0.0	
-keep	noun:art	sports_hobbies	sports_hobbies	intermediate	Noun	999	art	arte	el	Kunst	die	kunst	human effort	0.0	es:manual
-keep	verb:dance	sports_hobbies	sports_hobbies	intermediate	Verb	632	dance	bailar		tanzen		tantsima	move rhythmically to music	0.0	
-keep	noun:movie	sports_hobbies	sports_hobbies	intermediate	Noun	767	movie	película	la	Film	der	film	motion picture	0.0	
-keep	noun:museum	sports_hobbies	sports_hobbies	intermediate	Noun	2858	museum	museo	el	Museum	das	muuseum	building or institution	0.0	
-keep	verb:paint	sports_hobbies	sports_hobbies	intermediate	Verb	1799	paint	pintar		bemalen		maalima	to apply paint to	0.0	et:ekilex
-keep	noun:party	sports_hobbies	sports_hobbies	intermediate	Noun	433	party	fiesta	la	Feier	die	pidu	social gathering	0.3	es:manual
-keep	noun:player	sports_hobbies	sports_hobbies	intermediate	Noun	2006	player	jugador	el	Spieler	der	mängija	one who plays any game or sport	0.0	de:manual
-keep	noun:reader	sports_hobbies	sports_hobbies	intermediate	Noun	8937	reader	lector	el	Leser	der	lugeja	person who reads a publication	0.0	de:manual
-keep	noun:match	sports_hobbies	sports_hobbies	intermediate	Noun	1143	match	partido	el	Spiel	das	matš	sporting event	0.0	
-keep	noun:athlete	sports_hobbies	sports_hobbies	advanced	Noun	8105	athlete	atleta	el/la	Sportler	der	sportlane	person who actively participates in physical sports	0.1	
-keep	noun:champion	sports_hobbies	sports_hobbies	advanced	Noun	3030	champion	campeón	el	Meister	der	meister	someone who has been winner in a contest	0.0	de:manual
-keep	noun:competition	sports_hobbies	sports_hobbies	advanced	Noun	1951	competition	competición	la	Konkurrenz	die	võistlus	action of competing	0.0	
-keep	noun:concert	sports_hobbies	sports_hobbies	advanced	Noun	2938	concert	concierto	el	Konzert	das	kontsert	a musical entertainment in which several voices or instruments take part	0.2	de:manual
-keep	noun:instrument	sports_hobbies	sports_hobbies	advanced	Noun	5617	instrument	instrumento	el	Instrument	das	pill	musical device	0.0	
-keep	noun:hobby	sports_hobbies	sports_hobbies	advanced	Noun	5980	hobby	afición	la	Hobby	das	harrastus	activity done for enjoyment in spare time	0.0	
-keep	noun:leisure	sports_hobbies	sports_hobbies	advanced	Noun	11276	leisure	ocio	el	Muße	die	jõudeaeg	freedom provided	0.0	et:ekilex
-keep	noun:score	sports_hobbies	sports_hobbies	advanced	Noun	2408	score	tantos	el	Ergebnis	das	skoor	number of points earned	0.0	de:manual et:split
-keep	noun:stadium	sports_hobbies	sports_hobbies	advanced	Noun	6413	stadium	estadio	el	Stadion	das	staadion	venue where sporting events are held	0.0	
-keep	noun:tournament	sports_hobbies	sports_hobbies	advanced	Noun	5352	tournament	torneo	el	Turnier	das	turniir	(historical) series of battles	0.0	
-keep	verb:buy	work_money	work_money	beginner	Verb	511	buy	comprar		kaufen		ostma	to obtain something with money	0.0	
-keep	noun:cash	work_money	work_money	beginner	Noun	1059	cash	efectivo	el	Bargeld	das	sularaha	money in the form of notes/bills and coins	0.0	
-keep	noun:company	work_money	work_money	beginner	Noun	590	company	empresa	la	Gesellschaft	die	äriühing	in legal context, a corporation	0.0	
-keep	noun:job	work_money	work_money	beginner	Noun	269	job	trabajo	el	Arbeit	die	töö	economic role for which a person is paid	0.1	
-keep	noun:money	work_money	work_money	beginner	Noun	186	money	dinero	el	Geld	das	raha	means of exchange and measure of value	0.0	
-keep	verb:pay	core	work_money,core	intermediate	Verb	388	pay	pagar		bezahlen		maksma	to give money in exchange for goods or services	0.0	
-keep	verb:sell	work_money	work_money	beginner	Verb	761	sell	vender		verkaufen		müüma	to agree to transfer goods or provide services for payment	0.0	
-keep	noun:shop	work_money	work_money	beginner	Noun	1042	shop	tienda	la	Laden	der	pood	establishment that sells goods	0.0	
-keep	noun:store	work_money	work_money	beginner	Noun	1034	store	depósito	el	Lager	das	ladu	place where items may be kept	0.0	
-keep	noun:work	work_money	work_money	beginner	Noun	151	work	trabajo	el	Arbeit	die	töö	labour, employment, occupation, job	0.0	
-keep	verb:work	work_money	work_money,core	beginner	Verb	151	work	trabajar		arbeiten		töötama	intransitive: to do a specific task	0.0	
-keep	noun:worker	work_money	work_money	beginner	Noun	2534	worker	trabajador	el	Arbeitnehmer	der	töötaja	person who performs labor	0.0	de:manual
-keep	noun:bank	work_money	work_money	intermediate	Noun	917	bank	banca	la	Bank	die	pank	institution	0.0	
-keep	noun:boss	work_money	work_money	intermediate	Noun	566	boss	jefe	el	Chef	der	ülemus	supervisor	0.0	
-keep	noun:business	work_money	work_money	intermediate	Noun	353	business	negocio	el	Geschäft	das	äri	occupation, work or trade of a person	0.1	
-keep	noun:cost	work_money	work_money	intermediate	Noun	1298	cost	costo	el	Kosten	die	maksumus	amount of money spent for a purpose	0.0	de:manual et:ekilex
-keep	verb:cost	work_money	work_money	intermediate	Verb	1298	cost	costar		kosten		maksma	to incur a charge, a price	0.0	
-keep	noun:customer	work_money	work_money	intermediate	Noun	2561	customer	cliente	el/la	Abnehmer	der	klient	one who purchases or receives a product or service	0.1	
-keep	noun:office	work_money	work_money	intermediate	Noun	494	office	oficina	la	Büro	das	kontor	room(s) or building used for non-manual work	0.2	
-keep	noun:price	work_money	work_money	intermediate	Noun	1179	price	precio	el	Preis	der	hind	cost required to gain possession of something	0.0	
-keep	noun:salary	work_money	work_money	intermediate	Noun	3852	salary	salario	el	Gehalt	das	palk	fixed amount of money paid on monthly or annual basis	0.0	
-keep	noun:tax	work_money	work_money	intermediate	Noun	3016	tax	impuesto	el	Steuer	die	maks	money paid to the government	0.0	
-keep	noun:colleague	work_money	work_money	intermediate	Noun	3871	colleague	colega	el/la	Kollege	der	kolleeg	fellow member of a profession	0.0	
-keep	noun:contract	work_money	work_money	intermediate	Noun	1827	contract	contrato	el	Vertrag	der	leping	agreement that is legally binding	0.0	
-keep	noun:account	work_money	work_money	advanced	Noun	1467	account	cuenta	la	Konto	das	konto	a registry of pecuniary transactions	0.0	
-keep	noun:budget	work_money	work_money	advanced	Noun	4095	budget	presupuesto	el	Budget	das	eelarve	amount of money or resources earmarked for a particular institution, activity or time-frame	0.0	
-keep	noun:career	work_money	work_money	advanced	Noun	1482	career	carrera	la	Karriere	die	karjäär	one's calling in life; a person's occupation	0.0	
-keep	noun:currency	work_money	work_money	advanced	Noun	8343	currency	moneda	la	Währung	die	valuuta	money or other item used to facilitate transactions	0.0	
-keep	noun:economy	work_money	work_money	advanced	Noun	4586	economy	economía	la	Wirtschaft	die	majandus	production and distribution and consumption	0.2	
-keep	noun:employee	work_money	work_money	advanced	Noun	3941	employee	empleado	el	Arbeitnehmer	der	töötaja	person who provides labor to a company or another person	0.0	
-keep	noun:employer	work_money	work_money	advanced	Noun	8431	employer	empleador	el	Arbeitgeber	der	tööandja	person or entity which employs others	0.0	
-keep	noun:income	work_money	work_money	advanced	Noun	5251	income	ingreso	el	Einkommen	das	tulu	money one earns by working or by capitalising on the work of others	0.0	de:manual
-keep	noun:industry	work_money	work_money	advanced	Noun	3062	industry	industria	la	Branche	die	valdkond	businesses of the same type	0.1	es:manual
-keep	noun:insurance	work_money	work_money	advanced	Noun	1999	insurance	seguro	el	Versicherung	die	kindlustus	indemnity	0.0	
-keep	noun:investment	work_money	work_money	advanced	Noun	4372	investment	inversión	la	Investition	die	investeering	placement of capital in expectation of deriving income or profit from its use	0.1	de:manual
-keep	noun:profit	work_money	work_money	advanced	Noun	3870	profit	provecho	el	Gewinn	der	kasum	benefit	0.0	
-keep	noun:kilometre	numbers_measures	numbers_measures	intermediate	Noun	9711	kilometre	kilómetro	el	Kilometer	der	kilomeeter	unit of measure	0.0	
-keep	noun:meter	numbers_measures	numbers_measures	intermediate	Noun	4131	meter	medidor	el	Messgerät	das	mõõtja	measuring instrument	0.0	
-keep	noun:litre	numbers_measures	numbers_measures	intermediate	Noun	21735	litre	litro	el	Liter	der	liiter	unit of fluid measure	0.0	
-keep	noun:number	numbers_measures	numbers_measures	intermediate	Noun	442	number	número	el	Zahl	die	arv	abstract entity used to describe quantity	0.0	
-keep	noun:part	numbers_measures	numbers_measures	intermediate	Noun	380	part	parte	la	Teil	der	osa	fraction of a whole	0.0	
-keep	noun:piece	numbers_measures	numbers_measures	intermediate	Noun	697	piece	pieza	la	Stück	das	tükk	part of a larger whole	0.0	et:ekilex
-keep	noun:amount	numbers_measures	numbers_measures	advanced	Noun	1815	amount	cantidad	la	Anzahl	die	kogus	total or sum of items	0.0	
-keep	noun:average	numbers_measures	numbers_measures	advanced	Noun	3265	average	promedio	el	Durchschnitt	der	keskmine	arithmetic mean	0.0	et:ekilex
-keep	noun:distance	numbers_measures	numbers_measures	advanced	Noun	1701	distance	distancia	la	Distanz	die	kaugus	(countable, uncountable) amount of space between points	0.0	
-keep	adjective:double	numbers_measures	numbers_measures	advanced	Adjective	1295	double	doble		doppelt		kahekordne	made up of two matching or complementary elements	0.0	et:ekilex
-keep	noun:majority	numbers_measures	numbers_measures	advanced	Noun	5582	majority	mayoría	la	Mehrheit	die	enamus	more than half	0.0	
-keep	noun:maximum	numbers_measures	numbers_measures	advanced	Noun	5291	maximum	máximo	el	Maximum	das	maksimum	highest limit	0.0	et:ekilex
-keep	noun:minimum	numbers_measures	numbers_measures	advanced	Noun	5392	minimum	mínimo	el	Minimum	das	miinimum	lowest limit	0.0	et:ekilex
-keep	noun:percent	numbers_measures	numbers_measures	advanced	Noun	2605	percent	porcentaje	el	Prozent	das	protsent	a part or other object per hundred	0.0	es:manual de:manual
-keep	noun:quantity	numbers_measures	numbers_measures	advanced	Noun	12237	quantity	cantidad	la	Quantität	die	kogus	fundamental, generic term used when referring to the measurement	0.0	
-keep	noun:size	numbers_measures	numbers_measures	advanced	Noun	1510	size	tamaño	el	Größe	die	suurus	dimensions or magnitude of a thing	0.0	
-keep	noun:day	time_calendar	time_calendar	beginner	Noun	149	day	día	el	Tag	der	päev	period between sunrise and sunset	0.0	
-keep	noun:hour	time_calendar	time_calendar	beginner	Noun	471	hour	hora	la	Stunde	die	tund	time period of sixty minutes	0.0	
-keep	noun:minute	time_calendar	time_calendar	beginner	Noun	387	minute	minuto	el	Minute	die	minut	unit of time	0.0	
-keep	noun:month	time_calendar	time_calendar	beginner	Noun	527	month	mes	el	Monat	der	kuu	period into which a year is divided	0.0	
-keep	noun:morning	time_calendar	time_calendar	beginner	Noun	264	morning	mañana	la	Morgen	der	hommik	part of the day between dawn and midday	0.0	
-keep	noun:night	time_calendar	time_calendar	beginner	Noun	169	night	noche	la	Nacht	die	öö	period between sunset and sunrise	0.0	
-keep	adverb:today	time_calendar	time_calendar	beginner	Adverb	232	today	hoy		heute		täna	on the current day	0.0	
-keep	adverb:tomorrow	time_calendar	time_calendar	beginner	Adverb	316	tomorrow	mañana		morgen		homme	on the day after the present day	0.0	
-keep	noun:week	time_calendar	time_calendar	beginner	Noun	450	week	semana	la	Woche	die	nädal	period of seven days	0.0	
-keep	noun:year	time_calendar	time_calendar	beginner	Noun	183	year	año	el	Jahr	das	aasta	time it takes for the Earth to complete one revolution around the Sun	0.0	
-keep	adverb:yesterday	time_calendar	time_calendar	beginner	Adverb	698	yesterday	ayer		gestern		eile	on the day before today	0.0	
-keep	adverb:now	time_calendar	time_calendar	beginner	Adverb	55	now	ahora		jetzt		nüüd	at the present time	0.0	
-keep	adverb:always	time_calendar	time_calendar	beginner	Adverb	180	always	siempre		immer		alati	at all times	0.0	
-keep	adverb:never	time_calendar	time_calendar	beginner	Adverb	116	never	nunca		nie		iial	at no time	0.0	
-keep	noun:afternoon	time_calendar	time_calendar	intermediate	Noun	923	afternoon	tarde	la	Nachmittag	der	pärastlõuna	part of the day between noon and evening	0.0	
-keep	noun:date	time_calendar	time_calendar	intermediate	Noun	671	date	fecha	la	Datum	das	kuupäev	point of time at which a transaction or event takes place	1.1	
-keep	noun:evening	time_calendar	time_calendar	intermediate	Noun	641	evening	véspero	el	Abend	der	õhtu	time of day between dusk and night	0.0	et:ekilex
-keep	noun:future	time_calendar	time_calendar	intermediate	Noun	680	future	futuro	el	Zukunft	die	tulevik	the time ahead	0.0	
-keep	adjective:late	time_calendar	time_calendar	intermediate	Adjective	382	late	tardío		spät		hiline	associated with the end of a period	0.2	es:manual et:ekilex
-keep	noun:moment	time_calendar	time_calendar	intermediate	Noun	448	moment	momento	el	Augenblick	der	hetk	very brief period of time	0.0	
-keep	noun:schedule	time_calendar	time_calendar	intermediate	Noun	2431	schedule	horario	el	Zeitplan	der	ajakava	a procedural plan, usually but not necessarily tabular in nature, indicating a sequence of operations and the planned times at which those operations are to occur — see also agenda	0.2	es:manual de:manual
-keep	noun:time	time_calendar	time_calendar	intermediate	Noun	80	time	tiempo	el	Zeit	die	aeg	inevitable passing of events	0.0	
-keep	adverb:usually	time_calendar	time_calendar	intermediate	Adverb	1112	usually	usualmente		gewöhnlich		tavaliselt	most of the time	0.0	
-keep	adverb:sometimes	time_calendar	time_calendar	intermediate	Adverb	529	sometimes	a veces		manchmal		vahel	on certain occasions, but not always	0.0	
-keep	adverb:soon	time_calendar	time_calendar	intermediate	Adverb	360	soon	pronto		bald		varsti	within a short time	0.0	
-keep	noun:century	time_calendar	time_calendar	advanced	Noun	1912	century	centuria	la	Jahrhundert	das	sajand	period of 100 years	0.0	
-keep	noun:decade	time_calendar	time_calendar	advanced	Noun	5499	decade	década	la	Jahrzehnt	das	aastakümme	period of ten years	0.1	
-keep	noun:delay	time_calendar	time_calendar	advanced	Noun	4046	delay	retraso	el	Verzögerung	die	hilinemine	period of time before an event occurs; act of delaying	0.0	et:ekilex
-keep	noun:frequency	time_calendar	time_calendar	advanced	Noun	6549	frequency	frecuencia	la	Häufigkeit	die	sagedus	rate of occurrence of anything	0.0	et:ekilex
-keep	adjective:immediate	time_calendar	time_calendar	advanced	Adjective	4468	immediate	inmediato		sofortig		kohene	without delay	0.0	et:ekilex
-keep	noun:period	time_calendar	time_calendar	advanced	Noun	2004	period	período	el	Zeitraum	der	periood	interval of time	0.0	
-keep	noun:season	time_calendar	time_calendar	advanced	Noun	1697	season	estación	la	Jahreszeit	die	aastaaeg	quarter of a year	0.0	
-keep	adjective:temporary	time_calendar	time_calendar	advanced	Adjective	4097	temporary	temporario		zeitweilig		ajutine	for a limited time, ephemeral, not constant	0.0	et:ekilex
-keep	noun:timeline	time_calendar	time_calendar	advanced	Noun	11052	timeline	cronología	la	Zeittafel	die	ajatelg	graphical representation of a chronological sequence of events	0.0	
-keep	adjective:urgent	time_calendar	time_calendar	advanced	Adjective	2765	urgent	urgente		dringend			requiring immediate attention	0.0	et:missing check:2-target
-keep	adjective:afraid	feelings	feelings	beginner	Adjective	424	afraid	asustado		ängstlich			impressed with fear or apprehension; in fear; apprehensive	0.0	es:manual et:missing check:2-target
-keep	adjective:angry	feelings	feelings	beginner	Adjective	932	angry	enojado		böse		kuri	displaying anger	0.0	et:ekilex
-keep	adjective:calm	feelings	feelings	beginner	Adjective	685	calm	calmado		ruhig		rahulik	free from anger and anxiety	0.0	et:ekilex
-keep	adjective:happy	feelings	feelings	beginner	Adjective	296	happy	feliz		zufrieden		õnnelik	contented, joyous	0.0	
-keep	verb:hate	feelings	feelings	beginner	Verb	532	hate	odiar		hassen		vihkama	to dislike intensely	0.0	
-keep	verb:hope	feelings	feelings	beginner	Verb	346	hope	esperar		hoffen		lootma	to want something to happen, with expectation that it might	0.0	
-keep	verb:like	feelings	feelings	beginner	Verb	43	like	gustar		mögen		meeldima	to enjoy	0.0	es:manual
-keep	noun:love	feelings	feelings	beginner	Noun	123	love	amor	el	Liebe	die	armastus	strong affection	0.0	
-keep	verb:love	feelings	feelings	beginner	Verb	682	love	amar		lieben		armastama	have a strong affection for	0.0	
-keep	adjective:sad	feelings	feelings	beginner	Adjective	956	sad	triste		traurig		kurb	feeling sorrow	0.1	es:manual
-keep	verb:want	feelings	feelings	beginner	Verb	66	want	querer		wollen		tahtma	to desire	0.0	
-keep	verb:smile	feelings	feelings	beginner	Verb	1190	smile	sonreír		lächeln		naeratama	to have a smile on one's face	0.0	
-keep	adjective:bored	feelings	feelings	intermediate	Adjective	2535	bored	aburrido		gelangweilt			suffering from boredom	0.0	et:missing check:2-target
-keep	adjective:crazy	feelings	feelings	intermediate	Adjective	389	crazy	loco		verrückt		hull	insane, demented	0.0	
-keep	noun:decision	feelings	feelings	intermediate	Noun	1051	decision	decisión	la	Entscheidung	die	otsus	choice or judgement	0.0	
-keep	noun:emotion	feelings	feelings	intermediate	Noun	3686	emotion	afecto	el	Gefühl	das	emotsioon	person's internal state of being	0.0	
-keep	noun:feeling	feelings	feelings	intermediate	Noun	553	feeling	sensación	la	Gefühl	das	tunne	sensation	0.0	
-keep	noun:mind	feelings	feelings	intermediate	Noun	258	mind	mente	la	Verstand	der	mõistus	ability for rational thought	0.0	
-keep	adjective:proud	feelings	feelings	intermediate	Adjective	927	proud	orgulloso		stolz		uhke	gratified, feeling honoured, feeling satisfied	0.0	et:ekilex
-keep	adjective:scared	feelings	feelings	intermediate	Adjective	592	scared	asustado		erschrocken			afraid, frightened	0.0	et:missing check:2-target
-keep	noun:surprise	feelings	feelings	intermediate	Noun	881	surprise	sorpresa	la	Überraschung	die	üllatus	something not expected	0.0	
-keep	noun:thought	feelings	feelings	intermediate	Noun	167	thought	pensamiento	el	Gedanke	der	mõte	representation created in the mind	0.0	
-keep	verb:worry	feelings	feelings	intermediate	Verb	362	worry	preocupar		sorgen			to disturb the peace of mind of	0.1	es:manual de:manual et:missing check:2-target
-keep	adjective:nervous	feelings	feelings	intermediate	Adjective	1148	nervous	nervioso		nervös		kärsitu	apprehensive, anxious	0.1	de:manual
-keep	noun:anxiety	feelings	feelings	advanced	Noun	5949	anxiety	ansiedad	la	Unbehagen	das	ärevus	state of uneasiness, nervousness, apprehension and obsession	0.0	es:manual et:ekilex
-keep	noun:attitude	feelings	feelings	advanced	Noun	2530	attitude	actitud	la	Einstellung	die	suhtumine	disposition or state of mind	0.1	
-keep	noun:confidence	feelings	feelings	advanced	Noun	2633	confidence	certeza	la	Selbstvertrauen	das	usaldus	self-assurance	0.0	et:ekilex
-keep	noun:delight	feelings	feelings	advanced	Noun	7350	delight	deleite	el	Freude	die		joy, pleasure	0.0	et:missing check:2-target
-keep	noun:mood	feelings	feelings	advanced	Noun	1889	mood	humor	el	Gemüt	das	tuju	mental state	0.0	es:manual
-keep	noun:passion	feelings	feelings	advanced	Noun	2548	passion	pasión	la	Leidenschaft	die	kirg	any great emotion	0.0	
-keep	noun:pleasure	feelings	feelings	advanced	Noun	1000	pleasure	placer	el	Vergnügen	das	mõnu	a state of being pleased	0.0	
-keep	noun:relief	feelings	feelings	advanced	Noun	3462	relief	alivio	el	Erleichterung	die	leevendus	removal of stress or discomfort	0.0	et:ekilex
-keep	noun:stress	feelings	feelings	advanced	Noun	2999	stress	estrés	el	Stress	der	stress	emotional pressure	0.1	es:manual
-keep	noun:baby	people_family	people_family	beginner	Noun	274	baby	bebé	el	Baby	das	beebi	very young human being — see also child	0.0	
-keep	noun:boy	people_family	people_family	beginner	Noun	266	boy	niño	el	Bub	der	poiss	male child	0.0	
-keep	noun:child	people_family	people_family	beginner	Noun	459	child	hijo	el	Kind	das	laps	son or daughter; someone's child	0.0	
-keep	noun:family	people_family	people_family	beginner	Noun	271	family	familia	la	Familie	die	pere	immediate family [as a group], e.g. parents and their children	0.0	
-keep	noun:father	people_family	people_family	beginner	Noun	194	father	padre	el	Vater	der	isa	male parent	0.0	
-keep	noun:friend	people_family	people_family	beginner	Noun	260	friend	amigo	el	Freund	der	sõber	person whose company one enjoys	0.0	
-keep	noun:girl	people_family	people_family	beginner	Noun	206	girl	niña	la	Mädchen	das	tüdruk	young female person	0.0	
-keep	noun:man	people_family	people_family	beginner	Noun	99	man	hombre	el	Mann	der	mees	adult male human	0.0	
-keep	noun:mother	people_family	people_family	beginner	Noun	226	mother	madre	la	Mutter	die	ema	female (human) who gives birth to or parents a child	0.0	
-keep	noun:person	people_family	people_family	beginner	Noun	379	person	persona	la	Person	die	isik	individual	0.0	
-keep	noun:sister	people_family	people_family	beginner	Noun	466	sister	hermana	la	Schwester	die	õde	woman or girl having the same parents	0.0	
-keep	noun:brother	people_family	people_family	beginner	Noun	300	brother	hermano	el	Bruder	der	vend	male sibling	0.0	
-keep	noun:adult	people_family	people_family	intermediate	Noun	4416	adult	adulto	el	Erwachsener	der	täiskasvanu	fully grown human	0.0	
-keep	noun:aunt	people_family	people_family	intermediate	Noun	1125	aunt	tía	la	Tante	die	tädi	a parent's sister or sister-in-law	0.0	
-keep	noun:cousin	people_family	people_family	intermediate	Noun	1459	cousin	primo	el	Cousin	der	nõbu	any relation (especially a distant one) who is not a direct ancestor or descendant but part of a person’s extended family	0.0	es:manual de:manual et:ekilex
-keep	noun:couple	people_family	people_family	intermediate	Noun	501	couple	pareja	la	Paar	das	paar	two partners	0.0	
-keep	noun:group	people_family	people_family	intermediate	Noun	852	group	grupo	el	Gruppe	die	rühm	number of things or persons being in some relation to each other	0.0	
-keep	noun:parent	people_family	people_family	intermediate	Noun	582	parent	padre	el	Elternteil	der	vanem	person from whom one is descended	0.0	
-keep	noun:partner	people_family	people_family	intermediate	Noun	1086	partner	compañero	el	Partner	der	partner	someone who is associated with another in a common activity or interest	0.0	
-keep	noun:uncle	people_family	people_family	intermediate	Noun	593	uncle	tío	el	Onkel	der	onu	brother (or brother-in-law) of someone’s parent	0.0	
-keep	noun:wife	people_family	people_family	intermediate	Noun	313	wife	esposa	la	Ehefrau	die	naine	female partner in a marriage	0.0	
-keep	noun:husband	people_family	people_family	intermediate	Noun	451	husband	marido	el	Ehemann	der	mees	male partner in marriage	0.0	
-keep	noun:human	people_family	people_family	intermediate	Noun	611	human	hombre	el	Mensch	der	inimene	human being	0.0	
-keep	noun:ancestor	people_family	people_family	advanced	Noun	4357	ancestor	ancestro	el	Vorfahr	der	esivanem	one from whom a person is descended	0.0	
-keep	noun:citizen	people_family	people_family	advanced	Noun	3251	citizen	ciudadano	el	Staatsbürger	der	kodanik	legal member of a state	0.0	
-keep	noun:crowd	people_family	people_family	advanced	Noun	1292	crowd	muchedumbre	la	Gedränge	das	rahvahulk	group of people	0.0	
-keep	noun:generation	people_family	people_family	advanced	Noun	3059	generation	generación	la	Generation	die	põlvkond	single step in the succession of natural descent	0.2	de:manual
-keep	noun:individual	people_family	people_family	advanced	Noun	3415	individual	individuo	el	Individuum	das	indiviid	person considered alone	0.0	
-keep	adjective:male	people_family	people_family	advanced	Adjective	1644	male	masculino		männlich		isane	belonging to the sex which typically produces sperm, or the gender typically associated with it	0.0	et:ekilex
-keep	adjective:female	people_family	people_family	advanced	Adjective	1621	female	femenino		weiblich		emane	belonging to the sex that typically produces eggs, or the gender typically associated with it	0.0	et:ekilex
-keep	noun:relationship	people_family	people_family	advanced	Noun	985	relationship	relación	la	Beziehung	die	suhe	connection or association	0.0	
-keep	noun:stranger	people_family	people_family	advanced	Noun	2343	stranger	extraño	el	Fremder	der	tundmatu	person whom one does not know	0.0	et:ekilex
-keep	noun:youth	people_family	people_family	advanced	Noun	2447	youth	juventud	la	Jugend	die	noorus	quality or state of being young	0.0	
-keep	verb:do	core	core	beginner	Verb	24	do	hacer		tun		tegema	perform, execute	0.4	es:manual
-keep	verb:be	core	core	beginner	Verb	12	be	ser		sein		olema	used to declare the subject and object identical or equivalent	0.5	
-keep	verb:have	core	core	beginner	Verb	22	have	tener		haben		laskma	1. to possess	0.0	et:ekilex
-keep	verb:get	core	core	beginner	Verb	45	get	conseguir		besorgen		astuma	to obtain	0.0	et:ekilex
-keep	verb:make	core	core	beginner	Verb	114	make	hacer		machen		tegema	to construct	0.0	
-keep	verb:say	core	core	beginner	Verb	101	say	decir		sagen		heitma	to say, to tell	0.0	et:ekilex
-keep	verb:see	core	core	beginner	Verb	69	see	ver		sehen		nägema	perceive with the eyes	0.0	
-keep	verb:take	core	core	beginner	Verb	90	take	tomar		nehmen		võtma	to get into one's hands or control	0.0	
-keep	verb:give	core	core	beginner	Verb	128	give	dar		geben		andma	transfer the possession of something to someone else	0.0	
-keep	verb:know	core	core	beginner	Verb	33	know	saber		wissen		teadma	be justifiably certain or sure about (something true)	0.0	
-keep	verb:think	core	core	beginner	Verb	67	think	pensar		nachdenken		mõtlema	to ponder, to go over in one's head	0.0	et:ekilex
-keep	verb:come	core	core	beginner	Verb	58	come	venir		kommen		tulema	to move nearer	0.0	
-keep	verb:look	core	core	beginner	Verb	84	look	mirar		sehen		vaatama	to try to see	0.0	
-keep	verb:use	core	core	beginner	Verb	310	use	usar		benutzen		kasutama	employ, apply	0.0	
-keep	verb:need	core	core	beginner	Verb	107	need	necesitar		benötigen		vajama	to have an absolute requirement for	0.0	es:manual
-keep	verb:try	core	core	beginner	Verb	252	try	intentar		versuchen		proovima	to attempt	0.0	
-keep	verb:help	core	core	beginner	Verb	140	help	ayudar		helfen		aitama	transitive: provide assistance to (someone or something)	0.0	
-keep	verb:start	core	core	beginner	Verb	309	start	empezar		anfangen		hakkama	to begin	0.0	es:manual et:ekilex
-keep	verb:stop	core	core	beginner	Verb	160	stop	parar		anhalten		peatuma	to cease moving	0.0	
-keep	verb:find	core	core	beginner	Verb	145	find	encontrar		finden		leidma	encounter, locate, discover	0.0	
-keep	adjective:good	core	core	beginner	Adjective	71	good	bueno		gut		hea	acting in the interest of good; ethical good intentions	0.0	
-keep	adjective:bad	core	core	beginner	Adjective	229	bad	malo		schlecht		halb	unfavorable; negative	2.0	
-keep	adjective:big	core	core	beginner	Adjective	200	big	grande		groß		suur	of a great size — see also large	0.0	
-keep	adjective:small	core	core	beginner	Adjective	577	small	pequeño		klein		väike	not large	0.0	
-keep	adjective:old	core	core	beginner	Adjective	197	old	antiguo		alt		vana	of an object, concept, etc: having existed for a relatively long period of time	0.0	
-keep	adjective:high	core	core	beginner	Adjective	499	high	alto		hoch		kõrge	elevated; tall	0.0	
-keep	adjective:low	core	core	beginner	Adjective	1227	low	bajo		niedrig		madal	in a position comparatively close to the ground	0.0	
-keep	adjective:slow	core	core	beginner	Adjective	1054	slow	lento		langsam		aeglane	not quick in motion	0.0	
-keep	adjective:main	core	core	beginner	Adjective	1398	main	principal		wichtig		peamine	chief, most important, or principal in extent, etc.	0.0	de:manual et:manual
-keep	adjective:important	core	core	beginner	Adjective	438	important	importante		wichtig		tähtis	having relevant and crucial value	0.0	
-keep	adverb:not	core	core	beginner	Adverb	28	not	no		nicht		ei	negates meaning of another word	0.0	
-keep	verb:change	core	core	intermediate	Verb	393	change	cambiar		ändern		muutma	to make something into something else	0.1	de:manual
-keep	verb:put	core	core	intermediate	Verb	170	put	poner		setzen		panema	to place something somewhere	0.0	
-keep	verb:feel	core	core	intermediate	Verb	192	feel	sentir		spüren		tundma	transitive: to sense by touch	0.0	
-keep	verb:become	core	core	intermediate	Verb	530	become	convertir		werden		muutuma	to begin to be	0.0	es:manual
-keep	verb:leave	core	core	intermediate	Verb	184	leave	partir		weggehen		lahkuma	to depart (intransitive)	0.6	
-keep	verb:mean	core	core	intermediate	Verb	125	mean	querer decir		bedeuten		tähendama	to convey, indicate	0.1	
-keep	verb:keep	core	core	intermediate	Verb	181	keep	guardar		behalten		hoidma	to maintain possession of	0.0	et:ekilex
-keep	verb:let	core	core	intermediate	Verb	75	let	permitir		lassen		laskma	allow	0.0	
-keep	verb:seem	core	core	intermediate	Verb	507	seem	parecer		scheinen		mõjuma	to appear	0.0	et:ekilex
-keep	verb:show	core	core	intermediate	Verb	241	show	mostrar		zeigen		näitama	to display	0.0	
-keep	verb:hear	core	core	intermediate	Verb	236	hear	oír		hören		kuulma	to perceive with the ear	0.0	
-keep	verb:move	core	core	intermediate	Verb	278	move	mover		bewegen		käima	(transitive) to change the place of something	0.2	es:manual de:manual
-keep	verb:ask	core	core	intermediate	Verb	238	ask	preguntar		fragen		küsima	request an answer	0.0	
-keep	verb:answer	core	core	intermediate	Verb	517	answer	responder		antworten		vastama	to make a reply or response to	0.0	
-keep	verb:talk	core	core	intermediate	Verb	164	talk	hablar		reden		rääkima	to communicate by speech	0.0	
-keep	verb:wait	core	core	intermediate	Verb	159	wait	esperar		warten		ootama	delay until some event	0.0	
-keep	verb:turn	core	core	intermediate	Verb	352	turn	girar		drehen		pöörlema	intransitive: move around an axis through itself	0.0	de:manual
-keep	verb:begin	core	core	intermediate	Verb	1193	begin	comenzar		anfangen		hakkama	to start, to initiate (transitive)	0.0	
-keep	verb:hold	core	core	intermediate	Verb	295	hold	aguantar		halten		hoidma	to grasp	0.0	
-keep	verb:bring	core	core	intermediate	Verb	319	bring	traer		bringen		tooma	to transport toward somebody/somewhere	0.0	
-keep	verb:write	core	core	intermediate	Verb	645	write	escribir		schreiben		kirjutama	to form letters, etc.	0.0	
-keep	verb:sit	core	core	intermediate	Verb	372	sit	sentar		sitzen		istuma	of a person, be in a position in which the upper body is upright and the legs are supported	0.0	es:manual
-keep	verb:stand	core	core	intermediate	Verb	461	stand	estar de pie		stehen		seisma	to support oneself on the feet in an erect position	0.0	
-keep	verb:lose	core	core	intermediate	Verb	557	lose	perder		verlieren		kaotama	cease to have in one's possession or capability	0.0	
-keep	verb:meet	core	core	intermediate	Verb	318	meet	encontrar		treffen		kohtama	to come face to face with by accident; to encounter	0.0	
-keep	verb:continue	core	core	intermediate	Verb	1039	continue	continuar		fortsetzen		jätkama	transitive: proceed	0.0	
-keep	verb:set	core	core	intermediate	Verb	439	set	colocar		setzen		katma	to put something down	0.0	et:ekilex
-keep	verb:learn	core	core	intermediate	Verb	691	learn	aprender		lernen		õppima	to acquire knowledge or ability	0.0	
-keep	verb:lead	core	core	intermediate	Verb	838	lead	emplomar		verbleien		juhatama	to cover, fill, or affect with lead	0.0	et:ekilex
-keep	verb:understand	core	core	intermediate	Verb	235	understand	entender		verstehen		mõistma	to grasp the meaning of	0.0	
-keep	verb:allow	core	core	advanced	Verb	1206	allow	permitir		erlauben		lubama	to let one have	0.0	es:manual
-keep	verb:create	core	core	advanced	Verb	1654	create	crear		kreieren		looma	to put into existence	0.0	
-keep	verb:expect	core	core	advanced	Verb	797	expect	esperar		erwarten		eeldama	to look for, look forward to, anticipate	0.0	et:ekilex
-keep	verb:offer	core	core	advanced	Verb	909	offer	ofrecer		anbieten		pakkuma	propose	0.0	
-keep	verb:provide	core	core	advanced	Verb	2581	provide	proveer		sorgen		hoolitsema	transitive: to give what is needed or desired	0.0	et:ekilex
-keep	verb:receive	core	core	advanced	Verb	1722	receive	recibir		bekommen		saama	to take what is offered, accept from another	0.0	
-keep	verb:remember	core	core	advanced	Verb	237	remember	recordar		erinnern		mäletama	to recall from one's memory	0.0	es:manual de:manual
-keep	verb:consider	core	core	advanced	Verb	1367	consider	considerar		überlegen		kaaluma	think about seriously	0.0	et:ekilex
-keep	verb:appear	core	core	advanced	Verb	2106	appear	aparecer		erscheinen		ilmuma	to come or be in sight; to be in view; to become visible	0.0	
-keep	verb:serve	core	core	advanced	Verb	1532	serve	servir		dienen		serveerima	to work for	0.0	et:ekilex
-keep	verb:die	core	core	advanced	Verb	358	die	morir		sterben		surema	to stop living	0.0	
-keep	verb:send	core	core	advanced	Verb	521	send	enviar		senden		saatma	make something go somewhere	0.0	
-keep	verb:build	core	core	advanced	Verb	1264	build	construir		bauen		ehitama	(transitive) to form by combining materials or parts	0.0	
-keep	verb:stay	core	core	advanced	Verb	219	stay	quedar		bleiben		jääma	to remain in a particular place	0.0	de:manual
-keep	verb:fall	core	core	advanced	Verb	673	fall	caer		fallen		kukkuma	move to a lower position under the effect of gravity	0.0	
-keep	verb:cut	core	core	advanced	Verb	464	cut	cortar		einschneiden		kärpima	to perform an incision	0.0	et:ekilex
-keep	verb:reach	core	core	advanced	Verb	1087	reach	alcanzar		erreichen		jõudma	to arrive at by effort	0.0	es:manual et:ekilex
-keep	verb:raise	core	core	advanced	Verb	1322	raise	levantar		heben		heiskama	to cause to rise	0.0	et:ekilex
-keep	verb:pass	core	core	advanced	Verb	741	pass	pasar		reichen		kuluma	to move or be moved from one place to another	0.0	et:ekilex
-keep	verb:require	core	core	advanced	Verb	3799	require	requerir		brauchen		eeldama	to need	0.1	es:manual et:ekilex
-keep	verb:report	core	core	advanced	Verb	727	report	informar		berichten			to relate details of	0.0	et:multiword et:missing check:2-target
-keep	verb:decide	core	core	advanced	Verb	739	decide	decidir		entscheiden		otsustama	to resolve or settle	0.0	
-keep	verb:pull	core	core	advanced	Verb	663	pull	tirar		ziehen		tõmbama	transitive: apply force to (something) so it comes towards one	0.0	
-keep	verb:return	core	core	advanced	Verb	667	return	retornar		zurückkehren		naasma	to come or go back	0.0	
-keep	verb:explain	core	core	advanced	Verb	695	explain	explicar		erklären		seletama	to make intelligible	0.0	
-keep	verb:develop	core	core	advanced	Verb	4478	develop	desarrollar		entwickeln		arenema	to progress	0.0	es:manual
-keep	verb:carry	core	core	advanced	Verb	1019	carry	llevar		tragen		kandma	to transport by lifting	0.0	et:ekilex
-keep	verb:break	core	core	advanced	Verb	486	break	romper		brechen		murdma	transitive: to separate into (to cause to end up in) two or more pieces	0.1	es:manual
-keep	verb:agree	core	core	advanced	Verb	903	agree	acordar		zustimmen		rääkima	to be in harmony about an opinion; be in unison or concord; be united	0.0	es:manual et:ekilex
-keep	verb:support	core	core	advanced	Verb	1083	support	apoyar		unterstützen		kandma	to keep from falling	0.0	et:ekilex
+status	id	topic	topics	band	pos	rank	en	es	es_gender	de	de_gender	et	fr	fr_gender	sense	sense_key	flags
+keep	noun:coat	clothing	clothing	beginner	Noun	1855	coat	abrigo	el	Mantel	der	mantel	manteau	le	outer garment covering the upper torso and arms	0.0	
+keep	noun:dress	clothing	clothing	beginner	Noun	5066	dress	vestido	el	Kleid	das	kleit	robe	la	item of clothing which both covers the upper part of the body and includes a skirt below the waist	0.0	
+keep	noun:hat	clothing	clothing	beginner	Noun	1410	hat	sombrero	el	Kappe	die	müts	chapeau	le	a head covering	0.0	
+keep	noun:jacket	clothing	clothing	beginner	Noun	2076	jacket	chaqueta	la	Jacke	die	jakk	veste	la	piece of clothing worn on the upper body outside a shirt or blouse	0.0	
+keep	noun:pants	clothing	clothing	beginner	Noun	1373	pants	pantalón	el	Hose	die	püksid	pantalon	le	garment covering the body from the waist downwards	0.0	
+keep	noun:shirt	clothing	clothing	beginner	Noun	1611	shirt	camisa	la	Hemd	das	särk	chemise	la	article of clothing	0.0	
+keep	noun:shoe	clothing	clothing	beginner	Noun	1114	shoe	zapato	el	Schuh	der	king	chaussure	la	protective covering for the foot	0.0	
+keep	noun:skirt	clothing	clothing	beginner	Noun	4890	skirt	falda	la	Rock	der	seelik	jupe	la	article of clothing	0.0	
+keep	noun:sock	clothing	clothing	beginner	Noun	3981	sock	calcetín	el	Socke	die	sokk	chaussette	la	covering for the foot	0.0	es:manual
+keep	noun:suit	clothing	clothing	beginner	Noun	1215	suit	traje	el	Anzug	der	ülikond	complet	le	set of clothes	0.0	
+keep	verb:wear	clothing	clothing	beginner	Verb	789	wear	llevar		tragen		kandma	porter		to have on (clothes or accessories)	0.0	es:manual
+keep	adjective:new	core	clothing,core	beginner	Adjective	178	new	nuevo		neu		uus	nouveau		recently made or created	0.0	
+keep	noun:boot	clothing	clothing	intermediate	Noun	4432	boot	bota	la	Stiefel	der	saabas	botte	la	heavy shoe that covers part of the leg	0.0	
+keep	noun:belt	clothing	clothing	intermediate	Noun	2686	belt	cinturón	el	Gürtel	der	vöö	ceinture	la	band worn around the waist	0.0	
+keep	noun:cap	clothing	clothing	intermediate	Noun	3050	cap	gorra	la	Mütze	die	kübar	bonnet	le	head covering	0.0	et:ekilex
+keep	noun:clothes	clothing	clothing	intermediate	Noun	790	clothes	ropa	la	Kleidung	die	kehakate			apparel	0.0	de:manual
+keep	noun:glove	clothing	clothing	intermediate	Noun	3840	glove	guante	el	Handschuh	der	sõrmik	gant	le	item of clothing	0.0	
+keep	noun:scarf	clothing	clothing	intermediate	Noun	6367	scarf	bufanda	la	Schal	der	sall	écharpe	la	long garment worn around the neck	0.0	
+keep	noun:ring	clothing	clothing	intermediate	Noun	832	ring	anillo	el	Ring	der	rõngas	anneau	le	circumscribing object	0.0	
+keep	noun:pocket	clothing	clothing	intermediate	Noun	1916	pocket	bolsillo	el	Tasche	die	tasku	poche	la	bag stitched to an item of clothing	0.0	
+keep	noun:zip	clothing	clothing	intermediate	Noun	6732	zip	cremallera	la	Reißverschluss	der	tõmblukk			fastener for clothing	manual	es:manual de:manual et:manual
+keep	noun:umbrella	clothing	clothing	intermediate	Noun	5827	umbrella	paraguas	el	Schirm	der	vihmavari	parapluie	le	cloth-covered frame used for protection against rain or sun	0.0	
+keep	verb:fit	clothing	clothing	intermediate	Verb	1184	fit	ajustar		passen		klappima	convenir		to conform to in size and shape	0.2	es:manual et:ekilex
+keep	noun:apron	clothing	clothing	advanced	Noun	10063	apron	delantal	el	Schürze	die	põll	tablier	le	clothing	0.0	
+keep	noun:blouse	clothing	clothing	advanced	Noun	9129	blouse	blusa	la	Bluse	die	pluus	chemisier	le	an outer garment, usually loose, that is similar to a shirt	0.0	et:ekilex
+keep	noun:diaper	clothing	clothing	advanced	Noun	9065	diaper	pañal	el	Windel	die	mähe	couche	la	absorbent garment for waste material	0.0	
+keep	noun:jewellery	clothing	clothing	advanced	Noun	9234	jewellery	joyería	la	Schmuck	der	ehe	joaillerie	la	personal ornamentation	0.0	et:manual
+keep	noun:robe	clothing	clothing	advanced	Noun	7037	robe	bata	la	Robe	die	kleit	robe	la	long, loose outer garment	0.0	
+keep	noun:slipper	clothing	clothing	advanced	Noun	8419	slipper	pantufla	la	Hausschuh	der	suss	chausson	le	low shoe usually worn indoors	0.1	de:manual
+keep	noun:stocking	clothing	clothing	advanced	Noun	10132	stocking	media	la	Strumpf	der	sukk	bas	le	garment (for translations of "sock", see sock)	0.0	
+keep	verb:suit	clothing	clothing	advanced	Verb	2997	suit	dar la talla		passen		hakkama			to be appropriate or apt for	0.1	de:manual et:ekilex
+keep	verb:tie	clothing	clothing	advanced	Verb	1673	tie	atar		binden		siduma	lier		to attach or fasten with string	0.0	et:ekilex
+keep	noun:vest	clothing	clothing	advanced	Noun	6771	vest	chaleco	el	Weste	die	vest	gilet	le	garment worn over a shirt	0.0	et:ekilex
+keep	noun:apple	food_drink	food_drink	beginner	Noun	2628	apple	manzana	la	Apfel	der	õun	pomme	la	fruit of Malus domestica	0.0	
+keep	noun:bread	food_drink	food_drink	beginner	Noun	1882	bread	pan	el	Brot	das	leib	pain	le	baked dough made from cereals	0.0	
+keep	noun:breakfast	food_drink	food_drink	beginner	Noun	1276	breakfast	desayuno	el	Frühstück	das	hommikueine			first meal of the day	0.0	
+keep	noun:butter	food_drink	food_drink	beginner	Noun	3015	butter	mantequilla	la	Butter	die	või	beurre	le	soft foodstuff made from milk	0.0	
+keep	noun:chicken	food_drink	food_drink,animals	beginner	Noun	1224	chicken	pollo	el	Huhn	das	kana	poulet	le	bird	0.0	
+keep	noun:coffee	food_drink	food_drink	beginner	Noun	666	coffee	café	el	Kaffee	der	kohv	café	le	beverage	0.0	
+keep	noun:drink	food_drink	food_drink	beginner	Noun	398	drink	bebida	la	Getränk	das	jook	verre	le	served beverage	0.0	es:manual
+keep	verb:drink	food_drink	food_drink	beginner	Verb	398	drink	beber		trinken		jooma	boire		consume liquid through the mouth	0.0	
+keep	verb:eat	food_drink	food_drink	beginner	Verb	373	eat	comer		essen		sööma	manger		to ingest — see also consume, ingest	0.0	
+keep	noun:egg	food_drink	food_drink	beginner	Noun	1877	egg	huevo	el	Ei	das	muna	œuf	le	approximately spherical or ellipsoidal body produced by birds, insects, reptiles, and other animals, housing the embryo within a membrane or shell during its development	0.0	
+keep	noun:fruit	food_drink	food_drink	beginner	Noun	2436	fruit	fruta	la	Frucht	die	puuvili	fruit	le	part of plant	0.0	
+keep	noun:meat	food_drink	food_drink	beginner	Noun	1503	meat	carne	la	Fleisch	das	liha	viande	la	animal flesh used as food	0.0	
+keep	noun:milk	food_drink	food_drink	beginner	Noun	1473	milk	leche	la	Milch	die	piim	lait	le	liquid	0.0	
+keep	noun:tea	food_drink	food_drink	beginner	Noun	928	tea	té	el	Tee	der	tee	thé	le	drink made from leaves of tea plant	0.1	
+keep	noun:water	food_drink	food_drink	beginner	Noun	378	water	agua	la	Wasser	das	vesi	eau	la	inorganic compound H₂O	0.0	
+keep	noun:beer	food_drink	food_drink	intermediate	Noun	1080	beer	cerveza	la	Bier	das	õlu	bière	la	alcoholic drink made of malt	0.0	
+keep	noun:cheese	food_drink	food_drink	intermediate	Noun	1857	cheese	queso	el	Käse	der	juust	fromage	le	dairy product	0.0	
+keep	noun:fish	animals	food_drink,animals	beginner	Noun	888	fish	pez	el	Fisch	der	kala	poisson	le	vertebrate animal	0.0	
+keep	noun:juice	food_drink	food_drink	intermediate	Noun	2427	juice	zumo	el	Saft	der	mahl	jus	le	liquid from a plant	0.0	
+keep	noun:meal	food_drink	food_drink	intermediate	Noun	2065	meal	comida	la	Mahlzeit	die	söök	repas	le	food that is prepared and eaten	0.0	
+keep	noun:oil	food_drink	food_drink	intermediate	Noun	1571	oil	aceite	el	Öl	das	õli	huile	la	liquid fat	0.0	
+keep	noun:orange	food_drink	food_drink	intermediate	Noun	2954	orange	naranjo	el	Apfelsinenbaum	der	apelsinipuu	oranger	le	tree	0.0	
+keep	noun:pepper	food_drink	food_drink	intermediate	Noun	4797	pepper	pimentero	el	Pfeffer	der	pipar	poivrier	le	plant	0.0	
+keep	noun:rice	food_drink	food_drink	intermediate	Noun	2371	rice	arroz	el	Reis	der	riis	riz	le	plants	0.0	
+keep	noun:salt	food_drink	food_drink	intermediate	Noun	2641	salt	sal	la	Salz	das	sool	sel	le	sodium chloride	0.0	
+keep	noun:soup	food_drink	food_drink	intermediate	Noun	2125	soup	sopa	la	Suppe	die	supp	potage	le	dish	0.0	
+keep	noun:sugar	food_drink	food_drink	intermediate	Noun	1804	sugar	azúcar	el/la	Zucker	der	suhkur	sucre	le	sucrose from sugar cane or sugar beet used to sweeten food and drink	0.0	es:manual
+keep	noun:vegetable	food_drink	food_drink	intermediate	Noun	5161	vegetable	verdura	la	Gemüse	das	köögivili	légume	le	a plant raised for some edible part of it	0.0	
+keep	noun:wine	food_drink	food_drink	intermediate	Noun	1050	wine	vino	el	Wein	der	vein	vin	le	alcoholic beverage made from grapes — see also port wine, chianti	0.0	
+keep	verb:cook	food_drink	food_drink	intermediate	Verb	1391	cook	cocinar		kochen		keetma	cuisiner		to prepare food for eating	0.0	
+keep	verb:bake	food_drink	food_drink	advanced	Verb	6799	bake	hornear		backen		küpsetama	cuire		to cook in an oven	0.0	
+keep	noun:beef	food_drink	food_drink	advanced	Noun	3173	beef	carne de res	la	Rindfleisch	das	veiseliha	bœuf	le	meat	0.0	
+keep	noun:garlic	food_drink	food_drink	advanced	Noun	7206	garlic	ajo	el	Knoblauch	der	küüslauk	ail	le	plant	0.0	
+keep	noun:ingredient	food_drink	food_drink	advanced	Noun	7076	ingredient	ingrediente	el	Zutat	die	koostisosa	ingrédient	le	substance present in a mixture	0.0	
+keep	noun:mushroom	food_drink	food_drink	advanced	Noun	7384	mushroom	seta	la	Pilz	der	seen	champignon	le	fruiting body of a fungus — see also fungus, champignon, fairy-ring champignon	0.0	
+keep	noun:pasta	food_drink	food_drink	advanced	Noun	6589	pasta	pasta	la	Nudel	die	pasta	pâtes	la	dough	0.0	de:manual
+keep	noun:pork	food_drink	food_drink	advanced	Noun	3998	pork	cerdo	el	Schweinefleisch	das	sealiha	porc	le	meat of a pig	0.0	
+keep	noun:recipe	food_drink	food_drink	advanced	Noun	5276	recipe	receta	la	Rezept	das	retsept	recette	la	instructions for making or preparing food dishes	0.0	
+keep	noun:seafood	food_drink	food_drink	advanced	Noun	12150	seafood	marisco	el	Meeresfrüchte	die	mereannid	fruits de mer		fish, shellfish, seaweed and other edible aquatic life	0.0	et:ekilex
+keep	noun:spice	food_drink	food_drink	advanced	Noun	7760	spice	especia	la	Würze	die	vürts			plant matter used to season or flavour food	0.0	
+keep	noun:taste	food_drink	food_drink	advanced	Noun	1252	taste	gusto	el	Geschmack	der	maitse	goût	le	one of the sensations produced by the tongue	0.0	
+keep	verb:taste	food_drink	food_drink	advanced	Verb	1252	taste	gustar		kosten		maitsema	goûter		to sample the flavor of something	0.0	et:ekilex
+keep	noun:bird	animals	animals	beginner	Noun	1350	bird	pájaro	el	Vogel	der	lind	oiseau	le	animal	0.0	
+keep	noun:cat	animals	animals	beginner	Noun	1041	cat	gato	el	Katze	die	kass	chat	le	domestic species	0.0	
+keep	noun:cow	animals	animals	beginner	Noun	2377	cow	vaca	la	Kuh	die	lehm	vache	la	adult female of species Bos taurus	0.0	
+keep	noun:dog	animals	animals	beginner	Noun	538	dog	perro	el	Hund	der	koer	chien	le	animal	0.0	
+keep	noun:duck	animals	animals	beginner	Noun	2631	duck	pato	el	Ente	die	part	canard	le	aquatic bird of the family Anatidae	1.0	
+keep	noun:horse	animals	animals	beginner	Noun	869	horse	caballo	el	Pferd	das	hobune	cheval	le/la	members of the species ''Equus ferus''	0.0	
+keep	noun:mouse	animals	animals	beginner	Noun	3361	mouse	ratón	el	Maus	die	hiir	souris	la	rodent of the genus Mus	0.0	
+keep	noun:pig	animals	animals	beginner	Noun	1760	pig	cerdo	el	Schwein	das	siga	cochon	le	mammal of family Suidae	0.0	
+keep	noun:rabbit	animals	animals	beginner	Noun	3082	rabbit	conejo	el	Kaninchen	das	küülik	lapin	le	mammal	0.0	
+keep	noun:sheep	animals	animals	beginner	Noun	3064	sheep	carnero	el	Schaf	das	lammas	mouton	le	animal	0.0	
+keep	noun:zoo	animals	animals	beginner	Noun	4303	zoo	zoo	el	Zoo	der	loomaaed	zoo	le	park where live animals are exhibited	0.0	
+keep	noun:bear	animals	animals	intermediate	Noun	3948	bear	oso	el	Bär	der	karu	ours	le	large mammal of family Ursidae	0.0	
+keep	noun:bee	animals	animals	intermediate	Noun	94	bee	abeja	la	Biene	die	mesilane	abeille	la	insect	0.0	
+keep	noun:butterfly	animals	animals	intermediate	Noun	5548	butterfly	mariposa	la	Schmetterling	der	liblikas	papillon	le	insect	0.0	
+keep	noun:elephant	animals	animals	intermediate	Noun	3774	elephant	elefante	el	Elefant	der	elevant	éléphant	le	mammal	0.0	
+keep	noun:fly	animals	animals	intermediate	Noun	964	fly	mosco	el	Fliege	die	kahetiivaline	mouche	la	insect of the order Diptera	0.0	
+keep	noun:frog	animals	animals	intermediate	Noun	4891	frog	rana	la	Frosch	der	konn	grenouille	la	amphibian	0.0	
+keep	noun:lion	animals	animals	intermediate	Noun	2889	lion	león	el	Löwe	der	lõvi	lion	le	big cat Panthera leo	0.0	
+keep	noun:monkey	animals	animals	intermediate	Noun	2221	monkey	mono	el	Affe	der	pärdik	singe	le	primate	0.0	
+keep	noun:snake	animals	animals	intermediate	Noun	2496	snake	serpiente	la	Schlange	die	madu	serpent	le	legless reptile	0.0	
+keep	noun:spider	animals	animals	intermediate	Noun	4300	spider	araña	la	Spinne	die	ämblik	araignée	la	arthropod	0.0	
+keep	noun:wolf	animals	animals	intermediate	Noun	2361	wolf	lobo	el	Wolf	der	susi	loup	le	animal	0.0	
+keep	noun:eagle	animals	animals	advanced	Noun	4085	eagle	águila	la	Adler	der	kotkas	aigle	le	any of several large carnivorous birds in the family Accipitridae	0.0	
+keep	noun:feather	animals	animals	advanced	Noun	6136	feather	pluma	la	Feder	die	sulg	plume	la	branching, hair-like structure that grows on the bodies of birds	0.0	
+keep	noun:fur	animals	animals	advanced	Noun	5435	fur	pelo	el	Fell	das	karvastik	fourrure	la	hairy coat of a mammal, especially when fine, soft and thick	0.0	
+keep	noun:insect	animals	animals	advanced	Noun	6291	insect	insecto	el	Insekt	das	putukas	insecte	le	arthropod of class Insecta	0.0	
+keep	noun:owl	animals	animals	advanced	Noun	6938	owl	búho	el	Eule	die	öökull	hibou	le	bird	0.0	
+keep	noun:pet	animals	animals	advanced	Noun	3237	pet	mascota	la	Haustier	das	lemmikloom	animal de compagnie	le	an animal kept as a companion	0.0	
+keep	noun:shark	animals	animals	advanced	Noun	3643	shark	tiburón	el	Hai	der	hai	requin	le	fish	0.0	
+keep	noun:tail	animals	animals	advanced	Noun	2607	tail	cola	la	Schwanz	der	saba	queue	la	appendage of an animal — see also dock	0.0	
+keep	noun:turtle	animals	animals	advanced	Noun	4458	turtle	tortuga	la	Schildkröte	die	kilpkonn	tortue	la	land or marine reptile with a shell	0.0	
+keep	noun:whale	animals	animals	advanced	Noun	4930	whale	ballena	la	Wal	der	vaal	baleine	la	large sea mammal	0.0	
+keep	noun:beach	plants_nature	plants_nature	beginner	Noun	1378	beach	playa	la	Strand	der	rand	plage	la	sandy shore	0.0	
+keep	noun:flower	plants_nature	plants_nature	beginner	Noun	1352	flower	flor	la	Blüte	die	lill	fleur	la	reproductive structure in angiosperms	0.0	
+keep	noun:forest	plants_nature	plants_nature	beginner	Noun	1875	forest	bosque	el	Wald	der	mets	forêt	la	dense collection of trees	0.0	
+keep	noun:island	plants_nature	plants_nature	beginner	Noun	1056	island	isla	la	Insel	die	saar	île	la	area of land completely surrounded by water	0.0	
+keep	noun:lake	plants_nature	plants_nature	beginner	Noun	1794	lake	lago	el	See	der	järv	lac	le	body of water	0.0	
+keep	noun:mountain	plants_nature	plants_nature	beginner	Noun	1596	mountain	montaña	la	Berg	der	mägi	montagne	la	large mass of earth and rock	0.0	
+keep	noun:ocean	plants_nature	plants_nature	beginner	Noun	1942	ocean	océano	el	Weltmeer	das	ookean	océan	le	one of the large bodies of water	0.0	
+keep	noun:plant	plants_nature	plants_nature	beginner	Noun	1959	plant	planta	la	Pflanze	die	taim	plante	la	organism capable of photosynthesis	0.0	
+keep	noun:river	plants_nature	plants_nature	beginner	Noun	1124	river	río	el	Fluss	der	jõgi	fleuve	le	large stream which drains a landmass	0.0	
+keep	noun:sea	plants_nature	plants_nature	beginner	Noun	902	sea	mar	el/la	Meer	das	meri	mer	la	body of water	0.0	
+keep	noun:tree	plants_nature	plants_nature	beginner	Noun	1072	tree	árbol	el	Baum	der	puu	arbre	le	large woody plant	0.0	
+keep	noun:world	plants_nature	plants_nature	beginner	Noun	228	world	mundo	el	Welt	die	maailm	monde	le	collective/subjective human experience	0.0	
+keep	noun:branch	plants_nature	plants_nature	intermediate	Noun	3905	branch	rama	la	Ast	der	oks	branche	la	woody part of a tree arising from the trunk	0.0	
+keep	noun:bush	plants_nature	plants_nature	intermediate	Noun	3598	bush	arbusto	el	Strauch	der	põõsas	buisson	le	category of woody plant	0.0	
+keep	noun:coast	plants_nature	plants_nature	intermediate	Noun	2364	coast	costa	la	Küste	die	rand	côte	la	edge of land meeting ocean, sea, gulf, bay	0.0	
+keep	noun:field	plants_nature	plants_nature	intermediate	Noun	1048	field	campo	el	Feld	das	väli	champ	le	land area free of woodland, cities, and towns; open country	0.0	
+keep	noun:grass	plants_nature	plants_nature	intermediate	Noun	3043	grass	pasto	el	Gras	das	muru	herbe	la	ground cover plant	0.0	
+keep	noun:ground	plants_nature	plants_nature	intermediate	Noun	870	ground	suelo	el	Erde	die	maapind	sol	le	surface of the Earth	0.0	et:ekilex
+keep	noun:leaf	plants_nature	plants_nature	intermediate	Noun	1432	leaf	hoja	la	Blatt	das	leht	feuille	la	part of a plant	0.0	
+keep	noun:moon	plants_nature	plants_nature	intermediate	Noun	1138	moon	luna	la	Mond	der	kuu	lune	la	the natural satellite of planet Earth	0.0	
+keep	noun:sky	plants_nature	plants_nature	intermediate	Noun	1286	sky	cielo	el	Himmel	der	taevas	ciel	le	atmosphere above a given point, especially as visible from the surface of the Earth as the place where the sun, moon, stars, and clouds are seen	0.0	
+keep	noun:star	plants_nature	plants_nature	intermediate	Noun	901	star	estrella	la	Stern	der	täht	étoile	la	a celestial body appearing as a point of light on the clear night sky, whose position is relatively fixed with respect to each other	0.0	
+keep	noun:sun	weather	plants_nature,weather	beginner	Noun	842	sun	sol	el	Sonne	die	päike	soleil	le	a star, especially when seen as the centre of any single solar system	0.0	
+keep	noun:valley	plants_nature	plants_nature	intermediate	Noun	2587	valley	valle	el	Senke	die	org	vallée	la	elongated depression between hills or mountains	0.0	
+keep	noun:cave	plants_nature	plants_nature	advanced	Noun	3000	cave	cueva	la	Höhle	die	koobas	caverne	la	large, naturally occurring cavity formed underground	0.0	
+keep	noun:climate	weather	plants_nature,weather	advanced	Noun	5590	climate	clima	el	Klima	das	kliima	climat	le	long-term atmospheric conditions	0.0	
+keep	noun:desert	plants_nature	plants_nature	advanced	Noun	2262	desert	desierto	el	Wüste	die	kõrb	désert	le	barren area	0.0	
+keep	noun:dirt	plants_nature	plants_nature	advanced	Noun	2759	dirt	suciedad	la	Schmutz	der		saleté	la	unclean matter	0.0	et:missing check:2-target
+keep	noun:landscape	plants_nature	plants_nature	advanced	Noun	6161	landscape	paisaje	el	Landschaft	die	maastik	paysage		portion of land or territory	0.0	
+keep	noun:nature	plants_nature	plants_nature	advanced	Noun	1321	nature	naturaleza	la	Natur	die	loodus	nature	la	the natural world and its order	0.0	
+keep	noun:root	plants_nature	plants_nature	advanced	Noun	4429	root	raíz	la	Wurzel	die	juur	racine	la	part of a plant	0.0	
+keep	noun:seed	plants_nature	plants_nature	advanced	Noun	5314	seed	semilla	la	Samen	der	seeme	semence	la	any small seed-like fruit	0.0	
+keep	noun:soil	plants_nature	plants_nature	advanced	Noun	4052	soil	suelo	el	Erde	die	muld	sol	le	mixture of sand and organic material	0.0	
+keep	noun:stone	plants_nature	plants_nature	advanced	Noun	1364	stone	piedra	la	Stein	der	kivi	pierre	la	substance	0.0	
+keep	adjective:cold	weather	weather	beginner	Adjective	625	cold	frío		kalt		külm	froid		having a low temperature	0.0	
+keep	adjective:hot	weather	weather	beginner	Adjective	547	hot	caliente		heiß		kuum	chaud		having a high temperature	0.0	
+keep	noun:rain	weather	weather	beginner	Noun	1358	rain	lluvia	la	Regen	der	vihm	pluie	la	condensed water from a cloud	0.0	
+keep	verb:rain	weather	weather	beginner	Verb	1358	rain	llover		regnen		sadama	pleuvoir		of rain: to fall from the sky	0.0	
+keep	noun:snow	weather	weather	beginner	Noun	1792	snow	nieve	la	Schnee	der	lumi	neige	la	partly frozen, crystalline state of water that falls from the atmosphere as precipitation in flakes; falling of such flakes; accumulation of them as a white layer	0.0	
+keep	adjective:warm	weather	weather	beginner	Adjective	1328	warm	cálido		warm		soe	chaud		having a temperature slightly higher than usual	0.0	
+keep	noun:wind	weather	weather	beginner	Noun	1088	wind	viento	el	Wind	der	tuul	vent	le	movement of air	0.0	
+keep	noun:cloud	weather	weather	intermediate	Noun	3479	cloud	nube	la	Wolke	die	pilv	nuage	le	visible mass of water droplets suspended in the air	0.0	
+keep	noun:fog	weather	weather	intermediate	Noun	5705	fog	niebla	la	Nebel	der	udu	brouillard	le	cloud that forms at a low altitude and obscures vision	0.0	
+keep	verb:freeze	weather	weather	intermediate	Verb	2493	freeze	congelar		einfrieren		külmama	congeler		to lower something's temperature to freezing point	0.1	es:manual et:ekilex
+keep	noun:ice	weather	weather	intermediate	Noun	951	ice	hielo	el	Eis	das	jää	glace	la	water in frozen form	0.0	
+keep	noun:lightning	weather	weather	intermediate	Noun	3656	lightning	relámpago	el	Blitz	der	välk	éclair	le	flash of light	0.0	
+keep	noun:storm	weather	weather	intermediate	Noun	1865	storm	tormenta	la	Sturm	der	torm	orage	le	disturbed state of the atmosphere causing destructive or unpleasant weather	0.0	
+keep	noun:temperature	weather	weather	intermediate	Noun	3188	temperature	temperatura	la	Temperatur	die	temperatuur	température		a measure of cold or heat	0.0	
+keep	noun:weather	weather	weather	intermediate	Noun	1773	weather	clima	el	Wetter	das	ilm	temps	le	state of the atmosphere	0.0	es:manual
+keep	noun:breeze	weather	weather	advanced	Noun	5230	breeze	brisa	la	Brise	die	tuuleõhk	brise	la	a light, gentle wind	0.0	
+keep	noun:degree	weather	weather	advanced	Noun	2932	degree	grado	el	Grad	der	kraad	degré	le	unit of measurement of temperature	0.2	
+keep	noun:forecast	weather	weather	advanced	Noun	12580	forecast	pronóstico	el	Schätzung	die	ennustus	prévision	la	estimation of future condition	0.0	
+keep	noun:shade	weather	weather	advanced	Noun	6496	shade	sombra	la	Schatten	der	vari	ombre	la	darkness where light is blocked	0.0	et:ekilex
+keep	noun:thunder	weather	weather	advanced	Noun	2570	thunder	trueno	el	Donner	der	kõu	tonnerre	le	sound caused by lightning	0.0	
+keep	adjective:tropical	weather	weather	advanced	Adjective	8678	tropical	tropical		tropisch			tropical		of or pertaining to the tropics	0.0	et:missing check:2-target
+keep	noun:arm	body_health	body_health	beginner	Noun	1139	arm	brazo	el	Arm	der	käsivars	bras	le	upper appendage from shoulder to wrist	0.0	
+keep	noun:body	body_health	body_health	beginner	Noun	423	body	cuerpo	el	Körper	der	keha	corps	le	physical structure of a human or animal	0.0	
+keep	noun:doctor	body_health	body_health	beginner	Noun	371	doctor	doctor	el	Doktor	der	doktor	docteur	le	person who has attained a doctorate	0.0	et:ekilex
+keep	noun:eye	body_health	body_health	beginner	Noun	403	eye	ojo	el	Auge	das	silm	œil	le	organ	0.0	
+keep	noun:face	body_health	body_health	beginner	Noun	347	face	cara	la	Gesicht	das	nägu	visage	le	anatomy: front part of head	0.0	
+keep	noun:foot	body_health	body_health	beginner	Noun	702	foot	pie	el	Fuß	der	jalg	pied	le	part of human body	0.0	
+keep	noun:hair	body_health	body_health	beginner	Noun	613	hair	pelo	el	Haar	das	karv	poil	le	pigmented filament of keratin on the skin of humans and other mammals	0.0	
+keep	noun:hand	body_health	body_health	beginner	Noun	367	hand	mano	la	Hand	die	käsi	main	la	part of the fore limb	0.0	
+keep	noun:head	body_health	body_health	beginner	Noun	290	head	cabeza	la	Kopf	der	pea	tête	la	part of the body	0.0	
+keep	noun:leg	body_health	body_health	beginner	Noun	1271	leg	pierna	la	Bein	das	jalg	jambe	la	lower limb from groin to ankle	0.0	
+keep	noun:mouth	body_health	body_health	beginner	Noun	771	mouth	boca	la	Mund	der	suu	bouche	la	the opening of a creature through which food is ingested — see also lip, face	0.0	
+keep	noun:nose	body_health	body_health	beginner	Noun	1305	nose	nariz	la	Nase	die	nina	nez	le	protuberance on the face	0.0	
+keep	noun:tooth	body_health	body_health	beginner	Noun	1553	tooth	diente	el	Zahn	der	hammas	dent	la	anatomy: tooth	0.0	
+keep	verb:walk	body_health	body_health	beginner	Verb	489	walk	caminar		gehen		kõndima	marcher		to move on the feet	0.0	
+keep	noun:back	body_health	body_health	intermediate	Noun	83	back	espalda	la	Rücken	der	selg	dos	le	the rear of body	0.0	
+keep	noun:blood	body_health	body_health	intermediate	Noun	477	blood	sangre	la	Blut	das	veri	sang	le	vital liquid flowing in human and animal bodies	0.0	
+keep	noun:bone	body_health	body_health	intermediate	Noun	2275	bone	hueso	el	Knochen	der	luu	os	le	material	0.0	
+keep	noun:ear	body_health	body_health	intermediate	Noun	1861	ear	oído	el	Ohr	das	kõrv	oreille	la	organ of hearing	0.0	
+keep	noun:finger	body_health	body_health	intermediate	Noun	1762	finger	dedo	el	Finger	der	sõrm	doigt	le	(anatomy) extremity of the hand	0.0	
+keep	noun:health	body_health	body_health	intermediate	Noun	1449	health	salud	la	Gesundheit	die	tervis	santé	la	state of being free of physical or psychological disease, illness, or malfunction	0.0	
+keep	noun:heart	body_health	body_health	intermediate	Noun	359	heart	corazón	el	Herz	das	süda	cœur	le	an organ	0.0	
+keep	noun:hospital	body_health	body_health	intermediate	Noun	629	hospital	hospital	el	Krankenhaus	das	haigla	hôpital	le	large medical facility	0.0	
+keep	noun:medicine	body_health	body_health	intermediate	Noun	1763	medicine	medicamento	el	Arznei	die	ravim	médicament	le	substance which promotes healing	0.0	
+keep	noun:neck	body_health	body_health	intermediate	Noun	1326	neck	cuello	el	Hals	der	kael	cou	le	part of body connecting the head and the trunk	0.0	
+keep	noun:pain	body_health	body_health	intermediate	Noun	736	pain	dolor	el	Schmerz	der	valu	douleur	la	ache or bodily suffering	0.0	
+keep	noun:skin	body_health	body_health	intermediate	Noun	1375	skin	piel	la	Haut	die	nahk	peau	la	outer protective layer of the body of a person or animal	0.0	
+keep	verb:sleep	body_health	body_health	intermediate	Verb	425	sleep	dormir		schlafen		magama	dormir		to rest in state of reduced consciousness	0.0	
+keep	noun:stomach	body_health	body_health	intermediate	Noun	1837	stomach	estómago	el	Magen	der	kõht	estomac	le	digestive organ	0.0	
+keep	noun:brain	body_health	body_health	advanced	Noun	924	brain	cerebro	el	Gehirn	das	aju	cerveau	le	organ	0.0	
+keep	noun:breath	body_health	body_health	advanced	Noun	1497	breath	respiración	la	Atem	der		souffle	le	single act of breathing in and out	0.1	de:manual et:missing check:2-target
+keep	verb:cure	body_health	body_health	advanced	Verb	2421	cure	curar		kurieren		säilitama	soigner		to restore to health	0.0	et:ekilex
+keep	noun:disease	body_health	body_health	advanced	Noun	2139	disease	enfermedad	la	Krankheit	die	haigus	maladie	la	an abnormal condition of the body causing discomfort or dysfunction	0.0	
+keep	noun:injury	body_health	body_health	advanced	Noun	4014	injury	herida	la	Verletzung	die	vigastus	blessure	la	damage or violation	0.0	
+keep	noun:muscle	body_health	body_health	advanced	Noun	3912	muscle	músculo	el	Muskel	der	lihas	muscle	le	contractile tissue	0.0	
+keep	noun:nurse	body_health	body_health	advanced	Noun	1564	nurse	enfermero	el	Krankenschwester	die	õde	infirmière	la	person trained to provide care for the sick	0.0	es:manual
+keep	noun:patient	body_health	body_health	advanced	Noun	1126	patient	paciente	el/la	Patient	der	patsient	patient	le	someone who receives treatment from a doctor	0.0	
+keep	noun:shoulder	body_health	body_health	advanced	Noun	2523	shoulder	hombro	el	Schulter	die	õlg	épaule	la	joint between arm and torso	0.1	de:manual
+keep	noun:surgery	body_health	body_health	advanced	Noun	1730	surgery	operación	la	Chirurgie	die	kirurgia	chirurgie	la	procedure involving major incisions	0.0	et:ekilex
+keep	noun:treatment	body_health	body_health	advanced	Noun	2234	treatment	tratamiento	el	Behandlung	die	ravi	traitement	le	medical care for an illness or injury	0.1	de:manual et:ekilex
+keep	noun:wound	body_health	body_health	advanced	Noun	2129	wound	herida	la	Wunde	die	haav	blessure	la	injury	0.0	
+keep	verb:call	core	technology_media,core	intermediate	Verb	161	call	llamar		rufen		kutsuma	appeler		to request, summon, or beckon	0.0	
+keep	noun:computer	technology_media	technology_media	beginner	Noun	1099	computer	computador	el	Computer	der	arvuti	ordinateur	le	programmable electronic device	0.0	
+keep	noun:message	technology_media	technology_media	beginner	Noun	813	message	mensaje	el	Nachricht	die	sõnum	message	le	communication, concept or information conveyed	0.0	
+keep	noun:phone	technology_media	technology_media	beginner	Noun	333	phone	teléfono	el	Telefon	das	telefon	phone	le	device for communication	manual	es:manual de:manual et:manual
+keep	noun:photograph	technology_media	technology_media	beginner	Noun	4531	photograph	fotografía	la	Photographie	die	foto	photographie	la	picture	0.0	
+keep	noun:radio	technology_media	technology_media	beginner	Noun	878	radio	radio	la	Radio	das	raadio	radio	la	technology	0.0	
+keep	noun:screen	technology_media	technology_media	beginner	Noun	2533	screen	pantalla	la	Bildschirm	der	ekraan	écran	le	viewing area of electronic output device	0.2	
+keep	noun:television	technology_media	technology_media	beginner	Noun	2090	television	televisión	la	Fernsehen	das	televisioon	télévision	la	medium	0.0	
+keep	noun:website	technology_media	technology_media	beginner	Noun	5356	website	sitio web	el	Website	die	veebisait	site web	le	a collection of pages on the World Wide Web	0.0	
+keep	noun:app	technology_media	technology_media	intermediate	Noun	8494	app	aplicación	la	App	die	rakendus	appli	la	small computer application	0.0	es:manual et:manual
+keep	noun:camera	technology_media	technology_media,sports_hobbies	intermediate	Noun	960	camera	cámara	la	Fotoapparat	der	fotoaparaat	appareil photo	le	still camera	0.0	
+keep	noun:email	technology_media	technology_media	intermediate	Noun	5521	email	correo electrónico	el	E-Mail	die	e-mail	courrier électronique	le	system for sending messages and datas by means of computers connected together in a network	0.0	
+keep	noun:file	technology_media	technology_media	intermediate	Noun	1469	file	cartapacio	el	Akte	die	toimik	fichier	le	collection of papers	0.0	
+keep	noun:laptop	technology_media	technology_media	intermediate	Noun	5310	laptop	portátil	el	Laptop	der	sülearvuti	ordinateur portable	le	computing: a laptop computer	0.0	
+keep	noun:media	technology_media	technology_media	intermediate	Noun	2210	media	medios	el	Medium	das	meedia			means and institutions for publishing and broadcasting information	2.0	de:manual
+keep	noun:news	technology_media	technology_media	intermediate	Noun	522	news	noticia	la	Nachricht	die	uudis	nouvelles	la	new information of interest	0.0	de:manual
+keep	adjective:online	technology_media	technology_media	intermediate	Adjective	2728	online	conectado		online		sidus	en ligne		connected to the Internet	0.2	es:manual et:ekilex
+keep	noun:password	technology_media	technology_media	intermediate	Noun	5410	password	contraseña	la	Passwort	das	salasõna	mot de passe	le	computing: string of characters known only to a user	0.1	de:manual
+keep	noun:video	technology_media	technology_media	intermediate	Noun	1280	video	vídeo	el	Video	das	video	vidéo	la	television show, movie	0.0	
+keep	noun:data	technology_media	technology_media	advanced	Noun	2045	data	datos	el	Daten	das	andmed	données	la	information	1.0	
+keep	noun:device	technology_media	technology_media	advanced	Noun	2565	device	dispositivo	el	Gerät	das	seade	appareil	le	piece of equipment	0.0	
+keep	adjective:digital	technology_media	technology_media	advanced	Adjective	6322	digital	digital		digital		digitaalne	numérique		representing discrete values	0.1	de:manual et:ekilex
+keep	noun:network	technology_media	technology_media	advanced	Noun	2935	network	red	la	Netzwerk	das	võrk			multiple computers and other devices connected together	0.3	
+keep	noun:press	technology_media	technology_media	advanced	Noun	1155	press	prensa	la	Presse	die	press	presse	la	printed media	0.1	
+keep	noun:printer	technology_media	technology_media	advanced	Noun	10919	printer	impresor	la	Drucker	der	printer	imprimeur	le	one who makes prints	0.0	et:ekilex
+keep	noun:security	technology_media	technology_media	advanced	Noun	781	security	seguridad	la	Sicherheit	die	ohutus	sécurité	la	condition of not being threatened	0.0	
+keep	noun:software	technology_media	technology_media	advanced	Noun	6138	software	software	el	Software	die	tarkvara	logiciel	le	encoded computer instructions	0.0	
+keep	noun:system	technology_media	technology_media	advanced	Noun	764	system	sistema	el	System	das	menetlus	système	le	group or set of related things that operate together as a complex whole	0.0	
+keep	noun:technology	technology_media	technology_media	advanced	Noun	2350	technology	tecnología	la	Technologie	die	tehnoloogia	technologie	la	the study of or a collection of techniques	0.0	
+keep	noun:apartment	home_living	home_living	beginner	Noun	1021	apartment	vivienda	la	Wohnung	die	korter	appartement	le	domicile occupying part of a building	0.0	
+keep	noun:bathroom	home_living	home_living	beginner	Noun	1308	bathroom	cuarto de baño	el	Badezimmer	das	vannituba	salle de bains	la	a room with a bathtub	0.0	
+keep	noun:bed	home_living	home_living	beginner	Noun	524	bed	cama	la	Bett	das	voodi	lit	le	piece of furniture	0.0	
+keep	noun:bedroom	home_living	home_living	beginner	Noun	1965	bedroom	alcoba	el	Schlafzimmer	das	magamistuba	chambre	la	room in a house where a bed is kept for sleeping	0.0	
+keep	noun:chair	home_living	home_living	beginner	Noun	1590	chair	silla	la	Sessel	der	tool	chaise	la	furniture	0.0	
+keep	noun:door	home_living	home_living	beginner	Noun	297	door	puerta	la	Tür	die	uks	porte	la	portal of entry into a building, room or vehicle	0.0	
+keep	noun:house	home_living	home_living	beginner	Noun	213	house	casa	la	Haus	das	maja	maison	la	human abode	0.0	
+keep	noun:kitchen	home_living	home_living	beginner	Noun	1127	kitchen	cocina	la	Küche	die	köök	cuisine	la	room	0.0	
+keep	noun:key	home_living	home_living	beginner	Noun	883	key	llave	la	Schlüssel	der	võti	clé	la	device designed to open and close a lock	0.0	
+keep	noun:room	home_living	home_living	beginner	Noun	275	room	cuarto	el	Raum	der	tuba	pièce	la	division in a building	0.2	
+keep	noun:table	home_living	home_living	beginner	Noun	816	table	mesa	la	Tisch	der	laud	table	la	item of furniture	0.0	
+keep	noun:window	home_living	home_living	beginner	Noun	982	window	ventana	la	Fenster	das	aken	fenêtre	la	opening for light and air	0.0	
+keep	verb:live	core	home_living,core	intermediate	Verb	281	live	vivir		leben		elama	vivre		be alive	0.0	
+keep	verb:open	home_living	home_living	beginner	Verb	343	open	abrir		öffnen		avama	ouvrir		to make something accessible	0.0	
+keep	noun:balcony	home_living	home_living	intermediate	Noun	6016	balcony	balcón	el	Balkon	der	rõdu	balcon	le	structure extending from a building	0.0	
+keep	noun:building	home_living	home_living	intermediate	Noun	753	building	edificación	la	Bau	der	ehitamine	construction	la	act or process of building	0.0	
+keep	verb:clean	home_living	home_living	intermediate	Verb	2395	clean	limpiar		reinigen		puhastama	nettoyer		(transitive) to remove dirt from a place or object	0.0	
+keep	noun:couch	home_living	home_living	intermediate	Noun	2823	couch	sofá	el	Sofa	das	diivan	sofa	le	furniture for seating of more than one person	0.0	
+keep	noun:floor	home_living	home_living	intermediate	Noun	827	floor	piso	el	Boden	der	põrand	sol	le	bottom part of a room	0.0	
+keep	noun:furniture	home_living	home_living	intermediate	Noun	3634	furniture	muebles	el	Möbel	das	mööbel	mobilier	le	large movable items	0.0	
+keep	noun:garden	home_living	home_living	intermediate	Noun	1757	garden	jardín	el	Garten	der	aed	jardin	le	piece of land outside with flowers and plants	0.0	
+keep	noun:heating	home_living	home_living	intermediate	Noun	8462	heating	calefacción	la	Heizung	die	küte	chauffage	le	system	0.0	
+keep	noun:lamp	home_living	home_living	intermediate	Noun	4645	lamp	lámpara	la	Lampe	die	lamp	lampe	la	device producing light	0.0	
+keep	noun:mirror	home_living	home_living	intermediate	Noun	2208	mirror	espejo	el	Spiegel	der	peegel	glace	la	smooth reflecting surface	0.0	
+keep	noun:roof	home_living	home_living	intermediate	Noun	1796	roof	tejado	el	Dach	das	katus	toit	le	the cover at the top of a building	0.0	
+keep	noun:stairs	home_living	home_living	intermediate	Noun	2463	stairs	escalera	la	Treppe	die	trepp	escalier	le	contiguous set of steps	1.0	
+keep	noun:wall	home_living	home_living	intermediate	Noun	989	wall	muro	el	Wall	der	müür	mur		defensive rampart	0.0	
+keep	verb:wash	home_living	home_living	intermediate	Verb	1635	wash	lavar		waschen		pesema	laver		to clean with water — see also deterge	0.0	
+keep	noun:ceiling	home_living	home_living	advanced	Noun	5013	ceiling	techo	el	Decke	die	lagi	plafond	le	upper limit of room	0.0	
+keep	noun:rent	home_living	home_living	advanced	Noun	1900	rent	renta	la	Miete	die	rent	loyer	le	payment made by a tenant	0.0	
+keep	verb:rent	home_living	home_living	advanced	Verb	1900	rent	alquilar		mieten		laenutama	louer		to occupy premises in exchange for rent	0.0	et:ekilex
+keep	noun:neighbour	people_family	people_family,home_living	intermediate	Noun	6250	neighbour	vecino	el	Nachbar	der	naaber	voisin	le	a person living on adjacent or nearby land	0.0	
+keep	noun:neighborhood	home_living	home_living	advanced	Noun	2163	neighborhood	vecindad	la	Nachbarschaft	die	naabrus	voisinage	le	area near one's home	0.0	
+keep	noun:property	home_living	home_living	advanced	Noun	1717	property	propiedad	la	Eigentum	das	vara	propriété	la	something owned	0.0	
+keep	noun:sheet	home_living	home_living	advanced	Noun	4363	sheet	hoja	la	Blatt	das	leht	feuille	la	sheet of paper	0.0	
+keep	noun:shelf	home_living	home_living	advanced	Noun	6521	shelf	estante	el	Regal	das	riiul	rayon	le	structure	0.0	
+keep	noun:tool	home_living	home_living	advanced	Noun	3753	tool	herramienta	la	Gerät	das	tööriist	outil	le	mechanical device intended to make a task easier	0.0	
+keep	noun:towel	home_living	home_living	advanced	Noun	6594	towel	toalla	la	Handtuch	das	rätik	serviette	la	cloth used for wiping	0.0	
+keep	noun:village	home_living	home_living	advanced	Noun	1046	village	aldea	la	Dorf	das	küla	village	le	a rural habitation of size between a hamlet and a town	0.0	
+keep	noun:bus	travel_transport	travel_transport	beginner	Noun	1103	bus	autobús	el	Bus	der	buss	autobus	le	vehicle	0.0	
+keep	noun:car	travel_transport	travel_transport	beginner	Noun	249	car	automóvil	el	Auto	das	auto	voiture	la	automobile, a vehicle steered by a driver	0.0	
+keep	noun:city	travel_transport	travel_transport	beginner	Noun	488	city	ciudad	la	Stadt	die	linn	ville	la	large settlement	0.0	
+keep	noun:ticket	travel_transport	travel_transport	beginner	Noun	1639	ticket	entrada	la	Ticket	das	pilet	billet	le	admission to entertainment	0.0	
+keep	noun:train	travel_transport	travel_transport	beginner	Noun	787	train	tren	el	Zug	der	rong	train	le	line of connected cars or carriages	0.1	
+keep	noun:trip	travel_transport	travel_transport	beginner	Noun	918	trip	viaje	el	Reise	die	retk	voyage	le	journey	0.0	
+keep	verb:visit	travel_transport	travel_transport	beginner	Verb	979	visit	visitar		besuchen		külastama	visiter		to go and meet (someone)	0.0	
+keep	noun:station	travel_transport	travel_transport	beginner	Noun	806	station	estación	la	Bahnhof	der	jaam	gare	la	place where a vehicle may stop	0.0	
+keep	noun:stop	travel_transport	travel_transport	beginner	Noun	160	stop	parada	la	Haltestelle	die	peatus	arrêt	le	place to get on and off mass transport	0.0	
+keep	noun:street	travel_transport	travel_transport	beginner	Noun	630	street	calle	la	Straße	die	tänav	rue	la	paved part of road in a village or a town	0.0	
+keep	noun:map	travel_transport	travel_transport	beginner	Noun	2032	map	mapa	el	Landkarte	die	kaart	carte	la	visual representation of an area	0.0	
+keep	noun:way	travel_transport	travel_transport	beginner	Noun	112	way	camino	el	Weg	der	tee	voie	la	road, direction, path	0.0	
+keep	verb:go	core	travel_transport,core	beginner	Verb	47	go	ir		gehen		minema	aller		to move through space (especially from one place to another)	0.0	
+keep	verb:travel	travel_transport	travel_transport	beginner	Verb	1548	travel	viajar		reisen		sõitma	voyager		be on a journey	0.0	
+keep	noun:airport	travel_transport	travel_transport	intermediate	Noun	1993	airport	aeropuerto	el	Flughafen	der	lennujaam	aéroport	le	place designated for airplanes	0.0	
+keep	noun:bicycle	travel_transport	travel_transport	intermediate	Noun	5633	bicycle	bicicleta	la	Fahrrad	das	jalgratas	vélo	le	vehicle	0.0	
+keep	noun:border	travel_transport	travel_transport	intermediate	Noun	2629	border	frontera	la	Grenze	die	piir	frontière	la	the line or frontier area separating various territories	0.0	es:manual
+keep	noun:bridge	travel_transport	travel_transport	intermediate	Noun	1521	bridge	puente	el	Brücke	die	sild	pont	le	construction or natural feature that spans a divide	0.0	
+keep	noun:flight	travel_transport	travel_transport	intermediate	Noun	1320	flight	vuelo	el	Flug	der	lend	vol	le	act of flying	0.0	et:ekilex
+keep	noun:hotel	travel_transport	travel_transport	intermediate	Noun	792	hotel	hotel	el	Hotel	das	hotell	hôtel	le	establishment providing accommodation	0.0	
+keep	noun:luggage	travel_transport	travel_transport	intermediate	Noun	4518	luggage	equipaje	el	Gepäck	das	pagas	bagage	le	traveller's containers	0.0	
+keep	noun:passport	travel_transport	travel_transport	intermediate	Noun	3506	passport	pasaporte	el	Reisepass	der	pass	passeport	le	official document for foreign travel	0.0	
+keep	noun:plane	travel_transport	travel_transport	intermediate	Noun	1064	plane	avión	el	Flugzeug	das	lennuk	avion	le	airplane	2.0	de:manual
+keep	noun:route	travel_transport	travel_transport	intermediate	Noun	2475	route	ruta	la	Route	die	marsruut	route	la	course or way traveled	0.0	
+keep	noun:taxi	travel_transport	travel_transport	intermediate	Noun	2211	taxi	taxi	el	Taxi	das	takso	taxi	le	vehicle available for public hire	0.0	
+keep	noun:traffic	travel_transport	travel_transport	intermediate	Noun	2130	traffic	tráfico	el	Verkehr	der	liiklus	circulation	la	pedestrians or vehicles on roads or on the air	0.0	
+keep	noun:driver	travel_transport	travel_transport	intermediate	Noun	1356	driver	conductor	el	Treiber	der	autojuht	conducteur	le	one who drives something, e.g. cattle	0.0	et:ekilex
+keep	adjective:fast	core	travel_transport,core	beginner	Adjective	624	fast	rápido		schnell		kiire	rapide		moving or capable of moving with great speed	0.3	es:manual et:ekilex
+keep	noun:arrival	travel_transport	travel_transport	advanced	Noun	4551	arrival	llegada	la	Ankunft	die	saabumine	arrivée	la	act of arriving	0.0	
+keep	noun:customs	travel_transport	travel_transport	advanced	Noun	5664	customs	aduana	la	Zoll	der	toll	douane	la	the duties or taxes imposed on imported or exported goods	0.0	
+keep	noun:departure	travel_transport	travel_transport	advanced	Noun	6969	departure	salida	la	Abfahrt	die	väljumine	départ	le	the act of departing	0.0	
+keep	noun:destination	travel_transport	travel_transport	advanced	Noun	5078	destination	destinación	la	Bestimmung	die	siht	destination	la	the act of destining or appointing	0.0	et:ekilex
+keep	noun:engine	travel_transport	travel_transport	advanced	Noun	1277	engine	motor	el	Motor	der	mootor	moteur	le	mechanical device	0.0	
+keep	adjective:foreign	travel_transport	travel_transport	advanced	Adjective	1909	foreign	extraño		fremd		välismaine	étranger		located outside one's own country or place	0.0	et:manual
+keep	noun:guide	travel_transport	travel_transport	advanced	Noun	2814	guide	guía	el	Reiseleiter	der	giid	guide	le/la	someone who guides	0.0	
+keep	noun:passenger	travel_transport	travel_transport	advanced	Noun	4306	passenger	pasajero	el	Passagier	der	sõitja	passager	le	one who rides or travels in a vehicle	0.0	
+keep	noun:platform	travel_transport	travel_transport	advanced	Noun	5327	platform	andén	el	Bahnsteig	der	perroon	quai	le	travel: raised structure for passengers	0.3	es:manual
+keep	noun:transport	travel_transport	travel_transport	advanced	Noun	3644	transport	transporte	el	Beförderung	die	transport	transport	le	act of transporting	0.0	et:ekilex
+keep	noun:vehicle	travel_transport	travel_transport	advanced	Noun	2263	vehicle	vehículo	el	Fahrzeug	das	sõiduk	véhicule	le	conveyance	0.0	et:ekilex
+keep	noun:voyage	travel_transport	travel_transport	advanced	Noun	7042	voyage	viaje	el	Reise	die	sõit	voyage	le	long journey; especially by ship	0.0	et:ekilex
+keep	noun:game	sports_hobbies	sports_hobbies	beginner	Noun	456	game	juego	el	Spiel	das	mäng	jeu	le	playful activity that may be unstructured, amusement, pastime	0.0	
+keep	noun:music	sports_hobbies	sports_hobbies	beginner	Noun	366	music	música	la	Musik	die	muusika	musique	la	sound, organized in time in a melodious way	0.0	
+keep	verb:play	sports_hobbies	sports_hobbies	beginner	Verb	334	play	jugar		spielen		mängima	jouer		act in a manner such that one has fun	0.0	
+keep	verb:run	sports_hobbies	sports_hobbies,core	beginner	Verb	322	run	correr		rennen		jooksma	courir		to move quickly on two feet	0.0	
+keep	noun:song	sports_hobbies	sports_hobbies	beginner	Noun	679	song	canción	la	Lied	das	laul	chanson	la	music with words	0.0	
+keep	noun:sport	sports_hobbies	sports_hobbies	beginner	Noun	2593	sport	deporte	el	Sport	der	sport	sport	le	any athletic activity that uses physical skills	0.0	
+keep	verb:swim	sports_hobbies	sports_hobbies	beginner	Verb	2225	swim	nadar		schwimmen		ujuma	nager		move through water	0.0	
+keep	noun:team	sports_hobbies	sports_hobbies	beginner	Noun	516	team	equipo	el	Mannschaft	die	meeskond	équipe	la	group of people	0.1	
+keep	verb:win	sports_hobbies	sports_hobbies	beginner	Verb	163	win	ganar		gewinnen		võitma	gagner		transitive: achieve victory in	0.0	
+keep	noun:ball	sports_hobbies	sports_hobbies	beginner	Noun	880	ball	bola	la	Kugel	die	pall	balle	la	solid or hollow sphere	0.0	
+keep	noun:art	sports_hobbies	sports_hobbies	intermediate	Noun	999	art	arte	el	Kunst	die	kunst	art	le	human effort	0.0	es:manual
+keep	verb:dance	sports_hobbies	sports_hobbies	intermediate	Verb	632	dance	bailar		tanzen		tantsima	danser		move rhythmically to music	0.0	
+keep	noun:movie	sports_hobbies	sports_hobbies	intermediate	Noun	767	movie	película	la	Film	der	film	film	le	motion picture	0.0	
+keep	noun:museum	sports_hobbies	sports_hobbies	intermediate	Noun	2858	museum	museo	el	Museum	das	muuseum	musée	le	building or institution	0.0	
+keep	verb:paint	sports_hobbies	sports_hobbies	intermediate	Verb	1799	paint	pintar		bemalen		maalima	peindre		to apply paint to	0.0	et:ekilex
+keep	noun:party	sports_hobbies	sports_hobbies	intermediate	Noun	433	party	fiesta	la	Feier	die	pidu	fête	la	social gathering	0.3	es:manual
+keep	noun:player	sports_hobbies	sports_hobbies	intermediate	Noun	2006	player	jugador	el	Spieler	der	mängija	joueur	le	one who plays any game or sport	0.0	de:manual
+keep	noun:reader	sports_hobbies	sports_hobbies	intermediate	Noun	8937	reader	lector	el	Leser	der	lugeja	lecteur	le	person who reads a publication	0.0	de:manual
+keep	noun:match	sports_hobbies	sports_hobbies	intermediate	Noun	1143	match	partido	el	Spiel	das	matš	match	le	sporting event	0.0	
+keep	noun:athlete	sports_hobbies	sports_hobbies	advanced	Noun	8105	athlete	atleta	el/la	Sportler	der	sportlane	athlète	le/la	person who actively participates in physical sports	0.1	
+keep	noun:champion	sports_hobbies	sports_hobbies	advanced	Noun	3030	champion	campeón	el	Meister	der	meister	champion	le	someone who has been winner in a contest	0.0	de:manual
+keep	noun:competition	sports_hobbies	sports_hobbies	advanced	Noun	1951	competition	competición	la	Konkurrenz	die	võistlus	compétition	la	action of competing	0.0	
+keep	noun:concert	sports_hobbies	sports_hobbies	advanced	Noun	2938	concert	concierto	el	Konzert	das	kontsert	concert	le	a musical entertainment in which several voices or instruments take part	0.2	de:manual
+keep	noun:instrument	sports_hobbies	sports_hobbies	advanced	Noun	5617	instrument	instrumento	el	Instrument	das	pill	instrument	le	musical device	0.0	
+keep	noun:hobby	sports_hobbies	sports_hobbies	advanced	Noun	5980	hobby	afición	la	Hobby	das	harrastus	passe-temps	le	activity done for enjoyment in spare time	0.0	
+keep	noun:leisure	sports_hobbies	sports_hobbies	advanced	Noun	11276	leisure	ocio	el	Muße	die	jõudeaeg	loisir	le	freedom provided	0.0	et:ekilex
+keep	noun:score	sports_hobbies	sports_hobbies	advanced	Noun	2408	score	tantos	el	Ergebnis	das	skoor			number of points earned	0.0	de:manual et:split
+keep	noun:stadium	sports_hobbies	sports_hobbies	advanced	Noun	6413	stadium	estadio	el	Stadion	das	staadion	stade	le	venue where sporting events are held	0.0	
+keep	noun:tournament	sports_hobbies	sports_hobbies	advanced	Noun	5352	tournament	torneo	el	Turnier	das	turniir	tournoi	le	(historical) series of battles	0.0	
+keep	verb:buy	work_money	work_money	beginner	Verb	511	buy	comprar		kaufen		ostma	acheter		to obtain something with money	0.0	
+keep	noun:cash	work_money	work_money	beginner	Noun	1059	cash	efectivo	el	Bargeld	das	sularaha			money in the form of notes/bills and coins	0.0	
+keep	noun:company	work_money	work_money	beginner	Noun	590	company	empresa	la	Gesellschaft	die	äriühing	société	la	in legal context, a corporation	0.0	
+keep	noun:job	work_money	work_money	beginner	Noun	269	job	trabajo	el	Arbeit	die	töö	travail	le	economic role for which a person is paid	0.1	
+keep	noun:money	work_money	work_money	beginner	Noun	186	money	dinero	el	Geld	das	raha	argent	le	means of exchange and measure of value	0.0	
+keep	verb:pay	core	work_money,core	intermediate	Verb	388	pay	pagar		bezahlen		maksma	payer		to give money in exchange for goods or services	0.0	
+keep	verb:sell	work_money	work_money	beginner	Verb	761	sell	vender		verkaufen		müüma	vendre		to agree to transfer goods or provide services for payment	0.0	
+keep	noun:shop	work_money	work_money	beginner	Noun	1042	shop	tienda	la	Laden	der	pood	boutique	la	establishment that sells goods	0.0	
+keep	noun:store	work_money	work_money	beginner	Noun	1034	store	depósito	el	Lager	das	ladu	entrepôt	le	place where items may be kept	0.0	
+keep	noun:work	work_money	work_money	beginner	Noun	151	work	trabajo	el	Arbeit	die	töö	travail	le	labour, employment, occupation, job	0.0	
+keep	verb:work	work_money	work_money,core	beginner	Verb	151	work	trabajar		arbeiten		töötama	travailler		intransitive: to do a specific task	0.0	
+keep	noun:worker	work_money	work_money	beginner	Noun	2534	worker	trabajador	el	Arbeitnehmer	der	töötaja	travailleur	le	person who performs labor	0.0	de:manual
+keep	noun:bank	work_money	work_money	intermediate	Noun	917	bank	banca	la	Bank	die	pank	banque	la	institution	0.0	
+keep	noun:boss	work_money	work_money	intermediate	Noun	566	boss	jefe	el	Chef	der	ülemus	patron	le	supervisor	0.0	
+keep	noun:business	work_money	work_money	intermediate	Noun	353	business	negocio	el	Geschäft	das	äri	affaire		occupation, work or trade of a person	0.1	
+keep	noun:cost	work_money	work_money	intermediate	Noun	1298	cost	costo	el	Kosten	die	maksumus	coût	le	amount of money spent for a purpose	0.0	de:manual et:ekilex
+keep	verb:cost	work_money	work_money	intermediate	Verb	1298	cost	costar		kosten		maksma	coûter		to incur a charge, a price	0.0	
+keep	noun:customer	work_money	work_money	intermediate	Noun	2561	customer	cliente	el/la	Abnehmer	der	klient	client	le	one who purchases or receives a product or service	0.1	
+keep	noun:office	work_money	work_money	intermediate	Noun	494	office	oficina	la	Büro	das	kontor	bureau	le	room(s) or building used for non-manual work	0.2	
+keep	noun:price	work_money	work_money	intermediate	Noun	1179	price	precio	el	Preis	der	hind	prix	le	cost required to gain possession of something	0.0	
+keep	noun:salary	work_money	work_money	intermediate	Noun	3852	salary	salario	el	Gehalt	das	palk	salaire	le	fixed amount of money paid on monthly or annual basis	0.0	
+keep	noun:tax	work_money	work_money	intermediate	Noun	3016	tax	impuesto	el	Steuer	die	maks	impôt	le	money paid to the government	0.0	
+keep	noun:colleague	work_money	work_money	intermediate	Noun	3871	colleague	colega	el/la	Kollege	der	kolleeg	collègue	le/la	fellow member of a profession	0.0	
+keep	noun:contract	work_money	work_money	intermediate	Noun	1827	contract	contrato	el	Vertrag	der	leping	contrat	le	agreement that is legally binding	0.0	
+keep	noun:account	work_money	work_money	advanced	Noun	1467	account	cuenta	la	Konto	das	konto	compte	le	a registry of pecuniary transactions	0.0	
+keep	noun:budget	work_money	work_money	advanced	Noun	4095	budget	presupuesto	el	Budget	das	eelarve	budget	le	amount of money or resources earmarked for a particular institution, activity or time-frame	0.0	
+keep	noun:career	work_money	work_money	advanced	Noun	1482	career	carrera	la	Karriere	die	karjäär	carrière	la	one's calling in life; a person's occupation	0.0	
+keep	noun:currency	work_money	work_money	advanced	Noun	8343	currency	moneda	la	Währung	die	valuuta	monnaie	la	money or other item used to facilitate transactions	0.0	
+keep	noun:economy	work_money	work_money	advanced	Noun	4586	economy	economía	la	Wirtschaft	die	majandus	économie	la	production and distribution and consumption	0.2	
+keep	noun:employee	work_money	work_money	advanced	Noun	3941	employee	empleado	el	Arbeitnehmer	der	töötaja	employé	le	person who provides labor to a company or another person	0.0	
+keep	noun:employer	work_money	work_money	advanced	Noun	8431	employer	empleador	el	Arbeitgeber	der	tööandja	employeur	le	person or entity which employs others	0.0	
+keep	noun:income	work_money	work_money	advanced	Noun	5251	income	ingreso	el	Einkommen	das	tulu	revenu	le	money one earns by working or by capitalising on the work of others	0.0	de:manual
+keep	noun:industry	work_money	work_money	advanced	Noun	3062	industry	industria	la	Branche	die	valdkond			businesses of the same type	0.1	es:manual
+keep	noun:insurance	work_money	work_money	advanced	Noun	1999	insurance	seguro	el	Versicherung	die	kindlustus	assurance	la	indemnity	0.0	
+keep	noun:investment	work_money	work_money	advanced	Noun	4372	investment	inversión	la	Investition	die	investeering	investissement	le	placement of capital in expectation of deriving income or profit from its use	0.1	de:manual
+keep	noun:profit	work_money	work_money	advanced	Noun	3870	profit	provecho	el	Gewinn	der	kasum	profit	le	benefit	0.0	
+keep	noun:kilometre	numbers_measures	numbers_measures	intermediate	Noun	9711	kilometre	kilómetro	el	Kilometer	der	kilomeeter	kilomètre	le	unit of measure	0.0	
+keep	noun:meter	numbers_measures	numbers_measures	intermediate	Noun	4131	meter	medidor	el	Messgerät	das	mõõtja	mètre	le	measuring instrument	0.0	
+keep	noun:litre	numbers_measures	numbers_measures	intermediate	Noun	21735	litre	litro	el	Liter	der	liiter	litre	le	unit of fluid measure	0.0	
+keep	noun:number	numbers_measures	numbers_measures	intermediate	Noun	442	number	número	el	Zahl	die	arv	nombre	le	abstract entity used to describe quantity	0.0	
+keep	noun:part	numbers_measures	numbers_measures	intermediate	Noun	380	part	parte	la	Teil	der	osa	partie	la	fraction of a whole	0.0	
+keep	noun:piece	numbers_measures	numbers_measures	intermediate	Noun	697	piece	pieza	la	Stück	das	tükk	morceau	le	part of a larger whole	0.0	et:ekilex
+keep	noun:amount	numbers_measures	numbers_measures	advanced	Noun	1815	amount	cantidad	la	Anzahl	die	kogus	montant	le	total or sum of items	0.0	
+keep	noun:average	numbers_measures	numbers_measures	advanced	Noun	3265	average	promedio	el	Durchschnitt	der	keskmine	moyenne	la	arithmetic mean	0.0	et:ekilex
+keep	noun:distance	numbers_measures	numbers_measures	advanced	Noun	1701	distance	distancia	la	Distanz	die	kaugus	distance	la	(countable, uncountable) amount of space between points	0.0	
+keep	adjective:double	numbers_measures	numbers_measures	advanced	Adjective	1295	double	doble		doppelt		kahekordne	double		made up of two matching or complementary elements	0.0	et:ekilex
+keep	noun:majority	numbers_measures	numbers_measures	advanced	Noun	5582	majority	mayoría	la	Mehrheit	die	enamus	majorité	la	more than half	0.0	
+keep	noun:maximum	numbers_measures	numbers_measures	advanced	Noun	5291	maximum	máximo	el	Maximum	das	maksimum	maximum	le	highest limit	0.0	et:ekilex
+keep	noun:minimum	numbers_measures	numbers_measures	advanced	Noun	5392	minimum	mínimo	el	Minimum	das	miinimum			lowest limit	0.0	et:ekilex
+keep	noun:percent	numbers_measures	numbers_measures	advanced	Noun	2605	percent	porcentaje	el	Prozent	das	protsent			a part or other object per hundred	0.0	es:manual de:manual
+keep	noun:quantity	numbers_measures	numbers_measures	advanced	Noun	12237	quantity	cantidad	la	Quantität	die	kogus	quantité	la	fundamental, generic term used when referring to the measurement	0.0	
+keep	noun:size	numbers_measures	numbers_measures	advanced	Noun	1510	size	tamaño	el	Größe	die	suurus	taille	la	dimensions or magnitude of a thing	0.0	
+keep	noun:day	time_calendar	time_calendar	beginner	Noun	149	day	día	el	Tag	der	päev	jour	le	period between sunrise and sunset	0.0	
+keep	noun:hour	time_calendar	time_calendar	beginner	Noun	471	hour	hora	la	Stunde	die	tund	heure	la	time period of sixty minutes	0.0	
+keep	noun:minute	time_calendar	time_calendar	beginner	Noun	387	minute	minuto	el	Minute	die	minut	minute	la	unit of time	0.0	
+keep	noun:month	time_calendar	time_calendar	beginner	Noun	527	month	mes	el	Monat	der	kuu	mois	le	period into which a year is divided	0.0	
+keep	noun:morning	time_calendar	time_calendar	beginner	Noun	264	morning	mañana	la	Morgen	der	hommik	matin	le	part of the day between dawn and midday	0.0	
+keep	noun:night	time_calendar	time_calendar	beginner	Noun	169	night	noche	la	Nacht	die	öö	nuit	la	period between sunset and sunrise	0.0	
+keep	adverb:today	time_calendar	time_calendar	beginner	Adverb	232	today	hoy		heute		täna	aujourd'hui		on the current day	0.0	
+keep	adverb:tomorrow	time_calendar	time_calendar	beginner	Adverb	316	tomorrow	mañana		morgen		homme	demain		on the day after the present day	0.0	
+keep	noun:week	time_calendar	time_calendar	beginner	Noun	450	week	semana	la	Woche	die	nädal	semaine	la	period of seven days	0.0	
+keep	noun:year	time_calendar	time_calendar	beginner	Noun	183	year	año	el	Jahr	das	aasta	année	la	time it takes for the Earth to complete one revolution around the Sun	0.0	
+keep	adverb:yesterday	time_calendar	time_calendar	beginner	Adverb	698	yesterday	ayer		gestern		eile	hier		on the day before today	0.0	
+keep	adverb:now	time_calendar	time_calendar	beginner	Adverb	55	now	ahora		jetzt		nüüd	maintenant		at the present time	0.0	
+keep	adverb:always	time_calendar	time_calendar	beginner	Adverb	180	always	siempre		immer		alati	toujours		at all times	0.0	
+keep	adverb:never	time_calendar	time_calendar	beginner	Adverb	116	never	nunca		nie		iial	jamais		at no time	0.0	
+keep	noun:afternoon	time_calendar	time_calendar	intermediate	Noun	923	afternoon	tarde	la	Nachmittag	der	pärastlõuna	après-midi	le/la	part of the day between noon and evening	0.0	
+keep	noun:date	time_calendar	time_calendar	intermediate	Noun	671	date	fecha	la	Datum	das	kuupäev	date	la	point of time at which a transaction or event takes place	1.1	
+keep	noun:evening	time_calendar	time_calendar	intermediate	Noun	641	evening	véspero	el	Abend	der	õhtu	crépuscule	le	time of day between dusk and night	0.0	et:ekilex
+keep	noun:future	time_calendar	time_calendar	intermediate	Noun	680	future	futuro	el	Zukunft	die	tulevik	avenir	le	the time ahead	0.0	
+keep	adjective:late	time_calendar	time_calendar	intermediate	Adjective	382	late	tardío		spät		hiline			associated with the end of a period	0.2	es:manual et:ekilex
+keep	noun:moment	time_calendar	time_calendar	intermediate	Noun	448	moment	momento	el	Augenblick	der	hetk	instant	le	very brief period of time	0.0	
+keep	noun:schedule	time_calendar	time_calendar	intermediate	Noun	2431	schedule	horario	el	Zeitplan	der	ajakava	planning	le	a procedural plan, usually but not necessarily tabular in nature, indicating a sequence of operations and the planned times at which those operations are to occur — see also agenda	0.2	es:manual de:manual
+keep	noun:time	time_calendar	time_calendar	intermediate	Noun	80	time	tiempo	el	Zeit	die	aeg	temps	le	inevitable passing of events	0.0	
+keep	adverb:usually	time_calendar	time_calendar	intermediate	Adverb	1112	usually	usualmente		gewöhnlich		tavaliselt	généralement		most of the time	0.0	
+keep	adverb:sometimes	time_calendar	time_calendar	intermediate	Adverb	529	sometimes	a veces		manchmal		vahel	parfois		on certain occasions, but not always	0.0	
+keep	adverb:soon	time_calendar	time_calendar	intermediate	Adverb	360	soon	pronto		bald		varsti	bientôt		within a short time	0.0	
+keep	noun:century	time_calendar	time_calendar	advanced	Noun	1912	century	centuria	la	Jahrhundert	das	sajand	siècle	le	period of 100 years	0.0	
+keep	noun:decade	time_calendar	time_calendar	advanced	Noun	5499	decade	década	la	Jahrzehnt	das	aastakümme	décennie	la	period of ten years	0.1	
+keep	noun:delay	time_calendar	time_calendar	advanced	Noun	4046	delay	retraso	el	Verzögerung	die	hilinemine	délai	le	period of time before an event occurs; act of delaying	0.0	et:ekilex
+keep	noun:frequency	time_calendar	time_calendar	advanced	Noun	6549	frequency	frecuencia	la	Häufigkeit	die	sagedus	fréquence	la	rate of occurrence of anything	0.0	et:ekilex
+keep	adjective:immediate	time_calendar	time_calendar	advanced	Adjective	4468	immediate	inmediato		sofortig		kohene	immédiat		without delay	0.0	et:ekilex
+keep	noun:period	time_calendar	time_calendar	advanced	Noun	2004	period	período	el	Zeitraum	der	periood	période	la	interval of time	0.0	
+keep	noun:season	time_calendar	time_calendar	advanced	Noun	1697	season	estación	la	Jahreszeit	die	aastaaeg	saison	la	quarter of a year	0.0	
+keep	adjective:temporary	time_calendar	time_calendar	advanced	Adjective	4097	temporary	temporario		zeitweilig		ajutine	temporaire		for a limited time, ephemeral, not constant	0.0	et:ekilex
+keep	noun:timeline	time_calendar	time_calendar	advanced	Noun	11052	timeline	cronología	la	Zeittafel	die	ajatelg	frise chronologique	la	graphical representation of a chronological sequence of events	0.0	
+keep	adjective:urgent	time_calendar	time_calendar	advanced	Adjective	2765	urgent	urgente		dringend			urgent		requiring immediate attention	0.0	et:missing check:2-target
+keep	adjective:afraid	feelings	feelings	beginner	Adjective	424	afraid	asustado		ängstlich			effrayé		impressed with fear or apprehension; in fear; apprehensive	0.0	es:manual et:missing check:2-target
+keep	adjective:angry	feelings	feelings	beginner	Adjective	932	angry	enojado		böse		kuri	fâché		displaying anger	0.0	et:ekilex
+keep	adjective:calm	feelings	feelings	beginner	Adjective	685	calm	calmado		ruhig		rahulik	calme		free from anger and anxiety	0.0	et:ekilex
+keep	adjective:happy	feelings	feelings	beginner	Adjective	296	happy	feliz		zufrieden		õnnelik	heureux		contented, joyous	0.0	
+keep	verb:hate	feelings	feelings	beginner	Verb	532	hate	odiar		hassen		vihkama	haïr		to dislike intensely	0.0	
+keep	verb:hope	feelings	feelings	beginner	Verb	346	hope	esperar		hoffen		lootma	espérer		to want something to happen, with expectation that it might	0.0	
+keep	verb:like	feelings	feelings	beginner	Verb	43	like	gustar		mögen		meeldima	aimer		to enjoy	0.0	es:manual
+keep	noun:love	feelings	feelings	beginner	Noun	123	love	amor	el	Liebe	die	armastus	amour	le	strong affection	0.0	
+keep	verb:love	feelings	feelings	beginner	Verb	682	love	amar		lieben		armastama	aimer		have a strong affection for	0.0	
+keep	adjective:sad	feelings	feelings	beginner	Adjective	956	sad	triste		traurig		kurb	triste		feeling sorrow	0.1	es:manual
+keep	verb:want	feelings	feelings	beginner	Verb	66	want	querer		wollen		tahtma	vouloir		to desire	0.0	
+keep	verb:smile	feelings	feelings	beginner	Verb	1190	smile	sonreír		lächeln		naeratama	sourire		to have a smile on one's face	0.0	
+keep	adjective:bored	feelings	feelings	intermediate	Adjective	2535	bored	aburrido		gelangweilt			ennuyé		suffering from boredom	0.0	et:missing check:2-target
+keep	adjective:crazy	feelings	feelings	intermediate	Adjective	389	crazy	loco		verrückt		hull	fou		insane, demented	0.0	
+keep	noun:decision	feelings	feelings	intermediate	Noun	1051	decision	decisión	la	Entscheidung	die	otsus	décision	la	choice or judgement	0.0	
+keep	noun:emotion	feelings	feelings	intermediate	Noun	3686	emotion	afecto	el	Gefühl	das	emotsioon	émotion	la	person's internal state of being	0.0	
+keep	noun:feeling	feelings	feelings	intermediate	Noun	553	feeling	sensación	la	Gefühl	das	tunne	sensation	la	sensation	0.0	
+keep	noun:mind	feelings	feelings	intermediate	Noun	258	mind	mente	la	Verstand	der	mõistus	esprit	le	ability for rational thought	0.0	
+keep	adjective:proud	feelings	feelings	intermediate	Adjective	927	proud	orgulloso		stolz		uhke	fier		gratified, feeling honoured, feeling satisfied	0.0	et:ekilex
+keep	adjective:scared	feelings	feelings	intermediate	Adjective	592	scared	asustado		erschrocken			effrayé		afraid, frightened	0.0	et:missing check:2-target
+keep	noun:surprise	feelings	feelings	intermediate	Noun	881	surprise	sorpresa	la	Überraschung	die	üllatus	surprise	la	something not expected	0.0	
+keep	noun:thought	feelings	feelings	intermediate	Noun	167	thought	pensamiento	el	Gedanke	der	mõte	idée	la	representation created in the mind	0.0	
+keep	verb:worry	feelings	feelings	intermediate	Verb	362	worry	preocupar		sorgen			inquiéter		to disturb the peace of mind of	0.1	es:manual de:manual et:missing check:2-target
+keep	adjective:nervous	feelings	feelings	intermediate	Adjective	1148	nervous	nervioso		nervös		kärsitu	nerveux		apprehensive, anxious	0.1	de:manual
+keep	noun:anxiety	feelings	feelings	advanced	Noun	5949	anxiety	ansiedad	la	Unbehagen	das	ärevus			state of uneasiness, nervousness, apprehension and obsession	0.0	es:manual et:ekilex
+keep	noun:attitude	feelings	feelings	advanced	Noun	2530	attitude	actitud	la	Einstellung	die	suhtumine	état d'esprit		disposition or state of mind	0.1	
+keep	noun:confidence	feelings	feelings	advanced	Noun	2633	confidence	certeza	la	Selbstvertrauen	das	usaldus	assurance		self-assurance	0.0	et:ekilex
+keep	noun:delight	feelings	feelings	advanced	Noun	7350	delight	deleite	el	Freude	die		plaisir		joy, pleasure	0.0	et:missing check:2-target
+keep	noun:mood	feelings	feelings	advanced	Noun	1889	mood	humor	el	Gemüt	das	tuju	humeur	la	mental state	0.0	es:manual
+keep	noun:passion	feelings	feelings	advanced	Noun	2548	passion	pasión	la	Leidenschaft	die	kirg	passion	la	any great emotion	0.0	
+keep	noun:pleasure	feelings	feelings	advanced	Noun	1000	pleasure	placer	el	Vergnügen	das	mõnu	plaisir	le	a state of being pleased	0.0	
+keep	noun:relief	feelings	feelings	advanced	Noun	3462	relief	alivio	el	Erleichterung	die	leevendus	soulagement	le	removal of stress or discomfort	0.0	et:ekilex
+keep	noun:stress	feelings	feelings	advanced	Noun	2999	stress	estrés	el	Stress	der	stress	stress	le	emotional pressure	0.1	es:manual
+keep	noun:baby	people_family	people_family	beginner	Noun	274	baby	bebé	el	Baby	das	beebi	bébé	le	very young human being — see also child	0.0	
+keep	noun:boy	people_family	people_family	beginner	Noun	266	boy	niño	el	Bub	der	poiss	garçon	le	male child	0.0	
+keep	noun:child	people_family	people_family	beginner	Noun	459	child	hijo	el	Kind	das	laps	enfant	le/la	son or daughter; someone's child	0.0	
+keep	noun:family	people_family	people_family	beginner	Noun	271	family	familia	la	Familie	die	pere	famille	la	immediate family [as a group], e.g. parents and their children	0.0	
+keep	noun:father	people_family	people_family	beginner	Noun	194	father	padre	el	Vater	der	isa	père	le	male parent	0.0	
+keep	noun:friend	people_family	people_family	beginner	Noun	260	friend	amigo	el	Freund	der	sõber	ami	le	person whose company one enjoys	0.0	
+keep	noun:girl	people_family	people_family	beginner	Noun	206	girl	niña	la	Mädchen	das	tüdruk	fille	la	young female person	0.0	
+keep	noun:man	people_family	people_family	beginner	Noun	99	man	hombre	el	Mann	der	mees	homme	le	adult male human	0.0	
+keep	noun:mother	people_family	people_family	beginner	Noun	226	mother	madre	la	Mutter	die	ema	mère	la	female (human) who gives birth to or parents a child	0.0	
+keep	noun:person	people_family	people_family	beginner	Noun	379	person	persona	la	Person	die	isik	personne	la	individual	0.0	
+keep	noun:sister	people_family	people_family	beginner	Noun	466	sister	hermana	la	Schwester	die	õde	sœur	la	woman or girl having the same parents	0.0	
+keep	noun:brother	people_family	people_family	beginner	Noun	300	brother	hermano	el	Bruder	der	vend	frère	le	male sibling	0.0	
+keep	noun:adult	people_family	people_family	intermediate	Noun	4416	adult	adulto	el	Erwachsener	der	täiskasvanu	adulte	le/la	fully grown human	0.0	
+keep	noun:aunt	people_family	people_family	intermediate	Noun	1125	aunt	tía	la	Tante	die	tädi	tante	la	a parent's sister or sister-in-law	0.0	
+keep	noun:cousin	people_family	people_family	intermediate	Noun	1459	cousin	primo	el	Cousin	der	nõbu			any relation (especially a distant one) who is not a direct ancestor or descendant but part of a person’s extended family	0.0	es:manual de:manual et:ekilex
+keep	noun:couple	people_family	people_family	intermediate	Noun	501	couple	pareja	la	Paar	das	paar	couple	le	two partners	0.0	
+keep	noun:group	people_family	people_family	intermediate	Noun	852	group	grupo	el	Gruppe	die	rühm	groupe	le	number of things or persons being in some relation to each other	0.0	
+keep	noun:parent	people_family	people_family	intermediate	Noun	582	parent	padre	el	Elternteil	der	vanem	parent	le/la	person from whom one is descended	0.0	
+keep	noun:partner	people_family	people_family	intermediate	Noun	1086	partner	compañero	el	Partner	der	partner	partenaire	le	someone who is associated with another in a common activity or interest	0.0	
+keep	noun:uncle	people_family	people_family	intermediate	Noun	593	uncle	tío	el	Onkel	der	onu	oncle	le	brother (or brother-in-law) of someone’s parent	0.0	
+keep	noun:wife	people_family	people_family	intermediate	Noun	313	wife	esposa	la	Ehefrau	die	naine	femme	la	female partner in a marriage	0.0	
+keep	noun:husband	people_family	people_family	intermediate	Noun	451	husband	marido	el	Ehemann	der	mees	mari	le	male partner in marriage	0.0	
+keep	noun:human	people_family	people_family	intermediate	Noun	611	human	hombre	el	Mensch	der	inimene	homme	le	human being	0.0	
+keep	noun:ancestor	people_family	people_family	advanced	Noun	4357	ancestor	ancestro	el	Vorfahr	der	esivanem	ancêtre		one from whom a person is descended	0.0	
+keep	noun:citizen	people_family	people_family	advanced	Noun	3251	citizen	ciudadano	el	Staatsbürger	der	kodanik	citoyen	le	legal member of a state	0.0	
+keep	noun:crowd	people_family	people_family	advanced	Noun	1292	crowd	muchedumbre	la	Gedränge	das	rahvahulk	foule	la	group of people	0.0	
+keep	noun:generation	people_family	people_family	advanced	Noun	3059	generation	generación	la	Generation	die	põlvkond	génération	la	single step in the succession of natural descent	0.2	de:manual
+keep	noun:individual	people_family	people_family	advanced	Noun	3415	individual	individuo	el	Individuum	das	indiviid	individu	le	person considered alone	0.0	
+keep	adjective:male	people_family	people_family	advanced	Adjective	1644	male	masculino		männlich		isane	mâle		belonging to the sex which typically produces sperm, or the gender typically associated with it	0.0	et:ekilex
+keep	adjective:female	people_family	people_family	advanced	Adjective	1621	female	femenino		weiblich		emane	femelle		belonging to the sex that typically produces eggs, or the gender typically associated with it	0.0	et:ekilex
+keep	noun:relationship	people_family	people_family	advanced	Noun	985	relationship	relación	la	Beziehung	die	suhe	rapport	le	connection or association	0.0	
+keep	noun:stranger	people_family	people_family	advanced	Noun	2343	stranger	extraño	el	Fremder	der	tundmatu	inconnu	le	person whom one does not know	0.0	et:ekilex
+keep	noun:youth	people_family	people_family	advanced	Noun	2447	youth	juventud	la	Jugend	die	noorus	jeunesse	la	quality or state of being young	0.0	
+keep	verb:do	core	core	beginner	Verb	24	do	hacer		tun		tegema	faire		perform, execute	0.4	es:manual
+keep	verb:be	core	core	beginner	Verb	12	be	ser		sein		olema	être		used to declare the subject and object identical or equivalent	0.5	
+keep	verb:have	core	core	beginner	Verb	22	have	tener		haben		laskma	avoir		1. to possess	0.0	et:ekilex
+keep	verb:get	core	core	beginner	Verb	45	get	conseguir		besorgen		astuma	obtenir		to obtain	0.0	et:ekilex
+keep	verb:make	core	core	beginner	Verb	114	make	hacer		machen		tegema	faire		to construct	0.0	
+keep	verb:say	core	core	beginner	Verb	101	say	decir		sagen		heitma	dire		to say, to tell	0.0	et:ekilex
+keep	verb:see	core	core	beginner	Verb	69	see	ver		sehen		nägema	voir		perceive with the eyes	0.0	
+keep	verb:take	core	core	beginner	Verb	90	take	tomar		nehmen		võtma	prendre		to get into one's hands or control	0.0	
+keep	verb:give	core	core	beginner	Verb	128	give	dar		geben		andma	donner		transfer the possession of something to someone else	0.0	
+keep	verb:know	core	core	beginner	Verb	33	know	saber		wissen		teadma	savoir		be justifiably certain or sure about (something true)	0.0	
+keep	verb:think	core	core	beginner	Verb	67	think	pensar		nachdenken		mõtlema			to ponder, to go over in one's head	0.0	et:ekilex
+keep	verb:come	core	core	beginner	Verb	58	come	venir		kommen		tulema	venir		to move nearer	0.0	
+keep	verb:look	core	core	beginner	Verb	84	look	mirar		sehen		vaatama	regarder		to try to see	0.0	
+keep	verb:use	core	core	beginner	Verb	310	use	usar		benutzen		kasutama	utiliser		employ, apply	0.0	
+keep	verb:need	core	core	beginner	Verb	107	need	necesitar		benötigen		vajama			to have an absolute requirement for	0.0	es:manual
+keep	verb:try	core	core	beginner	Verb	252	try	intentar		versuchen		proovima	essayer		to attempt	0.0	
+keep	verb:help	core	core	beginner	Verb	140	help	ayudar		helfen		aitama	aider		transitive: provide assistance to (someone or something)	0.0	
+keep	verb:start	core	core	beginner	Verb	309	start	empezar		anfangen		hakkama	commencer		to begin	0.0	es:manual et:ekilex
+keep	verb:stop	core	core	beginner	Verb	160	stop	parar		anhalten		peatuma			to cease moving	0.0	
+keep	verb:find	core	core	beginner	Verb	145	find	encontrar		finden		leidma	trouver		encounter, locate, discover	0.0	
+keep	adjective:good	core	core	beginner	Adjective	71	good	bueno		gut		hea	bon		acting in the interest of good; ethical good intentions	0.0	
+keep	adjective:bad	core	core	beginner	Adjective	229	bad	malo		schlecht		halb	mauvais		unfavorable; negative	2.0	
+keep	adjective:big	core	core	beginner	Adjective	200	big	grande		groß		suur	grand		of a great size — see also large	0.0	
+keep	adjective:small	core	core	beginner	Adjective	577	small	pequeño		klein		väike	petit		not large	0.0	
+keep	adjective:old	core	core	beginner	Adjective	197	old	antiguo		alt		vana	vieux		of an object, concept, etc: having existed for a relatively long period of time	0.0	
+keep	adjective:high	core	core	beginner	Adjective	499	high	alto		hoch		kõrge	haut		elevated; tall	0.0	
+keep	adjective:low	core	core	beginner	Adjective	1227	low	bajo		niedrig		madal	bas		in a position comparatively close to the ground	0.0	
+keep	adjective:slow	core	core	beginner	Adjective	1054	slow	lento		langsam		aeglane	lent		not quick in motion	0.0	
+keep	adjective:main	core	core	beginner	Adjective	1398	main	principal		wichtig		peamine	principal		chief, most important, or principal in extent, etc.	0.0	de:manual et:manual
+keep	adjective:important	core	core	beginner	Adjective	438	important	importante		wichtig		tähtis	important		having relevant and crucial value	0.0	
+keep	adverb:not	core	core	beginner	Adverb	28	not	no		nicht		ei			negates meaning of another word	0.0	
+keep	verb:change	core	core	intermediate	Verb	393	change	cambiar		ändern		muutma	changer		to make something into something else	0.1	de:manual
+keep	verb:put	core	core	intermediate	Verb	170	put	poner		setzen		panema	placer		to place something somewhere	0.0	
+keep	verb:feel	core	core	intermediate	Verb	192	feel	sentir		spüren		tundma	palper		transitive: to sense by touch	0.0	
+keep	verb:become	core	core	intermediate	Verb	530	become	convertir		werden		muutuma	devenir		to begin to be	0.0	es:manual
+keep	verb:leave	core	core	intermediate	Verb	184	leave	partir		weggehen		lahkuma	partir		to depart (intransitive)	0.6	
+keep	verb:mean	core	core	intermediate	Verb	125	mean	querer decir		bedeuten		tähendama	signifier		to convey, indicate	0.1	
+keep	verb:keep	core	core	intermediate	Verb	181	keep	guardar		behalten		hoidma	garder		to maintain possession of	0.0	et:ekilex
+keep	verb:let	core	core	intermediate	Verb	75	let	permitir		lassen		laskma	laisser		allow	0.0	
+keep	verb:seem	core	core	intermediate	Verb	507	seem	parecer		scheinen		mõjuma	sembler		to appear	0.0	et:ekilex
+keep	verb:show	core	core	intermediate	Verb	241	show	mostrar		zeigen		näitama	montrer		to display	0.0	
+keep	verb:hear	core	core	intermediate	Verb	236	hear	oír		hören		kuulma	entendre		to perceive with the ear	0.0	
+keep	verb:move	core	core	intermediate	Verb	278	move	mover		bewegen		käima	bouger		(transitive) to change the place of something	0.2	es:manual de:manual
+keep	verb:ask	core	core	intermediate	Verb	238	ask	preguntar		fragen		küsima	demander		request an answer	0.0	
+keep	verb:answer	core	core	intermediate	Verb	517	answer	responder		antworten		vastama	répondre		to make a reply or response to	0.0	
+keep	verb:talk	core	core	intermediate	Verb	164	talk	hablar		reden		rääkima	parler		to communicate by speech	0.0	
+keep	verb:wait	core	core	intermediate	Verb	159	wait	esperar		warten		ootama	attendre		delay until some event	0.0	
+keep	verb:turn	core	core	intermediate	Verb	352	turn	girar		drehen		pöörlema	tourner		intransitive: move around an axis through itself	0.0	de:manual
+keep	verb:begin	core	core	intermediate	Verb	1193	begin	comenzar		anfangen		hakkama	commencer		to start, to initiate (transitive)	0.0	
+keep	verb:hold	core	core	intermediate	Verb	295	hold	aguantar		halten		hoidma	tenir		to grasp	0.0	
+keep	verb:bring	core	core	intermediate	Verb	319	bring	traer		bringen		tooma	apporter		to transport toward somebody/somewhere	0.0	
+keep	verb:write	core	core	intermediate	Verb	645	write	escribir		schreiben		kirjutama	écrire		to form letters, etc.	0.0	
+keep	verb:sit	core	core	intermediate	Verb	372	sit	sentar		sitzen		istuma			of a person, be in a position in which the upper body is upright and the legs are supported	0.0	es:manual
+keep	verb:stand	core	core	intermediate	Verb	461	stand	estar de pie		stehen		seisma			to support oneself on the feet in an erect position	0.0	
+keep	verb:lose	core	core	intermediate	Verb	557	lose	perder		verlieren		kaotama	perdre		cease to have in one's possession or capability	0.0	
+keep	verb:meet	core	core	intermediate	Verb	318	meet	encontrar		treffen		kohtama	rencontrer		to come face to face with by accident; to encounter	0.0	
+keep	verb:continue	core	core	intermediate	Verb	1039	continue	continuar		fortsetzen		jätkama	continuer		transitive: proceed	0.0	
+keep	verb:set	core	core	intermediate	Verb	439	set	colocar		setzen		katma	poser		to put something down	0.0	et:ekilex
+keep	verb:learn	core	core	intermediate	Verb	691	learn	aprender		lernen		õppima	apprendre		to acquire knowledge or ability	0.0	
+keep	verb:lead	core	core	intermediate	Verb	838	lead	emplomar		verbleien		juhatama			to cover, fill, or affect with lead	0.0	et:ekilex
+keep	verb:understand	core	core	intermediate	Verb	235	understand	entender		verstehen		mõistma	comprendre		to grasp the meaning of	0.0	
+keep	verb:allow	core	core	advanced	Verb	1206	allow	permitir		erlauben		lubama	laisser		to let one have	0.0	es:manual
+keep	verb:create	core	core	advanced	Verb	1654	create	crear		kreieren		looma	créer		to put into existence	0.0	
+keep	verb:expect	core	core	advanced	Verb	797	expect	esperar		erwarten		eeldama	attendre		to look for, look forward to, anticipate	0.0	et:ekilex
+keep	verb:offer	core	core	advanced	Verb	909	offer	ofrecer		anbieten		pakkuma	offrir		propose	0.0	
+keep	verb:provide	core	core	advanced	Verb	2581	provide	proveer		sorgen		hoolitsema	fournir		transitive: to give what is needed or desired	0.0	et:ekilex
+keep	verb:receive	core	core	advanced	Verb	1722	receive	recibir		bekommen		saama	recevoir		to take what is offered, accept from another	0.0	
+keep	verb:remember	core	core	advanced	Verb	237	remember	recordar		erinnern		mäletama			to recall from one's memory	0.0	es:manual de:manual
+keep	verb:consider	core	core	advanced	Verb	1367	consider	considerar		überlegen		kaaluma	considérer		think about seriously	0.0	et:ekilex
+keep	verb:appear	core	core	advanced	Verb	2106	appear	aparecer		erscheinen		ilmuma	apparaître		to come or be in sight; to be in view; to become visible	0.0	
+keep	verb:serve	core	core	advanced	Verb	1532	serve	servir		dienen		serveerima	servir		to work for	0.0	et:ekilex
+keep	verb:die	core	core	advanced	Verb	358	die	morir		sterben		surema	mourir		to stop living	0.0	
+keep	verb:send	core	core	advanced	Verb	521	send	enviar		senden		saatma	envoyer		make something go somewhere	0.0	
+keep	verb:build	core	core	advanced	Verb	1264	build	construir		bauen		ehitama	construire		(transitive) to form by combining materials or parts	0.0	
+keep	verb:stay	core	core	advanced	Verb	219	stay	quedar		bleiben		jääma	rester		to remain in a particular place	0.0	de:manual
+keep	verb:fall	core	core	advanced	Verb	673	fall	caer		fallen		kukkuma	tomber		move to a lower position under the effect of gravity	0.0	
+keep	verb:cut	core	core	advanced	Verb	464	cut	cortar		einschneiden		kärpima	couper		to perform an incision	0.0	et:ekilex
+keep	verb:reach	core	core	advanced	Verb	1087	reach	alcanzar		erreichen		jõudma	atteindre		to arrive at by effort	0.0	es:manual et:ekilex
+keep	verb:raise	core	core	advanced	Verb	1322	raise	levantar		heben		heiskama	élever		to cause to rise	0.0	et:ekilex
+keep	verb:pass	core	core	advanced	Verb	741	pass	pasar		reichen		kuluma	passer		to move or be moved from one place to another	0.0	et:ekilex
+keep	verb:require	core	core	advanced	Verb	3799	require	requerir		brauchen		eeldama	demander		to need	0.1	es:manual et:ekilex
+keep	verb:report	core	core	advanced	Verb	727	report	informar		berichten			rapporter		to relate details of	0.0	et:multiword et:missing check:2-target
+keep	verb:decide	core	core	advanced	Verb	739	decide	decidir		entscheiden		otsustama	décider		to resolve or settle	0.0	
+keep	verb:pull	core	core	advanced	Verb	663	pull	tirar		ziehen		tõmbama	tirer		transitive: apply force to (something) so it comes towards one	0.0	
+keep	verb:return	core	core	advanced	Verb	667	return	retornar		zurückkehren		naasma	revenir		to come or go back	0.0	
+keep	verb:explain	core	core	advanced	Verb	695	explain	explicar		erklären		seletama	expliquer		to make intelligible	0.0	
+keep	verb:develop	core	core	advanced	Verb	4478	develop	desarrollar		entwickeln		arenema			to progress	0.0	es:manual
+keep	verb:carry	core	core	advanced	Verb	1019	carry	llevar		tragen		kandma	porter		to transport by lifting	0.0	et:ekilex
+keep	verb:break	core	core	advanced	Verb	486	break	romper		brechen		murdma	rompre		transitive: to separate into (to cause to end up in) two or more pieces	0.1	es:manual
+keep	verb:agree	core	core	advanced	Verb	903	agree	acordar		zustimmen		rääkima			to be in harmony about an opinion; be in unison or concord; be united	0.0	es:manual et:ekilex
+keep	verb:support	core	core	advanced	Verb	1083	support	apoyar		unterstützen		kandma	soutenir		to keep from falling	0.0	et:ekilex

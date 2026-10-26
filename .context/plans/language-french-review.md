@@ -193,6 +193,22 @@ French words are used in practice like the other languages. Adjectives, adverbs,
 | X3 | A learner can pick one of three strictness levels. The default forgives capital letters only: *Allé* counts as "almost correct", and *alle* is wrong (*allé* ≠ *alle*). Level 1 also forgives missing accents; level 3 is exact. Is the default right for French, where an accent changes the word (*a* / *à*, *ou* / *où*, *sur* / *sûr*)? | |
 | X4 | The practice question texts are new: « Quel est le participe passé de ce verbe ? », « À quel groupe ce verbe appartient-il ? », « Saisis le participe passé… ». Are they natural? | |
 
+## Starter words (onboarding and the demo)
+
+Two features make words for a new user: the onboarding (the first-login flow) and the demo account. Both now have French. A script picked the French words from Wiktionary. Nobody has read them yet.
+
+- **Onboarding pool**: `backend/scripts/onboarding/pool.tsv`, columns `fr` and `fr_gender`. 558 of the 583 concepts have a French word. The script takes the word of the same meaning (the `sense` column), skips regional and slang words, and keeps a word only if the French lexicon has it. Open the file in a spreadsheet and read the `en`, `es`, `de` and `fr` columns side by side.
+- **Left empty** (no usable French word for that meaning): *clothes, zip, suit* (verb), *breakfast, spice, media, network, score, cash, industry, minimum, percent, late* (adjective), *anxiety, think, need, stop, not, sit, stand, lead, remember, develop, agree*. Onboarding skips French for these concepts.
+- **Demo account**: `backend/scripts/demo-template/data.json`, 14 words (*maison, livre, pomme, chien, chat, manger, parler, danser, dormir, grand, petit, nouveau, vite, souvent*).
+
+| # | Question | Answer |
+|---|---|---|
+| O1 | Read the `fr` column of `pool.tsv` (583 lines). Which words are wrong, too rare, too formal or a different meaning from English? Give the line (`id`) and the word you prefer. Words that looked doubtful to the developer: *require* → `demander` (`exiger`?), *feel* → `palper` (the sense is "to sense by touch"), *meter* → `mètre`, *orange* → `oranger` (the tree, like the Spanish *naranjo*), *party* → `fête`. | |
+| O2 | The 9 adverbs with a French word (*aujourd'hui, demain, hier, maintenant, toujours, jamais, généralement, parfois, bientôt*) are saved as **Non-gradable**, because Wiktionary gives a degree only for irregular adverbs (*bien* → *mieux*). Is that right for these? Which of them take *plus* (*plus souvent*)? | |
+| O3 | A noun with the gender `le/la` or no gender in the source (*ancêtre, paysage, température, mur* …) gets its gender from the lexicon. Spot-check ten nouns: are the gender and the plural right? | |
+| O4 | The 25 concepts left empty: which French word would you use for each? | |
+| O5 | Demo words: *dormir* is shown with *dors* (1st) and *dort* (3rd); *nouveau* with *nouvelle, nouveaux, nouvelles* (no *nouvel* form). Is that enough for a first demo? | |
+
 ## Not stored yet (first version)
 
 The subjunctive, the conditional (as a verb mood), the imperative, the passé simple, the plus-que-parfait, the futur antérieur, the agreement of the comparative and the superlative, the elided article (*l'*), pronoun verbs with indirect objects, the verb valency (*penser à*), and exercises for adjectives, adverbs, conjunctions and prepositions. Question G2 asks which of these come first.

@@ -1,7 +1,7 @@
 import type { AuthUser } from '@/features/auth/types';
 import type { Theme } from '@/lib/theme';
 
-/** `POST /api/demo` body (demo-access.md). The server falls back to English, all four languages and no theme. */
+/** `POST /api/demo` body (demo-access.md). The server falls back to English, all five languages and no theme. */
 export interface StartDemoRequest {
     /** The UI language as a label ("English"), like login sends it. */
     uiLanguage: string;

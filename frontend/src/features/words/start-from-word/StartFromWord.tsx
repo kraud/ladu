@@ -80,7 +80,7 @@ export function StartFromWord({
     const user = useAuthStore((s) => s.user);
     const isMobile = useIsMobile();
 
-    // The account languages; a session with none (should not happen) falls back to all four.
+    // The account languages; a session with none (should not happen) falls back to all of them.
     const accountLanguages = useMemo(() => {
         const own = UI_LANGUAGES.filter((language) => user?.languages.includes(language.label));
         return own.length > 0 ? own : UI_LANGUAGES;
