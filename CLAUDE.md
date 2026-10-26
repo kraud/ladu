@@ -23,7 +23,7 @@ Design commandments (from `.context/overview.md` §1.2 — honour these in every
 6. Every stored datum feeds practice + stats.
 7. Mastery/progress status is always legible to the user.
 
-Supported languages: **EN, ES, DE, EE** (English, Spanish, German, Estonian). A Word needs translations in **≥2 languages**.
+Supported languages: **EN, ES, DE, EE, FR** (English, Spanish, German, Estonian, French). A Word needs translations in **≥2 languages**.
 
 ---
 

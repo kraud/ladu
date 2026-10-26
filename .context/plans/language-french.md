@@ -1,6 +1,6 @@
 # Plan: Add French to Ladu (+ a reusable "add a language" guide)
 
-Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–11 done 2026-10-26 (slices 0–10 committed; slice 11 is built, not yet committed). Next: Slice 12, close (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
+Status: plan agreed on 2026-10-25. All slices (0–12) done 2026-10-26 (slices 0–11 committed; slice 12 is built, not yet committed). What is left: the merge, the rollout runbook, and the teacher's review (see "Resume here"). Side task done 2026-10-26: e2e on its own ports and its own database.
 
 ## How to start (read this first in a new session)
 
@@ -10,9 +10,16 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–11 done 2026-10-26 (sl
 4. Branch: `new-language-french`.
 5. Then read "Resume here" below: it holds the state, the working rules and the next slice.
 
-## Resume here (updated 2026-10-26, session 4, after slice 11)
+## Resume here (updated 2026-10-26, session 4, after slice 12)
 
-**Slice 11 (done 2026-10-26, session 4; not yet committed).** Onboarding and the demo have French. **Next: slice 12** (close: finish `add-language.md`, check it against `git diff main --stat`, the rollout runbook, a final full e2e run). Give the plain-language overview and ask for a confirmation first.
+**Slice 12 (done 2026-10-26, session 4; not yet committed). The plan is complete.** What is left is not code: (1) the user commits slice 12 and merges the branch; (2) the rollout runbook (below) runs after the merge: lexicon + translations on staging, checks, production, demo reseed; (3) the teacher reads `language-french-review.md` and `language-french-strings.md`; each answer is a small follow-up (M1).
+- Checked the guide against the real diff (223 files, no migration). A search for the old languages in files the branch did not change found three gaps, all fixed: `lib/demoTemplate.ts` (the template account listed four languages; now `LANGUAGE_NAMES`), `frontend/src/test/msw/authHandlers.ts` (the mock register route accepted four; slice 2 had missed it), and the docs that list the languages (`CLAUDE.md`, `.context/overview.md`, `README.md` with its word-card diagram; user decision: all five lines). Dev scripts `bench-exercises.ts` and `seed-pagination-words.ts` keep four languages on purpose.
+- `add-language.md`: no `(unverified)` mark is left; new section 4a (search for the other languages in files the branch did not change); section 5 and 6 extended. One item stays open: the native-speaker review.
+- The rollout runbook is written with the real file sizes and row counts (French lexicon 84,873 rows, 2.4 MB; translations 413,356 rows, 7.3 MB, 113,115 French). Nothing on staging or production has changed yet.
+- Gates: backend typecheck and lint, frontend typecheck and lint, `npm run build`; backend 74 suites / 2947 tests; frontend 144 files / 2086 tests; landing 48 tests; full e2e **196 passed** (2.7 min).
+
+**Slice 11 (done 2026-10-26, session 4; committed).**
+**Slice 11 (done 2026-10-26, session 4; committed).** Onboarding and the demo have French.
 - Decisions (user): the script picks the French pool words and the teacher reviews them later (like M1); French adverbs are Gradable only when a comparative exists (the existing rule).
 - Pool: `pool.tsv` has `fr` and `fr_gender` (558 of 583 concepts; 25 left empty, listed in the teacher sheet). Made by the new one-time `onboarding-pool.ts --add-french`. **Found on the way:** the hub numbers senses per language, so the pool's `sense_key` does not point at the same meaning in French ("party" gave "détachement"); the script matches the sense by its `sense` label. `pool-forms.json` got French through the new `onboarding-forms.ts --language French` (no other language changed: checked; 0 translations left out). `lib/onboardingPool.ts` has French columns, gender list and key cases. The 25 concepts without a French word still have at least 2 other languages.
 - Demo: `data.json` has French on all 14 words and in both saved configs; `ALL_LANGUAGES` has French; the "four languages" texts and the language-names line in `demo.json` (5 locales); the French row in `DemoIntro.tsx`; the landing word card (a French row, `--lang-fr`, five-language texts in 5 languages). Screens checked at 1280 and 375 px (landing) and 1280 px (/demo, which shows "demo is off" locally).
@@ -100,7 +107,7 @@ Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–11 done 2026-10-26 (sl
 - [x] Slice 9b (2026-10-26) — French lexicon and lookup: verbs. Table-based verb selectors, `withPronominalFallback`, ingest, registry, frontend registry, fixtures, tests; French lexicon rebuilt and reloaded into the dev database. Typecheck and lint (both workspaces), backend 74 suites / 2945 tests and frontend 144 files / 2086 tests are green
 - [x] Slice 10 (2026-10-26) — Autocomplete e2e spec: `lexicon-fr-fixture.jsonl` added to `lexicon:load:fixture`, `autocomplete-j-french-lexicon.spec.ts` (7 tests: noun, verb, dual-auxiliary verb, "se laver", adjective, conjunction, a miss). Full e2e green (196 passed). The French fixture made `language-french-forms.spec.ts` fail (the type-ahead list hid the radios), fixed with `closeTypeAheadList`
 - [x] Slice 11 (2026-10-26) — Onboarding pool and demo template: French pool words (`--add-french`, 558 of 583) and forms (`--language French`), demo template, `ALL_LANGUAGES`, the "four languages" texts, `DemoIntro` and the landing word card, teacher questions O1–O5. Typecheck, lint, backend (74 suites, 2947 tests), frontend (144 files, 2086 tests), landing (48 tests) and full e2e (196 passed) are green
-- [ ] Slice 12 — Close: finish the guide, rollout runbook, final e2e run
+- [x] Slice 12 (2026-10-26) — Close: the guide checked against the real diff (three gaps found and fixed: demo template account languages, MSW mock, docs), `add-language.md` finished, rollout runbook written, final gates and full e2e (196 passed) green
 
 ## Review log
 
@@ -274,12 +281,52 @@ One slice at a time. Each slice starts with a plain-language overview, ends runn
 
 **Slice 12 — Close.** Finish `add-language.md` and check it against the real diff of this branch (`git diff main --stat`). Write the final rollout runbook. Run the final full e2e suite.
 
-## Rollout runbook (at or after the merge)
+## Rollout runbook (at or after the merge; written 2026-10-26, slice 12)
 
-- Load `lexicon-fr-<date>.jsonl.gz` and the **rebuilt** `translations-en-<date>.jsonl.gz` (now with French rows) per environment with `deploy/ansible/lexicon.yml`: staging first, then SQL counts, then production. The shape is the same as the conjunctions runbook in `conjunctions-prepositions.md`. The Ansible role does not depend on the language.
-- Reseed the demo template per environment (`seed-demo-template.js --reset`).
-- Onboarding: nothing to seed (the pool is committed).
-- Server side: no new secret. Estonian has Ekilex; French has no such live source.
+**Status: not started. Nothing on staging or production has changed yet.**
+
+**What and why.** The code (French forms, interface, onboarding pool, demo and landing page) goes out with the normal deploy when the branch merges to `main`: no migration, no new secret, no server step for the interface or the pool. Two kinds of server data need a manual step, because they live in the database and not in the repo:
+1. **Reference data** (tables `lexemes` and `lexeme_translations`): the French lexicon and the translation file that now has French rows. Loaded with `deploy/ansible/lexicon.yml` (role `lexicon`). No user data changes.
+2. **The demo template** (words of the template account): reseeded with `--reset` so it has the French words.
+
+**When.** After the merge has reached staging and production (the merge deploys both, infrastructure guide 03). Before the load, a French lookup says "Sorry, we don't know this word" and a French draft from "Start from a word" has no French words. Both are harmless. A French user can still type words by hand.
+
+**1. Check the files** (from `backend/`; they are already built, on 2026-10-26, in `scripts/lexicon/.data/out/`, which is git-ignored). Rebuild only if a selector, `extract.ts` or `ingest*.ts` changed after that date: `npx tsx scripts/lexicon/ingest.ts fr` and `npx tsx scripts/lexicon/ingest-translations.ts`.
+
+| File | Size | Rows |
+|---|---|---|
+| `lexicon-fr-2026-10-03.jsonl.gz` | 2.4 MB | 84,873 lexemes (noun 53,261, adjective 19,161, verb 7,374, adverb 4,597, preposition 319, conjunction 161) |
+| `translations-en-2026-10-03.jsonl.gz` | 7.3 MB (was 5.7 MB) | 413,356 rows, of which 113,115 are French |
+
+The German, Spanish, English and Estonian lexicon files were not rebuilt, and the branch changed no selector of theirs (it only added French to `ingest.ts`, `extract.ts` and `common.ts`): do **not** reload them. The translation file is replaced as a whole (it holds every language).
+
+**2. Safety copy on the VPS (optional).** The load overwrites `translations-en-2026-10-03.jsonl.gz` in `/opt/ladu/lexicon/`, which a database restore reloads. The new file has all the old rows, so a restore still works. To keep the old file: `ansible vps -b -m ansible.builtin.command -a "cp -a /opt/ladu/lexicon /opt/ladu/lexicon.before-french creates=/opt/ladu/lexicon.before-french"` (from `deploy/ansible/`).
+
+**3. Staging first** (from `deploy/ansible/`; one command per file; each copies the file and runs `load.js` in `backend-staging` in one transaction):
+
+```bash
+ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/lexicon-fr-2026-10-03.jsonl.gz -e '{"lexicon_environments": ["staging"]}'
+ansible-playbook lexicon.yml -e lexicon_file=../../backend/scripts/lexicon/.data/out/translations-en-2026-10-03.jsonl.gz -e '{"lexicon_environments": ["staging"]}'
+```
+
+**4. Check staging** (SQL shell as in guide 02, "Check what is loaded"):
+
+```sql
+SELECT language, part_of_speech, count(*) FROM lexemes WHERE language = 'French' GROUP BY 1, 2 ORDER BY 2;
+SELECT language, count(*) FROM lexeme_translations GROUP BY 1 ORDER BY 1;
+```
+
+Expected: the lexeme counts of the table above (French only; the other languages unchanged) and 113,115 French translation rows. Then, at `staging.ladu.com.ar`, try: French noun `cheval` (le, `chevaux`), verb `aimer` (group, `avoir`, forms), `partir` (no auxiliary), `se laver` (Always reflexive, `être`), adjective `beau` (`bel`), conjunction `parce que` (Subordinating); and "Start from a word": English `dog` → the French card has `chien`.
+
+**5. Reseed the demo template on staging**, then check it: `docker exec backend-staging node scripts/seed-demo-template.js --reset` (guide 02, "demo template"). Start a demo with all five languages; the words have a French card. Then try the onboarding with a French learner account (the pool has French words for 558 of 583 concepts).
+
+**6. Production**: the same two load commands with `-e '{"lexicon_environments": ["prod"]}'`, the same SQL checks and two lookups on `ladu.com.ar`, then `docker exec backend-prod node scripts/seed-demo-template.js --reset`.
+
+**7. Delete the safety copy a few days after production works** (it is about 30 MB and nothing deletes it by itself): `ansible vps -b -m ansible.builtin.file -a "path=/opt/ladu/lexicon.before-french state=absent"`.
+
+**Cautions.** A load replaces one language (a translation load replaces all translations) in one transaction: a failed load changes nothing. A reload keeps the old rows until autovacuum frees them (guide 02). `--reset` of the demo template replaces the template account; running demos are copies and are not touched.
+
+**After the rollout (not server work).** French is a first draft (decision M1). Say so in the release note. The teacher answers the two sheets and the starter-word questions (`language-french-review.md`, `language-french-strings.md`); each answer is a small follow-up.
 
 ## Verification
 

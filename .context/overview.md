@@ -18,7 +18,7 @@ When redesigning and re-implementing the user interface and interaction flows, t
 6. **Data-Driven Feedback Loop:** Every piece of stored linguistic data should feed directly into personalized practice algorithms, progress insights, and visual statistics.
 7. **Transparent Master & Progress Tracking:** Users should always easily understand the status of their vocabulary mastery and exercise performance.
 
-Supported languages: **EN, ES, DE, EE** (English, Spanish, German, Estonian). A Word needs translations in **≥2 languages**.
+Supported languages: **EN, ES, DE, EE, FR** (English, Spanish, German, Estonian, French). A Word needs translations in **≥2 languages**.
 
 ---
 
@@ -42,7 +42,7 @@ The application leads with a hierarchical data structure designed to represent a
 
 **The "Word" hierarchy:**
 1. **Word (Container):** Represented by `WordData`. This is the top-level anchor for a concept. It stores global metadata like `partOfSpeech` (e.g., Noun, Verb) and associated `tags`.
-2. **Translation (`TranslationItem`):** A `Word` contains an array of translations. Each `TranslationItem` is bound to a specific `Lang` (enum: EN, ES, DE, EE).
+2. **Translation (`TranslationItem`):** A `Word` contains an array of translations. Each `TranslationItem` is bound to a specific `Lang` (enum: EN, ES, DE, EE, FR).
 3. **Cases (`WordItem`):** Within a translation, data is stored as an array of `WordItem` objects. Each item maps a grammatical `caseName` to its actual string value (`word`).
 4. **Enums (The Logic Glue):** Strict TypeScript enums (`NounCases`, `VerbCases`, etc.) define the valid `caseName` keys. These enums ensure that an Estonian Noun has different required fields than a Spanish Noun, maintaining data integrity across the system.
 

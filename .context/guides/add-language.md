@@ -2,7 +2,7 @@
 
 Use this guide when Ladu must support a new language. The first use is French (`.context/plans/language-french.md`). The guide is written while that plan runs.
 
-**Status of this guide (2026-10-26): skeleton.** Items marked `(unverified)` come from a code search on 2026-10-26. A slice of the French plan confirms each one, fixes the path if needed, and removes the mark. Check every path again with a search before you start.
+**Status of this guide (2026-10-26, French slice 12): checked.** Every item was confirmed against the diff of the French branch (`git diff main`, 223 files). Check each path again with a search before you start: the code moves. The one open item is the native-speaker review.
 
 Write the plan file first. Copy the shape of `language-french.md`: Progress list, user decisions, slices, review log, rollout runbook.
 
@@ -51,11 +51,11 @@ Same as `add-part-of-speech.md` section 3. In short:
 
 ## 4. Touchpoint checklist
 
-Tick each item in the plan. `(unverified)` means: not yet confirmed by a slice.
+Tick each item in the plan. `[x]` items were done and checked with French; `[ ]` is open.
 
 ### Database
 
-- [ ] None. `language` and `part_of_speech` columns are `varchar` or `text[]`. No migration. `(unverified for French; true for the schema on 2026-10-25)`
+- [x] None. `language` and `part_of_speech` columns are `varchar` or `text[]`. No migration (French: the branch has no migration file).
 
 ### Backend: the language list
 
@@ -65,14 +65,14 @@ Verified in slice 1 of the French plan (2026-10-26). The language set lives in *
 
 These lists stay explicit **on purpose** (a language joins them when its data exists). Edit them in the slice named:
 
-- [ ] `scripts/lexicon/common.ts` (`LANG_CODES`: the languages of the lexicon pipeline), `ingest.ts` (`LANGUAGES`, `FIXTURE_WORDS`). `extract.ts` builds its prefilter regex and its translation targets from `LANG_CODES`, so it needs no edit. Slices 9a and 9b for French.
-- [ ] `scripts/lexicon/onboarding-pool.ts` (`LANGUAGES`) and the pool columns in `lib/onboardingPool.ts`. Slice 11.
-- [ ] `scripts/seed-pagination-words.ts`, `scripts/bench-exercises.ts`: developer scripts with their own language lists. Optional.
-- [ ] `tests/unit/languages.test.js` checks the table against the frontend `Lang` enum. If it fails, the two lists differ.
+- [x] `scripts/lexicon/common.ts` (`LANG_CODES`: the languages of the lexicon pipeline), `ingest.ts` (`LANGUAGES`, `FIXTURE_WORDS`). `extract.ts` builds its prefilter regex and its translation targets from `LANG_CODES`, so it needs no edit. Slices 9a and 9b for French.
+- [x] `scripts/lexicon/onboarding-pool.ts` (`LANGUAGES`) and the pool columns in `lib/onboardingPool.ts`. Slice 11.
+- [x] `scripts/seed-pagination-words.ts`, `scripts/bench-exercises.ts`: developer scripts with their own four-language lists. Optional; French left them as they are (they seed English, Spanish, German and Estonian words only).
+- [x] `tests/unit/languages.test.js` checks the table against the frontend `Lang` enum. If it fails, the two lists differ.
 
 ### Backend: language behaviour
 
-- [ ] `lib/wordSort.ts` `MAIN_CASE_NAMES`: the case names a `?sort=` reads. Its type is `Record<LanguageName, …>`, so the compiler asks for the entry.
+- [x] `lib/wordSort.ts` `MAIN_CASE_NAMES`: the case names a `?sort=` reads. Its type is `Record<LanguageName, …>`, so the compiler asks for the entry.
 - [x] `controllers/wordController.ts` `getRequiredFieldsData`: add a `case "<Name>"` for each part of speech: the headline word (`data<SUFFIX>`) and, for nouns, the gender (`gender<SUFFIX>`). Without it the part of speech falls to `default` and logs a warning. `languageToFieldName` (the `registeredCases<SUFFIX>` field) reads the language table since slice 4; it was a hard-coded map that slice 1 missed, and without it the table shows no case count for the new language. Verified for French nouns, adjectives and verbs; the other parts of speech follow with their forms.
 - [x] `services/exercises/catalogue.ts`: noun slots (`singular`/`plural` nominative), verb tenses (`VERB_TENSES`: the case-name stem of present, past and future; a language without a tense leaves it out), single-language drills (`SingleLanguageCatalogue` is `Record<Language, …>`: use `noDrills` until the forms exist), `PROPERTY_PREFIXES` (a new property needs a prefix and two regression cases in `tests/unit/exercisesCatalogue.test.js`). Verified for French nouns and verbs.
 - [x] `utils/resources/emailStrings.js`: a block for the new language, with the same keys as English (without it, emails fall back to English). `tests/email-templates.test.js` checks the keys and the language list.
@@ -84,10 +84,10 @@ These lists stay explicit **on purpose** (a language joins them when its data ex
 
 Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suffix (`Lang.EN`), and it is the only place that defines it. `frontend/src/lib/language.ts` derives from it: `LangKey`, `LANG_BY_KEY` (`"EN"` → `Lang.EN`), `LANG_SUFFIX` (`Lang.EN` → `"EN"`). Do not write a local suffix map in a config file. The `i18n` code of a `UI_LANGUAGES` row is a plain string.
 
-- [x] `frontend/src/ts/enums.ts`: `Lang` member (key = suffix). Per-language enums (gender, tenses, moods, pronouns) come with the forms: `(unverified)`.
+- [x] `frontend/src/ts/enums.ts`: `Lang` member (key = suffix). Per-language enums (gender, tenses, moods, pronouns) come with the forms (below).
 - [x] `frontend/src/lib/language.ts`: `UI_LANGUAGES` row (display order), `TINT_VAR_BY_KEY` (typed `Record<LangKey, string>`, so the compiler asks for it).
 - [x] `frontend/public/<SUFFIX>.svg` (flag, viewBox `0 0 513 342` like the others). `frontend/src/styles/tokens.css`: `--lang-<code>`, light and dark. Pick a hue that differs from the other languages in charts; it need not come from the flag.
-- [ ] `frontend/src/i18n.ts`: `supportedLngs`. `features/captcha/turnstile.ts`: the whitelist. Do this **together with the locale files**, not before: a code in `supportedLngs` without files makes i18next request files that do not exist. Without the code, the language falls back to English cleanly. `(unverified)`
+- [x] `frontend/src/i18n.ts`: `supportedLngs`. `features/captcha/turnstile.ts`: the whitelist. Do this **together with the locale files**, not before: a code in `supportedLngs` without files makes i18next request files that do not exist. Without the code, the language falls back to English cleanly.
 - [x] `frontend/public/locales/<code>/*.json`: all 14 files, same keys and key order as English. Rules found with French (2026-10-26):
   - Plural keys follow the CLDR categories of the language (`_one`, `_other`; Estonian and French have no `_two` or `_few`). Where English has a count without a plural key, the new language may need both forms.
   - Keep `{{placeholders}}` and the `<terms>`/`<privacy>`/`<b>` tags exactly. The parity tests check them.
@@ -99,7 +99,7 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 - [x] A hard-coded count of languages is a bug. Found for French: `MAX_TRANSLATIONS = 4` in `CellDialog.tsx` and `useWordFormState.ts` (a word could never get a fifth translation). Now `MAX_TRANSLATIONS` in `lib/language.ts` (= the number of languages), and the message `review:cellDialog.maxTranslations` takes `{{max}}`. Search for `4`, `four` and `4 ` in strings when you add a language; the demo and landing texts say "four languages" until their data has the new language.
 - [x] The key blocks that every old locale needs: `common:languages.<name>` (the registration tiles and the language menus read it) and `wordRelated:startFromWord.inLanguage.<name>`, in each existing locale. Alphabetical in `languages`, in display order in `inLanguage`.
 - [x] Gender in the words table (when the language has noun gender): `features/words/types.ts` (`gender<SUFFIX>?` on `WordSimpleBE`), `review/row.ts` (`genderValue`), `review/FilterBar.tsx` (`GENDER_BY_LANGUAGE`), `review/WordCell.tsx` (`GENDER_CLASS`: the article of the masculine → `gender-m`), `form-engine/TranslationCard.tsx` (the gender field a draft fills). Known limit: the gender filter holds the article, not the language, so "la" selects Spanish and French feminine nouns together.
-- [ ] `features/demo/components/DemoIntro.tsx` (hardcoded example row), `locales/*/demo.json` (the sentence that lists the languages). `(unverified)`
+- [x] `features/demo/components/DemoIntro.tsx` (hardcoded example row), `locales/*/demo.json` (the sentence that lists the languages, and the two texts that count them). Done in French slice 11; listed again under "Onboarding and demo".
 
 ### Frontend: forms (per part of speech)
 
@@ -110,7 +110,7 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 - [x] Locales for the form: `wordForm.<pos>.fields` and `errors.form<SUFFIX>`, in **all** locales (the other locales show the labels of the new language's cards too). Copy the values from the closest language (French nouns from the `…ES` keys in each locale) and add the few new ones. A text-based insert tool is safer than a JSON round-trip, which reformats unrelated lines: `.context/guides/tools/locale_insert.py` (`append_members`, and `french()` for the typography).
 - [x] Practice strings for a new drill (verified for French, slice 7): a property that a drill asks (a past participle, a verb group) needs `practice:card.task.<category>` (the question) and, for a typed drill, `practice:card.placeholder.<category>`, in **all** locales. Without them the card shows the label of the property and "Your answer…". The e2e practice test found this: seed words in several languages through the API, open the practice set-up, select exactly the languages under test, and read each card's languages and prompt from the screen (English is not special; the set-up remembers the last choice).
 - [x] `lib/cases.ts` (`TENSE_BUCKET`): each tense name the exercises ask must map to present, past or future (French: `Imperfect` → past, `Simple-Future` was there). A name that is not in it shows as its own spaced words. Verified for French verbs.
-- [x] Test mocks: `test/msw/wordHandlers.ts` (the headline word per part of speech). `authHandlers.ts` read the language list in slice 2.
+- [x] Test mocks: `test/msw/wordHandlers.ts` (the headline word per part of speech). `authHandlers.ts` has its own `SUPPORTED_LANGUAGES` list (the mock of the register and login routes): it was missed in slice 2 and found in slice 12.
 
 ### Lexicon and autocomplete (only when the plan includes autocomplete)
 
@@ -136,10 +136,21 @@ Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suff
 ### Landing page and docs
 
 - [x] `landing/app.js` (`LANGS`, `STRINGS` with the same keys as English, `HTML_LANG`), `landing/flags/<SUFFIX>.svg` (copy of the app flag), `landing/index.html` (the line `English · Español · …`), and the language lists of three tests: `landing/scripts/{app-links,demo-link,notice}.test.mjs`. The word card of the home page (French slice 11: `app.js` `WORDS` and `card` text, one `<li>` in `index.html`, `--lang-xx` tokens in light, dark and the media query, and a `.lang-xx` class in `style.css`) shows one row per language. The legal pages and the blog are English only in every language.
-- [ ] `CLAUDE.md` and `.context/overview.md`: the list of supported languages. `(unverified)`
-- [ ] `.context/.frontend/snapshot/` (`data-model.md`, `forms-*.md`): a section for the language. `(unverified)`
-- [ ] One e2e spec in `e2e/tests/`. `npm run test:e2e` must be green. `(unverified)`
-- [ ] The native-speaker review of the forms and the strings.
+- [x] `CLAUDE.md`, `.context/overview.md` (two lines) and `README.md` (the supported-languages line, the interface line and the word-card diagram): the list of supported languages. Found in slice 12 by a search for `EE`; no test checks these lines.
+- [x] `.context/.frontend/snapshot/`: `data-model.md` gets a section, and the new language gets its own file (`forms-french.md`; it is v2-only, like `forms-conjunctions-prepositions.md`). The other snapshot files are the frozen inventory of the old app (2026-09-05): do not add the language there.
+- [x] e2e: `language-<name>-interface.spec.ts`, `language-<name>-forms.spec.ts` (forms and practice) and `autocomplete-<letter>-<name>-lexicon.spec.ts`. Older specs that type a whole word of the new language in a form need `closeTypeAheadList` once the fixture is loaded (found in slice 10). `npm run test:e2e` must be green.
+- [ ] The native-speaker review of the forms, the strings and the starter words (the teacher sheets; for French: `language-french-review.md` and `language-french-strings.md`). This stays open until the teacher answers; each answer is a small follow-up.
+
+## 4a. Tip: search for the other languages
+
+The compiler finds a `Record` with a missing key. It does not find a plain array of names. When the language is built, search for a language that is already there, in the files that the branch did not change:
+
+```bash
+git diff main --name-only > changed.txt
+git grep -l -E "Estonian|'ee'|\"ee\"|\bEE\b" -- . ':!*.json' ':!*.md' | grep -v -x -F -f changed.txt
+```
+
+Read each hit. Most are tests with their own data and need nothing. The search found these for French (slice 12): the demo template's own account (`lib/demoTemplate.ts`, `languages: [...]`) and the mock `authHandlers.ts`, both fixed; the docs that list the languages (`CLAUDE.md`, `README.md`, `.context/overview.md`).
 
 ## 4b. Tip: let the compiler list the touchpoints
 
@@ -147,17 +158,21 @@ After the first edit (the `Lang` member and the backend table row), run `npm run
 
 ## 5. What needs no change
 
-Do not search for these again. `(unverified for a new language; confirm in slice 2)`
+Do not search for these again. Confirmed with French (slices 2 to 12).
 
 - **Database.** No migration (section 4).
 - **Metrics, tags, admin.** They group by the language text.
 - **The form renderer.** It is config-driven. A new language needs configs, not components.
-- **The Ansible lexicon role** and `deploy/scripts/backup.sh`. They do not depend on the language.
+- **The Ansible lexicon role** and `deploy/scripts/backup.sh`. They do not depend on the language: one `lexicon.yml` run per language file.
+- **`ci.yml` and `e2e/playwright.config.ts`.** They run `lexicon:load:fixture`, which reads the list in `backend/package.json`.
+- **The deploy workflow and secrets.** French needed none; Estonian has the Ekilex key because it has a live source.
 
 ## 6. Rollout reminders
 
 Write these in the plan:
 
 - Load the new lexicon file and the rebuilt translations file per environment (`deploy/ansible/lexicon.yml`): staging, SQL counts, then production. Runbook model: `conjunctions-prepositions.md`.
-- Reseed the demo template per environment when its data changed.
+- Reseed the demo template per environment when its data changed (`seed-demo-template.js --reset`, infrastructure guide 02). A language added to the template needs it.
+- Order: merge (the deploy runs by itself) → load the lexicon and the rebuilt translation file on staging → SQL counts and a lookup → the same on production → reseed the demo. Until the load, the lookup of the new language says "Sorry, we don't know this word", which is harmless. The pool and the interface need no server step.
+- Ask the native speaker to review the first draft; say so in the release note (decision M1 for French).
 - Run the e2e suite (`npm run test:e2e`). It has its own ports and its own database: `npm run dev` can keep running.
