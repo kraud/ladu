@@ -62,7 +62,8 @@ export const AUTOCOMPLETE_REGISTRY: Partial<Record<Lang, Partial<Record<PartOfSp
         [PartOfSpeech.noun]: { queryFieldName: 'singularNominativ' },
     },
     [Lang.FR]: {
-        // French slice 9a (language-french.md): the lexicon only, like the English adjectives. Verbs come in slice 9b.
+        // French slices 9a and 9b (language-french.md): the lexicon only, like the English nouns.
+        [PartOfSpeech.verb]: { queryFieldName: 'infinitive' },
         [PartOfSpeech.adjective]: { queryFieldName: 'maleSingular' },
         [PartOfSpeech.adverb]: { queryFieldName: 'adverb' },
         [PartOfSpeech.conjunction]: { queryFieldName: 'conjunction' },

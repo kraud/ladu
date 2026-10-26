@@ -29,15 +29,12 @@ const fr: typeof import('../../lib/lexicon/selectors/fr') = require('../../lib/l
 type LangCode = import('./common').LangCode;
 type CaseSelector = import('../../lib/lexicon/select').CaseSelector;
 
-/**
- * Languages the ingest supports so far. Estonian comes from other sources (Slice D). French has no verb table yet
- * (language-french.md, slice 9b): a French verb entry has no selectors, so it is skipped.
- */
+/** Languages the ingest supports so far. Estonian comes from other sources (Slice D). */
 const LANGUAGES: Partial<Record<LangCode, { language: string; selectors: Record<string, CaseSelector[]> }>> = {
     de: { language: 'German', selectors: { noun: de.NOUN_SELECTORS_DE, verb: de.VERB_SELECTORS_DE, adj: de.ADJECTIVE_SELECTORS_DE, adv: de.ADVERB_SELECTORS_DE, conj: de.CONJUNCTION_SELECTORS_DE, prep: de.PREPOSITION_SELECTORS_DE, postp: de.PREPOSITION_SELECTORS_DE } },
     es: { language: 'Spanish', selectors: { noun: es.NOUN_SELECTORS_ES, verb: es.VERB_SELECTORS_ES, adj: es.ADJECTIVE_SELECTORS_ES, adv: es.ADVERB_SELECTORS_ES, conj: es.CONJUNCTION_SELECTORS_ES, prep: es.PREPOSITION_SELECTORS_ES, postp: es.PREPOSITION_SELECTORS_ES } },
     en: { language: 'English', selectors: { noun: en.NOUN_SELECTORS_EN, verb: en.VERB_SELECTORS_EN, adj: en.ADJECTIVE_SELECTORS_EN, adv: en.ADVERB_SELECTORS_EN, conj: en.CONJUNCTION_SELECTORS_EN, prep: en.PREPOSITION_SELECTORS_EN, postp: en.PREPOSITION_SELECTORS_EN } },
-    fr: { language: 'French', selectors: { noun: fr.NOUN_SELECTORS_FR, adj: fr.ADJECTIVE_SELECTORS_FR, adv: fr.ADVERB_SELECTORS_FR, conj: fr.CONJUNCTION_SELECTORS_FR, prep: fr.PREPOSITION_SELECTORS_FR, postp: fr.PREPOSITION_SELECTORS_FR } },
+    fr: { language: 'French', selectors: { noun: fr.NOUN_SELECTORS_FR, verb: fr.VERB_SELECTORS_FR, adj: fr.ADJECTIVE_SELECTORS_FR, adv: fr.ADVERB_SELECTORS_FR, conj: fr.CONJUNCTION_SELECTORS_FR, prep: fr.PREPOSITION_SELECTORS_FR, postp: fr.PREPOSITION_SELECTORS_FR } },
 };
 
 /**
@@ -89,7 +86,11 @@ const FIXTURE_WORDS: Partial<Record<LangCode, string[]>> = {
         'maison|noun', 'cheval|noun', 'œil|noun', 'travail|noun', 'enfant|noun', 'souris|noun', 'gens|noun', 'homme|noun', 'ville|noun', 'livre|noun',
         'grand|adj', 'beau|adj', 'facile|adj', 'marron|adj', 'bon|adj', 'heureux|adj',
         'bien|adv', 'vite|adv', 'beaucoup|adv',
-        'parce que|conj', 'et|conj', 'ni … ni|conj', 'dans|prep', 'pendant|prep',
+        'parce que|conj', 'et|conj', 'ni|conj', 'dans|prep', 'pendant|prep',
+        // Verbs: "aimer" (1er groupe), "finir" (2e), "aller"/"être"/"venir" (3e; être auxiliary), "partir" (avoir and être: no auxiliary),
+        // "laver" (plain and pronominal table), "appeler" (a pronominal table with no `reflexive` tag), "se souvenir" (pronominal only),
+        // "pleuvoir" (3rd person only: the other persons are "-"). The 20 most frequent verbs are added by the script.
+        'aimer|verb', 'finir|verb', 'aller|verb', 'être|verb', 'venir|verb', 'partir|verb', 'laver|verb', 'appeler|verb', 'se souvenir|verb', 'pleuvoir|verb',
     ],
 };
 const FIXTURE_TOP_N = 20;

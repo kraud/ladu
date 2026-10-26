@@ -1,14 +1,15 @@
 /**
  * French lexicon selectors (lib/lexicon/selectors/fr.ts) against real kaikki entries.
  * Fixture: tests/unit/fixtures/lexicon-fr.json (Wiktionary excerpts, CC BY-SA 4.0).
- * Plan: .context/plans/language-french.md, slice 8 results and slice 9a. Verb selectors come in slice 9b.
+ * Plan: .context/plans/language-french.md, slice 8 results and slices 9a (nouns … prepositions) and 9b (verbs).
  */
 const { selectCases } = require('../../lib/lexicon/select');
-const { NOUN_SELECTORS_FR, ADJECTIVE_SELECTORS_FR, ADVERB_SELECTORS_FR, CONJUNCTION_SELECTORS_FR, PREPOSITION_SELECTORS_FR } = require('../../lib/lexicon/selectors/fr');
+const { NOUN_SELECTORS_FR, VERB_SELECTORS_FR, ADJECTIVE_SELECTORS_FR, ADVERB_SELECTORS_FR, CONJUNCTION_SELECTORS_FR, PREPOSITION_SELECTORS_FR } = require('../../lib/lexicon/selectors/fr');
 const { entries } = require('./fixtures/lexicon-fr.json');
 
 const find = (word, pos) => entries.find((e) => e.word === word && e.pos === pos);
 const cases = (word, pos, selectors) => Object.fromEntries(selectCases(find(word, pos), selectors));
+const verb = (word) => cases(word, 'verb', VERB_SELECTORS_FR);
 const noun = (word) => cases(word, 'noun', NOUN_SELECTORS_FR);
 const adjective = (word) => cases(word, 'adj', ADJECTIVE_SELECTORS_FR);
 const adverb = (word) => cases(word, 'adv', ADVERB_SELECTORS_FR);
@@ -103,5 +104,96 @@ describe('French conjunction and preposition selectors', () => {
 
     test('a preposition gets the position of its entry', () => {
         expect(cases('dans', 'prep', PREPOSITION_SELECTORS_FR)).toEqual({ prepositionFR: 'dans', positionFR: 'Before the noun' });
+    });
+});
+
+describe('French verb selectors', () => {
+    test('a regular -er verb fills every field of the v2 form: 18 tense boxes, 6 passé composé boxes, both participles', () => {
+        expect(verb('aimer')).toEqual({
+            infinitiveFR: 'aimer', verbGroupFR: '1er groupe', auxVerbFR: 'avoir', reflexivityFR: 'Not reflexive',
+            pastParticipleFR: 'aimé', presentParticipleFR: 'aimant',
+            indicativePresent1sFR: 'aime', indicativePresent2sFR: 'aimes', indicativePresent3sFR: 'aime',
+            indicativePresent1plFR: 'aimons', indicativePresent2plFR: 'aimez', indicativePresent3plFR: 'aiment',
+            indicativeImperfect1sFR: 'aimais', indicativeImperfect2sFR: 'aimais', indicativeImperfect3sFR: 'aimait',
+            indicativeImperfect1plFR: 'aimions', indicativeImperfect2plFR: 'aimiez', indicativeImperfect3plFR: 'aimaient',
+            indicativeSimpleFuture1sFR: 'aimerai', indicativeSimpleFuture2sFR: 'aimeras', indicativeSimpleFuture3sFR: 'aimera',
+            indicativeSimpleFuture1plFR: 'aimerons', indicativeSimpleFuture2plFR: 'aimerez', indicativeSimpleFuture3plFR: 'aimeront',
+            indicativePerfect1sFR: 'aimé', indicativePerfect2sFR: 'aimé', indicativePerfect3sFR: 'aimé',
+            indicativePerfect1plFR: 'aimé', indicativePerfect2plFR: 'aimé', indicativePerfect3plFR: 'aimé',
+        });
+    });
+
+    test('the verb group comes from the infinitive: -ir with -issant is 2e, aller and the other -ir, -oir, -re verbs are 3e', () => {
+        expect(verb('finir')).toMatchObject({ verbGroupFR: '2e groupe', presentParticipleFR: 'finissant', indicativePresent1plFR: 'finissons' });
+        expect(verb('partir').verbGroupFR).toBe('3e groupe');
+        expect(verb('aller').verbGroupFR).toBe('3e groupe');
+        expect(verb('être').verbGroupFR).toBe('3e groupe');
+    });
+
+    test('irregular verbs keep their irregular forms', () => {
+        expect(verb('aller')).toMatchObject({ indicativePresent1sFR: 'vais', indicativePresent3plFR: 'vont', indicativeSimpleFuture3sFR: 'ira' });
+        expect(verb('être')).toMatchObject({ pastParticipleFR: 'été', indicativePresent1sFR: 'suis', indicativeImperfect2sFR: 'étais' });
+    });
+
+    test('the auxiliary comes from the text row; a verb that takes both leaves it empty (decision Q1)', () => {
+        expect(verb('aimer').auxVerbFR).toBe('avoir');
+        expect(verb('aller').auxVerbFR).toBe('être');
+        expect(verb('être').auxVerbFR).toBe('avoir');
+        expect(verb('partir')).not.toHaveProperty('auxVerbFR');
+        // The passé composé boxes still fill: the auxiliary is only their adornment.
+        expect(verb('partir').indicativePerfect2plFR).toBe('parti');
+    });
+
+    test('a verb that also has a pronominal table is "Optionally reflexive"; its forms come from the plain table', () => {
+        expect(verb('laver')).toMatchObject({ infinitiveFR: 'laver', reflexivityFR: 'Optionally reflexive', auxVerbFR: 'avoir', indicativePresent1sFR: 'lave', presentParticipleFR: 'lavant' });
+    });
+
+    test('a pronominal table whose rows carry no `reflexive` tag ("appeler") is told apart by its infinitive', () => {
+        expect(verb('appeler')).toMatchObject({
+            infinitiveFR: 'appeler', reflexivityFR: 'Optionally reflexive', indicativePresent1sFR: 'appelle', indicativePresent1plFR: 'appelons', auxVerbFR: 'avoir',
+        });
+    });
+
+    test('a verb with only a pronominal table is "Always reflexive": the infinitive keeps "se", the forms lose the pronoun, the auxiliary is être', () => {
+        expect(verb('se souvenir')).toMatchObject({
+            infinitiveFR: 'se souvenir', reflexivityFR: 'Always reflexive', auxVerbFR: 'être', verbGroupFR: '3e groupe',
+            presentParticipleFR: 'souvenant', pastParticipleFR: 'souvenu',
+            indicativePresent1sFR: 'souviens', indicativePresent3sFR: 'souvient', indicativePresent1plFR: 'souvenons', indicativePresent3plFR: 'souviennent',
+            indicativeImperfect1sFR: 'souvenais', indicativeSimpleFuture3plFR: 'souviendront', indicativePerfect1sFR: 'souvenu',
+        });
+    });
+
+    test('the pronoun and the particle "en" are removed from pronominal forms', () => {
+        const sEnAller = {
+            word: "s'en aller", pos: 'verb', senses: [{ tags: ['pronominal'] }],
+            forms: [
+                { form: 'no-table-tags', tags: ['table-tags'] },
+                { form: "s'en aller", tags: ['infinitive', 'reflexive'] },
+                { form: "m'en vais", tags: ['first-person', 'indicative', 'present', 'singular', 'reflexive'] },
+                { form: 'nous en allons', tags: ['first-person', 'indicative', 'plural', 'present', 'reflexive'] },
+                { form: "s'en allant", tags: ['gerund', 'participle', 'present', 'reflexive'] },
+            ],
+        };
+        expect(Object.fromEntries(selectCases(sEnAller, VERB_SELECTORS_FR))).toMatchObject({
+            infinitiveFR: "s'en aller", verbGroupFR: '3e groupe', indicativePresent1sFR: 'vais', indicativePresent1plFR: 'allons', presentParticipleFR: 'allant',
+        });
+    });
+
+    test('a verb with a placeholder row ("-") leaves that person empty: pleuvoir has the third person only', () => {
+        const pleuvoir = verb('pleuvoir');
+        expect(pleuvoir).toMatchObject({ indicativePresent3sFR: 'pleut', indicativePresent3plFR: 'pleuvent', indicativeSimpleFuture3sFR: 'pleuvra' });
+        expect(pleuvoir).not.toHaveProperty('indicativePresent1sFR');
+        expect(pleuvoir).not.toHaveProperty('indicativeImperfect2sFR');
+    });
+
+    test('text rows ("avoir + past participle") and IPA rows are never taken as forms', () => {
+        const values = Object.values(verb('aimer'));
+        expect(values.some((value) => /participle|\+/.test(value))).toBe(false);
+        expect(values.some((value) => ['ɛ', 'ɑ', 'ʒ', '\u0303'].some((sign) => value.includes(sign)))).toBe(false);
+    });
+
+    test('an entry with no conjugation table fills nothing but the reflexivity guess', () => {
+        const stub = { word: 'peut', pos: 'verb', forms: [], senses: [{ tags: [] }] };
+        expect(Object.fromEntries(selectCases(stub, VERB_SELECTORS_FR))).toEqual({ reflexivityFR: 'Not reflexive' });
     });
 });

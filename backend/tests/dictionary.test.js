@@ -1166,7 +1166,7 @@ describe('draft (Slice G, G3: POST /api/dictionary/draft)', () => {
     });
 });
 
-describe('French (slice 9a: the lexicon alone, a miss is not-found; verbs come in slice 9b)', () => {
+describe('French (slices 9a and 9b: the lexicon alone, a miss is not-found)', () => {
     const suggest = (path) => request(app).get(`/api/dictionary/${path}`).set('Authorization', `Bearer ${token}`);
     const draft = (body) => request(app).post('/api/dictionary/draft').set('Authorization', `Bearer ${token}`).send(body);
     const genderOf = async (word, gender) =>
@@ -1230,8 +1230,47 @@ describe('French (slice 9a: the lexicon alone, a miss is not-found; verbs come i
         expect(lemmas).toEqual(['maison']);
     });
 
-    it('French has no verb dictionary yet: 400', async () => {
-        expect((await lookup('French/Verb/aimer')).statusCode).toBe(400);
+    it('a verb: infinitive, group, auxiliary, participles, tense boxes and the passé composé boxes', async () => {
+        const aimer = casesOf((await lookup('French/Verb/aimer')).body);
+        expect(aimer).toMatchObject({
+            infinitiveFR: 'aimer', verbGroupFR: '1er groupe', auxVerbFR: 'avoir', reflexivityFR: 'Not reflexive',
+            pastParticipleFR: 'aimé', presentParticipleFR: 'aimant', indicativePresent1sFR: 'aime', indicativeImperfect3plFR: 'aimaient',
+            indicativeSimpleFuture2sFR: 'aimeras', indicativePerfect3plFR: 'aimé',
+        });
+        // 4 properties and 2 participles, 18 tense boxes, 6 passé composé boxes.
+        expect(Object.keys(aimer)).toHaveLength(4 + 2 + 18 + 6);
+        expect(casesOf((await lookup('French/Verb/aller')).body)).toMatchObject({ auxVerbFR: 'être', indicativePresent1sFR: 'vais' });
+    });
+
+    it('a verb that takes avoir and être leaves the auxiliary empty; a pronominal-only verb is Always reflexive', async () => {
+        const partir = casesOf((await lookup('French/Verb/partir')).body);
+        expect(partir).not.toHaveProperty('auxVerbFR');
+        expect(partir.pastParticipleFR).toBe('parti');
+        expect(casesOf((await lookup('French/Verb/se%20souvenir')).body)).toMatchObject({
+            infinitiveFR: 'se souvenir', reflexivityFR: 'Always reflexive', auxVerbFR: 'être', indicativePresent1sFR: 'souviens',
+        });
+        expect(casesOf((await lookup('French/Verb/laver')).body)).toMatchObject({ infinitiveFR: 'laver', reflexivityFR: 'Optionally reflexive' });
+    });
+
+    it('"se laver" has no entry of its own: the forms of "laver" come back as a partial answer, Always reflexive, with the auxiliary être', async () => {
+        const res = await lookup('French/Verb/se%20laver');
+        expect(res.body.status).toBe('partial');
+        expect(casesOf(res.body)).toMatchObject({
+            infinitiveFR: 'se laver', reflexivityFR: 'Always reflexive', auxVerbFR: 'être', verbGroupFR: '1er groupe', indicativePresent1sFR: 'lave', pastParticipleFR: 'lavé',
+        });
+        expect(casesOf((await lookup("French/Verb/s'appeler")).body).infinitiveFR).toBe("s'appeler");
+    });
+
+    it('the pronominal fallback guesses nothing: a verb that is not marked reflexive stays not-found', async () => {
+        expect((await lookup('French/Verb/se%20aimer')).body).toEqual({ status: 'not-found', cases: [] });
+        expect((await lookup('French/Verb/se%20zzzer')).body).toEqual({ status: 'not-found', cases: [] });
+        expect((await lookup('French/Verb/se')).body).toEqual({ status: 'not-found', cases: [] });
+    });
+
+    it('type-ahead lists French verbs, and an unknown verb is not-found', async () => {
+        const lemmas = (await suggest('French/Verb?prefix=aim')).body.suggestions.map(({ lemma }) => lemma);
+        expect(lemmas).toContain('aimer');
+        expect((await lookup('French/Verb/zzzer')).body).toEqual({ status: 'not-found', cases: [] });
     });
 
     it('a draft can have one pick for each of the five languages', async () => {

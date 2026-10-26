@@ -39,6 +39,35 @@ function withPairSplit(lookup: DictionaryAdapter, code: string): DictionaryAdapt
     };
 }
 
+/**
+ * French pronominal verbs (language-french.md, slice 9b). The French form writes the infinitive of a pronominal verb
+ * with its pronoun ("se laver", "s'habiller"), but Wiktionary gives only 257 such verbs an entry of their own
+ * ("se souvenir", "s'appeler"); the others live inside the plain entry ("laver"). When "se X" or "s'X" finds nothing, X is
+ * looked up. If Wiktionary says X can be reflexive, its forms are returned with the infinitive as typed, "Always
+ * reflexive" and the auxiliary être. The answer is `partial` (a rule-based guess). A verb that is not marked reflexive
+ * stays not-found: nothing is guessed.
+ */
+const PRONOMINAL_PREFIX = /^(?:se\s+|s['’])/i;
+function withPronominalFallback(lookup: DictionaryAdapter): DictionaryAdapter {
+    return async (query, options) => {
+        const result = await lookup(query, options);
+        const typed = query.trim();
+        const bare = typed.replace(PRONOMINAL_PREFIX, '');
+        if (result.status !== 'not-found' || bare === typed || bare === '') return result;
+
+        const base = await lookup(bare, {});
+        const reflexivity = base.cases.find(({ caseName }) => caseName === 'reflexivityFR')?.word;
+        if (base.status !== 'found' || reflexivity === undefined || reflexivity === 'Not reflexive') return result;
+
+        const own = new Set(['infinitiveFR', 'reflexivityFR', 'auxVerbFR']);
+        const cases = [
+            ...toCases([['infinitiveFR', typed], ['reflexivityFR', 'Always reflexive'], ['auxVerbFR', 'être']]),
+            ...base.cases.filter(({ caseName }) => !own.has(caseName)),
+        ];
+        return { status: 'partial', cases };
+    };
+}
+
 const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, DictionaryAdapter>>>> = {
     // Slice C2: verbs use the chain; nouns have no library, so the lexicon alone (a miss is not-found).
     English: {
@@ -69,9 +98,10 @@ const REGISTRY: Partial<Record<Language, Partial<Record<PartOfSpeech, Dictionary
         Conjunction: withPairSplit(lexiconAdapter('German', 'Conjunction'), 'DE'),
         Preposition: lexiconAdapter('German', 'Preposition'),
     },
-    // French slice 9a (language-french.md): the lexicon alone, like English adjectives: no library exists, so a miss is
-    // not-found. Verbs come in slice 9b.
+    // French slices 9a and 9b (language-french.md): the lexicon alone, like English nouns: no library exists, so a miss
+    // is not-found.
     French: {
+        Verb: withPronominalFallback(lexiconAdapter('French', 'Verb')),
         Noun: lexiconAdapter('French', 'Noun'),
         Adjective: lexiconAdapter('French', 'Adjective'),
         Adverb: lexiconAdapter('French', 'Adverb'),

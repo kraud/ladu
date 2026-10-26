@@ -40,7 +40,7 @@ describe('getAutocompleteEndpoint — coverage table', () => {
                 'Estonian/Adverb',
                 'Estonian/Conjunction',
                 'Estonian/Preposition',
-                // French slice 9a: no verb yet (slice 9b).
+                'French/Verb',
                 'French/Noun',
                 'French/Adjective',
                 'French/Adverb',
@@ -130,8 +130,8 @@ describe('registry query field names — pinned per (language, PoS)', () => {
         expect(getAutocompleteEndpoint(Lang.FR, PartOfSpeech.adjective)?.queryFieldName).toBe('maleSingular');
     });
 
-    it('FR has no verb autocomplete yet (slice 9b)', () => {
-        expect(getAutocompleteEndpoint(Lang.FR, PartOfSpeech.verb)).toBeUndefined();
+    it('FR verb queries off infinitive (slice 9b)', () => {
+        expect(getAutocompleteEndpoint(Lang.FR, PartOfSpeech.verb)?.queryFieldName).toBe('infinitive');
     });
 
     it('EE verb queries off infinitiveMa, EE noun off singularNimetav, EE adjective off algvorre', () => {
