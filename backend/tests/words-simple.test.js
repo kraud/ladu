@@ -215,7 +215,7 @@ describe('GET /api/words/simple - row shape', () => {
         const res = await create(token, {
             partOfSpeech: 'Noun',
             translations: [
-                { language: 'French', cases: [{ word: 'chat', caseName: 'singularFR' }] },
+                { language: 'Klingon', cases: [{ word: 'chat', caseName: 'singularKL' }] },
                 { language: 'English', cases: [{ word: 'cat', caseName: 'singularEN' }] },
             ],
         });
@@ -224,7 +224,7 @@ describe('GET /api/words/simple - row shape', () => {
         expect(list.statusCode).toBe(200);
         const row = list.body.items.find((w) => w.id === res.body.id);
         expect(row.dataEN).toBe('cat');
-        expect(row.dataFR).toBeUndefined();
+        expect(row.dataKL).toBeUndefined();
     });
 
     it('does not 500 on an unrecognised part of speech', async () => {
@@ -739,7 +739,7 @@ describe('GET /api/words/simple - sort by language', () => {
     });
 
     it('rejects an unknown language, an unknown direction and a cursor of the other kind', async () => {
-        expect((await get('sort=FR')).statusCode).toBe(400);
+        expect((await get('sort=XX')).statusCode).toBe(400);
         expect((await get('sort=EN&dir=sideways')).statusCode).toBe(400);
         const firstPage = await get('limit=2');
         expect((await get(`sort=EN&cursor=${encodeURIComponent(firstPage.body.nextCursor)}`)).statusCode).toBe(400);

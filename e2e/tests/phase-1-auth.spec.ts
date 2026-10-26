@@ -103,7 +103,7 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
         await expect(page).toHaveURL('/user');
         await expect(page.getByRole('heading', { name: 'Account' })).toBeVisible();
         // Registered with English + Español.
-        await expect(page.getByText('2 of 4 selected')).toBeVisible();
+        await expect(page.getByText('2 of 5 selected')).toBeVisible();
 
         await page.getByRole('button', { name: 'Edit Profile' }).click();
         const save = page.getByRole('button', { name: 'Save' });
@@ -114,11 +114,11 @@ test.describe.serial('Phase 1 — auth + app shell', () => {
 
         await expect(page.getByText('User data updated successfully!')).toBeVisible();
         await expect(page.getByRole('button', { name: 'Edit Profile' })).toBeVisible();
-        await expect(page.getByText('3 of 4 selected')).toBeVisible();
+        await expect(page.getByText('3 of 5 selected')).toBeVisible();
 
         // Persisted: a reload rehydrates the edited profile from the folded session.
         await page.reload();
-        await expect(page.getByText('3 of 4 selected')).toBeVisible();
+        await expect(page.getByText('3 of 5 selected')).toBeVisible();
         await expect(page.getByText('Kai Rebane Uus').first()).toBeVisible();
     });
 

@@ -529,6 +529,7 @@ export enum Lang {
     EN = "English",
     DE = "German",
     EE = "Estonian",
+    FR = "French",
 }
 
 export enum GenderDE {

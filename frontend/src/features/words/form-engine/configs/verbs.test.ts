@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import { matchesVisibility } from './types';
 import { getFormConfig } from './index';
+import { LANG_SUFFIX } from '@/lib/language';
 
 /** `auxiliaryVerb`/`caseTypeDE->verbCases` don't derive their `name` from `caseName` mechanically — old-app naming quirks the manifest reproduces on purpose. */
 const NAME_SUFFIX_EXCEPTIONS = new Set(['auxiliaryVerb', 'verbCases']);
@@ -231,13 +232,12 @@ describe('getFormConfig(Verb, lang) — old field-list parity', () => {
     });
 
     it('every field.caseName is field.name + the language suffix, except old-app naming quirks and persisted:false fields', () => {
-        const suffixes: Record<Lang, string> = { [Lang.EN]: 'EN', [Lang.ES]: 'ES', [Lang.DE]: 'DE', [Lang.EE]: 'EE' };
         for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
             const config = getFormConfig(PartOfSpeech.verb, lang)!;
             for (const field of config.fields) {
                 if (field.persisted === false) continue;
                 if (NAME_SUFFIX_EXCEPTIONS.has(field.name)) continue;
-                expect(field.caseName).toBe(`${field.name}${suffixes[lang]}`);
+                expect(field.caseName).toBe(`${field.name}${LANG_SUFFIX[lang]}`);
             }
         }
     });

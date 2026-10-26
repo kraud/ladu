@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import { getFormConfig } from './index';
+import { LANG_SUFFIX } from '@/lib/language';
 
 describe('getFormConfig(Noun, lang) — old field-list parity', () => {
     it('English: regularity, singular*, plural', () => {
@@ -64,11 +65,10 @@ describe('getFormConfig(Noun, lang) — old field-list parity', () => {
     });
 
     it('every field.caseName is field.name + the language suffix', () => {
-        const suffixes: Record<Lang, string> = { [Lang.EN]: 'EN', [Lang.ES]: 'ES', [Lang.DE]: 'DE', [Lang.EE]: 'EE' };
         for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
             const config = getFormConfig(PartOfSpeech.noun, lang)!;
             for (const field of config.fields) {
-                expect(field.caseName).toBe(`${field.name}${suffixes[lang]}`);
+                expect(field.caseName).toBe(`${field.name}${LANG_SUFFIX[lang]}`);
             }
         }
     });

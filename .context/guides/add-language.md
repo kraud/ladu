@@ -77,17 +77,19 @@ These lists stay explicit **on purpose** (a language joins them when its data ex
 - [ ] `services/exercises/catalogue.ts`: noun slots, verb tenses, single-language drills, `PROPERTY_PREFIXES`. `(unverified)`
 - [ ] `utils/resources/emailStrings.js`: a block for the new language (without it, emails fall back to English). `(unverified)`
 - [ ] `services/onboarding/labels.ts`: topic tag names in the new language. `(unverified)`
-- [ ] Tests that pin the set: `tests/unit/caseMapping.test.js`, `tests/demoTemplate.test.js` (its `SUFFIX` map). `(unverified)`
+- [x] Tests that pin the set. A test that uses the new language's name or code as its example of an *unknown* language fails: change the example (to `Klingon`, `XX`, `xx`). Found for French: `words-simple.test.js` (`sort=FR`), `exercisesSessionValidate.test.js`, `lexiconTranslations.test.js` (`fr` as a skipped language), frontend `lib/language.test.ts`, `lib/handoff.test.ts`, `practice/search.test.ts`. Tests that count languages: `metrics/selectors.test.ts`, `WelcomeBanner.test.tsx` (the greeting cycle has one step more), `AccountPage.test.tsx` and `e2e/tests/phase-1-auth.spec.ts` ("2 of 5 selected"), `dictionary.test.js` (the translate routes return an empty list for the new language until its data is loaded).
+- [x] Lists that stay explicit until the language has data: `controllers/demoController.ts` (`ALL_LANGUAGES`: a demo account gets these languages; add the new one when the demo template has its words) and `tests/unit/caseMapping.test.js` (the languages that must have exercise slots; add the new one with its noun forms).
 
 ### Frontend: the language
 
 Verified in slice 1 (2026-10-26). The `Lang` enum **key** is the two-letter suffix (`Lang.EN`), and it is the only place that defines it. `frontend/src/lib/language.ts` derives from it: `LangKey`, `LANG_BY_KEY` (`"EN"` → `Lang.EN`), `LANG_SUFFIX` (`Lang.EN` → `"EN"`). Do not write a local suffix map in a config file. The `i18n` code of a `UI_LANGUAGES` row is a plain string.
 
-- [ ] `frontend/src/ts/enums.ts`: `Lang` member (key = suffix); per-language enums (gender, tenses, moods, pronouns). `(unverified)`
-- [ ] `frontend/src/lib/language.ts`: `UI_LANGUAGES` row (display order), `TINT_VAR_BY_KEY` (typed `Record<LangKey, string>`, so the compiler asks for it).
-- [ ] `frontend/src/i18n.ts`: `supportedLngs`. `features/captcha/turnstile.ts`: the whitelist. `(unverified)`
+- [x] `frontend/src/ts/enums.ts`: `Lang` member (key = suffix). Per-language enums (gender, tenses, moods, pronouns) come with the forms: `(unverified)`.
+- [x] `frontend/src/lib/language.ts`: `UI_LANGUAGES` row (display order), `TINT_VAR_BY_KEY` (typed `Record<LangKey, string>`, so the compiler asks for it).
+- [x] `frontend/public/<SUFFIX>.svg` (flag, viewBox `0 0 513 342` like the others). `frontend/src/styles/tokens.css`: `--lang-<code>`, light and dark. Pick a hue that differs from the other languages in charts; it need not come from the flag.
+- [ ] `frontend/src/i18n.ts`: `supportedLngs`. `features/captcha/turnstile.ts`: the whitelist. Do this **together with the locale files**, not before: a code in `supportedLngs` without files makes i18next request files that do not exist. Without the code, the language falls back to English cleanly. `(unverified)`
 - [ ] `frontend/public/locales/<code>/*.json`: all 14 files. The locale parity tests compare them with English. `(unverified)`
-- [ ] The key blocks that every old locale needs: `common:languages.<name>`, `wordRelated:startFromWord.inLanguage.<name>`. `(unverified)`
+- [x] The key blocks that every old locale needs: `common:languages.<name>` (the registration tiles and the language menus read it) and `wordRelated:startFromWord.inLanguage.<name>`, in each existing locale. Alphabetical in `languages`, in display order in `inLanguage`.
 - [ ] Review table: `review/row.ts`, `review/completion.ts`, `FilterBar.tsx` (gender filter), `WordCell.tsx` (gender chip class). `(unverified)`
 - [ ] `features/demo/components/DemoIntro.tsx` (hardcoded example row), `locales/*/demo.json` (the sentence that lists the languages). `(unverified)`
 

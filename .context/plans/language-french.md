@@ -1,6 +1,6 @@
 # Plan: Add French to Ladu (+ a reusable "add a language" guide)
 
-Status: plan agreed on 2026-10-25. Phase 0, Slice 0 and Slice 1 done 2026-10-26. Next: Slice 2.
+Status: plan agreed on 2026-10-25. Phase 0 and Slices 0–2 done 2026-10-26. Next: Slice 3.
 
 ## How to start (read this first in a new session)
 
@@ -14,7 +14,7 @@ Status: plan agreed on 2026-10-25. Phase 0, Slice 0 and Slice 1 done 2026-10-26.
 - [x] Phase 0 (2026-10-26) — This plan saved in the repo; row in the `.context/README.md` index
 - [x] Slice 0 (2026-10-26) — Guide skeleton `add-language.md`; row in the README index; link from `add-part-of-speech.md`
 - [x] Slice 1 (2026-10-26) — Consolidate the language lists (no behaviour change): `backend/lib/languages.ts`, `LANG_SUFFIX`/`LANG_BY_KEY` in `lib/language.ts`, noun/verb/adjective config maps `Partial`. Typecheck, lint, backend (73 suites, 2850 tests), frontend (143 files, 1979 tests), build and full e2e (168 passed) are green
-- [ ] Slice 2 — French as a language (no forms yet)
+- [x] Slice 2 (2026-10-26) — French as a language (no forms yet): `Lang.FR`, backend table row, `UI_LANGUAGES` row, `FR.svg`, `--lang-fr` (violet), locale name keys in the 4 old locales, tests updated. Typecheck, lint, backend (73 suites, 2850 tests), frontend (143 files, 1979 tests), build and full e2e (168 passed; `phase-1-auth.spec.ts` now expects "of 5") are green
 - [ ] Slice 3 — French interface (14 locale files, emails, landing page)
 - [ ] Slice 4 — Noun and adjective forms
 - [ ] Slice 5 — Verb form
@@ -94,11 +94,11 @@ One slice at a time. Each slice starts with a plain-language overview, ends runn
 - A cross-tier parity test: backend table = frontend `Lang` enum (pattern: `tests/demoTemplate.test.js:18` reads the frontend enum).
 - Gate: `npm test`, `npm test -w frontend`, `npm run build`, `npm run test:e2e`.
 
-**Slice 2 — French as a language (no forms yet).** `Lang.FR = 'French'`; a `UI_LANGUAGES` row (`FR`, `Français`, `fr`, `/FR.svg`); `public/FR.svg`; the `--lang-fr` token (light and dark, `tokens.css:51,80`); the backend table row; `supportedLngs` + `fr`; Turnstile `fr` (`captcha/turnstile.ts:62`); `common:languages.french` and `startFromWord.inLanguage.french` in the four old locales; the tests that pin the language count (`language.test.ts`, `metrics/selectors.test.ts`, `WelcomeBanner.test.tsx`, `test/msw/authHandlers.ts`, `wordHandlers.ts` …). Result: French can be picked, its card says "not available", and the interface falls back to English.
+**Slice 2 — French as a language (no forms yet).** `Lang.FR = 'French'`; a `UI_LANGUAGES` row (`FR`, `Français`, `fr`, `/FR.svg`); `public/FR.svg`; the `--lang-fr` token (light and dark, `tokens.css:51,80`); the backend table row; `common:languages.french` and `startFromWord.inLanguage.french` in the four old locales; the tests that pin the language count (`language.test.ts`, `metrics/selectors.test.ts`, `WelcomeBanner.test.tsx`, `test/msw/authHandlers.ts`, `wordHandlers.ts` …). Result: French can be picked, its card says "not available", and the interface falls back to English.
 
-**Slice 3 — French interface.** 3a: the 14 `frontend/public/locales/fr/*.json` files, and `fr` in the locale parity tests. 3b: emails (`emailStrings.js`), onboarding topic names (`services/onboarding/labels.ts`), the demo strings, and the landing page (`landing/app.js` `LANGS` and `STRINGS`, `landing/flags/FR.svg`, `index.html:70`). The strings get a review list for the teacher (by screen, not by key).
+**Slice 3 — French interface.** 3a: `fr` in `supportedLngs` (`i18n.ts:43`) and in the Turnstile whitelist (`captcha/turnstile.ts:62`), moved here from slice 2 so that no file is requested before it exists; the 14 `frontend/public/locales/fr/*.json` files, and `fr` in the locale parity tests. 3b: emails (`emailStrings.js`), onboarding topic names (`services/onboarding/labels.ts`), the demo strings, and the landing page (`landing/app.js` `LANGS` and `STRINGS`, `landing/flags/FR.svg`, `index.html:70`). The strings get a review list for the teacher (by screen, not by key).
 
-**Slice 4 — Noun and adjective forms.** Enums (`NounCases`, `AdjectiveCases`, `GenderFR`); `WordCasesData` noun rows; the `CaseName` and `interfaces.ts` unions; builders in `nouns.ts` and `adjectives.ts`; locales (`wordForm.noun|adjective.fields` and `errors.formFR` in all five); Review gender (`row.ts:33`, `FilterBar.tsx:46`, `WordCell.tsx:11` chip class for "le"); the `TranslationCard.tsx:349` gender lookup; backend `getRequiredFieldsData`, `wordSort` main case, catalogue nouns and drills; MSW `wordHandlers.ts`. Tests: config field lists, and a backend round trip of "le cheval / les chevaux".
+**Slice 4 — Noun and adjective forms.** Enums (`NounCases`, `AdjectiveCases`, `GenderFR`); `WordCasesData` noun rows; the `CaseName` and `interfaces.ts` unions; builders in `nouns.ts` and `adjectives.ts`; locales (`wordForm.noun|adjective.fields` and `errors.formFR` in all five); Review gender (`row.ts:33`, `FilterBar.tsx:46`, `WordCell.tsx:11` chip class for "le"); the `TranslationCard.tsx:349` gender lookup; backend `getRequiredFieldsData`, `wordSort` main case, catalogue nouns and drills; MSW `wordHandlers.ts`. Tests: config field lists, and a backend round trip of "le cheval / les chevaux". Put French back into the `LANGUAGES` list of `tests/unit/caseMapping.test.js` (explicit since slice 2).
 
 **Slice 5 — Verb form.** `VerbCases` FR, `TenseVerbFR`, `VerbMoodFR`, the `VerbTenseData` unions (`wordCasesDataByPoS.ts:46`), registry rows, `PRONOUN_LABELS[FR]`, `buildFrConfig` (avoir/être adornment, reflexive hint), `lib/cases.ts` `TENSE_BUCKET`, catalogue `VERB_TENSES` and drills, `PROPERTY_PREFIXES` `verbGroup` with a regression test.
 
@@ -112,7 +112,7 @@ One slice at a time. Each slice starts with a plain-language overview, ends runn
 
 **Slice 10 — Autocomplete e2e spec.** `lexicon-fr-fixture.jsonl` in `backend/package.json` (`lexicon:load:fixture`), `e2e/playwright.config.ts:93`, `ci.yml:150`. Spec `autocomplete-j-french-lexicon.spec.ts` (pattern: `autocomplete-c-spanish-lexicon`).
 
-**Slice 11 — Onboarding pool and demo template.** `pool.tsv` gets `fr` and `fr_gender` from the English-hub translations (`scripts/lexicon/onboarding-pool.ts:47,193`, `onboarding-forms.ts:24`, `lib/onboardingPool.ts`, the pool README). `pool-forms.json` is rebuilt from the French lexicon. The demo `data.json` gets French translations, and `DemoIntro.tsx:53` gets an example row. Tests and an e2e touch.
+**Slice 11 — Onboarding pool and demo template.** `pool.tsv` gets `fr` and `fr_gender` from the English-hub translations (`scripts/lexicon/onboarding-pool.ts:47,193`, `onboarding-forms.ts:24`, `lib/onboardingPool.ts`, the pool README). `pool-forms.json` is rebuilt from the French lexicon. The demo `data.json` gets French translations, and `DemoIntro.tsx:53` gets an example row. `controllers/demoController.ts` `ALL_LANGUAGES` gets French (it is explicit since slice 2). Tests and an e2e touch.
 
 **Slice 12 — Close.** Finish `add-language.md` and check it against the real diff of this branch (`git diff main --stat`). Write the final rollout runbook. Run the final full e2e suite.
 

@@ -19,6 +19,7 @@
  */
 import { http, HttpResponse } from 'msw';
 import { Lang } from '@/ts/enums';
+import { LANG_SUFFIX } from '@/lib/language';
 import type { PartOfSpeech } from '@/ts/enums';
 import type {
     CreateWordBody,
@@ -132,12 +133,7 @@ function headlineFields(
     }
 }
 
-const REGISTERED_FIELD_BY_LANG: Record<Lang, string> = {
-    [Lang.EN]: 'registeredCasesEN',
-    [Lang.ES]: 'registeredCasesES',
-    [Lang.DE]: 'registeredCasesDE',
-    [Lang.EE]: 'registeredCasesEE',
-};
+const registeredField = (language: Lang): string => `registeredCases${LANG_SUFFIX[language]}`;
 
 /** Mirrors `simplifyWord` (`wordController.ts`) over a fake `WordBE`. */
 function simplifyWord(word: WordBE): WordSimpleBE {
@@ -156,7 +152,7 @@ function simplifyWord(word: WordBE): WordSimpleBE {
         simplified = {
             ...simplified,
             ...headlineFields(word.partOfSpeech, translation.language, translation.cases),
-            [REGISTERED_FIELD_BY_LANG[translation.language]]: translation.cases.length,
+            [registeredField(translation.language)]: translation.cases.length,
         };
     }
 

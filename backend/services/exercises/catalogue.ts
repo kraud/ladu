@@ -94,6 +94,7 @@ const nounDrills: SingleLanguageCatalogue = {
         'Text-Input': [{ questionWord: 'singularNimetavEE', correctValue: 'shortFormEE' }],
     },
     English: noDrills,
+    French: noDrills,
 };
 
 const verbDrills: SingleLanguageCatalogue = {
@@ -113,6 +114,7 @@ const verbDrills: SingleLanguageCatalogue = {
         'Text-Input': [],
     },
     Estonian: noDrills,
+    French: noDrills,
 };
 
 export const SINGLE_LANGUAGE: Partial<Record<PartOfSpeech, SingleLanguageCatalogue>> = {

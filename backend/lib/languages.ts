@@ -17,6 +17,7 @@ export const LANGUAGE_INFO = {
     Spanish: { suffix: 'ES', wiktionary: 'es' },
     German: { suffix: 'DE', wiktionary: 'de' },
     Estonian: { suffix: 'EE', wiktionary: 'et' },
+    French: { suffix: 'FR', wiktionary: 'fr' },
 } as const satisfies Record<string, { suffix: string; wiktionary: string }>;
 
 export type LanguageName = keyof typeof LANGUAGE_INFO;

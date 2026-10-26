@@ -59,7 +59,7 @@ describe('validateSessionRequest', () => {
             'invalid_snapshot',
         ],
         ['an exercise with an unknown card type', { snapshot: snapshot({ exercises: [exercise({ type: 'X' })], answers: [null], current: 0 }) }, 'invalid_snapshot'],
-        ['an exercise with an unknown language', { snapshot: snapshot({ exercises: [exercise({ prompt: { language: 'French' } })], answers: [null], current: 0 }) }, 'invalid_snapshot'],
+        ['an exercise with an unknown language', { snapshot: snapshot({ exercises: [exercise({ prompt: { language: 'Klingon' } })], answers: [null], current: 0 }) }, 'invalid_snapshot'],
         ['an exercise that is not an object', { snapshot: snapshot({ exercises: ['x'], answers: [null], current: 0 }) }, 'invalid_snapshot'],
         ['answers of another length', { snapshot: snapshot({ answers: [null] }) }, 'invalid_snapshot'],
         ['an answer with an unknown result', { snapshot: snapshot({ answers: [{ result: 'maybe' }, null, null] }) }, 'invalid_snapshot'],

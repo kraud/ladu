@@ -38,6 +38,7 @@ export const UI_LANGUAGES: readonly UiLanguage[] = [
     { key: 'ES', label: 'Spanish', native: 'Español', i18n: 'es', flag: '/ES.svg' },
     { key: 'DE', label: 'German', native: 'Deutsch', i18n: 'de', flag: '/DE.svg' },
     { key: 'EE', label: 'Estonian', native: 'Eesti', i18n: 'ee', flag: '/EE.svg' },
+    { key: 'FR', label: 'French', native: 'Français', i18n: 'fr', flag: '/FR.svg' },
 ] as const;
 
 /** The four supported language labels, in display order (`Lang` enum values). */
@@ -78,6 +79,7 @@ const TINT_VAR_BY_KEY: Record<LangKey, string> = {
     ES: '--lang-es',
     DE: '--lang-de',
     EE: '--lang-ee',
+    FR: '--lang-fr',
 };
 
 export function langTint(keyOrLabel: string): string {

@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { Lang, PartOfSpeech } from '@/ts/enums';
 import { isStoredCheckbox, matchesVisibility, type FieldConfig } from './types';
 import { getFormConfig } from './index';
+import { LANG_SUFFIX } from '@/lib/language';
 
 /** Field names that would actually render given these sibling values — the same filter `FieldRenderer` applies via `visibleWhen`. */
 function visibleNames(fields: FieldConfig[], values: Record<string, unknown>): string[] {
@@ -93,11 +94,10 @@ describe('getFormConfig(Adverb, lang) — old field-list parity', () => {
     });
 
     it('every field.caseName is field.name + the language suffix', () => {
-        const suffixes: Record<Lang, string> = { [Lang.EN]: 'EN', [Lang.ES]: 'ES', [Lang.DE]: 'DE', [Lang.EE]: 'EE' };
         for (const lang of [Lang.EN, Lang.ES, Lang.DE, Lang.EE]) {
             const config = getFormConfig(PartOfSpeech.adverb, lang)!;
             for (const field of config.fields) {
-                expect(field.caseName).toBe(`${field.name}${suffixes[lang]}`);
+                expect(field.caseName).toBe(`${field.name}${LANG_SUFFIX[lang]}`);
             }
         }
     });

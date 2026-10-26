@@ -30,8 +30,9 @@ const verbGroupedCategoriesMultiLanguage = MULTI_LANGUAGE.Verb;
 const nounGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Noun;
 const verbGroupedCategoriesSingleLanguage = SINGLE_LANGUAGE.Verb;
 
-// The languages currently supported by the app (the table in lib/languages.ts).
-const { LANGUAGE_NAMES: LANGUAGES } = require('../../lib/languages');
+// The languages with exercises. French joins with its noun forms (language-french.md, slice 4):
+// then use `LANGUAGE_NAMES` from lib/languages.ts again.
+const LANGUAGES = ['English', 'Spanish', 'German', 'Estonian'];
 
 /**
  * Recursively walk a nested object and collect every "leaf" node.

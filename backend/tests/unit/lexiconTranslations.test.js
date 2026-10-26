@@ -32,7 +32,7 @@ describe('translationRows', () => {
         translations: [
             { lang: 'et', word: 'järv', sense: 'body of water' },
             { lang: 'de', word: 'See', tags: ['masculine'], sense: 'body of water' },
-            { lang: 'fr', word: 'lac', tags: ['masculine'], sense: 'body of water' },
+            { lang: 'it', word: 'lago', tags: ['masculine'], sense: 'body of water' },
             { lang: 'es', word: 'lago', tags: ['masculine'], sense: 'body of water' },
             { lang: 'es', word: 'lago', tags: ['masculine'], sense: 'body of water' },
             { lang: 'de', word: 'Lack', tags: ['masculine'], sense: 'a coloring agent' },
@@ -40,7 +40,7 @@ describe('translationRows', () => {
         ],
     };
 
-    it('one row per target word: only es / de / et, duplicates once, senses numbered in order', () => {
+    it('one row per target word: only the target languages (not Italian), duplicates once, senses numbered in order', () => {
         const rows = translationRows(lake, 2);
         expect(rows.map((r) => [r.senseOrder, r.language, r.word, r.gender])).toEqual([
             [0, 'Estonian', 'järv', null],
@@ -68,7 +68,7 @@ describe('translationRows', () => {
 
     it('a sense label used only by a skipped language still takes its number', () => {
         const rows = translationRows({ word: 'x', pos: 'noun', translations: [
-            { lang: 'fr', word: 'y', sense: 'first' },
+            { lang: 'it', word: 'y', sense: 'first' },
             { lang: 'de', word: 'Z', tags: ['neuter'], sense: 'second' },
         ] }, 0);
         expect(rows.map((r) => [r.sense, r.senseOrder])).toEqual([['second', 1]]);

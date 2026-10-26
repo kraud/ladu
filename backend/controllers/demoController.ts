@@ -26,7 +26,8 @@ const { withStatus }: typeof import("../lib/adminRequest") = require("../lib/adm
 const { serializeLoginUser, isSupportedLanguage, normalizeLanguageSelection, parseThemeInput }: typeof import("./userController") =
   require("./userController");
 
-const { LANGUAGE_NAMES: ALL_LANGUAGES }: typeof import("../lib/languages") = require("../lib/languages");
+// The languages a demo account gets. French joins when the demo template has French words (language-french.md, slice 11).
+const ALL_LANGUAGES = ["English", "Spanish", "German", "Estonian"];
 /** Any fixed number: it only has to be the same for every demo start. */
 const DEMO_START_LOCK = 734001;
 

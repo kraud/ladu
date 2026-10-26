@@ -766,14 +766,14 @@ describe('translate (Slice F: GET /api/dictionary/translate/:fromLanguage/:partO
     });
     afterEach(() => { global.fetch = originalFetch; });
 
-    it('from English: the senses in Wiktionary order, each with all four languages and the noun gender', async () => {
+    it('from English: the senses in Wiktionary order, each with all five languages (French is empty) and the noun gender', async () => {
         const res = await translate('English/Noun/lake');
         expect(res.statusCode).toBe(200);
         expect(res.body.senses.map((s) => s.sense)).toEqual(['body of water', 'a kind of coloring agent']);
         const [water] = res.body.senses;
         expect(water.english).toBe('lake');
         expect(Object.fromEntries(Object.entries(water.words).map(([language, list]) => [language, words(list)]))).toEqual({
-            English: ['lake'], Spanish: ['el lago'], German: ['der See'], Estonian: ['järv'],
+            English: ['lake'], Spanish: ['el lago'], German: ['der See'], Estonian: ['järv'], French: [],
         });
         // Some sense has an Estonian word: Ekilex is not asked.
         expect(res.body.ekilex).toBeUndefined();
@@ -1002,11 +1002,11 @@ describe('one sense with its words (Slice G, G2: GET /api/dictionary/translate/s
         expect(res.body.ekilex).toBeUndefined();
     });
 
-    it('only the asked languages come back; with no languages given, all four', async () => {
+    it('only the asked languages come back; with no languages given, all five (French has no words yet)', async () => {
         const some = await sense('Noun', 'english=lake&entry=0&sense=0&languages=German,English');
         expect(Object.keys(some.body.sense.words).sort()).toEqual(['English', 'German']);
         const all = await sense('Noun', 'english=lake&entry=0&sense=0');
-        expect(Object.keys(all.body.sense.words).sort()).toEqual(['English', 'Estonian', 'German', 'Spanish']);
+        expect(Object.keys(all.body.sense.words).sort()).toEqual(['English', 'Estonian', 'French', 'German', 'Spanish']);
     });
 
     it('words keep their listed order (the common one first)', async () => {
